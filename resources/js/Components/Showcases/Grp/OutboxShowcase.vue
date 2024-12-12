@@ -12,11 +12,6 @@ const props = defineProps<{
    data : any
 }>()
 
-
-
-
-console.log('ddf',props.data)
-
 </script>
 
 

@@ -8,6 +8,7 @@
 
 namespace App\Transfers\Aurora;
 
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Models\Helpers\Address;
 use Illuminate\Support\Facades\DB;
@@ -16,11 +17,17 @@ class FetchAuroraDeliveryNote extends FetchAurora
 {
     protected function parseModel(): void
     {
+
         if (!$this->auroraModelData->{'Delivery Note Order Key'}) {
             print "Warning delivery without order ".$this->auroraModelData->{'Delivery Note Key'}."  \n";
-
             return;
         }
+
+        $shop = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Delivery Note Store Key'});
+        if ($shop->type == ShopTypeEnum::FULFILMENT) {
+            return;
+        }
+
 
         $order     = $this->parseOrder($this->organisation->id.':'.$this->auroraModelData->{'Delivery Note Order Key'});
 

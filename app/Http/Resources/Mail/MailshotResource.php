@@ -8,9 +8,11 @@
 
 namespace App\Http\Resources\Mail;
 
+use App\Enums\Comms\Mailshot\MailshotStateEnum;
 use App\Http\Resources\HasSelfCall;
 use App\Models\Comms\Mailshot;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class MailshotResource extends JsonResource
@@ -22,53 +24,82 @@ class MailshotResource extends JsonResource
         /** @var Mailshot $mailshot */
         $mailshot = $this;
 
-        $timelines    = [];
-        $timelineData = ['created_at', 'scheduled_at', 'ready_at', 'start_sending_at', 'sent_at', 'cancelled_at', 'stopped_at'];
+        // $timelines    = [];
+        // $timelineData = ['created_at', 'scheduled_at', 'ready_at', 'start_sending_at', 'sent_at', 'cancelled_at', 'stopped_at'];
 
-        foreach ($timelineData as $timeline) {
-            $timelineKey = match ($timeline) {
-                'start_sending_at' => Str::replace('_at', '', 'sending_at'),
-                default            => Str::replace('_at', '', $timeline),
-            };
+        // foreach ($timelineData as $timeline) {
+        //     $timelineKey = match ($timeline) {
+        //         'start_sending_at' => Str::replace('_at', '', 'sending_at'),
+        //         default            => Str::replace('_at', '', $timeline),
+        //     };
 
-            $timelines[] = [
-                'label'     => 'Mailshot '.$timelineKey,
-                'icon'      => $timeline == 'created_at' ? 'fal fa-sparkles' : $mailshot->state->stateIcon()[$timelineKey]['icon'],
-                //                'timestamp'  => $mailshot->{$timeline} ? $mailshot->{$timeline}->toISOString() : null
-                'timestamp' => null
+        //     $timelines[] = [
+        //         'label'     => 'Mailshot '.$timelineKey,
+        //         'icon'      => $timeline == 'created_at' ? 'fal fa-sparkles' : $mailshot->state->stateIcon()[$timelineKey]['icon'],
+        //         //                'timestamp'  => $mailshot->{$timeline} ? $mailshot->{$timeline}->toISOString() : null
+        //         'timestamp' => null
+        //     ];
+        // }
+
+        // $sortedTimeline = collect($timelines)->sortBy(function ($value, $key) {
+        //     return $key;
+        // })->toArray();
+
+        // $newTimeline = [
+        //     [
+        //         'label'     => __('Mailshot created'),
+        //         'icon'      => $mailshot->state->stateIcon()['in-process']['icon'],
+        //         'timestamp' => $mailshot->created_at ?? null,
+        //         'current'   => isset($mailshot->created_at),
+        //     ],
+        //     [
+        //         'label'     => __('Mailshot composed'),
+        //         'icon'      => $mailshot->state->stateIcon()['ready']['icon'],
+        //         'timestamp' => $mailshot->ready_at ?? $mailshot->start_sending_at ?? null,
+        //         'current'   => isset($mailshot->ready_at),
+        //     ],
+        //     [
+        //         'label'     => __('Start send'),
+        //         'icon'      => $mailshot->state->stateIcon()['sending']['icon'],
+        //         'timestamp' => $mailshot->start_sending_at ?? null,
+        //         'current'   => isset($mailshot->start_sending_at),
+        //     ],
+        //     [
+        //         'label'     => __('Sent'),
+        //         'icon'      => $mailshot->state->stateIcon()['sent']['icon'],
+        //         'timestamp' => $mailshot->sent_at ?? null,
+        //         'current'   => isset($mailshot->sent_at),
+        //     ],
+        // ];
+
+        $timeline = [];
+        foreach (MailshotStateEnum::cases() as $state) {
+            if ($state === MailshotStateEnum::IN_PROCESS) {
+                $timestamp = $mailshot->created_at;
+            } else {
+                $timestamp = $mailshot->{$state->snake().'_at'} ? $mailshot->{$state->snake().'_at'} : null;
+            }
+
+            // If all possible values are null, set the timestamp to null explicitly
+            $timestamp = $timestamp ?: null;
+
+            $timeline[$state->value] = [
+                'label'     => $state->labels()[$state->value],
+                'tooltip'   => $state->labels()[$state->value],
+                'key'       => $state->value,
+                'icon'      => $mailshot->state->stateIcon()[$state->value]['icon'],
+                'timestamp' => $timestamp
             ];
         }
 
-        $sortedTimeline = collect($timelines)->sortBy(function ($value, $key) {
-            return $key;
-        })->toArray();
-
-        $newTimeline = [
+        $finalTimeline = Arr::except(
+            $timeline,
             [
-                'label'     => __('Mailshot created'),
-                'icon'      => $mailshot->state->stateIcon()['in-process']['icon'],
-                'timestamp' => $mailshot->created_at ?? null,
-                'current'   => isset($mailshot->created_at),
-            ],
-            [
-                'label'     => __('Mailshot composed'),
-                'icon'      => $mailshot->state->stateIcon()['ready']['icon'],
-                'timestamp' => $mailshot->ready_at ?? $mailshot->start_sending_at ?? null,
-                'current'   => isset($mailshot->ready_at),
-            ],
-            [
-                'label'     => __('Start send'),
-                'icon'      => $mailshot->state->stateIcon()['sending']['icon'],
-                'timestamp' => $mailshot->start_sending_at ?? null,
-                'current'   => isset($mailshot->start_sending_at),
-            ],
-            [
-                'label'     => __('Sent'),
-                'icon'      => $mailshot->state->stateIcon()['sent']['icon'],
-                'timestamp' => $mailshot->sent_at ?? null,
-                'current'   => isset($mailshot->sent_at),
-            ],
-        ];
+                $mailshot->state->value == MailshotStateEnum::CANCELLED->value
+                    ? MailshotStateEnum::STOPPED->value
+                    : MailshotStateEnum::CANCELLED->value
+            ]
+        );
 
 
         $newStats = [
@@ -144,7 +175,6 @@ class MailshotResource extends JsonResource
             ],
         ];
 
-
         return [
             'id'                  => $mailshot->id,
             'slug'                => $mailshot->slug,
@@ -162,7 +192,7 @@ class MailshotResource extends JsonResource
             'date'                => $mailshot->date,
             'created_at'          => $mailshot->created_at,
             'updated_at'          => $mailshot->updated_at,
-            'timeline'            => $newTimeline,
+            'timeline'            => $finalTimeline,
             'is_layout_blank'     => blank($mailshot->layout),
             'outbox_id'           => $mailshot->outbox_id,
             'layout'              => $mailshot->email->snapshot->layout ?? null

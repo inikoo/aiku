@@ -23,16 +23,16 @@ class FetchAuroraInvoices extends FetchAuroraAction
 {
     use WithAuroraParsers;
 
-    public string $commandSignature = 'fetch:invoices {organisations?*} {--s|source_id=} {--S|shop= : Shop slug}  {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:invoices {organisations?*} {--s|source_id=} {--S|shop= : Shop slug}  {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions payments full} {--d|db_suffix=} {--r|reset}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId, bool $forceWithTransactions = false): ?Invoice
     {
         $doTransactions = false;
-        if (in_array('transactions', $this->with) or $forceWithTransactions) {
+        if (in_array('transactions', $this->with) or $forceWithTransactions or in_array('full', $this->with)) {
             $doTransactions = true;
         }
 
-        $invoiceData = $organisationSource->fetchInvoice($organisationSourceId, $doTransactions);
+        $invoiceData = $organisationSource->fetchInvoice($organisationSourceId);
         if (!$invoiceData) {
             return null;
         }

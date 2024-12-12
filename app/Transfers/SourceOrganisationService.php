@@ -63,7 +63,7 @@ interface SourceOrganisationService
 
     public function fetchDeliveryNote($id);
 
-    public function fetchInvoice($id, $forceWithTransactions = true);
+    public function fetchInvoice($id);
 
     public function fetchWarehouse($id);
 

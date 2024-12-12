@@ -94,8 +94,7 @@ const useFormatTime = (dateIso: string | Date, OptionsTime?: OptionsTime) => {
                             v-tooltip="step.label"
                             class="z-20 aspect-square mx-auto rounded-full text-lg flex justify-center items-center"
                             :class="[
-                                setupState(step) ? 'text-green-600 bg-[#66dc71]' : 'border border-gray-300 text-gray-400 bg-white',
-                                step.icon ? 'h-9' : 'h-3'
+                                setupState(step) ? 'text-green-600 bg-[#66dc71] h-3' : 'border border-gray-300 text-gray-400 bg-white h-3'
                             ]"
                         >
                         </div>

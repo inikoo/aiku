@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraInvoice extends FetchAurora
 {
-    protected function parseInvoiceModel($forceWithTransactions): void
+    protected function parseInvoiceModel(): void
     {
         $shop = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Invoice Store Key'});
 
@@ -32,15 +32,7 @@ class FetchAuroraInvoice extends FetchAurora
                 return;
             }
 
-
-            $order = $this->parseOrder($this->organisation->id.':'.$this->auroraModelData->{'Invoice Order Key'}, forceTransactions: $forceWithTransactions);
-
-
-            if (!$order) {
-                $this->parsedData['parent'] = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Invoice Customer Key'});
-            } else {
-                $this->parsedData['parent'] = $order;
-            }
+            $this->parsedData['parent'] = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Invoice Customer Key'});
         } else {
             $this->parsedData['parent'] = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Invoice Customer Key'});
         }
@@ -120,12 +112,12 @@ class FetchAuroraInvoice extends FetchAurora
             ->where('Invoice Key', $id)->first();
     }
 
-    public function fetchInvoice(int $id, bool $forceWithTransactions = true): ?array
+    public function fetchInvoice(int $id): ?array
     {
         $this->auroraModelData = $this->fetchData($id);
 
         if ($this->auroraModelData) {
-            $this->parseInvoiceModel($forceWithTransactions);
+            $this->parseInvoiceModel();
         }
 
         return $this->parsedData;

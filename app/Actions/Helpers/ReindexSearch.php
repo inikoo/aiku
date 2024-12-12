@@ -234,7 +234,7 @@ class ReindexSearch extends HydrateModel
         }
     }
 
-    public function reindexDiscount(): void
+    public function reindexDiscounts(): void
     {
         foreach (Offer::withTrashed()->get() as $model) {
             ReindexOfferSearch::run($model);
@@ -285,13 +285,16 @@ class ReindexSearch extends HydrateModel
         $command->line('Website');
         $command->call('website:search');
 
+        $command->line('Discounts');
+        $command->call('offer:search');
+
         # new
 
         $command->line('Inventory');
         $command->call('org_stock_family:search');
         $command->call('org_stock:search');
 
-        $command->line('Infrasturcture');
+        $command->line('Infrastructure');
         $command->call('warehouse:search');
         $command->call('warehouse_area:search');
 
