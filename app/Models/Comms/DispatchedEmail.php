@@ -10,7 +10,6 @@ namespace App\Models\Comms;
 
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailProviderEnum;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
-use App\Enums\Comms\DispatchedEmail\DispatchedEmailTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\Traits\InShop;
@@ -32,7 +31,6 @@ use Illuminate\Support\Facades\Auth;
  * @property string $parent_type MailShot|EmailBulkRun|EmailOngoingRun
  * @property int $parent_id
  * @property int|null $email_address_id
- * @property DispatchedEmailTypeEnum $type
  * @property DispatchedEmailProviderEnum $provider
  * @property string|null $provider_dispatch_id
  * @property string|null $recipient_type
@@ -76,7 +74,6 @@ class DispatchedEmail extends Model
     protected $casts = [
         'data'             => 'array',
         'state'            => DispatchedEmailStateEnum::class,
-        'type'             => DispatchedEmailTypeEnum::class,
         'provider'         => DispatchedEmailProviderEnum::class,
         'sent_at'          => 'datetime',
         'first_read_at'    => 'datetime',

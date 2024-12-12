@@ -26,6 +26,7 @@ return new class () extends Migration {
             $table->foreign('outbox_id')->references('id')->on('outboxes');
             $table->unsignedInteger('email_id')->nullable()->index();
             $table->foreign('email_id')->references('id')->on('emails');
+            $table->string('code')->index();
             $table->string('type')->index();
             $table->string('status')->default(EmailOngoingRunStatusEnum::IN_PROCESS)->index();
             $table->jsonb('data');

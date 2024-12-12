@@ -174,6 +174,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Outbox> $outboxes
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
  * @property-read LaravelCollection<int, Payment> $payments
+ * @property-read LaravelCollection<int, Picking> $pickings
  * @property-read LaravelCollection<int, Poll> $polls
  * @property-read LaravelCollection<int, Portfolio> $portfolios
  * @property-read LaravelCollection<int, \App\Models\Catalogue\ProductCategory> $productCategories

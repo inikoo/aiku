@@ -12,7 +12,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunStatusEnum;
-use App\Models\Comms\EmailBulkRun;
 use App\Models\Comms\EmailOngoingRun;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -41,8 +40,9 @@ class UpdateEmailOngoingRun extends OrgAction
     {
         $rules = [
             'subject'  => ['sometimes', 'required', 'string', 'max:255'],
-            'status'   => ['required', Rule::enum(EmailOngoingRunStatusEnum::class)],
+            'status'   => ['sometimes', 'required', Rule::enum(EmailOngoingRunStatusEnum::class)],
             'email_id' => [
+                'sometimes',
                 'required',
                 Rule::exists('emails', 'id')->where(function ($query) {
                     $query->where('shop_id', $this->shop->id);
@@ -51,7 +51,8 @@ class UpdateEmailOngoingRun extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules = $this->noStrictUpdateRules($rules);
+            $rules['fetched_at'] = ['sometimes', 'nullable', 'date'];
+            $rules               = $this->noStrictUpdateRules($rules);
         }
 
         return $rules;
@@ -67,7 +68,7 @@ class UpdateEmailOngoingRun extends OrgAction
         return $this->handle($emailOngoingRun, $this->validatedData);
     }
 
-    public function asController(EmailBulkRun $emailOngoingRun, ActionRequest $request): EmailOngoingRun
+    public function asController(EmailOngoingRun $emailOngoingRun, ActionRequest $request): EmailOngoingRun
     {
         $this->initialisationFromShop($emailOngoingRun->shop, $request);
 

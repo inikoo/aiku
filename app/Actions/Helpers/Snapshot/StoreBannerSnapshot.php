@@ -34,6 +34,7 @@ class StoreBannerSnapshot extends OrgAction
                 )
             )
         );
+        data_set($modelData, 'group_id', $banner->group_id);
 
         data_set($modelData, 'scope', 'banner');
 

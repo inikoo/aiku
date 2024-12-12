@@ -35,6 +35,7 @@ class StoreEmailSnapshot extends OrgAction
                 )
             )
         );
+        data_set($modelData, 'group_id', $email->group_id);
 
         /** @var Snapshot $snapshot */
         $snapshot = $email->snapshots()->create($modelData);
@@ -62,10 +63,12 @@ class StoreEmailSnapshot extends OrgAction
             $rules['layout']          = ['required', 'array'];
             $rules['compiled_layout'] = ['nullable', 'string'];
             $rules['state']           = ['sometimes', 'required', Rule::enum(SnapshotStateEnum::class)];
-            $rules['published_at']    = ['sometimes', 'required',  'date'];
+            $rules['published_at']    = ['sometimes', 'required', 'date'];
             $rules['recyclable']      = ['sometimes', 'required', 'boolean'];
             $rules['first_commit']    = ['sometimes', 'required', 'boolean'];
             $rules                    = $this->noStrictStoreRules($rules);
+
+
         }
 
         return $rules;

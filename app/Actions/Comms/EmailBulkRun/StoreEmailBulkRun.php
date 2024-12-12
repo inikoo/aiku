@@ -14,7 +14,7 @@ use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Comms\EmailBulkRun\EmailBulkRunTypeEnum;
 use App\Enums\Comms\EmailBulkRun\EmailBulkRunStateEnum;
 use App\Models\Comms\EmailBulkRun;
-use App\Models\Comms\Outbox;
+use App\Models\Comms\EmailOngoingRun;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -27,19 +27,25 @@ class StoreEmailBulkRun extends OrgAction
     use WithAttributes;
     use WithNoStrictRules;
 
+
+    private EmailOngoingRun $emailOngoingRun;
+
     /**
      * @throws \Throwable
      */
-    public function handle(Outbox $outbox, array $modelData): EmailBulkRun
+    public function handle(EmailOngoingRun $emailOngoingRun, array $modelData): EmailBulkRun
     {
-        data_set($modelData, 'group_id', $outbox->group_id);
-        data_set($modelData, 'organisation_id', $outbox->organisation_id);
-        data_set($modelData, 'shop_id', $outbox->shop_id);
+        data_set($modelData, 'group_id', $emailOngoingRun->group_id);
+        data_set($modelData, 'organisation_id', $emailOngoingRun->organisation_id);
+        data_set($modelData, 'shop_id', $emailOngoingRun->shop_id);
+        data_set($modelData, 'outbox_id', $emailOngoingRun->outbox_id);
+        data_set($modelData, 'email_id', $emailOngoingRun->email_id);
+        data_set($modelData, 'snapshot_id', $emailOngoingRun->email->snapshot_id, overwrite: false);
 
 
-        $emailBulkRun = DB::transaction(function () use ($outbox, $modelData) {
+        $emailBulkRun = DB::transaction(function () use ($emailOngoingRun, $modelData) {
             /** @var EmailBulkRun $emailRun */
-            $emailRun = $outbox->emailBulkRuns()->create($modelData);
+            $emailRun = $emailOngoingRun->emailBulkRuns()->create($modelData);
             $emailRun->stats()->create();
             $emailRun->intervals()->create();
 
@@ -47,7 +53,7 @@ class StoreEmailBulkRun extends OrgAction
         });
 
 
-        OutboxHydrateEmailBulkRuns::dispatch($outbox)->delay($this->hydratorsDelay);
+        OutboxHydrateEmailBulkRuns::dispatch($emailOngoingRun)->delay($this->hydratorsDelay);
 
         return $emailBulkRun;
     }
@@ -57,6 +63,7 @@ class StoreEmailBulkRun extends OrgAction
         if ($this->asAction) {
             return true;
         }
+
         return false;
     }
 
@@ -64,9 +71,9 @@ class StoreEmailBulkRun extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'subject'           => ['required', 'string', 'max:255'],
-            'type'              => ['sometimes', 'required', Rule::enum(EmailBulkRunTypeEnum::class)],
-            'state'             => ['required', Rule::enum(EmailBulkRunStateEnum::class)],
+            'subject' => ['required', 'string', 'max:255'],
+            'type'    => ['sometimes', 'required', Rule::enum(EmailBulkRunTypeEnum::class)],
+            'state'   => ['required', Rule::enum(EmailBulkRunStateEnum::class)],
         ];
 
         if (!$this->strict) {
@@ -74,6 +81,13 @@ class StoreEmailBulkRun extends OrgAction
             $rules['start_sending_at'] = ['nullable', 'date'];
             $rules['sent_at']          = ['nullable', 'date'];
             $rules['stopped_at']       = ['nullable', 'date'];
+            $rules['snapshot_id']      = [
+                'sometimes',
+                'required',
+                Rule::exists('snapshots', 'id')
+                    ->where('parent_type', 'Email')
+                    ->where('parent_id', $this->emailOngoingRun->email_id)
+            ];
 
 
             $rules = $this->noStrictStoreRules($rules);
@@ -86,18 +100,16 @@ class StoreEmailBulkRun extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function action(Outbox $outbox, array $modelData, int $hydratorsDelay = 0, bool $strict = true): EmailBulkRun
+    public function action(EmailOngoingRun $emailOngoingRun, array $modelData, int $hydratorsDelay = 0, bool $strict = true): EmailBulkRun
     {
-
-
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
 
+        $this->emailOngoingRun = $emailOngoingRun;
+        $this->initialisationFromShop($emailOngoingRun->shop, $modelData);
 
-        $this->initialisationFromShop($outbox->shop, $modelData);
-
-        return $this->handle($outbox, $this->validatedData);
+        return $this->handle($emailOngoingRun, $this->validatedData);
     }
 
 

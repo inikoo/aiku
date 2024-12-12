@@ -48,6 +48,14 @@ class StoreEmail extends OrgAction
                 'first_commit'    => Arr::pull($modelData, 'snapshot_first_commit'),
             ];
 
+            if (Arr::has($modelData, 'source_id')) {
+                $snapshotData['source_id'] = Arr::pull($modelData, 'snapshot_source_id');
+            }
+
+            if (Arr::has($modelData, 'fetched_at')) {
+                $snapshotData['fetched_at'] = Arr::get($modelData, 'fetched_at');
+            }
+
             if ($publishedAt = Arr::pull($modelData, 'snapshot_published_at')) {
                 $snapshotData['published_at'] = $publishedAt;
             }
@@ -72,6 +80,7 @@ class StoreEmail extends OrgAction
         return DB::transaction(function () use ($parent, $modelData, $snapshotData) {
             /** @var Email $email */
             $email = $parent->email()->create($modelData);
+
 
             if ($snapshotData) {
                 $snapshot = StoreEmailSnapshot::make()->action(
@@ -108,11 +117,13 @@ class StoreEmail extends OrgAction
         if (!$this->strict) {
             $rules['builder']               = ['sometimes', 'required', Rule::enum(EmailBuilderEnum::class)];
             $rules['layout']                = ['sometimes', 'required', 'array'];
-            $rules['compiled_layout']       = ['sometimes', 'string'];
+            $rules['compiled_layout']       = ['sometimes', 'nullable', 'string'];
             $rules['snapshot_state']        = ['sometimes', 'required', Rule::enum(SnapshotStateEnum::class)];
-            $rules['snapshot_published_at'] = ['sometimes', 'required', 'date'];
+            $rules['snapshot_published_at'] = ['sometimes', 'nullable', 'date'];
             $rules['snapshot_recyclable']   = ['sometimes', 'required', 'boolean'];
             $rules['snapshot_first_commit'] = ['sometimes', 'required', 'boolean'];
+            $rules['snapshot_source_id']    = ['sometimes', 'required', 'string'];
+
 
             $rules = $this->noStrictStoreRules($rules);
         }

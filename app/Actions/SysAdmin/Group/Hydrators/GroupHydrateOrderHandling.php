@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 11-12-2024-14h-28m
@@ -9,14 +10,11 @@
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Discounts\Offer\OfferStateEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatching\Packing\PackingStateEnum;
 use App\Enums\Dispatching\Picking\PickingStateEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
-use App\Models\Discounts\Offer;
 use App\Models\SysAdmin\Group;
-use App\Models\SysAdmin\Organisation;
 use Carbon\Carbon;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -120,12 +118,12 @@ class GroupHydrateOrderHandling
             'number_items_delivery_notes_dispatched_today'    => $group->deliveryNotes()->whereDate('dispatched_at', Carbon::today())->with('deliveryNoteItems')
                                                                                             ->get()
                                                                                             ->sum(fn ($deliveryNote) => $deliveryNote->deliveryNoteItems->count()),
-            
+
             'number_pickings_state_queued'              => $group->pickings()->where('state', PickingStateEnum::QUEUED)->count(),
             'number_pickings_state_picking'             => $group->pickings()->where('state', PickingStateEnum::PICKING)->count(),
             'number_pickings_state_picking_blocked'     => $group->pickings()->where('state', PickingStateEnum::PICKING_BLOCKED)->count(),
             'number_pickings_done_today'                => $group->pickings()->whereDate('done_at', Carbon::today())->count(),
-            
+
             'number_packings_state_queued'              => $group->packings()->where('state', PackingStateEnum::QUEUED)->count(),
             'number_packings_state_packing'             => $group->packings()->where('state', PackingStateEnum::PACKING)->count(),
             'number_packings_state_packing_blocked'     => $group->packings()->where('state', PackingStateEnum::PACKING_BLOCKED)->count(),

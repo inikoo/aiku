@@ -15,7 +15,6 @@ use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
 use App\Enums\Comms\Mailshot\MailshotTypeEnum;
-use App\Models\Catalogue\Shop;
 use App\Models\Comms\Mailshot;
 use App\Models\Comms\Outbox;
 use Illuminate\Support\Facades\DB;
@@ -36,29 +35,23 @@ class StoreMailshot extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function handle(Outbox|Shop $parent, array $modelData): Mailshot
+    public function handle(Outbox $outbox, array $modelData): Mailshot
     {
         data_set($modelData, 'date', now(), overwrite: false);
-        data_set($modelData, 'group_id', $parent->group_id);
-        data_set($modelData, 'organisation_id', $parent->organisation_id);
-        if ($parent instanceof Outbox) {
-            data_set($modelData, 'shop_id', $parent->shop_id);
-        } else {
-            data_set($modelData, 'shop_id', $parent->id);
-        }
+        data_set($modelData, 'group_id', $outbox->group_id);
+        data_set($modelData, 'organisation_id', $outbox->organisation_id);
+        data_set($modelData, 'shop_id', $outbox->shop_id);
 
 
-        $mailshot = DB::transaction(function () use ($parent, $modelData) {
+        $mailshot = DB::transaction(function () use ($outbox, $modelData) {
             /** @var Mailshot $mailshot */
-            $mailshot = $parent->mailshots()->create($modelData);
+            $mailshot = $outbox->mailshots()->create($modelData);
             $mailshot->stats()->create();
 
             return $mailshot;
         });
 
-        if ($parent instanceof Outbox) {
-            OutboxHydrateMailshots::dispatch($parent)->delay($this->hydratorsDelay);
-        }
+        OutboxHydrateMailshots::dispatch($outbox)->delay($this->hydratorsDelay);
 
         return $mailshot;
     }
@@ -70,13 +63,10 @@ class StoreMailshot extends OrgAction
         }
 
         //todo
-        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+        return false;
     }
 
-    // public function afterValidator($validator)
-    // {
-    //     dd($validator);
-    // }
+
 
     public function rules(): array
     {
@@ -95,6 +85,7 @@ class StoreMailshot extends OrgAction
             $rules['start_sending_at'] = ['nullable', 'date'];
             $rules['sent_at']          = ['nullable', 'date'];
             $rules['stopped_at']       = ['nullable', 'date'];
+            $rules['source_alt_id']  = ['sometimes', 'string', 'max:255'];
 
 
             $rules = $this->noStrictStoreRules($rules);
@@ -107,37 +98,27 @@ class StoreMailshot extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function action(Outbox|Shop $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Mailshot
+    public function action(Outbox $outbox, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Mailshot
     {
         if (!$audit) {
             Mailshot::disableAuditing();
         }
-        if ($parent instanceof Outbox) {
-            $shop = $parent->shop;
-        } else {
-            $shop = $parent;
-        }
+
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
 
 
-        $this->initialisationFromShop($shop, $modelData);
+        $this->initialisationFromShop($outbox->shop, $modelData);
 
-        return $this->handle($parent, $this->validatedData);
+        return $this->handle($outbox, $this->validatedData);
     }
+
 
     /**
      * @throws \Throwable
      */
-    public function asController(Shop $shop, ActionRequest $request): Mailshot
-    {
-        $this->initialisationFromShop($shop, $request);
-
-        return $this->handle($shop, $this->validatedData);
-    }
-
-    public function inOutbox(Outbox $outbox, ActionRequest $request): Mailshot
+    public function asController(Outbox $outbox, ActionRequest $request): Mailshot
     {
         $this->initialisationFromShop($outbox->shop, $request);
 

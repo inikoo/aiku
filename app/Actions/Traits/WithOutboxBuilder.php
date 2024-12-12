@@ -48,7 +48,12 @@ trait WithOutboxBuilder
     {
         if ($outbox->model_type == 'EmailOngoingRun') {
             if (!$outbox->emailOngoingRun) {
-                $emailOngoingRun = StoreEmailOngoingRun::make()->action($outbox, []);
+                $emailOngoingRun = StoreEmailOngoingRun::make()->action(
+                    $outbox,
+                    [
+                        'type' => $case->emailOngoingRunType(),
+                    ]
+                );
             } else {
                 $emailOngoingRun = $outbox->emailOngoingRun;
             }

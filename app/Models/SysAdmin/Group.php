@@ -177,9 +177,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Organisation> $organisations
  * @property-read LaravelCollection<int, ModelSubscribedToOutbox> $outboxSubscribers
  * @property-read LaravelCollection<int, Outbox> $outboxes
+ * @property-read LaravelCollection<int, Packing> $packings
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
  * @property-read LaravelCollection<int, PaymentServiceProvider> $paymentServiceProviders
  * @property-read LaravelCollection<int, Payment> $payments
+ * @property-read LaravelCollection<int, Picking> $pickings
  * @property-read LaravelCollection<int, Platform> $platforms
  * @property-read LaravelCollection<int, Portfolio> $portfolios
  * @property-read LaravelCollection<int, PostRoom> $postRooms
