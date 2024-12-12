@@ -83,6 +83,10 @@ class ShowOutbox extends OrgAction
 
     public function htmlResponse(Outbox $outbox, ActionRequest $request): Response
     {
+        $navigation = OutboxTabsEnum::navigation();
+        if (!$outbox->model_type != 'Mailshot') {
+            unset($navigation[OutboxTabsEnum::MAILSHOTS->value]);
+        }
 
         if ($outbox->state == OutboxStateEnum::IN_PROCESS) {
 
@@ -110,7 +114,7 @@ class ShowOutbox extends OrgAction
                     ],
                     'tabs'        => [
                         'current'    => $this->tab,
-                        'navigation' => OutboxTabsEnum::navigation()
+                        'navigation' => $navigation
                     ],
 
 
