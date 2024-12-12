@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 12-12-2024-16h-41m
@@ -9,14 +10,12 @@
 namespace App\Actions\Comms\EmailBulkRun\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Http\Resources\Mail\EmailBulkRunsResource;
 use App\Http\Resources\Mail\MailshotResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\EmailBulkRun;
 use App\Models\Comms\Mailshot;
-use App\Models\Comms\OrgPostRoom;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
 use App\Models\SysAdmin\Organisation;
@@ -31,7 +30,6 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexEmailBulkRuns extends OrgAction
 {
-
     private Organisation|Shop|Outbox $parent;
 
     public function handle(Organisation|Shop|Outbox $parent, $prefix = null): LengthAwarePaginator
@@ -51,7 +49,7 @@ class IndexEmailBulkRuns extends OrgAction
 
         if ($parent instanceof Outbox) {
             $queryBuilder->where('email_bulk_runs.outbox_id', $parent->id);
-        } elseif($parent instanceof Shop) {
+        } elseif ($parent instanceof Shop) {
             $queryBuilder->where('email_bulk_runs.shop_id', $parent->id);
         } else {
             $queryBuilder->where('email_bulk_runs.organisation_id', $parent->id);

@@ -20,7 +20,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_unsubscribed
  * @property int $number_mailshots
  * @property int $number_email_bulk_runs
- * @property int $number_email_ongoing_runs
  * @property int $number_dispatched_emails
  * @property int $number_dispatched_emails_state_ready
  * @property int $number_dispatched_emails_state_sent_to_provider

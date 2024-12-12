@@ -9,7 +9,6 @@
 namespace App\Actions\Comms\Outbox;
 
 use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateEmailBulkRuns;
-use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateEmailOngoingRuns;
 use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateEmails;
 use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateIntervals;
 use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateMailshots;
@@ -23,7 +22,6 @@ class HydrateOutbox extends HydrateModel
     public function handle(Outbox $outbox): void
     {
         OutboxHydrateEmailBulkRuns::run($outbox);
-        OutboxHydrateEmailOngoingRuns::run($outbox);
         OutboxHydrateEmails::run($outbox);
         OutboxHydrateMailshots::run($outbox);
         OutboxHydrateIntervals::run($outbox);
