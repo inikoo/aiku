@@ -21,6 +21,7 @@ use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 use App\Enums\UI\Mail\MailshotTabsEnum;
+use App\Models\Web\Website;
 
 /**
  * @property Mailshot $mailshot
@@ -52,6 +53,14 @@ class ShowMailshot extends OrgAction
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Organisation $organisation, Shop $shop, Mailshot $mailshot, ActionRequest $request): Mailshot
+    {
+        $this->initialisationFromShop($shop, $request)->withTab(MailshotTabsEnum::values());
+
+        return $this->handle($mailshot);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inOutboxInWebsite(Organisation $organisation, Shop $shop, Website $website, Outbox $outbox, Mailshot $mailshot, ActionRequest $request): Mailshot
     {
         $this->initialisationFromShop($shop, $request)->withTab(MailshotTabsEnum::values());
 

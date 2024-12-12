@@ -6,6 +6,9 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Comms\Mailshot\UI\EditMailshot;
+use App\Actions\Comms\Mailshot\UI\ShowMailshot;
+use App\Actions\Comms\Mailshot\UI\ShowMailshotWorkshop;
 use App\Actions\Comms\Outbox\UI\IndexOutboxes;
 use App\Actions\Comms\Outbox\UI\ShowOutbox;
 use App\Actions\Comms\Outbox\UI\ShowOutboxWorkshop;
@@ -45,7 +48,10 @@ Route::name('websites.')->group(function () {
             Route::get('outboxes', [IndexOutboxes::class, 'inWebsite'])->name('outboxes');
             Route::get('outboxes/{outbox}', [ShowOutbox::class, 'inWebsite'])->name('outboxes.show');
             Route::get('outboxes/{outbox}/workshop', [ShowOutboxWorkshop::class, 'inWebsite'])->name('outboxes.workshop');
-
+            Route::name("outboxes.mailshots.")->prefix('outboxes/{outbox}/mailshots')
+                ->group(function () {
+                    Route::get('{mailshot}', [ShowMailshot::class, 'inOutboxInWebsite'])->name('show');
+                });
             Route::name('workshop')->prefix('workshop')
                 ->group(function () {
                     Route::get('', ShowWebsiteWorkshop::class)->name('');
