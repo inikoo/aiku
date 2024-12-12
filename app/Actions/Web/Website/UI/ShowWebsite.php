@@ -64,7 +64,17 @@ class ShowWebsite extends OrgAction
     public function htmlResponse(Website $website, ActionRequest $request): Response
     {
 
-        $analyticReq = $request->only(['since', 'until', 'showTopNs', 'partialShowTopNs','partialFilterTimeseries','partialTimeseriesData', 'partialFilterPerfAnalytics']);
+        $analyticReq = $request->only([
+            'since',
+            'until',
+            'showTopNs',
+            'partialShowTopNs',
+            'partialFilterTimeseries',
+            'partialTimeseriesData',
+            'partialFilterPerfAnalytics',
+            'partialWebVitals',
+            'partialWebVitalsData',
+        ]);
 
         return Inertia::render(
             'Org/Web/Website',
