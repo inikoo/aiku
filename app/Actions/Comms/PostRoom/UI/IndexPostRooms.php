@@ -16,7 +16,7 @@ use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Enums\Comms\PostRoom\PostRoomsTabsEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Mail\MailshotResource;
-use App\Http\Resources\Mail\OutboxResource;
+use App\Http\Resources\Mail\OutboxesResource;
 use App\Http\Resources\Mail\PostRoomResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
@@ -134,8 +134,8 @@ class IndexPostRooms extends OrgAction
                     : Inertia::lazy(fn () => PostRoomResource::collection($postRoom)),
 
                 PostRoomsTabsEnum::OUTBOXES->value => $this->tab == PostRoomsTabsEnum::OUTBOXES->value ?
-                    fn () => OutboxResource::collection(IndexOutboxes::run($this->parent, PostRoomsTabsEnum::OUTBOXES->value))
-                    : Inertia::lazy(fn () => OutboxResource::collection(IndexOutboxes::run($this->parent, PostRoomsTabsEnum::OUTBOXES->value))),
+                    fn () => OutboxesResource::collection(IndexOutboxes::run($this->parent, PostRoomsTabsEnum::OUTBOXES->value))
+                    : Inertia::lazy(fn () => OutboxesResource::collection(IndexOutboxes::run($this->parent, PostRoomsTabsEnum::OUTBOXES->value))),
 
                 PostRoomsTabsEnum::MAILSHOTS->value => $this->tab == PostRoomsTabsEnum::MAILSHOTS->value ?
                     fn () => MailshotResource::collection(IndexMailshots::run($this->parent))

@@ -16,7 +16,7 @@ use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Enums\UI\Mail\OutboxTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
-use App\Http\Resources\Mail\OutboxResource;
+use App\Http\Resources\Mail\OutboxesResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\EmailOngoingRun;
 use App\Models\Comms\Outbox;
@@ -192,9 +192,9 @@ class ShowOutbox extends OrgAction
     }
 
 
-    public function jsonResponse(Outbox $outbox): OutboxResource
+    public function jsonResponse(Outbox $outbox): OutboxesResource
     {
-        return new OutboxResource($outbox);
+        return new OutboxesResource($outbox);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array

@@ -13,7 +13,7 @@ use App\Actions\Comms\WithCommsSubNavigation;
 use App\Actions\Fulfilment\Fulfilment\UI\EditFulfilment;
 use App\Actions\OrgAction;
 use App\Actions\Web\Website\UI\ShowWebsite;
-use App\Http\Resources\Mail\OutboxResource;
+use App\Http\Resources\Mail\OutboxesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\OrgPostRoom;
@@ -86,9 +86,15 @@ class IndexOutboxes extends OrgAction
                 'outboxes.slug',
                 'outboxes.type',
                 'outboxes.data',
+                'outbox_intervals.dispatched_emails_lw',
+                'outbox_intervals.opened_emails_lw',
+                'outbox_intervals.unsubscribed_emails_lw',
             ])
+            ->selectRaw('(outbox_stats.number_mailshots  + outbox_stats.number_email_bulk_runs) as runs')
+
             ->leftJoin('outbox_stats', 'outbox_stats.outbox_id', 'outboxes.id')
-            ->allowedSorts(['name', 'data'])
+            ->leftJoin('outbox_intervals', 'outbox_intervals.outbox_id', 'outboxes.id')
+            ->allowedSorts(['name', 'runs', 'number_mailshots', 'dispatched_emails_lw', 'opened_emails_lw', 'unsubscribed_emails_lw'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -104,18 +110,18 @@ class IndexOutboxes extends OrgAction
             }
 
             $table->column(key: 'type', label: '', type: 'icon', canBeHidden: false)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
-            // ->column(key: 'total_mailshots', label: __('Mailshots'), canBeHidden: false, sortable: true, searchable: true)
-            // ->column(key: 'dispatched_emails_lw', label: __('Emails Last Week'), canBeHidden: false, sortable: true, searchable: true)
-            // ->column(key: 'opened_emails_lw', label: __('Opened Emails Last Week'), canBeHidden: false, sortable: true, searchable: true)
-            // ->column(key: 'unsubscribed_emails_lw', label: __('Unsubscribed Emails Last Week'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'runs', label: __('Mailshots/Runs'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'dispatched_emails_lw', label: __('Dispatched').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'opened_emails_lw', label: __('Opened').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'unsubscribed_emails_lw', label: __('Unsubscribed').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
 
     public function jsonResponse(LengthAwarePaginator $outboxes): AnonymousResourceCollection
     {
-        return OutboxResource::collection($outboxes);
+        return OutboxesResource::collection($outboxes);
     }
 
 
@@ -138,7 +144,7 @@ class IndexOutboxes extends OrgAction
                     'title'         => __('outboxes'),
                     'subNavigation' => $subNavigation,
                 ],
-                'data'        => OutboxResource::collection($outboxes),
+                'data'        => OutboxesResource::collection($outboxes),
 
 
             ]

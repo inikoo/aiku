@@ -36,6 +36,7 @@ class OutboxHydrateMailshots
             ->where('outbox_id', $outbox->id)->count();
 
 
+
         $outbox->stats()->update(
             [
                 'number_mailshots' => $count,

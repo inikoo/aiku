@@ -37,7 +37,6 @@ class OutboxHydrateEmails
 
         $outbox->stats()->update(
             [
-                'number_emails'                        => $count,
                 'number_dispatched_emails'             => $count,
             ]
         );
