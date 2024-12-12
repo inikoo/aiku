@@ -20,9 +20,8 @@ trait WithParseUpdateHistory
         $field = $this->getField();
 
         $haystack = $this->auroraModelData->{'History Details'};
-
-
         $haystack = trim(preg_replace('/\s+/', ' ', $haystack));
+
 
         if (preg_match('/<div class="field tr"><div>Old value:<\/div><div>(.*)<\/div><\/div>/', $haystack, $matches)) {
             $oldValues = $this->extractFromTable($matches, $oldValues, $field, $auditable);
@@ -39,10 +38,6 @@ trait WithParseUpdateHistory
         } elseif (preg_match('/Action:<\/div><div>Associated<\/div>/', $haystack, $matches)) {
             $oldValues[$field] = '';
         }
-
-
-
-
         return $oldValues;
     }
 
@@ -54,6 +49,9 @@ trait WithParseUpdateHistory
         $field = $this->getField();
 
         $haystack = $this->auroraModelData->{'History Details'};
+        $haystack = trim(preg_replace('/\s+/', ' ', $haystack));
+
+
         if (preg_match('/<div class="field tr"><div>New value:<\/div><div>(.*)<\/div><\/div>/', $haystack, $matches)) {
             $newValues = $this->extractFromTable($matches, $newValues, $field, $auditable);
         } elseif (preg_match('/<div class="field tr"><div>Neuer Wert:<\/div><div>(.*)<\/div><\/div>/', $haystack, $matches)) {
@@ -64,9 +62,10 @@ trait WithParseUpdateHistory
             $newValues = $this->extractFromTable($matches, $newValues, $field, $auditable);
         } elseif (preg_match('/<div class="field tr"><div>Új érték:<\/div><div>(.*)<\/div><\/div>/', $haystack, $matches)) {
             $newValues = $this->extractFromTable($matches, $newValues, $field, $auditable);
-        } elseif (preg_match('/to Price: (£|€)([\d.]+)/', $haystack, $matches)) {
+        } elseif (preg_match('/to Price: ([£€])([\d.]+)/', $haystack, $matches)) {
             $newValues[$field] = $matches[2];
         }
+
 
 
         return $newValues;
