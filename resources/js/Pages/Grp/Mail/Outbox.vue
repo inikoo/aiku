@@ -3,10 +3,10 @@ import { Head } from "@inertiajs/vue3";
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 
-import { useTabChange } from "@/Composables/tab-change";
-import { capitalize } from "@/Composables/capitalize";
-import { computed, ref } from "vue";
-import type { Component } from "vue";
+import { useTabChange } from "@/Composables/tab-change"
+import { capitalize } from "@/Composables/capitalize"
+import { computed, ref } from 'vue'
+import type { Component } from 'vue'
 
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 import { PageHeading as TSPageHeading } from "@/types/PageHeading";
@@ -16,6 +16,7 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { faInboxOut, faMailBulk, faRabbitFast } from "@fal";
 import TableMailshots from "@/Components/Tables/TableMailshots.vue";
 import OutboxShowcase from "@/Components/Showcases/Grp/OutboxShowcase.vue";
+import TableEmailBulkRuns from "@/Components/Tables/TableEmailBulkRuns.vue";
 
 library.add(faInboxOut, faMailBulk, faRabbitFast);
 
@@ -25,8 +26,11 @@ const props = defineProps<{
   tabs: TSTabs
   history: {}
   mailshots: {}
+  email_bulk_runs: {}
   showcase: any
 }>();
+
+
 
 const currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab);
@@ -36,7 +40,8 @@ const component = computed(() => {
   const components: Component = {
     history: TableHistories,
     mailshots: TableMailshots,
-    showcase: OutboxShowcase
+    showcase: OutboxShowcase,
+    email_bulk_runs: TableEmailBulkRuns
   };
 
   return components[currentTab.value];
