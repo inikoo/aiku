@@ -12,6 +12,7 @@ use App\Actions\Comms\ShowCommsDashboard;
 use App\Actions\Comms\WithCommsSubNavigation;
 use App\Actions\Fulfilment\Fulfilment\UI\EditFulfilment;
 use App\Actions\OrgAction;
+use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Http\Resources\Mail\OutboxResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
@@ -148,7 +149,7 @@ class IndexOutboxes extends OrgAction
 
 
             ]
-        )->table($this->tableStructure($this->parent, prefix: 'outboxes'));
+        )->table($this->tableStructure($this->parent));
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -224,6 +225,19 @@ class IndexOutboxes extends OrgAction
                 $headCrumb(
                     [
                         'name'       => 'grp.org.fulfilments.show.setting.outboxes.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            'grp.org.shops.show.web.websites.outboxes' =>
+            array_merge(
+                ShowWebsite::make()->getBreadcrumbs(
+                    'Shop',
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.shops.show.web.websites.outboxes',
                         'parameters' => $routeParameters
                     ]
                 )

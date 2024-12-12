@@ -8,11 +8,13 @@
 
 namespace App\Actions\Comms\Outbox\UI;
 
+use App\Actions\Comms\Mailshot\UI\IndexMailshots;
 use App\Actions\OrgAction;
 use App\Actions\Web\HasWorkshopAction;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Enums\UI\Mail\OutboxTabsEnum;
+use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Mail\OutboxResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Outbox;
@@ -173,9 +175,14 @@ class ShowOutbox extends OrgAction
                     fn () => GetOutboxShowcase::run($outbox)
                     : Inertia::lazy(fn () => GetOutboxShowcase::run($outbox)),
 
+                    OutboxTabsEnum::MAILSHOTS->value => $this->tab == OutboxTabsEnum::MAILSHOTS->value ?
+                    fn () => MailshotResource::collection(IndexMailshots::run($outbox))
+                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($outbox))),
+
+
 
             ]
-        );
+        )->table(IndexMailshots::make()->tableStructure(parent:$outbox, prefix: OutboxTabsEnum::MAILSHOTS->value));
     }
 
 

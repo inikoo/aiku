@@ -23,6 +23,7 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { faInboxOut, faShoppingCart } from "@fal";
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faUser } from '@fas';
+import TableMailshots from '@/Components/Tables/TableMailshots.vue';
 library.add(faInboxOut)
 
 const props = defineProps<{
@@ -30,6 +31,7 @@ const props = defineProps<{
     pageHead: TSPageHeading
     tabs: TSTabs
     history?: {}
+    mailshots?: {}
     showcase?: any
     imagesUploadRoute: routeType
     updateRoute: routeType
@@ -45,6 +47,7 @@ const component = computed(() => {
     console.log(currentTab.value)
     const components: Component = {
         history: TableHistories,
+        mailshots: TableMailshots
     }
 
     return components[currentTab.value]
