@@ -22,6 +22,10 @@ class FetchAuroraCustomerClient extends FetchAurora
             $this->organisation->id.':'.$this->auroraModelData->{'Customer Client Customer Key'}
         );
 
+        if(!$customer) {
+            return;
+        }
+
         $this->parsedData['customer'] = $customer;
 
         if ($this->auroraModelData->{'Customer Client Status'} == 'Active') {
