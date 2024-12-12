@@ -68,8 +68,8 @@ class WebsiteHydrateCloudflareData
             }
         }
 
-        $this->siteList->each(function ($site) use ($website, $newWebsiteData) {
-            if ($site['ruleset'] && $site['ruleset']['zone_name'] == $website->domain) {
+        $this->siteList->each(function ($site) use ($website, &$newWebsiteData) {
+            if (isset($site['ruleset']) && $site['ruleset']['zone_name'] == $website->domain) {
                 data_set($newWebsiteData, 'cloudflare.siteTag', $site['site_tag'], true);
                 return;
             }
@@ -93,7 +93,7 @@ class WebsiteHydrateCloudflareData
             }
             $this->handle($website);
         } else {
-            $websites = Website::all();
+            $websites = Website::orderBy('id')->get();
             $command->withProgressBar($websites, function ($website) {
                 $this->handle($website);
             });
