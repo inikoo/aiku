@@ -82,6 +82,11 @@ class FetchAuroraTransaction extends FetchAurora
 
             $taxCategory = $this->parseTaxCategory($this->auroraModelData->{'Order Transaction Tax Category Key'});
 
+
+            $dispatchedQuantity = $this->auroraModelData->{'Delivery Note Quantity'};
+            if ($this->auroraModelData->{'Order Transaction Product Type'} == 'Service') {
+                $dispatchedQuantity = $this->auroraModelData->{'Order Quantity'};
+            }
             $this->parsedData['transaction'] = [
                 'date'                => $date,
                 'created_at'          => $date,
@@ -90,7 +95,7 @@ class FetchAuroraTransaction extends FetchAurora
                 'status'              => $status,
                 'quantity_ordered'    => $this->auroraModelData->{'Order Quantity'},
                 'quantity_bonus'      => $quantityBonus,
-                'quantity_dispatched' => $this->auroraModelData->{'Delivery Note Quantity'},
+                'quantity_dispatched' => $dispatchedQuantity,
                 'quantity_fail'       => $quantityFail,
                 'gross_amount'        => $this->auroraModelData->{'Order Transaction Gross Amount'},
                 'net_amount'          => $this->auroraModelData->{'Order Transaction Amount'},

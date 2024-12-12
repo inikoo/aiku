@@ -200,9 +200,9 @@ class AuroraOrganisationService implements SourceOrganisationService
         return (new FetchAuroraDeliveryNote($this))->fetch($id);
     }
 
-    public function fetchInvoice($id, $forceWithTransactions = true): ?array
+    public function fetchInvoice($id): ?array
     {
-        return (new FetchAuroraInvoice($this))->fetchInvoice($id, $forceWithTransactions);
+        return (new FetchAuroraInvoice($this))->fetchInvoice($id);
     }
 
     public function fetchCustomerClient($id): ?array
