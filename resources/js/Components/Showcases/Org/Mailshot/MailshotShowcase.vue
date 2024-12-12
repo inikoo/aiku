@@ -6,6 +6,7 @@ import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import { routeType } from '@/types/route'
 
+import Timeline from '@/Components/Utils/Timeline.vue'
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faUser, faEnvelope, faSeedling, faShare, faInboxOut, faCheck, faEnvelopeOpen, faHandPointer, faUserSlash, faPaperPlane, faEyeSlash, faSkull, faDungeon } from '@fal';
@@ -15,44 +16,9 @@ const props = defineProps<{
     data : Object
 }>()
 
-console.log('ini',props)
-
-const events = [
-    {
-        label: "Mailshot Created",
-        tooltip: "mailshot_created",
-        key: "mailshot_created",
-        icon: "fal fa-seedling",
-        current: true,
-        timestamp: null
-    },
-    {
-        label: "Mailshot Composed",
-        tooltip: "mailshot_Composed",
-        key: "mailshot_Composed",
-        icon: "fal fa-envelope",
-        current: true,
-        timestamp: null
-    },
-    {
-        label: "Start End",
-        tooltip: "start_end",
-        key: "start_end",
-        icon: "fal fa-share",
-        current: true,
-        timestamp: null
-    },
-    {
-        label: "Sent",
-        tooltip: "Sent",
-        key: "Sent",
-        icon: "fal fa-check",
-        current: false,
-        timestamp: null
-    },
-]
 
 
+console.log('sss',props)
 </script>
 
 
@@ -60,7 +26,9 @@ const events = [
 <template>
     <div class="card p-4">
         <div class="col-span-2 w-full pb-4 border-b border-gray-300 mb-8">
-            <PureTimeline :options="data.mailshot.data.timeline" :slidesPerView="4" color="#6366f1" />
+            <div class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
+                <Timeline :options="data.mailshot.data.timeline" :state="'sent'" :slidesPerView="6"  />
+            </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-8 gap-2">
