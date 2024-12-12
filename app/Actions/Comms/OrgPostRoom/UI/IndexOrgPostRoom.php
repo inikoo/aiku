@@ -47,24 +47,24 @@ class IndexOrgPostRoom extends OrgAction
         $queryBuilder->where('org_post_rooms.organisation_id', $organisation->id);
 
         $queryBuilder
-            ->defaultSort('org_post_rooms.id')
+            ->defaultSort('org_post_rooms.name')
             ->select([
-                'org_post_rooms.id',
-                'org_post_rooms.slug',
-                'org_post_rooms.type',
-                'org_post_rooms.name',
-                'post_room_stats.number_outboxes as total_outboxes',
-                'post_room_stats.number_mailshots as total_mailshots',
-                'post_room_intervals.dispatched_emails_lw',
-                'post_room_intervals.opened_emails_lw',
-                'post_room_intervals.unsubscribed_emails_lw',
+            'org_post_rooms.id',
+            'org_post_rooms.slug',
+            'org_post_rooms.type',
+            'org_post_rooms.name',
+            'org_post_room_stats.number_outboxes',
+            'org_post_room_stats.number_mailshots',
+            'org_post_room_intervals.dispatched_emails_lw',
+            'org_post_room_intervals.opened_emails_lw',
+            'org_post_room_intervals.unsubscribed_emails_lw'
             ])
-            ->leftJoin('post_rooms', 'post_rooms.id', '=', 'org_post_rooms.post_room_id')
-            ->leftJoin('post_room_stats', 'post_room_stats.post_room_id', '=', 'post_rooms.id')
-            ->leftJoin('post_room_intervals', 'post_room_intervals.post_room_id', '=', 'post_rooms.id');
+            ->selectRaw('(org_post_room_stats.number_mailshots + org_post_room_stats.number_email_bulk_runs) as runs')
+            ->leftJoin('org_post_room_stats', 'org_post_room_stats.org_post_room_id', '=', 'org_post_rooms.id')
+            ->leftJoin('org_post_room_intervals', 'org_post_room_intervals.org_post_room_id', '=', 'org_post_rooms.id');
 
         return $queryBuilder
-            ->allowedSorts(['type', 'name', 'total_outboxes', 'total_mailshots', 'dispatched_emails_lw', 'opened_emails_lw', 'unsubscribed_emails_lw'])
+            ->allowedSorts(['name', 'runs', 'number_outboxes', 'number_mailshots', 'dispatched_emails_lw', 'opened_emails_lw', 'unsubscribed_emails_lw'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -104,11 +104,10 @@ class IndexOrgPostRoom extends OrgAction
 
             $table
                 ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'total_outboxes', label: __('Total Outboxes'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'total_mailshots', label: __('Total Mailshots'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'dispatched_emails_lw', label: __('Dispatched Emails Last Week'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'opened_emails_lw', label: __('Opened Emails Last Week'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'unsubscribed_emails_lw', label: __('Unsubscribed Emails Last Week'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'runs', label: __('Mailshots/Runs'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'dispatched_emails_lw', label: __('Dispatched').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'opened_emails_lw', label: __('Opened').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'unsubscribed_emails_lw', label: __('Unsubscribed').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
