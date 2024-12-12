@@ -20,6 +20,7 @@ class GetMailshotPreview
 
 
         return [
+            'builder'=> $mailshot->email->snapshot->builder,
             'layout' => $mailshot->email?->snapshot?->compiled_layout
         ];
     }

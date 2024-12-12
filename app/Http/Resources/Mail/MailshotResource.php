@@ -144,7 +144,6 @@ class MailshotResource extends JsonResource
             ],
         ];
 
-
         return [
             'id'                  => $mailshot->id,
             'slug'                => $mailshot->slug,

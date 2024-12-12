@@ -25,6 +25,10 @@ function mailshotRoute(mailshot: Mailshot) {
             return route(
                 'grp.org.shops.show.marketing.mailshots.show',
                 [route().params.organisation, route().params.shop, mailshot.slug]);
+        case 'grp.org.shops.show.marketing.newsletters.index':
+            return route(
+                'grp.org.shops.show.marketing.mailshots.show',
+                [route().params.organisation, route().params.shop, mailshot.slug]);
         default:
             return route(
                 'grp.org.shops.show.marketing.mailshots.show',
