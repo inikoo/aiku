@@ -23,6 +23,13 @@ class FetchAuroraOrder extends FetchAurora
 {
     protected function parseModel(): void
     {
+
+        $shop = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Order Store Key'});
+
+        if ($shop->type == ShopTypeEnum::FULFILMENT) {
+            return;
+        }
+
         $deliveryData = [];
 
         if ($this->auroraModelData->{'Order For Collection'} == 'Yes') {
