@@ -52,6 +52,9 @@ class IndexMailshots extends OrgAction
         return $queryBuilder
             ->defaultSort('mailshots.state')
             ->select([
+                'mailshots.slug',
+                'mailshots.subject',
+                'mailshots.date',
                 'mailshots.state',
                 'mailshots.id',
                 'mailshots.data',
@@ -84,9 +87,9 @@ class IndexMailshots extends OrgAction
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
-                ->column(key: 'id', label: __('id'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'data', label: __('data'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'subject', label: __('subject'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 

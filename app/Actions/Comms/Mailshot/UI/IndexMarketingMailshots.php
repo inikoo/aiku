@@ -57,7 +57,7 @@ class IndexMarketingMailshots extends OrgAction
                                 $query->where('mailshots.post_room_id', $parent->id);
                             }
                         });
-        $queryBuilder->where('outboxes.type', OutboxCodeEnum::MARKETING->value);
+        $queryBuilder->where('mailshots.type', OutboxCodeEnum::MARKETING->value);
         return $queryBuilder
             ->defaultSort('mailshots.id')
             ->select([

@@ -57,7 +57,7 @@ class IndexNewsletterMailshots extends OrgAction
                                 $query->where('mailshots.post_room_id', $parent->id);
                             }
                         });
-        $queryBuilder->where('outboxes.type', OutboxCodeEnum::NEWSLETTER->value);
+        $queryBuilder->where('mailshots.type', OutboxCodeEnum::NEWSLETTER->value);
         return $queryBuilder
             ->defaultSort('mailshots.id')
             ->select([
@@ -118,7 +118,6 @@ class IndexNewsletterMailshots extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $mailshots, ActionRequest $request): Response
     {
-
         return Inertia::render(
             'Mail/Mailshots',
             [
