@@ -42,6 +42,7 @@ class IndexOrders extends OrgAction
     // use WithOrderSubNavigation;
 
     private Organisation|Shop|Customer|CustomerClient|Asset|ShopifyUser $parent;
+    private string $bucket;
 
     protected function getElementGroups(Organisation|Shop|Customer|CustomerClient|Asset $parent): array
     {
@@ -62,8 +63,12 @@ class IndexOrders extends OrgAction
         ];
     }
 
-    public function handle(Organisation|Shop|Customer|CustomerClient|Asset|ShopifyUser $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|Shop|Customer|CustomerClient|Asset|ShopifyUser $parent, $prefix = null, $bucket = null): LengthAwarePaginator
     {
+        if ($bucket) {
+            $this->bucket = $bucket;
+        }
+
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('orders.reference', $value);
@@ -96,7 +101,25 @@ class IndexOrders extends OrgAction
 
         $query->leftJoin('currencies', 'orders.currency_id', '=', 'currencies.id');
 
-        if (!($parent instanceof ShopifyUser)) {
+        if ($this->bucket == 'creating') {
+            $query->where('orders.state', OrderStateEnum::CREATING);
+        } elseif ($this->bucket == 'submitted') {
+            $query->where('orders.state', OrderStateEnum::SUBMITTED);
+        } elseif ($this->bucket == 'in_warehouse') {
+            $query->where('orders.state', OrderStateEnum::IN_WAREHOUSE);
+        } elseif ($this->bucket == 'handling') {
+            $query->where('orders.state', OrderStateEnum::HANDLING);
+        } elseif ($this->bucket == 'handling_blocked') {
+            $query->where('orders.state', OrderStateEnum::HANDLING_BLOCKED);
+        } elseif ($this->bucket == 'packed') {
+            $query->where('orders.state', OrderStateEnum::PACKED);
+        } elseif ($this->bucket == 'finalised') {
+            $query->where('orders.state', OrderStateEnum::FINALISED);
+        } elseif ($this->bucket == 'dispatched') {
+            $query->where('orders.state', OrderStateEnum::DISPATCHED);
+        } elseif ($this->bucket == 'cancelled') {
+            $query->where('orders.state', OrderStateEnum::CANCELLED);
+        } elseif ($this->bucket == 'all' && !($parent instanceof ShopifyUser)) {
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                 $query->whereElementGroup(
                     key: $key,
@@ -106,6 +129,17 @@ class IndexOrders extends OrgAction
                 );
             }
         }
+
+        // if (!($parent instanceof ShopifyUser)) {
+        //     foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+        //         $query->whereElementGroup(
+        //             key: $key,
+        //             allowedElements: array_keys($elementGroup['elements']),
+        //             engine: $elementGroup['engine'],
+        //             prefix: $prefix
+        //         );
+        //     }
+        // }
 
         if ($parent instanceof ShopifyUser) {
             $query->join('shopify_user_has_fulfilments', function ($join) use ($parent) {
@@ -345,6 +379,7 @@ class IndexOrders extends OrgAction
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
+        $this->bucket = 'all';
         $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(OrdersTabsEnum::values());
 
@@ -353,6 +388,7 @@ class IndexOrders extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
+        $this->bucket = 'all';
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(OrdersTabsEnum::values());
 
@@ -362,6 +398,7 @@ class IndexOrders extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inCustomer(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): LengthAwarePaginator
     {
+        $this->bucket = 'all';
         $this->parent = $customer;
         $this->initialisationFromShop($shop, $request)->withTab(OrdersTabsEnum::values());
 
@@ -371,6 +408,7 @@ class IndexOrders extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inCustomerClient(Organisation $organisation, Shop $shop, Customer $customer, CustomerClient $customerClient, ActionRequest $request): LengthAwarePaginator
     {
+        $this->bucket = 'all';
         $this->parent = $customerClient;
         $this->initialisationFromShop($shop, $request)->withTab(OrdersTabsEnum::values());
 
