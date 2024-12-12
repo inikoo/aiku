@@ -72,10 +72,7 @@ console.log(datas);
 <template>
     <Head :title="trans('Dashboard')" />
     <div class="px-4 sm:px-6 lg:px-8">
-        <!-- <pre>{{ props.groupStats.organisations }}</pre> -->
-
-
-
+        <!-- <pre>{{ props.groupStats.shops }}</pre> -->
             <!-- Section: Date options -->
            <div class="mt-4 block">
                 <nav class="isolate flex rounded border-b border-gray-300" aria-label="Tabs">
@@ -146,7 +143,70 @@ console.log(datas);
 
             </DataTable>
         </div>
+        <div v-if="dashboard.shops.map((org) => get(org, ['sales', `sales_org_currency_all`], 0)).some(i => {return !!Number(i)})" class="mt-10 w-1/2 flex flex-wrap gap-y-4 gap-x-4">
+            <div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
+                <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Refunds')}} </div>
+                <div class="w-24">
+                    <Pie :data="{
+                        labels: dashboard.shops.map((org) => org.name),
+                        datasets: [{
+                            data: dashboard.shops.map((org) => get(org, ['sales', `sales_org_currency_all`], 0)),
+                            hoverOffset: 4
+                        }]
+                    }" :options="options" />
+                </div>
+                <!-- <div class="flex flex-col justify-between ">
+                    <template v-for="org in dashboard.shops">
+                        <div v-if="org.type !== 'agent'" class="space-x-2">
+                            <span class="text-lg">{{ org.code }}:</span>
+                            <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `sales_org_currency_all`], 0)) }}</span>
+                        </div>
+                    </template>
+                </div> -->
+            </div>
 
+            <div v-if="dashboard.shops.map((org) => get(org, ['sales', `sales_org_currency_all`], 0)).some(i => {return !!Number(i)})" class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
+                <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Invoices')}} </div>
+                <div class="w-24">
+                    <Pie :data="{
+                        labels: dashboard.shops.map((org) => org.name),
+                        datasets: [{
+                            data: dashboard.shops.map((org) => get(org, ['sales', `sales_org_currency_all`], 0)),
+                            hoverOffset: 4
+                        }]
+                    }" :options="options" />
+                </div>
+                <!-- <div class="flex flex-col justify-between ">
+                    <template v-for="org in dashboard.shops">
+                        <div v-if="org.type !== 'agent'" class="space-x-2">
+                            <span class="text-lg">{{ org.code }}:</span>
+                            <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : dashboard.currency.code, get(org, ['sales', `sales_org_currency_all`], 0)) }}</span>
+                        </div>
+                    </template>
+                </div> -->
+            </div>
+
+            <div v-if="dashboard.shops.map((org) => get(org, ['sales', `sales_org_currency_all`], 0)).some(i => {return !!Number(i)})" class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
+                <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Sales')}} </div>
+                <div class="w-24">
+                    <Pie :data="{
+                        labels: dashboard.shops.map((org) => org.name),
+                        datasets: [{
+                            data: dashboard.shops.map((org) => get(org, ['sales', `sales_org_currency_all`], 0)),
+                            hoverOffset: 4
+                        }]
+                    }" :options="options" />
+                </div>
+                <!-- <div class="flex flex-col justify-between ">
+                    <template v-for="org in dashboard.shops">
+                        <div v-if="org.type !== 'agent'" class="space-x-2">
+                            <span class="text-lg">{{ org.code }}:</span>
+                            <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `sales_org_currency_all`], 0)) }}</span>
+                        </div>
+                    </template>
+                </div> -->
+            </div>
+        </div>
 
         <!-- <pre>{{ groupStats }}</pre> -->
     </div>
