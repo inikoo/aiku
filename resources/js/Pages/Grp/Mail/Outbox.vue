@@ -8,6 +8,7 @@ import { capitalize } from "@/Composables/capitalize"
 import { computed, ref } from 'vue'
 import type { Component } from 'vue'
 
+
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { Tabs as TSTabs } from '@/types/Tabs'
@@ -29,11 +30,12 @@ const props = defineProps<{
     showcase: any
 }>()
 
+console.log(props)
+
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
-    console.log(currentTab.value)
     const components: Component = {
         history: TableHistories,
         mailshots: TableMailshots,
