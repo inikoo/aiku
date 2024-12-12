@@ -41,45 +41,31 @@ enum OutboxTypeEnum: string
         return [
             OutboxTypeEnum::NEWSLETTER->value => [
                 'tooltip' => __(OutboxTypeEnum::NEWSLETTER->value),
-                'icon'    => 'fal fa-circle',
-                'class'   => 'text-lime-500',
-                'color'   => 'lime'
+                'icon'    => 'fal fa-newspaper',
             ],
             OutboxTypeEnum::MARKETING->value    => [
                 'tooltip' => __(OutboxTypeEnum::MARKETING->value),
-                'icon'    => 'fas fa-circle',
-                'class'   => 'text-orange-500',
-                'color'   => 'orange'
+                'icon'    => 'fal fa-bullhorn',
             ],
             OutboxTypeEnum::MARKETING_NOTIFICATION->value        => [
                 'tooltip' => __(OutboxTypeEnum::MARKETING_NOTIFICATION->value),
-                'icon'    => 'fas fa-circle',
-                'class'   => 'text-emerald-500',
-                'color'   => 'emerald'
+                'icon'    => 'fal fa-radio',
             ],
             OutboxTypeEnum::CUSTOMER_NOTIFICATION->value  => [
                 'tooltip' => __(OutboxTypeEnum::CUSTOMER_NOTIFICATION->value),
-                'icon'    => 'fas fa-circle',
-                'class'   => 'text-red-500',
-                'color'   => 'red'
+                'icon'    => 'fal fa-bell',
             ],
             OutboxTypeEnum::COLD_EMAIL->value  => [
                 'tooltip' => __(OutboxTypeEnum::COLD_EMAIL->value),
-                'icon'    => 'fas fa-circle',
-                'class'   => 'text-red-500',
-                'color'   => 'red'
+                'icon'    => 'fal fa-thermometer-empty',
             ],
             OutboxTypeEnum::USER_NOTIFICATION->value  => [
                 'tooltip' => __(OutboxTypeEnum::USER_NOTIFICATION->value),
-                'icon'    => 'fas fa-circle',
-                'class'   => 'text-red-500',
-                'color'   => 'red'
+                'icon'    => 'fal fa-bells',
             ],
             OutboxTypeEnum::TEST->value  => [
                 'tooltip' => __(OutboxTypeEnum::TEST->value),
-                'icon'    => 'fas fa-circle',
-                'class'   => 'text-red-500',
-                'color'   => 'red'
+                'icon'    => 'fal fa-vial',
             ]
         ];
     }

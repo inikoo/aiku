@@ -9,6 +9,26 @@ import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Outbox} from "@/types/outbox";
 import Icon from '@/Components/Icon.vue';
+import {
+  faBell,
+  faBells,
+  faNewspaper,
+  faBullhorn,
+  faRadio,
+  faThermometerEmpty,
+  faVial,
+} from "@fal";
+import { library } from "@fortawesome/fontawesome-svg-core";
+
+library.add(
+  faBell,
+  faBells,
+  faNewspaper,
+  faBullhorn,
+  faRadio,
+  faThermometerEmpty,
+  faVial,
+);
 
 const props = defineProps<{
     data: object,
