@@ -49,6 +49,12 @@ class IndexMailshots extends OrgAction
 
         $queryBuilder = QueryBuilder::for(Mailshot::class);
 
+        if($parent instanceof Outbox) {
+            $queryBuilder->where('mailshots.outbox_id', $parent->id);
+        } else {
+            $queryBuilder->where('mailshots.organisation_id', $parent->id);
+        }
+
         return $queryBuilder
             ->defaultSort('mailshots.state')
             ->select([
