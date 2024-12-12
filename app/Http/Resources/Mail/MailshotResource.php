@@ -165,7 +165,7 @@ class MailshotResource extends JsonResource
             'timeline'            => $newTimeline,
             'is_layout_blank'     => blank($mailshot->layout),
             'outbox_id'           => $mailshot->outbox_id,
-            'layout'              => $mailshot->email->snapshot->layout
+            'layout'              => $mailshot->email->snapshot->layout ?? null
         ];
     }
 }
