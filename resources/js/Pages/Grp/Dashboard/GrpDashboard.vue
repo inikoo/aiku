@@ -258,8 +258,8 @@ const abcdef = computed(() => {
                         <!-- {{ `${data.interval_percentages?.sales?.[selectedDateOption]?.difference}_${data.interval_percentages?.sales?.[selectedDateOption]?.percentage}` }} -->
                             <Transition name="spin-to-down" mode="out-in">
                                 <div :key="`${data.interval_percentages?.sales[selectedDateOption].difference}_${data.interval_percentages?.sales[selectedDateOption].percentage}`">
-                                    {{ useLocaleStore().currencyFormat( groupStats.currency.code, data.interval_percentages?.sales[selectedDateOption].difference ) }}
-                                    ({{ data.interval_percentages?.sales[selectedDateOption]  }}%)
+                                    {{ useLocaleStore().currencyFormat( groupStats.currency.code, data.interval_percentages?.sales[selectedDateOption].difference || 0) }}
+                                    ({{ data.interval_percentages?.sales[selectedDateOption].percentage || 0 }}%)
                                    
                                     <!-- {{ data.interval_percentages?.sales[selectedDateOption] }} -->
                                 </div>
