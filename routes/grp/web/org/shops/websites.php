@@ -6,9 +6,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Comms\Mailshot\UI\EditMailshot;
 use App\Actions\Comms\Mailshot\UI\ShowMailshot;
-use App\Actions\Comms\Mailshot\UI\ShowMailshotWorkshop;
 use App\Actions\Comms\Outbox\UI\IndexOutboxes;
 use App\Actions\Comms\Outbox\UI\ShowOutbox;
 use App\Actions\Comms\Outbox\UI\ShowOutboxWorkshop;

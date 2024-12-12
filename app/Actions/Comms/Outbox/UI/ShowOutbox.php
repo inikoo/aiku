@@ -11,12 +11,14 @@ namespace App\Actions\Comms\Outbox\UI;
 use App\Actions\Comms\Mailshot\UI\IndexMailshots;
 use App\Actions\OrgAction;
 use App\Actions\Web\HasWorkshopAction;
+use App\Enums\Comms\Email\EmailBuilderEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Enums\UI\Mail\OutboxTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Mail\OutboxesResource;
 use App\Models\Catalogue\Shop;
+use App\Models\Comms\EmailOngoingRun;
 use App\Models\Comms\Outbox;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
@@ -50,7 +52,7 @@ class ShowOutbox extends OrgAction
 
     public function inOrganisation(Organisation $organisation, Outbox $outbox, ActionRequest $request): Outbox
     {
-        $this->initialisation($organisation, $request);
+        $this->initialisation($organisation, $request)->withTab(OutboxTabsEnum::values());
 
         return $this->handle($outbox);
     }
@@ -59,7 +61,7 @@ class ShowOutbox extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Organisation $organisation, Shop $shop, Outbox $outbox, ActionRequest $request): Outbox
     {
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(OutboxTabsEnum::values());
 
         return $this->handle($outbox);
     }
@@ -67,7 +69,7 @@ class ShowOutbox extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWebsite(Organisation $organisation, Shop $shop, Website $website, Outbox $outbox, ActionRequest $request): Outbox
     {
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(OutboxTabsEnum::values());
 
         return $this->handle($outbox);
     }
@@ -75,7 +77,7 @@ class ShowOutbox extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Outbox $outbox, ActionRequest $request): Outbox
     {
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(OutboxTabsEnum::values());
 
         return $this->handle($outbox);
     }
@@ -135,7 +137,7 @@ class ShowOutbox extends OrgAction
         $this->canEdit = true;
         $actions       = $this->workshopActions($request);
 
-        if ($outbox->type === OutboxTypeEnum::USER_NOTIFICATION) {
+        if ($outbox->type === OutboxTypeEnum::USER_NOTIFICATION && $outbox->builder !== EmailBuilderEnum::BLADE->value && $outbox->model_type === class_basename(EmailOngoingRun::class)) {
             $actions = array_merge($actions, $this->canEdit ? [
                 'type'  => 'button',
                 'style' => 'secondary',
