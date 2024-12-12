@@ -215,7 +215,7 @@ class ShowOutbox extends OrgAction
         $outbox = Outbox::where('slug', $routeParameters['outbox'])->first();
 
         return match ($routeName) {
-            'grp.org.shops.show.comms.outboxes.show' =>
+            'grp.org.shops.show.comms.outboxes.show', 'grp.org.shops.show.comms.outboxes.workshop' =>
             array_merge(
                 IndexOutboxes::make()->getBreadcrumbs('grp.org.shops.show.comms.outboxes.index', $routeParameters),
                 $headCrumb(

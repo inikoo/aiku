@@ -8,11 +8,10 @@
 
 namespace App\Actions\Comms\Outbox\UI;
 
-use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
-use App\Http\Resources\Mail\EmailTemplateResource;
 use App\Models\Catalogue\Shop;
+use App\Models\Comms\Email;
 use App\Models\Comms\EmailTemplate;
 use App\Models\Comms\Outbox;
 use App\Models\SysAdmin\Organisation;
@@ -26,27 +25,27 @@ class ShowOutboxWorkshop extends OrgAction
     use WithActionButtons;
 
 
-    public function handle(EmailTemplate $emailTemplate): EmailTemplate
+    public function handle(Email $email): Email
     {
-        return $emailTemplate;
+        return $email;
     }
 
 
-    public function asController(Organisation $organisation, Shop $shop, Outbox $outbox, ActionRequest $request): EmailTemplate
-    {
-        $this->initialisationFromShop($shop, $request);
-
-        return $this->handle($outbox->emailTemplate);
-    }
-
-    public function inWebsite(Organisation $organisation, Shop $shop, Website $website, Outbox $outbox, ActionRequest $request): EmailTemplate
+    public function asController(Organisation $organisation, Shop $shop, Outbox $outbox, ActionRequest $request): Email
     {
         $this->initialisationFromShop($shop, $request);
 
-        return $this->handle($outbox->emailTemplate);
+        return $this->handle($outbox->emailOngoingRun->email);
     }
 
-    public function htmlResponse(EmailTemplate $emailTemplate, ActionRequest $request): Response
+    public function inWebsite(Organisation $organisation, Shop $shop, Website $website, Outbox $outbox, ActionRequest $request): Email
+    {
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle($outbox->emailOngoingRun->email);
+    }
+
+    public function htmlResponse(Email $email, ActionRequest $request): Response
     {
         return Inertia::render(
             'Org/Web/Workshop/Outbox/OutboxWorkshop', //NEED VUE FILE
@@ -59,9 +58,9 @@ class ShowOutboxWorkshop extends OrgAction
                 //     'previous' => $this->getPrevious($emailTemplate, $request),
                 //     'next'     => $this->getNext($emailTemplate, $request),
                 // ],
-                'title'       => $emailTemplate->title,
+                'title'       => $email->subject,
                 'pageHead'    => [
-                    'title'     => $emailTemplate->title,
+                    'title'     => $email->subject,
                     'icon'      => [
                         'tooltip' => __('mailshot'),
                         'icon'    => 'fal fa-mail-bulk'
@@ -80,19 +79,19 @@ class ShowOutboxWorkshop extends OrgAction
                     ]
 
                 ],
-                'emailTemplate'    => EmailTemplateResource::make($emailTemplate)->getArray(),
+                'compiled_layout'    => $email->snapshot->compiled_layout,
 
                 'imagesUploadRoute'   => [
                     'name'       => 'grp.models.email-templates.images.store',
-                    'parameters' => $emailTemplate->id
+                    'parameters' => $email->id
                 ],
                 'updateRoute'         => [
                     'name'       => 'grp.models.email-templates.content.update',
-                    'parameters' => $emailTemplate->id
+                    'parameters' => $email->id
                 ],
                 'publishRoute'           => [
                     'name'       => 'grp.models.email-templates.content.publish',
-                    'parameters' => $emailTemplate->id
+                    'parameters' => $email->id
                 ],
                 // 'loadRoute'           => [ -> i don't know what kind of data should i give to this route
                 //     'name'       => 'grp.models.email-templates.content.show',
@@ -104,48 +103,39 @@ class ShowOutboxWorkshop extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
     {
-        $headCrumb = function (string $type, EmailTemplate $emailTemplate, array $routeParameters, string $suffix = null) {
+        $headCrumb = function (string $type, Email $email, array $routeParameters, string $suffix = null) {
             return [
                 [
-                    'type'           => $type,
-                    'modelWithIndex' => [
-                        'index' => [
-                            'route' => $routeParameters['index'],
-                            'label' => __('mailshots')
-                        ],
-                        'model' => [
-                            'route' => $routeParameters['model'],
-                            'label' => $emailTemplate->title,
-                        ],
-
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __($email->subject)
                     ],
-                    'simple'         => [
-                        'route' => $routeParameters['model'],
-                        'label' => $emailTemplate->title
-                    ],
-                    'suffix'         => $suffix
-                ],
+                    'suffix' => $suffix
+                ]
             ];
         };
 
+        /** @var Outbox $outbox */
+        $outbox = Outbox::firstWhere('slug', $routeParameters['outbox']);
 
         return match ($routeName) {
-            'org.crm.shop.prospects.mailshots.workshop' =>
+            'org.crm.shop.prospects.mailshots.workshop', 'grp.org.shops.show.comms.outboxes.workshop' =>
             array_merge(
-                IndexProspects::make()->getBreadcrumbs(
-                    'org.crm.shop.prospects.index',
+                ShowOutbox::make()->getBreadcrumbs(
+                    'grp.org.shops.show.comms.outboxes.workshop',
                     $routeParameters
                 ),
                 $headCrumb(
                     'modelWithIndex',
-                    EmailTemplate::firstWhere('slug', $routeParameters['mailshot']),
+                    $outbox->emailOngoingRun->email,
                     [
                         'index' => [
-                            'name'       => 'org.crm.shop.prospects.mailshots.index',
+                            'name'       => 'grp.org.shops.show.comms.outboxes.show',
                             'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'org.crm.shop.prospects.mailshots.show',
+                            'name'       => 'grp.org.shops.show.comms.outboxes.workshop',
                             'parameters' => $routeParameters
                         ]
                     ],
