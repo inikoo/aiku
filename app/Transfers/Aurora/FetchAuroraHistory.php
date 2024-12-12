@@ -98,12 +98,12 @@ class FetchAuroraHistory extends FetchAurora
             $this->parsedData['history']['user_id']   = $user->id;
         }
 
-        // print_r($this->parsedData['history']);
-
+        //        print_r($this->parsedData['history']);
+        //
         //        if ($this->parsedData['history']['event'] == 'updated') {
-        //                    print "=======. ".$this->parsedData['history']['event']."=============\n";
-        //                    print_r($this->parsedData['history']['old_values']);
-        //                    print_r($this->parsedData['history']['new_values']);
+        //            print "=======. ".$this->parsedData['history']['event']."=============\n";
+        //            print_r($this->parsedData['history']['old_values']);
+        //            print_r($this->parsedData['history']['new_values']);
         //        }
     }
 
@@ -161,12 +161,15 @@ class FetchAuroraHistory extends FetchAurora
                         return true;
                     }
 
-                    if ($this->auroraModelData->{'Indirect Object'} == 'Prospect Preferred Contact Number Formatted Number') {
-                        dd($this->auroraModelData);
-                        // if(preg_match('//'))
-                    }
 
-                    $skip = !in_array($this->auroraModelData->{'Indirect Object'}, ['Prospect Website', 'Prospect Main Plain Email', 'Prospect Main Contact Name', 'Prospect Company Name', 'Prospect Contact Address']);
+                    $skip = !in_array($this->auroraModelData->{'Indirect Object'}, [
+                        'Prospect Website',
+                        'Prospect Main Plain Email',
+                        'Prospect Main Contact Name',
+                        'Prospect Company Name',
+                        'Prospect Contact Address',
+                        'Prospect Preferred Contact Number Formatted Number'
+                    ]);
 
                     if ($skip) {
                         dd($this->auroraModelData);
@@ -239,6 +242,7 @@ class FetchAuroraHistory extends FetchAurora
             'Prospect Main Contact Name' => 'contact_name',
             'Prospect Company Name' => 'company_name',
             'Prospect Contact Address' => 'address',
+            'Prospect Preferred Contact Number Formatted Number' => 'phone',
             default => $this->auroraModelData->{'Indirect Object'}
         };
     }

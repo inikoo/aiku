@@ -56,8 +56,6 @@ class StoreRentalAgreement extends OrgAction
         data_forget($modelData, 'clauses');
 
 
-
-
         /** @var RentalAgreement $rentalAgreement */
         $rentalAgreement = $fulfilmentCustomer->rentalAgreement()->create(Arr::except($modelData, ['username', 'is_root', 'email']));
         $rentalAgreement->stats()->create();
@@ -66,17 +64,17 @@ class StoreRentalAgreement extends OrgAction
         foreach ($clauses as $clauseData) {
             foreach ($clauseData as $data) {
                 $data['state'] = match ($rentalAgreement->state) {
-                    RentalAgreementStateEnum::ACTIVE      => RentalAgreementCauseStateEnum::ACTIVE,
-                    default                               => RentalAgreementCauseStateEnum::DRAFT
+                    RentalAgreementStateEnum::ACTIVE => RentalAgreementCauseStateEnum::ACTIVE,
+                    default => RentalAgreementCauseStateEnum::DRAFT
                 };
                 StoreRentalAgreementClause::run($rentalAgreement, $data);
             }
         }
 
+        $webUser = $this->fulfilmentCustomer->customer->webUsers()->first();
+
         $password = null;
-        if (
-            $this->shop->website and
-            $this->fulfilmentCustomer->customer->webUsers()->count() == 0) {
+        if (!$webUser and $this->shop->website and Arr::get($modelData, 'username')) {
             $password = Str::random(8);
 
             $webUser = StoreWebUser::make()->action($fulfilmentCustomer->customer, [
@@ -85,13 +83,14 @@ class StoreRentalAgreement extends OrgAction
                 'password' => $password,
                 'is_root'  => true
             ]);
-        } else {
-            $webUser = $this->fulfilmentCustomer->customer->webUsers()->first();
         }
 
-        if ($this->sendEmail) {
+
+        if ($this->sendEmail and $password) {
             $webUser?->notify(new SendEmailRentalAgreementCreated($password));
         }
+
+
         StoreRentalAgreementSnapshot::run($rentalAgreement, firstSnapshot: true);
 
 
@@ -133,10 +132,9 @@ class StoreRentalAgreement extends OrgAction
         if (
             $this->shop->website and
             $this->fulfilmentCustomer->customer->webUsers()->count() == 0) {
-
-
             $rules['username'] = [
-                'required',
+                'sometimes',
+                'nullable',
                 'string',
                 'max:255',
                 new IUnique(
@@ -147,7 +145,7 @@ class StoreRentalAgreement extends OrgAction
                     ]
                 ),
             ];
-            $rules['email'] = [
+            $rules['email']    = [
                 'nullable',
                 'email',
                 'max:255',
@@ -163,7 +161,6 @@ class StoreRentalAgreement extends OrgAction
 
 
         return $rules;
-
     }
 
     public function prepareForValidation(): void
