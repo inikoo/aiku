@@ -22,7 +22,7 @@ class FetchAuroraCustomerClient extends FetchAurora
             $this->organisation->id.':'.$this->auroraModelData->{'Customer Client Customer Key'}
         );
 
-        if(!$customer) {
+        if (!$customer) {
             return;
         }
 

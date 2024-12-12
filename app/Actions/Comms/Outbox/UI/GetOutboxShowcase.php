@@ -107,6 +107,8 @@ class GetOutboxShowcase
         ];
         return [
                 'state' => $outbox->state,
+                'builder' => $outbox->builder,
+                'compiled_layour' => $outbox->emailOngoingRun->email->snapshot->compiled_layout,
                 'stats' => $dispatchedEmailStats
         ];
     }

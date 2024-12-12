@@ -9,7 +9,7 @@
 namespace App\Models\Comms;
 
 use App\Actions\Utils\Abbreviate;
-use App\Enums\Comms\Outbox\OutboxBuilderEnum;
+use App\Enums\Comms\Email\EmailBuilderEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
@@ -98,7 +98,7 @@ class Outbox extends Model
         'code'    => OutboxCodeEnum::class,
         'type'    => OutboxTypeEnum::class,
         'state'   => OutboxStateEnum::class,
-        'builder' => OutboxBuilderEnum::class
+        'builder' => EmailBuilderEnum::class
     ];
 
     protected $attributes = [

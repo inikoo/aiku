@@ -11,12 +11,14 @@ namespace App\Actions\Comms\Outbox\UI;
 use App\Actions\Comms\Mailshot\UI\IndexMailshots;
 use App\Actions\OrgAction;
 use App\Actions\Web\HasWorkshopAction;
+use App\Enums\Comms\Email\EmailBuilderEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Enums\UI\Mail\OutboxTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Mail\OutboxResource;
 use App\Models\Catalogue\Shop;
+use App\Models\Comms\EmailOngoingRun;
 use App\Models\Comms\Outbox;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
@@ -135,7 +137,7 @@ class ShowOutbox extends OrgAction
         $this->canEdit = true;
         $actions       = $this->workshopActions($request);
 
-        if ($outbox->type === OutboxTypeEnum::USER_NOTIFICATION) {
+        if ($outbox->type === OutboxTypeEnum::USER_NOTIFICATION && $outbox->builder !== EmailBuilderEnum::BLADE->value && $outbox->model_type === class_basename(EmailOngoingRun::class)) {
             $actions = array_merge($actions, $this->canEdit ? [
                 'type'  => 'button',
                 'style' => 'secondary',
