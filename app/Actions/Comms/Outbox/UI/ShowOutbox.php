@@ -52,7 +52,7 @@ class ShowOutbox extends OrgAction
 
     public function inOrganisation(Organisation $organisation, Outbox $outbox, ActionRequest $request): Outbox
     {
-        $this->initialisation($organisation, $request);
+        $this->initialisation($organisation, $request)->withTab(OutboxTabsEnum::values());
 
         return $this->handle($outbox);
     }
@@ -61,7 +61,7 @@ class ShowOutbox extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Organisation $organisation, Shop $shop, Outbox $outbox, ActionRequest $request): Outbox
     {
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(OutboxTabsEnum::values());
 
         return $this->handle($outbox);
     }
@@ -69,7 +69,7 @@ class ShowOutbox extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWebsite(Organisation $organisation, Shop $shop, Website $website, Outbox $outbox, ActionRequest $request): Outbox
     {
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(OutboxTabsEnum::values());
 
         return $this->handle($outbox);
     }
@@ -77,7 +77,7 @@ class ShowOutbox extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Outbox $outbox, ActionRequest $request): Outbox
     {
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(OutboxTabsEnum::values());
 
         return $this->handle($outbox);
     }
