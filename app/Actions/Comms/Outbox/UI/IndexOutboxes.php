@@ -86,15 +86,8 @@ class IndexOutboxes extends OrgAction
                 'outboxes.slug',
                 'outboxes.type',
                 'outboxes.data',
-                'post_rooms.id as post_rooms_id',
-                'post_room_stats.number_mailshots as total_mailshots',
-                'post_room_intervals.dispatched_emails_lw as dispatched_emails_lw',
-                'post_room_intervals.opened_emails_lw as opened_emails_lw',
-                'post_room_intervals.unsubscribed_emails_lw as unsubscribed_emails_lw'])
+            ])
             ->leftJoin('outbox_stats', 'outbox_stats.outbox_id', 'outboxes.id')
-            ->leftJoin('post_rooms', 'post_room_id', 'post_rooms.id')
-            ->leftJoin('post_room_stats', 'post_rooms.id', 'post_room_stats.post_room_id')
-            ->leftJoin('post_room_intervals', 'post_rooms.id', 'post_room_intervals.post_room_id')
             ->allowedSorts(['name', 'data'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -111,11 +104,11 @@ class IndexOutboxes extends OrgAction
             }
 
             $table->column(key: 'type', label: '', type: 'icon', canBeHidden: false)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'total_mailshots', label: __('Total Mailshots'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'dispatched_emails_lw', label: __('Dispatched Emails Last Week'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'opened_emails_lw', label: __('Opened Emails Last Week'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'unsubscribed_emails_lw', label: __('Unsubscribed Emails Last Week'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+            // ->column(key: 'total_mailshots', label: __('Mailshots'), canBeHidden: false, sortable: true, searchable: true)
+            // ->column(key: 'dispatched_emails_lw', label: __('Emails Last Week'), canBeHidden: false, sortable: true, searchable: true)
+            // ->column(key: 'opened_emails_lw', label: __('Opened Emails Last Week'), canBeHidden: false, sortable: true, searchable: true)
+            // ->column(key: 'unsubscribed_emails_lw', label: __('Unsubscribed Emails Last Week'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
