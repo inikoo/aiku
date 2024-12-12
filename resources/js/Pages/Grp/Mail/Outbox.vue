@@ -1,87 +1,84 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3'
-import PageHeading from '@/Components/Headings/PageHeading.vue'
-import Tabs from "@/Components/Navigation/Tabs.vue"
+import { Head } from "@inertiajs/vue3";
+import PageHeading from "@/Components/Headings/PageHeading.vue";
+import Tabs from "@/Components/Navigation/Tabs.vue";
 
 import { useTabChange } from "@/Composables/tab-change"
 import { capitalize } from "@/Composables/capitalize"
 import { computed, ref } from 'vue'
 import type { Component } from 'vue'
 
-
-import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
-import { PageHeading as TSPageHeading } from '@/types/PageHeading'
-import { Tabs as TSTabs } from '@/types/Tabs'
+import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
+import { PageHeading as TSPageHeading } from "@/types/PageHeading";
+import { Tabs as TSTabs } from "@/types/Tabs";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faInboxOut } from "@fal";
-import { faEnvelope } from "@fas";
-import TableMailshots from '@/Components/Tables/TableMailshots.vue';
-import OutboxShowcase from '@/Components/Showcases/Grp/OutboxShowcase.vue';
+import { faInboxOut, faMailBulk, faRabbitFast } from "@fal";
+import TableMailshots from "@/Components/Tables/TableMailshots.vue";
+import OutboxShowcase from "@/Components/Showcases/Grp/OutboxShowcase.vue";
 
-library.add(faInboxOut,faEnvelope)
+library.add(faInboxOut, faMailBulk, faRabbitFast);
 
 const props = defineProps<{
-    title: string,
-    pageHead: TSPageHeading
-    tabs: TSTabs
-    history: {}
-    mailshots: {}
-    showcase: any
-}>()
+  title: string,
+  pageHead: TSPageHeading
+  tabs: TSTabs
+  history: {}
+  mailshots: {}
+  showcase: any
+}>();
 
-console.log(props)
 
-const currentTab = ref(props.tabs.current)
-const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
+
+const currentTab = ref(props.tabs.current);
+const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab);
 
 const component = computed(() => {
+    console.log(currentTab.value)
     const components: Component = {
         history: TableHistories,
         mailshots: TableMailshots,
         showcase: OutboxShowcase
     }
 
-    return components[currentTab.value]
-})
+  return components[currentTab.value];
+});
 
 </script>
 
 
-
 <template>
-    <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead" />
-    <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />
+  <Head :title="capitalize(title)" />
+  <PageHeading :data="pageHead" />
+  <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
+  <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />
 </template>
-
 
 
 <style lang="scss" scoped>
 .card {
-    padding: 1rem;
-    border-radius: 8px;
+  padding: 1rem;
+  border-radius: 8px;
 
-    @media (max-width: 768px) {
-        padding: 0.5rem;
-    }
+  @media (max-width: 768px) {
+    padding: 0.5rem;
+  }
 }
 
 .grid-cols-7 {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
 
-    @media (max-width: 768px) {
-        grid-template-columns: repeat(2, 1fr);
-    }
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .text-xl {
-    font-size: 1.25rem;
+  font-size: 1.25rem;
 
-    @media (max-width: 640px) {
-        font-size: 1rem;
-    }
+  @media (max-width: 640px) {
+    font-size: 1rem;
+  }
 }
 </style>
