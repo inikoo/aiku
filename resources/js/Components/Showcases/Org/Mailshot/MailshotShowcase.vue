@@ -26,7 +26,7 @@ console.log('sss',props)
 <template>
     <div class="card p-4">
         <div class="col-span-2 w-full pb-4 border-b border-gray-300 mb-8">
-            <div class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
+            <div class="mt-4 sm:mt-0 pb-2">
                 <Timeline :options="data.mailshot.data.timeline" :state="'sent'" :slidesPerView="6"  />
             </div>
         </div>

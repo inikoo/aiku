@@ -92,7 +92,7 @@ class ShowMailshot extends OrgAction
                         ]
                     ] : false,
                     'actions'   => [
-                        [
+                      /*   [
                             'type'  => 'button',
                             'style' => 'exit',
                             'label' => __('Exit workshop'),
@@ -100,12 +100,12 @@ class ShowMailshot extends OrgAction
                                 'name'       => preg_replace('/workshop$/', 'show', $request->route()->getName()),
                                 'parameters' => array_values($request->route()->originalParameters()),
                             ]
-                        ],
+                        ], */
                             $this->canEdit ? [
                                 'type'  => 'button',
                                 'style' => 'edit',
-                                'label' => __('settings'),
-                                'icon'  => ["fal", "fa-sliders-h"],
+                                'label' => __('workshop'),
+                                'icon'  => ["fal", "fa-drafting-compass"],
                                 'route' => [
                                     'name'       => "grp.org.shops.show.marketing.mailshots.workshop",
                                     'parameters' => [
