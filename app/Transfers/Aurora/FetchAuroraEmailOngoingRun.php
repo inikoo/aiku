@@ -10,7 +10,7 @@ namespace App\Transfers\Aurora;
 
 use App\Enums\Comms\Email\EmailBuilderEnum;
 use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunStatusEnum;
-use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunTypeEnum;
+use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunCodeEnum;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use Illuminate\Support\Facades\DB;
 
@@ -18,6 +18,78 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
 {
     protected function parseModel(): void
     {
+
+
+        $shop = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Email Campaign Type Store Key'});
+
+
+        $code = match ($this->auroraModelData->{'Email Campaign Type Code'}) {
+            'Registration' => EmailOngoingRunCodeEnum::REGISTRATION,
+            'Registration Rejected' => EmailOngoingRunCodeEnum::REGISTRATION_REJECTED,
+            'Registration Approved' => EmailOngoingRunCodeEnum::REGISTRATION_APPROVED,
+            'Password Reminder' => EmailOngoingRunCodeEnum::PASSWORD_REMINDER,
+            'Order Confirmation' => EmailOngoingRunCodeEnum::ORDER_CONFIRMATION,
+            'Delivery Confirmation' => EmailOngoingRunCodeEnum::DELIVERY_CONFIRMATION,
+
+            'Basket Low Stock' => EmailOngoingRunCodeEnum::BASKET_LOW_STOCK,
+            'Basket Reminder 1' => EmailOngoingRunCodeEnum::BASKET_REMINDER_1,
+            'Basket Reminder 2' => EmailOngoingRunCodeEnum::BASKET_REMINDER_2,
+            'Basket Reminder 3' => EmailOngoingRunCodeEnum::BASKET_REMINDER_3,
+            'AbandonedCart' => EmailOngoingRunCodeEnum::ABANDONED_CART,
+            'GR Reminder' => EmailOngoingRunCodeEnum::REORDER_REMINDER,
+            'OOS Notification' => EmailOngoingRunCodeEnum::OOS_NOTIFICATION,
+
+            'New Customer' => EmailOngoingRunCodeEnum::NEW_CUSTOMER,
+            'Delivery Note Dispatched' => EmailOngoingRunCodeEnum::DELIVERY_NOTE_DISPATCHED,
+            'Delivery Note Undispatched' => EmailOngoingRunCodeEnum::DELIVERY_NOTE_UNDISPATCHED,
+            'Invoice Deleted' => EmailOngoingRunCodeEnum::INVOICE_DELETED,
+            'New Order' => EmailOngoingRunCodeEnum::NEW_ORDER,
+            default => null
+        };
+
+
+        $createdAt = $this->parseDatetime($this->auroraModelData->{'Email Template Created'});
+        if (!$createdAt) {
+            $createdAt = $this->parseDatetime($this->auroraModelData->{'Email Template Last Edited'});
+        }
+
+        //enum(','New Customer','Delivery Note Dispatched','Delivery Note Undispatched','Invoice Deleted','New Order','AbandonedCart','Delivery Confirmation','GR Reminder','Invite','Invite Mailshot','Invite Full Mailshot','Marketing','Newsletter','OOS Notification','Order Confirmation','Password Reminder','Registration','Registration Approved','Registration Rejected')
+
+        if (in_array(
+            $this->auroraModelData->{'Email Campaign Type Code'},
+            [
+                'New Customer',
+                'Delivery Note Dispatched',
+                'Delivery Note Undispatched',
+                'Invoice Deleted',
+                'New Order',
+
+            ]
+        )) {
+            $this->parsedData['shop'] = $shop;
+
+            $this->parsedData['email_ongoing_run'] = [
+                'code'            => $code,
+                'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Email Campaign Type Key'},
+                'created_at'      => $createdAt,
+                'fetched_at'      => now(),
+                'last_fetched_at' => now(),
+            ];
+
+            $this->parsedData['snapshot'] = [
+                'subject'         => $this->auroraModelData->{'Email Template Subject'},
+                'builder'         => EmailBuilderEnum::BLADE,
+                'fetched_at'      => now(),
+                'last_fetched_at' => now(),
+                'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Email Template Key'},
+
+
+            ];
+
+            return;
+        }
+
+
         if (!in_array(
             $this->auroraModelData->{'Email Campaign Type Code'},
             [
@@ -26,7 +98,14 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
                 'Registration Approved',
                 'Password Reminder',
                 'Order Confirmation',
-                'Delivery Confirmation'
+                'Delivery Confirmation',
+                'OOS Notification',
+                'Basket Low Stock',
+                'Basket Reminder 1',
+                'Basket Reminder 2',
+                'Basket Reminder 3',
+                'AbandonedCart',
+                'GR Reminder',
             ]
         )) {
             return;
@@ -37,9 +116,6 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
         }
 
 
-        $shop = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Email Campaign Type Store Key'});
-
-        //enum('Active','Suspended','InProcess')
         $status = match ($this->auroraModelData->{'Email Campaign Type Status'}) {
             'Active' => EmailOngoingRunStatusEnum::ACTIVE,
             'Suspended' => EmailOngoingRunStatusEnum::SUSPENDED,
@@ -47,14 +123,6 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
         };
 
 
-        $type                     = match ($this->auroraModelData->{'Email Campaign Type Code'}) {
-            'Registration' => EmailOngoingRunTypeEnum::REGISTRATION,
-            'Registration Rejected' => EmailOngoingRunTypeEnum::REGISTRATION_REJECTED,
-            'Registration Approved' => EmailOngoingRunTypeEnum::REGISTRATION_APPROVED,
-            'Password Reminder' => EmailOngoingRunTypeEnum::PASSWORD_REMINDER,
-            'Order Confirmation' => EmailOngoingRunTypeEnum::ORDER_CONFIRMATION,
-            'Delivery Confirmation' => EmailOngoingRunTypeEnum::DELIVERY_CONFIRMATION,
-        };
         $this->parsedData['shop'] = $shop;
 
 
@@ -67,17 +135,13 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
             $snapshotPublishedAt = now();
         }
 
-        $createdAt = $this->parseDatetime($this->auroraModelData->{'Email Template Created'});
-        if (!$createdAt) {
-            $createdAt = $this->parseDatetime($this->auroraModelData->{'Email Template Last Edited'});
-        }
 
         if ($status == EmailOngoingRunStatusEnum::IN_PROCESS) {
             $snapshotPublishedAt = null;
         }
 
         $this->parsedData['email_ongoing_run'] = [
-            'type'            => $type,
+            'code'            => $code,
             'status'          => $status,
             'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Email Campaign Type Key'},
             'created_at'      => $createdAt,
@@ -86,7 +150,7 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
         ];
 
 
-        $snapShotState = match ($status) {
+        $snapshotState = match ($status) {
             EmailOngoingRunStatusEnum::IN_PROCESS => SnapshotStateEnum::UNPUBLISHED,
             default => SnapshotStateEnum::LIVE,
         };
@@ -96,7 +160,7 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
             'builder'         => EmailBuilderEnum::BEEFREE,
             'layout'          => json_decode($this->auroraModelData->{'Email Template Editing JSON'}, true),
             'compiled_layout' => $this->auroraModelData->{'Email Template HTML'},
-            'state'           => $snapShotState,
+            'state'           => $snapshotState,
             'published_at'    => $snapshotPublishedAt,
             'recyclable'      => false,
             'first_commit'    => true,
@@ -104,7 +168,7 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
             'last_fetched_at' => now(),
             'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Email Template Key'},
 
-            'snapshot_state'        => $snapShotState,
+            'snapshot_state'        => $snapshotState,
             'snapshot_published_at' => $snapshotPublishedAt,
             'snapshot_recyclable'   => false,
             'snapshot_first_commit' => true,

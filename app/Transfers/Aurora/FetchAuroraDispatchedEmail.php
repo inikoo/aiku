@@ -8,18 +8,24 @@
 
 namespace App\Transfers\Aurora;
 
+use App\Actions\Comms\Mailshot\StoreMailshot;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailProviderEnum;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
-use App\Enums\Comms\Outbox\OutboxTypeEnum;
-use App\Models\Comms\Outbox;
+use App\Enums\Comms\Mailshot\MailshotStateEnum;
+use App\Enums\Comms\Mailshot\MailshotTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
+use App\Models\Comms\Mailshot;
+use App\Models\CRM\Prospect;
 use Illuminate\Support\Facades\DB;
 use Str;
 
 class FetchAuroraDispatchedEmail extends FetchAurora
 {
+    /**
+     * @throws \Throwable
+     */
     protected function parseModel(): void
     {
-
         if (!$this->auroraModelData->{'Email Tracking Recipient Key'}) {
             return;
         }
@@ -37,38 +43,6 @@ class FetchAuroraDispatchedEmail extends FetchAurora
             default => Str::kebab($this->auroraModelData->{'Email Tracking State'})
         };
 
-        $parent = null;
-        if ($this->auroraModelData->{'Email Tracking Email Mailshot Key'}) {
-
-            $parent = $this->parseMailshot($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Email Mailshot Key'});
-
-            if (!$parent) {
-                $parent = $this->parseEmailBulkRun($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Email Mailshot Key'});
-            }
-
-        }
-
-
-        if (!$parent) {
-
-            $outbox = Outbox::withTrashed()
-                ->whereJsonContains('sources->outboxes', $this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Email Template Type Key'})
-                ->first();
-
-
-            dd($outbox->emailOngoingRun);
-            if ($outbox->type == OutboxTypeEnum::USER_NOTIFICATION) {
-                $parent = $outbox->emailOngoingRun;
-
-            }
-
-        }
-
-
-
-        if (!$parent) {
-            dd($this->auroraModelData);
-        }
 
         $recipient = match ($this->auroraModelData->{'Email Tracking Recipient'}) {
             'Customer' => $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Recipient Key'}),
@@ -83,6 +57,31 @@ class FetchAuroraDispatchedEmail extends FetchAurora
             // print_r($this->auroraModelData);
         }
 
+        $parent = null;
+
+
+        if ($recipient instanceof Prospect) {
+            $parent = $this->parseProspectMailshot($recipient);
+        } else {
+            if ($this->auroraModelData->{'Email Tracking Email Mailshot Key'}) {
+                $parent = $this->parseMailshot($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Email Mailshot Key'});
+
+                if (!$parent) {
+                    $parent = $this->parseEmailBulkRun($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Email Mailshot Key'});
+                }
+            }
+            if (!$parent and $this->auroraModelData->{'Email Tracking Email Template Type Key'}) {
+                $parent = $this->parseEmailOngoingRun($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Email Template Type Key'});
+            }
+        }
+
+
+        if (!$parent) {
+            return;
+            //  dd($this->auroraModelData);
+        }
+
+
         $this->parsedData['recipient'] = $recipient;
         $this->parsedData['parent']    = $parent;
 
@@ -95,10 +94,56 @@ class FetchAuroraDispatchedEmail extends FetchAurora
             'fetched_at'           => now(),
             'last_fetched_at'      => now(),
             'source_id'            => $this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Key'},
-            'created_at'           => $this->parseDatetime($this->auroraModelData->{'Email Tracking Created Date'})
+            'created_at'           => $this->parseDatetime($this->auroraModelData->{'Email Tracking Created Date'}),
+            'sent_at'              => $this->parseDatetime($this->auroraModelData->{'Email Tracking Sent Date'}),
+            'first_read_at'        => $this->parseDatetime($this->auroraModelData->{'Email Tracking First Read Date'}),
+            'last_read_at'         => $this->parseDatetime($this->auroraModelData->{'Email Tracking Last Read Date'}),
+            'first_clicked_at'     => $this->parseDatetime($this->auroraModelData->{'Email Tracking First Clicked Date'}),
+            'last_clicked_at'      => $this->parseDatetime($this->auroraModelData->{'Email Tracking Last Clicked Date'}),
+            'number_reads'         => (int)$this->auroraModelData->{'Email Tracking Number Reads'},
+            'number_clicks'        => (int)$this->auroraModelData->{'Email Tracking Number Clicks'},
         ];
     }
 
+
+    /**
+     * @throws \Throwable
+     */
+    public function parseProspectMailshot($recipient): Mailshot|null
+    {
+        $mailshot = Mailshot::where('source_alt_id', $this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Published Email Template Key'})->first();
+
+        if (!$mailshot) {
+            $publishedEmailAuroraData = DB::connection('aurora')
+                ->table('Published Email Template Dimension')
+                ->where('Published Email Template Key', $this->auroraModelData->{'Email Tracking Published Email Template Key'})->first();
+
+
+            $outbox = $recipient->shop->outboxes()->where('code', OutboxCodeEnum::INVITE)->first();
+
+            $mailshotData = [
+                'subject'           => $publishedEmailAuroraData->{'Published Email Template Subject'},
+                'type'              => MailshotTypeEnum::INVITE,
+                'state'             => MailshotStateEnum::SENT,
+                'source_alt_id'     => $this->organisation->id.':'.$publishedEmailAuroraData->{'Published Email Template Key'},
+                'created_at'        => $this->parseDatetime($this->auroraModelData->{'Email Tracking Created Date'}),
+                'sent_at'           => $this->parseDatetime($this->auroraModelData->{'Email Tracking Sent Date'}),
+                'recipients_recipe' => [],
+                'fetched_at'        => now(),
+                'last_fetched_at'   => now(),
+            ];
+
+            $mailshot = StoreMailshot::make()->action(
+                outbox: $outbox,
+                modelData: $mailshotData,
+                hydratorsDelay: 60,
+                strict: false,
+                audit: false
+            );
+        }
+
+        return $mailshot;
+    }
 
     protected function fetchData($id): object|null
     {

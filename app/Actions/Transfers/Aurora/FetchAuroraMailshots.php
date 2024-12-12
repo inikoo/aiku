@@ -17,6 +17,7 @@ use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraMailshots extends FetchAuroraAction
 {
@@ -28,7 +29,7 @@ class FetchAuroraMailshots extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Mailshot
     {
         $this->organisationSource = $organisationSource;
-        $mailshotData = $organisationSource->fetchMailshot($organisationSourceId);
+        $mailshotData             = $organisationSource->fetchMailshot($organisationSourceId);
         if (!$mailshotData) {
             return null;
         }
@@ -77,19 +78,17 @@ class FetchAuroraMailshots extends FetchAuroraAction
         }
 
 
-        if ($mailshot) {
-            $organisation = $organisationSource->getOrganisation();
+        $organisation = $organisationSource->getOrganisation();
 
-            if ($mailshotData['source_template_id']) {
-                $email = $this->parseEmail($organisation->id.':'.$mailshotData['source_template_id']);
+        if ($mailshotData['source_template_id']) {
+            $email = $this->parseEmail($organisation->id.':'.$mailshotData['source_template_id']);
 
-                if ($email) {
-                    $mailshot->update(
-                        [
-                            'email_id' => $email->id
-                        ]
-                    );
-                }
+            if ($email) {
+                $mailshot->update(
+                    [
+                        'email_id' => $email->id
+                    ]
+                );
             }
         }
 

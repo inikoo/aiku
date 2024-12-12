@@ -40,7 +40,7 @@ class UpdateEmailOngoingRun extends OrgAction
     {
         $rules = [
             'subject'  => ['sometimes', 'required', 'string', 'max:255'],
-            'status'   => ['required', Rule::enum(EmailOngoingRunStatusEnum::class)],
+            'status'   => ['sometimes', 'required', Rule::enum(EmailOngoingRunStatusEnum::class)],
             'email_id' => [
                 'sometimes',
                 'required',
@@ -51,8 +51,8 @@ class UpdateEmailOngoingRun extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['fetched_at']      = ['sometimes', 'nullable', 'date'];
-            $rules = $this->noStrictUpdateRules($rules);
+            $rules['fetched_at'] = ['sometimes', 'nullable', 'date'];
+            $rules               = $this->noStrictUpdateRules($rules);
         }
 
         return $rules;

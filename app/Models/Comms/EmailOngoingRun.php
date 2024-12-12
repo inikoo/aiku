@@ -9,11 +9,13 @@
 namespace App\Models\Comms;
 
 use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunStatusEnum;
+use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunCodeEnum;
 use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -27,6 +29,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
  * @property int|null $shop_id
  * @property int|null $outbox_id
  * @property int|null $email_id
+ * @property EmailOngoingRunCodeEnum $code
  * @property EmailOngoingRunTypeEnum $type
  * @property EmailOngoingRunStatusEnum $status
  * @property array $data
@@ -37,6 +40,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
  * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Comms\DispatchedEmail> $dispatchedEmails
  * @property-read \App\Models\Comms\Email|null $email
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Comms\EmailBulkRun> $emailBulkRuns
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\Comms\EmailOngoingRunIntervals|null $intervals
  * @property-read \App\Models\SysAdmin\Organisation $organisation
@@ -54,6 +58,7 @@ class EmailOngoingRun extends Model
 
     protected $casts = [
         'data'            => 'array',
+        'code'            => EmailOngoingRunCodeEnum::class,
         'type'            => EmailOngoingRunTypeEnum::class,
         'status'          => EmailOngoingRunStatusEnum::class,
         'date'            => 'datetime',
@@ -104,6 +109,11 @@ class EmailOngoingRun extends Model
     public function dispatchedEmails(): MorphMany
     {
         return $this->morphMany(DispatchedEmail::class, 'parent');
+    }
+
+    public function emailBulkRuns(): HasMany
+    {
+        return $this->hasMany(EmailBulkRun::class);
     }
 
 

@@ -8,6 +8,7 @@
 
 namespace App\Enums\Comms\Outbox;
 
+use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunTypeEnum;
 use App\Enums\Comms\PostRoom\PostRoomCodeEnum;
 use App\Enums\EnumHelperTrait;
 
@@ -46,7 +47,11 @@ enum OutboxCodeEnum: string
     {
         return match ($this) {
             OutboxCodeEnum::NEWSLETTER => OutboxTypeEnum::NEWSLETTER,
-            OutboxCodeEnum::MARKETING => OutboxTypeEnum::MARKETING,
+            OutboxCodeEnum::MARKETING ,
+            OutboxCodeEnum::ABANDONED_CART
+
+
+            => OutboxTypeEnum::MARKETING,
             OutboxCodeEnum::INVITE => OutboxTypeEnum::COLD_EMAIL,
 
 
@@ -66,7 +71,6 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::BASKET_REMINDER_1,
             OutboxCodeEnum::BASKET_REMINDER_2,
             OutboxCodeEnum::BASKET_REMINDER_3,
-            OutboxCodeEnum::ABANDONED_CART,
             OutboxCodeEnum::REORDER_REMINDER => OutboxTypeEnum::MARKETING_NOTIFICATION,
             OutboxCodeEnum::TEST => OutboxTypeEnum::TEST,
 
@@ -243,19 +247,49 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::RENTAL_AGREEMENT,
             OutboxCodeEnum::PALLET_DELIVERY_PROCESSED,
             OutboxCodeEnum::PALLET_RETURN_DISPATCHED,
-            => 'EmailOngoingRun',
-            OutboxCodeEnum::MARKETING,
-            OutboxCodeEnum::NEWSLETTER,
-            OutboxCodeEnum::INVITE,
-            => 'Mailshot',
             OutboxCodeEnum::BASKET_LOW_STOCK,
             OutboxCodeEnum::BASKET_REMINDER_1,
             OutboxCodeEnum::BASKET_REMINDER_2,
             OutboxCodeEnum::BASKET_REMINDER_3,
-            OutboxCodeEnum::ABANDONED_CART,
             OutboxCodeEnum::REORDER_REMINDER,
             OutboxCodeEnum::OOS_NOTIFICATION,
-            => 'EmailBulkRun',
+
+            => 'EmailOngoingRun',
+            OutboxCodeEnum::MARKETING,
+            OutboxCodeEnum::NEWSLETTER,
+            OutboxCodeEnum::INVITE,
+            OutboxCodeEnum::ABANDONED_CART,
+            => 'Mailshot',
+
+            default => null
+        };
+    }
+
+    public function emailOngoingRunType(): ?EmailOngoingRunTypeEnum
+    {
+        return match ($this) {
+            OutboxCodeEnum::NEW_CUSTOMER,
+            OutboxCodeEnum::DELIVERY_NOTE_DISPATCHED,
+            OutboxCodeEnum::DELIVERY_NOTE_UNDISPATCHED,
+            OutboxCodeEnum::INVOICE_DELETED,
+            OutboxCodeEnum::NEW_ORDER,
+            OutboxCodeEnum::DELIVERY_CONFIRMATION,
+            OutboxCodeEnum::ORDER_CONFIRMATION,
+            OutboxCodeEnum::PASSWORD_REMINDER,
+            OutboxCodeEnum::REGISTRATION,
+            OutboxCodeEnum::REGISTRATION_APPROVED,
+            OutboxCodeEnum::REGISTRATION_REJECTED,
+            OutboxCodeEnum::RENTAL_AGREEMENT,
+            OutboxCodeEnum::PALLET_DELIVERY_PROCESSED,
+            OutboxCodeEnum::PALLET_RETURN_DISPATCHED,
+            => EmailOngoingRunTypeEnum::TRANSACTIONAL,
+            OutboxCodeEnum::BASKET_LOW_STOCK,
+            OutboxCodeEnum::BASKET_REMINDER_1,
+            OutboxCodeEnum::BASKET_REMINDER_2,
+            OutboxCodeEnum::BASKET_REMINDER_3,
+            OutboxCodeEnum::REORDER_REMINDER,
+            OutboxCodeEnum::OOS_NOTIFICATION,
+            => EmailOngoingRunTypeEnum::BULK,
             default => null
         };
     }

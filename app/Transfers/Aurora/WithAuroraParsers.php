@@ -23,6 +23,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraDeliveryNotes;
 use App\Actions\Transfers\Aurora\FetchAuroraDepartments;
 use App\Actions\Transfers\Aurora\FetchAuroraDispatchedEmails;
 use App\Actions\Transfers\Aurora\FetchAuroraEmailBulkRuns;
+use App\Actions\Transfers\Aurora\FetchAuroraEmailOngoingRuns;
 use App\Actions\Transfers\Aurora\FetchAuroraEmails;
 use App\Actions\Transfers\Aurora\FetchAuroraEmployees;
 use App\Actions\Transfers\Aurora\FetchAuroraFamilies;
@@ -77,6 +78,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\Comms\DispatchedEmail;
 use App\Models\Comms\Email;
 use App\Models\Comms\EmailBulkRun;
+use App\Models\Comms\EmailOngoingRun;
 use App\Models\Comms\Mailshot;
 use App\Models\Comms\Outbox;
 use App\Models\CRM\Customer;
@@ -1086,6 +1088,21 @@ trait WithAuroraParsers
         }
 
         return $warehouseArea;
+    }
+
+    public function parseEmailOngoingRun($sourceId): ?EmailOngoingRun
+    {
+        if (!$sourceId) {
+            return null;
+        }
+
+        $emailOngoingRun = EmailOngoingRun::where('source_id', $sourceId)->first();
+        if (!$emailOngoingRun) {
+            $sourceData = explode(':', $sourceId);
+            $emailOngoingRun   = FetchAuroraEmailOngoingRuns::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $emailOngoingRun;
     }
 
 

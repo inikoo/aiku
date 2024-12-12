@@ -26,10 +26,10 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
  * @property int|null $shop_id
  * @property string $subject
  * @property int|null $outbox_id
+ * @property int|null $email_ongoing_run_id
  * @property int|null $email_id
  * @property int|null $snapshot_id
  * @property EmailBulkRunStateEnum $state
- * @property EmailBulkRunTypeEnum $type
  * @property \Illuminate\Support\Carbon|null $scheduled_at
  * @property \Illuminate\Support\Carbon|null $start_sending_at
  * @property \Illuminate\Support\Carbon|null $sent_at
@@ -60,7 +60,7 @@ class EmailBulkRun extends Model
 
     protected $casts = [
         'data'              => 'array',
-        'type'              => EmailBulkRunTypeEnum::class,
+       // 'type'              => EmailBulkRunTypeEnum::class,
         'state'             => EmailBulkRunStateEnum::class,
         'date'              => 'datetime',
         'scheduled_at'      => 'datetime',

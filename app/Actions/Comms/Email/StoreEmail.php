@@ -46,9 +46,15 @@ class StoreEmail extends OrgAction
                 'state'           => Arr::pull($modelData, 'snapshot_state'),
                 'recyclable'      => Arr::pull($modelData, 'snapshot_recyclable'),
                 'first_commit'    => Arr::pull($modelData, 'snapshot_first_commit'),
-                'source_id'       => Arr::pull($modelData, 'snapshot_source_id'),
-                'fetched_at'      => Arr::get($modelData, 'fetched_at')
             ];
+
+            if (Arr::has($modelData, 'source_id')) {
+                $snapshotData['source_id'] = Arr::pull($modelData, 'snapshot_source_id');
+            }
+
+            if (Arr::has($modelData, 'fetched_at')) {
+                $snapshotData['fetched_at'] = Arr::get($modelData, 'fetched_at');
+            }
 
             if ($publishedAt = Arr::pull($modelData, 'snapshot_published_at')) {
                 $snapshotData['published_at'] = $publishedAt;
@@ -74,6 +80,7 @@ class StoreEmail extends OrgAction
         return DB::transaction(function () use ($parent, $modelData, $snapshotData) {
             /** @var Email $email */
             $email = $parent->email()->create($modelData);
+
 
             if ($snapshotData) {
                 $snapshot = StoreEmailSnapshot::make()->action(

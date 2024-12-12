@@ -67,6 +67,8 @@ class StoreEmailSnapshot extends OrgAction
             $rules['recyclable']      = ['sometimes', 'required', 'boolean'];
             $rules['first_commit']    = ['sometimes', 'required', 'boolean'];
             $rules                    = $this->noStrictStoreRules($rules);
+
+
         }
 
         return $rules;

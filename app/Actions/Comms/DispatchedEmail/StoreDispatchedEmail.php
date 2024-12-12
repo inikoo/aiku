@@ -13,8 +13,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailProviderEnum;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
-use App\Enums\Comms\DispatchedEmail\DispatchedEmailTypeEnum;
-use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Models\Comms\DispatchedEmail;
 use App\Models\Comms\EmailBulkRun;
 use App\Models\Comms\EmailOngoingRun;
@@ -37,28 +35,7 @@ class StoreDispatchedEmail extends OrgAction
         data_set($modelData, 'organisation_id', $parent->organisation_id);
         data_set($modelData, 'shop_id', $parent->shop_id);
 
-        if (class_basename($parent) == 'Mailshot') {
-            $outbox = $parent->outbox;
-            data_set($modelData, 'outbox_id', $parent->outbox_id);
-        } else {
-            $outbox = $parent;
-        }
-
-
-
-        data_set(
-            $modelData,
-            'type',
-            match ($outbox->type) {
-                OutboxTypeEnum::NEWSLETTER => DispatchedEmailTypeEnum::NEWSLETTER,
-                OutboxTypeEnum::MARKETING => DispatchedEmailTypeEnum::MARKETING,
-                OutboxTypeEnum::MARKETING_NOTIFICATION => DispatchedEmailTypeEnum::MARKETING_NOTIFICATION,
-                OutboxTypeEnum::CUSTOMER_NOTIFICATION => DispatchedEmailTypeEnum::CUSTOMER_NOTIFICATION,
-                OutboxTypeEnum::COLD_EMAIL => DispatchedEmailTypeEnum::COLD_EMAIL,
-                OutboxTypeEnum::USER_NOTIFICATION => DispatchedEmailTypeEnum::USER_NOTIFICATION,
-                OutboxTypeEnum::TEST => DispatchedEmailTypeEnum::TEST,
-            }
-        );
+        data_set($modelData, 'outbox_id', $parent->outbox_id);
 
 
         data_set($modelData, 'recipient_type', class_basename($recipient));
@@ -96,6 +73,15 @@ class StoreDispatchedEmail extends OrgAction
             $rules['state']                = ['required', Rule::enum(DispatchedEmailStateEnum::class)];
             $rules['email_address']        = ['required', 'string'];
             $rules['provider_dispatch_id'] = ['sometimes', ' nullable', 'string'];
+
+            $rules['sent_at']          = ['sometimes', 'nullable', 'date'];
+            $rules['first_read_at']    = ['sometimes', 'nullable', 'date'];
+            $rules['last_read_at']     = ['sometimes', 'nullable', 'date'];
+            $rules['first_clicked_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['last_clicked_at']  = ['sometimes', 'nullable', 'date'];
+            $rules['number_reads']     = ['sometimes', 'integer'];
+            $rules['number_clicks']    = ['sometimes', 'integer'];
+
 
             $rules = $this->noStrictStoreRules($rules);
         }

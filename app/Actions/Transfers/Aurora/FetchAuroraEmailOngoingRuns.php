@@ -12,6 +12,7 @@ use App\Actions\Comms\Email\StoreEmail;
 use App\Actions\Comms\EmailOngoingRun\UpdateEmailOngoingRun;
 use App\Actions\Comms\Outbox\UpdateOutbox;
 use App\Actions\Helpers\Snapshot\UpdateSnapshot;
+use App\Enums\Comms\Email\EmailBuilderEnum;
 use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunStatusEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Models\Comms\EmailOngoingRun;
@@ -34,13 +35,15 @@ class FetchAuroraEmailOngoingRuns extends FetchAuroraAction
             return null;
         }
 
+
         $emailOngoingRun = EmailOngoingRun::where('source_id', $emailOngoingRunData['email_ongoing_run']['source_id'])->first();
 
         if (!$emailOngoingRun) {
             $emailOngoingRun = EmailOngoingRun::where('shop_id', $emailOngoingRunData['shop']->id)
-                ->where('type', $emailOngoingRunData['email_ongoing_run']['type'])
+                ->where('code', $emailOngoingRunData['email_ongoing_run']['code'])
                 ->first();
         }
+
 
         if (!$emailOngoingRun) {
             return null;
@@ -70,6 +73,13 @@ class FetchAuroraEmailOngoingRuns extends FetchAuroraAction
         if (!$email) {
             data_forget($emailOngoingRunData, 'snapshot.last_fetched_at');
 
+            if ($emailOngoingRunData['snapshot']['builder'] == EmailBuilderEnum::BLADE) {
+                print_r($emailOngoingRunData);
+                dd('This can not happen');
+            }
+
+            // dd($emailOngoingRun);
+
             $email = StoreEmail::make()->action(
                 $emailOngoingRun,
                 null,
@@ -78,7 +88,12 @@ class FetchAuroraEmailOngoingRuns extends FetchAuroraAction
                 strict: false
             );
         } else {
-            data_forget($emailOngoingRunData, 'snapshot.fetched_at');
+
+            if ($email->snapshot->fetched_at) {
+                data_forget($emailOngoingRunData, 'snapshot.fetched_at');
+            } else {
+                data_forget($emailOngoingRunData, 'snapshot.last_fetched_at');
+            }
 
             UpdateSnapshot::make()->action(
                 $email->snapshot,
@@ -113,18 +128,18 @@ class FetchAuroraEmailOngoingRuns extends FetchAuroraAction
     {
         //enum('Newsletter','Marketing','GR Reminder','AbandonedCart','Invite EmailOngoingRun','OOS Notification','Invite Full EmailOngoingRun')
         $query = DB::connection('aurora')
-            ->table('Email Campaign Type Dimension')
-            ->whereIn(
-                'Email Campaign Type Code',
-                [
-                    'Registration',
-                    'Registration Rejected',
-                    'Registration Approved',
-                    'Password Reminder',
-                    'Order Confirmation',
-                    'Delivery Confirmation'
-                ]
-            );
+            ->table('Email Campaign Type Dimension');
+        //            ->whereIn(
+        //                'Email Campaign Type Code',
+        //                [
+        //                    'Registration',
+        //                    'Registration Rejected',
+        //                    'Registration Approved',
+        //                    'Password Reminder',
+        //                    'Order Confirmation',
+        //                    'Delivery Confirmation'
+        //                ]
+        //            );
 
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
@@ -137,18 +152,18 @@ class FetchAuroraEmailOngoingRuns extends FetchAuroraAction
     public function count(): ?int
     {
         $query = DB::connection('aurora')
-            ->table('Email Campaign Type Dimension')
-            ->whereIn(
-                'Email Campaign Type Code',
-                [
-                    'Registration',
-                    'Registration Rejected',
-                    'Registration Approved',
-                    'Password Reminder',
-                    'Order Confirmation',
-                    'Delivery Confirmation'
-                ]
-            );
+            ->table('Email Campaign Type Dimension');
+        //            ->whereIn(
+        //                'Email Campaign Type Code',
+        //                [
+        //                    'Registration',
+        //                    'Registration Rejected',
+        //                    'Registration Approved',
+        //                    'Password Reminder',
+        //                    'Order Confirmation',
+        //                    'Delivery Confirmation'
+        //                ]
+        //            );
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }
