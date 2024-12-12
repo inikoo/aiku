@@ -41,12 +41,9 @@ class OrganisationHydrateSales
 
         $stats = array_merge($stats, $this->getIntervalStats($queryBase, 'sales_grp_currency_', 'date', 'sum_group'));
         $stats = array_merge($stats, $this->getLastYearIntervalStats($queryBase, 'sales_grp_currency_', 'date', 'sum_group'));
-
         $stats = array_merge($stats, $this->getIntervalStats($queryBase, 'sales_org_currency_', 'date', 'sum_org'));
         $stats = array_merge($stats, $this->getLastYearIntervalStats($queryBase, 'sales_org_currency_', 'date', 'sum_org'));
 
-
-        dd($stats);
 
         $organisation->salesIntervals()->update($stats);
     }
