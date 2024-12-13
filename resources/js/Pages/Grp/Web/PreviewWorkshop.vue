@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { getComponent } from '@/Composables/getWorkshopComponents'
-import { getComponent as getIrisComponent } from '@/Composables/getIrisComponents';
+import { getIrisComponent } from '@/Composables/getIrisComponents'
 import { ref, onMounted, onUnmounted, reactive, provide, toRaw} from 'vue'
 import WebPreview from "@/Layouts/WebPreview.vue";
 import debounce from 'lodash/debounce'

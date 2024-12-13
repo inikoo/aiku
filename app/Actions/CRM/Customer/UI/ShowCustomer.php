@@ -63,6 +63,16 @@ class ShowCustomer extends OrgAction
         return false;
     }
 
+    public function inGroup(Customer $customer, ActionRequest $request): Customer
+    {
+        $this->initialisationFromGroup(group(), $request);
+        $this->parent = group();
+
+        return $this->handle($customer);
+    }
+
+
+
     public function inOrganisation(Organisation $organisation, Customer $customer, ActionRequest $request): Customer
     {
         $this->parent = $organisation;

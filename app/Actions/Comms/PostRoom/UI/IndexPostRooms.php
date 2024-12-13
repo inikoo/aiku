@@ -11,7 +11,7 @@ namespace App\Actions\Comms\PostRoom\UI;
 use App\Actions\Comms\DispatchedEmail\UI\IndexDispatchedEmails;
 use App\Actions\Comms\Mailshot\UI\IndexMailshots;
 use App\Actions\Comms\Outbox\UI\IndexOutboxes;
-use App\Actions\OrgAction;
+use App\Actions\GrpAction;
 use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Enums\Comms\PostRoom\PostRoomsTabsEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
@@ -32,7 +32,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexPostRooms extends OrgAction
+class IndexPostRooms extends GrpAction
 {
     // private Organisation|Shop $parent;
 
@@ -99,7 +99,7 @@ class IndexPostRooms extends OrgAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisationFromGroup(app('group'), $request);
+        $this->initialisation(app('group'), $request);
 
         return $this->handle();
     }
