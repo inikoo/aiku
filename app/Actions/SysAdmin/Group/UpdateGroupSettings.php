@@ -84,9 +84,9 @@ class UpdateGroupSettings extends GrpAction
                 File::image()
                     ->max(12 * 1024)
             ],
-            'client_id'                         => ['sometimes', 'string'],
-            'client_secret'                     => ['sometimes', 'string'],
-            'grant_type'                        => ['sometimes', 'string'],
+            'client_id'                         => ['sometimes', 'string', 'nullable'],
+            'client_secret'                     => ['sometimes', 'string', 'nullable'],
+            'grant_type'                        => ['sometimes', 'string', 'nullable'],
         ];
     }
 
