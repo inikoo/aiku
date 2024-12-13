@@ -52,7 +52,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
                     return null;
                 }
             } else {
-                try {
+                //try {
                     $customer = StoreCustomer::make()->action(
                         shop: $customerData['shop'],
                         modelData: $customerData['customer'],
@@ -74,11 +74,11 @@ class FetchAuroraCustomers extends FetchAuroraAction
                     DB::connection('aurora')->table('Customer Dimension')
                         ->where('Customer Key', $sourceData[1])
                         ->update(['aiku_id' => $customer->id]);
-                } catch (Exception|Throwable $e) {
-                    $this->recordError($organisationSource, $e, $customerData['customer'], 'Customer', 'store');
-
-                    return null;
-                }
+//                } catch (Exception|Throwable $e) {
+//                    $this->recordError($organisationSource, $e, $customerData['customer'], 'Customer', 'store');
+//
+//                    return null;
+//                }
             }
 
 

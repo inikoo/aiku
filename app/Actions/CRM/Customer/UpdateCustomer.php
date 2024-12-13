@@ -150,6 +150,17 @@ class UpdateCustomer extends OrgAction
             'internal_notes'           => ['sometimes', 'nullable', 'string'],
             'warehouse_internal_notes' => ['sometimes', 'nullable', 'string'],
             'warehouse_public_notes'   => ['sometimes', 'nullable', 'string'],
+
+            'email_subscriptions'                                    => ['sometimes', 'array'],
+            'email_subscriptions.is_subscribed_to_newsletter'        => ['sometimes', 'boolean'],
+            'email_subscriptions.is_subscribed_to_marketing'         => ['sometimes', 'boolean'],
+            'email_subscriptions.is_subscribed_to_abandoned_cart'    => ['sometimes', 'boolean'],
+            'email_subscriptions.is_subscribed_to_reorder_reminder'  => ['sometimes', 'boolean'],
+            'email_subscriptions.is_subscribed_to_basket_low_stock'  => ['sometimes', 'boolean'],
+            'email_subscriptions.is_subscribed_to_basket_reminder_1' => ['sometimes', 'boolean'],
+            'email_subscriptions.is_subscribed_to_basket_reminder_2' => ['sometimes', 'boolean'],
+            'email_subscriptions.is_subscribed_to_basket_reminder_3' => ['sometimes', 'boolean'],
+
         ];
 
 

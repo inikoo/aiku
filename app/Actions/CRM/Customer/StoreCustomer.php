@@ -21,6 +21,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCustomers;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
@@ -86,10 +87,18 @@ class StoreCustomer extends OrgAction
                 CustomerStatusEnum::APPROVED
         );
 
-        $customer = DB::transaction(function () use ($shop, $modelData, $contactAddressData, $deliveryAddressData, $taxNumberData) {
+        $emailSubscriptionsData = Arr::pull($modelData, 'email_subscriptions', []);
+
+        $customer = DB::transaction(function () use ($shop, $modelData, $contactAddressData, $deliveryAddressData, $taxNumberData,$emailSubscriptionsData) {
             /** @var Customer $customer */
             $customer = $shop->customers()->create($modelData);
             $customer->stats()->create();
+            $customer->comms()->create(
+                array_merge(
+                    $this->getCommsBaseValues(),
+                    $emailSubscriptionsData
+                )
+            );
 
             if ($customer->is_dropshipping) {
                 $customer->dropshippingStats()->create();
@@ -158,6 +167,21 @@ class StoreCustomer extends OrgAction
         return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
     }
 
+    private function getCommsBaseValues(): array
+    {
+        return [
+            'is_subscribed_to_newsletter'        => false,
+            'is_subscribed_to_marketing'         => false,
+            'is_subscribed_to_abandoned_cart'    => true,
+            'is_subscribed_to_reorder_reminder'  => true,
+            'is_subscribed_to_basket_low_stock'  => true,
+            'is_subscribed_to_basket_reminder_1' => true,
+            'is_subscribed_to_basket_reminder_2' => true,
+            'is_subscribed_to_basket_reminder_3' => true,
+
+        ];
+    }
+
     public function rules(): array
     {
         $rules = [
@@ -204,6 +228,17 @@ class StoreCustomer extends OrgAction
             'internal_notes'           => ['sometimes', 'nullable', 'string'],
             'warehouse_internal_notes' => ['sometimes', 'nullable', 'string'],
             'warehouse_public_notes'   => ['sometimes', 'nullable', 'string'],
+
+            'email_subscriptions'=> ['sometimes', 'array'],
+            'email_subscriptions.is_subscribed_to_newsletter' => ['sometimes', 'boolean'],
+            'email_subscriptions.is_subscribed_to_marketing' => ['sometimes', 'boolean'],
+            'email_subscriptions.is_subscribed_to_abandoned_cart' => ['sometimes', 'boolean'],
+            'email_subscriptions.is_subscribed_to_reorder_reminder' => ['sometimes', 'boolean'],
+            'email_subscriptions.is_subscribed_to_basket_low_stock' => ['sometimes', 'boolean'],
+            'email_subscriptions.is_subscribed_to_basket_reminder_1' => ['sometimes', 'boolean'],
+            'email_subscriptions.is_subscribed_to_basket_reminder_2' => ['sometimes', 'boolean'],
+            'email_subscriptions.is_subscribed_to_basket_reminder_3' => ['sometimes', 'boolean'],
+
 
             'password' =>
                 [

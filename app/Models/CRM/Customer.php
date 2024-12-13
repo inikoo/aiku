@@ -18,7 +18,6 @@ use App\Models\Accounting\Payment;
 use App\Models\Accounting\TopUp;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
-use App\Models\Comms\ModelSubscribedToOutbox;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\Platform;
@@ -114,6 +113,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, BackInStockReminder> $backInStockReminder
  * @property-read Collection<int, CustomerClient> $clients
+ * @property-read \App\Models\CRM\CustomerComms|null $comms
  * @property-read Collection<int, CreditTransaction> $creditTransactions
  * @property-read Collection<int, \App\Models\CRM\CustomerNote> $customerNotes
  * @property-read Address|null $deliveryAddress
@@ -140,12 +140,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\CRM\CustomerStats|null $stats
  * @property-read Collection<int, Stock> $stocks
  * @property-read Collection<int, StoredItem> $storedItems
- * @property-read Collection<int, ModelSubscribedToOutbox> $subscribedOutboxes
  * @property-read TaxNumber|null $taxNumber
  * @property-read Collection<int, TopUp> $topUps
  * @property-read Collection<int, Transaction> $transactions
  * @property-read UniversalSearch|null $universalSearch
- * @property-read Collection<int, ModelSubscribedToOutbox> $unsubscribedOutboxes
  * @property-read Collection<int, \App\Models\CRM\WebUser> $webUsers
  * @property-read WooCommerceUser|null $wooCommerceUser
  * @method static \Database\Factories\CRM\CustomerFactory factory($count = null, $state = [])
@@ -286,6 +284,11 @@ class Customer extends Model implements HasMedia, Auditable
         return $this->hasOne(CustomerStats::class);
     }
 
+    public function comms(): HasOne
+    {
+        return $this->hasOne(CustomerComms::class);
+    }
+
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
@@ -423,17 +426,6 @@ class Customer extends Model implements HasMedia, Auditable
         return $this->hasMany(BackInStockReminder::class);
     }
 
-    public function subscribedOutboxes(): MorphMany
-    {
-        return $this->morphMany(ModelSubscribedToOutbox::class, 'model')
-                    ->whereNull('unsubscribed_at');
-    }
-
-    public function unsubscribedOutboxes(): MorphMany
-    {
-        return $this->morphMany(ModelSubscribedToOutbox::class, 'model')
-                    ->whereNotNull('unsubscribed_at');
-    }
 
     public function pollReplies(): HasMany
     {

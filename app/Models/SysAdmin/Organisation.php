@@ -29,7 +29,6 @@ use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\Catalogue\Subscription;
-use App\Models\Comms\ModelSubscribedToOutbox;
 use App\Models\Comms\OrgPostRoom;
 use App\Models\Comms\Outbox;
 use App\Models\CRM\Customer;
@@ -185,7 +184,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, OrgStock> $orgStocks
  * @property-read LaravelCollection<int, OrgSupplierProduct> $orgSupplierProducts
  * @property-read LaravelCollection<int, OrgSupplier> $orgSuppliers
- * @property-read LaravelCollection<int, ModelSubscribedToOutbox> $outboxSubscribers
  * @property-read LaravelCollection<int, Outbox> $outboxes
  * @property-read LaravelCollection<int, Packing> $packings
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
@@ -730,12 +728,6 @@ class Organisation extends Model implements HasMedia, Auditable
     public function serialReferences(): MorphMany
     {
         return $this->morphMany(SerialReference::class, 'container');
-    }
-
-    public function outboxSubscribers(): HasMany
-    {
-        return $this->hasMany(ModelSubscribedToOutbox::class)
-                    ->whereNull('unsubscribed_at');
     }
 
     public function feedbacks(): MorphMany

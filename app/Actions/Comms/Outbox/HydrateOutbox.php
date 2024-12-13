@@ -12,7 +12,6 @@ use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateEmailBulkRuns;
 use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateEmails;
 use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateIntervals;
 use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateMailshots;
-use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateSubscriber;
 use App\Actions\HydrateModel;
 use App\Models\Comms\Outbox;
 use Illuminate\Support\Collection;
@@ -25,7 +24,6 @@ class HydrateOutbox extends HydrateModel
         OutboxHydrateEmails::run($outbox);
         OutboxHydrateMailshots::run($outbox);
         OutboxHydrateIntervals::run($outbox);
-        OutboxHydrateSubscriber::run($outbox);
 
     }
 

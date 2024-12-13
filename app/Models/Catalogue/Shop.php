@@ -25,7 +25,6 @@ use App\Models\Billables\Charge;
 use App\Models\Billables\Rental;
 use App\Models\Billables\Service;
 use App\Models\Comms\Mailshot;
-use App\Models\Comms\ModelSubscribedToOutbox;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\SenderEmail;
 use App\Models\CRM\Appointment;
@@ -170,7 +169,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read PaymentAccountShop|OrgPaymentServiceProviderShop|null $pivot
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read Organisation $organisation
- * @property-read LaravelCollection<int, ModelSubscribedToOutbox> $outboxSubscribers
  * @property-read LaravelCollection<int, Outbox> $outboxes
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
  * @property-read LaravelCollection<int, Payment> $payments
@@ -584,12 +582,6 @@ class Shop extends Model implements HasMedia, Auditable
     public function purges(): HasMany
     {
         return $this->hasMany(Purge::class);
-    }
-
-    public function outboxSubscribers(): HasMany
-    {
-        return $this->hasMany(ModelSubscribedToOutbox::class)
-                    ->whereNull('unsubscribed_at');
     }
 
     public function polls(): HasMany
