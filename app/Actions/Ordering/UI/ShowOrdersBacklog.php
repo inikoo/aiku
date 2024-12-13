@@ -31,7 +31,7 @@ class ShowOrdersBacklog extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Shop
     {
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(OrdersBacklogTabsEnum::values());
 
         return $shop;
     }
