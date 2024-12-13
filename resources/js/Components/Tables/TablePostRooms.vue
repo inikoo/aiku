@@ -7,34 +7,42 @@
 <script setup lang="ts">
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
-import {PostRoom} from "@/types/postRoom";
+
 defineProps<{
     data: object,
     tab?:string,
 }>()
 
 
-function mailRoute(postRoom: PostRoom) {
-    switch (route().current()) {
-        case 'mail.post_rooms.index':
-            return route(
-                'mail.post_rooms.show',
-                [postRoom.code]);
-    }
-}
+// function mailRoute(postRoom: PostRoom) {
+//     switch (route().current()) {
+//         case 'mail.post_rooms.index':
+//             return route(
+//                 'mail.post_rooms.show',
+//                 [postRoom.code]);
+//     }
+// }
+
+function postRoomRoute(orgPostRoom: {}) {
+      switch (route().current()) {
+        //   case 'grp.org.shops.show.comms.post-rooms.index':
+        //   return route(
+        //           'grp.org.shops.show.comms.post-rooms.show',
+        //           [route().params['organisation'], route().params['shop'], orgPostRoom.slug])
+          default:
+              return null
+      }
+  }
 
 </script>
 
 <template>
-    <Table :resource="data" :name="tab"  class="mt-5">
-        <template #cell(code)="{ item: postRoom }">
-            <Link :href="mailRoute(postRoom)">
-                {{ postRoom['code'] }}
-            </Link>
-        </template>
+    <Table :resource="data" :name="tab">
+      <template #cell(name)="{ item: postRoom }">
+          <Link :href="postRoomRoute(postRoom)" class="primaryLink">
+              {{ postRoom["name"] }}
+          </Link>
+      </template>
     </Table>
-
-
 </template>
-
 

@@ -24,12 +24,14 @@ class PostRoomResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'number_outboxes'          => $this->number_outboxes,
-            'number_mailshots'         => $this->number_mailshots,
-            'number_dispatched_emails' => $this->number_dispatched_emails,
-            'code'                     => $this->code,
-            'created_at'               => $this->created_at,
-            'updated_at'               => $this->updated_at,
+            'id'    => $this->id,
+            'slug'  => $this->slug,
+            'name'  => $this->name,
+            'number_mailshots'       => $this->number_mailshots,
+            'dispatched_emails_lw'   => $this->dispatched_emails_lw,
+            'opened_emails_lw'       => $this->opened_emails_lw,
+            'runs'                   => $this->runs,
+            'unsubscribed_emails_lw' => $this->unsubscribed_emails_lw,
         ];
     }
 }
