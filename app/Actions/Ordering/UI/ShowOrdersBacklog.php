@@ -257,14 +257,14 @@ class ShowOrdersBacklog extends OrgAction
                 : Inertia::lazy(fn () => OrdersResource::collection(IndexOrders::run(parent: $parent, bucket: OrdersBacklogTabsEnum::DISPATCHED_TODAY->value))),
 
             ]
-        )->table(IndexOrders::make()->tableStructure(parent:$parent, prefix: OrdersBacklogTabsEnum::CREATING->value))
-        ->table(IndexOrders::make()->tableStructure(parent:$parent, prefix: OrdersBacklogTabsEnum::SUBMITTED->value))
-        ->table(IndexOrders::make()->tableStructure(parent:$parent, prefix: OrdersBacklogTabsEnum::IN_WAREHOUSE->value))
-        ->table(IndexOrders::make()->tableStructure(parent:$parent, prefix: OrdersBacklogTabsEnum::HANDLING->value))
-        ->table(IndexOrders::make()->tableStructure(parent:$parent, prefix: OrdersBacklogTabsEnum::HANDLING_BLOCKED->value))
-        ->table(IndexOrders::make()->tableStructure(parent:$parent, prefix: OrdersBacklogTabsEnum::PACKED->value))
-        ->table(IndexOrders::make()->tableStructure(parent:$parent, prefix: OrdersBacklogTabsEnum::FINALISED->value))
-        ->table(IndexOrders::make()->tableStructure(parent:$parent, prefix: OrdersBacklogTabsEnum::DISPATCHED_TODAY->value));
+        )->table(IndexOrders::make()->tableStructure(parent:$parent, prefix: OrdersBacklogTabsEnum::CREATING->value, bucket:OrdersBacklogTabsEnum::CREATING->value))
+        ->table(IndexOrders::make()->tableStructure(parent:$parent, prefix: OrdersBacklogTabsEnum::SUBMITTED->value, bucket:OrdersBacklogTabsEnum::SUBMITTED->value))
+        ->table(IndexOrders::make()->tableStructure(parent:$parent, prefix: OrdersBacklogTabsEnum::IN_WAREHOUSE->value, bucket:OrdersBacklogTabsEnum::IN_WAREHOUSE->value))
+        ->table(IndexOrders::make()->tableStructure(parent:$parent, prefix: OrdersBacklogTabsEnum::HANDLING->value, bucket:OrdersBacklogTabsEnum::HANDLING->value))
+        ->table(IndexOrders::make()->tableStructure(parent:$parent, prefix: OrdersBacklogTabsEnum::HANDLING_BLOCKED->value, bucket:OrdersBacklogTabsEnum::HANDLING_BLOCKED->value))
+        ->table(IndexOrders::make()->tableStructure(parent:$parent, prefix: OrdersBacklogTabsEnum::PACKED->value, bucket:OrdersBacklogTabsEnum::PACKED->value))
+        ->table(IndexOrders::make()->tableStructure(parent:$parent, prefix: OrdersBacklogTabsEnum::FINALISED->value, bucket:OrdersBacklogTabsEnum::FINALISED->value))
+        ->table(IndexOrders::make()->tableStructure(parent:$parent, prefix: OrdersBacklogTabsEnum::DISPATCHED_TODAY->value, bucket:OrdersBacklogTabsEnum::DISPATCHED_TODAY->value));
     }
 
     public function getBreadcrumbs(Organisation|Shop $parent, array $routeParameters): array

@@ -181,9 +181,9 @@ class IndexOrders extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Organisation|Shop|Customer|CustomerClient|Asset|ShopifyUser $parent, $prefix = null): Closure
+    public function tableStructure(Organisation|Shop|Customer|CustomerClient|Asset|ShopifyUser $parent, $prefix = null, $bucket = null): Closure
     {
-        return function (InertiaTable $table) use ($parent, $prefix) {
+        return function (InertiaTable $table) use ($parent, $prefix, $bucket) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -216,7 +216,7 @@ class IndexOrders extends OrgAction
                     ]
                 );
 
-            if ($this->bucket == 'all' && !($parent instanceof ShopifyUser)) {
+            if ($bucket == 'all' && !($parent instanceof ShopifyUser)) {
                 foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                     $table->elementGroup(
                         key: $key,
@@ -379,7 +379,7 @@ class IndexOrders extends OrgAction
                     fn () => OrdersResource::collection($orders)
                     : Inertia::lazy(fn () => OrdersResource::collection($orders)),
             ]
-        )->table($this->tableStructure($this->parent, OrdersTabsEnum::ORDERS->value));
+        )->table($this->tableStructure($this->parent, OrdersTabsEnum::ORDERS->value, $this->bucket));
     }
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
