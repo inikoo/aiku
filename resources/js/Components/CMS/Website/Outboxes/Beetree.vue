@@ -110,7 +110,7 @@ const beeConfig = () => {
             };
             beeInstance
                 .getToken(payload.client_id, payload.client_secret)
-                .then(() => beeInstance.start(config, props.snapshot.layout))
+                .then(() => beeInstance.start(config, JSON.stringify(props.snapshot.layout)))
         })
         .catch((error) => {
             console.error("Error authenticating:", error);
