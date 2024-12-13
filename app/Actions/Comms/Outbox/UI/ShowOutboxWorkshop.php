@@ -86,8 +86,8 @@ class ShowOutboxWorkshop extends OrgAction
                     'parameters' => $email->id
                 ],
                 'updateRoute'         => [
-                    'name'       => 'grp.models.email-templates.content.update',
-                    'parameters' => $email->id
+                    'name'       => 'grp.models.snapshot.update',
+                    'parameters' => $email->snapshot->id
                 ],
                 'publishRoute'           => [
                     'name'       => 'grp.models.email-templates.content.publish',

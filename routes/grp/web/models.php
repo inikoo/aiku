@@ -118,6 +118,7 @@ use App\Actions\Helpers\GoogleDrive\AuthorizeClientGoogleDrive;
 use App\Actions\Helpers\GoogleDrive\CallbackClientGoogleDrive;
 use App\Actions\Helpers\Media\AttachAttachmentToModel;
 use App\Actions\Helpers\Media\DetachAttachmentFromModel;
+use App\Actions\Helpers\Snapshot\UpdateSnapshot;
 use App\Actions\Helpers\Tag\StoreTag;
 use App\Actions\Helpers\Tag\SyncTagsModel;
 use App\Actions\HumanResources\ClockingMachine\DeleteClockingMachine;
@@ -634,6 +635,10 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
 Route::name('prospect.')->prefix('prospect/{prospect:id}')->group(function () {
     Route::post('/tags', [StoreTag::class, 'inProspect'])->name('tag.store');
     Route::patch('/tags/attach', [SyncTagsModel::class, 'inProspect'])->name('tag.attach');
+});
+
+Route::name('snapshot.')->prefix('snapshot/{snapshot:id}')->group(function () {
+    Route::post('/update', UpdateSnapshot::class)->name('update');
 });
 
 require __DIR__."/models/inventory/warehouse.php";
