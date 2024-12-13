@@ -91,4 +91,9 @@ class OrgPostRoom extends Model
     {
         return $this->belongsTo(PostRoom::class);
     }
+
+    public function emailBulkRuns(): HasMany
+    {
+        return $this->hasMany(EmailBulkRun::class);
+    }
 }
