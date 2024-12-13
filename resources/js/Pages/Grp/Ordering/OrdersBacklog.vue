@@ -48,6 +48,8 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab);
   <!-- {{ currentTab }}
   {{ tabs.navigation }}
   <pre>{{ props[currentTab] }}</pre> -->
-  <Table :resource="props[currentTab]" :name="'creating'" />
+  <Table :resource="props[currentTab]" :name="currentTab">
+    
+  </Table>
 
 </template>

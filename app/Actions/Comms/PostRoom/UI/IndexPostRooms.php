@@ -33,7 +33,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPostRooms extends OrgAction
 {
-    private Organisation|Shop $parent;
+    // private Organisation|Shop $parent;
 
     public function handle($prefix = null): LengthAwarePaginator
     {
@@ -66,6 +66,13 @@ class IndexPostRooms extends OrgAction
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
+    }
+
+    public function asController(ActionRequest $request): ActionRequest
+    {
+        $this->initialisation(app('group'), $request);
+
+        return $request;
     }
 
     public function tableStructure($prefix): Closure
@@ -156,13 +163,6 @@ class IndexPostRooms extends OrgAction
     {
         $this->parent = $organisation;
         $this->initialisation($organisation, $request);
-        return $this->handle();
-    }
-
-    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $shop;
-        $this->initialisationFromShop($shop, $request);
         return $this->handle();
     }
 
