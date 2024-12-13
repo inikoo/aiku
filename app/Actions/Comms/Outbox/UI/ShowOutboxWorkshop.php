@@ -76,11 +76,21 @@ class ShowOutboxWorkshop extends OrgAction
                                 'parameters' => array_values($request->route()->originalParameters()),
                             ]
                         ],
+                        [
+                            'type'  => 'button',
+                            'style' => 'save',
+                            'label' => __('publish'),
+                            'route' => [
+                                'name'       => 'grp.models.email-templates.content.publish',
+                                'parameters' => $email->id,
+                                'method'     => 'post'
+                            ]
+                        ],
                     ]
 
                 ],
-                'compiled_layout'    => $email->snapshot->compiled_layout,
-
+                'snapshot'          => $email->snapshot,
+                'builder'           =>$email->builder,
                 'imagesUploadRoute'   => [
                     'name'       => 'grp.models.email-templates.images.store',
                     'parameters' => $email->id
@@ -89,14 +99,14 @@ class ShowOutboxWorkshop extends OrgAction
                     'name'       => 'grp.models.snapshot.update',
                     'parameters' => $email->snapshot->id
                 ],
-                'publishRoute'           => [
+               /*  'publishRoute'           => [
                     'name'       => 'grp.models.email-templates.content.publish',
                     'parameters' => $email->id
+                ], */
+                'loadRoute'           => [ 
+                    'name'       => 'grp.models.email-templates.content.show',
+                    'parameters' => $email->id
                 ],
-                // 'loadRoute'           => [ -> i don't know what kind of data should i give to this route
-                //     'name'       => 'grp.models.email-templates.content.show',
-                //     'parameters' => $emailTemplate->id
-                // ]
                 'apiKey'            => [
                     'client_id'     => $email->group->settings['beefree']['client_id'],
                     'client_secret' => $email->group->settings['beefree']['client_secret'],

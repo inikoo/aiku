@@ -1,40 +1,47 @@
 <script setup lang="ts">
-import { onMounted, defineExpose, } from "vue";
+import { onMounted, defineExpose, ref } from "vue";
 import axios from "axios"
 import Bee from "@mailupinc/bee-plugin";
-import data from '@/Components/CMS/Website/Outboxes/Unlayer/UnlayerJsonExample.json'
 import { routeType } from "@/types/route";
+import { router } from "@inertiajs/vue3"
+import EmptyState from "@/Components/Utils/EmptyState.vue";
 
 const props = withDefaults(defineProps<{
-    updateRoute?: routeType;
-    imagesUploadRoute?: routeType
-    snapshot?: object
+    updateRoute: routeType;
+    imagesUploadRoute: routeType
+    snapshot: any
+    apiKey:{
+        client_id : string,
+        client_secret : string,
+        grant_type : string
+    }
 }>(), {});
 
+const showBee = ref(false)
 var mergeTags = [
-	{
-		name: 'First Name',
-		value: '[first-name]'
-	}, {
-		name: 'Last Name',
-		value: '[last-name]'
-	}, {
-		name: 'Email',
-		value: '[email]'
-	}, {
-		name: 'Latest order date',
-		value: '[order-date]'
-	}
+    {
+        name: 'First Name',
+        value: '[first-name]'
+    }, {
+        name: 'Last Name',
+        value: '[last-name]'
+    }, {
+        name: 'Email',
+        value: '[email]'
+    }, {
+        name: 'Latest order date',
+        value: '[order-date]'
+    }
 ];
 
-onMounted(() => {
+const beeConfig = () => {
     const beeInstance = new Bee();
     var endpoint = "https://auth.getbee.io/apiauth";
     var payload = {
-        client_id: "4b5904bb-6352-43f4-b283-c20ff8fefff5",
-        client_secret: "URLe7euPSiwpvBv3ZvKwTrkOUqneeGNjN93QsmesVY4mhFdfxvgF",
+        client_id: props.apiKey.client_id,
+        client_secret: props.apiKey.client_secret,
         grant_type:
-            "Basic VGhpc0lzTXlTdXBlckxvbmdUZXN0VXNlcm5hbWU6VGhpc1Bhc3N3b3JkSXNBTGll",
+            `Basic ${props.apiKey.grant_type}`,
     };
     axios
         .post(endpoint, payload)
@@ -50,7 +57,7 @@ onMounted(() => {
                 disableBaseColors: true,
                 disableColorHistory: true,
                 templateLanguageAutoTranslation: true,
-                mergeTags : mergeTags,
+                mergeTags: mergeTags,
                 customAttributes: {
                     attributes: [
                         {
@@ -71,23 +78,46 @@ onMounted(() => {
                         }
                     ]
                 },
-                onSave: (jsonFile, htmlFile) => {
-                    const params = {
-                        layout_json: jsonFile,
-                        layout_html: htmlFile,
-                        campaign_id: 1,
-                    };
-                    console.log("saving...", params);
-                },
-            };
+                autosave: 30,
+                onAutoSave: function (jsonFile) {
+                    console.log('autosave')
+                    router.post(
+                        route(props.updateRoute.name, props.updateRoute.parameters),
+                        jsonFile,
+                        {
+                            onStart: () => {
+                                console.log("Upload started...");
+                                // Perform any loading state updates here
+                            },
+                            onFinish: () => {
+                                console.log("Upload finished.");
+                                // Perform any cleanup or state updates here
+                            },
+                            onError: (e) =>{
+                                console.log("Upload finished.",e);
+                            }
+                        }
+                    );
 
+                }
+            };
             beeInstance
                 .getToken(payload.client_id, payload.client_secret)
-                .then(() => beeInstance.start(config,JSON.stringify(props.snapshot.layout)));
+                .then(() => beeInstance.start(config, JSON.stringify(props.snapshot.layout)))
         })
         .catch((error) => {
             console.error("Error authenticating:", error);
         });
+}
+
+onMounted(() => {
+    if(props.apiKey.client_id && props.apiKey.client_secret && props.apiKey.grant_type){
+        showBee.value = true
+        beeConfig()
+    }else{
+        showBee.value = false
+    }
+   
 });
 
 defineExpose({})
@@ -95,8 +125,24 @@ defineExpose({})
 </script>
 
 <template>
-    <div id="app">
+    <div v-if="showBee" id="app">
         <div id="bee-plugin-container" class="unlayer"></div>
+    </div>
+
+    <div v-else>
+        <EmptyState 
+            :data="{
+                title  : 'You Need Register Your Beefree api key',
+                action : {
+                    tooltip: 'Setting',
+                    type : 'create',
+                    route: {
+                        name : 'grp.sysadmin.settings.edit'
+                    },
+                    icon : ['fas', 'user-cog'] 
+                }
+            }"
+        />
     </div>
 </template>
 
