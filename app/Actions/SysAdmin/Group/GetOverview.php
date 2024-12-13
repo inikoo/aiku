@@ -28,11 +28,13 @@ class GetOverview extends OrgAction
         $dataRaw = collect([
             (object)[
                 'name' => 'Post Rooms',
+                'icon' => 'fal fa-inbox-out',
                 'route' => 'grp.overview.post-rooms.index',
                 'count' => PostRoom::count(),
             ],
             (object)[
                 'name' => 'Customers',
+                'icon' => 'fal fa-user',
                 'route' => 'grp.overview.customers.index',
                 'count' => Customer::count(),
             ],

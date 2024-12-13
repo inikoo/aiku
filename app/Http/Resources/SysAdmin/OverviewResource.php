@@ -20,6 +20,7 @@ class OverviewResource extends JsonResource
     {
         return [
             'name' => $this->name,
+            'icon' => $this->icon,
             'route' => route($this->route),
             'number' => $this->count,
         ];
