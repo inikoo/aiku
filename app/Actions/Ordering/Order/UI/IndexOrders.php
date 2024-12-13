@@ -216,7 +216,7 @@ class IndexOrders extends OrgAction
                     ]
                 );
 
-            if (!($parent instanceof ShopifyUser)) {
+            if ($this->bucket == 'all' && !($parent instanceof ShopifyUser)) {
                 foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                     $table->elementGroup(
                         key: $key,
@@ -234,6 +234,7 @@ class IndexOrders extends OrgAction
             }
             $table->column(key: 'payment_status', label: __('payment'), canBeHidden: false, searchable: true);
             $table->column(key: 'net_amount', label: __('net'), canBeHidden: false, searchable: true, type: 'currency');
+            $table->defaultSort('reference');
         };
     }
 
