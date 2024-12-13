@@ -13,7 +13,6 @@ use App\Actions\Comms\Mailshot\UI\IndexMailshots;
 use App\Actions\Comms\Outbox\UI\IndexOutboxes;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
-use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Enums\Comms\PostRoom\PostRoomsTabsEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Mail\MailshotResource;
@@ -82,7 +81,7 @@ class IndexPostRooms extends OrgAction
             'post_room_intervals.opened_emails_lw',
             'post_room_intervals.unsubscribed_emails_lw'
             ])
-            ->selectRaw('(post_room_stats.number_mailshots) as runs')
+            ->selectRaw('(post_room_stats.number_mailshots) as runs') // need column number_email_bulk_runs in postroom to "add" with the mailshots
             ->leftJoin('post_room_stats', 'post_room_stats.post_room_id', '=', 'post_rooms.id')
             ->leftJoin('post_room_intervals', 'post_room_intervals.post_room_id', '=', 'post_rooms.id');
 
@@ -104,25 +103,6 @@ class IndexPostRooms extends OrgAction
 
         return $this->handle();
     }
-
-    // public function tableStructure($prefix): Closure
-    // {
-    //     return function (InertiaTable $table) use ($prefix) {
-
-    //         if ($prefix) {
-    //             $table
-    //                 ->name($prefix)
-    //                 ->pageName($prefix.'Page');
-    //         }
-
-    //         $table
-    //             ->withGlobalSearch()
-    //             ->defaultSort('name')
-    //             ->column(key: 'number_outboxes', label: __('outboxes'), canBeHidden: false, sortable: true, searchable: true)
-    //             ->column(key: 'number_mailshots', label: __('mailshots'), canBeHidden: false, sortable: true, searchable: true)
-    //             ->column(key: 'number_dispatched_emails', label: __('dispatched emails'), canBeHidden: false, sortable: true, searchable: true);
-    //     };
-    // }
 
     public function tableStructure(
         Group $parent,
@@ -231,27 +211,6 @@ class IndexPostRooms extends OrgAction
         return $this->handle();
     }
 
-    // public function getBreadcrumbs($suffix = null): array
-    // {
-    //     return array_merge(
-    //         (new ShowGroupDashboard())->getBreadcrumbs(),
-    //         [
-    //             [
-    //                 'type'   => 'simple',
-    //                 'simple' => [
-    //                     'route' => [
-    //                         'name' => 'mail.post_rooms.index'
-    //                     ],
-    //                     'label' => __('post rooms'),
-    //                     'icon'  => 'fal fa-bars'
-    //                 ],
-    //                 'suffix' => $suffix
-
-    //             ]
-    //         ]
-    //     );
-    // }
-
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
     {
         $headCrumb = function (array $routeParameters = []) {
@@ -267,7 +226,6 @@ class IndexPostRooms extends OrgAction
             ];
         };
 
-        // dd($routeName);
 
         return match ($routeName) {
             'grp.overview.post-rooms.index' =>
