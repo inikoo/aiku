@@ -123,7 +123,7 @@ const renderLabelBasedOnType = (data?: {label: string | number, type?: string}, 
                             </template>
                         </div>
                         
-                        <div>
+                        <div class="text-gray-400 font-normal">
                             {{ renderLabelBasedOnType(tab.information)}}
                         </div>
                     </div>
