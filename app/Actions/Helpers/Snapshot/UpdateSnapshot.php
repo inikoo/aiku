@@ -22,12 +22,12 @@ class UpdateSnapshot extends OrgAction
     use WithActionUpdate;
     use WithNoStrictRules;
 
-    public function handle(Snapshot $snapshot, array $modelData): Snapshot
+    public function handle(Snapshot $snapshot, array $modelData)
     {
         if (empty($modelData)) {
-            throw ValidationException::withMessages([
-                'modelData' => ['The model data cannot be empty.']
-            ]);
+            return response()->json([
+                'error' => 'The model data cannot be empty.'
+            ], 422);
         }
 
         $this->update($snapshot, $modelData, ['layout']);

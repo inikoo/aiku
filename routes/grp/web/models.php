@@ -638,7 +638,7 @@ Route::name('prospect.')->prefix('prospect/{prospect:id}')->group(function () {
 });
 
 Route::name('snapshot.')->prefix('snapshot/{snapshot:id}')->group(function () {
-    Route::post('/update', UpdateSnapshot::class)->name('update');
+    Route::patch('/update', UpdateSnapshot::class)->name('update');
 });
 
 require __DIR__."/models/inventory/warehouse.php";

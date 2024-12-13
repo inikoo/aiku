@@ -81,7 +81,7 @@ const beeConfig = () => {
                 autosave: 30,
                 onAutoSave: function (jsonFile) {
                     console.log('autosave')
-                    router.post(
+                    router.patch(
                         route(props.updateRoute.name, props.updateRoute.parameters),
                         jsonFile,
                         {
