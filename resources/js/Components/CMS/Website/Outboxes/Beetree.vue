@@ -33,6 +33,7 @@ var mergeTags = [
         value: '[order-date]'
     }
 ];
+console.log(props.snapshot)
 
 const beeConfig = () => {
     const beeInstance = new Bee();
@@ -85,7 +86,7 @@ const beeConfig = () => {
                         .patch(
                             route(props.updateRoute.name, props.updateRoute.parameters), // Constructed URL
                             {
-                                layout : [jsonFile],
+                                layout : JSON.parse(jsonFile),
                                 compiled_layout : null
                             }, // Payload
                             {

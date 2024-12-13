@@ -30,8 +30,7 @@ class UpdateSnapshot extends OrgAction
             ], 422);
         }
 
-        $this->update($snapshot, $modelData, ['layout']);
-
+        $snapshot = $this->update($snapshot, $modelData);
         return $snapshot;
     }
 
@@ -40,8 +39,8 @@ class UpdateSnapshot extends OrgAction
         $rules = [
             'state'           => ['sometimes', Rule::enum(SnapshotStateEnum::class)],
             'published_until' => ['sometimes', 'date'],
-            'layout'          => ['sometimes', 'array'],
-            'compiled_layout' => ['sometimes', 'nullable', 'string']
+            'layout'          => ['sometimes'],
+            'compiled_layout' => ['sometimes', 'nullable']
         ];
 
         if (!$this->strict) {
