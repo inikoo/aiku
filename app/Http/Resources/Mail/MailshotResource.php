@@ -11,6 +11,7 @@ namespace App\Http\Resources\Mail;
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
 use App\Http\Resources\HasSelfCall;
 use App\Models\Comms\Mailshot;
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -189,7 +190,7 @@ class MailshotResource extends JsonResource
             'sent_at'             => $mailshot->sent_at,
             'cancelled_at'        => $mailshot->cancelled_at,
             'stopped_at'          => $mailshot->stopped_at,
-            'date'                => $mailshot->date,
+            'date'                => Carbon::parse($mailshot->date)->format('d F Y, H:i'),
             'created_at'          => $mailshot->created_at,
             'updated_at'          => $mailshot->updated_at,
             'timeline'            => $finalTimeline,
