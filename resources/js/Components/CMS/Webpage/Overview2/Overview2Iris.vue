@@ -8,66 +8,48 @@
 import { faCube, faLink } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { ref } from "vue"
-import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorV2.vue"
+// import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorV2.vue"
 import Image from "@/Components/Image.vue"
-import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue"
+// import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue"
 import { getStyles } from "@/Composables/styles"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faImage, faEdit } from "@far"
-import GalleryManagement from "@/Components/Utils/GalleryManagement/GalleryManagement.vue"
-import Modal from "@/Components/Utils/Modal.vue"
+// import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+// import { faImage, faEdit } from "@far"
+// import GalleryManagement from "@/Components/Utils/GalleryManagement/GalleryManagement.vue"
+// import Modal from "@/Components/Utils/Modal.vue"
 
 library.add(faCube, faLink)
 
 const props = defineProps<{
-	modelValue: any
-	webpageData: any
-	blockData: Object
-}>()
-
-const emits = defineEmits<{
-	(e: "update:modelValue", value: string): void
-	(e: "autoSave"): void
+	fieldValue: any
 }>()
 
 const isModalGallery = ref(false)
 
-const onChangeImage = (image) => {
-	const data = { ...props.modelValue }
-	data.image.source = { ...image[0].source }
-	isModalGallery.value = false
-	props.modelValue = data
-	onSave()
-}
-
-function onSave() {
-	emits("autoSave")
-}
 </script>
 
 <template>
 	<div
 		class="container flex flex-wrap justify-between"
-		:style="getStyles(modelValue.container.properties)">
+		:style="getStyles(fieldValue.container.properties)">
 		<!-- Image Section -->
 		<div
 			class="imgBx relative w-1/2 transition-all duration-300"
 			>
 			<div class="absolute inset-0">
-				<a :href="modelValue?.image?.url || '#'" target="_blank" rel="noopener noreferrer">
+				<a :href="fieldValue?.image?.url || '#'" target="_blank" rel="noopener noreferrer">
 					<img
-						v-if="!modelValue?.image"
+						v-if="!fieldValue?.image"
 						src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image.jpg"
 						alt="Informative Image"
 						class="h-full w-full object-cover" />
-					<Image :src="modelValue?.image?.source" class="h-full w-full object-cover" />
+					<Image :src="fieldValue?.image?.source" class="h-full w-full object-cover" />
 				</a>
 			</div>
 		</div>
 
 		<!-- Details Section -->
 		<div class="details flex flex-col justify-center w-1/2 p-10">
-			<div v-html="modelValue.text" />
+			<div v-html="fieldValue.text" />
 		</div>
 	</div>
 </template>

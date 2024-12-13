@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { getComponent } from "@/Composables/getIrisComponents"
+import { getIrisComponent } from '@/Composables/getIrisComponents'
 
 import { faBox, faDollarSign, faHome as fasHome, faUserPlus, faSignIn } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -19,6 +19,6 @@ const props = defineProps<{
 </script>
 
 <template>
-    <component :is="getComponent(data.code)" :navigations="data.data.fieldValue.navigation"
+    <component :is="getIrisComponent(data.code)" :navigations="data.data.fieldValue.navigation"
         :colorThemed="colorThemed" />
 </template>

@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import NavigationMenu from './MenuRender.vue'
 import { getComponent } from '@/Composables/getWorkshopComponents'
-import { getComponent as getIrisComponent } from '@/Composables/getIrisComponents';
+import { getIrisComponent } from '@/Composables/getIrisComponents'
 
 const props = defineProps<{
     data: {

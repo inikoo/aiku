@@ -21,11 +21,11 @@ class WebpageResource extends JsonResource
     {
         /** @var Webpage $webpage */
         $webpage = $this;
-        // dd($webpage->webBlocks);
         return [
             'id'                  => $webpage->id,
             'slug'                => $webpage->slug,
             'level'               => $webpage->level,
+            'domain'              => $webpage->website->domain,
             'code'                => $webpage->code,
             'url'                 => $webpage->url,
             'type'                => $webpage->type,

@@ -12,7 +12,7 @@ import { getStyles } from "@/Composables/styles.js"
 library.add(faPresentation, faLink, faPaperclip)
 
 const props = defineProps<{
-    modelValue: any
+    fieldValue: any
 	webpageData: any
 	blockData: Object
 }>()
@@ -22,7 +22,7 @@ const props = defineProps<{
 
 <template>
         <iframe 
-            :src="modelValue?.link" 
-            :style="getStyles(modelValue?.container?.properties)" 
+            :src="fieldValue?.link" 
+            :style="getStyles(fieldValue?.container?.properties)" 
         />
 </template>

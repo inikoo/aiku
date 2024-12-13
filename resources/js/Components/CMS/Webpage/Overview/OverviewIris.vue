@@ -11,7 +11,9 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faImage, faEdit } from "@far"
 
 const props = defineProps<{
-    modelValue: any
+    fieldValue: {
+		
+	}
 	webpageData: any
 	blockData: Object
 }>()
@@ -22,9 +24,9 @@ const props = defineProps<{
 	<div
 		ref="_parentComponent"
 		class="relative isolate transition-all"
-		:style="getStyles(modelValue.container.properties)">
+		:style="getStyles(fieldValue.container.properties)">
 		<!-- Render text elements -->
-		<div v-for="(text, index) in modelValue.texts.values" :key="index">
+		<div v-for="(text, index) in fieldValue.texts.values" :key="index">
 			<div
 				class="absolute"
 				:class="`text-${index}`"
@@ -45,7 +47,7 @@ const props = defineProps<{
 
 		<!-- Render image elements -->
 		<div>
-			<div v-for="(image, index) in modelValue.images" :key="index">
+			<div v-for="(image, index) in fieldValue.images" :key="index">
 				<div
 					class="absolute"
 					:class="`image-${index}`"
