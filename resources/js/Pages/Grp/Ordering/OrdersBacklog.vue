@@ -45,6 +45,9 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab);
   <Head :title="capitalize(title)" />
   <PageHeading :data="pageHead"></PageHeading>
   <TabsBox :tabs_box="tabs.navigation" :current="currentTab" @update:tab="handleTabUpdate" />
-  <Table :resource="props[currentTab]" :name="currentTab" />
+  <!-- {{ currentTab }}
+  {{ tabs.navigation }}
+  <pre>{{ props[currentTab] }}</pre> -->
+  <Table :resource="props[currentTab]" :name="'creating'" />
 
 </template>
