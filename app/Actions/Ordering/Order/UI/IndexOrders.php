@@ -28,6 +28,7 @@ use App\Models\Dropshipping\ShopifyUser;
 use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
+use Carbon\Carbon;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -119,7 +120,10 @@ class IndexOrders extends OrgAction
             $query->where('orders.state', OrderStateEnum::DISPATCHED);
         } elseif ($this->bucket == 'cancelled') {
             $query->where('orders.state', OrderStateEnum::CANCELLED);
-        } elseif ($this->bucket == 'all' && !($parent instanceof ShopifyUser)) {
+        } elseif ($this->bucket == 'dispatched_today') {
+            $query->where('orders.state', OrderStateEnum::DISPATCHED)
+                    ->where('dispatched_at', Carbon::today());
+        }  elseif ($this->bucket == 'all' && !($parent instanceof ShopifyUser)) {
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                 $query->whereElementGroup(
                     key: $key,
