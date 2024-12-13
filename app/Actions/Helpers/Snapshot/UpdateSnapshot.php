@@ -22,15 +22,9 @@ class UpdateSnapshot extends OrgAction
     use WithActionUpdate;
     use WithNoStrictRules;
 
-    public function handle(Snapshot $snapshot, array $modelData)
+    public function handle(Snapshot $snapshot, array $modelData): Snapshot
     {
-        if (empty($modelData)) {
-            return response()->json([
-                'error' => 'The model data cannot be empty.'
-            ], 422);
-        }
-
-        $snapshot = $this->update($snapshot, $modelData);
+        $this->update($snapshot, $modelData, ['layout']);
         return $snapshot;
     }
 
@@ -39,8 +33,6 @@ class UpdateSnapshot extends OrgAction
         $rules = [
             'state'           => ['sometimes', Rule::enum(SnapshotStateEnum::class)],
             'published_until' => ['sometimes', 'date'],
-            'layout'          => ['sometimes'],
-            'compiled_layout' => ['sometimes', 'nullable']
         ];
 
         if (!$this->strict) {
