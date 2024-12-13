@@ -10,10 +10,10 @@ const props = withDefaults(defineProps<{
     updateRoute: routeType;
     imagesUploadRoute: routeType
     snapshot: any
-    apiKey:{
-        client_id : string,
-        client_secret : string,
-        grant_type : string
+    apiKey: {
+        client_id: string,
+        client_secret: string,
+        grant_type: string
     }
 }>(), {});
 
@@ -33,6 +33,7 @@ var mergeTags = [
         value: '[order-date]'
     }
 ];
+console.log(props.snapshot)
 
 const beeConfig = () => {
     const beeInstance = new Bee();
@@ -78,27 +79,33 @@ const beeConfig = () => {
                         }
                     ]
                 },
-                autosave: 30,
+                autosave: 20,
                 onAutoSave: function (jsonFile) {
                     console.log('autosave')
-                    router.patch(
-                        route(props.updateRoute.name, props.updateRoute.parameters),
-                        jsonFile,
-                        {
-                            onStart: () => {
-                                console.log("Upload started...");
-                                // Perform any loading state updates here
-                            },
-                            onFinish: () => {
-                                console.log("Upload finished.");
-                                // Perform any cleanup or state updates here
-                            },
-                            onError: (e) =>{
-                                console.log("Upload finished.",e);
+                    axios
+                        .patch(
+                            route(props.updateRoute.name, props.updateRoute.parameters), // Constructed URL
+                            {
+                                layout : JSON.parse(jsonFile),
+                                compiled_layout : null
+                            }, // Payload
+                            {
+                                onUploadProgress: (progressEvent) => {
+                                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                                    console.log(`Upload progress: ${percentCompleted}%`);
+                                },
                             }
-                        }
-                    );
-
+                        )
+                        .then((response) => {
+                            console.log("Upload successful:", response.data);
+                            // Handle success (equivalent to onFinish)
+                        })
+                        .catch((error) => {
+                            console.error("Upload failed:", error);
+                        })
+                        .finally(() => {
+                            console.log("Upload finished."); 
+                        });
                 }
             };
             beeInstance
@@ -111,13 +118,13 @@ const beeConfig = () => {
 }
 
 onMounted(() => {
-    if(props.apiKey.client_id && props.apiKey.client_secret && props.apiKey.grant_type){
+    if (props.apiKey.client_id && props.apiKey.client_secret && props.apiKey.grant_type) {
         showBee.value = true
         beeConfig()
-    }else{
+    } else {
         showBee.value = false
     }
-   
+
 });
 
 defineExpose({})
@@ -130,19 +137,17 @@ defineExpose({})
     </div>
 
     <div v-else>
-        <EmptyState 
-            :data="{
-                title  : 'You Need Register Your Beefree api key',
-                action : {
-                    tooltip: 'Setting',
-                    type : 'create',
-                    route: {
-                        name : 'grp.sysadmin.settings.edit'
-                    },
-                    icon : ['fas', 'user-cog'] 
-                }
-            }"
-        />
+        <EmptyState :data="{
+            title: 'You Need Register Your Beefree api key',
+            action: {
+                tooltip: 'Setting',
+                type: 'create',
+                route: {
+                    name: 'grp.sysadmin.settings.edit'
+                },
+                icon: ['fas', 'user-cog']
+            }
+        }" />
     </div>
 </template>
 
