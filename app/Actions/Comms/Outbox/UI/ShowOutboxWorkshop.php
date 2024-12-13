@@ -97,6 +97,11 @@ class ShowOutboxWorkshop extends OrgAction
                 //     'name'       => 'grp.models.email-templates.content.show',
                 //     'parameters' => $emailTemplate->id
                 // ]
+                'apiKey'            => [
+                    'client_id'     => $email->group->settings['beefree']['client_id'],
+                    'client_secret' => $email->group->settings['beefree']['client_secret'],
+                    'grant_type'    => $email->group->settings['beefree']['grant_type'],
+                ]
             ]
         );
     }
