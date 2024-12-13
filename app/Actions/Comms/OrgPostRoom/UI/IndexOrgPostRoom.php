@@ -142,7 +142,7 @@ class IndexOrgPostRoom extends OrgAction
         $iconRight = null;
 
         return Inertia::render(
-            'Mail/OrgPostRooms',
+            'Comms/OrgPostRooms',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

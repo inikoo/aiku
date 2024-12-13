@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\Mail\PostRoomStats
+ * App\Models\Comms\PostRoomStats
  *
  * @property int $id
  * @property int|null $post_room_id

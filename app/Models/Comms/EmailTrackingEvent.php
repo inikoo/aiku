@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\Mail\EmailTrackingEvent
+ * App\Models\Comms\EmailTrackingEvent
  *
  * @property int $id
  * @property int $group_id

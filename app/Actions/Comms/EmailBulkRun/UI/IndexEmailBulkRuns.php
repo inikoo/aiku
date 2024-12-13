@@ -96,7 +96,7 @@ class IndexEmailBulkRuns extends OrgAction
     // {
 
     //     return Inertia::render(
-    //         'Mail/Mailshots',
+    //         'Comms/Mailshots',
     //         [
     //             'breadcrumbs' => $this->getBreadcrumbs(
     //                 $request->route()->getName(),

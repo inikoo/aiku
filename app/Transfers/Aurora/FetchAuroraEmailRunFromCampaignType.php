@@ -46,16 +46,10 @@ class FetchAuroraEmailRunFromCampaignType extends FetchAurora
                 $outbox = $shop->outboxes()->where('code', OutboxCodeEnum::BASKET_LOW_STOCK)->first();
                 break;
             case 'Basket Reminder 1':
-                $type = EmailBulkRunTypeEnum::BASKET_REMINDER_1;
-                $outbox = $shop->outboxes()->where('code', OutboxCodeEnum::BASKET_REMINDER_1)->first();
-                break;
             case 'Basket Reminder 2':
-                $type = EmailBulkRunTypeEnum::BASKET_REMINDER_2;
-                $outbox = $shop->outboxes()->where('code', OutboxCodeEnum::BASKET_REMINDER_2)->first();
-                break;
             case 'Basket Reminder 3':
-                $type = EmailBulkRunTypeEnum::BASKET_REMINDER_3;
-                $outbox = $shop->outboxes()->where('code', OutboxCodeEnum::BASKET_REMINDER_3)->first();
+                $type = EmailBulkRunTypeEnum::BASKET_PUSH;
+                $outbox = $shop->outboxes()->where('code', OutboxCodeEnum::BASKET_PUSH)->first();
                 break;
             case 'AbandonedCart':
                 $type = EmailBulkRunTypeEnum::ABANDONED_CART;

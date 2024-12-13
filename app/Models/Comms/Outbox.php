@@ -30,7 +30,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Mail\Outbox
+ * App\Models\Comms\Outbox
  *
  * @property int $id
  * @property int $group_id

@@ -17,9 +17,8 @@ enum OutboxCodeEnum: string
     use EnumHelperTrait;
 
     case BASKET_LOW_STOCK = 'basket_low_stock';
-    case BASKET_REMINDER_1 = 'basket_reminder_1';
-    case BASKET_REMINDER_2 = 'basket_reminder_2';
-    case BASKET_REMINDER_3 = 'basket_reminder_3';
+    case BASKET_PUSH = 'basket_push';
+    case NEW_CUSTOMER_PUSH = 'new_customer_push';
     case NEW_CUSTOMER = 'new_customer';
     case DELIVERY_NOTE_DISPATCHED = 'delivery_note_dispatched';
     case DELIVERY_NOTE_UNDISPATCHED = 'delivery_note_undispatched';
@@ -47,7 +46,7 @@ enum OutboxCodeEnum: string
     {
         return match ($this) {
             OutboxCodeEnum::NEWSLETTER => OutboxTypeEnum::NEWSLETTER,
-            OutboxCodeEnum::MARKETING ,
+            OutboxCodeEnum::MARKETING,
             OutboxCodeEnum::ABANDONED_CART
 
 
@@ -68,9 +67,8 @@ enum OutboxCodeEnum: string
             => OutboxTypeEnum::CUSTOMER_NOTIFICATION,
 
             OutboxCodeEnum::BASKET_LOW_STOCK,
-            OutboxCodeEnum::BASKET_REMINDER_1,
-            OutboxCodeEnum::BASKET_REMINDER_2,
-            OutboxCodeEnum::BASKET_REMINDER_3,
+
+
             OutboxCodeEnum::REORDER_REMINDER => OutboxTypeEnum::MARKETING_NOTIFICATION,
             OutboxCodeEnum::TEST => OutboxTypeEnum::TEST,
 
@@ -80,6 +78,8 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::INVOICE_DELETED,
             OutboxCodeEnum::NEW_ORDER
             => OutboxTypeEnum::USER_NOTIFICATION,
+            OutboxCodeEnum::BASKET_PUSH, OutboxCodeEnum::NEW_CUSTOMER_PUSH
+            => OutboxTypeEnum::PUSH,
         };
     }
 
@@ -87,9 +87,8 @@ enum OutboxCodeEnum: string
     {
         return match ($this) {
             OutboxCodeEnum::BASKET_LOW_STOCK => 'Low stock in basket',
-            OutboxCodeEnum::BASKET_REMINDER_1 => 'First basket reminder',
-            OutboxCodeEnum::BASKET_REMINDER_2 => 'Second basket reminder',
-            OutboxCodeEnum::BASKET_REMINDER_3 => 'Third basket reminder',
+            OutboxCodeEnum::BASKET_PUSH => 'Basket push',
+            OutboxCodeEnum::NEW_CUSTOMER_PUSH => 'New customer push',
             OutboxCodeEnum::NEW_CUSTOMER => 'New customer',
             OutboxCodeEnum::DELIVERY_NOTE_DISPATCHED => 'Delivery note dispatched',
             OutboxCodeEnum::DELIVERY_NOTE_UNDISPATCHED => 'Delivery note undispatched',
@@ -119,9 +118,8 @@ enum OutboxCodeEnum: string
     {
         return match ($this) {
             OutboxCodeEnum::BASKET_LOW_STOCK => 'Low stock in basket',
-            OutboxCodeEnum::BASKET_REMINDER_1 => 'First basket reminder',
-            OutboxCodeEnum::BASKET_REMINDER_2 => 'Second basket reminder',
-            OutboxCodeEnum::BASKET_REMINDER_3 => 'Third basket reminder',
+            OutboxCodeEnum::BASKET_PUSH => 'Basket push',
+            OutboxCodeEnum::NEW_CUSTOMER_PUSH => 'New customer push',
             OutboxCodeEnum::NEW_CUSTOMER => 'New customer',
             OutboxCodeEnum::DELIVERY_NOTE_DISPATCHED => 'Delivery note dispatched',
             OutboxCodeEnum::DELIVERY_NOTE_UNDISPATCHED => 'Delivery note undispatched',
@@ -152,9 +150,8 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::TEST => ['Organisation'],
             OutboxCodeEnum::PASSWORD_REMINDER,
             OutboxCodeEnum::BASKET_LOW_STOCK,
-            OutboxCodeEnum::BASKET_REMINDER_1,
-            OutboxCodeEnum::BASKET_REMINDER_2,
-            OutboxCodeEnum::BASKET_REMINDER_3,
+            OutboxCodeEnum::BASKET_PUSH,
+            OutboxCodeEnum::NEW_CUSTOMER_PUSH,
             OutboxCodeEnum::ABANDONED_CART,
             OutboxCodeEnum::REORDER_REMINDER,
             OutboxCodeEnum::REGISTRATION,
@@ -183,12 +180,7 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::MARKETING,
             OutboxCodeEnum::NEWSLETTER,
             OutboxCodeEnum::PASSWORD_REMINDER => ['b2b', 'b2c', 'dropshipping', 'fulfilment'],
-            OutboxCodeEnum::BASKET_LOW_STOCK,
-            OutboxCodeEnum::BASKET_REMINDER_1,
-            OutboxCodeEnum::BASKET_REMINDER_2,
-            OutboxCodeEnum::BASKET_REMINDER_3,
-            OutboxCodeEnum::ABANDONED_CART,
-            OutboxCodeEnum::REORDER_REMINDER,
+
             OutboxCodeEnum::REGISTRATION,
             OutboxCodeEnum::REGISTRATION_APPROVED,
             OutboxCodeEnum::INVITE,
@@ -200,6 +192,13 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::DELIVERY_CONFIRMATION,
             OutboxCodeEnum::ORDER_CONFIRMATION => ['b2b', 'b2c', 'dropshipping'],
             OutboxCodeEnum::OOS_NOTIFICATION => ['b2b', 'dropshipping'],
+            OutboxCodeEnum::BASKET_LOW_STOCK,
+            OutboxCodeEnum::ABANDONED_CART,
+            OutboxCodeEnum::REORDER_REMINDER,
+            OutboxCodeEnum::BASKET_PUSH,
+            OutboxCodeEnum::NEW_CUSTOMER_PUSH
+            => ['b2b'],
+
             default => []
         };
     }
@@ -248,9 +247,8 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::PALLET_DELIVERY_PROCESSED,
             OutboxCodeEnum::PALLET_RETURN_DISPATCHED,
             OutboxCodeEnum::BASKET_LOW_STOCK,
-            OutboxCodeEnum::BASKET_REMINDER_1,
-            OutboxCodeEnum::BASKET_REMINDER_2,
-            OutboxCodeEnum::BASKET_REMINDER_3,
+            OutboxCodeEnum::BASKET_PUSH,
+            OutboxCodeEnum::NEW_CUSTOMER_PUSH,
             OutboxCodeEnum::REORDER_REMINDER,
             OutboxCodeEnum::OOS_NOTIFICATION,
 
@@ -284,12 +282,13 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::PALLET_RETURN_DISPATCHED,
             => EmailOngoingRunTypeEnum::TRANSACTIONAL,
             OutboxCodeEnum::BASKET_LOW_STOCK,
-            OutboxCodeEnum::BASKET_REMINDER_1,
-            OutboxCodeEnum::BASKET_REMINDER_2,
-            OutboxCodeEnum::BASKET_REMINDER_3,
             OutboxCodeEnum::REORDER_REMINDER,
             OutboxCodeEnum::OOS_NOTIFICATION,
             => EmailOngoingRunTypeEnum::BULK,
+            OutboxCodeEnum::BASKET_PUSH,
+            OutboxCodeEnum::NEW_CUSTOMER_PUSH,
+            => EmailOngoingRunTypeEnum::PUSH,
+
             default => null
         };
     }
@@ -299,9 +298,7 @@ enum OutboxCodeEnum: string
     {
         return match ($this) {
             OutboxCodeEnum::BASKET_LOW_STOCK,
-            OutboxCodeEnum::BASKET_REMINDER_1,
-            OutboxCodeEnum::BASKET_REMINDER_2,
-            OutboxCodeEnum::BASKET_REMINDER_3,
+
             OutboxCodeEnum::REGISTRATION,
             OutboxCodeEnum::REGISTRATION_APPROVED,
             OutboxCodeEnum::REGISTRATION_REJECTED,
@@ -327,7 +324,9 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::MARKETING,
             OutboxCodeEnum::NEWSLETTER,
             OutboxCodeEnum::ABANDONED_CART,
-            OutboxCodeEnum::REORDER_REMINDER
+            OutboxCodeEnum::REORDER_REMINDER,
+            OutboxCodeEnum::BASKET_PUSH,
+            OutboxCodeEnum::NEW_CUSTOMER_PUSH
             => PostRoomCodeEnum::MARKETING,
 
             OutboxCodeEnum::TEST,

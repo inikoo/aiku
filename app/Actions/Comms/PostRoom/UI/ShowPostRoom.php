@@ -46,7 +46,7 @@ class ShowPostRoom extends InertiaAction
     {
 
         return Inertia::render(
-            'Mail/PostRoom',
+            'Comms/PostRoom',
             [
                 'title'       => __('post room'),
                 'breadcrumbs' => $this->getBreadcrumbs($this->postRoom),

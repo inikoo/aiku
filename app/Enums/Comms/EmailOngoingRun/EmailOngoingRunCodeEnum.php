@@ -32,9 +32,8 @@ enum EmailOngoingRunCodeEnum: string
     case PALLET_RETURN_DISPATCHED = 'pallet_return_dispatched';
 
     case BASKET_LOW_STOCK = 'basket_low_stock';
-    case BASKET_REMINDER_1 = 'basket_reminder_1';
-    case BASKET_REMINDER_2 = 'basket_reminder_2';
-    case BASKET_REMINDER_3 = 'basket_reminder_3';
+    case BASKET_PUSH = 'basket_push';
+    case NEW_CUSTOMER_PUSH = 'new_customer_push';
     case ABANDONED_CART = 'abandoned_cart';
     case REORDER_REMINDER = 'reorder_reminder';
     case OOS_NOTIFICATION = 'oos_notification';

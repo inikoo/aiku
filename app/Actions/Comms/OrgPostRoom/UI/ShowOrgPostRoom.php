@@ -56,7 +56,7 @@ class ShowOrgPostRoom extends OrgAction
     {
 
         return Inertia::render(
-            'Mail/PostRoom',
+            'Comms/PostRoom',
             [
                 'title'       => __('post room'),
                 'breadcrumbs' => $this->getBreadcrumbs(

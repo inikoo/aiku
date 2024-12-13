@@ -21,7 +21,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Mail\Mail
+ * App\Models\Comms\Comms
  *
  * @property int $id
  * @property int $group_id

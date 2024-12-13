@@ -82,7 +82,7 @@ class ShowDispatchedEmail extends InertiaAction
     {
 
         return Inertia::render(
-            'Mail/DispatchedEmail',
+            'Comms/DispatchedEmail',
             [
                 'title'       => $dispatchedEmail->id,
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $dispatchedEmail),

@@ -68,7 +68,7 @@ class IndexDispatchedEmails extends OrgAction
             ->leftJoin('outboxes', 'dispatched_emails.outbox_id', 'outboxes.id')
             ->leftJoin('post_rooms', 'outboxes.post_room_id', 'post_rooms.id')
             ->when($parent, function ($query) use ($parent) {
-                if (class_basename($parent) == 'Mail') {
+                if (class_basename($parent) == 'Comms') {
                     $query->where('outboxes.post_room_id', $parent->id);
                 }
                 if (class_basename($parent) == 'Outbox') {
@@ -120,7 +120,7 @@ class IndexDispatchedEmails extends OrgAction
     public function htmlResponse(LengthAwarePaginator $dispatched_emails, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Mail/DispatchedEmails',
+            'Comms/DispatchedEmails',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

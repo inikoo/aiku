@@ -176,7 +176,7 @@ test('UI index mail outboxes', function () {
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Mail/Outboxes')
+            ->component('Comms/Outboxes')
             ->has('title')
             ->has(
                 'pageHead',
@@ -195,7 +195,7 @@ test('UI show mail outboxes', function () {
 
     $response->assertInertia(function (AssertableInertia $page) use ($outbox) {
         $page
-            ->component('Mail/Outbox')
+            ->component('Comms/Outbox')
             ->has('title')
             ->has(
                 'pageHead',
@@ -214,7 +214,7 @@ test('UI Index Org Post Rooms', function () {
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Mail/OrgPostRooms')
+            ->component('Comms/OrgPostRooms')
             ->has('title')
             ->has(
                 'pageHead',
@@ -233,7 +233,7 @@ test('UI Show Org Post Rooms', function () {
 
     $response->assertInertia(function (AssertableInertia $page) use ($orgPostRoom) {
         $page
-            ->component('Mail/PostRoom')
+            ->component('Comms/PostRoom')
             ->has('title')
             ->has(
                 'pageHead',
@@ -252,7 +252,7 @@ test('UI Index MArketing Mailshots', function () {
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Mail/Mailshots')
+            ->component('Comms/Mailshots')
             ->has('title')
             ->has(
                 'pageHead',
@@ -270,7 +270,7 @@ test('UI Index Newsletter Mailshots', function () {
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Mail/Mailshots')
+            ->component('Comms/Mailshots')
             ->has('title')
             ->has(
                 'pageHead',

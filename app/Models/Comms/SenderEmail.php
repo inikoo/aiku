@@ -12,7 +12,7 @@ use App\Enums\Comms\SenderEmail\SenderEmailStateEnum;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * App\Models\Mail\SenderEmail
+ * App\Models\Comms\SenderEmail
  *
  * @property int $id
  * @property string $email_address

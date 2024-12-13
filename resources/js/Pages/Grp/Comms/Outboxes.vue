@@ -10,6 +10,12 @@ import PageHeading from "@/Components/Headings/PageHeading.vue";
 import TableOutboxes from "@/Components/Tables/TableOutboxes.vue";
 import { capitalize } from "@/Composables/capitalize"
 
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faInboxOut, faSortAlt, faProjectDiagram, faPhoneVolume } from "@fal";
+
+library.add(faInboxOut, faSortAlt, faProjectDiagram, faPhoneVolume);
+
+
 const props = defineProps<{
     data: object
     title: string

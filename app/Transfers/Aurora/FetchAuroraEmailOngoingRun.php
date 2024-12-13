@@ -18,8 +18,6 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
 {
     protected function parseModel(): void
     {
-
-
         $shop = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Email Campaign Type Store Key'});
 
 
@@ -32,9 +30,7 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
             'Delivery Confirmation' => EmailOngoingRunCodeEnum::DELIVERY_CONFIRMATION,
 
             'Basket Low Stock' => EmailOngoingRunCodeEnum::BASKET_LOW_STOCK,
-            'Basket Reminder 1' => EmailOngoingRunCodeEnum::BASKET_REMINDER_1,
-            'Basket Reminder 2' => EmailOngoingRunCodeEnum::BASKET_REMINDER_2,
-            'Basket Reminder 3' => EmailOngoingRunCodeEnum::BASKET_REMINDER_3,
+            'Basket Reminder 1', 'Basket Reminder 2', 'Basket Reminder 3' => EmailOngoingRunCodeEnum::BASKET_PUSH,
             'AbandonedCart' => EmailOngoingRunCodeEnum::ABANDONED_CART,
             'GR Reminder' => EmailOngoingRunCodeEnum::REORDER_REMINDER,
             'OOS Notification' => EmailOngoingRunCodeEnum::OOS_NOTIFICATION,

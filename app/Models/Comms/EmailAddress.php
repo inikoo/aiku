@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\Mail\EmailAddress
+ * App\Models\Comms\EmailAddress
  *
  * @property int $id
  * @property int $group_id

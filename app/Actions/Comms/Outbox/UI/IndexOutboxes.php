@@ -133,7 +133,7 @@ class IndexOutboxes extends OrgAction
         }
 
         return Inertia::render(
-            'Mail/Outboxes',
+            'Comms/Outboxes',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

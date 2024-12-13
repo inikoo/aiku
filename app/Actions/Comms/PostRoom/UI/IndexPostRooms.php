@@ -109,7 +109,7 @@ class IndexPostRooms extends OrgAction
     {
 
         return Inertia::render(
-            'Mail/PostRooms',
+            'Comms/PostRooms',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('post room'),

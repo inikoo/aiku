@@ -16,6 +16,7 @@ enum EmailOngoingRunTypeEnum: string
 
     case TRANSACTIONAL = 'transactional';
     case BULK = 'bulk';
+    case PUSH = 'push';
 
 
 }

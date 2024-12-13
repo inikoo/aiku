@@ -27,9 +27,7 @@ class FetchAuroraOrderDispatchedEmail extends FetchAurora
         $outboxType = match ($this->auroraModelData->{'Order Sent Email Type'}) {
             'Order Notification' => OutboxCodeEnum::ORDER_CONFIRMATION,
             'Dispatch Notification' => OutboxCodeEnum::DELIVERY_CONFIRMATION,
-            'Basket Reminder 1' => OutboxCodeEnum::BASKET_REMINDER_1,
-            'Basket Reminder 2' => OutboxCodeEnum::BASKET_REMINDER_2,
-            'Basket Reminder 3' => OutboxCodeEnum::BASKET_REMINDER_3,
+            'Basket Reminder 1', 'Basket Reminder 2', 'Basket Reminder 3' => OutboxCodeEnum::BASKET_PUSH,
             default => null
         };
         if ($outboxType == null) {
@@ -47,12 +45,10 @@ class FetchAuroraOrderDispatchedEmail extends FetchAurora
         $this->parsedData['outbox']          = $outbox;
 
         $this->parsedData['modelHasDispatchedEmail'] = [
-            'source_id' => $this->organisation->id.':'.$this->auroraModelData->{'Order Sent Email Bridge Key'},
-            'fetched_at' => now(),
+            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Order Sent Email Bridge Key'},
+            'fetched_at'      => now(),
             'last_fetched_at' => now(),
         ];
-
-
     }
 
 
