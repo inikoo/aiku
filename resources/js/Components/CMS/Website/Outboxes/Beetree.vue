@@ -79,7 +79,7 @@ const beeConfig = () => {
                         }
                     ]
                 },
-                autosave: 10,
+                autosave: 20,
                 onAutoSave: function (jsonFile) {
                     console.log('autosave')
                     axios
