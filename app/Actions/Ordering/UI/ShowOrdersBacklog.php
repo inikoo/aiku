@@ -50,6 +50,7 @@ class ShowOrdersBacklog extends OrgAction
         $tabsBox = [
             [
                 'label' => __('Creating'),
+                'currency_code' => $parent->currency_code,
                 'tabs' => [
                     [
                         'tab_slug' => 'creating',
@@ -65,6 +66,7 @@ class ShowOrdersBacklog extends OrgAction
             ],
             [
                 'label' => __('Submitted'),
+                'currency_code' => $parent->currency_code,
                 'tabs' => [
                     [
                         'tab_slug' => 'submitted',
@@ -80,6 +82,7 @@ class ShowOrdersBacklog extends OrgAction
             ],
             [
                 'label' => __('In warehouse'),
+                'currency_code' => $parent->currency_code,
                 'tabs' => [
                     [
                         'tab_slug' => 'in_warehouse',
@@ -95,6 +98,7 @@ class ShowOrdersBacklog extends OrgAction
             ],
             [
                 'label' => __('Handling'),
+                'currency_code' => $parent->currency_code,
                 'tabs' => [
                     [
                         'tab_slug' => 'handling',
@@ -110,6 +114,7 @@ class ShowOrdersBacklog extends OrgAction
             ],
             [
                 'label' => __('Handling blocked'),
+                'currency_code' => $parent->currency_code,
                 'tabs' => [
                     [
                         'tab_slug' => 'handling_blocked',
@@ -125,6 +130,7 @@ class ShowOrdersBacklog extends OrgAction
             ],
             [
                 'label' => __('Packed'),
+                'currency_code' => $parent->currency_code,
                 'tabs' => [
                     [
                         'tab_slug' => 'packed',
