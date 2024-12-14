@@ -18,6 +18,7 @@ use App\Models\Accounting\Payment;
 use App\Models\Accounting\TopUp;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
+use App\Models\Comms\SubscriptionEvent;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\Platform;
@@ -140,6 +141,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\CRM\CustomerStats|null $stats
  * @property-read Collection<int, Stock> $stocks
  * @property-read Collection<int, StoredItem> $storedItems
+ * @property-read Collection<int, SubscriptionEvent> $subscriptionEvents
  * @property-read TaxNumber|null $taxNumber
  * @property-read Collection<int, TopUp> $topUps
  * @property-read Collection<int, Transaction> $transactions
@@ -426,9 +428,13 @@ class Customer extends Model implements HasMedia, Auditable
         return $this->hasMany(BackInStockReminder::class);
     }
 
-
     public function pollReplies(): HasMany
     {
         return $this->hasMany(PollReply::class);
+    }
+
+    public function subscriptionEvents(): MorphMany
+    {
+        return $this->morphMany(SubscriptionEvent::class, 'model');
     }
 }

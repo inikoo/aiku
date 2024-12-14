@@ -87,6 +87,7 @@ use App\Transfers\Aurora\FetchAuroraStock;
 use App\Transfers\Aurora\FetchAuroraStockDelivery;
 use App\Transfers\Aurora\FetchAuroraStockDeliveryItem;
 use App\Transfers\Aurora\FetchAuroraStockFamily;
+use App\Transfers\Aurora\FetchAuroraSubscriptionEvent;
 use App\Transfers\Aurora\FetchAuroraSupplier;
 use App\Transfers\Aurora\FetchAuroraSupplierProduct;
 use App\Transfers\Aurora\FetchAuroraTimesheet;
@@ -584,6 +585,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchEmailOngoingRun($id): ?array
     {
         return (new FetchAuroraEmailOngoingRun($this))->fetch($id);
+    }
+
+    public function fetchSubscriptionEvent($id): ?array
+    {
+        return (new FetchAuroraSubscriptionEvent($this))->fetch($id);
     }
 
 }

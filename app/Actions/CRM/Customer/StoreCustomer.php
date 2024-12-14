@@ -21,7 +21,6 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCustomers;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
-use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
@@ -89,7 +88,7 @@ class StoreCustomer extends OrgAction
 
         $emailSubscriptionsData = Arr::pull($modelData, 'email_subscriptions', []);
 
-        $customer = DB::transaction(function () use ($shop, $modelData, $contactAddressData, $deliveryAddressData, $taxNumberData,$emailSubscriptionsData) {
+        $customer = DB::transaction(function () use ($shop, $modelData, $contactAddressData, $deliveryAddressData, $taxNumberData, $emailSubscriptionsData) {
             /** @var Customer $customer */
             $customer = $shop->customers()->create($modelData);
             $customer->stats()->create();
@@ -229,7 +228,7 @@ class StoreCustomer extends OrgAction
             'warehouse_internal_notes' => ['sometimes', 'nullable', 'string'],
             'warehouse_public_notes'   => ['sometimes', 'nullable', 'string'],
 
-            'email_subscriptions'=> ['sometimes', 'array'],
+            'email_subscriptions' => ['sometimes', 'array'],
             'email_subscriptions.is_subscribed_to_newsletter' => ['sometimes', 'boolean'],
             'email_subscriptions.is_subscribed_to_marketing' => ['sometimes', 'boolean'],
             'email_subscriptions.is_subscribed_to_abandoned_cart' => ['sometimes', 'boolean'],

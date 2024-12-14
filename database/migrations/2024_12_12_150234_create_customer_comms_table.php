@@ -29,10 +29,6 @@ return new class () extends Migration {
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
 
-            //foreach ($outboxFields as $outboxField) {
-            //    $table->unsignedSmallInteger($outboxField.'_outbox_id')->index();
-            //    $table->foreign($outboxField.'_outbox_id')->references('id')->on('outboxes');
-            //}
 
             $table->boolean('is_suspended')->default(false)->index()->comment('Suspend communication with customer because of spam or bounces');
             $table->dateTimeTz('suspended_at')->nullable()->index();
@@ -48,8 +44,8 @@ return new class () extends Migration {
                 $table->dateTimeTz($outboxField.'_unsubscribed_at')->nullable()->index();
                 $table->string($outboxField.'_unsubscribed_author_type')->nullable()->index()->comment('Customer|User');
                 $table->string($outboxField.'_unsubscribed_author_id')->nullable();
-                $table->string($outboxField.'_unsubscribed_place_type')->nullable()->comment('EmailBulkRun|Mailshot|Website|Customer (Customer is used when a user unsubscribes from aiku UI)');
-                $table->string($outboxField.'_unsubscribed_place_id')->nullable();
+                $table->string($outboxField.'_unsubscribed_origin_type')->nullable()->comment('EmailBulkRun|Mailshot|Website|Customer (Customer is used when a user unsubscribes from aiku UI)');
+                $table->string($outboxField.'_unsubscribed_origin_id')->nullable();
             }
 
 
@@ -57,7 +53,7 @@ return new class () extends Migration {
 
             foreach ($outboxFields as $outboxField) {
                 $table->index([$outboxField.'_unsubscribed_author_type', $outboxField.'_unsubscribed_author_id']);
-                $table->index([$outboxField.'_unsubscribed_place_type', $outboxField.'_unsubscribed_place_id']);
+                $table->index([$outboxField.'_unsubscribed_origin_type', $outboxField.'_unsubscribed_origin_id']);
             }
         });
     }

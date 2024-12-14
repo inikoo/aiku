@@ -49,7 +49,10 @@ trait WithParseUpdateHistory
         $field = $this->getField();
 
         $haystack = $this->auroraModelData->{'History Details'};
+
         $haystack = trim(preg_replace('/\s+/', ' ', $haystack));
+
+
 
 
         if (preg_match('/<div class="field tr"><div>New value:<\/div><div>(.*)<\/div><\/div>/', $haystack, $matches)) {
@@ -61,6 +64,16 @@ trait WithParseUpdateHistory
         } elseif (preg_match('/<div class="field tr"><div>Nová hodnota:<\/div><div>(.*)<\/div><\/div>/', $haystack, $matches)) {
             $newValues = $this->extractFromTable($matches, $newValues, $field, $auditable);
         } elseif (preg_match('/<div class="field tr"><div>Új érték:<\/div><div>(.*)<\/div><\/div>/', $haystack, $matches)) {
+            $newValues = $this->extractFromTable($matches, $newValues, $field, $auditable);
+        } elseif (preg_match('/<div class="field tr"><div>Valor nuevo:<\/div><div>(.*)<\/div><\/div>/', $haystack, $matches)) {
+            $newValues = $this->extractFromTable($matches, $newValues, $field, $auditable);
+        } elseif (preg_match('/<div class="field tr"><div>Novo valor\s*:<\/div><div>(.*)<\/div><\/div>/', $haystack, $matches)) {
+            $newValues = $this->extractFromTable($matches, $newValues, $field, $auditable);
+        } elseif (preg_match('/<div class="field tr"><div>Nouvelle valeur\s*:<\/div><div>(.*)<\/div><\/div>/', $haystack, $matches)) {
+            $newValues = $this->extractFromTable($matches, $newValues, $field, $auditable);
+        } elseif (preg_match('/<div class="field tr"><div>Nowa wartość\s*:<\/div><div>(.*)<\/div><\/div>/', $haystack, $matches)) {
+            $newValues = $this->extractFromTable($matches, $newValues, $field, $auditable);
+        } elseif (preg_match('/<div class="field tr"><div>Nuovo valore\s*:<\/div><div>(.*)<\/div><\/div>/', $haystack, $matches)) {
             $newValues = $this->extractFromTable($matches, $newValues, $field, $auditable);
         } elseif (preg_match('/to Price: ([£€])([\d.]+)/', $haystack, $matches)) {
             $newValues[$field] = $matches[2];

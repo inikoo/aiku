@@ -195,4 +195,6 @@ interface SourceOrganisationService
 
     public function fetchEmailBulkRun($id);
 
+    public function fetchSubscriptionEvent($id);
+
 }

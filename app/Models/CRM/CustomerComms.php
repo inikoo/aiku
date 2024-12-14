@@ -16,14 +16,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $customer_id
- * @property int $newsletter_outbox_id
- * @property int $marketing_outbox_id
- * @property int $abandoned_cart_outbox_id
- * @property int $reorder_reminder_outbox_id
- * @property int $basket_low_stock_outbox_id
- * @property int $basket_reminder_1_outbox_id
- * @property int $basket_reminder_2_outbox_id
- * @property int $basket_reminder_3_outbox_id
  * @property bool $is_suspended Suspend communication with customer because of spam or bounces
  * @property string|null $suspended_at
  * @property string|null $suspended_cause
