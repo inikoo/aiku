@@ -46,17 +46,17 @@ class UpdateGroupSettings extends GrpAction
         Cache::forget('bound-group-'.$group->id);
 
         $groupSettings = $group->settings;
-        if(Arr::has($modelData, 'client_id')) {
+        if (Arr::has($modelData, 'client_id')) {
             data_set($groupSettings, 'beefree.client_id', Arr::get($modelData, 'client_id'));
             $group->update(['settings' => $groupSettings]);
             data_forget($modelData, 'client_id');
         }
-        if(Arr::has($modelData, 'client_secret')) {
+        if (Arr::has($modelData, 'client_secret')) {
             data_set($groupSettings, 'beefree.client_secret', Arr::get($modelData, 'client_secret'));
             $group->update(['settings' => $groupSettings]);
             data_forget($modelData, 'client_secret');
         }
-        if(Arr::has($modelData, 'grant_type')) {
+        if (Arr::has($modelData, 'grant_type')) {
             data_set($groupSettings, 'beefree.grant_type', Arr::get($modelData, 'grant_type'));
             $group->update(['settings' => $groupSettings]);
             data_forget($modelData, 'grant_type');

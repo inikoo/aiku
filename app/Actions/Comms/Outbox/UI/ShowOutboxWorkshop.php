@@ -91,7 +91,7 @@ class ShowOutboxWorkshop extends OrgAction
 
                 ],
                 'snapshot'          => $email->snapshot,
-                'builder'           =>$email->builder,
+                'builder'           => $email->builder,
                 'imagesUploadRoute'   => [
                     'name'       => 'grp.models.email-templates.images.store',
                     'parameters' => $email->id
@@ -104,7 +104,7 @@ class ShowOutboxWorkshop extends OrgAction
                     'name'       => 'grp.models.email-templates.content.publish',
                     'parameters' => $email->id
                 ], */
-                'loadRoute'           => [ 
+                'loadRoute'           => [
                     'name'       => 'grp.models.email-templates.content.show',
                     'parameters' => $email->id
                 ],

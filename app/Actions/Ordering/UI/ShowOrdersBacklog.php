@@ -223,41 +223,41 @@ class ShowOrdersBacklog extends OrgAction
 
                 ],
 
-                
+
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => $tabsBox
                 ],
 
-                
+
                 OrdersBacklogTabsEnum::CREATING->value => $this->tab == OrdersBacklogTabsEnum::CREATING->value ?
                 fn () => OrdersResource::collection(IndexOrders::run(parent: $parent, bucket: OrdersBacklogTabsEnum::CREATING->value))
                 : Inertia::lazy(fn () => OrdersResource::collection(IndexOrders::run(parent: $parent, bucket: OrdersBacklogTabsEnum::CREATING->value))),
-                
+
                 OrdersBacklogTabsEnum::SUBMITTED->value => $this->tab == OrdersBacklogTabsEnum::SUBMITTED->value ?
                 fn () => OrdersResource::collection(IndexOrders::run(parent: $parent, bucket: OrdersBacklogTabsEnum::SUBMITTED->value))
                 : Inertia::lazy(fn () => OrdersResource::collection(IndexOrders::run(parent: $parent, bucket: OrdersBacklogTabsEnum::SUBMITTED->value))),
-                
+
                 OrdersBacklogTabsEnum::IN_WAREHOUSE->value => $this->tab == OrdersBacklogTabsEnum::IN_WAREHOUSE->value ?
                 fn () => OrdersResource::collection(IndexOrders::run(parent: $parent, bucket: OrdersBacklogTabsEnum::IN_WAREHOUSE->value))
                 : Inertia::lazy(fn () => OrdersResource::collection(IndexOrders::run(parent: $parent, bucket: OrdersBacklogTabsEnum::IN_WAREHOUSE->value))),
-                
+
                 OrdersBacklogTabsEnum::HANDLING->value => $this->tab == OrdersBacklogTabsEnum::HANDLING->value ?
                 fn () => OrdersResource::collection(IndexOrders::run(parent: $parent, bucket: OrdersBacklogTabsEnum::HANDLING->value))
                 : Inertia::lazy(fn () => OrdersResource::collection(IndexOrders::run(parent: $parent, bucket: OrdersBacklogTabsEnum::HANDLING->value))),
-                
+
                 OrdersBacklogTabsEnum::HANDLING_BLOCKED->value => $this->tab == OrdersBacklogTabsEnum::HANDLING_BLOCKED->value ?
                 fn () => OrdersResource::collection(IndexOrders::run(parent: $parent, bucket: OrdersBacklogTabsEnum::HANDLING_BLOCKED->value))
                 : Inertia::lazy(fn () => OrdersResource::collection(IndexOrders::run(parent: $parent, bucket: OrdersBacklogTabsEnum::HANDLING_BLOCKED->value))),
-                
+
                 OrdersBacklogTabsEnum::PACKED->value => $this->tab == OrdersBacklogTabsEnum::PACKED->value ?
                 fn () => OrdersResource::collection(IndexOrders::run(parent: $parent, bucket: OrdersBacklogTabsEnum::PACKED->value))
                 : Inertia::lazy(fn () => OrdersResource::collection(IndexOrders::run(parent: $parent, bucket: OrdersBacklogTabsEnum::PACKED->value))),
-                
+
                 OrdersBacklogTabsEnum::FINALISED->value => $this->tab == OrdersBacklogTabsEnum::FINALISED->value ?
                 fn () => OrdersResource::collection(IndexOrders::run(parent: $parent, bucket: OrdersBacklogTabsEnum::FINALISED->value))
                 : Inertia::lazy(fn () => OrdersResource::collection(IndexOrders::run(parent: $parent, bucket: OrdersBacklogTabsEnum::FINALISED->value))),
-                
+
                 OrdersBacklogTabsEnum::DISPATCHED_TODAY->value => $this->tab == OrdersBacklogTabsEnum::DISPATCHED_TODAY->value ?
                 fn () => OrdersResource::collection(IndexOrders::run(parent: $parent, bucket: OrdersBacklogTabsEnum::DISPATCHED_TODAY->value))
                 : Inertia::lazy(fn () => OrdersResource::collection(IndexOrders::run(parent: $parent, bucket: OrdersBacklogTabsEnum::DISPATCHED_TODAY->value))),
