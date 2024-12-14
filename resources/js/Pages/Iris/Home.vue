@@ -10,7 +10,7 @@ import { faCheck, faPlus, faMinus } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { Head } from '@inertiajs/vue3'
 import LayoutIris from '@/Layouts/Iris.vue'
-import { getComponent } from '@/Composables/getIrisComponents'
+import { getIrisComponent } from '@/Composables/getIrisComponents'
 
 // import { usePage } from '@inertiajs/vue3'
 

@@ -47,6 +47,7 @@ class ShowOutboxWorkshop extends OrgAction
 
     public function htmlResponse(Email $email, ActionRequest $request): Response
     {
+        // dd($email->snapshot->layout);
         return Inertia::render(
             'Org/Web/Workshop/Outbox/OutboxWorkshop', //NEED VUE FILE
             [
@@ -76,27 +77,42 @@ class ShowOutboxWorkshop extends OrgAction
                                 'parameters' => array_values($request->route()->originalParameters()),
                             ]
                         ],
+                        [
+                            'type'  => 'button',
+                            'style' => 'save',
+                            'label' => __('publish'),
+                            'route' => [
+                                'name'       => 'grp.models.email-templates.content.publish',
+                                'parameters' => $email->id,
+                                'method'     => 'post'
+                            ]
+                        ],
                     ]
 
                 ],
-                'compiled_layout'    => $email->snapshot->compiled_layout,
-
+                'snapshot'          => $email->snapshot,
+                'builder'           =>$email->builder,
                 'imagesUploadRoute'   => [
                     'name'       => 'grp.models.email-templates.images.store',
                     'parameters' => $email->id
                 ],
                 'updateRoute'         => [
-                    'name'       => 'grp.models.email-templates.content.update',
-                    'parameters' => $email->id
+                    'name'       => 'grp.models.snapshot.update',
+                    'parameters' => $email->snapshot->id
                 ],
-                'publishRoute'           => [
+               /*  'publishRoute'           => [
                     'name'       => 'grp.models.email-templates.content.publish',
                     'parameters' => $email->id
+                ], */
+                'loadRoute'           => [ 
+                    'name'       => 'grp.models.email-templates.content.show',
+                    'parameters' => $email->id
                 ],
-                // 'loadRoute'           => [ -> i don't know what kind of data should i give to this route
-                //     'name'       => 'grp.models.email-templates.content.show',
-                //     'parameters' => $emailTemplate->id
-                // ]
+                'apiKey'            => [
+                    'client_id'     => $email->group->settings['beefree']['client_id'],
+                    'client_secret' => $email->group->settings['beefree']['client_secret'],
+                    'grant_type'    => $email->group->settings['beefree']['grant_type'],
+                ]
             ]
         );
     }

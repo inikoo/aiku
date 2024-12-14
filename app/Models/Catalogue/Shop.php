@@ -35,6 +35,7 @@ use App\Models\Discounts\Offer;
 use App\Models\Discounts\OfferCampaign;
 use App\Models\Discounts\OfferComponent;
 use App\Models\Dispatching\DeliveryNote;
+use App\Models\Dispatching\Packing;
 use App\Models\Dispatching\Picking;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\Portfolio;
@@ -607,6 +608,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function pickings(): HasMany
     {
         return $this->hasMany(Picking::class);
+    }
+
+    public function packings(): HasMany
+    {
+        return $this->hasMany(Packing::class);
     }
 
 }

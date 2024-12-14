@@ -28,6 +28,7 @@ use App\Models\Dropshipping\ShopifyUser;
 use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
+use Carbon\Carbon;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -119,7 +120,10 @@ class IndexOrders extends OrgAction
             $query->where('orders.state', OrderStateEnum::DISPATCHED);
         } elseif ($this->bucket == 'cancelled') {
             $query->where('orders.state', OrderStateEnum::CANCELLED);
-        } elseif ($this->bucket == 'all' && !($parent instanceof ShopifyUser)) {
+        } elseif ($this->bucket == 'dispatched_today') {
+            $query->where('orders.state', OrderStateEnum::DISPATCHED)
+                    ->where('dispatched_at', Carbon::today());
+        }  elseif ($this->bucket == 'all' && !($parent instanceof ShopifyUser)) {
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                 $query->whereElementGroup(
                     key: $key,
@@ -177,9 +181,9 @@ class IndexOrders extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Organisation|Shop|Customer|CustomerClient|Asset|ShopifyUser $parent, $prefix = null): Closure
+    public function tableStructure(Organisation|Shop|Customer|CustomerClient|Asset|ShopifyUser $parent, $prefix = null, $bucket = null): Closure
     {
-        return function (InertiaTable $table) use ($parent, $prefix) {
+        return function (InertiaTable $table) use ($parent, $prefix, $bucket) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -212,7 +216,7 @@ class IndexOrders extends OrgAction
                     ]
                 );
 
-            if (!($parent instanceof ShopifyUser)) {
+            if ($bucket == 'all' && !($parent instanceof ShopifyUser)) {
                 foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                     $table->elementGroup(
                         key: $key,
@@ -224,12 +228,13 @@ class IndexOrders extends OrgAction
 
             $table->column(key: 'state', label: '', type: 'icon', canBeHidden: false, searchable: true);
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true, type:'number');
+            $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true, type: 'date');
             if ($parent instanceof Shop) {
                 $table->column(key: 'customer_name', label: __('customer'), canBeHidden: false, searchable: true);
             }
             $table->column(key: 'payment_status', label: __('payment'), canBeHidden: false, searchable: true);
             $table->column(key: 'net_amount', label: __('net'), canBeHidden: false, searchable: true, type: 'currency');
+            $table->defaultSort('reference');
         };
     }
 
@@ -374,7 +379,7 @@ class IndexOrders extends OrgAction
                     fn () => OrdersResource::collection($orders)
                     : Inertia::lazy(fn () => OrdersResource::collection($orders)),
             ]
-        )->table($this->tableStructure($this->parent, OrdersTabsEnum::ORDERS->value));
+        )->table($this->tableStructure($this->parent, OrdersTabsEnum::ORDERS->value, $this->bucket));
     }
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator

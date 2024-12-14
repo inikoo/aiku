@@ -14,6 +14,8 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Models\Helpers\Snapshot;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+use Lorisleiva\Actions\ActionRequest;
 
 class UpdateSnapshot extends OrgAction
 {
@@ -23,7 +25,6 @@ class UpdateSnapshot extends OrgAction
     public function handle(Snapshot $snapshot, array $modelData): Snapshot
     {
         $this->update($snapshot, $modelData, ['layout']);
-
         return $snapshot;
     }
 
@@ -31,7 +32,7 @@ class UpdateSnapshot extends OrgAction
     {
         $rules = [
             'state'           => ['sometimes', Rule::enum(SnapshotStateEnum::class)],
-            'published_until' => ['sometimes', 'date']
+            'published_until' => ['sometimes', 'date'],
         ];
 
         if (!$this->strict) {
@@ -53,6 +54,12 @@ class UpdateSnapshot extends OrgAction
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromGroup($snapshot->group, $modelData);
 
+        return $this->handle($snapshot, $this->validatedData);
+    }
+
+    public function asController(Snapshot $snapshot, ActionRequest $request)
+    {
+        $this->initialisationFromGroup($snapshot->group, $request);
         return $this->handle($snapshot, $this->validatedData);
     }
 

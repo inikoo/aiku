@@ -24,6 +24,7 @@ const props = defineProps<{
         sorted: string
         onSort: Function
         tooltip?: string
+        align?: string
     }
     column: {
         key: string
@@ -51,7 +52,7 @@ const isCellNumber = () => {
     <th v-show="!cell.hidden" class="font-normal"
         :class="[
             cell.type == 'avatar' || cell.type == 'icon' ? 'px-5 w-1' : 'px-6 w-auto',
-            isCellNumber() || cell.type == 'number' || cell.type == 'currency' ? 'text-right' : 'text-left'
+            cell.align === 'right' || isCellNumber() || cell.type == 'number' || cell.type == 'currency' || cell.type == 'date' ? 'text-right' : 'text-left'
         ]"
     >
         <component :is="cell.sortable ? 'button' : 'div'" class="py-1"

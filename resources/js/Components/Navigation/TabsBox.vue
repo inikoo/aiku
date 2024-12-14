@@ -27,6 +27,7 @@ const locale = inject('locale', aikuLocaleStructure)
 const props = defineProps<{
     tabs_box: {
         label: string
+        currency_code?: string
         tabs: {
             label: string
             icon?: string
@@ -100,10 +101,12 @@ const renderLabelBasedOnType = (data?: {label: string | number, type?: string}, 
                     {{ box.label }}
                 </div>
                 <div class="flex gap-x-4">
-                    <div v-for="tab in box.tabs" class="w-full flex flex-col items-center"
-                        :class="tab.tab_slug === currentTab ? 'text-indigo-600' : ''"
-                    >
-                        <div @click="onChangeTab(tab.tab_slug)" class="tabular-nums relative cursor-pointer text-2xl ">
+                    <div v-for="tab in box.tabs" class="w-full flex flex-col items-center">
+                        <div
+                            @click="onChangeTab(tab.tab_slug)"
+                            class="tabular-nums relative cursor-pointer text-2xl px-2"
+                            :class="tab.tab_slug === currentTab ? 'text-indigo-600' : ''"
+                        >
                             <template v-if="box.icon">
                                 <LoadingIcon v-if="tabLoading == tab.tab_slug" class="animate-spin text-xl" />
                                 <FontAwesomeIcon v-else :icon='box.icon' class='text-xl' fixed-width aria-hidden='true' />
@@ -111,20 +114,20 @@ const renderLabelBasedOnType = (data?: {label: string | number, type?: string}, 
                             
                             <div class="relative ">
                                 <span class="inline" :class="tabLoading == tab.tab_slug ? 'opacity-0' : ''">
-                                    {{ renderLabelBasedOnType(tab) }}
+                                    {{ renderLabelBasedOnType(tab, {currency_code: box.currency_code}) }}
                                 </span>
                                 <div v-if="!box.icon && tabLoading == tab.tab_slug" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                                     <LoadingIcon />
                                 </div>
                             </div>
                             <template v-if="tab.indicator">
-                                <FontAwesomeIcon icon='fas fa-circle' class='absolute top-1 -right-1.5 text-green-500 text-[6px]' fixed-width aria-hidden='true' />
-                                <FontAwesomeIcon icon='fas fa-circle' class='absolute top-1 -right-1.5 text-green-500 text-[6px] animate-ping' fixed-width aria-hidden='true' />
+                                <FontAwesomeIcon icon='fas fa-circle' class='absolute top-1 -right-0 text-green-500 text-[6px]' fixed-width aria-hidden='true' />
+                                <FontAwesomeIcon icon='fas fa-circle' class='absolute top-1 -right-0 text-green-500 text-[6px] animate-ping' fixed-width aria-hidden='true' />
                             </template>
                         </div>
                         
-                        <div>
-                            {{ renderLabelBasedOnType(tab.information)}}
+                        <div class="text-gray-400 font-normal">
+                            {{ renderLabelBasedOnType(tab.information, {currency_code: box.currency_code}) }}
                         </div>
                     </div>
                 </div>

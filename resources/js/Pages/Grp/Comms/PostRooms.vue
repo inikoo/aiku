@@ -18,22 +18,15 @@ import TableDispatchedEmails from "@/Components/Tables/TableDispatchedEmails.vue
 import { useTabChange } from "@/Composables/tab-change";
 
 
-const props = defineProps <{
-    pageHead: object
-    tabs: {
-        current: string;
-        navigation: object;
-    },
+const props = defineProps<{
+    data: object
     title: string
-    post_rooms?: object
-    outboxes?: object
-    mailshots?: object
-    dispatched_emails?: object
-
+    pageHead: object
 }>()
 
-let currentTab = ref(props.tabs.current);
-const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+console.log(props)
+// let currentTab = ref(props.tabs.current);
+// const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 
 const component = computed(() => {
 
@@ -52,9 +45,10 @@ const component = computed(() => {
 <!--suppress HtmlUnknownAttribute -->
 <template>
     <!--suppress HtmlRequiredTitleElement -->
-    <Head :title="capitalize(title)"/>
+    <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
-    <Tabs :current="currentTab" :navigation="tabs['navigation']"  @update:tab="handleTabUpdate"/>
-    <component :is="component" :tab="currentTab"  :data="props[currentTab]"></component>
+    <TablePostRooms :data="data" />
+    <!-- <Tabs :current="currentTab" :navigation="tabs['navigation']"  @update:tab="handleTabUpdate"/>
+    <component :is="component" :tab="currentTab"  :data="props[currentTab]"></component> -->
 </template>
 

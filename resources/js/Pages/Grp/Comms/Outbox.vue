@@ -36,7 +36,6 @@ const currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab);
 
 const component = computed(() => {
-  console.log(currentTab.value);
   const components: Component = {
     history: TableHistories,
     mailshots: TableMailshots,

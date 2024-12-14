@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { getComponent } from "@/Composables/getIrisComponents"
+import { getIrisComponent } from '@/Composables/getIrisComponents'
 import NavigationMenu from '@/Layouts/Iris/NavigationMenu.vue'
 import { routeType } from "@/types/route"
 
@@ -24,7 +24,7 @@ const props = defineProps<{
 <template>
     <!-- Section: Header-Topbar -->
     <component v-if="data?.topBar?.data.fieldValue"
-        :is="getComponent(data?.topBar.code)"
+        :is="getIrisComponent(data?.topBar.code)"
         v-model="data.topBar.data.fieldValue"
         :loginMode="true"
         :previewMode="true"
@@ -34,7 +34,7 @@ const props = defineProps<{
 
     <!-- Section: Header-Menu -->
     <component
-        :is="getComponent(data?.header?.code)"
+        :is="getIrisComponent(data?.header?.code)"
         v-model="data.header.data.fieldValue"
         :loginMode="true"
         :previewMode="true"

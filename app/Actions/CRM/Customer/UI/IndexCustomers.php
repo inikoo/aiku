@@ -10,11 +10,13 @@ namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Http\Resources\CRM\CustomersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
 use App\Models\Catalogue\Shop;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -27,11 +29,15 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexCustomers extends OrgAction
 {
-    private Shop|Organisation $parent;
+    private Group|Shop|Organisation $parent;
     private bool $canCreateShop = false;
 
     public function authorize(ActionRequest $request): bool
     {
+        if (str_starts_with($request->route()->getName(), 'grp.overview')) {
+            return $request->user()->hasPermissionTo("group-overview");
+        }
+
         $this->canEdit       = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
         $this->canCreateShop = $request->user()->hasPermissionTo("org-admin.{$this->organisation->id}");
 
@@ -46,6 +52,14 @@ class IndexCustomers extends OrgAction
         return $this->handle($this->parent);
     }
 
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisationFromGroup(group(), $request);
+        $this->parent = group();
+
+        return $this->handle($this->parent);
+    }
+
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
@@ -56,7 +70,7 @@ class IndexCustomers extends OrgAction
     }
 
 
-    public function handle(Organisation|Shop $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Organisation|Shop $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -75,6 +89,8 @@ class IndexCustomers extends OrgAction
 
         if (class_basename($parent) == 'Shop') {
             $queryBuilder->where('customers.shop_id', $parent->id);
+        } elseif (class_basename($parent) == 'Group') {
+            $queryBuilder->where('customers.group_id', $parent->id);
         } else {
             $queryBuilder->where('customers.organisation_id', $parent->id)
                 ->addSelect([
@@ -145,7 +161,7 @@ class IndexCustomers extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Organisation|Shop $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Group|Organisation|Shop $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
@@ -242,6 +258,24 @@ class IndexCustomers extends OrgAction
     {
         $scope = $this->parent;
 
+        $action = null;
+
+        if (!$scope instanceof Group) {
+            $action = [
+            'type'    => 'button',
+            'style'   => 'create',
+            'tooltip' => __('New Customer'),
+            'label'   => __('New Customer'),
+            'route'   => [
+                'name'       => 'grp.org.shops.show.crm.customers.create',
+                'parameters' => [
+                'organisation' => $scope->organisation->slug,
+                'shop'         => $scope->slug
+                ]
+            ]
+            ];
+        }
+
 
         return Inertia::render(
             'Org/Shop/CRM/Customers',
@@ -251,28 +285,14 @@ class IndexCustomers extends OrgAction
                     $request->route()->originalParameters()
                 ),
                 'title'       => __('customers'),
-                'pageHead'    => [
+                'pageHead'    => array_filter([
                     'title'   => __('customers'),
                     'icon'    => [
                         'icon'  => ['fal', 'fa-user'],
                         'title' => __('customer')
                     ],
-                    'actions' => [
-                        [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('New Customer'),
-                            'label'   => __('New Customer'),
-                            'route'   => [
-                                'name'       => 'grp.org.shops.show.crm.customers.create',
-                                'parameters' => [
-                                    'organisation' => $scope->organisation->slug,
-                                    'shop'         => $scope->slug
-                                ]
-                            ]
-                        ],
-                    ],
-                ],
+                    'actions' => $action
+                ]),
                 'data'        => CustomersResource::collection($customers),
 
             ]
@@ -303,6 +323,18 @@ class IndexCustomers extends OrgAction
                 $headCrumb(
                     [
                         'name'       => 'grp.org.shops.show.crm.customers.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            'grp.overview.customers.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.overview.customers.index',
                         'parameters' => $routeParameters
                     ]
                 )

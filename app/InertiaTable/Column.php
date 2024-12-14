@@ -23,6 +23,7 @@ class Column implements Arrayable
         public bool $sortable,
         public bool|string $sorted,
         public ?string $type,
+        public ?string $align,
         public ?string $className,
     ) {
     }
@@ -40,6 +41,7 @@ class Column implements Arrayable
             'sortable'      => $this->sortable,
             'sorted'        => $this->sorted,
             'type'          => $this->type,
+            'align'         => $this->align,
             'className'     => $this->className,
         ];
     }

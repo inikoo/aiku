@@ -9,7 +9,7 @@ import { ref } from "vue"
 
 // Define props
 const props = defineProps<{
-    modelValue: any
+    fieldValue: any
 }>()
 
 // Dummy sections with conditional anchor handling

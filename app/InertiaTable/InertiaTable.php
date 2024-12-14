@@ -301,6 +301,7 @@ class InertiaTable
         bool $sortable = false,
         bool $searchable = false,
         string $type = null,
+        string $align = null,
         string $className = null,
     ): self {
         $this->columns = $this->columns->reject(function (Column $column) use ($key) {
@@ -317,6 +318,7 @@ class InertiaTable
                 sortable: $sortable,
                 sorted: false,
                 type: $type,
+                align: $align,
                 className: $className,
             )
         )->values();

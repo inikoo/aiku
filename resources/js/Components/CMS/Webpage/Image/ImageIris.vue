@@ -8,7 +8,15 @@ import { ref, defineProps, defineEmits } from "vue"
 library.add(faCube, faStar, faImage, faPencil)
 
 const props = defineProps<{
-	modelValue: any
+	fieldValue: {
+		images: {
+			source: string
+			link_data: {
+				url: string
+			}
+		}[]
+		layout_type: string
+	}
 	webpageData?: any
 	web_block?: Object
 	id?: Number
@@ -16,8 +24,8 @@ const props = defineProps<{
 	isEditable?: boolean
 }>()
 
-const getHref = (index: number, isEditable: any) => {
-	const image = props.modelValue?.value?.images?.[index]
+const getHref = (index: number) => {
+	const image = props.fieldValue?.images?.[index]
 
 	if (image?.link_data?.url) {
 		return image.link_data.url
@@ -69,20 +77,20 @@ const getImageSlots = (layoutType: string) => {
 </script>
 
 <template>
-	<div v-if="modelValue?.value?.images" class="flex flex-wrap">
+	<div v-if="fieldValue?.value?.images" class="flex flex-wrap">
 		<div
-			v-for="index in getImageSlots(modelValue?.value?.layout_type)"
+			v-for="index in getImageSlots(fieldValue?.value?.layout_type)"
 			:key="index"
 			class="relative p-2"
-			:class="getColumnWidthClass(modelValue?.value?.layout_type, index - 1)">
+			:class="getColumnWidthClass(fieldValue?.value?.layout_type, index - 1)">
 			<a
-				v-if="modelValue?.value?.images?.[index - 1]?.source"
-				:href="getHref(index - 1, isEditable)"
+				v-if="fieldValue?.value?.images?.[index - 1]?.source"
+				:href="getHref(index - 1)"
 				target="_blank"
 				rel="noopener noreferrer"
 				class="transition-shadow aspect-h-1 aspect-w-1 w-full">
 				<Image
-					:src="modelValue?.value?.images?.[index - 1]?.source"
+					:src="fieldValue?.value?.images?.[index - 1]?.source"
 					class="w-full object-cover object-center group-hover:opacity-75" />
 			</a>
 		</div>
