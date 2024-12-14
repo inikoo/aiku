@@ -54,6 +54,11 @@ return new class () extends Migration {
             $table->foreign('live_footer_snapshot_id')->references('id')->on('snapshots');
         });
 
+        Schema::table('webpages', function (Blueprint $table) {
+            $table->foreign('unpublished_snapshot_id')->references('id')->on('snapshots');
+            $table->foreign('live_snapshot_id')->references('id')->on('snapshots');
+        });
+
 
     }
 
@@ -61,7 +66,9 @@ return new class () extends Migration {
     public function down(): void
     {
 
-
+        Schema::table('webpages', function (Blueprint $table) {
+            $table->dropForeign(['unpublished_snapshot_id', 'live_snapshot_id']);
+        });
         Schema::table('websites', function (Blueprint $table) {
             $table->dropForeign(['live_header_snapshot_id', 'unpublished_header_snapshot_id', 'live_footer_snapshot_id', 'unpublished_footer_snapshot_id']);
         });

@@ -41,8 +41,10 @@ return new class () extends Migration {
             $table->string('state')->index()->default(WebpageStateEnum::IN_PROCESS);
             $table->string('type')->index();
             $table->string('sub_type')->index();
+
             $table->unsignedInteger('unpublished_snapshot_id')->nullable()->index();
             $table->unsignedInteger('live_snapshot_id')->nullable()->index();
+
             $table->jsonb('published_layout');
             $table->dateTimeTz('ready_at')->nullable();
             $table->dateTimeTz('live_at')->nullable();

@@ -30,7 +30,8 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property int|null $parent_id
  * @property EmailBuilderEnum $builder
  * @property string $subject
- * @property int|null $snapshot_id
+ * @property int|null $unpublished_snapshot_id
+ * @property int|null $live_snapshot_id
  * @property int|null $screenshot_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
