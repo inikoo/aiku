@@ -20,8 +20,9 @@ class GetMailshotPreview
 
 
         return [
-            'builder' => $mailshot->email->snapshot->builder,
-            'layout' => $mailshot->email?->snapshot?->compiled_layout
+            'builder' => $mailshot->email->unpublishedSnapshot->builder,
+            'unpublished_layout' => $mailshot->email?->unpublishedSnapshot?->compiled_layout,
+            'live_layout' => $mailshot->email?->liveSnapshot?->compiled_layout
         ];
     }
 }

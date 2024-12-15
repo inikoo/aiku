@@ -26,7 +26,7 @@ return new class () extends Migration {
 
             $table->string('parent_type')->nullable();
             $table->unsignedInteger('parent_id')->nullable();
-
+            $table->string('identifier')->nullable()->index();
             $table->string('builder')->index();
             $table->string('subject')->index();
 
@@ -39,6 +39,7 @@ return new class () extends Migration {
 
             $table->unsignedInteger('screenshot_id')->nullable();
             $table->foreign('screenshot_id')->references('id')->on('media');
+            $table->jsonb('data');
 
             $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();

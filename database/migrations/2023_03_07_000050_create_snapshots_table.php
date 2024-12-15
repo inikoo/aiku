@@ -40,7 +40,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
-            $table->string('source_id')->nullable()->unique();
+            $table->string('source_id')->nullable()->index();
 
             $table->index(['parent_type', 'parent_id']);
             $table->index(['parent_type', 'parent_id', 'scope']);

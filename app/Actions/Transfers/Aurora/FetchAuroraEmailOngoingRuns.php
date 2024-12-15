@@ -14,8 +14,11 @@ use App\Actions\Comms\Outbox\UpdateOutbox;
 use App\Actions\Helpers\Snapshot\UpdateSnapshot;
 use App\Enums\Comms\Email\EmailBuilderEnum;
 use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunStatusEnum;
+use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunTypeEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
+use App\Models\Comms\Email;
 use App\Models\Comms\EmailOngoingRun;
+use App\Models\Helpers\Snapshot;
 use App\Transfers\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -69,7 +72,35 @@ class FetchAuroraEmailOngoingRuns extends FetchAuroraAction
             ->update(['aiku_id' => $emailOngoingRun->id]);
 
 
+        if ($emailOngoingRun->type == EmailOngoingRunTypeEnum::PUSH) {
+            $emailOngoingRun = $this->processPushEmail($emailOngoingRun, $emailOngoingRunData);
+            UpdateEmailOngoingRun::make()->action(
+                $emailOngoingRun,
+                [
+                    'status' => EmailOngoingRunStatusEnum::ACTIVE
+                ]
+            );
+
+            UpdateOutbox::make()->action(
+                $emailOngoingRun->outbox,
+                [
+                    'state'    => OutboxStateEnum::ACTIVE,
+                    'model_id' => $emailOngoingRun->id
+                ]
+            );
+
+            return $emailOngoingRun;
+        } else {
+            return $this->processEmail($emailOngoingRun, $emailOngoingRunData);
+        }
+    }
+
+
+    private function processEmail(EmailOngoingRun $emailOngoingRun, array $emailOngoingRunData): EmailOngoingRun
+    {
         $email = $emailOngoingRun->email;
+
+
         if (!$email) {
             data_forget($emailOngoingRunData, 'snapshot.last_fetched_at');
 
@@ -78,7 +109,6 @@ class FetchAuroraEmailOngoingRuns extends FetchAuroraAction
                 dd('This can not happen');
             }
 
-            // dd($emailOngoingRun);
 
             $email = StoreEmail::make()->action(
                 $emailOngoingRun,
@@ -87,21 +117,12 @@ class FetchAuroraEmailOngoingRuns extends FetchAuroraAction
                 hydratorsDelay: 60,
                 strict: false
             );
+        } elseif ($email->builder == EmailBuilderEnum::BLADE) {
+            $this->processBladeSnapshots($email, $emailOngoingRunData);
         } else {
-
-            if ($email->snapshot->fetched_at) {
-                data_forget($emailOngoingRunData, 'snapshot.fetched_at');
-            } else {
-                data_forget($emailOngoingRunData, 'snapshot.last_fetched_at');
-            }
-
-            UpdateSnapshot::make()->action(
-                $email->snapshot,
-                $emailOngoingRunData['snapshot'],
-                hydratorsDelay: 60,
-                strict: false
-            );
+            $this->processEditableSnapshots($email->unpublishedSnapshot, $email->liveSnapshot, $emailOngoingRun, $emailOngoingRunData);
         }
+
 
         UpdateEmailOngoingRun::make()->action(
             $emailOngoingRun,
@@ -114,13 +135,78 @@ class FetchAuroraEmailOngoingRuns extends FetchAuroraAction
         UpdateOutbox::make()->action(
             $emailOngoingRun->outbox,
             [
-                'state' => OutboxStateEnum::ACTIVE,
+                'state'    => OutboxStateEnum::ACTIVE,
                 'model_id' => $emailOngoingRun->id
             ]
         );
 
+        return $emailOngoingRun;
+    }
+
+    private function processPushEmail(EmailOngoingRun $emailOngoingRun, array $emailOngoingRunData): EmailOngoingRun
+    {
+        $email = $emailOngoingRun->email()->where('identifier', $emailOngoingRunData['snapshot']['identifier'])->first();
+
+
+        if (!$email) {
+            data_forget($emailOngoingRunData, 'snapshot.last_fetched_at');
+
+            StoreEmail::make()->action(
+                $emailOngoingRun,
+                null,
+                modelData: $emailOngoingRunData['snapshot'],
+                hydratorsDelay: 60,
+                strict: false
+            );
+        } else {
+            $this->processEditableSnapshots($email->unpublishedSnapshot, $email->liveSnapshot, $emailOngoingRun, $emailOngoingRunData);
+        }
+
 
         return $emailOngoingRun;
+    }
+
+    private function processBladeSnapshots(Email $email, array $emailOngoingRunData): void
+    {
+        if ($email->liveSnapshot->fetched_at) {
+            data_forget($emailOngoingRunData, 'snapshot.fetched_at');
+        } else {
+            data_forget($emailOngoingRunData, 'snapshot.last_fetched_at');
+        }
+
+        UpdateSnapshot::make()->action(
+            $email->liveSnapshot,
+            $emailOngoingRunData['snapshot'],
+            hydratorsDelay: 60,
+            strict: false
+        );
+    }
+
+
+    private function processEditableSnapshots(Snapshot $unpublishedSnapshot, ?Snapshot $liveSnapshot, EmailOngoingRun $emailOngoingRun, array $emailOngoingRunData): void
+    {
+        if ($unpublishedSnapshot->fetched_at) {
+            data_forget($emailOngoingRunData, 'snapshot.fetched_at');
+        } else {
+            data_forget($emailOngoingRunData, 'snapshot.last_fetched_at');
+        }
+
+        UpdateSnapshot::make()->action(
+            $unpublishedSnapshot,
+            $emailOngoingRunData['snapshot'],
+            hydratorsDelay: 60,
+            strict: false
+        );
+        if ($emailOngoingRun->status == EmailOngoingRunStatusEnum::IN_PROCESS) {
+            $liveSnapshot?->delete();
+        } else {
+            UpdateSnapshot::make()->action(
+                $liveSnapshot,
+                $emailOngoingRunData['snapshot'],
+                hydratorsDelay: 60,
+                strict: false
+            );
+        }
     }
 
 

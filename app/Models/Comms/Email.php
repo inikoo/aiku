@@ -28,11 +28,13 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property int $outbox_id
  * @property string|null $parent_type
  * @property int|null $parent_id
+ * @property string|null $identifier
  * @property EmailBuilderEnum $builder
  * @property string $subject
  * @property int|null $unpublished_snapshot_id
  * @property int|null $live_snapshot_id
  * @property int|null $screenshot_id
+ * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at
@@ -40,6 +42,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read Snapshot|null $liveSnapshot
  * @property-read \App\Models\SysAdmin\Organisation|null $organisation
  * @property-read \App\Models\Comms\Outbox $outbox
  * @property-read Model|\Eloquent|null $parent
@@ -58,13 +61,14 @@ class Email extends Model implements Auditable
     use InShop;
 
     protected $casts = [
+        'data'            => 'array',
         'builder'         => EmailBuilderEnum::class,
         'fetched_at'      => 'datetime',
         'last_fetched_at' => 'datetime',
     ];
 
     protected $attributes = [
-
+        'data' => '{}',
     ];
 
     protected $guarded = [];
@@ -103,6 +107,11 @@ class Email extends Model implements Auditable
     public function unpublishedSnapshot(): BelongsTo
     {
         return $this->belongsTo(Snapshot::class, 'unpublished_snapshot_id');
+    }
+
+    public function liveSnapshot(): BelongsTo
+    {
+        return $this->belongsTo(Snapshot::class, 'live_snapshot_id');
     }
 
 

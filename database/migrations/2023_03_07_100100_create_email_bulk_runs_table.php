@@ -31,6 +31,7 @@ return new class () extends Migration {
 
             $table->unsignedInteger('email_id')->nullable()->index();
             $table->foreign('email_id')->references('id')->on('emails');
+
             $table->unsignedInteger('snapshot_id')->nullable()->index();
             $table->foreign('snapshot_id')->references('id')->on('snapshots');
 

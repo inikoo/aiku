@@ -40,7 +40,7 @@ class StoreEmailBulkRun extends OrgAction
         data_set($modelData, 'shop_id', $emailOngoingRun->shop_id);
         data_set($modelData, 'outbox_id', $emailOngoingRun->outbox_id);
         data_set($modelData, 'email_id', $emailOngoingRun->email_id);
-        data_set($modelData, 'snapshot_id', $emailOngoingRun->email->snapshot_id, overwrite: false);
+        data_set($modelData, 'snapshot_id', $emailOngoingRun->email->live_snapshot_id, overwrite: false);
 
 
         $emailBulkRun = DB::transaction(function () use ($emailOngoingRun, $modelData) {
