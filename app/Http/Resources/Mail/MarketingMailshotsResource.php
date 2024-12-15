@@ -54,23 +54,7 @@ class MarketingMailshotsResource extends JsonResource
             'opened'               => percentage($mailshot->opened, $mailshot->delivered),
             'clicked'              => percentage($mailshot->clicked, $mailshot->delivered),
             'spam'                 => percentage($mailshot->spam, $mailshot->delivered),
-            // 'percentage_bounced'   => $mailshot->start_sending_at ?
-            //     percentage($numberBounced, $this->number_dispatched_emails) : null,
 
-            // 'number_delivered'       => $mailshot->start_sending_at ? $this->number_dispatched_emails_state_delivered : null,
-            // 'number_opened'          => $mailshot->start_sending_at ? $this->number_dispatched_emails_state_opened : null,
-            // 'percentage_opened'      => $mailshot->start_sending_at ?
-            //     percentage($this->number_opened_emails, $this->number_delivered_emails)
-            //     : null,
-            // 'percentage_clicked'     => $mailshot->start_sending_at ?
-            //     percentage($this->number_clicked_emails, $this->number_delivered_emails)
-            //     : null,
-            // 'percentage_unsubscribe' => $mailshot->start_sending_at ?
-            //     percentage($this->number_unsubscribed_emails, $this->number_delivered_emails)
-            //     : null,
-            // 'percentage_spam'        => $mailshot->start_sending_at ?
-            //     percentage($this->number_spam_emails, $this->number_delivered_emails)
-            //     : null,
 
         ];
     }

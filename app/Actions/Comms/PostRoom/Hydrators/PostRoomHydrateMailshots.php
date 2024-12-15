@@ -39,11 +39,13 @@ class PostRoomHydrateMailshots
             return $outbox->mailshots->count();
         });
 
-        $stats = [
-            'number_mailshots' => $count,
-        ];
+        $postRoom->intervals()->update(
+            [
+                'runs_all' => $count,
+            ]
+        );
 
-        $postRoom->stats()->update($stats);
+
     }
 
 }

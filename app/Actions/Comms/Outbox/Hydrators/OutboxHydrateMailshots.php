@@ -32,14 +32,18 @@ class OutboxHydrateMailshots
 
     public function handle(Outbox $outbox): void
     {
+
+        if ($outbox->model_type != 'Mailshot') {
+            return;
+        }
+
         $count = DB::table('mailshots')
             ->where('outbox_id', $outbox->id)->count();
 
 
-
-        $outbox->stats()->update(
+        $outbox->intervals()->update(
             [
-                'number_mailshots' => $count,
+                'runs_all' => $count,
             ]
         );
     }

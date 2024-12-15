@@ -88,13 +88,13 @@ class IndexOutboxes extends OrgAction
                 'outboxes.data',
                 'outbox_intervals.dispatched_emails_lw',
                 'outbox_intervals.opened_emails_lw',
-                'outbox_intervals.unsubscribed_emails_lw',
+                'outbox_intervals.unsubscribed_lw',
             ])
-            ->selectRaw('(outbox_stats.number_mailshots  + outbox_stats.number_email_bulk_runs) as runs')
+            ->selectRaw('outbox_intervals.runs_all runs')
 
             ->leftJoin('outbox_stats', 'outbox_stats.outbox_id', 'outboxes.id')
             ->leftJoin('outbox_intervals', 'outbox_intervals.outbox_id', 'outboxes.id')
-            ->allowedSorts(['name', 'runs', 'number_mailshots', 'dispatched_emails_lw', 'opened_emails_lw', 'unsubscribed_emails_lw'])
+            ->allowedSorts(['name', 'runs', 'number_mailshots', 'dispatched_emails_lw', 'opened_emails_lw', 'unsubscribed_lw'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -114,7 +114,7 @@ class IndexOutboxes extends OrgAction
                 ->column(key: 'runs', label: __('Mailshots/Runs'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'dispatched_emails_lw', label: __('Dispatched').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'opened_emails_lw', label: __('Opened').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'unsubscribed_emails_lw', label: __('Unsubscribed').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'unsubscribed_lw', label: __('Unsubscribed').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 

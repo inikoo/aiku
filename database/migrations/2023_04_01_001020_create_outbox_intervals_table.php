@@ -22,11 +22,13 @@ return new class () extends Migration {
             $table->foreign('outbox_id')->references('id')->on('outboxes');
 
             $fields = [
+                'runs',//number of 'MailShot|EmailBulkRun|EmailPush
                 'dispatched_emails',
                 'opened_emails',
                 'clicked_emails',
-                'unsubscribed_emails',
-                'bounced_emails'
+                'bounced_emails',
+                'subscribed',
+                'unsubscribed',
             ];
 
             $table = $this->unsignedIntegerDateIntervals($table, $fields);

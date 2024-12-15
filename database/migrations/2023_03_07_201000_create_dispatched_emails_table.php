@@ -24,7 +24,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('outbox_id')->nullable();
             $table->foreign('outbox_id')->references('id')->on('outboxes');
 
-            $table->string('parent_type')->index()->comment('MailShot|EmailBulkRun|EmailOngoingRun|EmailPush');
+            $table->string('parent_type')->index()->comment('MailShot|EmailBulkRun|EmailPush|EmailOngoingRun');
             $table->unsignedInteger('parent_id');
 
             $table->unsignedInteger('email_address_id')->nullable();

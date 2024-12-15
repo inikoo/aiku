@@ -22,16 +22,6 @@ trait HasCommsStats
         return $table;
     }
 
-    public function generalCommsStats(Blueprint $table): Blueprint
-    {
-        $table->unsignedInteger('number_subscribers')->default(0);
-        $table->unsignedInteger('number_unsubscribed')->default(0);
-        $table->unsignedInteger('number_mailshots')->default(0);
-        $table->unsignedInteger('number_email_bulk_runs')->default(0);
-
-        return $table;
-    }
-
     public function orgPostRoomsStats(Blueprint $table): Blueprint
     {
         $table->unsignedSmallInteger('number_org_post_rooms')->default(0);

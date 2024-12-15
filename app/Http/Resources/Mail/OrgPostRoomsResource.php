@@ -32,7 +32,7 @@ class OrgPostRoomsResource extends JsonResource
             'dispatched_emails_lw'   => $this->dispatched_emails_lw,
             'opened_emails_lw'       => $this->opened_emails_lw,
             'runs'                   => $this->runs,
-            'unsubscribed_emails_lw' => $this->unsubscribed_emails_lw,
+            'unsubscribed_lw' => $this->unsubscribed_lw,
         ];
     }
 }

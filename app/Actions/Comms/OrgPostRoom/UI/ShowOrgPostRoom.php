@@ -122,7 +122,7 @@ class ShowOrgPostRoom extends OrgAction
         return match ($routeName) {
             'grp.org.shops.show.comms.post-rooms.show' =>
             array_merge(
-                IndexOrgPostRoom::make()->getBreadcrumbs('grp.org.shops.show.comms.post-rooms.index', $routeParameters),
+                IndexOrgPostRooms::make()->getBreadcrumbs('grp.org.shops.show.comms.post-rooms.index', $routeParameters),
                 $headCrumb(
                     $orgPostRoom,
                     [

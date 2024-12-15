@@ -24,8 +24,9 @@ return new class () extends Migration {
                 'dispatched_emails',
                 'opened_emails',
                 'clicked_emails',
-                'unsubscribed_emails',
-                'bounced_emails'
+                'bounced_emails',
+                'subscribed',
+                'unsubscribed',
             ];
 
             $table = $this->unsignedIntegerDateIntervals($table, $fields);
