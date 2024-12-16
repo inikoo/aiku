@@ -9,8 +9,6 @@
 namespace App\Actions;
 
 use App\Actions\Traits\WithOrganisationsArgument;
-use App\Models\CRM\Customer;
-use App\Models\Inventory\OrgStockFamily;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
