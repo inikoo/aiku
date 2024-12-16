@@ -122,6 +122,7 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
         $this->parsedData['shop'] = $shop;
 
 
+
         $snapshotPublishedAt = $this->parseDatetime($this->auroraModelData->{'Email Template Last Edited'});
 
         if (!$snapshotPublishedAt) {
