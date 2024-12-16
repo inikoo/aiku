@@ -12,6 +12,6 @@ const props = defineProps<{
 
 <template>
     <div id="blockTextContent" :style="getStyles(fieldValue?.container?.properties)">
-        <div class="editor-class" v-html="fieldValue.value"></div>
+        <div class="editor-class" v-html="fieldValue?.value"></div>
     </div>
 </template>

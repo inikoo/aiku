@@ -16,6 +16,6 @@ const props = defineProps<{
 
 <template>
     <div class="w-full py-12 px-8 flex gap-x-10">
-        <div v-html="fieldValue.value"></div>
+        <div v-html="fieldValue?.value"></div>
     </div>
 </template>

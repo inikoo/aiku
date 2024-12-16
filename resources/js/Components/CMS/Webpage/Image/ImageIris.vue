@@ -82,7 +82,8 @@ const getImageSlots = (layoutType: string) => {
 			v-for="index in getImageSlots(fieldValue?.value?.layout_type)"
 			:key="index"
 			class="relative p-2"
-			:class="getColumnWidthClass(fieldValue?.value?.layout_type, index - 1)">
+			:class="getColumnWidthClass(fieldValue?.value?.layout_type, index - 1)"
+		>
 			<a
 				v-if="fieldValue?.value?.images?.[index - 1]?.source"
 				:href="getHref(index - 1)"
