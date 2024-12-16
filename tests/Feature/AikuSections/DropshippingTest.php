@@ -8,6 +8,7 @@
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
+use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\CRM\Customer\AttachCustomerToPlatform;
@@ -20,10 +21,12 @@ use App\Actions\Dropshipping\Portfolio\UpdatePortfolio;
 use App\Actions\Helpers\Images\GetPictureSources;
 use App\Actions\Helpers\Media\SaveModelImages;
 use App\Actions\SysAdmin\Group\CreateAccessToken;
+use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Helpers\ImgProxy\Image;
+use App\Models\Analytics\AikuScopedSection;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
@@ -34,8 +37,10 @@ use App\Models\Dropshipping\Portfolio;
 use App\Models\Helpers\Media;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
 
 beforeAll(function () {
     loadDB();
@@ -266,3 +271,131 @@ test('get dropshipping access token', function () {
     expect($token)->toBeString();
     $this->token = $token;
 })->skip();
+
+
+test('UI Index customer clients', function () {
+
+    $customer = Customer::first();
+    $response = $this->get(route('grp.org.shops.show.crm.customers.show.customer-clients.index', [$this->organisation->slug, $this->shop->slug, $customer->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) use ($customer) {
+        $page
+            ->component('Org/Shop/CRM/CustomerClients')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $customer->name)
+                    ->has('subNavigation')
+                    ->etc()
+            )
+            ->has('data');
+    });
+});
+
+test('UI Show customer client', function () {
+
+    $customerClient = CustomerClient::first();
+    $customer = $customerClient->customer;
+    $response = $this->get(route('grp.org.shops.show.crm.customers.show.customer-clients.show', [$this->organisation->slug, $this->shop->slug, $customer->slug, $customerClient->ulid]));
+
+    $response->assertInertia(function (AssertableInertia $page) use ($customerClient) {
+        $page
+            ->component('Org/Shop/CRM/CustomerClient')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $customerClient->name)
+                    ->has('subNavigation')
+                    ->etc()
+            );
+    });
+});
+
+test('UI create customer client', function () {
+    $customer = Customer::first();
+    $response = get(route('grp.org.shops.show.crm.customers.show.customer-clients.create', [$this->organisation->slug, $this->shop->slug, $customer->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 5);
+    });
+});
+
+test('UI edit customer client', function () {
+    $customerClient = CustomerClient::first();
+    $customer = $customerClient->customer;
+    $response = get(route('grp.org.shops.show.crm.customers.show.customer-clients.edit', [$this->organisation->slug, $this->shop->slug, $customer->slug, $customerClient]));
+    $response->assertInertia(function (AssertableInertia $page) use ($customerClient) {
+        $page
+            ->component('EditModel')
+            ->where('title', 'edit client')
+            ->has(
+                'formData',
+                fn (AssertableInertia $form) => $form
+                    ->has('blueprint', 1)
+                    ->where('blueprint.0.title', 'contact')
+                    ->has('blueprint.0.fields.company_name')
+                    ->where('blueprint.0.fields.company_name.label', 'company')
+                    ->where('blueprint.0.fields.company_name.value', $customerClient->company_name)
+                    ->has('blueprint.0.fields.contact_name')
+                    ->where('blueprint.0.fields.contact_name.label', 'contact name')
+                    ->where('blueprint.0.fields.contact_name.value', $customerClient->contact_name)
+                    ->has('blueprint.0.fields.email')
+                    ->where('blueprint.0.fields.email.label', 'email')
+                    ->where('blueprint.0.fields.email.value', $customerClient->email)
+                    ->has('blueprint.0.fields.phone')
+                    ->where('blueprint.0.fields.phone.label', 'phone')
+                    ->where('blueprint.0.fields.phone.value', $customerClient->phone)
+                    ->etc()
+            )
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'edit client')
+                    ->has('actions')
+                    ->etc()
+            )
+            ->has('breadcrumbs', 5);
+    });
+});
+
+test('UI Index customer portfolios', function () {
+
+    $customer = Customer::first();
+    $response = $this->get(route('grp.org.shops.show.crm.customers.show.portfolios.index', [$this->organisation->slug, $this->shop->slug, $customer->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) use ($customer) {
+        $page
+            ->component('Org/Shop/CRM/Portfolios')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $customer->name)
+                    ->has('subNavigation')
+                    ->etc()
+            )
+            ->has('data');
+    });
+});
+
+test('UI get section route client dropshipping', function () {
+    $customer = Customer::first();
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.crm.customers.show.customer-clients.index', [
+        'organisation' => $this->organisation->slug,
+        'shop'         => $this->shop->slug,
+        'customer'     => $customer->slug
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::DROPSHIPPING->value)
+        ->and($sectionScope->model_slug)->toBe($this->shop->slug);
+});
