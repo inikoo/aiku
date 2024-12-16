@@ -6,7 +6,7 @@
  * copyright 2024
 */
 
-namespace App\Actions\Helpers\Snapshot;
+namespace App\Actions\Comms\Email;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
