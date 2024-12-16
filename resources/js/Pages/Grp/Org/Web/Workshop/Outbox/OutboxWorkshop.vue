@@ -4,13 +4,14 @@ import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import Unlayer from "@/Components/CMS/Website/Outboxes/Unlayer/UnlayerV2.vue"
-import Beetree from '@/Components/CMS/Website/Outboxes/Beetree.vue'
+import Beetree from '@/Components/CMS/Website/Outboxes/Beefree.vue'
 import Publish from "@/Components/Publish.vue"
 
 import { PageHeading as TSPageHeading } from "@/types/PageHeading";
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faArrowAltToTop, faArrowAltToBottom, faTh, faBrowser, faCube, faPalette, faCheeseburger, faDraftingCompass, faWindow } from '@fal'
 import { routeType } from '@/types/route'
+import EmptyState from '@/Components/Utils/EmptyState.vue'
 
 library.add(faArrowAltToTop, faArrowAltToBottom, faTh, faBrowser, faCube, faPalette, faCheeseburger, faDraftingCompass, faWindow)
 
@@ -61,11 +62,20 @@ const openTemplates = ref(false)
 
     <!-- unlayer -->
     <Unlayer 
-        v-if="builder == 'unlayer'"
+        v-else-if="builder == 'unlayer'"
         :updateRoute="updateRoute" 
         :imagesUploadRoute="imagesUploadRoute" 
         :snapshot="snapshot"
     />
+
+    <div v-else>
+        <EmptyState 
+            :data="{
+                title : 'Builder Not Set Up',
+                description : 'you neeed to set up the builder'
+            }"
+        />
+    </div>
 
    <!--  <Modal :isOpen="openTemplates" @onClose="openTemplates = false" width="w-[600px]">
         <div class="overflow-y-auto">
