@@ -92,11 +92,11 @@ class EditGroupSettings extends GrpAction
                                 "label"       => __("Client Secret"),
                                 "value"       => $group->settings['beefree']['client_secret'] ?? '',
                             ],
-                            "grant_type" => [
-                                "type"        => "input",
-                                "label"       => __("Grant Type"),
-                                "value"       => $group->settings['beefree']['grant_type'] ?? '',
-                            ],
+                            // "grant_type" => [
+                            //     "type"        => "input",
+                            //     "label"       => __("Grant Type"),
+                            //     "value"       => $group->settings['beefree']['grant_type'] ?? '',
+                            // ],
                         ],
 
                     ],

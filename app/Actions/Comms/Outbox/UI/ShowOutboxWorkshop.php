@@ -97,7 +97,7 @@ class ShowOutboxWorkshop extends OrgAction
                     ]
 
                 ],
-                'snapshot'          => $email->liveSnapshot,
+                'snapshot'          => $email->unpublishedSnapshot,
                 'builder'           => $email->builder,
                 'imagesUploadRoute'   => [
                     'name'       => 'grp.models.email-templates.images.store',
