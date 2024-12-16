@@ -86,6 +86,11 @@ class UpdateInvoice extends OrgAction
         ];
 
         if (!$this->strict) {
+            $rules['reference'] = [
+                'sometimes',
+                'string',
+                'max:64',
+            ];
             $rules = $this->orderNoStrictFields($rules);
             $rules = $this->noStrictUpdateRules($rules);
         }

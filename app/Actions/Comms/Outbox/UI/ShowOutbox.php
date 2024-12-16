@@ -142,7 +142,7 @@ class ShowOutbox extends OrgAction
         $this->canEdit = true;
         // $actions       = $this->workshopActions($request);
         $actions = [];
-        
+
         if ($outbox->type === OutboxTypeEnum::CUSTOMER_NOTIFICATION && $outbox->builder !== EmailBuilderEnum::BLADE->value && $outbox->model_type === class_basename(EmailOngoingRun::class)) {
             $actions = [
                 [
@@ -157,7 +157,7 @@ class ShowOutbox extends OrgAction
                 ]
             ];
         }
-// dd($actions);
+        // dd($actions);
         return Inertia::render(
             'Comms/Outbox',
             [

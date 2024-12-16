@@ -29,8 +29,7 @@ class ShowOutboxWorkshop extends OrgAction
 
     public function handle(Email $email)
     {
-        if($email->builder == EmailBuilderEnum::BLADE)
-        {
+        if ($email->builder == EmailBuilderEnum::BLADE) {
             throw ValidationException::withMessages([
                 'value' => 'Builder is not supported'
             ]);

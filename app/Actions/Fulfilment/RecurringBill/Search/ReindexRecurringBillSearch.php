@@ -9,7 +9,6 @@
 namespace App\Actions\Fulfilment\RecurringBill\Search;
 
 use App\Actions\HydrateModel;
-use App\Models\CRM\Customer;
 use App\Models\Fulfilment\RecurringBill;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
