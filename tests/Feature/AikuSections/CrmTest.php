@@ -208,7 +208,7 @@ test('create prospect mailshot', function () {
     ];
     $mailshot     = StoreMailshot::make()->action($outbox, $dataModel);
     expect($mailshot)->toBeInstanceOf(Mailshot::class)
-        ->and($outbox->stats->number_mailshots)->toBe(1);
+        ->and($outbox->intervals->runs_all)->toBe(1);
 });
 
 test('add delivery address to customer', function (Customer $customer) {
