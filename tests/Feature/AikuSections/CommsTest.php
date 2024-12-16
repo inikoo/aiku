@@ -95,9 +95,9 @@ test('outbox seeded when website created', function (Shop $shop) {
         $shop,
         Website::factory()->definition()
     );
-    expect($website->group->commsStats->number_outboxes)->toBe(33)
-        ->and($website->organisation->commsStats->number_outboxes)->toBe(33)
-        ->and($website->shop->commsStats->number_outboxes)->toBe(21);
+    expect($website->group->commsStats->number_outboxes)->toBe(32)
+        ->and($website->organisation->commsStats->number_outboxes)->toBe(32)
+        ->and($website->shop->commsStats->number_outboxes)->toBe(20);
 
     return $website;
 })->depends('outbox seeded when shop created');
@@ -106,7 +106,7 @@ test('outbox seeded when website created', function (Shop $shop) {
 test('seed websites outboxes by command', function (Website $website) {
     $this->artisan('website:seed_outboxes '.$website->slug)->assertExitCode(0);
     $this->artisan('website:seed_outboxes')->assertExitCode(0);
-    expect($website->group->commsStats->number_outboxes)->toBe(33);
+    expect($website->group->commsStats->number_outboxes)->toBe(32);
 })->depends('outbox seeded when website created');
 
 
@@ -114,8 +114,8 @@ test(
     'outbox seeded when fulfilment created',
     function () {
         $fulfilment = createFulfilment($this->organisation);
-        expect($fulfilment->group->commsStats->number_outboxes)->toBe(41)
-            ->and($fulfilment->organisation->commsStats->number_outboxes)->toBe(41)
+        expect($fulfilment->group->commsStats->number_outboxes)->toBe(40)
+            ->and($fulfilment->organisation->commsStats->number_outboxes)->toBe(40)
             ->and($fulfilment->shop->commsStats->number_outboxes)->toBe(8);
 
         return $fulfilment;
@@ -125,7 +125,7 @@ test(
 test('seed fulfilments outboxes by command', function (Fulfilment $fulfilment) {
     $this->artisan('fulfilment:seed_outboxes '.$fulfilment->slug)->assertExitCode(0);
     $this->artisan('fulfilment:seed_outboxes')->assertExitCode(0);
-    expect($fulfilment->group->commsStats->number_outboxes)->toBe(41);
+    expect($fulfilment->group->commsStats->number_outboxes)->toBe(40);
 })->depends('outbox seeded when fulfilment created');
 
 
