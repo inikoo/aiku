@@ -112,9 +112,9 @@ class ShowOutboxWorkshop extends OrgAction
                     'parameters' => $email->id
                 ],
                 'apiKey'            => [
-                    'client_id'     => $email->group->settings['beefree']['client_id'],
-                    'client_secret' => $email->group->settings['beefree']['client_secret'],
-                    'grant_type'    => $email->group->settings['beefree']['grant_type'],
+                    'client_id'     => $email->group->settings['beefree']['client_id'] ?? null,
+                    'client_secret' => $email->group->settings['beefree']['client_secret'] ?? null,
+                    'grant_type'    => $email->group->settings['beefree']['grant_type'] ?? null,
                 ]
             ]
         );
