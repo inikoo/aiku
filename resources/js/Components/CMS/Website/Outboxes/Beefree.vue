@@ -39,18 +39,18 @@ var mergeTags = [
 
 const onSaveEmail = (jsonFile, htmlFile) => {
     axios
-        .get(
-            "https://api.getbee.io/v1/message/html", // Constructed URL
-            /* {
+        .patch(
+            route(props.updateRoute.name, props.updateRoute.parameters), // Constructed URL
+            {
                 layout: JSON.parse(jsonFile),
                 compiled_layout: htmlFile
-            }, */
-            /* {
+            }, // Payload
+            {
                 onUploadProgress: (progressEvent) => {
                     const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
                     console.log(`Upload progress: ${percentCompleted}%`);
                 },
-            } */
+            }
         )
         .then((response) => {
             console.log("autosave successful:", response.data);
@@ -115,7 +115,7 @@ const beeConfig = () => {
                     // Perform any necessary actions with the file data
                 },
                 onSave: function (jsonFile, htmlFile) {
-                    onSaveEmail(jsonFile,htmlFile)
+                    onSaveEmail(jsonFile,null)
                 },
                 onAutoSave: function (jsonFile) {
                     onSaveEmail(jsonFile,null)
