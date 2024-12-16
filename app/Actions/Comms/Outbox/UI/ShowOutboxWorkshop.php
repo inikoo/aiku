@@ -90,15 +90,15 @@ class ShowOutboxWorkshop extends OrgAction
                     ]
 
                 ],
-                'snapshot'          => $email->snapshot,
+                'snapshot'          => $email->unpublishedSnapshot,
                 'builder'           =>$email->builder,
                 'imagesUploadRoute'   => [
                     'name'       => 'grp.models.email-templates.images.store',
                     'parameters' => $email->id
                 ],
                 'updateRoute'         => [
-                    'name'       => 'grp.models.snapshot.update',
-                    'parameters' => $email->snapshot->id
+                    'name'       => 'grp.models.email.snapshot.update',
+                    'parameters' => $email->unpublishedSnapshot->id
                 ],
                /*  'publishRoute'           => [
                     'name'       => 'grp.models.email-templates.content.publish',
