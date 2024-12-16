@@ -10,6 +10,7 @@ namespace App\Actions\CRM\Customer\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\CRM\Customer;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexCustomerSearch extends HydrateModel
@@ -27,8 +28,24 @@ class ReindexCustomerSearch extends HydrateModel
         return Customer::withTrashed()->where('slug', $slug)->first();
     }
 
-    protected function getAllModels(): Collection
+
+    protected function loopAll(Command $command): void
     {
-        return Customer::withTrashed()->get();
+        $count = Customer::withTrashed()->count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        Customer::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
     }
+
 }
