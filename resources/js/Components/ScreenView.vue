@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { inject, ref } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faDesktop, faMobileAndroidAlt, faTabletAndroidAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import { layoutStructure } from '@/Composables/useLayoutStructure';
+import { trans } from 'laravel-vue-i18n';
 library.add(faDesktop, faMobileAndroidAlt, faTabletAndroidAlt)
 
 const props = withDefaults(defineProps<{
@@ -15,6 +17,8 @@ defineEmits<{
     (e: 'screenView', deviceType: string): void
 }>()
 
+const layout = inject('layout', layoutStructure)
+
 const screenView = ref(props.currentView)
 
 </script>
@@ -22,28 +26,45 @@ const screenView = ref(props.currentView)
 <template>
     <div class="flex">
         <div
-            class="py-1 px-2 cursor-pointer" title="Mobile view"
-            :class="[screenView == 'mobile' ? 'bg-gray-300/70' : 'hover:bg-gray-200/60']"
+            class="py-1 px-2 cursor-pointer"
+            :class="[screenView == 'mobile' ? 'selected-bg' : 'unselected-bg']"
             @click="screenView = 'mobile', $emit('screenView', 'mobile')"
-            v-tooltip="'Mobile view'"
+            v-tooltip="trans('Mobile view')"
         >
-            <FontAwesomeIcon icon='fal fa-mobile-android-alt'  :class="[screenView == 'mobile' ? 'text-indigo-300' : '']" aria-hidden='true' />
+            <FontAwesomeIcon icon='fal fa-mobile-android-alt' fixed-width aria-hidden='true' />
         </div>
+
         <div
-            class="py-1 px-2 cursor-pointer  md:block hidden" title="Tablet view"
-            :class="[screenView == 'tablet' ? 'bg-gray-300/70' : 'hover:bg-gray-200/60']"
+            class="py-1 px-2 cursor-pointer  md:block hidden"
+            :class="[screenView == 'tablet' ? 'selected-bg' : 'unselected-bg']"
             @click="screenView = 'tablet', $emit('screenView', 'tablet')"
-            v-tooltip="'Tablet view'"
+            v-tooltip="trans('Tablet view')"
         >
-            <FontAwesomeIcon icon='fal fa-tablet-android-alt' :class="[screenView == 'tablet' ? 'text-indigo-300' : '']" aria-hidden='true' />
+            <FontAwesomeIcon icon='fal fa-tablet-android-alt' fixed-width aria-hidden='true' />
         </div>
+
         <div
-            class="py-1 px-2 cursor-pointer lg:block hidden" title="Desktop view"
-            :class="[screenView == 'desktop' ? 'bg-gray-300/70' : 'hover:bg-gray-200/60']"
+            class="py-1 px-2 cursor-pointer lg:block hidden"
+            :class="[screenView == 'desktop' ? 'selected-bg' : 'unselected-bg']"
             @click="screenView = 'desktop', $emit('screenView', 'desktop')"
-            v-tooltip="'Desktop view'"
+            v-tooltip="trans('Desktop view')"
         >
-            <FontAwesomeIcon icon='fal fa-desktop' class='' aria-hidden='true' :class="[screenView == 'desktop' ? 'text-indigo-300' : '']" />
+            <FontAwesomeIcon icon='fal fa-desktop' class='' fixed-width aria-hidden='true' />
         </div>
     </div>
 </template>
+
+<style lang="scss" scoped>
+.selected-bg {
+    background-color: v-bind('layout?.app?.theme[0]') !important;
+    color: v-bind('layout?.app?.theme[1]') !important;
+}
+.unselected-bg {
+    @apply text-gray-500;
+}
+.unselected-bg:hover {
+    color: v-bind('layout?.app?.theme[0]') !important;
+}
+</style>
+
+

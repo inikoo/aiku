@@ -337,10 +337,9 @@ onUnmounted(() => {
 					<ScreenView @screenView="(e)=>iframeClass = setIframeView(e)" />
 					<div
 						class="py-1 px-2 cursor-pointer"
-						title="Desktop view"
 						v-tooltip="'Preview'"
 						@click="openFullScreenPreview">
-						<FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" />
+						<FontAwesomeIcon :icon="faExternalLink" fixed-width aria-hidden="true" />
 					</div>
 				</div>
 
