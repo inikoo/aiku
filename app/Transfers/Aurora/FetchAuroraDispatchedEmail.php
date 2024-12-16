@@ -74,6 +74,10 @@ class FetchAuroraDispatchedEmail extends FetchAurora
             if (!$parent and $this->auroraModelData->{'Email Tracking Email Template Type Key'}) {
                 $parent = $this->parseEmailOngoingRun($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Email Template Type Key'});
 
+                if (!$parent) {
+                    return;
+                }
+
                 if ($parent->type == EmailOngoingRunTypeEnum::PUSH) {
                     // todo
                     return;

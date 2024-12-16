@@ -9,6 +9,8 @@
 namespace App\Actions;
 
 use App\Actions\Traits\WithOrganisationsArgument;
+use App\Models\CRM\Customer;
+use App\Models\Inventory\OrgStockFamily;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
@@ -30,7 +32,6 @@ class HydrateModel
     {
         return new Collection();
     }
-
 
     public function asCommand(Command $command): int
     {

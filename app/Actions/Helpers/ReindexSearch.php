@@ -245,58 +245,12 @@ class ReindexSearch extends HydrateModel
 
     public function asCommand(Command $command): int
     {
-        $this->handle();
-
-        $command->line('Guests');
-        $command->call('guests:search');
-
-        $command->line('Workplaces');
-        $command->call('workplace:search');
+        $command->info('Fulfillment section 🚛');
+        $command->call('search:recurring_bills');
+        $command->call('search:fulfilment_customers');
 
 
-        $command->line('Product categories');
-        $command->call('product_category:search');
 
-        $command->line('Customers');
-        $command->call('customer:search');
-
-        $command->line('Orders');
-        $command->call('order:search');
-
-
-        $command->line('Stock');
-        $command->call('stocks:search');
-
-        $command->line('Stock Family');
-        $command->call('stock-families:search');
-
-        $command->line('Supplier Asset');
-        $command->call('supplier-products:search');
-
-        $command->line('Agent');
-        $command->call('agents:search');
-
-        $command->line('Supplier');
-        $command->call('suppliers:search');
-
-        $command->line('Webpage');
-        $command->call('webpage:search');
-
-        $command->line('Website');
-        $command->call('website:search');
-
-        $command->line('Discounts');
-        $command->call('offer:search');
-
-        # new
-
-        $command->line('Inventory');
-        $command->call('org_stock_family:search');
-        $command->call('org_stock:search');
-
-        $command->line('Infrastructure');
-        $command->call('warehouse:search');
-        $command->call('warehouse_area:search');
 
 
         return 0;

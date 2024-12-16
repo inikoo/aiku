@@ -17,6 +17,9 @@ class FetchAuroraEmailBulkRun extends FetchAurora
 {
     protected function parseModel(): void
     {
+        if ($this->auroraModelData->{'Email Template Key'} == 0) {
+            return;
+        }
 
         if (!in_array($this->auroraModelData->{'Email Campaign Type'}, [
             'GR Reminder',
@@ -84,25 +87,23 @@ class FetchAuroraEmailBulkRun extends FetchAurora
         ];
 
 
-        if ($this->auroraModelData->{'Email Template Key'} > 0) {
-            $this->parsedData['snapshot'] = [
-                'builder'         => SnapshotBuilderEnum::BEEFREE,
-                'layout'          => $layout,
-                'compiled_layout' => $this->auroraModelData->{'Email Template HTML'},
-                'state'           => SnapshotStateEnum::HISTORIC,
-                'checksum'        => md5(
-                    json_encode(
-                        $layout
-                    )
-                ),
-                'published_at'    => $snapshotPublishedAt,
-                'recyclable'      => false,
-                'first_commit'    => false,
-                'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Email Template Key'},
-                'fetched_at'      => now(),
-                'last_fetched_at' => now(),
-            ];
-        }
+        $this->parsedData['snapshot'] = [
+            'builder'         => SnapshotBuilderEnum::BEEFREE,
+            'layout'          => $layout,
+            'compiled_layout' => $this->auroraModelData->{'Email Template HTML'},
+            'state'           => SnapshotStateEnum::HISTORIC,
+            'checksum'        => md5(
+                json_encode(
+                    $layout
+                )
+            ),
+            'published_at'    => $snapshotPublishedAt,
+            'recyclable'      => false,
+            'first_commit'    => false,
+            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Email Template Key'},
+            'fetched_at'      => now(),
+            'last_fetched_at' => now(),
+        ];
     }
 
 

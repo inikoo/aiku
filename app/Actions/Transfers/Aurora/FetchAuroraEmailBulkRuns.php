@@ -64,7 +64,7 @@ class FetchAuroraEmailBulkRuns extends FetchAuroraAction
 
 
         if (!$snapshotId) {
-            dd('shit');
+            dd($emailRunData);
         }
 
 
