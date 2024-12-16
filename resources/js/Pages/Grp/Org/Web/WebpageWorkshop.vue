@@ -30,6 +30,8 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { trans } from "laravel-vue-i18n"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
+import ButtonPreviewLogin from "@/Components/Workshop/Tools/ButtonPreviewLogin.vue";
+import ButtonPreviewEdit from "@/Components/Workshop/Tools/ButtonPreviewEdit.vue";
 
 library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars)
 
@@ -44,7 +46,7 @@ const props = defineProps<{
 const comment = ref("")
 const isLoading = ref<string | boolean>(false)
 const openDrawer = ref<string | boolean>(false)
-const isPreviewMode = ref<string | boolean>(false)
+const isPreviewMode = ref<boolean>(false)
 const iframeSrc = 
 	route("grp.websites.preview", [
 		route().params["website"],
@@ -241,9 +243,9 @@ const sendToIframe = (data: any) => {
 }
 
 
-watch(isPreviewMode, (newVal) => {
-    sendToIframe({ key: 'isPreviewMode', value: newVal })
-}, { deep: true })
+// watch(isPreviewMode, (newVal) => {
+//     sendToIframe({ key: 'isPreviewMode', value: newVal })
+// }, { deep: true })
 
 onMounted(() => {
 /* 	if (socketConnectionWebpage)
@@ -344,37 +346,17 @@ onUnmounted(() => {
 
 				<!-- Tools: login-logout, edit-preview -->
 				<div class="flex gap-3 items-center px-4">
-					<div class="flex items-center gap-x-2">
-						<span :class="!isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'"
-							>Logged out</span
-						>
-						<Toggle
-							v-model="isPreviewLoggedIn"
-							@update:modelValue="
-								(newVal) =>
-									sendToIframe({ key: 'isPreviewLoggedIn', value: newVal })
-							" />
-						<span :class="isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'"
-							>Logged in</span
-						>
-					</div>
+					<ButtonPreviewLogin
+						:modelValue="isPreviewLoggedIn"
+						@update:modelValue="(newVal) => sendToIframe({ key: 'isPreviewLoggedIn', value: newVal }) "
+					/>
 
 					<div class="h-6 w-px bg-gray-400 mx-2"></div>
 
-					<div class="flex items-center gap-x-2">
-						<span :class="!isPreviewMode ? 'text-gray-600' : 'text-gray-400'"
-							>Edit</span
-						>
-						<Toggle
-							v-model="isPreviewMode"
-							@update:modelValue="
-								(newVal) =>
-									sendToIframe({ key: 'isPreviewMode', value: newVal })
-							" />
-						<span :class="isPreviewMode ? 'text-gray-600' : 'text-gray-400'"
-							>Preview</span
-						>
-					</div>
+					<ButtonPreviewEdit
+						:modelValue="isPreviewMode"
+						@update:modelValue="(newVal) => sendToIframe({ key: 'isPreviewMode', value: newVal }) "
+					/>
 				</div>
 			</div>
 
