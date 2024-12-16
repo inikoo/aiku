@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { ref } from 'vue'
+import { inject, ref } from 'vue'
 import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faText, faEye, faEyeSlash } from '@fal'
 import draggable from "vuedraggable"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -63,10 +63,11 @@ const sendDeleteBlock = async (block: Daum) => {
 }
 
 
-const debouncedSendUpdate = debounce((block) => sendBlockUpdate(block), 1000, { leading: false, trailing: true })
-const onUpdatedBlock = (block) => {
-     debouncedSendUpdate(block)
-}
+// const debouncedSendUpdate = debounce((block) => sendBlockUpdate(block), 1000, { leading: false, trailing: true })
+// const onUpdatedBlock = (block) => {
+//      debouncedSendUpdate(block)
+// }
+const onSaveWorkshop = inject('onSaveWorkshop')
 
 const onChangeOrderBlock = () => {
     let payload = {}
@@ -99,7 +100,7 @@ defineExpose({
 })
 
 
-const selectedBlockOpenPanel = ref<number | null>(null)
+const openedBlockSideEditor = inject('openedBlockSideEditor', ref(null))
 </script>
 
 <template>
@@ -109,13 +110,20 @@ const selectedBlockOpenPanel = ref<number | null>(null)
     </div> -->
     <div class="flex flex-col container overflow-auto">
         <template v-if="webpage?.layout?.web_blocks.length > 0 || isAddBlockLoading">
-            <draggable :list="webpage.layout.web_blocks" handle=".handle" @change="onChangeOrderBlock"
-                ghost-class="ghost" group="column" itemKey="column_id" class="mt-2 space-y-1">
+            <draggable
+                :list="webpage.layout.web_blocks"
+                handle=".handle"
+                @change="onChangeOrderBlock"
+                ghost-class="ghost"
+                group="column"
+                itemKey="column_id"
+                class="mt-2 space-y-1"
+            >
                 <template #item="{ element, index }">
                     <div class="bg-slate-50 border border-gray-300 ">
-                        <div @click="() => selectedBlockOpenPanel === index ? selectedBlockOpenPanel = null : selectedBlockOpenPanel = index"
+                        <div @click="() => openedBlockSideEditor === index ? openedBlockSideEditor = null : openedBlockSideEditor = index"
                             class="group flex justify-between items-center gap-x-2 relative px-3 py-2 w-full cursor-pointer"
-                            :class="selectedBlockOpenPanel === index ? 'bg-indigo-500 text-white' : 'hover:bg-gray-100'">
+                            :class="openedBlockSideEditor === index ? 'bg-indigo-500 text-white' : 'hover:bg-gray-100'">
                             <div class="flex gap-x-2">
                                 <div class="flex items-center justify-center">
                                     <FontAwesomeIcon icon="fal fa-bars" class="handle text-sm cursor-grab pr-3 mr-2" />
@@ -157,14 +165,14 @@ const selectedBlockOpenPanel = ref<number | null>(null)
 
                         <!-- Section: Properties panel -->
                         <Collapse v-if="element?.web_block?.layout" as="section"
-                            :when="selectedBlockOpenPanel === index">
+                            :when="openedBlockSideEditor === index">
                             <div class="p-2">
                                 <div class="px-2">
                                     <VisibleCheckmark v-model="element.visibility"
-                                        @update:modelValue="onUpdatedBlock(element)" />
+                                        @update:modelValue="onSaveWorkshop(element)" />
                                 </div>
                                 <SideEditor v-model="element.web_block.layout.data.fieldValue"
-                                    :blueprint="getBlueprint(element.type)" @update:modelValue="onUpdatedBlock(element)"
+                                    :blueprint="getBlueprint(element.type)" @update:modelValue="onSaveWorkshop(element)"
                                     :uploadImageRoute="{...webpage.images_upload_route, parameters : { modelHasWebBlocks: element.id }}" />
                             </div>
                         </Collapse>

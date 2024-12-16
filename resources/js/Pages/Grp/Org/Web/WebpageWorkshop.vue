@@ -5,7 +5,10 @@
   -->
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, IframeHTMLAttributes } from "vue"
+import { ref, onMounted, onUnmounted, watch, IframeHTMLAttributes, provide } from "vue"
+
+import { getComponent } from '@/Composables/getWorkshopComponents'
+import { getIrisComponent } from '@/Composables/getIrisComponents'
 import { Head, router } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
@@ -32,6 +35,7 @@ import { trans } from "laravel-vue-i18n"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import ButtonPreviewLogin from "@/Components/Workshop/Tools/ButtonPreviewLogin.vue";
 import ButtonPreviewEdit from "@/Components/Workshop/Tools/ButtonPreviewEdit.vue";
+import { debounce } from "lodash";
 
 library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars)
 
@@ -42,6 +46,7 @@ const props = defineProps<{
 	webBlockTypes: Root
 }>()
 
+provide('isInWorkshop', true)
 
 const comment = ref("")
 const isLoading = ref<string | boolean>(false)
@@ -66,11 +71,13 @@ const isModalBlockList = ref(false)
 /* const socketConnectionWebpage = props.webpage ? socketWeblock(props.webpage.slug) : null */
 const _iframe = ref<IframeHTMLAttributes | null>(null)
 const isLoadingblock = ref<string | null>(null)
-const isSavingBlock = ref(false)
 const isAddBlockLoading = ref<string | null>(null)
 const addBlockCancelToken = ref<Function | null>(null)
 const orderBlockCancelToken = ref<Function | null>(null)
 const deleteBlockCancelToken = ref<Function | null>(null)
+
+const openedBlockSideEditor = ref<number | null>(null)
+provide('openedBlockSideEditor', openedBlockSideEditor)
 
 const addNewBlock = async (block: Daum) => {
 	if (addBlockCancelToken.value) addBlockCancelToken.value()
@@ -101,7 +108,10 @@ const addNewBlock = async (block: Daum) => {
 	)
 }
 
-const sendBlockUpdate = async (block: Daum) => {
+// Method: save workshop
+const isSavingBlock = ref(false)
+const saveCancelToken = ref<Function | null>(null)
+const debounceSaveWorkshop = debounce((block) => {
 	router.patch(
 		route(props.webpage.update_model_has_web_blocks_route.name, {
 			modelHasWebBlocks: block.id,
@@ -114,16 +124,19 @@ const sendBlockUpdate = async (block: Daum) => {
 		},
 		{
 			onStart: () => {
+				console.log('block on save', block)
 				isLoadingblock.value = "deleteBlock" + block.id,
 				isSavingBlock.value = true
 			},
+			onCancelToken: (cclToken) => saveCancelToken.value = cclToken.cancel,
 			onFinish: () => {
 				isLoadingblock.value = null
 				isSavingBlock.value = false
+				saveCancelToken.value = null
 			},
 			onSuccess:(e) => { 
 				data.value = e.props.webpage 
-				sendToIframe({ key: 'reload', value: {} })
+				// sendToIframe({ key: 'reload', value: {} })
 			},
 			onError: (error) => {
 				notify({
@@ -135,7 +148,14 @@ const sendBlockUpdate = async (block: Daum) => {
 			preserveScroll: true,
 		}
 	)
+}, 1500, { leading: false, trailing: true })
+const onSaveWorkshop = (block) => {
+	if (saveCancelToken.value) {
+		saveCancelToken.value()
+	}
+	debounceSaveWorkshop(block)
 }
+provide('onSaveWorkshop', onSaveWorkshop)
 
 const sendOrderBlock = async (block: Object) => {
 	if (orderBlockCancelToken.value) orderBlockCancelToken.value()
@@ -235,7 +255,7 @@ const openFullScreenPreview = () => {
 const setHideBlock = (block : Daum) => {
 	block.show = !block.show 
 	isLoadingblock.value = "deleteBlock" + block.id,
-	sendBlockUpdate(block)
+	onSaveWorkshop(block)
 }
 
 const sendToIframe = (data: any) => {
@@ -252,20 +272,28 @@ onMounted(() => {
 		socketConnectionWebpage.actions.subscribe((value: Root) => {
 			data.value = { ...data.value, ...value }
 		}) */
-	window.addEventListener("message", (event) => {
-		if (event.origin !== window.location.origin) return;
-		const { data } = event;
-		if (event.data === "openModalBlockList") {
-			isModalBlockList.value = true
-		} else if (data.key === 'autosave') {
-			sendBlockUpdate(data.value)
-		}
-	})
+	// window.addEventListener("message", (event) => {
+	// 	if (event.origin !== window.location.origin) return;
+	// 	const { data } = event;
+	// 	if (event.data === "openModalBlockList") {
+	// 		isModalBlockList.value = true
+	// 	} else if (data.key === 'autosave') {
+	// 		onSaveWorkshop(data.value)
+	// 	}
+	// })
 })
 
 onUnmounted(() => {
 /* 	if (socketConnectionWebpage) socketConnectionWebpage.actions.unsubscribe() */
 })
+
+const showWebpage = (activityItem) => {
+    if (activityItem?.web_block?.layout && activityItem.show) {
+        if (isPreviewLoggedIn.value && activityItem.visibility.in) return true
+        else if (!isPreviewLoggedIn.value && activityItem.visibility.out) return true
+        else return false
+    } else return false
+}
 
 </script>
 
@@ -274,7 +302,7 @@ onUnmounted(() => {
 	<PageHeading :data="pageHead">
 		<template #button-publish="{ action }">
 			<Publish
-				:isLoading="isLoading"
+				:isLoading="!!isLoading"
 				:is_dirty="data.is_dirty"
 				v-model="comment"
 				@onPublish="(popover) => onPublish(action.route, popover)" />
@@ -285,16 +313,16 @@ onUnmounted(() => {
 		</template>
 	</PageHeading>
 
-	<div class="grid grid-cols-5 h-[84vh]">
+	<div class="grid grid-cols-5">
 		<!-- Section: Side editor -->
-		<div class="col-span-1 lg:block hidden h-full border-2 bg-gray-200 px-3 py-1">
+		<div class="h-[calc(100vh-150px)] col-span-1 hidden lg:block border-2 bg-gray-200 px-3 py-1">
 			<WebpageSideEditor
 				v-model="isModalBlockList"
 				:isLoadingblock
 				:isAddBlockLoading
 				:webpage="data"
 				:webBlockTypes="webBlockTypes"
-				@update="sendBlockUpdate"
+				@update="onSaveWorkshop"
 				@delete="sendDeleteBlock"
 				@add="addNewBlock"
 				@order="sendOrderBlock" 
@@ -303,16 +331,13 @@ onUnmounted(() => {
 		</div>
 
 		<!-- Section: Preview -->
-		<div v-if="true" class="lg:col-span-4 col-span-5 h-full flex flex-col bg-gray-200">
+		<div v-if="true" class="h-[calc(100vh-180px)] lg:col-span-4 col-span-5 flex flex-col bg-gray-200">
 			<div class="flex justify-between">
-				<div
+				<!-- <div
 					class="py-1 px-2 cursor-pointer lg:hidden block"
 					title="Desktop view"
 					v-tooltip="'Navigation'">
-					<FontAwesomeIcon
-						:icon="faBars"
-						aria-hidden="true"
-						@click="() => (openDrawer = true)" />
+					<FontAwesomeIcon @click="() => (openDrawer = true)" :icon="faBars" aria-hidden="true" />
 					<Drawer v-model:visible="openDrawer" :header="''" :dismissable="true">
 						<WebpageSideEditor
 							v-model="isModalBlockList"
@@ -321,7 +346,7 @@ onUnmounted(() => {
 							ref="_WebpageSideEditor"
 							:webpage="data"
 							:webBlockTypes="webBlockTypes"
-							@update="sendBlockUpdate"
+							@update="onSaveWorkshop"
 							@delete="sendDeleteBlock"
 							@add="addNewBlock"
 							@order="sendOrderBlock"
@@ -330,7 +355,7 @@ onUnmounted(() => {
 								}
 							" />
 					</Drawer>
-				</div>
+				</div> -->
 
 				<!-- Section: Screenview -->
 				<div class="flex">
@@ -346,15 +371,13 @@ onUnmounted(() => {
 				<!-- Tools: login-logout, edit-preview -->
 				<div class="flex gap-3 items-center px-4">
 					<ButtonPreviewLogin
-						:modelValue="isPreviewLoggedIn"
-						@update:modelValue="(newVal) => sendToIframe({ key: 'isPreviewLoggedIn', value: newVal }) "
+						v-model="isPreviewLoggedIn"
 					/>
 
 					<div class="h-6 w-px bg-gray-400 mx-2"></div>
 
 					<ButtonPreviewEdit
-						:modelValue="isPreviewMode"
-						@update:modelValue="(newVal) => sendToIframe({ key: 'isPreviewMode', value: newVal }) "
+						v-model="isPreviewMode"
 					/>
 				</div>
 			</div>
@@ -368,25 +391,74 @@ onUnmounted(() => {
 						class="animate-spin w-6"
 						aria-hidden="true" />
 				</div> -->
-				<div v-if="isIframeLoading" class="loading-overlay">
+				<!-- <div v-if="isIframeLoading" class="loading-overlay">
 					<ProgressSpinner />
-				</div>
+				</div> -->
 
-				<div v-show="!isIframeLoading" class="h-full w-full bg-white overflow-auto">
-					<iframe
+				<div class="h-full w-full bg-white overflow-auto">
+					<!-- <iframe
 						ref="_iframe"
 						:src="iframeSrc"
 						:title="props.title"
 						:class="[iframeClass, isIframeLoading ? 'hidden' : '']"
 						@error="handleIframeError"
-						@load="isIframeLoading = false" />
+						@load="isIframeLoading = false" /> -->
+					<div v-if="data" class="relative editor-class">
+						<div v-if="data?.layout?.web_blocks?.length">
+							<TransitionGroup tag="div" name="list" class="relative">
+								<section
+									v-for="(activityItem, activityItemIdx) in data?.layout?.web_blocks"
+									:key="activityItem.id"
+									class="w-full component-iseditable"
+									@click="() => openedBlockSideEditor === activityItemIdx ? null : openedBlockSideEditor = activityItemIdx"
+								>
+									<component
+										v-show="showWebpage(activityItem)"
+										:key="activityItemIdx"
+										class="w-full"
+										:is="isPreviewMode ? getIrisComponent(activityItem?.type) : getComponent(activityItem?.type)"
+										:webpageData="webpage" :blockData="activityItem"
+										v-model="activityItem.web_block.layout.data.fieldValue"
+										:fieldValue="activityItem.web_block?.layout?.data?.fieldValue"
+										@autoSave="() => onSaveWorkshop(activityItem)"
+									/>
+								</section>
+							</TransitionGroup>
+						</div>
+
+						<div v-else class="py-8">
+							<!-- <div v-if="'!isInWorkshop'" class="mx-auto">
+								<div class="text-center text-gray-500">
+									{{ trans('Your journey starts here') }}
+								</div>
+								<div class="w-64 mx-auto">
+									<Button label="add new block" class="mt-3" full type="dashed"
+										@click="() => isModalBlockList = true">
+										<div class="text-gray-500">
+											<FontAwesomeIcon icon='fal fa-plus' class='' fixed-width aria-hidden='true' />
+											{{ trans('Add block') }}
+										</div>
+									</Button>
+								</div>
+							</div> -->
+
+							<!-- <EmptyState v-else :data="{
+								title: trans('Pick First Block For Your Website'),
+								description: trans('Pick block from list')
+							}" /> -->
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+:deep(.component-iseditable) {
+    @apply hover:bg-black/30 border border-transparent hover:border-black/80 border-dashed cursor-pointer;
+}
+
 iframe {
 	height: 100%;
 	transition: width 0.3s ease;

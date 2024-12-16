@@ -22,6 +22,8 @@ import { Root as RootWebpage } from '@/types/webpageTypes'
 import { trans } from 'laravel-vue-i18n'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import ButtonPreviewEdit from '@/Components/Workshop/Tools/ButtonPreviewEdit.vue';
+import ButtonPreviewLogin from '@/Components/Workshop/Tools/ButtonPreviewLogin.vue';
 
 
 defineOptions({ layout: WebPreview })
@@ -102,14 +104,15 @@ provide('isPreviewMode', isPreviewMode)
     <!-- <pre>{{ props }}</pre> -->
     <div class="editor-class">
         <!-- Tools: login view, edit-preview -->
-        <div v-if="isInWorkshop" class="bg-gray-200 shadow-xl px-8 py-4 flex items-center gap-x-2">
-            <span :class="!isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged out</span>
-            <Toggle v-model="isPreviewLoggedIn" />
-            <span :class="isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged in</span>
+        <div v-if="isInWorkshop" class="bg-gray-200 shadow-xl px-8 py-4 flex justify-center items-center gap-x-2">
+            <ButtonPreviewLogin
+                v-model="isPreviewLoggedIn"
+            />
+
             <div class="h-6 w-px bg-gray-400 mx-2"></div>
-            <span :class="!isPreviewMode ? 'text-gray-600' : 'text-gray-400'">Edit</span>
-            <Toggle v-model="isPreviewMode" />
-            <span :class="isPreviewMode ? 'text-gray-600' : 'text-gray-400'">Preview</span>
+            <ButtonPreviewEdit
+                v-model="isPreviewMode"
+            />
         </div>
 
         <div class="shadow-xl" :class="layout.colorThemed.layout == 'fullscreen' ? 'w-full' : 'container max-w-7xl mx-auto '">

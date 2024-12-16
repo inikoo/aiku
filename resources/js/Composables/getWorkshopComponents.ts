@@ -6,7 +6,7 @@ import Text from '@/Components/CMS/Webpage/Text/TextContentWorkshop.vue'
 import FamilyPageOffer from '@/Components/CMS/Webpage/FamilyPage-offer.vue'
 import ProductList from '@/Components/CMS/Webpage/ProductList.vue'
 import CTA from '@/Components/CMS/Webpage/CTA/CTAWorkshop.vue'
-import Image from '@/Components/CMS/Webpage/Image/ImageWorkshop.vue'
+import ImageWorkshop from '@/Components/CMS/Webpage/Image/ImageWorkshop.vue'
 import CTA2 from '@/Components/CMS/Webpage/CTA2/CTA2Workshop.vue'
 import CTA3 from '@/Components/CMS/Webpage/CTA3/CTA3Workshop.vue'
 import Gallery from '@/Components/CMS/Webpage/Gallery/GalleryWorkshop.vue'
@@ -38,7 +38,7 @@ export const getComponent = (componentName: string) => {
         "department": Department,
         'family': FamilyPageOffer,
         "iframe": Iframe,
-        'images': Image,
+        'images': ImageWorkshop,
         "overview_aurora": Overview,
         'product': ProductPage,
         'products': ProductList,

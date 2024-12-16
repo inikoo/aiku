@@ -5,7 +5,7 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue"
 import Image from "@/Components/Image.vue"
-import { ref, defineProps, defineEmits, toRaw } from "vue"
+import { ref, defineProps, defineEmits, toRaw, inject } from "vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import GalleryManagement from "@/Components/Utils/GalleryManagement/GalleryManagement.vue"
 import Modal from "@/Components/Utils/Modal.vue"
@@ -24,6 +24,8 @@ const emits = defineEmits<{
 	(e: "update:modelValue", value: any): void
 	(e: "autoSave"): void
 }>()
+
+const isInWorkshop = inject('isInWorkshop', false)
 
 const openGallery = ref(false)
 const activeImageIndex = ref<number | null>(null)
@@ -184,23 +186,22 @@ const getImageSlots = (layoutType: string) => {
 		<div
 			v-for="index in getImageSlots(modelValue?.value?.layout_type)"
 			:key="index"
-			class="group relative p-2 "
+			class="group relative p-2 hover:bg-white/40"
 			:class="getColumnWidthClass(modelValue?.value?.layout_type, index - 1)">
 			<a
 				v-if="modelValue?.value?.images?.[index - 1]?.source"
 				:href="getHref(index - 1)"
 				target="_blank"
 				rel="noopener noreferrer"
-				class="transition-shadow aspect-h-1 aspect-w-1 w-full">
+				class="w-full"
+				@click="(e) => isInWorkshop ? e.preventDefault() : null">
 				<Image
 					:src="modelValue?.value?.images?.[index - 1]?.source"
-					class="w-full object-cover object-center group-hover:opacity-75"
 				/>
-
 			</a>
 
 			<div
-				class="absolute flex items-center justify-center gap-x-2 top-0 py-1 opacity-0 group-hover:-top-4 group-hover:opacity-100 transition-all left-0 w-full hover:text-indigo-500 rounded-lg cursor-pointer"
+				class="absolute flex items-center justify-center gap-x-2 top-0 pt-1 pb-4 opacity-0 group-hover:-top-8 group-hover:opacity-100 transition-all left-0 w-full hover:text-indigo-500 rounded-lg cursor-pointer"
 				@click="openImageGallery(index - 1)">
 				<FontAwesomeIcon icon='fas fa-image' class='text-lg opacity-40' fixed-width aria-hidden='true' />
 				<div class="text-sm font-semibold">
