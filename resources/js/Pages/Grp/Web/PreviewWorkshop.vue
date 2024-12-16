@@ -31,12 +31,15 @@ const props = defineProps<{
         data: {}
         theme: {
             color: string[]
-            layout: string
-            
+            layout: string  // 'fullscreen' | 'blog'
         }
-    },
-    footer: Object,
-    navigation: Object,
+    }
+    footer: {
+        footer: {}
+    }
+    navigation: {
+        menu: {}
+    }
 }>()
 
 const debouncedSendUpdateBlock = debounce((block) => updateData(block), 5000, { leading: false, trailing: true })
@@ -52,7 +55,7 @@ const layout = reactive({
 });
 
 
-const ShowWebpage = (activityItem) => {
+const showWebpage = (activityItem) => {
     if (activityItem?.web_block?.layout && activityItem.show) {
         if (isPreviewLoggedIn.value && activityItem.visibility.in) return true
         else if (!isPreviewLoggedIn.value && activityItem.visibility.out) return true
@@ -96,7 +99,9 @@ provide('isPreviewMode', isPreviewMode)
 
 
 <template>
+    <!-- <pre>{{ props }}</pre> -->
     <div class="editor-class">
+        <!-- Tools: login view, edit-preview -->
         <div v-if="isInWorkshop" class="bg-gray-200 shadow-xl px-8 py-4 flex items-center gap-x-2">
             <span :class="!isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged out</span>
             <Toggle v-model="isPreviewLoggedIn" />
@@ -108,26 +113,35 @@ provide('isPreviewMode', isPreviewMode)
         </div>
 
         <div class="shadow-xl" :class="layout.colorThemed.layout == 'fullscreen' ? 'w-full' : 'container max-w-7xl mx-auto '">
+            <!-- Header -->
             <div class="relative">
-                <RenderHeaderMenu v-if="header?.data" :data="layout.header" :menu="layout?.navigation"
+                <RenderHeaderMenu
+                    v-if="header?.data"
+                    :data="layout.header"
+                    :menu="layout?.navigation"
                     :colorThemed="layout?.colorThemed"
                     :previewMode="route().current() == 'grp.websites.preview' ? true : isPreviewMode"
                     :loginMode="isPreviewLoggedIn" @update:model-value="() => {updateData(layout.header)}" />
             </div>
 
+            <!-- Webpage -->
             <div v-if="data" class="relative editor-class">
                 <div v-if="data?.layout?.web_blocks?.length">
                     <TransitionGroup tag="div" name="zzz" class="relative">
-                        <section v-for="(activityItem, activityItemIdx) in data?.layout?.web_blocks"
-                            :key="activityItem.id" class="w-full">
-                            <component v-if="ShowWebpage(activityItem)" :key="activityItemIdx" class="w-full"
+                        <section v-for="(activityItem, activityItemIdx) in data?.layout?.web_blocks" :key="activityItem.id" class="w-full">
+                            <component
+                                v-if="showWebpage(activityItem)"
+                                :key="activityItemIdx"
+                                class="w-full"
                                 :is="isPreviewMode ? getIrisComponent(activityItem?.type) : getComponent(activityItem?.type)"
                                 :webpageData="webpage" :blockData="activityItem"
                                 v-model="activityItem.web_block.layout.data.fieldValue"
+                                :fieldValue="activityItem.web_block?.layout?.data?.fieldValue"
                                 @autoSave="() => debouncedSendUpdateBlock(activityItem)" />
                         </section>
                     </TransitionGroup>
                 </div>
+
                 <div v-else class="py-8">
                     <div v-if="!isInWorkshop" class="mx-auto">
                         <div class="text-center text-gray-500">
@@ -145,17 +159,20 @@ provide('isPreviewMode', isPreviewMode)
                     </div>
 
                     <EmptyState v-else :data="{
-                        title: 'Pick First Block For Your Website',
-                        description: 'Pick block from list'
-                    }">
-                    </EmptyState>
+                        title: trans('Pick First Block For Your Website'),
+                        description: trans('Pick block from list')
+                    }" />
                 </div>
             </div>
 
-            <component v-if="footer?.footer?.data"
+            <!-- Footer -->
+            <component
+                v-if="footer?.footer?.data"
                 :is="isPreviewMode || route().current() == 'grp.websites.preview' ? getIrisComponent(layout.footer.code) : getComponent(layout.footer.code)"
-                v-model="layout.footer.data.fieldValue" :colorThemed="layout.colorThemed"
-                @update:model-value="() => {updateData(layout.footer)}" />
+                v-model="layout.footer.data.fieldValue"
+                :colorThemed="layout.colorThemed"
+                @update:model-value="() => {updateData(layout.footer)}"
+            />
         </div>
     </div>
 

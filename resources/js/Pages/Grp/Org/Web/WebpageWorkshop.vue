@@ -25,14 +25,7 @@ import { Root, Daum } from "@/types/webBlockTypes"
 import { Root as RootWebpage } from "@/types/webpageTypes"
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading"
 
-import {
-	faBrowser,
-	faDraftingCompass,
-	faRectangleWide,
-	faStars,
-	faBars,
-	faExternalLink,
-} from "@fal"
+import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faExternalLink, } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { trans } from "laravel-vue-i18n"
@@ -349,6 +342,7 @@ onUnmounted(() => {
 					</div>
 				</div>
 
+				<!-- Tools: login-logout, edit-preview -->
 				<div class="flex gap-3 items-center px-4">
 					<div class="flex items-center gap-x-2">
 						<span :class="!isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'"
@@ -394,10 +388,10 @@ onUnmounted(() => {
 						aria-hidden="true" />
 				</div> -->
 				<div v-if="isIframeLoading" class="loading-overlay">
-                        <ProgressSpinner />
+					<ProgressSpinner />
 				</div>
 
-				<div class="h-full w-full bg-white overflow-auto">
+				<div v-show="!isIframeLoading" class="h-full w-full bg-white overflow-auto">
 					<iframe
 						ref="_iframe"
 						:src="iframeSrc"

@@ -11,6 +11,7 @@ import GalleryManagement from "@/Components/Utils/GalleryManagement/GalleryManag
 import Modal from "@/Components/Utils/Modal.vue"
 import { notify } from "@kyvg/vue3-notification"
 import axios from "axios"
+import { trans } from "laravel-vue-i18n";
 
 library.add(faCube, faStar, faImage, faPencil)
 
@@ -183,7 +184,7 @@ const getImageSlots = (layoutType: string) => {
 		<div
 			v-for="index in getImageSlots(modelValue?.value?.layout_type)"
 			:key="index"
-			class="relative p-2"
+			class="group relative p-2 "
 			:class="getColumnWidthClass(modelValue?.value?.layout_type, index - 1)">
 			<a
 				v-if="modelValue?.value?.images?.[index - 1]?.source"
@@ -193,25 +194,18 @@ const getImageSlots = (layoutType: string) => {
 				class="transition-shadow aspect-h-1 aspect-w-1 w-full">
 				<Image
 					:src="modelValue?.value?.images?.[index - 1]?.source"
-					class="w-full object-cover object-center group-hover:opacity-75" />
+					class="w-full object-cover object-center group-hover:opacity-75"
+				/>
 
-				<div  class="absolute top-2 right-2 z-10 flex space-x-2">
-					<Button
-						:icon="['far', 'fa-pencil']"
-						size="xs"
-						@click="openImageGallery(index - 1)" />
-				</div>
 			</a>
 
 			<div
-				class="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+				class="absolute flex items-center justify-center gap-x-2 top-0 py-1 opacity-0 group-hover:-top-4 group-hover:opacity-100 transition-all left-0 w-full hover:text-indigo-500 rounded-lg cursor-pointer"
 				@click="openImageGallery(index - 1)">
-				<font-awesome-icon
-					:icon="['fas', 'image']"
-					class="mx-auto h-12 w-12 text-gray-400" />
-				<span class="mt-2 block text-sm font-semibold text-gray-900">
-					Click Pick Image
-				</span>
+				<FontAwesomeIcon icon='fas fa-image' class='text-lg opacity-40' fixed-width aria-hidden='true' />
+				<div class="text-sm font-semibold">
+					{{ trans("Change image") }}
+				</div>
 			</div>
 		</div>
 	</div>
