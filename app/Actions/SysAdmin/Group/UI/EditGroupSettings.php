@@ -78,28 +78,28 @@ class EditGroupSettings extends GrpAction
                             ],
                         ],
                     ],
-                    // [
-                    //     'label'  => __('Comms'),
-                    //     'icon'   => 'fa-light fa-satellite-dish',
-                    //     'fields' => [
-                    //         "client_id" => [
-                    //             "type"        => "input",
-                    //             "label"       => __("Client ID"),
-                    //             "value"       => $group->settings['beefree']['client_id'] ?? '',
-                    //         ],
-                    //         "client_secret" => [
-                    //             "type"        => "input",
-                    //             "label"       => __("Client Secret"),
-                    //             "value"       => $group->settings['beefree']['client_secret'] ?? '',
-                    //         ],
-                    //         "grant_type" => [
-                    //             "type"        => "input",
-                    //             "label"       => __("Grant Type"),
-                    //             "value"       => $group->settings['beefree']['grant_type'] ?? '',
-                    //         ],
-                    //     ],
+                    [
+                        'label'  => __('Comms'),
+                        'icon'   => 'fa-light fa-satellite-dish',
+                        'fields' => [
+                            "client_id" => [
+                                "type"        => "input",
+                                "label"       => __("Client ID"),
+                                "value"       => $group->settings['beefree']['client_id'] ?? '',
+                            ],
+                            "client_secret" => [
+                                "type"        => "input",
+                                "label"       => __("Client Secret"),
+                                "value"       => $group->settings['beefree']['client_secret'] ?? '',
+                            ],
+                            // "grant_type" => [
+                            //     "type"        => "input",
+                            //     "label"       => __("Grant Type"),
+                            //     "value"       => $group->settings['beefree']['grant_type'] ?? '',
+                            // ],
+                        ],
 
-                    // ],
+                    ],
                 ],
                 "args" => [
                     "updateRoute" => [
