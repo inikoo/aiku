@@ -69,7 +69,8 @@ const sendDeleteBlock = async (block: Daum) => {
 // }
 const onSaveWorkshop = inject('onSaveWorkshop')
 
-const onChangeOrderBlock = () => {
+const onChangeOrderBlock = (e, d) => {
+    console.log('klkl', e, d)
     let payload = {}
     props.webpage.layout.web_blocks.map((item, index) => {
         payload[item.web_block.id] = { position: index }

@@ -12,6 +12,7 @@ import Modal from "@/Components/Utils/Modal.vue"
 import { notify } from "@kyvg/vue3-notification"
 import axios from "axios"
 import { trans } from "laravel-vue-i18n";
+import { set } from "lodash";
 
 library.add(faCube, faStar, faImage, faPencil)
 
@@ -30,28 +31,29 @@ const isInWorkshop = inject('isInWorkshop', false)
 const openGallery = ref(false)
 const activeImageIndex = ref<number | null>(null)
 
-const setImage = (imageData: any) => {
+// Method: on select image from stock images/uploaded images
+const submitImage = (imageData: {source: {}}[]) => {
 	if (activeImageIndex.value !== null) {
-		const images = props.modelValue?.value?.images || []
+		// const images = toRaw(props.modelValue?.value?.images) || []
 
-		while (images.length <= activeImageIndex.value) {
-			images.push({
-				source: null,
-				link_data: null,
-			})
+		// props.modelValue?.value?.images.splice(2, 0, imageData[0])
+
+		// const fff = ['cccc', 'xxxx', 'ffff'];
+		// const dataToPut = 'bebebe';
+
+		// Ensure the array is long enough by filling with empty objects if necessary
+		while (props.modelValue?.value?.images.length <= activeImageIndex.value) {
+			props.modelValue?.value?.images.push({});
 		}
-	
-		const flattenedSource = imageData[0].source ? imageData[0].source : imageData
 
-		images[activeImageIndex.value].source = {
-			...flattenedSource,
-		}
-    
+		// Replace the value at the specified index with dataToPut
+		// props.modelValue.value.images[activeImageIndex.value] = imageData[0];
+		set(props.modelValue.value, ['images', activeImageIndex.value], {
+			link_data: {},
+			source: toRaw(imageData[0] || {})?.source,
+		})
 
-		emits("update:modelValue", {
-		...toRaw(props.modelValue), // Strips Vue's reactivity for safe usage
-		value: { ...toRaw(props.modelValue?.value), images: images },
-		});
+		// console.log(props.modelValue?.value?.images)
 
 
 		emits("autoSave")
@@ -78,7 +80,7 @@ const onUpload = async (files: File[], clear: Function) => {
 				},
 			}
 		)
-		setImage(response.data.data)
+		submitImage(response.data.data)
 	} catch (error) {
 		console.log(error)
 		notify({
@@ -185,7 +187,7 @@ const getImageSlots = (layoutType: string) => {
 	<div v-if="modelValue?.value?.images" class="flex flex-wrap">
 		<div
 			v-for="index in getImageSlots(modelValue?.value?.layout_type)"
-			:key="index"
+			:key="index + modelValue?.value?.images?.[index - 1]?.source?.avif"
 			class="group relative p-2 hover:bg-white/40"
 			:class="getColumnWidthClass(modelValue?.value?.layout_type, index - 1)">
 			<a
@@ -215,15 +217,15 @@ const getImageSlots = (layoutType: string) => {
 		:open="openGallery"
 		@on-close="openGallery = false"
 		:uploadRoutes="route(webpageData?.images_upload_route.name, { modelHasWebBlocks: id })"
-		@onPick="setImage"
+		@onPick="submitImage"
 		@onUpload="onUpload" /> -->
 
 
-		<Modal :isOpen="openGallery" @onClose="() => (openGallery = false)" width="w-3/4">
+		<Modal :isOpen="openGallery" @onClose="() => (openGallery = false, activeImageIndex = null)" width="w-3/4">
 			<GalleryManagement 
 				:maxSelected="1" 
 				:closePopup="() => (openGallery = false)" 
-				@submitSelectedImages="setImage" 
+				@submitSelectedImages="submitImage" 
 				:submitUpload="onUpload"
 				:uploadRoute="{
 					...webpageData?.images_upload_route,

@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, IframeHTMLAttributes, provide } from "vue"
+import { ref, onMounted, onUnmounted, watch, IframeHTMLAttributes, provide, inject } from "vue"
 
 import { getComponent } from '@/Composables/getWorkshopComponents'
 import { getIrisComponent } from '@/Composables/getIrisComponents'
@@ -36,6 +36,7 @@ import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import ButtonPreviewLogin from "@/Components/Workshop/Tools/ButtonPreviewLogin.vue";
 import ButtonPreviewEdit from "@/Components/Workshop/Tools/ButtonPreviewEdit.vue";
 import { debounce } from "lodash";
+import { layoutStructure } from "@/Composables/useLayoutStructure";
 
 library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars)
 
@@ -47,6 +48,8 @@ const props = defineProps<{
 }>()
 
 provide('isInWorkshop', true)
+
+const layout = inject('layout', layoutStructure)
 
 const comment = ref("")
 const isLoading = ref<string | boolean>(false)
@@ -313,9 +316,9 @@ const showWebpage = (activityItem) => {
 		</template>
 	</PageHeading>
 
-	<div class="grid grid-cols-5">
+	<div class="flex gap-x-2">
 		<!-- Section: Side editor -->
-		<div class="h-[calc(100vh-150px)] col-span-1 hidden lg:block border-2 bg-gray-200 px-3 py-1">
+		<div class="h-[calc(100vh-150px)] min-w-[350px] col-span-1 hidden lg:block border-2 bg-gray-200 px-3 py-1">
 			<WebpageSideEditor
 				v-model="isModalBlockList"
 				:isLoadingblock
@@ -409,7 +412,10 @@ const showWebpage = (activityItem) => {
 								<section
 									v-for="(activityItem, activityItemIdx) in data?.layout?.web_blocks"
 									:key="activityItem.id"
-									class="w-full component-iseditable"
+									class="w-full component-iseditable transition-transform"
+									:style="{
+										border: openedBlockSideEditor === activityItemIdx ? `2px solid ${layout?.app?.theme?.[0]}` : undefined,
+									}"
 									@click="() => openedBlockSideEditor === activityItemIdx ? null : openedBlockSideEditor = activityItemIdx"
 								>
 									<component
