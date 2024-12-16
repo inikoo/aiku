@@ -18,10 +18,26 @@ const props = defineProps<{
     tab?: string
 }>()
 
+function emailBulkRunRoutes(emailBulkRun: {}) {
+    switch (route().current()) {
+        case 'grp.org.shops.show.comms.outboxes.show':
+        return route(
+                'grp.org.shops.show.comms.outboxes.show.email-bulk-runs.show',
+                [route().params['organisation'], route().params['shop'], route().params['outbox'], emailBulkRun.id])
+        default:
+            return null
+    }
+}
+
 </script>
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
+      <template #cell(subject)="{ item: emailBulkRun }">
+            <Link :href="emailBulkRunRoutes(emailBulkRun)" class="primaryLink">
+                {{ emailBulkRun["subject"] }}
+            </Link>
+        </template>
     </Table>
 </template>
 
