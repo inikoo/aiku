@@ -56,6 +56,7 @@ enum OutboxTypeEnum: string
             OutboxTypeEnum::CUSTOMER_NOTIFICATION->value  => [
                 'tooltip' => __(OutboxTypeEnum::CUSTOMER_NOTIFICATION->value),
                 'icon'    => 'fal fa-sort-alt',
+                'class'   => 'rotate-90'
             ],
             OutboxTypeEnum::COLD_EMAIL->value             => [
                 'tooltip' => __(OutboxTypeEnum::COLD_EMAIL->value),
