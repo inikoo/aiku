@@ -59,7 +59,7 @@ class IndexOrgPostRooms extends OrgAction
             'org_post_room_intervals.opened_emails_lw',
             'org_post_room_intervals.unsubscribed_lw'
             ])
-            ->selectRaw('(org_post_room_intervals.runs_all as runs')
+            ->selectRaw('org_post_room_intervals.runs_all as runs')
             ->leftJoin('org_post_room_stats', 'org_post_room_stats.org_post_room_id', '=', 'org_post_rooms.id')
             ->leftJoin('org_post_room_intervals', 'org_post_room_intervals.org_post_room_id', '=', 'org_post_rooms.id');
 
