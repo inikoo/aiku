@@ -8,8 +8,9 @@
 
 namespace App\Actions\Comms\PostRoom\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\GrpAction;
 use App\Actions\UI\Marketing\MarketingHub;
+use App\Enums\Comms\PostRoom\PostRoomsTabsEnum;
 use App\Http\Resources\Mail\PostRoomResource;
 use App\Models\Comms\PostRoom;
 use Inertia\Inertia;
@@ -20,33 +21,33 @@ use Lorisleiva\Actions\ActionRequest;
 /**
  * @property PostRoom $postRoom
  */
-class ShowPostRoom extends InertiaAction
+class ShowPostRoom extends GrpAction
 {
     public function handle(PostRoom $postRoom): PostRoom
     {
         return $postRoom;
     }
+
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('marketing.view');
+        return $request->user()->hasPermissionTo("group-overview");
     }
 
-    public function inOrganisation(PostRoom $postRoom): void
-    {
-        $this->postRoom    = $postRoom;
-    }
 
-    public function inShop(PostRoom $postRoom, ActionRequest $request): PostRoom
+    public function asController(PostRoom $postRoom, ActionRequest $request): PostRoom
     {
-        $this->initialisation($request);
+        $this->initialisation($postRoom->group, $request)->withTab(PostRoomsTabsEnum::values());
+
         return $this->handle($postRoom);
     }
+
+
 
     public function htmlResponse(): Response
     {
 
         return Inertia::render(
-            'Mail/PostRoom',
+            'Comms/PostRoom',
             [
                 'title'       => __('post room'),
                 'breadcrumbs' => $this->getBreadcrumbs($this->postRoom),

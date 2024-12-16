@@ -15,11 +15,12 @@ enum OutboxTypeEnum: string
     use EnumHelperTrait;
 
     case NEWSLETTER = 'newsletter';
-    case MARKETING  = 'marketing';
+    case MARKETING = 'marketing';
     case MARKETING_NOTIFICATION = 'marketing-notification'; // halfway between marketing and transactional
     case CUSTOMER_NOTIFICATION = 'customer-notification'; // e.g. forgot email, welcome email, etc
     case COLD_EMAIL = 'cold-emails'; // send to prospects
-    case USER_NOTIFICATION =  'user-notification'; // internal notifications
+    case USER_NOTIFICATION = 'user-notification'; // internal notifications
+    case PUSH = 'push';
     case TEST = 'test';
 
     public function label(): string
@@ -32,6 +33,7 @@ enum OutboxTypeEnum: string
             OutboxTypeEnum::COLD_EMAIL => 'Cold emails',
             OutboxTypeEnum::USER_NOTIFICATION => 'User notifications',
             OutboxTypeEnum::TEST => 'Tests',
+            OutboxTypeEnum::PUSH => 'Push campaign',
         };
     }
 
@@ -39,33 +41,37 @@ enum OutboxTypeEnum: string
     public function stateIcon(): array
     {
         return [
-            OutboxTypeEnum::NEWSLETTER->value => [
+            OutboxTypeEnum::NEWSLETTER->value             => [
                 'tooltip' => __(OutboxTypeEnum::NEWSLETTER->value),
                 'icon'    => 'fal fa-newspaper',
             ],
-            OutboxTypeEnum::MARKETING->value    => [
+            OutboxTypeEnum::MARKETING->value              => [
                 'tooltip' => __(OutboxTypeEnum::MARKETING->value),
                 'icon'    => 'fal fa-bullhorn',
             ],
-            OutboxTypeEnum::MARKETING_NOTIFICATION->value        => [
+            OutboxTypeEnum::MARKETING_NOTIFICATION->value => [
                 'tooltip' => __(OutboxTypeEnum::MARKETING_NOTIFICATION->value),
                 'icon'    => 'fal fa-radio',
             ],
             OutboxTypeEnum::CUSTOMER_NOTIFICATION->value  => [
                 'tooltip' => __(OutboxTypeEnum::CUSTOMER_NOTIFICATION->value),
+                'icon'    => 'fal fa-sort-alt',
+            ],
+            OutboxTypeEnum::COLD_EMAIL->value             => [
+                'tooltip' => __(OutboxTypeEnum::COLD_EMAIL->value),
+                'icon'    => 'fal fa-phone-volume',
+            ],
+            OutboxTypeEnum::USER_NOTIFICATION->value      => [
+                'tooltip' => __(OutboxTypeEnum::USER_NOTIFICATION->value),
                 'icon'    => 'fal fa-bell',
             ],
-            OutboxTypeEnum::COLD_EMAIL->value  => [
-                'tooltip' => __(OutboxTypeEnum::COLD_EMAIL->value),
-                'icon'    => 'fal fa-thermometer-empty',
-            ],
-            OutboxTypeEnum::USER_NOTIFICATION->value  => [
-                'tooltip' => __(OutboxTypeEnum::USER_NOTIFICATION->value),
-                'icon'    => 'fal fa-bells',
-            ],
-            OutboxTypeEnum::TEST->value  => [
+            OutboxTypeEnum::TEST->value                   => [
                 'tooltip' => __(OutboxTypeEnum::TEST->value),
                 'icon'    => 'fal fa-vial',
+            ],
+            OutboxTypeEnum::PUSH->value                   => [
+                'tooltip' => __(OutboxTypeEnum::PUSH->value),
+                'icon'    => 'fal fa-project-diagram',
             ]
         ];
     }

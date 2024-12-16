@@ -35,7 +35,7 @@ class ShowMailshotWorkshop extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, Mailshot $mailshot, ActionRequest $request): Snapshot
     {
-        $this->snapshot = $mailshot->email->snapshot;
+        $this->snapshot = $mailshot->email->unpublishedSnapshot;
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle($this->snapshot);

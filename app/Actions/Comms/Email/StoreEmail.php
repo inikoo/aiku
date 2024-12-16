@@ -74,7 +74,6 @@ class StoreEmail extends OrgAction
 
             $snapshotData['builder'] = $emailTemplate->builder->value;
             $snapshotData['layout']  = $emailTemplate->layout;
-            // dd($modelData);
         }
 
         return DB::transaction(function () use ($parent, $modelData, $snapshotData) {
@@ -83,20 +82,69 @@ class StoreEmail extends OrgAction
 
 
             if ($snapshotData) {
-                $snapshot = StoreEmailSnapshot::make()->action(
-                    $email,
-                    $snapshotData,
-                    strict: $this->strict,
-                );
-                $email->update(
-                    [
-                        'snapshot_id' => $snapshot->id,
-                    ]
-                );
+                if (Arr::get($snapshotData, 'builder') == 'blade') {
+                    // blade templates are fixed, unpublished_snapshot_id is null
+                    $email = $this->createFixedSnapshot($email, $snapshotData);
+                } else {
+                    $email = $this->createEditableSnapshot($email, $snapshotData);
+                }
             }
 
             return $email;
         });
+    }
+
+    private function createFixedSnapshot(Email $email, array $snapshotData): Email
+    {
+        $liveSnapShot = StoreEmailSnapshot::make()->action(
+            $email,
+            $snapshotData,
+            strict: $this->strict,
+        );
+
+        $email->update(
+            [
+                'live_snapshot_id' => $liveSnapShot->id,
+            ]
+        );
+
+        return $email;
+    }
+
+    private function createEditableSnapshot(Email $email, array $snapshotData): Email
+    {
+        $addLiveSnapshot = false;
+        if (Arr::get($snapshotData, 'state') === SnapshotStateEnum::LIVE) {
+            $addLiveSnapshot = true;
+            data_set($snapshotData, 'state', SnapshotStateEnum::UNPUBLISHED);
+        }
+        $unpublishedSnapShot = StoreEmailSnapshot::make()->action(
+            $email,
+            $snapshotData,
+            strict: $this->strict,
+        );
+        $email->update(
+            [
+                'unpublished_snapshot_id' => $unpublishedSnapShot->id,
+            ]
+        );
+        if ($addLiveSnapshot) {
+            data_set($snapshotData, 'state', SnapshotStateEnum::LIVE);
+
+            $liveSnapShot = StoreEmailSnapshot::make()->action(
+                $email,
+                $snapshotData,
+                strict: $this->strict,
+            );
+
+            $email->update(
+                [
+                    'live_snapshot_id' => $liveSnapShot->id,
+                ]
+            );
+        }
+
+        return $email;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -111,7 +159,8 @@ class StoreEmail extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'subject' => ['required', 'string', 'max:255'],
+            'subject'    => ['required', 'string', 'max:255'],
+            'identifier' => ['sometimes', 'nullable', 'string', 'max:255'],
         ];
 
         if (!$this->strict) {

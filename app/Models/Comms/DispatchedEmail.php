@@ -28,7 +28,7 @@ use Illuminate\Support\Facades\Auth;
  * @property int $organisation_id
  * @property int|null $shop_id
  * @property int|null $outbox_id
- * @property string $parent_type MailShot|EmailBulkRun|EmailOngoingRun
+ * @property string $parent_type MailShot|EmailBulkRun|EmailPush|EmailOngoingRun
  * @property int $parent_id
  * @property int|null $email_address_id
  * @property DispatchedEmailProviderEnum $provider

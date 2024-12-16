@@ -28,7 +28,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexOrgPostRoom extends OrgAction
+class IndexOrgPostRooms extends OrgAction
 {
     use WithCommsSubNavigation;
 
@@ -57,14 +57,14 @@ class IndexOrgPostRoom extends OrgAction
             'org_post_room_stats.number_mailshots',
             'org_post_room_intervals.dispatched_emails_lw',
             'org_post_room_intervals.opened_emails_lw',
-            'org_post_room_intervals.unsubscribed_emails_lw'
+            'org_post_room_intervals.unsubscribed_lw'
             ])
-            ->selectRaw('(org_post_room_stats.number_mailshots + org_post_room_stats.number_email_bulk_runs) as runs')
+            ->selectRaw('(org_post_room_intervals.runs_all as runs')
             ->leftJoin('org_post_room_stats', 'org_post_room_stats.org_post_room_id', '=', 'org_post_rooms.id')
             ->leftJoin('org_post_room_intervals', 'org_post_room_intervals.org_post_room_id', '=', 'org_post_rooms.id');
 
         return $queryBuilder
-            ->allowedSorts(['name', 'runs', 'number_outboxes', 'number_mailshots', 'dispatched_emails_lw', 'opened_emails_lw', 'unsubscribed_emails_lw'])
+            ->allowedSorts(['name', 'runs', 'number_outboxes', 'number_mailshots', 'dispatched_emails_lw', 'opened_emails_lw', 'unsubscribed_lw'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -107,7 +107,7 @@ class IndexOrgPostRoom extends OrgAction
                 ->column(key: 'runs', label: __('Mailshots/Runs'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'dispatched_emails_lw', label: __('Dispatched').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'opened_emails_lw', label: __('Opened').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'unsubscribed_emails_lw', label: __('Unsubscribed').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'unsubscribed_lw', label: __('Unsubscribed').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
@@ -141,7 +141,7 @@ class IndexOrgPostRoom extends OrgAction
         $iconRight = null;
 
         return Inertia::render(
-            'Mail/OrgPostRooms',
+            'Comms/OrgPostRooms',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

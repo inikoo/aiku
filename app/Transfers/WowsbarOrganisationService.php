@@ -501,5 +501,10 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
+    public function fetchSubscriptionEvent($id): ?array
+    {
+        return null;
+    }
+
 
 }

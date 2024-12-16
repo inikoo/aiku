@@ -21,7 +21,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property int $number_mailshots
  * @property int $dispatched_emails_lw
  * @property int $opened_emails_lw
- * @property int $unsubscribed_emails_lw
+ * @property int $unsubscribed_lw
  * @property int $runs
  *
  */
@@ -38,7 +38,7 @@ class OutboxesResource extends JsonResource
             'dispatched_emails_lw'   => $this->dispatched_emails_lw,
             'opened_emails_lw'       => $this->opened_emails_lw,
             'runs'                   => $this->runs,
-            'unsubscribed_emails_lw' => $this->unsubscribed_emails_lw,
+            'unsubscribed_lw' => $this->unsubscribed_lw,
             'created_at'             => $this->created_at,
             'updated_at'             => $this->updated_at,
         ];

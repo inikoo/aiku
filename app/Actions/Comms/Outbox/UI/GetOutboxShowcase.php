@@ -120,7 +120,7 @@ class GetOutboxShowcase
         return [
                 'state' => $outbox->state,
                 'builder' => $outbox->builder,
-                'compiled_layout' => $outbox->emailOngoingRun?->email?->snapshot?->compiled_layout,
+                'compiled_layout' => $outbox->emailOngoingRun?->email?->liveSnapshot?->compiled_layout,
                 'stats' => $stats
         ];
     }

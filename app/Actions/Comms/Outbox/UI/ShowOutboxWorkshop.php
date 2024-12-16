@@ -47,7 +47,6 @@ class ShowOutboxWorkshop extends OrgAction
 
     public function htmlResponse(Email $email, ActionRequest $request): Response
     {
-        // dd($email->snapshot->layout);
         return Inertia::render(
             'Org/Web/Workshop/Outbox/OutboxWorkshop', //NEED VUE FILE
             [
@@ -90,8 +89,8 @@ class ShowOutboxWorkshop extends OrgAction
                     ]
 
                 ],
-                'snapshot'          => $email->unpublishedSnapshot,
-                'builder'           =>$email->builder,
+                'snapshot'          => $email->liveSnapshot,
+                'builder'           => $email->builder,
                 'imagesUploadRoute'   => [
                     'name'       => 'grp.models.email-templates.images.store',
                     'parameters' => $email->id
@@ -100,11 +99,7 @@ class ShowOutboxWorkshop extends OrgAction
                     'name'       => 'grp.models.email.snapshot.update',
                     'parameters' => $email->unpublishedSnapshot->id
                 ],
-               /*  'publishRoute'           => [
-                    'name'       => 'grp.models.email-templates.content.publish',
-                    'parameters' => $email->id
-                ], */
-                'loadRoute'           => [ 
+                'loadRoute'           => [
                     'name'       => 'grp.models.email-templates.content.show',
                     'parameters' => $email->id
                 ],

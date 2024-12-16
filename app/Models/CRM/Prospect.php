@@ -15,7 +15,7 @@ use App\Enums\CRM\Prospect\ProspectFailStatusEnum;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Enums\CRM\Prospect\ProspectSuccessStatusEnum;
 use App\Models\Catalogue\Shop;
-use App\Models\Comms\ModelSubscribedToOutbox;
+use App\Models\Comms\SubscriptionEvent;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\SysAdmin\Group;
@@ -91,9 +91,8 @@ use Spatie\Tags\Tag;
  * @property-read Organisation $organisation
  * @property Collection<int, Tag> $tags
  * @property-read Shop $shop
- * @property-read Collection<int, ModelSubscribedToOutbox> $subscribedOutboxes
+ * @property-read Collection<int, SubscriptionEvent> $subscriptionEvents
  * @property-read UniversalSearch|null $universalSearch
- * @property-read Collection<int, ModelSubscribedToOutbox> $unsubscribedOutboxes
  * @method static \Database\Factories\CRM\ProspectFactory factory($count = null, $state = [])
  * @method static Builder<static>|Prospect newModelQuery()
  * @method static Builder<static>|Prospect newQuery()
@@ -220,16 +219,10 @@ class Prospect extends Model implements Auditable
             ->slugsShouldBeNoLongerThan(64);
     }
 
-    public function subscribedOutboxes(): MorphMany
+    public function subscriptionEvents(): MorphMany
     {
-        return $this->morphMany(ModelSubscribedToOutbox::class, 'model')
-                    ->whereNull('unsubscribed_at');
+        return $this->morphMany(SubscriptionEvent::class, 'model');
     }
 
-    public function unsubscribedOutboxes(): MorphMany
-    {
-        return $this->morphMany(ModelSubscribedToOutbox::class, 'model')
-                    ->whereNotNull('unsubscribed_at');
-    }
 
 }

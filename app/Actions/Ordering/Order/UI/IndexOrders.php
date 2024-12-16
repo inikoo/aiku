@@ -12,7 +12,6 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
-use App\Actions\Ordering\Order\WithOrderSubNavigation;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
@@ -123,7 +122,7 @@ class IndexOrders extends OrgAction
         } elseif ($this->bucket == 'dispatched_today') {
             $query->where('orders.state', OrderStateEnum::DISPATCHED)
                     ->where('dispatched_at', Carbon::today());
-        }  elseif ($this->bucket == 'all' && !($parent instanceof ShopifyUser)) {
+        } elseif ($this->bucket == 'all' && !($parent instanceof ShopifyUser)) {
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                 $query->whereElementGroup(
                     key: $key,
@@ -203,6 +202,7 @@ class IndexOrders extends OrgAction
                 $stats     = $parent->stats;
                 $noResults = __("This customer client hasn't place any orders");
             } else {
+                //todo check what stats to use for each parent
                 $stats = $parent->salesStats;
             }
 
@@ -226,7 +226,7 @@ class IndexOrders extends OrgAction
                 }
             }
 
-            $table->column(key: 'state', label: '', type: 'icon', canBeHidden: false, searchable: true);
+            $table->column(key: 'state', label: '', canBeHidden: false, searchable: true, type: 'icon');
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true, type: 'date');
             if ($parent instanceof Shop) {

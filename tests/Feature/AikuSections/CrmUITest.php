@@ -451,7 +451,7 @@ test('can show list of mailshots', function () {
     $response     = get(route('grp.org.shops.show.marketing.mailshots.index', [$organisation->slug, $shop->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Mail/Mailshots')
+            ->component('Comms/Mailshots')
             ->has('title');
     });
 });

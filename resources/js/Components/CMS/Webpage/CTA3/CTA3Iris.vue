@@ -8,13 +8,13 @@ import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue"
 import { getStyles } from "@/Composables/styles"
 
 const props = defineProps<{
-	modelValue: any
+	fieldValue: any
 	webpageData: any
 	blockData: Object
 }>()
 
 const emits = defineEmits<{
-	(e: "update:modelValue", value: string): void
+	// (e: "update:fieldValue", value: string): void
 	(e: "autoSave"): void
 }>()
 
@@ -26,7 +26,7 @@ const openGallery = ref(false)
 <template> 
 	<div class="relative overflow-hidden rounded-lg lg:h-96" :style="getStyles(properties)">
 		<div class="absolute inset-0">
-			<img :src="modelValue.container.properties.background.image.source ? modelValue.container.properties.background.image.source.original : modelValue.image" alt="" class="h-full w-full object-cover object-center" />
+			<img :src="fieldValue.container.properties.background.image.source ? fieldValue.container.properties.background.image.source.original : fieldValue.image" alt="" class="h-full w-full object-cover object-center" />
 		</div>
 
 		<div aria-hidden="true" class="relative h-96 w-full lg:hidden" />
@@ -35,14 +35,14 @@ const openGallery = ref(false)
 		<div
 			class="absolute inset-x-0 bottom-0 rounded-bl-lg rounded-br-lg bg-white bg-opacity-75 p-6 backdrop-blur backdrop-filter sm:flex sm:items-center sm:justify-between lg:inset-x-auto lg:inset-y-0 lg:w-96 lg:flex-col lg:items-start lg:rounded-br-none lg:rounded-tl-lg">
 			<div class="text-gray-600 pr-3 overflow-y-auto mb-4">
-					<div v-html="modelValue.text" />
+					<div v-html="fieldValue.text" />
 			</div>
 
 			<div
 				typeof="button"
-				:style="getStyles(modelValue.button.container.properties)"
+				:style="getStyles(fieldValue.button.container.properties)"
 				class="mt-10 flex items-center justify-center w-64 mx-auto gap-x-6">
-				{{ modelValue.button.text }}
+				{{ fieldValue.button.text }}
 			</div>
 		</div>
 	</div>

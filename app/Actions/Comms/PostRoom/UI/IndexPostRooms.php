@@ -11,7 +11,7 @@ namespace App\Actions\Comms\PostRoom\UI;
 use App\Actions\Comms\DispatchedEmail\UI\IndexDispatchedEmails;
 use App\Actions\Comms\Mailshot\UI\IndexMailshots;
 use App\Actions\Comms\Outbox\UI\IndexOutboxes;
-use App\Actions\OrgAction;
+use App\Actions\GrpAction;
 use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Enums\Comms\PostRoom\PostRoomsTabsEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
@@ -32,7 +32,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexPostRooms extends OrgAction
+class IndexPostRooms extends GrpAction
 {
     // private Organisation|Shop $parent;
 
@@ -79,14 +79,14 @@ class IndexPostRooms extends OrgAction
             'post_room_stats.number_mailshots',
             'post_room_intervals.dispatched_emails_lw',
             'post_room_intervals.opened_emails_lw',
-            'post_room_intervals.unsubscribed_emails_lw'
+            'post_room_intervals.unsubscribed_lw'
             ])
             ->selectRaw('(post_room_stats.number_mailshots) as runs') // need column number_email_bulk_runs in postroom to "add" with the mailshots
             ->leftJoin('post_room_stats', 'post_room_stats.post_room_id', '=', 'post_rooms.id')
             ->leftJoin('post_room_intervals', 'post_room_intervals.post_room_id', '=', 'post_rooms.id');
 
         return $queryBuilder
-            ->allowedSorts(['name', 'runs', 'number_outboxes', 'number_mailshots', 'dispatched_emails_lw', 'opened_emails_lw', 'unsubscribed_emails_lw'])
+            ->allowedSorts(['name', 'runs', 'number_outboxes', 'number_mailshots', 'dispatched_emails_lw', 'opened_emails_lw', 'unsubscribed_lw'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -99,7 +99,7 @@ class IndexPostRooms extends OrgAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisationFromGroup(app('group'), $request);
+        $this->initialisation(app('group'), $request);
 
         return $this->handle();
     }
@@ -141,7 +141,7 @@ class IndexPostRooms extends OrgAction
                 ->column(key: 'runs', label: __('Mailshots/Runs'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'dispatched_emails_lw', label: __('Dispatched').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'opened_emails_lw', label: __('Opened').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'unsubscribed_emails_lw', label: __('Unsubscribed').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'unsubscribed_lw', label: __('Unsubscribed').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
@@ -163,7 +163,7 @@ class IndexPostRooms extends OrgAction
         $iconRight = null;
 
         return Inertia::render(
-            'Mail/PostRooms',
+            'Comms/PostRooms',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

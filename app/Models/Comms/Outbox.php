@@ -30,7 +30,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Mail\Outbox
+ * App\Models\Comms\Outbox
  *
  * @property int $id
  * @property int $group_id
@@ -66,8 +66,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Comms\PostRoom|null $postRoom
  * @property-read Shop|null $shop
  * @property-read \App\Models\Comms\OutboxStats|null $stats
- * @property-read Collection<int, \App\Models\Comms\ModelSubscribedToOutbox> $subscribers
- * @property-read Collection<int, \App\Models\Comms\ModelSubscribedToOutbox> $unsubscribed
  * @property-read Website|null $website
  * @method static \Database\Factories\Comms\OutboxFactory factory($count = null, $state = [])
  * @method static Builder<static>|Outbox newModelQuery()
@@ -192,15 +190,4 @@ class Outbox extends Model
         return $this->belongsTo(PostRoom::class);
     }
 
-    public function subscribers(): HasMany
-    {
-        return $this->hasMany(ModelSubscribedToOutbox::class)
-            ->whereNull('unsubscribed_at');
-    }
-
-    public function unsubscribed(): HasMany
-    {
-        return $this->hasMany(ModelSubscribedToOutbox::class)
-            ->whereNotNull('unsubscribed_at');
-    }
 }

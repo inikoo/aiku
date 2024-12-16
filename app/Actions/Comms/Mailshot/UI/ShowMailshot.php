@@ -78,7 +78,7 @@ class ShowMailshot extends OrgAction
     public function htmlResponse(Mailshot $mailshot, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Mail/Mailshot',
+            'Comms/Mailshot',
             [
                 'title'       => $mailshot->id,
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters(), $mailshot->shop->organisation),

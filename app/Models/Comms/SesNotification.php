@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * App\Models\Mail\SesNotification
+ * App\Models\Comms\SesNotification
  *
  * @property int $id
  * @property string $message_id

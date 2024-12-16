@@ -8,6 +8,10 @@ import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
 import { capitalize } from "@/Composables/capitalize"
 import { inject } from "vue"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
+import { faFilter, faInboxOut, faUser } from "@fal"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import ColumnGroup from "primevue/columngroup"
+import Row from "primevue/row"
 
 const props = defineProps<{
 	title: string
@@ -23,7 +27,7 @@ const props = defineProps<{
 
 const locale = inject("locale", aikuLocaleStructure)
 
-library.add(faExclamationCircle)
+library.add(faExclamationCircle, faInboxOut, faUser, faFilter)
 </script>
 
 <template>
@@ -37,19 +41,37 @@ library.add(faExclamationCircle)
 		<div class="col-span-3 space-y-4">
 			<!-- Predicted Months DataTable -->
 			<div class="bg-white p-4 rounded-lg shadow-md">
-				<DataTable :value="data.data" class="text-gray-900">
-					<Column field="name" >
+				<DataTable :value="data.data" class="text-gray-900" :showHeaders="false">
+          <template #header>
+        <div class="flex justify-between">
+        
+          <FontAwesomeIcon
+								fixed-width
+								icon="fal fa-filter"
+								class="mr-4 text-gray-400"
+								aria-hidden="true" />
+            
+        </div>
+    </template>
+					<Column field="icon">
 						<template #body="slotProps">
-								{{ slotProps.data.name }}		
+							<FontAwesomeIcon
+								fixed-width
+								:icon="slotProps.data.icon"
+								class="mr-4 text-gray-400"
+								aria-hidden="true" />
 						</template>
 					</Column>
-					<Column field="number" style="text-align: right;">
+					<Column field="name">
 						<template #body="slotProps">
-              <Link
-								:href="slotProps.data.route"
-								class="primaryLink">
-							{{ locale.number(slotProps.data.number) }}
-            </Link>
+							{{ slotProps.data.name }}
+						</template>
+					</Column>
+					<Column field="number" style="text-align: right">
+						<template #body="slotProps">
+							<Link :href="slotProps.data.route" class="primaryLink">
+								{{ locale.number(slotProps.data.number) }}
+							</Link>
 						</template>
 					</Column>
 				</DataTable>
@@ -112,7 +134,7 @@ library.add(faExclamationCircle)
 			</div> -->
 
 			<!-- Returns and Chart -->
-			<div class="grid  gap-4">
+			<div class="grid gap-4">
 				<!-- Returns Card -->
 				<div class="bg-white p-4 rounded-lg shadow-md">
 					<h3 class="font-bold mb-4">Returns and Return Rate</h3>

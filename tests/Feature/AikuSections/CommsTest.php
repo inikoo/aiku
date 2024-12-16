@@ -13,21 +13,15 @@ namespace Tests\Feature;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Comms\Mailshot\StoreMailshot;
 use App\Actions\Comms\Mailshot\UpdateMailshot;
-use App\Actions\Comms\Outbox\AttachModelToOutbox;
-use App\Actions\Comms\Outbox\DetachModelToOutbox;
 use App\Actions\Comms\Outbox\StoreOutbox;
-use App\Actions\Comms\Outbox\UpdateModelToOutbox;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Mailshot;
-use App\Models\Comms\ModelSubscribedToOutbox;
 use App\Models\Comms\Outbox;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Web\Website;
-use Carbon\Carbon;
 use Config;
-use Illuminate\Support\Facades\Date;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -175,85 +169,14 @@ test('test post room hydrator', function ($shop) {
     return $outbox;
 })->depends('outbox seeded when shop created')->todo();
 
-test('test attach model to outbox', function (Outbox $outbox) {
-    AttachModelToOutbox::make()->action(
-        $this->customer,
-        $outbox,
-    );
 
-    $this->customer->refresh();
-
-    $outbox->refresh();
-
-    expect($this->customer->subscribedOutboxes()->count())->toBe(1)
-        ->and($this->customer->unsubscribedOutboxes()->count())->toBe(0)
-        ->and($outbox->group->commsStats->number_outbox_subscribers)->toBe(1)
-        ->and($outbox->organisation->commsStats->number_outbox_subscribers)->toBe(1)
-        ->and($outbox->shop->commsStats->number_outbox_subscribers)->toBe(1)
-        ->and($outbox->stats->number_subscribers)->toBe(1)
-        ->and($outbox->stats->number_unsubscribed)->toBe(0);
-
-    return $outbox;
-})->depends('test post room hydrator');
-
-test('test update model to outbox', function (Outbox $outbox) {
-    $unsubscribedAt = Date::now()->toDateString();
-    UpdateModelToOutbox::make()->action(
-        $this->customer,
-        $outbox,
-        [
-            'data'            => "{'test': '1'}",
-            'unsubscribed_at' => $unsubscribedAt
-        ]
-    );
-
-    $this->customer->refresh();
-
-    $modelUnsubscribedToOutbox = $this->customer->unsubscribedOutboxes()
-        ->where('outbox_id', $outbox->id)
-        ->first();
-
-    $outbox->refresh();
-
-    expect($modelUnsubscribedToOutbox)->toBeInstanceOf(ModelSubscribedToOutbox::class)
-        ->and($modelUnsubscribedToOutbox->data)->toBe("{'test': '1'}")
-        ->and(Carbon::parse($modelUnsubscribedToOutbox->unsubscribed_at)->toDateString())->toBe($unsubscribedAt)
-        ->and($this->customer->subscribedOutboxes()->count())->toBe(0)
-        ->and($this->customer->unsubscribedOutboxes()->count())->toBe(1)
-        ->and($outbox->group->commsStats->number_outbox_subscribers)->toBe(0)
-        ->and($outbox->organisation->commsStats->number_outbox_subscribers)->toBe(0)
-        ->and($outbox->shop->commsStats->number_outbox_subscribers)->toBe(0)
-        ->and($outbox->stats->number_subscribers)->toBe(0)
-        ->and($outbox->stats->number_unsubscribed)->toBe(1);
-
-
-    return $outbox;
-})->depends('test post room hydrator');
-
-test('test detach model to outbox', function (Outbox $outbox) {
-    DetachModelToOutbox::make()->action(
-        $this->customer,
-        $outbox,
-    );
-
-    $this->customer->refresh();
-    $outbox->refresh();
-
-    expect($this->customer->subscribedOutboxes()->count())->toBe(0)
-        ->and($this->customer->unsubscribedOutboxes()->count())->toBe(0)
-        ->and($outbox->group->commsStats->number_outbox_subscribers)->toBe(0)
-        ->and($outbox->organisation->commsStats->number_outbox_subscribers)->toBe(0)
-        ->and($outbox->shop->commsStats->number_outbox_subscribers)->toBe(0)
-        ->and($outbox->stats->number_subscribers)->toBe(0)
-        ->and($outbox->stats->number_unsubscribed)->toBe(0);
-})->depends('test update model to outbox');
 
 test('UI index mail outboxes', function () {
     $response = $this->get(route('grp.org.shops.show.comms.outboxes.index', [$this->organisation->slug, $this->shop->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Mail/Outboxes')
+            ->component('Comms/Outboxes')
             ->has('title')
             ->has(
                 'pageHead',
@@ -272,7 +195,7 @@ test('UI show mail outboxes', function () {
 
     $response->assertInertia(function (AssertableInertia $page) use ($outbox) {
         $page
-            ->component('Mail/Outbox')
+            ->component('Comms/Outbox')
             ->has('title')
             ->has(
                 'pageHead',
@@ -291,7 +214,7 @@ test('UI Index Org Post Rooms', function () {
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Mail/OrgPostRooms')
+            ->component('Comms/OrgPostRooms')
             ->has('title')
             ->has(
                 'pageHead',
@@ -310,7 +233,7 @@ test('UI Show Org Post Rooms', function () {
 
     $response->assertInertia(function (AssertableInertia $page) use ($orgPostRoom) {
         $page
-            ->component('Mail/PostRoom')
+            ->component('Comms/PostRoom')
             ->has('title')
             ->has(
                 'pageHead',
@@ -329,7 +252,7 @@ test('UI Index MArketing Mailshots', function () {
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Mail/Mailshots')
+            ->component('Comms/Mailshots')
             ->has('title')
             ->has(
                 'pageHead',
@@ -347,7 +270,7 @@ test('UI Index Newsletter Mailshots', function () {
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Mail/Mailshots')
+            ->component('Comms/Mailshots')
             ->has('title')
             ->has(
                 'pageHead',
