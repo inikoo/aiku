@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Modal from "@/Components/Utils/Modal.vue"
-import { onMounted, onUnmounted, ref } from "vue"
+import { onMounted, onUnmounted, ref, watch } from "vue"
 import DataTable from "primevue/datatable"
 import Column from "primevue/column"
 import IconField from "primevue/iconfield"
@@ -135,10 +135,10 @@ const fetchProductList = async (url?: string) => {
 		optionsLinks.value = data.links
 
 		if (!addedProductIds.value) {
-			addedProductIds.value = new Set() // Initialize the set if null
+			addedProductIds.value = new Set()
 		}
 		if (!addedOrderIds.value) {
-			addedOrderIds.value = new Set() // Initialize the set if null
+			addedOrderIds.value = new Set()
 		}
 		data.data.forEach((product: any) => {
 			if (product.purchase_order_id) {
@@ -156,9 +156,17 @@ const fetchProductList = async (url?: string) => {
 	}
 }
 
-const debouncedFetch = debounce((query: string) => {
-	fetchProductList(getUrlFetch({ "filter[global]": query }))
-}, 500)
+const isSearchLoading = ref(false);
+
+const debouncedFetch = debounce(async (query: string) => {
+  isSearchLoading.value = true;
+  try {
+    const url = getUrlFetch({ "filter[global]": query.trim() || undefined });
+    await fetchProductList(url);
+  } finally {
+    isSearchLoading.value = false;
+  }
+}, 300);
 
 const onSearchQuery = (query: string) => {
 	debouncedFetch(query)
@@ -292,6 +300,10 @@ const onValueChange = (slotProps: any) => {
 	slotProps.data.quantity_ordered = parseFloat(slotProps.data.quantity_ordered || 0)
 }
 
+watch(searchQuery, (newValue) => {
+  debouncedFetch(newValue);
+});
+
 onMounted(() => {
 	const tableBody = document.querySelector(".p-datatable-scrollable-body")
 	if (tableBody) {
@@ -364,7 +376,7 @@ onUnmounted(() => {
 											<FontAwesomeIcon
 												icon="fal fa-spinner"
 												class="text-2xl animate-spin mb-2" />
-											<span>Loading Products...</span>
+											
 										</div>
 									</template>
 
