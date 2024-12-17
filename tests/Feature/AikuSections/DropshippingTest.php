@@ -388,11 +388,12 @@ test('UI Index customer portfolios', function () {
 });
 
 test('UI get section route client dropshipping', function () {
-    $customer = Customer::first();
+    $customerClient = StoreCustomerClient::make()->action($this->customer, CustomerClient::factory()->definition());
+    $this->artisan('group:seed_aiku_scoped_sections')->assertExitCode(0);
     $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.crm.customers.show.customer-clients.index', [
         'organisation' => $this->organisation->slug,
         'shop'         => $this->shop->slug,
-        'customer'     => $customer->slug
+        'customer'     => $customerClient->slug
     ]);
 
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
