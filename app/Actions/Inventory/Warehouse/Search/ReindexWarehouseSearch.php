@@ -10,11 +10,12 @@ namespace App\Actions\Inventory\Warehouse\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\Inventory\Warehouse;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexWarehouseSearch extends HydrateModel
 {
-    public string $commandSignature = 'warehouse:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:warehouses {organisations?*} {--s|slugs=}';
 
 
     public function handle(Warehouse $warehouse): void
@@ -28,8 +29,23 @@ class ReindexWarehouseSearch extends HydrateModel
         return Warehouse::withTrashed()->where('slug', $slug)->first();
     }
 
-    protected function getAllModels(): Collection
+    protected function loopAll(Command $command): void
     {
-        return Warehouse::withTrashed()->get();
+        $command->info("Reindex Warehouses");
+        $count = Warehouse::withTrashed()->count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        Warehouse::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
     }
 }

@@ -15,7 +15,7 @@ use Illuminate\Support\Collection;
 
 class ReindexCustomerSearch extends HydrateModel
 {
-    public string $commandSignature = 'customer:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:customers {organisations?*} {--s|slugs=}';
 
 
     public function handle(Customer $customer): void
@@ -31,6 +31,7 @@ class ReindexCustomerSearch extends HydrateModel
 
     protected function loopAll(Command $command): void
     {
+        $command->info("Reindex Customers");
         $count = Customer::withTrashed()->count();
 
         $bar = $command->getOutput()->createProgressBar($count);
