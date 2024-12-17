@@ -99,7 +99,7 @@ class ShowOutboxWorkshop extends OrgAction
                     'name'       => 'grp.models.shop.outboxes.workshop.update',
                     'parameters' => [
                         'shop' => $email->shop_id,
-                        'email' => $email->id
+                        'outbox' => $email->outbox_id
                     ]
                 ],
                 'loadRoute'           => [
@@ -110,7 +110,7 @@ class ShowOutboxWorkshop extends OrgAction
                     'name'       => 'grp.models.shop.outboxes.publish',
                     'parameters' => [
                         'shop' => $email->shop_id,
-                        'email' => $email->id
+                        'outbox' => $email->outbox_id
                     ]
                 ],
                 // 'loadRoute'           => [ -> i don't know what kind of data should i give to this route
