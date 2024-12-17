@@ -377,11 +377,11 @@ const showWebpage = (activityItem) => {
 						v-model="isPreviewLoggedIn"
 					/>
 
-					<div class="h-6 w-px bg-gray-400 mx-2"></div>
+					<!-- <div class="h-6 w-px bg-gray-400 mx-2"></div> -->
 
-					<ButtonPreviewEdit
+					<!-- <ButtonPreviewEdit
 						v-model="isPreviewMode"
-					/>
+					/> -->
 				</div>
 			</div>
 

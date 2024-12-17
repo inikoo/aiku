@@ -109,10 +109,10 @@ provide('isPreviewMode', isPreviewMode)
                 v-model="isPreviewLoggedIn"
             />
 
-            <div class="h-6 w-px bg-gray-400 mx-2"></div>
+            <!-- <div class="h-6 w-px bg-gray-400 mx-2"></div>
             <ButtonPreviewEdit
                 v-model="isPreviewMode"
-            />
+            /> -->
         </div>
 
         <div class="shadow-xl" :class="layout.colorThemed.layout == 'fullscreen' ? 'w-full' : 'container max-w-7xl mx-auto '">
@@ -130,9 +130,9 @@ provide('isPreviewMode', isPreviewMode)
             <!-- Webpage -->
             <div v-if="data" class="relative editor-class">
                 <div v-if="data?.layout?.web_blocks?.length">
-                    <TransitionGroup tag="div" name="zzz" class="relative">
+                    <TransitionGroup tag="div" name="list" class="relative">
                         <section v-for="(activityItem, activityItemIdx) in data?.layout?.web_blocks" :key="activityItem.id" class="w-full">
-                            <component
+                            <!-- <component
                                 v-if="showWebpage(activityItem)"
                                 :key="activityItemIdx"
                                 class="w-full"
@@ -140,28 +140,21 @@ provide('isPreviewMode', isPreviewMode)
                                 :webpageData="webpage" :blockData="activityItem"
                                 v-model="activityItem.web_block.layout.data.fieldValue"
                                 :fieldValue="activityItem.web_block?.layout?.data?.fieldValue"
-                                @autoSave="() => debouncedSendUpdateBlock(activityItem)" />
+                                @autoSave="() => debouncedSendUpdateBlock(activityItem)" /> -->
+                            <component
+                                v-show="showWebpage(activityItem)"
+                                class="w-full"
+                                :is="getIrisComponent(activityItem.type)"
+                                :webpageData="webpage" :blockData="activityItem"
+                                :fieldValue="activityItem.web_block?.layout?.data?.fieldValue"
+                            />
+                            <!-- {{ activityItem.type }} -->
                         </section>
                     </TransitionGroup>
                 </div>
 
                 <div v-else class="py-8">
-                    <div v-if="!isInWorkshop" class="mx-auto">
-                        <div class="text-center text-gray-500">
-                            {{ trans('Your journey starts here') }}
-                        </div>
-                        <div class="w-64 mx-auto">
-                            <Button label="add new block" class="mt-3" full type="dashed"
-                                @click="() => iframeToParent('openModalBlockList')">
-                                <div class="text-gray-500">
-                                    <FontAwesomeIcon icon='fal fa-plus' class='' fixed-width aria-hidden='true' />
-                                    {{ trans('Add block') }}
-                                </div>
-                            </Button>
-                        </div>
-                    </div>
-
-                    <EmptyState v-else :data="{
+                    <EmptyState :data="{
                         title: trans('Pick First Block For Your Website'),
                         description: trans('Pick block from list')
                     }" />
