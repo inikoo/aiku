@@ -137,11 +137,11 @@ const filteredData = computed(() => {
 		<!-- Middle Column -->
 		<div class="col-span-3 space-y-4">
 			<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
-				<h3 class="text-gray-500 font-semibold text-lg mb-4">The Nutrition Store</h3>
-				<div class="relative bg-gray-100 border border-green-500 rounded-lg px-4 py-3 mb-6">
+				<h3 class="text-gray-500 font-semibold text-lg mb-2">The Nutrition Store</h3>
+				<div class="relative bg-gray-100 border border-green-500 rounded-lg px-2 py-3 mb-3">
 					<div>
-						<p class="text-5xl font-bold leading-tight">275</p>
-						<p class="text-gray-500 text-sm mt-1">Total orders today</p>
+						<p class="text-4xl font-bold leading-tight">275</p>
+						<p class="text-gray-500 text-base mt-1">Total orders today</p>
 					</div>
 					<!-- Green Icon in Bottom Right -->
 					<div
@@ -151,7 +151,7 @@ const filteredData = computed(() => {
 				</div>
 				<div>
 					<p class="text-4xl font-bold leading-tight ">$6,058</p>
-					<p class="text-gray-500 text-sm mt-1">Sales today</p>
+					<p class="text-gray-500 text-base mt-1">Sales today</p>
 				</div>
 			</div>
 		</div>
@@ -159,18 +159,18 @@ const filteredData = computed(() => {
 		<!-- Right Column -->
 		<div class="col-span-3 space-y-4">
 			<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
-				<h3 class="text-gray-500 font-semibold text-lg mb-4">The Yoga Store</h3>
-				<div class="relative px-4 py-3 mb-6" style="height: 102px">
+				<h3 class="text-gray-500 font-semibold text-lg mb-2">The Yoga Store</h3>
+				<div class="relative py-3 mb-1" style="height: 102px">
 					<!-- Adjusted height -->
 					<div>
-						<p class="text-5xl font-bold leading-tight">46</p>
-						<p class="text-gray-500 text-sm mt-1">Ad spend this week</p>
+						<p class="text-4xl font-bold leading-tight">46</p>
+						<p class="text-gray-500 text-base mt-1">Ad spend this week</p>
 					</div>
 					<!-- Red Icon in Bottom Right -->
 				</div>
 				<div>
 					<p class="text-4xl font-bold leading-tight ">$2,596</p>
-					<p class="text-gray-500 text-sm mt-1">Sales today</p>
+					<p class="text-gray-500 text-base mt-1">Sales today</p>
 				</div>
 			</div>
 		</div>
@@ -180,17 +180,17 @@ const filteredData = computed(() => {
 			<div class="flex flex-col gap-4 p-4">
 				<!-- Card 1: Cart Abandonment Rate -->
 				<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
-					<p class="text-5xl font-bold leading-tight text-gray-700">
+					<p class="text-4xl font-bold leading-tight text-gray-700">
 						45<span class="text-3xl">%</span>
 					</p>
-					<p class="text-gray-500 text-sm mt-2">Cart abandonment rate</p>
+					<p class="text-gray-500 text-base mt-2">Cart abandonment rate</p>
 				</div>
 
 				<!-- Card 2: Ad Spend This Week -->
 				<div
 					class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-red-400 relative">
-					<p class="text-5xl font-bold leading-tight text-gray-700">$2,345</p>
-					<p class="text-gray-500 text-sm mt-2">Ad spend this week</p>
+					<p class="text-4xl font-bold leading-tight text-gray-700">$2,345</p>
+					<p class="text-gray-500 text-base mt-2">Ad spend this week</p>
 					<!-- Red Exclamation Icon -->
 					<div
 						class="absolute bottom-0 right-0 transform translate-x-1/2 translate-y-1/2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-md">
@@ -200,7 +200,7 @@ const filteredData = computed(() => {
 
 				<!-- Card 3: Total Newsletter Subscribers -->
 				<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
-					<p class="text-5xl font-bold leading-tight text-gray-700">
+					<p class="text-4xl font-bold leading-tight text-gray-700">
 						55.7<span class="text-xl">K</span>
 					</p>
 					<p class="text-gray-500 text-base mt-2">Total newsletter subscribers</p>
