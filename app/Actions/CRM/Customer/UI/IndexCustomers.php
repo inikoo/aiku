@@ -262,17 +262,19 @@ class IndexCustomers extends OrgAction
 
         if (!$scope instanceof Group) {
             $action = [
-            'type'    => 'button',
-            'style'   => 'create',
-            'tooltip' => __('New Customer'),
-            'label'   => __('New Customer'),
-            'route'   => [
-                'name'       => 'grp.org.shops.show.crm.customers.create',
-                'parameters' => [
-                'organisation' => $scope->organisation->slug,
-                'shop'         => $scope->slug
-                ]
-            ]
+                [
+                    'type'    => 'button',
+                    'style'   => 'create',
+                    'tooltip' => __('New Customer'),
+                    'label'   => __('New Customer'),
+                    'route'   => [
+                        'name'       => 'grp.org.shops.show.crm.customers.create',
+                        'parameters' => [
+                            'organisation' => $scope->organisation->slug,
+                            'shop'         => $scope->slug
+                        ]
+                    ]
+                ],
             ];
         }
 
