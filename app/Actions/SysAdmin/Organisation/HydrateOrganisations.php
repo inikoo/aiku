@@ -120,8 +120,8 @@ class HydrateOrganisations extends HydrateModel
             OrganisationHydrateTopUps::run($organisation);
             OrganisationHydrateCreditTransactions::run($organisation);
 
-            OrganisationHydrateOfferCampaigns::run($organisation);
-            OrganisationHydrateOffers::run($organisation);
+            //OrganisationHydrateOfferCampaigns::run($organisation);
+            //OrganisationHydrateOffers::run($organisation);
 
         }
 
