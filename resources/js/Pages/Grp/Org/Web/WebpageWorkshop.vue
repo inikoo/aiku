@@ -21,7 +21,7 @@ import Drawer from "primevue/drawer"
 /* import { socketWeblock } from "@/Composables/SocketWebBlock" */
 import Toggle from "@/Components/Pure/Toggle.vue"
 import { setIframeView } from "@/Composables/Workshop"
-import ProgressSpinner from 'primevue/progressspinner';
+import ProgressSpinner from 'primevue/progressspinner'
 import Button from "@/Components/Elements/Buttons/Button.vue"
 
 import { Root, Daum } from "@/types/webBlockTypes"
@@ -33,10 +33,11 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { trans } from "laravel-vue-i18n"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
-import ButtonPreviewLogin from "@/Components/Workshop/Tools/ButtonPreviewLogin.vue";
-import ButtonPreviewEdit from "@/Components/Workshop/Tools/ButtonPreviewEdit.vue";
-import { debounce } from "lodash";
-import { layoutStructure } from "@/Composables/useLayoutStructure";
+import ButtonPreviewLogin from "@/Components/Workshop/Tools/ButtonPreviewLogin.vue"
+import ButtonPreviewEdit from "@/Components/Workshop/Tools/ButtonPreviewEdit.vue"
+import { debounce } from "lodash"
+import { layoutStructure } from "@/Composables/useLayoutStructure"
+import { routeType } from "@/types/route"
 
 library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars)
 
@@ -51,20 +52,9 @@ provide('isInWorkshop', true)
 
 const layout = inject('layout', layoutStructure)
 
-const comment = ref("")
 const isLoading = ref<string | boolean>(false)
 const openDrawer = ref<string | boolean>(false)
 const isPreviewMode = ref<boolean>(false)
-const iframeSrc = 
-	route("grp.websites.preview", [
-		route().params["website"],
-		route().params["webpage"],
-		{
-			organisation: route().params["organisation"],
-			shop: route().params["shop"],
-		},
-	]
-)
 const data = ref(props.webpage)
 const iframeClass = ref("w-full h-full")
 const isIframeLoading = ref(true)
@@ -73,8 +63,6 @@ const isPreviewLoggedIn = ref(false)
 const isModalBlockList = ref(false)
 /* const socketConnectionWebpage = props.webpage ? socketWeblock(props.webpage.slug) : null */
 const _iframe = ref<IframeHTMLAttributes | null>(null)
-const isLoadingblock = ref<string | null>(null)
-const isAddBlockLoading = ref<string | null>(null)
 const addBlockCancelToken = ref<Function | null>(null)
 const orderBlockCancelToken = ref<Function | null>(null)
 const deleteBlockCancelToken = ref<Function | null>(null)
@@ -82,6 +70,8 @@ const deleteBlockCancelToken = ref<Function | null>(null)
 const openedBlockSideEditor = ref<number | null>(null)
 provide('openedBlockSideEditor', openedBlockSideEditor)
 
+// Method: Add block
+const isAddBlockLoading = ref<string | null>(null)
 const addNewBlock = async (block: Daum) => {
 	if (addBlockCancelToken.value) addBlockCancelToken.value()
 	router.post(
@@ -98,7 +88,7 @@ const addNewBlock = async (block: Daum) => {
             },
 			onSuccess:(e) => { 
 				data.value = e.props.webpage 
-				sendToIframe({ key: 'reload', value: {} })
+				// sendToIframe({ key: 'reload', value: {} })
 			},
 			onError: (error) => {
 				notify({
@@ -112,6 +102,7 @@ const addNewBlock = async (block: Daum) => {
 }
 
 // Method: save workshop
+const isLoadingblock = ref<string | null>(null)
 const isSavingBlock = ref(false)
 const saveCancelToken = ref<Function | null>(null)
 const debounceSaveWorkshop = debounce((block) => {
@@ -127,8 +118,7 @@ const debounceSaveWorkshop = debounce((block) => {
 		},
 		{
 			onStart: () => {
-				console.log('block on save', block)
-				isLoadingblock.value = "deleteBlock" + block.id,
+				isLoadingblock.value = block.id,
 				isSavingBlock.value = true
 			},
 			onCancelToken: (cclToken) => saveCancelToken.value = cclToken.cancel,
@@ -176,7 +166,7 @@ const sendOrderBlock = async (block: Object) => {
             },
 			onSuccess:(e) => { 
 				data.value = e.props.webpage 
-				sendToIframe({ key: 'reload', value: {} })
+				// sendToIframe({ key: 'reload', value: {} })
 			},
             onError: (error) => {
                 notify({
@@ -189,14 +179,16 @@ const sendOrderBlock = async (block: Object) => {
     )
 }
 
+// Method: Delete Block
+const isLoadingDeleteBlock = ref<number | null>(null)
 const sendDeleteBlock = async (block: Daum) => {
 	if (deleteBlockCancelToken.value) deleteBlockCancelToken.value()
 	router.delete(
         route(props.webpage.delete_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
         {
-            onStart: () => isLoadingblock.value = 'deleteBlock' + block.id,
+            onStart: () => isLoadingDeleteBlock.value = block.id,
             onFinish: () => {
-				isLoadingblock.value = null
+				isLoadingDeleteBlock.value = null
 				orderBlockCancelToken.value = null
 			},
 			onCancelToken: (cancelToken) => {
@@ -204,7 +196,7 @@ const sendDeleteBlock = async (block: Daum) => {
             },
 			onSuccess:(e) => { 
 				data.value = e.props.webpage 
-				sendToIframe({ key: 'reload', value: {} })
+				// sendToIframe({ key: 'reload', value: {} })
 			},
             onError: (error) => {
                 notify({
@@ -217,20 +209,32 @@ const sendDeleteBlock = async (block: Daum) => {
     )
 }
 
-const onPublish = async (action: {}, popover: {}) => {
+// Method: Publish
+const comment = ref("")
+const isLoadingPublish = ref(false)
+const onPublish = async (action: routeType, popover: {close: Function, open: Function}) => {
 	try {
 		// Ensure action is defined and has necessary properties
 		if (!action || !action.method || !action.name || !action.parameters) {
 			throw new Error("Invalid action parameters")
 		}
 
-		isLoading.value = true
+		isLoadingPublish.value = true
 
 		// Make sure route and axios are defined and used correctly
 		const response = await axios[action.method](route(action.name, action.parameters), {
 			comment: comment.value,
 			publishLayout: { blocks: data.value.layout },
 		})
+
+		if (response.status === 200) {
+			comment.value = ""
+			notify({
+				title: trans('Published!'),
+				text: trans('Webpage data has been published successfully'),
+				type: 'success',
+			})
+		}
 		popover.close()
 	} catch (error) {
 		// Ensure the error is logged properly
@@ -238,32 +242,42 @@ const onPublish = async (action: {}, popover: {}) => {
 		const errorMessage =
 			error.response?.data?.message || error.message || "Unknown error occurred"
 		notify({
-			title: "Something went wrong.",
+			title: trans("Something went wrong"),
 			text: errorMessage,
 			type: "error",
 		})
 	} finally {
-		isLoading.value = false
+		isLoadingPublish.value = false
 	}
 }
 
-const handleIframeError = () => {
-	console.error("Failed to load iframe content.")
-}
+// const handleIframeError = () => {
+// 	console.error("Failed to load iframe content.")
+// }
 
+const iframeSrc = 
+	route("grp.websites.preview", [
+		route().params["website"],
+		route().params["webpage"],
+		{
+			organisation: route().params["organisation"],
+			shop: route().params["shop"],
+		},
+	]
+)
 const openFullScreenPreview = () => {
 	window.open(iframeSrc + '&isInWorkshop=true', "_blank")
 }
 
 const setHideBlock = (block : Daum) => {
 	block.show = !block.show 
-	isLoadingblock.value = "deleteBlock" + block.id,
+	// isLoadingblock.value = "deleteBlock" + block.id,
 	onSaveWorkshop(block)
 }
 
-const sendToIframe = (data: any) => {
-	_iframe.value?.contentWindow.postMessage(data, "*")
-}
+// const sendToIframe = (data: any) => {
+// 	_iframe.value?.contentWindow.postMessage(data, "*")
+// }
 
 
 // watch(isPreviewMode, (newVal) => {
@@ -290,7 +304,7 @@ onUnmounted(() => {
 /* 	if (socketConnectionWebpage) socketConnectionWebpage.actions.unsubscribe() */
 })
 
-const showWebpage = (activityItem) => {
+const isShowInWebpage = (activityItem) => {
     if (activityItem?.web_block?.layout && activityItem.show) {
         if (isPreviewLoggedIn.value && activityItem.visibility.in) return true
         else if (!isPreviewLoggedIn.value && activityItem.visibility.out) return true
@@ -305,10 +319,11 @@ const showWebpage = (activityItem) => {
 	<PageHeading :data="pageHead">
 		<template #button-publish="{ action }">
 			<Publish
-				:isLoading="!!isLoading"
+				:isLoading="isLoadingPublish"
 				:is_dirty="data.is_dirty"
 				v-model="comment"
-				@onPublish="(popover) => onPublish(action.route, popover)" />
+				@onPublish="(popover) => onPublish(action.route, popover)"
+			/>
 		</template>
 
 		<template #afterTitle v-if="isSavingBlock">
@@ -318,10 +333,11 @@ const showWebpage = (activityItem) => {
 
 	<div class="flex gap-x-2">
 		<!-- Section: Side editor -->
-		<div class="h-[calc(100vh-150px)] min-w-[350px] col-span-1 hidden lg:block border-2 bg-gray-200 px-3 py-1">
+		<div class="col-span-1 hidden lg:block border-2 bg-gray-200 pl-3 py-1">
 			<WebpageSideEditor
 				v-model="isModalBlockList"
 				:isLoadingblock
+				:isLoadingDeleteBlock
 				:isAddBlockLoading
 				:webpage="data"
 				:webBlockTypes="webBlockTypes"
@@ -418,11 +434,21 @@ const showWebpage = (activityItem) => {
 									}"
 									@click="() => openedBlockSideEditor === activityItemIdx ? null : openedBlockSideEditor = activityItemIdx"
 								>
-									<component
-										v-show="showWebpage(activityItem)"
+									<!-- <component
+										v-show="isShowInWebpage(activityItem)"
 										:key="activityItemIdx"
 										class="w-full"
 										:is="isPreviewMode ? getIrisComponent(activityItem?.type) : getComponent(activityItem?.type)"
+										:webpageData="webpage" :blockData="activityItem"
+										v-model="activityItem.web_block.layout.data.fieldValue"
+										:fieldValue="activityItem.web_block?.layout?.data?.fieldValue"
+										@autoSave="() => onSaveWorkshop(activityItem)"
+									/> -->
+									<component
+										v-show="isShowInWebpage(activityItem)"
+										:key="activityItemIdx"
+										class="w-full"
+										:is="getComponent(activityItem?.type)"
 										:webpageData="webpage" :blockData="activityItem"
 										v-model="activityItem.web_block.layout.data.fieldValue"
 										:fieldValue="activityItem.web_block?.layout?.data?.fieldValue"

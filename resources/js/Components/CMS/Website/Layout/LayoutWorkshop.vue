@@ -151,7 +151,7 @@ const onPublishTheme = () => {
                                 style="background: repeating-linear-gradient(45deg, #ebf8ff, #ebf8ff 10px, #bee3f8 10px, #bee3f8 20px);">
                             </div>
                         </div>
-                        <span class="text-sm font-semibold">Fullscreen</span>
+                        <span class="text-sm font-semibold">{{ trans("Fullscreen") }}</span>
                     </label>
 
                     <!-- Blog in the Middle Layout Option -->
@@ -165,7 +165,7 @@ const onPublishTheme = () => {
                                 style="background: repeating-linear-gradient(45deg, #ebf8ff, #ebf8ff 10px, #bee3f8 10px, #bee3f8 20px);">
                             </div>
                         </div>
-                        <span class="text-sm font-semibold">Middle</span>
+                        <span class="text-sm font-semibold">{{ trans("Middle") }}</span>
                     </label>
                 </div>
             </div>
@@ -174,7 +174,7 @@ const onPublishTheme = () => {
             <div>
                 <div class="flex items-center gap-2 mb-4">
                     <hr class="h-0.5 rounded-full w-full bg-gray-300" />
-                    <span class="whitespace-nowrap text-sm text-gray-600 font-semibold">Font Family</span>
+                    <span class="whitespace-nowrap text-sm text-gray-600 font-semibold">{{ trans("Font Family") }}</span>
                     <hr class="h-0.5 rounded-full w-full bg-gray-300" />
                 </div>
 
@@ -183,6 +183,7 @@ const onPublishTheme = () => {
                         <template #option="{ option, isSelected, isPointed, search }">
                             <span :style="{ fontFamily: option.value }">{{ option.label }}</span>
                         </template>
+                        
                         <template #label="{ value }">
                             <div class="multiselect-single-label" :style="{ fontFamily: value.value }">{{ value.label }}
                             </div>
