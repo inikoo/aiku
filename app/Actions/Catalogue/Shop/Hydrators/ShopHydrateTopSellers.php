@@ -15,7 +15,7 @@ use App\Models\Catalogue\Shop;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShopHydrateTopSallers
+class ShopHydrateTopSellers
 {
     use AsAction;
     use WithEnumStats;
@@ -58,9 +58,9 @@ class ShopHydrateTopSallers
         }
     }
 
-    public string $commandSignature = 'hydrate:top-sallers';
+    public string $commandSignature = 'hydrate:top_sellers';
 
-    public function asCommand($command)
+    public function asCommand(): void
     {
         $shops = SHOP::all();
         foreach ($shops as $shop) {
