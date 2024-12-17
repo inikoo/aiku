@@ -80,18 +80,25 @@ class ShowOutboxWorkshop extends OrgAction
 
                 ],
                 'compiled_layout'    => $email->snapshot->compiled_layout,
+                'unpublished_layout'    => $email->unpublishedSnapshot->layout,
 
                 'imagesUploadRoute'   => [
                     'name'       => 'grp.models.email-templates.images.store',
                     'parameters' => $email->id
                 ],
                 'updateRoute'         => [
-                    'name'       => 'grp.models.email-templates.content.update',
-                    'parameters' => $email->id
+                    'name'       => 'grp.models.shop.outboxes.update',
+                    'parameters' => [
+                        'shop' => $email->shop_id,
+                        'email' => $email->id
+                    ]
                 ],
                 'publishRoute'           => [
-                    'name'       => 'grp.models.email-templates.content.publish',
-                    'parameters' => $email->id
+                    'name'       => 'grp.models.shop.outboxes.publish',
+                    'parameters' => [
+                        'shop' => $email->shop_id,
+                        'email' => $email->id
+                    ]
                 ],
                 // 'loadRoute'           => [ -> i don't know what kind of data should i give to this route
                 //     'name'       => 'grp.models.email-templates.content.show',
