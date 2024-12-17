@@ -76,6 +76,11 @@ class DeliveryNoteItem extends Model
         return $this->hasOne(Picking::class);
     }
 
+    public function packings(): HasOne
+    {
+        return $this->hasOne(Packing::class);
+    }
+
     public function deliveryNote(): BelongsTo
     {
         return $this->belongsTo(DeliveryNote::class);
