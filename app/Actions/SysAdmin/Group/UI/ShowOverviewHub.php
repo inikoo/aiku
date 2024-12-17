@@ -43,7 +43,7 @@ class ShowOverviewHub extends GrpAction
                     ],
                     'title'     => __('overview'),
                 ],
-                'data' => GetOverview::run()
+                'data' => GetOverview::run($this->group)
             ]
         );
     }

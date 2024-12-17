@@ -7,6 +7,7 @@
  */
 
 use App\Actions\Accounting\PaymentServiceProvider\UI\IndexPaymentServiceProviders;
+use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\Comms\PostRoom\UI\IndexPostRooms;
 use App\Actions\Comms\PostRoom\UI\ShowPostRoom;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
@@ -19,4 +20,6 @@ Route::get('/post_rooms', IndexPostRooms::class)->name('post-rooms.index');
 Route::get('post-rooms/{postRoom}', ShowPostRoom::class)->name('post-rooms.show');
 Route::get('/customers', [IndexCustomers::class, 'inGroup'])->name('customers.index');
 Route::get('/customers/{customer}', [ShowCustomer::class, 'inGroup'])->name('customers.show');
+Route::get('/products', [IndexProducts::class, 'inGroup'])->name('products.index');
+// Route::get('/customers/{customer}', [ShowCustomer::class, 'inGroup'])->name('customers.show');
 // Route::get('/accounting/providers', IndexPaymentServiceProviders::class)->name('accounting.payment-service-providers.index');
