@@ -291,6 +291,11 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->hasOne(ShopSalesIntervals::class);
     }
 
+    public function orderingIntervals(): HasOne
+    {
+        return $this->hasOne(ShopOrderingIntervals::class);
+    }
+
     public function orderHandlingStats(): HasOne
     {
         return $this->hasOne(ShopOrderHandlingStats::class);

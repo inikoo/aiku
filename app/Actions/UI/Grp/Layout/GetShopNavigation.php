@@ -21,7 +21,7 @@ class GetShopNavigation
         $navigation = [];
 
         $navigation['dashboard'] = [
-            'root'  => 'grp.org.shops.show.',
+            'root'  => 'grp.org.shops.show.dashboard',
             'label' => __('Shop'),
             'icon'  => 'fal fa-store-alt',
 
