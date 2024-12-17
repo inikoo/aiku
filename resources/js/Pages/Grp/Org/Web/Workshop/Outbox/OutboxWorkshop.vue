@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Head } from '@inertiajs/vue3'
+import { Head, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import Unlayer from "@/Components/CMS/Website/Outboxes/Unlayer/UnlayerV2.vue"
 import Beetree from '@/Components/CMS/Website/Outboxes/Beefree.vue'
 import Publish from "@/Components/Publish.vue"
+import { notify } from '@kyvg/vue3-notification'
+import axios from 'axios'
 
 import { PageHeading as TSPageHeading } from "@/types/PageHeading";
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -22,6 +24,7 @@ const props = defineProps<{
     imagesUploadRoute : routeType
     updateRoute : routeType
     snapshot : routeType
+    publishRoute : routeType
     apiKey : {
         client_id : string,
         client_secret : string,
@@ -32,6 +35,42 @@ const props = defineProps<{
 const comment = ref('')
 const isLoading = ref(false)
 const openTemplates = ref(false)
+const _beefree = ref()
+const _unlayer = ref()
+
+console.log(props)
+
+const onSendPublish = async (data) => {
+    console.log(data)
+    try {
+        const response = await axios.post(route(props.publishRoute.name, props.publishRoute.parameters), {
+            comment: comment.value,
+            layout: JSON.parse(data?.jsonFile),
+            compiled_layout: data?.htmlFile
+        });
+        console.log("Publish response:", response.data);
+    } catch (error) {
+        console.log(error)
+        const errorMessage = error.response?.data?.message || error.message || "Unknown error occurred";
+        notify({
+            title: "Something went wrong.",
+            text: errorMessage,
+            type: "error",
+        });
+    } finally {
+        isLoading.value = false;
+    }
+}
+
+
+
+const onPublish = (popover: {}) => {
+    if (props.builder === 'beefree' && _beefree.value?.beeInstance) {
+        _beefree.value.beeInstance.save()
+        popover.close();
+    }
+};
+
 
 </script>
 
@@ -39,16 +78,14 @@ const openTemplates = ref(false)
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
-        <template #button-publish="{ action }">
-			<Publish
+        <template #other>
+            <Publish
 				:isLoading="isLoading"
 				:is_dirty="true"
 				v-model="comment"
+                @onPublish="(popover) => onPublish(popover)"
 			/>
-		</template>
-     <!--    <template #other>
-            <Button @click="openTemplates = true" icon="fas fa-th-large" label="Templates" :style="'tertiary'"  />
-        </template> -->
+        </template>
     </PageHeading>
 
      <!-- beefree -->
@@ -58,6 +95,8 @@ const openTemplates = ref(false)
         :imagesUploadRoute="imagesUploadRoute" 
         :snapshot="snapshot"
         :apiKey="apiKey"
+        @onSave="onSendPublish"
+        ref="_beefree"
     />
 
     <!-- unlayer -->
@@ -66,6 +105,7 @@ const openTemplates = ref(false)
         :updateRoute="updateRoute" 
         :imagesUploadRoute="imagesUploadRoute" 
         :snapshot="snapshot"
+        ref="_unlayer"
     />
 
     <div v-else>
