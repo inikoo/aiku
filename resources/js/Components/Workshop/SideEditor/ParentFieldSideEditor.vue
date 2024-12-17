@@ -85,7 +85,7 @@ const emits = defineEmits<{
                 :modelValue="getFormValue(modelValue, blueprint.key)"
                 :uploadRoutes="uploadImageRoute" 
                 v-bind="blueprint?.props_data" 
-                @update:modelValue="newValue => emits('update:modelValue',setFormValue(modelValue, blueprint.key, newValue))"
+                @update:modelValue="newValue => emits('update:modelValue', setFormValue(modelValue, blueprint.key, newValue))"
             />
         </template>
     </div>

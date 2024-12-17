@@ -140,7 +140,7 @@ const openedBlockSideEditor = inject('openedBlockSideEditor', ref(null))
                             <div class="h-full text-base cursor-pointer">
                                 <div class="flex h-full items-center">
                                     <div @click="(e) => setShowBlock(e, element)" class="py-1 px-2"
-                                        :class="openedBlockSideEditor === index ? 'text-white' : 'text-gray-400'"    
+                                        :class="openedBlockSideEditor === index ? 'text-gray-300 hover:text-white' : 'text-gray-400 hover:text-gray-600'"    
                                     >
                                         <FontAwesomeIcon v-if="!element.show" v-tooltip="trans('Show this block')" icon="fal fa-eye-slash" class="text-base" fixed-width aria-hidden="true" />
                                         <FontAwesomeIcon v-else v-tooltip="trans('Hide this block')" icon="fal fa-eye" class="text-base" fixed-width aria-hidden="true" />

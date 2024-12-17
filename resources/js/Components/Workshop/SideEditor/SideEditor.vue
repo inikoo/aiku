@@ -32,8 +32,6 @@ const props = defineProps<{
 const modelValue = defineModel()
 const openPanel = ref(0)
 
-console.log('problu', props.blueprint)
-console.log('modelValue', modelValue.value)
 
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string | number): void
@@ -63,12 +61,13 @@ const setFormValues = (blueprint = [], data = {}) => {
     for (const form of blueprint) {
         getFormValues(form, data)
     }
+
     return data
 }
 
 onMounted(() => {
     if(!modelValue.value){
-        emits('update:modelValue', setFormValues(props.blueprint, cloneDeep(modelValue.value)))
+        emits('update:modelValue', setFormValues(props.blueprint))
     }
 })
 

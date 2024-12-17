@@ -3,13 +3,23 @@ import { computed, watch, onMounted, ref } from 'vue'
 import PaddingMarginProperty from '@/Components/Workshop/Properties/PaddingMarginProperty.vue'
 import { trans } from 'laravel-vue-i18n'
 
-// Define props and emits
-const props = defineProps({
-    modelValue: {
-        type: Object,
-        required: true,
-    },
-});
+const props = defineProps<{
+    modelValue?: {
+        unit: string,
+        top: {
+            value: number | null
+        },
+        left: {
+            value: number | null
+        },
+        right: {
+            value: number | null
+        },
+        bottom: {
+            value: number | null
+        }
+    }
+}>()
 
 const emit = defineEmits(['update:modelValue']);
 
@@ -28,14 +38,14 @@ const localModel = ref({
     bottom: {
         value: null
     }
-});
+})
 
 // Initialize localModel with the prop value on mount
 onMounted(() => {
     if (props.modelValue) {
         localModel.value = props.modelValue;
     }
-});
+})
 
 // Watch localModel and emit updates
 watch(

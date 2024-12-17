@@ -50,7 +50,7 @@ export const getComponent = (componentName: string) => {
     return components[componentName] ?? NotFoundComponents
 }
 
-export const getFormValue = (data: any, fieldKeys: string | string[]) => {
+export const getFormValue = (data: {}, fieldKeys: string | string[]) => {
     const keys = Array.isArray(fieldKeys) ? fieldKeys : [fieldKeys];
     return keys.reduce((acc, key) => acc && acc[key], data) ?? null;
 };
