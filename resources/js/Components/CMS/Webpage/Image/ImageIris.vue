@@ -9,13 +9,15 @@ library.add(faCube, faStar, faImage, faPencil)
 
 const props = defineProps<{
 	fieldValue: {
-		images: {
-			source: string
-			link_data: {
-				url: string
-			}
-		}[]
-		layout_type: string
+		value: {
+			images: {
+				source: string
+				link_data: {
+					url: string
+				}
+			}[]
+			layout_type: string
+		}
 	}
 	webpageData?: any
 	web_block?: Object
@@ -25,7 +27,7 @@ const props = defineProps<{
 }>()
 
 const getHref = (index: number) => {
-	const image = props.fieldValue?.images?.[index]
+	const image = props.fieldValue?.value?.images?.[index]
 
 	if (image?.link_data?.url) {
 		return image.link_data.url

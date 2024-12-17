@@ -2,18 +2,18 @@
 import { ref, toRaw } from "vue"
 import Modal from "@/Components/Utils/Modal.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faImage } from '@fas'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faImage)
 
 type Layout =
 	| { name: string; layout_type: string; grid: string; images: number; flex?: undefined }
 	| { name: string; layout_type: string; flex: string[]; images: number; grid?: undefined }
 
-const props = defineProps({
-	modelValue: {
-		type: Object,
-		required: false,
-		default: null,
-	},
-})
+const props = defineProps<{
+	modelValue: {}
+}>()
 const emit = defineEmits(["update:modelValue"])
 const isModalOpen = ref(false)
 
