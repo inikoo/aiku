@@ -66,11 +66,10 @@ class FetchAuroraMailshot extends FetchAurora
         $this->parsedData['source_template_id'] = $this->auroraModelData->{'Email Campaign Email Template Key'};
 
 
-        $subject = $this->auroraModelData->{'Email Template Subject'};
+        $subject = trim($this->auroraModelData->{'Email Template Subject'});
         if ($subject == '') {
             $subject = '?';
         }
-
 
         $this->parsedData['mailshot'] = [
             'subject'    => $subject,

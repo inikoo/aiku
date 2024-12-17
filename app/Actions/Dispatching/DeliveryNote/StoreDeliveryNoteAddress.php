@@ -27,7 +27,9 @@ class StoreDeliveryNoteAddress extends OrgAction
 
     public function handle(DeliveryNote $deliveryNote, array $modelData): DeliveryNote
     {
-        $address = $this->storeModelAddress($modelData['address']->toArray());
+        $addressData = $modelData['address']->toArray();
+        data_set($addressData, 'group_id', $deliveryNote->group_id);
+        $address = $this->storeModelAddress($addressData);
         $deliveryNote->updateQuietly(
             [
                 'address_id'          => $address->id,

@@ -2128,7 +2128,7 @@ test('hydrate rental agreements command', function () {
 test('recurring bill universal search', function () {
     $recurringBill = RecurringBill::first();
     ReindexRecurringBillSearch::run($recurringBill);
-    $this->artisan('recurring-bill:search  '.$this->organisation->slug)->assertExitCode(0);
+    $this->artisan('search:recurring_bills  '.$this->organisation->slug)->assertExitCode(0);
 });
 
 test('create sixth pallet delivery (consolidation test)', function ($fulfilmentCustomer) {

@@ -8,6 +8,7 @@
 
 namespace App\Transfers\Aurora;
 
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
@@ -29,7 +30,6 @@ class FetchAuroraWebpage extends FetchAurora
 
     protected function parseModel(): void
     {
-
         if (!$this->auroraModelData) {
             return;
         }
@@ -41,7 +41,6 @@ class FetchAuroraWebpage extends FetchAurora
 
 
         if (preg_match('/\.sys$/', $this->auroraModelData->{'Webpage Code'})) {
-
             if (!in_array($this->auroraModelData->{'Webpage Code'}, [
                 'home.sys',
                 'home_logout.sys',
@@ -51,9 +50,7 @@ class FetchAuroraWebpage extends FetchAurora
                 'about.sys'
             ])) {
                 return;
-
             }
-
         }
         if (preg_match('/^web\./i', $this->auroraModelData->{'Webpage Code'})) {
             return;
@@ -72,10 +69,22 @@ class FetchAuroraWebpage extends FetchAurora
         }
 
         $parsedData = $this->processAuroraWebpage($this->organisation, $this->auroraModelData);
-
         if (!$parsedData) {
             return;
         }
+
+
+
+
+        $website = $parsedData['website'];
+
+
+        if ($website->shop->type == ShopTypeEnum::FULFILMENT and
+            $parsedData['webpage']['code'] == 'shipping.sys') {
+            $parsedData['webpage']['code'] = 'shipping';
+        }
+
+
         $this->parsedData['website'] = $parsedData['website'];
         $this->parsedData['webpage'] = $parsedData['webpage'];
 
@@ -86,7 +95,6 @@ class FetchAuroraWebpage extends FetchAurora
         }
 
         $this->parsedData['last_published'] = $this->auroraModelData->{'Webpage Last Launch Date'};
-
     }
 
 
@@ -250,7 +258,6 @@ class FetchAuroraWebpage extends FetchAurora
                 ];
             }
         }
-
 
 
         if ($createdAt = $this->parseDatetime($auroraModelData->{'Webpage Creation Date'})) {

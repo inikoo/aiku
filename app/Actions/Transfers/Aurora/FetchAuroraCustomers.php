@@ -26,7 +26,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
     use WithAuroraAttachments;
     use WithAuroraParsers;
 
-    public string $commandSignature = 'fetch:customers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web_users portfolio favourites polls full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:customers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: products clients orders web_users portfolio favourites polls full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Customer
@@ -52,33 +52,33 @@ class FetchAuroraCustomers extends FetchAuroraAction
                     return null;
                 }
             } else {
-                //try {
-                $customer = StoreCustomer::make()->action(
-                    shop: $customerData['shop'],
-                    modelData: $customerData['customer'],
-                    hydratorsDelay: $this->hydratorsDelay,
-                    strict: false,
-                    audit: false
-                );
+                try {
+                    $customer = StoreCustomer::make()->action(
+                        shop: $customerData['shop'],
+                        modelData: $customerData['customer'],
+                        hydratorsDelay: $this->hydratorsDelay,
+                        strict: false,
+                        audit: false
+                    );
 
-                Customer::enableAuditing();
+                    Customer::enableAuditing();
 
-                $this->saveMigrationHistory(
-                    $customer,
-                    Arr::except($customerData['customer'], ['fetched_at', 'last_fetched_at', 'source_id'])
-                );
+                    $this->saveMigrationHistory(
+                        $customer,
+                        Arr::except($customerData['customer'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                    );
 
 
-                $this->recordNew($organisationSource);
-                $sourceData = explode(':', $customer->source_id);
-                DB::connection('aurora')->table('Customer Dimension')
-                    ->where('Customer Key', $sourceData[1])
-                    ->update(['aiku_id' => $customer->id]);
-                //                } catch (Exception|Throwable $e) {
-                //                    $this->recordError($organisationSource, $e, $customerData['customer'], 'Customer', 'store');
-                //
-                //                    return null;
-                //                }
+                    $this->recordNew($organisationSource);
+                    $sourceData = explode(':', $customer->source_id);
+                    DB::connection('aurora')->table('Customer Dimension')
+                        ->where('Customer Key', $sourceData[1])
+                        ->update(['aiku_id' => $customer->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $customerData['customer'], 'Customer', 'store');
+
+                    return null;
+                }
             }
 
 

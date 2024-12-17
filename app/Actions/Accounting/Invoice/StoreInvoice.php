@@ -185,6 +185,12 @@ class StoreInvoice extends OrgAction
         ];
 
         if (!$this->strict) {
+            $rules['reference'] = [
+                'required',
+                'max:64',
+                'string'
+            ];
+
             $rules['tax_category_id'] = ['sometimes', 'required', 'exists:tax_categories,id'];
             $rules['billing_address'] = ['required', new ValidAddress()];
             $rules                    = $this->orderingAmountNoStrictFields($rules);

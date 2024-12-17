@@ -100,6 +100,11 @@ class UpdateCustomer extends OrgAction
             $modelData['name'] = $company_name ?: $contact_name;
         }
 
+        $emailSubscriptionsData = Arr::pull($modelData, 'email_subscriptions', []);
+
+        $customer->comms->update($emailSubscriptionsData);
+
+
         $customer = $this->update($customer, $modelData, ['data']);
 
 
