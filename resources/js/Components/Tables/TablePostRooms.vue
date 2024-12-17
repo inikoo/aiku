@@ -23,12 +23,12 @@ defineProps<{
 //     }
 // }
 
-function postRoomRoute(orgPostRoom: {}) {
+function postRoomRoute(postRoom: {}) {
       switch (route().current()) {
-        //   case 'grp.org.shops.show.comms.post-rooms.index':
-        //   return route(
-        //           'grp.org.shops.show.comms.post-rooms.show',
-        //           [route().params['organisation'], route().params['shop'], orgPostRoom.slug])
+          case 'grp.overview.post-rooms.index':
+            return route(
+                    'grp.overview.post-rooms.show',
+                    [postRoom.slug])
           default:
               return null
       }
