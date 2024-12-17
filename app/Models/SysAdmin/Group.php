@@ -793,4 +793,10 @@ class Group extends Authenticatable implements Auditable, HasMedia
     {
         return $this->hasMany(Packing::class);
     }
+
+    public function orderingIntervals(): HasOne
+    {
+        return $this->hasOne(GroupOrderingIntervals::class);
+    }
+
 }

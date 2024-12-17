@@ -46,6 +46,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraPolls;
 use App\Actions\Transfers\Aurora\FetchAuroraProducts;
 use App\Actions\Transfers\Aurora\FetchAuroraProspects;
 use App\Actions\Transfers\Aurora\FetchAuroraPurges;
+use App\Actions\Transfers\Aurora\FetchAuroraQueries;
 use App\Actions\Transfers\Aurora\FetchAuroraSalesChannels;
 use App\Actions\Transfers\Aurora\FetchAuroraServices;
 use App\Actions\Transfers\Aurora\FetchAuroraShippers;
@@ -98,6 +99,7 @@ use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\Language;
+use App\Models\Helpers\Query;
 use App\Models\Helpers\TaxCategory;
 use App\Models\Helpers\Timezone;
 use App\Models\Helpers\Upload;
@@ -1107,6 +1109,21 @@ trait WithAuroraParsers
         }
 
         return $emailOngoingRun;
+    }
+
+    public function parseQuery($sourceId): ?Query
+    {
+        if (!$sourceId) {
+            return null;
+        }
+
+        $query = Query::where('source_id', $sourceId)->first();
+        if (!$query) {
+            $sourceData      = explode(':', $sourceId);
+            $query = FetchAuroraQueries::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $query;
     }
 
 

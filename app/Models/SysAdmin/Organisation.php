@@ -174,6 +174,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, OfferCampaign> $offerCampaigns
  * @property-read LaravelCollection<int, Offer> $offers
  * @property-read \App\Models\SysAdmin\OrganisationOrderHandlingStats|null $orderHandlingStats
+ * @property-read \App\Models\SysAdmin\OrganisationOrderingIntervals|null $orderingIntervals
  * @property-read \App\Models\SysAdmin\OrganisationOrderingStats|null $orderingStats
  * @property-read LaravelCollection<int, Order> $orders
  * @property-read LaravelCollection<int, OrgAgent> $orgAgents

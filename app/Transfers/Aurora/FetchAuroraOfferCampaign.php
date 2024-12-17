@@ -26,8 +26,9 @@ class FetchAuroraOfferCampaign extends FetchAurora
         //enum('Suspended','Active','Finish','Waiting')
         $state = match ($this->auroraModelData->{'Deal Campaign Status'}) {
             'Waiting' => OfferCampaignStateEnum::IN_PROCESS,
-            'Finish'  => OfferCampaignStateEnum::FINISHED,
-            default   => OfferCampaignStateEnum::ACTIVE
+            'Finish' => OfferCampaignStateEnum::FINISHED,
+            'Suspended' => OfferCampaignStateEnum::SUSPENDED,
+            default => OfferCampaignStateEnum::ACTIVE
         };
 
         if ($this->auroraModelData->{'Deal Campaign Status'} == 'Active') {
@@ -62,8 +63,6 @@ class FetchAuroraOfferCampaign extends FetchAurora
         if ($createdBy) {
             $this->parsedData['offer-campaign']['created_by'] = $createdBy;
         }
-
-
     }
 
 
