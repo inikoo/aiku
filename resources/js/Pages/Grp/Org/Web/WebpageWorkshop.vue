@@ -104,48 +104,65 @@ const addNewBlock = async (block: Daum) => {
 // Method: save workshop
 const isLoadingblock = ref<string | null>(null)
 const isSavingBlock = ref(false)
-const saveCancelToken = ref<Function | null>(null)
-const debounceSaveWorkshop = debounce((block) => {
-	router.patch(
-		route(props.webpage.update_model_has_web_blocks_route.name, {
-			modelHasWebBlocks: block.id,
-		}),
-		{
-			layout: block.web_block.layout,
-			show_logged_in: block.visibility.in,
-			show_logged_out: block.visibility.out,
-			show: block.show,
-		},
-		{
-			onStart: () => {
-				isLoadingblock.value = block.id,
-				isSavingBlock.value = true
-			},
-			onCancelToken: (cclToken) => saveCancelToken.value = cclToken.cancel,
-			onFinish: () => {
-				isLoadingblock.value = null
-				isSavingBlock.value = false
-				saveCancelToken.value = null
-			},
-			onSuccess:(e) => { 
-				data.value = e.props.webpage 
-				// sendToIframe({ key: 'reload', value: {} })
-			},
-			onError: (error) => {
-				notify({
-					title: trans("Something went wrong"),
-					text: error.message,
-					type: "error",
-				})
-			},
-			preserveScroll: true,
-		}
-	)
-}, 1500, { leading: false, trailing: true })
-const onSaveWorkshop = (block) => {
-	if (saveCancelToken.value) {
-		saveCancelToken.value()
+const cancelTokens = ref<Record<string, Function>>({}) // A map to store cancel tokens by block id
+// Object to store individual debounce timers for each block
+const debounceTimers = ref({})
+
+const debounceSaveWorkshop = (block) => {
+	// If the debounce timer exists, cancel it
+	if (debounceTimers.value[block.id]) {
+		clearTimeout(debounceTimers.value[block.id])
 	}
+
+	// Set a new debounce timer for this block
+	debounceTimers.value[block.id] = setTimeout(() => {
+		router.patch(
+			route(props.webpage.update_model_has_web_blocks_route.name, {
+				modelHasWebBlocks: block.id,
+			}),
+			{
+				layout: block.web_block.layout,
+				show_logged_in: block.visibility.in,
+				show_logged_out: block.visibility.out,
+				show: block.show,
+			},
+			{
+				onStart: () => {
+					console.log('block ', block.id)
+					isLoadingblock.value = block.id
+					isSavingBlock.value = true
+				},
+				onCancelToken: (cclToken) => {
+					cancelTokens.value[block.id] = cclToken.cancel
+				},
+				onFinish: () => {
+					isLoadingblock.value = null
+					isSavingBlock.value = false
+					delete cancelTokens.value[block.id]
+				},
+				onSuccess: (e) => {
+					data.value = e.props.webpage
+				},
+				onError: (error) => {
+					notify({
+						title: trans("Something went wrong"),
+						text: error.message,
+						type: "error",
+					})
+				},
+				preserveScroll: true,
+			}
+		)
+	}, 1500) // Debounce time of 1500ms for each block
+}
+
+const onSaveWorkshop = (block) => {
+	// Cancel the ongoing save for the specific block if it's in progress
+	if (cancelTokens.value[block.id]) {
+		cancelTokens.value[block.id]()
+	}
+
+	// Call debounceSaveWorkshop to handle save for this block
 	debounceSaveWorkshop(block)
 }
 provide('onSaveWorkshop', onSaveWorkshop)
@@ -350,7 +367,7 @@ const isShowInWebpage = (activityItem) => {
 		</div>
 
 		<!-- Section: Preview -->
-		<div v-if="true" class="h-[calc(100vh-180px)] lg:col-span-4 col-span-5 flex flex-col bg-gray-200">
+		<div v-if="true" class="h-[calc(100vh-180px)] w-full flex flex-col bg-gray-200">
 			<div class="flex justify-between">
 				<!-- <div
 					class="py-1 px-2 cursor-pointer lg:hidden block"
@@ -444,7 +461,7 @@ const isShowInWebpage = (activityItem) => {
 										:fieldValue="activityItem.web_block?.layout?.data?.fieldValue"
 										@autoSave="() => onSaveWorkshop(activityItem)"
 									/> -->
-									<component
+									<!-- <component
 										v-show="isShowInWebpage(activityItem)"
 										:key="activityItemIdx"
 										class="w-full"
@@ -453,7 +470,7 @@ const isShowInWebpage = (activityItem) => {
 										v-model="activityItem.web_block.layout.data.fieldValue"
 										:fieldValue="activityItem.web_block?.layout?.data?.fieldValue"
 										@autoSave="() => onSaveWorkshop(activityItem)"
-									/>
+									/> -->
 								</section>
 							</TransitionGroup>
 						</div>
