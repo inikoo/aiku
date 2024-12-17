@@ -117,6 +117,7 @@ class IndexProducts extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(Product::class);
+        $queryBuilder->orderBy('products.state', 'asc');
         $queryBuilder->leftJoin('shops', 'products.shop_id', 'shops.id');
         $queryBuilder->where('products.is_main', true);
         if (class_basename($parent) == 'Shop') {
