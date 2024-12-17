@@ -65,8 +65,8 @@ const layout = inject('layout', layoutStructure)
 // console.log('org', layout.organisationsState[layout.currentParams.organisation][`current${capitalize(layout.organisationsState[layout.currentParams.organisation].currentType)}`])
 
 // Navigation Fulfilment, Shop, and Merged
-const shopsOpenSlugs = layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.filter(shop => shop.state === 'open').map(shop => shop.slug)
-const fulfilmentsOpenSlugs = layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.filter(fulfilment => fulfilment.state === 'open').map(fulfilment => fulfilment.slug)
+const shopsOpenSlugs = layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.filter(shop => shop.state !== 'openxx').map(shop => shop.slug)
+const fulfilmentsOpenSlugs = layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.filter(fulfilment => fulfilment.state !== 'openxx').map(fulfilment => fulfilment.slug)
 const fulfilmentsNav: () => MergeNavigation[] = () => {
     const filterFulfilmentsOpen = Object.entries(props.orgNav.fulfilments_navigation.navigation).filter(([key, subNavList]) => fulfilmentsOpenSlugs?.includes(key))
 
@@ -165,7 +165,7 @@ const isShowHorizontal = () => {
     const isShopOpen = activeNav() == 'shop' && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.find(shop => shop.slug === layout.organisationsState[layout.currentParams.organisation]?.currentShop)?.state === 'open'
     const isFulfilmentOpen = activeNav() == 'fulfilment' && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.find(fulfilment => fulfilment.slug === layout.organisationsState[layout.currentParams.organisation]?.currentFulfilment)?.state === 'open'
 
-    return (isShopOpen || isFulfilmentOpen) 
+    return (true || isShopOpen || isFulfilmentOpen) 
 }
 
 // Route for label 'UK (Shop)'
