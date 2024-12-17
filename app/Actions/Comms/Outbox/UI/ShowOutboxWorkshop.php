@@ -86,7 +86,7 @@ class ShowOutboxWorkshop extends OrgAction
                     ]
 
                 ],
-                'compiled_layout'    => $email->snapshot->compiled_layout,
+               /*  'compiled_layout'    => $email->snapshot->compiled_layout, */
                 'unpublished_layout'    => $email->unpublishedSnapshot->layout,
 
                 'snapshot'          => $email->unpublishedSnapshot,

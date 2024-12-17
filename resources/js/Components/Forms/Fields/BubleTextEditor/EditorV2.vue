@@ -85,6 +85,7 @@ import Variabel from "./Variables/Variables"
 import CustomLink from "./CustomLink/CustomLink.vue"
 import { trans } from "laravel-vue-i18n"
 import { routeType } from "@/types/route"
+import { irisVariable } from "@/Composables/variableList"
 
 const props = withDefaults(defineProps<{
     modelValue: string,
@@ -332,32 +333,6 @@ const setVariabel = (value) => {
 };
 
 
-const irisVariablesList = [
-    {
-        label: trans("Name"),
-        value: "{{ name }}",
-    },
-    {
-        label: trans("Username"),
-        value: "{{ username }}",
-    },
-    {
-        label: trans("Email"),
-        value: "{{ email }}",
-    },
-    {
-        label: trans("Favourites count"),
-        value: "{{ favourites_count }}",
-    },
-    {
-        label: trans("Cart count"),
-        value: "{{ cart_count }}",
-    },
-    {
-        label: trans("Cart amount"),
-        value: "{{ cart_amount }}",
-    },
-]
 
 // console.log(editorInstance)
 </script>
@@ -574,7 +549,7 @@ const irisVariablesList = [
                 <section id="tiptap-toolbar" class="py-1 px-2 flex items-center divide-x divide-gray-400 gap-2">
                     <Select v-if="toogle.includes('query')"
                         @change="(e) => setVariabel(e.value.value)"
-                        :options="irisVariablesList" optionLabel="label" size="small"
+                        :options="irisVariable" optionLabel="label" size="small"
                         :placeholder="trans('Select a variable to put')" class="w-full md:w-56" />
 
                     <div class="my-1.5 inline-flex flex-row flex-wrap items-center space-x-1 px-2">
