@@ -9,6 +9,7 @@
 namespace App\Models\Comms;
 
 use App\Enums\Comms\Email\EmailBuilderEnum;
+use App\Models\Helpers\Deployment;
 use App\Models\Helpers\Snapshot;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\InShop;
@@ -114,5 +115,9 @@ class Email extends Model implements Auditable
         return $this->belongsTo(Snapshot::class, 'live_snapshot_id');
     }
 
+    public function deployments(): MorphMany
+    {
+        return $this->morphMany(Deployment::class, 'model');
+    }
 
 }
