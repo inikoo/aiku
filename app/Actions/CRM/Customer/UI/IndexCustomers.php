@@ -151,10 +151,11 @@ class IndexCustomers extends OrgAction
                 'created_at',
                 'number_invoices_type_invoice',
                 'last_invoiced_at',
-                'invoiced_net_amount',
+                'sales_all',
+                // 'invoiced_net_amount',
                 'invoiced_org_net_amount',
                 'invoiced_grp_net_amount',
-
+                'platform_name',
             ])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -237,13 +238,14 @@ class IndexCustomers extends OrgAction
 
             if ($isDropshipping) {
                 $table->column(key: 'number_current_clients', label: __('Clients'), canBeHidden: false, sortable: true, searchable: true)
-                    ->column(key: 'number_current_portfolios', label: __('Portfolios'), canBeHidden: false, sortable: true, searchable: true)
-                    ->column(key: 'platforms', label: __('Platforms'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'number_current_portfolios', label: __('Portfolios'), canBeHidden: false, sortable: true, searchable: true)
+                // ->column(key: 'platforms', label: __('Platforms'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'platform_name', label: __('Platforms'), canBeHidden: false, sortable: true, searchable: true);
             }
 
             $table->column(key: 'last_invoiced_at', label: __('last invoice'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_invoices_type_invoice', label: __('invoices'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'invoiced_net_amount', label: __('sales'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'sales_all', label: __('sales'), canBeHidden: false, sortable: true, searchable: true);
 
             $table->defaultSort('-created_at');
         };
