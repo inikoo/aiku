@@ -51,7 +51,7 @@ class MarketingHub extends InertiaAction
 
 
         return Inertia::render(
-            'Mail/MailHub',
+            'Comms/MailHub',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $routeName,

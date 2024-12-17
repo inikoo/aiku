@@ -8,7 +8,6 @@
 
 namespace App\Models\Comms;
 
-use App\Enums\Comms\EmailBulkRun\EmailBulkRunTypeEnum;
 use App\Enums\Comms\EmailBulkRun\EmailBulkRunStateEnum;
 use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Model;
@@ -60,7 +59,6 @@ class EmailBulkRun extends Model
 
     protected $casts = [
         'data'              => 'array',
-       // 'type'              => EmailBulkRunTypeEnum::class,
         'state'             => EmailBulkRunStateEnum::class,
         'date'              => 'datetime',
         'scheduled_at'      => 'datetime',

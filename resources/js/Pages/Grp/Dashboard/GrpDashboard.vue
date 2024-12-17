@@ -1,356 +1,541 @@
 <script setup lang="ts">
-import { inject, ref } from 'vue'
-import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
-import { Switch } from '@headlessui/vue'
-import { useLocaleStore } from '@/Stores/locale'
-import { RadioGroup, RadioGroupOption } from '@headlessui/vue'
-import { Pie } from 'vue-chartjs'
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from 'chart.js'
-import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
+import { inject, ref } from "vue"
+import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
+import { Switch } from "@headlessui/vue"
+import { useLocaleStore } from "@/Stores/locale"
+import { RadioGroup, RadioGroupOption } from "@headlessui/vue"
+import { Pie } from "vue-chartjs"
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from "chart.js"
+import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 
+import DataTable from "primevue/datatable"
+import Column from "primevue/column"
+import Row from "primevue/row"
+import ColumnGroup from "primevue/columngroup"
+import { computed } from "vue"
+import { useTruncate } from "@/Composables/useTruncate"
 
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { faChevronDown } from "@far"
+import { faTriangle } from "@fas"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { Head } from "@inertiajs/vue3"
+import { trans } from "laravel-vue-i18n"
+import { get } from "lodash"
+import { layoutStructure } from "@/Composables/useLayoutStructure"
+import { useGetCurrencySymbol } from "@/Composables/useCurrency"
+import Tag from "@/Components/Tag.vue"
+import { faFolderOpen, faSeedling, faTimesCircle } from "@fal"
+import { faArrowDown, faArrowUp } from "@fad"
 
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import Row from 'primevue/row'
-import ColumnGroup from 'primevue/columngroup'
-import { computed } from 'vue'
-import { useTruncate } from '@/Composables/useTruncate'
-
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faChevronDown } from '@far'
-import { faTriangle } from '@fas'
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { Head } from '@inertiajs/vue3'
-import { trans } from 'laravel-vue-i18n'
-import { get } from 'lodash'
-import { layoutStructure } from '@/Composables/useLayoutStructure'
-import { useGetCurrencySymbol } from '@/Composables/useCurrency'
-import Tag from '@/Components/Tag.vue'
-
-library.add(faTriangle, faChevronDown)
+library.add(faTriangle, faChevronDown, faSeedling, faTimesCircle, faFolderOpen, faArrowDown, faArrowUp)
 
 const props = defineProps<{
-    groupStats: {
-        currency: {
-            code: string
-        }
-        total: {
-            [key: string]: {
-                total_invoices: number
-                total_refunds: number
-                total_sales: string
-            }
-        }
-        organisations: {
-            name: string
-            type: string
-            code: string
-            currency: {
-                code: string
-            }
-            invoices: {
-                number_invoices: number
-            }
-            sales: {
-                number_sales: number
-            }
-            refunds: {
-                number_refunds: number
-            }
+	groupStats: {
+		currency: {
+			code: string
+		}
+		total: {
+			[key: string]: {
+				total_invoices: number
+				total_refunds: number
+				total_sales: string
+			}
+		}
+		organisations: {
+			name: string
+			type: string
+			code: string
+			currency: {
+				code: string
+			}
+			invoices: {
+				number_invoices: number
+			}
+			sales: {
+				number_sales: number
+			}
+			refunds: {
+				number_refunds: number
+			}
 
-            // number_invoices_type_refund?: number
-            // number_invoices?: number
-            // number_invoices_type_invoice?: number
-            interval_percentages?: {
-                sales?: {
-                    [key: string]: {
-                        amount: string
-                        percentage: number
-                        difference: number
-                    }
-                }
-                invoices?: {
-                    [key: string]: {
-                        amount: string
-                        percentage: number
-                        difference: number
-                    }
-                }
-                refunds?: {
-                    [key: string]: {
-                        amount: string
-                        percentage: number
-                        difference: number
-                    }
-                }
-            }
-        }[]
-    }
-    interval_options: {
-        label: string
-        labelShort: string
-        value: string
-    }[]
+			// number_invoices_type_refund?: number
+			// number_invoices?: number
+			// number_invoices_type_invoice?: number
+			interval_percentages?: {
+				sales?: {
+					[key: string]: {
+						amount: string
+						percentage: number
+						difference: number
+					}
+				}
+				invoices?: {
+					[key: string]: {
+						amount: string
+						percentage: number
+						difference: number
+					}
+				}
+				refunds?: {
+					[key: string]: {
+						amount: string
+						percentage: number
+						difference: number
+					}
+				}
+			}
+		}[]
+	}
+	interval_options: {
+		label: string
+		labelShort: string
+		value: string
+	}[]
 }>()
 
-console.log('groupStats total: ', props.groupStats.total)
-console.log('groupStats Organisations: ', props.groupStats)
-console.log('interval_options: ', props.interval_options)
-const layout = inject('layout', layoutStructure)
-const locale = inject('locale', aikuLocaleStructure)
-
+console.log("groupStats total: ", props.groupStats.total)
+console.log("groupStats Organisations: ", props.groupStats)
+console.log("interval_options: ", props.interval_options)
+const layout = inject("layout", layoutStructure)
+const locale = inject("locale", aikuLocaleStructure)
 
 // Decriptor: Date interval
-const selectedDateOption = ref<string>('all')
+const selectedDateOption = ref<string>("all")
 
 // const currencyValue = ref('group')
 
-
 ChartJS.register(ArcElement, Tooltip, Legend, Colors)
 const options = {
-    responsive: true,
-    plugins: {
-        legend: {
-            display: false
-        },
-        tooltip: {
-            titleFont: {
-                size: 10,
-                weight: 'lighter'
-            },
-            bodyFont: {
-                size: 11,
-                weight: 'bold'
-            }
-        },
-    }
+	responsive: true,
+	plugins: {
+		legend: {
+			display: false,
+		},
+		tooltip: {
+			titleFont: {
+				size: 10,
+				weight: "lighter",
+			},
+			bodyFont: {
+				size: 11,
+				weight: "bold",
+			},
+		},
+	},
 }
 
-
-
 const abcdef = computed(() => {
-    return props.groupStats.organisations.filter(org => org.type != 'agent').map((org) => {
-        return {
-            name: org.name,
-            code: org.code,
-            interval_percentages: org.interval_percentages,
-            // refunds: org.refunds.number_refunds || 0,
-            // refunds_diff: 0,
-            // invoices: org.invoices.number_invoices || 0,
-            // invoices_diff: get(org, ['sales', `invoices_${selectedDateOption.value}`], 0),
-            sales: org.sales || 0,
-            // sales_diff: get(org, ['sales', `org_amount_${selectedDateOption.value}`], 0),
-        }
-    })
+	return props.groupStats.organisations
+		.filter((org) => org.type != "agent")
+		.map((org) => {
+			return {
+				name: org.name,
+				code: org.code,
+				interval_percentages: org.interval_percentages,
+				// refunds: org.refunds.number_refunds || 0,
+				// refunds_diff: 0,
+				// invoices: org.invoices.number_invoices || 0,
+				// invoices_diff: get(org, ['sales', `invoices_${selectedDateOption.value}`], 0),
+				sales: org.sales || 0,
+				// sales_diff: get(org, ['sales', `org_amount_${selectedDateOption.value}`], 0),
+			}
+		})
 })
+
+const shop = ref()
 </script>
 
 <template>
-    <Head :title="trans('Dashboard')" />
-    <div class="px-4 sm:px-6 lg:px-8">
-        <!-- <pre>{{ props.groupStats.organisations }}</pre> -->
+	<Head :title="trans('Dashboard')" />
+	<div class="px-4 sm:px-6 lg:px-8">
+		<!-- <pre>{{ props.groupStats.organisations }}</pre> -->
 
+		<!-- Section: Date options -->
+		<div class="mt-4 block">
+			<nav class="isolate flex rounded border-b border-gray-300" aria-label="Tabs">
+				<div
+					v-for="(interval, idxInterval) in interval_options"
+					:key="idxInterval"
+					@click="() => (selectedDateOption = interval.value)"
+					:class="[
+						interval.value === selectedDateOption
+							? ''
+							: 'text-gray-500 hover:text-gray-700',
+					]"
+					class="relative min-w-0 flex-1 overflow-hidden bg-white hover:bg-gray-100 py-0 text-center text-sm cursor-pointer select-none focus:z-10">
+					<span>{{ interval.value }}</span>
+					<span
+						aria-hidden="true"
+						:class="[
+							interval.value === selectedDateOption
+								? 'bg-indigo-500'
+								: 'bg-transparent',
+							'absolute inset-x-0 bottom-0 h-0.5',
+						]" />
+				</div>
+			</nav>
+		</div>
 
+		<div class="mt-6">
+			<DataTable
+				:value="abcdef"
+				stripedRows
+				showGridlines
+				removableSort
+				tableStyle="min-width: 50rem">
+				<Column field="code" sortable class="overflow-hidden transition-all" header="Code">
+					<template #body="{ data }">
+						<div class="relative">
+							<Transition name="spin-to-down" mode="out-in">
+								<div :key="data.code">
+									{{ data.code }}
+								</div>
+							</Transition>
+						</div>
+					</template>
+				</Column>
 
-            <!-- Section: Date options -->
-            <div class="mt-4 block">
-                <nav class="isolate flex rounded border-b border-gray-300" aria-label="Tabs">
-                    <div v-for="(interval, idxInterval) in interval_options" :key="idxInterval"
-                        @click="() => selectedDateOption = interval.value" :class="[
-                            interval.value === selectedDateOption ? '' : 'text-gray-500 hover:text-gray-700',
-                        ]"
-                        class='relative min-w-0 flex-1 overflow-hidden bg-white hover:bg-gray-100 py-0 text-center text-sm cursor-pointer select-none focus:z-10'>
-                        <span>{{ interval.value }}</span>
-                        <span aria-hidden="true"
-                            :class="[interval.value === selectedDateOption ? 'bg-indigo-500' : 'bg-transparent', 'absolute inset-x-0 bottom-0 h-0.5']" />
-                    </div>
-                </nav>
-        </div>
+				<!-- Refunds -->
+				<Column
+					field="refunds"
+					sortable
+					class="overflow-hidden transition-all"
+					header="Refunds"
+					headerStyle="text-align: green; width: 250px"
+					headerClass="bg-red-500">
+					<template #body="{ data }">
+						<div class="flex justify-end relative">
+							<Transition name="spin-to-down" mode="out-in">
+								<div :key="data.sales?.[`refunds_${selectedDateOption}`] || 0">
+									{{
+										locale.number(
+											data.sales?.[`refunds_${selectedDateOption}`] || 0
+										)
+									}}
+								</div>
+							</Transition>
+						</div>
+					</template>
+				</Column>
 
-        <div class="mt-6">
-            <DataTable :value="abcdef" stripedRows showGridlines removableSort tableStyle="min-width: 50rem">
-                <Column field="code" sortable class="overflow-hidden transition-all" header="Code">
-                    <template #body="{ data }">
-                        <div class="relative">
-                            <Transition name="spin-to-down" mode="out-in">
-                                <div :key="data.code">
-                                    {{ data.code }}
-                                </div>
-                            </Transition>
-                        </div>
-                    </template>
-                </Column>
+				<!-- Refunds: Diff 1y -->
+				<Column
+					field="refunds_diff"
+					sortable
+					class="overflow-hidden transition-all"
+					header="&Delta; 1y"
+					headerStyle="text-align: green; width: 130px">
+					<template #body="{ data }">
+						<div class="flex justify-end relative">
+							<!-- {{ data.interval_percentages?.refunds[selectedDateOption].amount }} -->
 
-                <!-- Refunds -->
-                <Column field="refunds" sortable class="overflow-hidden transition-all" header="Refunds" headerStyle="text-align: green; width: 250px" headerClass="bg-red-500">
-                    <template #body="{ data }">
-                        <div class="flex justify-end relative">
-                            <Transition name="spin-to-down" mode="out-in">
-                                <div :key="data.sales?.[`refunds_${selectedDateOption}`] || 0">
-                                    {{ locale.number(data.sales?.[`refunds_${selectedDateOption}`] || 0) }}
-                                </div>
-                            </Transition>
-                        </div>
-                    </template>
-                </Column>
+							<Transition name="spin-to-down" mode="out-in">
+								<div
+									:key="`${data.interval_percentages?.refunds[selectedDateOption].difference}_${data.interval_percentages?.refunds[selectedDateOption].percentage}`">
+									{{
+										locale.number(
+											data.interval_percentages?.refunds[selectedDateOption]
+												.difference || 0
+										)
+									}}
+									({{
+										data.interval_percentages?.refunds[selectedDateOption]
+											.percentage || 0
+									}}%)
+								</div>
+							</Transition>
+						</div>
+					</template>
+				</Column>
 
-                <!-- Refunds: Diff 1y -->
-                <Column field="refunds_diff" sortable class="overflow-hidden transition-all" header="&Delta; 1y" headerStyle="text-align: green; width: 130px">
-                    <template #body="{ data }">
-                        <div class="flex justify-end relative">
-                            <!-- {{ data.interval_percentages?.refunds[selectedDateOption].amount }} -->
-                            
-                            <Transition name="spin-to-down" mode="out-in">
-                                <div :key="`${data.interval_percentages?.refunds[selectedDateOption].difference}_${data.interval_percentages?.refunds[selectedDateOption].percentage}`">
-                                    {{ locale.number(data.interval_percentages?.refunds[selectedDateOption].difference || 0) }} ({{ data.interval_percentages?.refunds[selectedDateOption].percentage || 0 }}%)
-                                </div>
-                            </Transition>
-                        </div>
-                    </template>
-                </Column>
+				<!-- Invoice -->
+				<Column
+					field="invoices"
+					sortable
+					class="overflow-hidden transition-all"
+					header="Invoices"
+					headerStyle="text-align: right; width: 200px;">
+					<template #body="{ data }">
+						<div class="flex justify-end relative">
+							<Transition name="spin-to-down" mode="out-in">
+								<div :key="data.sales?.[`invoices_${selectedDateOption}`] || 0">
+									{{
+										locale.number(
+											data.sales?.[`invoices_${selectedDateOption}`] || 0
+										)
+									}}
+								</div>
+							</Transition>
+						</div>
+					</template>
+				</Column>
 
-                <!-- Invoice -->
-                <Column field="invoices" sortable class="overflow-hidden transition-all" header="Invoices" headerStyle="text-align: right; width: 200px;">
-                    <template #body="{ data }">
-                        <div class="flex justify-end relative">
-                            <Transition name="spin-to-down" mode="out-in">
-                                <div :key="data.sales?.[`invoices_${selectedDateOption}`] || 0">
-                                    {{ locale.number(data.sales?.[`invoices_${selectedDateOption}`] || 0) }}
-                                </div>
-                            </Transition>
-                        </div>
-                    </template>
+				<!-- Invoice: Diff 1y -->
+				<Column
+					field="invoices_diff"
+					sortable
+					class="overflow-hidden transition-all"
+					header="&Delta; 1y"
+					headerStyle="text-align: green; width: 200px">
+					<template #body="{ data }">
+						<div class="flex justify-end relative">
+							<Transition name="spin-to-down" mode="out-in">
+								<div
+									:key="`${data.interval_percentages?.invoices[selectedDateOption].difference}_${data.interval_percentages?.invoices[selectedDateOption].percentage}`">
+									{{
+										data.interval_percentages?.invoices[selectedDateOption]
+											.difference || 0
+									}}
+									({{
+										data.interval_percentages?.invoices[selectedDateOption]
+											.percentage || 0
+									}}%)
+								</div>
+							</Transition>
+						</div>
+					</template>
+				</Column>
 
-                </Column>
+				<!-- Sales -->
+				<Column
+					field="sales"
+					sortable
+					class="overflow-hidden transition-all"
+					header="Sales"
+					headerStyle="text-align: green; width: 250px">
+					<template #body="{ data }">
+						<div class="flex justify-end relative">
+							<Transition name="spin-to-down" mode="out-in">
+								<div
+									:key="data.sales?.[`sales_grp_currency_${selectedDateOption}`]">
+									{{
+										useLocaleStore().currencyFormat(
+											groupStats.currency.code,
+											data.sales?.[
+												`sales_grp_currency_${selectedDateOption}`
+											] || 0
+										)
+									}}
+								</div>
+							</Transition>
+						</div>
+					</template>
+				</Column>
 
-                <!-- Invoice: Diff 1y -->
-                <Column field="invoices_diff" sortable class="overflow-hidden transition-all" header="&Delta; 1y" headerStyle="text-align: green; width: 200px">
-                    <template #body="{ data }">
-                        <div class="flex justify-end relative">
-                            <Transition name="spin-to-down" mode="out-in">
-                                <div :key="`${data.interval_percentages?.invoices[selectedDateOption].difference}_${data.interval_percentages?.invoices[selectedDateOption].percentage}`">
-                                    {{ data.interval_percentages?.invoices[selectedDateOption].difference || 0 }}
-                                    ({{ data.interval_percentages?.invoices[selectedDateOption].percentage || 0 }}%)
-                                </div>
-                            </Transition>
-                        </div>
-                    </template>
-                </Column>
+				<!-- Sales: Diff 1y -->
+				<Column
+					field="sales_diff"
+					sortable
+					class="overflow-hidden transition-all"
+					header="&Delta; 1y"
+					headerStyle="text-align: green; width: 270px">
+					<template #body="{ data }">
+						<div class="flex justify-end relative">
+							<!-- {{ `${data.interval_percentages?.sales?.[selectedDateOption]?.difference}_${data.interval_percentages?.sales?.[selectedDateOption]?.percentage}` }} -->
+							<Transition name="spin-to-down" mode="out-in">
+								<div
+									:key="`${data.interval_percentages?.sales[selectedDateOption].difference}_${data.interval_percentages?.sales[selectedDateOption].percentage}`">
+									{{
+										selectedDateOption !== "all"
+											? useLocaleStore().currencyFormat(
+													groupStats.currency.code,
+													data.interval_percentages?.sales[
+														selectedDateOption
+													].difference || 0
+											  )
+											: useLocaleStore().currencyFormat(
+													groupStats.currency.code,
+													data.interval_percentages?.sales[
+														selectedDateOption
+													].amount || 0
+											  )
+									}}
 
-                <!-- Sales -->
-                <Column field="sales" sortable class="overflow-hidden transition-all" header="Sales" headerStyle="text-align: green; width: 250px">
-                    <template #body="{ data }">
-                        <div class="flex justify-end relative">
-                            <Transition name="spin-to-down" mode="out-in">
-                                <div :key="data.sales?.[`sales_grp_currency_${selectedDateOption}`]">
-                                    {{ useLocaleStore().currencyFormat(groupStats.currency.code, data.sales?.[`sales_grp_currency_${selectedDateOption}`] || 0) }}
-                                </div>
-                            </Transition>
-                        </div>
-                    </template>
-                </Column>
+									{{
+										data.interval_percentages?.sales[selectedDateOption]
+											?.percentage
+											? `(${(
+													data.interval_percentages.sales[
+														selectedDateOption
+													].percentage
+											  ).toFixed(2)}%)`
+											: ""
+									}}
+									<FontAwesomeIcon
+										v-if="
+											data.interval_percentages?.sales[selectedDateOption]
+												?.percentage
+										"
+										:icon="
+											data.interval_percentages.sales[selectedDateOption]
+												.percentage < 0
+												? 'fad fa-arrow-down'
+												: 'fad fa-arrow-up'
+										"
+										:class="
+											data.interval_percentages.sales[selectedDateOption]
+												.percentage < 0
+												? 'text-red-500'
+												: 'text-green-500'
+										" />
+									<!-- {{ data.interval_percentages?.sales[selectedDateOption] }} -->
+								</div>
+							</Transition>
+						</div>
+					</template>
+				</Column>
 
-                <!-- Sales: Diff 1y -->
-                <Column field="sales_diff" sortable class="overflow-hidden transition-all" header="&Delta; 1y" headerStyle="text-align: green; width: 270px">
-                    <template #body="{ data }">
-                        <div class="flex justify-end relative">
-                        <!-- {{ `${data.interval_percentages?.sales?.[selectedDateOption]?.difference}_${data.interval_percentages?.sales?.[selectedDateOption]?.percentage}` }} -->
-                            <Transition name="spin-to-down" mode="out-in">
-                                <div :key="`${data.interval_percentages?.sales[selectedDateOption].difference}_${data.interval_percentages?.sales[selectedDateOption].percentage}`">
-                                    {{ useLocaleStore().currencyFormat( groupStats.currency.code, data.interval_percentages?.sales[selectedDateOption].difference || 0) }}
-                                    ({{ data.interval_percentages?.sales[selectedDateOption].percentage || 0 }}%)
-                                   
-                                    <!-- {{ data.interval_percentages?.sales[selectedDateOption] }} -->
-                                </div>
-                            </Transition>
-                        </div>
-                    </template>
-                </Column>
+				<!-- Total -->
+				<ColumnGroup type="footer">
+					<Row>
+						<Column footer="Total"> Total </Column>
+						<Column
+							:footer="groupStats.total[selectedDateOption].total_refunds.toString()"
+							footerStyle="text-align:right" />
+						<Column footer="" footerStyle="text-align:right" />
 
-                <!-- Total -->
-                <ColumnGroup type="footer">
-                    <Row>
-                        <Column footer="Total"> Total </Column>
-                        <Column :footer="groupStats.total[selectedDateOption].total_refunds.toString()" footerStyle="text-align:right" />
-                        <Column footer="" footerStyle="text-align:right" />
+						<Column
+							:footer="groupStats.total[selectedDateOption].total_invoices.toString()"
+							footerStyle="text-align:right" />
+						<Column footer="" footerStyle="text-align:right" />
 
-                        <Column :footer="groupStats.total[selectedDateOption].total_invoices.toString()" footerStyle="text-align:right" />
-                        <Column footer="" footerStyle="text-align:right" />
+						<Column
+							:footer="
+								useLocaleStore().currencyFormat(
+									groupStats.currency.code,
+									Number(groupStats.total[selectedDateOption].total_sales)
+								)
+							"
+							footerStyle="text-align:right" />
+						<Column footer="" footerStyle="text-align:right" />
+					</Row>
+				</ColumnGroup>
+			</DataTable>
+		</div>
 
-                        <Column :footer="useLocaleStore().currencyFormat(groupStats.currency.code, Number(groupStats.total[selectedDateOption].total_sales))" footerStyle="text-align:right" />
-                        <Column footer="" footerStyle="text-align:right" />
-                    </Row>
-                </ColumnGroup>
-
-            </DataTable>
-        </div>
-
-        <div v-if="groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)).some(i => {return !!Number(i)})" class="mt-10 w-1/2 flex flex-wrap gap-y-4 gap-x-4">
-            <div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
-                <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Refunds')}} </div>
-                <div class="w-24">
-                    <Pie :data="{
-                        labels: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => org.name),
-                        datasets: [{
-                            data: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)),
-                            hoverOffset: 4
-                        }]
-                    }" :options="options" />
-                </div>
-                <!-- <div class="flex flex-col justify-between ">
+		<div
+			v-if="
+				groupStats.organisations
+					.filter((org) => org.type !== 'agent')
+					.map((org) => get(org, ['sales', `sales_org_currency_all`], 0))
+					.some((i) => {
+						return !!Number(i)
+					})
+			"
+			class="mt-10 w-1/2 flex flex-wrap gap-y-4 gap-x-4">
+			<div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
+				<div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans("Refunds") }}</div>
+				<div class="w-24">
+					<Pie
+						:data="{
+							labels: groupStats.organisations
+								.filter((org) => org.type !== 'agent')
+								.map((org) => org.name),
+							datasets: [
+								{
+									data: groupStats.organisations
+										.filter((org) => org.type !== 'agent')
+										.map((org) =>
+											get(org, ['sales', `sales_org_currency_all`], 0)
+										),
+									hoverOffset: 4,
+								},
+							],
+						}"
+						:options="options" />
+				</div>
+				<!-- <div class="flex flex-col justify-between ">
                     <template v-for="org in groupStats.organisations">
                         <div v-if="org.type !== 'agent'" class="space-x-2">
                             <span class="text-lg">{{ org.code }}:</span>
-                            <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `org_amount_all`], 0)) }}</span>
+                            <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `sales_org_currency_all`], 0)) }}</span>
                         </div>
                     </template>
                 </div> -->
-            </div>
+			</div>
 
-            <div v-if="groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)).some(i => {return !!Number(i)})" class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
-                <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Invoices')}} </div>
-                <div class="w-24">
-                    <Pie :data="{
-                        labels: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => org.name),
-                        datasets: [{
-                            data: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)),
-                            hoverOffset: 4
-                        }]
-                    }" :options="options" />
-                </div>
-                <!-- <div class="flex flex-col justify-between ">
+			<div
+				v-if="
+					groupStats.organisations
+						.filter((org) => org.type !== 'agent')
+						.map((org) => get(org, ['sales', `sales_org_currency_all`], 0))
+						.some((i) => {
+							return !!Number(i)
+						})
+				"
+				class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
+				<div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans("Invoices") }}</div>
+				<div class="w-24">
+					<Pie
+						:data="{
+							labels: groupStats.organisations
+								.filter((org) => org.type !== 'agent')
+								.map((org) => org.name),
+							datasets: [
+								{
+									data: groupStats.organisations
+										.filter((org) => org.type !== 'agent')
+										.map((org) =>
+											get(org, ['sales', `sales_org_currency_all`], 0)
+										),
+									hoverOffset: 4,
+								},
+							],
+						}"
+						:options="options" />
+				</div>
+				<!-- <div class="flex flex-col justify-between ">
                     <template v-for="org in groupStats.organisations">
                         <div v-if="org.type !== 'agent'" class="space-x-2">
                             <span class="text-lg">{{ org.code }}:</span>
-                            <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `org_amount_all`], 0)) }}</span>
+                            <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `sales_org_currency_all`], 0)) }}</span>
                         </div>
                     </template>
                 </div> -->
-            </div>
+			</div>
 
-            <div v-if="groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)).some(i => {return !!Number(i)})" class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
-                <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Sales')}} </div>
-                <div class="w-24">
-                    <Pie :data="{
-                        labels: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => org.name),
-                        datasets: [{
-                            data: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)),
-                            hoverOffset: 4
-                        }]
-                    }" :options="options" />
-                </div>
-                <!-- <div class="flex flex-col justify-between ">
+			<div
+				v-if="
+					groupStats.organisations
+						.filter((org) => org.type !== 'agent')
+						.map((org) => get(org, ['sales', `sales_org_currency_all`], 0))
+						.some((i) => {
+							return !!Number(i)
+						})
+				"
+				class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
+				<div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans("Sales") }}</div>
+				<div class="w-24">
+					<Pie
+						:data="{
+							labels: groupStats.organisations
+								.filter((org) => org.type !== 'agent')
+								.map((org) => org.name),
+							datasets: [
+								{
+									data: groupStats.organisations
+										.filter((org) => org.type !== 'agent')
+										.map((org) =>
+											get(org, ['sales', `sales_org_currency_all`], 0)
+										),
+									hoverOffset: 4,
+								},
+							],
+						}"
+						:options="options" />
+				</div>
+				<!-- <div class="flex flex-col justify-between ">
                     <template v-for="org in groupStats.organisations">
                         <div v-if="org.type !== 'agent'" class="space-x-2">
                             <span class="text-lg">{{ org.code }}:</span>
-                            <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `org_amount_all`], 0)) }}</span>
+                            <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `sales_org_currency_all`], 0)) }}</span>
                         </div>
                     </template>
                 </div> -->
-            </div>
-        </div>
+			</div>
+		</div>
 
-        <!-- <pre>{{ groupStats }}</pre> -->
-    </div>
+		<!-- <pre>{{ groupStats }}</pre> -->
+	</div>
 </template>

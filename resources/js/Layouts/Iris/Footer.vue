@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { getComponent } from '@/Composables/getIrisComponents'
+import { getIrisComponent } from '@/Composables/getIrisComponents'
 
 import { Root } from '@/types/Website/Website/footer1'
 
@@ -15,7 +15,7 @@ const props = defineProps<{
 <template>
     <div>
         <component 
-            :is="getComponent(data.code)" 
+            :is="getIrisComponent(data.code)" 
             v-model="data.data.fieldValue" 
             :keyTemplate="data.code" 
             :previewMode="true"

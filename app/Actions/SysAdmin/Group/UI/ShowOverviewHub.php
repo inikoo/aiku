@@ -9,6 +9,7 @@
 namespace App\Actions\SysAdmin\Group\UI;
 
 use App\Actions\GrpAction;
+use App\Actions\SysAdmin\Group\GetOverview;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -30,7 +31,6 @@ class ShowOverviewHub extends GrpAction
 
     public function htmlResponse(ActionRequest $request): Response
     {
-
         return Inertia::render(
             'Overview/OverviewHub',
             [
@@ -43,23 +43,7 @@ class ShowOverviewHub extends GrpAction
                     ],
                     'title'     => __('overview'),
                 ],
-
-                'flatTreeMaps' => [
-                    [
-                                    [
-                                        'name'         => __('providers'),
-                                        'icon'         => ['fal', 'fa-cash-register'],
-                                        'route'         => [
-                                            'name'       => 'grp.overview.accounting.payment-service-providers.index',
-                                            'parameters' => []
-                                        ],
-                                        'index'        => [
-                                            'number' => $this->group->accountingStats->number_payment_service_providers
-                                        ],
-                                    ]
-]
-                                ],
-
+                'data' => GetOverview::run($this->group)
             ]
         );
     }

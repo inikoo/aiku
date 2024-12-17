@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\Mail\MailshotStats
+ * App\Models\Comms\MailshotStats
  *
  * @property int $id
  * @property int|null $mailshot_id

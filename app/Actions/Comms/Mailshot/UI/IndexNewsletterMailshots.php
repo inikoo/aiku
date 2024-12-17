@@ -53,7 +53,7 @@ class IndexNewsletterMailshots extends OrgAction
                         ->leftJoin('mailshot_stats', 'mailshot_stats.mailshot_id', 'mailshots.id')
                         ->leftJoin('post_rooms', 'outboxes.post_room_id', 'post_rooms.id')
                         ->when($parent, function ($query) use ($parent) {
-                            if (class_basename($parent) == 'Mail') {
+                            if (class_basename($parent) == 'Comms') {
                                 $query->where('mailshots.post_room_id', $parent->id);
                             }
                         });
@@ -119,7 +119,7 @@ class IndexNewsletterMailshots extends OrgAction
     public function htmlResponse(LengthAwarePaginator $mailshots, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Mail/Mailshots',
+            'Comms/Mailshots',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

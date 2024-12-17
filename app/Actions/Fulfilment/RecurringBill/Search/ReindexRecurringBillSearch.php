@@ -10,11 +10,12 @@ namespace App\Actions\Fulfilment\RecurringBill\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\Fulfilment\RecurringBill;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexRecurringBillSearch extends HydrateModel
 {
-    public string $commandSignature = 'recurring-bill:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:recurring_bills {organisations?*} {--s|slugs=}';
 
 
     public function handle(RecurringBill $recurringBill): void
@@ -31,5 +32,26 @@ class ReindexRecurringBillSearch extends HydrateModel
     protected function getAllModels(): Collection
     {
         return RecurringBill::get();
+    }
+
+    protected function loopAll(Command $command): void
+    {
+
+        $command->info("Reindex Recurring Bills search");
+
+        $count = RecurringBill::count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+        RecurringBill::chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
     }
 }

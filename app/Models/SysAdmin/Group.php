@@ -33,7 +33,6 @@ use App\Models\Catalogue\Shop;
 use App\Models\Catalogue\Subscription;
 use App\Models\Comms\EmailAddress;
 use App\Models\Comms\EmailTemplate;
-use App\Models\Comms\ModelSubscribedToOutbox;
 use App\Models\Comms\OrgPostRoom;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
@@ -175,7 +174,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read LaravelCollection<int, OrgPostRoom> $orgPostRooms
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Organisation> $organisations
- * @property-read LaravelCollection<int, ModelSubscribedToOutbox> $outboxSubscribers
  * @property-read LaravelCollection<int, Outbox> $outboxes
  * @property-read LaravelCollection<int, Packing> $packings
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
@@ -743,12 +741,6 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function purges(): HasMany
     {
         return $this->hasMany(Purge::class);
-    }
-
-    public function outboxSubscribers(): HasMany
-    {
-        return $this->hasMany(ModelSubscribedToOutbox::class)
-                    ->whereNull('unsubscribed_at');
     }
 
     public function queries(): HasMany

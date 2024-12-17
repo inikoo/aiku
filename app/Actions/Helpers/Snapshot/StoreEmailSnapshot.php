@@ -40,6 +40,7 @@ class StoreEmailSnapshot extends OrgAction
         /** @var Snapshot $snapshot */
         $snapshot = $email->snapshots()->create($modelData);
         $snapshot->stats()->create();
+        $snapshot->refresh();
 
         return $snapshot;
     }

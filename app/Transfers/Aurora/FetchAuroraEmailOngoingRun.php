@@ -18,8 +18,6 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
 {
     protected function parseModel(): void
     {
-
-
         $shop = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Email Campaign Type Store Key'});
 
 
@@ -32,9 +30,7 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
             'Delivery Confirmation' => EmailOngoingRunCodeEnum::DELIVERY_CONFIRMATION,
 
             'Basket Low Stock' => EmailOngoingRunCodeEnum::BASKET_LOW_STOCK,
-            'Basket Reminder 1' => EmailOngoingRunCodeEnum::BASKET_REMINDER_1,
-            'Basket Reminder 2' => EmailOngoingRunCodeEnum::BASKET_REMINDER_2,
-            'Basket Reminder 3' => EmailOngoingRunCodeEnum::BASKET_REMINDER_3,
+            'Basket Reminder 1', 'Basket Reminder 2', 'Basket Reminder 3' => EmailOngoingRunCodeEnum::BASKET_PUSH,
             'AbandonedCart' => EmailOngoingRunCodeEnum::ABANDONED_CART,
             'GR Reminder' => EmailOngoingRunCodeEnum::REORDER_REMINDER,
             'OOS Notification' => EmailOngoingRunCodeEnum::OOS_NOTIFICATION,
@@ -126,6 +122,7 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
         $this->parsedData['shop'] = $shop;
 
 
+
         $snapshotPublishedAt = $this->parseDatetime($this->auroraModelData->{'Email Template Last Edited'});
 
         if (!$snapshotPublishedAt) {
@@ -140,6 +137,8 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
             $snapshotPublishedAt = null;
         }
 
+
+
         $this->parsedData['email_ongoing_run'] = [
             'code'            => $code,
             'status'          => $status,
@@ -150,16 +149,23 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
         ];
 
 
+
+
         $snapshotState = match ($status) {
             EmailOngoingRunStatusEnum::IN_PROCESS => SnapshotStateEnum::UNPUBLISHED,
             default => SnapshotStateEnum::LIVE,
         };
 
+        $compiledLayout = $this->auroraModelData->{'Email Template HTML'};
+        if ($compiledLayout == 0) {
+            $compiledLayout = '';
+        }
+
         $this->parsedData['snapshot'] = [
             'subject'         => $this->auroraModelData->{'Email Template Subject'},
             'builder'         => EmailBuilderEnum::BEEFREE,
             'layout'          => json_decode($this->auroraModelData->{'Email Template Editing JSON'}, true),
-            'compiled_layout' => $this->auroraModelData->{'Email Template HTML'},
+            'compiled_layout' => $compiledLayout,
             'state'           => $snapshotState,
             'published_at'    => $snapshotPublishedAt,
             'recyclable'      => false,
@@ -175,6 +181,11 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
             'snapshot_source_id'    => $this->organisation->id.':'.$this->auroraModelData->{'Email Template Key'},
 
         ];
+
+        if ($code == EmailOngoingRunCodeEnum::BASKET_PUSH) {
+            $this->parsedData['snapshot']['identifier'] = $this->auroraModelData->{'Email Campaign Type Code'};
+        }
+
         //dd($this->auroraModelData);
     }
 

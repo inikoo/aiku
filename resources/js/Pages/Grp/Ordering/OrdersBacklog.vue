@@ -9,12 +9,20 @@ import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import TabsBox from "@/Components/Navigation/TabsBox.vue"
 import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
+import { Tabs as TSTabs } from '@/types/Tabs'
 
 const props = defineProps<{
   title: string
   pageHead: PageHeadingTypes
-  flatTreeMaps: Navigation[]
-  tabs_box: {}
+  tabs: TSTabs
+  creating: {}
+  submitted: {}
+  in_warehouse: {}
+  handling: {}
+  handling_blocked: {}
+  packed: {}
+  finalised: {}
+  dispatched_today: {}
 }>()
 
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -22,11 +30,12 @@ import { faInventory, faWarehouse, faMapSigns, faBox, faBoxesAlt } from '@fal'
 import { Navigation } from '@/types/Navigation'
 import { ref } from 'vue'
 import { useTabChange } from '@/Composables/tab-change'
+import Table from '@/Components/Table/Table.vue';
 
 library.add(faInventory, faWarehouse, faMapSigns, faBox, faBoxesAlt)
 
 
-let currentTab = ref('showcase')
+const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab);
 
 </script>
@@ -35,7 +44,12 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab);
 
   <Head :title="capitalize(title)" />
   <PageHeading :data="pageHead"></PageHeading>
-  <TabsBox :tabs_box="tabs_box" :current="currentTab" @update:tab="handleTabUpdate" />
-
+  <TabsBox :tabs_box="tabs.navigation" :current="currentTab" @update:tab="handleTabUpdate" />
+  <!-- {{ currentTab }}
+  {{ tabs.navigation }}
+  <pre>{{ props[currentTab] }}</pre> -->
+  <Table :resource="props[currentTab]" :name="currentTab">
+    
+  </Table>
 
 </template>

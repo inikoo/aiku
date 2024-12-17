@@ -24,7 +24,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('outbox_id')->nullable();
             $table->foreign('outbox_id')->references('id')->on('outboxes');
 
-            $table->string('parent_type')->index()->comment('MailShot|EmailBulkRun|EmailOngoingRun');
+            $table->string('parent_type')->index()->comment('MailShot|EmailBulkRun|EmailPush|EmailOngoingRun');
             $table->unsignedInteger('parent_id');
 
             $table->unsignedInteger('email_address_id')->nullable();
@@ -33,7 +33,6 @@ return new class () extends Migration {
             $table->string('provider_dispatch_id')->nullable();
             $table->string('recipient_type')->nullable();
             $table->unsignedInteger('recipient_id')->nullable();
-            $table->index(['recipient_type','recipient_id']);
             $table->string('state')->default(DispatchedEmailStateEnum::READY->value);
             $table->dateTimeTz('sent_at')->nullable();
             $table->dateTimeTz('first_read_at')->nullable();
@@ -52,6 +51,8 @@ return new class () extends Migration {
             $table->string('source_id')->nullable()->unique();
             $table->index(['provider','provider_dispatch_id']);
             $table->index(['parent_type','parent_id']);
+            $table->index(['recipient_type','recipient_id']);
+
         });
     }
 

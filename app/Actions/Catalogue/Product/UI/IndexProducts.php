@@ -16,7 +16,7 @@ use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\Catalogue\WithDepartmentSubNavigation;
 use App\Actions\Catalogue\WithFamilySubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Http\Resources\Catalogue\ProductsResource;
@@ -28,6 +28,7 @@ use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\Dropshipping\ShopifyUser;
 use App\Models\Helpers\Tag;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -40,17 +41,44 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexProducts extends OrgAction
 {
-    use HasCatalogueAuthorisation;
     use WithDepartmentSubNavigation;
     use WithFamilySubNavigation;
     use WithCollectionSubNavigation;
 
     private string $bucket;
 
-    private Shop|ProductCategory|Organisation|Collection|ShopifyUser $parent;
-    private Shop|ProductCategory|Organisation|Collection|ShopifyUser $higherParent;
+    private Group|Shop|ProductCategory|Organisation|Collection|ShopifyUser $parent;
+    private Group|Shop|ProductCategory|Organisation|Collection|ShopifyUser $higherParent;
 
-    protected function getElementGroups(Shop|ProductCategory|Organisation|Collection|ShopifyUser $parent, $bucket = null): array
+    public function authorize(ActionRequest $request): bool
+    {
+
+        if ($this->asAction) {
+            return true;
+        }
+
+        if ($this->parent instanceof Organisation) {
+            $this->canEdit = $request->user()->hasAnyPermission(
+                [
+                    'org-supervisor.'.$this->organisation->id,
+                ]
+            );
+
+            return $request->user()->hasAnyPermission(
+                [
+                    'org-supervisor.'.$this->organisation->id,
+                    'shops-view'.$this->organisation->id,
+                ]
+            );
+        } elseif ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        } else {
+            $this->canEdit = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
+            return $request->user()->hasPermissionTo("products.{$this->shop->id}.view");
+        }
+    }
+
+    protected function getElementGroups(Group|Shop|ProductCategory|Organisation|Collection|ShopifyUser $parent, $bucket = null): array
     {
         return [
 
@@ -62,14 +90,14 @@ class IndexProducts extends OrgAction
                 ),
 
                 'engine' => function ($query, $elements) {
-                    $query->whereIn('state', $elements);
+                    $query->whereIn('products.state', $elements);
                 }
 
             ],
         ];
     }
 
-    public function handle(Shop|ProductCategory|Organisation|Collection|ShopifyUser $parent, $prefix = null, $bucket = null): LengthAwarePaginator
+    public function handle(Group|Shop|ProductCategory|Organisation|Collection|ShopifyUser $parent, $prefix = null, $bucket = null): LengthAwarePaginator
     {
         if ($bucket) {
             $this->bucket = $bucket;
@@ -89,6 +117,7 @@ class IndexProducts extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(Product::class);
+        $queryBuilder->orderBy('products.state', 'asc');
         $queryBuilder->leftJoin('shops', 'products.shop_id', 'shops.id');
         $queryBuilder->where('products.is_main', true);
         if (class_basename($parent) == 'Shop') {
@@ -150,6 +179,8 @@ class IndexProducts extends OrgAction
                 ->whereNotIn('products.id', $parent->customer->portfolios->pluck('product_id'))
                 ->where('products.state', ProductStateEnum::ACTIVE);
             }
+        } elseif ($parent instanceof Group) {
+            $queryBuilder->where('products.group_id', $parent->id);
         } else {
             abort(419);
         }
@@ -189,7 +220,7 @@ class IndexProducts extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Shop|ProductCategory|Organisation|Collection|ShopifyUser $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false, string $bucket = null): Closure
+    public function tableStructure(Group|Shop|ProductCategory|Organisation|Collection|ShopifyUser $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false, string $bucket = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit, $bucket) {
             if ($prefix) {
@@ -510,6 +541,15 @@ class IndexProducts extends OrgAction
     }
 
 
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'all';
+        $this->parent = group();
+        $this->initialisationFromGroup($this->parent, $request);
+
+        return $this->handle(parent: $this->parent, bucket: $this->bucket);
+    }
+
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'all';
@@ -631,7 +671,7 @@ class IndexProducts extends OrgAction
         return $this->handle(parent: $shop, bucket: $this->bucket);
     }
 
-    public function getBreadcrumbs(Shop|ProductCategory|Organisation|Collection $parent, string $routeName, array $routeParameters, string $suffix = null): array
+    public function getBreadcrumbs(Group|Shop|ProductCategory|Organisation|Collection $parent, string $routeName, array $routeParameters, string $suffix = null): array
     {
         $headCrumb = function (array $routeParameters, ?string $suffix) {
             return [
@@ -757,6 +797,19 @@ class IndexProducts extends OrgAction
             'grp.org.shops.show.catalogue.collections.products.index' =>
             array_merge(
                 ShowCollection::make()->getBreadcrumbs('grp.org.shops.show.catalogue.collections.show', $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.overview.products.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(
+                    $routeParameters
+                ),
                 $headCrumb(
                     [
                         'name'       => $routeName,

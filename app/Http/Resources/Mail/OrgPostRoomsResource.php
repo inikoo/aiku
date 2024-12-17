@@ -28,11 +28,11 @@ class OrgPostRoomsResource extends JsonResource
             'id'    => $this->id,
             'slug'  => $this->slug,
             'name'  => $this->name,
-            'total_outboxes' => $this->total_outboxes,
-            'total_mailshots' => $this->total_mailshots,
-            'dispatched_emails_lw' => $this->dispatched_emails_lw,
-            'opened_emails_lw' => $this->opened_emails_lw,
-            'unsubscribed_emails_lw' => $this->unsubscribed_emails_lw,
+            'number_mailshots'       => $this->number_mailshots,
+            'dispatched_emails_lw'   => $this->dispatched_emails_lw,
+            'opened_emails_lw'       => $this->opened_emails_lw,
+            'runs'                   => $this->runs,
+            'unsubscribed_lw' => $this->unsubscribed_lw,
         ];
     }
 }

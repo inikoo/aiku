@@ -359,7 +359,7 @@ const irisVariablesList = [
     },
 ]
 
-console.log(editorInstance)
+// console.log(editorInstance)
 </script>
 
 <template>

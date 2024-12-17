@@ -57,10 +57,11 @@ class FetchAuroraFulfilmentCustomers extends FetchAuroraAction
             ];
 
             $customer->fulfilmentCustomer->refresh();
-            if ($customer->fulfilmentCustomer->customer->webUsers()->count() == 0) {
-                $rentalAgreementData['username'] = $customer->email ?? $customer->reference;
+            if ($customer->fulfilmentCustomer->customer->webUsers()->count() == 0 and $customer->email) {
+                $rentalAgreementData['username'] = $customer->email;
                 $rentalAgreementData['email']    = $customer->email;
             }
+
 
 
             StoreRentalAgreement::make()->action(

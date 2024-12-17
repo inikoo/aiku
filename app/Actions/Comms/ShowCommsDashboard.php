@@ -24,29 +24,31 @@ class ShowCommsDashboard extends OrgAction
     use WithCommsSubNavigation;
 
 
-    public function handle(ActionRequest $request): Shop
+    public function handle(Shop|Fulfilment $parent): Shop|Fulfilment
     {
-        return $this->shop;
+        return $parent;
     }
 
-    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request)
+
+    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Shop
     {
         $this->initialisationFromShop($shop, $request);
 
-        return $this->handle($request);
+        return $this->handle($shop);
     }
 
-    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request)
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): Fulfilment
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($request);
+        return $this->handle($fulfilment);
     }
 
     public function htmlResponse(Shop|Fulfilment $parent, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Mail/CommsDashboard',
+            'Comms/CommsDashboard',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
                 'title'       => __('mail'),

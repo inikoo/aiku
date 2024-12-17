@@ -32,8 +32,6 @@ class FetchAuroraEmail extends FetchAurora
         if ($this->auroraModelData->{'Email Template Scope'} == 'EmailCampaign' or $this->auroraModelData->{'Email Template Scope'} == 'Mailshot') {
             $emailCampaignData = DB::connection('aurora')->table('Email Campaign Dimension')->where('Email Campaign Key', $this->auroraModelData->{'Email Template Scope Key'})->first();
             if (!$emailCampaignData) {
-
-
                 return;
             }
             if (in_array($emailCampaignData->{'Email Campaign Type'}, ['Newsletter', 'Marketing', 'Invite Full Mailshot', 'AbandonedCart'])) {
@@ -69,7 +67,6 @@ class FetchAuroraEmail extends FetchAurora
                 $parent = $emailRun;
             }
         } elseif ($this->auroraModelData->{'Email Template Scope'} == 'EmailCampaignType') {
-
             return;
         }
 
@@ -104,7 +101,7 @@ class FetchAuroraEmail extends FetchAurora
             'snapshot_state'        => $snapshotState,
             'snapshot_recyclable'   => $snapshotRecyclable,
             'snapshot_first_commit' => $firstCommit,
-            'snapshot_source_id'             => $this->organisation->id.':'.$this->auroraModelData->{'Email Template Key'},
+            'snapshot_source_id'    => $this->organisation->id.':'.$this->auroraModelData->{'Email Template Key'},
 
 
         ];
@@ -114,7 +111,7 @@ class FetchAuroraEmail extends FetchAurora
         }
 
 
-        if ($this->auroraModelData->{'Email Template HTML'}) {
+        if ($this->auroraModelData->{'Email Template HTML'} and $this->auroraModelData->{'Email Template HTML'} != 0) {
             $this->parsedData['email']['compiled_layout'] = $this->auroraModelData->{'Email Template HTML'};
         }
     }

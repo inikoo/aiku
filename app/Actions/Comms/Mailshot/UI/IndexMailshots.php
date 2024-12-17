@@ -70,7 +70,7 @@ class IndexMailshots extends OrgAction
             ->leftJoin('outboxes', 'mailshots.outbox_id', 'outboxes.id')
             ->leftJoin('post_rooms', 'outboxes.post_room_id', 'post_rooms.id')
             ->when($parent, function ($query) use ($parent) {
-                if (class_basename($parent) == 'Mail') {
+                if (class_basename($parent) == 'Comms') {
                     $query->where('mailshots.post_room_id', $parent->id);
                 }
             })
@@ -93,9 +93,9 @@ class IndexMailshots extends OrgAction
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
+                ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'subject', label: __('subject'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
@@ -109,7 +109,7 @@ class IndexMailshots extends OrgAction
     {
 
         return Inertia::render(
-            'Mail/Mailshots',
+            'Comms/Mailshots',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

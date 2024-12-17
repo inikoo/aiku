@@ -34,9 +34,10 @@ class FetchAuroraEmailBulkRuns extends FetchAuroraAction
         $snapshotId      = null;
         $emailOnGoingRun = $emailRunData['email_ongoing_run'];
 
+
         if (Arr::has($emailRunData, 'snapshot')) {
-            if ($emailOnGoingRun->email->snapshot->checksum == $emailRunData['snapshot']['checksum']) {
-                $snapshotId = $emailOnGoingRun->email->snapshot_id;
+            if ($emailOnGoingRun->email->unpublishedSnapshot->checksum == $emailRunData['snapshot']['checksum']) {
+                $snapshotId = $emailOnGoingRun->email->unpublished_snapshot_id;
             }
 
             if (!$snapshotId) {
@@ -63,7 +64,7 @@ class FetchAuroraEmailBulkRuns extends FetchAuroraAction
 
 
         if (!$snapshotId) {
-            dd('shit');
+            dd($emailRunData);
         }
 
 

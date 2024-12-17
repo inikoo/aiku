@@ -14,7 +14,6 @@ use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Models\Analytics\UserRequest;
 use App\Models\Catalogue\Shop;
-use App\Models\Comms\ModelSubscribedToOutbox;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
@@ -29,7 +28,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -99,11 +97,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $pseudoJobPositions
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
  * @property-read \App\Models\SysAdmin\UserStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, ModelSubscribedToOutbox> $subscribedOutboxes
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Task> $tasks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @property-read \Illuminate\Database\Eloquent\Collection<int, ModelSubscribedToOutbox> $unsubscribedOutboxes
  * @property-read \Illuminate\Database\Eloquent\Collection<int, UserRequest> $userRequests
  * @method static \Database\Factories\SysAdmin\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
@@ -273,16 +269,5 @@ class User extends Authenticatable implements HasMedia, Auditable
             ->using(UserHasPseudoJobPositions::class)->withPivot(['scopes']);
     }
 
-    public function subscribedOutboxes(): MorphMany
-    {
-        return $this->morphMany(ModelSubscribedToOutbox::class, 'model')
-                    ->whereNull('unsubscribed_at');
-    }
-
-    public function unsubscribedOutboxes(): MorphMany
-    {
-        return $this->morphMany(ModelSubscribedToOutbox::class, 'model')
-                    ->whereNotNull('unsubscribed_at');
-    }
 
 }

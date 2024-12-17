@@ -16,7 +16,7 @@ import { routeType } from '@/types/route'
 library.add(faPresentation, faCube, faText, faImage, faPaperclip, faChevronRight, faSignOutAlt, faShoppingCart, faHeart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faUserCircle, faSignInAlt, faFileAlt)
 
 const props = defineProps<{
-    modelValue: {
+    fieldValue: {
         headerText: string
         chip_text: string
     }
@@ -57,15 +57,15 @@ const toggle = (event) => {
 </script>
 
 <template>
-    <div class="shadow-sm" :style="getStyles(modelValue.container.properties)">
+    <div class="shadow-sm" :style="getStyles(fieldValue.container.properties)">
         <div class="flex flex-col justify-between items-center py-4 px-6">
             <div class="w-full grid grid-cols-3 items-center gap-6">
                 <!-- Logo -->
-                <div :style="getStyles(modelValue.logo.properties)">
-                    <img v-if="!modelValue.logo.source" :src="modelValue?.logo?.url" :alt="modelValue?.logo?.alt"
-                        :style="{ width: `${modelValue.logo.width}%` }" />
-                    <Image v-else :alt="modelValue?.logo?.alt" :src="modelValue?.logo?.source"
-                        :style="{ width: `${modelValue.logo.width}%` }"></Image>
+                <div :style="getStyles(fieldValue.logo.properties)">
+                    <img v-if="!fieldValue.logo.source" :src="fieldValue?.logo?.url" :alt="fieldValue?.logo?.alt"
+                        :style="{ width: `${fieldValue.logo.width}%` }" />
+                    <Image v-else :alt="fieldValue?.logo?.alt" :src="fieldValue?.logo?.source"
+                        :style="{ width: `${fieldValue.logo.width}%` }"></Image>
                 </div>
 
                 <!-- Search Bar -->
@@ -78,10 +78,10 @@ const toggle = (event) => {
 
                 <!-- Gold Member Button -->
                 <div class="justify-self-end w-fit">
-                    <button :style="getStyles(modelValue.button_1.properties)"
+                    <button :style="getStyles(fieldValue.button_1.properties)"
                         class="flex items-center justify-center px-4 py-2 bg-gold-500 text-white rounded-md shadow-md hover:bg-gold-600 transition duration-300 w-fit"
-                        v-if="viewVisible(loginMode, modelValue.button_1.visible)">
-                        <div v-html="modelValue.button_1.text"></div>
+                        v-if="viewVisible(loginMode, fieldValue.button_1.visible)">
+                        <div v-html="fieldValue.button_1.text"></div>
                     </button>
                 </div>
             </div>
@@ -93,11 +93,11 @@ const toggle = (event) => {
                 <MobileMenu :header="modelValue" :menu="modelValue" />
 
                 <!-- Logo for Mobile -->
-                <img v-if="!modelValue.logo"
+                <img v-if="!fieldValue.logo"
                     src="https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png"
                     alt="Ancient Wisdom Logo" class="h-10 mx-2">
 
-                <Image v-else :src="modelValue?.logo?.source" class="h-10 mx-2"></Image>
+                <Image v-else :src="fieldValue?.logo?.source" class="h-10 mx-2"></Image>
 
                 <!-- Profile Icon with Dropdown Menu -->
                 <div @click="toggle" class="flex items-center cursor-pointer text-white">

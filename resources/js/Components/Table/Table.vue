@@ -27,6 +27,7 @@ import isEqual from 'lodash-es/isEqual'
 import map from 'lodash-es/map'
 import { kebabCase } from 'lodash'
 import CountUp from 'vue-countup-v3'
+import { useFormatTime } from '@/Composables/useFormatTime'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheckSquare, faCheck, faSquare} from '@fal'
@@ -888,7 +889,7 @@ const isLoading = ref<string | boolean>(false)
                                                 class="text-sm py-2 text-gray-600 whitespace-normal h-full" :class="[
                                                     column.type === 'avatar' || column.type === 'icon'
                                                         ? 'text-center min-w-fit px-3'  // if type = icon
-                                                        : typeof item[column.key] == 'number' || column.type === 'number' || column.type === 'currency'
+                                                        : typeof item[column.key] == 'number' || column.type === 'number' || column.type === 'currency' || column.type === 'date' || column.align === 'right'
                                                             ? 'text-right pl-3 pr-9 tabular-nums'  // if the value is number
                                                             : 'px-6',
                                                     { 'first:border-l-4 first:border-gray-700 bg-gray-200/75': selectedRow?.[name]?.includes(item[checkboxKey]) },
@@ -902,6 +903,9 @@ const isLoading = ref<string | boolean>(false)
                                                     </template>
                                                     <template v-else-if="column.type === 'currency'">
                                                         {{  locale.currencyFormat(item.currency_code || 'usd', item[column.key]) }}
+                                                    </template>
+                                                    <template v-else-if="column.type === 'date'">
+                                                        {{  useFormatTime(item[column.key]) }}
                                                     </template>
                                                     <template v-else>
                                                         {{ item[column.key] }}
@@ -939,7 +943,7 @@ const isLoading = ref<string | boolean>(false)
                                                 class="text-sm py-2 text-gray-500 whitespace-normal h-full" :class="[
                                                     column.type === 'avatar' || column.type === 'icon'
                                                         ? 'text-center min-w-fit px-3'  // if type = icon
-                                                        : typeof item[column.key] == 'number' || column.type === 'number' || column.type === 'currency'
+                                                        : typeof item[column.key] == 'number' || column.type === 'number' || column.type === 'currency' || column.align === 'right'
                                                             ? 'text-right pl-3 pr-9 tabular-nums'  // if the value is number
                                                             : 'px-6',
                                                     { 'first:border-l-4 first:border-gray-700 bg-gray-200/75': selectedRow?.[name]?.includes(item[checkboxKey]) },

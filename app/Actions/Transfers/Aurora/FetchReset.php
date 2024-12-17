@@ -70,6 +70,16 @@ class FetchReset
                             $aikuIdField => null,
                         ]
                     );
+
+                DB::connection('aurora')->table('History Dimension')
+                    ->whereNotNull('aiku_notes_id')
+                    ->update(
+                        [
+                            'aiku_subscribe_event_id' => null
+                        ]
+                    );
+
+
                 DB::connection('aurora')->table('Barcode Dimension')
                     ->update(
                         [
@@ -202,9 +212,6 @@ class FetchReset
                             'aiku_supplier_historic_product_id' => null,
                         ]
                     );
-
-
-
 
 
                 $command->line('✅ agents/suppliers');
@@ -342,9 +349,6 @@ class FetchReset
                     );
 
 
-
-
-
                 DB::connection('aurora')->table('Order No Product Transaction Fact')->update(
                     [
                         $aikuIdField      => null,
@@ -404,7 +408,7 @@ class FetchReset
                     ->update([$aikuIdField => null]);
                 DB::connection('aurora')->table('Email Campaign Dimension')
                     ->update([
-                        $aikuIdField => null,
+                        $aikuIdField  => null,
                         'alt_aiku_id' => null
                     ]);
                 DB::connection('aurora')->table('Email Tracking Dimension')

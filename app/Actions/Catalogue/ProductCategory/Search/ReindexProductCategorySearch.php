@@ -10,11 +10,12 @@ namespace App\Actions\Catalogue\ProductCategory\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\Catalogue\ProductCategory;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexProductCategorySearch extends HydrateModel
 {
-    public string $commandSignature = 'product_category:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:product_categories {organisations?*} {--s|slugs=}';
 
 
     public function handle(ProductCategory $productCategory): void
@@ -27,8 +28,26 @@ class ReindexProductCategorySearch extends HydrateModel
         return ProductCategory::withTrashed()->where('slug', $slug)->first();
     }
 
-    protected function getAllModels(): Collection
+    protected function loopAll(Command $command): void
     {
-        return ProductCategory::withTrashed()->get();
+        $count = ProductCategory::withTrashed()->count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        ProductCategory::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+
+        $bar->finish();
+
+
+        $command->info("");
     }
+
 }

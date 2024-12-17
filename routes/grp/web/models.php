@@ -31,6 +31,7 @@ use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\SyncPaymentAccountToShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\Comms\Email\PublishEmail;
+use App\Actions\Comms\Email\UpdateEmailUnpublishedSnapshot;
 use App\Actions\Comms\EmailTemplate\UpdateEmailTemplate;
 use App\Actions\Comms\EmailTemplate\UploadImagesToEmailTemplate;
 use App\Actions\Comms\Mailshot\StoreMailshot;
@@ -641,6 +642,11 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
 Route::name('prospect.')->prefix('prospect/{prospect:id}')->group(function () {
     Route::post('/tags', [StoreTag::class, 'inProspect'])->name('tag.store');
     Route::patch('/tags/attach', [SyncTagsModel::class, 'inProspect'])->name('tag.attach');
+});
+Route::name('email.')->prefix('email/')->group(function () {
+    Route::name('snapshot.')->prefix('snapshot/{snapshot:id}')->group(function () {
+        Route::patch('/update', UpdateEmailUnpublishedSnapshot::class)->name('update');
+    });
 });
 
 require __DIR__."/models/inventory/warehouse.php";

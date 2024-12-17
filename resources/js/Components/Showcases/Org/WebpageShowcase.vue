@@ -6,7 +6,7 @@
   -->
 
 <script setup lang="ts">
-import { getComponent } from '@/Composables/getWorkshopComponents'
+import { getIrisComponent } from '@/Composables/getIrisComponents'
 import BrowserView from '@/Components/Pure/BrowserView.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faHome, faSignIn } from '@fal'
@@ -17,9 +17,10 @@ const props = defineProps<{
     data: {
         slug: string
         state: string
-        status: stringW
+        status: string
         created_at: string
         updated_at: string
+        domain: string
     }
 }>()
 
@@ -29,7 +30,7 @@ const props = defineProps<{
     <div class="px-6 py-24 sm:py-20 lg:px-8">
         <div class="grid grid-cols-2">
             <div>
-                <pre>{{ data.layout.web_blocks }}</pre>
+                <pre>{{ data }}</pre>
             </div>
 
             <BrowserView
@@ -38,7 +39,7 @@ const props = defineProps<{
                     label: data.code
                 }"
                 :url="{
-                    domain: undefined,
+                    domain: data.domain,
                     page: data.url
                 }"
 
@@ -50,17 +51,14 @@ const props = defineProps<{
                                 :key="'block' + activityItem.id"
                                 class="w-full"
                             >
-                                <!-- ==== {{ activityItem.web_block.layout.data.fieldValue }} -->
                                 <component
                                     v-if="activityItem.web_block?.layout?.data?.fieldValue"
-                                    :is="getComponent(activityItem.web_block?.layout?.data?.component)"
+                                    :is="getIrisComponent(activityItem.type)"
                                     :key="activityItemIdx"
                                     :properties="activityItem?.web_block?.layout?.properties"
-                                    v-model="activityItem.web_block.layout.data.fieldValue"
                                     :isEditable="false"
-                                    v-bind="activityItem.web_block.layout.data.fieldValue"
+                                    :fieldValue="activityItem.web_block.layout.data.fieldValue"
                                 />
-                                <!-- <pre>{{ activityItem.web_block.layout.data.fieldValue }}</pre> -->
                             </div>
                         </div>
                     </template>

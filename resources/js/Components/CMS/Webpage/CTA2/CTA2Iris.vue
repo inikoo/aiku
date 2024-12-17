@@ -13,7 +13,7 @@ import { getStyles } from "@/Composables/styles"
 library.add(faCube, faLink)
 
 const props = defineProps<{
-	modelValue: {
+	fieldValue: {
 		headline: String,
 		button: {
 			text: String
@@ -30,14 +30,14 @@ const props = defineProps<{
 </script>
 
 <template>
-	<div :style="getStyles(modelValue.container.properties)">
+	<div :style="getStyles(fieldValue.container.properties)">
 		<div class="relative isolate overflow-hidden px-6 py-24 text-center shadow-2xl l sm:px-16">
-			<section v-html="modelValue.headline" />
+			<section v-html="fieldValue.headline" />
 
 			<div class="mt-10 flex items-center justify-center gap-x-6">
-				<div typeof="button" :style="getStyles(modelValue.button.container.properties)"
+				<div typeof="button" :style="getStyles(fieldValue.button.container.properties)"
 					class="mt-10 flex items-center justify-center w-64 mx-auto gap-x-6">
-					{{ modelValue.button.text }}
+					{{ fieldValue.button.text }}
 				</div>
 			</div>
 		</div>

@@ -11,6 +11,7 @@ namespace App\Transfers\Aurora;
 use App\Actions\Comms\Mailshot\StoreMailshot;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailProviderEnum;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
+use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunTypeEnum;
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
 use App\Enums\Comms\Mailshot\MailshotTypeEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
@@ -72,6 +73,16 @@ class FetchAuroraDispatchedEmail extends FetchAurora
             }
             if (!$parent and $this->auroraModelData->{'Email Tracking Email Template Type Key'}) {
                 $parent = $this->parseEmailOngoingRun($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Email Template Type Key'});
+
+                if (!$parent) {
+                    return;
+                }
+
+                if ($parent->type == EmailOngoingRunTypeEnum::PUSH) {
+                    // todo
+                    return;
+                    // $parent = $this->parseEmailPush($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Key'});
+                }
             }
         }
 

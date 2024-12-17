@@ -44,10 +44,8 @@ class FetchAuroraCustomer extends FetchAurora
         }
 
 
-
         $taxNumber = $this->parseTaxNumber(
-            number:
-            preg_replace("/[^a-zA-Z0-9\-]/", "", $this->sanitiseText($this->auroraModelData->{'Customer Tax Number'})),
+            number: preg_replace("/[^a-zA-Z0-9\-]/", "", $this->sanitiseText($this->auroraModelData->{'Customer Tax Number'})),
             countryID: $billingAddress['country_id'],
             rawData: (array)$this->auroraModelData
         );
@@ -95,22 +93,35 @@ class FetchAuroraCustomer extends FetchAurora
         $warehousePublicNotes   = $this->auroraModelData->{'Customer Delivery Sticky Note'};
 
 
-        $internalNotes = $this->clearTextWithHtml($internalNotes);
+        $internalNotes          = $this->clearTextWithHtml($internalNotes);
         $warehouseInternalNotes = $this->clearTextWithHtml($warehouseInternalNotes);
-        $warehousePublicNotes = $this->clearTextWithHtml($warehousePublicNotes);
+        $warehousePublicNotes   = $this->clearTextWithHtml($warehousePublicNotes);
 
+        $emailSubscriptions = [
+            'is_subscribed_to_newsletter'        => $this->auroraModelData->{'Customer Send Newsletter'} == 'Yes',
+            'is_subscribed_to_marketing'         => $this->auroraModelData->{'Customer Send Email Marketing'} == 'Yes',
+            'is_subscribed_to_abandoned_cart'    => true,
+            'is_subscribed_to_reorder_reminder'  => true,
+            'is_subscribed_to_basket_low_stock'  => $this->auroraModelData->{'Customer Send Basket Emails'} == 'Yes',
+            'is_subscribed_to_basket_reminder_1' => $this->auroraModelData->{'Customer Send Basket Emails'} == 'Yes',
+            'is_subscribed_to_basket_reminder_2' => $this->auroraModelData->{'Customer Send Basket Emails'} == 'Yes',
+            'is_subscribed_to_basket_reminder_3' => $this->auroraModelData->{'Customer Send Basket Emails'} == 'Yes',
+
+
+        ];
 
         $this->parsedData['customer'] =
             [
-                'reference'                => sprintf('%05d', $this->auroraModelData->{'Customer Key'}),
-                'state'                    => $state,
-                'status'                   => $status,
-                'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Customer Key'},
-                'created_at'               => $this->auroraModelData->{'Customer First Contacted Date'},
-                'contact_address'          => $billingAddress,
-                'tax_number'               => $taxNumber,
-                'fetched_at'               => now(),
-                'last_fetched_at'          => now(),
+                'reference'           => sprintf('%05d', $this->auroraModelData->{'Customer Key'}),
+                'state'               => $state,
+                'status'              => $status,
+                'source_id'           => $this->organisation->id.':'.$this->auroraModelData->{'Customer Key'},
+                'created_at'          => $this->auroraModelData->{'Customer First Contacted Date'},
+                'contact_address'     => $billingAddress,
+                'tax_number'          => $taxNumber,
+                'email_subscriptions' => $emailSubscriptions,
+                'fetched_at'          => now(),
+                'last_fetched_at'     => now(),
             ];
 
 

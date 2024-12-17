@@ -25,7 +25,6 @@ use App\Models\Billables\Charge;
 use App\Models\Billables\Rental;
 use App\Models\Billables\Service;
 use App\Models\Comms\Mailshot;
-use App\Models\Comms\ModelSubscribedToOutbox;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\SenderEmail;
 use App\Models\CRM\Appointment;
@@ -36,6 +35,7 @@ use App\Models\Discounts\Offer;
 use App\Models\Discounts\OfferCampaign;
 use App\Models\Discounts\OfferComponent;
 use App\Models\Dispatching\DeliveryNote;
+use App\Models\Dispatching\Packing;
 use App\Models\Dispatching\Picking;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\Portfolio;
@@ -170,8 +170,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read PaymentAccountShop|OrgPaymentServiceProviderShop|null $pivot
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read Organisation $organisation
- * @property-read LaravelCollection<int, ModelSubscribedToOutbox> $outboxSubscribers
  * @property-read LaravelCollection<int, Outbox> $outboxes
+ * @property-read LaravelCollection<int, Packing> $packings
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
  * @property-read LaravelCollection<int, Payment> $payments
  * @property-read LaravelCollection<int, Picking> $pickings
@@ -289,6 +289,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function salesIntervals(): HasOne
     {
         return $this->hasOne(ShopSalesIntervals::class);
+    }
+
+    public function orderingIntervals(): HasOne
+    {
+        return $this->hasOne(ShopOrderingIntervals::class);
     }
 
     public function orderHandlingStats(): HasOne
@@ -586,12 +591,6 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->hasMany(Purge::class);
     }
 
-    public function outboxSubscribers(): HasMany
-    {
-        return $this->hasMany(ModelSubscribedToOutbox::class)
-                    ->whereNull('unsubscribed_at');
-    }
-
     public function polls(): HasMany
     {
         return $this->hasMany(Poll::class);
@@ -615,6 +614,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function pickings(): HasMany
     {
         return $this->hasMany(Picking::class);
+    }
+
+    public function packings(): HasMany
+    {
+        return $this->hasMany(Packing::class);
     }
 
 }

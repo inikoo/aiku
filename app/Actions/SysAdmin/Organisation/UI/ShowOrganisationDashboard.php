@@ -32,64 +32,138 @@ class ShowOrganisationDashboard extends OrgAction
                     'total_sales' => $organisation->shops->sum(function ($shop) {
                         return $shop->salesIntervals->sales_ytd ?? 0;
                     }),
+                    'total_invoices' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->invoices_ytd ?? 0;
+                    }),
+                    'total_refunds' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->refunds_ytd ?? 0;
+                    }),
                 ],
                 'qtd' => [
                     'total_sales' => $organisation->shops->sum(function ($shop) {
                         return $shop->salesIntervals->sales_qtd ?? 0;
+                    }),
+                    'total_invoices' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->invoices_qtd ?? 0;
+                    }),
+                    'total_refunds' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->refunds_qtd ?? 0;
                     }),
                 ],
                 'mtd' => [
                     'total_sales' => $organisation->shops->sum(function ($shop) {
                         return $shop->salesIntervals->sales_mtd ?? 0;
                     }),
+                    'total_invoices' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->invoices_mtd ?? 0;
+                    }),
+                    'total_refunds' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->refunds_mtd ?? 0;
+                    }),
                 ],
                 'wtd' => [
                     'total_sales' => $organisation->shops->sum(function ($shop) {
                         return $shop->salesIntervals->sales_wtd ?? 0;
+                    }),
+                    'total_invoices' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->invoices_wtd ?? 0;
+                    }),
+                    'total_refunds' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->refunds_wtd ?? 0;
                     }),
                 ],
                 'lm' => [
                     'total_sales' => $organisation->shops->sum(function ($shop) {
                         return $shop->salesIntervals->sales_lm ?? 0;
                     }),
+                    'total_invoices' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->invoices_lm ?? 0;
+                    }),
+                    'total_refunds' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->refunds_lm ?? 0;
+                    }),
                 ],
                 'lw' => [
                     'total_sales' => $organisation->shops->sum(function ($shop) {
                         return $shop->salesIntervals->sales_lw ?? 0;
                     }),
+                    'total_invoices' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->invoices_lw ?? 0;
+                    }),
+                    'total_refunds' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->refunds_lw ?? 0;
+                    }),
                 ],
-                'yda' => [
+                'ytd' => [
                     'total_sales' => $organisation->shops->sum(function ($shop) {
-                        return $shop->salesIntervals->sales_yda ?? 0;
+                        return $shop->salesIntervals->sales_ytd ?? 0;
+                    }),
+                    'total_invoices' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->invoices_ytd ?? 0;
+                    }),
+                    'total_refunds' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->refunds_ytd ?? 0;
                     }),
                 ],
                 'tdy' => [
                     'total_sales' => $organisation->shops->sum(function ($shop) {
                         return $shop->salesIntervals->sales_tdy ?? 0;
                     }),
+                    'total_invoices' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->invoices_tdy ?? 0;
+                    }),
+                    'total_refunds' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->refunds_tdy ?? 0;
+                    }),
                 ],
                 '1y' => [
                     'total_sales' => $organisation->shops->sum(function ($shop) {
                         return $shop->salesIntervals->sales_1y ?? 0;
+                    }),
+                    'total_invoices' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->invoices_1y ?? 0;
+                    }),
+                    'total_refunds' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->refunds_1y ?? 0;
                     }),
                 ],
                 '1q' => [
                     'total_sales' => $organisation->shops->sum(function ($shop) {
                         return $shop->salesIntervals->sales_1q ?? 0;
                     }),
+                    'total_invoices' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->invoices_1q ?? 0;
+                    }),
+                    'total_refunds' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->refunds_1q ?? 0;
+                    }),
                 ],
                 '1m' => [
                     'total_sales' => $organisation->shops->sum(function ($shop) {
                         return $shop->salesIntervals->sales_1m ?? 0;
+                    }),
+                    'total_invoices' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->invoices_1m ?? 0;
+                    }),
+                    'total_refunds' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->refunds_1m ?? 0;
                     }),
                 ],
                 '1w' => [
                     'total_sales' => $organisation->shops->sum(function ($shop) {
                         return $shop->salesIntervals->sales_1w ?? 0;
                     }),
+                    'total_invoices' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->invoices_1w ?? 0;
+                    }),
+                    'total_refunds' => $organisation->shops->sum(function ($shop) {
+                        return $shop->orderingIntervals->refunds_1w ?? 0;
+                    }),
                 ],
                 'all' => [
-                    'total_sales'    => $organisation->salesIntervals->sales_org_currency_all
+                    'total_sales'    => $organisation->salesIntervals->sales_org_currency_all,
+                    'total_invoices'    => $organisation->orderingIntervals->invoices_all,
+                    'total_refunds'    => $organisation->orderingIntervals->refunds_all
                 ]
             ],
             'shops' => $organisation->shops->map(function (Shop $shop) {
@@ -141,10 +215,10 @@ class ShowOrganisationDashboard extends OrgAction
                                             'percentage' => $this->calculatePercentageIncrease($shop->salesIntervals->sales_lw, $shop->salesIntervals->sales_lw_ly),
                                             'difference' => $shop->salesIntervals->sales_lw - $shop->salesIntervals->sales_lw_ly
                                         ],
-                                        'yda' => [
-                                            'amount'     => $shop->salesIntervals->sales_yda,
-                                            'percentage' => $this->calculatePercentageIncrease($shop->salesIntervals->sales_yda, $shop->salesIntervals->sales_yda_ly),
-                                            'difference' => $shop->salesIntervals->sales_yda - $shop->salesIntervals->sales_yda_ly
+                                        'ytd' => [
+                                            'amount'     => $shop->salesIntervals->sales_ytd,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->salesIntervals->sales_ytd, $shop->salesIntervals->sales_ytd_ly),
+                                            'difference' => $shop->salesIntervals->sales_ytd - $shop->salesIntervals->sales_ytd_ly
                                         ],
                                         'tdy' => [
                                             'amount'     => $shop->salesIntervals->sales_tdy,
@@ -173,6 +247,136 @@ class ShowOrganisationDashboard extends OrgAction
                                         ],
                                         'all' => [
                                             'amount'     => $shop->salesIntervals->sales_all,
+                                        ],
+                                    ],
+                            'invoices' => [
+                                        'ytd' => [
+                                            'amount'     => $shop->orderingIntervals->invoices_ytd,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->orderingIntervals->invoices_ytd, $shop->orderingIntervals->invoices_ytd_ly),
+                                            'difference' => $shop->orderingIntervals->invoices_ytd - $shop->orderingIntervals->invoices_ytd_ly
+                                        ],
+                                        'qtd' => [
+                                            'amount'     => $shop->orderingIntervals->invoices_qtd,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->salesIntervals->sales_qtd, $shop->orderingIntervals->invoices_qtd_ly),
+                                            'difference' => $shop->orderingIntervals->invoices_qtd - $shop->orderingIntervals->invoices_qtd_ly
+                                        ],
+                                        'mtd' => [
+                                            'amount'     => $shop->orderingIntervals->invoices_mtd,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->orderingIntervals->invoices_mtd, $shop->orderingIntervals->invoices_mtd_ly),
+                                            'difference' => $shop->orderingIntervals->invoices_mtd - $shop->orderingIntervals->invoices_mtd_ly
+                                        ],
+                                        'wtd' => [
+                                            'amount'     => $shop->orderingIntervals->invoices_wtd,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->orderingIntervals->invoices_wtd, $shop->orderingIntervals->invoices_wtd_ly),
+                                            'difference' => $shop->orderingIntervals->invoices_wtd - $shop->orderingIntervals->invoices_wtd_ly
+                                        ],
+                                        'lm' => [
+                                            'amount'     => $shop->orderingIntervals->invoices_lm,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->orderingIntervals->invoices_lm, $shop->orderingIntervals->invoices_lm_ly),
+                                            'difference' => $shop->orderingIntervals->invoices_lm - $shop->orderingIntervals->invoices_lm_ly
+                                        ],
+                                        'lw' => [
+                                            'amount'     => $shop->orderingIntervals->invoices_lw,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->orderingIntervals->invoices_lw, $shop->orderingIntervals->invoices_lw_ly),
+                                            'difference' => $shop->orderingIntervals->invoices_lw - $shop->orderingIntervals->invoices_lw_ly
+                                        ],
+                                        'ytd' => [
+                                            'amount'     => $shop->orderingIntervals->invoices_ytd,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->orderingIntervals->invoices_ytd, $shop->orderingIntervals->invoices_ytd_ly),
+                                            'difference' => $shop->orderingIntervals->invoices_ytd - $shop->orderingIntervals->invoices_ytd_ly
+                                        ],
+                                        'tdy' => [
+                                            'amount'     => $shop->orderingIntervals->invoices_tdy,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->orderingIntervals->invoices_tdy, $shop->orderingIntervals->invoices_tdy_ly),
+                                            'difference' => $shop->orderingIntervals->invoices_tdy - $shop->orderingIntervals->invoices_tdy_ly
+                                        ],
+                                        '1y' => [
+                                            'amount'     => $shop->orderingIntervals->invoices_1y,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->orderingIntervals->invoices_1y, $shop->orderingIntervals->invoices_1y_ly),
+                                            'difference' => $shop->orderingIntervals->invoices_1y - $shop->orderingIntervals->invoices_1y_ly
+                                        ],
+                                        '1q' => [
+                                            'amount'     => $shop->orderingIntervals->invoices_1q,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->orderingIntervals->invoices_1q, $shop->orderingIntervals->invoices_1q_ly),
+                                            'difference' => $shop->orderingIntervals->invoices_1q - $shop->orderingIntervals->invoices_1q_ly
+                                        ],
+                                        '1m' => [
+                                            'amount'     => $shop->orderingIntervals->invoices_1m,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->orderingIntervals->invoices_1m, $shop->orderingIntervals->invoices_1m_ly),
+                                            'difference' => $shop->orderingIntervals->invoices_1m - $shop->orderingIntervals->invoices_1m_ly
+                                        ],
+                                        '1w' => [
+                                            'amount'     => $shop->orderingIntervals->invoices_1w,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->orderingIntervals->invoices_1w, $shop->orderingIntervals->invoices_1w_ly),
+                                            'difference' => $shop->orderingIntervals->invoices_1w - $shop->orderingIntervals->invoices_1w_ly
+                                        ],
+                                        'all' => [
+                                            'amount'     => $shop->orderingIntervals->invoices_all,
+                                        ],
+                                    ],
+                            'refunds' => [
+                                        'ytd' => [
+                                            'amount'     => $shop->orderingIntervals->refunds_ytd,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->orderingIntervals->refunds_ytd, $shop->orderingIntervals->refunds_ytd_ly),
+                                            'difference' => $shop->orderingIntervals->refunds_ytd - $shop->orderingIntervals->refunds_ytd_ly
+                                        ],
+                                        'qtd' => [
+                                            'amount'     => $shop->orderingIntervals->refunds_qtd,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->salesIntervals->sales_qtd, $shop->orderingIntervals->refunds_qtd_ly),
+                                            'difference' => $shop->orderingIntervals->refunds_qtd - $shop->orderingIntervals->refunds_qtd_ly
+                                        ],
+                                        'mtd' => [
+                                            'amount'     => $shop->orderingIntervals->refunds_mtd,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->orderingIntervals->refunds_mtd, $shop->orderingIntervals->refunds_mtd_ly),
+                                            'difference' => $shop->orderingIntervals->refunds_mtd - $shop->orderingIntervals->refunds_mtd_ly
+                                        ],
+                                        'wtd' => [
+                                            'amount'     => $shop->orderingIntervals->refunds_wtd,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->orderingIntervals->refunds_wtd, $shop->orderingIntervals->refunds_wtd_ly),
+                                            'difference' => $shop->orderingIntervals->refunds_wtd - $shop->orderingIntervals->refunds_wtd_ly
+                                        ],
+                                        'lm' => [
+                                            'amount'     => $shop->orderingIntervals->refunds_lm,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->orderingIntervals->refunds_lm, $shop->orderingIntervals->refunds_lm_ly),
+                                            'difference' => $shop->orderingIntervals->refunds_lm - $shop->orderingIntervals->refunds_lm_ly
+                                        ],
+                                        'lw' => [
+                                            'amount'     => $shop->orderingIntervals->refunds_lw,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->orderingIntervals->refunds_lw, $shop->orderingIntervals->refunds_lw_ly),
+                                            'difference' => $shop->orderingIntervals->refunds_lw - $shop->orderingIntervals->refunds_lw_ly
+                                        ],
+                                        'ytd' => [
+                                            'amount'     => $shop->orderingIntervals->refunds_ytd,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->orderingIntervals->refunds_ytd, $shop->orderingIntervals->refunds_ytd_ly),
+                                            'difference' => $shop->orderingIntervals->refunds_ytd - $shop->orderingIntervals->refunds_ytd_ly
+                                        ],
+                                        'tdy' => [
+                                            'amount'     => $shop->orderingIntervals->refunds_tdy,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->orderingIntervals->refunds_tdy, $shop->orderingIntervals->refunds_tdy_ly),
+                                            'difference' => $shop->orderingIntervals->refunds_tdy - $shop->orderingIntervals->refunds_tdy_ly
+                                        ],
+                                        '1y' => [
+                                            'amount'     => $shop->orderingIntervals->refunds_1y,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->orderingIntervals->refunds_1y, $shop->orderingIntervals->refunds_1y_ly),
+                                            'difference' => $shop->orderingIntervals->refunds_1y - $shop->orderingIntervals->refunds_1y_ly
+                                        ],
+                                        '1q' => [
+                                            'amount'     => $shop->orderingIntervals->refunds_1q,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->orderingIntervals->refunds_1q, $shop->orderingIntervals->refunds_1q_ly),
+                                            'difference' => $shop->orderingIntervals->refunds_1q - $shop->orderingIntervals->refunds_1q_ly
+                                        ],
+                                        '1m' => [
+                                            'amount'     => $shop->orderingIntervals->refunds_1m,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->orderingIntervals->refunds_1m, $shop->orderingIntervals->refunds_1m_ly),
+                                            'difference' => $shop->orderingIntervals->refunds_1m - $shop->orderingIntervals->refunds_1m_ly
+                                        ],
+                                        '1w' => [
+                                            'amount'     => $shop->orderingIntervals->refunds_1w,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->orderingIntervals->refunds_1w, $shop->orderingIntervals->refunds_1w_ly),
+                                            'difference' => $shop->orderingIntervals->refunds_1w - $shop->orderingIntervals->refunds_1w_ly
+                                        ],
+                                        'all' => [
+                                            'amount'     => $shop->orderingIntervals->refunds_all,
                                         ],
                                     ],
                     ];
@@ -219,7 +423,7 @@ class ShowOrganisationDashboard extends OrgAction
                     [
                         'label'      => __('Yesterday'),
                         'labelShort' => __('y'),
-                        'value'      => 'yda'
+                        'value'      => 'ytd'
                     ],
                     [
                         'label'      => __('Today'),

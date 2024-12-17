@@ -31,7 +31,6 @@ class HydrateModel
         return new Collection();
     }
 
-
     public function asCommand(Command $command): int
     {
         $exitCode = 0;

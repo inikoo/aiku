@@ -24,7 +24,7 @@ import Menu1 from '@/Components/CMS/Website/Menus/Menu1Workshop.vue'
 import NotFoundComponents from '@/Components/CMS/Webpage/NotFoundComponent.vue'
 
 
-export const getComponent = (componentName: string) => {
+export const getIrisComponent = (componentName: string) => {
     const components: Component = {
         'footer-1': Footer1,
         'header-1': Header1,
@@ -32,9 +32,9 @@ export const getComponent = (componentName: string) => {
         'top-bar-2': Topbar2,
         'top-bar-3': Topbar3,
         'menu-1': Menu1,
-        'banner': WowsbarBanner,
+        'banner': WowsbarBanner,  // not used fieldValue yet
         "bento-grid-1": BentoGrid,
-        "bricks": Gallery,
+        "bricks": Gallery,  // not used fieldValue yet
         'cta1': CTA,
         'cta2': CTA2,
         'cta3': CTA3,

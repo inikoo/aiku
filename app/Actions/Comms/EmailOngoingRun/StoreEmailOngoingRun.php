@@ -8,7 +8,6 @@
 
 namespace App\Actions\Comms\EmailOngoingRun;
 
-use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateEmailOngoingRuns;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunTypeEnum;
@@ -46,8 +45,6 @@ class StoreEmailOngoingRun extends OrgAction
 
             return $emailOngoingRun;
         });
-
-        OutboxHydrateEmailOngoingRuns::dispatch($outbox)->delay($this->hydratorsDelay);
 
         return $emailOngoingRun;
     }

@@ -32,7 +32,6 @@ class SeedWebBlockTypes
                     'code',
                     'name',
                     'fixed',
-                    'blueprint',
                     'data'
                 ]
             );

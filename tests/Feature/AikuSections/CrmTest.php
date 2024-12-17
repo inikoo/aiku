@@ -5,8 +5,11 @@
  * Created: Wed, 27 Nov 2024 15:22:46 Central Indonesia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
+
 /** @noinspection PhpUnhandledExceptionInspection */
 
+use App\Actions\Analytics\GetSectionRoute;
+use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\Comms\Mailshot\StoreMailshot;
 use App\Actions\CRM\BackInStockReminder\DeleteBackInStockReminder;
 use App\Actions\CRM\BackInStockReminder\StoreBackInStockReminder;
@@ -28,11 +31,17 @@ use App\Actions\CRM\PollReply\UpdatePollReply;
 use App\Actions\CRM\Prospect\StoreProspect;
 use App\Actions\CRM\Prospect\Tags\SyncTagsProspect;
 use App\Actions\CRM\Prospect\UpdateProspect;
+use App\Actions\CRM\WebUser\StoreWebUser;
+use App\Actions\Ordering\Order\StoreOrder;
+use App\Actions\Web\Website\StoreWebsite;
+use App\Enums\Analytics\AikuSection\AikuSectionEnum;
+use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
 use App\Enums\Comms\Mailshot\MailshotTypeEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\CRM\Poll\PollTypeEnum;
+use App\Models\Analytics\AikuScopedSection;
 use App\Models\Comms\Mailshot;
 use App\Models\Comms\Outbox;
 use App\Models\CRM\Customer;
@@ -42,9 +51,12 @@ use App\Models\CRM\Poll;
 use App\Models\CRM\PollOption;
 use App\Models\CRM\PollReply;
 use App\Models\CRM\Prospect;
+use App\Models\CRM\WebUser;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Query;
+use App\Models\Ordering\Order;
 use App\Models\Reminder\BackInStockReminder;
+use App\Models\Web\Website;
 use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia;
 
@@ -71,18 +83,31 @@ beforeEach(
             $this->product
         ) = createProduct($this->shop);
 
+        $this->shop = UpdateShop::make()->action($this->shop, ['state' => ShopStateEnum::OPEN]);
+
+
+        $website = Website::first();
+        if (!$website) {
+            $storeData = Website::factory()->definition();
+
+            $website = StoreWebsite::make()->action(
+                $this->shop,
+                $storeData
+            );
+        }
+        $this->website = $website;
+
+
         Config::set(
             'inertia.testing.page_paths',
             [resource_path('js/Pages/Grp')]
         );
         actingAs($this->user);
-
     }
 );
 
 
 test('create customer', function () {
-
     $customer = StoreCustomer::make()->action(
         $this->shop,
         Customer::factory()->definition(),
@@ -94,21 +119,17 @@ test('create customer', function () {
         ->and($customer->status)->toBe(CustomerStatusEnum::APPROVED)
         ->and($customer->group->crmStats->number_customers)->toBe(1)
         ->and($customer->organisation->crmStats->number_customers)->toBe(1)
-        ->and($customer->shop->crmStats->number_customers)->toBe(1)
-    ;
+        ->and($customer->shop->crmStats->number_customers)->toBe(1);
 
     return $customer;
 });
 
 test('create other customer', function () {
-    try {
-        $customer = StoreCustomer::make()->action(
-            $this->shop,
-            Customer::factory()->definition()
-        );
-    } catch (Throwable) {
-        $customer = null;
-    }
+    $customer = StoreCustomer::make()->action(
+        $this->shop,
+        Customer::factory()->definition()
+    );
+
     expect($customer)->toBeInstanceOf(Customer::class)
         ->and($customer->reference)->toBe('000002')
         ->and($customer->status)->toBe(CustomerStatusEnum::APPROVED);
@@ -116,7 +137,21 @@ test('create other customer', function () {
     return $customer;
 });
 
+test('create web user', function (Customer $customer) {
+    $webUser = StoreWebUser::make()->action(
+        $customer,
+        [
+            'email'    => 'example@mail.com',
+            'username' => 'example',
+            'password' => 'password',
+        ]
+    );
 
+
+    expect($webUser)->toBeInstanceOf(WebUser::class);
+
+    return $customer;
+})->depends('create customer');
 
 
 test('prospect queries are seeded', function () {
@@ -148,14 +183,14 @@ test('create prospect', function () {
 });
 
 test('update prospect', function () {
-
     /** @var Prospect $prospect */
     $prospect  = Prospect::first();
     $modelData = [
         'contact_name' => 'new name',
     ];
-    $prospect = UpdateProspect::make()->action(prospect: $prospect, modelData: $modelData);
+    $prospect  = UpdateProspect::make()->action(prospect: $prospect, modelData: $modelData);
     expect($prospect)->toBeInstanceOf(Prospect::class)->and($prospect->contact_name)->toBe('new name');
+
     return $prospect;
 });
 
@@ -180,12 +215,12 @@ test('create 2nd prospect', function () {
 });
 
 test('update prospect tags', function ($prospect) {
-
     $modelData = [
         'tags' => ['seo', 'social'],
     ];
-    $prospect = SyncTagsProspect::make()->action(prospect: $prospect, modelData: $modelData);
+    $prospect  = SyncTagsProspect::make()->action(prospect: $prospect, modelData: $modelData);
     expect($prospect)->toBeInstanceOf(Prospect::class)->and($prospect->tags->count())->toBe(2);
+
     return $prospect;
 })->depends('create 2nd prospect');
 
@@ -196,51 +231,51 @@ test('prospect query count', function () {
 });
 
 test('create prospect mailshot', function () {
-    $shop         = $this->shop;
-    $outbox       = Outbox::where('shop_id', $shop->id)->where('code', OutboxCodeEnum::INVITE)->first();
+    $shop   = $this->shop;
+    $outbox = Outbox::where('shop_id', $shop->id)->where('code', OutboxCodeEnum::INVITE)->first();
     expect($outbox)->toBeInstanceOf(Outbox::class);
-    $dataModel    = [
-        'subject'    => 'hello',
-        'type'       => MailshotTypeEnum::INVITE,
-        'state'      => MailshotStateEnum::IN_PROCESS,
+    $dataModel = [
+        'subject'           => 'hello',
+        'type'              => MailshotTypeEnum::INVITE,
+        'state'             => MailshotStateEnum::IN_PROCESS,
         'recipients_recipe' => []
 
     ];
-    $mailshot     = StoreMailshot::make()->action($outbox, $dataModel);
+    $mailshot  = StoreMailshot::make()->action($outbox, $dataModel);
     expect($mailshot)->toBeInstanceOf(Mailshot::class)
-        ->and($outbox->stats->number_mailshots)->toBe(1);
+        ->and($outbox->intervals->runs_all)->toBe(1);
 });
 
 test('add delivery address to customer', function (Customer $customer) {
-    $country = Country::latest()->first();
+    $country  = Country::latest()->first();
     $customer = AddDeliveryAddressToCustomer::make()->action(
         $customer,
         [
-                    'delivery_address' => [
-                        'address_line_1'      => fake()->streetAddress,
-                        'address_line_2'      => fake()->buildingNumber,
-                        'sorting_code'        => '',
-                        'postal_code'         => fake()->postcode,
-                        'locality'            => fake()->city,
-                        'dependent_locality'  => '',
-                        'administrative_area' => '',
-                        'country_id'          => $country->id
-                    ]
-                ]
+            'delivery_address' => [
+                'address_line_1'      => fake()->streetAddress,
+                'address_line_2'      => fake()->buildingNumber,
+                'sorting_code'        => '',
+                'postal_code'         => fake()->postcode,
+                'locality'            => fake()->city,
+                'dependent_locality'  => '',
+                'administrative_area' => '',
+                'country_id'          => $country->id
+            ]
+        ]
     );
 
     expect($customer)->toBeInstanceOf(Customer::class)
-    ->and($customer->addresses->count())->toBe(2);
+        ->and($customer->addresses->count())->toBe(2);
 
     return $customer;
 })->depends('create customer');
 
 test('remove delivery address from customer', function (Customer $customer) {
-    $address = $customer->addresses()->skip(1)->first();
+    $address  = $customer->addresses()->skip(1)->first();
     $customer = DeleteCustomerDeliveryAddress::make()->action($customer, $address);
 
     expect($customer)->toBeInstanceOf(Customer::class)
-    ->and($customer->addresses->count())->toBe(1);
+        ->and($customer->addresses->count())->toBe(1);
 
     return $customer;
 })->depends('add delivery address to customer');
@@ -286,6 +321,7 @@ test('update favourite', function (Favourite $favourite) {
     $updatedFavourite->refresh();
 
     expect($updatedFavourite)->toBeInstanceOf(Favourite::class);
+
     // ->and($updatedFavourite->last_fetched_at)->toEqual($targetDate); //:(
 
     return $updatedFavourite;
@@ -322,6 +358,7 @@ test('update back in stock reminder', function (BackInStockReminder $reminder) {
     $updatedReminder->refresh();
 
     expect($updatedReminder)->toBeInstanceOf(BackInStockReminder::class);
+
     // ->and($updatedFavourite->last_fetched_at)->toEqual($targetDate); //:(
 
     return $updatedReminder;
@@ -339,8 +376,8 @@ test('delete back in stock reminder', function (BackInStockReminder $reminder) {
 
 test('create customer note', function (Customer $customer) {
     expect($customer)->toBeInstanceOf(Customer::class)
-    ->and($customer->customerNotes)->not->toBeNull()
-    ->and($customer->customerNotes->count())->toBe(1);
+        ->and($customer->customerNotes)->not->toBeNull()
+        ->and($customer->customerNotes->count())->toBe(2);
 
     $note = StoreCustomerNote::make()->action(
         $customer,
@@ -354,13 +391,12 @@ test('create customer note', function (Customer $customer) {
     expect($note)->toBeInstanceOf(CustomerNote::class)
         ->and($customer)->toBeInstanceOf(Customer::class)
         ->and($customer->customerNotes)->not->toBeNull()
-        ->and($customer->customerNotes->count())->toBe(2);
+        ->and($customer->customerNotes->count())->toBe(3);
 
     return $note;
 })->depends('create customer');
 
 test('update customer note', function (CustomerNote $note) {
-
     $updatedNote = UpdateCustomerNote::make()->action(
         $note,
         [
@@ -381,17 +417,16 @@ test('hydrate customers', function (Customer $customer) {
 })->depends('create customer');
 
 test('store poll', function () {
-
     $poll = StorePoll::make()->action(
         $this->shop,
         [
-            'name' => 'name',
-            'label' => 'poll label',
-            'in_registration' => false,
+            'name'                     => 'name',
+            'label'                    => 'poll label',
+            'in_registration'          => false,
             'in_registration_required' => true,
-            'in_iris' => true,
-            'in_iris_required' => true,
-            'type'  => PollTypeEnum::OPTION
+            'in_iris'                  => true,
+            'in_iris_required'         => true,
+            'type'                     => PollTypeEnum::OPTION
         ]
     );
 
@@ -410,16 +445,15 @@ test('store poll', function () {
 });
 
 test('update poll', function (Poll $poll) {
-
     $poll = UpdatePoll::make()->action(
         $poll,
         [
-            'name' => 'option poll B',
-            'label' => 'some option',
-            'in_registration' => true,
+            'name'                     => 'option poll B',
+            'label'                    => 'some option',
+            'in_registration'          => true,
             'in_registration_required' => false,
-            'in_iris' => false,
-            'in_iris_required' => false,
+            'in_iris'                  => false,
+            'in_iris_required'         => false,
         ]
     );
 
@@ -437,7 +471,6 @@ test('update poll', function (Poll $poll) {
 })->depends('store poll');
 
 test('store poll option', function (Poll $poll) {
-
     $pollOption = StorePollOption::make()->action(
         $poll,
         [
@@ -459,7 +492,6 @@ test('store poll option', function (Poll $poll) {
 })->depends('update poll');
 
 test('update poll option', function (PollOption $pollOption) {
-
     $pollOption = UpdatePollOption::make()->action(
         $pollOption,
         [
@@ -478,17 +510,16 @@ test('update poll option', function (PollOption $pollOption) {
 })->depends('store poll option');
 
 test('store open question poll', function () {
-
     $poll = StorePoll::make()->action(
         $this->shop,
         [
-            'name' => 'open question',
-            'label' => 'open label',
-            'in_registration' => false,
+            'name'                     => 'open question',
+            'label'                    => 'open label',
+            'in_registration'          => false,
             'in_registration_required' => true,
-            'in_iris' => true,
-            'in_iris_required' => true,
-            'type'  => PollTypeEnum::OPEN_QUESTION
+            'in_iris'                  => true,
+            'in_iris_required'         => true,
+            'type'                     => PollTypeEnum::OPEN_QUESTION
         ]
     );
 
@@ -507,12 +538,11 @@ test('store open question poll', function () {
 });
 
 test('store open question poll reply', function (Customer $customer, Poll $poll) {
-
     $pollReply = StorePollReply::make()->action(
         $poll,
         [
             'customer_id' => $customer->id,
-            'value' => 'Something'
+            'value'       => 'Something'
         ]
     );
 
@@ -520,22 +550,20 @@ test('store open question poll reply', function (Customer $customer, Poll $poll)
     $poll->refresh();
 
     expect($poll)->toBeInstanceOf(Poll::class)
-        ->and($poll->pollReplies->count())->toBe(1);
-
-    expect($pollReply)->toBeInstanceOf(PollReply::class)
+        ->and($poll->pollReplies->count())->toBe(1)
+        ->and($pollReply)->toBeInstanceOf(PollReply::class)
         ->and($pollReply->value)->toBe('Something');
 
     return $pollReply;
 })->depends('create customer', 'store open question poll');
 
 test('store option poll reply', function (Customer $customer, PollOption $pollOption) {
-
     $poll = $pollOption->poll;
 
     $pollReply = StorePollReply::make()->action(
         $poll,
         [
-            'customer_id' => $customer->id,
+            'customer_id'    => $customer->id,
             'poll_option_id' => $pollOption->id
         ]
     );
@@ -544,16 +572,14 @@ test('store option poll reply', function (Customer $customer, PollOption $pollOp
     $poll->refresh();
 
     expect($poll)->toBeInstanceOf(Poll::class)
-        ->and($poll->pollReplies->count())->toBe(1);
-
-    expect($pollReply)->toBeInstanceOf(PollReply::class)
+        ->and($poll->pollReplies->count())->toBe(1)
+        ->and($pollReply)->toBeInstanceOf(PollReply::class)
         ->and($pollReply->poll_option_id)->toBe($pollOption->id);
 
     return $pollReply;
 })->depends('create customer', 'update poll option');
 
 test('update open question poll reply', function (PollReply $pollReply) {
-
     $pollReply = UpdatePollReply::make()->action(
         $pollReply,
         [
@@ -568,3 +594,268 @@ test('update open question poll reply', function (PollReply $pollReply) {
 
     return $pollReply;
 })->depends('store open question poll reply');
+
+test('UI Index customers', function () {
+    $response = $this->get(route('grp.org.shops.show.crm.customers.index', [$this->organisation->slug, $this->shop->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Shop/CRM/Customers')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'customers')
+                    ->etc()
+            )
+            ->has('data');
+    });
+});
+
+test('UI create customer', function () {
+    $response = get(route('grp.org.shops.show.crm.customers.create', [$this->organisation->slug, $this->shop->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 4);
+    });
+});
+
+test('UI show customer', function () {
+    $customer = Customer::first();
+    $response = get(route('grp.org.shops.show.crm.customers.show', [$this->organisation->slug, $this->shop->slug, $customer->slug]));
+    $response->assertInertia(function (AssertableInertia $page) use ($customer) {
+        $page
+            ->component('Org/Shop/CRM/Customer')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $customer->name)
+                    ->etc()
+            )
+            ->has('tabs');
+    });
+});
+
+test('UI edit customer', function () {
+    $customer = Customer::first();
+    $response = get(route('grp.org.shops.show.crm.customers.edit', [$this->organisation->slug, $this->shop->slug, $customer->slug]));
+    $response->assertInertia(function (AssertableInertia $page) use ($customer) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('pageHead')
+            ->has('formData')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                    ->where('name', 'grp.models.customer.update')
+                    ->where('parameters', [$customer->id])
+            )
+            ->has('breadcrumbs', 3);
+    });
+});
+
+
+test('UI Index customer web users', function () {
+    $customer = Customer::first();
+    $response = $this->get(route('grp.org.shops.show.crm.customers.show.web-users.index', [$this->organisation->slug, $this->shop->slug, $customer->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) use ($customer) {
+        $page
+            ->component('Org/Shop/CRM/WebUsers')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $customer->name)
+                    ->has('subNavigation')
+                    ->etc()
+            )
+            ->has('data');
+    });
+});
+
+test('UI Create customer web users', function () {
+    $customer = Customer::first();
+    $response = $this->get(route('grp.org.shops.show.crm.customers.show.web-users.create', [$this->organisation->slug, $this->shop->slug, $customer->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'Create web user')
+                    ->etc()
+            )
+            ->has('formData');
+    });
+});
+
+test('UI show customer web users', function () {
+    $webUser = WebUser::first();
+
+    $response = $this->get(route('grp.org.shops.show.crm.customers.show.web-users.show', [
+        $this->organisation->slug,
+        $this->shop->slug,
+        $webUser->customer->slug,
+        $webUser->slug
+    ]));
+
+    $response->assertInertia(function (AssertableInertia $page) use ($webUser) {
+        $page
+            ->component('Org/Shop/CRM/WebUser')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $webUser->username)
+                    ->etc()
+            )
+            ->has('data');
+    });
+});
+
+test('UI Edit customer web users', function () {
+
+    $webUser  = WebUser::first();
+    $response = $this->get(route('grp.org.shops.show.crm.customers.show.web-users.edit', [
+        $this->organisation->slug,
+        $this->shop->slug,
+        $webUser->customer->slug,
+        $webUser->slug
+    ]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'Edit web user')
+                    ->etc()
+            )
+            ->has('formData');
+    });
+});
+
+test('UI Index customer orders', function () {
+    /** @var Customer $customer */
+    $customer = Customer::first();
+
+    StoreOrder::make()->action(
+        $customer,
+        []
+    );
+
+    $response = $this->get(route('grp.org.shops.show.crm.customers.show.orders.index', [$this->organisation->slug, $this->shop->slug, $customer->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) use ($customer) {
+        $page
+            ->component('Ordering/Orders')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $customer->name)
+                    ->has('subNavigation')
+                    ->etc()
+            )
+            ->has('data');
+    });
+});
+
+test('UI show order', function () {
+
+    $order    = Order::first();
+    $customer = $order->customer;
+    $response = $this->get(route('grp.org.shops.show.crm.customers.show.orders.show', [$this->organisation->slug, $this->shop->slug, $customer->slug, $order->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) use ($order) {
+        $page
+            ->component('Org/Ordering/Order')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $order->reference)
+                    ->etc()
+            )
+            ->has('data');
+    });
+});
+
+test('can show list of mailshots', function () {
+    $shop         = $this->shop;
+    $organisation = $this->organisation;
+    $response     = get(route('grp.org.shops.show.marketing.mailshots.index', [$organisation->slug, $shop->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Comms/Mailshots')
+            ->has('title');
+    });
+});
+
+test('can show list of prospects', function () {
+    $shop         = $this->shop;
+    $organisation = $this->organisation;
+    $response     = get(route('grp.org.shops.show.crm.prospects.index', [$organisation->slug, $shop->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Shop/CRM/Prospects')
+            ->has('title');
+    });
+});
+
+test('can show list of tags', function () {
+    $shop         = $this->shop;
+    $organisation = $this->organisation;
+    $response     = get(route('grp.org.shops.show.crm.prospects.tags.index', [$organisation->slug, $shop->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Shop/CRM/Tags')
+            ->has('title');
+    });
+});
+
+test('UI get section route crm dashboard', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.crm.customers.index', [
+        'organisation' => $this->organisation->slug,
+        'shop'         => $this->shop->slug
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_CRM->value)
+        ->and($sectionScope->model_slug)->toBe($this->shop->slug);
+});
+
+
+test('UI get section route marketing mailshots index', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.marketing.mailshots.index', [
+        'organisation' => $this->organisation->slug,
+        'shop'         => $this->shop->slug
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_MARKETING->value)
+        ->and($sectionScope->model_slug)->toBe($this->shop->slug);
+});
