@@ -260,9 +260,9 @@ class ShowOrganisationDashboard extends OrgAction
                                             'difference' => $shop->orderingIntervals->invoices_ytd - $shop->orderingIntervals->invoices_ytd_ly
                                         ],
                                         'qtd' => [
-                                            'amount'     =>$shop->orderingIntervals->invoices_qtd,
-                                            'percentage' => $this->calculatePercentageIncrease($shop->salesIntervals->sales_qtd,$shop->orderingIntervals->invoices_qtd_ly),
-                                            'difference' =>$shop->orderingIntervals->invoices_qtd - $shop->orderingIntervals->invoices_qtd_ly
+                                            'amount'     => $shop->orderingIntervals->invoices_qtd,
+                                            'percentage' => $this->calculatePercentageIncrease($shop->salesIntervals->sales_qtd, $shop->orderingIntervals->invoices_qtd_ly),
+                                            'difference' => $shop->orderingIntervals->invoices_qtd - $shop->orderingIntervals->invoices_qtd_ly
                                         ],
                                         'mtd' => [
                                             'amount'     => $shop->orderingIntervals->invoices_mtd,

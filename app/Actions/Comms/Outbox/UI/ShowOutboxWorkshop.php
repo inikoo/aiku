@@ -83,19 +83,12 @@ class ShowOutboxWorkshop extends OrgAction
                                 'parameters' => array_values($request->route()->originalParameters()),
                             ]
                         ],
-                        [
-                            'type'  => 'button',
-                            'style' => 'save',
-                            'label' => __('publish'),
-                            'route' => [
-                                'name'       => 'grp.models.email-templates.content.publish',
-                                'parameters' => $email->id,
-                                'method'     => 'post'
-                            ]
-                        ],
                     ]
 
                 ],
+                'compiled_layout'    => $email->snapshot->compiled_layout,
+                'unpublished_layout'    => $email->unpublishedSnapshot->layout,
+
                 'snapshot'          => $email->unpublishedSnapshot,
                 'builder'           => $email->builder,
                 'imagesUploadRoute'   => [
@@ -103,13 +96,27 @@ class ShowOutboxWorkshop extends OrgAction
                     'parameters' => $email->id
                 ],
                 'updateRoute'         => [
-                    'name'       => 'grp.models.email.snapshot.update',
-                    'parameters' => $email->unpublishedSnapshot->id
+                    'name'       => 'grp.models.shop.outboxes.workshop.update',
+                    'parameters' => [
+                        'shop' => $email->shop_id,
+                        'outbox' => $email->outbox_id
+                    ]
                 ],
                 'loadRoute'           => [
                     'name'       => 'grp.models.email-templates.content.show',
                     'parameters' => $email->id
                 ],
+                'publishRoute'           => [
+                    'name'       => 'grp.models.shop.outboxes.publish',
+                    'parameters' => [
+                        'shop' => $email->shop_id,
+                        'outbox' => $email->outbox_id
+                    ]
+                ],
+                // 'loadRoute'           => [ -> i don't know what kind of data should i give to this route
+                //     'name'       => 'grp.models.email-templates.content.show',
+                //     'parameters' => $emailTemplate->id
+                // ]
                 'apiKey'            => [
                     'client_id'     => $email->group->settings['beefree']['client_id'] ?? null,
                     'client_secret' => $email->group->settings['beefree']['client_secret'] ?? null,

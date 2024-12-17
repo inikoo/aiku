@@ -12,6 +12,9 @@ import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import TableOutboxes from '@/Components/Tables/TableOutboxes.vue'
 import TableMailshots from '@/Components/Tables/TableMailshots.vue'
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faTachometerAltFast, faInboxOut, faFolder } from "@fal"
+library.add(faTachometerAltFast, faInboxOut, faFolder)
 
 // import FileShowcase from '@/xxxxxxxxxxxx'
 
@@ -19,6 +22,7 @@ const props = defineProps<{
     title: string,
     pageHead: TSPageHeading
     tabs: TSTabs
+    showcase: object
     outboxes: object
     mailshots: object
 }>()
