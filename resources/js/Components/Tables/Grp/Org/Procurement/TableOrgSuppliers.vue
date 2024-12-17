@@ -10,6 +10,7 @@ import Table from "@/Components/Table/Table.vue";
 import { Supplier } from "@/types/supplier";
 import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue";
 import { useLocaleStore } from "@/Stores/locale";
+import Icon from "@/Components/Icon.vue"
 
 defineProps<{
   data: object,
@@ -46,6 +47,9 @@ function supplierRoute(supplier: Supplier) {
 
 <template>
   <Table :resource="data" :name="tab" class="mt-5">
+    <template #cell(status)="{ item: supplier }">
+        <Icon :data="supplier.status_icon"> </Icon>
+    </template>
     <template #cell(code)="{ item: supplier }">
       <Link :href="supplierRoute(supplier)" class="primaryLink">
         {{ supplier["code"] }}

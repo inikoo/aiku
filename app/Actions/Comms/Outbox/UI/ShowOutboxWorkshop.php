@@ -10,12 +10,14 @@ namespace App\Actions\Comms\Outbox\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
+use App\Enums\Comms\Email\EmailBuilderEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Email;
 use App\Models\Comms\EmailTemplate;
 use App\Models\Comms\Outbox;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -25,20 +27,25 @@ class ShowOutboxWorkshop extends OrgAction
     use WithActionButtons;
 
 
-    public function handle(Email $email): Email
+    public function handle(Email $email)
     {
+        if ($email->builder == EmailBuilderEnum::BLADE) {
+            throw ValidationException::withMessages([
+                'value' => 'Builder is not supported'
+            ]);
+        }
         return $email;
     }
 
 
-    public function asController(Organisation $organisation, Shop $shop, Outbox $outbox, ActionRequest $request): Email
+    public function asController(Organisation $organisation, Shop $shop, Outbox $outbox, ActionRequest $request)
     {
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle($outbox->emailOngoingRun->email);
     }
 
-    public function inWebsite(Organisation $organisation, Shop $shop, Website $website, Outbox $outbox, ActionRequest $request): Email
+    public function inWebsite(Organisation $organisation, Shop $shop, Website $website, Outbox $outbox, ActionRequest $request)
     {
         $this->initialisationFromShop($shop, $request);
 
@@ -76,37 +83,44 @@ class ShowOutboxWorkshop extends OrgAction
                                 'parameters' => array_values($request->route()->originalParameters()),
                             ]
                         ],
-                        [
-                            'type'  => 'button',
-                            'style' => 'save',
-                            'label' => __('publish'),
-                            'route' => [
-                                'name'       => 'grp.models.email-templates.content.publish',
-                                'parameters' => $email->id,
-                                'method'     => 'post'
-                            ]
-                        ],
                     ]
 
                 ],
-                'snapshot'          => $email->liveSnapshot,
+                'compiled_layout'    => $email->snapshot->compiled_layout,
+                'unpublished_layout'    => $email->unpublishedSnapshot->layout,
+
+                'snapshot'          => $email->unpublishedSnapshot,
                 'builder'           => $email->builder,
                 'imagesUploadRoute'   => [
                     'name'       => 'grp.models.email-templates.images.store',
                     'parameters' => $email->id
                 ],
                 'updateRoute'         => [
-                    'name'       => 'grp.models.email.snapshot.update',
-                    'parameters' => $email->unpublishedSnapshot->id
+                    'name'       => 'grp.models.shop.outboxes.update',
+                    'parameters' => [
+                        'shop' => $email->shop_id,
+                        'email' => $email->id
+                    ]
                 ],
                 'loadRoute'           => [
                     'name'       => 'grp.models.email-templates.content.show',
                     'parameters' => $email->id
                 ],
+                'publishRoute'           => [
+                    'name'       => 'grp.models.shop.outboxes.publish',
+                    'parameters' => [
+                        'shop' => $email->shop_id,
+                        'email' => $email->id
+                    ]
+                ],
+                // 'loadRoute'           => [ -> i don't know what kind of data should i give to this route
+                //     'name'       => 'grp.models.email-templates.content.show',
+                //     'parameters' => $emailTemplate->id
+                // ]
                 'apiKey'            => [
-                    'client_id'     => $email->group->settings['beefree']['client_id'],
-                    'client_secret' => $email->group->settings['beefree']['client_secret'],
-                    'grant_type'    => $email->group->settings['beefree']['grant_type'],
+                    'client_id'     => $email->group->settings['beefree']['client_id'] ?? null,
+                    'client_secret' => $email->group->settings['beefree']['client_secret'] ?? null,
+                    'grant_type'    => $email->group->settings['beefree']['grant_type'] ?? null,
                 ]
             ]
         );

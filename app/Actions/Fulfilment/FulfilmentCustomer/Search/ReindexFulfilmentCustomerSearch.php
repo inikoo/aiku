@@ -10,11 +10,12 @@ namespace App\Actions\Fulfilment\FulfilmentCustomer\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexFulfilmentCustomerSearch extends HydrateModel
 {
-    public string $commandSignature = 'fulfilment-customer:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:fulfilment_customers {organisations?*} {--s|slugs=}';
 
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer): void
@@ -28,8 +29,24 @@ class ReindexFulfilmentCustomerSearch extends HydrateModel
         return FulfilmentCustomer::withTrashed()->where('slug', $slug)->first();
     }
 
-    protected function getAllModels(): Collection
+    protected function loopAll(Command $command): void
     {
-        return FulfilmentCustomer::withTrashed()->get();
+
+        $command->info("Reindex Fulfilment customer search");
+
+        $count = FulfilmentCustomer::withTrashed()->count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+        FulfilmentCustomer::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
     }
 }

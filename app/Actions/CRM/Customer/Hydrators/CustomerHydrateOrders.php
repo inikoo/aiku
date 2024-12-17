@@ -15,6 +15,7 @@ use App\Enums\Ordering\Order\OrderStatusEnum;
 use App\Models\CRM\Customer;
 use App\Models\Ordering\Order;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class CustomerHydrateOrders
@@ -37,7 +38,7 @@ class CustomerHydrateOrders
     public function handle(Customer $customer): void
     {
         $stats = [
-            'number_orders' => $customer->orders->count(),
+            'number_orders' => DB::table('orders')->where('customer_id', $customer->id)->count(),
         ];
 
         $stats = array_merge(

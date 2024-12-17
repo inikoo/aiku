@@ -36,6 +36,8 @@ use App\Actions\Comms\EmailTemplate\UpdateEmailTemplate;
 use App\Actions\Comms\EmailTemplate\UploadImagesToEmailTemplate;
 use App\Actions\Comms\Mailshot\StoreMailshot;
 use App\Actions\Comms\Mailshot\UpdateMailshot;
+use App\Actions\Comms\Outbox\PublishOutbox;
+use App\Actions\Comms\Outbox\UpdateWorkshopOutbox;
 use App\Actions\CRM\Customer\AddDeliveryAddressToCustomer;
 use App\Actions\CRM\Customer\DeleteCustomerDeliveryAddress;
 use App\Actions\CRM\Customer\DeletePortfolio;
@@ -119,7 +121,6 @@ use App\Actions\Helpers\GoogleDrive\AuthorizeClientGoogleDrive;
 use App\Actions\Helpers\GoogleDrive\CallbackClientGoogleDrive;
 use App\Actions\Helpers\Media\AttachAttachmentToModel;
 use App\Actions\Helpers\Media\DetachAttachmentFromModel;
-use App\Actions\Helpers\Snapshot\UpdateSnapshot;
 use App\Actions\Helpers\Tag\StoreTag;
 use App\Actions\Helpers\Tag\SyncTagsModel;
 use App\Actions\HumanResources\ClockingMachine\DeleteClockingMachine;
@@ -484,6 +485,11 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
             Route::patch('switch-on', PublishBanner::class)->name('switch-on');
         });
     });
+
+    Route::name('outboxes.')->prefix('outboxes/{outbox:id}')->group(function () {
+        Route::post('publish', PublishOutbox::class)->name('publish')->withoutScopedBindings();
+        Route::patch('workshop', UpdateWorkshopOutbox::class)->name('workshop.update')->withoutScopedBindings();
+    });
 });
 
 Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function () {
@@ -727,7 +733,6 @@ Route::patch('/payment/{payment:id}', UpdatePayment::class)->name('payment.updat
 
 
 
-Route::patch('/outbox/{outbox:id}', UpdateOutbox::class)->name('outbox.update');
 
 Route::patch('/purchase-order/{purchaseOrder:id}', UpdatePurchaseOrder::class)->name('purchase-order.update');
 

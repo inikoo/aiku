@@ -52,7 +52,7 @@ class CustomersResource extends JsonResource
             'created_at'                   => $this->created_at,
             'number_current_clients'       => $this->number_current_clients,
             'number_current_portfolios'    => $this->number_current_portfolios,
-            'platforms'                    => $this->platform_name ?? 'none',
+            'platform_name'                    => $this->platform_name ?? 'none',
             'last_invoiced_at'             => $this->last_invoiced_at,
             'number_invoices_type_invoice' => $this->number_invoices_type_invoice,
             'sales_all'                    => $this->sales_all,

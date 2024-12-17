@@ -353,6 +353,11 @@ class Organisation extends Model implements HasMedia, Auditable
         return $this->hasOne(OrganisationSalesIntervals::class);
     }
 
+    public function orderingIntervals(): HasOne
+    {
+        return $this->hasOne(OrganisationOrderingIntervals::class);
+    }
+
     public function orderHandlingStats(): HasOne
     {
         return $this->hasOne(OrganisationOrderHandlingStats::class);

@@ -140,21 +140,24 @@ class ShowOutbox extends OrgAction
 
 
         $this->canEdit = true;
-        $actions       = $this->workshopActions($request);
+        // $actions       = $this->workshopActions($request);
+        $actions = [];
 
-        if ($outbox->type === OutboxTypeEnum::USER_NOTIFICATION && $outbox->builder !== EmailBuilderEnum::BLADE->value && $outbox->model_type === class_basename(EmailOngoingRun::class)) {
-            $actions = array_merge($actions, $this->canEdit ? [
-                'type'  => 'button',
-                'style' => 'secondary',
-                'label' => __('workshop'),
-                'icon'  => ["fal", "fa-drafting-compass"],
-                'route' => [
-                    'name'       => preg_replace('/show$/', 'workshop', $request->route()->getName()),
-                    'parameters' => array_values($request->route()->originalParameters())
+        if ($outbox->type === OutboxTypeEnum::CUSTOMER_NOTIFICATION && $outbox->builder !== EmailBuilderEnum::BLADE->value && $outbox->model_type === class_basename(EmailOngoingRun::class)) {
+            $actions = [
+                [
+                    'type'  => 'button',
+                    'style' => 'secondary',
+                    'label' => __('workshop'),
+                    'icon'  => ["fal", "fa-drafting-compass"],
+                    'route' => [
+                        'name'       => preg_replace('/show$/', 'workshop', $request->route()->getName()),
+                        'parameters' => array_values($request->route()->originalParameters())
+                    ]
                 ]
-            ] : []);
+            ];
         }
-
+        // dd($actions);
         return Inertia::render(
             'Comms/Outbox',
             [

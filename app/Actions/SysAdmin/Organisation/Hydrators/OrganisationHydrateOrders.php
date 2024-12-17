@@ -15,6 +15,7 @@ use App\Enums\Ordering\Order\OrderStatusEnum;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Ordering\Order;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class OrganisationHydrateOrders
@@ -37,7 +38,7 @@ class OrganisationHydrateOrders
     public function handle(Organisation $organisation): void
     {
         $stats = [
-            'number_orders' => $organisation->orders()->count()
+            'number_orders' => DB::table('orders')->where('organisation_id', $organisation->id)->count(),
         ];
 
         $stats = array_merge(

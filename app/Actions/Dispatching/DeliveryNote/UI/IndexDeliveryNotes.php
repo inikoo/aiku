@@ -13,6 +13,7 @@ use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\UI\Dispatch\ShowDispatchHub;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\UI\DeliveryNotes\DeliveryNotesTabsEnum;
 use App\Http\Resources\Dispatching\DeliveryNotesResource;
 use App\InertiaTable\InertiaTable;
@@ -27,6 +28,7 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -37,8 +39,9 @@ class IndexDeliveryNotes extends OrgAction
     use WithCustomerSubNavigation;
 
     private Warehouse|Shop|Order|Customer|CustomerClient $parent;
+    private string $bucket;
 
-    public function handle(Warehouse|Shop|Order|Customer|CustomerClient $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Warehouse|Shop|Order|Customer|CustomerClient $parent, $prefix = null, $bucket = 'all'): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -51,6 +54,27 @@ class IndexDeliveryNotes extends OrgAction
         }
 
         $query = QueryBuilder::for(DeliveryNote::class);
+
+        if ($this->bucket == 'unassigned') {
+            $query->where('delivery_notes.state', DeliveryNoteStateEnum::UNASSIGNED);
+        } elseif ($this->bucket == 'queued') {
+            $query->where('delivery_notes.state', DeliveryNoteStateEnum::QUEUED);
+        } elseif ($this->bucket == 'handling') {
+            $query->where('delivery_notes.state', DeliveryNoteStateEnum::HANDLING);
+        } elseif ($this->bucket == 'handling_blocked') {
+            $query->where('delivery_notes.state', DeliveryNoteStateEnum::HANDLING_BLOCKED);
+        } elseif ($this->bucket == 'packed') {
+            $query->where('delivery_notes.state', DeliveryNoteStateEnum::PACKED);
+        } elseif ($this->bucket == 'finalised') {
+            $query->where('delivery_notes.state', DeliveryNoteStateEnum::FINALISED);
+        } elseif ($this->bucket == 'dispatched') {
+            $query->where('delivery_notes.state', DeliveryNoteStateEnum::DISPATCHED);
+        } elseif ($this->bucket == 'cancelled') {
+            $query->where('delivery_notes.state', DeliveryNoteStateEnum::CANCELLED);
+        } elseif ($this->bucket == 'dispatched_today') {
+            $query->where('delivery_notes.state', DeliveryNoteStateEnum::DISPATCHED)
+                    ->where('dispatched_at', Carbon::today());
+        }
 
 
         if ($parent instanceof Warehouse) {
