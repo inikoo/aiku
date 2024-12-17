@@ -16,7 +16,6 @@ use App\Actions\CRM\Favourite\UI\IndexProductFavourites;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Http\Resources\Catalogue\ProductBackInStockRemindersResource;
 use App\Http\Resources\Catalogue\ProductFavouritesResource;
@@ -26,6 +25,7 @@ use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -34,15 +34,48 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowProduct extends OrgAction
 {
-    use HasCatalogueAuthorisation;
+    private Group|Organisation|Shop|Fulfilment|ProductCategory $parent;
 
-    private Organisation|Shop|Fulfilment|ProductCategory $parent;
+    public function authorize(ActionRequest $request): bool
+    {
+
+        if ($this->asAction) {
+            return true;
+        }
+
+        if ($this->parent instanceof Organisation) {
+            $this->canEdit = $request->user()->hasAnyPermission(
+                [
+                    'org-supervisor.'.$this->organisation->id,
+                ]
+            );
+
+            return $request->user()->hasAnyPermission(
+                [
+                    'org-supervisor.'.$this->organisation->id,
+                    'shops-view'.$this->organisation->id,
+                ]
+            );
+        } elseif ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        } else {
+            $this->canEdit = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
+            return $request->user()->hasPermissionTo("products.{$this->shop->id}.view");
+        }
+    }
 
     public function handle(Product $product): Product
     {
         return $product;
     }
 
+    public function inGroup(Product $product, ActionRequest $request): Product
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup(group(), $request);
+
+        return $this->handle($product);
+    }
 
     public function inOrganisation(Organisation $organisation, Product $product, ActionRequest $request): Product
     {
