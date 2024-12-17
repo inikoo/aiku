@@ -14,6 +14,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
+use App\Models\Catalogue\Shop;
 use App\Models\Comms\Outbox;
 use App\Models\Helpers\Snapshot;
 use Illuminate\Support\Arr;
@@ -26,11 +27,13 @@ class PublishOutbox extends OrgAction
     public function handle(Outbox $outbox, array $modelData): Outbox
     {
         $email = $outbox->emailOngoingRun->email;
+        $unpublishedSnapshot = $email->unpublishedSnapshot;
 
         /** @var Snapshot $snapshot */
         $snapshot = StoreEmailSnapshot::run(
             $email,
             [
+                'builder' => $unpublishedSnapshot->builder,
                 'state'          => SnapshotStateEnum::LIVE,
                 'published_at'   => now(),
                 'layout'         => Arr::get($modelData, 'layout'),
@@ -52,24 +55,26 @@ class PublishOutbox extends OrgAction
         );
 
         $updateData = [
-            'live_snapshot_id'          => $snapshot->id,
-            'state'                     => OutboxStateEnum::ACTIVE,
-            'is_dirty'                  => false
+            'live_snapshot_id'          => $snapshot->id
         ];
 
-        return $this->update($email, $updateData);
+        $this->update($email, $updateData);
+
+        return $this->update($outbox, [
+            'state' => OutboxStateEnum::ACTIVE
+        ]);
     }
 
     public function rules(): array
     {
         return [
             'comment' => ['required', 'string'],
-            'layout' => ['required', 'string'],
+            'layout' => ['required'],
             'compiled_layout' => ['required', 'string']
         ];
     }
 
-    public function asController(Outbox $outbox, ActionRequest $request): Outbox
+    public function asController(Shop $shop, Outbox $outbox, ActionRequest $request): Outbox
     {
         $this->initialisation($outbox->organisation, $request);
 
