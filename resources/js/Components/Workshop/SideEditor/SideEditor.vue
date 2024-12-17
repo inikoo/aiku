@@ -67,7 +67,9 @@ const setFormValues = (blueprint = [], data = {}) => {
 }
 
 onMounted(() => {
-    emits('update:modelValue', setFormValues(props.blueprint, cloneDeep(modelValue.value)))
+    if(!modelValue.value){
+        emits('update:modelValue', setFormValues(props.blueprint, cloneDeep(modelValue.value)))
+    }
 })
 
 
