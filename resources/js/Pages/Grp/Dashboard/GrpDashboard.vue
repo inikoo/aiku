@@ -101,7 +101,7 @@ const layout = inject("layout", layoutStructure)
 const locale = inject("locale", aikuLocaleStructure)
 
 // Decriptor: Date interval
-const selectedDateOption = ref<string>("all")
+const selectedDateOption = ref<string>("ytd")
 
 // const currencyValue = ref('group')
 

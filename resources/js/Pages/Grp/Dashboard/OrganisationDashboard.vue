@@ -44,7 +44,7 @@ const props = defineProps<{
 }>()
 
 console.log(props.dashboard, "hehe")
-const selectedDateOption = ref<string>("all")
+const selectedDateOption = ref<string>("ytd")
 const locale = inject("locale", aikuLocaleStructure)
 
 const datas = computed(() => {

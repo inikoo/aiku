@@ -26,7 +26,6 @@ const props = defineProps<{
     outboxes: object
     mailshots: object
 }>()
-
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 

@@ -67,9 +67,9 @@ const filteredData = computed(() => {
 	<!-- Dashboard Grid -->
 	<div class="grid grid-cols-12 m-3 gap-4">
 		<!-- Left Column -->
-		<div class="col-span-3 space-y-4">
+		<div class="col-span-6 space-y-4">
 			<!-- Predicted Months DataTable -->
-			<div class="bg-white p-4 rounded-lg shadow-md">
+			<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
 				<DataTable :value="filteredData" class="text-gray-900" :showHeaders="false">
 					<template #header>
 						<div class="flex items-center w-full mb-2">
@@ -117,7 +117,7 @@ const filteredData = computed(() => {
 
 					<Column field="name">
 						<template #body="slotProps">
-							<span class="text-gray-800">{{ slotProps.data.name }}</span>
+							<span class="text-gray-800 primaryLink">{{ slotProps.data.name }}</span>
 						</template>
 					</Column>
 
@@ -125,7 +125,7 @@ const filteredData = computed(() => {
 						<template #body="slotProps">
 							<Link
 								:href="slotProps.data.route"
-								class="text-blue-500 hover:underline">
+								class="">
 								{{ locale.number(slotProps.data.number) }}
 							</Link>
 						</template>
@@ -154,10 +154,7 @@ const filteredData = computed(() => {
 					<p class="text-gray-500 text-base mt-1">Sales today</p>
 				</div>
 			</div>
-		</div>
 
-		<!-- Right Column -->
-		<div class="col-span-3 space-y-4">
 			<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
 				<h3 class="text-gray-500 font-semibold text-lg mb-2">The Yoga Store</h3>
 				<div class="relative py-3 mb-1" style="height: 102px">
@@ -177,7 +174,7 @@ const filteredData = computed(() => {
 
 		<!-- Added Beside Right -->
 		<div class="col-span-3 space-y-4">
-			<div class="flex flex-col gap-4 p-4">
+			<div class="flex flex-col gap-4 ">
 				<!-- Card 1: Cart Abandonment Rate -->
 				<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
 					<p class="text-4xl font-bold leading-tight text-gray-700">
