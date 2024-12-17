@@ -46,8 +46,8 @@ class IndexCustomers extends OrgAction
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($organisation, $request);
         $this->parent = $organisation;
+        $this->initialisation($organisation, $request);
 
         return $this->handle($this->parent);
     }
@@ -63,8 +63,8 @@ class IndexCustomers extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisationFromShop($shop, $request);
         $this->parent = $shop;
+        $this->initialisationFromShop($shop, $request);
 
         return $this->handle($shop);
     }
