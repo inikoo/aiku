@@ -1,20 +1,14 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
-import BorderProperty from '@/Components/Workshop/Properties/BorderProperty.vue';
-import { trans } from 'laravel-vue-i18n';
+import { ref, watch, onMounted, onBeforeMount } from 'vue'
+import BorderProperty from '@/Components/Workshop/Properties/BorderProperty.vue'
+import { trans } from 'laravel-vue-i18n'
+import { set, get } from 'lodash'
 
-// Define props and emits
-const props = defineProps({
-    modelValue: {
-        type: Object,
-        required: true,
-    },
-});
 
-const emit = defineEmits(['update:modelValue']);
+const model = defineModel<{}>()
 
 // Create a local copy of the model for internal use
-const localModel = ref({
+const localModel = {
     top: { value: 0 },
     left: { value: 0 },
     unit: 'px',
@@ -28,29 +22,21 @@ const localModel = ref({
         bottomleft: { value: 0 },
         bottomright: { value: 0 },
     },
-});
+}
 
 // Initialize localModel with the prop value on mount
-onMounted(() => {
-    if (props.modelValue) {
-        localModel.value = props.modelValue;
+onBeforeMount(() => {
+    if (model.value) {
+        set(model, 'value', localModel)
     }
-});
+})
 
-// Watch localModel and emit updates
-watch(
-    localModel,
-    (newValue) => {
-        emit('update:modelValue', newValue);
-    },
-    { deep: true }
-);
 </script>
 
 <template>
     <div v-if="localModel" class="border-t border-gray-300 bg-gray-100 pb-3">
         <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Border') }}</div>
-        <BorderProperty v-model="localModel" />
+        <BorderProperty :modelValue="model || localModel" @update:modelValue="(e) => model = e" />
     </div>
 </template>
 
