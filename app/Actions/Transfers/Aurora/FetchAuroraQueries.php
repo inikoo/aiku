@@ -27,6 +27,9 @@ class FetchAuroraQueries extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Query
     {
+
+        $this->organisationSource = $organisationSource;
+
         $queryData = $organisationSource->fetchQuery($organisationSourceId);
         $query = null;
         if ($queryData) {

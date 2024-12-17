@@ -29,11 +29,15 @@ class FetchAuroraTransactionHasOfferComponent extends FetchAurora
             $offerComponent = $this->parseOfferComponent($this->organisation->id.':'.$this->auroraModelData->{'Deal Component Key'});
         }
 
+        $data = [];
         if (!$offerComponent) {
-            print 'No offer component found for '.$this->auroraModelData->{'Deal Component Key'}."\n";
-            print_r($this->auroraModelData);
-
-            return;
+            $data           = [
+                'fetch_error'      => true,
+                'fetch_error_data' => [
+                    'aurora_deal_component_key' => $this->auroraModelData->{'Deal Component Key'},
+                ]
+            ];
+            $offerComponent = $order->shop->offerComponents()->where('is_discretionary', true)->first();
         }
 
 
@@ -62,6 +66,7 @@ class FetchAuroraTransactionHasOfferComponent extends FetchAurora
             'is_pinned'          => $this->auroraModelData->{'Order Transaction Deal Pinned'} == 'Yes',
             'fetched_at'         => now(),
             'last_fetched_at'    => now(),
+            'data'               => $data,
         ];
 
         if (isset($fractionDiscount)) {
