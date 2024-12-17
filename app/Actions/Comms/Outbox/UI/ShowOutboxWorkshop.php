@@ -96,7 +96,7 @@ class ShowOutboxWorkshop extends OrgAction
                     'parameters' => $email->id
                 ],
                 'updateRoute'         => [
-                    'name'       => 'grp.models.shop.outboxes.update',
+                    'name'       => 'grp.models.shop.outboxes.workshop.update',
                     'parameters' => [
                         'shop' => $email->shop_id,
                         'email' => $email->id
