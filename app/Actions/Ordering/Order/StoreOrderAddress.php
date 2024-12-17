@@ -30,7 +30,10 @@ class StoreOrderAddress extends OrgAction
     {
         $type = Arr::get($modelData, 'type');
 
-        $address = $this->storeModelAddress($modelData['address']->toArray());
+        $addressData = $modelData['address']->toArray();
+        data_set($addressData, 'group_id', $order->group_id);
+
+        $address = $this->storeModelAddress($addressData);
 
         $order->updateQuietly(
             [

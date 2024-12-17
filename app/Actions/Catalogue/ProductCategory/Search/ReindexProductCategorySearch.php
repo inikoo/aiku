@@ -10,7 +10,6 @@ namespace App\Actions\Catalogue\ProductCategory\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\Catalogue\ProductCategory;
-use App\Models\CRM\Customer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
@@ -28,7 +27,7 @@ class ReindexProductCategorySearch extends HydrateModel
     {
         return ProductCategory::withTrashed()->where('slug', $slug)->first();
     }
-    
+
     protected function loopAll(Command $command): void
     {
         $count = ProductCategory::withTrashed()->count();
@@ -50,5 +49,5 @@ class ReindexProductCategorySearch extends HydrateModel
 
         $command->info("");
     }
-    
+
 }

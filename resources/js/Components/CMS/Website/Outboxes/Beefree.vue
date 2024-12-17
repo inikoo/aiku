@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { onMounted, defineExpose, ref } from "vue";
+import { onMounted, defineExpose, ref, inject } from "vue";
 import axios from "axios"
 import Bee from "@mailupinc/bee-plugin";
 import { routeType } from "@/types/route";
 import { router } from "@inertiajs/vue3"
 import EmptyState from "@/Components/Utils/EmptyState.vue";
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
 const props = withDefaults(defineProps<{
     updateRoute: routeType;
@@ -17,6 +18,7 @@ const props = withDefaults(defineProps<{
     }
 }>(), {});
 
+const locale = inject('locale', aikuLocaleStructure)
 const showBee = ref(false)
 var mergeTags = [
     {
@@ -33,7 +35,35 @@ var mergeTags = [
         value: '[order-date]'
     }
 ];
-console.log(props.snapshot)
+
+
+const onSaveEmail = (jsonFile, htmlFile) => {
+    axios
+        .patch(
+            route(props.updateRoute.name, props.updateRoute.parameters), // Constructed URL
+            {
+                layout: JSON.parse(jsonFile),
+                compiled_layout: htmlFile
+            }, // Payload
+            {
+                onUploadProgress: (progressEvent) => {
+                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    console.log(`Upload progress: ${percentCompleted}%`);
+                },
+            }
+        )
+        .then((response) => {
+            console.log("autosave successful:", response.data);
+            // Handle success (equivalent to onFinish)
+        })
+        .catch((error) => {
+            console.error("autosave failed:", error);
+        })
+        .finally(() => {
+            console.log("autosave finished.");
+        });
+}
+
 
 const beeConfig = () => {
     const beeInstance = new Bee();
@@ -41,8 +71,6 @@ const beeConfig = () => {
     var payload = {
         client_id: props.apiKey.client_id,
         client_secret: props.apiKey.client_secret,
-        grant_type:
-            `Basic ${props.apiKey.grant_type}`,
     };
     axios
         .post(endpoint, payload)
@@ -52,13 +80,14 @@ const beeConfig = () => {
                 uid: token.userName,
                 container: "bee-plugin-container",
                 language: "en-US",
-                customCss: "https://bee-plugin-demos.getbee.io/themes/coral.css",
+                /*   customCss: "https://bee-plugin-demos.getbee.io/themes/coral.css", */
                 loadingSpinnerDisableOnDialog: true,
                 saveRows: true,
                 disableBaseColors: true,
                 disableColorHistory: true,
                 templateLanguageAutoTranslation: true,
                 mergeTags: mergeTags,
+                /*  contentDialog, */
                 customAttributes: {
                     attributes: [
                         {
@@ -80,32 +109,16 @@ const beeConfig = () => {
                     ]
                 },
                 autosave: 20,
+                onFilePickerInsert: function (data) {
+                    // Handle the selected file data
+                    console.log("File Inserted:", data);
+                    // Perform any necessary actions with the file data
+                },
+                onSave: function (jsonFile, htmlFile) {
+                    onSaveEmail(jsonFile,null)
+                },
                 onAutoSave: function (jsonFile) {
-                    console.log('autosave')
-                    axios
-                        .patch(
-                            route(props.updateRoute.name, props.updateRoute.parameters), // Constructed URL
-                            {
-                                layout : JSON.parse(jsonFile),
-                                compiled_layout : null
-                            }, // Payload
-                            {
-                                onUploadProgress: (progressEvent) => {
-                                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                                    console.log(`Upload progress: ${percentCompleted}%`);
-                                },
-                            }
-                        )
-                        .then((response) => {
-                            console.log("Upload successful:", response.data);
-                            // Handle success (equivalent to onFinish)
-                        })
-                        .catch((error) => {
-                            console.error("Upload failed:", error);
-                        })
-                        .finally(() => {
-                            console.log("Upload finished."); 
-                        });
+                    onSaveEmail(jsonFile,null)
                 }
             };
             beeInstance
@@ -118,7 +131,7 @@ const beeConfig = () => {
 }
 
 onMounted(() => {
-    if (props.apiKey.client_id && props.apiKey.client_secret && props.apiKey.grant_type) {
+    if (props.apiKey.client_id && props.apiKey.client_secret) {
         showBee.value = true
         beeConfig()
     } else {
@@ -132,6 +145,10 @@ defineExpose({})
 </script>
 
 <template>
+    <div class="bg-yellow-500 font-bold text-white flex justify-center">
+        This is Real Beefree api key from Ourora beecarefull
+    </div>
+
     <div v-if="showBee" id="app">
         <div id="bee-plugin-container" class="unlayer"></div>
     </div>

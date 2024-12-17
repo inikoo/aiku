@@ -756,8 +756,8 @@ trait WithAuroraParsers
 
         $emailBulkRun = EmailBulkRun::where('source_id', $sourceId)->first();
         if (!$emailBulkRun) {
-            $sourceData = explode(':', $sourceId);
-            $emailBulkRun   = FetchAuroraEmailBulkRuns::run($this->organisationSource, $sourceData[1]);
+            $sourceData   = explode(':', $sourceId);
+            $emailBulkRun = FetchAuroraEmailBulkRuns::run($this->organisationSource, $sourceData[1]);
         }
 
         return $emailBulkRun;
@@ -924,7 +924,12 @@ trait WithAuroraParsers
             default => $auroraTaxCategoryId
         };
 
-        return TaxCategory::where('source_id', $auroraTaxCategoryId)->firstOrFail();
+        $taxCategory = TaxCategory::where('source_id', $auroraTaxCategoryId)->first();
+        if (!$taxCategory) {
+            dd($auroraTaxCategoryId);
+        }
+
+        return $taxCategory;
     }
 
     public function parseUpload($sourceId): ?Upload
@@ -1042,7 +1047,6 @@ trait WithAuroraParsers
     public function parseOutbox(string $sourceId): ?Outbox
     {
         return Outbox::whereJsonContains('sources->outboxes', $sourceId)->first();
-
     }
 
     public function parseEmailRun($sourceId): ?EmailBulkRun
@@ -1069,7 +1073,7 @@ trait WithAuroraParsers
         $email = Email::where('source_id', $sourceId)->first();
         if (!$email) {
             $sourceData = explode(':', $sourceId);
-            $email   = FetchAuroraEmails::run($this->organisationSource, $sourceData[1]);
+            $email      = FetchAuroraEmails::run($this->organisationSource, $sourceData[1]);
         }
 
         return $email;
@@ -1083,8 +1087,8 @@ trait WithAuroraParsers
 
         $warehouseArea = WarehouseArea::where('source_id', $sourceId)->first();
         if (!$warehouseArea) {
-            $sourceData = explode(':', $sourceId);
-            $warehouseArea   = FetchAuroraWarehouseAreas::run($this->organisationSource, $sourceData[1]);
+            $sourceData    = explode(':', $sourceId);
+            $warehouseArea = FetchAuroraWarehouseAreas::run($this->organisationSource, $sourceData[1]);
         }
 
         return $warehouseArea;
@@ -1098,8 +1102,8 @@ trait WithAuroraParsers
 
         $emailOngoingRun = EmailOngoingRun::where('source_id', $sourceId)->first();
         if (!$emailOngoingRun) {
-            $sourceData = explode(':', $sourceId);
-            $emailOngoingRun   = FetchAuroraEmailOngoingRuns::run($this->organisationSource, $sourceData[1]);
+            $sourceData      = explode(':', $sourceId);
+            $emailOngoingRun = FetchAuroraEmailOngoingRuns::run($this->organisationSource, $sourceData[1]);
         }
 
         return $emailOngoingRun;

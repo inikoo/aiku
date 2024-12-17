@@ -37,7 +37,7 @@ class FetchAuroraDeletedLocation extends FetchAurora
         $code = str_replace('*', '', $code);
         $code = str_replace('/', '', $code);
 
-        $code = $code.'-deleted';
+        $code = $code.'-deleted-'.$this->auroraModelData->{'Location Deleted Key'};
 
         $this->parsedData['parent']   = $parent;
         $this->parsedData['location'] = [

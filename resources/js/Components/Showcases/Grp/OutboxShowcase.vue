@@ -16,6 +16,8 @@ import { faExpand } from "@fal";
 import ScreenView from "@/Components/ScreenView.vue"
 import { setIframeView } from "@/Composables/Workshop"
 import EmptyState from "@/Components/Utils/EmptyState.vue";
+import { faPaperPlane, faVirus, faInboxIn, faExclamationTriangle, faInbox, faMousePointer, faEnvelopeOpen, faHandPaper, faDumpster} from '@fal'
+library.add(faPaperPlane, faVirus, faInboxIn, faExclamationTriangle, faInbox, faMousePointer, faEnvelopeOpen, faHandPaper, faDumpster)
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement);
 
@@ -52,7 +54,7 @@ const dataSet = {
         <div class="grid grid-cols-4 md:grid-cols-4 gap-2">
             <div class="md:col-span-4 grid sm:grid-cols-1 md:grid-cols-6 gap-2 h-auto mb-3">
                 <div v-for="item in data.stats" :key="item.key" :class="item.class"
-                    class="bg-gradient-to-tr text-white flex flex-col justify-between px-6 py-2 rounded-lg shadow-lg sm:h-auto">
+                    class="bg-gradient-to-tr flex flex-col justify-between px-6 py-2 rounded-lg shadow-lg sm:h-auto">
                     <div class="flex justify-between items-center mb-2">
                         <div>
                             <div class="text-lg font-semibold capitalize">{{ item.label }}</div>
@@ -109,8 +111,6 @@ const dataSet = {
                         <span class="text-gray-500 text-lg">No Data Available</span>
                     </div>
                 </div>
-
-
             </div>
         </div>
     </div>

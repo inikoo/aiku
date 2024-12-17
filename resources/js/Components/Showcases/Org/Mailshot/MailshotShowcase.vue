@@ -1,12 +1,6 @@
 <script setup lang="ts">
-import PureTimeline from '@/Components/Pure/PureTimeline.vue'
-
-import beePluginJsonExample from "@/Components/CMS/Website/Outboxes/Unlayer/beePluginJsonExample"
-import { PageHeading as TSPageHeading } from '@/types/PageHeading'
-import { Tabs as TSTabs } from '@/types/Tabs'
-import { routeType } from '@/types/route'
-
 import Timeline from '@/Components/Utils/Timeline.vue'
+
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faUser, faEnvelope, faSeedling, faShare, faInboxOut, faCheck, faEnvelopeOpen, faHandPointer, faUserSlash, faPaperPlane, faEyeSlash, faSkull, faDungeon } from '@fal';
@@ -15,8 +9,6 @@ library.add(faUser, faEnvelope, faSeedling, faShare, faInboxOut, faCheck, faEnve
 const props = defineProps<{
     data : Object
 }>()
-
-
 
 console.log('sss',props)
 </script>
@@ -50,10 +42,8 @@ console.log('sss',props)
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
-
 </template>
 
 
