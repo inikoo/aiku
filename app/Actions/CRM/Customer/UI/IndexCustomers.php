@@ -34,7 +34,7 @@ class IndexCustomers extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if (str_starts_with($request->route()->getName(), 'grp.overview')) {
+        if ($this->parent instanceof Group) {
             return $request->user()->hasPermissionTo("group-overview");
         }
 
@@ -54,8 +54,8 @@ class IndexCustomers extends OrgAction
 
     public function inGroup(ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisationFromGroup(group(), $request);
         $this->parent = group();
+        $this->initialisationFromGroup(group(), $request);
 
         return $this->handle($this->parent);
     }
