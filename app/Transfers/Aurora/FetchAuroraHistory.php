@@ -66,6 +66,21 @@ class FetchAuroraHistory extends FetchAurora
 
         if ($event == 'updated' and
             (
+                count($oldValues) == 0 and
+                count($newValues) == 1
+            )
+
+        ) {
+            // todo, later on check if really the old values are empty or is an parsing error
+            $oldValues= $newValues;
+            foreach($oldValues as $key => $value) {
+                $oldValues[$key] = '';
+            }
+        }
+
+
+        if ($event == 'updated' and
+            (
                 count($oldValues) == 0 or
                 count($newValues) == 0
             )
