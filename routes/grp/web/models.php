@@ -37,6 +37,7 @@ use App\Actions\Comms\EmailTemplate\UploadImagesToEmailTemplate;
 use App\Actions\Comms\Mailshot\StoreMailshot;
 use App\Actions\Comms\Mailshot\UpdateMailshot;
 use App\Actions\Comms\Outbox\PublishOutbox;
+use App\Actions\Comms\Outbox\ToggleOutbox;
 use App\Actions\Comms\Outbox\UpdateWorkshopOutbox;
 use App\Actions\CRM\Customer\AddDeliveryAddressToCustomer;
 use App\Actions\CRM\Customer\DeleteCustomerDeliveryAddress;
@@ -487,6 +488,7 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
     });
 
     Route::name('outboxes.')->prefix('outboxes/{outbox:id}')->group(function () {
+        Route::patch('toggle', ToggleOutbox::class)->name('toggle')->withoutScopedBindings();
         Route::post('publish', PublishOutbox::class)->name('publish')->withoutScopedBindings();
         Route::patch('workshop', UpdateWorkshopOutbox::class)->name('workshop.update')->withoutScopedBindings();
     });
