@@ -9,6 +9,7 @@
 namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
@@ -58,7 +59,7 @@ class IndexEmployees extends OrgAction
         ];
     }
 
-    public function handle(Organisation|JobPosition $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|JobPosition|Group $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -80,9 +81,9 @@ class IndexEmployees extends OrgAction
             $queryBuilder->where('employee_has_job_positions.job_position_id', $parent->id);
             $queryBuilder->where('employees.organisation_id', $parent->organisation_id);
         } else {
-            $queryBuilder->where('job_positions.group_id', $parent->id);
+            $queryBuilder->where('employees.group_id', $parent->id);
         }
-
+        $queryBuilder->leftjoin('organisations', 'employees.organisation_id', '=', 'organisations.id', 'organisations.name as organisation_name', 'organisations.slug as organisation_slug',);
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
@@ -93,7 +94,7 @@ class IndexEmployees extends OrgAction
             );
         }
 
-        $queryBuilder->select(['slug', 'job_title', 'contact_name', 'state']);
+        $queryBuilder->select(['employees.slug', 'employees.job_title', 'employees.contact_name', 'employees.state']);
 
         if (class_basename($parent) == 'Organisation') {
             $jobPositions = DB::table('employee_has_job_positions')
@@ -169,7 +170,9 @@ class IndexEmployees extends OrgAction
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'job_title', label: __('job title'), canBeHidden: false);
-
+            if ($parent instanceof Group) {
+                    $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
+                }
             if (class_basename($parent) == 'Organisation') {
                 $table->column(key: 'positions', label: __('responsibilities'), canBeHidden: false);
             }
@@ -183,6 +186,8 @@ class IndexEmployees extends OrgAction
             $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
 
             return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
+        } elseif (class_basename($this->parent) == 'Group') {
+            return $request->user()->hasPermissionTo("group-overview");
         } else {
             return $request->user()->hasPermissionTo('group-reports');
         }
@@ -200,7 +205,7 @@ class IndexEmployees extends OrgAction
         return Inertia::render(
             'Org/HumanResources/Employees',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName() ,$request->route()->originalParameters()),
                 'title'       => __('employees'),
                 'pageHead'    => [
                     'icon'    => [
@@ -273,17 +278,24 @@ class IndexEmployees extends OrgAction
         return $this->handle($organisation);
     }
 
-
-    public function getBreadcrumbs($routeParameters): array
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
     {
-        return array_merge(
-            (new ShowHumanResourcesDashboard())->getBreadcrumbs($routeParameters),
-            [
+        $this->parent = group();
+        $this->initialisationFromGroup(group(), $request);
+
+        return $this->handle(group());
+    }
+
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        $headCrumb = function (string $routeName, array $routeParameters) {
+            return [
                 [
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name'       => 'grp.org.hr.employees.index',
+                            'name'       => $routeName,
                             'parameters' => array_merge(
                                 [
                                     '_query' => [
@@ -296,9 +308,22 @@ class IndexEmployees extends OrgAction
                         'label' => __('Employees'),
                         'icon'  => 'fal fa-bars',
                     ],
+                ],
+            ];
+        };
 
-                ]
-            ]
-        );
+        return match ($routeName) {
+            'grp.org.hr.employees.index' => 
+            array_merge(
+                ShowHumanResourcesDashboard::make()->getBreadcrumbs($routeParameters),
+                $headCrumb($routeName, $routeParameters)
+            ),
+            'grp.overview.human-resources.employees.index' => 
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(),
+                $headCrumb($routeName, $routeParameters)
+            ),
+
+        };
     }
 }
