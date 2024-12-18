@@ -81,8 +81,8 @@ class IndexInvoices extends OrgAction
             abort(422);
         }
 
-        $queryBuilder->leftjoin('organisations', 'purges.organisation_id', '=', 'organisations.id');
-        $queryBuilder->leftjoin('shops', 'purges.shop_id', '=', 'shops.id');
+        $queryBuilder->leftjoin('organisations', 'invoices.organisation_id', '=', 'organisations.id');
+        $queryBuilder->leftjoin('shops', 'invoices.shop_id', '=', 'shops.id');
 
         $queryBuilder->defaultSort('-invoices.date')
             ->select([
