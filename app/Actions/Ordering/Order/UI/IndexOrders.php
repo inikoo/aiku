@@ -182,7 +182,6 @@ class IndexOrders extends OrgAction
                 'organisations.slug as organisation_slug',
             ])
             ->leftJoin('order_stats', 'orders.id', 'order_stats.order_id')
-            ->leftJoin('shops', 'orders.shop_id', 'shops.id')
             ->allowedSorts(['reference', 'date'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
