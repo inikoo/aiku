@@ -34,6 +34,7 @@ class ShowOrganisationDashboard extends OrgAction
                     'wtd' => 'sales_wtd',
                     'lm'  => 'sales_lm',
                     'lw'  => 'sales_lw',
+                    'ld'  => 'sales_ld',
                     'tdy' => 'sales_tdy',
                     '1y'  => 'sales_1y',
                     '1q'  => 'sales_1q',
@@ -65,8 +66,9 @@ class ShowOrganisationDashboard extends OrgAction
                     if ($shop->salesIntervals !== null) {
                         $responseData['interval_percentages']['sales'] = $this->mapIntervals(
                             $shop->salesIntervals,
+                            'sales',
                             [
-                                'ytd', 'qtd', 'mtd', 'wtd', 'lm', 'lw', 'tdy', '1y', '1q', '1m', '1w', 'all'
+                                'ytd', 'qtd', 'mtd', 'wtd', 'lm', 'lw', 'ld', 'tdy', '1y', '1q', '1m', '1w', 'all'
                             ]
                         );
                     }
@@ -74,8 +76,19 @@ class ShowOrganisationDashboard extends OrgAction
                     if ($shop->orderingIntervals !== null) {
                         $responseData['interval_percentages']['invoices'] = $this->mapIntervals(
                             $shop->orderingIntervals,
+                            'invoices',
                             [
-                                'ytd', 'qtd', 'mtd', 'wtd', 'lm', 'lw', 'tdy', '1y', '1q', '1m', '1w', 'all'
+                                'ytd', 'qtd', 'mtd', 'wtd', 'lm', 'lw', 'ld', 'tdy', '1y', '1q', '1m', '1w', 'all'
+                            ]
+                        );
+                    }
+
+                    if ($shop->orderingIntervals !== null) {
+                        $responseData['interval_percentages']['refunds'] = $this->mapIntervals(
+                            $shop->orderingIntervals,
+                            'refunds',
+                            [
+                                'ytd', 'qtd', 'mtd', 'wtd', 'lm', 'lw', 'ld', 'tdy', '1y', '1q', '1m', '1w', 'all'
                             ]
                         );
                     }
@@ -83,6 +96,7 @@ class ShowOrganisationDashboard extends OrgAction
                     return $responseData;
                 }),
         ];
+        
         return Inertia::render(
             'Dashboard/OrganisationDashboard',
             [
@@ -120,12 +134,12 @@ class ShowOrganisationDashboard extends OrgAction
                     ],
                     [
                         'label'      => __('Yesterday'),
-                        'labelShort' => __('y'),
+                        'labelShort' => __('ld'),
                         'value'      => 'ld'
                     ],
                     [
                         'label'      => __('Today'),
-                        'labelShort' => __('t'),
+                        'labelShort' => __('tdy'),
                         'value'      => 'tdy'
                     ],
                     [
@@ -235,30 +249,30 @@ class ShowOrganisationDashboard extends OrgAction
         return (($thisYear - $lastYear) / $lastYear) * 100;
     }
 
-    protected function mapIntervals($intervalData, array $keys)
+    protected function mapIntervals($intervalData, string $prefix, array $keys)
     {
         $result = [];
         foreach ($keys as $key) {
             $result[$key] = [
-                'amount'     => $intervalData->{'sales_' . $key} ?? null,
-                'percentage' => isset($intervalData->{'sales_' . $key}, $intervalData->{'sales_' . $key . '_ly'})
+                'amount'     => $intervalData->{$prefix . '_' . $key} ?? null,
+                'percentage' => isset($intervalData->{$prefix . '_' . $key}, $intervalData->{$prefix . '_' . $key . '_ly'})
                     ? $this->calculatePercentageIncrease(
-                        $intervalData->{'sales_' . $key},
-                        $intervalData->{'sales_' . $key . '_ly'}
+                        $intervalData->{$prefix . '_' . $key}, 
+                        $intervalData->{$prefix . '_' . $key . '_ly'}
                     )
                     : null,
-                'difference' => isset($intervalData->{'sales_' . $key}, $intervalData->{'sales_' . $key . '_ly'})
-                    ? $intervalData->{'sales_' . $key} - $intervalData->{'sales_' . $key . '_ly'}
+                'difference' => isset($intervalData->{$prefix . '_' . $key}, $intervalData->{$prefix . '_' . $key . '_ly'})
+                    ? $intervalData->{$prefix . '_' . $key} - $intervalData->{$prefix . '_' . $key . '_ly'}
                     : null,
             ];
         }
-
+    
         if (isset($result['all'])) {
             $result['all'] = [
-                'amount' => $intervalData->sales_all ?? null,
+                'amount' => $intervalData->{$prefix . '_all'} ?? null,
             ];
         }
-
+    
         return $result;
     }
 

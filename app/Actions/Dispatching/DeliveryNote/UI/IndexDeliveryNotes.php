@@ -23,6 +23,7 @@ use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Inventory\Warehouse;
 use App\Models\Ordering\Order;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -38,10 +39,10 @@ class IndexDeliveryNotes extends OrgAction
 {
     use WithCustomerSubNavigation;
 
-    private Warehouse|Shop|Order|Customer|CustomerClient $parent;
+    private Group|Warehouse|Shop|Order|Customer|CustomerClient $parent;
     private string $bucket;
 
-    public function handle(Warehouse|Shop|Order|Customer|CustomerClient $parent, $prefix = null, $bucket = 'all'): LengthAwarePaginator
+    public function handle(Group|Warehouse|Shop|Order|Customer|CustomerClient $parent, $prefix = null, $bucket = 'all'): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -93,6 +94,8 @@ class IndexDeliveryNotes extends OrgAction
         }
 
         $query->leftjoin('customers', 'delivery_notes.customer_id', '=', 'customers.id');
+        $query->leftjoin('organisations', 'purges.organisation_id', '=', 'organisations.id');
+        $query->leftjoin('shops', 'purges.shop_id', '=', 'shops.id');
 
         return $query->defaultSort('delivery_notes.reference')
             ->select([
@@ -109,7 +112,11 @@ class IndexDeliveryNotes extends OrgAction
                 'shops.slug as shop_slug',
                 'customers.slug as customer_slug',
                 'customers.name as customer_name',
-                'delivery_note_stats.number_items as number_items'
+                'delivery_note_stats.number_items as number_items',
+                'shops.name as shop_name',
+                'shops.slug as shop_slug',
+                'organisations.name as organisation_name',
+                'organisations.slug as organisation_slug',
             ])
             ->leftJoin('delivery_note_stats', 'delivery_notes.id', 'delivery_note_stats.delivery_note_id')
             ->leftJoin('shops', 'delivery_notes.shop_id', 'shops.id')
@@ -137,6 +144,8 @@ class IndexDeliveryNotes extends OrgAction
             } elseif ($parent instanceof CustomerClient) {
                 $stats = $parent->stats;
                 $noResults = __("This customer client hasn't place any delivery notes");
+            } elseif ($parent instanceof Group) {
+                $stats = $parent->orderingStats;    
             } else {
                 $stats = $parent->salesStats;
             }
@@ -156,6 +165,10 @@ class IndexDeliveryNotes extends OrgAction
             if (!$parent instanceof Customer) {
                 $table->column(key: 'customer_name', label: __('customer'), canBeHidden: false, sortable: true, searchable: true);
             }
+            if ($parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
+                $table->column(key: 'shop_name', label: __('shop'), canBeHidden: false, searchable: true);
+            }
             $table->column(key: 'weight', label: __('weight'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'number_items', label: __('items'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: '', label: __('export'), canBeHidden: false, searchable: true);
@@ -166,6 +179,8 @@ class IndexDeliveryNotes extends OrgAction
     {
         if ($this->parent instanceof Customer || $this->parent instanceof Shop) {
             return $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
+        } elseif ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
         } else {
             return $request->user()->hasPermissionTo("dispatching.{$this->warehouse->id}.view");
         }
@@ -180,6 +195,11 @@ class IndexDeliveryNotes extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $deliveryNotes, ActionRequest $request): Response
     {
+        $navigation = DeliveryNotesTabsEnum::navigation();
+        if ($this->parent instanceof Group) {
+            unset($navigation[DeliveryNotesTabsEnum::STATS->value]);
+        }
+
         $subNavigation = null;
         if ($this->parent instanceof Customer) {
             if ($this->parent->is_dropshipping) {
@@ -286,6 +306,15 @@ class IndexDeliveryNotes extends OrgAction
         $this->initialisationFromShop($shop, $request)->withTab(DeliveryNotesTabsEnum::values());
 
         return $this->handle($shop);
+    }
+
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->bucket = 'all';
+        $this->initialisationFromGroup(group(), $request);
+
+        return $this->handle(group());
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

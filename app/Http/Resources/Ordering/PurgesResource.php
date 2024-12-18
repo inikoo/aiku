@@ -27,6 +27,10 @@ class PurgesResource extends JsonResource
             'estimated_number_orders'           => $this->estimated_number_orders,
             'estimated_number_transactions'     => $this->estimated_number_transactions,
             'estimated_net_amount'                  => $this->estimated_net_amount,
+            'organisation_name' => $this->organisation_name,
+            'organisation_slug' => $this->organisation_slug,
+            'shop_name'         => $this->shop_name,
+            'shop_slug'         => $this->shop_slug,
         ];
     }
 }
