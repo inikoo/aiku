@@ -40,15 +40,17 @@ const emits = defineEmits<{
         <Popover>
             <template #button="{ isOpen }">
                 <!-- Style: Compare the hash from current data with hash from empty data -->
-                <Button v-if="!isOpen"
-                    :label="'Publish'"
-                    :style="!is_dirty
-                            ? 'disabled'
-                            :  'primary'"
-                    :key="!is_dirty ? compRandomKey : uuidv4()"
-                    :icon="'far fa-rocket-launch'"
-                />
-                <Button v-else :style="`cancel`" icon="fal fa-times" label="Cancel" />
+                 <slot name="button" isOpen>
+                    <Button v-if="!isOpen"
+                        :label="'Publish'"
+                        :style="!is_dirty
+                                ? 'disabled'
+                                :  'primary'"
+                        :key="!is_dirty ? compRandomKey : uuidv4()"
+                        :icon="'far fa-rocket-launch'"
+                    />
+                    <Button v-else :style="`cancel`" icon="fal fa-times" label="Cancel" />
+                </slot>
             </template>
 
             <!-- Section: Popover -->
