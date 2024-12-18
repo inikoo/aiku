@@ -11,6 +11,7 @@ namespace App\Actions\HumanResources\ClockingMachine\UI;
 use App\Actions\HumanResources\WithWorkplaceSubNavigation;
 use App\Actions\HumanResources\Workplace\UI\ShowWorkplace;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Http\Resources\HumanResources\ClockingMachinesResource;
 use App\Models\HumanResources\ClockingMachine;
@@ -23,6 +24,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
+use App\Models\SysAdmin\Group;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
@@ -31,9 +33,9 @@ class IndexClockingMachines extends OrgAction
     use WithWorkplaceSubNavigation;
 
 
-    private Organisation|Workplace $parent;
+    private Organisation|Workplace|Group $parent;
 
-    public function handle(Workplace|Organisation $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Workplace|Organisation|Group $parent, $prefix = null): LengthAwarePaginator
     {
         // dd($parent);
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -48,9 +50,13 @@ class IndexClockingMachines extends OrgAction
 
         if ($parent instanceof Organisation) {
             $query->where('clocking_machines.organisation_id', $parent->id);
+        } elseif ($parent instanceof Group) {
+            $query->where('clocking_machines.group_id', $parent->id);
         } else {
             $query->where('clocking_machines.workplace_id', $parent->id);
         }
+
+        $query->leftjoin('organisations', 'clocking_machines.organisation_id', '=', 'organisations.id');
 
         return $query->defaultSort('name')
             ->select([
@@ -60,6 +66,8 @@ class IndexClockingMachines extends OrgAction
                 'clocking_machines.slug',
                 'workplaces.name as workplace_name',
                 'workplaces.slug as workplace_slug',
+                'organisations.name as organisation_name',
+                'organisations.slug as organisation_slug',
 
             ])
             ->leftJoin('workplaces', 'clocking_machines.workplace_id', '=', 'workplaces.id')
@@ -69,7 +77,7 @@ class IndexClockingMachines extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Organisation|Workplace $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Group|Organisation|Workplace $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {
@@ -104,6 +112,9 @@ class IndexClockingMachines extends OrgAction
             if ($parent instanceof Organisation) {
                 $table->column(key: 'workplace_name', label: __('workplace'), canBeHidden: false, sortable: true, searchable: true);
             }
+            elseif ($parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
+            }
 
             $table->defaultSort('name');
         };
@@ -111,6 +122,9 @@ class IndexClockingMachines extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        }
         $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
 
         return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
@@ -130,6 +144,14 @@ class IndexClockingMachines extends OrgAction
         $this->initialisation($organisation, $request);
 
         return $this->handle($workplace);
+    }
+
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup(group(), $request);
+
+        return $this->handle(group());
     }
 
     public function jsonResponse(LengthAwarePaginator $clockingMachine): AnonymousResourceCollection
@@ -229,6 +251,15 @@ class IndexClockingMachines extends OrgAction
                             $routeParameters['organisation'],
                             $routeParameters['workplace']
                         ]
+                ])
+            ),
+            'grp.overview.human-resources.clocking-machines.index',
+            =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(),
+                $headCrumb([
+                    'name'       => $routeName,
+                    'parameters' =>$routeParameters
                 ])
             ),
             default => []
