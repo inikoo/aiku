@@ -254,6 +254,7 @@ class IndexDeliveryNotes extends OrgAction
     public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $warehouse;
+        $this->bucket = 'all';
         $this->initialisationFromWarehouse($warehouse, $request)->withTab(DeliveryNotesTabsEnum::values());
 
         return $this->handle($warehouse);
@@ -263,6 +264,7 @@ class IndexDeliveryNotes extends OrgAction
     public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $shop;
+        $this->bucket = 'all';
         $this->initialisationFromShop($shop, $request)->withTab(DeliveryNotesTabsEnum::values());
         return $this->handle($shop);
     }
@@ -271,6 +273,7 @@ class IndexDeliveryNotes extends OrgAction
     public function inCustomer(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $customer;
+        $this->bucket = 'all';
         $this->initialisationFromShop($shop, $request)->withTab(DeliveryNotesTabsEnum::values());
 
         return $this->handle($customer);
@@ -279,6 +282,7 @@ class IndexDeliveryNotes extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inOrder(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
+        $this->bucket = 'all';
         $this->initialisationFromShop($shop, $request)->withTab(DeliveryNotesTabsEnum::values());
 
         return $this->handle($shop);
