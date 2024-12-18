@@ -26,10 +26,21 @@ const localModel = {
     }
 }
 
-// Initialize localModel with the prop value on mount
 onBeforeMount(() => {
-    if (model.value) {
-        set(model, 'value', localModel)
+    if (!model.value?.unit) {
+        set(model, 'value.unit', localModel.unit)
+    }
+    if (!model.value?.top?.value) {
+        set(model, 'value.top.value', localModel.top.value)
+    }
+    if (!model.value?.left?.value) {
+        set(model, 'value.left.value', localModel.left.value)
+    }
+    if (!model.value?.right?.value) {
+        set(model, 'value.right.value', localModel.right.value)
+    }
+    if (!model.value?.bottom?.value) {
+        set(model, 'value.bottom.value', localModel.bottom.value)
     }
 })
 

@@ -26,10 +26,21 @@ const localModel = {
     }
 }
 
-// Initialize localModel with the prop value on mount
 onBeforeMount(() => {
-    if (model.value) {
-        set(model, 'value', localModel)
+    if (!model.value?.unit) {
+        set(model, 'value.unit', localModel.unit)
+    }
+    if (!model.value?.top?.value) {
+        set(model, 'value.top.value', localModel.top.value)
+    }
+    if (!model.value?.left?.value) {
+        set(model, 'value.left.value', localModel.left.value)
+    }
+    if (!model.value?.right?.value) {
+        set(model, 'value.right.value', localModel.right.value)
+    }
+    if (!model.value?.bottom?.value) {
+        set(model, 'value.bottom.value', localModel.bottom.value)
     }
 })
 
@@ -37,7 +48,7 @@ onBeforeMount(() => {
 
 <template>
     <div class="border-t border-gray-300 bg-gray-100 pb-3">
-        <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Margin') }}</div>
+        <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Padding') }}</div>
         <PaddingMarginProperty :modelValue="model || localModel" @update:modelValue="(e) => model = e" :scope="trans('Padding')" />
     </div>
 </template>
