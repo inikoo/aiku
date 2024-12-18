@@ -86,12 +86,24 @@ class ShowOutboxWorkshop extends OrgAction
                                 'parameters' => array_values($request->route()->originalParameters()),
                             ]
                         ],
+                        [
+                            'type'  => 'button',
+                            'style' => 'exit',
+                            'label' => __('Toogle'),
+                            'route' => [
+                               'method' => 'patch',
+                               'name'       => 'grp.models.shop.outboxes.toggle',
+                               'parameters' => [
+                                    'shop' => $email->shop_id,
+                                    'outbox' => $email->outbox_id
+                                ],
+                            ]
+                        ],
                     ]
 
                 ],
                /*  'compiled_layout'    => $email->snapshot->compiled_layout, */
                 'unpublished_layout'    => $email->unpublishedSnapshot->layout,
-
                 'snapshot'          => $email->unpublishedSnapshot,
                 'builder'           => $email->builder,
                 'imagesUploadRoute'   => [
@@ -118,14 +130,7 @@ class ShowOutboxWorkshop extends OrgAction
                     ],
                     'method' => 'post'
                 ],
-                'toggleRoute'           => [
-                    'name'       => 'grp.models.shop.outboxes.toggle',
-                    'parameters' => [
-                        'shop' => $email->shop_id,
-                        'outbox' => $email->outbox_id
-                    ],
-                    'method' => 'patch'
-                ],
+                'status' => $email->outbox->state,
                 // 'loadRoute'           => [ -> i don't know what kind of data should i give to this route
                 //     'name'       => 'grp.models.email-templates.content.show',
                 //     'parameters' => $emailTemplate->id

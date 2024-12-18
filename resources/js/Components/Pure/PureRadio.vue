@@ -81,6 +81,28 @@ const layout = inject('layout', layoutStructure)
                     </RadioGroup>
                 </div>
 
+               <!--  buttonGroup -->
+               <div v-else-if="mode === 'buttonGroup'">
+                    <RadioGroup class="mt-2"
+                        v-model="model"
+                        :by="by ?? 'name'"
+                    >
+                        <div class="flex gap-y-1 flex-wrap">
+                            <RadioGroupOption as="template" v-for="(option, index) in options" :key="option.value"
+                                :value="option" v-slot="{ active, checked }">
+                                <div
+                                    :class="[
+                                        'cursor-pointer focus:outline-none flex items-center justify-center py-3 px-3 text-sm font-medium capitalize',
+                                        active ? 'ring-2 ring-gray-600 ring-offset-2' : '',
+                                        checked ? 'bg-gray-600 text-white hover:bg-gray-500' : 'ring-1 ring-inset ring-gray-300 bg-white text-gray-700 hover:bg-gray-50',
+                                    ]">
+                                    <RadioGroupLabel as="span">{{ option.name }}</RadioGroupLabel>
+                                </div>
+                            </RadioGroupOption>
+                        </div>
+                    </RadioGroup>
+                </div>
+
                 <!-- Radio: Default -->
                 <div v-else v-for="(option, index) in options"
                     :key="`${option.label}${index}`" class="inline-flex gap-x-2.5 items-center">
