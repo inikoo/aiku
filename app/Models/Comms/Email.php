@@ -42,6 +42,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Deployment> $deployments
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Snapshot|null $liveSnapshot
  * @property-read \App\Models\SysAdmin\Organisation|null $organisation

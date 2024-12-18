@@ -243,7 +243,7 @@ class ShowOrganisationDashboard extends OrgAction
                 'amount'     => $intervalData->{'sales_' . $key} ?? null,
                 'percentage' => isset($intervalData->{'sales_' . $key}, $intervalData->{'sales_' . $key . '_ly'})
                     ? $this->calculatePercentageIncrease(
-                        $intervalData->{'sales_' . $key}, 
+                        $intervalData->{'sales_' . $key},
                         $intervalData->{'sales_' . $key . '_ly'}
                     )
                     : null,

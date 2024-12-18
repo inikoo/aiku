@@ -165,6 +165,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, OfferComponent> $offerComponents
  * @property-read LaravelCollection<int, Offer> $offers
  * @property-read \App\Models\Catalogue\ShopOrderHandlingStats|null $orderHandlingStats
+ * @property-read \App\Models\Catalogue\ShopOrderingIntervals|null $orderingIntervals
  * @property-read \App\Models\Catalogue\ShopOrderingStats|null $orderingStats
  * @property-read LaravelCollection<int, Order> $orders
  * @property-read PaymentAccountShop|OrgPaymentServiceProviderShop|null $pivot

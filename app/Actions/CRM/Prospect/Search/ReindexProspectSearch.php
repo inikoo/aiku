@@ -10,11 +10,12 @@ namespace App\Actions\CRM\Prospect\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\CRM\Prospect;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexProspectSearch extends HydrateModel
 {
-    public string $commandSignature = 'prospect:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:prospects {organisations?*} {--s|slugs=}';
 
 
     public function handle(Prospect $prospect): void
@@ -28,8 +29,23 @@ class ReindexProspectSearch extends HydrateModel
         return Prospect::withTrashed()->where('slug', $slug)->first();
     }
 
-    protected function getAllModels(): Collection
+    protected function loopAll(Command $command): void
     {
-        return Prospect::withTrashed()->get();
+        $command->info("Reindex Prospects");
+        $count = Prospect::withTrashed()->count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        Prospect::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
     }
 }

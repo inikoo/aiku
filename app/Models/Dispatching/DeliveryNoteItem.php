@@ -47,6 +47,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read OrgStock $orgStock
  * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \App\Models\Dispatching\Packing|null $packings
  * @property-read \App\Models\Dispatching\Picking|null $pickings
  * @property-read \App\Models\Catalogue\Shop $shop
  * @method static Builder<static>|DeliveryNoteItem newModelQuery()

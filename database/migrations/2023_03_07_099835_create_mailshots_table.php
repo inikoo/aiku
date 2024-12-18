@@ -54,6 +54,7 @@ return new class () extends Migration {
             $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();
             $table->string('source_alt_id')->nullable()->unique();
+            $table->string('source_alt2_id')->nullable()->unique();
 
 
         });

@@ -8,10 +8,15 @@
 
 namespace App\Actions\Comms\PostRoom\UI;
 
+use App\Actions\Comms\DispatchedEmail\UI\IndexDispatchedEmails;
+use App\Actions\Comms\Mailshot\UI\IndexMailshots;
+use App\Actions\Comms\Outbox\UI\IndexOutboxes;
 use App\Actions\GrpAction;
-use App\Actions\UI\Marketing\MarketingHub;
 use App\Enums\Comms\PostRoom\PostRoomsTabsEnum;
+use App\Http\Resources\Mail\DispatchedEmailResource;
+use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Mail\PostRoomResource;
+use App\Http\Resources\Mail\OutboxesResource;
 use App\Models\Comms\PostRoom;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -43,14 +48,17 @@ class ShowPostRoom extends GrpAction
 
 
 
-    public function htmlResponse(): Response
+    public function htmlResponse(PostRoom $postRoom, ActionRequest $request): Response
     {
 
         return Inertia::render(
             'Comms/PostRoom',
             [
                 'title'       => __('post room'),
-                'breadcrumbs' => $this->getBreadcrumbs($this->postRoom),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
                 'pageHead'    => [
                     'icon'  => 'fal fa-cash-register',
                     'title' => $this->postRoom->code,
@@ -95,9 +103,32 @@ class ShowPostRoom extends GrpAction
                     ]
 
                 ],
-                'post_room'   => $this->postRoom
+                'tabs' => [
+                    'current'    => $this->tab,
+                    'navigation' => PostRoomsTabsEnum::navigation(),
+                ],
+                // TODO: Overview <-- is. a dashbpard
+                PostRoomsTabsEnum::SHOWCASE->value => $this->tab == PostRoomsTabsEnum::SHOWCASE->value ?
+                    fn () => GetPostRoomShowcase::run($postRoom)
+                    : Inertia::lazy(fn () => GetPostRoomShowcase::run($postRoom)),
+
+                PostRoomsTabsEnum::OUTBOXES->value => $this->tab == PostRoomsTabsEnum::OUTBOXES->value ?
+                    fn () => OutboxesResource::collection(IndexOutboxes::run($postRoom, PostRoomsTabsEnum::OUTBOXES->value))
+                    : Inertia::lazy(fn () => OutboxesResource::collection(IndexOutboxes::run($postRoom, PostRoomsTabsEnum::OUTBOXES->value))),
+
+                PostRoomsTabsEnum::MAILSHOTS->value => $this->tab == PostRoomsTabsEnum::MAILSHOTS->value ?
+                    fn () => MailshotResource::collection(IndexMailshots::run($postRoom))
+                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($postRoom))),
+
+                PostRoomsTabsEnum::DISPATCHED_EMAILS->value => $this->tab == PostRoomsTabsEnum::DISPATCHED_EMAILS->value ?
+                    fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($postRoom))
+                    : Inertia::lazy(fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($postRoom))),
+
+                'data'   => PostRoomResource::make($postRoom)
             ]
-        );
+        )->table(IndexOutboxes::make()->tableStructure(parent:$postRoom, prefix: PostRoomsTabsEnum::OUTBOXES->value))
+         ->table(IndexMailshots::make()->tableStructure(parent:$postRoom, prefix: PostRoomsTabsEnum::MAILSHOTS->value))
+         ->table(IndexDispatchedEmails::make()->tableStructure(parent:$postRoom, prefix: PostRoomsTabsEnum::DISPATCHED_EMAILS->value));
     }
 
 
@@ -106,25 +137,39 @@ class ShowPostRoom extends GrpAction
         return new PostRoomResource($this->postRoom);
     }
 
-
-    public function getBreadcrumbs(PostRoom $postRoom): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
-        return array_merge(
-            (new MarketingHub())->getBreadcrumbs(),
-            [
-                'mail.post_rooms.show' => [
-                    'route'           => 'mail.post_rooms.show',
-                    'routeParameters' => $postRoom->id,
-                    'name'            => $postRoom->code,
-                    'index'           => [
-                        'route'   => 'mail.post_rooms.index',
-                        'overlay' => __('post rooms list')
+        $headCrumb = function (PostRoom $postRoom, array $routeParameters, $suffix = null) {
+            return [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => $postRoom->name,
                     ],
-                    'modelLabel'      => [
-                        'label' => __('post room')
-                    ],
+                    'suffix' => $suffix
                 ],
-            ]
-        );
+            ];
+        };
+
+        $postRoom = PostRoom::where('slug', $routeParameters['postRoom'])->first();
+
+        return match ($routeName) {
+            'grp.overview.post-rooms.show' =>
+            array_merge(
+                IndexPostRooms::make()->getBreadcrumbs('grp.overview.post-rooms.index', $routeParameters),
+                $headCrumb(
+                    $postRoom,
+                    [
+
+                        'name'       => 'grp.overview.post-rooms.show',
+                        'parameters' => $routeParameters
+
+                    ],
+                    $suffix
+                )
+            ),
+            default => []
+        };
     }
 }

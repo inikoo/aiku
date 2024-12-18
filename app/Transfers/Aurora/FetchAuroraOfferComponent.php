@@ -33,6 +33,7 @@ class FetchAuroraOfferComponent extends FetchAurora
         $state = match ($this->auroraModelData->{'Deal Component Status'}) {
             'Waiting' => OfferComponentStateEnum::IN_PROCESS,
             'Finish' => OfferComponentStateEnum::FINISHED,
+            'Suspended' => OfferComponentStateEnum::SUSPENDED,
             default => OfferComponentStateEnum::ACTIVE
         };
 

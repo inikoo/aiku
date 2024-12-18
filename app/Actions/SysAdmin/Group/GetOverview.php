@@ -17,6 +17,7 @@ use App\Http\Resources\SysAdmin\OverviewResource;
 use App\Models\Catalogue\Product;
 use App\Models\Comms\PostRoom;
 use App\Models\CRM\Customer;
+use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
@@ -46,6 +47,12 @@ class GetOverview extends OrgAction
                 'route' => 'grp.overview.products.index',
                 'count' => Product::where('group_id', $group->id)->count(),
             ],
+            // (object)[
+            //     'name' => 'Stocks',
+            //     'icon' => 'fal fa-box',
+            //     'route' => 'grp.overview.stocks.index',
+            //     'count' => Stock::where('group_id', $group->id)->count(),
+            // ],
         ]);
         return OverviewResource::collection($dataRaw);
     }

@@ -53,6 +53,7 @@ class StoreGroup
         $group->dropshippingStats()->create();
         $group->commsStats()->create();
         $group->discountsStats()->create();
+        $group->orderingIntervals()->create();
 
         SeedGroupPermissions::run($group);
         SeedGroupPaymentServiceProviders::run($group);

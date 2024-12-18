@@ -30,7 +30,7 @@ class SeedOfferCampaigns extends GrpAction
      */
     public function handle(Shop $shop): void
     {
-        if ($shop->type != ShopTypeEnum::B2B) {
+        if (!in_array($shop->type, [ShopTypeEnum::B2B, ShopTypeEnum::DROPSHIPPING])) {
             return;
         }
 

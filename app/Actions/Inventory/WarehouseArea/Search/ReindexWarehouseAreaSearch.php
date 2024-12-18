@@ -10,11 +10,12 @@ namespace App\Actions\Inventory\WarehouseArea\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\Inventory\WarehouseArea;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexWarehouseAreaSearch extends HydrateModel
 {
-    public string $commandSignature = 'warehouse_area:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:warehouse_areas {organisations?*} {--s|slugs=}';
 
 
     public function handle(WarehouseArea $warehouseArea): void
@@ -28,8 +29,23 @@ class ReindexWarehouseAreaSearch extends HydrateModel
         return WarehouseArea::withTrashed()->where('slug', $slug)->first();
     }
 
-    protected function getAllModels(): Collection
+    protected function loopAll(Command $command): void
     {
-        return WarehouseArea::withTrashed()->get();
+        $command->info("Reindex Warehouse areas");
+        $count = WarehouseArea::withTrashed()->count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        WarehouseArea::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
     }
 }

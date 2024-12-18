@@ -24,6 +24,7 @@ class FetchAuroraFamilies extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?ProductCategory
     {
+        $this->organisationSource = $organisationSource;
         if ($familyData = $organisationSource->fetchFamily($organisationSourceId)) {
             if ($family = ProductCategory::where('source_family_id', $familyData['family']['source_family_id'])
                 ->first()) {

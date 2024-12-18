@@ -285,7 +285,7 @@ return [
                 'balanceCooldown' => 3,
             ],
             'universal-search' => [
-                'maxProcesses'    => 5,
+                'maxProcesses'    => 16,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],

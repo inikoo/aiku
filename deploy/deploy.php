@@ -70,5 +70,6 @@ task('deploy', [
     'artisan:migrate',
     'deploy:build',
     'deploy:publish',
-    'artisan:horizon:terminate'
+    'artisan:horizon:terminate',
+    'artisan:pulse:restart'
 ]);

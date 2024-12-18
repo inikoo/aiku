@@ -67,7 +67,6 @@ class StoreMailshot extends OrgAction
     }
 
 
-
     public function rules(): array
     {
         $rules = [
@@ -85,7 +84,8 @@ class StoreMailshot extends OrgAction
             $rules['start_sending_at'] = ['nullable', 'date'];
             $rules['sent_at']          = ['nullable', 'date'];
             $rules['stopped_at']       = ['nullable', 'date'];
-            $rules['source_alt_id']  = ['sometimes', 'string', 'max:255'];
+            $rules['source_alt_id']    = ['sometimes', 'nullable', 'string', 'max:255'];
+            $rules['source_alt2_id']   = ['sometimes', 'nullable', 'string', 'max:255'];
 
 
             $rules = $this->noStrictStoreRules($rules);

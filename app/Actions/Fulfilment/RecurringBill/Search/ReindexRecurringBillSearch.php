@@ -37,7 +37,7 @@ class ReindexRecurringBillSearch extends HydrateModel
     protected function loopAll(Command $command): void
     {
 
-        $command->info("Reindex Recurring Bills search");
+        $command->info("Reindex Recurring Bills");
 
         $count = RecurringBill::count();
 
