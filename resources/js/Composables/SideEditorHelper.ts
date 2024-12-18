@@ -23,7 +23,7 @@ import NotFoundComponents from '@/Components/CMS/Webpage/NotFoundComponent.vue'
 
 import { set } from 'lodash'
 
-
+// Field list of SideEditor
 export const getComponent = (componentName: string) => {
     const components: Component = {
         'text': InputText,
