@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { trans } from 'laravel-vue-i18n'
-import { inject, ref } from 'vue'
+import { inject, onBeforeMount, ref } from 'vue'
 import Image from '@/Components/Image.vue'
 import GalleryManagement from '@/Components/Utils/GalleryManagement/GalleryManagement.vue'
 import Modal from '@/Components/Utils/Modal.vue'
@@ -15,6 +15,7 @@ import { ImageData } from '@/types/Image'
 import axios from 'axios'
 import { notify } from '@kyvg/vue3-notification'
 import RadioButton from 'primevue/radiobutton'
+import { set } from 'lodash'
 library.add(faImage, faPalette)
 
 interface BackgroundProperty {
@@ -42,6 +43,14 @@ const onSubmitSelectedImage = (images: ImageData[]) => {
     model.value.type = 'image'
 }
 
+onBeforeMount(() => {
+    if (!model.value.type) {
+        set(model.value, 'type', 'color')
+    }
+    if (!model.value.color) {
+        set(model.value, 'color', 'var(--iris-color-primary)')
+    }
+})
 
 const isLoadingSubmit = ref(false)
 const onSubmitUpload = async (files: File[], clear: Function) => {
@@ -115,17 +124,16 @@ const onSubmitUpload = async (files: File[], clear: Function) => {
 
                     <div v-else @click="() => model.type = 'image'" class="flex absolute inset-0 bg-gray-200/70 hover:bg-gray-100/40 items-center justify-center cursor-pointer" />
                 </div>
-
             </div>
-
             <PureRadio v-model="model.type" :options="[{ name: 'image'}]" by="name" key="image1" />
         </div>
         
+        <!-- {{ model }} -->
         <!-- List: Background Color -->
         <div class="flex items-center gap-x-4 h-min" >
             <div class="relative h-12 aspect-square rounded-md shadow">
                 <ColorPicker
-                    :color="model.color"
+                    :color="model.color || '#111111'"
                     class=""
                     @changeColor="(newColor)=> (model.color = `rgba(${newColor.rgba.r}, ${newColor.rgba.g}, ${newColor.rgba.b}, ${newColor.rgba.a})`, model.type = 'color')"
                     closeButton
@@ -151,7 +159,7 @@ const onSubmitUpload = async (files: File[], clear: Function) => {
                         
                         <div class="flex items-center gap-2">
                             <RadioButton size="small"
-                                :modelValue="!model.color.includes('var') ? '#111111' : null"
+                                :modelValue="!model.color?.includes('var') ? '#111111' : null"
                                 @update:modelValue="(e) => model.color.includes('var') ? model.color = '#111111' : false"
                                 inputId="bg-color-picker-3"
                                 name="bg-color-picker"

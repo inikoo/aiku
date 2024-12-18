@@ -128,7 +128,7 @@ const debounceSaveWorkshop = (block) => {
 			},
 			{
 				onStart: () => {
-					console.log('block ', block.id)
+					console.log('block ', block.id, block.type)
 					isLoadingblock.value = block.id
 					isSavingBlock.value = true
 				},
