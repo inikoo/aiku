@@ -126,6 +126,7 @@ class ShowOutboxWorkshop extends OrgAction
                     ],
                     'method' => 'patch'
                 ],
+                'state' => $email->outbox->state,
                 // 'loadRoute'           => [ -> i don't know what kind of data should i give to this route
                 //     'name'       => 'grp.models.email-templates.content.show',
                 //     'parameters' => $emailTemplate->id

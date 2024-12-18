@@ -23,7 +23,7 @@ class ToggleOutbox
     public function handle(Outbox $outbox, string $status = null): void
     {
         $this->update($outbox, [
-            'status' => $status
+            'state' => $status
         ]);
     }
 
