@@ -1,4 +1,9 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 18 Dec 2024 19:42:42 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 use Illuminate\Support\Str;
 
@@ -215,8 +220,7 @@ return [
             'timeout'             => 3600,
             'nice'                => 0,
         ],
-
-        'ses'          => [
+        'ses'              => [
             'connection'          => 'redis-ses',
             'queue'               => ['ses'],
             'balance'             => 'auto',
@@ -229,7 +233,7 @@ return [
             'timeout'             => 7200,
             'nice'                => 0,
         ],
-        'sales'        => [
+        'sales'            => [
             'connection'          => 'redis',
             'queue'               => ['sales'],
             'balance'             => 'auto',
@@ -242,7 +246,7 @@ return [
             'timeout'             => 7200,
             'nice'                => 0,
         ],
-        'low-priority' => [
+        'low-priority'     => [
             'connection'          => 'redis',
             'queue'               => ['low-priority'],
             'balance'             => 'auto',
@@ -269,6 +273,11 @@ return [
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
+            'universal-search' => [
+                'maxProcesses'    => 3,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
             'long-running'     => [
                 'maxProcesses'    => 12,
                 'balanceMaxShift' => 1,
@@ -281,11 +290,6 @@ return [
             ],
             'sales'            => [
                 'maxProcesses'    => 4,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 3,
-            ],
-            'universal-search' => [
-                'maxProcesses'    => 3,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
