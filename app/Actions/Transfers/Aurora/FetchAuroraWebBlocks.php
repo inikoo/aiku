@@ -11,9 +11,9 @@ namespace App\Actions\Transfers\Aurora;
 use App\Actions\Web\WebBlock\DeleteWebBlock;
 use App\Models\Catalogue\Product;
 use App\Transfers\Aurora\WithAuroraParsers;
+use App\Transfers\SourceOrganisationService;
 use Illuminate\Support\Str;
 use App\Actions\Helpers\Images\GetPictureSources;
-use App\Actions\OrgAction;
 use App\Actions\Traits\WebBlocks\WithFetchCTAWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchFamilyWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchIFrameWebBlock;
@@ -29,17 +29,15 @@ use App\Actions\Traits\WithOrganisationSource;
 use App\Actions\Web\ExternalLink\StoreExternalLink;
 use App\Actions\Web\WebBlock\StoreWebBlock;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
-use App\Events\BroadcastPreviewWebpage;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Web\WebBlock;
 use App\Models\Web\Webpage;
 use App\Transfers\AuroraOrganisationService;
 use App\Transfers\WowsbarOrganisationService;
-use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
-class FetchAuroraWebBlocks extends OrgAction
+class FetchAuroraWebBlocks
 {
     use WithAuroraParsers;
     use WithAuroraOrganisationsArgument;
@@ -57,20 +55,18 @@ class FetchAuroraWebBlocks extends OrgAction
     use WithFetchDepartmentWebBlock;
 
 
-    protected AuroraOrganisationService|WowsbarOrganisationService|null $organisationSource = null;
+    protected AuroraOrganisationService|WowsbarOrganisationService|SourceOrganisationService|null $organisationSource = null;
 
     private string $dbSuffix;
 
     /**
      * @throws \Exception
      */
-    public function handle(Webpage $webpage, $reset = false, $dbSuffix = ''): Webpage
+    public function handle(SourceOrganisationService $organisationSource, Webpage $webpage, $reset = false, $dbSuffix = ''): Webpage
     {
-
         $this->dbSuffix = $dbSuffix;
 
-        $this->organisationSource = $this->getOrganisationSource($webpage->organisation);
-        $this->organisationSource->initialisation($webpage->organisation, $dbSuffix);
+        $this->organisationSource = $organisationSource;
 
 
         if ($reset) {
@@ -96,15 +92,15 @@ class FetchAuroraWebBlocks extends OrgAction
                 foreach ($migrationData as $data) {
                     $checksum = $data['migrationChecksum'];
                     if ($type == 'both') {
-                        $migrationsData[$checksum] = $data;
-                        $migrationsData[$checksum]['visibility']['loggedIn'] = true;
+                        $migrationsData[$checksum]                            = $data;
+                        $migrationsData[$checksum]['visibility']['loggedIn']  = true;
                         $migrationsData[$checksum]['visibility']['loggedOut'] = true;
                         continue;
                     }
                     $isLoggedIn = $type == 'loggedIn';
                     if (!isset($migrationsData[$checksum])) {
-                        $migrationsData[$checksum] = $data;
-                        $migrationsData[$checksum]['visibility']['loggedIn'] = $isLoggedIn;
+                        $migrationsData[$checksum]                            = $data;
+                        $migrationsData[$checksum]['visibility']['loggedIn']  = $isLoggedIn;
                         $migrationsData[$checksum]['visibility']['loggedOut'] = !$isLoggedIn;
                     } else {
                         $migrationsData[$checksum][$type] = true;
@@ -112,9 +108,9 @@ class FetchAuroraWebBlocks extends OrgAction
                 }
             }
 
-
             $this->processMigrationsData($migrationsData, $oldMigrationsChecksum);
         }
+
 
         if (count($oldMigrationsChecksum) > 0) {
             $this->deleteWebBlockHaveOldChecksum($webpage, $oldMigrationsChecksum);
@@ -128,22 +124,25 @@ class FetchAuroraWebBlocks extends OrgAction
         $migrationData = [];
         foreach ($blocks as $index => $auroraBlock) {
             $migrationChecksum = md5(json_encode($auroraBlock));
-            $loggedInStatus = $type === 'loggedIn';
-            $migrationData[] = [
-                'visibility' => [
-                    'loggedIn' => $loggedInStatus,
+            $loggedInStatus    = $type === 'loggedIn';
+            $migrationData[]   = [
+                'visibility'        => [
+                    'loggedIn'  => $loggedInStatus,
                     'loggedOut' => !$loggedInStatus,
                 ],
-                'webpage' => $webpage,
-                'auroraBlock' => $auroraBlock,
-                'position' => $index + 1,
+                'webpage'           => $webpage,
+                'auroraBlock'       => $auroraBlock,
+                'position'          => $index + 1,
                 'migrationChecksum' => $migrationChecksum,
             ];
-
         }
+
         return $migrationData;
     }
 
+    /**
+     * @throws \Exception
+     */
     private function processMigrationsData(array $migrationsData, array &$oldMigrationsChecksum): void
     {
         // the position will duplicate example: 1,1
@@ -170,10 +169,14 @@ class FetchAuroraWebBlocks extends OrgAction
         $visibility = ["loggedIn" => true, "loggedOut" => true]
     ): void {
         $models = [];
-        $group = $webpage->group;
+        $group  = $webpage->group;
 
         // TODO: department, family, see_also & product
         // children webpages for department & family
+
+
+
+        //     print "***>>".$auroraBlock["type"]."<<<***\n";
 
         switch ($auroraBlock["type"]) {
             case "images":
@@ -278,7 +281,7 @@ class FetchAuroraWebBlocks extends OrgAction
                 break;
             case "button":
                 $webBlockType = $group->webBlockTypes()->where("slug", "cta-aurora-1")->first();
-                $layout       = $this->processCTAData($webpage, $webBlockType, $auroraBlock, $this->dbSuffix);
+                $layout       = $this->processCTAData($webpage, $webBlockType, $auroraBlock);
                 break;
             default:
                 print ">>>>> ".$webpage->slug."  ".$auroraBlock["type"]."  <<<<<<\n";
@@ -297,6 +300,7 @@ class FetchAuroraWebBlocks extends OrgAction
             data_set($layout, "data.fieldValue.container.properties.dimension", Arr::get($webBlockType, "data.fieldValue.container.properties.dimension"));
         }
 
+
         data_set($layout, "data.fieldValue.container.properties.padding.unit", "px");
         data_set($layout, "data.fieldValue.container.properties.padding.left.value", 20);
         data_set($layout, "data.fieldValue.container.properties.padding.right.value", 20);
@@ -312,8 +316,6 @@ class FetchAuroraWebBlocks extends OrgAction
             ],
             strict: false
         );
-
-
 
         $modelHasWebBlocksData = [
             'show_logged_in'     => $visibility['loggedIn'],
@@ -341,11 +343,10 @@ class FetchAuroraWebBlocks extends OrgAction
         $this->postProcessLayout($webBlock, $webpage, $layout);
 
         UpdateWebpageContent::run($webpage->refresh());
-
         /*   BroadcastPreviewWebpage::dispatch($webpage); */
     }
 
-    private function postExternalLinks(WebBlock $webBlock, Webpage $webpage, &$layout)
+    private function postExternalLinks(WebBlock $webBlock, Webpage $webpage, &$layout): void
     {
         $code = $webBlock->webBlockType->code;
         if (!in_array($code, ['text', 'overview', 'images'])) {
@@ -356,8 +357,8 @@ class FetchAuroraWebBlocks extends OrgAction
         if ($externalLinks) {
             foreach ($externalLinks as $link) {
                 StoreExternalLink::make()->action($webpage->group, [
-                    'url' => $link,
-                    'webpage_id' => $webpage->id,
+                    'url'          => $link,
+                    'webpage_id'   => $webpage->id,
                     'web_block_id' => $webBlock->id,
                 ]);
             }
@@ -406,19 +407,18 @@ class FetchAuroraWebBlocks extends OrgAction
                 }
                 data_set($layout, "data.fieldValue.value.sections", $sections);
             } elseif ($code == "text") {
-
-                $text = $layout['data']['fieldValue']['value'];
+                $text    = $layout['data']['fieldValue']['value'];
                 $pattern = '/<img\s+[^>]*src=["\']([^"\']*)["\'][^>]*>/i';
 
-                $text = preg_replace_callback($pattern, function ($match) use ($webBlock, $webpage) {
+                $text                                  = preg_replace_callback($pattern, function ($match) use ($webBlock, $webpage) {
                     $originalImage = $match[1];
-                    $media = FetchAuroraWebBlockMedia::run($webBlock, $webpage, $originalImage);
-                    $imageElement = $match[0];
+                    $media         = FetchAuroraWebBlockMedia::run($webBlock, $webpage, $originalImage);
+                    $imageElement  = $match[0];
 
                     if ($media) {
-                        $image = $media->getImage();
-                        $picture = GetPictureSources::run($image);
-                        $imageUrl = $picture['original'];
+                        $image        = $media->getImage();
+                        $picture      = GetPictureSources::run($image);
+                        $imageUrl     = $picture['original'];
                         $imageElement = preg_replace('/src="([^"]*)"/', 'src="'.$imageUrl.'"', $imageElement);
                         $imageElement = preg_replace("/(fr-fil|fr-dii)/", "", $imageElement); // remove class fr-fil & fr-dii
                     }
@@ -431,18 +431,18 @@ class FetchAuroraWebBlocks extends OrgAction
                 $imgResources = [];
                 foreach ($layout['data']["fieldValue"]["value"] as $index => $imageRawData) {
                     $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
-                    $linkData = $layout['data']["fieldValue"]["value"][$index]['link_data'];
+                    $linkData       = $layout['data']["fieldValue"]["value"][$index]['link_data'];
                     $imgResources[] = ["source" => $imageSource, "link_data" => $linkData];
                     unset($layout['data']["fieldValue"]["value"][$index]);
                 }
                 // make like this, to set img placed in the correct key
-                $layout['data']['fieldValue']['value']["images"] = $imgResources;
+                $layout['data']['fieldValue']['value']["images"]      = $imgResources;
                 $layout['data']['fieldValue']['value']["layout_type"] = Arr::get($layout, "data.fieldValue.layout_type");
                 Arr::forget($layout, "data.fieldValue.layout_type");
             } elseif ($code == "cta_aurora_1") {
                 $imageRawData = Arr::get($layout, 'data.fieldValue.button.container.properties.background.image.original');
                 if ($imageRawData) {
-                    $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
+                    $imageSource = $this->processImage($webBlock, $imageRawData, $webpage);
                     data_set($layout, 'data.fieldValue.button.container.properties.background.image', $imageSource);
                 }
             } elseif ($code == "overview_aurora") {
@@ -452,7 +452,7 @@ class FetchAuroraWebBlocks extends OrgAction
                     foreach ($imagesAurora as $imgAurora) {
                         $imgSources[] = [
                             'properties' => $imgAurora['properties'],
-                            'source' => $this->processImage($webBlock, $imgAurora, $webpage)
+                            'source'     => $this->processImage($webBlock, $imgAurora, $webpage)
                         ];
                     }
                     data_set($layout, 'data.fieldValue.images', $imgSources);
@@ -461,7 +461,7 @@ class FetchAuroraWebBlocks extends OrgAction
                 foreach ($layout['data']["fieldValue"]["value"] as $key => $container) {
                     if ($key == "images") {
                         foreach ($container as $index => $imageRawData) {
-                            $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
+                            $imageSource                                                   = $this->processImage($webBlock, $imageRawData, $webpage);
                             $layout['data']["fieldValue"]["value"][$key][$index]['source'] = $imageSource;
                             unset($layout['data']["fieldValue"]["value"][$key][$index]['aurora_source']);
                         }
@@ -501,15 +501,6 @@ class FetchAuroraWebBlocks extends OrgAction
         }
     }
 
-    /**
-     * @throws \Exception
-     */
-    public function action(Webpage $webpage): Webpage
-    {
-        $this->initialisation($webpage->organisation, []);
-
-        return $this->handle($webpage);
-    }
 
     public function deleteWebBlockHaveOldChecksum(Webpage $webpage, array $oldChecksum): void
     {
@@ -520,33 +511,5 @@ class FetchAuroraWebBlocks extends OrgAction
         }
     }
 
-    public string $commandSignature = "fetch:web_blocks {webpage?} {--reset} {--d|db_suffix=}";
 
-    /**
-     * @throws \Exception
-     */
-    public function asCommand($command): int
-    {
-        if ($command->argument("webpage")) {
-            try {
-                /** @var Webpage $webpage */
-                $webpage = Webpage::where("slug", $command->argument("webpage"))->firstOrFail();
-            } catch (Exception) {
-                $command->error("Webpage not found");
-                exit();
-            }
-            $this->handle($webpage, $command->option("reset"), $command->option("db_suffix"));
-            $command->line("Webpage ".$webpage->slug." web blocks fetched");
-
-        } else {
-            foreach (Webpage::orderBy('id')->get() as $webpage) {
-                $command->line("Webpage ".$webpage->slug." web blocks fetched");
-                $this->handle($webpage, $command->option("reset"), $command->option("db_suffix"));
-            }
-        }
-
-
-
-        return 0;
-    }
 }
