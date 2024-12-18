@@ -350,7 +350,7 @@ const isShowInWebpage = (activityItem) => {
 
 	<div class="flex gap-x-2">
 		<!-- Section: Side editor -->
-		<div class="col-span-1 hidden lg:block border-2 bg-gray-200 pl-3 py-1">
+		<div class="hidden lg:block border-2 bg-gray-200 pl-3 py-1">
 			<WebpageSideEditor
 				v-model="isModalBlockList"
 				:isLoadingblock
@@ -367,7 +367,7 @@ const isShowInWebpage = (activityItem) => {
 		</div>
 
 		<!-- Section: Preview -->
-		<div v-if="true" class="h-[calc(100vh-180px)] w-full flex flex-col bg-gray-200">
+		<div class="h-[calc(100vh-180px)] w-full max-w-full flex flex-col bg-gray-200 overflow-x-auto">
 			<div class="flex justify-between">
 				<!-- <div
 					class="py-1 px-2 cursor-pointer lg:hidden block"
@@ -439,39 +439,41 @@ const isShowInWebpage = (activityItem) => {
 						:class="[iframeClass, isIframeLoading ? 'hidden' : '']"
 						@error="handleIframeError"
 						@load="isIframeLoading = false" /> -->
-					<div v-if="data" class="relative editor-class">
+					<div v-if="data" class="relative">
 						<div v-if="data?.layout?.web_blocks?.length">
 							<TransitionGroup tag="div" name="list" class="relative">
-								<section
+								<template
 									v-for="(activityItem, activityItemIdx) in data?.layout?.web_blocks"
 									:key="activityItem.id"
-									class="w-full component-iseditable transition-transform"
-									:style="{
-										border: openedBlockSideEditor === activityItemIdx ? `2px solid ${layout?.app?.theme?.[0]}` : undefined,
-									}"
-									@click="() => openedBlockSideEditor === activityItemIdx ? null : openedBlockSideEditor = activityItemIdx"
 								>
-									<!-- <component
+									<section
 										v-show="isShowInWebpage(activityItem)"
-										:key="activityItemIdx"
-										class="w-full"
-										:is="isPreviewMode ? getIrisComponent(activityItem?.type) : getComponent(activityItem?.type)"
-										:webpageData="webpage" :blockData="activityItem"
-										v-model="activityItem.web_block.layout.data.fieldValue"
-										:fieldValue="activityItem.web_block?.layout?.data?.fieldValue"
-										@autoSave="() => onSaveWorkshop(activityItem)"
-									/> -->
-									<!-- <component
-										v-show="isShowInWebpage(activityItem)"
-										:key="activityItemIdx"
-										class="w-full"
-										:is="getComponent(activityItem?.type)"
-										:webpageData="webpage" :blockData="activityItem"
-										v-model="activityItem.web_block.layout.data.fieldValue"
-										:fieldValue="activityItem.web_block?.layout?.data?.fieldValue"
-										@autoSave="() => onSaveWorkshop(activityItem)"
-									/> -->
-								</section>
+										class="w-full component-iseditable transition-transform"
+										:style="{
+											border: openedBlockSideEditor === activityItemIdx ? `2px solid ${layout?.app?.theme?.[0]}` : undefined,
+										}"
+										@click="() => openedBlockSideEditor === activityItemIdx ? null : openedBlockSideEditor = activityItemIdx"
+									>
+										<!-- <component
+											v-show="isShowInWebpage(activityItem)"
+											:key="activityItemIdx"
+											class="w-full"
+											:is="isPreviewMode ? getIrisComponent(activityItem?.type) : getComponent(activityItem?.type)"
+											:webpageData="webpage" :blockData="activityItem"
+											v-model="activityItem.web_block.layout.data.fieldValue"
+											:fieldValue="activityItem.web_block?.layout?.data?.fieldValue"
+											@autoSave="() => onSaveWorkshop(activityItem)"
+										/> -->
+										<component
+											:is="getComponent(activityItem?.type)"
+											:webpageData="webpage"
+											:blockData="activityItem"
+											v-model="activityItem.web_block.layout.data.fieldValue"
+											:fieldValue="activityItem.web_block?.layout?.data?.fieldValue"
+											@autoSave="() => onSaveWorkshop(activityItem)"
+										/>
+									</section>
+								</template>
 							</TransitionGroup>
 						</div>
 

@@ -13,6 +13,7 @@ import { notify } from "@kyvg/vue3-notification"
 import axios from "axios"
 import { trans } from "laravel-vue-i18n";
 import { set } from "lodash";
+import { routeType } from "@/types/route"
 
 library.add(faCube, faStar, faImage, faPencil)
 
@@ -20,7 +21,9 @@ const props = defineProps<{
 	modelValue: any
 	webpageData?: any
 	blockData:Object
+	// uploadRoutes: routeType
 }>()
+
 const emits = defineEmits<{
 	(e: "update:modelValue", value: any): void
 	(e: "autoSave"): void
@@ -184,14 +187,13 @@ const getImageSlots = (layoutType: string) => {
 </script>
 
 <template>
-	<div v-if="modelValue?.value?.images" class="flex flex-wrap">
+	<div class="flex flex-wrap">
 		<div
 			v-for="index in getImageSlots(modelValue?.value?.layout_type)"
 			:key="index + modelValue?.value?.images?.[index - 1]?.source?.avif"
 			class="group relative p-2 hover:bg-white/40"
 			:class="getColumnWidthClass(modelValue?.value?.layout_type, index - 1)">
 			<a
-				v-if="modelValue?.value?.images?.[index - 1]?.source"
 				:href="getHref(index - 1)"
 				target="_blank"
 				rel="noopener noreferrer"
@@ -211,9 +213,8 @@ const getImageSlots = (layoutType: string) => {
 				</div>
 			</div>
 		</div>
-	</div>
 
-	<!-- <Gallery
+		<!-- <Gallery
 		:open="openGallery"
 		@on-close="openGallery = false"
 		:uploadRoutes="route(webpageData?.images_upload_route.name, { modelHasWebBlocks: id })"
@@ -235,4 +236,7 @@ const getImageSlots = (layoutType: string) => {
 				}"
 			/>
 		</Modal>
+	</div>
+
+	
 </template>

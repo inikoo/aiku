@@ -152,7 +152,7 @@ const openedBlockSideEditor = inject('openedBlockSideEditor', ref(null))
                                             ? false
                                             : (e.stopPropagation(), sendDeleteBlock(element))
                                         }"
-                                        v-tooltip="trans('Delete this block')" class="h-10 bg-gray-200 text-red-400 hover:text-red-600 py-2.5 flex items-center justify-center px-2">
+                                        v-tooltip="trans('Delete this block')" class="h-10 border-l border-gray-300 text-red-400 hover:bg-red-100 hover:text-red-600 py-2.5 flex items-center justify-center px-2">
                                         <LoadingIcon v-if="isLoadingDeleteBlock === element.id" class="text-gray-400" />
                                         <FontAwesomeIcon v-else
                                             icon="fal fa-trash-alt"
