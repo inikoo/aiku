@@ -14,6 +14,7 @@ use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\Catalogue\WithDepartmentSubNavigation;
 use App\Actions\Catalogue\WithSubDepartmentSubNavigation;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
@@ -22,6 +23,7 @@ use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -39,7 +41,16 @@ class IndexFamilies extends OrgAction
     use WithCollectionSubNavigation;
     use WithSubDepartmentSubNavigation;
 
-    private Shop|ProductCategory|Organisation|Collection $parent;
+    private Group|Shop|ProductCategory|Organisation|Collection $parent;
+
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup(group(), $request);
+
+        return $this->handle($this->parent);
+    }
+
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
@@ -82,7 +93,7 @@ class IndexFamilies extends OrgAction
         return $this->handle(parent: $shop);
     }
 
-    public function handle(Shop|ProductCategory|Organisation|Collection $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Shop|ProductCategory|Organisation|Collection $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -108,7 +119,9 @@ class IndexFamilies extends OrgAction
 
         $queryBuilder->leftJoin('shops', 'product_categories.shop_id', 'shops.id');
 
-        if (class_basename($parent) == 'Shop') {
+        if (class_basename($parent) == 'Group') {
+            $queryBuilder->where('product_categories.group_id', $parent->id);
+        } elseif (class_basename($parent) == 'Shop') {
             $queryBuilder->where('product_categories.shop_id', $parent->id);
         } elseif (class_basename($parent) == 'Organisation') {
             $queryBuilder->where('product_categories.organisation_id', $parent->id);
@@ -159,7 +172,7 @@ class IndexFamilies extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Shop|ProductCategory|Organisation|Collection $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
+    public function tableStructure(Group|Shop|ProductCategory|Organisation|Collection $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
@@ -439,6 +452,17 @@ class IndexFamilies extends OrgAction
             'grp.org.shops.show.catalogue.collections.families.index' =>
             array_merge(
                 ShowCollection::make()->getBreadcrumbs('grp.org.shops.show.catalogue.collections.show', $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.overview.catalogue.families.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,

@@ -7,15 +7,14 @@
  */
 
 use App\Actions\Accounting\Invoice\UI\IndexInvoices;
-use App\Actions\Accounting\PaymentServiceProvider\UI\IndexPaymentServiceProviders;
+use App\Actions\Catalogue\Collection\UI\IndexCollection;
 use App\Actions\Catalogue\Product\UI\IndexProducts;
-use App\Actions\Catalogue\Product\UI\ShowProduct;
 use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
+use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
 use App\Actions\Comms\Outbox\UI\IndexOutboxes;
 use App\Actions\Comms\PostRoom\UI\IndexPostRooms;
 use App\Actions\Comms\PostRoom\UI\ShowPostRoom;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
-use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\Ordering\Purge\UI\IndexPurges;
@@ -34,18 +33,17 @@ Route::name('comms.')->prefix('comms')->group(function () {
     Route::get('/outboxes', [IndexOutboxes::class, 'inGroup'])->name('outboxes.index');
 });
 
+Route::name('catalogue.')->prefix('catalogue')->group(function () {
+    Route::get('/products', [IndexProducts::class, 'inGroup'])->name('products.index');
+    Route::get('/departments', [IndexDepartments::class, 'inGroup'])->name('departments.index');
+    Route::get('/families', [IndexFamilies::class, 'inGroup'])->name('families.index');
+    Route::get('/collections', [IndexCollection::class, 'inGroup'])->name('collections.index');
+});
+
 Route::name('crm.')->prefix('crm')->group(function () {
     Route::get('/customers', [IndexCustomers::class, 'inGroup'])->name('customers.index');
 });
 
-Route::name('catalogue.')->prefix('catalogue')->group(function () {
-    Route::get('/products', [IndexProducts::class, 'inGroup'])->name('products.index');
-    Route::get('/departments', [IndexDepartments::class, 'inGroup'])->name('departments.index');
-});
-
-// Route::get('/products/{product}', [ShowProduct::class, 'inGroup'])->name('products.show');
-// Route::get('/customers/{customer}', [ShowCustomer::class, 'inGroup'])->name('customers.show');
-// Route::get('/accounting/providers', IndexPaymentServiceProviders::class)->name('accounting.payment-service-providers.index');
 
 Route::name('order.')->prefix('order')->group(function () {
     Route::post('/orders', [IndexOrders::class, 'inGroup'])->name('orders.index');

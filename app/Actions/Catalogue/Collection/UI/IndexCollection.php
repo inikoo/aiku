@@ -11,12 +11,14 @@ namespace App\Actions\Catalogue\Collection\UI;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Http\Resources\Catalogue\CollectionResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\Shop;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -32,9 +34,9 @@ class IndexCollection extends OrgAction
     use HasCatalogueAuthorisation;
     use WithCollectionSubNavigation;
 
-    private Shop|Organisation|Collection $parent;
+    private Group|Shop|Organisation|Collection $parent;
 
-    protected function getElementGroups(Shop|Organisation|Collection $parent): array
+    protected function getElementGroups(Group|Shop|Organisation|Collection $parent): array
     {
         return [
             'type'  => [
@@ -51,7 +53,7 @@ class IndexCollection extends OrgAction
         ];
     }
 
-    public function handle(Shop|Organisation|Collection $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Shop|Organisation|Collection $parent, $prefix = null): LengthAwarePaginator
     {
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
@@ -80,7 +82,9 @@ class IndexCollection extends OrgAction
                 'collections.slug',
             ]);
 
-        if (class_basename($parent) == 'Shop') {
+        if (class_basename($parent) == 'Group') {
+            $queryBuilder->where('collections.group_id', $parent->id);
+        } elseif (class_basename($parent) == 'Shop') {
             $queryBuilder->where('collections.shop_id', $parent->id);
             $queryBuilder->leftJoin('shops', 'collections.shop_id', 'shops.id');
             $queryBuilder->addSelect(
@@ -109,7 +113,7 @@ class IndexCollection extends OrgAction
     }
 
     public function tableStructure(
-        Shop|Organisation|Collection $parent,
+        Group|Shop|Organisation|Collection $parent,
         ?array $modelOperations = null,
         $prefix = null,
         $canEdit = false
@@ -292,6 +296,14 @@ class IndexCollection extends OrgAction
         )->table($this->tableStructure($this->parent));
     }
 
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup(group(), $request);
+
+        return $this->handle($this->parent);
+    }
+
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $organisation;
@@ -344,6 +356,17 @@ class IndexCollection extends OrgAction
             'grp.org.shops.show.catalogue.collections.collections.index' =>
             array_merge(
                 ShowCollection::make()->getBreadcrumbs('grp.org.shops.show.catalogue.collections.show', $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.overview.catalogue.collections.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,
