@@ -83,7 +83,7 @@ class SeedOfferCampaigns extends GrpAction
         }
     }
 
-    public string $commandSignature = 'shop:seed-offer-campaigns {shop? : shop slug}';
+    public string $commandSignature = 'shop:seed_offer_campaigns {shop? : shop slug}';
 
     public function asCommand(Command $command): int
     {
