@@ -10,6 +10,7 @@ use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Accounting\PaymentServiceProvider\UI\IndexPaymentServiceProviders;
 use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\Catalogue\Product\UI\ShowProduct;
+use App\Actions\Comms\Outbox\UI\IndexOutboxes;
 use App\Actions\Comms\PostRoom\UI\IndexPostRooms;
 use App\Actions\Comms\PostRoom\UI\ShowPostRoom;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
@@ -28,7 +29,8 @@ Route::get('/', ShowOverviewHub::class)->name('hub');
 
 Route::name('comms.')->prefix('comms')->group(function () {
     Route::get('/post-rooms', IndexPostRooms::class)->name('post-rooms.index');
-    Route::get('post-rooms/{postRoom}', ShowPostRoom::class)->name('post-rooms.show');
+    Route::get('/post-rooms/{postRoom}', ShowPostRoom::class)->name('post-rooms.show');
+    Route::get('/outboxes', [IndexOutboxes::class, 'inGroup'])->name('outboxes.index');
 });
 
 Route::name('crm.')->prefix('crm')->group(function () {

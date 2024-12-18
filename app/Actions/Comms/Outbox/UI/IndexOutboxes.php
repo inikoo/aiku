@@ -12,6 +12,7 @@ use App\Actions\Comms\ShowCommsDashboard;
 use App\Actions\Comms\WithCommsSubNavigation;
 use App\Actions\Fulfilment\Fulfilment\UI\EditFulfilment;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Http\Resources\Mail\OutboxesResource;
 use App\InertiaTable\InertiaTable;
@@ -20,6 +21,7 @@ use App\Models\Comms\OrgPostRoom;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
 use App\Services\QueryBuilder;
@@ -35,11 +37,14 @@ class IndexOutboxes extends OrgAction
 {
     use WithCommsSubNavigation;
 
-    private Shop|Organisation|PostRoom|Website|Fulfilment $parent;
+    private Group|Shop|Organisation|PostRoom|Website|Fulfilment $parent;
 
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        }
         return $request->user()->hasAnyPermission([
             'shop-admin.'.$this->shop->id,
             'marketing.'.$this->shop->id.'.view',
@@ -49,7 +54,7 @@ class IndexOutboxes extends OrgAction
         ]);
     }
 
-    public function handle(Shop|Organisation|PostRoom|OrgPostRoom|Website|Fulfilment $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Shop|Organisation|PostRoom|OrgPostRoom|Website|Fulfilment $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -65,7 +70,9 @@ class IndexOutboxes extends OrgAction
 
         $queryBuilder = QueryBuilder::for(Outbox::class);
 
-        if (class_basename($parent) == 'Shop') {
+        if ($this->parent instanceof Group) {
+            $queryBuilder->where('outboxes.group_id', $parent->id);
+        } elseif (class_basename($parent) == 'Shop') {
             $queryBuilder->where('outboxes.shop_id', $parent->id);
         } elseif (class_basename($parent) == 'PostRoom') {
             $queryBuilder->where('outboxes.post_room_id', $parent->id);
@@ -99,7 +106,6 @@ class IndexOutboxes extends OrgAction
             ->withPaginator($prefix)
             ->withQueryString();
     }
-
     public function tableStructure($parent, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $prefix) {
@@ -150,6 +156,15 @@ class IndexOutboxes extends OrgAction
             ]
         )->table($this->tableStructure($this->parent));
     }
+
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup(group(), $request);
+
+        return $this->handle($this->parent);
+    }
+
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
@@ -238,6 +253,15 @@ class IndexOutboxes extends OrgAction
                     [
                         'name'       => 'grp.org.shops.show.web.websites.outboxes',
                         'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            'grp.overview.comms.outboxes.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.overview.comms.outboxes.index',
                     ]
                 )
             ),
