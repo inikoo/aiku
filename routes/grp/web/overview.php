@@ -6,6 +6,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Accounting\PaymentServiceProvider\UI\IndexPaymentServiceProviders;
 use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\Catalogue\Product\UI\ShowProduct;
@@ -13,7 +14,9 @@ use App\Actions\Comms\PostRoom\UI\IndexPostRooms;
 use App\Actions\Comms\PostRoom\UI\ShowPostRoom;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
+use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Ordering\Order\UI\IndexOrders;
+use App\Actions\Ordering\Purge\UI\IndexPurges;
 use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use Illuminate\Support\Facades\Route;
 
@@ -29,4 +32,7 @@ Route::get('/products', [IndexProducts::class, 'inGroup'])->name('products.index
 
 Route::name('order.')->prefix('order')->group(function () {
     Route::post('/orders', [IndexOrders::class, 'inGroup'])->name('orders.index');
+    Route::post('/purges', [IndexPurges::class, 'inGroup'])->name('purges.index');
+    Route::post('/invoices', [IndexInvoices::class, 'inGroup'])->name('invoices.index');
+    Route::post('/delivery-notes', [IndexDeliveryNotes::class, 'inGroup'])->name('delivery-notes.index');
 });

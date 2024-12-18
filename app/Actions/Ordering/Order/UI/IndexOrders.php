@@ -258,6 +258,9 @@ class IndexOrders extends OrgAction
 
             return $request->user()->hasPermissionTo("crm.{$this->organisation->id}.view");
         }
+        if ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        }
 
         $this->canEdit = $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
 
