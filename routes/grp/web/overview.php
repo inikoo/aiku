@@ -7,7 +7,10 @@
  */
 
 use App\Actions\Accounting\Invoice\UI\IndexInvoices;
+use App\Actions\Accounting\Payment\UI\IndexPayments;
+use App\Actions\Accounting\PaymentAccount\UI\IndexPaymentAccounts;
 use App\Actions\Accounting\PaymentServiceProvider\UI\IndexPaymentServiceProviders;
+use App\Actions\Accounting\UI\IndexCustomerBalances;
 use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\Catalogue\Product\UI\ShowProduct;
 use App\Actions\Comms\PostRoom\UI\IndexPostRooms;
@@ -37,7 +40,6 @@ Route::get('/products', [IndexProducts::class, 'inGroup'])->name('products.index
 Route::name('order.')->prefix('order')->group(function () {
     Route::post('/orders', [IndexOrders::class, 'inGroup'])->name('orders.index');
     Route::post('/purges', [IndexPurges::class, 'inGroup'])->name('purges.index');
-    Route::post('/invoices', [IndexInvoices::class, 'inGroup'])->name('invoices.index');
     Route::post('/delivery-notes', [IndexDeliveryNotes::class, 'inGroup'])->name('delivery-notes.index');
 });
 
@@ -46,4 +48,11 @@ Route::name('procurement.')->prefix('procurement')->group(function () {
     Route::post('/suppliers', [IndexSuppliers::class, 'inOverview'])->name('suppliers.index');
     Route::post('/supplier-products', [IndexSupplierProducts::class, 'inOverview'])->name('supplier-products.index');
     Route::post('/purchase-orders', [IndexPurchaseOrders::class, 'inGroup'])->name('purchase-orders.index');
+});
+
+Route::name('accounting.')->prefix('accounting')->group(function () {
+    Route::post('/invoices', [IndexInvoices::class, 'inGroup'])->name('invoices.index');
+    Route::post('/payment-accounts', [IndexPaymentAccounts::class, 'inGroup'])->name('payment-accounts.index');
+    Route::post('/payments', [IndexPayments::class, 'inGroup'])->name('payments.index');
+    Route::post('/customer-balances', [IndexCustomerBalances::class, 'inGroup'])->name('customer-balances.index');
 });
