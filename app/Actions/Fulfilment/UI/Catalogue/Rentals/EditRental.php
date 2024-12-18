@@ -2,11 +2,11 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 26 Nov 2024 20:58:56 Central Indonesia Time, Kuala Lumpur, Malaysia
+ * Created: Wed, 18 Dec 2024 23:47:01 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Billables\Rental\UI;
+namespace App\Actions\Fulfilment\UI\Catalogue\Rentals;
 
 use App\Actions\OrgAction;
 use App\Enums\Billables\Rental\RentalUnitEnum;

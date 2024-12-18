@@ -10,7 +10,7 @@ namespace App\Actions\Catalogue\Product\UI;
 
 use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
-use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentAssets;
+use App\Actions\Fulfilment\UI\Catalogue\ShowFulfilmentCatalogueDashboard;
 use App\Actions\OrgAction;
 use App\Enums\UI\Fulfilment\FulfilmentAssetTabsEnum;
 use App\Http\Resources\Catalogue\ProductsResource;
@@ -203,18 +203,18 @@ class ShowPhysicalGoods extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.fulfilments.show.billables.outers.show' =>
+            'grp.org.fulfilments.show.catalogue.outers.show' =>
             array_merge(
-                (new IndexFulfilmentAssets())->getBreadcrumbs($routeParameters),
+                (new ShowFulfilmentCatalogueDashboard())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $product,
                     [
                         'index' => [
-                            'name'       => 'grp.org.fulfilments.show.billables.outers.index',
+                            'name'       => 'grp.org.fulfilments.show.catalogue.outers.index',
                             'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'grp.org.fulfilments.show.billables.outers.show',
+                            'name'       => 'grp.org.fulfilments.show.catalogue.outers.show',
                             'parameters' => $routeParameters
                         ]
                     ],
@@ -265,7 +265,7 @@ class ShowPhysicalGoods extends OrgAction
                     ],
                 ],
             ],
-            'grp.org.fulfilments.show.billables.show' => [
+            'grp.org.fulfilments.show.catalogue.show' => [
                 'label' => $product->name,
                 'route' => [
                     'name'       => $routeName,

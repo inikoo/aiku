@@ -11,19 +11,18 @@ use App\Actions\Billables\Charge\UI\EditCharge;
 use App\Actions\Billables\Charge\UI\IndexCharges;
 use App\Actions\Billables\Charge\UI\ShowCharge;
 use App\Actions\Billables\Service\UI\IndexServices;
+use App\Actions\Billables\UI\ShowBillablesDashboard;
 use App\Actions\Ordering\ShippingZone\UI\EditShippingZone;
 use App\Actions\Ordering\ShippingZone\UI\ShowShippingZone;
 use App\Actions\Ordering\ShippingZoneSchema\UI\CreateShippingZoneSchema;
 use App\Actions\Ordering\ShippingZoneSchema\UI\EditShippingZoneSchema;
 use App\Actions\Ordering\ShippingZoneSchema\UI\IndexShippingZoneSchemas;
 use App\Actions\Ordering\ShippingZoneSchema\UI\ShowShippingZoneSchema;
-use App\Actions\UI\Dropshipping\Assets\ShowAssetDashboard;
 use App\Stubs\UIDummies\EditDummy;
-use App\Stubs\UIDummies\IndexDummies;
 use App\Stubs\UIDummies\ShowDummy;
 use Illuminate\Support\Facades\Route;
 
-Route::get('', ShowAssetDashboard::class)->name('dashboard');
+Route::get('', ShowBillablesDashboard::class)->name('dashboard');
 
 
 Route::name("shipping.")->prefix('shipping')
@@ -55,7 +54,6 @@ Route::name("charges.")->prefix('charges')
 
 Route::name("services.")->prefix('services')
     ->group(function () {
-        // Route::get('', IndexDummies::class)->name('index');
         Route::get('', IndexServices::class)->name('index');
         Route::get('create', EditDummy::class)->name('create');
 

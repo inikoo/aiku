@@ -2,21 +2,21 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 23 May 2024 09:45:43 British Summer Time, Sheffield, UK
+ * Created: Wed, 18 Dec 2024 23:46:35 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\Fulfilment\UI;
+namespace App\Actions\Fulfilment\UI\Catalogue\Services;
 
+use App\Actions\Fulfilment\UI\Catalogue\ShowFulfilmentCatalogueDashboard;
 use App\Actions\OrgAction;
-use App\Enums\Catalogue\Product\ProductStateEnum;
-use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
-use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
+use App\Enums\Billables\Service\ServiceStateEnum;
+use App\Enums\UI\Fulfilment\ServicesTabsEnum;
+use App\Http\Resources\Fulfilment\ServicesResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Catalogue\Product;
+use App\Models\Billables\Service;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -27,17 +27,19 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexFulfilmentPhysicalGoods extends OrgAction
+class IndexFulfilmentServices extends OrgAction
 {
     protected function getElementGroups(Fulfilment $parent): array
     {
+
         return [
 
             'state' => [
                 'label'    => __('State'),
                 'elements' => array_merge_recursive(
-                    ProductStateEnum::labels(),
-                    ProductStateEnum::count($parent->shop)
+                    ServicestateEnum::labels(),
+                    ServicestateEnum::count($parent->shop),
+                    ServicestateEnum::shortLabels(),
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -52,8 +54,8 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('products.name', $value)
-                    ->orWhereStartWith('products.code', $value);
+                $query->whereAnyWordStartWith('services.name', $value)
+                    ->orWhereStartWith('services.code', $value);
             });
         });
 
@@ -61,10 +63,10 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(Product::class);
-        $queryBuilder->where('products.shop_id', $parent->shop_id);
-        $queryBuilder->join('assets', 'products.asset_id', '=', 'assets.id');
-        $queryBuilder->join('currencies', 'products.currency_id', '=', 'currencies.id');
+        $queryBuilder = QueryBuilder::for(Service::class);
+        $queryBuilder->where('services.shop_id', $parent->shop_id);
+        $queryBuilder->join('assets', 'services.asset_id', '=', 'assets.id');
+        $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
 
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
@@ -77,23 +79,28 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
         }
 
         $queryBuilder
-            ->defaultSort('products.id')
+            ->defaultSort('services.id')
             ->select([
-                'products.id',
-                'products.slug',
-                'products.name',
-                'products.code',
-                'products.state',
-                'products.created_at',
-                'products.price',
-                'products.unit',
-                'currencies.code as currency_code',
+                'services.id',
+                'services.slug',
+                'services.state',
+                'services.created_at',
+                'services.price',
+                'services.unit',
+                'assets.name',
+                'assets.code',
                 'assets.current_historic_asset_id as historic_asset_id',
-
+                'services.description',
+                'currencies.code as currency_code',
+                'services.is_auto_assign',
+                'services.auto_assign_trigger',
+                'services.auto_assign_subject',
+                'services.auto_assign_subject_type',
+                'services.auto_assign_status',
             ]);
 
 
-        return $queryBuilder->allowedSorts(['id','code','name','price'])
+        return $queryBuilder->allowedSorts(['code','price','name','state'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -114,25 +121,17 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PhysicalGoodsTabsEnum::values());
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(ServicesTabsEnum::values());
 
-        return $this->handle($fulfilment, PhysicalGoodsTabsEnum::PHYSICAL_GOODS->value);
+        return $this->handle($fulfilment, ServicesTabsEnum::SERVICES->value);
     }
 
-    public function fromRetina(ActionRequest $request): LengthAwarePaginator
-    {
-        /** @var FulfilmentCustomer $fulfilmentCustomer */
-        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
-        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
 
-        $this->initialisation($request->get('website')->organisation, $request);
-        return $this->handle($this->fulfilment, PhysicalGoodsTabsEnum::PHYSICAL_GOODS->value);
-    }
 
-    public function htmlResponse(LengthAwarePaginator $physicalGoods, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $services, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Fulfilment/PhysicalGoods',
+            'Org/Fulfilment/Services',
             [
                 'title'       => __('fulfilment'),
                 'breadcrumbs' => $this->getBreadcrumbs(
@@ -140,19 +139,18 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                 ),
                 'pageHead'    => [
                     'icon'    => [
-                        'icon'  => ['fal', 'fa-cube'],
-                        'title' => __('physical goods')
+                        'icon'  => ['fal', 'fa-concierge-bell'],
+                        'title' => __('services')
                     ],
-                    'model'         => __('Billables'),
-                    'title'         => __('Physical goods'),
+                    'title'         => __('services'),
                     'actions'       => [
                         [
                             'type'  => 'button',
                             'style' => 'primary',
                             'icon'  => 'fal fa-plus',
-                            'label' => __('Create good'),
+                            'label' => __('Create service'),
                             'route' => [
-                                'name'       => 'grp.org.fulfilments.show.billables.outers.create',
+                                'name'       => 'grp.org.fulfilments.show.catalogue.services.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ],
@@ -160,20 +158,18 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => PhysicalGoodsTabsEnum::navigation()
+                    'navigation' => ServicesTabsEnum::navigation()
                 ],
 
-
-
-                PhysicalGoodsTabsEnum::PHYSICAL_GOODS->value => $this->tab == PhysicalGoodsTabsEnum::PHYSICAL_GOODS->value ?
-                    fn () => PhysicalGoodsResource::collection($physicalGoods)
-                    : Inertia::lazy(fn () => PhysicalGoodsResource::collection($physicalGoods)),
+                ServicesTabsEnum::SERVICES->value => $this->tab == ServicesTabsEnum::SERVICES->value ?
+                    fn () => ServicesResource::collection($services)
+                    : Inertia::lazy(fn () => ServicesResource::collection($services)),
 
             ]
         )->table(
             $this->tableStructure(
                 parent: $this->fulfilment,
-                prefix: PhysicalGoodsTabsEnum::PHYSICAL_GOODS->value
+                prefix: ServicesTabsEnum::SERVICES->value
             )
         );
     }
@@ -217,15 +213,15 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
-                ->column(key: 'workflow', label: __('workflow'))
+                ->column(key: 'workflow', label: __('workflow'), canBeHidden: false)
                 ->defaultSort('code');
         };
     }
 
 
-    public function jsonResponse(LengthAwarePaginator $physicalGoods): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $services): AnonymousResourceCollection
     {
-        return PhysicalGoodsResource::collection($physicalGoods);
+        return ServicesResource::collection($services);
     }
 
 
@@ -237,7 +233,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('Goods'),
+                        'label' => __('Services'),
                         'icon'  => 'fal fa-bars'
                     ],
                     'suffix' => $suffix
@@ -247,10 +243,10 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
 
         return
             array_merge(
-                IndexFulfilmentAssets::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-ballot'),
+                ShowFulfilmentCatalogueDashboard::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-ballot'),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.fulfilments.show.billables.outers.index',
+                        'name'       => 'grp.org.fulfilments.show.catalogue.services.index',
                         'parameters' => $routeParameters
                     ]
                 )

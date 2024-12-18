@@ -10,15 +10,15 @@
 
 namespace App\Actions\Billables\Service\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentAssets;
+use App\Actions\Billables\UI\ShowBillablesDashboard;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Enums\UI\Fulfilment\ServicesTabsEnum;
 use App\Http\Resources\Catalogue\ServicesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Billables\Service;
 use App\Models\Catalogue\Shop;
-use App\Models\Shop\ShopCustomer;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -31,6 +31,8 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexServices extends OrgAction
 {
+    use HasCatalogueAuthorisation;
+
     protected function getElementGroups(Shop $parent): array
     {
 
@@ -52,7 +54,7 @@ class IndexServices extends OrgAction
         ];
     }
 
-    public function handle(Shop $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Shop $shop, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -66,12 +68,12 @@ class IndexServices extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(Service::class);
-        $queryBuilder->where('services.shop_id', $parent->shop_id);
+        $queryBuilder->where('services.shop_id', $shop->id);
         $queryBuilder->join('assets', 'services.asset_id', '=', 'assets.id');
         $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
 
 
-        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+        foreach ($this->getElementGroups($shop) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
@@ -94,11 +96,7 @@ class IndexServices extends OrgAction
                 'assets.current_historic_asset_id as historic_asset_id',
                 'services.description',
                 'currencies.code as currency_code',
-                'services.is_auto_assign',
-                'services.auto_assign_trigger',
-                'services.auto_assign_subject',
-                'services.auto_assign_subject_type',
-                'services.auto_assign_status',
+
             ]);
 
 
@@ -109,13 +107,6 @@ class IndexServices extends OrgAction
     }
 
 
-    // public function authorize(ActionRequest $request): bool
-    // {
-    //     // dd($this->shop);
-    //     $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-    //     $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-    //     return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
-    // }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
@@ -124,20 +115,11 @@ class IndexServices extends OrgAction
         return $this->handle($shop, ServicesTabsEnum::SERVICES->value);
     }
 
-    public function fromRetina(ActionRequest $request): LengthAwarePaginator
-    {
-        /** @var ShopCustomer $shopCustomer */
-        $shopCustomer = $request->user()->customer->shopCustomer;
-        $this->shop   = $shopCustomer->shop;
-
-        $this->initialisation($request->get('website')->organisation, $request);
-        return $this->handle($this->shop, ServicesTabsEnum::SERVICES->value);
-    }
 
     public function htmlResponse(LengthAwarePaginator $services, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Shop/Services',
+            'Org/Billables/Services',
             [
                 'title'       => __('shop'),
                 'breadcrumbs' => $this->getBreadcrumbs(
@@ -148,7 +130,6 @@ class IndexServices extends OrgAction
                         'icon'  => ['fal', 'fa-concierge-bell'],
                         'title' => __('services')
                     ],
-                    'model'         => __('Billables'),
                     'title'         => __('services'),
                     'actions'       => [
                         [
@@ -220,7 +201,6 @@ class IndexServices extends OrgAction
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
-                ->column(key: 'workflow', label: __('workflow'), canBeHidden: false)
                 ->defaultSort('code');
         };
     }
@@ -250,7 +230,7 @@ class IndexServices extends OrgAction
 
         return
             array_merge(
-                IndexFulfilmentAssets::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-ballot'),
+                ShowBillablesDashboard::make()->getBreadcrumbs(routeParameters: $routeParameters),
                 $headCrumb(
                     [
                         'name'       => 'grp.org.shops.show.billables.services.index',

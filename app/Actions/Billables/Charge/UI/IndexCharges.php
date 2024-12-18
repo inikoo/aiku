@@ -28,6 +28,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexCharges extends OrgAction
 {
     use HasCatalogueAuthorisation;
+
     private Shop|Organisation $parent;
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
@@ -83,7 +84,6 @@ class IndexCharges extends OrgAction
         }
 
 
-
         return $queryBuilder
             ->defaultSort('charges.code')
             ->select([
@@ -94,9 +94,14 @@ class IndexCharges extends OrgAction
                 'charges.description',
                 'charges.created_at',
                 'charges.updated_at',
+                'invoices_all',
+                'sales_all',
+                'customers_invoiced_all'
             ])
             ->leftJoin('charge_stats', 'charges.id', 'charge_stats.charge_id')
-            ->allowedSorts(['code', 'name','shop_code'])
+            ->leftJoin('asset_sales_intervals', 'charges.asset_id', 'asset_sales_intervals.asset_id')
+            ->leftJoin('asset_ordering_intervals', 'charges.asset_id', 'asset_ordering_intervals.asset_id')
+            ->allowedSorts(['code', 'name', 'shop_code', 'sales_all', 'customers_invoiced_all', 'invoices_all'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -111,13 +116,6 @@ class IndexCharges extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            // foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-            //     $table->elementGroup(
-            //         key: $key,
-            //         label: $elementGroup['label'],
-            //         elements: $elementGroup['elements']
-            //     );
-            // }
 
             $table
                 ->defaultSort('code')
@@ -146,7 +144,10 @@ class IndexCharges extends OrgAction
                 $table->column(key: 'shop_code', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
             };
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'customers_invoiced_all', label: __('customers'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'invoices_all', label: __('invoices'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'sales_all', label: __('amount'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
@@ -157,7 +158,6 @@ class IndexCharges extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $charges, ActionRequest $request): Response
     {
-
         return Inertia::render(
             'Org/Catalogue/Charges',
             [
@@ -167,12 +167,12 @@ class IndexCharges extends OrgAction
                 ),
                 'title'       => __('Charges'),
                 'pageHead'    => [
-                    'title'     => __('charges'),
-                    'icon'      => [
+                    'title'   => __('charges'),
+                    'icon'    => [
                         'icon'  => ['fal', 'fa-folder-tree'],
                         'title' => __('charges')
                     ],
-                    'actions'   => [
+                    'actions' => [
                         $this->canEdit && $request->route()->getName() == 'grp.org.shops.show.billables.charges.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',

@@ -22,8 +22,8 @@ Route::prefix('{fulfilment}')->name('show.')
         Route::name("operations.")
             ->group(__DIR__."/operations.php");
 
-        Route::name("billables.")
-             ->group(__DIR__."/billables.php");
+        Route::name("catalogue.")
+             ->group(__DIR__."/fulfillment_catalogue.php");
 
         Route::name("crm.")
             ->group(__DIR__."/crm.php");

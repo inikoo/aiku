@@ -1,3 +1,9 @@
+<!--
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Wed, 18 Dec 2024 22:39:30 Malaysia Time, Kuala Lumpur, Malaysia
+  - Copyright (c) 2024, Raul A Perusquia Flores
+  -->
+
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
@@ -11,7 +17,6 @@ import type { Component } from 'vue'
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { Tabs as TSTabs } from '@/types/Tabs'
 
-// import FileShowcase from '@/xxxxxxxxxxxx'
 
 const props = defineProps<{
     title: string,
