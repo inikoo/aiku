@@ -11,6 +11,7 @@ namespace App\Actions\Accounting\Payment\UI;
 use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
 use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServiceProvider;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\PaymentsResource;
 use App\InertiaTable\InertiaTable;
@@ -20,6 +21,7 @@ use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Catalogue\Shop;
 use App\Models\Ordering\Order;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -33,9 +35,9 @@ use App\Services\QueryBuilder;
 
 class IndexPayments extends OrgAction
 {
-    private Organisation|PaymentAccount|Shop|OrgPaymentServiceProvider|Invoice $parent;
+    private Group|Organisation|PaymentAccount|Shop|OrgPaymentServiceProvider|Invoice $parent;
 
-    public function handle(Organisation|PaymentAccount|Shop|OrgPaymentServiceProvider|Invoice|Order $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Organisation|PaymentAccount|Shop|OrgPaymentServiceProvider|Invoice|Order $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -56,6 +58,8 @@ class IndexPayments extends OrgAction
             $queryBuilder->where('payments.payment_account_id', $parent->id);
         } elseif (class_basename($parent) == 'Shop') {
             $queryBuilder->where('payments.shop_id', $parent->id);
+        } elseif (class_basename($parent) == 'Group') {
+            $queryBuilder->where('payments.group_id', $parent->id);
         } elseif (class_basename($parent) == 'Invoice') {
 
             $queryBuilder->leftJoin('model_has_payments', 'payments.id', 'model_has_payments.payment_id')
@@ -79,6 +83,8 @@ class IndexPayments extends OrgAction
             );
         }
         */
+        $queryBuilder->leftjoin('organisations', 'payments.organisation_id', '=', 'organisations.id');
+        $queryBuilder->leftjoin('shops', 'payments.shop_id', '=', 'shops.id');
 
         return $queryBuilder
             ->defaultSort('-date')
@@ -88,7 +94,11 @@ class IndexPayments extends OrgAction
                 'payments.status',
                 'payments.date',
                 'payment_accounts.slug as payment_accounts_slug',
-                'payment_service_providers.slug as payment_service_providers_slug'
+                'payment_service_providers.slug as payment_service_providers_slug',
+                'shops.name as shop_name',
+                'shops.slug as shop_slug',
+                'organisations.name as organisation_name',
+                'organisations.slug as organisation_slug',
             ])
             ->leftJoin('payment_accounts', 'payments.payment_account_id', 'payment_accounts.id')
             ->leftJoin('payment_service_providers', 'payment_accounts.payment_service_provider_id', 'payment_service_providers.id')
@@ -100,7 +110,7 @@ class IndexPayments extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Invoice|Organisation|OrgPaymentServiceProvider|PaymentAccount|Order $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Group|Invoice|Organisation|OrgPaymentServiceProvider|PaymentAccount|Order $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {
@@ -113,13 +123,20 @@ class IndexPayments extends OrgAction
                 ->withModelOperations($modelOperations)
                 ->defaultSort('-date')
                 ->column(key: 'status', label: __('status'), canBeHidden: false, sortable: true, searchable: true, type: 'icon')
-                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true, type:'number');
+                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+                if ($parent instanceof Group) {
+                    $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
+                    $table->column(key: 'shop_name', label: __('shop'), canBeHidden: false, searchable: true);
+                }
+                $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true, type:'number');
         };
     }
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        }
         $this->canEdit = $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
 
         return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
@@ -164,6 +181,14 @@ class IndexPayments extends OrgAction
         $this->parent = $shop;
         $this->initialisation($organisation, $request);
         return $this->handle($shop);
+    }
+
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup(group(), $request);
+
+        return $this->handle(group());
     }
 
     public function jsonResponse($payments): AnonymousResourceCollection
@@ -250,6 +275,16 @@ class IndexPayments extends OrgAction
             array_merge(
                 (new ShowPaymentAccount())->getBreadcrumbs('grp.org.accounting.payment-accounts.show', $routeParameters),
                 $headCrumb()
+            ),
+            'grp.overview.accounting.payments.index' => 
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name' => $routeName,
+                        'parameters' => $routeParameters
+                    ]
+                )
             ),
 
             default => []

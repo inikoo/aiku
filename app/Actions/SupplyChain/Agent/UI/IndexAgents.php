@@ -10,6 +10,7 @@ namespace App\Actions\SupplyChain\Agent\UI;
 
 use App\Actions\GrpAction;
 use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Http\Resources\SupplyChain\AgentsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SupplyChain\Agent;
@@ -151,6 +152,13 @@ class IndexAgents extends GrpAction
         return $this->handle();
     }
 
+    public function inOverview(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation(app('group'), $request);
+
+        return $this->handle();
+    }
+
     public function jsonResponse(LengthAwarePaginator $agent): AnonymousResourceCollection
     {
         return AgentsResource::collection($agent);
@@ -163,7 +171,10 @@ class IndexAgents extends GrpAction
         return Inertia::render(
             'SupplyChain/Agents',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
                 'title'       => __("agents"),
                 'pageHead'    => [
                     'icon'    =>
@@ -190,23 +201,42 @@ class IndexAgents extends GrpAction
         )->table($this->tableStructure($this->group));
     }
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return
+        $headCrumb = function (array $routeParameters = []) {
+            return [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __('Agents'),
+                        'icon'  => 'fal fa-bars'
+                    ],
+                ],
+            ];
+        };
+        return match ($routeName) {
+            'grp.supply-chain.agents.index' => 
             array_merge(
                 ShowSupplyChainDashboard::make()->getBreadcrumbs(),
-                [
+                $headCrumb(
                     [
-                        'type'   => 'simple',
-                        'simple' => [
-                            'route' => [
-                                'name' => 'grp.supply-chain.agents.index'
-                            ],
-                            'label' => __("Agents"),
-                            'icon'  => 'fal fa-bars'
-                        ]
+                        'name' => 'grp.supply-chain.agents.index',
+                        'parameters' => []
                     ]
-                ]
-            );
+                )
+            ),
+            'grp.overview.procurement.agents.index' => 
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name' => $routeName,
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            default => []
+        };
     }
 }

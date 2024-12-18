@@ -28,7 +28,11 @@ class CustomerBalancesResource extends JsonResource
             'balance'                       => $this->balance,
             'shop_slug'                     => $this->shop_slug,
             'shop_type'                     => $this->shop_type,
-            'fulfilment_slug'               => $this->fulfilment_slug
+            'fulfilment_slug'               => $this->fulfilment_slug,
+            'organisation_name' => $this->organisation_name,
+            'organisation_slug' => $this->organisation_slug,
+            'shop_name'         => $this->shop_name,
+            'shop_slug'         => $this->shop_slug,
         ];
     }
 }

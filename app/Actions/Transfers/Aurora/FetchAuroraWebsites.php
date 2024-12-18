@@ -104,7 +104,6 @@ class FetchAuroraWebsites extends FetchAuroraAction
                 }
 
 
-
                 if (!$result) {
                     $result = $this->saveFixedWebpageMigrationData($organisationSource, $website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::COOKIES_POLICY)->first(), 'cookies');
                 }
@@ -125,13 +124,11 @@ class FetchAuroraWebsites extends FetchAuroraAction
                 }
 
                 $this->saveFixedWebpageMigrationData($organisationSource, $website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::PRICING)->first(), 'pricing');
-
-
             }
 
 
             foreach ($website->webpages()->where('is_fixed', true)->get() as $webpage) {
-                FetchAuroraWebBlocks::run($webpage, reset: true, dbSuffix: $this->dbSuffix);
+                FetchAuroraWebBlocks::run($organisationSource, $webpage, reset: true, dbSuffix: $this->dbSuffix);
                 PublishWebpage::make()->action(
                     $webpage,
                     [

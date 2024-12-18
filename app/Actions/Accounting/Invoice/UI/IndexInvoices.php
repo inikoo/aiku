@@ -81,8 +81,8 @@ class IndexInvoices extends OrgAction
             abort(422);
         }
 
-        $queryBuilder->leftjoin('organisations', 'purges.organisation_id', '=', 'organisations.id');
-        $queryBuilder->leftjoin('shops', 'purges.shop_id', '=', 'shops.id');
+        $queryBuilder->leftjoin('organisations', 'invoices.organisation_id', '=', 'organisations.id');
+        $queryBuilder->leftjoin('shops', 'invoices.shop_id', '=', 'shops.id');
 
         $queryBuilder->defaultSort('-invoices.date')
             ->select([
@@ -98,17 +98,13 @@ class IndexInvoices extends OrgAction
                 'currencies.symbol as currency_symbol',
                 'shops.name as shop_name',
                 'shops.slug as shop_slug',
+                'shops.code as shop_code',
                 'organisations.name as organisation_name',
                 'organisations.slug as organisation_slug',
             ])
             ->leftJoin('currencies', 'invoices.currency_id', 'currencies.id')
             ->leftJoin('invoice_stats', 'invoices.id', 'invoice_stats.invoice_id');
 
-
-        if (!($parent instanceof Fulfilment or $parent instanceof Shop)) {
-            $queryBuilder->leftJoin('shops', 'invoices.shop_id', 'shops.id')
-                ->addSelect(['shops.slug as shop_slug', 'shops.name as shop_name', 'shops.code as shop_code']);
-        }
 
 
         if ($parent instanceof Shop) {
@@ -432,7 +428,7 @@ class IndexInvoices extends OrgAction
                 )
             ),
 
-            'grp.overview.order.invoices.index' =>
+            'grp.overview.accounting.invoices.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(
                     $routeParameters

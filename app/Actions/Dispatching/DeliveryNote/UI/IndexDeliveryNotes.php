@@ -12,6 +12,7 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\UI\Dispatch\ShowDispatchHub;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\UI\DeliveryNotes\DeliveryNotesTabsEnum;
@@ -94,8 +95,8 @@ class IndexDeliveryNotes extends OrgAction
         }
 
         $query->leftjoin('customers', 'delivery_notes.customer_id', '=', 'customers.id');
-        $query->leftjoin('organisations', 'purges.organisation_id', '=', 'organisations.id');
-        $query->leftjoin('shops', 'purges.shop_id', '=', 'shops.id');
+        $query->leftjoin('organisations', 'delivery_notes.organisation_id', '=', 'organisations.id');
+        $query->leftjoin('shops', 'delivery_notes.shop_id', '=', 'shops.id');
 
         return $query->defaultSort('delivery_notes.reference')
             ->select([
@@ -119,7 +120,6 @@ class IndexDeliveryNotes extends OrgAction
                 'organisations.slug as organisation_slug',
             ])
             ->leftJoin('delivery_note_stats', 'delivery_notes.id', 'delivery_note_stats.delivery_note_id')
-            ->leftJoin('shops', 'delivery_notes.shop_id', 'shops.id')
             ->allowedSorts(['reference', 'date', 'number_items', 'customer_name', 'type', 'weight'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -366,6 +366,16 @@ class IndexDeliveryNotes extends OrgAction
                 $headCrumb(
                     [
                         'name'       => 'grp.org.shops.show.crm.customers.show.delivery_notes.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            'grp.overview.procurement.delivery-notes.index' => 
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name' => $routeName,
                         'parameters' => $routeParameters
                     ]
                 )

@@ -20,7 +20,7 @@ trait HasProcurementOrderFields
         $table->foreign('historic_supplier_product_id')->references('id')->on('historic_supplier_products');
         $table->unsignedInteger('org_supplier_product_id')->nullable()->index();
         $table->foreign('org_supplier_product_id')->references('id')->on('org_supplier_products');
-        $table->unsignedInteger('stock_id')->index();
+        $table->unsignedInteger('stock_id')->nullable()->index()->comment('Null allowed when org_stock is exclusive to an organiation');
         $table->foreign('stock_id')->references('id')->on('stocks');
         $table->unsignedInteger('org_stock_id')->index();
         $table->foreign('org_stock_id')->references('id')->on('org_stocks');
