@@ -10,6 +10,7 @@ use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Accounting\PaymentServiceProvider\UI\IndexPaymentServiceProviders;
 use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\Catalogue\Product\UI\ShowProduct;
+use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
 use App\Actions\Comms\Outbox\UI\IndexOutboxes;
 use App\Actions\Comms\PostRoom\UI\IndexPostRooms;
 use App\Actions\Comms\PostRoom\UI\ShowPostRoom;
@@ -39,6 +40,7 @@ Route::name('crm.')->prefix('crm')->group(function () {
 
 Route::name('catalogue.')->prefix('catalogue')->group(function () {
     Route::get('/products', [IndexProducts::class, 'inGroup'])->name('products.index');
+    Route::get('/departments', [IndexDepartments::class, 'inGroup'])->name('departments.index');
 });
 
 // Route::get('/products/{product}', [ShowProduct::class, 'inGroup'])->name('products.show');
