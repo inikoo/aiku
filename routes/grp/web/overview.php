@@ -13,6 +13,8 @@ use App\Actions\Accounting\PaymentServiceProvider\UI\IndexPaymentServiceProvider
 use App\Actions\Accounting\UI\IndexCustomerBalances;
 use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\Catalogue\Product\UI\ShowProduct;
+use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
+use App\Actions\Comms\Outbox\UI\IndexOutboxes;
 use App\Actions\Comms\PostRoom\UI\IndexPostRooms;
 use App\Actions\Comms\PostRoom\UI\ShowPostRoom;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
@@ -28,11 +30,22 @@ use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowOverviewHub::class)->name('hub');
-Route::get('/post-rooms', IndexPostRooms::class)->name('post-rooms.index');
-Route::get('post-rooms/{postRoom}', ShowPostRoom::class)->name('post-rooms.show');
-Route::get('/customers', [IndexCustomers::class, 'inGroup'])->name('customers.index');
-Route::get('/customers/{customer}', [ShowCustomer::class, 'inGroup'])->name('customers.show');
-Route::get('/products', [IndexProducts::class, 'inGroup'])->name('products.index');
+
+Route::name('comms.')->prefix('comms')->group(function () {
+    Route::get('/post-rooms', IndexPostRooms::class)->name('post-rooms.index');
+    Route::get('/post-rooms/{postRoom}', ShowPostRoom::class)->name('post-rooms.show');
+    Route::get('/outboxes', [IndexOutboxes::class, 'inGroup'])->name('outboxes.index');
+});
+
+Route::name('crm.')->prefix('crm')->group(function () {
+    Route::get('/customers', [IndexCustomers::class, 'inGroup'])->name('customers.index');
+});
+
+Route::name('catalogue.')->prefix('catalogue')->group(function () {
+    Route::get('/products', [IndexProducts::class, 'inGroup'])->name('products.index');
+    Route::get('/departments', [IndexDepartments::class, 'inGroup'])->name('departments.index');
+});
+
 // Route::get('/products/{product}', [ShowProduct::class, 'inGroup'])->name('products.show');
 // Route::get('/customers/{customer}', [ShowCustomer::class, 'inGroup'])->name('customers.show');
 // Route::get('/accounting/providers', IndexPaymentServiceProviders::class)->name('accounting.payment-service-providers.index');

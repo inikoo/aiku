@@ -155,14 +155,14 @@ class ShowPostRoom extends GrpAction
         $postRoom = PostRoom::where('slug', $routeParameters['postRoom'])->first();
 
         return match ($routeName) {
-            'grp.overview.post-rooms.show' =>
+            'grp.overview.comms.post-rooms.show' =>
             array_merge(
-                IndexPostRooms::make()->getBreadcrumbs('grp.overview.post-rooms.index', $routeParameters),
+                IndexPostRooms::make()->getBreadcrumbs('grp.overview.comms.post-rooms.index', $routeParameters),
                 $headCrumb(
                     $postRoom,
                     [
 
-                        'name'       => 'grp.overview.post-rooms.show',
+                        'name'       => 'grp.overview.comms.post-rooms.show',
                         'parameters' => $routeParameters
 
                     ],
