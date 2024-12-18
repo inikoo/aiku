@@ -8,9 +8,9 @@
 
 namespace App\Actions\Comms\Outbox\Hydrators;
 
-use App\Models\Comms\EmailBulkRun;
 use App\Models\Comms\Outbox;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class OutboxHydrateEmailBulkRuns
@@ -32,11 +32,16 @@ class OutboxHydrateEmailBulkRuns
 
     public function handle(Outbox $outbox): void
     {
-        $count = EmailBulkRun::where('outbox_id', $outbox->id)->count();
 
-        $outbox->stats()->update(
+        if ($outbox->model_type != 'EmailBulkRun') {
+            return;
+        }
+        $count = DB::table('email_bulk_runs')
+            ->where('outbox_id', $outbox->id)->count();
+
+        $outbox->intervals()->update(
             [
-                'number_email_bulk_runs' => $count,
+                'runs_all' => $count,
             ]
         );
     }

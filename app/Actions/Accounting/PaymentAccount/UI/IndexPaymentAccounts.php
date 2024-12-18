@@ -130,9 +130,9 @@ class IndexPaymentAccounts extends OrgAction
                 )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
-                if ($parent instanceof Group) {
-                    $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
-                }
+            if ($parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
+            }
 
             if (!$parent instanceof OrgPaymentServiceProvider) {
                 $table->column(key: 'payment_service_provider_code', label: __('provider'), canBeHidden: false, sortable: true, searchable: true);
@@ -201,8 +201,7 @@ class IndexPaymentAccounts extends OrgAction
         $routeName       = $request->route()->getName();
         $routeParameters = $request->route()->originalParameters();
 
-        if($this->parent instanceof Group)
-        {
+        if ($this->parent instanceof Group) {
             $shops = $this->group->shops;
         } else {
             $shops = $this->organisation->shops;
@@ -301,7 +300,7 @@ class IndexPaymentAccounts extends OrgAction
                 ),
                 $headCrumb($routeParameters)
             ),
-            'grp.overview.accounting.payment-accounts.index' => 
+            'grp.overview.accounting.payment-accounts.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(

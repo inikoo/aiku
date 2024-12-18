@@ -62,6 +62,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\Comms\OutboxIntervals|null $intervals
  * @property-read Collection<int, \App\Models\Comms\Mailshot> $mailshots
+ * @property-read \App\Models\Comms\OrgPostRoom|null $orgPostRoom
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Comms\PostRoom|null $postRoom
  * @property-read Shop|null $shop
@@ -188,6 +189,11 @@ class Outbox extends Model
     public function postRoom(): BelongsTo
     {
         return $this->belongsTo(PostRoom::class);
+    }
+
+    public function orgPostRoom(): BelongsTo
+    {
+        return $this->belongsTo(OrgPostRoom::class);
     }
 
 }

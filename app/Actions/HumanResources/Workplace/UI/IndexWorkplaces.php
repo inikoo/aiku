@@ -25,7 +25,6 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
-use Google\Service\CloudSearch\Grid;
 
 class IndexWorkplaces extends OrgAction
 {
@@ -109,10 +108,10 @@ class IndexWorkplaces extends OrgAction
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true);
-                if ($parent instanceof Group) {
-                    $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
-                }
-                $table->defaultSort('slug');
+            if ($parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
+            }
+            $table->defaultSort('slug');
         };
     }
 
@@ -164,7 +163,7 @@ class IndexWorkplaces extends OrgAction
 
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
-    {   
+    {
         $this->parent = $organisation;
         $this->initialisation($organisation, $request);
         $this->originalParameters = $request->route()->originalParameters();
@@ -198,18 +197,20 @@ class IndexWorkplaces extends OrgAction
             ];
         };
         return match ($routeName) {
-            'grp.org.hr.workplaces.index' => 
+            'grp.org.hr.workplaces.index' =>
             array_merge(
                 ShowHumanResourcesDashboard::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
-                    $routeName, $routeParameters
+                    $routeName,
+                    $routeParameters
                 )
             ),
-            'grp.overview.human-resources.workplaces.index' => 
+            'grp.overview.human-resources.workplaces.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
-                    $routeName, $routeParameters
+                    $routeName,
+                    $routeParameters
                 )
             ),
         };

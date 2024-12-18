@@ -72,8 +72,8 @@ class FetchAuroraHistory extends FetchAurora
 
         ) {
             // todo, later on check if really the old values are empty or is an parsing error
-            $oldValues= $newValues;
-            foreach($oldValues as $key => $value) {
+            $oldValues = $newValues;
+            foreach ($oldValues as $key => $value) {
                 $oldValues[$key] = '';
             }
         }

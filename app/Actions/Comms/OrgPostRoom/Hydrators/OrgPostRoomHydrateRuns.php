@@ -13,9 +13,10 @@ namespace App\Actions\Comms\OrgPostRoom\Hydrators;
 use App\Actions\Traits\WithEnumStats;
 use App\Models\Comms\OrgPostRoom;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class OrgPostRoomHydrateEmailBulkRuns
+class OrgPostRoomHydrateRuns
 {
     use AsAction;
     use WithEnumStats;
@@ -34,13 +35,15 @@ class OrgPostRoomHydrateEmailBulkRuns
 
     public function handle(OrgPostRoom $orgPostRoom): void
     {
-        $stats = [
-            'number_email_bulk_runs' => $orgPostRoom->outboxes()->with('emailBulkRuns')->get()->sum(function ($outbox) {
-                return $outbox->emailBulkRuns->count();
-            }),
-        ];
 
-        $orgPostRoom->stats()->update($stats);
+        $count = DB::table('outbox_intervals')->leftjoin('outboxes', 'outbox_intervals.outbox_id', '=', 'outboxes.id')
+            ->where('org_post_room_id', $orgPostRoom->id)->sum('runs_all');
+
+        $orgPostRoom->intervals()->update(
+            [
+                'runs_all' => $count,
+            ]
+        );
     }
 
 }

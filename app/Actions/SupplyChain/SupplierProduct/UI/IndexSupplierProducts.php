@@ -290,7 +290,7 @@ class IndexSupplierProducts extends GrpAction
                     ]
                 )
             ),
-            'grp.overview.procurement.supplier-products.index' => 
+            'grp.overview.procurement.supplier-products.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(

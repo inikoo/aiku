@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Wed, 18 Dec 2024 19:42:42 Malaysia Time, Kuala Lumpur, Malaysia
@@ -274,7 +275,7 @@ return [
                 'balanceCooldown' => 3,
             ],
             'universal-search' => [
-                'maxProcesses'    => 3,
+                'maxProcesses'    => env('HORIZON_SEARCH_WORKERS', 3),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
@@ -326,7 +327,7 @@ return [
                 'balanceCooldown' => 3,
             ],
             'universal-search' => [
-                'maxProcesses'    => 10,
+                'maxProcesses'    => env('HORIZON_SEARCH_WORKERS', 3),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 10,
             ],
@@ -363,7 +364,7 @@ return [
                 'balanceCooldown' => 3,
             ],
             'universal-search' => [
-                'maxProcesses'    => 10,
+                'maxProcesses'    => env('HORIZON_SEARCH_WORKERS', 10),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
