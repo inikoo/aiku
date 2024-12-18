@@ -14,6 +14,7 @@ use App\Actions\SupplyChain\Agent\WithAgentSubNavigation;
 use App\Actions\SupplyChain\Supplier\UI\ShowSupplier;
 use App\Actions\SupplyChain\Supplier\WithSupplierSubNavigation;
 use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use App\Http\Resources\SupplyChain\SupplierProductsResource;
 use App\InertiaTable\InertiaTable;
@@ -161,6 +162,14 @@ class IndexSupplierProducts extends GrpAction
         return $this->handle($this->group);
     }
 
+    public function inOverview(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->scope = app('group');
+        $this->initialisation(app('group'), $request);
+
+        return $this->handle($this->group);
+    }
+
     public function jsonResponse(LengthAwarePaginator $supplier_products): AnonymousResourceCollection
     {
         return SupplierProductsResource::collection($supplier_products);
@@ -277,6 +286,16 @@ class IndexSupplierProducts extends GrpAction
                 $headCrumb(
                     [
                         'name'       => 'grp.supply-chain.agents.show.supplier_products.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            'grp.overview.procurement.supplier-products.index' => 
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name' => $routeName,
                         'parameters' => $routeParameters
                     ]
                 )
