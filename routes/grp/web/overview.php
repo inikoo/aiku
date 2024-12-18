@@ -18,6 +18,7 @@ use App\Actions\Comms\Outbox\UI\IndexOutboxes;
 use App\Actions\Comms\PostRoom\UI\IndexPostRooms;
 use App\Actions\Comms\PostRoom\UI\ShowPostRoom;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
+use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\Ordering\Purge\UI\IndexPurges;
@@ -45,6 +46,7 @@ Route::name('catalogue.')->prefix('catalogue')->group(function () {
 
 Route::name('crm.')->prefix('crm')->group(function () {
     Route::get('/customers', [IndexCustomers::class, 'inGroup'])->name('customers.index');
+    Route::get('/prospects', [IndexProspects::class, 'inGroup'])->name('prospects.index');
 });
 
 

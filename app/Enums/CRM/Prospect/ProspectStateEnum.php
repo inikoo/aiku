@@ -10,6 +10,7 @@ namespace App\Enums\CRM\Prospect;
 
 use App\Enums\EnumHelperTrait;
 use App\Models\Catalogue\Shop;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 
 enum ProspectStateEnum: string
@@ -65,7 +66,7 @@ enum ProspectStateEnum: string
         ];
     }
 
-    public static function count(Organisation|Shop $parent): array
+    public static function count(Group|Organisation|Shop $parent): array
     {
         $stats = $parent->crmStats;
 
