@@ -66,7 +66,7 @@ class Snapshot extends Model
     protected array $dates = ['published_at', 'published_until'];
 
     protected $casts = [
-        'layout'  => 'array',
+        'layout'  => 'object',
         'state'   => SnapshotStateEnum::class,
         'scope'   => SnapshotScopeEnum::class,
         'builder' => SnapshotBuilderEnum::class

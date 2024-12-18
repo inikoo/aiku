@@ -51,8 +51,8 @@ class WebBlock extends Model implements HasMedia
     use InteractsWithMedia;
 
     protected $casts = [
-        'layout' => 'array',
-        'data'  => 'array',
+        'layout' => 'object',
+        'data'  => 'object',
     ];
 
     protected $attributes = [
