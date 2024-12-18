@@ -13,6 +13,7 @@ use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 
 enum OrderStateEnum: string
@@ -140,9 +141,9 @@ enum OrderStateEnum: string
         ];
     }
 
-    public static function count(Organisation|Shop|Customer|CustomerClient|Asset $parent): array
+    public static function count(Group|Organisation|Shop|Customer|CustomerClient|Asset $parent): array
     {
-        if ($parent instanceof Organisation || $parent instanceof Shop) {
+        if ($parent instanceof Organisation || $parent instanceof Shop || $parent instanceof Group) {
             $stats = $parent->orderingStats;
         } elseif ($parent instanceof CustomerClient) {
             $stats = $parent->customer->stats;

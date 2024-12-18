@@ -13,6 +13,7 @@ use App\Actions\Comms\PostRoom\UI\IndexPostRooms;
 use App\Actions\Comms\PostRoom\UI\ShowPostRoom;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
+use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use Illuminate\Support\Facades\Route;
 
@@ -25,3 +26,7 @@ Route::get('/products', [IndexProducts::class, 'inGroup'])->name('products.index
 // Route::get('/products/{product}', [ShowProduct::class, 'inGroup'])->name('products.show');
 // Route::get('/customers/{customer}', [ShowCustomer::class, 'inGroup'])->name('customers.show');
 // Route::get('/accounting/providers', IndexPaymentServiceProviders::class)->name('accounting.payment-service-providers.index');
+
+Route::name('order.')->prefix('order')->group(function () {
+    Route::post('/orders', [IndexOrders::class, 'inGroup'])->name('orders.index');
+});
