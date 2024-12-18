@@ -12,6 +12,7 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\UI\Dispatch\ShowDispatchHub;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\UI\DeliveryNotes\DeliveryNotesTabsEnum;
@@ -366,6 +367,16 @@ class IndexDeliveryNotes extends OrgAction
                 $headCrumb(
                     [
                         'name'       => 'grp.org.shops.show.crm.customers.show.delivery_notes.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            'grp.overview.procurement.agents.index' => 
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name' => $routeName,
                         'parameters' => $routeParameters
                     ]
                 )

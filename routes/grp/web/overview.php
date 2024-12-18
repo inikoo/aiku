@@ -17,6 +17,10 @@ use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\Ordering\Purge\UI\IndexPurges;
+use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
+use App\Actions\SupplyChain\Agent\UI\IndexAgents;
+use App\Actions\SupplyChain\Supplier\UI\IndexSuppliers;
+use App\Actions\SupplyChain\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use Illuminate\Support\Facades\Route;
 
@@ -35,4 +39,11 @@ Route::name('order.')->prefix('order')->group(function () {
     Route::post('/purges', [IndexPurges::class, 'inGroup'])->name('purges.index');
     Route::post('/invoices', [IndexInvoices::class, 'inGroup'])->name('invoices.index');
     Route::post('/delivery-notes', [IndexDeliveryNotes::class, 'inGroup'])->name('delivery-notes.index');
+});
+
+Route::name('procurement.')->prefix('procurement')->group(function () {
+    Route::post('/agents', [IndexAgents::class, 'inOverview'])->name('agents.index');
+    Route::post('/suppliers', [IndexSuppliers::class, 'inOverview'])->name('suppliers.index');
+    Route::post('/supplier-products', [IndexSupplierProducts::class, 'inOverview'])->name('supplier-products.index');
+    Route::post('/purchase-orders', [IndexPurchaseOrders::class, 'inGroup'])->name('purchase-orders.index');
 });
