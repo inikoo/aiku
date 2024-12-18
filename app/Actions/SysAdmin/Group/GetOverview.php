@@ -14,10 +14,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\SysAdmin\OverviewResource;
-use App\Models\Catalogue\Product;
-use App\Models\Comms\PostRoom;
-use App\Models\CRM\Customer;
-use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
@@ -30,29 +26,38 @@ class GetOverview extends OrgAction
     {
         $dataRaw = collect([
             (object)[
-                'name' => 'Post Rooms',
-                'icon' => 'fal fa-inbox-out',
-                'route' => 'grp.overview.post-rooms.index',
-                'count' => PostRoom::where('group_id', $group->id)->count(),
+                "section" => "Comms",
+                "data" => [
+                    (object)[
+                        'name' => 'Post Rooms',
+                        'icon' => 'fal fa-inbox-out',
+                        'route' => 'grp.overview.comms.post-rooms.index',
+                        'count' => $group->commsStats->number_post_rooms,
+                    ],
+                ]
             ],
             (object)[
-                'name' => 'Customers',
-                'icon' => 'fal fa-user',
-                'route' => 'grp.overview.customers.index',
-                'count' => Customer::where('group_id', $group->id)->count(),
+                "section" => "CRM",
+                "data" => [
+                    (object)[
+                        'name' => 'Customers',
+                        'icon' => 'fal fa-user',
+                        'route' => 'grp.overview.crm.customers.index',
+                        'count' => $group->crmStats->number_customers,
+                    ],
+                ]
             ],
             (object)[
-                'name' => 'Products',
-                'icon' => 'fal fa-cube',
-                'route' => 'grp.overview.products.index',
-                'count' => Product::where('group_id', $group->id)->count(),
+                "section" => "Catalogue",
+                "data" => [
+                    (object)[
+                        'name' => 'Products',
+                        'icon' => 'fal fa-boxes',
+                        'route' => 'grp.overview.catalogue.products.index',
+                        'count' => $group->catalogueStats->number_products,
+                    ],
+                ]
             ],
-            // (object)[
-            //     'name' => 'Stocks',
-            //     'icon' => 'fal fa-box',
-            //     'route' => 'grp.overview.stocks.index',
-            //     'count' => Stock::where('group_id', $group->id)->count(),
-            // ],
         ]);
         return OverviewResource::collection($dataRaw);
     }

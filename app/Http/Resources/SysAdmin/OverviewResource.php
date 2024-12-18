@@ -19,10 +19,8 @@ class OverviewResource extends JsonResource
     public function toArray($request): array|Arrayable|JsonSerializable
     {
         return [
-            'name' => $this->name,
-            'icon' => $this->icon,
-            'route' => route($this->route),
-            'number' => $this->count,
+            'section' => $this->section,
+            'data' => $this->data,
         ];
     }
 }
