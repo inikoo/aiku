@@ -25,9 +25,9 @@ defineProps<{
 
 function postRoomRoute(postRoom: {}) {
       switch (route().current()) {
-          case 'grp.overview.post-rooms.index':
+          case 'grp.overview.comms.post-rooms.index':
             return route(
-                    'grp.overview.post-rooms.show',
+                    'grp.overview.comms.post-rooms.show',
                     [postRoom.slug])
           default:
               return null

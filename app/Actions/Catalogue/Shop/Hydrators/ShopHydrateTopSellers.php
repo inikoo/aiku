@@ -44,11 +44,9 @@ class ShopHydrateTopSellers
                 return $department->stats->{'shop_amount_' . $timeUpdate};
             })->first();
 
-            $topProduct = $shop->products()
-                ->join('product_sales_intervals', 'products.id', '=', 'product_sales_intervals.product_id')
-                ->orderByDesc('product_sales_intervals.shop_amount_' . $timeUpdate)
-                ->first();
-
+            $topProduct = $shop->products()->with(['asset.salesIntervals'])->get()->sortByDesc(function ($product) use ($timeUpdate) {
+                return $product->asset->salesIntervals->{'sales_' . $timeUpdate} ?? 0;
+            })->first();
 
             $shop->stats->update([
                 "top_{$timeUpdate}_family_id" => $topFamily->id,

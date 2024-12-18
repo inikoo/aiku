@@ -8,7 +8,36 @@
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {DispatchedEmail} from "@/types/dispatched-email";
+import {
+    faDumpster,
+    faEnvelopeOpen,
+    faExclamationCircle,
+  faExclamationTriangle,
+  faHandPaper,
+  faInboxIn,
+  faMousePointer,
+  faPaperPlane,
+  faSpellCheck,
+  faSquare,
+  faVirus,
+} from "@fal";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import Icon from '../Icon.vue'
 
+library.add(
+    faSpellCheck,
+    faPaperPlane,
+    faExclamationCircle,
+    faVirus,
+    faInboxIn,
+    faMousePointer,
+    faExclamationTriangle,
+    faSquare,
+    faEnvelopeOpen,
+    faMousePointer,
+    faDumpster,
+    faHandPaper,
+);
 const props = defineProps<{
     data: object,
     tab?: string
@@ -34,7 +63,9 @@ function dispatchedEmailRoute(dispatchedEmail: DispatchedEmail) {
 
 <template>
     <Table :resource="data" :name="tab"  class="mt-5">
-
+        <template #cell(state)="{ item: dispatchedEmail }">
+            <Icon :data="dispatchedEmail.state" />
+        </template>
         <template #cell(name)="{ item: dispatchedEmail }">
             <Link :href="route(dispatchedEmailRoute(dispatchedEmail))">
                 {{ dispatchedEmail["name"] }}

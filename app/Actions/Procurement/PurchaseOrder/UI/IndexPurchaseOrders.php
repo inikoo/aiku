@@ -16,12 +16,14 @@ use App\Actions\Procurement\OrgPartner\WithOrgPartnerSubNavigation;
 use App\Actions\Procurement\OrgSupplier\UI\ShowOrgSupplier;
 use App\Actions\Procurement\OrgSupplier\WithOrgSupplierSubNavigation;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Http\Resources\Procurement\PurchaseOrdersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -37,9 +39,9 @@ class IndexPurchaseOrders extends OrgAction
     use WithOrgAgentSubNavigation;
     use WithOrgPartnerSubNavigation;
     use WithOrgSupplierSubNavigation;
-    private Organisation|OrgAgent|OrgSupplier|OrgPartner $parent;
+    private Group|Organisation|OrgAgent|OrgSupplier|OrgPartner $parent;
 
-    public function handle(Organisation|OrgAgent|OrgSupplier|OrgPartner $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Organisation|OrgAgent|OrgSupplier|OrgPartner $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -61,10 +63,14 @@ class IndexPurchaseOrders extends OrgAction
         } elseif (class_basename($parent) == 'OrgPartner') {
             $query->where('purchase_orders.parent_type', 'OrgPartner')->where('purchase_orders.parent_id', $parent->id);
             $query->with('parent');
-        } else {
+        } elseif (class_basename($parent) == 'Group') {
+            $query->where('purchase_orders.group_id', $parent->id);
+            $query->with('parent');
+        }  else {
             $query->where('purchase_orders.organisation_id', $parent->id);
             $query->with('parent');
         }
+        $query->leftjoin('organisations', 'purchase_orders.organisation_id', 'organisations.id');
 
         return $query->defaultSort('purchase_orders.reference')
             ->allowedFilters([$globalSearch])
@@ -72,9 +78,9 @@ class IndexPurchaseOrders extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure($parent, array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -85,8 +91,11 @@ class IndexPurchaseOrders extends OrgAction
                 ->withModelOperations($modelOperations)
                 ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'parent_name', label: __('supplier/agents'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'date', label: __('date Created'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'parent_name', label: __('supplier/agents'), canBeHidden: false, sortable: true, searchable: true);
+                if ($parent instanceof Group) {
+                    $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
+                }
+                $table->column(key: 'date', label: __('date Created'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_of_items', label: __('items'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'amount', label: __('amount'), canBeHidden: false, sortable: true, searchable: true, type: 'currency')
                 ->defaultSort('reference');
@@ -95,6 +104,9 @@ class IndexPurchaseOrders extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        }
         $this->canEdit = $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
 
         return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view");
@@ -114,6 +126,14 @@ class IndexPurchaseOrders extends OrgAction
         $this->initialisation($organisation, $request);
 
         return $this->handle(parent: $organisation);
+    }
+
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup(group(), $request);
+
+        return $this->handle(group());
     }
 
     public function inOrgAgent(Organisation $organisation, OrgAgent  $orgAgent, ActionRequest $request): LengthAwarePaginator
@@ -267,7 +287,7 @@ class IndexPurchaseOrders extends OrgAction
                 ],
                 'data'        => PurchaseOrdersResource::collection($purchaseOrders),
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure($this->parent));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
@@ -336,7 +356,24 @@ class IndexPurchaseOrders extends OrgAction
                         ]
                     ]
                 ]
-            )
+            ),
+            'grp.overview.procurement.purchase-orders.index' => 
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.overview.procurement.purchase-orders.index',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('Purchase Orders'),
+                            'icon'  => 'fal fa-bars'
+                        ]
+                    ]
+                ]
+            ),
         };
     }
 }

@@ -11,6 +11,7 @@ namespace App\Actions\Ordering\Purge\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Http\Resources\Ordering\PurgesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
@@ -47,10 +48,14 @@ class IndexPurges extends OrgAction
 
         if ($parent instanceof Shop) {
             $query->where('shop_id', $parent->id);
+        } elseif ($parent instanceof Group) {
+            $query->where('group_id', $parent->id);
         } else {
             abort(419);
         }
         $query->leftjoin('purge_stats', 'purge_stats.purge_id', '=', 'purges.id');
+        $query->leftjoin('organisations', 'purges.organisation_id', '=', 'organisations.id');
+        $query->leftjoin('shops', 'purges.shop_id', '=', 'shops.id');
 
         return $query->defaultSort('purges.id')
             ->select([
@@ -64,7 +69,11 @@ class IndexPurges extends OrgAction
                 'purges.inactive_days',
                 'purge_stats.estimated_number_orders',
                 'purge_stats.estimated_number_transactions',
-                'purge_stats.estimated_net_amount'
+                'purge_stats.estimated_net_amount',
+                'shops.name as shop_name',
+                'shops.slug as shop_slug',
+                'organisations.name as organisation_name',
+                'organisations.slug as organisation_slug',
             ])
             ->allowedSorts(['id', 'scheduled_at', 'state', 'type', 'estimated_number_orders', 'estimated_number_transactions', 'estimated_net_amount'])
             ->allowedFilters([$globalSearch])
@@ -94,9 +103,13 @@ class IndexPurges extends OrgAction
                 );
 
 
+            $table->column(key: 'state', label: __('state'), sortable: true, canBeHidden: false, searchable: true);
             $table->column(key: 'scheduled_at', label: __('date'), sortable: true, canBeHidden: false, searchable: true);
             $table->column(key: 'type', label: __('type'), sortable: true, canBeHidden: false, searchable: true);
-            $table->column(key: 'state', label: __('state'), sortable: true, canBeHidden: false, searchable: true);
+            if ($parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
+                $table->column(key: 'shop_name', label: __('shop'), canBeHidden: false, searchable: true);
+            }
             $table->column(key: 'estimated_number_orders', label: __('orders'), sortable: true, canBeHidden: false, searchable: true);
             $table->column(key: 'estimated_number_transactions', label: __('transactions'), sortable: true, canBeHidden: false, searchable: true);
             $table->column(key: 'estimated_net_amount', label: __('amount'), sortable: true, canBeHidden: false, searchable: true);
@@ -105,6 +118,10 @@ class IndexPurges extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        }
+
         return $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
     }
 
@@ -168,6 +185,14 @@ class IndexPurges extends OrgAction
         return $this->handle($shop);
     }
 
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup(group(), $request);
+
+        return $this->handle(group());
+    }
+
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         $headCrumb = function (array $routeParameters = []) {
@@ -190,6 +215,18 @@ class IndexPurges extends OrgAction
                 $headCrumb(
                     [
                         'name'       => 'grp.org.shops.show.ordering.purges.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            'grp.overview.order.purges.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
                         'parameters' => $routeParameters
                     ]
                 )

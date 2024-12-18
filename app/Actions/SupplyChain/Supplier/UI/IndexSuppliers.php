@@ -12,6 +12,7 @@ use App\Actions\GrpAction;
 use App\Actions\SupplyChain\Agent\UI\ShowAgent;
 use App\Actions\SupplyChain\Agent\WithAgentSubNavigation;
 use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Http\Resources\SupplyChain\SuppliersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SupplyChain\Agent;
@@ -174,6 +175,15 @@ class IndexSuppliers extends GrpAction
         return $this->handle($group);
     }
 
+    public function inOverview(ActionRequest $request): LengthAwarePaginator
+    {
+        $group        = app('group');
+        $this->parent = $group;
+        $this->initialisation($group, $request);
+
+        return $this->handle($group);
+    }
+
     public function inAgent(Agent $agent, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $agent;
@@ -247,6 +257,21 @@ class IndexSuppliers extends GrpAction
                         'simple' => [
                             'route' => [
                                 'name' => 'grp.supply-chain.suppliers.index'
+                            ],
+                            'label' => __('Suppliers'),
+                            'icon'  => 'fal fa-bars'
+                        ]
+                    ]
+                ]
+            ),
+            'grp.overview.procurement.suppliers.index' => array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'grp.overview.procurement.suppliers.index'
                             ],
                             'label' => __('Suppliers'),
                             'icon'  => 'fal fa-bars'

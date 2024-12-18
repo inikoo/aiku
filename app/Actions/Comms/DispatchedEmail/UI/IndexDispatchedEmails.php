@@ -47,13 +47,15 @@ class IndexDispatchedEmails extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(DispatchedEmail::class);
-        foreach ($this->elementGroups as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
+        if (is_array($this->elementGroups) || is_object($this->elementGroups)) {
+            foreach ($this->elementGroups as $key => $elementGroup) {
+                $queryBuilder->whereElementGroup(
+                    key: $key,
+                    allowedElements: array_keys($elementGroup['elements']),
+                    engine: $elementGroup['engine'],
+                    prefix: $prefix
+                );
+            }
         }
 
         return $queryBuilder
@@ -65,10 +67,10 @@ class IndexDispatchedEmails extends OrgAction
                 'outboxes.slug as outbox_id',
                 'outboxes.slug as outboxes_id'
             ])
-            ->leftJoin('outboxes', 'dispatched_emails.outbox_id', 'outboxes.id')
+            ->leftJoin('outboxes', 'outboxes.id', 'dispatched_emails.outbox_id')
             ->leftJoin('post_rooms', 'outboxes.post_room_id', 'post_rooms.id')
             ->when($parent, function ($query) use ($parent) {
-                if (class_basename($parent) == 'Comms') {
+                if (class_basename($parent) == 'Comms' || class_basename($parent) == 'PostRoom') {
                     $query->where('outboxes.post_room_id', $parent->id);
                 }
                 if (class_basename($parent) == 'Outbox') {
@@ -95,7 +97,7 @@ class IndexDispatchedEmails extends OrgAction
             }
 
             $table
-                ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'state', label: '', type: 'icon', canBeHidden: false)
                 ->column(key: 'number_reads', label: __('reads'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_clicks', label: __('clicks'), canBeHidden: false, sortable: true, searchable: true);
         };

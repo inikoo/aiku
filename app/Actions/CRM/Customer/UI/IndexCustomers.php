@@ -351,14 +351,14 @@ class IndexCustomers extends OrgAction
                     ]
                 )
             ),
-            'grp.overview.customers.index' =>
+            'grp.overview.crm.customers.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'grp.overview.customers.index',
+                        'name'       => 'grp.overview.crm.customers.index',
                         'parameters' => $routeParameters
                     ]
                 )

@@ -3,11 +3,11 @@ import { onMounted, defineExpose, ref, inject } from "vue";
 import axios from "axios"
 import Bee from "@mailupinc/bee-plugin";
 import { routeType } from "@/types/route";
-import { router } from "@inertiajs/vue3"
 import EmptyState from "@/Components/Utils/EmptyState.vue";
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 import { mergetags } from "@/Composables/variableList";
 import { notify } from "@kyvg/vue3-notification";
+
 
 const props = withDefaults(defineProps<{
     updateRoute: routeType;
@@ -25,8 +25,11 @@ const showBee = ref(false)
 const token = ref(null)
 const beeInstance = ref(null)
 
+
 const emits = defineEmits<{
     (e: 'onSave', value: string | number): void
+    (e: 'sendTest', value: string | number): void
+    (e: 'saveTemplate', value: string | number): void
 }>()
 
 
@@ -69,6 +72,7 @@ const beeConfig = () => {
     axios
         .post(endpoint, payload)
         .then((response) => {
+            console.log(response)
             token.value = response.data;
             const config = {
                 uid: token.value.userName,
@@ -102,13 +106,19 @@ const beeConfig = () => {
                     ]
                 },
                 autosave: 20,
+                onSend:(htmlFile,jsonFile)=>{
+                    emits('sendTest', {jsonFile, htmlFile})
+                },
                 onSave: function (jsonFile, htmlFile) {
                     emits('onSave', {jsonFile, htmlFile})
+                },
+                onSaveAsTemplate:(jsonFile, htmlFile)=>{
+                    emits('saveTemplate', {jsonFile, htmlFile})
                 },
                 onAutoSave: function (jsonFile) {
                     onSaveEmail(jsonFile,null)
                 }
-            };
+            }; 
             beeInstance.value
                 .getToken(payload.client_id, payload.client_secret)
                 .then(() => {
@@ -123,13 +133,16 @@ const beeConfig = () => {
 
 
 onMounted(() => {
-    if (props.apiKey.client_id && props.apiKey.client_secret) {
-        showBee.value = true
-        beeConfig()
-    } else {
-        showBee.value = false
+    if (!token.value) {
+        if (props.apiKey.client_id && props.apiKey.client_secret) {
+            showBee.value = true
+            beeConfig()
+        } else {
+            showBee.value = false
+        }
+    }else{
+        token.value = beeInstance.value.updateToken() 
     }
-
 });
 
 defineExpose({
@@ -160,6 +173,9 @@ defineExpose({
             }
         }" />
     </div>
+
+    
+    
 </template>
 
 
