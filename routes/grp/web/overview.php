@@ -11,6 +11,7 @@ use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Accounting\PaymentAccount\UI\IndexPaymentAccounts;
 use App\Actions\Catalogue\Collection\UI\IndexCollection;
 use App\Actions\Accounting\UI\IndexCustomerBalances;
+use App\Actions\Billables\Charge\UI\IndexCharges;
 use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
 use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
@@ -20,8 +21,10 @@ use App\Actions\Comms\PostRoom\UI\ShowPostRoom;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
+use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentServices;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\Ordering\Purge\UI\IndexPurges;
+use App\Actions\Ordering\ShippingZoneSchema\UI\IndexShippingZoneSchemas;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\SupplyChain\Agent\UI\IndexAgents;
 use App\Actions\SupplyChain\Supplier\UI\IndexSuppliers;
@@ -42,6 +45,12 @@ Route::name('catalogue.')->prefix('catalogue')->group(function () {
     Route::get('/departments', [IndexDepartments::class, 'inGroup'])->name('departments.index');
     Route::get('/families', [IndexFamilies::class, 'inGroup'])->name('families.index');
     Route::get('/collections', [IndexCollection::class, 'inGroup'])->name('collections.index');
+});
+
+Route::name('billables.')->prefix('billables')->group(function () {
+    Route::get('/shipping', [IndexShippingZoneSchemas::class, 'inGroup'])->name('shipping.index');
+    Route::get('/charges', [IndexCharges::class, 'inGroup'])->name('charges.index');
+    Route::get('/services', [IndexFulfilmentServices::class, 'inGroup'])->name('services.index');
 });
 
 Route::name('crm.')->prefix('crm')->group(function () {

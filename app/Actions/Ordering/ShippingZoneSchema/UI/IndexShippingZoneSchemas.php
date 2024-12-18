@@ -11,6 +11,7 @@ namespace App\Actions\Ordering\ShippingZoneSchema\UI;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Ordering\ShippingZoneSchema\WithShippingZoneSchemaSubNavigation;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\UI\Catalogue\ShippingTabsEnum;
 use App\Http\Resources\Catalogue\ProductsResource;
@@ -18,6 +19,7 @@ use App\Http\Resources\Catalogue\ShippingZoneSchemasResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
 use App\Models\Ordering\ShippingZoneSchema;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -33,9 +35,9 @@ class IndexShippingZoneSchemas extends OrgAction
     use HasCatalogueAuthorisation;
     use WithShippingZoneSchemaSubNavigation;
 
-    private Shop $parent;
+    private Group|Shop $parent;
 
-    public function handle(Shop $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Shop $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -50,7 +52,9 @@ class IndexShippingZoneSchemas extends OrgAction
 
         $queryBuilder = QueryBuilder::for(ShippingZoneSchema::class);
 
-        if (class_basename($parent) == 'Shop') {
+        if ($parent instanceof Group) {
+            $queryBuilder->where('shipping_zone_schemas.group_id', $parent->id);
+        } elseif (class_basename($parent) == 'Shop') {
             $queryBuilder->where('shipping_zone_schemas.shop_id', $parent->id);
         } else {
             abort(419);
@@ -79,7 +83,7 @@ class IndexShippingZoneSchemas extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Shop $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
+    public function tableStructure(Group|Shop $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
@@ -144,10 +148,24 @@ class IndexShippingZoneSchemas extends OrgAction
         $afterTitle = null;
         $iconRight  = null;
         $model      = null;
+        $actions =  [
+            [
+                'type'    => 'button',
+                'style'   => 'create',
+                'tooltip' => __('new shipping schema'),
+                'label'   => __('shipping schema'),
+                'route'   => [
+                    'name'       => str_replace('index', 'create', $request->route()->getName()),
+                    'parameters' => $request->route()->originalParameters()
+                ]
+            ]
+        ];
 
         if ($this->parent instanceof Shop) {
             $model = __('billables');
             $subNavigation = $this->getShippingZoneSchemaSubNavigation($this->parent);
+        } elseif ($this->parent instanceof Group) {
+            $actions = null;
         }
         return Inertia::render(
             'Org/Catalogue/Shippings',
@@ -157,26 +175,15 @@ class IndexShippingZoneSchemas extends OrgAction
                     $request->route()->originalParameters()
                 ),
                 'title'       => __('shipping'),
-                'pageHead'    => [
+                'pageHead'    => array_filter([
                     'title'         => $title,
                     'model'         => $model,
                     'icon'          => $icon,
                     'afterTitle'    => $afterTitle,
                     'iconRight'     => $iconRight,
-                    'actions'       => [
-                        [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new shipping schema'),
-                            'label'   => __('shipping schema'),
-                            'route'   => [
-                                'name'       => str_replace('index', 'create', $request->route()->getName()),
-                                'parameters' => $request->route()->originalParameters()
-                            ]
-                        ]
-                    ],
+                    'actions'       => $actions,
                     'subNavigation' => $subNavigation,
-                ],
+                ]),
                 // 'tabs'        => [
                 //     'current'    => $this->tab,
                 //     'navigation' => ShippingTabsEnum::navigation(),
@@ -190,6 +197,14 @@ class IndexShippingZoneSchemas extends OrgAction
             ]
         )->table($this->tableStructure($this->parent));
         // )->table($this->tableStructure(parent: $this->parent, prefix: ShippingTabsEnum::SCHEMAS->value));
+    }
+
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup(group(), $request);
+
+        return $this->handle($this->parent);
     }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
@@ -221,6 +236,17 @@ class IndexShippingZoneSchemas extends OrgAction
             'grp.org.shops.show.billables.shipping.index' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.overview.billables.shipping.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,
