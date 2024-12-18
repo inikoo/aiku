@@ -53,7 +53,7 @@ class StoreEmailBulkRun extends OrgAction
         });
 
 
-        OutboxHydrateEmailBulkRuns::dispatch($emailOngoingRun)->delay($this->hydratorsDelay);
+        OutboxHydrateEmailBulkRuns::dispatch($emailOngoingRun->outbox)->delay($this->hydratorsDelay);
 
         return $emailBulkRun;
     }
