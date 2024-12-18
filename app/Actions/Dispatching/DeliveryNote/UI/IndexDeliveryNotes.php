@@ -370,7 +370,7 @@ class IndexDeliveryNotes extends OrgAction
                     ]
                 )
             ),
-            'grp.overview.procurement.agents.index' => 
+            'grp.overview.procurement.delivery-notes.index' => 
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(

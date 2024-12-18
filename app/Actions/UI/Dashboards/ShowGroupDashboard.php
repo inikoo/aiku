@@ -196,7 +196,7 @@ class ShowGroupDashboard extends OrgAction
                 'amount'     => $intervalData->{$prefix . '_' . $key} ?? null,
                 'percentage' => isset($intervalData->{$prefix . '_' . $key}, $intervalData->{$prefix . '_' . $key . '_ly'})
                     ? $this->calculatePercentageIncrease(
-                        $intervalData->{$prefix . '_' . $key}, 
+                        $intervalData->{$prefix . '_' . $key},
                         $intervalData->{$prefix . '_' . $key . '_ly'}
                     )
                     : null,
@@ -205,13 +205,13 @@ class ShowGroupDashboard extends OrgAction
                     : null,
             ];
         }
-    
+
         if (isset($result['all'])) {
             $result['all'] = [
                 'amount' => $intervalData->{$prefix . '_all'} ?? null,
             ];
         }
-    
+
         return $result;
     }
 

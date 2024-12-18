@@ -56,7 +56,7 @@ beforeEach(function () {
 test('seed offer campaigns', function () {
     $shop = $this->shop;
     SeedOfferCampaigns::run($shop);
-    $this->artisan('shop:seed-offer-campaigns', [
+    $this->artisan('shop:seed_offer_campaigns', [
         'shop' => $shop->slug,
     ])->assertSuccessful();
 

@@ -22,6 +22,11 @@ use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentServices;
+use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
+use App\Actions\HumanResources\Employee\UI\IndexEmployees;
+use App\Actions\HumanResources\JobPosition\UI\IndexJobPositions;
+use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
+use App\Actions\HumanResources\Workplace\UI\IndexWorkplaces;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\Ordering\Purge\UI\IndexPurges;
 use App\Actions\Ordering\ShippingZoneSchema\UI\IndexShippingZoneSchemas;
@@ -77,4 +82,13 @@ Route::name('accounting.')->prefix('accounting')->group(function () {
     Route::post('/payment-accounts', [IndexPaymentAccounts::class, 'inGroup'])->name('payment-accounts.index');
     Route::post('/payments', [IndexPayments::class, 'inGroup'])->name('payments.index');
     Route::post('/customer-balances', [IndexCustomerBalances::class, 'inGroup'])->name('customer-balances.index');
+});
+
+
+Route::name('human-resources.')->prefix('human-resources')->group(function () {
+    Route::post('/workplaces', [IndexWorkplaces::class, 'inGroup'])->name('workplaces.index');
+    Route::post('/responsibilities', [IndexJobPositions::class, 'inGroup'])->name('responsibilities.index');
+    Route::post('/employees', [IndexEmployees::class, 'inGroup'])->name('employees.index');
+    Route::post('/clocking-machines', [IndexClockingMachines::class, 'inGroup'])->name('clocking-machines.index');
+    Route::post('/timesheets', [IndexTimesheets::class, 'inGroup'])->name('timesheets.index');
 });
