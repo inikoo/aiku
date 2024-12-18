@@ -6,7 +6,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Retina\Billables\Services;
+namespace App\Actions\Retina\Catalogue;
 
 use App\Actions\OrgAction;
 use App\Enums\UI\Fulfilment\ServicesTabsEnum;
@@ -22,9 +22,9 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexServices extends OrgAction
+class IndexRetinaServices extends OrgAction
 {
-    public function handle(Shop $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Shop $shop, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -38,19 +38,10 @@ class IndexServices extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(Service::class);
-        $queryBuilder->where('services.shop_id', $parent->shop_id);
+        $queryBuilder->where('services.shop_id', $shop->id);
         $queryBuilder->join('assets', 'services.asset_id', '=', 'assets.id');
         $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
 
-
-        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
-        }
 
         $queryBuilder
             ->defaultSort('services.id')
@@ -66,10 +57,7 @@ class IndexServices extends OrgAction
                 'assets.current_historic_asset_id as historic_asset_id',
                 'services.description',
                 'currencies.code as currency_code',
-                'services.is_auto_assign',
-                'services.auto_assign_trigger',
-                'services.auto_assign_subject',
-                'services.auto_assign_subject_type',
+
                 'services.auto_assign_status',
             ]);
 
