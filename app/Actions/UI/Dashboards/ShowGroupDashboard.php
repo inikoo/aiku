@@ -94,7 +94,6 @@ class ShowGroupDashboard extends OrgAction
             }),
         ];
 
-        dd($sales);
         return Inertia::render(
             'Dashboard/GrpDashboard',
             [
