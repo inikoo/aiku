@@ -18,20 +18,14 @@ return new class () extends Migration {
 
     public function up(): void
     {
-
         Schema::create('org_stock_stats', function (Blueprint $table) {
             $table->increments('id');
             $table = $this->groupOrgRelationship($table);
             $table->unsignedInteger('org_stock_id')->index();
             $table->foreign('org_stock_id')->references('id')->on('org_stocks');
-
             $table->unsignedSmallInteger('number_locations')->default(0);
-
-            $table->unsignedSmallInteger('number_movements')->default(0);
-
-
+            $table->unsignedInteger('number_movements')->default(0);
             $table = $this->salesIntervalFields($table, ['shop_amount', 'org_amount', 'group_amount']);
-
             $table->timestampsTz();
         });
     }
