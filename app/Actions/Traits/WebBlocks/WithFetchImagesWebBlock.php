@@ -32,7 +32,7 @@ trait WithFetchImagesWebBlock
         foreach ($auroraBlock["images"] as $image) {
             $imageLink = null;
             if (!empty($image["link"])) {
-                $imageLink = FetchAuroraWebBlockLink::run($webpage->website, $image["link"], $this->dbSuffix);
+                $imageLink = FetchAuroraWebBlockLink::run($this->organisationSource, $webpage->website, $image["link"]);
             }
             if (!isset($image["src"])) {
                 continue;
@@ -43,13 +43,14 @@ trait WithFetchImagesWebBlock
                 }
             }
             $imagesArray[] = [
-                "link_data" => $imageLink,
+                "link_data"     => $imageLink,
                 "aurora_source" => $image["src"],
             ];
         }
 
         data_set($layout, "data.fieldValue.value", $imagesArray);
         data_set($layout, "external_links", $externalLinks);
+
         return $layout;
     }
 
@@ -57,7 +58,7 @@ trait WithFetchImagesWebBlock
     {
         $images = $auroraBlock['images'];
 
-        $widths = array_column($images, 'width');
+        $widths     = array_column($images, 'width');
         $totalWidth = array_sum($widths);
 
         // Calculate the ratios of each image width to the total width
