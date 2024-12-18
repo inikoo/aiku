@@ -248,10 +248,11 @@ class IndexCustomers extends OrgAction
             if ($this->parent instanceof Group) {
                 $table->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true)
                     ->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true);
+            } else {
+                $table->column(key: 'location', label: __('location'), canBeHidden: false, searchable: true);
             }
 
             $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-            ->column(key: 'location', label: __('location'), canBeHidden: false, searchable: true)
             ->column(key: 'created_at', label: __('since'), canBeHidden: false, sortable: true, searchable: true);
 
 
