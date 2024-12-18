@@ -56,6 +56,7 @@ class ShowGroupDashboard extends OrgAction
                 $responseData = [
                     'name'      => $organisation->name,
                     'slug'      => $organisation->slug,
+                    'code'      => $organisation->code,
                     'type'      => $organisation->type,
                     'currency'  => $organisation->currency,
                 ];

@@ -232,15 +232,15 @@ const shop = ref()
 
 							<Transition name="spin-to-down" mode="out-in">
 								<div
-									:key="`${data.interval_percentages?.refunds[selectedDateOption].difference}_${data.interval_percentages?.refunds[selectedDateOption].percentage}`">
+									:key="`${data.interval_percentages?.refunds?.[selectedDateOption]?.difference}_${data.interval_percentages?.refunds?.[selectedDateOption]?.percentage}`">
 									{{
 										locale.number(
-											data.interval_percentages?.refunds[selectedDateOption]
+											data.interval_percentages?.refunds?.[selectedDateOption]
 												.difference || 0
 										)
 									}}
 									({{
-										data.interval_percentages?.refunds[selectedDateOption]
+										data.interval_percentages?.refunds?.[selectedDateOption]
 											.percentage || 0
 									}}%)
 								</div>
@@ -282,15 +282,9 @@ const shop = ref()
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div
-									:key="`${data.interval_percentages?.invoices[selectedDateOption].difference}_${data.interval_percentages?.invoices[selectedDateOption].percentage}`">
-									{{
-										data.interval_percentages?.invoices[selectedDateOption]
-											.difference || 0
-									}}
-									({{
-										data.interval_percentages?.invoices[selectedDateOption]
-											.percentage || 0
-									}}%)
+									:key="`${data.interval_percentages?.invoices?.[selectedDateOption]?.difference}_${data.interval_percentages?.invoices?.[selectedDateOption]?.percentage}`">
+									{{ data.interval_percentages?.invoices?.[selectedDateOption]?.difference || 0 }}
+									({{ data.interval_percentages?.invoices?.[selectedDateOption]?.percentage || 0 }}%)
 								</div>
 							</Transition>
 						</div>

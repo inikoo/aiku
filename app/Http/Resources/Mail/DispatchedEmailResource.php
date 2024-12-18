@@ -26,7 +26,7 @@ class DispatchedEmailResource extends JsonResource
         return array(
             'number_clicks'                  => $this->number_clicks,
             'number_reads'                   => $this->number_reads,
-            'state'                          => $this->state,
+            'state'                          => $this->state->stateIcon()[$this->state->value],
             'created_at'                     => $this->created_at,
             'updated_at'                     => $this->updated_at,
         );

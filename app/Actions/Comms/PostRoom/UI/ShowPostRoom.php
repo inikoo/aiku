@@ -117,12 +117,12 @@ class ShowPostRoom extends GrpAction
                     : Inertia::lazy(fn () => OutboxesResource::collection(IndexOutboxes::run($postRoom, PostRoomsTabsEnum::OUTBOXES->value))),
 
                 PostRoomsTabsEnum::MAILSHOTS->value => $this->tab == PostRoomsTabsEnum::MAILSHOTS->value ?
-                    fn () => MailshotResource::collection(IndexMailshots::run($postRoom))
-                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($postRoom))),
+                    fn () => MailshotResource::collection(IndexMailshots::run($postRoom, PostRoomsTabsEnum::MAILSHOTS->value))
+                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($postRoom, PostRoomsTabsEnum::MAILSHOTS->value))),
 
                 PostRoomsTabsEnum::DISPATCHED_EMAILS->value => $this->tab == PostRoomsTabsEnum::DISPATCHED_EMAILS->value ?
-                    fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($postRoom))
-                    : Inertia::lazy(fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($postRoom))),
+                    fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($postRoom, PostRoomsTabsEnum::DISPATCHED_EMAILS->value))
+                    : Inertia::lazy(fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($postRoom, PostRoomsTabsEnum::DISPATCHED_EMAILS->value))),
 
                 'data'   => PostRoomResource::make($postRoom)
             ]
