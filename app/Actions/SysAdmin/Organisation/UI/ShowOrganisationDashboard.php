@@ -96,7 +96,7 @@ class ShowOrganisationDashboard extends OrgAction
                     return $responseData;
                 }),
         ];
-        
+
         return Inertia::render(
             'Dashboard/OrganisationDashboard',
             [
@@ -257,7 +257,7 @@ class ShowOrganisationDashboard extends OrgAction
                 'amount'     => $intervalData->{$prefix . '_' . $key} ?? null,
                 'percentage' => isset($intervalData->{$prefix . '_' . $key}, $intervalData->{$prefix . '_' . $key . '_ly'})
                     ? $this->calculatePercentageIncrease(
-                        $intervalData->{$prefix . '_' . $key}, 
+                        $intervalData->{$prefix . '_' . $key},
                         $intervalData->{$prefix . '_' . $key . '_ly'}
                     )
                     : null,
@@ -266,13 +266,13 @@ class ShowOrganisationDashboard extends OrgAction
                     : null,
             ];
         }
-    
+
         if (isset($result['all'])) {
             $result['all'] = [
                 'amount' => $intervalData->{$prefix . '_all'} ?? null,
             ];
         }
-    
+
         return $result;
     }
 
