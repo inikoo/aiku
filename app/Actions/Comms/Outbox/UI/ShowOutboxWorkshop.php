@@ -17,6 +17,7 @@ use App\Models\Comms\EmailTemplate;
 use App\Models\Comms\Outbox;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -54,6 +55,8 @@ class ShowOutboxWorkshop extends OrgAction
 
     public function htmlResponse(Email $email, ActionRequest $request): Response
     {
+        $beeFreeSettings = Arr::get($email->group->settings, 'beefree');
+
         return Inertia::render(
             'Org/Web/Workshop/Outbox/OutboxWorkshop', //NEED VUE FILE
             [
@@ -100,7 +103,8 @@ class ShowOutboxWorkshop extends OrgAction
                     'parameters' => [
                         'shop' => $email->shop_id,
                         'outbox' => $email->outbox_id
-                    ]
+                    ],
+                    'method' => 'patch'
                 ],
                 'loadRoute'           => [
                     'name'       => 'grp.models.email-templates.content.show',
@@ -111,16 +115,25 @@ class ShowOutboxWorkshop extends OrgAction
                     'parameters' => [
                         'shop' => $email->shop_id,
                         'outbox' => $email->outbox_id
-                    ]
+                    ],
+                    'method' => 'post'
+                ],
+                'toggleRoute'           => [
+                    'name'       => 'grp.models.shop.outboxes.toggle',
+                    'parameters' => [
+                        'shop' => $email->shop_id,
+                        'outbox' => $email->outbox_id
+                    ],
+                    'method' => 'patch'
                 ],
                 // 'loadRoute'           => [ -> i don't know what kind of data should i give to this route
                 //     'name'       => 'grp.models.email-templates.content.show',
                 //     'parameters' => $emailTemplate->id
                 // ]
                 'apiKey'            => [
-                    'client_id'     => $email->group->settings['beefree']['client_id'] ?? null,
-                    'client_secret' => $email->group->settings['beefree']['client_secret'] ?? null,
-                    'grant_type'    => $email->group->settings['beefree']['grant_type'] ?? null,
+                    'client_id'     => Arr::get($beeFreeSettings, 'client_id'),
+                    'client_secret' => Arr::get($beeFreeSettings, 'client_secret'),
+                    'grant_type'    => Arr::get($beeFreeSettings, 'grant_type'),
                 ]
             ]
         );
