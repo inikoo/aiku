@@ -37,7 +37,7 @@ class CustomersResource extends JsonResource
 
     public function toArray($request): array
     {
-        return [
+        $data = [
             'slug'                         => $this->slug,
             'reference'                    => $this->reference,
             'name'                         => $this->name,
@@ -60,5 +60,14 @@ class CustomersResource extends JsonResource
             'sales_grp_currency_all'       => $this->sales_grp_currency_all,
             'currency_code'                => $this->currency_code,
         ];
+
+        if ($this->organisation_name) {
+            data_set($data, 'organisation_name', $this->organisation_name);
+            data_set($data, 'shop_name', $this->shop_name);
+            data_forget($data, 'location');
+        }
+
+
+        return $data;
     }
 }

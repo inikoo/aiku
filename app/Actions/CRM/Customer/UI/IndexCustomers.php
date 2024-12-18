@@ -72,11 +72,15 @@ class IndexCustomers extends OrgAction
 
     public function handle(Group|Organisation|Shop $parent, $prefix = null): LengthAwarePaginator
     {
-        $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
-            $query->where(function ($query) use ($value) {
+        $globalSearch = AllowedFilter::callback('global', function ($query, $value) use ($parent) {
+            $query->where(function ($query) use ($value, $parent) {
                 $query->whereAnyWordStartWith('customers.name', $value)
                     ->orWhereStartWith('customers.email', $value)
                     ->orWhere('customers.reference', '=', $value);
+                if (class_basename($parent) == 'Group') {
+                    $query->orWhereStartWith('organisations.name', $value);
+                    $query->orWhereStartWith('shops.name', $value);
+                }
             });
         });
 
@@ -87,13 +91,37 @@ class IndexCustomers extends OrgAction
         $queryBuilder = QueryBuilder::for(Customer::class);
 
 
+        $allowedSort = [
+            'reference',
+            'name',
+            'number_current_clients',
+            'number_current_portfolios',
+            'slug',
+            'created_at',
+            'number_invoices_type_invoice',
+            'last_invoiced_at',
+            'sales_all',
+            // 'invoiced_net_amount',
+            'invoiced_org_net_amount',
+            'invoiced_grp_net_amount',
+            'platform_name',
+        ];
+
         if (class_basename($parent) == 'Shop') {
             $queryBuilder->where('customers.shop_id', $parent->id);
         } elseif (class_basename($parent) == 'Group') {
-            $queryBuilder->where('customers.group_id', $parent->id);
+            $queryBuilder->where('customers.group_id', $parent->id)
+                            ->select([
+                                'customers.organisation_id',
+                                'customers.shop_id',
+                                'organisations.name as organisation_name',
+                                'shops.name as shop_name',
+                            ])
+                            ->leftJoin('organisations', 'organisations.id', 'customers.organisation_id');
+            $allowedSort = array_merge(['organisation_name', 'shop_name'], $allowedSort);
         } else {
             $queryBuilder->where('customers.organisation_id', $parent->id)
-                ->addSelect([
+                ->select([
                     'shops.code as shop_code',
                     'shops.slug as shop_slug',
                 ])
@@ -115,7 +143,7 @@ class IndexCustomers extends OrgAction
 
         return $queryBuilder
             ->defaultSort('-created_at')
-            ->select([
+            ->addSelect([
                 'customers.location',
                 'customers.reference',
                 'customers.id',
@@ -142,21 +170,7 @@ class IndexCustomers extends OrgAction
             ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
             ->leftJoin('shops', 'customers.shop_id', 'shops.id')
             ->leftJoin('currencies', 'shops.currency_id', 'currencies.id')
-            ->allowedSorts([
-                'reference',
-                'name',
-                'number_current_clients',
-                'number_current_portfolios',
-                'slug',
-                'created_at',
-                'number_invoices_type_invoice',
-                'last_invoiced_at',
-                'sales_all',
-                // 'invoiced_net_amount',
-                'invoiced_org_net_amount',
-                'invoiced_grp_net_amount',
-                'platform_name',
-            ])
+            ->allowedSorts($allowedSort)
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -230,10 +244,16 @@ class IndexCustomers extends OrgAction
                         default => null
                     }
                 )
-                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'location', label: __('location'), canBeHidden: false, searchable: true)
-                ->column(key: 'created_at', label: __('since'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+            if ($this->parent instanceof Group) {
+                $table->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true)
+                    ->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true);
+            } else {
+                $table->column(key: 'location', label: __('location'), canBeHidden: false, searchable: true);
+            }
+
+            $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+            ->column(key: 'created_at', label: __('since'), canBeHidden: false, sortable: true, searchable: true);
 
 
             if ($isDropshipping) {
