@@ -171,5 +171,18 @@ class Mailshot extends Model implements Auditable
         return $this->morphOne(Email::class, 'parent');
     }
 
+    public function sender()
+    {
+        if (app()->environment('production')) {
+            /** @var Shop $parent */
+            $parent = $this->parent;
+            $sender = $parent->senderEmail->email_address;
+        } else {
+            $sender = config('mail.devel.sender_email_address');
+        }
+
+        return $sender;
+    }
+
 
 }
