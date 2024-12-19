@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 19-12-2024-11h-13m
@@ -72,7 +73,7 @@ class AssetHydrateDeliveryNotes
                 $now->copy()->subYears($i)->endOfYear()
             ];
         }
-    
+
         for ($i = 1; $i <= 5; $i++) {
             $dateRanges["pq$i"] = [
                 $now->copy()->subQuarters($i)->startOfQuarter(),
@@ -93,7 +94,7 @@ class AssetHydrateDeliveryNotes
                     ->unique('id');
             } else {
                 [$start, $end] = $range;
-        
+
                 $deliveryNotes = $asset->transactions()
                     ->with('deliveryNoteItem.deliveryNote')
                     ->whereHas('deliveryNoteItem.deliveryNote', function ($query) use ($start, $end) {
@@ -102,10 +103,10 @@ class AssetHydrateDeliveryNotes
                     ->get()
                     ->pluck('deliveryNoteItem')
                     ->pluck('deliveryNote')
-                    ->filter() 
+                    ->filter()
                     ->unique('id');
             }
-        
+
             $stats["delivery_notes_{$key}"] = $deliveryNotes->count();
         }
 

@@ -66,7 +66,7 @@ class StoreTransaction extends OrgAction
             CalculateOrderTotalAmounts::run($order);
             OrderHydrateTransactions::dispatch($order);
         }
-        
+
         AssetHydrateOrders::dispatch($transaction->asset);
 
 

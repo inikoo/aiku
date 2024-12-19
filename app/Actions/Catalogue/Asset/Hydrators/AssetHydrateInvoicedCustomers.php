@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 19-12-2024-09h-49m
@@ -72,7 +73,7 @@ class AssetHydrateInvoicedCustomers
                 $now->copy()->subYears($i)->endOfYear()
             ];
         }
-    
+
         for ($i = 1; $i <= 5; $i++) {
             $dateRanges["pq$i"] = [
                 $now->copy()->subQuarters($i)->startOfQuarter(),

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 19-12-2024-11h-33m
@@ -8,10 +9,8 @@
 
 namespace App\Actions\Billables\Charge;
 
-use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateHistoricAssets;
 use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateInvoicedCustomers;
 use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateInvoices;
-use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateSales;
 use App\Actions\HydrateModel;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Models\Catalogue\Asset;
@@ -25,8 +24,7 @@ class HydrateCharge extends HydrateModel
 
     public function handle(Asset $asset): void
     {
-        if($asset->type == AssetTypeEnum::CHARGE)
-        {
+        if ($asset->type == AssetTypeEnum::CHARGE) {
             AssetHydrateInvoices::run($asset);
             AssetHydrateInvoicedCustomers::run($asset);
         }
