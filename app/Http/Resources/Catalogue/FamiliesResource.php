@@ -50,7 +50,9 @@ class FamiliesResource extends JsonResource
             'description'              => $this->description,
             'created_at'               => $this->created_at,
             'updated_at'               => $this->updated_at,
-            'number_current_products'  => $this->number_current_products
+            'number_current_products'  => $this->number_current_products,
+            'organisation_name' => $this->organisation_name,
+            'organisation_slug' => $this->organisation_slug,
         ];
     }
 }

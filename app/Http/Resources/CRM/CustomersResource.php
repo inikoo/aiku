@@ -64,6 +64,8 @@ class CustomersResource extends JsonResource
         if ($this->organisation_name) {
             data_set($data, 'organisation_name', $this->organisation_name);
             data_set($data, 'shop_name', $this->shop_name);
+            data_set($data, 'organisation_slug', $this->organisation_name);
+            data_set($data, 'shop_slug', $this->shop_name);
             data_forget($data, 'location');
         }
 

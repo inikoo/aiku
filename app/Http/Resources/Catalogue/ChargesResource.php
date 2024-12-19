@@ -41,6 +41,8 @@ class ChargesResource extends JsonResource
             'customers_invoiced_all' => $this->customers_invoiced_all,
             'invoices_all'           => $this->invoices_all,
             'sales_all'              => $this->sales_all,
+            'organisation_name' => $this->organisation_name,
+            'organisation_slug' => $this->organisation_slug,
         ];
     }
 }

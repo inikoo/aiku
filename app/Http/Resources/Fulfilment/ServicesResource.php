@@ -79,6 +79,10 @@ class ServicesResource extends JsonResource
             'auto_assign_status'       => $this->auto_assign_status,
             'auto_label'               => $autoLabel,
             'historic_asset_id'        => $this->historic_asset_id,
+            'organisation_name' => $this->organisation_name,
+            'organisation_slug' => $this->organisation_slug,
+            'shop_name'         => $this->shop_name,
+            'shop_slug'         => $this->shop_slug,
         ];
     }
 }
