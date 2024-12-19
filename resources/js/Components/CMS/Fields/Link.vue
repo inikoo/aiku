@@ -115,7 +115,7 @@ onMounted(() => {
 				placeholder="www.anotherwebsite.com/page"
 			/>
 			
-			<SelectQuery
+			<!-- <SelectQuery
 				v-if="localModel?.type == 'internal'"
 				:object="true"
 				fieldName="data"
@@ -129,7 +129,7 @@ onMounted(() => {
 						website: route().params['website'],
 					})
 				"
-				/>
+				/> -->
 		</div>
 	</div>
 </template>
