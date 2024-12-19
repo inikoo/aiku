@@ -11,6 +11,7 @@ namespace App\Models\Catalogue;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
+use App\Models\Accounting\InvoiceTransaction;
 use App\Models\Billables\Rental;
 use App\Models\Billables\Service;
 use App\Models\Fulfilment\RecurringBill;
@@ -130,6 +131,11 @@ class Asset extends Model implements HasMedia
     public function salesIntervals(): HasOne
     {
         return $this->hasOne(AssetSalesIntervals::class);
+    }
+
+    public function invoiceTransactions(): HasMany
+    {
+        return $this->hasMany(InvoiceTransaction::class);
     }
 
     public function orderingIntervals(): HasOne
