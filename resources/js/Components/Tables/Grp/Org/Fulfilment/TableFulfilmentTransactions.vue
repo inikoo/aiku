@@ -112,7 +112,7 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
         <!-- Column: Quantity -->
         <template #cell(quantity)="{ item }">
             <div
-            v-if="state === 'in-process'" class="w-32">
+            v-if="state === 'in-process'" class="w-32 ml-auto">
                 <PureInput
                     :modelValue="item.quantity"
                     @onEnter="(e: number) => item.is_auto_assign ? false : onUpdateQuantity(item.id, e)"

@@ -42,7 +42,6 @@ class CreateRentalAgreement extends OrgAction
                 'required'    => true
             ],
         ] : [];
-
         return Inertia::render(
             'CreateModel',
             [
@@ -51,7 +50,8 @@ class CreateRentalAgreement extends OrgAction
                 ),
                 'title'    => __('new rental agreement'),
                 'pageHead' => [
-                    'title'     => __('new rental agreement'),
+                    'title'     => __('Create rental agreement'),
+                    'model'     => $fulfilmentCustomer->customer->name,
                     'actions'   => [
                         [
                             'type'  => 'button',

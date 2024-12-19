@@ -10,16 +10,19 @@ namespace App\Actions\Production\Artefact\UI;
 
 use App\Actions\Production\Production\UI\ShowCraftsDashboard;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Enums\UI\Production\ArtefactsTabsEnum;
 use App\Http\Resources\Production\ArtefactsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Production\Artefact;
 use App\Models\Production\Production;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -27,10 +30,13 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexArtefacts extends OrgAction
 {
-    protected Production|Organisation $parent;
+    protected Group|Production|Organisation $parent;
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        }
         if ($this->parent instanceof Organisation) {
             $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
 
@@ -45,6 +51,14 @@ class IndexArtefacts extends OrgAction
         $this->canEdit = $request->user()->hasPermissionTo("productions_rd.{$this->production->id}.edit");
 
         return $request->user()->hasPermissionTo("productions_rd.{$this->production->id}.view");
+    }
+
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup(group(), $request)->withTab(ArtefactsTabsEnum::values());
+
+        return $this->handle(parent: $this->parent, prefix: ArtefactsTabsEnum::ARTEFACTS->value);
     }
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
@@ -63,7 +77,7 @@ class IndexArtefacts extends OrgAction
         return $this->handle(parent: $production, prefix: ArtefactsTabsEnum::ARTEFACTS->value);
     }
 
-    public function handle(Production|Organisation $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Production|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -76,9 +90,11 @@ class IndexArtefacts extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(Artefact::class);
-
-        if ($parent instanceof Organisation) {
+        $queryBuilder = QueryBuilder::for(Artefact::class)
+                        ->leftJoin('organisations', 'artefacts.organisation_id', '=', 'organisations.id');
+        if ($this->parent instanceof Group) {
+            $queryBuilder->where('artefacts.group_id', $parent->id);
+        } elseif ($parent instanceof Organisation) {
             $queryBuilder->where('artefacts.organisation_id', $parent->id);
         } else {
             $queryBuilder->where('artefacts.production_id', $parent->id);
@@ -93,7 +109,9 @@ class IndexArtefacts extends OrgAction
                     'artefacts.id',
                     'artefacts.name',
                     'productions.slug as production_slug',
-                    'artefacts.slug'
+                    'artefacts.slug',
+                    'organisations.name as organisation_name',
+                    'organisations.slug as organisation_slug',
                 ]
             )
             ->leftJoin('artefact_stats', 'artefact_stats.artefact_id', 'artefacts.id')
@@ -104,7 +122,7 @@ class IndexArtefacts extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Production|Organisation $parent, ?array $modelOperations = null, $prefix = null, bool $canEdit = false): Closure
+    public function tableStructure(Group|Production|Organisation $parent, ?array $modelOperations = null, $prefix = null, bool $canEdit = false): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
@@ -145,8 +163,11 @@ class IndexArtefacts extends OrgAction
                     }
                 )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('code');
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+            if ($this->parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true);
+            }
+            $table->defaultSort('code');
         };
     }
 
@@ -205,7 +226,7 @@ class IndexArtefacts extends OrgAction
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => ArtefactsTabsEnum::navigation(),
+                    'navigation' => $this->parent instanceof Group ? Arr::except(ArtefactsTabsEnum::navigation(), [ArtefactsTabsEnum::ARTEFACTS_HISTORIES->value]) : ArtefactsTabsEnum::navigation(),
                 ],
 
                 ArtefactsTabsEnum::ARTEFACTS->value => $this->tab == ArtefactsTabsEnum::ARTEFACTS->value ?
@@ -223,25 +244,48 @@ class IndexArtefacts extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
-        return array_merge(
-            ShowCraftsDashboard::make()->getBreadcrumbs($routeParameters),
-            [
+
+        return match ($routeName) {
+            'grp.overview.production.artefacts.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(
+                    $routeParameters
+                ),
                 [
-                    'type'   => 'simple',
-                    'simple' => [
-                        'route' => [
-                            'name'       => 'grp.org.productions.show.crafts.artefacts.index',
-                            'parameters' => $routeParameters
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => $routeName,
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('Artefacts'),
+                            'icon'  => 'fal fa-bars',
                         ],
-                        'label' => __('Artefacts'),
-                        'icon'  => 'fal fa-bars',
-                    ],
-                    'suffix' => $suffix
+                        'suffix' => $suffix
 
+                    ]
                 ]
-            ]
-        );
-    }
+            ),
+            default => array_merge(
+                ShowCraftsDashboard::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.productions.show.crafts.artefacts.index',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('Artefacts'),
+                            'icon'  => 'fal fa-bars',
+                        ],
+                        'suffix' => $suffix
 
+                    ]
+                ]
+            )
+        };
+    }
 
 }
