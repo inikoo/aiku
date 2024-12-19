@@ -56,6 +56,23 @@ watch(localModel, (newValue) => {
 	emit('update:modelValue',data)
 },{deep : true})
 
+function getRoute() {
+	if (route().current().includes('fulfilments')) {
+		return route('grp.org.fulfilments.show.web.webpages.index', {
+			organisation: route().params['organisation'],
+			fulfilment: route().params['fulfilment'],
+			website: route().params['website'],
+		})
+
+	} else if (route().current().includes('shop')) {
+		return route('grp.org.shops.show.web.webpages.index', {
+			organisation: route().params['organisation'],
+			shop: route().params['shop'],
+			website: route().params['website'],
+		})
+	}
+}
+
 
 onMounted(() => {
     if (props.modelValue) {
@@ -115,21 +132,15 @@ onMounted(() => {
 				placeholder="www.anotherwebsite.com/page"
 			/>
 			
-			<!-- <SelectQuery
+			<SelectQuery
 				v-if="localModel?.type == 'internal'"
 				:object="true"
 				fieldName="data"
 				:value="localModel"
 				:closeOnSelect="true"
 				label="href" 
-				:urlRoute="
-					route('grp.org.shops.show.web.webpages.index', {
-						organisation: route().params['organisation'],
-						shop: route().params['shop'],
-						website: route().params['website'],
-					})
-				"
-				/> -->
+				:urlRoute="getRoute()"
+				/>
 		</div>
 	</div>
 </template>
