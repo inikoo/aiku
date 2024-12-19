@@ -119,6 +119,7 @@ class IndexProducts extends OrgAction
         $queryBuilder = QueryBuilder::for(Product::class);
         $queryBuilder->orderBy('products.state', 'asc');
         $queryBuilder->leftJoin('shops', 'products.shop_id', 'shops.id');
+        $queryBuilder->leftJoin('organisations', 'products.organisation_id', '=', 'organisations.id');
         $queryBuilder->where('products.is_main', true);
         if (class_basename($parent) == 'Shop') {
             $queryBuilder->where('products.shop_id', $parent->id);
@@ -179,7 +180,7 @@ class IndexProducts extends OrgAction
                 ->whereNotIn('products.id', $parent->customer->portfolios->pluck('product_id'))
                 ->where('products.state', ProductStateEnum::ACTIVE);
             }
-        } elseif ($parent instanceof Group) {
+        } elseif ($this->parent instanceof Group) {
             $queryBuilder->where('products.group_id', $parent->id);
         } else {
             abort(419);
@@ -210,6 +211,8 @@ class IndexProducts extends OrgAction
                 'shops.slug as shop_slug',
                 'shops.code as shop_code',
                 'shops.name as shop_name',
+                'organisations.name as organisation_name',
+                'organisations.slug as organisation_slug',
                 ...$addSelects
             ])
             ->leftJoin('product_stats', 'products.id', 'product_stats.product_id');
@@ -307,6 +310,11 @@ class IndexProducts extends OrgAction
             }
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+
+            if ($this->parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
+                        ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+            }
 
             if (!$parent instanceof ShopifyUser) {
                 $table->column(key: 'tags', label: __('tags'), canBeHidden: false);
@@ -547,7 +555,7 @@ class IndexProducts extends OrgAction
         $this->parent = group();
         $this->initialisationFromGroup($this->parent, $request);
 
-        return $this->handle(parent: $this->parent, bucket: $this->bucket);
+        return $this->handle(parent: group(), bucket: $this->bucket);
     }
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
@@ -805,7 +813,7 @@ class IndexProducts extends OrgAction
                     $suffix
                 )
             ),
-            'grp.overview.products.index' =>
+            'grp.overview.catalogue.products.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(
                     $routeParameters

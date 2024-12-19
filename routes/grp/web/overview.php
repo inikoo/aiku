@@ -20,6 +20,8 @@ use App\Actions\Comms\PostRoom\UI\IndexPostRooms;
 use App\Actions\Comms\PostRoom\UI\ShowPostRoom;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\CRM\Prospect\UI\IndexProspects;
+use App\Actions\Discounts\Offer\UI\IndexOffers;
+use App\Actions\Discounts\OfferCampaign\UI\IndexOfferCampaigns;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentServices;
 use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
@@ -58,6 +60,11 @@ Route::name('billables.')->prefix('billables')->group(function () {
     Route::get('/services', [IndexFulfilmentServices::class, 'inGroup'])->name('services.index');
 });
 
+Route::name('offer.')->prefix('offer')->group(function () {
+    Route::get('/campaigns', [IndexOfferCampaigns::class, 'inGroup'])->name('campaigns.index');
+    Route::get('/offers', [IndexOffers::class, 'inGroup'])->name('offers.index');
+});
+
 Route::name('crm.')->prefix('crm')->group(function () {
     Route::get('/customers', [IndexCustomers::class, 'inGroup'])->name('customers.index');
     Route::get('/prospects', [IndexProspects::class, 'inGroup'])->name('prospects.index');
@@ -65,30 +72,30 @@ Route::name('crm.')->prefix('crm')->group(function () {
 
 
 Route::name('order.')->prefix('order')->group(function () {
-    Route::post('/orders', [IndexOrders::class, 'inGroup'])->name('orders.index');
-    Route::post('/purges', [IndexPurges::class, 'inGroup'])->name('purges.index');
-    Route::post('/delivery-notes', [IndexDeliveryNotes::class, 'inGroup'])->name('delivery-notes.index');
+    Route::get('/orders', [IndexOrders::class, 'inGroup'])->name('orders.index');
+    Route::get('/purges', [IndexPurges::class, 'inGroup'])->name('purges.index');
+    Route::get('/delivery-notes', [IndexDeliveryNotes::class, 'inGroup'])->name('delivery-notes.index');
 });
 
 Route::name('procurement.')->prefix('procurement')->group(function () {
-    Route::post('/agents', [IndexAgents::class, 'inOverview'])->name('agents.index');
-    Route::post('/suppliers', [IndexSuppliers::class, 'inOverview'])->name('suppliers.index');
-    Route::post('/supplier-products', [IndexSupplierProducts::class, 'inOverview'])->name('supplier-products.index');
-    Route::post('/purchase-orders', [IndexPurchaseOrders::class, 'inGroup'])->name('purchase-orders.index');
+    Route::get('/agents', [IndexAgents::class, 'inOverview'])->name('agents.index');
+    Route::get('/suppliers', [IndexSuppliers::class, 'inOverview'])->name('suppliers.index');
+    Route::get('/supplier-products', [IndexSupplierProducts::class, 'inOverview'])->name('supplier-products.index');
+    Route::get('/purchase-orders', [IndexPurchaseOrders::class, 'inGroup'])->name('purchase-orders.index');
 });
 
 Route::name('accounting.')->prefix('accounting')->group(function () {
-    Route::post('/invoices', [IndexInvoices::class, 'inGroup'])->name('invoices.index');
-    Route::post('/payment-accounts', [IndexPaymentAccounts::class, 'inGroup'])->name('payment-accounts.index');
-    Route::post('/payments', [IndexPayments::class, 'inGroup'])->name('payments.index');
-    Route::post('/customer-balances', [IndexCustomerBalances::class, 'inGroup'])->name('customer-balances.index');
+    Route::get('/invoices', [IndexInvoices::class, 'inGroup'])->name('invoices.index');
+    Route::get('/payment-accounts', [IndexPaymentAccounts::class, 'inGroup'])->name('payment-accounts.index');
+    Route::get('/payments', [IndexPayments::class, 'inGroup'])->name('payments.index');
+    Route::get('/customer-balances', [IndexCustomerBalances::class, 'inGroup'])->name('customer-balances.index');
 });
 
 
 Route::name('human-resources.')->prefix('human-resources')->group(function () {
-    Route::post('/workplaces', [IndexWorkplaces::class, 'inGroup'])->name('workplaces.index');
-    Route::post('/responsibilities', [IndexJobPositions::class, 'inGroup'])->name('responsibilities.index');
-    Route::post('/employees', [IndexEmployees::class, 'inGroup'])->name('employees.index');
-    Route::post('/clocking-machines', [IndexClockingMachines::class, 'inGroup'])->name('clocking-machines.index');
-    Route::post('/timesheets', [IndexTimesheets::class, 'inGroup'])->name('timesheets.index');
+    Route::get('/workplaces', [IndexWorkplaces::class, 'inGroup'])->name('workplaces.index');
+    Route::get('/responsibilities', [IndexJobPositions::class, 'inGroup'])->name('responsibilities.index');
+    Route::get('/employees', [IndexEmployees::class, 'inGroup'])->name('employees.index');
+    Route::get('/clocking-machines', [IndexClockingMachines::class, 'inGroup'])->name('clocking-machines.index');
+    Route::get('/timesheets', [IndexTimesheets::class, 'inGroup'])->name('timesheets.index');
 });

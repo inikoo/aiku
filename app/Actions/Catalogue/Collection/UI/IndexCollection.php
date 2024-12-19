@@ -82,8 +82,16 @@ class IndexCollection extends OrgAction
                 'collections.slug',
             ]);
 
-        if (class_basename($parent) == 'Group') {
-            $queryBuilder->where('collections.group_id', $parent->id);
+        if ($this->parent instanceof Group) {
+            $queryBuilder->where('collections.group_id', $parent->id)
+                            ->leftJoin('organisations', 'collections.organisation_id', '=', 'organisations.id')
+                            ->leftJoin('shops', 'collections.shop_id', '=', 'shops.id')
+                            ->addSelect([
+                                'shops.name as shop_name',
+                                'shops.slug as shop_slug',
+                                'organisations.name as organisation_name',
+                                'organisations.slug as organisation_slug',
+                            ]);
         } elseif (class_basename($parent) == 'Shop') {
             $queryBuilder->where('collections.shop_id', $parent->id);
             $queryBuilder->leftJoin('shops', 'collections.shop_id', 'shops.id');
@@ -175,8 +183,12 @@ class IndexCollection extends OrgAction
 
             $table
                 ->column(key: 'code', label: __('Code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'description', label: __('Description'), canBeHidden: false, sortable: false, searchable: true);
+                ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true);
+            if ($this->parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
+                        ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+            }
+            $table->column(key: 'description', label: __('Description'), canBeHidden: false, sortable: false, searchable: true);
             if ($parent instanceof Collection) {
                 $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true);
             }

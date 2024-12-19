@@ -50,9 +50,11 @@ class IndexShippingZoneSchemas extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(ShippingZoneSchema::class);
+        $queryBuilder = QueryBuilder::for(ShippingZoneSchema::class)
+            ->leftJoin('organisations', 'shipping_zone_schemas.organisation_id', '=', 'organisations.id')
+            ->leftJoin('shops', 'shipping_zone_schemas.shop_id', '=', 'shops.id');
 
-        if ($parent instanceof Group) {
+        if ($this->parent instanceof Group) {
             $queryBuilder->where('shipping_zone_schemas.group_id', $parent->id);
         } elseif (class_basename($parent) == 'Shop') {
             $queryBuilder->where('shipping_zone_schemas.shop_id', $parent->id);
@@ -74,7 +76,11 @@ class IndexShippingZoneSchemas extends OrgAction
                 'shipping_zone_schema_stats.number_shipping_zones',
                 'shipping_zone_schema_stats.amount',
                 'shipping_zone_schema_stats.first_used_at',
-                'shipping_zone_schema_stats.last_used_at'
+                'shipping_zone_schema_stats.last_used_at',
+                'shops.name as shop_name',
+                'shops.slug as shop_slug',
+                'organisations.name as organisation_name',
+                'organisations.slug as organisation_slug',
             ]);
 
         return $queryBuilder->allowedSorts(['name', 'status'])
@@ -122,6 +128,10 @@ class IndexShippingZoneSchemas extends OrgAction
                 );
             $table->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+            if ($this->parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
+                        ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+            }
             $table->column(key: 'zones', label: __('zones'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'first_used', label: __('first used'), canBeHidden: false, sortable: false, searchable: false);
             $table->column(key: 'last_used', label: __('last used'), canBeHidden: false, sortable: false, searchable: false);

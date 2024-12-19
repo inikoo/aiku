@@ -112,10 +112,12 @@ class IndexCustomers extends OrgAction
         } elseif (class_basename($parent) == 'Group') {
             $queryBuilder->where('customers.group_id', $parent->id)
                             ->select([
+                                'shops.name as shop_name',
+                                'shops.slug as shop_slug',
+                                'organisations.name as organisation_name',
+                                'organisations.slug as organisation_slug',
                                 'customers.organisation_id',
                                 'customers.shop_id',
-                                'organisations.name as organisation_name',
-                                'shops.name as shop_name',
                             ])
                             ->leftJoin('organisations', 'organisations.id', 'customers.organisation_id');
             $allowedSort = array_merge(['organisation_name', 'shop_name'], $allowedSort);
@@ -246,8 +248,8 @@ class IndexCustomers extends OrgAction
                 )
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             if ($this->parent instanceof Group) {
-                $table->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true)
-                    ->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true);
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
+                        ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
             } else {
                 $table->column(key: 'location', label: __('location'), canBeHidden: false, searchable: true);
             }

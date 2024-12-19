@@ -61,9 +61,10 @@ class IndexProspects extends OrgAction
     {
         $this->tab = ProspectsTabsEnum::PROSPECTS->value;
         $this->parent = group();
-        $this->initialisationFromGroup(group(), $request);
-
-        return $this->handle($this->parent);
+        $tabs = ProspectsTabsEnum::values();
+        unset($tabs[array_search(ProspectsTabsEnum::DASHBOARD->value, $tabs)]);
+        $this->initialisationFromGroup(group(), $request)->withTab($tabs);
+        return $this->handle(parent: $this->parent, prefix: ProspectsTabsEnum::PROSPECTS->value);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -118,13 +119,15 @@ class IndexProspects extends OrgAction
 
         $queryBuilder = QueryBuilder::for(Prospect::class);
 
-        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
+        if (!($parent instanceof Group)) {
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $queryBuilder->whereElementGroup(
+                    key: $key,
+                    allowedElements: array_keys($elementGroup['elements']),
+                    engine: $elementGroup['engine'],
+                    prefix: $prefix
+                );
+            }
         }
 
         if ($parent instanceof Shop) {
@@ -149,7 +152,7 @@ class IndexProspects extends OrgAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
-            if (class_basename($parent) != 'Tag') {
+            if (class_basename($parent) != 'Tag' and !($parent instanceof Group)) {
                 foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                     $table->elementGroup(
                         key: $key,
@@ -162,15 +165,17 @@ class IndexProspects extends OrgAction
 
             $table
                 ->withModelOperations($modelOperations)
-                ->withGlobalSearch()
-                ->withEmptyState(
+                ->withGlobalSearch();
+            if (!($parent instanceof Group)) {
+                $table->withEmptyState(
                     [
                         'title'       => __('No Prospects'),
                         'description' => null,
                         'count'       => $parent->crmStats->number_prospects
                     ]
-                )
-                ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
+                );
+            }
+            $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'phone', label: __('phone'), canBeHidden: false, sortable: true, searchable: true)

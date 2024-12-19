@@ -65,7 +65,9 @@ class IndexFulfilmentServices extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(Service::class);
+        $queryBuilder = QueryBuilder::for(Service::class)
+                    ->leftJoin('organisations', 'services.organisation_id', '=', 'organisations.id')
+                    ->leftJoin('shops', 'services.shop_id', '=', 'shops.id');
         if ($parent instanceof Group) {
             $queryBuilder->where('services.group_id', $parent->id);
         } else {
@@ -105,6 +107,10 @@ class IndexFulfilmentServices extends OrgAction
                 'services.auto_assign_subject',
                 'services.auto_assign_subject_type',
                 'services.auto_assign_status',
+                'shops.name as shop_name',
+                'shops.slug as shop_slug',
+                'organisations.name as organisation_name',
+                'organisations.slug as organisation_slug',
             ]);
 
 
@@ -139,11 +145,10 @@ class IndexFulfilmentServices extends OrgAction
 
     public function inGroup(ActionRequest $request): LengthAwarePaginator
     {
-        $this->tab = ServicesTabsEnum::SERVICES->value;
         $this->parent = group();
-        $this->initialisationFromGroup(group(), $request);
+        $this->initialisationFromGroup(group(), $request)->withTab(ServicesTabsEnum::values());
 
-        return $this->handle($this->parent);
+        return $this->handle($this->parent, prefix: ServicesTabsEnum::SERVICES->value);
     }
 
     public function fromRetina(ActionRequest $request): LengthAwarePaginator
@@ -249,8 +254,12 @@ class IndexFulfilmentServices extends OrgAction
             $table
                 ->column(key: 'state', label: '', canBeHidden: false, type: 'icon')
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+            if ($this->parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
+                        ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+            }
+            $table->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
                 ->column(key: 'workflow', label: __('workflow'), canBeHidden: false)
                 ->defaultSort('code');
         };

@@ -31,6 +31,9 @@ class OffersResource extends JsonResource
             'slug'                => $this->slug,
             'code'                => $this->code,
             'name'                => $this->name,
+            'organisation_name' => $this->organisation_name,
+            'organisation_slug' => $this->organizations,
+            'shop_name'         => $this->shop_name,
         ];
     }
 }

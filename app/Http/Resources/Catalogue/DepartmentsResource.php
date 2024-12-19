@@ -54,6 +54,10 @@ class DepartmentsResource extends JsonResource
             'sales_pq3'                => $this->sales_pq3,
             'sales_pq4'                => $this->sales_pq4,
             'sales_pq5'                => $this->sales_pq5,
+            'organisation_name' => $this->organisation_name,
+            'organisation_slug' => $this->organisation_slug,
+            'shop_name'         => $this->shop_name,
+            'shop_slug'         => $this->shop_slug,
         ];
     }
 }

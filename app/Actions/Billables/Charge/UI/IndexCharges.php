@@ -79,10 +79,12 @@ class IndexCharges extends OrgAction
         //     );
         // }
 
+        $queryBuilder->leftJoin('organisations', 'charges.organisation_id', '=', 'organisations.id')
+        ->leftJoin('shops', 'charges.shop_id', '=', 'shops.id');
 
         if (class_basename($parent) == 'Shop') {
             $queryBuilder->where('charges.shop_id', $parent->id);
-        } elseif ($parent instanceof Group) {
+        } elseif ($this->parent instanceof Group) {
             $queryBuilder->where('charges.group_id', $parent->id);
         } elseif (class_basename($parent) == 'Organisation') {
             $queryBuilder->where('charges.organisation_id', $parent->id);
@@ -106,6 +108,10 @@ class IndexCharges extends OrgAction
                 'charges.description',
                 'charges.created_at',
                 'charges.updated_at',
+                'shops.name as shop_name',
+                'shops.slug as shop_slug',
+                'organisations.name as organisation_name',
+                'organisations.slug as organisation_slug',
             ])
             ->leftJoin('charge_stats', 'charges.id', 'charge_stats.charge_id')
             ->allowedSorts(['code', 'name','shop_code'])
@@ -159,6 +165,11 @@ class IndexCharges extends OrgAction
             };
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+
+            if ($this->parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
+                        ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+            }
         };
     }
 
