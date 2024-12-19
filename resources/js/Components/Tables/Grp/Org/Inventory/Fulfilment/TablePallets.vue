@@ -23,6 +23,7 @@ import { Pallet } from "@/types/Pallet";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { useLayoutStore } from "@/Stores/layout"
 import ButtonAction from "@/Components/Pallet/ActionButton.vue"
+import { trans } from "laravel-vue-i18n"
 
 library.add(faTrashAlt, faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp, faStickyNote,faSquare);
 
@@ -40,7 +41,7 @@ defineProps<{
 const layout = useLayoutStore()
 
 function palletRoute(pallet: Pallet) {
-  console.log(route().current())
+  // console.log(route().current())
   switch (route().current()) {
 
 
@@ -191,18 +192,20 @@ const onUpdateStatus=(routes,data)=>{
 
     <!-- Column: Action (move pallet) -->
     <template #cell(actions)="{ item }">
-      <div class="flex gap-x-1 gap-y-1.5">
+      <div class="flex gap-x-1 gap-y-1.5 isolate">
         <!-- Action: Move Pallet -->
-        <Popover v-if="item.status === 'storing' && isMovePallet"  class="relative">
-          <template #button>
+        <Popover v-if="item.status === 'storing' && isMovePallet" class="relative" position="bottom-[125%] right-1/2">
+          <template #button="{ open }">
             <Button
               @click="() => (locationsList.length ? '' : getLocationsList(), palletSelected?.[item.reference] ? '' : palletSelected = { [item.reference]: item.location_id })"
-              type="secondary" tooltip="Move pallet to another location" label="Move" :key="item.index"
+              type="tertiary" tooltip="Move pallet to another location" label="Move" :key="item.index"
+              :disabled="open"
               :size="'xs'" />
           </template>
+
           <template #content="{ close }">
             <div class="w-[250px]">
-              <span class="text-xs px-1 my-2">Location:</span>
+              <div class="text-xs px-1 my-2">{{ trans('Select new location to move')}}:</div>
               <div>
                 <Multiselect ref="_multiselectRef" v-model="palletSelected[item.reference]" :canClear="false"
                   :canDeselect="false" label="code" valueProp="id" placeholder="Select location.."
@@ -212,8 +215,8 @@ const onUpdateStatus=(routes,data)=>{
               <div class="flex justify-end mt-2">
                 <Button
                   @click="() => onMovePallet(route(item.updateLocationRoute.name, item.updateLocationRoute.parameters), palletSelected?.[item.reference], item.reference, close)"
-                  type="primary" tooltip="Move pallet" :loading="isLoading" label="save"
-                  :key="item.index + palletSelected?.[item.reference]" :size="'xs'"
+                  type="primary" full tooltip="Move pallet" :loading="isLoading" label="save"
+                  :key="item.index + palletSelected?.[item.reference]"
                   :disabled="palletSelected?.[item.reference] == item.location_id" />
               </div>
             </div>
