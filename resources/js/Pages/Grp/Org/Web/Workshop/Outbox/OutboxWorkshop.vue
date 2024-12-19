@@ -192,14 +192,33 @@ const autoSave = async (jsonFile) => {
 const onSchedulePublish = (event) =>{
     event.stopPropagation()
     _popover.value.toggle(event);
+}
 
+const schedulePublish = async () =>{
+    try {
+        const response = await axios.post(route('xxxxx'), {
+            comment: comment.value,
+            layout: JSON.parse(data?.jsonFile),
+            compiled_layout: data?.htmlFile
+        });
+        console.log("Publish response:", response.data);
+    } catch (error) {
+        console.log(error)
+        const errorMessage = error.response?.data?.message || error.message || "Unknown error occurred";
+        notify({
+            title: "Something went wrong.",
+            text: errorMessage,
+            type: "error",
+        });
+    } finally {
+        isLoading.value = false;
+    }
 }
 
 </script>
 
 
 <template>
-
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #other>
@@ -216,7 +235,7 @@ const onSchedulePublish = (event) =>{
                             </div>
                             <div class="flex justify-between">
                                 <div @click="()=>_popover.hide()" class="p-[4px] cursor-pointer text-gray-400 hover:text-gray-600">Cancel</div>
-                                <Button @click=""  label="Schedule"  />
+                                <Button @click="schedulePublish"  label="Schedule"  />
                             </div>
                         </div>
                     </Popover>

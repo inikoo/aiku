@@ -37,6 +37,7 @@ use App\Models\Comms\OrgPostRoom;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
 use App\Models\CRM\Customer;
+use App\Models\CRM\Prospect;
 use App\Models\CRM\WebUser;
 use App\Models\Discounts\Offer;
 use App\Models\Discounts\OfferCampaign;
@@ -637,6 +638,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function customers(): HasMany
     {
         return $this->hasMany(Customer::class);
+    }
+
+    public function prospects(): HasMany
+    {
+        return $this->hasMany(Prospect::class);
     }
 
     public function dropshippingStats(): HasOne

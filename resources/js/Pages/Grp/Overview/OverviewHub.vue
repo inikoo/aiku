@@ -8,9 +8,10 @@ import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
 import { capitalize } from "@/Composables/capitalize"
 import { inject, ref, computed, onMounted, onUnmounted } from "vue"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
-import { faBoxes, faFilter, faInboxOut, faUser } from "@fal"
+import { faBoothCurtain, faBoxes, faBrowser, faCoin, faFilter, faInboxOut, faTrashAlt, faUser } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import SectionTable from "@/Components/Table/SectionTable.vue"
+import { faAngleDown, faAngleUp } from "@far"
 
 const props = defineProps<{
     title: string;
@@ -30,7 +31,7 @@ const props = defineProps<{
 
 const locale = inject("locale", aikuLocaleStructure)
 
-library.add(faExclamationCircle, faInboxOut, faUser, faFilter, faBoxes)
+library.add(faExclamationCircle, faInboxOut, faUser, faFilter, faBoxes, faAngleDown, faAngleUp, faBrowser, faTrashAlt, faCoin, faBoothCurtain)
 
 // Search functionality
 const searchQuery = ref("")
@@ -63,9 +64,7 @@ onUnmounted(() => {
 		<!-- Left Column -->
 		<div class="col-span-6 space-y-4">
 			<!-- Predicted Months DataTable -->
-		
 				<SectionTable :data="props.data.data" />
-
 		</div>
 
 		<!-- Middle Column -->
@@ -108,7 +107,7 @@ onUnmounted(() => {
 
 		<!-- Added Beside Right -->
 		<div class="col-span-3 space-y-4">
-			<div class="flex flex-col gap-4 p-4">
+			<div class="flex flex-col gap-4">
 				<!-- Card 1: Cart Abandonment Rate -->
 				<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
 					<p class="text-4xl font-bold leading-tight text-gray-700">

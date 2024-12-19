@@ -101,6 +101,12 @@ Route::name('production.')->prefix('production')->group(function () {
     // Route::get('/artisans', [IndexJoborder::class, 'inGroup'])->name('artisans.index');
 });
 
+// Route::name('warehouse.')->prefix('warehouse')->group(function () {
+//     Route::get('/locations', [IndexRawMaterials::class, 'inGroup'])->name('locations.index');
+//     Route::get('/artefacts', [IndexArtefacts::class, 'inGroup'])->name('artefacts.index');
+//     Route::get('/manufacture-tasks', [IndexManufactureTasks::class, 'inGroup'])->name('manufacture-tasks.index');
+// });
+
 Route::name('procurement.')->prefix('procurement')->group(function () {
     Route::get('/agents', [IndexAgents::class, 'inOverview'])->name('agents.index');
     Route::get('/suppliers', [IndexSuppliers::class, 'inOverview'])->name('suppliers.index');

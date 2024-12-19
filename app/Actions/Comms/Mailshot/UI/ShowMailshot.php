@@ -137,11 +137,7 @@ class ShowMailshot extends OrgAction
                 ],
                 MailshotTabsEnum::SHOWCASE->value => $this->tab == MailshotTabsEnum::SHOWCASE->value ?
                     fn () => GetMailshotShowcase::run($mailshot)
-                    : Inertia::lazy(fn () => GetMailshotShowcase::run($mailshot)),
-
-                MailshotTabsEnum::EMAIL_PREVIEW->value => $this->tab == MailshotTabsEnum::EMAIL_PREVIEW->value ?
-                    fn () => GetMailshotPreview::run($mailshot)
-                    : Inertia::lazy(fn () => GetMailshotPreview::run($mailshot)),
+                    : Inertia::lazy(fn () => GetMailshotShowcase::run($mailshot))
             ]
         );
     }

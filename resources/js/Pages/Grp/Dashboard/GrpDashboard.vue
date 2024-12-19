@@ -215,10 +215,14 @@ const shop = ref()
 					<template #body="{ data }">
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
-								<div :key="data.sales?.[`refunds_${selectedDateOption}`] || 0">
+								<div :key="data.interval_percentages?.refunds[
+														selectedDateOption
+												  ]?.amount || 0">
 									{{
 										locale.number(
-											data.sales?.[`refunds_${selectedDateOption}`] || 0
+											data.interval_percentages?.refunds[
+														selectedDateOption
+												  ]?.amount || 0
 										)
 									}}
 								</div>
@@ -304,10 +308,14 @@ const shop = ref()
 					<template #body="{ data }">
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
-								<div :key="data.sales?.[`invoices_${selectedDateOption}`] || 0">
+								<div :key="data.interval_percentages?.invoices[
+														selectedDateOption
+												  ]?.amount || 0">
 									{{
 										locale.number(
-											data.sales?.[`invoices_${selectedDateOption}`] || 0
+											data.interval_percentages?.invoices[
+														selectedDateOption
+												  ]?.amount || 0
 										)
 									}}
 								</div>
@@ -398,13 +406,15 @@ const shop = ref()
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div
-									:key="data.sales?.[`sales_grp_currency_${selectedDateOption}`]">
+									:key="data.interval_percentages?.sales[
+														selectedDateOption
+												  ]?.amount">
 									{{
-										useLocaleStore().currencyFormat(
+										useLocaleStore().numberShort(
 											groupStats.currency.code,
-											data.sales?.[
-												`sales_grp_currency_${selectedDateOption}`
-											] || 0
+											data.interval_percentages?.sales[
+														selectedDateOption
+												  ]?.amount || 0
 										)
 									}}
 								</div>
@@ -496,7 +506,7 @@ const shop = ref()
 
 						<Column
 							:footer="
-								useLocaleStore().currencyFormat(
+								useLocaleStore().numberShort(
 									groupStats.currency.code,
 									Number(groupStats.total[selectedDateOption].total_sales)
 								)
