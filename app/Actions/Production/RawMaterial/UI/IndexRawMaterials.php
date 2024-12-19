@@ -11,12 +11,14 @@ namespace App\Actions\Production\RawMaterial\UI;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Production\Production\UI\ShowCraftsDashboard;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Enums\UI\Production\RawMaterialsTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Production\RawMaterialsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Production\Production;
 use App\Models\Production\RawMaterial;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -29,10 +31,14 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexRawMaterials extends OrgAction
 {
-    protected Production|Organisation $parent;
+    protected Group|Production|Organisation $parent;
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        }
+
         if ($this->parent instanceof Organisation) {
             $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
 
@@ -48,6 +54,15 @@ class IndexRawMaterials extends OrgAction
 
         return $request->user()->hasPermissionTo("productions_rd.{$this->production->id}.view");
     }
+
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup(group(), $request)->withTab(RawMaterialsTabsEnum::values());
+
+        return $this->handle(parent: $this->parent, prefix: RawMaterialsTabsEnum::RAW_MATERIALS->value);
+    }
+
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
@@ -65,7 +80,7 @@ class IndexRawMaterials extends OrgAction
         return $this->handle(parent: $production, prefix: RawMaterialsTabsEnum::RAW_MATERIALS->value);
     }
 
-    public function handle(Production|Organisation $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Production|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -77,10 +92,13 @@ class IndexRawMaterials extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(RawMaterial::class);
+        $queryBuilder = QueryBuilder::for(RawMaterial::class)
+                        ->leftJoin('organisations', 'raw_materials.organisation_id', '=', 'organisations.id');
 
         if ($parent instanceof Organisation) {
             $queryBuilder->where('raw_materials.organisation_id', $parent->id);
+        } elseif ($parent instanceof Group) {
+            $queryBuilder->where('raw_materials.group_id', $parent->id);
         } else {
             $queryBuilder->where('raw_materials.production_id', $parent->id);
         }
@@ -93,7 +111,9 @@ class IndexRawMaterials extends OrgAction
                     'raw_materials.code',
                     'raw_materials.id',
                     'productions.slug as production_slug',
-                    'raw_materials.slug'
+                    'raw_materials.slug',
+                    'organisations.name as organisation_name',
+                    'organisations.slug as organisation_slug',
                 ]
             )
             ->leftJoin('raw_material_stats', 'raw_material_stats.raw_material_id', 'raw_materials.id')
@@ -104,7 +124,7 @@ class IndexRawMaterials extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Production|Organisation $parent, ?array $modelOperations = null, $prefix = null, bool $canEdit = false): Closure
+    public function tableStructure(Group|Production|Organisation $parent, ?array $modelOperations = null, $prefix = null, bool $canEdit = false): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
@@ -144,8 +164,12 @@ class IndexRawMaterials extends OrgAction
                         default => null
                     }
                 )
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('code');
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
+            if ($this->parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
+                        ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+            }
+            $table->defaultSort('code');
         };
     }
 
@@ -202,7 +226,7 @@ class IndexRawMaterials extends OrgAction
                         ] : null,
                     ]
                 ],
-                'upload' => [
+                'upload' => $this->parent instanceof Group ? null : [
                     'event'   => 'action-progress',
                     'channel' => 'grp.personal.' . $this->organisation->id
                 ],
@@ -230,24 +254,47 @@ class IndexRawMaterials extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
-        return array_merge(
-            ShowCraftsDashboard::make()->getBreadcrumbs($routeParameters),
-            [
+        return match ($routeName) {
+            'grp.overview.production.raw-materials.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(
+                    $routeParameters
+                ),
                 [
-                    'type'   => 'simple',
-                    'simple' => [
-                        'route' => [
-                            'name'       => 'grp.org.productions.show.crafts.raw_materials.index',
-                            'parameters' => $routeParameters
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => $routeName,
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('Raw materials'),
+                            'icon'  => 'fal fa-bars',
                         ],
-                        'label' => __('Raw materials'),
-                        'icon'  => 'fal fa-bars',
-                    ],
-                    'suffix' => $suffix
+                        'suffix' => $suffix
 
+                    ]
                 ]
-            ]
-        );
+            ),
+            default => array_merge(
+                ShowCraftsDashboard::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.productions.show.crafts.raw_materials.index',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('Raw materials'),
+                            'icon'  => 'fal fa-bars',
+                        ],
+                        'suffix' => $suffix
+
+                    ]
+                ]
+            )
+        };
     }
 
 
