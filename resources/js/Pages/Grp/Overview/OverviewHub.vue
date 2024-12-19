@@ -65,7 +65,7 @@ onUnmounted(() => {
 			<!-- Predicted Months DataTable -->
 		
 				<SectionTable :data="props.data.data" />
-			
+
 		</div>
 
 		<!-- Middle Column -->
