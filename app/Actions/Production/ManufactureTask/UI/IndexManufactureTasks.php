@@ -10,16 +10,19 @@ namespace App\Actions\Production\ManufactureTask\UI;
 
 use App\Actions\Production\Production\UI\ShowCraftsDashboard;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Enums\UI\Production\ManufactureTasksTabsEnum;
 use App\Http\Resources\Production\ManufactureTasksResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Production\ManufactureTask;
 use App\Models\Production\Production;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -27,10 +30,13 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexManufactureTasks extends OrgAction
 {
-    protected Production|Organisation $parent;
+    protected Group|Production|Organisation $parent;
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        }
         if ($this->parent instanceof Organisation) {
             $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
 
@@ -46,6 +52,15 @@ class IndexManufactureTasks extends OrgAction
 
         return $request->user()->hasPermissionTo("productions_rd.{$this->production->id}.view");
     }
+
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup(group(), $request)->withTab(ManufactureTasksTabsEnum::values());
+
+        return $this->handle(parent: $this->parent, prefix: ManufactureTasksTabsEnum::MANUFACTURE_TASKS->value);
+    }
+
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
@@ -63,7 +78,7 @@ class IndexManufactureTasks extends OrgAction
         return $this->handle(parent: $production, prefix: ManufactureTasksTabsEnum::MANUFACTURE_TASKS->value);
     }
 
-    public function handle(Production|Organisation $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Production|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -76,9 +91,12 @@ class IndexManufactureTasks extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(ManufactureTask::class);
+        $queryBuilder = QueryBuilder::for(ManufactureTask::class)
+        ->leftJoin('organisations', 'manufacture_tasks.organisation_id', '=', 'organisations.id');
 
-        if ($parent instanceof Organisation) {
+        if ($this->parent instanceof Group) {
+            $queryBuilder->where('manufacture_tasks.group_id', $parent->id);
+        } elseif ($parent instanceof Organisation) {
             $queryBuilder->where('manufacture_tasks.organisation_id', $parent->id);
         } else {
             $queryBuilder->where('manufacture_tasks.production_id', $parent->id);
@@ -93,18 +111,20 @@ class IndexManufactureTasks extends OrgAction
                     'manufacture_tasks.id',
                     'manufacture_tasks.name',
                     'productions.slug as production_slug',
-                    'manufacture_tasks.slug'
+                    'manufacture_tasks.slug',
+                    'organisations.name as organisation_name',
+                    'organisations.slug as organisation_slug',
                 ]
             )
             ->leftJoin('manufacture_task_stats', 'manufacture_task_stats.manufacture_task_id', 'manufacture_tasks.id')
             ->leftJoin('productions', 'manufacture_tasks.production_id', 'productions.id')
-            ->allowedSorts(['code', 'name'])
+            ->allowedSorts(['code', 'name', 'organisation_name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure(Production|Organisation $parent, ?array $modelOperations = null, $prefix = null, bool $canEdit = false): Closure
+    public function tableStructure(Group|Production|Organisation $parent, ?array $modelOperations = null, $prefix = null, bool $canEdit = false): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
@@ -145,8 +165,11 @@ class IndexManufactureTasks extends OrgAction
                     }
                 )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('code');
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+            if ($this->parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true);
+            }
+            $table->defaultSort('code');
         };
     }
 
@@ -205,7 +228,7 @@ class IndexManufactureTasks extends OrgAction
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => ManufactureTasksTabsEnum::navigation(),
+                    'navigation' => $this->parent instanceof Group ? Arr::except(ManufactureTasksTabsEnum::navigation(), [ManufactureTasksTabsEnum::MANUFACTURE_TASKS_HISTORIES->value]) : ManufactureTasksTabsEnum::navigation(),
                 ],
 
                 ManufactureTasksTabsEnum::MANUFACTURE_TASKS->value => $this->tab == ManufactureTasksTabsEnum::MANUFACTURE_TASKS->value ?
@@ -223,24 +246,48 @@ class IndexManufactureTasks extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
-        return array_merge(
-            ShowCraftsDashboard::make()->getBreadcrumbs($routeParameters),
-            [
-                [
-                    'type'   => 'simple',
-                    'simple' => [
-                        'route' => [
-                            'name'       => 'grp.org.productions.show.crafts.manufacture_tasks.index',
-                            'parameters' => $routeParameters
-                        ],
-                        'label' => __('Manufacture tasks'),
-                        'icon'  => 'fal fa-bars',
-                    ],
-                    'suffix' => $suffix
 
+        return match ($routeName) {
+            'grp.overview.production.manufacture-tasks.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(
+                    $routeParameters
+                ),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => $routeName,
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('Manufacture tasks'),
+                            'icon'  => 'fal fa-bars',
+                        ],
+                        'suffix' => $suffix
+
+                    ]
                 ]
-            ]
-        );
+            ),
+            default => array_merge(
+                ShowCraftsDashboard::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.productions.show.crafts.manufacture_tasks.index',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('Manufacture tasks'),
+                            'icon'  => 'fal fa-bars',
+                        ],
+                        'suffix' => $suffix
+
+                    ]
+                ]
+            )
+        };
     }
 
 

@@ -10,7 +10,7 @@ import { ref } from "vue"
 import ButtonEditTable from "@/Components/ButtonEditTable.vue"
 import Popover from '@/Components/Popover.vue'
 import SelectQuery from '@/Components/SelectQuery.vue'
-import { useForm } from "@inertiajs/vue3"
+import { router, useForm } from "@inertiajs/vue3"
 import { routeType } from "@/types/route"
 import { Pallet } from "@/types/Pallet"
 
@@ -19,6 +19,8 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { faTimesSquare } from "@fas"
 import { faTrashAlt, faPaperPlane, faInventory } from "@far"
 import { faSignOutAlt, faTruckLoading, faPencil, faTimes } from "@fal"
+import { trans } from "laravel-vue-i18n"
+import { notify } from "@kyvg/vue3-notification"
 library.add( faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading, faPencil, faTimesSquare, faTimes )
 
 const props = defineProps<{
@@ -34,17 +36,42 @@ const error = ref({})
 
 /* const isPalletDamaged = ref(props.pallet.state === 'damaged') */
 
-const onSaveSuccess = (closed: Function) => {
-    closed()
-    emits('renderTableKey')
-    error.value = {}
+// const onSaveSuccess = (closed: Function) => {
+//     closed()
+//     emits('renderTableKey')
+//     error.value = {}
+// }
+
+
+// const onSaveError = (errorValue: any) => {
+//     error.value = errorValue
+// }
+
+const isLoading = ref<string | boolean>(false)
+const onChangeLocation = (closeModal: Function) => {
+    router.patch(
+        route(props.pallet['bookInRoute'].name, props.pallet['bookInRoute'].parameters),
+        { location_id: location.data().location_id},
+        {
+            preserveScroll: true,
+            onStart: () => { isLoading.value = true },
+            onSuccess: () => {
+                closeModal()
+                emits('renderTableKey')
+                error.value = {}
+            },
+            onError: errors => {
+                error.value = errors
+                notify({
+                    title: trans("Something went wrong"),
+                    text: trans("Failed to set location"),
+                    type: "error"
+                })
+            },
+            onFinish: () => { isLoading.value = false },
+        }
+    )
 }
-
-
-const onSaveError = (errorValue: any) => {
-    error.value = errorValue
-}
-
 
 </script>
 
@@ -62,15 +89,16 @@ const onSaveError = (errorValue: any) => {
 
                 <Button v-else-if="pallet.state !== 'not-received'"
                     type="primary"
-                    label="Set location"
-                    tooltip="Set location for pallet"
+                    :label="trans('Set location')"
+                    :tooltip="trans('Set location for pallet')"
                     :key="pallet.index"
-                    :size="'xs'" />
+                    :size="'xs'"
+                />
             </template>
 
             <template #content="{ close: closed }">
                 <div class="w-[250px]">
-                    <span class="text-xs px-1 my-2">Location: </span>
+                    <span class="text-xs px-1 my-2">{{ trans("Location") }}: </span>
                     <div>
                         <SelectQuery
                             :urlRoute="route(locationRoute?.name, locationRoute?.parameters)"
@@ -83,7 +111,8 @@ const onSaveError = (errorValue: any) => {
                             :closeOnSelect="true"
                             :clearOnSearch="false"
                             :fieldName="'location_id'"
-                            @updateVModel="() => error.location_id = ''"
+                            @updateVModel="() => (onChangeLocation(closed), error.location_id = '')"
+                            :loadingCaret="!!isLoading"
                         />
                         
                        <!--  <div class="flex gap-x-1 items-center mt-2 pl-0.5">
@@ -95,7 +124,7 @@ const onSaveError = (errorValue: any) => {
                     </div>
 
                     <!-- Button: Save -->
-                    <div class="flex justify-end mt-2">
+                    <!-- <div class="flex justify-end mt-2">
                         <ButtonEditTable
                             type="primary"
                             @onSuccess="onSaveSuccess(closed)"
@@ -108,7 +137,7 @@ const onSaveError = (errorValue: any) => {
                             :dataToSubmit="{ location_id: location.data().location_id}"
                             routeName="bookInRoute"
                             :data="pallet" />
-                    </div>
+                    </div> -->
                 </div>
             </template>
         </Popover>
