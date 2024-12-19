@@ -8,25 +8,30 @@ import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
 import { capitalize } from "@/Composables/capitalize"
 import { inject, ref, computed, onMounted, onUnmounted } from "vue"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
-import { faFilter, faInboxOut, faUser } from "@fal"
+import { faBoxes, faBrowser, faCoin, faFilter, faInboxOut, faTrashAlt, faUser } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import SectionTable from "@/Components/Table/SectionTable.vue"
+import { faSortDown, faSortUp } from "@fas"
 
 const props = defineProps<{
-	title: string
-	pageHead: any
-	data: {
-		data: Array<{
-			name: string
-			number: number
-			route: any
-			icon: string
-		}>
-	}
-}>()
+    title: string;
+    pageHead: any;
+    data: {
+        data: Array<{
+            section: string;
+            data: Array<{
+                name: string;
+                icon: string;
+                route: string;
+                count: number;
+            }>;
+        }>;
+    };
+}>();
 
 const locale = inject("locale", aikuLocaleStructure)
 
-library.add(faExclamationCircle, faInboxOut, faUser, faFilter)
+library.add(faExclamationCircle, faInboxOut, faUser, faFilter, faBoxes, faSortUp, faSortDown, faBrowser, faTrashAlt, faCoin)
 
 // Search functionality
 const searchQuery = ref("")
@@ -47,16 +52,6 @@ onUnmounted(() => {
 	document.removeEventListener("click", handleClickOutside)
 })
 
-// Filtered data
-const filteredData = computed(() => {
-	return props.data.data.filter((item) => {
-		const query = searchQuery.value.toLowerCase()
-		return (
-			item.name.toLowerCase().includes(query) ||
-			(item.icon && item.icon.toLowerCase().includes(query))
-		)
-	})
-})
 </script>
 
 <template>
@@ -69,69 +64,9 @@ const filteredData = computed(() => {
 		<!-- Left Column -->
 		<div class="col-span-6 space-y-4">
 			<!-- Predicted Months DataTable -->
-			<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
-				<DataTable :value="filteredData" class="text-gray-900" :showHeaders="false">
-					<template #header>
-						<div class="flex items-center w-full mb-2">
-							<!-- Expandable Icon and Input -->
-							<div
-								class="search-container transition-all duration-300 ease-in-out flex items-center px-2 w-full"
-								:class="isFilterVisible ? 'max-w-full' : 'max-w-[2.5rem]'">
-								<!-- Icon -->
-								<FontAwesomeIcon
-									v-show="!isFilterVisible"
-									fixed-width
-									icon="fal fa-filter"
-									class="text-gray-500 cursor-pointer hover:text-gray-700"
-									@click="isFilterVisible = true" />
-								<!-- Input Field -->
-								<div class="flex items-center w-full relative">
-									<input
-										v-show="isFilterVisible"
-										type="text"
-										v-model="searchQuery"
-										class="border border-gray-300 rounded appearance-none block w-full px-3 py-2 text-sm leading-none transition-all duration-300 placeholder:text-gray-400 placeholder:italic focus:border-gray-500 focus:ring-0 focus:outline-none"
-										placeholder="Search items..."
-										autofocus />
-									<!-- Clear Button -->
-									<button
-										v-show="isFilterVisible && searchQuery"
-										@click="searchQuery = ''"
-										class="absolute right-2 text-gray-500 hover:text-gray-700">
-										✕
-									</button>
-								</div>
-							</div>
-						</div>
-					</template>
-					<template #empty> No Product found. </template>
-					<Column field="icon">
-						<template #body="slotProps">
-							<FontAwesomeIcon
-								fixed-width
-								:icon="slotProps.data.icon"
-								class="mr-4 text-gray-500"
-								aria-hidden="true" />
-						</template>
-					</Column>
+		
+				<SectionTable :data="props.data.data" />
 
-					<Column field="name">
-						<template #body="slotProps">
-							<span class="text-gray-800 primaryLink">{{ slotProps.data.name }}</span>
-						</template>
-					</Column>
-
-					<Column field="number" style="text-align: right">
-						<template #body="slotProps">
-							<Link
-								:href="slotProps.data.route"
-								class="">
-								{{ locale.number(slotProps.data.number) }}
-							</Link>
-						</template>
-					</Column>
-				</DataTable>
-			</div>
 		</div>
 
 		<!-- Middle Column -->
@@ -174,7 +109,7 @@ const filteredData = computed(() => {
 
 		<!-- Added Beside Right -->
 		<div class="col-span-3 space-y-4">
-			<div class="flex flex-col gap-4 ">
+			<div class="flex flex-col gap-4 p-4">
 				<!-- Card 1: Cart Abandonment Rate -->
 				<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
 					<p class="text-4xl font-bold leading-tight text-gray-700">

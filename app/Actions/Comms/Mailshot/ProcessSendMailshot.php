@@ -5,11 +5,10 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Mail\Mailshot;
+namespace App\Actions\Comms\Mailshot;
 
 use App\Actions\Comms\DispatchedEmail\StoreDispatchedEmail;
 use App\Actions\Comms\Mailshot\Hydrators\MailshotHydrateEmails;
-use App\Actions\Comms\Mailshot\UpdateMailshot;
 use App\Actions\Traits\WithCheckCanContactByEmail;
 use App\Models\Comms\Email;
 use App\Models\Comms\Mailshot;

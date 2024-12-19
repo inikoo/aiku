@@ -57,3 +57,7 @@ Route::get('/appointment', ShowPublicAppointment::class)->name('.appointment');
 Route::prefix("crm")
     ->name("crm.")
     ->group(__DIR__."/crm.php");
+
+Route::prefix("unsubscribe")
+    ->name("unsubscribe.")
+    ->group(__DIR__."/unsubscribe.php");

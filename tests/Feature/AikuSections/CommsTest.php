@@ -11,6 +11,7 @@
 namespace Tests\Feature;
 
 use App\Actions\Catalogue\Shop\StoreShop;
+use App\Actions\Comms\Email\SendResetPasswordEmail;
 use App\Actions\Comms\Mailshot\StoreMailshot;
 use App\Actions\Comms\Mailshot\UpdateMailshot;
 use App\Actions\Comms\Outbox\StoreOutbox;
@@ -170,6 +171,15 @@ test('test post room hydrator', function ($shop) {
 })->depends('outbox seeded when shop created')->todo();
 
 
+test('test send email reset password', function ($shop) {
+    $customer = $this->customer;
+
+    $html = SendResetPasswordEmail::make()->action($customer, []);
+
+    expect($html)->toBeString();
+
+    return $customer;
+})->depends('outbox seeded when shop created')->todo();
 
 test('UI index mail outboxes', function () {
     $response = $this->get(route('grp.org.shops.show.comms.outboxes.index', [$this->organisation->slug, $this->shop->slug]));
