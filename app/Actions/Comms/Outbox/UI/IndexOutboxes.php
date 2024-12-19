@@ -71,7 +71,9 @@ class IndexOutboxes extends OrgAction
         $queryBuilder = QueryBuilder::for(Outbox::class);
 
         if ($this->parent instanceof Group) {
-            $queryBuilder->where('outboxes.group_id', $parent->id);
+            $queryBuilder->where('outboxes.group_id', $parent->id)
+                            ->leftJoin('organisations', 'outboxes.organisation_id', '=', 'organisations.id')
+                            ->leftJoin('shops', 'outboxes.shop_id', '=', 'shops.id');
         } elseif (class_basename($parent) == 'Shop') {
             $queryBuilder->where('outboxes.shop_id', $parent->id);
         } elseif (class_basename($parent) == 'PostRoom') {
@@ -96,6 +98,10 @@ class IndexOutboxes extends OrgAction
                 'outbox_intervals.dispatched_emails_lw',
                 'outbox_intervals.opened_emails_lw',
                 'outbox_intervals.unsubscribed_lw',
+                'shops.name as shop_name',
+                'shops.slug as shop_slug',
+                'organisations.name as organisation_name',
+                'organisations.slug as organisation_slug',
             ])
             ->selectRaw('outbox_intervals.runs_all runs')
 
@@ -116,8 +122,12 @@ class IndexOutboxes extends OrgAction
             }
 
             $table->column(key: 'type', label: '', type: 'icon', canBeHidden: false)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'runs', label: __('Mailshots/Runs'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+            if ($this->parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
+                        ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+            }
+            $table->column(key: 'runs', label: __('Mailshots/Runs'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'dispatched_emails_lw', label: __('Dispatched').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'opened_emails_lw', label: __('Opened').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'unsubscribed_lw', label: __('Unsubscribed').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true);

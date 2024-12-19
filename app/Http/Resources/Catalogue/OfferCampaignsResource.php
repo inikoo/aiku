@@ -32,7 +32,10 @@ class OfferCampaignsResource extends JsonResource
             'state'      => $this->state,
             'state_icon' => $this->state->stateIcon()[$this->state->value],
             'status'     => $this->status,
-            'shop_slug'  => $this->shop_slug
+            'shop_slug'  => $this->shop_slug,
+            'organisation_name' => $this->organisation_name,
+            'organisation_slug' => $this->organizations,
+            'shop_name'         => $this->shop_name,
         ];
     }
 }
