@@ -35,6 +35,9 @@ use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\Ordering\Purge\UI\IndexPurges;
 use App\Actions\Ordering\ShippingZoneSchema\UI\IndexShippingZoneSchemas;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
+use App\Actions\Production\Artefact\UI\IndexArtefacts;
+use App\Actions\Production\ManufactureTask\UI\IndexManufactureTasks;
+use App\Actions\Production\RawMaterial\UI\IndexRawMaterials;
 use App\Actions\SupplyChain\Agent\UI\IndexAgents;
 use App\Actions\SupplyChain\Supplier\UI\IndexSuppliers;
 use App\Actions\SupplyChain\SupplierProduct\UI\IndexSupplierProducts;
@@ -84,11 +87,18 @@ Route::name('crm.')->prefix('crm')->group(function () {
     Route::get('/prospects', [IndexProspects::class, 'inGroup'])->name('prospects.index');
 });
 
-
 Route::name('order.')->prefix('order')->group(function () {
     Route::get('/orders', [IndexOrders::class, 'inGroup'])->name('orders.index');
     Route::get('/purges', [IndexPurges::class, 'inGroup'])->name('purges.index');
     Route::get('/delivery-notes', [IndexDeliveryNotes::class, 'inGroup'])->name('delivery-notes.index');
+});
+
+Route::name('production.')->prefix('production')->group(function () {
+    Route::get('/raw-materials', [IndexRawMaterials::class, 'inGroup'])->name('raw-materials.index');
+    Route::get('/artefacts', [IndexArtefacts::class, 'inGroup'])->name('artefacts.index');
+    Route::get('/manufacture-tasks', [IndexManufactureTasks::class, 'inGroup'])->name('manufacture-tasks.index');
+    // Route::get('/job-orders', [IndexJoborder::class, 'inGroup'])->name('job-orders.index');
+    // Route::get('/artisans', [IndexJoborder::class, 'inGroup'])->name('artisans.index');
 });
 
 Route::name('procurement.')->prefix('procurement')->group(function () {

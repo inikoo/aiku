@@ -172,7 +172,7 @@ watch(
 			<div>Image URL</div>
 			<div>100 x 250</div>
 		</div>
-		<IconField v-if="modelValue?.url">
+		<IconField>
 			<InputIcon>
 				<FontAwesomeIcon :icon="faLink" />
 			</InputIcon>
