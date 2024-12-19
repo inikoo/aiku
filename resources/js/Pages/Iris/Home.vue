@@ -40,7 +40,7 @@ library.add(faCheck, faPlus, faMinus)
     <template v-if="props.blocks?.web_blocks?.length">
       <div v-for="(activityItem, activityItemIdx) in props.blocks.web_blocks" :key="'block' + activityItem.id"
         class="w-full">
-        <component :is="getComponent(activityItem.type)" :key="activityItemIdx"
+        <component :is="getIrisComponent(activityItem.type)" :key="activityItemIdx"
           v-model="activityItem.web_block.layout.data.fieldValue" />
       </div>
     </template>

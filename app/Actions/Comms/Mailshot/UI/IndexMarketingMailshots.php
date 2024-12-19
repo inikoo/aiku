@@ -18,6 +18,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\Comms\Mailshot;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -33,9 +34,9 @@ class IndexMarketingMailshots extends OrgAction
     use HasUIMailshots;
     use HasCatalogueAuthorisation;
 
-    public Outbox|PostRoom|Organisation|Shop $parent;
+    public Group|Outbox|PostRoom|Organisation|Shop $parent;
 
-    public function handle(Outbox|PostRoom|Organisation|Shop $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Outbox|PostRoom|Organisation|Shop $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -49,6 +50,8 @@ class IndexMarketingMailshots extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(Mailshot::class);
+        $queryBuilder->leftJoin('organisations', 'mailshots.organisation_id', '=', 'organisations.id')
+        ->leftJoin('shops', 'mailshots.shop_id', '=', 'shops.id');
         $queryBuilder->leftJoin('outboxes', 'mailshots.outbox_id', 'outboxes.id')
                         ->leftJoin('mailshot_stats', 'mailshot_stats.mailshot_id', 'mailshots.id')
                         ->leftJoin('post_rooms', 'outboxes.post_room_id', 'post_rooms.id')
@@ -76,6 +79,11 @@ class IndexMarketingMailshots extends OrgAction
                 'mailshot_stats.number_dispatched_emails_state_opened as opened',
                 'mailshot_stats.number_dispatched_emails_state_clicked as clicked',
                 'mailshot_stats.number_dispatched_emails_state_spam as spam',
+                'shops.name as shop_name',
+                'shops.slug as shop_slug',
+                'organisations.name as organisation_name',
+                'organisations.slug as organisation_slug',
+
             ])
 
             ->allowedSorts(['state', 'date'])
@@ -99,8 +107,12 @@ class IndexMarketingMailshots extends OrgAction
                 ->withModelOperations($modelOperations)
                 ->column(key: 'subject', label: __('subject'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'sent', label: __('sent'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true);
+            if ($this->parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
+                        ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+            }
+            $table->column(key: 'sent', label: __('sent'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'hard_bounce', label: __('hard bounce'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'soft_bounce', label: __('soft bounce'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'delivered', label: __('delivered'), canBeHidden: false, sortable: true, searchable: true)
@@ -119,6 +131,22 @@ class IndexMarketingMailshots extends OrgAction
     public function htmlResponse(LengthAwarePaginator $mailshots, ActionRequest $request): Response
     {
 
+        $actions = [
+            [
+                'type'    => 'button',
+                'style'   => 'create',
+                'label'   => __('mailshot'),
+                'route'   => [
+                    'name'       => 'grp.org.shops.show.marketing.mailshots.create',
+                    'parameters' => array_values($request->route()->originalParameters())
+                ]
+            ]
+        ];
+
+        if ($this->parent instanceof Group) {
+            $actions = [];
+        }
+
         return Inertia::render(
             'Comms/Mailshots',
             [
@@ -128,23 +156,21 @@ class IndexMarketingMailshots extends OrgAction
                     $this->parent
                 ),
                 'title'       => __('mailshots'),
-                'pageHead'    => [
+                'pageHead'    => array_filter([
                     'title'    => __('mailshots'),
-                    'actions'  => [
-                        [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'label'   => __('mailshot'),
-                            'route'   => [
-                                'name'       => 'grp.org.shops.show.marketing.mailshots.create',
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ]
-                        ]
-                    ],
-                ],
+                    'actions'  => $actions,
+                ]),
                 'data' => MarketingMailshotsResource::collection($mailshots),
             ]
         )->table($this->tableStructure($this->parent));
+    }
+
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup(group(), $request);
+
+        return $this->handle($this->parent);
     }
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator

@@ -18,8 +18,25 @@ const props = defineProps<{
     }
 }>();
 
-console.log(props)
+console.log('sd',route().current())
 const emit = defineEmits(["close", "update"]);
+
+function getRoute() {
+	if (route().current().includes('fulfilments')) {
+		return route('grp.org.fulfilments.show.web.webpages.index', {
+			organisation: route().params['organisation'],
+			fulfilment: route().params['fulfilment'],
+			website: route().params['website'],
+		})
+
+	} else if (route().current().includes('shop')) {
+		return route('grp.org.shops.show.web.webpages.index', {
+			organisation: route().params['organisation'],
+			shop: route().params['shop'],
+			website: route().params['website'],
+		})
+	}
+}
 
 // Reactive form data
 const form = useForm({
@@ -104,11 +121,7 @@ const target = [
                 <SelectQuery 
                     fieldName="id" 
                     :object="true"
-                    :urlRoute="route('grp.org.shops.show.web.webpages.index', {
-                        organisation: route().params['organisation'],
-                        shop: route().params['shop'],
-                        website: route().params['website']
-                    })" 
+                    :urlRoute="getRoute()" 
                     :value="form" 
                     :closeOnSelect="true" 
                     label="href" 
