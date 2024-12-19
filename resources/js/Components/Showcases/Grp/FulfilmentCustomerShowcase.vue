@@ -312,8 +312,8 @@ const isModalAddress = ref(false)
                 
                 <!-- Section: Rental Agreement -->
                 <div class="rounded-lg ring-1 ring-gray-300">
-                    <div class="border-b border-gray-300 py-2 px-2  pl-4 flex items-center justify-between">
-                        <div class="">{{ trans('Rental Agreement') }} <span class="text-gray-400 text-sm">#{{ data.rental_agreement.stats?.data?.reference }}</span></div>
+                    <div class="border-b border-gray-300 py-2 px-2 pl-4 flex items-center justify-between">
+                        <div class="">{{ trans('Rental Agreement') }} <span v-if="data.rental_agreement.stats?.data?.reference" class="text-gray-400 text-sm">#{{ data.rental_agreement.stats?.data?.reference }}</span></div>
                         <Link v-if="data.rental_agreement.stats" :href="route(data.rental_agreement.stats?.data?.route.name, data.rental_agreement.stats?.data?.route.parameters)" @start="() => isLoadingButtonRentalAgreement = true" @cancel="() => isLoadingButtonRentalAgreement = false">
                             <Button type="edit" :loading="isLoadingButtonRentalAgreement"/>
                         </Link>
