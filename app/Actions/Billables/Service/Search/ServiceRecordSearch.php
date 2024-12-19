@@ -38,7 +38,7 @@ class ServiceRecordSearch
                 'haystack_tier_1'   => $service->name,
                 'result'            => [
                     'route'     => [
-                        'name'          => 'grp.org.fulfilments.show.billables.services.show',
+                        'name'          => 'grp.org.fulfilments.show.catalogue.services.show',
                         'parameters'    => [
                             $service->organisation->slug,
                             $service->shop->slug,

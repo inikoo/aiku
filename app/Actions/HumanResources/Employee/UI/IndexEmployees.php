@@ -83,7 +83,7 @@ class IndexEmployees extends OrgAction
         } else {
             $queryBuilder->where('employees.group_id', $parent->id);
         }
-        $queryBuilder->leftjoin('organisations', 'employees.organisation_id', '=', 'organisations.id', 'organisations.name as organisation_name', 'organisations.slug as organisation_slug',);
+        $queryBuilder->leftjoin('organisations', 'employees.organisation_id', '=', 'organisations.id', 'organisations.name as organisation_name', 'organisations.slug as organisation_slug', );
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
@@ -171,8 +171,8 @@ class IndexEmployees extends OrgAction
                 ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'job_title', label: __('job title'), canBeHidden: false);
             if ($parent instanceof Group) {
-                    $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
-                }
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
+            }
             if (class_basename($parent) == 'Organisation') {
                 $table->column(key: 'positions', label: __('responsibilities'), canBeHidden: false);
             }
@@ -205,7 +205,7 @@ class IndexEmployees extends OrgAction
         return Inertia::render(
             'Org/HumanResources/Employees',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName() ,$request->route()->originalParameters()),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
                 'title'       => __('employees'),
                 'pageHead'    => [
                     'icon'    => [
@@ -313,12 +313,12 @@ class IndexEmployees extends OrgAction
         };
 
         return match ($routeName) {
-            'grp.org.hr.employees.index' => 
+            'grp.org.hr.employees.index' =>
             array_merge(
                 ShowHumanResourcesDashboard::make()->getBreadcrumbs($routeParameters),
                 $headCrumb($routeName, $routeParameters)
             ),
-            'grp.overview.human-resources.employees.index' => 
+            'grp.overview.human-resources.employees.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb($routeName, $routeParameters)

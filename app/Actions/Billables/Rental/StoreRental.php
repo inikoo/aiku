@@ -130,7 +130,7 @@ class StoreRental extends OrgAction
 
     public function htmlResponse(Rental $rental)
     {
-        return Redirect::route('grp.org.fulfilments.show.billables.rentals.show', [
+        return Redirect::route('grp.org.fulfilments.show.catalogue.rentals.show', [
             'organisation' => $rental->organisation->slug,
             'fulfilment'   => $rental->fulfilment->slug,
             'rental'       => $rental->slug

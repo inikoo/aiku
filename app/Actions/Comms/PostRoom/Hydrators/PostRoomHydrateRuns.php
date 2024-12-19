@@ -13,9 +13,10 @@ namespace App\Actions\Comms\PostRoom\Hydrators;
 use App\Actions\Traits\WithEnumStats;
 use App\Models\Comms\PostRoom;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class PostRoomHydrateMailshots
+class PostRoomHydrateRuns
 {
     use AsAction;
     use WithEnumStats;
@@ -34,18 +35,14 @@ class PostRoomHydrateMailshots
 
     public function handle(PostRoom $postRoom): void
     {
-
-        $count = $postRoom->outboxes()->with('mailshots')->get()->sum(function ($outbox) {
-            return $outbox->mailshots->count();
-        });
+        $count = DB::table('outbox_intervals')->leftjoin('outboxes', 'outbox_intervals.outbox_id', '=', 'outboxes.id')
+            ->where('post_room_id', $postRoom->id)->sum('runs_all');
 
         $postRoom->intervals()->update(
             [
                 'runs_all' => $count,
             ]
         );
-
-
     }
 
 }

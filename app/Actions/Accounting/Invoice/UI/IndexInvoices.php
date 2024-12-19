@@ -31,7 +31,6 @@ use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
-use Google\Service\CloudSearch\Grid;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
@@ -192,7 +191,7 @@ class IndexInvoices extends OrgAction
             return $permission;
         } elseif ($this->parent instanceof FulfilmentCustomer or $this->parent instanceof Fulfilment) {
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
-        }  elseif ($this->parent instanceof Group) {
+        } elseif ($this->parent instanceof Group) {
             return $request->user()->hasPermissionTo("group-overview");
         }
 

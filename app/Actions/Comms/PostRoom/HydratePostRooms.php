@@ -10,6 +10,7 @@ namespace App\Actions\Comms\PostRoom;
 
 use App\Actions\Comms\PostRoom\Hydrators\PostRoomHydrateOrgPostRooms;
 use App\Actions\Comms\PostRoom\Hydrators\PostRoomHydrateOutboxes;
+use App\Actions\Comms\PostRoom\Hydrators\PostRoomHydrateRuns;
 use App\Actions\HydrateModel;
 use App\Models\Comms\PostRoom;
 use Illuminate\Console\Command;
@@ -23,6 +24,7 @@ class HydratePostRooms extends HydrateModel
     {
         PostRoomHydrateOrgPostRooms::run($postRoom);
         PostRoomHydrateOutboxes::run($postRoom);
+        PostRoomHydrateRuns::run($postRoom);
     }
 
     public function asCommand(Command $command): int

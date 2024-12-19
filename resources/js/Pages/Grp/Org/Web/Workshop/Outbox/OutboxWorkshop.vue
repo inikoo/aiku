@@ -13,10 +13,13 @@ import PureInput from "@/Components/Pure/PureInput.vue";
 import Button from "@/Components/Elements/Buttons/Button.vue";
 import SelectButton from 'primevue/selectbutton';
 import { trans } from "laravel-vue-i18n"
+import Popover from 'primevue/popover';
+import { DatePicker } from 'v-calendar';
+import 'v-calendar/style.css'
 
 import { PageHeading as TSPageHeading } from "@/types/PageHeading";
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faArrowAltToTop, faArrowAltToBottom, faTh, faBrowser, faCube, faPalette, faCheeseburger, faDraftingCompass, faWindow, faPaperPlane, faCheckCircle, faCircle } from '@fal'
+import { faArrowAltToTop, faArrowAltToBottom, faTh, faBrowser, faCube, faPalette, faCheeseburger, faDraftingCompass, faWindow, faPaperPlane, faCheckCircle, faCircle, faClock } from '@fal'
 import { routeType } from '@/types/route'
 import EmptyState from '@/Components/Utils/EmptyState.vue'
 import PureRadio from '@/Components/Pure/PureRadio.vue'
@@ -28,15 +31,15 @@ const props = defineProps<{
     title: string,
     pageHead: TSPageHeading
     builder: String
-    imagesUploadRoute : routeType
-    updateRoute : routeType
-    snapshot : routeType
-    status : string
-    publishRoute : routeType
-    apiKey : {
-        client_id : string,
-        client_secret : string,
-        grant_type : string
+    imagesUploadRoute: routeType
+    updateRoute: routeType
+    snapshot: routeType
+    status: string
+    publishRoute: routeType
+    apiKey: {
+        client_id: string,
+        client_secret: string,
+        grant_type: string
     }
 }>()
 
@@ -51,6 +54,8 @@ const email = ref('')
 const templateName = ref('')
 const temporaryData = ref()
 const active = ref(props.status)
+const _popover = ref()
+const date = ref(new Date())
 const options = ref([
     { name: 'Active', value: "active" },
     { name: 'Suspended', value: "suspended" },
@@ -87,7 +92,7 @@ const onPublish = (popover: {}) => {
 const openSendTest = (data) => {
     visibleEmailTestModal.value = true
     temporaryData.value = {
-        layout : data?.jsonFile,
+        layout: data?.jsonFile,
         compiled_layout: data?.htmlFile
     }
 }
@@ -95,8 +100,8 @@ const openSendTest = (data) => {
 const sendTestToServer = async () => {
     isLoading.value = true;
     try {
-        const response = await axios.post('xxx', 
-            {...temporaryData.value, email : comment.value}
+        const response = await axios.post('xxx',
+            { ...temporaryData.value, email: comment.value }
         );
         console.log("sendTest response:", response.data);
     } catch (error) {
@@ -157,8 +162,38 @@ const updateActiveValue = async (action) => {
             onFinish: () => console.log('finish'),
         }
     )
-} 
+}
 
+const autoSave = async (jsonFile) => {
+    axios
+        .patch(
+            route(props.updateRoute.name, props.updateRoute.parameters),
+            {
+                layout: JSON.parse(jsonFile),
+                /*  compiled_layout: htmlFile */
+            },
+        )
+        .then((response) => {
+            console.log("autosave successful:", response.data);
+            // Handle success (equivalent to onFinish)
+        })
+        .catch((error) => {
+            console.error("autosave failed:", error);
+            notify({
+                title: "Failed to save",
+                type: "error",
+            })
+        })
+        .finally(() => {
+            console.log("autosave finished.");
+        });
+}
+
+const onSchedulePublish = (event) =>{
+    event.stopPropagation()
+    _popover.value.toggle(event);
+
+}
 
 </script>
 
@@ -169,31 +204,46 @@ const updateActiveValue = async (action) => {
     <PageHeading :data="pageHead">
         <template #other>
             <Publish :isLoading="isLoading" :is_dirty="true" v-model="comment"
-                @onPublish="(popover) => onPublish(popover)" />
+                @onPublish="(popover) => onPublish(popover)">
+                <template #button="{ isOpen }">
+                    <Button :icon="faClock" class="rounded-r-none" @click="onSchedulePublish" />
+                    <Popover ref="_popover">
+                        <div>
+                            <div class="text-xl font-semibold border-b pb-2 text-org-500">{{trans("Select date and time")}}</div>
+                            <div class="my-2">
+                                <DatePicker expanded color='purple' transparent borderless v-model="date" mode="dateTime"
+                                    is24hr :min-date="new Date()" />
+                            </div>
+                            <div class="flex justify-between">
+                                <div @click="()=>_popover.hide()" class="p-[4px] cursor-pointer text-gray-400 hover:text-gray-600">Cancel</div>
+                                <Button @click=""  label="Schedule"  />
+                            </div>
+                        </div>
+                    </Popover>
+                    <Button v-if="!isOpen" class="rounded-l-none border-l-0" :label="'Publish'" :type="false
+                        ? 'disabled'
+                        : 'primary'"  :icon="'far fa-rocket-launch'" />
+                    <Button v-else :style="`cancel`" icon="fal fa-times" label="Cancel"  />
+                </template>
+            </Publish>
         </template>
         <template #button-toogle="action">
             <div class=" rounded-md px-2 py-1">
-                <SelectButton 
-                    v-model="active" 
-                    :options="options" 
-                    optionLabel="name" 
-                    optionValue="value"
-                    :unstyled="true"
-                    @update:model-value="(e) => updateActiveValue(action.action.route)" 
-                    >
+                <SelectButton v-model="active" :options="options" optionLabel="name" optionValue="value"
+                    :unstyled="true" @update:model-value="(e) => updateActiveValue(action.action.route)">
                     <template #option="slotProps">
-                        <div class="px-3 py-1 text-center cursor-pointer transition duration-300 font-medium"
-                            :class="[
-                                active == slotProps.option.value ? 
+                        <div class="px-3 py-1 text-center cursor-pointer transition duration-300 font-medium" :class="[
+                            active == slotProps.option.value ?
                                 slotProps.option.value == 'active' ? 'bg-green-500 text-white' : 'bg-red-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200',
-                                slotProps.index == 0 ? 'rounded-l-lg ' : 'rounded-r-lg '
-                            ]">
+                            slotProps.index == 0 ? 'rounded-l-lg ' : 'rounded-r-lg '
+                        ]">
                             <div>
-                                <FontAwesomeIcon :icon="active == slotProps.option.value ? faCheckCircle : faCircle" class="mx-2" />
-                                <span class="mx-1">{{ slotProps.option.name }}</span> 
+                                <FontAwesomeIcon :icon="active == slotProps.option.value ? faCheckCircle : faCircle"
+                                    class="mx-2" />
+                                <span class="mx-1">{{ slotProps.option.name }}</span>
                             </div>
-                           
-                          
+
+
                         </div>
                     </template>
                 </SelectButton>
@@ -203,7 +253,7 @@ const updateActiveValue = async (action) => {
 
     <!-- beefree -->
     <Beetree v-if="builder == 'beefree'" :updateRoute="updateRoute" :imagesUploadRoute="imagesUploadRoute"
-        :snapshot="snapshot" :apiKey="apiKey" @onSave="onSendPublish" @sendTest="openSendTest"
+        :snapshot="snapshot" :apiKey="apiKey" @onSave="onSendPublish" @sendTest="openSendTest" @auto-save="autoSave"
         @saveTemplate="visibleSAveEmailTemplateModal = true" ref="_beefree" />
 
     <!-- unlayer -->
@@ -212,9 +262,9 @@ const updateActiveValue = async (action) => {
 
     <div v-else>
         <EmptyState :data="{
-                title : 'Builder Not Set Up',
-                description : 'you neeed to set up the builder'
-            }" />
+            title: 'Builder Not Set Up',
+            description: 'you neeed to set up the builder'
+        }" />
     </div>
 
     <Dialog v-model:visible="visibleEmailTestModal" modal :closable="false" :showHeader="false"

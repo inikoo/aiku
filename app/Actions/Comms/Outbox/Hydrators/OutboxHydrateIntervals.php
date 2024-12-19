@@ -114,10 +114,14 @@ class OutboxHydrateIntervals
 
         $updateData = [];
         foreach ($results as $rangeKey => $result) {
-            $updateData["dispatched_emails_{$rangeKey}"] = $result['total'];
+            $updateData["dispatched_emails_$rangeKey"] = $result['total'];
             foreach ($result['states'] as $state => $count) {
                 $key = strtolower($state);
-                $updateData["{$key}_emails_{$rangeKey}"] = $count;
+                $suffix = '_emails_';
+                if ($key == 'unsubscribed') {
+                    $suffix = '_';
+                }
+                $updateData["$key$suffix$rangeKey"] = $count;
             }
         }
 

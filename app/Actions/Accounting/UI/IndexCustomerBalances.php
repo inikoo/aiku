@@ -105,11 +105,11 @@ class IndexCustomerBalances extends OrgAction
                 )
                 ->column(key: 'name', label: __('Customer'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'balance', label: __('balance'), canBeHidden: false, sortable: true, searchable: true);
-                if ($parent instanceof Group) {
-                    $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
-                    $table->column(key: 'shop_name', label: __('shop'), canBeHidden: false, searchable: true);
-                }
-                $table->defaultSort('id');
+            if ($parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
+                $table->column(key: 'shop_name', label: __('shop'), canBeHidden: false, searchable: true);
+            }
+            $table->defaultSort('id');
         };
     }
 
@@ -223,7 +223,7 @@ class IndexCustomerBalances extends OrgAction
                 ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', $routeParameters),
                 $headCrumb($routeParameters)
             ),
-            'grp.overview.accounting.customer-balances.index' => 
+            'grp.overview.accounting.customer-balances.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(

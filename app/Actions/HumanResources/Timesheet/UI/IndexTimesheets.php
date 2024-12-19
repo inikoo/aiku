@@ -137,9 +137,9 @@ class IndexTimesheets extends OrgAction
             if ($parent instanceof Group) {
                 $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
             }
-                //   ->column(key: 'number_time_trackers', label: __('time tracker'), canBeHidden: false)
-                //  ->column(key: 'number_open_time_trackers', label: __('open time tracker'), canBeHidden: false)
-                $table->defaultSort('date');
+            //   ->column(key: 'number_time_trackers', label: __('time tracker'), canBeHidden: false)
+            //  ->column(key: 'number_open_time_trackers', label: __('open time tracker'), canBeHidden: false)
+            $table->defaultSort('date');
         };
     }
 

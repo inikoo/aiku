@@ -8,7 +8,7 @@
 
 namespace App\Actions\Catalogue\Product\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentPhysicalGoods;
+use App\Actions\Fulfilment\UI\Catalogue\PhysicalGoods\IndexFulfilmentPhysicalGoods;
 use App\Actions\OrgAction;
 use App\Enums\Billables\Rental\RentalUnitEnum;
 use App\Enums\Catalogue\Product\ProductStateEnum;

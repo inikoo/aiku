@@ -20,21 +20,27 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $updated_at
  * @property mixed $shop_code
  * @property mixed $shop_name
+ * @property mixed $customers_invoiced_all
+ * @property mixed $invoices_all
+ * @property mixed $sales_all
  */
 class ChargesResource extends JsonResource
 {
     public function toArray($request): array
     {
         return [
-            'slug'              => $this->slug,
-            'shop_slug'         => $this->shop_slug,
-            'shop_code'         => $this->shop_code,
-            'shop_name'         => $this->shop_name,
-            'code'              => $this->code,
-            'name'              => $this->name,
-            'description'       => $this->description,
-            'created_at'        => $this->created_at,
-            'updated_at'        => $this->updated_at,
+            'slug'                   => $this->slug,
+            'shop_slug'              => $this->shop_slug,
+            'shop_code'              => $this->shop_code,
+            'shop_name'              => $this->shop_name,
+            'code'                   => $this->code,
+            'name'                   => $this->name,
+            'description'            => $this->description,
+            'created_at'             => $this->created_at,
+            'updated_at'             => $this->updated_at,
+            'customers_invoiced_all' => $this->customers_invoiced_all,
+            'invoices_all'           => $this->invoices_all,
+            'sales_all'              => $this->sales_all,
             'organisation_name' => $this->organisation_name,
             'organisation_slug' => $this->organisation_slug,
         ];

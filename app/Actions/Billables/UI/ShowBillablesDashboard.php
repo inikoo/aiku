@@ -2,28 +2,26 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 06 Mar 2023 18:44:51 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Wed, 18 Dec 2024 22:38:08 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\Dropshipping\Assets;
+namespace App\Actions\Billables\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
-use App\Enums\UI\Dropshipping\AssetsTabsEnum;
+use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
+use App\Enums\Billables\UI\BillablesTabsEnum;
 use App\Models\Catalogue\Shop;
-use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowAssetDashboard extends OrgAction
+class ShowBillablesDashboard extends OrgAction
 {
-    // public function authorize(ActionRequest $request): bool
-    // {
-    //     return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.view");
-    // }
+    use HasCatalogueAuthorisation;
+
 
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): ActionRequest
@@ -37,24 +35,24 @@ class ShowAssetDashboard extends OrgAction
     public function htmlResponse(ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Shop/Dropshipping/AssetsDashboard',
+            'Org/Billables/BillablesDashboard',
             [
                 'breadcrumbs'  => $this->getBreadcrumbs($request->route()->originalParameters()),
-                'title'        => __('assets'),
+                'title'        => __('billables'),
                 'pageHead'     => [
                     'icon'      => [
                         'icon'  => ['fal', 'fa-ballot'],
-                        'title' => __('asset')
+                        'title' => __('billables')
                     ],
                     'iconRight' => [
                         'icon'  => ['fal', 'fa-chart-network'],
-                        'title' => __('asset')
+                        'title' => __('billables')
                     ],
-                    'title' => __('assets dashboard'),
+                    'title' => __('billables dashboard'),
                 ],
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => AssetsTabsEnum::navigation()
+                    'navigation' => BillablesTabsEnum::navigation()
                 ],
 
 
@@ -75,7 +73,7 @@ class ShowAssetDashboard extends OrgAction
                                 'name'       => 'grp.org.shops.show.billables.dashboard',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('Assets')
+                            'label' => __('Billables')
                         ]
                     ]
                 ]

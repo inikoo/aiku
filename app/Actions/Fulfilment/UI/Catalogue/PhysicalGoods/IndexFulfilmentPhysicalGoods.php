@@ -2,12 +2,13 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 23 May 2024 09:45:43 British Summer Time, Sheffield, UK
+ * Created: Wed, 18 Dec 2024 23:46:28 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\Fulfilment\UI;
+namespace App\Actions\Fulfilment\UI\Catalogue\PhysicalGoods;
 
+use App\Actions\Fulfilment\UI\Catalogue\ShowFulfilmentCatalogueDashboard;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
@@ -143,7 +144,6 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                         'icon'  => ['fal', 'fa-cube'],
                         'title' => __('physical goods')
                     ],
-                    'model'         => __('Billables'),
                     'title'         => __('Physical goods'),
                     'actions'       => [
                         [
@@ -152,7 +152,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                             'icon'  => 'fal fa-plus',
                             'label' => __('Create good'),
                             'route' => [
-                                'name'       => 'grp.org.fulfilments.show.billables.outers.create',
+                                'name'       => 'grp.org.fulfilments.show.catalogue.outers.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ],
@@ -247,10 +247,10 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
 
         return
             array_merge(
-                IndexFulfilmentAssets::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-ballot'),
+                ShowFulfilmentCatalogueDashboard::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-ballot'),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.fulfilments.show.billables.outers.index',
+                        'name'       => 'grp.org.fulfilments.show.catalogue.outers.index',
                         'parameters' => $routeParameters
                     ]
                 )

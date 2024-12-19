@@ -110,7 +110,7 @@ class GetShopNavigation
                 ],
             ];
 
-            $navigation["assets"] = [
+            $navigation["billables"] = [
                 "root"  => "grp.org.shops.show.billables.",
                 "icon"  => ["fal", "fa-ballot"],
                 "label" => __("Billables"),

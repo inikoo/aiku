@@ -2,12 +2,13 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 06 Apr 2024 15:15:33 Central Indonesia Time, Sanur , Indonesia
+ * Created: Wed, 18 Dec 2024 23:46:32 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\Fulfilment\UI;
+namespace App\Actions\Fulfilment\UI\Catalogue\Rentals;
 
+use App\Actions\Fulfilment\UI\Catalogue\ShowFulfilmentCatalogueDashboard;
 use App\Actions\OrgAction;
 use App\Enums\Billables\Rental\RentalStateEnum;
 use App\Enums\UI\Fulfilment\RentalsTabsEnum;
@@ -140,7 +141,6 @@ class IndexFulfilmentRentals extends OrgAction
                         'icon'  => ['fal', 'fa-garage'],
                         'title' => __('rentals')
                     ],
-                    'model'         => __('Billables'),
                     'title'         => __('rentals'),
                     'actions'       => [
                         [
@@ -149,7 +149,7 @@ class IndexFulfilmentRentals extends OrgAction
                             'icon'  => 'fal fa-plus',
                             'label' => __('Create rental'),
                             'route' => [
-                                'name'       => 'grp.org.fulfilments.show.billables.rentals.create',
+                                'name'       => 'grp.org.fulfilments.show.catalogue.rentals.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ],
@@ -239,10 +239,10 @@ class IndexFulfilmentRentals extends OrgAction
 
         return
             array_merge(
-                IndexFulfilmentAssets::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-ballot'),
+                ShowFulfilmentCatalogueDashboard::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-ballot'),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.fulfilments.show.billables.rentals.index',
+                        'name'       => 'grp.org.fulfilments.show.catalogue.rentals.index',
                         'parameters' => $routeParameters
                     ]
                 )

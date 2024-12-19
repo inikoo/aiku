@@ -1,59 +1,29 @@
 <?php
 
 /*
- * Author: Ganes <gustiganes@gmail.com>
- * Created on: 20-11-2024, Bali, Indonesia
- * Github: https://github.com/Ganes556
- * Copyright: 2024
- *
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 18 Dec 2024 23:37:56 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Actions\Billables\Service\UI;
+namespace App\Actions\Retina\Catalogue;
 
-use App\Actions\Billables\UI\ShowBillablesDashboard;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
-use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Enums\UI\Fulfilment\ServicesTabsEnum;
 use App\Http\Resources\Catalogue\ServicesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Billables\Service;
 use App\Models\Catalogue\Shop;
-use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexServices extends OrgAction
+class IndexRetinaServices extends OrgAction
 {
-    use HasCatalogueAuthorisation;
-
-    protected function getElementGroups(Shop $parent): array
-    {
-
-        return [
-
-            'state' => [
-                'label'    => __('State'),
-                'elements' => array_merge_recursive(
-                    ServicestateEnum::labels(),
-                    ServicestateEnum::count($parent),
-                    ServicestateEnum::shortLabels(),
-                ),
-
-                'engine' => function ($query, $elements) {
-                    $query->whereIn('state', $elements);
-                }
-
-            ],
-        ];
-    }
-
     public function handle(Shop $shop, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -73,15 +43,6 @@ class IndexServices extends OrgAction
         $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
 
 
-        foreach ($this->getElementGroups($shop) as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
-        }
-
         $queryBuilder
             ->defaultSort('services.id')
             ->select([
@@ -97,6 +58,7 @@ class IndexServices extends OrgAction
                 'services.description',
                 'currencies.code as currency_code',
 
+                'services.auto_assign_status',
             ]);
 
 
@@ -108,18 +70,21 @@ class IndexServices extends OrgAction
 
 
 
-    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisationFromShop($shop, $request)->withTab(ServicesTabsEnum::values());
 
+    public function asController(ActionRequest $request): LengthAwarePaginator
+    {
+        /** @var Shop $shop */
+        $shop = $request->user()->customer->shop;
+
+
+        $this->initialisationFromShop($shop, $request);
         return $this->handle($shop, ServicesTabsEnum::SERVICES->value);
     }
-
 
     public function htmlResponse(LengthAwarePaginator $services, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Billables/Services',
+            'Org/Catalogue/Services',
             [
                 'title'       => __('shop'),
                 'breadcrumbs' => $this->getBreadcrumbs(
@@ -175,13 +140,7 @@ class IndexServices extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-                $table->elementGroup(
-                    key: $key,
-                    label: $elementGroup['label'],
-                    elements: $elementGroup['elements']
-                );
-            }
+
 
             $table
                 ->withGlobalSearch()
@@ -201,44 +160,41 @@ class IndexServices extends OrgAction
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
+                ->column(key: 'workflow', label: __('workflow'), canBeHidden: false)
                 ->defaultSort('code');
         };
     }
 
 
-    public function jsonResponse(LengthAwarePaginator $services): AnonymousResourceCollection
-    {
-        return ServicesResource::collection($services);
-    }
 
-
-    public function getBreadcrumbs(array $routeParameters, $suffix = null): array
-    {
-        $headCrumb = function (array $routeParameters = []) use ($suffix) {
-            return [
-                [
-                    'type'   => 'simple',
-                    'simple' => [
-                        'route' => $routeParameters,
-                        'label' => __('Services'),
-                        'icon'  => 'fal fa-bars'
-                    ],
-                    'suffix' => $suffix
-                ],
-            ];
-        };
-
-        return
-            array_merge(
-                ShowBillablesDashboard::make()->getBreadcrumbs(routeParameters: $routeParameters),
-                $headCrumb(
-                    [
-                        'name'       => 'grp.org.shops.show.billables.services.index',
-                        'parameters' => $routeParameters
-                    ]
-                )
-            );
-    }
+    //todo
+    //    public function getBreadcrumbs(array $routeParameters, $suffix = null): array
+    //    {
+    //        $headCrumb = function (array $routeParameters = []) use ($suffix) {
+    //            return [
+    //                [
+    //                    'type'   => 'simple',
+    //                    'simple' => [
+    //                        'route' => $routeParameters,
+    //                        'label' => __('Services'),
+    //                        'icon'  => 'fal fa-bars'
+    //                    ],
+    //                    'suffix' => $suffix
+    //                ],
+    //            ];
+    //        };
+    //
+    //        return
+    //            array_merge(
+    //                ShowFulfilmentCatalogueDashboard::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-ballot'),
+    //                $headCrumb(
+    //                    [
+    //                        'name'       => 'grp.org.shops.show.billables.services.index',
+    //                        'parameters' => $routeParameters
+    //                    ]
+    //                )
+    //            );
+    //    }
 
 
 }

@@ -111,8 +111,7 @@ class IndexClockingMachines extends OrgAction
                 ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true);
             if ($parent instanceof Organisation) {
                 $table->column(key: 'workplace_name', label: __('workplace'), canBeHidden: false, sortable: true, searchable: true);
-            }
-            elseif ($parent instanceof Group) {
+            } elseif ($parent instanceof Group) {
                 $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
             }
 
@@ -259,7 +258,7 @@ class IndexClockingMachines extends OrgAction
                 ShowOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb([
                     'name'       => $routeName,
-                    'parameters' =>$routeParameters
+                    'parameters' => $routeParameters
                 ])
             ),
             default => []

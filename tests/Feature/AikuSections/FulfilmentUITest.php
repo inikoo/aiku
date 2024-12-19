@@ -313,7 +313,7 @@ test('UI show fulfilment shop customers list', function () {
 // Indexes
 
 test('UI Index fulfilment assets', function () {
-    $response = $this->get(route('grp.org.fulfilments.show.billables.index', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response = $this->get(route('grp.org.fulfilments.show.catalogue.index', [$this->organisation->slug, $this->fulfilment->slug]));
 
     expect(FulfilmentAssetsTabsEnum::DASHBOARD->value)->toBe('dashboard');
 
@@ -327,7 +327,7 @@ test('UI Index fulfilment assets', function () {
 });
 
 test('UI Index fulfilment physical goods', function () {
-    $response = $this->get(route('grp.org.fulfilments.show.billables.outers.index', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response = $this->get(route('grp.org.fulfilments.show.catalogue.outers.index', [$this->organisation->slug, $this->fulfilment->slug]));
 
     expect(PhysicalGoodsTabsEnum::PHYSICAL_GOODS->value)->toBe('physical_goods');
 
@@ -341,7 +341,7 @@ test('UI Index fulfilment physical goods', function () {
 });
 
 test('UI Index fulfilment rentals', function () {
-    $response = $this->get(route('grp.org.fulfilments.show.billables.rentals.index', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response = $this->get(route('grp.org.fulfilments.show.catalogue.rentals.index', [$this->organisation->slug, $this->fulfilment->slug]));
 
     expect(RentalsTabsEnum::RENTALS->value)->toBe('rentals');
 
@@ -355,7 +355,7 @@ test('UI Index fulfilment rentals', function () {
 });
 
 test('UI Index fulfilment services', function () {
-    $response = $this->get(route('grp.org.fulfilments.show.billables.services.index', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response = $this->get(route('grp.org.fulfilments.show.catalogue.services.index', [$this->organisation->slug, $this->fulfilment->slug]));
 
     expect(ServicesTabsEnum::SERVICES->value)->toBe('services');
 
@@ -750,7 +750,7 @@ test('UI show pallet return (services tab)', function () {
 
 test('UI show rental', function () {
 
-    $response = get(route('grp.org.fulfilments.show.billables.rentals.show', [$this->organisation->slug, $this->fulfilment->slug, $this->rental->slug]));
+    $response = get(route('grp.org.fulfilments.show.catalogue.rentals.show', [$this->organisation->slug, $this->fulfilment->slug, $this->rental->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Fulfilment/Rental')
@@ -768,7 +768,7 @@ test('UI show rental', function () {
 });
 
 test('UI edit rental', function () {
-    $response = get(route('grp.org.fulfilments.show.billables.rentals.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->rental->slug]));
+    $response = get(route('grp.org.fulfilments.show.catalogue.rentals.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->rental->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('EditModel')
@@ -790,7 +790,7 @@ test('UI edit rental', function () {
 });
 
 test('UI create rental', function () {
-    $response = get(route('grp.org.fulfilments.show.billables.rentals.create', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response = get(route('grp.org.fulfilments.show.catalogue.rentals.create', [$this->organisation->slug, $this->fulfilment->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('CreateModel')
@@ -832,7 +832,7 @@ test('UI edit rental agreement', function () {
 
 test('UI show service', function () {
 
-    $response = get(route('grp.org.fulfilments.show.billables.services.show', [$this->organisation->slug, $this->fulfilment->slug, $this->service->slug]));
+    $response = get(route('grp.org.fulfilments.show.catalogue.services.show', [$this->organisation->slug, $this->fulfilment->slug, $this->service->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Fulfilment/Service')
@@ -850,7 +850,7 @@ test('UI show service', function () {
 });
 
 test('UI edit service', function () {
-    $response = get(route('grp.org.fulfilments.show.billables.services.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->service->slug]));
+    $response = get(route('grp.org.fulfilments.show.catalogue.services.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->service->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('EditModel')
@@ -868,7 +868,7 @@ test('UI edit service', function () {
 });
 
 test('UI create service', function () {
-    $response = get(route('grp.org.fulfilments.show.billables.services.create', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response = get(route('grp.org.fulfilments.show.catalogue.services.create', [$this->organisation->slug, $this->fulfilment->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('CreateModel')
@@ -879,7 +879,7 @@ test('UI create service', function () {
 // Physical Goods
 
 test('UI show physical goods', function () {
-    $response = get(route('grp.org.fulfilments.show.billables.outers.show', [$this->organisation->slug, $this->fulfilment->slug, $this->product->slug]));
+    $response = get(route('grp.org.fulfilments.show.catalogue.outers.show', [$this->organisation->slug, $this->fulfilment->slug, $this->product->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Fulfilment/PhysicalGood')
@@ -897,7 +897,7 @@ test('UI show physical goods', function () {
 });
 
 test('UI edit physical goods', function () {
-    $response = get(route('grp.org.fulfilments.show.billables.outers.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->product->slug]));
+    $response = get(route('grp.org.fulfilments.show.catalogue.outers.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->product->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('EditModel')
@@ -915,7 +915,7 @@ test('UI edit physical goods', function () {
 });
 
 test('UI create physical goods', function () {
-    $response = get(route('grp.org.fulfilments.show.billables.outers.create', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response = get(route('grp.org.fulfilments.show.catalogue.outers.create', [$this->organisation->slug, $this->fulfilment->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('CreateModel')
@@ -1048,7 +1048,7 @@ test('UI get section route fulfilment dashboard', function () {
 });
 
 test('UI get section route fulfilment billables index', function () {
-    $sectionScope = GetSectionRoute::make()->handle('grp.org.fulfilments.show.billables.index', [
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.fulfilments.show.catalogue.index', [
         'organisation' => $this->organisation->slug,
         'fulfilment' => $this->fulfilment->slug
     ]);

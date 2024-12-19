@@ -27,7 +27,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $supplier_product_id
  * @property int|null $historic_supplier_product_id
  * @property int|null $org_supplier_product_id
- * @property int $stock_id
+ * @property int|null $stock_id
  * @property int $org_stock_id
  * @property StockDeliveryItemStateEnum $state
  * @property array $data

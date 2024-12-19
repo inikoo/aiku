@@ -20,22 +20,22 @@ class FetchAuroraCharge extends FetchAurora
         $shop = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Charge Store Key'});
 
         $trigger = match ($this->auroraModelData->{'Charge Trigger'}) {
-            'Product'              => ChargeTriggerEnum::PRODUCT,
-            'Order'                => ChargeTriggerEnum::ORDER,
+            'Product' => ChargeTriggerEnum::PRODUCT,
+            'Order' => ChargeTriggerEnum::ORDER,
             'Selected by Customer' => ChargeTriggerEnum::SELECTED_BY_CUSTOMER,
-            'Payment Type'         => ChargeTriggerEnum::PAYMENT_ACCOUNT,
-            default                => null
+            'Payment Type' => ChargeTriggerEnum::PAYMENT_ACCOUNT,
+            default => null
         };
 
         $type = match ($this->auroraModelData->{'Charge Scope'}) {
-            'Hanging'   => ChargeTypeEnum::HANGING,
-            'Premium'   => ChargeTypeEnum::PREMIUM,
-            'Tracking'  => ChargeTypeEnum::TRACKING,
-            'Pastpay'   => ChargeTypeEnum::PAYMENT,
+            'Hanging' => ChargeTypeEnum::HANGING,
+            'Premium' => ChargeTypeEnum::PREMIUM,
+            'Tracking' => ChargeTypeEnum::TRACKING,
+            'Pastpay' => ChargeTypeEnum::PAYMENT,
             'Insurance' => ChargeTypeEnum::INSURANCE,
-            'CoD'       => ChargeTypeEnum::COD,
-            'Packing'   => ChargeTypeEnum::PACKING,
-            default     => null
+            'CoD' => ChargeTypeEnum::COD,
+            'Packing' => ChargeTypeEnum::PACKING,
+            default => null
         };
 
         $settings = [
@@ -53,11 +53,22 @@ class FetchAuroraCharge extends FetchAurora
             $description = $this->clearTextWithHtml($this->auroraModelData->{'Charge Description'});
         }
 
+        $name = $this->auroraModelData->{'Charge Name'};
+        $code = $this->auroraModelData->{'Charge Scope'}.'-'.$shop->code;
+        if ($this->auroraModelData->{'Charge Name'} == '30PastPay') {
+            $code = $this->auroraModelData->{'Charge Scope'}.'-30-'.$shop->code;
+            $name = 'Pastpay charge (30 days)';
+        } elseif ($this->auroraModelData->{'Charge Name'} == '60PastPay') {
+            $code = $this->auroraModelData->{'Charge Scope'}.'-60-'.$shop->code;
+            $name = 'Pastpay charge (60 days)';
+        }
+
+
         $state                      = $this->auroraModelData->{'Charge Active'} === 'Yes' ? ChargeStateEnum::ACTIVE : ChargeStateEnum::DISCONTINUED;
         $this->parsedData['shop']   = $shop;
         $this->parsedData['charge'] = [
-            'code'            => $this->auroraModelData->{'Charge Scope'}.'-'.$shop->code,
-            'name'            => $this->auroraModelData->{'Charge Name'},
+            'code'            => $code,
+            'name'            => $name,
             'description'     => $description,
             'type'            => $type,
             'trigger'         => $trigger,

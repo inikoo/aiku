@@ -2,12 +2,13 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 06 Apr 2024 15:15:33 Central Indonesia Time, Sanur , Indonesia
+ * Created: Wed, 18 Dec 2024 23:37:56 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\Fulfilment\UI;
+namespace App\Actions\Fulfilment\UI\Catalogue;
 
+use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
@@ -15,9 +16,9 @@ use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\UI\Fulfilment\FulfilmentAssetsTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentProductsResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -27,7 +28,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexFulfilmentAssets extends OrgAction
+class ShowFulfilmentCatalogueDashboard extends OrgAction
 {
     protected function getElementGroups(Fulfilment $parent): array
     {
@@ -133,9 +134,9 @@ class IndexFulfilmentAssets extends OrgAction
                 'pageHead'    => [
                     'icon'      => [
                         'icon'  => ['fal', 'fa-ballot'],
-                        'title' => __('Billables')
+                        'title' => __('Catalogue')
                     ],
-                    'title' => __('Billables'),
+                    'title' => __('Catalogue'),
                 ],
 
                 'tabs' => [
@@ -216,7 +217,7 @@ class IndexFulfilmentAssets extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('Billables'),
+                        'label' => __('Catalogue'),
                         'icon'  => $icon
                     ],
                     'suffix' => $suffix
@@ -229,7 +230,7 @@ class IndexFulfilmentAssets extends OrgAction
                 ShowFulfilment::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.fulfilments.show.billables.index',
+                        'name'       => 'grp.org.fulfilments.show.catalogue.index',
                         'parameters' => $routeParameters
                     ]
                 )

@@ -76,7 +76,7 @@ const isDateSameDay = (date1: Date, date2: Date) => {
     </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .vc-container {
     position: relative;
     display: inline-flex;

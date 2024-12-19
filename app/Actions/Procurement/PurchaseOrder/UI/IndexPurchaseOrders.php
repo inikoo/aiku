@@ -66,7 +66,7 @@ class IndexPurchaseOrders extends OrgAction
         } elseif (class_basename($parent) == 'Group') {
             $query->where('purchase_orders.group_id', $parent->id);
             $query->with('parent');
-        }  else {
+        } else {
             $query->where('purchase_orders.organisation_id', $parent->id);
             $query->with('parent');
         }
@@ -92,13 +92,13 @@ class IndexPurchaseOrders extends OrgAction
                 ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'parent_name', label: __('supplier/agents'), canBeHidden: false, sortable: true, searchable: true);
-                if ($parent instanceof Group) {
-                    $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
-                }
-                $table->column(key: 'date', label: __('date Created'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_of_items', label: __('items'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'amount', label: __('amount'), canBeHidden: false, sortable: true, searchable: true, type: 'currency')
-                ->defaultSort('reference');
+            if ($parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
+            }
+            $table->column(key: 'date', label: __('date Created'), canBeHidden: false, sortable: true, searchable: true)
+            ->column(key: 'number_of_items', label: __('items'), canBeHidden: false, sortable: true, searchable: true)
+            ->column(key: 'amount', label: __('amount'), canBeHidden: false, sortable: true, searchable: true, type: 'currency')
+            ->defaultSort('reference');
         };
     }
 
@@ -357,7 +357,7 @@ class IndexPurchaseOrders extends OrgAction
                     ]
                 ]
             ),
-            'grp.overview.procurement.purchase-orders.index' => 
+            'grp.overview.procurement.purchase-orders.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(),
                 [

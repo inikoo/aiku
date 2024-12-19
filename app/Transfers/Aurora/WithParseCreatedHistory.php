@@ -124,7 +124,7 @@ trait WithParseCreatedHistory
         $newValues = [];
         $abstract  = trim($this->auroraModelData->{'History Abstract'});
 
-        if ($abstract == 'Product Created' || $abstract == 'product created') {
+        if ($abstract == 'Product Created' || $abstract == 'product created' || $abstract == 'Produkt bol vytvorený') {
             $abstract = trim($this->auroraModelData->{'History Details'});
         }
 
@@ -192,7 +192,6 @@ trait WithParseCreatedHistory
 
     protected function parseProspectHistoryCreatedNewValues(): array
     {
-
         $newValues = [];
         $abstract  = $this->auroraModelData->{'History Abstract'};
 

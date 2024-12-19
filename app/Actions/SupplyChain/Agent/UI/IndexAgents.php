@@ -216,7 +216,7 @@ class IndexAgents extends GrpAction
             ];
         };
         return match ($routeName) {
-            'grp.supply-chain.agents.index' => 
+            'grp.supply-chain.agents.index' =>
             array_merge(
                 ShowSupplyChainDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
@@ -226,7 +226,7 @@ class IndexAgents extends GrpAction
                     ]
                 )
             ),
-            'grp.overview.procurement.agents.index' => 
+            'grp.overview.procurement.agents.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(

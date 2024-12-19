@@ -89,7 +89,7 @@ enum AikuSectionEnum: string
 
             'shop-dashboard' => __('Shop Dashboard'),
             'shop-catalogue' => __('Shop Catalogue'),
-            'shop-billables' => __('Shop Billables'),
+            'shop-billables' => __('Shop Catalogue'),
             'shop-offer'     => __('Shop Offer'),
             'shop-marketing' => __('Shop Marketing'),
             'shop-website'   => __('Shop Website'),
@@ -100,7 +100,7 @@ enum AikuSectionEnum: string
             'dropshipping'   => __('Dropshipping'),
 
             'fulfilment-dashboard' => __('Fulfilment Dashboard'),
-            'fulfilment-billables' => __('Fulfilment Billables'),
+            'fulfilment-billables' => __('Fulfilment Catalogue'),
             'fulfilment-operation' => __('Fulfilment Operation'),
             'fulfilment-website'   => __('Fulfilment Website'),
             'fulfilment-crm'       => __('Fulfilment CRM'),

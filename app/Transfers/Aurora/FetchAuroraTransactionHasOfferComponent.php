@@ -15,11 +15,14 @@ class FetchAuroraTransactionHasOfferComponent extends FetchAurora
 {
     protected function parseTransactionHasOfferComponent(Order $order): void
     {
+
+        if ($this->auroraModelData->{'Amount Discount'} < 0) {
+            return;
+        }
+
         $transaction = $this->parseTransaction($this->organisation->id.':'.$this->auroraModelData->{'Order Transaction Fact Key'});
 
         if (!$transaction) {
-            //print "Transaction not found\n";
-            //dd($this->auroraModelData);
             return;
         }
 
@@ -52,11 +55,6 @@ class FetchAuroraTransactionHasOfferComponent extends FetchAurora
         if ($fractionDiscount <= 0) {
             unset($fractionDiscount);
         }
-
-        if ($this->auroraModelData->{'Amount Discount'} < 0) {
-            return;
-        }
-
 
         $this->parsedData['transaction_has_offer_component'] = [
             'source_id'          => $this->organisation->id.':'.$this->auroraModelData->{'Order Transaction Deal Key'},

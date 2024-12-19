@@ -145,7 +145,7 @@ class IndexDeliveryNotes extends OrgAction
                 $stats = $parent->stats;
                 $noResults = __("This customer client hasn't place any delivery notes");
             } elseif ($parent instanceof Group) {
-                $stats = $parent->orderingStats;    
+                $stats = $parent->orderingStats;
             } else {
                 $stats = $parent->salesStats;
             }
@@ -370,7 +370,7 @@ class IndexDeliveryNotes extends OrgAction
                     ]
                 )
             ),
-            'grp.overview.procurement.delivery-notes.index' => 
+            'grp.overview.procurement.delivery-notes.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(

@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 18 Dec 2024 19:42:42 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
+
 use Illuminate\Support\Str;
 
 return [
@@ -99,12 +105,12 @@ return [
     */
 
     'trim' => [
-        'recent'        => (int) env('HORIZON_RECENT_TRIM', 1),
-        'pending'       => (int) env('HORIZON_RECENT_TRIM', 1),
-        'completed'     => (int) env('HORIZON_RECENT_TRIM', 1),
-        'recent_failed' => (int) env('HORIZON_FAILED_TRIM', 480),
-        'failed'        => (int) env('HORIZON_FAILED_TRIM', 480),
-        'monitored'     => (int) env('HORIZON_FAILED_TRIM', 480),
+        'recent'        => (int)env('HORIZON_RECENT_TRIM', 1),
+        'pending'       => (int)env('HORIZON_RECENT_TRIM', 1),
+        'completed'     => (int)env('HORIZON_RECENT_TRIM', 1),
+        'recent_failed' => (int)env('HORIZON_FAILED_TRIM', 480),
+        'failed'        => (int)env('HORIZON_FAILED_TRIM', 480),
+        'monitored'     => (int)env('HORIZON_FAILED_TRIM', 480),
     ],
 
     /*
@@ -166,7 +172,7 @@ return [
 
     'defaults' => [
 
-        'hydrators' => [
+        'hydrators'        => [
             'connection'   => 'redis',
             'queue'        => ['default'],
             'balance'      => 'auto',
@@ -178,7 +184,7 @@ return [
             'timeout'      => 150,
             'nice'         => 0,
         ],
-        'urgent' => [
+        'urgent'           => [
             'connection'   => 'redis',
             'queue'        => ['default'],
             'balance'      => 'auto',
@@ -202,7 +208,7 @@ return [
             'timeout'      => 150,
             'nice'         => 0,
         ],
-        'long-running' => [
+        'long-running'     => [
             'connection'          => 'redis-long-running',
             'queue'               => ['default-long'],
             'balance'             => 'auto',
@@ -215,8 +221,7 @@ return [
             'timeout'             => 3600,
             'nice'                => 0,
         ],
-
-        'ses' => [
+        'ses'              => [
             'connection'          => 'redis-ses',
             'queue'               => ['ses'],
             'balance'             => 'auto',
@@ -229,7 +234,7 @@ return [
             'timeout'             => 7200,
             'nice'                => 0,
         ],
-        'sales' => [
+        'sales'            => [
             'connection'          => 'redis',
             'queue'               => ['sales'],
             'balance'             => 'auto',
@@ -242,7 +247,7 @@ return [
             'timeout'             => 7200,
             'nice'                => 0,
         ],
-        'low-priority' => [
+        'low-priority'     => [
             'connection'          => 'redis',
             'queue'               => ['low-priority'],
             'balance'             => 'auto',
@@ -259,111 +264,111 @@ return [
 
     'environments' => [
         'production' => [
-            'hydrators' => [
-                'maxProcesses'    => 32,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 3,
-            ],
-            'urgent' => [
-                'maxProcesses'    => 32,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 3,
-            ],
-            'long-running' => [
-                'maxProcesses'    => 10,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 3,
-            ],
-            'ses' => [
-                'maxProcesses'    => 4,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 3,
-            ],
-            'sales' => [
-                'maxProcesses'    => 10,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 3,
-            ],
-            'universal-search' => [
+            'hydrators'        => [
                 'maxProcesses'    => 16,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
-            'low-priority' => [
+            'urgent'           => [
+                'maxProcesses'    => 32,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'universal-search' => [
+                'maxProcesses'    => env('HORIZON_SEARCH_WORKERS', 3),
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'long-running'     => [
+                'maxProcesses'    => 12,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'ses'              => [
+                'maxProcesses'    => 4,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'sales'            => [
+                'maxProcesses'    => 4,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'low-priority'     => [
                 'maxProcesses'    => 2,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
         ],
-        'staging' => [
-            'hydrators' => [
+        'staging'    => [
+            'hydrators'        => [
                 'maxProcesses'    => 16,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
-            'urgent' => [
+            'urgent'           => [
                 'maxProcesses'    => 16,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
-            'long-running' => [
+            'long-running'     => [
                 'maxProcesses'    => 10,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
-            'ses' => [
+            'ses'              => [
                 'maxProcesses'    => 4,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
-            'sales' => [
+            'sales'            => [
                 'maxProcesses'    => 10,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
             'universal-search' => [
-                'maxProcesses'    => 10,
+                'maxProcesses'    => env('HORIZON_SEARCH_WORKERS', 3),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 10,
             ],
-            'low-priority' => [
+            'low-priority'     => [
                 'maxProcesses'    => 2,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
         ],
-        'local' => [
-            'hydrators' => [
+        'local'      => [
+            'hydrators'        => [
                 'maxProcesses'    => 10,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
-            'urgent' => [
+            'urgent'           => [
                 'maxProcesses'    => 20,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
-            'long-running' => [
+            'long-running'     => [
                 'maxProcesses'    => 10,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
-            'ses' => [
+            'ses'              => [
                 'maxProcesses'    => 4,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
-            'sales' => [
+            'sales'            => [
                 'maxProcesses'    => 3,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
             'universal-search' => [
-                'maxProcesses'    => 10,
+                'maxProcesses'    => env('HORIZON_SEARCH_WORKERS', 10),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
-            'low-priority' => [
+            'low-priority'     => [
                 'maxProcesses'    => 2,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,

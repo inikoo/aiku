@@ -2,15 +2,15 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 26 Nov 2024 20:58:56 Central Indonesia Time, Kuala Lumpur, Malaysia
+ * Created: Wed, 18 Dec 2024 23:47:01 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Billables\Rental\UI;
+namespace App\Actions\Fulfilment\UI\Catalogue\Rentals;
 
 use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
-use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentAssets;
+use App\Actions\Fulfilment\UI\Catalogue\ShowFulfilmentCatalogueDashboard;
 use App\Actions\OrgAction;
 use App\Enums\UI\Fulfilment\FulfilmentRentalTabsEnum;
 use App\Http\Resources\Fulfilment\RentalsResource;
@@ -202,18 +202,18 @@ class ShowRental extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.fulfilments.show.billables.rentals.show' =>
+            'grp.org.fulfilments.show.catalogue.rentals.show' =>
             array_merge(
-                (new IndexFulfilmentAssets())->getBreadcrumbs($routeParameters),
+                (new ShowFulfilmentCatalogueDashboard())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $rental,
                     [
                         'index' => [
-                            'name'       => 'grp.org.fulfilments.show.billables.rentals.index',
+                            'name'       => 'grp.org.fulfilments.show.catalogue.rentals.index',
                             'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'grp.org.fulfilments.show.billables.rentals.show',
+                            'name'       => 'grp.org.fulfilments.show.catalogue.rentals.show',
                             'parameters' => $routeParameters
                         ]
                     ],
@@ -244,7 +244,7 @@ class ShowRental extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.fulfilments.show.billables.rentals.show' => [
+            'grp.org.fulfilments.show.catalogue.rentals.show' => [
                 'label' => $rental->name,
                 'route' => [
                     'name'       => $routeName,

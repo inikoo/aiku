@@ -2,14 +2,14 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 23 May 2024 09:45:43 British Summer Time, Sheffield, UK
+ * Created: Wed, 18 Dec 2024 23:46:35 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\Fulfilment\UI;
+namespace App\Actions\Fulfilment\UI\Catalogue\Services;
 
+use App\Actions\Fulfilment\UI\Catalogue\ShowFulfilmentCatalogueDashboard;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Enums\UI\Fulfilment\ServicesTabsEnum;
 use App\Http\Resources\Fulfilment\ServicesResource;
@@ -17,8 +17,6 @@ use App\InertiaTable\InertiaTable;
 use App\Models\Billables\Service;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -52,7 +50,7 @@ class IndexFulfilmentServices extends OrgAction
         ];
     }
 
-    public function handle(Group|Fulfilment $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Fulfilment $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -65,27 +63,19 @@ class IndexFulfilmentServices extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(Service::class)
-                    ->leftJoin('organisations', 'services.organisation_id', '=', 'organisations.id')
-                    ->leftJoin('shops', 'services.shop_id', '=', 'shops.id');
-        if ($parent instanceof Group) {
-            $queryBuilder->where('services.group_id', $parent->id);
-        } else {
-            $queryBuilder->where('services.shop_id', $parent->shop_id);
-        }
+        $queryBuilder = QueryBuilder::for(Service::class);
+        $queryBuilder->where('services.shop_id', $parent->shop_id);
         $queryBuilder->join('assets', 'services.asset_id', '=', 'assets.id');
         $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
 
 
-        if ($parent instanceof Fulfilment) {
-            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-                $queryBuilder->whereElementGroup(
-                    key: $key,
-                    allowedElements: array_keys($elementGroup['elements']),
-                    engine: $elementGroup['engine'],
-                    prefix: $prefix
-                );
-            }
+        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine'],
+                prefix: $prefix
+            );
         }
 
         $queryBuilder
@@ -107,10 +97,6 @@ class IndexFulfilmentServices extends OrgAction
                 'services.auto_assign_subject',
                 'services.auto_assign_subject_type',
                 'services.auto_assign_status',
-                'shops.name as shop_name',
-                'shops.slug as shop_slug',
-                'organisations.name as organisation_name',
-                'organisations.slug as organisation_slug',
             ]);
 
 
@@ -123,9 +109,6 @@ class IndexFulfilmentServices extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
-        }
         if ($request->user() instanceof WebUser) {
             return true;
         }
@@ -143,59 +126,36 @@ class IndexFulfilmentServices extends OrgAction
         return $this->handle($fulfilment, ServicesTabsEnum::SERVICES->value);
     }
 
-    public function inGroup(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = group();
-        $this->initialisationFromGroup(group(), $request)->withTab(ServicesTabsEnum::values());
 
-        return $this->handle($this->parent, prefix: ServicesTabsEnum::SERVICES->value);
-    }
-
-    public function fromRetina(ActionRequest $request): LengthAwarePaginator
-    {
-        /** @var FulfilmentCustomer $fulfilmentCustomer */
-        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
-        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
-
-        $this->initialisation($request->get('website')->organisation, $request);
-        return $this->handle($this->fulfilment, ServicesTabsEnum::SERVICES->value);
-    }
 
     public function htmlResponse(LengthAwarePaginator $services, ActionRequest $request): Response
     {
-        $actions = [
-            [
-                'type'  => 'button',
-                'style' => 'primary',
-                'icon'  => 'fal fa-plus',
-                'label' => __('Create service'),
-                'route' => [
-                    'name'       => 'grp.org.fulfilments.show.billables.services.create',
-                    'parameters' => array_values($request->route()->originalParameters())
-                ]
-            ],
-        ];
-
-        if ($this->parent instanceof Group) {
-            $actions = [];
-        }
         return Inertia::render(
             'Org/Fulfilment/Services',
             [
                 'title'       => __('fulfilment'),
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'pageHead'    => array_filter([
+                'pageHead'    => [
                     'icon'    => [
                         'icon'  => ['fal', 'fa-concierge-bell'],
                         'title' => __('services')
                     ],
-                    'model'         => __('Billables'),
                     'title'         => __('services'),
-                    'actions'       => $actions
-                ]),
+                    'actions'       => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'primary',
+                            'icon'  => 'fal fa-plus',
+                            'label' => __('Create service'),
+                            'route' => [
+                                'name'       => 'grp.org.fulfilments.show.catalogue.services.create',
+                                'parameters' => array_values($request->route()->originalParameters())
+                            ]
+                        ],
+                    ]
+                ],
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => ServicesTabsEnum::navigation()
@@ -208,14 +168,14 @@ class IndexFulfilmentServices extends OrgAction
             ]
         )->table(
             $this->tableStructure(
-                parent: $this->fulfilment ?? $this->parent,
+                parent: $this->fulfilment,
                 prefix: ServicesTabsEnum::SERVICES->value
             )
         );
     }
 
     public function tableStructure(
-        Group|Fulfilment $parent,
+        Fulfilment $parent,
         ?array $modelOperations = null,
         $prefix = null,
         $canEdit = false
@@ -227,16 +187,13 @@ class IndexFulfilmentServices extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            if ($parent instanceof Fulfilment) {
-                foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-                    $table->elementGroup(
-                        key: $key,
-                        label: $elementGroup['label'],
-                        elements: $elementGroup['elements']
-                    );
-                }
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
             }
-
 
             $table
                 ->withGlobalSearch()
@@ -254,12 +211,8 @@ class IndexFulfilmentServices extends OrgAction
             $table
                 ->column(key: 'state', label: '', canBeHidden: false, type: 'icon')
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
-            if ($this->parent instanceof Group) {
-                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
-                        ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
-            }
-            $table->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
                 ->column(key: 'workflow', label: __('workflow'), canBeHidden: false)
                 ->defaultSort('code');
         };
@@ -272,7 +225,7 @@ class IndexFulfilmentServices extends OrgAction
     }
 
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
+    public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
         $headCrumb = function (array $routeParameters = []) use ($suffix) {
             return [
@@ -288,30 +241,16 @@ class IndexFulfilmentServices extends OrgAction
             ];
         };
 
-        return match ($routeName) {
-            'grp.overview.billables.services.index' =>
+        return
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs($routeParameters),
+                ShowFulfilmentCatalogueDashboard::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-ballot'),
                 $headCrumb(
                     [
-                        'name'       => $routeName,
+                        'name'       => 'grp.org.fulfilments.show.catalogue.services.index',
                         'parameters' => $routeParameters
-                    ],
-                    $suffix
+                    ]
                 )
-            ),
-
-            default =>  array_merge(
-                IndexFulfilmentAssets::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-ballot'),
-                $headCrumb(
-                    [
-                        'name'       => 'grp.org.fulfilments.show.billables.services.index',
-                        'parameters' => $routeParameters
-                    ],
-                    $suffix
-                )
-            ),
-        };
+            );
     }
 
 

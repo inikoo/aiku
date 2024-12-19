@@ -30,21 +30,20 @@ const emits = defineEmits<{
     (e: 'onSave', value: string | number): void
     (e: 'sendTest', value: string | number): void
     (e: 'saveTemplate', value: string | number): void
+    (e: 'autoSave', value: string | number): void
 }>()
 
 
-const onSaveEmail = (jsonFile, htmlFile) => {
+/* const onSaveEmail = (jsonFile, htmlFile) => {
     axios
         .patch(
-            route(props.updateRoute.name, props.updateRoute.parameters), // Constructed URL
+            route(props.updateRoute.name, props.updateRoute.parameters),
             {
                 layout: JSON.parse(jsonFile),
-               /*  compiled_layout: htmlFile */
             },
         )
         .then((response) => {
             console.log("autosave successful:", response.data);
-            // Handle success (equivalent to onFinish)
         })
         .catch((error) => {
             console.error("autosave failed:", error);
@@ -56,7 +55,7 @@ const onSaveEmail = (jsonFile, htmlFile) => {
         .finally(() => {
             console.log("autosave finished.");
         });
-}
+} */
 
 const getCatalog = () => {
     console.log(beeInstance.value)
@@ -69,10 +68,13 @@ const beeConfig = () => {
         client_id: props.apiKey.client_id,
         client_secret: props.apiKey.client_secret,
     };
+    var headers = {
+        Authorization: token.value ? `Bearer ${token.value.access_token}` : null,
+        'Content-Type': 'application/json',
+    }
     axios
-        .post(endpoint, payload)
+        .post(endpoint,payload,headers)
         .then((response) => {
-            console.log(response)
             token.value = response.data;
             const config = {
                 uid: token.value.userName,
@@ -106,19 +108,20 @@ const beeConfig = () => {
                     ]
                 },
                 autosave: 20,
-                onSend:(htmlFile,jsonFile)=>{
-                    emits('sendTest', {jsonFile, htmlFile})
+                onSend: (htmlFile, jsonFile) => {
+                    emits('sendTest', { jsonFile, htmlFile })
                 },
                 onSave: function (jsonFile, htmlFile) {
-                    emits('onSave', {jsonFile, htmlFile})
+                    emits('onSave', { jsonFile, htmlFile })
                 },
-                onSaveAsTemplate:(jsonFile, htmlFile)=>{
-                    emits('saveTemplate', {jsonFile, htmlFile})
+                onSaveAsTemplate: (jsonFile, htmlFile) => {
+                    emits('saveTemplate', { jsonFile, htmlFile })
                 },
                 onAutoSave: function (jsonFile) {
-                    onSaveEmail(jsonFile,null)
+                    /* onSaveEmail(jsonFile, null) */
+                    emits('autoSave',jsonFile)
                 }
-            }; 
+            };
             beeInstance.value
                 .getToken(payload.client_id, payload.client_secret)
                 .then(() => {
@@ -132,7 +135,7 @@ const beeConfig = () => {
 }
 
 
-onMounted(() => {
+onMounted(() => { 
     if (!token.value) {
         if (props.apiKey.client_id && props.apiKey.client_secret) {
             showBee.value = true
