@@ -39,6 +39,8 @@ use App\Actions\SupplyChain\Agent\UI\IndexAgents;
 use App\Actions\SupplyChain\Supplier\UI\IndexSuppliers;
 use App\Actions\SupplyChain\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Web\Banner\UI\IndexBanners;
+use App\Actions\Web\Webpage\UI\IndexWebpages;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowOverviewHub::class)->name('hub');
@@ -70,6 +72,11 @@ Route::name('offer.')->prefix('offer')->group(function () {
 Route::name('marketing.')->prefix('marketing')->group(function () {
     Route::get('/newsletters', [IndexNewsletterMailshots::class, 'inGroup'])->name('newsletters.index');
     Route::get('/mailshots', [IndexMarketingMailshots::class, 'inGroup'])->name('mailshots.index');
+});
+
+Route::name('web.')->prefix('web')->group(function () {
+    Route::get('/webpages', [IndexWebpages::class, 'inGroup'])->name('webpages.index');
+    Route::get('/banners', [IndexBanners::class, 'inGroup'])->name('banners.index');
 });
 
 Route::name('crm.')->prefix('crm')->group(function () {

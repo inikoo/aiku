@@ -9,6 +9,7 @@
 namespace App\Actions\Web\Webpage\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Actions\Web\Webpage\WithWebpageSubNavigation;
@@ -19,6 +20,7 @@ use App\Http\Resources\Web\WebpagesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
@@ -36,10 +38,20 @@ class IndexWebpages extends OrgAction
     use HasWebAuthorisation;
     use WithWebpageSubNavigation;
 
-    private Organisation|Website|Fulfilment|Webpage $parent;
+    private Group|Organisation|Website|Fulfilment|Webpage $parent;
 
     private mixed $bucket;
 
+
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'all';
+        $this->parent = group();
+        $this->scope  = $this->parent;
+        $this->initialisationFromGroup(group(), $request);
+
+        return $this->handle($this->parent);
+    }
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
@@ -155,7 +167,7 @@ class IndexWebpages extends OrgAction
     }
 
 
-    public function handle(Organisation|Website|Webpage $parent, $prefix = null, $bucket = null): LengthAwarePaginator
+    public function handle(Group|Organisation|Website|Webpage $parent, $prefix = null, $bucket = null): LengthAwarePaginator
     {
         if ($bucket) {
             $this->bucket = $bucket;
@@ -174,13 +186,15 @@ class IndexWebpages extends OrgAction
 
         $queryBuilder = QueryBuilder::for(Webpage::class);
 
-        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
+        if (!($parent instanceof Group)) {
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $queryBuilder->whereElementGroup(
+                    key: $key,
+                    allowedElements: array_keys($elementGroup['elements']),
+                    engine: $elementGroup['engine'],
+                    prefix: $prefix
+                );
+            }
         }
 
 
@@ -188,6 +202,8 @@ class IndexWebpages extends OrgAction
             $queryBuilder->where('webpages.organisation_id', $parent->id);
         } elseif ($parent instanceof Webpage) {
             $queryBuilder->where('webpages.parent_id', $parent->id);
+        } elseif ($parent instanceof Group) {
+            $queryBuilder->where('webpages.group_id', $parent->id);
         } else {
             $queryBuilder->where('webpages.website_id', $parent->id);
         }
@@ -215,6 +231,8 @@ class IndexWebpages extends OrgAction
             ->select(['webpages.code', 'webpages.id', 'webpages.type', 'webpages.slug', 'webpages.level', 'webpages.sub_type', 'webpages.url',
                 'organisations.slug as organisation_slug',
                 'shops.slug as shop_slug',
+                'shops.name as shop_name',
+                'organisations.name as organisation_name',
                 'websites.domain as website_url',
                 'websites.slug as website_slug'])
             ->allowedSorts(['code', 'type', 'level', 'url'])
@@ -223,7 +241,7 @@ class IndexWebpages extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Organisation|Website|Webpage $parent, ?array $modelOperations = null, $prefix = null, $bucket = null): Closure
+    public function tableStructure(Group|Organisation|Website|Webpage $parent, ?array $modelOperations = null, $prefix = null, $bucket = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
@@ -232,12 +250,14 @@ class IndexWebpages extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-                $table->elementGroup(
-                    key: $key,
-                    label: $elementGroup['label'],
-                    elements: $elementGroup['elements']
-                );
+            if (!($parent instanceof Group)) {
+                foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                    $table->elementGroup(
+                        key: $key,
+                        label: $elementGroup['label'],
+                        elements: $elementGroup['elements']
+                    );
+                }
             }
 
 
@@ -256,14 +276,22 @@ class IndexWebpages extends OrgAction
                             'title' => __("No webpages found"),
                             'count' => $parent->webStats->number_webpages,
                         ],
+                        'Group' => [
+                            'title' => __("No webpages found"),
+                            'count' => $parent->webStats->number_webpages,
+                        ],
                         default => null
                     }
                 )
                 ->column(key: 'level', label: '', icon: 'fal fa-sort-amount-down-alt', tooltip: __('Level'), canBeHidden: false, sortable: true, type: 'icon')
                 ->column(key: 'type', label: '', icon: 'fal fa-shapes', tooltip: __('Type'), canBeHidden: false, type: 'icon')
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'url', label: __('url'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('level');
+                ->column(key: 'url', label: __('url'), canBeHidden: false, sortable: true, searchable: true);
+            if ($this->parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
+                        ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+            }
+            $table->defaultSort('level');
         };
     }
 
@@ -400,6 +428,19 @@ class IndexWebpages extends OrgAction
                         'parameters' => $routeParameters
                     ],
                     trim('('.__('Checkout').') '.$suffix)
+                )
+            ),
+            'grp.overview.web.webpages.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
                 )
             ),
             'grp.org.fulfilments.show.web.webpages.index' =>
