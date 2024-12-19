@@ -6,22 +6,39 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Comms\Traits;
+namespace App\Actions\Comms\Mailshot;
 
-use App\Actions\Comms\SenderEmail\SendAlibabaEmail;
 use App\Actions\Comms\Ses\SendSesEmail;
+use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Actions\Traits\WithActionUpdate;
 use App\Models\Comms\DispatchedEmail;
+use App\Models\Comms\EmailBulkRun;
+use App\Models\Comms\Mailshot;
 use Illuminate\Support\Str;
 
-trait WithSendMailshot
+class GetHtmlLayout extends OrgAction
 {
-    public function sendEmailWithMergeTags(
-        DispatchedEmail $dispatchedEmail,
-        string $sender,
-        string $subject,
-        string $emailHtmlBody,
-        string $unsubscribeUrl,
-    ): void {
+    use WithActionUpdate;
+    use WithNoStrictRules;
+
+
+    public function handle(Mailshot|EmailBulkRun $parent, DispatchedEmail $dispatchedEmail, $recipient, $extraArgumentsForPlaceholder): void
+    {
+        $unsubscribeUrl = route('org.unsubscribe.mailshot.show', $dispatchedEmail->ulid);
+
+        SendSesEmail::run(
+            subject: $parent->subject,
+            emailHtmlBody: $this->extractLayout($parent, $dispatchedEmail, $unsubscribeUrl),
+            dispatchedEmail: $dispatchedEmail,
+            sender: $parent->shop->senderEmail->email_address,
+            unsubscribeUrl: $unsubscribeUrl
+        );
+    }
+
+    public function extractLayout(Mailshot|EmailBulkRun $parent, DispatchedEmail $dispatchedEmail, $unsubscribeUrl): string
+    {
+        $emailHtmlBody = $parent->email->liveSnapshot->compiled_layout;
         $html = $emailHtmlBody;
 
         $html = $this->processStyles($html);
@@ -40,22 +57,7 @@ trait WithSendMailshot
             }
         }
 
-        match ('Alibaba') {
-            'Ses' => SendSesEmail::run(
-                subject: $subject,
-                emailHtmlBody: $html,
-                dispatchedEmail: $dispatchedEmail,
-                sender: $sender,
-                unsubscribeUrl: $unsubscribeUrl
-            ),
-            'Alibaba' => SendAlibabaEmail::run(
-                subject: $subject,
-                emailHtmlBody: $html,
-                dispatchedEmail: $dispatchedEmail,
-                sender: $sender,
-                unsubscribeUrl: $unsubscribeUrl
-            )
-        };
+        return $html;
     }
 
     private function replaceMergeTags($placeholder, $dispatchedEmail, $unsubscribeUrl): string
