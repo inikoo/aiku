@@ -46,6 +46,13 @@ export const useLocaleStore = defineStore('locale', () => {
         return new Intl.NumberFormat(language.value.code, { style: 'currency', currency: currencyCode }).format(amount)
     }
 
+    //using short number
+    const numberShort = (number: number) => {
+        return new Intl.NumberFormat('en', {
+            notation: 'compact',
+            compactDisplay: 'short',
+        }).format(number);
+    }
 
     return { language, languageOptions, number, currencyFormat }
 })
