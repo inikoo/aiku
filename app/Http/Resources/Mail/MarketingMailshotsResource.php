@@ -54,7 +54,10 @@ class MarketingMailshotsResource extends JsonResource
             'opened'               => percentage($mailshot->opened, $mailshot->delivered),
             'clicked'              => percentage($mailshot->clicked, $mailshot->delivered),
             'spam'                 => percentage($mailshot->spam, $mailshot->delivered),
-
+            'organisation_name' => $this->organisation_name,
+            'organisation_slug' => $this->organizations,
+            'shop_name'         => $this->shop_name,
+            'shop_slug'         => $this->shop_slug,
 
         ];
     }

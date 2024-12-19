@@ -21,6 +21,10 @@ const props = defineProps<{
 
 function mailshotRoute(mailshot: Mailshot) {
     switch (route().current()) {
+        case 'grp.overview.marketing.newsletters.index':
+            return null
+        case 'grp.overview.marketing.mailshots.index':
+            return null
         case 'grp.org.shops.show.marketing.mailshots.index':
             return route(
                 'grp.org.shops.show.marketing.mailshots.show',

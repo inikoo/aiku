@@ -9,6 +9,8 @@
 namespace App\Actions\Accounting\Invoice;
 
 use App\Actions\Accounting\Invoice\Search\InvoiceRecordSearch;
+use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateInvoicedCustomers;
+use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateInvoices;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateInvoices;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateSales;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
@@ -131,7 +133,7 @@ class StoreInvoice extends OrgAction
 
         // todo: Upload Invoices to Google Drive #544
         //UploadPdfInvoice::run($invoice);
-
+                    /** @var Invoice $invoice */
         ShopHydrateInvoices::dispatch($invoice->shop)->delay($this->hydratorsDelay);
         OrganisationHydrateInvoices::dispatch($invoice->organisation)->delay($this->hydratorsDelay);
         GroupHydrateInvoices::dispatch($invoice->group)->delay($this->hydratorsDelay);
@@ -141,7 +143,6 @@ class StoreInvoice extends OrgAction
         GroupHydrateSales::dispatch($invoice->group)->delay($this->hydratorsDelay);
 
         InvoiceRecordSearch::dispatch($invoice);
-
 
         return $invoice;
     }

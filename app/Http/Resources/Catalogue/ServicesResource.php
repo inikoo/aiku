@@ -31,6 +31,7 @@ class ServicesResource extends JsonResource
         return [
             'id'                => $this->id,
             'asset_id'          => $this->asset_id,
+            'state_icon'        => $this->state->stateIcon()[$this->state->value],
             'slug'              => $this->slug,
             'name'              => $this->name,
             'code'              => $this->code,
@@ -40,6 +41,10 @@ class ServicesResource extends JsonResource
             'unit'              => $this->unit,
             'unit_abbreviation' => Abbreviate::run($this->unit),
             'currency_code'     => $this->currency_code,
+            'organisation_name' => $this->organisation_name,
+            'organisation_slug' => $this->organizations,
+            'shop_name'         => $this->shop_name,
+            'shop_slug'         => $this->shop_slug,
         ];
     }
 }
