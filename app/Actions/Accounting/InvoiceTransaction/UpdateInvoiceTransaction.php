@@ -44,6 +44,13 @@ class UpdateInvoiceTransaction extends OrgAction
             'submitted_at'        => ['sometimes', 'required', 'date'],
         ];
         if (!$this->strict) {
+            $rules['model_type']        = ['sometimes', 'required', 'string'];
+            $rules['model_id']          = ['sometimes', 'nullable', 'integer'];
+            $rules['asset_id']          = ['sometimes', 'nullable', 'integer'];
+            $rules['historic_asset_id'] = ['sometimes', 'nullable', 'integer'];
+            $rules['order_id']          = ['sometimes', 'nullable', 'integer'];
+            $rules['transaction_id']    = ['sometimes', 'nullable', 'integer'];
+
             $rules = $this->noStrictUpdateRules($rules);
         }
 

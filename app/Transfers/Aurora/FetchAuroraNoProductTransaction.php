@@ -17,13 +17,13 @@ class FetchAuroraNoProductTransaction extends FetchAurora
     public function parseNoProductTransaction(Order $order): void
     {
         $shippingZone = null;
-        $charge       = null;
+        $model        = null;
 
         if (in_array($this->auroraModelData->{'Transaction Type'}, ['Adjust', 'Credit'])) {
+            $adjust = $this->parseAdjustment($this->organisation->id.':'.$this->auroraModelData->{'Order No Product Transaction Fact Key'});
 
-            $adjust                         = $this->parseAdjustment(
-                $this->organisation->id.':'.$this->auroraModelData->{'Order No Product Transaction Fact Key'}
-            );
+
+            $model                          = $adjust;
             $this->parsedData['adjustment'] = $adjust;
 
             $net                      = $this->auroraModelData->{'Transaction Invoice Net Amount'};
@@ -31,7 +31,14 @@ class FetchAuroraNoProductTransaction extends FetchAurora
             $this->parsedData['type'] = 'Adjustment';
         } elseif ($this->auroraModelData->{'Transaction Type'} == 'Shipping') {
             if ($this->auroraModelData->{'Transaction Type Key'}) {
-                $shippingZone = $this->parseShippingZone($this->organisation->id.':'.$this->auroraModelData->{'Transaction Type Key'});
+                if (Carbon::parse($this->auroraModelData->{'Order Date'})->gt(Carbon::parse('2019-01-01'))) {
+                    $shippingZone = $this->parseShippingZone($this->organisation->id.':'.$this->auroraModelData->{'Transaction Type Key'});
+                    if ($shippingZone->shop_id != $order->shop_id) {
+                        $shippingZone = null;
+                    }
+                }
+
+                $model = $shippingZone;
             }
 
 
@@ -41,7 +48,9 @@ class FetchAuroraNoProductTransaction extends FetchAurora
         } elseif ($this->auroraModelData->{'Transaction Type'} == 'Charges') {
             if ($this->auroraModelData->{'Transaction Type Key'}) {
                 $charge = $this->parseCharge($this->organisation->id.':'.$this->auroraModelData->{'Transaction Type Key'});
+                $model  = $charge;
             }
+
 
             $gross                    = $this->auroraModelData->{'Transaction Gross Amount'};
             $net                      = $this->auroraModelData->{'Transaction Net Amount'};
@@ -51,6 +60,8 @@ class FetchAuroraNoProductTransaction extends FetchAurora
         } else {
             dd($this->auroraModelData);
         }
+
+        $this->parsedData['model'] = $model;
 
 
         $date = $this->parseDatetime($this->auroraModelData->{'Order Date'});
@@ -66,27 +77,23 @@ class FetchAuroraNoProductTransaction extends FetchAurora
             $taxCategoryID = $taxCategory->id;
         }
 
+        $quantityDispatched = 0;
+        if ($this->auroraModelData->{'Consolidated'} == 'Yes' and $this->auroraModelData->{'State'} == 'Normal') {
+            $quantityDispatched = 1;
+        }
 
         $this->parsedData['transaction'] = [
-            'date'            => $date,
-            'created_at'      => $date,
-            'tax_category_id' => $taxCategoryID,
-            'gross_amount'    => $gross,
-            'net_amount'      => $net,
-            'source_alt_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Order No Product Transaction Fact Key'},
-            'fetched_at'      => now(),
-            'last_fetched_at' => now(),
+            'date'                => $date,
+            'created_at'          => $date,
+            'tax_category_id'     => $taxCategoryID,
+            'quantity_ordered'    => 1,
+            'quantity_dispatched' => $quantityDispatched,
+            'gross_amount'        => $gross,
+            'net_amount'          => $net,
+            'source_alt_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Order No Product Transaction Fact Key'},
+            'fetched_at'          => now(),
+            'last_fetched_at'     => now(),
         ];
-
-
-        if ($shippingZone and $shippingZone->shop_id == $order->shop_id) {
-
-            $this->parsedData['transaction']['shipping_zone_id'] = $shippingZone->id;
-        }
-
-        if ($charge) {
-            $this->parsedData['transaction']['charge_id'] = $charge->id;
-        }
     }
 
     public function fetchNoProductTransaction(int $id, Order $order): ?array

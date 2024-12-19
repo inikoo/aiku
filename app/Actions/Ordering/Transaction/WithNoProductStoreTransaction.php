@@ -25,7 +25,6 @@ trait WithNoProductStoreTransaction
         data_set($modelData, 'date', now(), overwrite: false);
         data_set($modelData, 'state', TransactionStateEnum::CREATING, overwrite: false);
         data_set($modelData, 'status', TransactionStatusEnum::CREATING, overwrite: false);
-        data_set($modelData, 'quantity_ordered', 0);
 
         return $this->processExchanges($modelData, $order->shop);
     }

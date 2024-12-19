@@ -13,18 +13,23 @@ use App\Actions\Traits\WithOrderExchanges;
 use App\Actions\Traits\WithStoreNoProductTransaction;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceTransaction;
+use App\Models\Billables\Charge;
+use Illuminate\Validation\Validator;
 
 class StoreInvoiceTransactionFromCharge extends OrgAction
 {
     use WithOrderExchanges;
-    use WithStoreInvoiceTransaction;
+    use WithStoreNoProductInvoiceTransaction;
     use WithStoreNoProductTransaction;
 
-    public function handle(Invoice $invoice, array $modelData): InvoiceTransaction
-    {
-        $modelData = $this->prepareChargeTransaction($modelData);
 
-        return $this->processInvoiceTransaction($invoice, $modelData);
+    private ?Charge $charge;
+
+    public function handle(Invoice $invoice, ?Charge $charge, array $modelData): InvoiceTransaction
+    {
+        $modelData = $this->prepareChargeTransaction($charge, $modelData);
+
+        return $this->processNoProductInvoiceTransaction($invoice, $modelData);
     }
 
     public function rules(): array
@@ -32,13 +37,22 @@ class StoreInvoiceTransactionFromCharge extends OrgAction
         return $this->getRules();
     }
 
-    public function action(Invoice $invoice, array $modelData, bool $strict = true): InvoiceTransaction
+
+    public function afterValidator(Validator $validator): void
+    {
+        if ($this->charge and $this->charge->shop_id != $this->shop->id) {
+            $validator->errors()->add('charge', 'Charge does not belong to this shop');
+        }
+    }
+
+    public function action(Invoice $invoice, ?Charge $charge, array $modelData, bool $strict = true): InvoiceTransaction
     {
         $this->asAction = true;
         $this->strict   = $strict;
+        $this->charge   = $charge;
         $this->initialisationFromShop($invoice->shop, $modelData);
 
-        return $this->handle($invoice, $this->validatedData);
+        return $this->handle($invoice, $charge, $this->validatedData);
     }
 
 

@@ -15,9 +15,11 @@ use App\Actions\Traits\WithOrderExchanges;
 use App\Actions\Traits\WithStoreNoProductTransaction;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
+use App\Models\Billables\Charge;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreTransactionFromCharge extends OrgAction
 {
@@ -25,9 +27,12 @@ class StoreTransactionFromCharge extends OrgAction
     use WithNoProductStoreTransaction;
     use WithStoreNoProductTransaction;
 
-    public function handle(Order $order, array $modelData): Transaction
+
+    private ?Charge $charge;
+
+    public function handle(Order $order, ?Charge $charge, array $modelData): Transaction
     {
-        $modelData = $this->prepareChargeTransaction($modelData);
+        $modelData = $this->prepareChargeTransaction($charge, $modelData);
         $modelData = $this->transactionFieldProcess($order, $modelData);
 
         /** @var Transaction $transaction */
@@ -45,12 +50,6 @@ class StoreTransactionFromCharge extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'charge_id' => [
-                'sometimes',
-                'required',
-                Rule::exists('charges', 'id')
-                    ->where('shop_id', $this->shop->id),
-            ],
             'state'            => ['sometimes', Rule::enum(TransactionStateEnum::class)],
             'status'           => ['sometimes', Rule::enum(TransactionStatusEnum::class)],
             'gross_amount'     => ['sometimes', 'numeric'],
@@ -62,6 +61,10 @@ class StoreTransactionFromCharge extends OrgAction
 
             'tax_category_id' => ['sometimes', 'required', 'exists:tax_categories,id'],
             'date'            => ['sometimes', 'required', 'date'],
+            'quantity_ordered'    => ['required', 'numeric', 'min:0'],
+            'quantity_dispatched' => ['sometimes', 'required', 'numeric', 'min:0'],
+            'submitted_at'        => ['sometimes', 'required', 'date'],
+
         ];
 
         if (!$this->strict) {
@@ -74,12 +77,23 @@ class StoreTransactionFromCharge extends OrgAction
         return $rules;
     }
 
-    public function action(Order $order, array $modelData, bool $strict = true): Transaction
+    public function afterValidator(Validator $validator): void
+    {
+
+        if ($this->charge and $this->charge->shop_id != $this->shop->id) {
+            $validator->errors()->add('charge', 'Charge does not belong to this shop');
+        }
+
+    }
+
+
+    public function action(Order $order, ?Charge $charge, array $modelData, bool $strict = true): Transaction
     {
         $this->strict = $strict;
+        $this->charge = $charge;
         $this->initialisationFromShop($order->shop, $modelData);
 
-        return $this->handle($order, $this->validatedData);
+        return $this->handle($order, $charge, $this->validatedData);
     }
 
 

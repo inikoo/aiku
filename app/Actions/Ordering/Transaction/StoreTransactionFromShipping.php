@@ -16,8 +16,10 @@ use App\Actions\Traits\WithStoreNoProductTransaction;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Models\Ordering\Order;
+use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\Transaction;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreTransactionFromShipping extends OrgAction
 {
@@ -25,10 +27,11 @@ class StoreTransactionFromShipping extends OrgAction
     use WithNoProductStoreTransaction;
     use WithStoreNoProductTransaction;
 
-    public function handle(Order $order, array $modelData): Transaction
-    {
+    private ?ShippingZone $shippingZone;
 
-        $modelData = $this->prepareShippingTransaction($modelData);
+    public function handle(Order $order, ?ShippingZone $shippingZone, array $modelData): Transaction
+    {
+        $modelData = $this->prepareShippingTransaction($shippingZone, $modelData);
         $modelData = $this->transactionFieldProcess($order, $modelData);
 
 
@@ -47,23 +50,21 @@ class StoreTransactionFromShipping extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'shipping_zone_id' => [
-                'sometimes',
-                'required',
-                Rule::exists('shipping_zones', 'id')
-                    ->where('shop_id', $this->shop->id),
-            ],
-            'state'            => ['sometimes', Rule::enum(TransactionStateEnum::class)],
-            'status'           => ['sometimes', Rule::enum(TransactionStatusEnum::class)],
-            'gross_amount'     => ['sometimes', 'numeric'],
-            'net_amount'       => ['sometimes', 'numeric'],
-            'org_exchange'     => ['sometimes', 'numeric'],
-            'grp_exchange'     => ['sometimes', 'numeric'],
-            'org_net_amount'   => ['sometimes', 'numeric'],
-            'grp_net_amount'   => ['sometimes', 'numeric'],
+            'state'          => ['sometimes', Rule::enum(TransactionStateEnum::class)],
+            'status'         => ['sometimes', Rule::enum(TransactionStatusEnum::class)],
+            'gross_amount'   => ['sometimes', 'numeric'],
+            'net_amount'     => ['sometimes', 'numeric'],
+            'org_exchange'   => ['sometimes', 'numeric'],
+            'grp_exchange'   => ['sometimes', 'numeric'],
+            'org_net_amount' => ['sometimes', 'numeric'],
+            'grp_net_amount' => ['sometimes', 'numeric'],
 
-            'tax_category_id' => ['sometimes', 'required', 'exists:tax_categories,id'],
-            'date'            => ['sometimes', 'required', 'date'],
+            'tax_category_id'     => ['sometimes', 'required', 'exists:tax_categories,id'],
+            'date'                => ['sometimes', 'required', 'date'],
+            'quantity_ordered'    => ['required', 'numeric', 'min:0'],
+            'quantity_dispatched' => ['sometimes', 'required', 'numeric', 'min:0'],
+            'submitted_at'        => ['sometimes', 'required', 'date'],
+
         ];
 
         if (!$this->strict) {
@@ -76,12 +77,20 @@ class StoreTransactionFromShipping extends OrgAction
         return $rules;
     }
 
-    public function action(Order $order, array $modelData, bool $strict = true): Transaction
+    public function afterValidator(Validator $validator): void
     {
-        $this->strict = $strict;
+        if ($this->shippingZone and $this->shippingZone->shop_id != $this->shop->id) {
+            $validator->errors()->add('shipping_zone', 'Shipping Zone does not belong to this shop');
+        }
+    }
+
+    public function action(Order $order, ?ShippingZone $shippingZone, array $modelData, bool $strict = true): Transaction
+    {
+        $this->strict       = $strict;
+        $this->shippingZone = $shippingZone;
         $this->initialisationFromShop($order->shop, $modelData);
 
-        return $this->handle($order, $this->validatedData);
+        return $this->handle($order, $shippingZone, $this->validatedData);
     }
 
 
