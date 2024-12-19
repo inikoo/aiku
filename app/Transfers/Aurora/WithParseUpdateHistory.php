@@ -22,6 +22,11 @@ trait WithParseUpdateHistory
         $haystack = $this->auroraModelData->{'History Details'};
         $haystack = trim(preg_replace('/\s+/', ' ', $haystack));
 
+        if ($haystack == '') {
+            $haystack = $this->auroraModelData->{'History Abstract'};
+            $haystack = trim(preg_replace('/\s+/', ' ', $haystack));
+        }
+
 
         if (preg_match('/<div class="field tr"><div>Old value:<\/div><div>(.*)<\/div><\/div>/', $haystack, $matches)) {
             $oldValues = $this->extractFromTable($matches, $oldValues, $field, $auditable);
@@ -35,9 +40,16 @@ trait WithParseUpdateHistory
             $oldValues = $this->extractFromTable($matches, $oldValues, $field, $auditable);
         } elseif (preg_match('/changed from Price: £|€([\d.]+) /', $haystack, $matches)) {
             $oldValues[$field] = $matches[1];
+        } elseif (preg_match('/&rArr; názov spoločnosti(.+) bol odstránen/', $haystack, $matches)) {
+            $oldValues[$field] = $matches[1];
         } elseif (preg_match('/Action:<\/div><div>Associated<\/div>/', $haystack, $matches)) {
             $oldValues[$field] = '';
+        } elseif (preg_match("/Prospect's Prospect Preferred Contact Number Formatted Number was deleted/", $haystack, $matches)) {
+            $oldValues[$field] = 'Unknown number';
         }
+
+
+
         return $oldValues;
     }
 
