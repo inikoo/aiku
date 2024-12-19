@@ -8,6 +8,8 @@
 
 namespace App\Actions\Accounting\InvoiceTransaction;
 
+use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateInvoicedCustomers;
+use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateInvoices;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithOrderExchanges;
@@ -75,6 +77,9 @@ class StoreInvoiceTransaction extends OrgAction
                 'invoice_id' => $invoice->id
             ]);
         }
+
+        AssetHydrateInvoices::dispatch($invoiceTransaction->asset);
+        AssetHydrateInvoicedCustomers::dispatch($invoiceTransaction->asset);
 
         return $invoiceTransaction;
     }

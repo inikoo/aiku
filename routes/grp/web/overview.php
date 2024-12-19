@@ -16,6 +16,8 @@ use App\Actions\Billables\Service\UI\IndexServices;
 use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
 use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
+use App\Actions\Comms\Mailshot\UI\IndexMarketingMailshots;
+use App\Actions\Comms\Mailshot\UI\IndexNewsletterMailshots;
 use App\Actions\Comms\Outbox\UI\IndexOutboxes;
 use App\Actions\Comms\PostRoom\UI\IndexPostRooms;
 use App\Actions\Comms\PostRoom\UI\ShowPostRoom;
@@ -37,6 +39,8 @@ use App\Actions\SupplyChain\Agent\UI\IndexAgents;
 use App\Actions\SupplyChain\Supplier\UI\IndexSuppliers;
 use App\Actions\SupplyChain\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Web\Banner\UI\IndexBanners;
+use App\Actions\Web\Webpage\UI\IndexWebpages;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowOverviewHub::class)->name('hub');
@@ -57,12 +61,22 @@ Route::name('catalogue.')->prefix('catalogue')->group(function () {
 Route::name('billables.')->prefix('billables')->group(function () {
     Route::get('/shipping', [IndexShippingZoneSchemas::class, 'inGroup'])->name('shipping.index');
     Route::get('/charges', [IndexCharges::class, 'inGroup'])->name('charges.index');
-    // Route::get('/services', [IndexServices::class, 'inGroup'])->name('services.index');
+    Route::get('/services', [IndexServices::class, 'inGroup'])->name('services.index');
 });
 
 Route::name('offer.')->prefix('offer')->group(function () {
     Route::get('/campaigns', [IndexOfferCampaigns::class, 'inGroup'])->name('campaigns.index');
     Route::get('/offers', [IndexOffers::class, 'inGroup'])->name('offers.index');
+});
+
+Route::name('marketing.')->prefix('marketing')->group(function () {
+    Route::get('/newsletters', [IndexNewsletterMailshots::class, 'inGroup'])->name('newsletters.index');
+    Route::get('/mailshots', [IndexMarketingMailshots::class, 'inGroup'])->name('mailshots.index');
+});
+
+Route::name('web.')->prefix('web')->group(function () {
+    Route::get('/webpages', [IndexWebpages::class, 'inGroup'])->name('webpages.index');
+    Route::get('/banners', [IndexBanners::class, 'inGroup'])->name('banners.index');
 });
 
 Route::name('crm.')->prefix('crm')->group(function () {

@@ -46,7 +46,10 @@ class BannersResource extends JsonResource
             'websites'           => json_decode($this->websites),
             'date'               => $banner->date,
             'delivery_url'       => config('app.delivery_url').'/banners/'.$banner->ulid,
-
+            'organisation_name' => $this->organisation_name,
+            'organisation_slug' => $this->organizations,
+            'shop_name'         => $this->shop_name,
+            'shop_slug'         => $this->shop_slug,
 
         ];
     }
