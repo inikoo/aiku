@@ -9,12 +9,14 @@
 namespace App\Actions\Web\Banner\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Enums\Web\Banner\BannerStateEnum;
 use App\Http\Resources\Web\BannersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Banner;
 use App\Models\Web\Website;
@@ -30,7 +32,7 @@ use App\Services\QueryBuilder;
 class IndexBanners extends OrgAction
 {
     protected array $elementGroups = [];
-    private Fulfilment|Shop $parent;
+    private Group|Fulfilment|Shop $parent;
 
     protected function getElementGroups(): array
     {
@@ -65,7 +67,9 @@ class IndexBanners extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(Banner::class);
+        $queryBuilder = QueryBuilder::for(Banner::class)
+                        ->leftJoin('organisations', 'banners.organisation_id', '=', 'organisations.id')
+                        ->leftJoin('shops', 'banners.shop_id', '=', 'shops.id');
 
         $queryBuilder->select(
             'banners.id',
@@ -73,7 +77,11 @@ class IndexBanners extends OrgAction
             'banners.state',
             'banners.name',
             'banners.image_id',
-            'banners.date'
+            'banners.date',
+            'shops.name as shop_name',
+            'shops.slug as shop_slug',
+            'organisations.name as organisation_name',
+            'organisations.slug as organisation_slug',
         );
 
         /*        foreach ($this->getElementGroups() as $key => $elementGroup) {
@@ -88,10 +96,18 @@ class IndexBanners extends OrgAction
 
         return $queryBuilder
             ->defaultSort('-date')
-            ->allowedSorts(['name', 'date', 'number_views'])
+            ->allowedSorts(['name', 'date', 'number_views', 'organisation_name', 'shop_name'])
             ->allowedFilters([$globalSearch, $stateFilter])
             ->withPaginator($prefix)
             ->withQueryString();
+    }
+
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup(group(), $request);
+
+        return $this->handle($this->parent);
     }
 
     public function tableStructure(
@@ -133,10 +149,13 @@ class IndexBanners extends OrgAction
                 ->withEmptyState($emptyState)
                 ->withExportLinks($exportLinks)
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
-                ->column(key: 'name', label: __('name'), sortable: true)
-                ->column(key: 'image_thumbnail', label: ['fal', 'fa-image']);
-
-            $table->column(key: 'date', label: __('date'), sortable: true)
+                ->column(key: 'name', label: __('name'), sortable: true);
+            if ($this->parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
+                        ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+            }
+            $table->column(key: 'image_thumbnail', label: ['fal', 'fa-image'])
+                ->column(key: 'date', label: __('date'), sortable: true)
                 ->defaultSort('-date');
         };
     }
@@ -201,6 +220,7 @@ class IndexBanners extends OrgAction
                                         'parameters' => $request->route()->originalParameters()
                                     ]
                                 ],
+                                default => null
                             }
                         ]
 
@@ -231,6 +251,18 @@ class IndexBanners extends OrgAction
         };
 
         return match ($routeName) {
+            'grp.overview.web.banners.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ]
+                ),
+            ),
             'grp.org.shops.show.web.banners.index' =>
             array_merge(
                 ShowWebsite::make()->getBreadcrumbs('Shop', $routeParameters),
