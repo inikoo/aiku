@@ -18,15 +18,12 @@ const props = defineProps<{
 
 const searchQuery = ref("")
 
-// Convert object data to array for easier iteration
 const sectionArray = computed(() => {
 	return Object.values(props.data)
 })
 
-// State to track collapsed sections
 const collapsedSections = ref(new Set<string>())
 
-// Toggle collapse/expand for a section
 const toggleSection = (section: string) => {
 	if (collapsedSections.value.has(section)) {
 		collapsedSections.value.delete(section)
@@ -70,7 +67,6 @@ const filteredData = computed(() => {
 			</div>
 		</div>
 
-		<!-- DataTable -->
 		<div>
 			<template v-if="filteredData.length">
 				<div v-for="section in filteredData" :key="section.section" class="mb-6">
@@ -80,10 +76,12 @@ const filteredData = computed(() => {
 						<button
 							@click="toggleSection(section.section)"
 							class="text-sm text-gray-500 hover:text-gray-700">
-							{{ isSectionCollapsed(section.section) ? "V" : "^" }}
+                            <FontAwesomeIcon
+    :icon="isSectionCollapsed(section.section) ? 'fas fa-sort-up' : 'fas fa-sort-down'"
+/>
 						</button>
 					</div>
-					<!-- Section Rows -->
+			
 					<div
 						v-show="!isSectionCollapsed(section.section)"
 						class="grid grid-cols-12 gap-4">
@@ -91,18 +89,18 @@ const filteredData = computed(() => {
 							v-for="item in section.data"
 							:key="item.name"
 							class="col-span-12 flex items-center border-b py-2">
-							<!-- Icon Column -->
+					
 							<div class="mr-4">
 								<FontAwesomeIcon
 									:icon="item.icon"
 									fixed-width
 									class="text-gray-500" />
 							</div>
-							<!-- Name Column -->
+						
 							<div class="flex-grow text-gray-800">
 								<span class="primaryLink">{{ item.name }}</span>
 							</div>
-							<!-- Count Column -->
+						
 							<div class="text-right text-gray-500">
 								<Link :href="item.route">
 									{{ locale.number(item.count) }}
