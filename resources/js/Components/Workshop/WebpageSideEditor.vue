@@ -110,7 +110,7 @@ const openedBlockSideEditor = inject('openedBlockSideEditor', ref(null))
         <h2 class="text-sm font-semibold leading-6">{{trans('Blocks')}} </h2>
         <Button icon="fas fa-plus" type="dashed" size="xs" @click="openModalBlockList" />
     </div> -->
-    <div class="max-h-[calc(100vh-220px)] h-full min-w-[350px] overflow-y-auto flex flex-col pr-3">
+    <div class="max-h-[calc(100vh-220px)] h-fit min-w-[350px] overflow-y-auto flex flex-col pr-3">
         <template v-if="webpage?.layout?.web_blocks.length > 0 || isAddBlockLoading">
             <draggable
                 :list="webpage.layout.web_blocks"
@@ -190,12 +190,13 @@ const openedBlockSideEditor = inject('openedBlockSideEditor', ref(null))
             <div v-if="isAddBlockLoading" class="mt-2 skeleton min-h-10 w-full rounded" />
         </template>
 
-        <div v-else class="flex flex-col justify-center items-center mt-4 rounded-lg p-4 text-center h-[90%]">
+        <div v-else class="flex flex-col justify-center items-center mt-4 rounded-lg p-4 text-center h-fit">
             <font-awesome-icon :icon="['fal', 'browser']" class="mx-auto h-12 w-12 text-gray-400" />
             <span class="mt-2 block text-sm font-semibold text-gray-600">You don't have any blocks</span>
         </div>
-    </div>
 
+        
+    </div>
     <div class="full pr-3">
         <Button class="mt-3" full type="dashed" @click="openModalBlockList">
             <div class="text-gray-500">
@@ -204,7 +205,6 @@ const openedBlockSideEditor = inject('openedBlockSideEditor', ref(null))
             </div>
         </Button>
     </div>
-
 
     <Modal :isOpen="modelModalBlocklist" @onClose="openModalBlockList">
         <BlockList :onPickBlock="onPickBlock" :webBlockTypes="webBlockTypes" scope="webpage" />

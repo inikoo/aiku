@@ -350,7 +350,7 @@ const isShowInWebpage = (activityItem) => {
 
 	<div class="flex gap-x-2">
 		<!-- Section: Side editor -->
-		<div class="hidden lg:block border-2 bg-gray-200 pl-3 py-1">
+		<div class="hidden lg:flex lg:flex-col border-2 bg-gray-200 pl-3 py-1">
 			<WebpageSideEditor
 				v-model="isModalBlockList"
 				:isLoadingblock
