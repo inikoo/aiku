@@ -72,7 +72,7 @@ class AssetHydrateInvoicedCustomers
                 $now->copy()->subYears($i)->endOfYear()
             ];
         }
-    
+
         for ($i = 1; $i <= 5; $i++) {
             $dateRanges["pq$i"] = [
                 $now->copy()->subQuarters($i)->startOfQuarter(),
