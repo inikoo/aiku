@@ -44,10 +44,30 @@ class GetOverview extends OrgAction
     public function getSection(Group $group): array
     {
         $section = [
-            'Comms' => [
+            'Sysadmin' => [
+                [
+                    'name' => 'Users',
+                    'icon' => 'fal fa-users',
+                    'route' => '',
+                    'count' => $group->sysadminStats->number_users
+                ],
+                [
+                    'name' => 'Guests', // user requests
+                    'icon' => 'fal fa-user-tag',
+                    'route' => '',
+                    'count' => $group->sysadminStats->number_guests
+                ],
+                [
+                    'name' => 'User Request', // user requests
+                    'icon' => 'fal fa-user-clock',
+                    'route' => '',
+                    'count' => 0 // $group->sysadminStats->number_user_requests
+                ],
+            ],
+            'Comms & marketing' => [
                 [
                     'name' => 'Post Rooms',
-                    'icon' => 'fal fa-inbox-out',
+                    'icon' => 'fal fa-booth-curtain',
                     'route' => 'grp.overview.comms.post-rooms.index',
                     'count' => $group->commsStats->number_post_rooms
                 ],
@@ -56,6 +76,30 @@ class GetOverview extends OrgAction
                     'icon' => 'fal fa-inbox-out',
                     'route' => 'grp.overview.comms.outboxes-rooms.index',
                     'count' => $group->commsStats->number_outboxes
+                ],
+                [
+                    'name' => 'Newsletters',
+                    'icon' => 'fal fa-newspaper',
+                    'route' => 'grp.overview.marketing.newsletters.index',
+                    'count' => $group->commsStats->number_outboxes_type_newsletter
+                ],
+                [
+                    'name' => 'Mailshots',
+                    'icon' => 'fal fa-mail-bulk',
+                    'route' => 'grp.overview.marketing.mailshots.index',
+                    'count' => $group->commsStats->number_outboxes_type_marketing
+                ],
+                [
+                    'name' => 'Dispatched Emails',
+                    'icon' => 'fal fa-envelope-open-text',
+                    'route' => '',
+                    'count' => $group->commsStats->number_dispatched_emails
+                ],
+                [
+                    'name' => 'Emails',
+                    'icon' => 'fal fa-envelope',
+                    'route' => '',
+                    'count' => 0 // $group->commsStats->number_emails
                 ],
             ],
             'Catalogue' => [
@@ -85,17 +129,23 @@ class GetOverview extends OrgAction
                 ],
             ],
             'Billables' => [
+                // [
+                //     'name' => 'Shipping',
+                //     'icon' => 'fal fa-shipping-fast',
+                //     'route' => 'grp.overview.billables.shipping.index',
+                //     'count' => $group->catalogueStats->number_shipping_zone_schemas
+                // ],
                 [
-                    'name' => 'Shipping',
+                    'name' => 'Rental',
                     'icon' => 'fal fa-shipping-fast',
-                    'route' => 'grp.overview.billables.shipping.index',
-                    'count' => $group->catalogueStats->number_shipping_zone_schemas
+                    'route' => '',
+                    'count' => $group->catalogueStats->number_rentals
                 ],
                 [
                     'name' => 'Charges',
                     'icon' => 'fal fa-charging-station',
                     'route' => 'grp.overview.billables.charges.index',
-                    'count' => $group->catalogueStats->number_charges
+                    'count' => $group->catalogueStats->number_assets_type_charge
                 ],
                 [
                     'name' => 'Services',
@@ -118,21 +168,13 @@ class GetOverview extends OrgAction
                     'count' => $group->discountsStats->number_offers
                 ],
             ],
-            'Marketing' => [
-                [
-                    'name' => 'Newsletters',
-                    'icon' => 'fal fa-newspaper',
-                    'route' => 'grp.overview.marketing.newsletters.index',
-                    'count' => $group->commsStats->number_outboxes_type_newsletter
-                ],
-                [
-                    'name' => 'Mailshots',
-                    'icon' => 'fal fa-mail-bulk',
-                    'route' => 'grp.overview.marketing.mailshots.index',
-                    'count' => $group->commsStats->number_outboxes_type_marketing
-                ],
-            ],
             'Web' => [
+                [
+                    'name' => 'Websites',
+                    'icon' => 'fal fa-globe',
+                    'route' => '',
+                    'count' => $group->webStats->number_websites
+                ],
                 [
                     'name' => 'Webpages',
                     'icon' => 'fal fa-browser',
@@ -159,8 +201,14 @@ class GetOverview extends OrgAction
                     'route' => 'grp.overview.crm.prospects.index',
                     'count' => $group->crmStats->number_prospects
                 ],
+                [
+                    'name' => 'Web Users',
+                    'icon' => 'fal fa-user-circle',
+                    'route' => 'grp.overview.crm.web-users.index',
+                    'count' => 0 // $group->crmStats->number_web_users
+                ],
             ],
-            'Order' => [
+            'Ordering' => [
                 [
                     'name' => 'Orders',
                     'icon' => 'fal fa-shopping-cart',
@@ -174,10 +222,104 @@ class GetOverview extends OrgAction
                     'count' => $group->orderingStats->number_purges
                 ],
                 [
+                    'name' => 'Invoices',
+                    'icon' => 'fal fa-file-invoice-dollar',
+                    'route' => 'grp.overview.accounting.invoices.index',
+                    'count' => $group->accountingStats->number_invoices
+                ],
+                [
                     'name' => 'Delivery Notes',
                     'icon' => 'fal fa-truck',
                     'route' => 'grp.overview.order.orders.index',
                     'count' => $group->orderingStats->number_delivery_notes
+                ],
+                [
+                    'name' => 'Transactions',
+                    'icon' => 'fal fa-exchange-alt',
+                    'route' => '',
+                    'count' => 0 // $group->orderingStats->number_transactions
+                ],
+            ],
+            'Inventory' => [
+                [
+                    'name' => 'Stocks',
+                    'icon' => 'fal fa-boxes',
+                    'route' => '',
+                    'count' => $group->goodsStats->number_stocks
+                ],
+                [
+                    'name' => 'Org Stocks',
+                    'icon' => 'fal fa-warehouse',
+                    'route' => '',
+                    'count' => 0 // $group->inventoryStats->number_org_stocks
+                ],
+                [
+                    'name' => 'Stock Families',
+                    'icon' => 'fal fa-box',
+                    'route' => '',
+                    'count' => $group->goodsStats->number_stock_families
+                ],
+                [
+                    'name' => 'Org Stock Families',
+                    'icon' => 'fal fa-boxes-alt',
+                    'route' => '',
+                    'count' => 0 // $group->inventoryStats->number_org_stock_families
+                ],
+                [
+                    'name' => 'Org Stock Movement',
+                    'icon' => 'fal fa-dolly',
+                    'route' => '',
+                    'count' => 0 // $group->inventoryStats->number_org_stock_movements
+                ],
+                [
+                    'name' => 'Warehouses',
+                    'icon' => 'fal fa-dolly',
+                    'route' => '',
+                    'count' => $group->inventoryStats->number_warehouses
+                ],
+                [
+                    'name' => 'Warehouses Areas',
+                    'icon' => 'fal fa-dolly',
+                    'route' => '',
+                    'count' => $group->inventoryStats->number_warehouse_areas
+                ],
+                [
+                    'name' => 'Locations',
+                    'icon' => 'fal fa-dolly',
+                    'route' => '',
+                    'count' => $group->inventoryStats->number_locations
+                ],
+            ],
+            'Fulfilment' => [
+                [
+                    'name' => 'Pallets',
+                    'icon' => 'fal fa-pallet',
+                    'route' => '',
+                    'count' => $group->fulfilmentStats->number_pallets
+                ],
+                [
+                    'name' => 'Stored Items',
+                    'icon' => 'fal fa-box-open',
+                    'route' => '',
+                    'count' => $group->fulfilmentStats->number_stored_items
+                ],
+                [
+                    'name' => 'Stock Deliveries',
+                    'icon' => 'fal fa-truck-loading',
+                    'route' => '',
+                    'count' => 0 // $group->fulfilmentStats->number_stock_deliveries
+                ],
+                [
+                    'name' => 'Pallet Deliveries',
+                    'icon' => 'fal fa-pallet-alt',
+                    'route' => '',
+                    'count' => $group->fulfilmentStats->number_pallet_deliveries
+                ],
+                [
+                    'name' => 'Pallet Returns',
+                    'icon' => 'fal fa-pallet-return',
+                    'route' => '',
+                    'count' => $group->fulfilmentStats->number_pallet_returns
                 ],
             ],
             'Procurement' => [
@@ -207,12 +349,6 @@ class GetOverview extends OrgAction
                 ],
             ],
             'Accounting' => [
-                [
-                    'name' => 'Invoices',
-                    'icon' => 'fal fa-file-invoice-dollar',
-                    'route' => 'grp.overview.accounting.invoices.index',
-                    'count' => $group->accountingStats->number_invoices
-                ],
                 [
                     'name' => 'Accounts',
                     'icon' => 'fal fa-money-check-alt',
