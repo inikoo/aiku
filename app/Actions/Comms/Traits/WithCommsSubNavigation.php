@@ -2,11 +2,11 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 19 Nov 2024 11:09:35 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Created: Thu, 19 Dec 2024 18:14:34 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Comms;
+namespace App\Actions\Comms\Traits;
 
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;

@@ -62,7 +62,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property string|null $source_alt_id
  * @property string|null $source_alt2_id
+ * @property string|null $recipients_stored_at
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read Collection<int, \App\Models\Comms\EmailDeliveryChannel> $channels
  * @property-read Collection<int, \App\Models\Comms\DispatchedEmail> $dispatchedEmails
  * @property-read \App\Models\Comms\Email|null $email
  * @property-read \App\Models\SysAdmin\Group $group
@@ -183,6 +185,12 @@ class Mailshot extends Model implements Auditable
 
         return $sender;
     }
+
+    public function channels(): MorphMany
+    {
+        return $this->morphMany(EmailDeliveryChannel::class, 'model');
+    }
+
 
 
 }

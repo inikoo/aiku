@@ -10,7 +10,7 @@ namespace App\Actions\CRM\Prospect\Mailshots\UI;
 
 use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\InertiaAction;
-use App\Actions\Mail\Mailshot\UI\ProspectMailshotSettings;
+use App\Actions\Comms\Mailshot\UI\ProspectMailshotSettings;
 use App\Actions\Traits\WithProspectsSubNavigation;
 use App\Enums\Comms\SenderEmail\SenderEmailStateEnum;
 use App\Enums\Mail\MailshotTypeEnum;

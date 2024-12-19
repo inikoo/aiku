@@ -40,6 +40,8 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
  * @property string|null $fetched_at
  * @property string|null $last_fetched_at
  * @property string|null $source_id
+ * @property string|null $recipients_stored_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Comms\EmailDeliveryChannel> $channels
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Comms\DispatchedEmail> $dispatchedEmails
  * @property-read \App\Models\Comms\Email|null $email
  * @property-read \App\Models\SysAdmin\Group $group
@@ -110,6 +112,11 @@ class EmailBulkRun extends Model
     public function dispatchedEmails(): MorphMany
     {
         return $this->morphMany(DispatchedEmail::class, 'parent');
+    }
+
+    public function channels(): MorphMany
+    {
+        return $this->morphMany(EmailDeliveryChannel::class, 'model');
     }
 
 

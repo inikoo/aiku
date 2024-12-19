@@ -6,37 +6,37 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Comms\Mailshot\Hydrators;
+namespace App\Actions\Comms\EmailBulkRun\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
 use App\Models\Comms\DispatchedEmail;
-use App\Models\Comms\Mailshot;
+use App\Models\Comms\EmailBulkRun;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class MailshotHydrateEmails
+class EmailBulkRunHydrateDispatchedEmails
 {
     use AsAction;
     use WithEnumStats;
 
-    private Mailshot $mailshot;
+    private EmailBulkRun $emailBulkRun;
 
-    public function __construct(Mailshot $mailshot)
+    public function __construct(EmailBulkRun $emailBulkRun)
     {
-        $this->mailshot = $mailshot;
+        $this->emailBulkRun = $emailBulkRun;
     }
 
     public function getJobMiddleware(): array
     {
-        return [(new WithoutOverlapping($this->mailshot->id))->dontRelease()];
+        return [(new WithoutOverlapping($this->emailBulkRun->id))->dontRelease()];
     }
 
 
-    public function handle(Mailshot $mailshot): void
+    public function handle(EmailBulkRun $emailBulkRun): void
     {
         $stats = [
-            'number_dispatched_emails' => $mailshot->dispatchedEmails()->count()
+            'number_dispatched_emails' => $emailBulkRun->dispatchedEmails()->count()
         ];
 
         $stats = array_merge(
@@ -46,12 +46,12 @@ class MailshotHydrateEmails
                 field: 'state',
                 enum: DispatchedEmailStateEnum::class,
                 models: DispatchedEmail::class,
-                where: function ($q) use ($mailshot) {
-                    $q->where('mailshot_id', $mailshot->id);
+                where: function ($q) use ($emailBulkRun) {
+                    $q->where('emailBulkRun_id', $emailBulkRun->id);
                 }
             )
         );
 
-        $mailshot->stats()->update($stats);
+        $emailBulkRun->stats()->update($stats);
     }
 }

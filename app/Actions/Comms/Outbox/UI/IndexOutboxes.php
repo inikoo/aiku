@@ -8,8 +8,8 @@
 
 namespace App\Actions\Comms\Outbox\UI;
 
-use App\Actions\Comms\ShowCommsDashboard;
-use App\Actions\Comms\WithCommsSubNavigation;
+use App\Actions\Comms\Traits\WithCommsSubNavigation;
+use App\Actions\Comms\UI\ShowCommsDashboard;
 use App\Actions\Fulfilment\Fulfilment\UI\EditFulfilment;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;

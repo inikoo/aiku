@@ -12,7 +12,7 @@ use App\Actions\Comms\OrgPostRoom\UI\ShowOrgPostRoom;
 use App\Actions\Comms\Outbox\UI\IndexOutboxes;
 use App\Actions\Comms\Outbox\UI\ShowOutbox;
 use App\Actions\Comms\Outbox\UI\ShowOutboxWorkshop;
-use App\Actions\Comms\ShowCommsDashboard;
+use App\Actions\Comms\UI\ShowCommsDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('', ShowCommsDashboard::class)->name('dashboard');

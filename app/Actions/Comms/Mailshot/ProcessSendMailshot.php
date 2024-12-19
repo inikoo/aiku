@@ -9,7 +9,7 @@
 namespace App\Actions\Comms\Mailshot;
 
 use App\Actions\Comms\DispatchedEmail\StoreDispatchedEmail;
-use App\Actions\Comms\Mailshot\Hydrators\MailshotHydrateEmails;
+use App\Actions\Comms\Mailshot\Hydrators\MailshotHydrateDispatchedEmails;
 use App\Actions\Traits\WithCheckCanContactByEmail;
 use App\Models\Comms\Email;
 use App\Models\Comms\Mailshot;
@@ -106,7 +106,7 @@ class ProcessSendMailshot
                 'recipients_stored_at' => now()
             ]
         );
-        MailshotHydrateEmails::run($mailshot);
+        MailshotHydrateDispatchedEmails::run($mailshot);
         MailshotHydrateDispatchedEmailsState::run($mailshot);
     }
 
