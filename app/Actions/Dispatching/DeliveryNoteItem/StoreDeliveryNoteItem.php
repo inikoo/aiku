@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dispatching\DeliveryNoteItem;
 
+use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateDeliveryNotes;
 use App\Actions\Dispatching\Picking\StorePicking;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
@@ -50,6 +51,8 @@ class StoreDeliveryNoteItem extends OrgAction
                 'quantity_required' => $deliveryNoteItem->quantity_required
             ]);
         }
+
+        AssetHydrateDeliveryNotes::dispatch($deliveryNoteItem->transaction->asset);
 
         return $deliveryNoteItem;
     }

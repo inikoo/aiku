@@ -21,7 +21,7 @@ trait WithSendMailshot
         string $subject,
         string $emailHtmlBody,
         string $unsubscribeUrl,
-    ) {
+    ): void {
         $html = $emailHtmlBody;
 
         $html = $this->processStyles($html);
