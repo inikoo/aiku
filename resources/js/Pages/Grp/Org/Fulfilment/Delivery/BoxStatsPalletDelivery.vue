@@ -108,12 +108,11 @@ onMounted(() => {
 
             <!-- Field: Email -->
             <div v-if="boxStats.fulfilment_customer?.customer.email" class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Email'" class="flex-none">
+                <dt v-tooltip="trans('Email')" class="flex-none">
                     <span class="sr-only">Email</span>
-                    <FontAwesomeIcon icon='fal fa-envelope' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
+                    <FontAwesomeIcon icon='fal fa-envelope' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
-                <dd class=" text-gray-500 white w-full truncate">{{ boxStats.fulfilment_customer?.customer.email }}</dd>
+                <a :href="`mailto:${boxStats.fulfilment_customer?.customer.email}`" class=" text-gray-500 white w-full truncate">{{ boxStats.fulfilment_customer?.customer.email }}</a>
             </div>
 
             <!-- Field: Phone -->
@@ -156,7 +155,7 @@ onMounted(() => {
                         aria-hidden='true' />
                 </dt>
 
-                <Popover v-if="dataPalletDelivery.state == 'in-process' || dataPalletDelivery.state == 'submitted' || dataPalletDelivery.state == 'confirmed'" position="">
+                <Popover v-if="dataPalletDelivery.state == 'in-process' || dataPalletDelivery.state == 'submitted' || dataPalletDelivery.state == 'confirmed'" position="" style="z-index: 20">
                     <template #button>
                         <div v-if="dataPalletDelivery.estimated_delivery_date"
                             v-tooltip="useDaysLeftFromToday(dataPalletDelivery.estimated_delivery_date)"

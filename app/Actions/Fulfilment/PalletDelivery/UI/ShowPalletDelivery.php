@@ -218,6 +218,20 @@ class ShowPalletDelivery extends OrgAction
                 PalletDeliveryStateEnum::CONFIRMED => [
                     [
                         'type'    => 'button',
+                        'style'   => 'cancel',
+                        'tooltip' => __('Cancel the delivery'),
+                        'label'   => __('cancel'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'post',
+                            'name'       => 'grp.models.pallet-delivery.cancel',
+                            'parameters' => [
+                                'palletDelivery' => $palletDelivery->id
+                            ]
+                        ]
+                    ],
+                    [
+                        'type'    => 'button',
                         'style'   => 'primary',
                         'icon'    => 'fal fa-check',
                         'tooltip' => __('Mark as received'),
@@ -226,20 +240,6 @@ class ShowPalletDelivery extends OrgAction
                         'route'   => [
                             'method'     => 'post',
                             'name'       => 'grp.models.pallet-delivery.received',
-                            'parameters' => [
-                                'palletDelivery' => $palletDelivery->id
-                            ]
-                        ]
-                    ],
-                    [
-                        'type'    => 'button',
-                        'style'   => 'cancel',
-                        'tooltip' => __('cancel'),
-                        'label'   => __('cancel'),
-                        'key'     => 'action',
-                        'route'   => [
-                            'method'     => 'post',
-                            'name'       => 'grp.models.pallet-delivery.cancel',
                             'parameters' => [
                                 'palletDelivery' => $palletDelivery->id
                             ]

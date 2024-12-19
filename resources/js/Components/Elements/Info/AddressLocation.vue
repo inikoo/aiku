@@ -23,7 +23,7 @@ if (countryCode) {
 </script>
 
 <template>
-    <img v-if="flag" class="inline pr-1 pl-1" :src='flag' :alt="countryCode"   :title='capitalize(countryName)'  /> {{addressLocation}}
+    <img v-if="flag" class="inline pr-1 pl-1 h-[1em]" :src='flag' :alt="countryCode"   :title='capitalize(countryName)'  /> {{addressLocation}}
 </template>
 
 
