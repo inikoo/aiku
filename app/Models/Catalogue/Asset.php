@@ -17,6 +17,7 @@ use App\Models\Billables\Service;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Currency;
+use App\Models\Ordering\Transaction;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -136,6 +137,11 @@ class Asset extends Model implements HasMedia
     public function invoiceTransactions(): HasMany
     {
         return $this->hasMany(InvoiceTransaction::class);
+    }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class);
     }
 
     public function orderingIntervals(): HasOne

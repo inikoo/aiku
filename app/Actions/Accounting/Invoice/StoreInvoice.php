@@ -143,12 +143,6 @@ class StoreInvoice extends OrgAction
         GroupHydrateSales::dispatch($invoice->group)->delay($this->hydratorsDelay);
 
         InvoiceRecordSearch::dispatch($invoice);
-        
-        foreach($invoice->invoiceTransactions as $transaction)
-        {
-            AssetHydrateInvoices::dispatch($transaction->asset)->delay($this->hydratorsDelay);
-            AssetHydrateInvoicedCustomers::dispatch($transaction->asset)->delay($this->hydratorsDelay);
-        }
 
         return $invoice;
     }
