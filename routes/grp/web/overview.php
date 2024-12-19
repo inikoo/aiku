@@ -57,7 +57,7 @@ Route::name('catalogue.')->prefix('catalogue')->group(function () {
 Route::name('billables.')->prefix('billables')->group(function () {
     Route::get('/shipping', [IndexShippingZoneSchemas::class, 'inGroup'])->name('shipping.index');
     Route::get('/charges', [IndexCharges::class, 'inGroup'])->name('charges.index');
-    // Route::get('/services', [IndexServices::class, 'inGroup'])->name('services.index');
+    Route::get('/services', [IndexServices::class, 'inGroup'])->name('services.index');
 });
 
 Route::name('offer.')->prefix('offer')->group(function () {
