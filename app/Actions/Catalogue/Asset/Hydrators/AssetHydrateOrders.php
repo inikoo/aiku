@@ -72,7 +72,7 @@ class AssetHydrateOrders
                 $now->copy()->subYears($i)->endOfYear()
             ];
         }
-    
+
         for ($i = 1; $i <= 5; $i++) {
             $dateRanges["pq$i"] = [
                 $now->copy()->subQuarters($i)->startOfQuarter(),
@@ -88,11 +88,11 @@ class AssetHydrateOrders
                     ->with('order')
                     ->get()
                     ->pluck('order')
-                    ->filter() 
-                    ->unique('id'); 
+                    ->filter()
+                    ->unique('id');
             } else {
                 [$start, $end] = $range;
-        
+
                 $orders = $asset->transactions()
                     ->with('order')
                     ->whereHas('order', function ($query) use ($start, $end) {
@@ -103,10 +103,10 @@ class AssetHydrateOrders
                     ->filter()
                     ->unique('id');
             }
-        
+
             $stats["orders_{$key}"] = $orders->count();
         }
-        
+
 
         $asset->orderingIntervals()->update($stats);
 

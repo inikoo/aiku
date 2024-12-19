@@ -8,9 +8,10 @@ import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
 import { capitalize } from "@/Composables/capitalize"
 import { inject, ref, computed, onMounted, onUnmounted } from "vue"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
-import { faBoxes, faFilter, faInboxOut, faUser } from "@fal"
+import { faBoxes, faBrowser, faCoin, faFilter, faInboxOut, faTrashAlt, faUser } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import SectionTable from "@/Components/Table/SectionTable.vue"
+import { faSortDown, faSortUp } from "@fas"
 
 const props = defineProps<{
     title: string;
@@ -30,7 +31,7 @@ const props = defineProps<{
 
 const locale = inject("locale", aikuLocaleStructure)
 
-library.add(faExclamationCircle, faInboxOut, faUser, faFilter, faBoxes)
+library.add(faExclamationCircle, faInboxOut, faUser, faFilter, faBoxes, faSortUp, faSortDown, faBrowser, faTrashAlt, faCoin)
 
 // Search functionality
 const searchQuery = ref("")

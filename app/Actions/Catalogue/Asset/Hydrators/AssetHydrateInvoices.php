@@ -6,7 +6,6 @@
  * copyright 2024
 */
 
-
 namespace App\Actions\Catalogue\Asset\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
@@ -73,7 +72,7 @@ class AssetHydrateInvoices
                 $now->copy()->subYears($i)->endOfYear()
             ];
         }
-    
+
         for ($i = 1; $i <= 5; $i++) {
             $dateRanges["pq$i"] = [
                 $now->copy()->subQuarters($i)->startOfQuarter(),
@@ -89,11 +88,11 @@ class AssetHydrateInvoices
                     ->with('invoice')
                     ->get()
                     ->pluck('invoice')
-                    ->filter() 
-                    ->unique('id'); 
+                    ->filter()
+                    ->unique('id');
             } else {
                 [$start, $end] = $range;
-        
+
                 $invoices = $asset->invoiceTransactions()
                     ->with('invoice')
                     ->whereHas('invoice', function ($query) use ($start, $end) {
@@ -104,10 +103,10 @@ class AssetHydrateInvoices
                     ->filter()
                     ->unique('id');
             }
-        
+
             $stats["invoices_{$key}"] = $invoices->count();
         }
-        
+
 
         $asset->orderingIntervals()->update($stats);
 

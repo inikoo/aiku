@@ -17,7 +17,6 @@ enum MailshotTabsEnum: string
     use HasTabs;
 
     case SHOWCASE = 'showcase';
-    case EMAIL_PREVIEW = 'email_preview';
 
     public function blueprint(): array
     {
@@ -25,10 +24,6 @@ enum MailshotTabsEnum: string
             MailshotTabsEnum::SHOWCASE => [
                 'title' => __('Showcase'),
                 'icon'  => 'fas fa-info-circle',
-            ],
-            MailshotTabsEnum::EMAIL_PREVIEW => [
-                'title' => __('Email Preview'),
-                'icon'  => 'fas fa-envelope',
             ]
         };
     }
