@@ -27,7 +27,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPalletStoredItems extends OrgAction
 {
-    public function handle(FulfilmentCustomer|Pallet $parent): LengthAwarePaginator
+    public function handle(FulfilmentCustomer|Pallet|Warehouse $parent): LengthAwarePaginator
     {
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {

@@ -101,10 +101,10 @@ const isSubNavActive = (subNav: SubNav) => {
                         ]">
                         <div class="flex items-center">
                             <FontAwesomeIcon v-if="isLoading === itemIdx" icon="fad fa-spinner-third"
-                                v-tooltip="capitalize(subNav.leftIcon.tooltip)" fixed-width aria-hidden="true"
+                                v-tooltip="capitalize(subNav.leftIcon?.tooltip)" fixed-width aria-hidden="true"
                                 class="text-base animate-spin" />
-                            <FontAwesomeIcon v-else-if="subNav.leftIcon" :icon="subNav.leftIcon.icon"
-                                v-tooltip="capitalize(subNav.leftIcon.tooltip)"
+                            <FontAwesomeIcon v-else-if="subNav.leftIcon" :icon="subNav.leftIcon?.icon"
+                                v-tooltip="capitalize(subNav.leftIcon?.tooltip)"
                                 class="text-base group-hover:opacity-100 opacity-50" fixed-width aria-hidden="true" />
                         </div>
 
@@ -134,10 +134,10 @@ const isSubNavActive = (subNav: SubNav) => {
 
                         <div class="flex items-center">
                             <FontAwesomeIcon v-if="isLoading === itemIdx" icon="fad fa-spinner-third"
-                                v-tooltip="capitalize(subNav.leftIcon.tooltip)" fixed-width aria-hidden="true"
+                                v-tooltip="capitalize(subNav.leftIcon?.tooltip)" fixed-width aria-hidden="true"
                                 class="text-sm animate-spin" />
-                            <FontAwesomeIcon v-else-if="subNav.leftIcon" :icon="subNav.leftIcon.icon"
-                                v-tooltip="capitalize(subNav.leftIcon.tooltip)"
+                            <FontAwesomeIcon v-else-if="subNav.leftIcon" :icon="subNav.leftIcon?.icon"
+                                v-tooltip="capitalize(subNav.leftIcon?.tooltip)"
                                 class="text-sm group-hover:opacity-100 opacity-50" fixed-width aria-hidden="true" />
                         </div>
 
