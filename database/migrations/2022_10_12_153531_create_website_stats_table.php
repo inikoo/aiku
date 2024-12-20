@@ -19,8 +19,8 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('website_id')->index();
             $table->foreign('website_id')->references('id')->on('websites');
-
             $table = $this->getWebpagesStatsFields($table);
+            $table = $this->getBannersStatsFields($table);
             $table = $this->getRedirectsStatsFields($table);
             $table->timestampsTz();
         });

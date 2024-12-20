@@ -54,6 +54,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_webpages_sub_type_pricing
  * @property int $number_webpages_sub_type_blog
  * @property int $number_webpages_sub_type_article
+ * @property int $number_banners
+ * @property int $number_banners_state_unpublished
+ * @property int $number_banners_state_live
+ * @property int $number_banners_state_switch_off
  * @property int $number_redirects
  * @property int $number_redirects_type_301
  * @property int $number_redirects_type_302

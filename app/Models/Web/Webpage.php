@@ -223,17 +223,6 @@ class Webpage extends Model implements Auditable
     }
 
 
-    public function getChildrenRecursively()
-    {
-        return $this->webpages->map(function ($child) {
-            return [
-                'slug'     => $child->slug,
-                'name'     => $child->code,
-                'children' => $child->getChildrenRecursively()
-            ];
-        });
-    }
-
     public function getFullUrl(): string
     {
         return 'https://'.$this->website->domain.'/'.$this->url;

@@ -21,6 +21,7 @@ return new class () extends Migration {
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
             $table = $this->getWebsitesStatsFields($table);
             $table = $this->getWebpagesStatsFields($table);
+            $table = $this->getBannersStatsFields($table);
             $table = $this->getRedirectsStatsFields($table);
             $table->timestampsTz();
         });
