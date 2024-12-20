@@ -19,8 +19,10 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('workplace_id');
             $table->foreign('workplace_id')->references('id')->on('workplaces')->onUpdate('cascade')->onDelete('cascade');
-            $this->getClockingMachinesFieldStats($table);
             $this->getEmployeeFieldStats($table);
+            $this->getClockingMachinesFieldStats($table);
+            $this->getClockingsFieldStats($table);
+            $this->getTimeTrackersStats($table);
             $table->timestampsTz();
         });
     }

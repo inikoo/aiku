@@ -25,6 +25,9 @@ return new class () extends Migration {
             $this->getWorkplaceFieldStats($table);
             $this->getEmployeeFieldStats($table);
             $this->getClockingMachinesFieldStats($table);
+            $this->getClockingsFieldStats($table);
+            $this->getTimesheetsStats($table);
+            $this->getTimeTrackersStats($table);
             $table->timestampsTz();
         });
     }

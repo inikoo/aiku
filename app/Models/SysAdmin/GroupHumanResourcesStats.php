@@ -52,6 +52,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_clockings_type_manual
  * @property int $number_clockings_type_self_check
  * @property int $number_clockings_type_system
+ * @property int $number_timesheets
+ * @property int $number_time_trackers
+ * @property int $number_time_trackers_status_open
+ * @property int $number_time_trackers_status_closed
+ * @property int $number_time_trackers_status_error
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group
