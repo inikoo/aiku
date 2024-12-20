@@ -18,7 +18,7 @@ return new class () extends Migration {
         Schema::create('order_stats', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('order_id')->index();
-            $table->foreign('order_id')->references('id')->on('orders');
+            $table->foreign('order_id')->references('id')->on('orders')->cascadeOnDelete();
 
             $table->unsignedSmallInteger('number_transactions_at_creation')->default(0);
             $table->unsignedSmallInteger('number_add_up_transactions')->default(0);

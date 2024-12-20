@@ -16,10 +16,10 @@ return new class () extends Migration {
         Schema::create('invoice_transaction_has_offer_components', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('invoice_id');
-            $table->foreign('invoice_id')->references('id')->on('invoices');
+            $table->foreign('invoice_id')->references('id')->on('invoices')->cascadeOnDelete();
 
             $table->unsignedBigInteger('invoice_transaction_id');
-            $table->foreign('invoice_transaction_id')->references('id')->on('invoice_transactions');
+            $table->foreign('invoice_transaction_id')->references('id')->on('invoice_transactions')->cascadeOnDelete();
 
             $table->string('model_type')->index()->nullable();
             $table->unsignedInteger('model_id')->index()->nullable();
