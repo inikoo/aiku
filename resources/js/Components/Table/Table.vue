@@ -897,6 +897,7 @@ const isLoading = ref<string | boolean>(false)
                                                 ]">
                                                 <slot :name="`cell(${column.key})`"
                                                     :item="{ ...item, index: index, rowIndex : key, editingIndicator: { loading: false, isSucces: false, isFailed: false, editMode: false }, data : item }"
+                                                    :proxyItem="item"
                                                     :tabName="name" class="">
                                                     <template v-if="typeof item[column.key] == 'number' || column.type === 'number'">
                                                         {{  locale.number(item[column.key]) }}

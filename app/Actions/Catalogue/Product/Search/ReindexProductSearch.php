@@ -10,6 +10,7 @@ namespace App\Actions\Catalogue\Product\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\Catalogue\Product;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexProductSearch extends HydrateModel
@@ -30,5 +31,25 @@ class ReindexProductSearch extends HydrateModel
     protected function getAllModels(): Collection
     {
         return Product::withTrashed()->get();
+    }
+
+    protected function loopAll(Command $command): void
+    {
+        $command->info("Reindex Products");
+        $count = Product::withTrashed()->count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        Product::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
     }
 }

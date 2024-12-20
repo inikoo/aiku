@@ -10,6 +10,7 @@ namespace App\Actions\Accounting\Invoice\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\Accounting\Invoice;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexInvoiceSearch extends HydrateModel
@@ -31,5 +32,25 @@ class ReindexInvoiceSearch extends HydrateModel
     protected function getAllModels(): Collection
     {
         return Invoice::withTrashed()->get();
+    }
+
+    protected function loopAll(Command $command): void
+    {
+        $command->info("Reindex Invoices");
+        $count = Invoice::withTrashed()->count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        Invoice::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
     }
 }

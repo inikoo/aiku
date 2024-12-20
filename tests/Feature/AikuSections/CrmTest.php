@@ -17,6 +17,7 @@ use App\Actions\CRM\BackInStockReminder\UpdateBackInStockReminder;
 use App\Actions\CRM\Customer\AddDeliveryAddressToCustomer;
 use App\Actions\CRM\Customer\DeleteCustomerDeliveryAddress;
 use App\Actions\CRM\Customer\HydrateCustomers;
+use App\Actions\CRM\Customer\Search\ReindexCustomerSearch;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\CustomerNote\StoreCustomerNote;
 use App\Actions\CRM\CustomerNote\UpdateCustomerNote;
@@ -28,6 +29,7 @@ use App\Actions\CRM\PollOption\StorePollOption;
 use App\Actions\CRM\PollOption\UpdatePollOption;
 use App\Actions\CRM\PollReply\StorePollReply;
 use App\Actions\CRM\PollReply\UpdatePollReply;
+use App\Actions\CRM\Prospect\Search\ReindexProspectSearch;
 use App\Actions\CRM\Prospect\StoreProspect;
 use App\Actions\CRM\Prospect\Tags\SyncTagsProspect;
 use App\Actions\CRM\Prospect\UpdateProspect;
@@ -858,4 +860,21 @@ test('UI get section route marketing mailshots index', function () {
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
         ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_MARKETING->value)
         ->and($sectionScope->model_slug)->toBe($this->shop->slug);
+});
+
+
+test('customers search', function () {
+    $this->artisan('search:customers')->assertExitCode(0);
+
+    $customers = Customer::first();
+    ReindexCustomerSearch::run($customers);
+    expect($customers->universalSearch()->count())->toBe(1);
+});
+
+test('prospects search', function () {
+    $this->artisan('search:prospects')->assertExitCode(0);
+
+    $prospects = Prospect::first();
+    ReindexProspectSearch::run($prospects);
+    expect($prospects->universalSearch()->count())->toBe(1);
 });

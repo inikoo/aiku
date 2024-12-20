@@ -12,6 +12,7 @@ namespace App\Actions\Procurement\OrgAgent\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\Procurement\OrgAgent;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexOrgAgentSearch extends HydrateModel
@@ -32,5 +33,25 @@ class ReindexOrgAgentSearch extends HydrateModel
     protected function getAllModels(): Collection
     {
         return OrgAgent::all();
+    }
+
+    protected function loopAll(Command $command): void
+    {
+        $command->info("Reindex Org Agents");
+        $count = OrgAgent::count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        OrgAgent::chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
     }
 }

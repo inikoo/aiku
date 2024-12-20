@@ -56,11 +56,11 @@ class StoreMailshot extends OrgAction
 
 
         Bus::chain([
-            OutboxHydrateMailshots::makeJob($outbox),
-            OrgPostRoomHydrateRuns::makeJob($outbox->orgPostRoom),
-            PostRoomHydrateRuns::makeJob($outbox->postRoom)
+            OutboxHydrateMailshots::makeJob($outbox)->delay($this->hydratorsDelay),
+            OrgPostRoomHydrateRuns::makeJob($outbox->orgPostRoom)->delay($this->hydratorsDelay),
+            PostRoomHydrateRuns::makeJob($outbox->postRoom)->delay($this->hydratorsDelay)
 
-        ])->dispatch()->delay($this->hydratorsDelay);
+        ])->dispatch();
 
 
         return $mailshot;

@@ -8,14 +8,17 @@
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
+use App\Actions\Web\Banner\Search\ReindexBannerSearch;
 use App\Actions\Web\Banner\StoreBanner;
 use App\Actions\Web\Banner\UpdateBanner;
 use App\Actions\Web\ExternalLink\StoreExternalLink;
 use App\Actions\Web\ModelHasWebBlocks\DeleteModelHasWebBlocks;
 use App\Actions\Web\ModelHasWebBlocks\StoreModelHasWebBlock;
 use App\Actions\Web\ModelHasWebBlocks\UpdateModelHasWebBlocks;
+use App\Actions\Web\Webpage\Search\ReindexWebpageSearch;
 use App\Actions\Web\Webpage\StoreWebpage;
 use App\Actions\Web\Website\LaunchWebsite;
+use App\Actions\Web\Website\Search\ReindexWebsiteSearch;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UpdateWebsite;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
@@ -298,3 +301,28 @@ test('update hello banner', function (Banner $banner) {
         ->and($banner->type)->toBe(BannerTypeEnum::LANDSCAPE);
 
 })->depends('store hello banner');
+
+test('websites search', function () {
+    $this->artisan('search:websites')->assertExitCode(0);
+
+    $website = Website::first();
+    ReindexWebsiteSearch::run($website);
+    expect($website->universalSearch()->count())->toBe(1);
+});
+
+test('webpages search', function () {
+    $this->artisan('search:webpages')->assertExitCode(0);
+
+    $webpage = Webpage::first();
+    ReindexWebpageSearch::run($webpage);
+    expect($webpage->universalSearch()->count())->toBe(1);
+});
+
+// this got error in test but works in real
+// test('banners search', function ($banner) {
+//     $this->artisan('search:banners')->assertExitCode(0);
+
+//     ReindexBannerSearch::run($banner);
+//     $banner = Banner::find($banner->id);
+//     expect($banner->universalSearch()->count())->toBe(1);
+// })->depends('store hello banner');

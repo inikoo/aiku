@@ -12,6 +12,7 @@ namespace App\Actions\Discounts\OfferCampaign\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\Discounts\OfferCampaign;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexOfferCampaignSearch extends HydrateModel
@@ -33,4 +34,26 @@ class ReindexOfferCampaignSearch extends HydrateModel
     {
         return OfferCampaign::withTrashed()->get();
     }
+
+    protected function loopAll(Command $command): void
+    {
+        $command->info("Reindex Offer Campaigns");
+        $count = OfferCampaign::withTrashed()->count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        OfferCampaign::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
+    }
+
+
 }

@@ -10,6 +10,7 @@ namespace App\Actions\Dropshipping\Portfolio\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\Dropshipping\Portfolio;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexPortfolioSearch extends HydrateModel
@@ -30,5 +31,25 @@ class ReindexPortfolioSearch extends HydrateModel
     protected function getAllModels(): Collection
     {
         return Portfolio::all();
+    }
+
+    protected function loopAll(Command $command): void
+    {
+        $command->info("Reindex Portfolios");
+        $count = Portfolio::count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        Portfolio::chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
     }
 }

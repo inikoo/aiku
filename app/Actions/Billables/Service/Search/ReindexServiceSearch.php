@@ -10,6 +10,7 @@ namespace App\Actions\Billables\Service\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\Billables\Service;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexServiceSearch extends HydrateModel
@@ -30,5 +31,25 @@ class ReindexServiceSearch extends HydrateModel
     protected function getAllModels(): Collection
     {
         return Service::withTrashed()->get();
+    }
+
+    protected function loopAll(Command $command): void
+    {
+        $command->info("Reindex Services");
+        $count = Service::withTrashed()->count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        Service::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
     }
 }
