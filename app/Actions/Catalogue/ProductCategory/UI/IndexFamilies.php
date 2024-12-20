@@ -125,7 +125,7 @@ class IndexFamilies extends OrgAction
         $queryBuilder->leftJoin('organisations', 'product_categories.organisation_id', '=', 'organisations.id');
         $queryBuilder->leftJoin('product_category_sales_intervals', 'product_category_sales_intervals.product_category_id', 'product_categories.id');
         $queryBuilder->leftJoin('product_category_ordering_intervals', 'product_category_ordering_intervals.product_category_id', 'product_categories.id');
-        if ($this->parent instanceof Group) {
+        if ($parent instanceof Group) {
             $queryBuilder->where('product_categories.group_id', $parent->id);
         } elseif (class_basename($parent) == 'Shop') {
             $queryBuilder->where('product_categories.shop_id', $parent->id);
@@ -246,7 +246,7 @@ class IndexFamilies extends OrgAction
                 $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
                 
-                if ($this->parent instanceof Group) {
+                if ($parent instanceof Group) {
                     $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
                     ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
                 }

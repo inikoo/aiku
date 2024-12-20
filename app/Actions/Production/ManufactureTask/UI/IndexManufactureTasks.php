@@ -94,7 +94,7 @@ class IndexManufactureTasks extends OrgAction
         $queryBuilder = QueryBuilder::for(ManufactureTask::class)
         ->leftJoin('organisations', 'manufacture_tasks.organisation_id', '=', 'organisations.id');
 
-        if ($this->parent instanceof Group) {
+        if ($parent instanceof Group) {
             $queryBuilder->where('manufacture_tasks.group_id', $parent->id);
         } elseif ($parent instanceof Organisation) {
             $queryBuilder->where('manufacture_tasks.organisation_id', $parent->id);
@@ -166,7 +166,7 @@ class IndexManufactureTasks extends OrgAction
                 )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
-            if ($this->parent instanceof Group) {
+            if ($parent instanceof Group) {
                 $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true);
             }
             $table->defaultSort('code');

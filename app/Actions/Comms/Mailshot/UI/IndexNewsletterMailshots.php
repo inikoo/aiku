@@ -52,7 +52,7 @@ class IndexNewsletterMailshots extends OrgAction
         $queryBuilder = QueryBuilder::for(Mailshot::class)
                         ->leftJoin('organisations', 'mailshots.organisation_id', '=', 'organisations.id')
                         ->leftJoin('shops', 'mailshots.shop_id', '=', 'shops.id');
-        if ($this->parent instanceof Group) {
+        if ($parent instanceof Group) {
             $queryBuilder->where('mailshots.group_id', $parent->id);
         }
         $queryBuilder->leftJoin('outboxes', 'mailshots.outbox_id', 'outboxes.id')
@@ -108,7 +108,7 @@ class IndexNewsletterMailshots extends OrgAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->column(key: 'subject', label: __('subject'), canBeHidden: false, sortable: true, searchable: true);
-            if ($this->parent instanceof Group) {
+            if ($parent instanceof Group) {
                 $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
                         ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
             }
