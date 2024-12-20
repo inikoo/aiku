@@ -18,6 +18,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateCreditTransactions;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateCustomers;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateDeliveryNotes;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateDepartments;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateDispatchedEmails;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateFamilies;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateGuests;
@@ -36,6 +37,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStocks;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInvoices;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateJobPositions;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateLocations;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateMailshots;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOrganisations;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePaymentAccounts;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePayments;
@@ -119,7 +121,9 @@ class HydrateGroup extends HydrateModel
         GroupHydratePostRooms::run($group);
         GroupHydrateOrgPostRooms::run($group);
         GroupHydrateOutboxes::run($group);
+        GroupHydrateDispatchedEmails::run($group);
         GroupHydrateSupplierProducts::run($group);
+        GroupHydrateMailshots::run($group);
 
         //fulfilment
         GroupHydratePallets::run($group);

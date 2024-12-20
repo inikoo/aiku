@@ -12,6 +12,7 @@ use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Accounting\CreditTransaction;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceCategory;
+use App\Models\Accounting\InvoiceTransaction;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
@@ -31,8 +32,12 @@ use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\Catalogue\Subscription;
+use App\Models\Comms\DispatchedEmail;
+use App\Models\Comms\Email;
 use App\Models\Comms\EmailAddress;
+use App\Models\Comms\EmailBulkRun;
 use App\Models\Comms\EmailTemplate;
+use App\Models\Comms\Mailshot;
 use App\Models\Comms\OrgPostRoom;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
@@ -486,6 +491,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasMany(Invoice::class);
     }
 
+    public function invoiceTransactions(): HasMany
+    {
+        return $this->hasMany(InvoiceTransaction::class);
+    }
+
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
@@ -666,6 +676,25 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasMany(Outbox::class);
     }
 
+    public function mailshots(): HasMany
+    {
+        return $this->hasMany(Mailshot::class);
+    }
+
+    public function emails(): HasMany
+    {
+        return $this->hasMany(Email::class);
+    }
+
+    public function emailBulkRuns(): HasMany
+    {
+        return $this->hasMany(EmailBulkRun::class);
+    }
+
+    public function DispatchedEmails(): HasMany
+    {
+        return $this->hasMany(DispatchedEmail::class);
+    }
 
     public function webBlockTypes(): HasMany
     {

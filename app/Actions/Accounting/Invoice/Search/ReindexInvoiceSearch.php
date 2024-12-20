@@ -14,7 +14,7 @@ use Illuminate\Support\Collection;
 
 class ReindexInvoiceSearch extends HydrateModel
 {
-    public string $commandSignature = 'invoice:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:invoices {organisations?*} {--s|slugs=}';
 
 
     public function handle(Invoice $invoice): void

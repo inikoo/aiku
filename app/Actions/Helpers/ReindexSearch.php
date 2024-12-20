@@ -32,18 +32,31 @@ class ReindexSearch extends HydrateModel
             $this->reindexInventory($command);
         }
 
+        if ($this->checkIfCanReindex(['goods'], $command)) {
+            $this->reindexGoods($command);
+        }
+
 
         return 0;
     }
 
 
+    protected function reindexGoods(Command $command): void
+    {
+        $command->info('Goods section ⛅️');
+        //todo search $command->call('search:stocks');
+        //todo search $command->call('search:stock_families');
 
+    }
     protected function reindexInventory(Command $command): void
     {
         $command->info('Inventory section 📦');
         $command->call('search:warehouses');
         $command->call('search:warehouse_areas');
         $command->call('search:locations');
+        $command->call('search:org_stocks');
+        $command->call('search:org_stock_families');
+
     }
 
     protected function reindexCrm(Command $command): void

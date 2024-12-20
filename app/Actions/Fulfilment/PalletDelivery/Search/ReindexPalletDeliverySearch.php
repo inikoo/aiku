@@ -14,7 +14,7 @@ use Illuminate\Support\Collection;
 
 class ReindexPalletDeliverySearch extends HydrateModel
 {
-    public string $commandSignature = 'pallet_delivery:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:pallet_deliveries {organisations?*} {--s|slugs=}';
 
 
     public function handle(PalletDelivery $palletDelivery): void

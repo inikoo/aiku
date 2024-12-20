@@ -16,7 +16,7 @@ use Illuminate\Support\Collection;
 
 class ReindexOfferCampaignSearch extends HydrateModel
 {
-    public string $commandSignature = 'offer_campaign:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:offer_campaigns {organisations?*} {--s|slugs=}';
 
 
     public function handle(OfferCampaign $offerCampaign): void

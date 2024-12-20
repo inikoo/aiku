@@ -15,7 +15,7 @@ use Illuminate\Support\Collection;
 
 class ReindexStoredItem extends HydrateModel
 {
-    public string $commandSignature = 'stored-item:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'stored-search:items {organisations?*} {--s|slugs=}';
 
 
     public function handle(StoredItem $storedItem): void

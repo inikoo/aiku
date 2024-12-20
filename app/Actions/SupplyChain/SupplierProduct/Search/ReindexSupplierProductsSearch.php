@@ -15,7 +15,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class ReindexSupplierProductsSearch
 {
     use AsAction;
-    public string $commandSignature = 'supplier-products:search';
+    public string $commandSignature = 'search:supplier_products';
 
     public function handle(SupplierProduct $supplierProduct): void
     {

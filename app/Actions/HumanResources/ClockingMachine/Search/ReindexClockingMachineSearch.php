@@ -16,7 +16,7 @@ use Illuminate\Support\Collection;
 
 class ReindexClockingMachineSearch extends HydrateModel
 {
-    public string $commandSignature = 'clocking_machine:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:clocking_machines {organisations?*} {--s|slugs=}';
 
 
     public function handle(ClockingMachine $clockingMachine): void

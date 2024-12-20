@@ -11,12 +11,14 @@
 namespace App\Actions\Inventory\OrgStock\Search;
 
 use App\Actions\HydrateModel;
+use App\Models\Inventory\Location;
 use App\Models\Inventory\OrgStock;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexOrgStockSearch extends HydrateModel
 {
-    public string $commandSignature = 'org_stock:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:org_stocks {organisations?*} {--s|slugs=}';
 
 
     public function handle(OrgStock $orgStock): void
@@ -30,8 +32,23 @@ class ReindexOrgStockSearch extends HydrateModel
         return OrgStock::withTrashed()->where('slug', $slug)->first();
     }
 
-    protected function getAllModels(): Collection
+    protected function loopAll(Command $command): void
     {
-        return OrgStock::withTrashed()->get();
+        $command->info("Reindex Org Stocks");
+        $count = OrgStock::withTrashed()->count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        OrgStock::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
     }
 }

@@ -15,7 +15,7 @@ use Illuminate\Support\Collection;
 
 class ReindexPalletSearch extends HydrateModel
 {
-    public string $commandSignature = 'pallet:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:pallets {organisations?*} {--s|slugs=}';
 
 
     public function handle(Pallet $pallet): void
