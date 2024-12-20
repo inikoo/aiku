@@ -196,7 +196,7 @@ const onUpdateStatus=(routes,data)=>{
         </Tag>
       </div>
       <div v-else class="text-gray-400 text-xs italic">
-        No items in this pallet
+        {{ trans("No items in this pallet") }}
       </div>
     </template>
 
