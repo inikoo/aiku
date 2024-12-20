@@ -7,14 +7,12 @@
  */
 
 use App\Stubs\Migrations\HasCRMStats;
-use App\Stubs\Migrations\HasProspectStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasCRMStats;
-    use HasProspectStats;
 
     public function up(): void
     {

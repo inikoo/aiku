@@ -22,6 +22,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_customers_state_active
  * @property int $number_customers_state_losing
  * @property int $number_customers_state_lost
+ * @property int $number_customers_status_pending_approval
+ * @property int $number_customers_status_approved
+ * @property int $number_customers_status_rejected
+ * @property int $number_customers_status_banned
  * @property int $number_customers_trade_state_none
  * @property int $number_customers_trade_state_one
  * @property int $number_customers_trade_state_many
