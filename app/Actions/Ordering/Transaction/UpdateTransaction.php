@@ -14,7 +14,6 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Transaction\TransactionFailStatusEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
-use App\Models\Catalogue\HistoricAsset;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
 use Illuminate\Support\Arr;
@@ -30,16 +29,15 @@ class UpdateTransaction extends OrgAction
         if (Arr::exists($modelData, 'quantity_ordered')) {
             if ($this->strict) {
                 $historicAsset = $transaction->historicAsset;
-            } else {
-                $historicAsset = HistoricAsset::withTrashed()->find($transaction->historic_asset_id);
+                $net = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
+                // todo deal with discounts
+                $gross = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
+
+                data_set($modelData, 'gross_amount', $gross);
+                data_set($modelData, 'net_amount', $net);
+
             }
 
-            $net = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
-            // todo deal with discounts
-            $gross = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
-
-            data_set($modelData, 'gross_amount', $gross);
-            data_set($modelData, 'net_amount', $net);
         }
 
         $this->update($transaction, $modelData, ['data']);
@@ -73,6 +71,11 @@ class UpdateTransaction extends OrgAction
         ];
 
         if (!$this->strict) {
+            $rules['model_type']        = ['sometimes', 'required', 'string'];
+            $rules['model_id']          = ['sometimes', 'nullable', 'integer'];
+            $rules['asset_id']          = ['sometimes', 'nullable', 'integer'];
+            $rules['historic_asset_id'] = ['sometimes', 'nullable', 'integer'];
+
             $rules['in_warehouse_at'] = ['sometimes', 'required', 'date'];
             $rules['created_at']      = ['sometimes', 'required', 'date'];
             $rules['last_fetched_at'] = ['sometimes', 'required', 'date'];

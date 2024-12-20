@@ -51,6 +51,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read \App\Models\Dispatching\Packing|null $packings
  * @property-read \App\Models\Dispatching\Picking|null $pickings
  * @property-read \App\Models\Catalogue\Shop $shop
+ * @property-read Transaction|null $transaction
  * @method static Builder<static>|DeliveryNoteItem newModelQuery()
  * @method static Builder<static>|DeliveryNoteItem newQuery()
  * @method static Builder<static>|DeliveryNoteItem query()

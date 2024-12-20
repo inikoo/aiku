@@ -28,19 +28,16 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('email_ongoing_run_id')->nullable()->index();
             $table->foreign('email_ongoing_run_id')->references('id')->on('email_ongoing_runs');
 
-
             $table->unsignedInteger('email_id')->nullable()->index();
             $table->foreign('email_id')->references('id')->on('emails');
 
             $table->unsignedInteger('snapshot_id')->nullable()->index();
             $table->foreign('snapshot_id')->references('id')->on('snapshots');
 
-
             $table->string('state')->index();
-            //  $table->string('type')->index();
-
 
             $table->dateTimeTz('scheduled_at')->nullable();
+            $table->dateTimeTz('recipients_stored_at')->nullable();
             $table->dateTimeTz('start_sending_at')->nullable();
             $table->dateTimeTz('sent_at')->nullable();
             $table->dateTimeTz('cancelled_at')->nullable();

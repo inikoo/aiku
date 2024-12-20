@@ -14,6 +14,7 @@ use App\Models\Discounts\OfferCampaign;
 use App\Models\Discounts\OfferComponent;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\InvoiceTransactionHasFeedback;
+use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
 use App\Models\Traits\InCustomer;
 use Eloquent;
@@ -70,6 +71,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Offer> $offer
  * @property-read \Illuminate\Database\Eloquent\Collection<int, OfferCampaign> $offerCampaign
  * @property-read \Illuminate\Database\Eloquent\Collection<int, OfferComponent> $offerComponents
+ * @property-read Order|null $order
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read Transaction|null $transaction
@@ -119,6 +121,11 @@ class InvoiceTransaction extends Model
     public function transaction(): BelongsTo
     {
         return $this->belongsTo(Transaction::class);
+    }
+
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class);
     }
 
     public function asset(): BelongsTo

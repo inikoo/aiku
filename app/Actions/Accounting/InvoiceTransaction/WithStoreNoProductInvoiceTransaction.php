@@ -11,9 +11,9 @@ namespace App\Actions\Accounting\InvoiceTransaction;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceTransaction;
 
-trait WithStoreInvoiceTransaction
+trait WithStoreNoProductInvoiceTransaction
 {
-    private function processInvoiceTransaction(Invoice $invoice, array $modelData): InvoiceTransaction
+    private function processNoProductInvoiceTransaction(Invoice $invoice, array $modelData): InvoiceTransaction
     {
         data_set($modelData, 'date', now(), overwrite: false);
 
@@ -28,6 +28,11 @@ trait WithStoreInvoiceTransaction
         /** @var InvoiceTransaction $invoiceTransaction */
         $invoiceTransaction = $invoice->invoiceTransactions()->create($modelData);
 
+        if ($invoiceTransaction->order_id and $invoiceTransaction->transaction_id) {
+            $invoiceTransaction->transaction->update([
+                'invoice_id' => $invoice->id
+            ]);
+        }
 
         return $invoiceTransaction;
     }
@@ -37,19 +42,24 @@ trait WithStoreInvoiceTransaction
         $rules = [
             'date'            => ['sometimes', 'required', 'date'],
             'tax_category_id' => ['required', 'exists:tax_categories,id'],
-            'quantity'        => ['required', 'numeric'],
+            'quantity'        => ['required', 'numeric', 'min:0'],
             'gross_amount'    => ['required', 'numeric'],
             'net_amount'      => ['required', 'numeric'],
             'org_exchange'    => ['sometimes', 'numeric'],
             'grp_exchange'    => ['sometimes', 'numeric'],
+            'order_id'        => ['sometimes', 'nullable', 'integer'],//todo  Do proper validation
+            'transaction_id'  => ['sometimes', 'nullable', 'integer'],//todo  Do proper validation
+            'submitted_at'    => ['sometimes', 'required', 'date'],
 
         ];
 
         if (!$this->strict) {
-            $rules['source_id']     = ['sometimes', 'string', 'max:255'];
-            $rules['source_alt_id'] = ['sometimes', 'string', 'max:255'];
-            $rules['fetched_at']    = ['sometimes', 'required', 'date'];
-            $rules['created_at']    = ['sometimes', 'required', 'date'];
+            $rules['order_id']       = ['sometimes', 'nullable', 'integer'];
+            $rules['transaction_id'] = ['sometimes', 'nullable', 'integer'];
+            $rules['source_id']      = ['sometimes', 'string', 'max:255'];
+            $rules['source_alt_id']  = ['sometimes', 'string', 'max:255'];
+            $rules['fetched_at']     = ['sometimes', 'required', 'date'];
+            $rules['created_at']     = ['sometimes', 'required', 'date'];
         }
 
 

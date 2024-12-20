@@ -72,8 +72,9 @@ class StoreInvoiceTransaction extends OrgAction
         /** @var InvoiceTransaction $invoiceTransaction */
         $invoiceTransaction = $invoice->invoiceTransactions()->create($modelData);
 
-        if ($model instanceof Transaction) {
-            $model->update([
+        if ($invoiceTransaction->order_id and $invoiceTransaction->transaction_id) {
+
+            $invoiceTransaction->transaction->update([
                 'invoice_id' => $invoice->id
             ]);
         }

@@ -29,7 +29,6 @@ class StoreTransactionFromAdjustment extends OrgAction
 
     public function handle(Order $order, Adjustment $adjustment, array $modelData): Transaction
     {
-
         $modelData = $this->prepareAdjustmentTransaction($adjustment, $modelData);
         $modelData = $this->transactionFieldProcess($order, $modelData);
 
@@ -58,12 +57,16 @@ class StoreTransactionFromAdjustment extends OrgAction
             'org_net_amount' => ['sometimes', 'numeric'],
             'grp_net_amount' => ['sometimes', 'numeric'],
 
-            'tax_category_id' => ['sometimes', 'required', 'exists:tax_categories,id'],
-            'date'            => ['sometimes', 'required', 'date'],
+            'tax_category_id'     => ['sometimes', 'required', 'exists:tax_categories,id'],
+            'date'                => ['sometimes', 'required', 'date'],
+            'quantity_ordered'    => ['required', 'numeric', 'min:0'],
+            'quantity_dispatched' => ['sometimes', 'required', 'numeric', 'min:0'],
+            'submitted_at'        => ['sometimes', 'required', 'date'],
+
         ];
 
         if (!$this->strict) {
-            $rules['source_alt_id'] = ['sometimes', 'string','max:255'];
+            $rules['source_alt_id'] = ['sometimes', 'string', 'max:255'];
             $rules['fetched_at']    = ['sometimes', 'required', 'date'];
             $rules['created_at']    = ['sometimes', 'required', 'date'];
         }

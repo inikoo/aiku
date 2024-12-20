@@ -10,12 +10,11 @@
 namespace App\Actions\Comms\OrgPostRoom\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
-use App\Actions\Comms\ShowCommsDashboard;
-use App\Actions\Comms\WithCommsSubNavigation;
+use App\Actions\Comms\Traits\WithCommsSubNavigation;
+use App\Actions\Comms\UI\ShowCommsDashboard;
 use App\Actions\OrgAction;
 use App\Http\Resources\Mail\OrgPostRoomsResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\OrgPostRoom;
 use App\Models\SysAdmin\Organisation;

@@ -11,36 +11,30 @@ namespace App\Actions\Traits;
 use App\Models\Billables\Charge;
 use App\Models\Ordering\Adjustment;
 use App\Models\Ordering\ShippingZone;
-use Illuminate\Support\Arr;
 
 trait WithStoreNoProductTransaction
 {
-    private function prepareChargeTransaction($modelData): array
+    private function prepareChargeTransaction(?Charge $charge, $modelData): array
     {
         data_set($modelData, 'model_type', 'Charge');
-        data_set($modelData, 'model_id', Arr::get($modelData, 'charge_id'));
-
-        if (Arr::get($modelData, 'charge_id')) {
-            data_set($modelData, 'asset_id', Arr::get($modelData, 'charge_id'));
-            $charge = Charge::find(Arr::get($modelData, 'charge_id'));
+        if ($charge) {
+            data_set($modelData, 'model_id', $charge->id);
+            data_set($modelData, 'asset_id', $charge->id);
             data_set($modelData, 'historic_asset_id', $charge->current_historic_asset_id);
         }
 
-        data_forget($modelData, 'charge_id');
         return $modelData;
     }
 
-    private function prepareShippingTransaction($modelData): array
+    private function prepareShippingTransaction(?ShippingZone $shippingZone, $modelData): array
     {
         data_set($modelData, 'model_type', 'ShippingZone');
-        data_set($modelData, 'model_id', Arr::get($modelData, 'shipping_zone_id'));
-
-        if (Arr::get($modelData, 'shipping_zone_id')) {
-            data_set($modelData, 'asset_id', Arr::get($modelData, 'shipping_zone_id'));
-            $shippingZone = ShippingZone::find(Arr::get($modelData, 'shipping_zone_id'));
+        if ($shippingZone) {
+            data_set($modelData, 'model_id', $shippingZone->id);
+            data_set($modelData, 'asset_id', $shippingZone->id);
             data_set($modelData, 'historic_asset_id', $shippingZone->current_historic_asset_id);
         }
-        data_forget($modelData, 'shipping_zone_id');
+
         return $modelData;
     }
 
@@ -54,8 +48,8 @@ trait WithStoreNoProductTransaction
 
         data_set($modelData, 'gross_amount', $gross, overwrite: false);
         data_set($modelData, 'net_amount', $net, overwrite: false);
-        return $modelData;
 
+        return $modelData;
     }
 
 }

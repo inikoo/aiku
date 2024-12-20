@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Mon, 30 Oct 2023 16:11:55 Malaysia Time, Kuala Lumpur, Malaysia
@@ -8,11 +9,11 @@
 namespace App\Actions\Comms\Mailshot;
 
 use App\Actions\Comms\DispatchedEmail\StoreDispatchedEmail;
-use App\Actions\Comms\Traits\WithSendMailshot;
 use App\Actions\OrgAction;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Models\Comms\Email;
+use App\Models\Comms\EmailBulkRun;
 use App\Models\Comms\Mailshot;
 use App\Models\Comms\Outbox;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -26,33 +27,20 @@ class SendMailshotTest extends OrgAction
 {
     use AsCommand;
     use AsAction;
-    use WithSendMailshot;
 
-    public function handle(Mailshot $mailshot, array $modelData): Collection
+    public function handle(Mailshot|EmailBulkRun $parent, array $modelData): Collection
     {
-        $layout        = $mailshot->email->liveSnapshot->compiled_layout;
-
-        $emailHtmlBody = $layout['html']['html'];
-
         $dispatchedEmails = [];
         foreach (Arr::get($modelData, 'emails', []) as $email) {
             $email           = Email::firstOrCreate(['address' => $email]);
-            $dispatchedEmail = StoreDispatchedEmail::run($email, $mailshot, [
+            $dispatchedEmail = StoreDispatchedEmail::run($email, $parent, [
                 'is_test'   => true,
                 'outbox_id' => Outbox::where('type', OutboxTypeEnum::TEST)->pluck('id')->first()
 
             ]);
             $dispatchedEmail->refresh();
 
-            $unsubscribeUrl = route('org.unsubscribe.mailshot.show', $dispatchedEmail->ulid);
-
-            $this->sendEmailWithMergeTags(
-                $dispatchedEmail,
-                $mailshot->sender(),
-                $mailshot->subject,
-                $emailHtmlBody,
-                $unsubscribeUrl,
-            );
+            GetHtmlLayout::run($parent, $dispatchedEmail);
 
             $dispatchedEmails[] = $dispatchedEmail;
         }

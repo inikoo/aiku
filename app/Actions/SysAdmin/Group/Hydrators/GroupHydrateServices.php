@@ -52,7 +52,6 @@ class GroupHydrateServices
 
         $group->catalogueStats()->update($stats);
 
-
     }
 
 }

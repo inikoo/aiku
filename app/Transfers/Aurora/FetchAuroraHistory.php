@@ -78,6 +78,20 @@ class FetchAuroraHistory extends FetchAurora
             }
         }
 
+        if ($event == 'updated' and
+            (
+                count($oldValues) == 1 and
+                count($newValues) == 0
+            )
+
+        ) {
+            // todo, later on check if really the old values are empty or is an parsing error
+            $newValues = $oldValues;
+            foreach ($newValues as $key => $value) {
+                $newValues[$key] = '';
+            }
+        }
+
 
         if ($event == 'updated' and
             (

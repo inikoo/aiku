@@ -8,7 +8,7 @@
 
 namespace App\Actions\Comms\Mailshot;
 
-use App\Actions\Comms\Mailshot\Hydrators\MailshotHydrateEmails;
+use App\Actions\Comms\Mailshot\Hydrators\MailshotHydrateDispatchedEmails;
 use App\Actions\HydrateModel;
 use App\Models\Comms\Mailshot;
 use Illuminate\Support\Collection;
@@ -19,12 +19,12 @@ class HydrateMailshot extends HydrateModel
 
     public function handle(Mailshot $mailshot): void
     {
-        MailshotHydrateEmails::run($mailshot);
+        MailshotHydrateDispatchedEmails::run($mailshot);
     }
 
-    protected function getModel(string $slugs): Mailshot
+    protected function getModel(string $slug): Mailshot
     {
-        return Mailshot::where('slug', $slugs)->first();
+        return Mailshot::where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection

@@ -36,7 +36,7 @@ return new class () extends Migration {
             $table->dateTimeTz('date')->index();
             $table->dateTimeTz('ready_at')->nullable();
             $table->dateTimeTz('scheduled_at')->nullable();
-
+            $table->dateTimeTz('recipients_stored_at')->nullable();
             $table->dateTimeTz('start_sending_at')->nullable();
             $table->dateTimeTz('sent_at')->nullable();
             $table->dateTimeTz('cancelled_at')->nullable();

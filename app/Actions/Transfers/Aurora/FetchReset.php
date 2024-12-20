@@ -316,7 +316,16 @@ class FetchReset
 
                 DB::connection('aurora')->table('Order Dimension')
                     ->whereNotNull($aikuIdField)
-                    ->update([$aikuIdField => null]);
+                    ->update([
+                        $aikuIdField => null,
+                    ]);
+
+                DB::connection('aurora')->table('Order Dimension')
+                    ->whereNotNull('aiku_all_id')
+                    ->update([
+                        'aiku_all_id' => null
+                    ]);
+
                 DB::connection('aurora')->table('Order Transaction Fact')
                     ->whereNotNull($aikuIdField)
                     ->update(
@@ -363,6 +372,12 @@ class FetchReset
                     ->whereNotNull($aikuIdField)
                     ->update([$aikuIdField => null]);
 
+                DB::connection('aurora')->table('Delivery Note Dimension')
+                    ->whereNotNull('aiku_all_id')
+                    ->update([
+                        'aiku_all_id' => null
+                    ]);
+
 
                 DB::connection('aurora')->table('Inventory Transaction Fact')
                     ->whereNotNull($aikuIdField)
@@ -397,6 +412,14 @@ class FetchReset
                     ->table('Invoice Dimension')
                     ->whereNotNull($aikuIdField)
                     ->update([$aikuIdField => null]);
+
+                DB::connection('aurora')->table('Invoice Dimension')
+                    ->whereNotNull('aiku_all_id')
+                    ->update([
+                        'aiku_all_id' => null
+                    ]);
+
+
                 //DB::connection('aurora')->table('Invoice Deleted Dimension')->update([$aikuIdField => null]);
 
 

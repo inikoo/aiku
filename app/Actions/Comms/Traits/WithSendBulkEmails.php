@@ -2,26 +2,20 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 19 Nov 2024 11:09:35 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2024, Raul A Perusquia Flores
+ * Created: Thu, 14 Dec 2023 13:11:38 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Comms\Traits;
 
-use App\Actions\Comms\SenderEmail\SendAlibabaEmail;
 use App\Actions\Comms\Ses\SendSesEmail;
 use App\Models\Comms\DispatchedEmail;
 use Illuminate\Support\Str;
 
-trait WithSendMailshot
+trait WithSendBulkEmails
 {
-    public function sendEmailWithMergeTags(
-        DispatchedEmail $dispatchedEmail,
-        string $sender,
-        string $subject,
-        string $emailHtmlBody,
-        string $unsubscribeUrl,
-    ): void {
+    public function sendEmailWithMergeTags(DispatchedEmail $dispatchedEmail, string $sender, string $subject, string $emailHtmlBody, string $unsubscribeUrl)
+    {
         $html = $emailHtmlBody;
 
         $html = $this->processStyles($html);
@@ -40,22 +34,13 @@ trait WithSendMailshot
             }
         }
 
-        match ('Alibaba') {
-            'Ses' => SendSesEmail::run(
-                subject: $subject,
-                emailHtmlBody: $html,
-                dispatchedEmail: $dispatchedEmail,
-                sender: $sender,
-                unsubscribeUrl: $unsubscribeUrl
-            ),
-            'Alibaba' => SendAlibabaEmail::run(
-                subject: $subject,
-                emailHtmlBody: $html,
-                dispatchedEmail: $dispatchedEmail,
-                sender: $sender,
-                unsubscribeUrl: $unsubscribeUrl
-            )
-        };
+        return SendSesEmail::run(
+            subject: $subject,
+            emailHtmlBody: $html,
+            dispatchedEmail: $dispatchedEmail,
+            sender: $sender,
+            unsubscribeUrl: $unsubscribeUrl
+        );
     }
 
     private function replaceMergeTags($placeholder, $dispatchedEmail, $unsubscribeUrl): string
