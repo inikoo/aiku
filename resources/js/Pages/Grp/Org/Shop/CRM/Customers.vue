@@ -9,18 +9,40 @@ import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import TableCustomers from '@/Components/Tables/Grp/Org/CRM/TableCustomers.vue';
 import { capitalize } from "@/Composables/capitalize"
+import Tabs from "@/Components/Navigation/Tabs.vue"
+import { useTabChange } from "@/Composables/tab-change"
+import { computed, ref } from "vue"
 
 const props = defineProps<{
-    data: {}
+    pageHead: PageHeadingTypes
     title: string
-    pageHead: {}
+    tabs: {
+        current: string
+        navigation: {}
+    },
+    data: {},
+    dashboard?: {}
+    customers?: {}
 }>()
+
+const currentTab = ref<string>(props.tabs.current)
+const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
+
+const component = computed(() => {
+    const components: any = {
+        customers: TableCustomers,
+    }
+
+    return components[currentTab.value]
+})
 
 </script>
 
 <template>
-    <Head :title="capitalize(title)"/>
-    <PageHeading :data="pageHead"></PageHeading>
-    <TableCustomers :data="data"  />
+  <Head :title="capitalize(title)"/>
+  <PageHeading :data="pageHead"/>
+  <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
+  <component :is="component" :key="currentTab" :tab="currentTab" :data="props[currentTab]"></component>
 </template>
+
 

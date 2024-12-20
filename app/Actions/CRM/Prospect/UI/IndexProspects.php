@@ -227,14 +227,6 @@ class IndexProspects extends OrgAction
                 ProspectsTabsEnum::PROSPECTS->value => $this->tab == ProspectsTabsEnum::PROSPECTS->value ?
                     fn () => $dataProspect
                     : Inertia::lazy(fn () => $dataProspect),
-
-                ProspectsTabsEnum::LISTS->value => $this->tab == ProspectsTabsEnum::LISTS->value ?
-                    fn () => ProspectQueriesResource::collection(IndexProspectQueries::run(prefix: ProspectsTabsEnum::LISTS->value))
-                    : Inertia::lazy(fn () => ProspectQueriesResource::collection(IndexProspectQueries::run(prefix: ProspectsTabsEnum::LISTS->value))),
-
-                ProspectsTabsEnum::MAILSHOTS->value => $this->tab == ProspectsTabsEnum::MAILSHOTS->value ?
-                    fn () => MailshotsResource::collection(IndexProspectMailshots::run(shop: $this->parent, prefix: ProspectsTabsEnum::MAILSHOTS->value))
-                    : Inertia::lazy(fn () => MailshotsResource::collection(IndexProspectMailshots::run(shop: $this->parent, prefix: ProspectsTabsEnum::MAILSHOTS->value))),
                 ProspectsTabsEnum::HISTORY->value   => $this->tab == ProspectsTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run(model: Prospect::class, prefix: ProspectsTabsEnum::HISTORY->value))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run(model: Prospect::class, prefix: ProspectsTabsEnum::HISTORY->value))),
@@ -323,24 +315,6 @@ class IndexProspects extends OrgAction
 
             ]
         )->table($this->tableStructure(parent: $this->parent, prefix: ProspectsTabsEnum::PROSPECTS->value))
-            ->table(
-                IndexProspectQueries::make()->tableStructure(
-                    modelOperations: [
-                        'createLink' => [
-                            [
-                                'route' => [
-                                    'name'       => 'grp.org.shops.show.crm.prospects.lists.create',
-                                    'parameters' => array_values($request->route()->originalParameters())
-                                ],
-                                'label' => __('New list'),
-                                'style' => 'primary'
-                            ],
-                        ]
-                    ],
-                    prefix: ProspectsTabsEnum::LISTS->value
-                )
-            )
-            ->table(IndexProspectMailshots::make()->tableStructure(prefix: ProspectsTabsEnum::MAILSHOTS->value))
             ->table(IndexHistory::make()->tableStructure(prefix: ProspectsTabsEnum::HISTORY->value));
     }
 
