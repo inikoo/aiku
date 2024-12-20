@@ -87,13 +87,13 @@ class GetOverview extends OrgAction
                     'name' => 'Mailshots',
                     'icon' => 'fal fa-mail-bulk',
                     'route' => 'grp.overview.marketing.mailshots.index',
-                    'count' => $group->commsStats->number_outboxes_type_marketing
+                    'count' => $group->commsStats->number_mailshots
                 ],
                 [
                     'name' => 'Emails',
                     'icon' => 'fal fa-envelope',
                     'route' => '',
-                    'count' => 0 // $group->commsStats->number_emails
+                    'count' => $group->commsStats->number_emails // $group->commsStats->number_emails
                 ],
                 [
                     'name' => 'Dispatched Emails',
@@ -105,7 +105,7 @@ class GetOverview extends OrgAction
                     'name' => 'Email Bulk Runs',
                     'icon' => 'fal fa-envelope-open-text',
                     'route' => '',
-                    'count' => 0
+                    'count' => $group->commsStats->number_email_bulk_runs
                 ],
             ],
             'Catalogue' => [
@@ -211,7 +211,7 @@ class GetOverview extends OrgAction
                     'name' => 'Web Users',
                     'icon' => 'fal fa-user-circle',
                     'route' => 'grp.overview.crm.web-users.index',
-                    'count' => 0 // $group->crmStats->number_web_users
+                    'count' => $group->crmStats->number_web_users
                 ],
             ],
             'Ordering' => [
