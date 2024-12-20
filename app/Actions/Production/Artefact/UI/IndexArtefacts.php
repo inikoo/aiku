@@ -92,7 +92,7 @@ class IndexArtefacts extends OrgAction
 
         $queryBuilder = QueryBuilder::for(Artefact::class)
                         ->leftJoin('organisations', 'artefacts.organisation_id', '=', 'organisations.id');
-        if ($this->parent instanceof Group) {
+        if ($parent instanceof Group) {
             $queryBuilder->where('artefacts.group_id', $parent->id);
         } elseif ($parent instanceof Organisation) {
             $queryBuilder->where('artefacts.organisation_id', $parent->id);
@@ -164,7 +164,7 @@ class IndexArtefacts extends OrgAction
                 )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
-            if ($this->parent instanceof Group) {
+            if ($parent instanceof Group) {
                 $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true);
             }
             $table->defaultSort('code');

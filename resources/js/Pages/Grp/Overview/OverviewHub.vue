@@ -8,7 +8,7 @@ import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
 import { capitalize } from "@/Composables/capitalize"
 import { inject, ref, computed, onMounted, onUnmounted } from "vue"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
-import { faBoothCurtain, faBoxes, faBrowser, faCoin, faFilter, faInboxOut, faTrashAlt, faUser } from "@fal"
+import { faBoothCurtain, faBoxes, faBoxOpen, faBrowser, faCoin, faDolly, faEnvelope, faEnvelopeOpenText, faExchangeAlt, faFilter, faForklift, faInboxOut, faIndustryAlt, faInventory, faLocationArrow, faRoad, faTrashAlt, faTruckLoading, faUser, faUserAlien, faUserCircle, faUserHeadset, faUsers, faWarehouse, faWarehouseAlt } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import SectionTable from "@/Components/Table/SectionTable.vue"
 import { faAngleDown, faAngleUp } from "@far"
@@ -31,7 +31,7 @@ const props = defineProps<{
 
 const locale = inject("locale", aikuLocaleStructure)
 
-library.add(faExclamationCircle, faInboxOut, faUser, faFilter, faBoxes, faAngleDown, faAngleUp, faBrowser, faTrashAlt, faCoin, faBoothCurtain)
+library.add(faExclamationCircle, faInboxOut, faUser, faFilter, faBoxes, faAngleDown, faAngleUp, faBrowser, faTrashAlt, faCoin, faBoothCurtain, faRoad, faUserAlien, faEnvelopeOpenText, faEnvelope, faUserCircle, faExchangeAlt, faDolly, faBoxOpen, faTruckLoading, faForklift, faUsers, faUserHeadset, faWarehouseAlt, faInventory, faLocationArrow, faIndustryAlt)
 
 // Search functionality
 const searchQuery = ref("")
@@ -76,7 +76,7 @@ onUnmounted(() => {
 						<p class="text-4xl font-bold leading-tight">275</p>
 						<p class="text-gray-500 text-base mt-1">Total orders today</p>
 					</div>
-					<!-- Green Icon in Bottom Right -->
+
 					<div
 						class="absolute bottom-0 right-0 transform translate-x-1/2 translate-y-1/2 bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow">
 						✓

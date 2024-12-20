@@ -180,7 +180,7 @@ class IndexProducts extends OrgAction
                 ->whereNotIn('products.id', $parent->customer->portfolios->pluck('product_id'))
                 ->where('products.state', ProductStateEnum::ACTIVE);
             }
-        } elseif ($this->parent instanceof Group) {
+        } elseif ($parent instanceof Group) {
             $queryBuilder->where('products.group_id', $parent->id);
         } else {
             abort(419);
@@ -311,7 +311,7 @@ class IndexProducts extends OrgAction
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
 
-            if ($this->parent instanceof Group) {
+            if ($parent instanceof Group) {
                 $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
                         ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
             }
