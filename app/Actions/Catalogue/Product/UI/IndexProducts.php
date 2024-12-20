@@ -19,6 +19,7 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
+use App\Enums\UI\Catalogue\ProductsTabsEnum;
 use App\Http\Resources\Catalogue\ProductsResource;
 use App\Http\Resources\Tag\TagResource;
 use App\InertiaTable\InertiaTable;
@@ -46,6 +47,7 @@ class IndexProducts extends OrgAction
     use WithCollectionSubNavigation;
 
     private string $bucket;
+    private bool $sales = true;
 
     private Group|Shop|ProductCategory|Organisation|Collection|ShopifyUser $parent;
     private Group|Shop|ProductCategory|Organisation|Collection|ShopifyUser $higherParent;
@@ -120,6 +122,8 @@ class IndexProducts extends OrgAction
         $queryBuilder->orderBy('products.state', 'asc');
         $queryBuilder->leftJoin('shops', 'products.shop_id', 'shops.id');
         $queryBuilder->leftJoin('organisations', 'products.organisation_id', '=', 'organisations.id');
+        $queryBuilder->leftJoin('asset_sales_intervals', 'products.asset_id', 'asset_sales_intervals.asset_id');
+        $queryBuilder->leftJoin('asset_ordering_intervals', 'products.asset_id', 'asset_ordering_intervals.asset_id');
         $queryBuilder->where('products.is_main', true);
         if (class_basename($parent) == 'Shop') {
             $queryBuilder->where('products.shop_id', $parent->id);
@@ -213,6 +217,9 @@ class IndexProducts extends OrgAction
                 'shops.name as shop_name',
                 'organisations.name as organisation_name',
                 'organisations.slug as organisation_slug',
+                'invoices_all',
+                'sales_all',
+                'customers_invoiced_all',
                 ...$addSelects
             ])
             ->leftJoin('product_stats', 'products.id', 'product_stats.product_id');
@@ -223,9 +230,9 @@ class IndexProducts extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Group|Shop|ProductCategory|Organisation|Collection|ShopifyUser $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false, string $bucket = null): Closure
+    public function tableStructure(Group|Shop|ProductCategory|Organisation|Collection|ShopifyUser $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false, string $bucket = null, $sales = true): Closure
     {
-        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit, $bucket) {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit, $bucket, $sales) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -308,20 +315,27 @@ class IndexProducts extends OrgAction
                     searchable: true
                 );
             }
-            $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+            if ($sales) {
+                $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                        ->column(key: 'customers_invoiced_all', label: __('customers'), canBeHidden: false, sortable: true, searchable: true)
+                        ->column(key: 'invoices_all', label: __('invoices'), canBeHidden: false, sortable: true, searchable: true)
+                        ->column(key: 'sales_all', label: __('amount'), canBeHidden: false, sortable: true, searchable: true);
+            } else {
+                $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
-
-            if ($parent instanceof Group) {
-                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
-                        ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
-            }
-
-            if (!$parent instanceof ShopifyUser) {
-                $table->column(key: 'tags', label: __('tags'), canBeHidden: false);
-            }
-
-            if ($parent instanceof Collection or $parent instanceof ShopifyUser) {
-                $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true);
+                
+                if ($parent instanceof Group) {
+                    $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
+                    ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+                }
+                
+                if (!$parent instanceof ShopifyUser) {
+                    $table->column(key: 'tags', label: __('tags'), canBeHidden: false);
+                }
+                
+                if ($parent instanceof Collection or $parent instanceof ShopifyUser) {
+                    $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true);
+                }
             }
         };
     }
@@ -395,6 +409,10 @@ class IndexProducts extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $products, ActionRequest $request): Response
     {
+        $navigation = ProductsTabsEnum::navigation();
+        if ($this->parent instanceof Group) {
+            unset($navigation[ProductsTabsEnum::SALES->value]);
+        }
         $subNavigation = null;
         if ($this->parent instanceof ProductCategory) {
             if ($this->parent->type == ProductCategoryTypeEnum::DEPARTMENT) {
@@ -542,10 +560,22 @@ class IndexProducts extends OrgAction
                 ],
                 'tagsList'    => TagResource::collection(Tag::where('type', 'catalogue')->get()),
                 'data'        => ProductsResource::collection($products),
+                'tabs' => [
+                    'current'    => $this->tab,
+                    'navigation' => $navigation,
+                ],
+                ProductsTabsEnum::INDEX->value => $this->tab == ProductsTabsEnum::INDEX->value ?
+                fn () => ProductsResource::collection($products)
+                : Inertia::lazy(fn () => ProductsResource::collection($products)),
+
+                ProductsTabsEnum::SALES->value => $this->tab == ProductsTabsEnum::SALES->value ?
+                fn () => ProductsResource::collection($products)
+                : Inertia::lazy(fn () => ProductsResource::collection($products)),
 
 
             ]
-        )->table($this->tableStructure(parent: $this->parent, bucket: $this->bucket));
+        )->table($this->tableStructure(parent: $this->parent, modelOperations:null, canEdit:false, prefix:ProductsTabsEnum::INDEX->value, sales: false))
+        ->table($this->tableStructure(parent: $this->parent, modelOperations:null, canEdit:false, prefix:ProductsTabsEnum::SALES->value, sales: $this->sales));
     }
 
 
@@ -553,7 +583,8 @@ class IndexProducts extends OrgAction
     {
         $this->bucket = 'all';
         $this->parent = group();
-        $this->initialisationFromGroup($this->parent, $request);
+        $this->sales = false;
+        $this->initialisationFromGroup($this->parent, $request)->withTab(ProductsTabsEnum::values());
 
         return $this->handle(parent: group(), bucket: $this->bucket);
     }
@@ -562,7 +593,7 @@ class IndexProducts extends OrgAction
     {
         $this->bucket = 'all';
         $this->parent = $organisation;
-        $this->initialisation($organisation, $request);
+        $this->initialisation($organisation, $request)->withTab(ProductsTabsEnum::values());
 
         return $this->handle(parent: $organisation, bucket: $this->bucket);
     }
@@ -573,7 +604,7 @@ class IndexProducts extends OrgAction
         $this->bucket = 'all';
         $this->parent = $family;
         $this->higherParent = $family;
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(ProductsTabsEnum::values());
 
         return $this->handle(parent: $family, bucket: $this->bucket);
     }
@@ -584,7 +615,7 @@ class IndexProducts extends OrgAction
         $this->bucket = 'all';
         $this->parent = $family;
         $this->higherParent = $department;
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(ProductsTabsEnum::values());
 
         return $this->handle(parent: $family, bucket: $this->bucket);
     }
@@ -594,7 +625,7 @@ class IndexProducts extends OrgAction
         $this->bucket = 'all';
         $this->parent = $family;
         $this->higherParent = $subDepartment;
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(ProductsTabsEnum::values());
 
         return $this->handle(parent: $family, bucket: $this->bucket);
     }
@@ -604,7 +635,7 @@ class IndexProducts extends OrgAction
     {
         $this->bucket = 'all';
         $this->parent = $department;
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(ProductsTabsEnum::values());
 
         return $this->handle(parent: $department, bucket: $this->bucket);
     }
@@ -614,7 +645,7 @@ class IndexProducts extends OrgAction
     {
         $this->bucket = 'all';
         $this->parent = $collection;
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(ProductsTabsEnum::values());
 
         return $this->handle(parent: $collection, bucket: $this->bucket);
     }
@@ -623,7 +654,7 @@ class IndexProducts extends OrgAction
     {
         $this->bucket = 'all';
         $this->parent = $shop;
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(ProductsTabsEnum::values());
 
         return $this->handle(parent: $shop, bucket: $this->bucket);
     }
@@ -634,7 +665,7 @@ class IndexProducts extends OrgAction
         $this->bucket = 'all';
         $shop = $request->get('website')->shop;
         $this->parent = $shop;
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(ProductsTabsEnum::values());
 
         return $this->handle(parent: $shop, bucket: $this->bucket);
     }
@@ -644,7 +675,7 @@ class IndexProducts extends OrgAction
         $this->asAction = true;
         $this->bucket = $bucket;
         $this->parent = $shopifyUser;
-        $this->initialisationFromShop($shopifyUser->customer->shop, []);
+        $this->initialisationFromShop($shopifyUser->customer->shop, [])->withTab(ProductsTabsEnum::values());
 
         return $this->handle(parent: $shopifyUser, bucket: $this->bucket);
     }
@@ -654,7 +685,7 @@ class IndexProducts extends OrgAction
     {
         $this->bucket = 'current';
         $this->parent = $shop;
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(ProductsTabsEnum::values());
 
         return $this->handle(parent: $shop, bucket: $this->bucket);
     }
@@ -664,7 +695,7 @@ class IndexProducts extends OrgAction
     {
         $this->bucket = 'in_process';
         $this->parent = $shop;
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(ProductsTabsEnum::values());
 
         return $this->handle(parent: $shop, bucket: $this->bucket);
     }
@@ -674,7 +705,7 @@ class IndexProducts extends OrgAction
     {
         $this->bucket = 'discontinued';
         $this->parent = $shop;
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(ProductsTabsEnum::values());
 
         return $this->handle(parent: $shop, bucket: $this->bucket);
     }
