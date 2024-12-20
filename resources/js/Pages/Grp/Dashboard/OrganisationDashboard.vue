@@ -116,6 +116,192 @@ console.log(datas)
 					</template>
 				</Column>
 
+				<!-- Refunds -->
+				<Column
+					field="refunds"
+					sortable
+					class="overflow-hidden transition-all"
+					header="Refunds"
+					headerStyle="text-align: green; width: 250px"
+					headerClass="bg-red-500">
+					<template #body="{ data }">
+						<div class="flex justify-end relative">
+							<Transition name="spin-to-down" mode="out-in">
+								<div
+									:key="
+										data.interval_percentages?.refunds[selectedDateOption]
+											?.amount || 0
+									">
+									{{
+										locale.number(
+											data.interval_percentages?.refunds[selectedDateOption]
+												?.amount || 0
+										)
+									}}
+								</div>
+							</Transition>
+						</div>
+					</template>
+				</Column>
+
+				<!-- Refunds: Diff 1y -->
+				<Column
+					field="refunds_diff"
+					sortable
+					class="overflow-hidden transition-all"
+					header="&Delta; 1y"
+					headerStyle="text-align: green; width: 130px">
+					<template #body="{ data }">
+						<div class="flex justify-end relative">
+							<!-- {{ `${data.interval_percentages?.refunds?.[selectedDateOption]?.difference}_${data.interval_percentages?.refunds?.[selectedDateOption]?.percentage}` }} -->
+							<Transition name="spin-to-down" mode="out-in">
+								<div
+									:key="`${data.interval_percentages?.refunds[selectedDateOption].difference}_${data.interval_percentages?.refunds[selectedDateOption].percentage}`"
+									style="
+										display: flex;
+										align-items: center;
+										line-height: 1;
+										gap: 6px;
+									">
+									<span style="font-size: 16px; font-weight: 500; line-height: 1">
+										{{
+											data.interval_percentages?.refunds[selectedDateOption]
+												?.percentage
+												? `${
+														data.interval_percentages.refunds[
+															selectedDateOption
+														].percentage > 0
+															? "+"
+															: ""
+												  }${data.interval_percentages.refunds[
+														selectedDateOption
+												  ].percentage.toFixed(2)}%`
+												: `0%`
+										}}
+									</span>
+									<FontAwesomeIcon
+										v-if="
+											data.interval_percentages?.refunds[selectedDateOption]
+												?.percentage
+										"
+										:icon="
+											data.interval_percentages.refunds[selectedDateOption]
+												.percentage < 0
+												? 'fas fa-sort-down'
+												: 'fas fa-sort-up'
+										"
+										style="font-size: 20px; margin-top: 6px"
+										:class="
+											data.interval_percentages.refunds[selectedDateOption]
+												.percentage < 0
+												? 'text-red-500'
+												: 'text-green-500'
+										" />
+								</div>
+							</Transition>
+						</div>
+					</template>
+				</Column>
+
+				<!-- Invoice -->
+				<Column
+					field="invoices"
+					sortable
+					class="overflow-hidden transition-all"
+					header="Invoices"
+					headerStyle="text-align: right; width: 200px;">
+					<template #body="{ data }">
+						<div class="flex justify-end relative">
+							<Transition name="spin-to-down" mode="out-in">
+								<div
+									:key="
+										data.interval_percentages?.invoices[selectedDateOption]
+											?.amount || 0
+									">
+									{{
+										locale.number(
+											data.interval_percentages?.invoices[selectedDateOption]
+												?.amount || 0
+										)
+									}}
+								</div>
+							</Transition>
+						</div>
+					</template>
+				</Column>
+
+				<!-- Invoice: Diff 1y -->
+				<Column
+					field="invoices_diff"
+					sortable
+					class="overflow-hidden transition-all"
+					header="&Delta; 1y"
+					headerStyle="text-align: green; width: 200px">
+					<template #body="{ data }">
+						<div class="flex justify-end relative">
+							<Transition name="spin-to-down" mode="out-in">
+								<div class="flex justify-end relative">
+									<!-- {{ `${data.interval_percentages?.invoices?.[selectedDateOption]?.difference}_${data.interval_percentages?.invoices?.[selectedDateOption]?.percentage}` }} -->
+									<Transition name="spin-to-down" mode="out-in">
+										<div
+											:key="`${data.interval_percentages?.invoices[selectedDateOption].difference}_${data.interval_percentages?.invoices[selectedDateOption].percentage}`"
+											style="
+												display: flex;
+												align-items: center;
+												line-height: 1;
+												gap: 6px;
+											">
+											<span
+												style="
+													font-size: 16px;
+													font-weight: 500;
+													line-height: 1;
+												">
+												{{
+													data.interval_percentages?.invoices[
+														selectedDateOption
+													]?.percentage
+														? `${
+																data.interval_percentages.invoices[
+																	selectedDateOption
+																].percentage > 0
+																	? "+"
+																	: ""
+														  }${data.interval_percentages.invoices[
+																selectedDateOption
+														  ].percentage.toFixed(2)}%`
+														: `0%`
+												}}
+											</span>
+											<FontAwesomeIcon
+												v-if="
+													data.interval_percentages?.invoices[
+														selectedDateOption
+													]?.percentage
+												"
+												:icon="
+													data.interval_percentages.invoices[
+														selectedDateOption
+													].percentage < 0
+														? 'fas fa-sort-down'
+														: 'fas fa-sort-up'
+												"
+												style="font-size: 20px; margin-top: 6px"
+												:class="
+													data.interval_percentages.invoices[
+														selectedDateOption
+													].percentage < 0
+														? 'text-red-500'
+														: 'text-green-500'
+												" />
+										</div>
+									</Transition>
+								</div>
+							</Transition>
+						</div>
+					</template>
+				</Column>
+
 				<!-- Sales -->
 				<Column
 					field="sales"
@@ -126,11 +312,15 @@ console.log(datas)
 					<template #body="{ data }">
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
-								<div :key="data.sales?.[`sales_${selectedDateOption}`]">
+								<div
+									:key="
+										data.interval_percentages?.sales[selectedDateOption]?.amount
+									">
 									{{
-										useLocaleStore().currencyFormat(
+										useLocaleStore().numberShort(
 											dashboard.currency.code,
-											data.sales?.[`sales_${selectedDateOption}`] || 0
+											data.interval_percentages?.sales[selectedDateOption]
+												?.amount || 0
 										)
 									}}
 								</div>
@@ -151,33 +341,29 @@ console.log(datas)
 							<!-- {{ `${data.interval_percentages?.sales?.[selectedDateOption]?.difference}_${data.interval_percentages?.sales?.[selectedDateOption]?.percentage}` }} -->
 							<Transition name="spin-to-down" mode="out-in">
 								<div
-									:key="`${data.interval_percentages?.sales[selectedDateOption].difference}_${data.interval_percentages?.sales[selectedDateOption].percentage}`">
-									{{
-										selectedDateOption !== "all"
-											? useLocaleStore().currencyFormat(
-													dashboard.currency.code,
-													data.interval_percentages?.sales[
+									:key="`${data.interval_percentages?.sales[selectedDateOption].difference}_${data.interval_percentages?.sales[selectedDateOption].percentage}`"
+									style="
+										display: flex;
+										align-items: center;
+										line-height: 1;
+										gap: 6px;
+									">
+									<span style="font-size: 16px; font-weight: 500; line-height: 1">
+										{{
+											data.interval_percentages?.sales[selectedDateOption]
+												?.percentage
+												? `${
+														data.interval_percentages.sales[
+															selectedDateOption
+														].percentage > 0
+															? "+"
+															: ""
+												  }${data.interval_percentages.sales[
 														selectedDateOption
-													].difference || 0
-											  )
-											: useLocaleStore().currencyFormat(
-													dashboard.currency.code,
-													data.interval_percentages?.sales[
-														selectedDateOption
-													].amount || 0
-											  )
-									}}
-
-									{{
-										data.interval_percentages?.sales[selectedDateOption]
-											?.percentage
-											? `(${(
-													data.interval_percentages.sales[
-														selectedDateOption
-													].percentage * 100
-											  ).toFixed(2)}%)`
-											: ""
-									}}
+												  ].percentage.toFixed(2)}%`
+												: `0%`
+										}}
+									</span>
 									<FontAwesomeIcon
 										v-if="
 											data.interval_percentages?.sales[selectedDateOption]
@@ -186,16 +372,16 @@ console.log(datas)
 										:icon="
 											data.interval_percentages.sales[selectedDateOption]
 												.percentage < 0
-												? 'fad fa-arrow-down'
-												: 'fad fa-arrow-up'
+												? 'fas fa-sort-down'
+												: 'fas fa-sort-up'
 										"
+										style="font-size: 20px; margin-top: 6px"
 										:class="
 											data.interval_percentages.sales[selectedDateOption]
 												.percentage < 0
 												? 'text-red-500'
 												: 'text-green-500'
 										" />
-									<!-- {{ data.interval_percentages?.sales[selectedDateOption] }} -->
 								</div>
 							</Transition>
 						</div>
@@ -206,10 +392,18 @@ console.log(datas)
 				<ColumnGroup type="footer">
 					<Row>
 						<Column footer="Total"> Total </Column>
+						<Column
+							:footer="dashboard.total[selectedDateOption].total_refunds.toString()"
+							footerStyle="text-align:right" />
+						<Column footer="" footerStyle="text-align:right" />
 
 						<Column
+							:footer="dashboard.total[selectedDateOption].total_invoices.toString()"
+							footerStyle="text-align:right" />
+						<Column footer="" footerStyle="text-align:right" />
+						<Column
 							:footer="
-								useLocaleStore().currencyFormat(
+								useLocaleStore().numberShort(
 									dashboard.currency.code,
 									Number(dashboard.total[selectedDateOption].total_sales)
 								)

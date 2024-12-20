@@ -121,7 +121,7 @@ class Pallet extends Model implements Auditable
     protected $guarded = [];
     protected $casts   = [
         'data'                    => 'array',
-        'incident_report'         => 'array',
+        'incident_report'         => 'object',
         'state'                   => PalletStateEnum::class,
         'status'                  => PalletStatusEnum::class,
         'type'                    => PalletTypeEnum::class,
