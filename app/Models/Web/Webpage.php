@@ -76,10 +76,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property array $migration_data
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
- * @property-read Collection<int, Webpage> $children
  * @property-read Collection<int, Deployment> $deployments
  * @property-read Collection<int, \App\Models\Web\ExternalLink> $externalLinks
  * @property-read Group $group
+ * @property-read Collection<int, Webpage> $linkedWebpages
  * @property-read Model|\Eloquent|null $model
  * @property-read Collection<int, ModelHasWebBlocks> $modelHasWebBlocks
  * @property-read Organisation $organisation
@@ -217,9 +217,10 @@ class Webpage extends Model implements Auditable
         return $this->morphTo();
     }
 
-    public function children(): BelongsToMany
+    public function linkedWebpages(): BelongsToMany
     {
-        return $this->belongsToMany(Webpage::class, "webpage_has_children", 'webpage_id', 'child_id');
+        return $this->belongsToMany(Webpage::class, "webpage_has_linked_webpages", 'webpage_id', 'child_id')
+            ->withTimestamps()->withPivot('model_type', 'model_id', 'scope');
     }
 
 
