@@ -259,7 +259,7 @@ class ShowCollection extends OrgAction
         )->table(
             IndexDepartments::make()->tableStructure(
                 $collection,
-                prefix: CollectionTabsEnum::DEPARTMENTS->value
+                prefix: CollectionTabsEnum::DEPARTMENTS->value,
             )
         )->table(
             IndexFamilies::make()->tableStructure(
