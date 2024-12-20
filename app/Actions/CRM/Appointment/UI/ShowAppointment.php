@@ -8,9 +8,8 @@
 
 namespace App\Actions\CRM\Appointment\UI;
 
+use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\InertiaAction;
-use App\Actions\SysAdmin\UI\CRM\ShowCRMDashboard;
-use App\Enums\UI\Customer\AppointmentTabsEnum;
 use App\Http\Resources\CRM\AppointmentResource;
 use App\Models\CRM\Appointment;
 use App\Models\CRM\Customer;
@@ -124,7 +123,9 @@ class ShowAppointment extends InertiaAction
             'org.crm.shop.appointments.show',
             'org.crm.shop.appointments.edit'
             => array_merge(
-                ShowCRMDashboard::make()->getBreadcrumbs('org.crm.dashboard'),
+                ShowShop::make()->getBreadcrumbs(
+                    $routeParameters
+                ),
                 $headCrumb(
                     Appointment::where('slug', $routeParameters['appointment'])->first(),
                     [

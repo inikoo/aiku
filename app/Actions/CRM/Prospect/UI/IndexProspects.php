@@ -9,18 +9,14 @@
 namespace App\Actions\CRM\Prospect\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
-use App\Actions\CRM\Prospect\Mailshots\UI\IndexProspectMailshots;
-use App\Actions\CRM\Prospect\Queries\UI\IndexProspectQueries;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\Traits\WithProspectsSubNavigation;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Enums\UI\CRM\ProspectsTabsEnum;
-use App\Http\Resources\CRM\ProspectQueriesResource;
 use App\Http\Resources\CRM\ProspectsResource;
 use App\Http\Resources\History\HistoryResource;
-use App\Http\Resources\Mail\MailshotsResource;
 use App\Http\Resources\Tag\TagResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
@@ -334,31 +330,6 @@ class IndexProspects extends OrgAction
         };
 
         return match ($routeName) {
-            'org.crm.prospects.index' =>
-            array_merge(
-                (new ShowCRMDashboard())->getBreadcrumbs(
-                    'crm.dashboard',
-                    $routeParameters
-                ),
-                $headCrumb(
-                    [
-                        'name' => 'org.crm.prospects.index',
-                    ]
-                ),
-            ),
-            'grp.org.shops.show.crm.prospects.uploads.index' =>
-            array_merge(
-                (new ShowCRMDashboard())->getBreadcrumbs(
-                    'org.crm.shop.dashboard',
-                    $routeParameters
-                ),
-                $headCrumb(
-                    [
-                        'name'       => 'grp.org.shops.show.crm.prospects.index',
-                        'parameters' => $routeParameters
-                    ]
-                )
-            ),
             'grp.org.shops.show.crm.prospects.index' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs(
@@ -373,9 +344,7 @@ class IndexProspects extends OrgAction
             ),
             'grp.overview.crm.prospects.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(
-                    $routeParameters
-                ),
+                ShowOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'       => 'grp.overview.crm.prospects.index',

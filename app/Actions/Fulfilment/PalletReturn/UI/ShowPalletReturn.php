@@ -159,7 +159,7 @@ class ShowPalletReturn extends OrgAction
                 [
                     'type'    => 'button',
                     'style'   => 'save',
-                    'tooltip' => $palletReturn->pallets()->count() > 0 ? __('Submit') . ' (' . $palletReturn->stats->number_pallets . ')'  : __('Select pallet before submit'),
+                    'tooltip' => $palletReturn->pallets()->count() > 0 ? __('Submit') . ' (' . $palletReturn->stats->number_pallets . ')' : __('Select pallet before submit'),
                     'label'   => __('Submit') . ' (' . $palletReturn->stats->number_pallets . ')',
                     'key'     => 'submit',
                     'route'   => [

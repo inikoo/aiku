@@ -285,15 +285,13 @@ class IndexCustomers extends OrgAction
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
     {
         $navigation = CustomersTabsEnum::navigation();
-        if($this->parent instanceof Group)
-        {
+        if ($this->parent instanceof Group) {
             unset($navigation[CustomersTabsEnum::DASHBOARD->value]);
             $this->tab = $request->get('tab', array_key_first($navigation));
         }
 
         $subNavigation = [];
-        if($this->parent instanceof Shop)
-        {
+        if ($this->parent instanceof Shop) {
             $subNavigation = $this->getSubNavigation($request);
         }
         $scope = $this->parent;

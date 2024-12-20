@@ -188,29 +188,7 @@ class IndexAppointments extends InertiaAction
             ];
         };
 
-        return match ($routeName) {
-            'org.crm.appointments.index' =>
-            array_merge(
-                (new ShowCRMDashboard())->getBreadcrumbs('org.crm.dashboard', $routeParameters),
-                $headCrumb(
-                    [
-                        'name' => 'org.crm.appointments.index',
-                        null
-                    ]
-                ),
-            ),
-            'org.crm.shop.appointments.index' =>
-            array_merge(
-                (new ShowCRMDashboard())->getBreadcrumbs('org.crm.shop.dashboard', $routeParameters),
-                $headCrumb(
-                    [
-                        'name'       => 'org.crm.shop.appointments.index',
-                        'parameters' => $routeParameters
-                    ]
-                )
-            ),
-            default => []
-        };
+        return [];
     }
 
 

@@ -126,6 +126,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read LaravelCollection<int, DispatchedEmail> $DispatchedEmails
  * @property-read \App\Models\SysAdmin\GroupAccountingStats|null $accountingStats
  * @property-read LaravelCollection<int, Agent> $agents
  * @property-read LaravelCollection<int, AikuSection> $aikuScopedSections
@@ -149,7 +150,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupDiscountsStats|null $discountsStats
  * @property-read \App\Models\SysAdmin\GroupDropshippingStat|null $dropshippingStats
  * @property-read LaravelCollection<int, EmailAddress> $emailAddresses
+ * @property-read LaravelCollection<int, EmailBulkRun> $emailBulkRuns
  * @property-read LaravelCollection<int, EmailTemplate> $emailTemplates
+ * @property-read LaravelCollection<int, Email> $emails
  * @property-read LaravelCollection<int, Employee> $employees
  * @property-read LaravelCollection<int, ExternalLink> $externalLinks
  * @property-read \App\Models\SysAdmin\GroupFulfilmentStats|null $fulfilmentStats
@@ -162,10 +165,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Ingredient> $ingredients
  * @property-read \App\Models\SysAdmin\GroupInventoryStats|null $inventoryStats
  * @property-read LaravelCollection<int, InvoiceCategory> $invoiceCategories
+ * @property-read LaravelCollection<int, InvoiceTransaction> $invoiceTransactions
  * @property-read LaravelCollection<int, Invoice> $invoices
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\JobPositionCategory> $jobPositionCategories
  * @property-read LaravelCollection<int, JobPosition> $jobPositions
  * @property-read LaravelCollection<int, Location> $locations
+ * @property-read LaravelCollection<int, Mailshot> $mailshots
  * @property-read \App\Models\SysAdmin\GroupMailshotsIntervals|null $mailshotsIntervals
  * @property-read \App\Models\SysAdmin\GroupManufactureStats|null $manufactureStats
  * @property-read LaravelCollection<int, ManufactureTask> $manufactureTasks
