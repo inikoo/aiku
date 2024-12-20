@@ -10,6 +10,7 @@ namespace App\Actions\Billables\Rental\Search;
 
 use App\Models\Billables\Rental;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class ReindexRentalSearch
@@ -30,5 +31,25 @@ class ReindexRentalSearch
         });
 
         return 0;
+    }
+
+    protected function loopAll(Command $command): void
+    {
+        $command->info("Reindex Rentals");
+        $count = Rental::withTrashed()->count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        Rental::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
     }
 }

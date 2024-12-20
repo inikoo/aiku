@@ -36,6 +36,53 @@ class ReindexSearch extends HydrateModel
             $this->reindexGoods($command);
         }
 
+        if ($this->checkIfCanReindex(['catalogue'], $command)) {
+            $this->reindexCatalogue($command);
+        }
+
+        if ($this->checkIfCanReindex(['billables'], $command)) {
+            $this->reindexBillables($command);
+        }
+
+        if ($this->checkIfCanReindex(['offer'], $command)) {
+            $this->reindexOffer($command);
+        }
+
+        if ($this->checkIfCanReindex(['website'], $command)) {
+            $this->reindexWebsite($command);
+        }
+
+        if ($this->checkIfCanReindex(['comms'], $command)) {
+            $this->reindexComms($command);
+        }
+
+        if ($this->checkIfCanReindex(['sysadmin'], $command)) {
+            $this->reindexSysadmin($command);
+        }
+
+        if ($this->checkIfCanReindex(['ordering'], $command)) {
+            $this->reindexOrdering($command);
+        }
+
+        if ($this->checkIfCanReindex(['hr'], $command)) {
+            $this->reindexHr($command);
+        }
+
+        if ($this->checkIfCanReindex(['accounting'], $command)) {
+            $this->reindexAccounting($command);
+        }
+
+        if ($this->checkIfCanReindex(['procurement'], $command)) {
+            $this->reindexProcurement($command);
+        }
+
+        if ($this->checkIfCanReindex(['supply_chain'], $command)) {
+            $this->reindexSupplyChain($command);
+        }
+
+        if ($this->checkIfCanReindex(['production'], $command)) {
+            $this->reindexProduction($command);
+        }
 
         return 0;
     }
@@ -46,8 +93,113 @@ class ReindexSearch extends HydrateModel
         $command->info('Goods section ⛅️');
         //todo search $command->call('search:stocks');
         //todo search $command->call('search:stock_families');
+        //todo search $command->call('search:trade_units');
+        //todo search $command->call('search:ingredients');
 
     }
+
+    protected function reindexCatalogue(Command $command): void
+    {
+        $command->info('Catalogue section 📚');
+        $command->call('search:products');
+        $command->call('search:product_categories');
+        $command->call('search:collections');
+    }
+
+    protected function reindexBillables(Command $command): void
+    {
+        $command->info('Billables section 💸');
+        $command->call('search:rentals');
+        $command->call('search:charges');
+        $command->call('search:services');
+    }
+
+    protected function reindexOffer(Command $command): void
+    {
+        $command->info('Offer section 🎁');
+        $command->call('search:offers');
+        $command->call('search:offer_campaigns');
+    }
+
+    protected function reindexWebsite(Command $command): void
+    {
+        $command->info('Website section 🌐');
+        $command->call('search:websites');
+        $command->call('search:webpages');
+        $command->call('search:banners');
+    }
+
+    protected function reindexComms(Command $command): void
+    {
+        $command->info('Comms section 📧');
+        //todo $command->call('search:post_rooms');
+        //todo $command->call('search:outboxes');
+        // todo $command->call('search:newsletters');
+        // todo $command->call('search:mailshots');
+    }
+
+    protected function reindexSysadmin(Command $command): void
+    {
+        $command->info('Sysadmin section 🛠');
+        $command->call('search:users');
+        //todo $command->call('search:guests');
+        //todo $command->call('search:users requests');
+    }
+
+    protected function reindexOrdering(Command $command): void
+    {
+        $command->info('Ordering section 🛒');
+        $command->call('search:orders');
+        $command->call('search:invoices');
+        //todo $command->call('search:purges');
+        $command->call('search:delivery_notes');
+    }
+
+    protected function reindexHr(Command $command): void
+    {
+        $command->info('HR section 👩🏻‍💼');
+        $command->call('search:employees');
+        $command->call('search:workplaces');
+        $command->call('search:job_positions');
+        $command->call('search:clocking_machines');
+    }
+
+    protected function reindexAccounting(Command $command): void
+    {
+        $command->info('Accounting section 💰');
+        $command->call('search:payments');
+        $command->call('search:payment_accounts');
+        $command->call('search:topups');
+        //todo $command->call('search:customer_balances');
+    }
+
+    protected function reindexProcurement(Command $command): void
+    {
+        $command->info('Procurement section 🚚');
+        $command->call('search:org_suppliers');
+        $command->call('search:org_agents');
+        $command->call('search:org_patners');
+        $command->call('search:purchase_orders');
+    }
+
+    protected function reindexSupplyChain(Command $command): void
+    {
+        $command->info('Supply Chain section 🚛');
+        //todo $command->call('search:agents');
+        //todo $command->call('search:suppliers');
+        $command->call('search:supplier_products');
+    }
+
+    protected function reindexProduction(Command $command): void
+    {
+        $command->info('Production section 🏭');
+        //todo $command->call('search:job_orders');
+        //todo $command->call('search:raw_materials');
+        //todo $command->call('search:artefacts');
+        //todo $command->call('search:manufacture_tasks');
+        //todo $command->call('search:artisans');
+    }
+
     protected function reindexInventory(Command $command): void
     {
         $command->info('Inventory section 📦');
@@ -64,6 +216,7 @@ class ReindexSearch extends HydrateModel
         $command->info('CRM section 👸🏻');
         $command->call('search:customers');
         $command->call('search:prospects');
+        $command->call('search:portfolios');
     }
 
     protected function reindexFulfilment(Command $command): void
@@ -71,6 +224,10 @@ class ReindexSearch extends HydrateModel
         $command->info('Fulfillment section 🚛');
         $command->call('search:recurring_bills');
         $command->call('search:fulfilment_customers');
+        $command->call('search:stored_items');
+        $command->call('search:stored_item_audits');
+        $command->call('search:pallet_returns');
+        $command->call('search:pallet_deliveries');
     }
 
     private function checkIfCanReindex(array $keys, $command): bool

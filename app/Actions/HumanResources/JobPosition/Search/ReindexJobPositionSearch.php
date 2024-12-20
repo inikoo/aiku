@@ -12,6 +12,7 @@ namespace App\Actions\HumanResources\JobPosition\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\HumanResources\JobPosition;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexJobPositionSearch extends HydrateModel
@@ -33,5 +34,25 @@ class ReindexJobPositionSearch extends HydrateModel
     protected function getAllModels(): Collection
     {
         return JobPosition::all();
+    }
+
+    protected function loopAll(Command $command): void
+    {
+        $command->info("Reindex Job Positions");
+        $count = JobPosition::withTrashed()->count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        JobPosition::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
     }
 }

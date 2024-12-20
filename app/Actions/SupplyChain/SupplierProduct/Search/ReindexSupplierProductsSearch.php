@@ -8,11 +8,13 @@
 
 namespace App\Actions\SupplyChain\SupplierProduct\Search;
 
+use App\Actions\HydrateModel;
 use App\Models\SupplyChain\SupplierProduct;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ReindexSupplierProductsSearch
+class ReindexSupplierProductsSearch extends HydrateModel
 {
     use AsAction;
     public string $commandSignature = 'search:supplier_products';
@@ -22,16 +24,29 @@ class ReindexSupplierProductsSearch
         SupplierProductRecordSearch::run($supplierProduct);
     }
 
-    public function asCommand(Command $command): int
+    protected function getModel(string $slug): SupplierProduct
     {
-        $command->withProgressBar(SupplierProduct::withTrashed()->get(), function ($supplierProduct) {
-            if ($supplierProduct) {
-                $this->handle($supplierProduct);
+        return SupplierProduct::withTrashed()->where('slug', $slug)->first();
+    }
+
+    protected function loopAll(Command $command): void
+    {
+        $command->info("Reindex Supplier Products");
+        $count = SupplierProduct::withTrashed()->count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        SupplierProduct::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
             }
         });
 
-        return 0;
+        $bar->finish();
+        $command->info("");
     }
-
 
 }
