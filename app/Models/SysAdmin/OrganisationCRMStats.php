@@ -51,7 +51,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_prospects_dont_contact_me
  * @property int $number_prospect_queries
  * @property int $number_customer_queries
- * @property int $number_surveys
+ * @property int $number_polls
+ * @property int $number_polls_in_registration
+ * @property int $number_polls_required_in_registration
+ * @property int $number_polls_in_iris
+ * @property int $number_polls_required_in_iris
+ * @property int $number_polls_type_open_question
+ * @property int $number_polls_in_registration_type_open_question
+ * @property int $number_polls_required_in_registration_type_open_question
+ * @property int $number_polls_in_iris_type_open_question
+ * @property int $number_polls_required_in_iris_type_open_question
+ * @property int $number_polls_type_option
+ * @property int $number_polls_in_registration_type_option
+ * @property int $number_polls_required_in_registration_type_option
+ * @property int $number_polls_in_iris_type_option
+ * @property int $number_polls_required_in_iris_type_option
  * @property int $number_web_users
  * @property int $number_current_web_users Number of web users with state = true
  * @property int $number_web_users_type_web
