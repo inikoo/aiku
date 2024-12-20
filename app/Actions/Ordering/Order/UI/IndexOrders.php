@@ -387,7 +387,7 @@ class IndexOrders extends OrgAction
 
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => OrdersTabsEnum::navigation(),
+                    'navigation' => $navigation,
                 ],
 
                 OrdersTabsEnum::STATS->value => $this->tab == OrdersTabsEnum::STATS->value ?
