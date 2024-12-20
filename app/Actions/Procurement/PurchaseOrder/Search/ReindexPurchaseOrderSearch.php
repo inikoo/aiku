@@ -16,7 +16,7 @@ use Illuminate\Support\Collection;
 
 class ReindexPurchaseOrderSearch extends HydrateModel
 {
-    public string $commandSignature = 'purchase_order:search {organisations?*} {--s|slugs=} ';
+    public string $commandSignature = 'search:purchase_orders {organisations?*} {--s|slugs=} ';
 
 
     public function handle(PurchaseOrder $purchaseOrder): void

@@ -16,7 +16,7 @@ use Illuminate\Support\Collection;
 
 class ReindexJobPositionSearch extends HydrateModel
 {
-    public string $commandSignature = 'jobPosition:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:job_positions {organisations?*} {--s|slugs=}';
 
 
     public function handle(JobPosition $jobPosition): void

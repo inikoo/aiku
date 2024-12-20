@@ -92,9 +92,9 @@ const isModalAddress = ref(false)
                     <FontAwesomeIcon icon='fal fa-envelope' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500 w-full pr-4 break-words leading-none">
+                <a :href="`mailto:${boxStats.fulfilment_customer?.customer.email}`" class="hover:underline text-xs text-gray-500 w-full pr-4 break-words leading-none">
                     {{ boxStats.fulfilment_customer?.customer.email }}
-                </dd>
+                </a>
             </div>
 
             <!-- Field: Phone -->
@@ -104,7 +104,7 @@ const isModalAddress = ref(false)
                     <FontAwesomeIcon icon='fal fa-phone' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ boxStats.fulfilment_customer?.customer.phone }}</dd>
+                <a class="text-xs text-gray-500">{{ boxStats.fulfilment_customer?.customer.phone }}</a>
             </div>
 
             <!-- Field: Delivery Address -->

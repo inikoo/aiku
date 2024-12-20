@@ -16,7 +16,7 @@ use Illuminate\Support\Collection;
 
 class ReindexOrgAgentSearch extends HydrateModel
 {
-    public string $commandSignature = 'org_agent:search {organisations?*} {--s|slugs=} ';
+    public string $commandSignature = 'search:org_agents {organisations?*} {--s|slugs=} ';
 
 
     public function handle(OrgAgent $orgAgent): void

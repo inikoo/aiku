@@ -16,7 +16,7 @@ class ReindexRentalSearch
 {
     use asAction;
 
-    public string $commandSignature = 'rentals:search';
+    public string $commandSignature = 'search:rentals';
 
     public function handle(Rental $rental): void
     {
