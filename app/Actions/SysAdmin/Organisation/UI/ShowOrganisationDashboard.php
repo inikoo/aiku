@@ -61,6 +61,7 @@ class ShowOrganisationDashboard extends OrgAction
                         'slug'      => $shop->slug,
                         'type'      => $shop->type,
                         'currency'  => $shop->currency,
+                        'state'     => $shop->state
                     ];
 
                     if ($shop->salesIntervals !== null) {
