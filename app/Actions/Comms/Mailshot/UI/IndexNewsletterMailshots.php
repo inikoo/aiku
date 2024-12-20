@@ -52,7 +52,7 @@ class IndexNewsletterMailshots extends OrgAction
         $queryBuilder = QueryBuilder::for(Mailshot::class)
                         ->leftJoin('organisations', 'mailshots.organisation_id', '=', 'organisations.id')
                         ->leftJoin('shops', 'mailshots.shop_id', '=', 'shops.id');
-        if ($this->parent instanceof Group) {
+        if ($parent instanceof Group) {
             $queryBuilder->where('mailshots.group_id', $parent->id);
         }
         $queryBuilder->leftJoin('outboxes', 'mailshots.outbox_id', 'outboxes.id')

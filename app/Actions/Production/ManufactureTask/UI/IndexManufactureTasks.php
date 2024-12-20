@@ -94,7 +94,7 @@ class IndexManufactureTasks extends OrgAction
         $queryBuilder = QueryBuilder::for(ManufactureTask::class)
         ->leftJoin('organisations', 'manufacture_tasks.organisation_id', '=', 'organisations.id');
 
-        if ($this->parent instanceof Group) {
+        if ($parent instanceof Group) {
             $queryBuilder->where('manufacture_tasks.group_id', $parent->id);
         } elseif ($parent instanceof Organisation) {
             $queryBuilder->where('manufacture_tasks.organisation_id', $parent->id);

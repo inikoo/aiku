@@ -92,7 +92,7 @@ class IndexArtefacts extends OrgAction
 
         $queryBuilder = QueryBuilder::for(Artefact::class)
                         ->leftJoin('organisations', 'artefacts.organisation_id', '=', 'organisations.id');
-        if ($this->parent instanceof Group) {
+        if ($parent instanceof Group) {
             $queryBuilder->where('artefacts.group_id', $parent->id);
         } elseif ($parent instanceof Organisation) {
             $queryBuilder->where('artefacts.organisation_id', $parent->id);

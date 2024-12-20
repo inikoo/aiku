@@ -85,7 +85,7 @@ class IndexCharges extends OrgAction
 
         if (class_basename($parent) == 'Shop') {
             $queryBuilder->where('charges.shop_id', $parent->id);
-        } elseif ($this->parent instanceof Group) {
+        } elseif ($parent instanceof Group) {
             $queryBuilder->where('charges.group_id', $parent->id);
         } elseif (class_basename($parent) == 'Organisation') {
             $queryBuilder->where('charges.organisation_id', $parent->id);

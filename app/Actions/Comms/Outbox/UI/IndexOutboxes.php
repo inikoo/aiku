@@ -72,7 +72,7 @@ class IndexOutboxes extends OrgAction
                         ->leftJoin('organisations', 'outboxes.organisation_id', '=', 'organisations.id')
                         ->leftJoin('shops', 'outboxes.shop_id', '=', 'shops.id');
 
-        if ($this->parent instanceof Group) {
+        if ($parent instanceof Group) {
             $queryBuilder->where('outboxes.group_id', $parent->id);
         } elseif (class_basename($parent) == 'Shop') {
             $queryBuilder->where('outboxes.shop_id', $parent->id);

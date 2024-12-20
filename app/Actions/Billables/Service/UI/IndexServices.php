@@ -72,7 +72,7 @@ class IndexServices extends OrgAction
         $queryBuilder = QueryBuilder::for(Service::class)
                         ->leftJoin('organisations', 'services.organisation_id', '=', 'organisations.id')
                         ->leftJoin('shops', 'services.shop_id', '=', 'shops.id');
-        if ($this->parent instanceof Group) {
+        if ($parent instanceof Group) {
             $queryBuilder->where('services.group_id', $parent->id);
         } else {
             $queryBuilder->where('services.shop_id', $parent->id);

@@ -82,7 +82,7 @@ class IndexCollection extends OrgAction
                 'collections.slug',
             ]);
 
-        if ($this->parent instanceof Group) {
+        if ($parent instanceof Group) {
             $queryBuilder->where('collections.group_id', $parent->id)
                             ->leftJoin('organisations', 'collections.organisation_id', '=', 'organisations.id')
                             ->leftJoin('shops', 'collections.shop_id', '=', 'shops.id')

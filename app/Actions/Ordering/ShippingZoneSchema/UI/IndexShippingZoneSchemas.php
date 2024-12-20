@@ -54,7 +54,7 @@ class IndexShippingZoneSchemas extends OrgAction
             ->leftJoin('organisations', 'shipping_zone_schemas.organisation_id', '=', 'organisations.id')
             ->leftJoin('shops', 'shipping_zone_schemas.shop_id', '=', 'shops.id');
 
-        if ($this->parent instanceof Group) {
+        if ($parent instanceof Group) {
             $queryBuilder->where('shipping_zone_schemas.group_id', $parent->id);
         } elseif (class_basename($parent) == 'Shop') {
             $queryBuilder->where('shipping_zone_schemas.shop_id', $parent->id);

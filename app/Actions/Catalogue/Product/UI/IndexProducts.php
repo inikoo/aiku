@@ -180,7 +180,7 @@ class IndexProducts extends OrgAction
                 ->whereNotIn('products.id', $parent->customer->portfolios->pluck('product_id'))
                 ->where('products.state', ProductStateEnum::ACTIVE);
             }
-        } elseif ($this->parent instanceof Group) {
+        } elseif ($parent instanceof Group) {
             $queryBuilder->where('products.group_id', $parent->id);
         } else {
             abort(419);
