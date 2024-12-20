@@ -46,15 +46,22 @@ export const useLocaleStore = defineStore('locale', () => {
         return new Intl.NumberFormat(language.value.code, { style: 'currency', currency: currencyCode }).format(amount)
     }
 
-    //using short number
     const numberShort = ((currencyCode: string, number: number) => {
-        return new Intl.NumberFormat(language.value.code, {
+        // Format the number using Intl.NumberFormat
+        let formattedNumber = new Intl.NumberFormat(language.value.code, {
             notation: 'compact',
             compactDisplay: 'short',
-            style: 'currency', 
-            currency: currencyCode
+            style: 'currency',
+            currency: currencyCode,
         }).format(number);
-    })
+    
+        formattedNumber = formattedNumber.replace(/(\d)([KMGTPE])/g, (match, p1, p2) => {
+            return `${p1} ${p2.toLowerCase()}`;
+        });
+    
+        return formattedNumber;
+    });
+    
 
     return { language, languageOptions, number, currencyFormat, numberShort }
 })
