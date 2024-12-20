@@ -12,6 +12,7 @@ namespace App\Actions\Accounting\Payment\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\Accounting\Payment;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexPaymentSearch extends HydrateModel
@@ -32,5 +33,25 @@ class ReindexPaymentSearch extends HydrateModel
     protected function getAllModels(): Collection
     {
         return Payment::withTrashed()->get();
+    }
+
+    protected function loopAll(Command $command): void
+    {
+        $command->info("Reindex Payments");
+        $count = Payment::withTrashed()->count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        Payment::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
     }
 }

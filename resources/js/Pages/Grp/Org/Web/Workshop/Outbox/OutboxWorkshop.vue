@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
@@ -42,7 +42,8 @@ const props = defineProps<{
         grant_type: string
     }
 }>()
-
+console.log(props)
+const mergeTags = ref([])
 const comment = ref('')
 const isLoading = ref(false)
 const openTemplates = ref(false)
@@ -215,6 +216,21 @@ const schedulePublish = async () =>{
     }
 }
 
+const getMergeTagData = async () => {
+    return axios.get(route('grp.json.mailshot.merge-tags', { id: 1 }))
+        .then(response => {
+            mergeTags.value = response.data
+        })
+        .catch(error => {
+            console.error(error);
+            return mergeTags.value = [];
+        });
+}
+
+onMounted(()=>{
+    getMergeTagData()
+})
+
 </script>
 
 
@@ -271,13 +287,28 @@ const schedulePublish = async () =>{
     </PageHeading>
 
     <!-- beefree -->
-    <Beetree v-if="builder == 'beefree'" :updateRoute="updateRoute" :imagesUploadRoute="imagesUploadRoute"
-        :snapshot="snapshot" :apiKey="apiKey" @onSave="onSendPublish" @sendTest="openSendTest" @auto-save="autoSave"
-        @saveTemplate="visibleSAveEmailTemplateModal = true" ref="_beefree" />
+    <Beetree 
+        v-if="builder == 'beefree'" 
+        :updateRoute="updateRoute" 
+        :imagesUploadRoute="imagesUploadRoute"
+        :snapshot="snapshot" 
+        :apiKey="apiKey" 
+        :mergeTags="mergeTags"
+        @onSave="onSendPublish" 
+        @sendTest="openSendTest" 
+        @auto-save="autoSave"
+        @saveTemplate="visibleSAveEmailTemplateModal = true" 
+        ref="_beefree" 
+    />
 
     <!-- unlayer -->
-    <Unlayer v-else-if="builder == 'unlayer'" :updateRoute="updateRoute" :imagesUploadRoute="imagesUploadRoute"
-        :snapshot="snapshot" ref="_unlayer" />
+    <Unlayer 
+        v-else-if="builder == 'unlayer'" 
+        :updateRoute="updateRoute" 
+        :imagesUploadRoute="imagesUploadRoute"
+        :snapshot="snapshot" 
+        ref="_unlayer" 
+    />
 
     <div v-else>
         <EmptyState :data="{

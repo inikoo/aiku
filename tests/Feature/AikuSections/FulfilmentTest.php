@@ -17,6 +17,7 @@ use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Fulfilment\Fulfilment\UpdateFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\FetchNewWebhookFulfilmentCustomer;
+use App\Actions\Fulfilment\FulfilmentCustomer\Search\ReindexFulfilmentCustomerSearch;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentTransaction\DeleteFulfilmentTransaction;
@@ -2509,4 +2510,20 @@ test('pay invoice (exceed)', function ($invoice) {
 
 test('hydrate pallet return command', function () {
     $this->artisan('hydrate:pallet-returns  '.$this->organisation->slug)->assertExitCode(0);
+});
+
+test('recurring bills search', function () {
+    $this->artisan('search:recurring_bills')->assertExitCode(0);
+
+    $recurringBills = RecurringBill::first();
+    ReindexRecurringBillSearch::run($recurringBills);
+    expect($recurringBills->universalSearch()->count())->toBe(1);
+});
+
+test('fulfilment customers search', function () {
+    $this->artisan('search:fulfilment_customers')->assertExitCode(0);
+
+    $fulfilmentCustomers = FulfilmentCustomer::first();
+    ReindexFulfilmentCustomerSearch::run($fulfilmentCustomers);
+    expect($fulfilmentCustomers->universalSearch()->count())->toBe(1);
 });

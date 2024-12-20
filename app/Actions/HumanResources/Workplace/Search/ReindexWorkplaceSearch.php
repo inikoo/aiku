@@ -12,6 +12,7 @@ namespace App\Actions\HumanResources\Workplace\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\HumanResources\Workplace;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexWorkplaceSearch extends HydrateModel
@@ -33,5 +34,25 @@ class ReindexWorkplaceSearch extends HydrateModel
     protected function getAllModels(): Collection
     {
         return Workplace::withTrashed()->get();
+    }
+
+    protected function loopAll(Command $command): void
+    {
+        $command->info("Reindex Workplaces");
+        $count = Workplace::withTrashed()->count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        Workplace::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
     }
 }

@@ -12,6 +12,7 @@ namespace App\Actions\Inventory\OrgStockFamily\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\Inventory\OrgStockFamily;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexOrgStockFamilySearch extends HydrateModel
@@ -33,5 +34,25 @@ class ReindexOrgStockFamilySearch extends HydrateModel
     protected function getAllModels(): Collection
     {
         return OrgStockFamily::withTrashed()->get();
+    }
+
+    protected function loopAll(Command $command): void
+    {
+        $command->info("Reindex Org Stock Families");
+        $count = OrgStockFamily::withTrashed()->count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        OrgStockFamily::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
     }
 }
