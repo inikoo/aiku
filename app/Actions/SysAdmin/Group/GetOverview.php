@@ -90,16 +90,22 @@ class GetOverview extends OrgAction
                     'count' => $group->commsStats->number_outboxes_type_marketing
                 ],
                 [
+                    'name' => 'Emails',
+                    'icon' => 'fal fa-envelope',
+                    'route' => '',
+                    'count' => 0 // $group->commsStats->number_emails
+                ],
+                [
                     'name' => 'Dispatched Emails',
                     'icon' => 'fal fa-envelope-open-text',
                     'route' => '',
                     'count' => $group->commsStats->number_dispatched_emails
                 ],
                 [
-                    'name' => 'Emails',
-                    'icon' => 'fal fa-envelope',
+                    'name' => 'Email Bulk Runs',
+                    'icon' => 'fal fa-envelope-open-text',
                     'route' => '',
-                    'count' => 0 // $group->commsStats->number_emails
+                    'count' => 0
                 ],
             ],
             'Catalogue' => [
@@ -266,7 +272,7 @@ class GetOverview extends OrgAction
                     'count' => 0 // $group->inventoryStats->number_org_stock_families
                 ],
                 [
-                    'name' => 'Org Stock Movement',
+                    'name' => 'Org Stock Movements',
                     'icon' => 'fal fa-dolly',
                     'route' => '',
                     'count' => 0 // $group->inventoryStats->number_org_stock_movements
