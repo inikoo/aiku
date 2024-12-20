@@ -138,7 +138,7 @@ const fallbackColor = '#374151'  // Color
 
             <div class="flex justify-end gap-x-2 mt-7">
                 <Button label="cancel" @click="() => (isModalOpen = false, noteModalValue = noteData.note)" :style="'tertiary'" />
-                <Button label="Save" full @click="() => onSubmitNote()" :loading="isSubmitNoteLoading" :disabled="noteModalValue == noteData.note" />
+                <Button label="Save (Ctrl + enter)" full @click="() => onSubmitNote()" :loading="isSubmitNoteLoading" :disabled="noteModalValue == noteData.note" />
             </div>
 		</div>
 	</Modal>
