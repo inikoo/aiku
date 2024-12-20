@@ -16,7 +16,7 @@ use Illuminate\Support\Collection;
 
 class ReindexOrgStockFamilySearch extends HydrateModel
 {
-    public string $commandSignature = 'org_stock_family:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:org_stock_families {organisations?*} {--s|slugs=}';
 
 
     public function handle(OrgStockFamily $orgStockFamily): void

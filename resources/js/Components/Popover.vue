@@ -13,7 +13,7 @@ const props = withDefaults(defineProps<{
 </script>
 
 <template>
-  <Popover :popover-placement="'bottom-start'" class="focus-visible:ring-0 z-50">
+  <Popover :popover-placement="'bottom-start'" class="focus-visible:ring-0">
     <PopoverButton tabindex="-1" v-slot="{ open, close }"  class="focus-visible:ring-0 w-full">
       <slot name="button" :open="open" :close="close"></slot>
     </PopoverButton> 
