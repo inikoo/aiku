@@ -106,6 +106,19 @@ trait HasCRMStats
         $table->unsignedInteger("number_prospects_dont_contact_me")->default(0);
 
 
+        return $table;
+    }
+
+    public function crmQueriesStats(Blueprint $table): Blueprint
+    {
+        $table->unsignedSmallInteger('number_prospect_queries')->default(0);
+        $table->unsignedSmallInteger('number_customer_queries')->default(0);
+
+        $table->unsignedSmallInteger('number_prospect_static_queries')->default(0)->comment('is_static=true');
+        $table->unsignedSmallInteger('number_prospect_dynamic_queries')->default(0)->comment('is_static=false');
+
+        $table->unsignedSmallInteger('number_customer_static_queries')->default(0)->comment('is_static=true');
+        $table->unsignedSmallInteger('number_customer_dynamic_queries')->default(0)->comment('is_static=false');
 
 
         return $table;

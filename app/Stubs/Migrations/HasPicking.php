@@ -25,7 +25,6 @@ trait HasPicking
         $table->foreign('delivery_note_id')->references('id')->on('delivery_notes')->cascadeOnDelete();
         $table->unsignedBigInteger('delivery_note_item_id')->index();
         $table->foreign('delivery_note_item_id')->references('id')->on('delivery_note_items')->cascadeOnDelete();
-        ;
 
         return $table;
     }

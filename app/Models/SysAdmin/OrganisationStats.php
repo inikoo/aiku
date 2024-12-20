@@ -22,6 +22,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $filesize_attachments
  * @property int $number_uploads
  * @property int $number_upload_records
+ * @property int $number_queries
+ * @property int $number_static_queries is_static=true
+ * @property int $number_dynamic_queries is_static=false
  * @property bool $has_fulfilment
  * @property bool $has_dropshipping
  * @property bool $has_production

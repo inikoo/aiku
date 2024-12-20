@@ -21,8 +21,7 @@ return new class () extends Migration {
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
             $table = $this->customerStats($table);
             $table = $this->prospectsStats($table);
-            $table->unsignedSmallInteger('number_prospect_queries')->default(0);
-            $table->unsignedSmallInteger('number_customer_queries')->default(0);
+            $table = $this->crmQueriesStats($table);
             $table = $this->getPollsStatsFields($table);
             $table = $this->getWebUsersStatsFields($table);
             $table->timestampsTz();

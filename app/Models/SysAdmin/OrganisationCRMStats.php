@@ -55,6 +55,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_prospects_dont_contact_me
  * @property int $number_prospect_queries
  * @property int $number_customer_queries
+ * @property int $number_prospect_static_queries is_static=true
+ * @property int $number_prospect_dynamic_queries is_static=false
+ * @property int $number_customer_static_queries is_static=true
+ * @property int $number_customer_dynamic_queries is_static=false
  * @property int $number_polls
  * @property int $number_polls_in_registration
  * @property int $number_polls_required_in_registration
