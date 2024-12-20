@@ -16,7 +16,7 @@ use Illuminate\Support\Collection;
 
 class ReindexPaymentSearch extends HydrateModel
 {
-    public string $commandSignature = 'payments:search {organisations?*} {--s|slugs=} ';
+    public string $commandSignature = 'search:payments {organisations?*} {--s|slugs=} ';
 
 
     public function handle(Payment $payment): void

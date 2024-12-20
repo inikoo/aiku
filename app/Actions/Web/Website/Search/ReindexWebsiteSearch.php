@@ -14,7 +14,7 @@ use Illuminate\Support\Collection;
 
 class ReindexWebsiteSearch extends HydrateModel
 {
-    public string $commandSignature = 'website:search {organisations?*} {--s|slugs=} ';
+    public string $commandSignature = 'search:websites {organisations?*} {--s|slugs=} ';
 
 
     public function handle(Website $website): void

@@ -16,7 +16,7 @@ use Illuminate\Support\Collection;
 
 class ReindexCollectionSearch extends HydrateModel
 {
-    public string $commandSignature = 'collection:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:collections {organisations?*} {--s|slugs=}';
 
 
     public function handle(CatalogueCollection $collection): void

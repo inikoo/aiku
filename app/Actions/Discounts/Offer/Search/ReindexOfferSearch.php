@@ -16,7 +16,7 @@ use Illuminate\Support\Collection;
 
 class ReindexOfferSearch extends HydrateModel
 {
-    public string $commandSignature = 'offer:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:offers {organisations?*} {--s|slugs=}';
 
 
     public function handle(Offer $offer): void

@@ -14,7 +14,7 @@ use Illuminate\Support\Collection;
 
 class ReindexPortfolioSearch extends HydrateModel
 {
-    public string $commandSignature = 'portfolio:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:portfolios {organisations?*} {--s|slugs=}';
 
 
     public function handle(Portfolio $portfolio): void

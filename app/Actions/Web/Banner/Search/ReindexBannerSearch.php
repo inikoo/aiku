@@ -16,7 +16,7 @@ use Illuminate\Support\Collection;
 
 class ReindexBannerSearch extends HydrateModel
 {
-    public string $commandSignature = 'banner:search {organisations?*} {--s|slugs=} ';
+    public string $commandSignature = 'search:banners {organisations?*} {--s|slugs=} ';
 
 
     public function handle(Banner $banner): void

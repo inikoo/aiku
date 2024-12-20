@@ -14,7 +14,7 @@ use Illuminate\Support\Collection;
 
 class ReindexCustomerClientSearch extends HydrateModel
 {
-    public string $commandSignature = 'customer-client:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:customer-clients {organisations?*} {--s|slugs=}';
 
 
     public function handle(CustomerClient $customerClient): void

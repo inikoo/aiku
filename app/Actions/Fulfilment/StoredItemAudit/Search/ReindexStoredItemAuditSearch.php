@@ -15,7 +15,7 @@ use Illuminate\Support\Collection;
 
 class ReindexStoredItemAuditSearch extends HydrateModel
 {
-    public string $commandSignature = 'stored-item-audit:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'stored-item-search:audits {organisations?*} {--s|slugs=}';
 
 
     public function handle(StoredItemAudit $storedItemAudit): void
