@@ -18,11 +18,11 @@
                       "data": [
                         {
                           "id": 2,
-                          "name": "<p><a rel=\"noopener noreferrer nofollow\" href=\"contact_us/\"><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Contact Us</span></a></p></span>"
+                          "name": "<p><a  href=\"contact_us/\"><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Contact Us</span></a></p></span>"
                         },
                         {
                           "id": 16,
-                          "name": "<p><a rel=\"noopener noreferrer nofollow\" href=\"faq/\"><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">FAQ</span></a></p></span>"
+                          "name": "<p><a  href=\"faq/\"><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">FAQ</span></a></p></span>"
                         }
                       ],
                       "name": "<span><p style='color: #ffffff; font-size: 16px'><strong>Help</strong></p></span>"
@@ -32,11 +32,11 @@
                       "data": [
                         {
                           "id": 6,
-                          "name": "<p><a rel=\"noopener noreferrer nofollow\" href=\"about_us/\"><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">About us</span></a></p></span>"
+                          "name": "<p><a  href=\"about_us/\"><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">About us</span></a></p></span>"
                         },
                         {
                           "id": 7,
-                          "name": "<p><a rel=\"noopener noreferrer nofollow\" href=\"ethics/\"><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Business Ethics</span></a></p></span>"
+                          "name": "<p><a  href=\"ethics/\"><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Business Ethics</span></a></p></span>"
                         }
                       ],
                       "name": "<span><p style='color: #ffffff; font-size: 16px'><strong>Information</strong></p></span>"
@@ -53,11 +53,11 @@
                       "data": [
                         {
                           "id": 19,
-                          "name": "<p><a rel=\"noopener noreferrer nofollow\" href=\"first_order_bonus/\"><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">First Order Bonus</span></a></p></span>"
+                          "name": "<p><a  href=\"first_order_bonus/\"><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">First Order Bonus</span></a></p></span>"
                         },
                         {
                           "id": 20,
-                          "name": "<p><a rel=\"noopener noreferrer nofollow\" href=\"pastpay/\"><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Buy Now, Pay Later</span></a></p></span>"
+                          "name": "<p><a  href=\"pastpay/\"><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Buy Now, Pay Later</span></a></p></span>"
                         }
                       ],
                       "name": "<span><p style='color: #ffffff; font-size: 16px'><strong>Promo</strong></p></span>"
@@ -67,7 +67,7 @@
                       "data": [
                         {
                           "id": 28,
-                          "name": "<p><a rel=\"noopener noreferrer nofollow\" href=\"blog/\"><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Blog</span></a></p></span>"
+                          "name": "<p><a  href=\"blog/\"><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Blog</span></a></p></span>"
                         }
                       ],
                       "name": "<span><p style='color: #ffffff; font-size: 16px'><strong>Articles</strong></p></span>"
@@ -77,11 +77,11 @@
                       "data": [
                         {
                           "id": 30,
-                          "name": "<p><a rel=\"noopener noreferrer nofollow\" href=\"tac/\"><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Terms &amp; Conditions</span></a></p></span>"
+                          "name": "<p><a  href=\"tac/\"><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Terms &amp; Conditions</span></a></p></span>"
                         },
                         {
                           "id": 32,
-                          "name": "<p><a rel=\"noopener noreferrer nofollow\" href=\"cookies/\"><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Cookies Policy</span></a></p></span>"
+                          "name": "<p><a  href=\"cookies/\"><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Cookies Policy</span></a></p></span>"
                         }
                       ],
                       "name": "<span><p style='color: #ffffff; font-size: 16px'><strong>Legal</strong></p></span>"
@@ -98,7 +98,7 @@
                       "data": [
                         {
                           "id": 34,
-                          "name": "<p><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"dropshipping/\"><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Dropshipping</span></a></p></span>"
+                          "name": "<p><a target=\"_blank\"  href=\"dropshipping/\"><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Dropshipping</span></a></p></span>"
                         }
                       ],
                       "name": "<span><p style='color: #ffffff; font-size: 16px'><strong>Services</strong></p></span>"

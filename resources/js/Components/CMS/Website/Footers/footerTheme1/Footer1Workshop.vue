@@ -208,7 +208,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                             <Editor
                                                 :class="'hover:bg-white/30 border border-transparent hover:border-white/80 border-dashed cursor-text'"
                                                 :key="editorKey" v-model="item.name" :editable="editable"
-                                                @onEditClick="selectAllEditor"
+                                                
                                                 @update:model-value="(e) => { item.name = e, emits('update:modelValue', modelValue) }" />
 
                                         </div>
@@ -233,7 +233,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                                             :class="'hover:bg-white/30 border border-transparent hover:border-white/80 border-dashed cursor-text'"
                                                             :key="editorKey" v-model="sub.name" :editable="editable"
                                                             @update:model-value="(e) => { sub.name = e, emits('update:modelValue', modelValue) }"
-                                                            @onEditClick="selectAllEditor" />
+                                                        />
                                                     </div>
                                                     <ContextMenu ref="subMenu" :model="subMenuitems">
                                                         <template #itemicon="item">
@@ -304,7 +304,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                             <Editor :key="editorKey"
                                                 :class="'hover:bg-white/30 border border-transparent hover:border-white/80 border-dashed cursor-text'"
                                                 v-model="item.name" :editable="editable" class=""
-                                                @onEditClick="selectAllEditor"
+                                                
                                                 @update:model-value="(e) => { item.name = e, emits('update:modelValue', modelValue) }" />
 
                                         </div>
@@ -329,7 +329,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                                             :class="'hover:bg-white/30 border border-transparent hover:border-white/80 border-dashed cursor-text'"
                                                             :key="editorKey" v-model="sub.name" :editable="editable"
                                                             @update:model-value="(e) => { sub.name = e, emits('update:modelValue', modelValue) }"
-                                                            @onEditClick="selectAllEditor" />
+                                                             />
                                                     </div>
                                                     <ContextMenu ref="subMenu" :model="subMenuitems">
                                                         <template #itemicon="item">
@@ -400,7 +400,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                             <Editor
                                                 :class="'hover:bg-white/30 border border-transparent hover:border-white/80 border-dashed cursor-text'"
                                                 :key="editorKey" v-model="item.name" :editable="editable"
-                                                @onEditClick="selectAllEditor"
+                                                
                                                 @update:model-value="(e) => { item.name = e, emits('update:modelValue', modelValue) }" />
 
                                         </div>
@@ -425,7 +425,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                                             :class="'hover:bg-white/30 border border-transparent hover:border-white/80 border-dashed cursor-text'"
                                                             :key="editorKey" v-model="sub.name" :editable="editable"
                                                             @update:model-value="(e) => { sub.name = e, emits('update:modelValue', modelValue) }"
-                                                            @onEditClick="selectAllEditor" />
+                                                             />
                                                     </div>
                                                     <ContextMenu ref="subMenu" :model="subMenuitems">
                                                         <template #itemicon="item">

@@ -131,15 +131,14 @@ onMounted(() => {
                 class="bg-gradient-to-tr text-white flex flex-col justify-between px-6 py-2 rounded-lg shadow-lg sm:h-auto">
                 <div class="flex justify-between items-center mb-2">
                     <div>
-                        <div class="text-[15px] font-semibold capitalize">Prospects last contacted (within interval)
+                        <div class="text-[15px] font-semibold capitalize">{{trans("Prospects last contacted (within interval)")}}
                         </div>
                     </div>
                     <FontAwesomeIcon :icon="form[fieldName].query ? faCheckCircle : faCircle" class="text-xl" />
                 </div>
                 <div @contextmenu="toggle">
-                    <div class="text-2xl font-bold capitalize">{{ queryData?.day ?? 1 }} {{ queryData?.range ?? 'week'
-                        }}</div>
-                    <div class="text-sm text-white/80">have a 4567 people to send</div>
+                    <div class="text-2xl font-bold capitalize">{{ queryData?.day ?? 1 }} {{ queryData?.range ?? 'week' }}</div>
+                    <div class="text-sm text-white/80">{{trans("have a 4567 people to send")}}</div>
                     <Popover ref="_popover">
                         <div class="flex  gap-4 w-[15rem]">
                             <div class="w-1/4">
@@ -160,13 +159,13 @@ onMounted(() => {
                 class="bg-gradient-to-tr text-white flex flex-col justify-between px-6 py-2 rounded-lg shadow-lg sm:h-auto">
                 <div class="flex justify-between items-center mb-2">
                     <div>
-                        <div class="text-[15px] font-semibold capitalize">Prospects not contacted</div>
+                        <div class="text-[15px] font-semibold capitalize">{{trans("Prospects not contacted")}}</div>
                     </div>
                     <FontAwesomeIcon :icon="!form[fieldName].query ? faCheckCircle : faCircle" class="text-xl" />
                 </div>
                 <div>
                     <div class="text-2xl font-bold">-</div>
-                    <div class="text-sm text-white/80">have a 4567 people to send</div>
+                    <div class="text-sm text-white/80">{{trans("have a 4567 people to send")}}</div>
                 </div>
             </div>
         </div>
@@ -209,8 +208,7 @@ onMounted(() => {
                                                     class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
                                                     v-model="form[fieldName].custom_prospects_query.tags.logic" />
                                                 <label :for="filter.value"
-                                                    class="ml-3 block text-xs font-medium leading-6 text-gray-900">{{
-                                                        filter.label }}</label>
+                                                    class="ml-3 block text-xs font-medium leading-6 text-gray-900">{{ filter.label }}</label>
                                             </div>
                                         </div>
                                     </fieldset>

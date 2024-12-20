@@ -43,6 +43,7 @@ class ShowMailshotWorkshop extends OrgAction
 
     public function htmlResponse(Snapshot $snapshot, ActionRequest $request): Response
     {
+        $beeFreeSettings = $snapshot->group->settings['beefree'];
         return Inertia::render(
             'Org/Web/Workshop/Outbox/OutboxWorkshop', //NEED VUE FILE
             [
@@ -76,7 +77,35 @@ class ShowMailshotWorkshop extends OrgAction
 
                 ],
                 'snapshot'    => SnapshotResource::make($snapshot)->getArray(),
-
+                'builder'     => $snapshot->builder,
+               /*  'unpublished_layout'    => $snapshot->unpublishedSnapshot->layout, */
+                'builder'           => $snapshot->builder,
+                'imagesUploadRoute'   => [
+                    'name'       => 'grp.models.email-templates.images.store',
+                    'parameters' => $snapshot->id
+                ],
+                'updateRoute'         => [
+                    'name'       => 'grp.models.shop.outboxes.workshop.update',
+                    'parameters' => [
+                        'shop' => $snapshot->shop_id,
+                        'outbox' => $snapshot->outbox_id
+                    ],
+                    'method' => 'patch'
+                ],
+                'loadRoute'           => [
+                    'name'       => 'grp.models.email-templates.content.show',
+                    'parameters' => $snapshot->id
+                ],
+                'publishRoute'           => [
+                    'name'       => 'grp.models.shop.outboxes.publish',
+                    'parameters' => [
+                        'shop' => $snapshot->shop_id,
+                        'outbox' => $snapshot->outbox_id
+                    ],
+                    'method' => 'post'
+                ],
+                /* 'status' => $snapshot->outbox->state, */
+                'apiKey'            =>  $beeFreeSettings
                 // 'imagesUploadRoute'   => [
                 //     'name'       => 'grp.models.email-templates.images.store',
                 //     'parameters' => $emailTemplate->id
