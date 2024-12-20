@@ -59,7 +59,7 @@ class GetOverview extends OrgAction
                 ],
                 [
                     'name' => 'Users Requests',
-                    'icon' => 'fal fa-road',
+                    'icon' => 'fal fa-user-headset',
                     'route' => '',
                     'count' => $group->sysadminStats->number_user_requests
                 ],
@@ -249,7 +249,7 @@ class GetOverview extends OrgAction
             'Inventory' => [
                 [
                     'name' => 'Stocks',
-                    'icon' => 'fal fa-boxes',
+                    'icon' => 'fal fa-inventory',
                     'route' => '',
                     'count' => $group->goodsStats->number_stocks
                 ],
@@ -279,19 +279,19 @@ class GetOverview extends OrgAction
                 ],
                 [
                     'name' => 'Warehouses',
-                    'icon' => 'fal fa-dolly',
+                    'icon' => 'fal fa-warehouse-alt',
                     'route' => '',
                     'count' => $group->inventoryStats->number_warehouses
                 ],
                 [
                     'name' => 'Warehouses Areas',
-                    'icon' => 'fal fa-dolly',
+                    'icon' => 'fal fa-industry-alt',
                     'route' => '',
                     'count' => $group->inventoryStats->number_warehouse_areas
                 ],
                 [
                     'name' => 'Locations',
-                    'icon' => 'fal fa-dolly',
+                    'icon' => 'fal fa-location-arrow',
                     'route' => '',
                     'count' => $group->inventoryStats->number_locations
                 ],
@@ -323,7 +323,7 @@ class GetOverview extends OrgAction
                 ],
                 [
                     'name' => 'Pallet Returns',
-                    'icon' => 'fal fa-pallet-return',
+                    'icon' => 'fal fa-forklift',
                     'route' => '',
                     'count' => $group->fulfilmentStats->number_pallet_returns
                 ],

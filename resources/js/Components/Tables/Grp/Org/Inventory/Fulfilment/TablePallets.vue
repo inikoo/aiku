@@ -116,18 +116,28 @@ const getLocationsList = async () => {
 };
 
 // Method: On submit move pallet
+const isLoadingMove = ref(false)
 const onMovePallet = async (url: string, locationId: number, palletReference: string, closePopup: Function) => {
-  router.patch(url,{ location_id: locationId },{
-    onSuccess:(e)=>{
-      closePopup();
-      notify({
-      title: "Pallet moved!",
-      text: "Pallet has been moved",
-      type: "success"
-    })
+  router.patch(url,
+    { location_id: locationId },
+    {
+      onStart: () => {
+        isLoadingMove.value = true
+      },
+      onFinish: () => {
+        isLoadingMove.value = false
+      },
+      onSuccess: (e) => {
+        closePopup()
+        notify({
+          title: "Pallet moved!",
+          text: "Pallet has been moved",
+          type: "success"
+        })
+      }
     }
-  })
-};
+  )
+}
 
 const onUpdateStatus=(routes,data)=>{
   router.patch(route(routes.name, routes.parameters),data)
@@ -215,7 +225,11 @@ const onUpdateStatus=(routes,data)=>{
               <div class="flex justify-end mt-2">
                 <Button
                   @click="() => onMovePallet(route(item.updateLocationRoute.name, item.updateLocationRoute.parameters), palletSelected?.[item.reference], item.reference, close)"
-                  type="primary" full tooltip="Move pallet" :loading="isLoading" label="save"
+                  type="primary"
+                  full
+                  tooltip="Move pallet"
+                  :loading="isLoadingMove"
+                  label="save"
                   :key="item.index + palletSelected?.[item.reference]"
                   :disabled="palletSelected?.[item.reference] == item.location_id" />
               </div>
