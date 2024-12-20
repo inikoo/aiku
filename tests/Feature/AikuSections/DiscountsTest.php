@@ -11,8 +11,10 @@
 use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Catalogue\Shop\SeedOfferCampaigns;
 use App\Actions\Catalogue\Shop\StoreShop;
+use App\Actions\Discounts\Offer\Search\ReindexOfferSearch;
 use App\Actions\Discounts\Offer\StoreOffer;
 use App\Actions\Discounts\Offer\UpdateOffer;
+use App\Actions\Discounts\OfferCampaign\Search\ReindexOfferCampaignSearch;
 use App\Actions\Discounts\OfferCampaign\UpdateOfferCampaign;
 use App\Actions\Discounts\OfferComponent\StoreOfferComponent;
 use App\Actions\Discounts\OfferComponent\UpdateOfferComponent;
@@ -20,6 +22,7 @@ use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Models\Analytics\AikuScopedSection;
 use App\Models\Catalogue\Shop;
 use App\Models\Discounts\Offer;
+use App\Models\Discounts\OfferCampaign;
 use App\Models\Discounts\OfferComponent;
 use Inertia\Testing\AssertableInertia;
 
@@ -172,4 +175,20 @@ test('UI get section route offer dashboard', function () {
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
         ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_OFFER->value)
         ->and($sectionScope->model_slug)->toBe($this->shop->slug);
+});
+
+test('offers search', function () {
+    $this->artisan('search:offers')->assertExitCode(0);
+
+    $offer = Offer::first();
+    ReindexOfferSearch::run($offer);
+    expect($offer->universalSearch()->count())->toBe(1);
+});
+
+test('offer campaigns search', function () {
+    $this->artisan('search:offer_campaigns')->assertExitCode(0);
+
+    $offerCampaign = OfferCampaign::first();
+    ReindexOfferCampaignSearch::run($offerCampaign);
+    expect($offerCampaign->universalSearch()->count())->toBe(1);
 });

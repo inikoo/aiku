@@ -14,11 +14,14 @@ use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\InvoiceCategory\StoreInvoiceCategory;
 use App\Actions\Accounting\InvoiceCategory\UpdateInvoiceCategory;
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
+use App\Actions\Accounting\Payment\Search\ReindexPaymentSearch;
 use App\Actions\Accounting\Payment\StorePayment;
 use App\Actions\Accounting\Payment\UpdatePayment;
+use App\Actions\Accounting\PaymentAccount\Search\ReindexPaymentAccountSearch;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\UpdatePaymentServiceProvider;
+use App\Actions\Accounting\TopUp\Search\ReindexTopUpSearch;
 use App\Actions\Accounting\TopUp\SetTopUpStatusToSuccess;
 use App\Actions\Accounting\TopUp\StoreTopUp;
 use App\Actions\Accounting\TopUp\UpdateTopUp;
@@ -925,3 +928,28 @@ test('UI get section route group overview hub (accounting)', function () {
         ->and($sectionScope->code)->toBe(AikuSectionEnum::GROUP_OVERVIEW->value)
         ->and($sectionScope->model_slug)->toBe($this->organisation->group->slug);
 });
+
+
+test('payments search', function () {
+    $this->artisan('search:payments')->assertExitCode(0);
+
+    $payment = Payment::first();
+    ReindexPaymentSearch::run($payment);
+    expect($payment->universalSearch()->count())->toBe(1);
+});
+
+test('payment accounts search', function () {
+    $this->artisan('search:payment_accounts')->assertExitCode(0);
+
+    $paymentAccount = PaymentAccount::first();
+    ReindexPaymentAccountSearch::run($paymentAccount);
+    expect($paymentAccount->universalSearch()->count())->toBe(1);
+});
+
+// test('topups search', function () {
+//     $this->artisan('search:topups')->assertExitCode(0);
+
+//     $topup = Topup::first();
+//     ReindexTopUpSearch::run($topup);
+//     expect($topup->universalSearch()->count())->toBe(1);
+// });

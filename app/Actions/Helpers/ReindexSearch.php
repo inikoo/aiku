@@ -44,8 +44,8 @@ class ReindexSearch extends HydrateModel
             $this->reindexBillables($command);
         }
 
-        if ($this->checkIfCanReindex(['offer'], $command)) {
-            $this->reindexOffer($command);
+        if ($this->checkIfCanReindex(['discount'], $command)) {
+            $this->reindexDiscount($command);
         }
 
         if ($this->checkIfCanReindex(['website'], $command)) {
@@ -114,9 +114,9 @@ class ReindexSearch extends HydrateModel
         $command->call('search:services');
     }
 
-    protected function reindexOffer(Command $command): void
+    protected function reindexDiscount(Command $command): void
     {
-        $command->info('Offer section 🎁');
+        $command->info('Discount section💲');
         $command->call('search:offers');
         $command->call('search:offer_campaigns');
     }
@@ -169,7 +169,7 @@ class ReindexSearch extends HydrateModel
         $command->info('Accounting section 💰');
         $command->call('search:payments');
         $command->call('search:payment_accounts');
-        $command->call('search:topups');
+        // $command->call('search:topups'); -> error on record search
         //todo $command->call('search:customer_balances');
     }
 
@@ -178,7 +178,7 @@ class ReindexSearch extends HydrateModel
         $command->info('Procurement section 🚚');
         $command->call('search:org_suppliers');
         $command->call('search:org_agents');
-        $command->call('search:org_patners');
+        $command->call('search:org_partners');
         $command->call('search:purchase_orders');
     }
 
@@ -187,7 +187,7 @@ class ReindexSearch extends HydrateModel
         $command->info('Supply Chain section 🚛');
         //todo $command->call('search:agents');
         //todo $command->call('search:suppliers');
-        $command->call('search:supplier_products');
+        $command->call('search:supplier_products'); // not yet tested
     }
 
     protected function reindexProduction(Command $command): void
@@ -216,7 +216,6 @@ class ReindexSearch extends HydrateModel
         $command->info('CRM section 👸🏻');
         $command->call('search:customers');
         $command->call('search:prospects');
-        $command->call('search:portfolios');
     }
 
     protected function reindexFulfilment(Command $command): void
@@ -224,10 +223,10 @@ class ReindexSearch extends HydrateModel
         $command->info('Fulfillment section 🚛');
         $command->call('search:recurring_bills');
         $command->call('search:fulfilment_customers');
-        $command->call('search:stored_items');
-        $command->call('search:stored_item_audits');
-        $command->call('search:pallet_returns');
-        $command->call('search:pallet_deliveries');
+        $command->call('search:stored_items'); // not yet tested
+        $command->call('search:stored_item_audits'); // not yet tested
+        $command->call('search:pallet_returns'); // not yet tested
+        $command->call('search:pallet_deliveries'); // not yet tested
     }
 
     private function checkIfCanReindex(array $keys, $command): bool

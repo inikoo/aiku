@@ -17,7 +17,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class ReindexSupplierProductsSearch extends HydrateModel
 {
     use AsAction;
-    public string $commandSignature = 'search:supplier_products';
+    public string $commandSignature = 'search:supplier_products {organisations?*} {--s|slugs=}';
 
     public function handle(SupplierProduct $supplierProduct): void
     {

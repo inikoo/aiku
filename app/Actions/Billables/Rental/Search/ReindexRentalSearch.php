@@ -8,29 +8,26 @@
 
 namespace App\Actions\Billables\Rental\Search;
 
+use App\Actions\HydrateModel;
 use App\Models\Billables\Rental;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ReindexRentalSearch
+class ReindexRentalSearch extends HydrateModel
 {
     use asAction;
 
-    public string $commandSignature = 'search:rentals';
+    public string $commandSignature = 'search:rentals {organisations?*} {--s|slugs=}';
 
     public function handle(Rental $rental): void
     {
         RentalRecordSearch::run($rental);
     }
 
-    public function asCommand(Command $command): int
+    protected function getModel(string $slug): Rental
     {
-        $command->withProgressBar(Rental::withTrashed()->all(), function (Rental $rental) {
-            $this->handle($rental);
-        });
-
-        return 0;
+        return Rental::withTrashed()->where('slug', $slug)->first();
     }
 
     protected function loopAll(Command $command): void

@@ -39,13 +39,13 @@ class ReindexJobPositionSearch extends HydrateModel
     protected function loopAll(Command $command): void
     {
         $command->info("Reindex Job Positions");
-        $count = JobPosition::withTrashed()->count();
+        $count = JobPosition::count();
 
         $bar = $command->getOutput()->createProgressBar($count);
         $bar->setFormat('debug');
         $bar->start();
 
-        JobPosition::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+        JobPosition::chunk(1000, function (Collection $models) use ($bar) {
             foreach ($models as $model) {
                 $this->handle($model);
                 $bar->advance();

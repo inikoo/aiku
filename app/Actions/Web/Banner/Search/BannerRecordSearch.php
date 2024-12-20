@@ -77,8 +77,8 @@ class BannerRecordSearch
                     ],
                     'meta'          => [
                         [
-                            'icon' => $banner->state->stateIcon()[$banner->state->value],
-                            'label'     => $banner->state->labels()[$banner->state->value],
+                            'icon' => 'fal fa-globe',
+                            'label'     => $banner->website->name,
                             'tooltip'   => __('State'),
                         ],
                         [

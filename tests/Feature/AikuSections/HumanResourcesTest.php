@@ -11,12 +11,16 @@
 use App\Actions\HumanResources\Clocking\StoreClocking;
 use App\Actions\HumanResources\ClockingMachine\GetClockingMachineAppQRCode;
 use App\Actions\HumanResources\ClockingMachine\HydrateClockingMachine;
+use App\Actions\HumanResources\ClockingMachine\Search\ReindexClockingMachineSearch;
 use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\UpdateClockingMachine;
+use App\Actions\HumanResources\Employee\Search\ReindexEmployeeSearch;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
+use App\Actions\HumanResources\JobPosition\Search\ReindexJobPositionSearch;
 use App\Actions\HumanResources\Timesheet\StoreTimesheet;
+use App\Actions\HumanResources\Workplace\Search\ReindexWorkplaceSearch;
 use App\Actions\HumanResources\Workplace\StoreWorkplace;
 use App\Actions\HumanResources\Workplace\UpdateWorkplace;
 use App\Enums\HumanResources\Clocking\ClockingTypeEnum;
@@ -348,3 +352,36 @@ test('hydrate clocking machine', function (ClockingMachine $clockingMachine) {
     HydrateClockingMachine::run($clockingMachine);
     $this->artisan('hydrate:clocking-machine '.$this->organisation->slug)->assertExitCode(0);
 })->depends('create clocking machines')->todo();
+
+
+test('employees notes search', function () {
+    $this->artisan('search:employees')->assertExitCode(0);
+
+    $employees = Employee::first();
+    ReindexEmployeeSearch::run($employees);
+    expect($employees->universalSearch()->count())->toBe(1);
+});
+
+test('workplaces notes search', function () {
+    $this->artisan('search:workplaces')->assertExitCode(0);
+
+    $workplace = Workplace::first();
+    ReindexWorkplaceSearch::run($workplace);
+    expect($workplace->universalSearch()->count())->toBe(1);
+});
+
+test('job positions notes search', function () {
+    $this->artisan('search:job_positions')->assertExitCode(0);
+
+    $jobPosition = JobPosition::first();
+    ReindexJobPositionSearch::run($jobPosition);
+    expect($jobPosition->universalSearch()->count())->toBe(1);
+});
+
+test('clocking machines notes search', function () {
+    $this->artisan('search:clocking_machines')->assertExitCode(0);
+
+    $clockingMachine = ClockingMachine::first();
+    ReindexClockingMachineSearch::run($clockingMachine);
+    expect($clockingMachine->universalSearch()->count())->toBe(1);
+});
