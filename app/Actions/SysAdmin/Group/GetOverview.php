@@ -52,16 +52,16 @@ class GetOverview extends OrgAction
                     'count' => $group->sysadminStats->number_users
                 ],
                 [
-                    'name' => 'Guests', // user requests
-                    'icon' => 'fal fa-user-tag',
+                    'name' => 'Guests',
+                    'icon' => 'fal fa-user-alien',
                     'route' => '',
                     'count' => $group->sysadminStats->number_guests
                 ],
                 [
-                    'name' => 'User Request', // user requests
-                    'icon' => 'fal fa-user-clock',
+                    'name' => 'Users Requests',
+                    'icon' => 'fal fa-road',
                     'route' => '',
-                    'count' => 0 // $group->sysadminStats->number_user_requests
+                    'count' => $group->sysadminStats->number_user_requests
                 ],
             ],
             'Comms & marketing' => [
@@ -90,16 +90,22 @@ class GetOverview extends OrgAction
                     'count' => $group->commsStats->number_outboxes_type_marketing
                 ],
                 [
+                    'name' => 'Emails',
+                    'icon' => 'fal fa-envelope',
+                    'route' => '',
+                    'count' => 0 // $group->commsStats->number_emails
+                ],
+                [
                     'name' => 'Dispatched Emails',
                     'icon' => 'fal fa-envelope-open-text',
                     'route' => '',
                     'count' => $group->commsStats->number_dispatched_emails
                 ],
                 [
-                    'name' => 'Emails',
-                    'icon' => 'fal fa-envelope',
+                    'name' => 'Email Bulk Runs',
+                    'icon' => 'fal fa-envelope-open-text',
                     'route' => '',
-                    'count' => 0 // $group->commsStats->number_emails
+                    'count' => 0
                 ],
             ],
             'Catalogue' => [
@@ -136,8 +142,8 @@ class GetOverview extends OrgAction
                 //     'count' => $group->catalogueStats->number_shipping_zone_schemas
                 // ],
                 [
-                    'name' => 'Rental',
-                    'icon' => 'fal fa-shipping-fast',
+                    'name' => 'Rentals',
+                    'icon' => 'fal fa-garage',
                     'route' => '',
                     'count' => $group->catalogueStats->number_rentals
                 ],
@@ -266,7 +272,7 @@ class GetOverview extends OrgAction
                     'count' => 0 // $group->inventoryStats->number_org_stock_families
                 ],
                 [
-                    'name' => 'Org Stock Movement',
+                    'name' => 'Org Stock Movements',
                     'icon' => 'fal fa-dolly',
                     'route' => '',
                     'count' => 0 // $group->inventoryStats->number_org_stock_movements
