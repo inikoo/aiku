@@ -195,7 +195,9 @@ trait WithParseCreatedHistory
         $newValues = [];
         $abstract  = $this->auroraModelData->{'History Abstract'};
 
-        if (preg_match('/^ prospect record created/', $abstract)) {
+        if (preg_match('/^ prospect record created/', $abstract) ||
+            $abstract == 'Byl vytvořenrospektový záznam'
+        ) {
             return $newValues;
         }
 

@@ -200,7 +200,9 @@ class FetchAuroraHistory extends FetchAurora
                         'Prospect Preferred Contact Number Formatted Number'
                     ]);
 
-                    if ($skip) {
+                    if ($skip and
+                        $this->auroraModelData->{'Indirect Object'} != 'Prospect Preferred Contact Number'
+                    ) {
                         dd($this->auroraModelData);
                     }
 
