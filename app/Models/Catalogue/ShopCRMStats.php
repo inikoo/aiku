@@ -52,6 +52,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_prospect_queries
  * @property int $number_customer_queries
  * @property int $number_surveys
+ * @property int $number_web_users
+ * @property int $number_current_web_users Number of web users with state = true
+ * @property int $number_web_users_type_web
+ * @property int $number_web_users_type_api
+ * @property int $number_web_users_auth_type_default
+ * @property int $number_web_users_auth_type_aurora
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Catalogue\Shop $shop

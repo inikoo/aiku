@@ -8,6 +8,7 @@
 
 use App\Stubs\Migrations\HasBackInStockReminderStats;
 use App\Stubs\Migrations\HasCreditsStats;
+use App\Stubs\Migrations\HasCRMStats;
 use App\Stubs\Migrations\HasFavouritesStats;
 use App\Stubs\Migrations\HasOrderingStats;
 use App\Stubs\Migrations\HasSalesStats;
@@ -23,6 +24,7 @@ return new class () extends Migration {
     use HasFavouritesStats;
     use HasBackInStockReminderStats;
     use HasOrderingStats;
+    use HasCRMStats;
     public function up(): void
     {
         Schema::create('customer_stats', function (Blueprint $table) {

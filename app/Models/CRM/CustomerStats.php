@@ -70,7 +70,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_delivery_notes_cancelled_at_state_dispatched
  * @property int $number_delivery_notes_state_with_out_of_stock
  * @property int $number_web_users
- * @property int $number_current_web_users
+ * @property int $number_current_web_users Number of web users with state = true
+ * @property int $number_web_users_type_web
+ * @property int $number_web_users_type_api
+ * @property int $number_web_users_auth_type_default
+ * @property int $number_web_users_auth_type_aurora
  * @property int $number_clients
  * @property int $number_current_clients
  * @property int $number_credit_transactions

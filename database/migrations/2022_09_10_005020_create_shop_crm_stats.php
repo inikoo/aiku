@@ -26,6 +26,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('number_prospect_queries')->default(0);
             $table->unsignedSmallInteger('number_customer_queries')->default(0);
             $table->unsignedSmallInteger('number_surveys')->default(0);
+            $table = $this->getWebUsersStatsFields($table);
             $table->timestampsTz();
         });
     }

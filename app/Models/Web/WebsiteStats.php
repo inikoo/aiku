@@ -18,6 +18,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $website_id
+ * @property int $number_web_users
+ * @property int $number_current_web_users Number of web users with state = true
+ * @property int $number_web_users_type_web
+ * @property int $number_web_users_type_api
+ * @property int $number_web_users_auth_type_default
+ * @property int $number_web_users_auth_type_aurora
  * @property int $number_webpages
  * @property int $number_webpages_state_in_process
  * @property int $number_webpages_state_ready
