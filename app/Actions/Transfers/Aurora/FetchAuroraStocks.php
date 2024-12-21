@@ -165,6 +165,8 @@ class FetchAuroraStocks extends FetchAuroraAction
                     modelData: [
                         'state' => StockStateEnum::ACTIVE
                     ],
+                    hydratorsDelay: 60,
+                    strict: false,
                     audit: false
                 );
             }
