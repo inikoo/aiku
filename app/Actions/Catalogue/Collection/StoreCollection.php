@@ -45,6 +45,7 @@ class StoreCollection extends OrgAction
 
         $collection->stats()->create();
         $collection->salesIntervals()->create();
+        $collection->orderingStats()->create();
 
         CollectionRecordSearch::dispatch($collection);
         OrganisationHydrateCollections::dispatch($collection->organisation)->delay($this->hydratorsDelay);

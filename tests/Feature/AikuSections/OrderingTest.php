@@ -148,7 +148,7 @@ test('create order', function () {
         ->and($this->customer->stats->number_orders)->toBe(1)
         ->and($this->customer->stats->number_orders_state_creating)->toBe(1)
         ->and($this->customer->stats->number_orders_handing_type_shipping)->toBe(1)
-        ->and($order->stats->number_transactions_at_creation)->toBe(0);
+        ->and($order->stats->number_transactions_at_submission)->toBe(0);
 
     return $order;
 });
@@ -163,7 +163,7 @@ test('create transaction', function ($order) {
     $order->refresh();
 
     expect($transaction)->toBeInstanceOf(Transaction::class)
-        ->and($transaction->order->stats->number_transactions_at_creation)->toBe(1)
+        ->and($transaction->order->stats->number_transactions_at_submission)->toBe(1)
         ->and($order->stats->number_transactions)->toBe(1);
 
     return $transaction;
@@ -366,7 +366,7 @@ test('create old order', function () {
     expect($order)->toBeInstanceOf(Order::class)
         ->and($order->state)->toBe(OrderStateEnum::CREATING)
         ->and($order->stats->number_transactions)->toBe(1)
-        ->and($order->stats->number_transactions_at_creation)->toBe(1)
+        ->and($order->stats->number_transactions_at_submission)->toBe(1)
         ->and($transaction)->toBeInstanceOf(Transaction::class);
 
     $this->customer->refresh();

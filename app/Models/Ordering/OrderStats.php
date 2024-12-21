@@ -18,9 +18,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $order_id
- * @property int $number_transactions_at_creation
- * @property int $number_add_up_transactions
- * @property int $number_cut_off_transactions
+ * @property int $number_transactions_out_of_stock_in_basket transactions at the time up submission from basket
+ * @property string $out_of_stock_in_basket_net_amount
+ * @property string|null $out_of_stock_in_basket_grp_net_amount
+ * @property string|null $out_of_stock_in_basket_org_net_amount
+ * @property int $number_transactions_at_submission transactions at the time up submission from basket
+ * @property int $number_created_transactions_after_submission
+ * @property int $number_updated_transactions_after_submission
+ * @property int $number_deleted_transactions_after_submission
  * @property int $number_transactions transactions including cancelled
  * @property int $number_current_transactions transactions excluding cancelled
  * @property int $number_transactions_state_creating

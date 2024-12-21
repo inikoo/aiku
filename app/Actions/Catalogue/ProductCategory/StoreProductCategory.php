@@ -58,6 +58,8 @@ class StoreProductCategory extends OrgAction
             $productCategory->stats()->create();
             $productCategory->orderingIntervals()->create();
             $productCategory->salesIntervals()->create();
+            $productCategory->orderingStats()->create();
+
             $productCategory->refresh();
             return $productCategory;
         });

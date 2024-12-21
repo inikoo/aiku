@@ -2,11 +2,11 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 15 Aug 2024 11:53:53 Central Indonesia Time, Bali Office, Indonesia
+ * Created: Sat, 21 Dec 2024 14:22:23 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\Dropshipping;
+namespace App\Models\Catalogue;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -14,19 +14,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  *
  * @property int $id
- * @property int $platform_id
- * @property int $number_customers
- * @property int $number_customers_state_in_process
- * @property int $number_customers_state_registered
- * @property int $number_customers_state_active
- * @property int $number_customers_state_losing
- * @property int $number_customers_state_lost
- * @property int $number_products
- * @property int $number_current_products state: active+discontinuing
- * @property int $number_products_state_in_process
- * @property int $number_products_state_active
- * @property int $number_products_state_discontinuing
- * @property int $number_products_state_discontinued
+ * @property int $product_category_id
  * @property string|null $last_order_created_at
  * @property string|null $last_order_submitted_at
  * @property string|null $last_order_dispatched_at
@@ -112,11 +100,14 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_delivery_note_items_state_cancelled
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder<static>|PlatformStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|PlatformStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|PlatformStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCategoryOrderingStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCategoryOrderingStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCategoryOrderingStats query()
  * @mixin \Eloquent
  */
-class PlatformStats extends Model
+class ProductCategoryOrderingStats extends Model
 {
+    protected $table = 'product_category_ordering_stats';
+
+    protected $guarded = [];
 }

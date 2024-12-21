@@ -18,7 +18,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $invoice_id
- * @property int $number_items current number of items
+ * @property int $number_invoice_transactions transactions including cancelled
+ * @property int $number_positive_invoice_transactions amount>0
+ * @property int $number_negative_invoice_transactions amount<0
+ * @property int $number_zero_invoice_transactions amount=0
+ * @property int $number_current_invoice_transactions transactions excluding cancelled
+ * @property int $number_positive_current_invoice_transactions transactions excluding cancelled, amount>0
+ * @property int $number_negative_current_invoice_transactions transactions excluding cancelled, amount<0
+ * @property int $number_zero_current_invoice_transactions transactions excluding cancelled, amount=0
  * @property int $number_offer_components
  * @property int $number_offers
  * @property int $number_offer_campaigns
