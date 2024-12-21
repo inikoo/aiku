@@ -6,26 +6,21 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use App\Stubs\Migrations\HasInventoryStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    use HasGroupOrganisationRelationship;
     use HasInventoryStats;
 
     public function up(): void
     {
         Schema::create('org_stock_family_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table = $this->groupOrgRelationship($table);
             $table->unsignedInteger('org_stock_family_id')->index();
             $table->foreign('org_stock_family_id')->references('id')->on('org_stock_families');
-
             $table = $this->orgStockStats($table);
-
             $table->softDeletesTz();
             $table->timestampsTz();
         });

@@ -31,6 +31,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property int|null $org_stock_family_id
  * @property int $org_stock_id
  * @property int|null $transaction_id
+ * @property int|null $invoice_transaction_id
  * @property string|null $notes
  * @property DeliveryNoteItemStateEnum $state
  * @property string|null $weight
@@ -38,6 +39,12 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string|null $quantity_picked
  * @property string|null $quantity_packed
  * @property string|null $quantity_dispatched
+ * @property string $revenue_amount
+ * @property string $org_revenue_amount
+ * @property string $grp_revenue_amount
+ * @property string|null $profit_amount
+ * @property string|null $org_profit_amount
+ * @property string|null $grp_profit_amount
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

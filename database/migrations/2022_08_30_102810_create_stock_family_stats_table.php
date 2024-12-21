@@ -6,13 +6,13 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-use App\Stubs\Migrations\HasInventoryStats;
+use App\Stubs\Migrations\HasGoodsStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    use HasInventoryStats;
+    use HasGoodsStats;
 
     public function up(): void
     {

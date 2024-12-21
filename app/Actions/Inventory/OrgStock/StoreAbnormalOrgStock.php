@@ -47,12 +47,8 @@ class StoreAbnormalOrgStock extends OrgAction
         $orgStock = DB::transaction(function () use ($organisation, $modelData, $parent) {
             /** @var OrgStock $orgStock */
             $orgStock = $organisation->orgStocks()->create($modelData);
-            $orgStock->stats()->create(
-                [
-                    'group_id'        => $organisation->group_id,
-                    'organisation_id' => $organisation->id,
-                ]
-            );
+            $orgStock->stats()->create();
+            $orgStock->intervals()->create();
 
             if ($parent instanceof OrgStockFamily) {
                 $orgStock->orgStockFamily()->associate($parent);

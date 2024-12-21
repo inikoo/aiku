@@ -42,6 +42,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Group $group
+ * @property-read \App\Models\Inventory\OrgStockFamilyIntervals|null $intervals
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\OrgStock> $orgStocks
  * @property-read Organisation $organisation
  * @property-read \App\Models\Inventory\OrgStockFamilyStats|null $stats
@@ -98,6 +99,11 @@ class OrgStockFamily extends Model
     public function stats(): HasOne
     {
         return $this->hasOne(OrgStockFamilyStats::class);
+    }
+
+    public function intervals(): HasOne
+    {
+        return $this->hasOne(OrgStockFamilyIntervals::class);
     }
 
     public function stockFamily(): BelongsTo

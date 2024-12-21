@@ -17,6 +17,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $group_id
  * @property int $number_trade_units
+ * @property int $number_trade_units_with_barcode
+ * @property int $number_trade_units_with_net_weight
+ * @property int $number_trade_units_with_gross_weight
+ * @property int $number_trade_units_with_marketing_weight
+ * @property int $number_trade_units_with_dimensions
+ * @property int $number_trade_units_with_images
  * @property int $number_stock_families
  * @property int $number_current_stock_families active + discontinuing
  * @property int $number_stock_families_state_in_process
@@ -30,6 +36,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_stocks_state_discontinuing
  * @property int $number_stocks_state_discontinued
  * @property int $number_stocks_state_suspended
+ * @property int $number_ingredients
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group

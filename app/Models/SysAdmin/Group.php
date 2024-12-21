@@ -195,6 +195,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Platform> $platforms
  * @property-read LaravelCollection<int, Portfolio> $portfolios
  * @property-read LaravelCollection<int, PostRoom> $postRooms
+ * @property-read \App\Models\SysAdmin\GroupProcurementStats|null $procurementStats
  * @property-read LaravelCollection<int, ProductCategory> $productCategories
  * @property-read LaravelCollection<int, Production> $productions
  * @property-read LaravelCollection<int, Product> $products
@@ -399,6 +400,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function supplyChainStats(): HasOne
     {
         return $this->hasOne(GroupSupplyChainStats::class);
+    }
+
+    public function procurementStats(): HasOne
+    {
+        return $this->hasOne(GroupProcurementStats::class);
     }
 
     public function webStats(): HasOne

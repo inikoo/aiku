@@ -9,8 +9,9 @@
 namespace App\Actions\Goods\StockFamily;
 
 use App\Actions\Goods\StockFamily\Hydrators\StockFamilyHydrateUniversalSearch;
-use App\Actions\GrpAction;
+use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStockFamilies;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\SupplyChain\StockFamily\StockFamilyStateEnum;
 use App\Http\Resources\Inventory\OrgStockFamiliesResource;
@@ -20,9 +21,10 @@ use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateStockFamily extends GrpAction
+class UpdateStockFamily extends OrgAction
 {
     use WithActionUpdate;
+    use WithNoStrictRules;
 
     private StockFamily $stockFamily;
 
@@ -30,7 +32,6 @@ class UpdateStockFamily extends GrpAction
     public function handle(StockFamily $stockFamily, array $modelData): StockFamily
     {
         $stockFamily = $this->update($stockFamily, $modelData, ['data']);
-        StockFamilyHydrateUniversalSearch::dispatch($stockFamily);
         $changes = $stockFamily->getChanges();
         if ($stockFamily->orgStockFamilies) {
             if (Arr::hasAny($changes, ['code', 'name'])) {
@@ -47,8 +48,10 @@ class UpdateStockFamily extends GrpAction
         }
 
         if (Arr::hasAny($stockFamily->getChanges(), ['state'])) {
-            GroupHydrateStockFamilies::run($stockFamily->group);
+            GroupHydrateStockFamilies::dispatch($stockFamily->group)->delay($this->hydratorsDelay);
         }
+        StockFamilyHydrateUniversalSearch::dispatch($stockFamily);
+
 
         return $stockFamily;
     }
@@ -64,7 +67,7 @@ class UpdateStockFamily extends GrpAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'code' => [
                 'sometimes',
                 'required',
@@ -86,18 +89,25 @@ class UpdateStockFamily extends GrpAction
             ],
             'name'                     => ['sometimes', 'required', 'string', 'max:255'],
             'state'                    => ['sometimes', 'required', Rule::enum(StockFamilyStateEnum::class)],
-            'last_fetched_at'          => ['sometimes', 'date'],
         ];
+
+        if (!$this->strict) {
+            $rules = $this->noStrictUpdateRules($rules);
+        }
+
+        return $rules;
     }
 
-    public function action(StockFamily $stockFamily, array $modelData, bool $audit = true): StockFamily
+    public function action(StockFamily $stockFamily, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): StockFamily
     {
+        $this->strict = $strict;
         if (!$audit) {
             StockFamily::disableAuditing();
         }
         $this->asAction    = true;
         $this->stockFamily = $stockFamily;
-        $this->initialisation($stockFamily->group, $modelData);
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->initialisationFromGroup($stockFamily->group, $modelData);
 
         return $this->handle($stockFamily, $this->validatedData);
     }
@@ -105,7 +115,7 @@ class UpdateStockFamily extends GrpAction
     public function asController(StockFamily $stockFamily, ActionRequest $request): StockFamily
     {
         $this->stockFamily = $stockFamily;
-        $this->initialisation($stockFamily->group, $request);
+        $this->initialisationFromGroup($stockFamily->group, $request);
 
         return $this->handle($stockFamily, $this->validatedData);
     }

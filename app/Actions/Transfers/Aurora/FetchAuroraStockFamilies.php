@@ -64,10 +64,8 @@ class FetchAuroraStockFamilies extends FetchAuroraAction
             ->select('Category Key as source_id')
             ->where('Category Branch Type', 'Head')
             ->where('Category Scope', 'Part')
-            ->orderBy('source_id')
-            ->when(app()->environment('testing'), function ($query) {
-                return $query->limit(20);
-            });
+            ->orderBy('source_id');
+
     }
 
     public function count(): ?int

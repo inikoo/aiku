@@ -37,12 +37,8 @@ class StoreOrgStockFamily extends OrgAction
 
         /** @var OrgStockFamily $orgStockFamily */
         $orgStockFamily = $stockFamily->orgStockFamilies()->create($modelData);
-        $orgStockFamily->stats()->create(
-            [
-                'group_id'        => $organisation->group_id,
-                'organisation_id' => $organisation->id,
-            ]
-        );
+        $orgStockFamily->stats()->create();
+        $orgStockFamily->intervals()->create();
 
         OrgStockFamilyHydrateUniversalSearch::dispatch($orgStockFamily);
 

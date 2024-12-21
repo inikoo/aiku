@@ -40,6 +40,10 @@ return new class () extends Migration {
             $table->unsignedBigInteger('transaction_id')->index()->nullable();
             $table->foreign('transaction_id')->references('id')->on('transactions')->nullOnDelete();
 
+            $table->unsignedBigInteger('invoice_transaction_id')->index()->nullable();
+            $table->foreign('invoice_transaction_id')->references('id')->on('invoice_transactions')->nullOnDelete();
+
+
             $table->string('notes')->nullable();
 
             $table->string('state')->default(DeliveryNoteItemStateEnum::QUEUED->value)->index();
@@ -50,6 +54,15 @@ return new class () extends Migration {
             $table->decimal('quantity_picked', 16, 3)->nullable();
             $table->decimal('quantity_packed', 16, 3)->nullable();
             $table->decimal('quantity_dispatched', 16, 3)->nullable();
+
+            $table->decimal('revenue_amount', 16)->default(0);
+            $table->decimal('org_revenue_amount', 16)->default(0);
+            $table->decimal('grp_revenue_amount', 16)->default(0);
+
+            $table->decimal('profit_amount', 16)->nullable();
+            $table->decimal('org_profit_amount', 16)->nullable();
+            $table->decimal('grp_profit_amount', 16)->nullable();
+
 
             $table->jsonb('data');
             $table->timestampsTz();

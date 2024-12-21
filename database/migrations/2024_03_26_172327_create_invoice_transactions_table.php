@@ -54,6 +54,9 @@ return new class () extends Migration {
 
             $table->decimal('gross_amount', 16)->default(0);
             $table->decimal('net_amount', 16)->default(0);
+            $table->decimal('profit_amount', 16)->nullable();
+
+
 
             $table->unsignedSmallInteger('tax_category_id')->index();
             $table->foreign('tax_category_id')->references('id')->on('tax_categories');

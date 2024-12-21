@@ -13,10 +13,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasGroupOrganisationRelationship;
+
     public function up(): void
     {
         Schema::create('org_stock_movements', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('warehouse_id')->index();
             $table->foreign('warehouse_id')->references('id')->on('warehouses');
@@ -29,8 +30,16 @@ return new class () extends Migration {
             $table->boolean('is_delivered')->index()->default(false);
             $table->boolean('is_received')->index()->default(false);
 
+            $table->unsignedInteger('stock_family_id')->nullable()->index();
+            $table->foreign('stock_family_id')->references('id')->on('stock_families')->nullOnDelete();
+            $table->unsignedInteger('org_stock_family_id')->nullable()->index();
+            $table->foreign('org_stock_family_id')->references('id')->on('org_stocks')->nullOnDelete();
+
+            $table->unsignedInteger('stock_id')->nullable()->index();
+            $table->foreign('stock_id')->references('id')->on('stocks')->nullOnDelete();
             $table->unsignedInteger('org_stock_id')->index();
-            $table->foreign('org_stock_id')->references('id')->on('org_stocks');
+            $table->foreign('org_stock_id')->references('id')->on('org_stocks')->cascadeOnDelete();
+
             $table->unsignedInteger('location_id')->nullable()->index();
             $table->foreign('location_id')->references('id')->on('locations');
             $table->nullableMorphs('operation');

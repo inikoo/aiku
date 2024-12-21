@@ -53,12 +53,8 @@ class StoreOrgStock extends OrgAction
         $orgStock = DB::transaction(function () use ($stock, $modelData, $organisation, $parent) {
             /** @var OrgStock $orgStock */
             $orgStock = $stock->orgStocks()->create($modelData);
-            $orgStock->stats()->create(
-                [
-                    'group_id'        => $organisation->group_id,
-                    'organisation_id' => $organisation->id,
-                ]
-            );
+            $orgStock->stats()->create();
+            $orgStock->intervals()->create();
 
 
             if ($parent instanceof OrgStockFamily) {
