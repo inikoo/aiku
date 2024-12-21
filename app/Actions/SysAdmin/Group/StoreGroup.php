@@ -54,6 +54,7 @@ class StoreGroup
         $group->commsStats()->create();
         $group->discountsStats()->create();
         $group->orderingIntervals()->create();
+        $group->sysadminIntervals()->create();
 
         SeedGroupPermissions::run($group);
         SeedGroupPaymentServiceProviders::run($group);

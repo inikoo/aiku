@@ -220,6 +220,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, SupplierProduct> $supplierProducts
  * @property-read LaravelCollection<int, Supplier> $suppliers
  * @property-read \App\Models\SysAdmin\GroupSupplyChainStats|null $supplyChainStats
+ * @property-read \App\Models\SysAdmin\GroupSysadminIntervals|null $sysadminIntervals
  * @property-read \App\Models\SysAdmin\GroupSysAdminStats|null $sysadminStats
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Task> $tasks
  * @property-read LaravelCollection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
@@ -839,6 +840,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function orderingIntervals(): HasOne
     {
         return $this->hasOne(GroupOrderingIntervals::class);
+    }
+
+    public function sysadminIntervals(): HasOne
+    {
+        return $this->hasOne(GroupSysadminIntervals::class);
     }
 
 }
