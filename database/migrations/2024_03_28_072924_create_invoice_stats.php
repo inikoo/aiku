@@ -22,10 +22,7 @@ return new class () extends Migration {
             $table->foreign('invoice_id')->references('id')->on('invoices')->cascadeOnDelete();
 
             $table = $this->invoiceTransactionsStatsFields($table);
-
-            $table->unsignedSmallInteger('number_offer_components')->default(0);
-            $table->unsignedSmallInteger('number_offers')->default(0);
-            $table->unsignedSmallInteger('number_offer_campaigns')->default(0);
+            $table = $this->orderingOffersStatsFields($table);
 
             $table->timestampsTz();
         });

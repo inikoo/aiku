@@ -21,10 +21,8 @@ return new class () extends Migration {
             $table->foreign('order_id')->references('id')->on('orders')->cascadeOnDelete();
 
             $table = $this->transactionsStatsFields($table);
+            $table = $this->orderingOffersStatsFields($table);
 
-            $table->unsignedSmallInteger('number_offer_components')->default(0);
-            $table->unsignedSmallInteger('number_offers')->default(0);
-            $table->unsignedSmallInteger('number_offer_campaigns')->default(0);
 
             $table->timestampsTz();
         });

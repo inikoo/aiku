@@ -186,6 +186,30 @@ trait HasOrderingStats
             $table->unsignedInteger('number_delivery_note_items_state_'.$case->snake())->default(0);
         }
 
+        return $table;
+    }
+
+    public function orderingOffersStatsFields(Blueprint $table): Blueprint
+    {
+
+        $table->unsignedSmallInteger('number_offer_campaigns')->default(0);
+        $table->unsignedSmallInteger('number_offers')->default(0);
+        $table->unsignedSmallInteger('number_offer_components')->default(0);
+
+        $table->unsignedSmallInteger('number_transactions_with_offers')->default(0);
+
+        $table->decimal('discounts_amount', 16)->default(0)->comment('from % offs');
+        $table->decimal('org_discounts_amount', 16)->nullable();
+        $table->decimal('grp_discounts_amount', 16)->nullable();
+
+        $table->decimal('giveaways_value_amount', 16)->default(0)->comment('Value of goods given for free');
+        $table->decimal('org_giveaways_value_amount', 16)->nullable();
+        $table->decimal('grp_giveaways_value_amount', 16)->nullable();
+
+        $table->decimal('cashback_amount', 16)->default(0);
+        $table->decimal('org_cashback_amount', 16)->nullable();
+        $table->decimal('grp_cashback_amount', 16)->nullable();
+
 
 
         return $table;

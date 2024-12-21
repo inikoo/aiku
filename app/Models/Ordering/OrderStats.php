@@ -39,9 +39,19 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_transactions_status_creating
  * @property int $number_transactions_status_processing
  * @property int $number_transactions_status_settled
- * @property int $number_offer_components
- * @property int $number_offers
  * @property int $number_offer_campaigns
+ * @property int $number_offers
+ * @property int $number_offer_components
+ * @property int $number_transactions_with_offers
+ * @property string $discounts_amount from % offs
+ * @property string|null $org_discounts_amount
+ * @property string|null $grp_discounts_amount
+ * @property string $giveaways_value_amount Value of goods given for free
+ * @property string|null $org_giveaways_value_amount
+ * @property string|null $grp_giveaways_value_amount
+ * @property string $cashback_amount
+ * @property string|null $org_cashback_amount
+ * @property string|null $grp_cashback_amount
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Ordering\Order $order
