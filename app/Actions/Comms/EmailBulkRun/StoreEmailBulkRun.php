@@ -8,16 +8,13 @@
 
 namespace App\Actions\Comms\EmailBulkRun;
 
-use App\Actions\Comms\OrgPostRoom\Hydrators\OrgPostRoomHydrateRuns;
 use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateEmailBulkRuns;
-use App\Actions\Comms\PostRoom\Hydrators\PostRoomHydrateRuns;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Comms\EmailBulkRun\EmailBulkRunTypeEnum;
 use App\Enums\Comms\EmailBulkRun\EmailBulkRunStateEnum;
 use App\Models\Comms\EmailBulkRun;
 use App\Models\Comms\EmailOngoingRun;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -57,12 +54,7 @@ class StoreEmailBulkRun extends OrgAction
 
         $outbox = $emailOngoingRun->outbox;
 
-        Bus::chain([
-            OutboxHydrateEmailBulkRuns::makeJob($outbox),
-            OrgPostRoomHydrateRuns::makeJob($outbox->orgPostRoom),
-            PostRoomHydrateRuns::makeJob($outbox->postRoom)
-
-        ])->dispatch()->delay($this->hydratorsDelay);
+        OutboxHydrateEmailBulkRuns::dispatch($outbox)->delay($this->hydratorsDelay);
 
 
         return $emailBulkRun;

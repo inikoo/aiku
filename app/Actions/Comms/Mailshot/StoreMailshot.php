@@ -9,9 +9,7 @@
 namespace App\Actions\Comms\Mailshot;
 
 use App\Actions\Comms\Mailshot\UI\HasUIMailshots;
-use App\Actions\Comms\OrgPostRoom\Hydrators\OrgPostRoomHydrateRuns;
 use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateMailshots;
-use App\Actions\Comms\PostRoom\Hydrators\PostRoomHydrateRuns;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Actions\Traits\Rules\WithNoStrictRules;
@@ -19,7 +17,6 @@ use App\Enums\Comms\Mailshot\MailshotStateEnum;
 use App\Enums\Comms\Mailshot\MailshotTypeEnum;
 use App\Models\Comms\Mailshot;
 use App\Models\Comms\Outbox;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -54,14 +51,7 @@ class StoreMailshot extends OrgAction
             return $mailshot;
         });
 
-
-        Bus::chain([
-            OutboxHydrateMailshots::makeJob($outbox)->delay($this->hydratorsDelay),
-            OrgPostRoomHydrateRuns::makeJob($outbox->orgPostRoom)->delay($this->hydratorsDelay),
-            PostRoomHydrateRuns::makeJob($outbox->postRoom)->delay($this->hydratorsDelay)
-
-        ])->dispatch();
-
+        OutboxHydrateMailshots::dispatch($outbox)->delay($this->hydratorsDelay);
 
         return $mailshot;
     }

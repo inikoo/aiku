@@ -8,6 +8,8 @@
 
 namespace App\Actions\Comms\Outbox\Hydrators;
 
+use App\Actions\Comms\OrgPostRoom\Hydrators\OrgPostRoomHydrateRuns;
+use App\Actions\Comms\PostRoom\Hydrators\PostRoomHydrateRuns;
 use App\Models\Comms\Outbox;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Facades\DB;
@@ -32,7 +34,6 @@ class OutboxHydrateEmailBulkRuns
 
     public function handle(Outbox $outbox): void
     {
-
         if ($outbox->model_type != 'EmailBulkRun') {
             return;
         }
@@ -44,6 +45,9 @@ class OutboxHydrateEmailBulkRuns
                 'runs_all' => $count,
             ]
         );
+
+        OrgPostRoomHydrateRuns::run($outbox->orgPostRoom);
+        PostRoomHydrateRuns::run($outbox->postRoom);
     }
 
 
