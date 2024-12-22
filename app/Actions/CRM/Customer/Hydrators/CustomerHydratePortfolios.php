@@ -2,20 +2,26 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Mon, 23 Dec 2024 00:21:42 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\CRM\Customer\Hydrators;
 
+use App\Actions\OrgAction;
+use App\Actions\Traits\WithEnumStats;
 use App\Models\CRM\Customer;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class CustomerHydrateDropshippingClients
+class CustomerHydratePortfolios extends OrgAction
 {
     use AsAction;
-    private Customer $customer;
+    use WithEnumStats;
+
+
+    protected Customer $customer;
+
     public function __construct(Customer $customer)
     {
         $this->customer = $customer;
@@ -29,12 +35,12 @@ class CustomerHydrateDropshippingClients
     public function handle(Customer $customer): void
     {
         $stats = [
-            'number_customer_clients'                            => $customer->clients()->count(),
-            'number_current_customer_clients'                    => $customer->clients()->where('status', true)->count()
+            'number_portfolios'         => $customer->portfolios()->count(),
+            'number_current_portfolios' => $customer->portfolios()->where('status', true)->count(),
         ];
+
+
 
         $customer->stats->update($stats);
     }
-
-
 }

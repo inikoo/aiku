@@ -29,7 +29,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property int|null $stock_family_id
  * @property int|null $stock_id
  * @property int|null $org_stock_family_id
- * @property int $org_stock_id
+ * @property int|null $org_stock_id
  * @property int|null $transaction_id
  * @property int|null $invoice_transaction_id
  * @property string|null $notes
@@ -53,7 +53,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string|null $source_id
  * @property-read \App\Models\Dispatching\DeliveryNote $deliveryNote
  * @property-read \App\Models\SysAdmin\Group $group
- * @property-read OrgStock $orgStock
+ * @property-read OrgStock|null $orgStock
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Dispatching\Packing|null $packings
  * @property-read \App\Models\Dispatching\Picking|null $pickings

@@ -110,8 +110,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_web_users_type_api
  * @property int $number_web_users_auth_type_default
  * @property int $number_web_users_auth_type_aurora
- * @property int $number_clients
- * @property int $number_current_clients
+ * @property int $number_customer_clients
+ * @property int $number_current_customer_clients
+ * @property int $number_portfolios
+ * @property int $number_current_portfolios
  * @property int $number_credit_transactions
  * @property int $number_top_ups
  * @property int $number_top_ups_status_in_process

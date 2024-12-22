@@ -9,6 +9,7 @@
 use App\Stubs\Migrations\HasBackInStockReminderStats;
 use App\Stubs\Migrations\HasCreditsStats;
 use App\Stubs\Migrations\HasCRMStats;
+use App\Stubs\Migrations\HasDropshippingStats;
 use App\Stubs\Migrations\HasFavouritesStats;
 use App\Stubs\Migrations\HasOrderingStats;
 use App\Stubs\Migrations\HasSalesStats;
@@ -25,6 +26,7 @@ return new class () extends Migration {
     use HasBackInStockReminderStats;
     use HasOrderingStats;
     use HasCRMStats;
+    use HasDropshippingStats;
     public function up(): void
     {
         Schema::create('customer_stats', function (Blueprint $table) {
@@ -46,8 +48,7 @@ return new class () extends Migration {
 
             $table = $this->orderingStatsFields($table);
             $table = $this->getWebUsersStatsFields($table);
-            $table->unsignedInteger('number_clients')->default(0);
-            $table->unsignedInteger('number_current_clients')->default(0);
+            $table = $this->dropshippingStatsFields($table);
             $table = $this->getCreditTransactionsStats($table);
             $table = $this->getTopUpsStats($table);
             $table = $this->getFavouritesStatsFields($table);
