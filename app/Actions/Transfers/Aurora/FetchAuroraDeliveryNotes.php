@@ -150,7 +150,6 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
 
     public function getModelsQuery(): Builder
     {
-        dd('xx');
         $query = DB::connection('aurora')
             ->table('Delivery Note Dimension')
             ->select('Delivery Note Key as source_id');
