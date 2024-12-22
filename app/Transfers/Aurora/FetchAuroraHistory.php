@@ -201,7 +201,16 @@ class FetchAuroraHistory extends FetchAurora
                     ]);
 
                     if ($skip and
-                        $this->auroraModelData->{'Indirect Object'} != 'Prospect Preferred Contact Number'
+
+                        !in_array(
+                            $this->auroraModelData->{'Indirect Object'},
+                            [
+                                'Prospect Preferred Contact Number',
+                                'Prospect Sticky Note'
+                            ]
+                        )
+
+
                     ) {
                         dd($this->auroraModelData);
                     }
