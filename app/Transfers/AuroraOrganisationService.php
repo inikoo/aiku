@@ -236,7 +236,7 @@ class AuroraOrganisationService implements SourceOrganisationService
         return (new FetchAuroraNoProductTransaction($this))->fetchNoProductTransaction($id, $order);
     }
 
-    public function fetchDeliveryNoteTransaction($id, DeliveryNote $deliveryNote): ?array
+    public function fetchDeliveryNoteItem($id, DeliveryNote $deliveryNote): ?array
     {
         return (new FetchAuroraDeliveryNoteItem($this))->fetchDeliveryNoteTransaction($id, $deliveryNote);
     }

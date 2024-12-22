@@ -41,6 +41,7 @@ class FetchAuroraStocks extends FetchAuroraAction
         $orgStock    = null;
         $isPrincipal = false;
         $stockData   = $organisationSource->fetchStock($organisationSourceId);
+
         if (!$stockData) {
             return [
                 'stock'    => null,
