@@ -367,7 +367,7 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->productCategories()->where('type', ProductCategoryTypeEnum::SUB_DEPARTMENT)->get();
     }
 
-    public function families(): LaravelCollection
+    public function getFamilies(): LaravelCollection
     {
         return $this->productCategories()->where('type', ProductCategoryTypeEnum::FAMILY)->get();
     }

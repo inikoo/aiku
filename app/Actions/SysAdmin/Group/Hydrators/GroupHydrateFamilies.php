@@ -36,7 +36,7 @@ class GroupHydrateFamilies
     public function handle(Group $group): void
     {
         $stats = [
-            'number_families' => $group->families()->count(),
+            'number_families' => $group->getFamilies()->count(),
         ];
 
         $stats = array_merge(

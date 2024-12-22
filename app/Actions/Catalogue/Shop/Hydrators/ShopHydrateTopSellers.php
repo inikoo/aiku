@@ -36,7 +36,7 @@ class ShopHydrateTopSellers
     {
         $timesUpdate = ['1d', '1w', '1m', '1y', 'all'];
         foreach ($timesUpdate as $timeUpdate) {
-            $topFamily = $shop->families()->sortByDesc(function ($family) use ($timeUpdate) {
+            $topFamily = $shop->getFamilies()->sortByDesc(function ($family) use ($timeUpdate) {
                 return $family->stats->{'shop_amount_' . $timeUpdate};
             })->first();
 
