@@ -29,7 +29,7 @@ class FetchAuroraDeletedStock extends FetchAurora
 
 
         if ($this->auroraModelData->{'Part Deleted Reference'} == '') {
-            $code = 'unknown';
+            $code = 'unknown-'.$this->auroraModelData->{'Part Deleted Key'};
         } else {
             $code = strtolower($this->auroraModelData->{'Part Deleted Reference'});
         }
