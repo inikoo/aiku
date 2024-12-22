@@ -102,7 +102,7 @@ trait WithCustomerSubNavigation
             ],
             [
                 'label'    => __('Clients'),
-                'number'   => $customer->stats->number_clients,
+                'number'   => $customer->stats->number_current_customer_clients,
                 'route'     => [
                     'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.index',
                     'parameters' => [$this->organisation->slug, $customer->shop->slug, $customer->slug]

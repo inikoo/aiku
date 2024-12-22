@@ -118,7 +118,7 @@ class IndexPortfolios extends OrgAction
                         'Customer' => [
                             'title'       => __("No portfolios found"),
                             'description' => __("You can add your portfolio 🤷🏽‍♂️"),
-                            'count'       => $parent->stats->number_clients,
+                            'count'       => $parent->stats->number_customer_clients,
                             'action'      => [
                                 'type'    => 'button',
                                 'style'   => 'create',
