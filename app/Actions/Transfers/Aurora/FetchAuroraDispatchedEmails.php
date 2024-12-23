@@ -19,7 +19,7 @@ use Throwable;
 
 class FetchAuroraDispatchedEmails extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:dispatched_emails {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new} {--d|db_suffix=} {--w|with=* : Accepted values: events copies full}  {--D|days= : fetch last n days}';
+    public string $commandSignature = 'fetch:dispatched_emails {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new} {--d|db_suffix=} {--w|with=* : Accepted values: events copies full}  {--D|days= : fetch last n days} {--O|order= : order asc|desc}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?DispatchedEmail
@@ -104,13 +104,15 @@ class FetchAuroraDispatchedEmails extends FetchAuroraAction
     {
         $query = DB::connection('aurora')->table('Email Tracking Dimension')->select('Email Tracking Key as source_id');
         $query = $this->commonSelectModelsToFetch($query);
-        return $query->orderBy('Email Tracking Created Date');
+
+        return $query->orderBy('Email Tracking Created Date', $this->orderDesc ? 'desc' : 'asc');
     }
 
     public function count(): ?int
     {
         $query = DB::connection('aurora')->table('Email Tracking Dimension');
         $query = $this->commonSelectModelsToFetch($query);
+
         return $query->count();
     }
 

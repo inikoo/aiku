@@ -21,7 +21,7 @@ use Throwable;
 
 class FetchAuroraHistories extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:histories {organisations?*} {--s|source_id=} {--m|model= : model to Fetch } {--N|only_new : Fetch only new}  {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:histories {organisations?*} {--s|source_id=} {--m|model= : model to Fetch } {--N|only_new : Fetch only new}  {--d|db_suffix=} {--r|reset} {--D|days= : fetch last n days} {--O|order= : order asc|desc}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?History
@@ -100,38 +100,37 @@ class FetchAuroraHistories extends FetchAuroraAction
     public function getModelsQuery(): Builder
     {
         //enum('sold_since','last_sold','first_sold','placed','wrote','deleted','edited','cancelled','charged','merged','created','associated','disassociate','register','login','logout','fail_login','password_request','password_reset','search')
-        $query = DB::connection('aurora')
-            ->table('History Dimension')
-            ->whereIn('Direct Object', $this->getHistoryModels())
-            ->whereIn('Action', ['edited', 'created'])
+        $query = DB::connection('aurora')->table('History Dimension');
+        $query = $this->commonSelectModelsToFetch($query);
 
-            //  ->where('Direct Object', 'Product')
-            //  ->where('Indirect Object', 'Product Status')
 
-            ->select('History Key as source_id')
-            ->orderBy('History Date', 'desc');
-
-        if ($this->onlyNew) {
-            $query->whereNull('aiku_id');
-        }
+        $query->select('History Key as source_id')
+            ->orderBy('History Date', $this->orderDesc ? 'desc' : 'asc');
 
         return $query;
     }
 
     public function count(): ?int
     {
-        $query = DB::connection('aurora')
-            ->table('History Dimension')
-            ->whereIn('Direct Object', $this->getHistoryModels())
+        $query = DB::connection('aurora')->table('History Dimension');
+        $query = $this->commonSelectModelsToFetch($query);
 
-            //    ->where('Indirect Object', 'Product Status')
+        return $query->count();
+    }
 
+    public function commonSelectModelsToFetch($query)
+    {
+        $query->whereIn('Direct Object', $this->getHistoryModels())
             ->whereIn('Action', ['edited', 'created']);
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }
 
-        return $query->count();
+        if ($this->fromDays) {
+            $query->where('History Date', '>=', now()->subDays($this->fromDays)->format('Y-m-d'));
+        }
+
+        return $query;
     }
 
 
