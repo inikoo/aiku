@@ -40,7 +40,7 @@ const options = ref([
 <template>
     <div class="">
         <!-- {{ model }} === -->
-        <div class="my-2 text-gray-500 text-xs font-semibold">{{ trans('Visibility') }}</div>
+    <!--     <div class="my-2 text-gray-500 text-xs font-semibold">{{ trans('Visibility') }}</div> -->
         <SelectButton
             v-model="model"
             :options="options"

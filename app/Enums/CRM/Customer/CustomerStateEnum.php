@@ -9,6 +9,7 @@
 namespace App\Enums\CRM\Customer;
 
 use App\Enums\EnumHelperTrait;
+use App\Models\Catalogue\Shop;
 
 enum CustomerStateEnum: string
 {
@@ -64,6 +65,19 @@ enum CustomerStateEnum: string
                 'class'   => 'text-red-500',
                 'color'   => 'red',
             ],
+        ];
+    }
+
+    public static function count(Shop $parent): array
+    {
+        $stats = $parent->crmStats;
+
+        return [
+            'in-process' => $stats->number_customers_state_in_process,
+            'registered'    => $stats->number_customers_state_registered,
+            'active'         => $stats->number_customers_state_active,
+            'losing'      => $stats->number_customers_state_losing,
+            'lost'      => $stats->number_customers_state_lost,
         ];
     }
 

@@ -7,7 +7,18 @@ export default {
 				tooltip: "Container",
 			},
 			key: ["container", "properties"],
-			type: "properties",
+			replaceForm: [
+                {
+                    key: ["background"],
+                    label: "Background",
+                    type: "background"
+                },
+                {
+                    key: ["text"],
+                    label: "Text",
+                    type: "textProperty"
+                }
+            ]
 		},
 		{
 			name: "Title",
@@ -19,10 +30,12 @@ export default {
 			replaceForm: [
 				{
 					key: ["visible"],
+					label :'Visibility',
 					type: "VisibleLoggedIn",
 				},
 				{
 					key: ["text"],
+					label :'Text',
 					type: "editorhtml",
 				},
 			],
@@ -37,10 +50,12 @@ export default {
 			replaceForm: [
 				{
 					key: ["visible"],
+					label :'Visibility',
 					type: "VisibleLoggedIn",
 				},
 				{
 					key: ["text"],
+					label :'Text',
 					type: "editorhtml",
 				},
 			],
@@ -55,10 +70,12 @@ export default {
 			replaceForm: [
 				{
 					key: ["visible"],
+					label :'Visibility',
 					type: "VisibleLoggedIn",
 				},
 				{
 					key: [],
+					label :'Button',
 					type: "button",
 				},
 			],
@@ -73,10 +90,12 @@ export default {
 			replaceForm: [
 				{
 					key: ["visible"],
+					label :'Visibility',
 					type: "VisibleLoggedIn",
 				},
 				{
 					key: [],
+					label :'Button',
 					type: "button",
 				},
 			],
@@ -92,6 +111,7 @@ export default {
 				{
 					key: ["visible"],
 					type: "VisibleLoggedIn",
+					label :'Visibility',
 					props_data: {
 						defaultValue: 'login',
 					},
@@ -99,6 +119,7 @@ export default {
 				{
 					key: ["link"],
 					type: "link",
+					label :'Link',
 					props_data: {
 						defaultValue: {
 							"type" : "external",
@@ -111,10 +132,12 @@ export default {
 				{
 					key: ['container', 'properties'],
 					type: "button",
+					label :'Button',
 				},
 				{
 					key: ['text'],
 					type: "editorhtml",
+					label :'Text',
 					props_data: {
 						defaultValue: '{{ cart_count }}',
 					},
@@ -132,6 +155,7 @@ export default {
 				{
 					key: ["visible"],
 					type: "VisibleLoggedIn",
+					label :'Visibility',
 					props_data: {
 						defaultValue: 'login',
 					},
@@ -139,6 +163,7 @@ export default {
 				{
 					key: ["link"],
 					type: "link",
+					label :'Link',
 					props_data: {
 						defaultValue: {
 							"type" : "external",
@@ -151,10 +176,12 @@ export default {
 				{
 					key: ['container', 'properties'],
 					type: "button",
+					label :'Button',
 				},
 				{
 					key: ['text'],
 					type: "editorhtml",
+					label :'text',
 					props_data: {
 						defaultValue: '{{ favourites_count }}',
 					},
@@ -172,6 +199,7 @@ export default {
 				{
 					key: ["visible"],
 					type: "VisibleLoggedIn",
+					label :'Visibility',
 					props_data: {
 						defaultValue: 'login',
 					},
@@ -179,6 +207,7 @@ export default {
 				{
 					key: ['container', 'properties'],
 					type: "button",
+					label :'Button',
 					props_data: {
 						defaultValue: {
 							"text": {
@@ -205,6 +234,7 @@ export default {
 				{
 					key: ['text'],
 					type: "editorhtml",
+					label :'Text',
 					props_data: {
 						defaultValue: '{{ name }}',
 					},

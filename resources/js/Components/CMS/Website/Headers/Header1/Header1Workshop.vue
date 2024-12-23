@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorV2.vue"
 import MobileMenu from '@/Components/MobileMenu.vue'
 import Menu from 'primevue/menu'
 import { getStyles } from "@/Composables/styles";
-import { viewVisible } from "@/Composables/Workshop";
 
 import { faPresentation, faCube, faText, faPaperclip } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -12,7 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faChevronRight, faSignOutAlt, faShoppingCart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faUserCircle, faImage, faSignInAlt, faFileAlt } from '@fas';
 import { faHeart } from '@far';
 import Image from "@/Components/Image.vue"
-import { routeType } from '@/types/route'
+import { checkVisible, textReplaceVariables } from '@/Composables/Workshop'
 
 library.add(faPresentation, faCube, faText, faImage, faPaperclip, faChevronRight, faSignOutAlt, faShoppingCart, faHeart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faUserCircle, faSignInAlt, faFileAlt)
 
@@ -79,12 +77,21 @@ const toggle = (event) => {
 
                 <!-- Gold Member Button -->
                 <div class="justify-self-end w-fit">
-                    <button :style="getStyles(modelValue.button_1.properties)"
+                   <!--  <button :style="getStyles(modelValue.button_1.container)"
                         class="flex items-center justify-center px-4 py-2 bg-gold-500 text-white rounded-md shadow-md hover:bg-gold-600 transition duration-300 w-fit"
                         v-if="viewVisible(loginMode, modelValue.button_1.visible)">
+                        {{ modelValue.button_1.text }}
                         <Editor v-model="modelValue.button_1.text" :editable="true"
                             @update:model-value="(e) => { modelValue.button_1.text = e, emits('update:modelValue', modelValue) }" />
-                    </button>
+                    </button> -->
+                    <div v-if="checkVisible(modelValue?.button_1?.visible || null, isLoggedIn)"
+                        :href="modelValue?.button_1?.visible"
+                        class="space-x-1.5 cursor-pointer whitespace-nowrap"
+                        id=""
+                        :style="getStyles(modelValue?.button_1?.container?.properties)"
+                    >
+                        <span v-html="modelValue?.button_1.text" />
+            </div>
                 </div>
             </div>
         </div>

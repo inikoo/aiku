@@ -11,6 +11,9 @@
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
+use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
+use App\Enums\CRM\WebUser\WebUserTypeEnum;
+use App\Models\CRM\WebUser;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -38,9 +41,35 @@ class GroupHydrateWebUsers
             'number_web_users' => $group->WebUsers()->count(),
         ];
 
-        $group->crmStats()->update($stats);
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'web_users',
+                field: 'auth_type',
+                enum: WebUserAuthTypeEnum::class,
+                models: WebUser::class,
+                where: function ($q) use ($group) {
+                    $q->where('group_id', $group->id);
+                }
+            )
+        );
+
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'web_users',
+                field: 'type',
+                enum: WebUserTypeEnum::class,
+                models: WebUser::class,
+                where: function ($q) use ($group) {
+                    $q->where('group_id', $group->id);
+                }
+            )
+        );
+
+        $group->crmStats()->updateOrCreate([], $stats);
     }
-    public string $commandSignature = 'hydrate:group-web-users';
+    public string $commandSignature = 'hydrate:group_web_users';
 
     public function asCommand($command): void
     {

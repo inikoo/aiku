@@ -2,7 +2,7 @@
 
 /*
  * Author: Ganes <gustiganes@gmail.com>
- * Created on: 20-12-2024, Bali, Indonesia
+ * Created on: 23-12-2024, Bali, Indonesia
  * Github: https://github.com/Ganes556
  * Copyright: 2024
  *
@@ -10,16 +10,13 @@
 
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
-use App\Actions\Traits\WithEnumStats;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class GroupHydrateEmails
+class GroupHydrateEmailAddresses
 {
     use AsAction;
-    use WithEnumStats;
-
     private Group $group;
 
     public function __construct(Group $group)
@@ -35,12 +32,12 @@ class GroupHydrateEmails
     public function handle(Group $group): void
     {
         $stats = [
-            'number_emails' => $group->emails()->count(),
+            'number_email_addresses' => $group->emailAddresses()->count(),
         ];
 
         $group->commsStats()->update($stats);
     }
-    public string $commandSignature = 'hydrate:group_emails';
+    public string $commandSignature = 'hydrate:group_email_addresses';
 
     public function asCommand($command): void
     {
