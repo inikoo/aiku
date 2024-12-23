@@ -152,13 +152,24 @@ const onSaved = async () => {
             </div>
 		<label class="block text-sm font-medium text-gray-700">{{ trans("Reference") }}</label>
 		<div class="mt-1">
-			<SelectQuery ref="_selectQuery" :filterOptions="filterOptionsStoredItems"
+			<SelectQuery ref="_selectQuery"
+				:filterOptions="filterOptionsStoredItems"
 				:urlRoute="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)" :value="form"
-				:placeholder="'Select or add item'" :required="true" :trackBy="'reference'" :label="'reference'"
-				:valueProp="'id'" :closeOnSelect="true" :clearOnSearch="false" :fieldName="'id'" :createOption="false"
-				:onCreate="createStoredItems" @afterCreate="(value, option) => form['id'] = value"
-				:disabled="disabledSelect.disabled" @updateVModel="() => form.errors.id = ''"
-				:loadingCaret="loadingAddStoredItem">
+				:placeholder="'Select or add item'"
+				:required="true"
+				:trackBy="'reference'"
+				:label="'reference'"
+				:valueProp="'id'"
+				:closeOnSelect="true"
+				:clearOnSearch="false"
+				:fieldName="'id'"
+				:createOption="false"
+				:onCreate="createStoredItems"
+				@afterCreate="(value, option) => form['id'] = value"
+				:disabled="disabledSelect.disabled"
+				@updateVModel="() => form.errors.id = ''"
+				:loadingCaret="loadingAddStoredItem"
+			>
 				<template #nooptions="{ search }: { search: string }">
 					<div class="px-2 py-3" @click="() => createStoredItems({ id: search, reference: search }, [])">
 						<font-awesome-icon v-if="search !== '' || search" :icon="['fas', 'plus']" class="mr-3" />
@@ -184,10 +195,10 @@ const onSaved = async () => {
 					<div class="flex justify-start w-full px-2 gap-3">
 						{{ value["reference"] }}
 						<Tag label="New" :theme="4" v-if="newStoredItem" >
-						<template #label>
-							<font-awesome-icon  :icon="faSparkles" v-tooltip="'New Stored Item'" class="text-xs  text-yellow-500"/>
-							New
-						</template>
+							<template #label>
+								<font-awesome-icon  :icon="faSparkles" v-tooltip="'New Stored Item'" class="text-xs  text-yellow-500"/>
+								New
+							</template>
 						</Tag>
 					</div>
 				</template>
