@@ -23,9 +23,9 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('shop_id')->index()->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('customer_id');
-            $table->foreign('customer_id')->references('id')->on('customers');
+            $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
             $table->unsignedInteger('product_id');
-            $table->foreign('product_id')->references('id')->on('products');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->string('reference')->index()->nullable()->comment('This is the reference that the customer uses to identify the product');
             $table->string('type')->default(PortfolioTypeEnum::MANUAL->value);
             $table->boolean('status')->default(true);

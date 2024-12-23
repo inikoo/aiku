@@ -20,9 +20,17 @@ class FetchAuroraPortfolio extends FetchAurora
             return;
         }
 
+        if ($customer->trashed()) {
+            return;
+        }
+
         /** @var Product $product */
         $product = $this->parseProduct($this->organisation->id.':'.$this->auroraModelData->{'Customer Portfolio Product ID'});
         if (!$product) {
+            return;
+        }
+
+        if ($product->trashed()) {
             return;
         }
 
