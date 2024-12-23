@@ -41,9 +41,9 @@ import { notify } from "@kyvg/vue3-notification"
 import PureMultiselectInfiniteScroll from '@/Components/Pure/PureMultiselectInfiniteScroll.vue'
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt, faNarwhal } from '@fal'
+import { faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt, faNarwhal, faUndo } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt, faNarwhal )
+library.add(faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt, faNarwhal, faUndo )
 
 const props = defineProps<{
     title: string
