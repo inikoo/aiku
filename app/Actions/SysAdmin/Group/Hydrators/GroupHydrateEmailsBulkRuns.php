@@ -40,7 +40,7 @@ class GroupHydrateEmailsBulkRuns
 
         $group->commsStats()->update($stats);
     }
-    public string $commandSignature = 'hydrate:group-email-bulk-runs';
+    public string $commandSignature = 'hydrate:group_email_bulk_runs';
 
     public function asCommand($command): void
     {

@@ -18,6 +18,7 @@ use App\Actions\HydrateModel;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCollectionCategories;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCollections;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCreditTransactions;
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCustomerBalances;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCustomerInvoices;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCustomers;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateDepartments;
@@ -62,6 +63,7 @@ class HydrateShops extends HydrateModel
         ShopHydrateOutboxes::run($shop);
         ShopHydrateTopUps::run($shop);
         ShopHydrateCreditTransactions::run($shop);
+        ShopHydrateCustomerBalances::run($shop);
 
     }
 
