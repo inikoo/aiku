@@ -339,6 +339,9 @@ class IndexCustomers extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => $navigation
                 ],
+                CustomersTabsEnum::DASHBOARD->value => $this->tab == CustomersTabsEnum::DASHBOARD->value ?
+                fn () => GetCustomersDashboard::run($this->parent, $request)
+                : Inertia::lazy(fn () => GetCustomersDashboard::run($this->parent, $request)),
                 CustomersTabsEnum::CUSTOMERS->value => $this->tab == CustomersTabsEnum::CUSTOMERS->value ?
                 fn () => CustomersResource::collection($customers)
                 : Inertia::lazy(fn () => CustomersResource::collection($customers)),
