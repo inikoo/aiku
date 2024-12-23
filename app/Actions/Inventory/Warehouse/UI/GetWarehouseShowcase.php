@@ -16,19 +16,46 @@ class GetWarehouseShowcase
     use AsObject;
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function handle(Warehouse $warehouse): array
+    public function handle(Warehouse $warehouse, $routeParameters): array
     {
         return [
-            [
-                'label'     => __('Warehouse Areas'),
-                'icon'      => 'fal fa-map-signs',
-                'value'     => $warehouse->stats->number_warehouse_areas
+            'box_stats' => [
+                [
+                    'name'     => trans_choice('warehouse area|warehouse areas', $warehouse->stats->number_warehouse_areas),
+                    'number'   => $warehouse->stats->number_warehouse_areas,
+                    'route'     => [
+                        'name'       => 'grp.org.warehouses.show.infrastructure.warehouse_areas.index',
+                        'parameters' => array_merge($routeParameters, [$warehouse->slug])
+                    ],
+                    'icon' => [
+                        'icon'    => 'fal fa-map-signs',
+                        'tooltip' => __('warehouse areas')
+                    ]
+                ],
+                [
+                    'name'     => trans_choice('location|locations', $warehouse->stats->number_locations),
+                    'number'   => $warehouse->stats->number_locations,
+                    'route'     => [
+                        'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
+                        'parameters' => array_merge($routeParameters, [$warehouse->slug])
+                    ],
+                    'icon' => [
+                        'icon'    => 'fal fa-inventory',
+                        'tooltip' => __('locations')
+                    ]
+                ]
             ],
-            [
-                'label'     => __('Locations'),
-                'icon'      => 'fal fa-inventory',
-                'value'     => $warehouse->stats->number_locations
-            ],
+
+            // [
+            //     'label'     => __('Warehouse Areas'),
+            //     'icon'      => 'fal fa-map-signs',
+            //     'value'     => $warehouse->stats->number_warehouse_areas
+            // ],
+            // [
+            //     'label'     => __('Locations'),
+            //     'icon'      => 'fal fa-inventory',
+            //     'value'     => $warehouse->stats->number_locations
+            // ],
         ];
     }
 }
