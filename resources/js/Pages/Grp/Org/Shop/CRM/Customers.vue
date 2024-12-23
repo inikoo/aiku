@@ -12,6 +12,7 @@ import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import { useTabChange } from "@/Composables/tab-change"
 import { computed, ref } from "vue"
+import CustomerDashboard from '@/Pages/Grp/Dashboard/CustomerDashboard.vue';
 
 const props = defineProps<{
     pageHead: PageHeadingTypes
@@ -31,6 +32,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const component = computed(() => {
     const components: any = {
         customers: TableCustomers,
+        dashboard: CustomerDashboard
     }
 
     return components[currentTab.value]
