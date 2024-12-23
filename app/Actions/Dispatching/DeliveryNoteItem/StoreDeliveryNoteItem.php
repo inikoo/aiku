@@ -51,7 +51,11 @@ class StoreDeliveryNoteItem extends OrgAction
             ]);
         }
 
-        AssetHydrateDeliveryNotes::dispatch($deliveryNoteItem->transaction->asset);
+        if ($deliveryNoteItem->transaction_id and $deliveryNoteItem->transaction->asset) {
+            AssetHydrateDeliveryNotes::dispatch($deliveryNoteItem->transaction->asset);
+        }
+
+
 
         return $deliveryNoteItem;
     }
