@@ -220,14 +220,8 @@ onMounted(() => {
                         :class="[iframeClass, isIframeLoading ? 'hidden' : '']"
                         @error="handleIframeError"
                         @load="isIframeLoading = false" 
-                        ref="_iframe" />
-
-                   <!--  <div v-if="isIframeLoading" class="flex justify-center items-center w-full h-64 p-12 bg-white">
-                        <FontAwesomeIcon icon="fad fa-spinner-third" class="animate-spin w-6" aria-hidden="true" />
-                    </div>
-                    <iframe :src="iframeSrc" :title="props.title" ref="_iframe"
-                        :class="[iframeClass, isIframeLoading ? 'hidden' : '']" @error="handleIframeError"
-                        @load="isIframeLoading = false" /> -->
+                        ref="_iframe"
+                     />
                 </div>
                 <div v-else>
                     <EmptyState

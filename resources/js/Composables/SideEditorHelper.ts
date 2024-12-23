@@ -20,6 +20,7 @@ import InputText from 'primevue/inputtext'
 import OverviewForm from '@/Components/CMS/Fields/OverviewForm.vue'
 import ArrayPhone from '@/Components/CMS/Fields/ArrayPhone.vue'
 import NotFoundComponents from '@/Components/CMS/Webpage/NotFoundComponent.vue'
+import TextProperty from '@/Components/Workshop/Properties/TextProperty.vue'
 
 import { set } from 'lodash'
 
@@ -33,7 +34,7 @@ export const getComponent = (componentName: string) => {
         'editor': Editor,
         'socialMedia': socialMedia,
         "VisibleLoggedIn": ButtonVisibleLoggedIn,
-        "properties": PanelProperties,
+       /*  "properties": PanelProperties, */
         "background": Background,
         "border": Border,
         "padding": Padding,
@@ -44,7 +45,8 @@ export const getComponent = (componentName: string) => {
         "overview_form": OverviewForm,
         "layout_type": SelectLayout,
         "script": Script,
-        "arrayPhone":ArrayPhone
+        "arrayPhone":ArrayPhone,
+        "textProperty": TextProperty
     }
     
     return components[componentName] ?? NotFoundComponents

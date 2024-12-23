@@ -23,7 +23,7 @@ const removeItem = (index: number) => {
 </script>
 
 <template>
-    <div class="p-6 max-w-md mx-auto bg-white">
+    <div class="px-0 py-3 max-w-md mx-auto bg-white">
         
         <!-- Input fields with delete button -->
         <div v-for="(item, index) in modelValue" :key="index" class="flex items-center mb-3 space-x-2">
@@ -45,6 +45,7 @@ const removeItem = (index: number) => {
             label="Add Item" 
             icon="fa fa-plus" 
             @click="addItem" 
+            type="dashed"
             full
         />
     </div>

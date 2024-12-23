@@ -113,7 +113,7 @@ provide('isPreviewMode', isPreviewMode)
 
         <div class="shadow-xl" :class="layout.colorThemed.layout == 'fullscreen' ? 'w-full' : 'container max-w-7xl mx-auto '">
             <!-- Header -->
-            <!-- <div class="relative">
+            <div class="relative">
                 <RenderHeaderMenu
                     v-if="header?.data"
                     :data="layout.header"
@@ -121,7 +121,7 @@ provide('isPreviewMode', isPreviewMode)
                     :colorThemed="layout?.colorThemed"
                     :previewMode="route().current() == 'grp.websites.preview' ? true : isPreviewMode"
                     :loginMode="isPreviewLoggedIn" @update:model-value="() => {updateData(layout.header)}" />
-            </div> -->
+            </div>
 
             <!-- Webpage -->
             <div v-if="data" class="relative editor-class">
@@ -233,9 +233,9 @@ provide('isPreviewMode', isPreviewMode)
     @apply italic border-l-4 border-gray-300 p-4 py-2 ml-6 mt-6 mb-2 bg-gray-50;
 }
 
-.editor-class a {
+/* .editor-class a {
     @apply hover:underline text-blue-600 cursor-pointer;
-}
+} */
 
 .editor-class hr {
     @apply border-gray-400 my-4;
