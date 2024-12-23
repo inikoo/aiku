@@ -5,10 +5,12 @@ import Button from '@/Components/Elements/Buttons/Button.vue';
 import Popover from '@/Components/Popover.vue'
 import Dialog from 'primevue/dialog';
 import DialogEditLink from '@/Components/CMS/Website/Menus/EditMode/DialogEditLink.vue';
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faChevronRight, faSignOutAlt, faShoppingCart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faTrashAlt, faLink } from '@fas';
+import { faChevronRight, faSignOutAlt, faShoppingCart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faTrashAlt, faLink, faExclamation } from '@fas';
 import { faExternalLink, faHeart } from '@far';
 import PureInput from '@/Components/Pure/PureInput.vue';
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue';
@@ -16,6 +18,9 @@ import { v4 as uuidv4 } from "uuid"
 import EmptyState from '@/Components/Utils/EmptyState.vue';
 import DialogEditName from '@/Components/CMS/Website/Menus/EditMode/DialogEditName.vue';
 import { faCompassDrafting } from '@fortawesome/free-solid-svg-icons';
+import { faExclamationTriangle, faTimesCircle } from '@fal';
+import ConfirmPopup from 'primevue/confirmpopup';
+import { data } from '../../Product/ProductTemplates/Product1/Descriptor';
 
 library.add(faChevronRight, faSignOutAlt, faShoppingCart, faHeart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faTrashAlt);
 
@@ -29,7 +34,7 @@ const props = defineProps<{
   Navigation: Array,
   selectedNav: Number | null
 }>()
-
+const confirm = useConfirm();
 const visibleNameDialog = ref(false)
 const visibleDialog = ref(false)
 const visibleNavigation = ref(false)
@@ -111,6 +116,25 @@ const onChangeNavigationLink = (data) => {
   visibleNavigation.value = false
 }
 
+
+const confirm1 = (event,data,index) => {
+    confirm.require({
+        target: event.currentTarget,
+        message: 'Are you sure you want to delete ?',
+        icon: faExclamation,
+        rejectProps: {
+            label: 'No',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Yes'
+        },
+        accept: () => deleteLink(data,index),
+    });
+};
+
+
 console.log(props.Navigation[props.selectedNav])
 
 </script>
@@ -143,7 +167,7 @@ console.log(props.Navigation[props.selectedNav])
           <!-- Tautan -->
           <div class="text-gray-500 hover:text-gray-600 hover:underline cursor-pointer text-xs truncate max-w-[70%]"
             :title="Navigation[selectedNav]?.link?.href" @click="editNavigation">
-            {{ Navigation[selectedNav]?.link?.href ? Navigation[selectedNav]?.link?.href : 'https//:'  }}
+            {{ Navigation[selectedNav]?.link?.href ? Navigation[selectedNav]?.link?.href : 'https//:' }}
           </div>
 
           <!-- Ikon tambahan -->
@@ -205,7 +229,7 @@ console.log(props.Navigation[props.selectedNav])
                   </div>
 
                   <!-- Ikon tambahan -->
-                  <div class="flex items-center gap-1 cursor-pointer">
+                  <div class="flex items-center gap-3 cursor-pointer">
                     <a v-if="link?.link?.type == 'internal'" :href="link.link.workshop" target="_blank">
                       <font-awesome-icon :icon="faCompassDrafting"
                         class="text-gray-400 hover:text-gray-600 transition"></font-awesome-icon>
@@ -214,6 +238,11 @@ console.log(props.Navigation[props.selectedNav])
                       <font-awesome-icon :icon="faExternalLink"
                         class="text-gray-400 hover:text-gray-600 transition"></font-awesome-icon>
                     </a>
+
+                    <span v-tooltip="'Delete'" @click="(e)=>confirm1(e,element.links,index)">
+                      <font-awesome-icon :icon="faTimesCircle"
+                        class="text-red-400 hover:text-red-600 transition"></font-awesome-icon>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -242,9 +271,20 @@ console.log(props.Navigation[props.selectedNav])
       <DialogEditLink :modelValue="toRaw({ ...Navigation[selectedNav] })" @on-save="onChangeNavigationLink" />
     </Dialog>
 
+    <ConfirmPopup>
+      <template #icon>
+        <FontAwesomeIcon :icon="faExclamationTriangle" class="text-yellow-500" />
+      </template>
+    </ConfirmPopup>
+
 
   </div>
 </template>
 
 
-<style scss></style>
+<style scss scoped>
+.p-confirmpopup {
+  box-shadow: none;
+}
+
+</style>
