@@ -87,14 +87,8 @@ class GetOverview extends OrgAction
                     'count' => $group->commsStats->number_mailshots ?? 0
                 ],
                 [
-                    'name' => 'Emails',
-                    'icon' => 'fal fa-envelope',
-                    'route' => '',
-                    'count' => 0 // $group->commsStats->number_emails not exist ?? 0
-                ],
-                [
                     'name' => 'Email Addresses',
-                    'icon' => 'fal fa-envelope-open-text',
+                    'icon' => 'fal fa-envelope',
                     'route' => '',
                     'count' => $group->commsStats->number_email_addresses ?? 0
                 ],
