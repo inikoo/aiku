@@ -30,7 +30,7 @@ class HydratePostRooms extends HydrateModel
     public function asCommand(Command $command): int
     {
 
-
+        $command->info('Hydrating Post Rooms');
         $count = PostRoom::count();
         $bar   = $command->getOutput()->createProgressBar($count);
         $bar->setFormat('debug');
@@ -42,6 +42,7 @@ class HydratePostRooms extends HydrateModel
             }
         });
         $bar->finish();
+        $command->info("");
 
         return 0;
     }

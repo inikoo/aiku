@@ -10,21 +10,18 @@
 namespace App\Actions\SysAdmin\User;
 
 use App\Actions\GrpAction;
-use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateUserRequests;
 use App\Models\Analytics\UserRequest;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreUserRequest extends GrpAction
 {
-    use WithNoStrictRules;
-
-    /**
-     * @throws \Throwable
-     */
     public function handle(User $user, array $modelData): UserRequest
     {
-        return $user->userRequests()->create($modelData);
+        $userRequest = $user->userRequests()->create($modelData);
+        GroupHydrateUserRequests::run($user->group)->delay($this->hydratorsDelay);
+        return $userRequest;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -38,7 +35,7 @@ class StoreUserRequest extends GrpAction
 
     public function rules(): array
     {
-        $rules = [
+        return [
             'date'                   => ['required', 'date'],
             'os'                     => ['required', 'string'],
             'route_name'             => ['required', 'string'],
@@ -49,21 +46,11 @@ class StoreUserRequest extends GrpAction
             'ip_address'             => ['required', 'string'],
             'location'               => ['required']
         ];
-
-        if (!$this->strict) {
-            $rules = $this->noStrictStoreRules($rules);
-        }
-
-        return $rules;
     }
 
-    /**
-     * @throws \Throwable
-     */
-    public function action(User $user, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): UserRequest
+    public function action(User $user, array $modelData, int $hydratorsDelay = 0): UserRequest
     {
         $this->asAction       = true;
-        $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
 
         $this->initialisation($user->group, $modelData);

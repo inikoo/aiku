@@ -34,7 +34,7 @@ class FetchAuroraDispatchedEmails extends FetchAuroraAction
                     $dispatchedEmail = UpdateDispatchedEmail::make()->action(
                         dispatchedEmail: $dispatchedEmail,
                         modelData: $dispatchedEmailData['dispatchedEmail'],
-                        hydratorsDelay: 60,
+                        hydratorsDelay: 900,
                         strict: false,
                     );
                     $this->recordChange($organisationSource, $dispatchedEmail->wasChanged());
@@ -49,7 +49,7 @@ class FetchAuroraDispatchedEmails extends FetchAuroraAction
                         parent: $dispatchedEmailData['parent'],
                         recipient: $dispatchedEmailData['recipient'],
                         modelData: $dispatchedEmailData['dispatchedEmail'],
-                        hydratorsDelay: 60,
+                        hydratorsDelay: 900,
                         strict: false,
                     );
 

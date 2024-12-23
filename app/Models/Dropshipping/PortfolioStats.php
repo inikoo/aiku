@@ -15,11 +15,13 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @property int $id
  * @property int $portfolio_id
- * @property int $amount
+ * @property string $amount Invoiced amount
+ * @property string $org_amount Invoiced amount
+ * @property string $group_amount Invoiced amount
  * @property int $number_orders
  * @property int $number_ordered_quantity
- * @property int $number_clients
- * @property int|null $last_ordered_at
+ * @property int $number_customer_clients
+ * @property string|null $last_ordered_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PortfolioStats newModelQuery()

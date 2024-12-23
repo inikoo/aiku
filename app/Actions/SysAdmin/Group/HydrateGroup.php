@@ -22,6 +22,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateDeliveryNotes;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateDepartments;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateDispatchedEmails;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmailAddresses;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmailsBulkRuns;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateFamilies;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateGuests;
@@ -129,6 +130,7 @@ class HydrateGroup extends HydrateModel
         GroupHydrateOrgPostRooms::run($group);
         GroupHydrateOutboxes::run($group);
         GroupHydrateDispatchedEmails::run($group);
+        GroupHydrateEmailsBulkRuns::run($group);
         GroupHydrateSupplierProducts::run($group);
         GroupHydrateMailshots::run($group);
         GroupHydrateEmailAddresses::run($group);

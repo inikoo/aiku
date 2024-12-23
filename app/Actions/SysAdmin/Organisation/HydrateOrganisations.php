@@ -85,6 +85,7 @@ class HydrateOrganisations extends HydrateModel
         OrganisationHydrateProspects::run($organisation);
         OrganisationHydrateJobPositions::run($organisation);
         OrganisationHydrateOrgStocks::run($organisation);
+
         OrganisationHydrateInvoices::run($organisation);
         OrganisationHydrateSales::run($organisation);
         OrganisationHydrateSubscription::run($organisation);
@@ -92,6 +93,7 @@ class HydrateOrganisations extends HydrateModel
         OrganisationHydrateOrgPostRooms::run($organisation);
         OrganisationHydrateOutboxes::run($organisation);
         OrganisationHydrateCustomerBalances::run($organisation);
+
 
         if ($organisation->type == OrganisationTypeEnum::SHOP) {
             OrganisationHydrateDepartments::run($organisation);
@@ -134,7 +136,15 @@ class HydrateOrganisations extends HydrateModel
 
     public function asCommand(Command $command): int
     {
-        $numberOrganisationsHydrated = 0;
+
+        $command->info("Hydrating organisations");
+        $count = Organisation::count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+
         if ($command->argument('organisations')) {
             $organisations = Organisation::whereIn('slug', $command->argument('organisations'))->get();
         } else {
@@ -143,16 +153,12 @@ class HydrateOrganisations extends HydrateModel
 
 
         foreach ($organisations as $organisation) {
-            $command->info("Hydrating organisation $organisation->name");
             $this->handle($organisation);
-            $numberOrganisationsHydrated++;
+            $bar->advance();
         }
 
-        if ($numberOrganisationsHydrated === 0) {
-            $command->error("No organisations hydrated");
-
-            return 1;
-        }
+        $bar->finish();
+        $command->info("");
 
         return 0;
     }

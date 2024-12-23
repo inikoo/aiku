@@ -48,13 +48,23 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_outboxes_state_suspended
  * @property int $number_outbox_subscribers
  * @property int $number_mailshots
- * @property int $number_post_room_state_in_process
- * @property int $number_post_room_state_ready
- * @property int $number_post_room_state_scheduled
- * @property int $number_post_room_state_sending
- * @property int $number_post_room_state_sent
- * @property int $number_post_room_state_cancelled
- * @property int $number_post_room_state_stopped
+ * @property int $number_mailshots_state_in_process
+ * @property int $number_mailshots_state_ready
+ * @property int $number_mailshots_state_scheduled
+ * @property int $number_mailshots_state_sending
+ * @property int $number_mailshots_state_sent
+ * @property int $number_mailshots_state_cancelled
+ * @property int $number_mailshots_state_stopped
+ * @property int $number_mailshots_type_newsletter
+ * @property int $number_mailshots_type_marketing
+ * @property int $number_mailshots_type_invite
+ * @property int $number_mailshots_type_abandoned_cart
+ * @property int $number_bulk_runs
+ * @property int $number_bulk_runs_state_scheduled
+ * @property int $number_bulk_runs_state_sending
+ * @property int $number_bulk_runs_state_sent
+ * @property int $number_bulk_runs_state_cancelled
+ * @property int $number_bulk_runs_state_stopped
  * @property int $number_dispatched_emails
  * @property int $number_dispatched_emails_state_ready
  * @property int $number_dispatched_emails_state_sent_to_provider

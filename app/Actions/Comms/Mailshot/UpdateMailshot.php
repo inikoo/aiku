@@ -9,6 +9,7 @@
 namespace App\Actions\Comms\Mailshot;
 
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateMailshots;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
@@ -25,7 +26,14 @@ class UpdateMailshot extends OrgAction
 
     public function handle(Mailshot $mailshot, array $modelData): Mailshot
     {
-        return $this->update($mailshot, $modelData, ['data']);
+        $mailshot = $this->update($mailshot, $modelData, ['data']);
+
+        if ($mailshot->wasChanged('state')) {
+            GroupHydrateMailshots::dispatch($mailshot->group)->delay($this->hydratorsDelay);
+        }
+
+        return $mailshot;
+
     }
 
     public function authorize(ActionRequest $request): bool
@@ -35,7 +43,7 @@ class UpdateMailshot extends OrgAction
         }
         //todo
         return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
-        ;
+
     }
 
     public function rules(): array

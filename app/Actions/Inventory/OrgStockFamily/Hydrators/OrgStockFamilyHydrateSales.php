@@ -36,11 +36,16 @@ class OrgStockFamilyHydrateSales
     {
         $stats = [];
 
-        $queryBase = DeliveryNoteItem::where('org_stock_family_id', $orgStockFamily->id)->selectRaw('sum(grp_net_amount) as  sum_group  , sum(grp_net_amount) as  sum_org , sum(net) as  sum_shop  ');
+        $queryBase = DeliveryNoteItem::where('org_stock_family_id', $orgStockFamily->id)->selectRaw('sum(org_revenue_amount) as  sum_aggregate  ');
+        $stats = $this->getIntervalsData($stats, $queryBase, 'org_amount_revenue_');
 
-        $stats = array_merge($stats, $this->processIntervalShopAssetsStats($queryBase));
+        $queryBase = DeliveryNoteItem::where('org_stock_family_id', $orgStockFamily->id)->selectRaw('sum(grp_revenue_amount) as  sum_aggregate  ');
+        $stats = $this->getIntervalsData($stats, $queryBase, 'group_amount_revenue_');
 
-        $orgStockFamily->stats()->update($stats);
+        $queryBase = DeliveryNoteItem::where('org_stock_family_id', $orgStockFamily->id)->selectRaw('sum(quantity_dispatched) as  sum_aggregate  ');
+        $stats = $this->getIntervalsData($stats, $queryBase, 'dispatched_');
+
+        $orgStockFamily->intervals()->update($stats);
     }
 
 

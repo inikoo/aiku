@@ -27,6 +27,7 @@ class HydrateUsers extends HydrateModel
 
     public function asCommand(Command $command): int
     {
+        $command->info('Hydrating Users');
         $count = User::count();
         $bar   = $command->getOutput()->createProgressBar($count);
         $bar->setFormat('debug');
@@ -38,7 +39,7 @@ class HydrateUsers extends HydrateModel
             }
         });
         $bar->finish();
-
+        $command->info("");
 
         return 0;
     }

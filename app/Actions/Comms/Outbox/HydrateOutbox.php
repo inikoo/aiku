@@ -14,7 +14,7 @@ use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateIntervals;
 use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateMailshots;
 use App\Actions\HydrateModel;
 use App\Models\Comms\Outbox;
-use Illuminate\Support\Collection;
+use Illuminate\Console\Command;
 
 class HydrateOutbox extends HydrateModel
 {
@@ -34,9 +34,23 @@ class HydrateOutbox extends HydrateModel
         return Outbox::where('id', $slug)->first();
     }
 
-    protected function getAllModels(): Collection
+    public function asCommand(Command $command): int
     {
-        return Outbox::get();
+        $command->info('Hydrating Outboxes');
+        $count = Outbox::count();
+        $bar   = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+        Outbox::chunk(1000, function (\Illuminate\Database\Eloquent\Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+        $bar->finish();
+        $command->info("");
+
+        return 0;
     }
 
 }

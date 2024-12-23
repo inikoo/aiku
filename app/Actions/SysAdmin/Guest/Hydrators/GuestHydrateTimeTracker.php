@@ -10,7 +10,7 @@ namespace App\Actions\SysAdmin\Guest\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\HumanResources\TimeTracker\TimeTrackerStatusEnum;
-use App\Models\HumanResources\Timesheet;
+use App\Models\HumanResources\TimeTracker;
 use App\Models\SysAdmin\Guest;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -45,7 +45,7 @@ class GuestHydrateTimeTracker
                 model: 'time_trackers',
                 field: 'status',
                 enum: TimeTrackerStatusEnum::class,
-                models: Timesheet::class,
+                models: TimeTracker::class,
                 where: function ($q) use ($guest) {
                     $q->where('subject_type', 'Guest')->where('subject_id', $guest->id);
                 }

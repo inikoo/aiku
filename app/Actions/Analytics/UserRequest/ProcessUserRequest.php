@@ -31,12 +31,12 @@ class ProcessUserRequest extends GrpAction
             return null;
         }
 
-        $section = GetSectionRoute::run($routeData['name'], $routeData['arguments']);
+        $section                = GetSectionRoute::run($routeData['name'], $routeData['arguments']);
         $aiku_scoped_section_id = $section?->id ?? null;
 
 
         $parsedUserAgent = (new Browser())->parse($userAgent);
-        $modelData = [
+        $modelData       = [
             'date'                   => $datetime,
             'route_name'             => $routeData['name'],
             'route_params'           => json_encode($routeData['arguments']),
@@ -48,7 +48,11 @@ class ProcessUserRequest extends GrpAction
             'location'               => json_encode($this->getLocation($ip))
         ];
 
-        return StoreUserRequest::make()->action($user, $modelData);
+        return StoreUserRequest::make()->action(
+            user: $user,
+            modelData: $modelData,
+            hydratorsDelay: 300
+        );
     }
 
     public function getLocation(string|null $ip): array
