@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class CollectionsOrderingStats extends Model
 {
-    protected $table = 'asset_collection_stats';
+    protected $table = 'collection_ordering_stats';
 
     protected $guarded = [];
 
