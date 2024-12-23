@@ -60,7 +60,28 @@ class ShowDispatchHub extends OrgAction
                     ],
                     'title'     => __('Dispatching backlog'),
                             ],
-
+                'box_stats' => [
+                    // [  // TODO
+                    //     'title' => __('Total'),
+                    //     'value' => $scope->incoming->count(),
+                    //     'icon'  => ['fal', 'fa-boxes']
+                    // ],
+                    // [
+                    //     'title' => __('Pending'),
+                    //     'value' => $scope->incoming->where('status', 'pending')->count(),
+                    //     'icon'  => ['fal', 'fa-boxes']
+                    // ],
+                    // [
+                    //     'title' => __('Received'),
+                    //     'value' => $scope->incoming->where('status', 'received')->count(),
+                    //     'icon'  => ['fal', 'fa-boxes']
+                    // ],
+                    // [
+                    //     'title' => __('Cancelled'),
+                    //     'value' => $scope->incoming->where('status', 'cancelled')->count(),
+                    //     'icon'  => ['fal', 'fa-boxes']
+                    // ],
+                ],
 
             ]
         );
