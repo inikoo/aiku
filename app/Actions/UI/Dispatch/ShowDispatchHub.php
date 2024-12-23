@@ -12,6 +12,7 @@ use App\Actions\OrgAction;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\Catalogue\Shop;
+use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -33,15 +34,16 @@ class ShowDispatchHub extends OrgAction
         return $request->user()->hasPermissionTo("dispatching.{$this->organisation->id}.view");
     }
 
-    public function asController(Organisation $organisation): Organisation
+    public function asController(Organisation $organisation, Warehouse $warehouse): Organisation
     {
+        $this->initialisationFromWarehouse($warehouse, []);
         return $this->handle($organisation);
     }
 
 
 
 
-    public function htmlResponse(Organisation|Shop $scope, ActionRequest $request): Response
+    public function htmlResponse(Organisation $scope, ActionRequest $request): Response
     {
 
 
@@ -61,26 +63,16 @@ class ShowDispatchHub extends OrgAction
                     'title'     => __('Dispatching backlog'),
                             ],
                 'box_stats' => [
-                    // [  // TODO
-                    //     'title' => __('Total'),
-                    //     'value' => $scope->incoming->count(),
-                    //     'icon'  => ['fal', 'fa-boxes']
-                    // ],
-                    // [
-                    //     'title' => __('Pending'),
-                    //     'value' => $scope->incoming->where('status', 'pending')->count(),
-                    //     'icon'  => ['fal', 'fa-boxes']
-                    // ],
-                    // [
-                    //     'title' => __('Received'),
-                    //     'value' => $scope->incoming->where('status', 'received')->count(),
-                    //     'icon'  => ['fal', 'fa-boxes']
-                    // ],
-                    // [
-                    //     'title' => __('Cancelled'),
-                    //     'value' => $scope->incoming->where('status', 'cancelled')->count(),
-                    //     'icon'  => ['fal', 'fa-boxes']
-                    // ],
+                    [
+                        'title' => __('Delivery Notes'),
+                        'value' => $scope->orderingStats->number_delivery_notes,
+                        'icon'  => ['fal', 'fa-boxes']
+                    ],
+                    [
+                        'title' => __('Fulfilment Returns'),
+                        'value' => $scope->fulfilmentStats->number_pallet_returns,
+                        'icon'  => ['fal', 'fa-boxes']
+                    ],
                 ],
 
             ]
