@@ -36,7 +36,7 @@ class ShopHydrateCustomerBalances
     {
         $stats = [];
 
-        $stats['number_customer_balances'] = $shop->customers->filter(function ($customer) {
+        $stats['number_customers_with_balances'] = $shop->customers->filter(function ($customer) {
             return $customer->balance !== null;
         })->count();
 

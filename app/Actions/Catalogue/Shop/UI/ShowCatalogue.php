@@ -56,11 +56,16 @@ class ShowCatalogue extends OrgAction
         $topProduct    = [];
 
         foreach ($timesUpdate as $timeUpdate) {
-            $topFamily[$timeUpdate]     = $shop->stats->{'top'.$timeUpdate.'Family'} ? FamilyResource::collection($shop->stats->{'top'.$timeUpdate.'Family'}) : null;
-            $topDepartment[$timeUpdate] = $shop->stats->{'top'.$timeUpdate.'Department'} ? DepartmentResource::collection($shop->stats->{'top'.$timeUpdate.'Department'}) : null;
-            $topProduct[$timeUpdate]    = $shop->stats->{'top'.$timeUpdate.'Product'} ? ProductResource::collection($shop->stats->{'top'.$timeUpdate.'Product'}) : null;
-        }
+            $family = $shop->stats->{'top'.$timeUpdate.'Family'};
 
+            $topFamily[$timeUpdate] = $family ? FamilyResource::make($family) : null;
+
+            $department = $shop->stats->{'top'.$timeUpdate.'Department'};
+            $topDepartment[$timeUpdate] = $department ? DepartmentResource::make($department) : null;
+
+            $product = $shop->stats->{'top'.$timeUpdate.'Product'};
+            $topProduct[$timeUpdate] = $product ? ProductResource::make($product) : null;
+        }
 
         $totalProducts = $shop->stats->number_products;
 

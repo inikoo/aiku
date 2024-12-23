@@ -36,7 +36,7 @@ class GroupHydrateCustomerBalances
     {
         $stats = [];
 
-        $stats['number_customer_balances'] = $group->customers->filter(function ($customer) {
+        $stats['number_customers_with_balances'] = $group->customers->filter(function ($customer) {
             return $customer->balance !== null;
         })->count();
 
@@ -49,7 +49,7 @@ class GroupHydrateCustomerBalances
         })->count();
 
 
-        $group->accountingStats()->update($stats);
+        $group->accountingStats()->updateOrCreate([], $stats);
     }
 
     public string $commandSignature = 'hydrate:group_customer_balances';

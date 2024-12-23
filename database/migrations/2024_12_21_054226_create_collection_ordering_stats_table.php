@@ -15,7 +15,7 @@ return new class () extends Migration {
     use HasOrderingStats;
     public function up(): void
     {
-        Schema::create('collections_ordering_stats', function (Blueprint $table) {
+        Schema::create('collection_ordering_stats', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('collection_id')->index();
             $table->foreign('collection_id')->references('id')->on('collections')->cascadeOnDelete();
@@ -27,6 +27,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('collections_ordering_stats');
+        Schema::dropIfExists('collection_ordering_stats');
     }
 };

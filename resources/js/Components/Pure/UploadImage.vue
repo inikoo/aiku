@@ -172,12 +172,12 @@ watch(
 			<div>Image URL</div>
 			<div>100 x 250</div>
 		</div>
-		<IconField>
+		<!-- <IconField>
 			<InputIcon>
 				<FontAwesomeIcon :icon="faLink" />
 			</InputIcon>
 			<InputText v-model="modelValue.url" />
-		</IconField>
+		</IconField> -->
 	</div>
 
 	<div v-if="modelValue?.alt" class="mt-8">
