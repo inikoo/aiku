@@ -212,6 +212,8 @@ trait WithParseCreatedHistory
             $newValues['name'] = trim($matches[1]);
         } elseif (preg_match('/^Bol vytvorený záznam o perspektíve(.+)/', $abstract, $matches)) {
             $newValues['name'] = trim($matches[1]);
+        } elseif (preg_match('/(.+) kilátásrekord létrehozva$/', $abstract, $matches)) {
+            $newValues['name'] = trim($matches[1]);
         }
 
         if (count($newValues) == 0) {
