@@ -38,7 +38,7 @@ class GroupHydrateMailshots
             'number_mailshots' => $group->mailshots()->count(),
         ];
 
-        $group->commsStats()->update($stats);
+        $group->commsStats()->updateOrCreate([], $stats);
     }
     public string $commandSignature = 'hydrate:group-mailshots';
 
