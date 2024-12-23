@@ -83,6 +83,7 @@ use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
+use App\Models\Web\Banner;
 use App\Models\Web\ExternalLink;
 use App\Models\Web\Redirect;
 use App\Models\Web\WebBlockType;
@@ -636,6 +637,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function webpages(): HasMany
     {
         return $this->hasMany(Webpage::class);
+    }
+
+    public function banners(): HasMany
+    {
+        return $this->hasMany(Banner::class);
     }
 
     public function productCategories(): HasMany

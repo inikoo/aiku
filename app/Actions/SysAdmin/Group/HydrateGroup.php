@@ -10,6 +10,7 @@ namespace App\Actions\SysAdmin\Group;
 
 use App\Actions\HydrateModel;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateAgents;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateBanners;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateCharges;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateClockingMachines;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateCollectionCategories;
@@ -63,6 +64,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSuppliers;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSysadminIntervals;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateTopUps;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateTradeUnits;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateUserRequests;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateUsers;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWarehouseAreas;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWarehouses;
@@ -114,6 +116,7 @@ class HydrateGroup extends HydrateModel
         GroupHydrateProspects::run($group);
         GroupHydrateSubscriptions::run($group);
         GroupHydrateShops::run($group);
+        GroupHydrateBanners::run($group);
         GroupHydrateWebsites::run($group);
         GroupHydrateWebpages::run($group);
         GroupHydrateRedirects::run($group);
@@ -126,6 +129,7 @@ class HydrateGroup extends HydrateModel
         GroupHydrateDispatchedEmails::run($group);
         GroupHydrateSupplierProducts::run($group);
         GroupHydrateMailshots::run($group);
+        GroupHydrateUserRequests::run($group);
         GroupHydrateCustomerBalances::run($group);
         GroupHydrateSysadminIntervals::run($group);
 
