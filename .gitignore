@@ -91,3 +91,4 @@ create_wowsbar_*
 /storage/media/
 /storage/media_test/
 /sync_aiku.sh
+/sync_aiku_no_download.sh
