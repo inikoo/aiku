@@ -60,6 +60,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSubDepartments;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSubscriptions;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSupplierProducts;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSuppliers;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSysadminIntervals;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateTopUps;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateTradeUnits;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateUsers;
@@ -126,6 +127,7 @@ class HydrateGroup extends HydrateModel
         GroupHydrateSupplierProducts::run($group);
         GroupHydrateMailshots::run($group);
         GroupHydrateCustomerBalances::run($group);
+        GroupHydrateSysadminIntervals::run($group);
 
         //fulfilment
         GroupHydratePallets::run($group);
