@@ -48,15 +48,14 @@ class ShopHydrateTopSellers
                 return $product->asset->salesIntervals->{'sales_'.$timeUpdate} ?? 0;
             })->first();
 
-
             $dataToUpdate = [];
-            if ($topFamily) {
+            if ($topFamily && $topFamily->stats->{'shop_amount_'.$timeUpdate} > 0) {
                 data_set($dataToUpdate, "top_{$timeUpdate}_family_id", $topFamily->id);
             }
-            if ($topDepartment) {
+            if ($topDepartment && $topDepartment->stats->{'shop_amount_'.$timeUpdate} > 0) {
                 data_set($dataToUpdate, "top_{$timeUpdate}_department_id", $topDepartment->id);
             }
-            if ($topProduct) {
+            if ($topProduct && ($topProduct->asset->salesIntervals->{'sales_'.$timeUpdate} ?? 0) > 0) {
                 data_set($dataToUpdate, "top_{$timeUpdate}_product_id", $topProduct->id);
             }
 
@@ -73,6 +72,4 @@ class ShopHydrateTopSellers
             $this->handle($shop);
         }
     }
-
-
 }
