@@ -9,13 +9,12 @@
 namespace App\Actions\Comms\Mailshot;
 
 use App\Actions\Comms\DispatchedEmail\StoreDispatchedEmail;
+use App\Actions\Comms\Traits\WithSendBulkEmails;
 use App\Actions\OrgAction;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
-use App\Models\Comms\Email;
-use App\Models\Comms\EmailBulkRun;
-use App\Models\Comms\Mailshot;
 use App\Models\Comms\Outbox;
+use App\Models\SysAdmin\User;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -27,20 +26,37 @@ class SendMailshotTest extends OrgAction
 {
     use AsCommand;
     use AsAction;
+    use WithSendBulkEmails;
 
-    public function handle(Mailshot|EmailBulkRun $parent, array $modelData): Collection
+    public function handle(Outbox $outbox, array $modelData): Collection
     {
         $dispatchedEmails = [];
-        foreach (Arr::get($modelData, 'emails', []) as $email) {
-            $email           = Email::firstOrCreate(['address' => $email]);
-            $dispatchedEmail = StoreDispatchedEmail::run($email, $parent, [
+
+        $parent = StoreMailshot::run($outbox, [
+            'subject' => $outbox->emailOngoingRun->email->subject,
+            'email_id' => $outbox->emailOngoingRun->email_id,
+        ]);
+        $recipients = User::whereIn('email', Arr::get($modelData, 'emails', []))->get();
+
+        foreach ($recipients as $recipient) {
+            $dispatchedEmail = StoreDispatchedEmail::run($parent, $recipient, [
                 'is_test'   => true,
                 'outbox_id' => Outbox::where('type', OutboxTypeEnum::TEST)->pluck('id')->first()
 
             ]);
             $dispatchedEmail->refresh();
 
-            GetHtmlLayout::run($parent, $dispatchedEmail);
+            $emailHtmlBody = GetHtmlLayout::run($parent, $dispatchedEmail);
+
+            $unsubscribeUrl = route('org.unsubscribe.mailshot.show', $dispatchedEmail->ulid);
+
+            $this->sendEmailWithMergeTags(
+                $dispatchedEmail,
+                $parent->sender(),
+                $parent->subject,
+                $emailHtmlBody,
+                $unsubscribeUrl,
+            );
 
             $dispatchedEmails[] = $dispatchedEmail;
         }
@@ -71,10 +87,10 @@ class SendMailshotTest extends OrgAction
         ];
     }
 
-    public function asController(Mailshot $mailshot, ActionRequest $request): Collection
+    public function asController(Outbox $outbox, ActionRequest $request): Collection
     {
-        $this->initialisationFromShop($mailshot->shop, $request);
+        $this->initialisationFromShop($outbox->shop, $request);
 
-        return $this->handle($mailshot, $this->validatedData);
+        return $this->handle($outbox, $this->validatedData);
     }
 }

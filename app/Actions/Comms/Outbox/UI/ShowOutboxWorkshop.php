@@ -130,6 +130,14 @@ class ShowOutboxWorkshop extends OrgAction
                     ],
                     'method' => 'post'
                 ],
+                'sendTestRoute'           => [
+                    'name'       => 'grp.models.shop.outboxes.send.test',
+                    'parameters' => [
+                        'shop' => $email->shop_id,
+                        'outbox' => $email->outbox_id
+                    ],
+                    'method' => 'post'
+                ],
                 'status' => $email->outbox->state,
                 // 'loadRoute'           => [ -> i don't know what kind of data should i give to this route
                 //     'name'       => 'grp.models.email-templates.content.show',
