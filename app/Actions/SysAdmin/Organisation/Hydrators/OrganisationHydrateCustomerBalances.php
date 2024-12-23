@@ -35,7 +35,7 @@ class OrganisationHydrateCustomerBalances
     {
         $stats = [];
 
-        $stats['number_customer_balances'] = $organisation->customers->filter(function ($customer) {
+        $stats['number_customers_with_balances'] = $organisation->customers->filter(function ($customer) {
             return $customer->balance !== null;
         })->count();
 
