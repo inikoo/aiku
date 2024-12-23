@@ -105,7 +105,7 @@ const sendTestToServer = async () => {
     isLoading.value = true;
     try {
         const response = await axios.post(route(props.sendTestRoute.name,props.sendTestRoute.parameters),
-            { ...temporaryData.value, email: email.value.toString() }
+            { ...temporaryData.value, emails: email.value.toString() }
         );
     } catch (error) {
         console.error("Error in sendTest:", error);
