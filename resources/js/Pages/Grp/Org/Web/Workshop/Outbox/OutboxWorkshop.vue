@@ -16,6 +16,8 @@ import { trans } from "laravel-vue-i18n"
 import Popover from 'primevue/popover';
 import { DatePicker } from 'v-calendar';
 import 'v-calendar/style.css'
+import Multiselect from "@vueform/multiselect"
+import Tag from '@/Components/Tag.vue'
 
 import { PageHeading as TSPageHeading } from "@/types/PageHeading";
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -36,6 +38,7 @@ const props = defineProps<{
     snapshot: routeType
     status: string
     publishRoute: routeType
+    sendTestRoute : routeType
     apiKey: {
         client_id: string,
         client_secret: string,
@@ -51,7 +54,7 @@ const _beefree = ref()
 const _unlayer = ref()
 const visibleEmailTestModal = ref(false)
 const visibleSAveEmailTemplateModal = ref(false)
-const email = ref('')
+const email = ref([])
 const templateName = ref('')
 const temporaryData = ref()
 const active = ref(props.status)
@@ -101,10 +104,9 @@ const openSendTest = (data) => {
 const sendTestToServer = async () => {
     isLoading.value = true;
     try {
-        const response = await axios.post('xxx',
-            { ...temporaryData.value, email: comment.value }
+        const response = await axios.post(route(props.sendTestRoute.name,props.sendTestRoute.parameters),
+            { ...temporaryData.value, email: email.value.toString() }
         );
-        console.log("sendTest response:", response.data);
     } catch (error) {
         console.error("Error in sendTest:", error);
         visibleEmailTestModal.value = false
@@ -321,7 +323,23 @@ onMounted(()=>{
         :style="{ width: '25rem' }">
         <div class="pt-4">
             <div class="font-semibold w-24 mb-3">Email</div>
-            <PureInput v-model="email" placeholder="example@gmail.com" />
+            <Multiselect
+                v-model="email"
+                mode="tags"
+                :close-on-select="false"
+                :searchable="true"
+                :create-option="true"
+                :options="[]"
+            >
+            <template #tag="{ option, handleTagRemove, disabled }">
+            <slot name="tag" :option="option" :handleTagRemove="handleTagRemove" :disabled="disabled">
+                <div class="px-0.5 py-[3px]">
+                    <Tag :label="option.label" :closeButton="true"
+                        :stringToColor="true" size="sm" @onClose="(event) => handleTagRemove(option, event)" />
+                </div>
+            </slot>
+        </template>
+        </Multiselect>
             <div class="flex justify-end mt-3 gap-3">
                 <Button :type="'tertiary'" label="Cancel" @click="visibleEmailTestModal = false"></Button>
                 <Button @click="sendTestToServer" :icon="faPaperPlane" label="Send"></Button>

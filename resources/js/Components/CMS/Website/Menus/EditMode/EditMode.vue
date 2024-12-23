@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, inject, toRaw } from 'vue'
+import { ref, toRaw } from 'vue'
 import draggable from "vuedraggable";
 import Button from '@/Components/Elements/Buttons/Button.vue';
-import Popover from '@/Components/Popover.vue'
 import Dialog from 'primevue/dialog';
 import DialogEditLink from '@/Components/CMS/Website/Menus/EditMode/DialogEditLink.vue';
 import { useConfirm } from "primevue/useconfirm";
-import { useToast } from "primevue/usetoast";
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
@@ -20,7 +18,6 @@ import DialogEditName from '@/Components/CMS/Website/Menus/EditMode/DialogEditNa
 import { faCompassDrafting } from '@fortawesome/free-solid-svg-icons';
 import { faExclamationTriangle, faTimesCircle } from '@fal';
 import ConfirmPopup from 'primevue/confirmpopup';
-import { data } from '../../Product/ProductTemplates/Product1/Descriptor';
 
 library.add(faChevronRight, faSignOutAlt, faShoppingCart, faHeart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faTrashAlt);
 
@@ -135,7 +132,6 @@ const confirm1 = (event,data,index) => {
 };
 
 
-console.log(props.Navigation[props.selectedNav])
 
 </script>
 
