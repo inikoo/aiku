@@ -11,7 +11,6 @@
 namespace App\Actions\Inventory\OrgStock\Search;
 
 use App\Actions\HydrateModel;
-use App\Models\Inventory\Location;
 use App\Models\Inventory\OrgStock;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;

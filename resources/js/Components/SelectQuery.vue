@@ -75,6 +75,7 @@ const lastPage = ref(2)
 
 // Method: retrieve locations list
 const getOptions = async () => {
+    console.log(props.urlRoute)
     loading.value = true
     try {
         const response = await axios.get(props.urlRoute, {

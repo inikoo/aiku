@@ -19,55 +19,55 @@ use Throwable;
 
 class FetchAuroraDispatchedEmails extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:dispatched_emails {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new} {--d|db_suffix=} {--w|with=* : Accepted values: events copies full}';
+    public string $commandSignature = 'fetch:dispatched_emails {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new} {--d|db_suffix=} {--w|with=* : Accepted values: events copies full}  {--D|days= : fetch last n days}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?DispatchedEmail
     {
-        $dispatchedEmail = null;
+        $dispatchedEmail     = null;
         $dispatchedEmailData = $organisationSource->fetchDispatchedEmail($organisationSourceId);
 
         if ($dispatchedEmailData) {
             if ($dispatchedEmail = DispatchedEmail::where('source_id', $dispatchedEmailData['dispatchedEmail']['source_id'])
                 ->first()) {
-                // try {
-                $dispatchedEmail = UpdateDispatchedEmail::make()->action(
-                    dispatchedEmail: $dispatchedEmail,
-                    modelData: $dispatchedEmailData['dispatchedEmail'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                );
-                $this->recordChange($organisationSource, $dispatchedEmail->wasChanged());
-                //                } catch (Exception $e) {
-                //                    $this->recordError($organisationSource, $e, $dispatchedEmailData['dispatchedEmail'], 'DispatchedEmail', 'update');
-                //
-                //                    return null;
-                //                }
-            } else {
-                //      try {
-                $dispatchedEmail = StoreDispatchedEmail::make()->action(
-                    parent: $dispatchedEmailData['parent'],
-                    recipient: $dispatchedEmailData['recipient'],
-                    modelData: $dispatchedEmailData['dispatchedEmail'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                );
+                try {
+                    $dispatchedEmail = UpdateDispatchedEmail::make()->action(
+                        dispatchedEmail: $dispatchedEmail,
+                        modelData: $dispatchedEmailData['dispatchedEmail'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                    );
+                    $this->recordChange($organisationSource, $dispatchedEmail->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $dispatchedEmailData['dispatchedEmail'], 'DispatchedEmail', 'update');
 
-                $this->recordNew($organisationSource);
-                $sourceData = explode(':', $dispatchedEmail->source_id);
-                DB::connection('aurora')->table('Email Tracking Dimension')
-                    ->where('Email Tracking Key', $sourceData[1])
-                    ->update(['aiku_id' => $dispatchedEmail->id]);
-                //                } catch (Exception|Throwable $e) {
-                //                    $this->recordError($organisationSource, $e, $dispatchedEmailData['dispatchedEmail'], 'DispatchedEmail', 'store');
-                //
-                //                    return null;
-                //                }
+                    return null;
+                }
+            } else {
+                try {
+                    $dispatchedEmail = StoreDispatchedEmail::make()->action(
+                        parent: $dispatchedEmailData['parent'],
+                        recipient: $dispatchedEmailData['recipient'],
+                        modelData: $dispatchedEmailData['dispatchedEmail'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                    );
+
+                    $this->recordNew($organisationSource);
+                    $sourceData = explode(':', $dispatchedEmail->source_id);
+                    DB::connection('aurora')->table('Email Tracking Dimension')
+                        ->where('Email Tracking Key', $sourceData[1])
+                        ->update(['aiku_id' => $dispatchedEmail->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $dispatchedEmailData['dispatchedEmail'], 'DispatchedEmail', 'store');
+
+                    return null;
+                }
             }
         }
 
 
-        if ($dispatchedEmail &&  (in_array('events', $this->with)  or in_array('full', $this->with))) {
+        if ($dispatchedEmail && (in_array('events', $this->with) or in_array('full', $this->with))) {
             $sourceData = explode(':', $dispatchedEmail->source_id);
 
             foreach (
@@ -81,8 +81,7 @@ class FetchAuroraDispatchedEmails extends FetchAuroraAction
             }
         }
 
-        if ($dispatchedEmail &&  (in_array('copies', $this->with)  or in_array('full', $this->with))) {
-
+        if ($dispatchedEmail && (in_array('copies', $this->with) or in_array('full', $this->with))) {
             $sourceData = explode(':', $dispatchedEmail->source_id);
 
             foreach (
@@ -103,25 +102,29 @@ class FetchAuroraDispatchedEmails extends FetchAuroraAction
 
     public function getModelsQuery(): Builder
     {
-        $query = DB::connection('aurora')
-            ->table('Email Tracking Dimension')
-            ->select('Email Tracking Key as source_id');
-        if ($this->onlyNew) {
-            $query->whereNull('aiku_id');
-        }
-
+        $query = DB::connection('aurora')->table('Email Tracking Dimension')->select('Email Tracking Key as source_id');
+        $query = $this->commonSelectModelsToFetch($query);
         return $query->orderBy('Email Tracking Created Date');
     }
 
     public function count(): ?int
     {
-        $query = DB::connection('aurora')
-            ->table('Email Tracking Dimension');
+        $query = DB::connection('aurora')->table('Email Tracking Dimension');
+        $query = $this->commonSelectModelsToFetch($query);
+        return $query->count();
+    }
 
+    public function commonSelectModelsToFetch($query)
+    {
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }
 
-        return $query->count();
+        if ($this->fromDays) {
+            $query->where('Email Tracking Created Date', '>=', now()->subDays($this->fromDays)->format('Y-m-d'));
+        }
+
+        return $query;
     }
+
 }

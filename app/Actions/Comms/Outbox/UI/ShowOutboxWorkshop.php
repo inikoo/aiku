@@ -138,7 +138,6 @@ class ShowOutboxWorkshop extends OrgAction
                 'apiKey'            => [
                     'client_id'     => Arr::get($beeFreeSettings, 'client_id'),
                     'client_secret' => Arr::get($beeFreeSettings, 'client_secret'),
-                    'grant_type'    => Arr::get($beeFreeSettings, 'grant_type'),
                 ]
             ]
         );

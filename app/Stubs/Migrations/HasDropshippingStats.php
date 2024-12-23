@@ -8,24 +8,19 @@
 
 namespace App\Stubs\Migrations;
 
-use App\Enums\Catalogue\Product\ProductStateEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasDropshippingStats
 {
-    public function dropshippingStats(Blueprint $table): Blueprint
+    public function dropshippingStatsFields(Blueprint $table): Blueprint
     {
-        $table->unsignedSmallInteger('number_customer_clients')->default(0);
-        $table->unsignedSmallInteger('number_current_customer_clients')->default(0);
-        $table->unsignedSmallInteger('number_portfolios')->default(0);
-        $table->unsignedSmallInteger('number_current_portfolios')->default(0);
-        $table->unsignedSmallInteger('number_products')->default(0);
-        $table->unsignedSmallInteger('number_current_products')->default(0);
-        $table->unsignedSmallInteger('number_portfolios_platform_shopify')->default(0);
-        $table->unsignedSmallInteger('number_portfolios_platform_woocommerce')->default(0);
-
-        foreach (ProductStateEnum::cases() as $case) {
-            $table->unsignedInteger('number_products_state_'.$case->snake())->default(0);
+        $table->unsignedInteger('number_customer_clients')->default(0);
+        $table->unsignedInteger('number_current_customer_clients')->default(0);
+        $table->unsignedInteger('number_portfolios')->default(0);
+        $table->unsignedInteger('number_current_portfolios')->default(0);
+        if ($table->getTable() != 'customer_stats') {
+            $table->unsignedInteger('number_portfolios_platform_shopify')->default(0);
+            $table->unsignedInteger('number_portfolios_platform_woocommerce')->default(0);
         }
 
         return $table;

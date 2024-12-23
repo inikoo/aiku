@@ -23,7 +23,8 @@ return new class () extends Migration {
             $table = $this->getContentBlocksFields($table);
             $table = $this->getSnapshotsFields($table);
             $table = $this->getDeploymentsFields($table);
-            $table = $this->getWebpagesStatsFields($table);
+            $table = $this->getChildWebpagesStatsFields($table);
+            $table = $this->getBannersStatsFields($table);
             $table = $this->getRedirectsStatsFields($table);
             $table->timestampsTz();
         });

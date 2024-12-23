@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraEmailTrackingEvents extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:email_tracking_events {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new}';
+    public string $commandSignature = 'fetch:email_tracking_events {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new} {--D|days= : fetch last n days}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?EmailTrackingEvent
@@ -73,25 +73,28 @@ class FetchAuroraEmailTrackingEvents extends FetchAuroraAction
 
     public function getModelsQuery(): Builder
     {
-        $query = DB::connection('aurora')
-            ->table('Email Tracking Event Dimension')
-            ->select('Email Tracking Event Key as source_id');
-
-        if ($this->onlyNew) {
-            $query->whereNull('aiku_id');
-        }
-
+        $query = DB::connection('aurora')->table('Email Tracking Event Dimension')->select('Email Tracking Event Key as source_id');
+        $query = $this->commonSelectModelsToFetch($query);
         return $query->orderBy('Email Tracking Event Date');
     }
 
     public function count(): ?int
     {
         $query = DB::connection('aurora')->table('Email Tracking Event Dimension');
+        $query = $this->commonSelectModelsToFetch($query);
+        return $query->count();
+    }
 
+    public function commonSelectModelsToFetch($query)
+    {
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }
 
-        return $query->count();
+        if ($this->fromDays) {
+            $query->where('Email Tracking Event Date', '>=', now()->subDays($this->fromDays)->format('Y-m-d'));
+        }
+
+        return $query;
     }
 }

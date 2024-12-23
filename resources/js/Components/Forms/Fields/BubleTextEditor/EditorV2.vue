@@ -138,6 +138,9 @@ const editorInstance = useEditor({
         FontFamily.configure({
             types: ['textStyle'],
         }),
+        Link.configure({
+            openOnClick : false
+        }),
         customLink.extend({
             addProseMirrorPlugins() {
                 return [
@@ -186,9 +189,6 @@ const editorInstance = useEditor({
         ListItem,
         BulletList,
         OrderedList,
-        Link.configure({
-            openOnClick: false,
-        }),
         HardBreak.extend({
             addKeyboardShortcuts() {
                 return {
@@ -327,7 +327,6 @@ defineExpose({
 
 
 const setVariabel = (value) => {
-    console.log('dfsdfsfd',value)
     const content = `<span class="mention" data-type="mention" data-id="username" contenteditable="false">{{ ${value} }}</span>`;
     editorInstance.value?.chain().focus().insertContent(content).run();
 };

@@ -16,9 +16,9 @@ return new class () extends Migration {
         Schema::create('delivery_note_shipment', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('delivery_note_id')->index();
-            $table->foreign('delivery_note_id')->references('id')->on('delivery_notes');
+            $table->foreign('delivery_note_id')->references('id')->on('delivery_notes')->cascadeOnDelete();
             $table->unsignedInteger('shipment_id')->index();
-            $table->foreign('shipment_id')->references('id')->on('shipments');
+            $table->foreign('shipment_id')->references('id')->on('shipments')->cascadeOnDelete();
             $table->timestampsTz();
         });
     }

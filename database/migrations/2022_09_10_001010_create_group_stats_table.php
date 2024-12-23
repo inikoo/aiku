@@ -8,12 +8,15 @@
 
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Stubs\Migrations\HasHelpersStats;
+use App\Stubs\Migrations\HasQueriesStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasHelpersStats;
+    use HasQueriesStats;
+
     public function up(): void
     {
         Schema::create('group_stats', function (Blueprint $table) {
@@ -31,9 +34,9 @@ return new class () extends Migration {
             $table = $this->imagesStats($table);
             $table = $this->attachmentsStats($table);
             $table = $this->uploadStats($table);
+            $table = $this->getQueriesStats($table);
 
             $table->timestampsTz();
-
         });
     }
 

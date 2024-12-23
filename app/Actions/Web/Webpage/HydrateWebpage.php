@@ -10,7 +10,7 @@ namespace App\Actions\Web\Webpage;
 
 use App\Actions\HydrateModel;
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateRedirects;
-use App\Actions\Web\Webpage\Hydrators\WebpageHydrateWebpages;
+use App\Actions\Web\Webpage\Hydrators\WebpageHydrateChildWebpages;
 use App\Models\Web\Webpage;
 use Illuminate\Support\Collection;
 
@@ -21,7 +21,7 @@ class HydrateWebpage extends HydrateModel
 
     public function handle(Webpage $webpage): void
     {
-        WebpageHydrateWebpages::run($webpage);
+        WebpageHydrateChildWebpages::run($webpage);
         WebpageHydrateRedirects::run($webpage);
     }
 

@@ -13,6 +13,7 @@ const props = withDefaults(defineProps<{
     updateRoute: routeType;
     imagesUploadRoute: routeType
     snapshot: any
+    mergeTags: Array<any>
     apiKey: {
         client_id: string,
         client_secret: string,
@@ -85,8 +86,7 @@ const beeConfig = () => {
                 disableBaseColors: true,
                 disableColorHistory: true,
                 templateLanguageAutoTranslation: true,
-                mergeTags: mergetags,
-                /*  contentDialog, */
+                mergeTags: props.mergeTags,
                 customAttributes: {
                     attributes: [
                         {
@@ -119,7 +119,7 @@ const beeConfig = () => {
                 },
                 onAutoSave: function (jsonFile) {
                     /* onSaveEmail(jsonFile, null) */
-                    emits('autoSave',jsonFile)
+                    emits('autoSave',jsonFile) 
                 }
             };
             beeInstance.value
@@ -129,7 +129,8 @@ const beeConfig = () => {
                     getCatalog()
                 })
         })
-        .catch((error) => {
+        .catch((error) => { 
+            if(error.message == "Network Error") location.reload();
             console.error("Error authenticating:", error);
         });
 }
@@ -160,7 +161,7 @@ defineExpose({
     </div>
 
     <div v-if="showBee" id="app">
-        <div id="bee-plugin-container" class="unlayer"></div>
+        <div id="bee-plugin-container" class="beefree"></div>
     </div>
 
     <div v-else>
@@ -176,14 +177,11 @@ defineExpose({
             }
         }" />
     </div>
-
-    
-    
 </template>
 
 
 <style scoped>
-.unlayer {
+.beefree {
     height: calc(100vh - 177px);
 }
 

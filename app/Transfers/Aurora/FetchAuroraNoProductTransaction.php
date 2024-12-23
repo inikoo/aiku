@@ -8,6 +8,7 @@
 
 namespace App\Transfers\Aurora;
 
+use App\Enums\Catalogue\Charge\ChargeTypeEnum;
 use App\Models\Ordering\Order;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -51,10 +52,21 @@ class FetchAuroraNoProductTransaction extends FetchAurora
                 $model  = $charge;
             }
 
-
             $gross                    = $this->auroraModelData->{'Transaction Gross Amount'};
             $net                      = $this->auroraModelData->{'Transaction Net Amount'};
             $this->parsedData['type'] = $this->auroraModelData->{'Transaction Type'};
+        } elseif ($this->auroraModelData->{'Transaction Type'} == 'Insurance') {
+
+
+            $charge = $order->shop->charges()->where('type', ChargeTypeEnum::INSURANCE)->first();
+            if ($charge) {
+                $model  = $charge;
+            }
+
+
+            $gross                    = $this->auroraModelData->{'Transaction Gross Amount'};
+            $net                      = $this->auroraModelData->{'Transaction Net Amount'};
+            $this->parsedData['type'] = 'Charges';
         } elseif ($this->auroraModelData->{'Transaction Type'} == 'Refund') {
             return;
         } else {

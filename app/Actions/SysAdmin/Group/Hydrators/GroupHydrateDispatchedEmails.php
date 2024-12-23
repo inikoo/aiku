@@ -40,7 +40,7 @@ class GroupHydrateDispatchedEmails
 
         $group->commsStats()->update($stats);
     }
-    public string $commandSignature = 'hydrate:group-dispatched-emails';
+    public string $commandSignature = 'hydrate:group_dispatched_emails';
 
     public function asCommand($command): void
     {

@@ -9,12 +9,14 @@
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteTypeEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
+use App\Stubs\Migrations\HasSalesTransactionParents;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasGroupOrganisationRelationship;
+    use HasSalesTransactionParents;
     public function up(): void
     {
         Schema::create('delivery_notes', function (Blueprint $table) {
@@ -23,12 +25,9 @@ return new class () extends Migration {
             $table->string('slug')->unique()->collation('und_ns');
             $table->unsignedSmallInteger('warehouse_id')->index();
             $table->foreign('warehouse_id')->references('id')->on('warehouses');
-            $table->unsignedSmallInteger('shop_id')->index();
-            $table->foreign('shop_id')->references('id')->on('shops');
-            $table->unsignedInteger('customer_id')->index();
-            $table->foreign('customer_id')->references('id')->on('customers');
-            $table->unsignedInteger('customer_client_id')->nullable()->index();
-            $table->foreign('customer_client_id')->references('id')->on('customer_clients');
+
+            $table = $this->salesTransactionParents($table);
+
             $table->string('reference')->index();
             $table->string('type')->default(DeliveryNoteTypeEnum::ORDER->value)->index();
 

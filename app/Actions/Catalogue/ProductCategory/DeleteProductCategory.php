@@ -31,7 +31,7 @@ class DeleteProductCategory extends OrgAction
 
     public function afterValidator(Validator $validator, ActionRequest $request): void
     {
-        if ($this->productCategory->products()->exists()) {
+        if ($this->productCategory->getProducts()->exists()) {
             $validator->errors()->add('products', 'This category has products associated with it.');
         }
 

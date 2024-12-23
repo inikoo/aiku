@@ -16,7 +16,7 @@ return new class () extends Migration {
         Schema::create('delivery_note_stats', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('delivery_note_id')->index();
-            $table->foreign('delivery_note_id')->references('id')->on('delivery_notes');
+            $table->foreign('delivery_note_id')->references('id')->on('delivery_notes')->cascadeOnDelete();
 
             $table->unsignedSmallInteger('number_items')->default(0)->comment('current number of items');
 

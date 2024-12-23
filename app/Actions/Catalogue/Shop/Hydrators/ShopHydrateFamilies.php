@@ -36,7 +36,7 @@ class ShopHydrateFamilies
     public function handle(Shop $shop): void
     {
         $stats = [
-            'number_families' => $shop->families()->count(),
+            'number_families' => $shop->getFamilies()->count(),
         ];
 
         $stats = array_merge(

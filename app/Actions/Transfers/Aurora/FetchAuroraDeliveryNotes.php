@@ -138,7 +138,7 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
                 ->get() as $auroraData
         ) {
             $transactionsToDelete = array_diff($transactionsToDelete, [$organisation->id.':'.$auroraData->{'Inventory Transaction Key'}]);
-            FetchAuroraDeliveryNoteTransactions::run($organisationSource, $auroraData->{'Inventory Transaction Key'}, $deliveryNote);
+            FetchAuroraDeliveryNoteItems::run($organisationSource, $auroraData->{'Inventory Transaction Key'}, $deliveryNote);
         }
         $deliveryNote->deliveryNoteItems()->whereIn('id', array_keys($transactionsToDelete))->delete();
 

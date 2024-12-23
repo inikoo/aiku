@@ -66,9 +66,9 @@ class Poll extends Model implements Auditable
 
 
     protected $casts = [
-        'type' => PollTypeEnum::class,
-        'fetched_at'         => 'datetime',
-        'last_fetched_at'    => 'datetime',
+        'type'            => PollTypeEnum::class,
+        'fetched_at'      => 'datetime',
+        'last_fetched_at' => 'datetime',
     ];
 
     protected $attributes = [
@@ -103,7 +103,6 @@ class Poll extends Model implements Auditable
         'in_iris',
         'in_iris_required',
     ];
-
 
 
     public function stats(): HasOne

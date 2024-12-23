@@ -108,7 +108,7 @@ class IndexCustomerClients extends RetinaAction
                         'Customer' => [
                             'title'       => __("No clients found"),
                             'description' => __("You can add your client 🤷🏽‍♂️"),
-                            'count'       => $parent->stats->number_clients,
+                            'count'       => $parent->stats->number_customer_clients,
                             'action'      => [
                                 'type'    => 'button',
                                 'style'   => 'create',

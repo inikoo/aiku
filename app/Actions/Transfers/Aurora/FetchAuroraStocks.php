@@ -41,6 +41,7 @@ class FetchAuroraStocks extends FetchAuroraAction
         $orgStock    = null;
         $isPrincipal = false;
         $stockData   = $organisationSource->fetchStock($organisationSourceId);
+
         if (!$stockData) {
             return [
                 'stock'    => null,
@@ -165,6 +166,8 @@ class FetchAuroraStocks extends FetchAuroraAction
                     modelData: [
                         'state' => StockStateEnum::ACTIVE
                     ],
+                    hydratorsDelay: 60,
+                    strict: false,
                     audit: false
                 );
             }

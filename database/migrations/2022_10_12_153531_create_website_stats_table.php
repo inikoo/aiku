@@ -6,6 +6,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Stubs\Migrations\HasCRMStats;
 use App\Stubs\Migrations\HasWebStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -13,14 +14,16 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasWebStats;
+    use HasCRMStats;
     public function up(): void
     {
         Schema::create('website_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('website_id')->index();
             $table->foreign('website_id')->references('id')->on('websites');
-
+            $table = $this->getWebUsersStatsFields($table);
             $table = $this->getWebpagesStatsFields($table);
+            $table = $this->getBannersStatsFields($table);
             $table = $this->getRedirectsStatsFields($table);
             $table->timestampsTz();
         });

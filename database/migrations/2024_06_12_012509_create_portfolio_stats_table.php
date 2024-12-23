@@ -13,11 +13,14 @@ return new class () extends Migration {
             $table->unsignedBigInteger('portfolio_id')->index();
             $table->foreign('portfolio_id')->references('id')->on('portfolios');
 
-            $table->unsignedSmallInteger('amount')->default(0);
+            $table->decimal('amount')->default(0)->comment('Invoiced amount');
+            $table->decimal('org_amount')->default(0)->comment('Invoiced amount');
+            $table->decimal('group_amount')->default(0)->comment('Invoiced amount');
+
             $table->unsignedSmallInteger('number_orders')->default(0);
             $table->unsignedSmallInteger('number_ordered_quantity')->default(0);
-            $table->unsignedSmallInteger('number_clients')->default(0);
-            $table->unsignedSmallInteger('last_ordered_at')->nullable();
+            $table->unsignedSmallInteger('number_customer_clients')->default(0);
+            $table->dateTimeTz('last_ordered_at')->nullable();
             $table->timestampsTz();
         });
     }

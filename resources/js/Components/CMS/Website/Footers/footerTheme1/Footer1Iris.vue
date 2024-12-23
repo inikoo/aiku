@@ -15,36 +15,37 @@ const props = defineProps<{
     fieldValue: FieldValue,
     keyTemplate: String
     colorThemed?: Object
+    modelValue:FieldValue
 }>();
 
 </script>
 
 <template>
     <div id="app" class="-mx-2 md:mx-0 pb-24 pt-4 md:pt-8 md:px-16 text-white"
-        :style="getStyles(fieldValue?.container?.properties)">
+        :style="getStyles(modelValue?.container?.properties)">
         <div
             class="w-full flex flex-col md:flex-row gap-4 md:gap-8 pt-2 pb-4 md:pb-6 mb-4 md:mb-10 border-0 border-b border-solid border-gray-700">
             <div class="flex-1 flex items-center justify-center md:justify-start ">
-                <!--     <img v-if="fieldValue?.logo?.source && !isObject(fieldValue.logo?.source)" :src="fieldValue.logo.source"
-                    :alt="fieldValue.logo.alt" class="h-auto max-h-20 w-auto min-w-16" />
-                <img v-else :src="fieldValue?.logo?.source?.original" :alt="fieldValue.logo.alt"
+                <!--     <img v-if="modelValue?.logo?.source && !isObject(modelValue.logo?.source)" :src="modelValue.logo.source"
+                    :alt="modelValue.logo.alt" class="h-auto max-h-20 w-auto min-w-16" />
+                <img v-else :src="modelValue?.logo?.source?.original" :alt="modelValue.logo.alt"
                     class="h-auto max-h-20 w-auto min-w-16"> -->
             </div>
 
-            <div v-if="fieldValue?.email"
+            <div v-if="modelValue?.email"
                 class="relative group flex-1 flex justify-center md:justify-start items-center">
-                <a style="font-size: 17px">{{ fieldValue?.email }}</a>
+                <a style="font-size: 17px">{{ modelValue?.email }}</a>
                 <div
                     class="p-1 absolute -left-2 -top-2 text-yellow-500 cursor-pointer group-hover:top-1 opacity-0 group-hover:opacity-100 transition-all">
                     <FontAwesomeIcon icon='fas fa-arrow-square-left' class='' fixed-width aria-hidden='true' />
                 </div>
             </div>
 
-            <div v-if="fieldValue?.whatsapp?.number"
+            <div v-if="modelValue?.whatsapp?.number"
                 class="relative group flex-1 flex gap-x-1.5 justify-center md:justify-start items-center">
                 <a class="flex gap-x-2 items-center">
                     <FontAwesomeIcon class="text-[#00EE52]" icon="fab fa-whatsapp" style="font-size: 22px" />
-                    <span style="font-size: 17px">{{ fieldValue?.whatsapp?.number }}</span>
+                    <span style="font-size: 17px">{{ modelValue?.whatsapp?.number }}</span>
                 </a>
 
                 <div
@@ -54,11 +55,11 @@ const props = defineProps<{
             </div>
 
             <div class="group relative flex-1 flex flex-col items-center md:items-end justify-center">
-                <a v-for="phone of fieldValue.phone.numbers" style="font-size: 17px">
+                <a v-for="phone of modelValue?.phone?.numbers" style="font-size: 17px">
                     {{ phone }}
                 </a>
 
-                <span class="" style="font-size: 15px">{{ fieldValue.phone.caption }}</span>
+                <span class="" style="font-size: 15px">{{ modelValue?.phone?.caption }}</span>
 
                 <div
                     class="p-1 absolute -left-0 -top-2 text-yellow-500 cursor-pointer group-hover:-top-4 opacity-0 group-hover:opacity-100 transition-all">
@@ -74,7 +75,7 @@ const props = defineProps<{
                 <div class="md:px-0 grid gap-y-3 md:gap-y-6 h-fit">
                     <div class="md:px-0 grid grid-cols-1 gap-y-2 md:gap-y-6 h-fit">
                         <!-- Desktop -->
-                        <section v-for="item in fieldValue.columns.column_1.data">
+                        <section v-for="item in modelValue?.columns?.column_1?.data">
                             <div
                                 class="hidden md:block grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none">
                                 <div class="flex text-xl font-semibold w-fit leading-6">
@@ -131,7 +132,7 @@ const props = defineProps<{
                 <div class="md:px-0 grid gap-y-3 md:gap-y-6 h-fit">
                     <div class="md:px-0 grid grid-cols-1 gap-y-2 md:gap-y-6 h-fit">
                         <!-- Desktop -->
-                        <section v-for="item in fieldValue.columns.column_2.data">
+                        <section v-for="item in modelValue?.columns?.column_2?.data">
                             <div
                                 class="hidden md:block grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none">
                                 <div class="flex text-xl font-semibold w-fit leading-6">
@@ -188,7 +189,7 @@ const props = defineProps<{
                 <div class="md:px-0 grid gap-y-3 md:gap-y-6 h-fit">
                     <div class="md:px-0 grid grid-cols-1 gap-y-2 md:gap-y-6 h-fit">
                         <!-- Desktop -->
-                        <section v-for="item in fieldValue.columns.column_3.data">
+                        <section v-for="item in modelValue?.columns?.column_3?.data">
                             <div
                                 class="hidden md:block grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none">
                                 <div class="flex text-xl font-semibold w-fit leading-6">
@@ -245,19 +246,19 @@ const props = defineProps<{
                 <div>
                     <address
                         class="mt-10 md:mt-0 not-italic mb-4 text-center md:text-left text-xs md:text-sm text-gray-300">
-                        <div v-html="fieldValue.columns.column_4.data.textBox1"></div>
+                        <div v-html="modelValue?.columns.column_4.data.textBox1"></div>
                     </address>
 
                     <div class="flex justify-center gap-x-8 text-gray-300 md:block">
-                        <div v-html="fieldValue.columns.column_4.data.textBox2"></div>
+                        <div v-html="modelValue?.columns.column_4.data.textBox2"></div>
                     </div>
 
                     <div class="w-full mt-8">
-                        <div v-html="fieldValue.paymentData.label"></div>
+                        <div v-html="modelValue?.paymentData.label"></div>
                     </div>
 
                     <div class="flex flex-col items-center gap-y-6 mt-4">
-                        <img v-for="item of fieldValue.paymentData.data" :src="item.value" :alt="item.name"
+                        <img v-for="item of modelValue?.paymentData.data" :src="item.value" :alt="item.name"
                             class="h-auto max-h-6 md:max-h-8 max-w-full w-full object-contain">
                     </div>
                 </div>
@@ -269,11 +270,11 @@ const props = defineProps<{
             <div class="grid gap-y-2 text-center md:text-left">
                 <h2 style="margin-bottom: 0px; font-size: inherit; font-weight: inherit"
                     class="hidden text-center tracking-wider">
-                    <div v-html="fieldValue.columns.column_4.data.textBox4"></div>
+                    <div v-html="modelValue?.columns.column_4.data.textBox4"></div>
                 </h2>
 
                 <div class="flex gap-x-6 justify-center">
-                    <a v-for="socmed of fieldValue.socialMedia" target="_blank" :href="socmed.link">
+                    <a v-for="socmed of modelValue?.socialMedia" target="_blank" :href="socmed.link">
                         <FontAwesomeIcon :icon="socmed.icon" class="text-4xl md:text-2xl"></FontAwesomeIcon>
                     </a>
                 </div>
@@ -281,8 +282,17 @@ const props = defineProps<{
 
             <div id="footer_copyright"
                 class="text-[13px] leading-5 md:text-[12px] text-center w-[60%] md:w-fit mx-auto md:mx-0">
-                <div v-html="fieldValue.copyright"></div>
+                <div v-html="modelValue?.copyright"></div>
             </div>
         </div>
     </div>
 </template>
+
+<style scoped lang="scss">
+.editor-class ul {
+    margin-left: 0rem;
+    margin-top: 0.5rem;
+    list-style-position: outside;
+}
+
+</style>

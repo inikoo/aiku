@@ -91,7 +91,6 @@ onMounted(() => {
 });
 
 
-console.log(layout.colorThemed)
 provide('isPreviewLoggedIn', isPreviewLoggedIn)
 provide('isPreviewMode', isPreviewMode)
 
@@ -114,7 +113,7 @@ provide('isPreviewMode', isPreviewMode)
 
         <div class="shadow-xl" :class="layout.colorThemed.layout == 'fullscreen' ? 'w-full' : 'container max-w-7xl mx-auto '">
             <!-- Header -->
-            <div class="relative">
+            <!-- <div class="relative">
                 <RenderHeaderMenu
                     v-if="header?.data"
                     :data="layout.header"
@@ -122,7 +121,7 @@ provide('isPreviewMode', isPreviewMode)
                     :colorThemed="layout?.colorThemed"
                     :previewMode="route().current() == 'grp.websites.preview' ? true : isPreviewMode"
                     :loginMode="isPreviewLoggedIn" @update:model-value="() => {updateData(layout.header)}" />
-            </div>
+            </div> -->
 
             <!-- Webpage -->
             <div v-if="data" class="relative editor-class">

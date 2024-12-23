@@ -43,6 +43,8 @@ class FetchAuroraAction extends FetchAction
                 'fetch:orders',
                 'fetch:invoices',
                 'fetch:delivery_notes',
+                'fetch:dispatched_emails',
+                'email_tracking_events'
             ]) and $command->option('days')) {
             $this->fromDays = (int)$command->option('days');
         }

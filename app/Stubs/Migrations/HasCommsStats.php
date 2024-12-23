@@ -65,4 +65,11 @@ trait HasCommsStats
 
         return $table;
     }
+
+    public function emailAddressStatsFields(Blueprint $table): Blueprint
+    {
+        $table->unsignedInteger('number_email_addresses')->default(0);
+
+        return $table;
+    }
 }

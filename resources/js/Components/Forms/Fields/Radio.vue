@@ -115,10 +115,9 @@ const compareObjects = (objA, objB) => {
                         <p class="text-sm font-medium leading-6 text-gray-700 capitalize">
                             {{ option.value }}
                         </p>
-                        <span v-if="option.label" class="font-light text-sm text-gray-400 capitalize">
+                       <!--  <span v-if="option.label" class="font-light text-sm text-gray-400 capitalize">
                             {{ option.label }}
-                            <!-- d -->
-                        </span>
+                        </span> -->
                     </label>
                 </div>
             </div>

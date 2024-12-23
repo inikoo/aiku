@@ -16,7 +16,7 @@ use App\Models\Web\Webpage;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class WebpageHydrateWebpages
+class WebpageHydrateChildWebpages
 {
     use AsAction;
     use WithEnumStats;
@@ -36,11 +36,11 @@ class WebpageHydrateWebpages
     public function handle(Webpage $webpage): void
     {
         $stats = [
-            'number_webpages' => $webpage->webpages()->count(),
+            'number_child_webpages' => $webpage->webpages()->count(),
         ];
 
         $stats = array_merge($stats, $this->getEnumStats(
-            model:'webpages',
+            model:'child_webpages',
             field: 'state',
             enum: WebpageStateEnum::class,
             models: Webpage::class,
@@ -50,7 +50,7 @@ class WebpageHydrateWebpages
         ));
 
         $stats = array_merge($stats, $this->getEnumStats(
-            model:'webpages',
+            model:'child_webpages',
             field: 'type',
             enum: WebpageTypeEnum::class,
             models: Webpage::class,
@@ -60,7 +60,7 @@ class WebpageHydrateWebpages
         ));
 
         $stats = array_merge($stats, $this->getEnumStats(
-            model:'webpages',
+            model:'child_webpages',
             field: 'sub_type',
             enum: WebpageSubTypeEnum::class,
             models: Webpage::class,

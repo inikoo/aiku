@@ -48,6 +48,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property numeric $quantity
  * @property numeric $gross_amount
  * @property numeric $net_amount
+ * @property string|null $profit_amount
  * @property int $tax_category_id
  * @property numeric|null $grp_exchange
  * @property numeric|null $org_exchange

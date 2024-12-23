@@ -64,6 +64,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\Inventory\OrgStockIntervals|null $intervals
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\LocationOrgStock> $locationOrgStocks
  * @property-read \App\Models\Inventory\OrgStockFamily|null $orgStockFamily
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\OrgStockMovement> $orgStockMovements
@@ -152,7 +153,6 @@ class OrgStock extends Model implements Auditable
         return $this->hasMany(LocationOrgStock::class);
     }
 
-
     public function orgStockMovements(): HasMany
     {
         return $this->hasMany(OrgStockMovement::class);
@@ -161,6 +161,11 @@ class OrgStock extends Model implements Auditable
     public function stats(): HasOne
     {
         return $this->hasOne(OrgStockStats::class);
+    }
+
+    public function intervals(): HasOne
+    {
+        return $this->hasOne(OrgStockIntervals::class);
     }
 
     public function orgSupplierProducts(): BelongsToMany

@@ -48,6 +48,7 @@ class StoreStock extends GrpAction
             /** @var Stock $stock */
             $stock = $parent->stocks()->create($modelData);
             $stock->stats()->create();
+            $stock->intervals()->create();
 
 
             if ($this->strict) {

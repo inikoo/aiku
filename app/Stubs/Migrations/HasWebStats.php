@@ -9,6 +9,7 @@
 namespace App\Stubs\Migrations;
 
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
+use App\Enums\Web\Banner\BannerStateEnum;
 use App\Enums\Web\Redirect\RedirectTypeEnum;
 use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
@@ -64,11 +65,32 @@ trait HasWebStats
         return $table;
     }
 
-    public function getWebUsersStatsFields(Blueprint $table): Blueprint
+    public function getChildWebpagesStatsFields(Blueprint $table): Blueprint
     {
 
-        $table->unsignedInteger('number_web_users')->default(0);
-        $table->unsignedInteger('number_current_web_users')->default(0);
+        $table->unsignedInteger('number_child_webpages')->default(0);
+        foreach (WebpageStateEnum::cases() as $case) {
+            $table->unsignedSmallInteger('number_child_webpages_state_'.$case->snake())->default(0);
+        }
+        foreach (WebpageTypeEnum::cases() as $case) {
+            $table->unsignedSmallInteger('number_child_webpages_type_'.$case->snake())->default(0);
+        }
+        foreach (WebpageSubTypeEnum::cases() as $case) {
+            $table->unsignedSmallInteger('number_child_webpages_sub_type_'.$case->snake())->default(0);
+        }
+
+        return $table;
+    }
+
+
+    public function getBannersStatsFields(Blueprint $table): Blueprint
+    {
+
+        $table->unsignedInteger('number_banners')->default(0);
+        foreach (BannerStateEnum::cases() as $case) {
+            $table->unsignedSmallInteger('number_banners_state_'.$case->snake())->default(0);
+        }
+
 
         return $table;
     }

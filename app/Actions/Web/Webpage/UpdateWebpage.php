@@ -13,7 +13,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWebpages;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWebpages;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
-use App\Actions\Web\Webpage\Hydrators\WebpageHydrateWebpages;
+use App\Actions\Web\Webpage\Hydrators\WebpageHydrateChildWebpages;
 use App\Actions\Web\Webpage\Search\WebpageRecordSearch;
 use App\Actions\Web\Website\Hydrators\WebsiteHydrateWebpages;
 use App\Enums\Web\Webpage\WebpageSubTypeEnum;
@@ -48,7 +48,7 @@ class UpdateWebpage extends OrgAction
             OrganisationHydrateWebpages::dispatch($webpage->organisation)->delay($this->hydratorsDelay);
             WebsiteHydrateWebpages::dispatch($webpage->website)->delay($this->hydratorsDelay);
             if ($webpage->parent_id) {
-                WebpageHydrateWebpages::dispatch($webpage->parent)->delay($this->hydratorsDelay);
+                WebpageHydrateChildWebpages::dispatch($webpage->parent)->delay($this->hydratorsDelay);
             }
         }
 

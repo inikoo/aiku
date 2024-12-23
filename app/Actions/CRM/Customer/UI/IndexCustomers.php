@@ -11,7 +11,9 @@ namespace App\Actions\CRM\Customer\UI;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Traits\WithCustomersSubNavigation;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\UI\CRM\CustomersTabsEnum;
 use App\Http\Resources\CRM\CustomersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
@@ -29,6 +31,8 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexCustomers extends OrgAction
 {
+    use WithCustomersSubNavigation;
+
     private Group|Shop|Organisation $parent;
     private bool $canCreateShop = false;
 
@@ -47,7 +51,7 @@ class IndexCustomers extends OrgAction
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $organisation;
-        $this->initialisation($organisation, $request);
+        $this->initialisation($organisation, $request)->withTab(CustomersTabsEnum::values());
 
         return $this->handle($this->parent);
     }
@@ -55,7 +59,7 @@ class IndexCustomers extends OrgAction
     public function inGroup(ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = group();
-        $this->initialisationFromGroup(group(), $request);
+        $this->initialisationFromGroup(group(), $request)->withTab(CustomersTabsEnum::values());
 
         return $this->handle($this->parent);
     }
@@ -64,7 +68,7 @@ class IndexCustomers extends OrgAction
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $shop;
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(CustomersTabsEnum::values());
 
         return $this->handle($shop);
     }
@@ -280,6 +284,16 @@ class IndexCustomers extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
     {
+        $navigation = CustomersTabsEnum::navigation();
+        if ($this->parent instanceof Group) {
+            unset($navigation[CustomersTabsEnum::DASHBOARD->value]);
+            $this->tab = $request->get('tab', array_key_first($navigation));
+        }
+
+        $subNavigation = [];
+        if ($this->parent instanceof Shop) {
+            $subNavigation = $this->getSubNavigation($request);
+        }
         $scope = $this->parent;
 
         $action = null;
@@ -317,12 +331,20 @@ class IndexCustomers extends OrgAction
                         'icon'  => ['fal', 'fa-user'],
                         'title' => __('customer')
                     ],
-                    'actions' => $action
+                    'actions' => $action,
+                    'subNavigation'    => $subNavigation,
                 ]),
                 'data'        => CustomersResource::collection($customers),
+                'tabs' => [
+                    'current'    => $this->tab,
+                    'navigation' => $navigation
+                ],
+                CustomersTabsEnum::CUSTOMERS->value => $this->tab == CustomersTabsEnum::CUSTOMERS->value ?
+                fn () => CustomersResource::collection($customers)
+                : Inertia::lazy(fn () => CustomersResource::collection($customers)),
 
             ]
-        )->table($this->tableStructure($this->parent));
+        )->table($this->tableStructure(parent:$this->parent, prefix:CustomersTabsEnum::CUSTOMERS->value));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

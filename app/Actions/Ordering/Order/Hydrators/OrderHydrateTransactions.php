@@ -40,7 +40,7 @@ class OrderHydrateTransactions
         ];
 
         if ($order->state == OrderStateEnum::CREATING) {
-            $stats['number_transactions_at_creation' ] = $order->transactions()->count();
+            $stats['number_transactions_at_submission' ] = $order->transactions()->count();
 
         }
 

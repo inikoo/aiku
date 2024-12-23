@@ -8,13 +8,12 @@
 
 namespace App\Actions\Dropshipping\Portfolio;
 
-use App\Actions\Dropshipping\Portfolio\Hydrators\CustomerHydratePortfolios;
-use App\Actions\Dropshipping\Portfolio\Hydrators\GroupHydratePortfolios;
-use App\Actions\Dropshipping\Portfolio\Hydrators\HydratePortfolio;
-use App\Actions\Dropshipping\Portfolio\Hydrators\OrganisationHydratePortfolios;
+use App\Actions\CRM\Customer\Hydrators\CustomerHydratePortfolios;
 use App\Actions\Dropshipping\Portfolio\Hydrators\ShopHydratePortfolios;
 use App\Actions\Dropshipping\Portfolio\Search\PortfolioRecordSearch;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePortfolios;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePortfolios;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Catalogue\Portfolio\PortfolioTypeEnum;
 use App\Models\Catalogue\Shop;
@@ -50,12 +49,12 @@ class StorePortfolio extends OrgAction
             return $portfolio;
         });
 
-        // todo #1115 put here the hydrators
-        HydratePortfolio::run($portfolio);
-        GroupHydratePortfolios::run($customer->group);
-        OrganisationHydratePortfolios::run($customer->organisation);
-        ShopHydratePortfolios::run($customer->shop);
-        CustomerHydratePortfolios::run($customer);
+
+        GroupHydratePortfolios::dispatch($customer->group)->delay($this->hydratorsDelay);
+        OrganisationHydratePortfolios::dispatch($customer->organisation)->delay($this->hydratorsDelay);
+        ShopHydratePortfolios::dispatch($customer->shop)->delay($this->hydratorsDelay);
+        CustomerHydratePortfolios::dispatch($customer)->delay($this->hydratorsDelay);
+
         PortfolioRecordSearch::dispatch($portfolio);
 
 

@@ -46,8 +46,9 @@ trait WithParseUpdateHistory
             $oldValues[$field] = '';
         } elseif (preg_match("/Prospect's Prospect Preferred Contact Number Formatted Number was deleted/", $haystack, $matches)) {
             $oldValues[$field] = 'Unknown number';
+        } elseif (preg_match('/company name (.*) was deleted$/', $haystack, $matches)) {
+            $oldValues[$field] = $matches[1];
         }
-
 
 
         return $oldValues;

@@ -6,14 +6,13 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Enums\CRM\Customer\CustomerStateEnum;
-use App\Stubs\Migrations\HasProspectStats;
+use App\Stubs\Migrations\HasCRMStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    use HasProspectStats;
+    use HasCRMStats;
 
     public function up(): void
     {
@@ -22,12 +21,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('tag_id')->unique();
             $table->foreign('tag_id')->references('id')->on('tags');
 
-            $table->unsignedInteger('number_customers')->default(0);
-
-            foreach (CustomerStateEnum::cases() as $customerState) {
-                $table->unsignedInteger("number_customers_state_{$customerState->snake()}")->default(0);
-            }
-
+            $this->customerStats($table);
             $this->prospectsStats($table);
             $table->timestampsTz();
 

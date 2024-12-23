@@ -7,12 +7,14 @@
  */
 
 use App\Stubs\Migrations\HasInventoryStats;
+use App\Stubs\Migrations\HasOrderingStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasInventoryStats;
+    use HasOrderingStats;
 
     public function up(): void
     {
@@ -20,10 +22,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('organisation_id');
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
-            $table = $this->warehousesStats($table);
-            $table = $this->orgInventoryStats($table);
-            $table = $this->deliveryNoteStats($table);
-            $table = $this->orgStocksAuditStats($table);
+            $table = $this->inventoryStatsFields($table);
             $table->timestampsTz();
         });
     }

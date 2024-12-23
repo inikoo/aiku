@@ -10,6 +10,7 @@ namespace App\Actions\SysAdmin\User\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\SysAdmin\User;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexUserSearch extends HydrateModel
@@ -31,5 +32,25 @@ class ReindexUserSearch extends HydrateModel
     protected function getAllModels(): Collection
     {
         return User::withTrashed()->get();
+    }
+
+    protected function loopAll(Command $command): void
+    {
+        $command->info("Reindex Users");
+        $count = User::withTrashed()->count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        User::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
     }
 }

@@ -24,7 +24,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('invoice_id')->nullable();
-            $table->foreign('invoice_id')->references('id')->on('invoices');
+            $table->foreign('invoice_id')->references('id')->on('invoices')->cascadeOnDelete();
 
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
@@ -44,16 +44,19 @@ return new class () extends Migration {
 
 
             $table->unsignedInteger('order_id')->nullable();
-            $table->foreign('order_id')->references('id')->on('orders');
+            $table->foreign('order_id')->references('id')->on('orders')->nullOnDelete();
 
             $table->unsignedBigInteger('transaction_id')->nullable();
-            $table->foreign('transaction_id')->references('id')->on('transactions');
+            $table->foreign('transaction_id')->references('id')->on('transactions')->nullOnDelete();
             $table->unsignedInteger('recurring_bill_transaction_id')->nullable();
 
             $table->decimal('quantity', 16, 3);
 
             $table->decimal('gross_amount', 16)->default(0);
             $table->decimal('net_amount', 16)->default(0);
+            $table->decimal('profit_amount', 16)->nullable();
+
+
 
             $table->unsignedSmallInteger('tax_category_id')->index();
             $table->foreign('tax_category_id')->references('id')->on('tax_categories');

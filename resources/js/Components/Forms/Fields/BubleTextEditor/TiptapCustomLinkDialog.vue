@@ -35,7 +35,13 @@ function getRoute() {
 			shop: route().params['shop'],
 			website: route().params['website'],
 		})
-	}
+	} else {
+        return route('grp.org.shops.show.web.webpages.index', {
+			organisation: route().params['organisation'],
+			shop: route().params['shop'],
+			website: route().params['website'],
+		})
+    }
 }
 
 // Reactive form data

@@ -38,7 +38,7 @@ class FamilyHydrateProducts
     public function handle(ProductCategory $family): void
     {
         $stats         = [
-            'number_products' => $family->products()->where('is_main', true)->count()
+            'number_products' => $family->getProducts()->where('is_main', true)->count()
         ];
 
         $stats = array_merge(

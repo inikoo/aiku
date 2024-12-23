@@ -15,7 +15,15 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 /**
  *
  *
+ * @property int $id
+ * @property string $model_type Mailshot, EmailBulkRun
+ * @property int $model_id
+ * @property int $number_emails
  * @property EmailDeliveryChannelStateEnum $state
+ * @property string|null $start_sending_at
+ * @property string|null $sent_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Model|\Eloquent $model
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailDeliveryChannel newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailDeliveryChannel newQuery()

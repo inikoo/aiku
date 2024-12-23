@@ -71,6 +71,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $group_amount_successfully_paid
  * @property string $group_amount_refunded
  * @property int $number_credit_transactions
+ * @property int $number_customers_with_balances
+ * @property int $number_customers_with_positive_balances
+ * @property int $number_customers_with_negative_balances
  * @property int $number_top_ups
  * @property int $number_top_ups_status_in_process
  * @property int $number_top_ups_status_success

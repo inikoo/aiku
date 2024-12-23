@@ -9,18 +9,14 @@
 namespace App\Actions\CRM\Prospect\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
-use App\Actions\CRM\Prospect\Mailshots\UI\IndexProspectMailshots;
-use App\Actions\CRM\Prospect\Queries\UI\IndexProspectQueries;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\Traits\WithProspectsSubNavigation;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Enums\UI\CRM\ProspectsTabsEnum;
-use App\Http\Resources\CRM\ProspectQueriesResource;
 use App\Http\Resources\CRM\ProspectsResource;
 use App\Http\Resources\History\HistoryResource;
-use App\Http\Resources\Mail\MailshotsResource;
 use App\Http\Resources\Tag\TagResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
@@ -227,14 +223,6 @@ class IndexProspects extends OrgAction
                 ProspectsTabsEnum::PROSPECTS->value => $this->tab == ProspectsTabsEnum::PROSPECTS->value ?
                     fn () => $dataProspect
                     : Inertia::lazy(fn () => $dataProspect),
-
-                ProspectsTabsEnum::LISTS->value => $this->tab == ProspectsTabsEnum::LISTS->value ?
-                    fn () => ProspectQueriesResource::collection(IndexProspectQueries::run(prefix: ProspectsTabsEnum::LISTS->value))
-                    : Inertia::lazy(fn () => ProspectQueriesResource::collection(IndexProspectQueries::run(prefix: ProspectsTabsEnum::LISTS->value))),
-
-                ProspectsTabsEnum::MAILSHOTS->value => $this->tab == ProspectsTabsEnum::MAILSHOTS->value ?
-                    fn () => MailshotsResource::collection(IndexProspectMailshots::run(shop: $this->parent, prefix: ProspectsTabsEnum::MAILSHOTS->value))
-                    : Inertia::lazy(fn () => MailshotsResource::collection(IndexProspectMailshots::run(shop: $this->parent, prefix: ProspectsTabsEnum::MAILSHOTS->value))),
                 ProspectsTabsEnum::HISTORY->value   => $this->tab == ProspectsTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run(model: Prospect::class, prefix: ProspectsTabsEnum::HISTORY->value))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run(model: Prospect::class, prefix: ProspectsTabsEnum::HISTORY->value))),
@@ -323,24 +311,6 @@ class IndexProspects extends OrgAction
 
             ]
         )->table($this->tableStructure(parent: $this->parent, prefix: ProspectsTabsEnum::PROSPECTS->value))
-            ->table(
-                IndexProspectQueries::make()->tableStructure(
-                    modelOperations: [
-                        'createLink' => [
-                            [
-                                'route' => [
-                                    'name'       => 'grp.org.shops.show.crm.prospects.lists.create',
-                                    'parameters' => array_values($request->route()->originalParameters())
-                                ],
-                                'label' => __('New list'),
-                                'style' => 'primary'
-                            ],
-                        ]
-                    ],
-                    prefix: ProspectsTabsEnum::LISTS->value
-                )
-            )
-            ->table(IndexProspectMailshots::make()->tableStructure(prefix: ProspectsTabsEnum::MAILSHOTS->value))
             ->table(IndexHistory::make()->tableStructure(prefix: ProspectsTabsEnum::HISTORY->value));
     }
 
@@ -360,31 +330,6 @@ class IndexProspects extends OrgAction
         };
 
         return match ($routeName) {
-            'org.crm.prospects.index' =>
-            array_merge(
-                (new ShowCRMDashboard())->getBreadcrumbs(
-                    'crm.dashboard',
-                    $routeParameters
-                ),
-                $headCrumb(
-                    [
-                        'name' => 'org.crm.prospects.index',
-                    ]
-                ),
-            ),
-            'grp.org.shops.show.crm.prospects.uploads.index' =>
-            array_merge(
-                (new ShowCRMDashboard())->getBreadcrumbs(
-                    'org.crm.shop.dashboard',
-                    $routeParameters
-                ),
-                $headCrumb(
-                    [
-                        'name'       => 'grp.org.shops.show.crm.prospects.index',
-                        'parameters' => $routeParameters
-                    ]
-                )
-            ),
             'grp.org.shops.show.crm.prospects.index' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs(
@@ -399,9 +344,7 @@ class IndexProspects extends OrgAction
             ),
             'grp.overview.crm.prospects.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(
-                    $routeParameters
-                ),
+                ShowOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'       => 'grp.overview.crm.prospects.index',

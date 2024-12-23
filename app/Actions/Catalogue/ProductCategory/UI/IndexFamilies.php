@@ -182,7 +182,7 @@ class IndexFamilies extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Group|Shop|ProductCategory|Organisation|Collection $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false ,$sales = true): Closure
+    public function tableStructure(Group|Shop|ProductCategory|Organisation|Collection $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false, $sales = true): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit, $sales) {
             if ($prefix) {
@@ -235,9 +235,9 @@ class IndexFamilies extends OrgAction
                 ->withModelOperations($modelOperations);
 
             if ($sales) {
-                    $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                            ->column(key: 'sales', label: __('sales'), canBeHidden: false, sortable: true, searchable: true)
-                            ->column(key: 'invoices', label: __('invoices'), canBeHidden: false, sortable: true, searchable: true);
+                $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                        ->column(key: 'sales', label: __('sales'), canBeHidden: false, sortable: true, searchable: true)
+                        ->column(key: 'invoices', label: __('invoices'), canBeHidden: false, sortable: true, searchable: true);
             } else {
                 if ($parent instanceof Organisation) {
                     $table->column(key: 'shop_code', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
@@ -245,16 +245,16 @@ class IndexFamilies extends OrgAction
                 }
                 $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
-                
+
                 if ($parent instanceof Group) {
                     $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
                     ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
                 }
-                
+
                 if (class_basename($parent) != 'Collection') {
                     $table->column(key: 'number_current_products', label: __('current products'), canBeHidden: false, sortable: true, searchable: true);
                 }
-                
+
                 if (class_basename($parent) == 'Collection') {
                     $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true);
                 }
@@ -423,8 +423,8 @@ class IndexFamilies extends OrgAction
                 fn () => FamiliesResource::collection($families)
                 : Inertia::lazy(fn () => FamiliesResource::collection($families)),
             ]
-        )->table($this->tableStructure(parent: $this->parent, modelOperations:null, canEdit:false, prefix:ProductCategoryTabsEnum::INDEX->value, sales: false ))
-        ->table($this->tableStructure(parent: $this->parent, modelOperations:null, canEdit:false, prefix:ProductCategoryTabsEnum::SALES->value, sales: $this->sales ));
+        )->table($this->tableStructure(parent: $this->parent, modelOperations:null, canEdit:false, prefix:ProductCategoryTabsEnum::INDEX->value, sales: false))
+        ->table($this->tableStructure(parent: $this->parent, modelOperations:null, canEdit:false, prefix:ProductCategoryTabsEnum::SALES->value, sales: $this->sales));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array

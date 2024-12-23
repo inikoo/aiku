@@ -33,7 +33,7 @@ interface SourceOrganisationService
 
     public function fetchNoProductTransaction($id, Order $order);
 
-    public function fetchDeliveryNoteTransaction($id, DeliveryNote $deliveryNote);
+    public function fetchDeliveryNoteItem($id, DeliveryNote $deliveryNote);
 
     public function fetchInvoiceTransaction($id, Invoice $invoice, bool $isFulfilment);
 

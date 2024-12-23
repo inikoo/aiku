@@ -101,6 +101,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_adjustments_type_credit
  * @property int $number_uploads
  * @property int $number_upload_records
+ * @property int $number_queries
+ * @property int $number_static_queries is_static=true
+ * @property int $number_dynamic_queries is_static=false
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Catalogue\Shop $shop

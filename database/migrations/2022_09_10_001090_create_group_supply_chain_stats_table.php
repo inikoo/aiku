@@ -6,13 +6,13 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Stubs\Migrations\HasProcurementStats;
+use App\Stubs\Migrations\HasSupplyChainStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    use HasProcurementStats;
+    use HasSupplyChainStats;
 
     public function up(): void
     {
@@ -23,8 +23,6 @@ return new class () extends Migration {
             $table = $this->agentStats($table);
             $table = $this->suppliersStats($table);
             $table = $this->supplierProductsStats($table);
-            $table = $this->purchaseOrdersStats($table);
-            $table = $this->stockDeliveriesStats($table);
             $table->timestampsTz();
         });
     }

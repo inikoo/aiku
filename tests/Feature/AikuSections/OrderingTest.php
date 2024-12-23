@@ -8,6 +8,7 @@
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
+use App\Actions\Accounting\Invoice\Search\ReindexInvoiceSearch;
 use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\Invoice\UpdateInvoice;
 use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
@@ -15,9 +16,11 @@ use App\Actions\Accounting\InvoiceTransaction\UpdateInvoiceTransaction;
 use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\CRM\Customer\StoreCustomer;
+use App\Actions\Dispatching\DeliveryNote\Search\ReindexDeliveryNotesSearch;
 use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
 use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
 use App\Actions\Ordering\Order\DeleteOrder;
+use App\Actions\Ordering\Order\Search\ReindexOrdersSearch;
 use App\Actions\Ordering\Order\SendOrderToWarehouse;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
@@ -145,7 +148,7 @@ test('create order', function () {
         ->and($this->customer->stats->number_orders)->toBe(1)
         ->and($this->customer->stats->number_orders_state_creating)->toBe(1)
         ->and($this->customer->stats->number_orders_handing_type_shipping)->toBe(1)
-        ->and($order->stats->number_transactions_at_creation)->toBe(0);
+        ->and($order->stats->number_transactions_at_submission)->toBe(0);
 
     return $order;
 });
@@ -160,7 +163,7 @@ test('create transaction', function ($order) {
     $order->refresh();
 
     expect($transaction)->toBeInstanceOf(Transaction::class)
-        ->and($transaction->order->stats->number_transactions_at_creation)->toBe(1)
+        ->and($transaction->order->stats->number_transactions_at_submission)->toBe(1)
         ->and($order->stats->number_transactions)->toBe(1);
 
     return $transaction;
@@ -363,7 +366,7 @@ test('create old order', function () {
     expect($order)->toBeInstanceOf(Order::class)
         ->and($order->state)->toBe(OrderStateEnum::CREATING)
         ->and($order->stats->number_transactions)->toBe(1)
-        ->and($order->stats->number_transactions_at_creation)->toBe(1)
+        ->and($order->stats->number_transactions_at_submission)->toBe(1)
         ->and($transaction)->toBeInstanceOf(Transaction::class);
 
     $this->customer->refresh();
@@ -580,4 +583,28 @@ test('UI get section route index', function () {
         ->and($sectionScope->organisation_id)->toBe($this->organisation->id)
         ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_ORDERING->value)
         ->and($sectionScope->model_slug)->toBe($this->shop->slug);
+});
+
+test('orders search', function () {
+    $this->artisan('search:orders')->assertExitCode(0);
+
+    $order = Order::first();
+    ReindexOrdersSearch::run($order);
+    expect($order->universalSearch()->count())->toBe(1);
+});
+
+test('invoices search', function () {
+    $this->artisan('search:invoices')->assertExitCode(0);
+
+    $invoice = Invoice::first();
+    ReindexInvoiceSearch::run($invoice);
+    expect($invoice->universalSearch()->count())->toBe(1);
+});
+
+test('delivery notes search', function () {
+    $this->artisan('search:delivery_notes')->assertExitCode(0);
+
+    $deliveryNote = DeliveryNote::first();
+    ReindexDeliveryNotesSearch::run($deliveryNote);
+    expect($deliveryNote->universalSearch()->count())->toBe(1);
 });

@@ -24,6 +24,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_customers_state_active
  * @property int $number_customers_state_losing
  * @property int $number_customers_state_lost
+ * @property int $number_customers_status_pending_approval
+ * @property int $number_customers_status_approved
+ * @property int $number_customers_status_rejected
+ * @property int $number_customers_status_banned
  * @property int $number_customers_trade_state_none
  * @property int $number_customers_trade_state_one
  * @property int $number_customers_trade_state_many
@@ -51,7 +55,31 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_prospects_dont_contact_me
  * @property int $number_prospect_queries
  * @property int $number_customer_queries
- * @property int $number_surveys
+ * @property int $number_prospect_static_queries is_static=true
+ * @property int $number_prospect_dynamic_queries is_static=false
+ * @property int $number_customer_static_queries is_static=true
+ * @property int $number_customer_dynamic_queries is_static=false
+ * @property int $number_polls
+ * @property int $number_polls_in_registration
+ * @property int $number_polls_required_in_registration
+ * @property int $number_polls_in_iris
+ * @property int $number_polls_required_in_iris
+ * @property int $number_polls_type_open_question
+ * @property int $number_polls_in_registration_type_open_question
+ * @property int $number_polls_required_in_registration_type_open_question
+ * @property int $number_polls_in_iris_type_open_question
+ * @property int $number_polls_required_in_iris_type_open_question
+ * @property int $number_polls_type_option
+ * @property int $number_polls_in_registration_type_option
+ * @property int $number_polls_required_in_registration_type_option
+ * @property int $number_polls_in_iris_type_option
+ * @property int $number_polls_required_in_iris_type_option
+ * @property int $number_web_users
+ * @property int $number_current_web_users Number of web users with state = true
+ * @property int $number_web_users_type_web
+ * @property int $number_web_users_type_api
+ * @property int $number_web_users_auth_type_default
+ * @property int $number_web_users_auth_type_aurora
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Organisation $organisation

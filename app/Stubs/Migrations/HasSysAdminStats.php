@@ -30,4 +30,11 @@ trait HasSysAdminStats
 
         return $table;
     }
+
+    public function userRequestsStatsFields(Blueprint $table): Blueprint
+    {
+        $table->unsignedSmallInteger('number_user_requests')->default(0);
+
+        return $table;
+    }
 }

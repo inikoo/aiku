@@ -16,14 +16,14 @@ use App\Transfers\SourceOrganisationService;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class FetchAuroraDeliveryNoteTransactions
+class FetchAuroraDeliveryNoteItems
 {
     use AsAction;
 
 
     public function handle(SourceOrganisationService $organisationSource, int $source_id, DeliveryNote $deliveryNote): ?DeliveryNoteItem
     {
-        if ($transactionData = $organisationSource->fetchDeliveryNoteTransaction(id: $source_id, deliveryNote: $deliveryNote)) {
+        if ($transactionData = $organisationSource->fetchDeliveryNoteItem(id: $source_id, deliveryNote: $deliveryNote)) {
 
 
             if ($deliveryNoteItem = DeliveryNoteItem::where('source_id', $transactionData['delivery_note_item']['source_id'])->first()) {
