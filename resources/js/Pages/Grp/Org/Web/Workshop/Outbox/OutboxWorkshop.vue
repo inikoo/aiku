@@ -105,7 +105,7 @@ const sendTestToServer = async () => {
     isLoading.value = true;
     try {
         const response = await axios.post(route(props.sendTestRoute.name,props.sendTestRoute.parameters),
-            { ...temporaryData.value, emails: email.value.toString() }
+            { ...temporaryData.value, emails: email.value }
         );
     } catch (error) {
         console.error("Error in sendTest:", error);
@@ -289,27 +289,27 @@ onMounted(()=>{
     </PageHeading>
 
     <!-- beefree -->
-    <Beetree 
-        v-if="builder == 'beefree'" 
-        :updateRoute="updateRoute" 
+    <Beetree
+        v-if="builder == 'beefree'"
+        :updateRoute="updateRoute"
         :imagesUploadRoute="imagesUploadRoute"
-        :snapshot="snapshot" 
-        :apiKey="apiKey" 
+        :snapshot="snapshot"
+        :apiKey="apiKey"
         :mergeTags="mergeTags"
-        @onSave="onSendPublish" 
-        @sendTest="openSendTest" 
+        @onSave="onSendPublish"
+        @sendTest="openSendTest"
         @auto-save="autoSave"
-        @saveTemplate="visibleSAveEmailTemplateModal = true" 
-        ref="_beefree" 
+        @saveTemplate="visibleSAveEmailTemplateModal = true"
+        ref="_beefree"
     />
 
     <!-- unlayer -->
-    <Unlayer 
-        v-else-if="builder == 'unlayer'" 
-        :updateRoute="updateRoute" 
+    <Unlayer
+        v-else-if="builder == 'unlayer'"
+        :updateRoute="updateRoute"
         :imagesUploadRoute="imagesUploadRoute"
-        :snapshot="snapshot" 
-        ref="_unlayer" 
+        :snapshot="snapshot"
+        ref="_unlayer"
     />
 
     <div v-else>
