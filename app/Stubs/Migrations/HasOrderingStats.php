@@ -133,27 +133,27 @@ trait HasOrderingStats
 
     public function transactionsStatsFields(Blueprint $table): Blueprint
     {
-        $table->unsignedSmallInteger('number_transactions_out_of_stock_in_basket')->default(0)->comment('transactions at the time up submission from basket');
+        $table->unsignedBigInteger('number_transactions_out_of_stock_in_basket')->default(0)->comment('transactions at the time up submission from basket');
         $table->decimal('out_of_stock_in_basket_net_amount', 16)->default(0);
         $table->decimal('out_of_stock_in_basket_grp_net_amount', 16)->nullable();
         $table->decimal('out_of_stock_in_basket_org_net_amount', 16)->nullable();
 
         if ($table->getTable() == 'order_stats') {
-            $table->unsignedSmallInteger('number_transactions_at_submission')->default(0)->comment('transactions at the time up submission from basket');
-            $table->unsignedSmallInteger('number_created_transactions_after_submission')->default(0);
-            $table->unsignedSmallInteger('number_updated_transactions_after_submission')->default(0);
-            $table->unsignedSmallInteger('number_deleted_transactions_after_submission')->default(0);
+            $table->unsignedBigInteger('number_transactions_at_submission')->default(0)->comment('transactions at the time up submission from basket');
+            $table->unsignedBigInteger('number_created_transactions_after_submission')->default(0);
+            $table->unsignedBigInteger('number_updated_transactions_after_submission')->default(0);
+            $table->unsignedBigInteger('number_deleted_transactions_after_submission')->default(0);
         }
 
-        $table->unsignedSmallInteger('number_transactions')->default(0)->comment('transactions including cancelled');
-        $table->unsignedSmallInteger('number_current_transactions')->default(0)->comment('transactions excluding cancelled');
+        $table->unsignedBigInteger('number_transactions')->default(0)->comment('transactions including cancelled');
+        $table->unsignedBigInteger('number_current_transactions')->default(0)->comment('transactions excluding cancelled');
 
         foreach (TransactionStateEnum::cases() as $case) {
-            $table->unsignedInteger('number_transactions_state_'.$case->snake())->default(0);
+            $table->unsignedBigInteger('number_transactions_state_'.$case->snake())->default(0);
         }
 
         foreach (TransactionStatusEnum::cases() as $case) {
-            $table->unsignedInteger('number_transactions_status_'.$case->snake())->default(0);
+            $table->unsignedBigInteger('number_transactions_status_'.$case->snake())->default(0);
         }
 
         return $table;
@@ -162,15 +162,15 @@ trait HasOrderingStats
     public function invoiceTransactionsStatsFields(Blueprint $table): Blueprint
     {
 
-        $table->unsignedSmallInteger('number_invoice_transactions')->default(0)->comment('transactions including cancelled');
-        $table->unsignedSmallInteger('number_positive_invoice_transactions')->default(0)->comment('amount>0');
-        $table->unsignedSmallInteger('number_negative_invoice_transactions')->default(0)->comment('amount<0');
-        $table->unsignedSmallInteger('number_zero_invoice_transactions')->default(0)->comment('amount=0');
+        $table->unsignedBigInteger('number_invoice_transactions')->default(0)->comment('transactions including cancelled');
+        $table->unsignedBigInteger('number_positive_invoice_transactions')->default(0)->comment('amount>0');
+        $table->unsignedBigInteger('number_negative_invoice_transactions')->default(0)->comment('amount<0');
+        $table->unsignedBigInteger('number_zero_invoice_transactions')->default(0)->comment('amount=0');
 
-        $table->unsignedSmallInteger('number_current_invoice_transactions')->default(0)->comment('transactions excluding cancelled');
-        $table->unsignedSmallInteger('number_positive_current_invoice_transactions')->default(0)->comment('transactions excluding cancelled, amount>0');
-        $table->unsignedSmallInteger('number_negative_current_invoice_transactions')->default(0)->comment('transactions excluding cancelled, amount<0');
-        $table->unsignedSmallInteger('number_zero_current_invoice_transactions')->default(0)->comment('transactions excluding cancelled, amount=0');
+        $table->unsignedBigInteger('number_current_invoice_transactions')->default(0)->comment('transactions excluding cancelled');
+        $table->unsignedBigInteger('number_positive_current_invoice_transactions')->default(0)->comment('transactions excluding cancelled, amount>0');
+        $table->unsignedBigInteger('number_negative_current_invoice_transactions')->default(0)->comment('transactions excluding cancelled, amount<0');
+        $table->unsignedBigInteger('number_zero_current_invoice_transactions')->default(0)->comment('transactions excluding cancelled, amount=0');
 
 
         return $table;
@@ -179,11 +179,11 @@ trait HasOrderingStats
     public function deliveryNoteItemsStatsFields(Blueprint $table): Blueprint
     {
 
-        $table->unsignedSmallInteger('number_delivery_note_items')->default(0)->comment('transactions including cancelled');
-        $table->unsignedSmallInteger('number_uphold_delivery_note_items')->default(0)->comment('transactions excluding cancelled');
+        $table->unsignedBigInteger('number_delivery_note_items')->default(0)->comment('transactions including cancelled');
+        $table->unsignedBigInteger('number_uphold_delivery_note_items')->default(0)->comment('transactions excluding cancelled');
 
         foreach (DeliveryNoteItemStateEnum::cases() as $case) {
-            $table->unsignedInteger('number_delivery_note_items_state_'.$case->snake())->default(0);
+            $table->unsignedBigInteger('number_delivery_note_items_state_'.$case->snake())->default(0);
         }
 
         return $table;
@@ -193,10 +193,10 @@ trait HasOrderingStats
     {
 
         $table->unsignedSmallInteger('number_offer_campaigns')->default(0);
-        $table->unsignedSmallInteger('number_offers')->default(0);
-        $table->unsignedSmallInteger('number_offer_components')->default(0);
+        $table->unsignedInteger('number_offers')->default(0);
+        $table->unsignedInteger('number_offer_components')->default(0);
 
-        $table->unsignedSmallInteger('number_transactions_with_offers')->default(0);
+        $table->unsignedBigInteger('number_transactions_with_offers')->default(0);
 
         $table->decimal('discounts_amount', 16)->default(0)->comment('from % offs');
         $table->decimal('org_discounts_amount', 16)->nullable();
