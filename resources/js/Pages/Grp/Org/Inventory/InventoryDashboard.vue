@@ -12,7 +12,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { Pie } from "vue-chartjs"
 import { trans } from "laravel-vue-i18n"
 import { faSeedling, faThumbsDown, faPalletAlt } from "@fal"
-import { faCheckCircle, faTimesCircle, faPauseCircle } from "@fas"
+import { faCheckCircle, faTimesCircle, faPauseCircle, faExclamationCircle } from "@fas"
 
 import { capitalize } from "@/Composables/capitalize"
 import { useLocaleStore } from "@/Stores/locale"
@@ -20,7 +20,7 @@ import { useLocaleStore } from "@/Stores/locale"
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from "chart.js"
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading"
 
-library.add(faSeedling, faThumbsDown, faTimesCircle, faPauseCircle, faCheckCircle, faPalletAlt)
+library.add(faSeedling, faThumbsDown, faTimesCircle, faPauseCircle, faExclamationCircle, faCheckCircle, faPalletAlt)
 
 ChartJS.register(ArcElement, Tooltip, Legend, Colors)
 const locale = useLocaleStore()

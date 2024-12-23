@@ -168,6 +168,7 @@ class GetWarehouseNavigation
                     'subSections' => [
                         [
                             'icon'  => ['fal', 'fa-tasks-alt'],
+                            'root'  => 'grp.org.warehouses.show.incoming.backlog',
                             'route' => [
                                 "name"       => "grp.org.warehouses.show.incoming.backlog",
                                 "parameters" => [
@@ -180,6 +181,7 @@ class GetWarehouseNavigation
                         [
                             'label' => __('stock deliveries'),
                             'icon'  => ['fal', 'fa-truck-container'],
+                            'root'  => 'grp.org.warehouses.show.incoming.stock_deliveries.',
                             'route' => [
                                 "name"       => "grp.org.warehouses.show.incoming.stock_deliveries.index",
                                 "parameters" => [

@@ -218,7 +218,8 @@ class ShowPalletDelivery extends OrgAction
                 PalletDeliveryStateEnum::CONFIRMED => [
                     [
                         'type'    => 'button',
-                        'style'   => 'cancel',
+                        'style'   => 'negative',
+                        'icon'    => 'fal fa-times',
                         'tooltip' => __('Cancel the delivery'),
                         'label'   => __('cancel'),
                         'key'     => 'action',

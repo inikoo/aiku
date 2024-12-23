@@ -11,7 +11,7 @@ namespace App\Actions\UI\Incoming;
 use App\Actions\OrgAction;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Actions\UI\WithInertia;
-use App\Models\Catalogue\Shop;
+use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -33,13 +33,14 @@ class ShowIncomingHub extends OrgAction
         return $request->user()->hasPermissionTo("incoming.{$this->organisation->id}.view");
     }
 
-    public function asController(Organisation $organisation): Organisation
+    public function asController(Organisation $organisation, Warehouse $warehouse): Organisation
     {
+        $this->initialisationFromWarehouse($warehouse, []);
         return $this->handle($organisation);
     }
 
 
-    public function htmlResponse(Organisation|Shop $scope, ActionRequest $request): Response
+    public function htmlResponse(Organisation $scope, ActionRequest $request): Response
     {
         return Inertia::render(
             'Org/Incoming/IncomingHub',
@@ -54,6 +55,18 @@ class ShowIncomingHub extends OrgAction
                         'title' => __('incoming')
                     ],
                     'title' => __('Goods in backlog'),
+                ],
+                'box_stats' => [
+                    [
+                        'title' => __('Stock Deliveries'),
+                        'value' => $scope->procurementStats->number_stock_deliveries,
+                        'icon'  => ['fal', 'fa-boxes']
+                    ],
+                    [
+                        'title' => __('Fulfilment Deliveries'),
+                        'value' => $scope->fulfilmentStats->number_pallet_deliveries,
+                        'icon'  => ['fal', 'fa-boxes']
+                    ],
                 ],
 
 

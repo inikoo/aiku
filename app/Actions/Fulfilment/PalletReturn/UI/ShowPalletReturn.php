@@ -84,12 +84,48 @@ class ShowPalletReturn extends OrgAction
 
 
         $navigation = PalletReturnTabsEnum::navigation($palletReturn);
+        $buttonSubmit = [
 
+        ];
+
+        // dd($palletReturn->stats);
         if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
             unset($navigation[PalletReturnTabsEnum::STORED_ITEMS->value]);
+            $buttonSubmit = [
+                'type'    => 'button',
+                'style'   => 'save',
+                'tooltip' => $palletReturn->pallets()->count() > 0 ? __('Submit') . ' (' . $palletReturn->stats->number_pallets . ')' : __('Select pallet before submit'),
+                'label'   => __('Submit') . ' (' . $palletReturn->stats->number_pallets . ')',
+                'key'     => 'submit',
+                'route'   => [
+                    'method'     => 'post',
+                    'name'       => 'grp.models.fulfilment-customer.pallet-return.submit_and_confirm',
+                    'parameters' => [
+                        'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
+                        'palletReturn'       => $palletReturn->id
+                    ]
+                ],
+                'disabled' => ($palletReturn->pallets()->count() > 0 ? false : true) || ($palletReturn->delivery_address_id === null && $palletReturn->collection_address_id === null)
+            ];
         } else {
             unset($navigation[PalletReturnTabsEnum::PALLETS->value]);
             $this->tab = $request->get('tab', array_key_first($navigation));
+            $buttonSubmit = [
+                'type'    => 'button',
+                'style'   => 'save',
+                'tooltip' => $palletReturn->storedItems()->count() > 0 ? __('Submit') . ' (' . $palletReturn->storedItems()->count() . ')' : __('Select stored items before submit'),
+                'label'   => __('Submit') . ' (' . $palletReturn->storedItems()->count() . ')',
+                'key'     => 'submit',
+                'route'   => [
+                    'method'     => 'post',
+                    'name'       => 'grp.models.fulfilment-customer.pallet-return.submit_and_confirm',
+                    'parameters' => [
+                        'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
+                        'palletReturn'       => $palletReturn->id
+                    ]
+                ],
+                'disabled' => ($palletReturn->storedItems()->count() > 0 ? false : true) || ($palletReturn->delivery_address_id === null && $palletReturn->collection_address_id === null)
+            ];
         }
 
         // if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
@@ -99,7 +135,7 @@ class ShowPalletReturn extends OrgAction
         // }
 
 
-
+        // dd($palletReturn->storedItems()->count());
         if ($this->canEdit) {
             $actions = $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
                 [
@@ -156,22 +192,7 @@ class ShowPalletReturn extends OrgAction
                         ],
                     ]
                 ],
-                [
-                    'type'    => 'button',
-                    'style'   => 'save',
-                    'tooltip' => $palletReturn->pallets()->count() > 0 ? __('Submit') . ' (' . $palletReturn->stats->number_pallets . ')' : __('Select pallet before submit'),
-                    'label'   => __('Submit') . ' (' . $palletReturn->stats->number_pallets . ')',
-                    'key'     => 'submit',
-                    'route'   => [
-                        'method'     => 'post',
-                        'name'       => 'grp.models.fulfilment-customer.pallet-return.submit_and_confirm',
-                        'parameters' => [
-                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                            'palletReturn'       => $palletReturn->id
-                        ]
-                    ],
-                    'disabled' => ($palletReturn->pallets()->count() > 0 ? false : true) || ($palletReturn->delivery_address_id === null && $palletReturn->collection_address_id === null)
-                ],
+                $buttonSubmit,
             ] : [
                 $palletReturn->state == PalletReturnStateEnum::SUBMITTED ? [
                     'type'    => 'button',

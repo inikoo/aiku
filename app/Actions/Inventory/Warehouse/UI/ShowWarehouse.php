@@ -84,34 +84,8 @@ class ShowWarehouse extends OrgAction
                         $this->canEdit ? $this->getEditActionIcon($request) : null,
 
                     ],
-                    'meta'    => [
-                        [
-                            'name'     => trans_choice('warehouse area|warehouse areas', $warehouse->stats->number_warehouse_areas),
-                            'number'   => $warehouse->stats->number_warehouse_areas,
-                            'route'     => [
-                                'name'       => 'grp.org.warehouses.show.infrastructure.warehouse_areas.index',
-                                'parameters' => array_merge($routeParameters, [$warehouse->slug])
-                            ],
-                            'leftIcon' => [
-                                'icon'    => 'fal fa-map-signs',
-                                'tooltip' => __('warehouse areas')
-                            ]
-                        ],
-                        [
-                            'name'     => trans_choice('location|locations', $warehouse->stats->number_locations),
-                            'number'   => $warehouse->stats->number_locations,
-                            'route'     => [
-                                'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
-                                'parameters' => array_merge($routeParameters, [$warehouse->slug])
-                            ],
-                            'leftIcon' => [
-                                'icon'    => 'fal fa-inventory',
-                                'tooltip' => __('locations')
-                            ]
-                        ]
-                    ]
-
                 ],
+
                 'tabs'                             => [
 
                     'current'    => $this->tab,
@@ -120,8 +94,8 @@ class ShowWarehouse extends OrgAction
                 'tagsList'      => TagResource::collection(Tag::all()),
 
                 WarehouseTabsEnum::SHOWCASE->value => $this->tab == WarehouseTabsEnum::SHOWCASE->value ?
-                    fn () => GetWarehouseShowcase::run($warehouse)
-                    : Inertia::lazy(fn () => GetWarehouseShowcase::run($warehouse)),
+                    fn () => GetWarehouseShowcase::run($warehouse, $routeParameters)
+                    : Inertia::lazy(fn () => GetWarehouseShowcase::run($warehouse, $routeParameters)),
 
 
 
