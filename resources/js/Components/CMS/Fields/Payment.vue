@@ -84,14 +84,14 @@ onMounted(() => {
 
 <template>
   <div>
-        <div v-for="(item, index) in modelValue" :key="index" class="flex justify-center w-full">
+        <div v-for="(item, index) in modelValue" :key="index" class="flex justify-center w-full mt-4">
             <div @click="(e)=>toggleEdit(e,index)" :style="{ backgroundColor: props.background || '#f9f9f9' }"
-                class="relative flex flex-col items-center border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 w-full max-w-xs p-4 m-2 transform hover:-translate-y-1">
+                class="relative flex flex-col items-center border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 w-full p-4 m-2 transform hover:-translate-y-1">
                 <!-- Delete Button -->
                 <button @click="(e) => deleteSocial(e, index)"
-                    class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-sm text-xs  p-1 focus:outline-none shadow-md transition-all duration-200"
+                    class="absolute top-2 right-2  text-xs  p-1 focus:outline-none"
                     aria-label="Delete">
-                    <FontAwesomeIcon :icon="['fas', 'trash']" />
+                    <FontAwesomeIcon :icon="['fas', 'times']" class="text-red-500 text-sm" />
                 </button>
 
                 <img v-if="item.image" class="h-auto max-h-7 md:max-h-8 max-w-full w-fit" :src="item.image"

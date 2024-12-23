@@ -708,9 +708,9 @@ const setVariabel = (value) => {
     @apply italic border-l-4 border-gray-300 p-4 py-2 ml-6 mt-6 mb-2 bg-gray-50;
 }
 
-:deep(.editor-class a) {
+/* :deep(.editor-class a) {
     @apply hover:underline text-blue-600 cursor-pointer;
-}
+} */
 
 :deep(.editor-class hr) {
     @apply border-gray-400 my-4;

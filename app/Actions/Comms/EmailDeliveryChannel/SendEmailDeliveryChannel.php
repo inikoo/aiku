@@ -11,6 +11,7 @@ namespace App\Actions\Comms\EmailDeliveryChannel;
 use App\Actions\Comms\EmailBulkRun\Hydrators\EmailBulkRunHydrateCumulativeDispatchedEmails;
 use App\Actions\Comms\EmailBulkRun\Hydrators\EmailBulkRunHydrateDispatchedEmails;
 use App\Actions\Comms\EmailBulkRun\UpdateEmailBulkRunSentState;
+use App\Actions\Comms\Mailshot\GetHtmlLayout;
 use App\Actions\Comms\Mailshot\Hydrators\MailshotHydrateCumulativeDispatchedEmails;
 use App\Actions\Comms\Mailshot\Hydrators\MailshotHydrateDispatchedEmails;
 use App\Actions\Comms\Mailshot\UpdateMailshotSentState;
@@ -37,10 +38,7 @@ class SendEmailDeliveryChannel
     {
         /** @var Mailshot|EmailBulkRun $model */
         $model         = $emailDeliveryChannel->model;
-        // todo use an action to retrieve the the layout
-        $layout        = $model->layout;
-        $emailHtmlBody = $layout['html']['html'];
-
+        $emailHtmlBody = GetHtmlLayout::run($model);
 
         UpdateEmailDeliveryChannel::run(
             $emailDeliveryChannel,
@@ -68,7 +66,6 @@ class SendEmailDeliveryChannel
 
             //todo this is wrong
             $unsubscribeUrl = route('org.unsubscribe.mailshot.show', $recipient->dispatchedEmail->ulid);
-
 
             $this->sendEmailWithMergeTags(
                 $recipient->dispatchedEmail,

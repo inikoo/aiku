@@ -8,7 +8,6 @@
 
 namespace App\Actions\Comms\Mailshot;
 
-use App\Actions\Comms\Ses\SendSesEmail;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
@@ -23,17 +22,9 @@ class GetHtmlLayout extends OrgAction
     use WithNoStrictRules;
 
 
-    public function handle(Mailshot|EmailBulkRun $parent, DispatchedEmail $dispatchedEmail, $recipient, $extraArgumentsForPlaceholder): void
+    public function handle(Mailshot|EmailBulkRun $parent): string
     {
-        $unsubscribeUrl = route('org.unsubscribe.mailshot.show', $dispatchedEmail->ulid);
-
-        SendSesEmail::run(
-            subject: $parent->subject,
-            emailHtmlBody: $this->extractLayout($parent, $dispatchedEmail, $unsubscribeUrl),
-            dispatchedEmail: $dispatchedEmail,
-            sender: $parent->shop->senderEmail->email_address,
-            unsubscribeUrl: $unsubscribeUrl
-        );
+        return $parent->email->liveSnapshot->compiled_layout;
     }
 
     public function extractLayout(Mailshot|EmailBulkRun $parent, DispatchedEmail $dispatchedEmail, $unsubscribeUrl): string

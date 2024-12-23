@@ -95,13 +95,13 @@ class ShowWarehouse extends OrgAction
 
                 WarehouseTabsEnum::SHOWCASE->value => $this->tab == WarehouseTabsEnum::SHOWCASE->value ?
                     fn () => GetWarehouseShowcase::run($warehouse, $routeParameters)
-                    : Inertia::lazy(fn() => GetWarehouseShowcase::run($warehouse, $routeParameters)),
+                    : Inertia::lazy(fn () => GetWarehouseShowcase::run($warehouse, $routeParameters)),
 
 
 
                 WarehouseTabsEnum::HISTORY->value => $this->tab == WarehouseTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($warehouse))
-                    : Inertia::lazy(fn() => HistoryResource::collection(IndexHistory::run($warehouse)))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($warehouse)))
 
             ]
         )->table(IndexHistory::make()->tableStructure(prefix: WarehouseTabsEnum::HISTORY->value));

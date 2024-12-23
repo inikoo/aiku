@@ -150,75 +150,86 @@
 				}
 			},
 			"button_1": {
-				"visible": "all",
-				"text": "Become a Gold Reward Member",
-				"properties": {
-					"background": {
-						"type": "color",
-						"color": "#8E44AD",
-						"image": {
-							"original": null
-						}
-					},
-					"padding": {
-						"unit": "px",
-						"top": {
-							"value": 5
+				"link": {
+					"type" : "external",
+					"url": "ancientwisdom.biz/login.sys",
+					"id": null,
+					"workshop_route" : ""
+				},
+				"text": "Become Gold Reward Member",
+				"visible": "logout",
+				"container": {
+					"properties": {
+						"text": {
+							"color": "rgba(255, 255, 255, 1)"
 						},
-						"left": {
-							"value": 10
-						},
-						"right": {
-							"value": 10
-						},
-						"bottom": {
-							"value": 5
-						}
-					},
-					"margin": {
-						"unit": "px",
-						"top": {
-							"value": 0
-						},
-						"left": {
-							"value": 0
-						},
-						"right": {
-							"value": 0
-						},
-						"bottom": {
-							"value": 0
-						}
-					},
-					"border": {
-						"color": "#000000",
-						"unit": "px",
-						"rounded": {
+						"border": {
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
 							"unit": "px",
-							"topright": {
-								"value": 10
+							"color": "rgba(231, 231, 231, 1)",
+							"right": {
+								"value": 0
 							},
-							"topleft": {
-								"value": 10
+							"bottom": {
+								"value": 0
 							},
-							"bottomright": {
-								"value": 10
-							},
-							"bottomleft": {
-								"value": 10
+							"rounded": {
+								"unit": "px",
+								"topleft": {
+									"value": 5
+								},
+								"topright": {
+									"value": 5
+								},
+								"bottomleft": {
+									"value": 5
+								},
+								"bottomright": {
+									"value": 5
+								}
 							}
 						},
-						"top": {
-							"value": 0
+						"margin": {
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"unit": "px",
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
 						},
-						"left": {
-							"value": 0
+						"padding": {
+							"top": {
+								"value": 5
+							},
+							"left": {
+								"value": 20
+							},
+							"unit": "px",
+							"right": {
+								"value": 20
+							},
+							"bottom": {
+								"value": 5
+							}
 						},
-						"right": {
-							"value": 0
-						},
-						"bottom": {
-							"value": 0
+						"background": {
+							"type": "color",
+							"color": "rgba(10, 10, 10, 1)",
+							"image": {
+								"original": null
+							}
 						}
 					}
 				}
