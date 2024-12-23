@@ -42,6 +42,9 @@ Route::prefix('{shop}')->name('show.')
                 Route::prefix("prospects")
                     ->name("prospects.")
                     ->group(__DIR__."/prospects.php");
+                Route::prefix("polls")
+                    ->name("polls.")
+                    ->group(__DIR__."/polls.php");
             }
         );
 

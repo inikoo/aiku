@@ -265,12 +265,12 @@ return [
     'environments' => [
         'production' => [
             'hydrators'        => [
-                'maxProcesses'    => 16,
+                'maxProcesses'    => env('HORIZON_HYDRATORS_WORKERS', 16),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
             'urgent'           => [
-                'maxProcesses'    => 32,
+                'maxProcesses'    => env('HORIZON_URGENT_WORKERS', 32),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
@@ -280,49 +280,34 @@ return [
                 'balanceCooldown' => 3,
             ],
             'long-running'     => [
-                'maxProcesses'    => 12,
+                'maxProcesses'    => env('HORIZON_LONG_WORKERS', 12),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
             'ses'              => [
-                'maxProcesses'    => 4,
+                'maxProcesses'    => env('HORIZON_SES_WORKERS', 4),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
             'sales'            => [
-                'maxProcesses'    => 4,
+                'maxProcesses'    => env('HORIZON_SALES_WORKERS', 4),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
             'low-priority'     => [
-                'maxProcesses'    => 2,
+                'maxProcesses'    => env('HORIZON_LOW_PRIORITY_WORKERS', 2),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
         ],
         'staging'    => [
             'hydrators'        => [
-                'maxProcesses'    => 16,
+                'maxProcesses'    => env('HORIZON_HYDRATORS_WORKERS', 2),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
             'urgent'           => [
-                'maxProcesses'    => 16,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 3,
-            ],
-            'long-running'     => [
-                'maxProcesses'    => 10,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 3,
-            ],
-            'ses'              => [
-                'maxProcesses'    => 4,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 3,
-            ],
-            'sales'            => [
-                'maxProcesses'    => 10,
+                'maxProcesses'    => env('HORIZON_URGENT_WORKERS', 2),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
@@ -331,35 +316,35 @@ return [
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 10,
             ],
+            'long-running'     => [
+                'maxProcesses'    => env('HORIZON_LONG_WORKERS', 2),
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'ses'              => [
+                'maxProcesses'    => env('HORIZON_SES_WORKERS', 2),
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'sales'            => [
+                'maxProcesses'    => env('HORIZON_SALES_WORKERS', 2),
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
             'low-priority'     => [
-                'maxProcesses'    => 2,
+                'maxProcesses'    => env('HORIZON_LOW_PRIORITY_WORKERS', 2),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
         ],
         'local'      => [
             'hydrators'        => [
-                'maxProcesses'    => 10,
+                'maxProcesses'    => env('HORIZON_HYDRATORS_WORKERS', 10),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
             'urgent'           => [
-                'maxProcesses'    => 20,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 3,
-            ],
-            'long-running'     => [
-                'maxProcesses'    => 10,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 3,
-            ],
-            'ses'              => [
-                'maxProcesses'    => 4,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 3,
-            ],
-            'sales'            => [
-                'maxProcesses'    => 3,
+                'maxProcesses'    => env('HORIZON_URGENT_WORKERS', 20),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
@@ -368,8 +353,24 @@ return [
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
-            'low-priority'     => [
-                'maxProcesses'    => 2,
+            'long-running'     => [
+                'maxProcesses'    => env('HORIZON_LONG_WORKERS', 10),
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'ses'              => [
+                'maxProcesses'    => env('HORIZON_SES_WORKERS', 4),
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'sales'            => [
+                'maxProcesses'    => env('HORIZON_SALES_WORKERS', 3),
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+
+            'low-priority' => [
+                'maxProcesses'    => env('HORIZON_LOW_PRIORITY_WORKERS', 2),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],

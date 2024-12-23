@@ -37,22 +37,30 @@ class ShopHydrateTopSellers
         $timesUpdate = ['1d', '1w', '1m', '1y', 'all'];
         foreach ($timesUpdate as $timeUpdate) {
             $topFamily = $shop->getFamilies()->sortByDesc(function ($family) use ($timeUpdate) {
-                return $family->stats->{'shop_amount_' . $timeUpdate};
+                return $family->stats->{'shop_amount_'.$timeUpdate};
             })->first();
 
             $topDepartment = $shop->departments()->sortByDesc(function ($department) use ($timeUpdate) {
-                return $department->stats->{'shop_amount_' . $timeUpdate};
+                return $department->stats->{'shop_amount_'.$timeUpdate};
             })->first();
 
             $topProduct = $shop->products()->with(['asset.salesIntervals'])->get()->sortByDesc(function ($product) use ($timeUpdate) {
-                return $product->asset->salesIntervals->{'sales_' . $timeUpdate} ?? 0;
+                return $product->asset->salesIntervals->{'sales_'.$timeUpdate} ?? 0;
             })->first();
 
-            $shop->stats->update([
-                "top_{$timeUpdate}_family_id" => $topFamily->id,
-                "top_{$timeUpdate}_department_id" => $topDepartment->id,
-                "top_{$timeUpdate}_product_id" => $topProduct->id,
-            ]);
+
+            $dataToUpdate = [];
+            if ($topFamily) {
+                data_set($dataToUpdate, "top_{$timeUpdate}_family_id", $topFamily->id);
+            }
+            if ($topDepartment) {
+                data_set($dataToUpdate, "top_{$timeUpdate}_department_id", $topDepartment->id);
+            }
+            if ($topProduct) {
+                data_set($dataToUpdate, "top_{$timeUpdate}_product_id", $topProduct->id);
+            }
+
+            $shop->stats->update($dataToUpdate);
         }
     }
 

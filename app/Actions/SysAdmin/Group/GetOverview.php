@@ -100,13 +100,13 @@ class GetOverview extends OrgAction
                 ],
                 [
                     'name' => 'Dispatched Emails',
-                    'icon' => 'fal fa-envelope-open-text',
+                    'icon' => 'fal fa-envelope-open-sequare',
                     'route' => '',
                     'count' => $group->commsStats->number_dispatched_emails ?? 0
                 ],
                 [
                     'name' => 'Email Bulk Runs',
-                    'icon' => 'fal fa-envelope-open-text',
+                    'icon' => 'fal fa-mail-bulk',
                     'route' => '',
                     'count' => 0 // $group->commsStats->number_email_bulk_runs ?? 0
                 ],
