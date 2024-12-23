@@ -14,10 +14,8 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\SysAdmin\OverviewResource;
-use App\Models\CRM\Customer;
 use App\Models\HumanResources\Timesheet;
 use App\Models\SysAdmin\Group;
-use App\Models\Web\Banner;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class GetOverview extends OrgAction
@@ -93,7 +91,13 @@ class GetOverview extends OrgAction
                     'name' => 'Emails',
                     'icon' => 'fal fa-envelope',
                     'route' => '',
-                    'count' => $group->commsStats->number_emails // $group->commsStats->number_emails
+                    'count' => $group->commsStats->number_emails
+                ],
+                [
+                    'name' => 'Email Addresses',
+                    'icon' => 'fal fa-envelope-open-text',
+                    'route' => '',
+                    'count' => $group->commsStats->number_email_addresses
                 ],
                 [
                     'name' => 'Dispatched Emails',
@@ -191,7 +195,7 @@ class GetOverview extends OrgAction
                     'name' => 'Banners',
                     'icon' => 'fal fa-sign',
                     'route' => 'grp.overview.web.banners.index',
-                    'count' => Banner::where('group_id', $group->id)->count() // need stats for this
+                    'count' => $group->webStats->number_banners
                 ],
             ],
             'CRM' => [
@@ -243,7 +247,7 @@ class GetOverview extends OrgAction
                     'name' => 'Transactions',
                     'icon' => 'fal fa-exchange-alt',
                     'route' => '',
-                    'count' => 0 // $group->orderingStats->number_transactions
+                    'count' => $group->orderingStats->number_transactions
                 ],
             ],
             'Inventory' => [
@@ -257,7 +261,7 @@ class GetOverview extends OrgAction
                     'name' => 'Org Stocks',
                     'icon' => 'fal fa-warehouse',
                     'route' => '',
-                    'count' => 0 // $group->inventoryStats->number_org_stocks
+                    'count' => $group->inventoryStats->number_org_stocks
                 ],
                 [
                     'name' => 'Stock Families',
@@ -269,13 +273,13 @@ class GetOverview extends OrgAction
                     'name' => 'Org Stock Families',
                     'icon' => 'fal fa-boxes-alt',
                     'route' => '',
-                    'count' => 0 // $group->inventoryStats->number_org_stock_families
+                    'count' => $group->inventoryStats->number_org_stock_families
                 ],
                 [
                     'name' => 'Org Stock Movements',
                     'icon' => 'fal fa-dolly',
                     'route' => '',
-                    'count' => 0 // $group->inventoryStats->number_org_stock_movements
+                    'count' => $group->inventoryStats->number_org_stock_movements
                 ],
                 [
                     'name' => 'Warehouses',
@@ -313,7 +317,7 @@ class GetOverview extends OrgAction
                     'name' => 'Stock Deliveries',
                     'icon' => 'fal fa-truck-loading',
                     'route' => '',
-                    'count' => 0 // $group->fulfilmentStats->number_stock_deliveries
+                    'count' => $group->procurementStats->number_stock_deliveries ?? 0
                 ],
                 [
                     'name' => 'Pallet Deliveries',
@@ -371,7 +375,7 @@ class GetOverview extends OrgAction
                     'name' => 'Customer Balances',
                     'icon' => 'fal fa-piggy-bank',
                     'route' => 'grp.overview.accounting.customer-balances.index',
-                    'count' => Customer::where('group_id', $group->id)->where("balance", "!=", 0)->count() // need stats for this
+                    'count' => $group->accountingStats->number_customers_with_balances // need stats for this
                 ],
             ],
             'Human Resources' => [
@@ -403,7 +407,7 @@ class GetOverview extends OrgAction
                     'name' => 'Timesheets',
                     'icon' => 'fal fa-stopwatch',
                     'route' => 'grp.overview.accounting.timesheets.index',
-                    'count' => Timesheet::where('group_id', $group->id)->count() // need stats for this
+                    'count' => $group->humanResourcesStats->number_timesheets // Timesheet::where('group_id', $group->id)->count() // need stats for this
                 ],
             ],
         ];
