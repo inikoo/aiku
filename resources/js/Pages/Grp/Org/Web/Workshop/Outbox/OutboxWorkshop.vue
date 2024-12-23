@@ -330,6 +330,8 @@ onMounted(()=>{
                 :searchable="true"
                 :create-option="true"
                 :options="[]"
+                :showOptions="false"
+                :caret="false"
             >
             <template #tag="{ option, handleTagRemove, disabled }">
             <slot name="tag" :option="option" :handleTagRemove="handleTagRemove" :disabled="disabled">
