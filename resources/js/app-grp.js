@@ -15,6 +15,7 @@ import { capitalize } from '@/Composables/capitalize.ts'
 import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
+import ConfirmationService from 'primevue/confirmationservice';
 
 const appName = capitalize(window.document.getElementsByTagName('title')[0]?.innerText) ||
     'Aiku';
@@ -68,6 +69,7 @@ createInertiaApp(
             .use(ZiggyVue, Ziggy)
             .use(Notifications)
             .use(FloatingVue)
+            .use(ConfirmationService)
             .use(PrimeVue, {
               theme: {
                 preset: MyPreset,

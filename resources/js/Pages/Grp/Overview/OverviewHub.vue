@@ -8,7 +8,7 @@ import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
 import { capitalize } from "@/Composables/capitalize"
 import { inject, ref, computed, onMounted, onUnmounted } from "vue"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
-import { faBoothCurtain, faBoxes, faBoxOpen, faBrowser, faCoin, faDolly, faEnvelope, faEnvelopeOpenText, faExchangeAlt, faFilter, faForklift, faInboxOut, faIndustryAlt, faInventory, faLocationArrow, faRoad, faTrashAlt, faTruckLoading, faUser, faUserAlien, faUserCircle, faUserHeadset, faUsers, faWarehouse, faWarehouseAlt } from "@fal"
+import { faBoothCurtain, faBoxes, faBoxOpen, faBrowser, faCoin, faDolly, faEnvelope, faEnvelopeOpenText, faEnvelopeSquare, faExchangeAlt, faFilter, faForklift, faInboxOut, faIndustryAlt, faInventory, faLocationArrow, faMailBulk, faRoad, faTrashAlt, faTruckLoading, faUser, faUserAlien, faUserCircle, faUserHeadset, faUsers, faWarehouse, faWarehouseAlt } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import SectionTable from "@/Components/Table/SectionTable.vue"
 import { faAngleDown, faAngleUp } from "@far"
@@ -31,7 +31,7 @@ const props = defineProps<{
 
 const locale = inject("locale", aikuLocaleStructure)
 
-library.add(faExclamationCircle, faInboxOut, faUser, faFilter, faBoxes, faAngleDown, faAngleUp, faBrowser, faTrashAlt, faCoin, faBoothCurtain, faRoad, faUserAlien, faEnvelopeOpenText, faEnvelope, faUserCircle, faExchangeAlt, faDolly, faBoxOpen, faTruckLoading, faForklift, faUsers, faUserHeadset, faWarehouseAlt, faInventory, faLocationArrow, faIndustryAlt)
+library.add(faExclamationCircle, faInboxOut, faUser, faFilter, faBoxes, faAngleDown, faAngleUp, faBrowser, faTrashAlt, faCoin, faBoothCurtain, faRoad, faUserAlien, faEnvelopeOpenText, faEnvelope, faUserCircle, faExchangeAlt, faDolly, faBoxOpen, faTruckLoading, faForklift, faUsers, faUserHeadset, faWarehouseAlt, faInventory, faLocationArrow, faIndustryAlt, faMailBulk, faEnvelopeSquare)
 
 // Search functionality
 const searchQuery = ref("")

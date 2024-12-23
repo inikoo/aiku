@@ -52,7 +52,7 @@ class GroupHydrateDepartments
             )
         );
 
-        $group->catalogueStats()->update($stats);
+        $group->catalogueStats()->updateOrCreate([], $stats);
     }
 
 

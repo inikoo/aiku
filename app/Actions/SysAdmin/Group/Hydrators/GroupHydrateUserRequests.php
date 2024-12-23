@@ -36,7 +36,7 @@ class GroupHydrateUserRequests implements ShouldBeUnique
 
         $stats['number_user_requests'] = $group->users()->withCount('userRequests')->get()->sum('user_requests_count');
 
-        $group->sysadminStats()->update($stats);
+        $group->sysadminStats()->updateOrCreate([], $stats);
     }
 
     public string $commandSignature = 'hydrate:group_user_requests';
