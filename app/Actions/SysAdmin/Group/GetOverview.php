@@ -87,14 +87,8 @@ class GetOverview extends OrgAction
                     'count' => $group->commsStats->number_mailshots ?? 0
                 ],
                 [
-                    'name' => 'Emails',
-                    'icon' => 'fal fa-envelope',
-                    'route' => '',
-                    'count' => 0 // $group->commsStats->number_emails not exist ?? 0
-                ],
-                [
                     'name' => 'Email Addresses',
-                    'icon' => 'fal fa-envelope-open-text',
+                    'icon' => 'fal fa-envelope',
                     'route' => '',
                     'count' => $group->commsStats->number_email_addresses ?? 0
                 ],
@@ -108,7 +102,7 @@ class GetOverview extends OrgAction
                     'name' => 'Email Bulk Runs',
                     'icon' => 'fal fa-mail-bulk',
                     'route' => '',
-                    'count' => 0 // $group->commsStats->number_email_bulk_runs ?? 0
+                    'count' => 0 // $group->commsStats->number_email_bulk_runs ?? 0 -> need table
                 ],
             ],
             'Catalogue' => [
@@ -260,7 +254,7 @@ class GetOverview extends OrgAction
                     'name' => 'Org Stocks',
                     'icon' => 'fal fa-warehouse',
                     'route' => '',
-                    'count' => $group->inventoryStats->number_org_stocks ?? 0 // fix hydrator
+                    'count' => $group->inventoryStats->number_org_stocks ?? 0 // need hydrator
                 ],
                 [
                     'name' => 'Stock Families',
@@ -278,7 +272,7 @@ class GetOverview extends OrgAction
                     'name' => 'Org Stock Movements',
                     'icon' => 'fal fa-dolly',
                     'route' => '',
-                    'count' => $group->inventoryStats->number_org_stock_movements ?? 0 // fix hydrator
+                    'count' => $group->inventoryStats->number_org_stock_movements ?? 0 // need hydrator
                 ],
                 [
                     'name' => 'Warehouses',

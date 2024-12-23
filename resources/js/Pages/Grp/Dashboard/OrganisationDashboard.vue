@@ -32,8 +32,9 @@ import { layoutStructure } from "@/Composables/useLayoutStructure"
 import { useGetCurrencySymbol } from "@/Composables/useCurrency"
 import Tag from "@/Components/Tag.vue"
 import ToggleSwitch from "primevue/toggleswitch"
+import { faSortDown, faSortUp } from "@fas"
 
-library.add(faTriangle, faChevronDown)
+library.add(faTriangle, faChevronDown, faSortDown, faSortUp)
 
 const props = defineProps<{
 	dashboard: any
@@ -122,13 +123,12 @@ const selectedTabGraph = ref(0)
 						</Column>
 
 						<!-- Refunds -->
-						<Column
-							field="refunds"
-							sortable
-							class="overflow-hidden transition-all"
-							header="Refunds"
-							header-style="text-align: green; width: 250px"
-							headerClass="bg-red-500">
+						<Column sortable headerClass="align-right">
+							<template #header>
+								<div class="flex justify-end items-end">
+									<span class="font-bold">Refunds</span>
+								</div>
+							</template>
 							<template #body="{ data }">
 								<div class="flex justify-end relative">
 									<Transition name="spin-to-down" mode="out-in">
@@ -153,11 +153,21 @@ const selectedTabGraph = ref(0)
 
 						<!-- Refunds: Diff 1y -->
 						<Column
-							field="refunds_diff"
-							sortable
+						sortable
 							class="overflow-hidden transition-all"
-							header="&Delta; 1y"
-							headerStyle="text-align: green; width: 130px">
+							headerClass="align-right"
+							headerStyle="text-align: green; width: 270px">
+							<template #header>
+								<div class="flex justify-end items-end">
+									<span class="font-bold">
+										<FontAwesomeIcon
+											fixed-width
+											icon="fal fa-triangle"
+											aria-hidden="true" />
+										1y
+									</span>
+								</div>
+							</template>
 							<template #body="{ data }">
 								<div class="flex justify-end relative">
 									<!-- {{ `${data.interval_percentages?.refunds?.[selectedDateOption]?.difference}_${data.interval_percentages?.refunds?.[selectedDateOption]?.percentage}` }} -->
@@ -221,11 +231,14 @@ const selectedTabGraph = ref(0)
 
 						<!-- Invoice -->
 						<Column
-							field="invoices"
-							sortable
+						sortable
 							class="overflow-hidden transition-all"
-							header="Invoices"
-							headerStyle="text-align: right; width: 200px;">
+							headerClass="align-right">
+							<template #header>
+								<div class="flex justify-end items-end">
+									<span class="font-bold">Invoices</span>
+								</div>
+							</template>
 							<template #body="{ data }">
 								<div class="flex justify-end relative">
 									<Transition name="spin-to-down" mode="out-in">
@@ -253,8 +266,19 @@ const selectedTabGraph = ref(0)
 							field="invoices_diff"
 							sortable
 							class="overflow-hidden transition-all"
-							header="&Delta; 1y"
+							headerClass="align-right"
 							headerStyle="text-align: green; width: 200px">
+							<template #header>
+								<div class="flex justify-end items-end">
+									<span class="font-bold">
+										<FontAwesomeIcon
+											fixed-width
+											icon="fal fa-triangle"
+											aria-hidden="true" />
+										1y</span
+									>
+								</div>
+							</template>
 							<template #body="{ data }">
 								<div class="flex justify-end relative">
 									<Transition name="spin-to-down" mode="out-in">
@@ -323,11 +347,16 @@ const selectedTabGraph = ref(0)
 
 						<!-- Sales -->
 						<Column
-							field="sales"
+						field="sales"
 							sortable
 							class="overflow-hidden transition-all"
-							header="Sales"
+							headerClass="align-right"
 							headerStyle="text-align: green; width: 250px">
+							<template #header>
+								<div class="flex justify-end items-end">
+									<span class="font-bold">Sales</span>
+								</div>
+							</template>
 							<template #body="{ data }">
 								<div class="flex justify-end relative">
 									<Transition name="spin-to-down" mode="out-in">
@@ -352,11 +381,22 @@ const selectedTabGraph = ref(0)
 
 						<!-- Sales: Diff 1y -->
 						<Column
-							field="sales_diff"
+						field="sales_diff"
 							sortable
 							class="overflow-hidden transition-all"
-							header="&Delta; 1y"
+							headerClass="align-right"
 							headerStyle="text-align: green; width: 270px">
+							<template #header>
+								<div class="flex justify-end items-end">
+									<span class="font-bold">
+										<FontAwesomeIcon
+											fixed-width
+											icon="fal fa-triangle"
+											aria-hidden="true" />
+										1y</span
+									>
+								</div>
+							</template>
 							<template #body="{ data }">
 								<div class="flex justify-end relative">
 									<!-- {{ `${data.interval_percentages?.sales?.[selectedDateOption]?.difference}_${data.interval_percentages?.sales?.[selectedDateOption]?.percentage}` }} -->
@@ -455,3 +495,10 @@ const selectedTabGraph = ref(0)
 		<!-- <pre>{{ groupStats }}</pre> -->
 	</div>
 </template>
+
+<style>
+.align-right {
+	justify-items: end;
+	text-align: right;
+}
+</style>

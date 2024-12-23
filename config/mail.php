@@ -145,6 +145,9 @@ return [
     ],
 
     'testing_mail_to' => env('TESTING_MAIL_TO', 'test@test.com'),
+    'devel' => [
+        'sender_email_address' => env('TESTING_MAIL_SENDER', 'dev@aw-advantage.com')
+    ],
 
 
 ];
