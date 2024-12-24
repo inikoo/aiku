@@ -67,7 +67,7 @@ class GroupHydrateWebUsers
             )
         );
 
-        $group->crmStats()->updateOrCreate([], $stats);
+        $group->crmStats()->update($stats);
     }
     public string $commandSignature = 'hydrate:group_web_users';
 

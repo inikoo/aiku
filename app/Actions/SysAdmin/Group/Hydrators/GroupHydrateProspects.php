@@ -100,7 +100,7 @@ class GroupHydrateProspects
             )
         );
 
-        $group->crmStats()->updateOrCreate([], $stats);
+        $group->crmStats()->update($stats);
     }
 
     public string $commandSignature = 'hydrate:group_prospects';

@@ -66,7 +66,7 @@ class GroupHydrateOutboxes
             )
         );
 
-        $group->commsStats()->updateOrCreate([], $stats);
+        $group->commsStats()->update($stats);
     }
 
 

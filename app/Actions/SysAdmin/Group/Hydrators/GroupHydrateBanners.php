@@ -40,6 +40,6 @@ class GroupHydrateBanners
             )
         );
 
-        $group->webStats()->updateOrCreate([], $stats);
+        $group->webStats()->update($stats);
     }
 }
