@@ -10,6 +10,7 @@ namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Actions\Traits\WithIntervalsAggregators;
 use App\Models\Accounting\Invoice;
+use App\Models\Accounting\InvoiceTransaction;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -37,10 +38,9 @@ class GroupHydrateSales
     {
         $stats = [];
 
-        $queryBase = Invoice::where('group_id', $group->id)->selectRaw('sum(grp_net_amount) as  sum_amount  ');
+        $queryBase = Invoice::where('group_id', $group->id)->selectRaw('sum(grp_net_amount) as  sum_aggregate  ');
+        $stats = $this->getIntervalsData($stats, $queryBase, 'sales_grp_currency_');
 
-        $stats = array_merge($stats, $this->getIntervalStats($queryBase, 'sales_grp_currency_'));
-        $stats = array_merge($stats, $this->getLastYearIntervalStats($queryBase, 'sales_grp_currency_'));
 
         $group->salesIntervals()->update($stats);
     }
