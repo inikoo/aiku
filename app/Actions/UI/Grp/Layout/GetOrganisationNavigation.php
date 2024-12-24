@@ -389,6 +389,22 @@ class GetOrganisationNavigation
         }
 
 
+        // if ($user->hasPermissionTo('org-overview.'.$organisation->id)) {
+        // }
+        $navigation['overview'] = [
+            'label'   => __('Overview'),
+            'tooltip' => __('Overview'),
+            'icon'    => ['fal', 'fa-mountains'],
+            'root'    => 'grp.org.overview.',
+
+            'route' => [
+                'name'       => 'grp.org.overview.hub',
+                'parameters' => [$organisation->slug],
+            ],
+
+            'topMenu' => []
+        ];
+
         if ($user->hasPermissionTo('org-reports.'.$organisation->id)) {
             $navigation['reports'] = [
                 'label'   => __('Reports'),

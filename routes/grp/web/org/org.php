@@ -48,6 +48,10 @@ Route::prefix("accounting")
     ->name("accounting.")
     ->group(__DIR__."/accounting.php");
 
+Route::prefix("overview")
+    ->name("overview.")
+    ->group(__DIR__."/overview.php");
+
 Route::prefix("reports")
     ->name("reports.")
     ->group(__DIR__."/reports.php");
