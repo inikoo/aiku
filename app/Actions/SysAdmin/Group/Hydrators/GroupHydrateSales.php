@@ -10,7 +10,6 @@ namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Actions\Traits\WithIntervalsAggregators;
 use App\Models\Accounting\Invoice;
-use App\Models\Accounting\InvoiceTransaction;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
