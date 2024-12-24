@@ -190,7 +190,7 @@ const getImageSlots = (layoutType: string) => {
 	<div class="flex flex-wrap">
 		<div
 			v-for="index in getImageSlots(modelValue?.value?.layout_type)"
-			:key="index + modelValue?.value?.images?.[index - 1]?.source?.avif"
+			:key="`${index}-${modelValue?.value?.images?.[index - 1]?.source?.avif}`"
 			class="group relative p-2 hover:bg-white/40"
 			:class="getColumnWidthClass(modelValue?.value?.layout_type, index - 1)">
 			<a
