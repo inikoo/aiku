@@ -25,7 +25,7 @@ const props = defineProps<{
             <ul class="mt-0.5 flex flex-col gap-y-0.5 text-xs font-normal leading-4 text-gray-500">
                 <li>Created at: {{ useFormatTime(data?.created_at) }}</li>
                 <li>Company: {{ data?.company_name || '-' }}</li>
-                <li>Clients: {{ data?.number_current_clients || 0 }}</li>
+                <li>Clients: {{ data?.number_current_customer_clients || 0 }}</li>
                 <!-- <li>{{ data?.shareCount }} shares</li> -->
             </ul>
         </div>

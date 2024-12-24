@@ -13,7 +13,7 @@ use App\Http\Resources\Helpers\AddressResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property int $number_current_clients
+ * @property int $number_current_customer_clients
  * @property mixed $slug
  * @property mixed $reference
  * @property mixed $name
@@ -50,7 +50,7 @@ class CustomersResource extends JsonResource
             'company_name'                 => $this->company_name,
             'location'                     => $this->location,
             'created_at'                   => $this->created_at,
-            'number_current_clients'       => $this->number_current_clients,
+            'number_current_customer_clients'       => $this->number_current_customer_clients,
             'number_current_portfolios'    => $this->number_current_portfolios,
             'platform_name'                    => $this->platform_name ?? 'none',
             'last_invoiced_at'             => $this->last_invoiced_at,
