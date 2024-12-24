@@ -35,11 +35,13 @@ export const getComponent = (componentName: string) => {
         'socialMedia': socialMedia,
         "VisibleLoggedIn": ButtonVisibleLoggedIn,
        /*  "properties": PanelProperties, */
+        
         "background": Background,
         "border": Border,
         "padding": Padding,
         "margin": Margin,
         "dimension": Dimension,
+
         "button": ButtonProperties,
         "link": Link,
         "overview_form": OverviewForm,

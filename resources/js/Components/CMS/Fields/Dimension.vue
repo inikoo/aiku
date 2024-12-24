@@ -22,7 +22,7 @@ onMounted(() => {
         onSaveWorkshopFromId(side_editor_block_id, 'dimension value.height')
     }
 
-    if (!model.value?.width && model.value?.width !== localModel.height) {
+    if (!model.value?.width && model.value?.width !== localModel.width) {
         set(model.value, 'width', localModel.width)
         onSaveWorkshopFromId(side_editor_block_id, 'dimension value.width')
     }

@@ -205,10 +205,10 @@ const getImageSlots = (layoutType: string) => {
 			</a>
 
 			<div
-				class="absolute flex items-center justify-center gap-x-2 top-0 pt-1 pb-4 opacity-0 group-hover:-top-8 group-hover:opacity-100 transition-all left-0 w-full hover:text-indigo-500 rounded-lg cursor-pointer"
+				class="bg-gray-800/50 hover:bg-gray-800/80 w-fit absolute flex items-center justify-center gap-x-2 py-2 px-3 opacity-0 top-2/3 group-hover:top-1/2 group-hover:-translate-y-1/2 group-hover:opacity-100 transition-all left-1/2 -translate-x-1/2 text-gray-300 hover:text-white rounded cursor-pointer"
 				@click="openImageGallery(index - 1)">
 				<FontAwesomeIcon icon='fas fa-image' class='text-lg opacity-40' fixed-width aria-hidden='true' />
-				<div class="text-sm font-semibold">
+				<div class="text-sm font-semibold whitespace-nowrap">
 					{{ trans("Change image") }}
 				</div>
 			</div>

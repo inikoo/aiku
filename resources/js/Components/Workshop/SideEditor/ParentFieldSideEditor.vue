@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { inject, ref } from 'vue'
 
 import AccordionPanel from 'primevue/accordionpanel'
 import AccordionHeader from 'primevue/accordionheader'
@@ -16,17 +16,28 @@ const props = defineProps<{
     blueprint: {
         name : String,
         type : String,
-        key : Array<String> | String,
+        key : string | string[],
         replaceForm : Array<any>
     }
     uploadImageRoute?: routeType,
-    index:Number | Array<String> | string
+    index:Number | string | string[]
 }>()
 const modelValue = defineModel()
 
-const emits = defineEmits<{
-    (e: 'update:modelValue', value: string | number): void
-}>()
+const onSaveWorkshopFromId: Function = inject('onSaveWorkshopFromId', (e?: number) => { console.log('onSaveWorkshopFromId not provided') })
+const side_editor_block_id = inject('side_editor_block_id', () => { console.log('side_editor_block_id not provided') })  // Get the block id that use this property
+
+// const emits = defineEmits<{
+//     (e: 'update:modelValue', value: string | number): void
+// }>()
+
+const onPropertyUpdate = (fieldKeys: string | string[], newVal: any) => {
+
+    // emits('update:modelValue', setFormValue(modelValue.value, fieldKeys, newVal))
+    setFormValue(modelValue.value, fieldKeys, newVal)
+    onSaveWorkshopFromId(side_editor_block_id, 'parentfieldsideeditor')
+
+}
 
 </script>
 
@@ -46,7 +57,7 @@ const emits = defineEmits<{
                         :modelValue="getFormValue(modelValue, blueprint.key)"
                         :key="blueprint.key"
                         :uploadImageRoute="uploadImageRoute" 
-                        @update:modelValue="newValue => emits('update:modelValue',setFormValue(modelValue, blueprint.key, newValue))"
+                        @update:modelValue="newValue => onPropertyUpdate(blueprint.key, newValue)"
                     />
                 </template>
 
@@ -65,7 +76,7 @@ const emits = defineEmits<{
                         :modelValue="getFormValue(modelValue, blueprint.key)"
                         :uploadRoutes="uploadImageRoute" 
                         v-bind="blueprint?.props_data" 
-                        @update:modelValue="newValue => emits('update:modelValue', setFormValue(modelValue, blueprint.key, newValue))"
+                        @update:modelValue="newValue => onPropertyUpdate(blueprint.key, newValue)"
                     />
                 </template>
             </div>
@@ -78,7 +89,7 @@ const emits = defineEmits<{
                 :blueprint="blueprint.replaceForm"
                 :modelValue="getFormValue(modelValue, blueprint.key)"
                 :key="blueprint.key"
-                @update:modelValue="newValue => emits('update:modelValue',setFormValue(modelValue, blueprint.key, newValue))"
+                @update:modelValue="newValue => onPropertyUpdate(blueprint.key, newValue)"
             />
         </template>
 
@@ -93,7 +104,7 @@ const emits = defineEmits<{
                 :modelValue="getFormValue(modelValue, blueprint.key)"
                 @update:modelValue="newValue => {
                     // console.log(index, 'getfomvalue', getFormValue(modelValue, blueprint.key))
-                    emits('update:modelValue', setFormValue(modelValue, blueprint.key, newValue))
+                    onPropertyUpdate(blueprint.key, newValue)
                 }"
             />
         </template>
