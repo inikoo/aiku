@@ -156,8 +156,8 @@ class IndexCustomers extends OrgAction
                 'customers.name',
                 'customers.slug',
                 'customers.created_at',
-                'customer_dropshipping_stats.number_current_portfolios',
-                'customer_stats.number_current_clients',
+                'customer_stats.number_current_portfolios',
+                'customer_stats.number_current_customer_clients',
                 'customer_stats.last_invoiced_at',
                 'customer_stats.number_invoices_type_invoice',
                 'customer_stats.sales_all',
@@ -172,7 +172,6 @@ class IndexCustomers extends OrgAction
                     ->where('model_has_platforms.model_type', '=', class_basename(Customer::class));
             })
             ->leftJoin('platforms', 'model_has_platforms.platform_id', '=', 'platforms.id')
-            ->leftJoin('customer_dropshipping_stats', 'customers.id', 'customer_dropshipping_stats.customer_id')
             ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
             ->leftJoin('shops', 'customers.shop_id', 'shops.id')
             ->leftJoin('currencies', 'shops.currency_id', 'currencies.id')
