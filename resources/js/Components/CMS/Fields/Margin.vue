@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { inject, onBeforeMount } from 'vue'
+import { inject, onBeforeMount, onMounted } from 'vue'
 import PaddingMarginProperty from '@/Components/Workshop/Properties/PaddingMarginProperty.vue'
 import { trans } from 'laravel-vue-i18n'
 import { set, get } from 'lodash'
 
 
 const model = defineModel<typeof localModel>()
-const emit = defineEmits(['update:modelValue'])
+// const emits = defineEmits<{
+//     (e: 'update:modelValue'): void
+// }>()
 
 const onSaveWorkshopFromId: Function = inject('onSaveWorkshopFromId', (e?: number) => { console.log('onSaveWorkshopFromId not provided') })
 const side_editor_block_id = inject('side_editor_block_id', () => { console.log('side_editor_block_id not provided') })  // Get the block id that use this property
@@ -28,23 +30,29 @@ const localModel = {
     }
 }
 
-onBeforeMount(() => {
-    if (!model.value?.unit) {
+
+onMounted(async () => {
+
+    if (!model.value?.unit && model.value?.unit !== localModel.unit ) {
         set(model, 'value.unit', localModel.unit)
+        onSaveWorkshopFromId(side_editor_block_id, 'margin value.unit')
     }
-    if (!model.value?.top?.value) {
+    if (!model.value?.top?.value && model.value?.top?.value !== localModel.top?.value ) {
         set(model, 'value.top.value', localModel.top.value)
+        onSaveWorkshopFromId(side_editor_block_id, 'margin value.top.value')
     }
-    if (!model.value?.left?.value) {
+    if (!model.value?.left?.value && model.value?.left?.value !== localModel.left?.value ) {
         set(model, 'value.left.value', localModel.left.value)
+        onSaveWorkshopFromId(side_editor_block_id, 'margin value.left.value')
     }
-    if (!model.value?.right?.value) {
+    if (!model.value?.right?.value && model.value?.right?.value !== localModel.right?.value ) {
         set(model, 'value.right.value', localModel.right.value)
+        onSaveWorkshopFromId(side_editor_block_id, 'margin value.right.value')
     }
-    if (!model.value?.bottom?.value) {
+    if (!model.value?.bottom?.value && model.value?.bottom?.value !== localModel.bottom?.value ) {
         set(model, 'value.bottom.value', localModel.bottom.value)
+        onSaveWorkshopFromId(side_editor_block_id, 'margin value.bottom.value')
     }
-    onSaveWorkshopFromId(side_editor_block_id)
 })
 
 </script>

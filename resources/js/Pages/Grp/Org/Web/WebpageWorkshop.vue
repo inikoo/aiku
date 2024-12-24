@@ -165,7 +165,12 @@ const onSaveWorkshop = (block) => {
 	// Call debounceSaveWorkshop to handle save for this block
 	debounceSaveWorkshop(block)
 }
-const onSaveWorkshopFromId = (blockId?: number) => {
+const onSaveWorkshopFromId = (blockId: number, from?: string) => {
+	// Debug purpose
+	if (from) {
+		console.log('onSaveWorkshopFromId from:', from)
+	}
+
 	if (!blockId) return
 	
 	if (cancelTokens.value[blockId]) {

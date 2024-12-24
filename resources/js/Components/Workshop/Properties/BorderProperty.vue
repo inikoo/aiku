@@ -73,7 +73,8 @@ const changeBorderValueToSame = async (newVal: number) => {
             set(model.value, [key, 'value'], newVal)
         }
     }
-    onSaveWorkshopFromId(side_editor_block_id)
+
+    onSaveWorkshopFromId(side_editor_block_id, 'border')
 }
 
 // Section: Rounded same value
@@ -85,7 +86,7 @@ const changeRoundedValueToSame = (newVal: number) => {
             set(model.value, ['rounded', key, 'value'], newVal)
         }
     }
-    onSaveWorkshopFromId(side_editor_block_id)
+    onSaveWorkshopFromId(side_editor_block_id, 'border')
 }
 
 const iconRoundedCorner = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 100 100">
@@ -116,7 +117,7 @@ const iconRoundedCorner = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" 
                 <div class="text-xs">{{ trans('Color') }}</div>
                 <ColorPicker
                     :color="get(model, 'color', 'rgba(0, 0, 0, 1)')"
-                    @changeColor="(newColor)=> (set(model, 'color', `rgba(${newColor.rgba.r}, ${newColor.rgba.g}, ${newColor.rgba.b}, ${newColor.rgba.a}`), onSaveWorkshopFromId(side_editor_block_id))"
+                    @changeColor="(newColor)=> (set(model, 'color', `rgba(${newColor.rgba.r}, ${newColor.rgba.g}, ${newColor.rgba.b}, ${newColor.rgba.a}`), onSaveWorkshopFromId(side_editor_block_id, 'border'))"
                     closeButton
                 >
                     <template #button>
@@ -169,25 +170,25 @@ const iconRoundedCorner = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" 
                         <div class="grid grid-cols-5 items-center w-full justify-center">
                             <FontAwesomeIcon icon='fad fa-border-top' v-tooltip="trans('Border top')" class='mx-auto' fixed-width aria-hidden='true' />
                             <div class="col-span-4">
-                                <PureInputNumber :modelValue="get(model, 'top.value', 0)" @update:modelValue="(e) => (set(model, 'top.value', e), onSaveWorkshopFromId(side_editor_block_id))" class="" suffix="px" />
+                                <PureInputNumber :modelValue="get(model, 'top.value', 0)" @update:modelValue="(e) => (set(model, 'top.value', e), onSaveWorkshopFromId(side_editor_block_id, 'border'))" class="" suffix="px" />
                             </div>
                         </div>
                         <div class="grid grid-cols-5 items-center w-full">
                             <FontAwesomeIcon icon='fad fa-border-bottom' v-tooltip="trans('Border bottom')" class='mx-auto' fixed-width aria-hidden='true' />
                             <div class="col-span-4">
-                                <PureInputNumber :modelValue="get(model, 'bottom.value', 0)" @update:modelValue="(e) => (set(model, 'bottom.value', e), onSaveWorkshopFromId(side_editor_block_id))" class="" suffix="px" />
+                                <PureInputNumber :modelValue="get(model, 'bottom.value', 0)" @update:modelValue="(e) => (set(model, 'bottom.value', e), onSaveWorkshopFromId(side_editor_block_id, 'border'))" class="" suffix="px" />
                             </div>
                         </div>
                         <div class="grid grid-cols-5 items-center w-full">
                             <FontAwesomeIcon icon='fad fa-border-left' v-tooltip="trans('Border left')" class='mx-auto' fixed-width aria-hidden='true' />
                             <div class="col-span-4">
-                                <PureInputNumber :modelValue="get(model, 'left.value', 0)" @update:modelValue="(e) => (set(model, 'left.value', e), onSaveWorkshopFromId(side_editor_block_id))" class="" suffix="px" />
+                                <PureInputNumber :modelValue="get(model, 'left.value', 0)" @update:modelValue="(e) => (set(model, 'left.value', e), onSaveWorkshopFromId(side_editor_block_id, 'border'))" class="" suffix="px" />
                             </div>
                         </div>
                         <div class="grid grid-cols-5 items-center w-full">
                             <FontAwesomeIcon icon='fad fa-border-right' v-tooltip="trans('Border right')" class='mx-auto' fixed-width aria-hidden='true' />
                             <div class="col-span-4">
-                                <PureInputNumber :modelValue="get(model, 'right.value', 0)" @update:modelValue="(e) => (set(model, 'right.value', e), onSaveWorkshopFromId(side_editor_block_id))" class="" suffix="px" />
+                                <PureInputNumber :modelValue="get(model, 'right.value', 0)" @update:modelValue="(e) => (set(model, 'right.value', e), onSaveWorkshopFromId(side_editor_block_id, 'border'))" class="" suffix="px" />
                             </div>
                         </div>
                     </div>
@@ -225,25 +226,25 @@ const iconRoundedCorner = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" 
                         <div class="grid grid-cols-5 items-center w-full">
                             <div v-html="iconRoundedCorner" v-tooltip="trans('Corner top right')" class='h-5 w-5 mx-auto' />
                             <div class="col-span-4">
-                                <PureInputNumber :modelValue="get(model, 'rounded.topright.value', 0)" @update:modelValue="(e) => (set(model, 'rounded.topright.value', e), onSaveWorkshopFromId(side_editor_block_id))" class="" suffix="px" />
+                                <PureInputNumber :modelValue="get(model, 'rounded.topright.value', 0)" @update:modelValue="(e) => (set(model, 'rounded.topright.value', e), onSaveWorkshopFromId(side_editor_block_id, 'border'))" class="" suffix="px" />
                             </div>
                         </div>
                         <div class="grid grid-cols-5 items-center w-full">
                             <div v-html="iconRoundedCorner" v-tooltip="trans('Corner top left')" class='h-5 w-5 mx-auto -rotate-90' />
                             <div class="col-span-4">
-                                <PureInputNumber :modelValue="get(model, 'rounded.topleft.value', 0)" @update:modelValue="(e) => (set(model, 'rounded.topleft.value', e), onSaveWorkshopFromId(side_editor_block_id))" class="" suffix="px" />
+                                <PureInputNumber :modelValue="get(model, 'rounded.topleft.value', 0)" @update:modelValue="(e) => (set(model, 'rounded.topleft.value', e), onSaveWorkshopFromId(side_editor_block_id, 'border'))" class="" suffix="px" />
                             </div>
                         </div>
                         <div class="grid grid-cols-5 items-center w-full">
                             <div v-html="iconRoundedCorner" v-tooltip="trans('Corner bottom right')" class='h-5 w-5 mx-auto rotate-90' />
                             <div class="col-span-4">
-                                <PureInputNumber :modelValue="get(model, 'rounded.bottomright.value', 0)" @update:modelValue="(e) => (set(model, 'rounded.bottomright.value', e), onSaveWorkshopFromId(side_editor_block_id))" class="" suffix="px" />
+                                <PureInputNumber :modelValue="get(model, 'rounded.bottomright.value', 0)" @update:modelValue="(e) => (set(model, 'rounded.bottomright.value', e), onSaveWorkshopFromId(side_editor_block_id, 'border'))" class="" suffix="px" />
                             </div>
                         </div>
                         <div class="grid grid-cols-5 items-center w-full">
                             <div v-html="iconRoundedCorner" v-tooltip="trans('Corner bottom left')" class='h-5 w-5 mx-auto rotate-180' />
                             <div class="col-span-4">
-                                <PureInputNumber :modelValue="get(model, 'rounded.bottomleft.value', 0)" @update:modelValue="(e) => (set(model, 'rounded.bottomleft.value', e), onSaveWorkshopFromId(side_editor_block_id))" class="" suffix="px" />
+                                <PureInputNumber :modelValue="get(model, 'rounded.bottomleft.value', 0)" @update:modelValue="(e) => (set(model, 'rounded.bottomleft.value', e), onSaveWorkshopFromId(side_editor_block_id, 'border'))" class="" suffix="px" />
                             </div>
                         </div>
                     </div>
