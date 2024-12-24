@@ -41,12 +41,17 @@ use App\Actions\Production\RawMaterial\UI\IndexRawMaterials;
 use App\Actions\SupplyChain\Agent\UI\IndexAgents;
 use App\Actions\SupplyChain\Supplier\UI\IndexSuppliers;
 use App\Actions\SupplyChain\SupplierProduct\UI\IndexSupplierProducts;
+use App\Actions\SysAdmin\Group\UI\IndexHistoryInGroup;
 use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\Web\Banner\UI\IndexBanners;
 use App\Actions\Web\Webpage\UI\IndexWebpages;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowOverviewHub::class)->name('hub');
+
+Route::name('changelog.')->prefix('changelog')->group(function () {
+    Route::get('/', IndexHistoryInGroup::class)->name('index');
+});
 
 Route::name('comms.')->prefix('comms')->group(function () {
     Route::get('/post-rooms', IndexPostRooms::class)->name('post-rooms.index');
