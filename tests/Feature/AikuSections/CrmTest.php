@@ -598,6 +598,7 @@ test('update open question poll reply', function (PollReply $pollReply) {
 })->depends('store open question poll reply');
 
 test('UI Index customers', function () {
+    $this->withoutExceptionHandling();
     $response = $this->get(route('grp.org.shops.show.crm.customers.index', [$this->organisation->slug, $this->shop->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {

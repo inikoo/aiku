@@ -5,6 +5,7 @@ import Button from '@/Components/Elements/Buttons/Button.vue';
 import Dialog from 'primevue/dialog';
 import DialogEditLink from '@/Components/CMS/Website/Menus/EditMode/DialogEditLink.vue';
 import { useConfirm } from "primevue/useconfirm";
+import IconPicker from '@/Components/Pure/IconPicker.vue';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
@@ -131,6 +132,8 @@ const confirm1 = (event,data,index) => {
     });
 };
 
+const iconPickerValue = ref()
+
 
 
 </script>
@@ -215,6 +218,8 @@ const confirm1 = (event,data,index) => {
               <div class="flex items-center gap-2 p-2 bg-gray-50 rounded hover:bg-gray-100 transition">
                 <!-- Ikon bar -->
                 <font-awesome-icon icon="fas fa-bars" class="text-[13px] text-gray-400 pr-2"></font-awesome-icon>
+
+                <IconPicker v-model="link.icon" />
 
                 <!-- Konten utama -->
                 <div class="flex justify-between items-center w-full">
