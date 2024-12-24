@@ -5,56 +5,66 @@
 	"name": "Menu 1",
 	"component": "menu",
 	"data": {
-		"fieldValue" : {
+		"fieldValue": {
 			"navigation": [
 				{
 					"label": "New In & Trending",
 					"id": 1,
-					"type": "single"
+					"type": "single",
+					"icon": null
 				},
 				{
 					"label": "Offers",
 					"id": 2,
+					"icon": null,
 					"type": "single"
 				},
 				{
 					"label": "Aromatherapy",
 					"id": 3,
+					"icon": null,
 					"type": "single"
 				},
 				{
 					"label": "Beauty & Spa",
 					"id": 4,
+					"icon": null,
 					"type": "multiple",
 					"subnavs": [
 						{
 							"title": "Beauty Products",
 							"id": 5,
+							"icon": null,
 							"links": [
 								{
 									"label": "Aromatherapy Hand & Body Lotion",
 									"link": null,
+									"icon": null,
 									"id": 6
 								},
 								{
 									"label": "Aromatherapy Hand & Body Lotion",
 									"link": null,
+									"icon": null,
 									"id": 7
 								},
 								{
 									"label": "Fragrance Hand & Body Lotions",
 									"link": null,
+									"icon": null,
 									"id": 8
 								},
 								{ "label": "Organic Body Oil", "link": null, "id": 9 },
 								{
 									"label": "Aromatherapy Shea Body Butters",
 									"link": null,
+									"icon": null,
 									"id": 10
 								},
 								{
 									"label": "Aromatherapy Hand & Body Lotion",
 									"link": null,
+									"icon": null,
 									"id": 11
 								}
 							]
@@ -62,77 +72,177 @@
 						{
 							"title": "Bath Bombs",
 							"id": 12,
+							"icon": null,
 							"links": [
 								{
 									"label": "Crystal Jewellery Bath Bomb",
 									"link": null,
+									"icon": null,
 									"id": 13
 								},
-								{ "label": "Chakra Bath Fizzers Sets", "link": null, "id": 14 },
-								{ "label": "Valentines Bath Bombs", "link": null, "id": 15 },
+								{
+									"label": "Chakra Bath Fizzers Sets",
+									"icon": null,
+									"link": null,
+									"id": 14
+								},
+								{
+									"label": "Valentines Bath Bombs",
+									"icon": null,
+									"link": null,
+									"id": 15
+								},
 								{
 									"label": "Christmas Bath Bomb Gift Pack",
 									"link": null,
+									"icon": null,
 									"id": 16
 								},
-								{ "label": "Bath Dust", "link": null, "id": 17 },
+								{ "label": "Bath Dust", "icon": null, "link": null, "id": 17 },
 								{
 									"label": "Cocktail Scented Bath Bombs",
 									"link": null,
+									"icon": null,
 									"id": 18
 								},
-								{ "label": "Chill Pills Gift Packs", "link": null, "id": 19 },
-								{ "label": "Bath Bomb Kit", "link": null, "id": 20 }
+								{
+									"label": "Chill Pills Gift Packs",
+									"link": null,
+									"icon": null,
+									"id": 19
+								},
+								{ "label": "Bath Bomb Kit", "link": null, "icon": null, "id": 20 }
 							]
 						},
 						{
 							"title": "Soaps",
 							"id": 21,
+							"icon": null,
 							"links": [
-								{ "label": "Artisan Olive Oil Soap", "link": null, "id": 22 },
-								{ "label": "Wild & Natural Soap Loaf", "link": null, "id": 23 },
+								{
+									"label": "Artisan Olive Oil Soap",
+									"link": null,
+									"icon": null,
+									"id": 22
+								},
+								{
+									"label": "Wild & Natural Soap Loaf",
+									"link": null,
+									"icon": null,
+									"id": 23
+								},
 								{
 									"label": "Sliced Wild & Natural Soap Loaf",
 									"link": null,
+									"icon": null,
 									"id": 24
 								},
-								{ "label": "Cool Waves Soap Loaves", "link": null, "id": 25 },
-								{ "label": "Essential Oil Soap Loaf", "link": null, "id": 26 },
-								{ "label": "Designer Soap Loaf", "link": null, "id": 27 },
-								{ "label": "Loofah - Star Soap Loaf", "link": null, "id": 28 },
-								{ "label": "Loofah - Round Soap Loaf", "link": null, "id": 29 }
+								{
+									"label": "Cool Waves Soap Loaves",
+									"link": null,
+									"icon": null,
+									"id": 25
+								},
+								{
+									"label": "Essential Oil Soap Loaf",
+									"link": null,
+									"icon": null,
+									"id": 26
+								},
+								{
+									"label": "Designer Soap Loaf",
+									"link": null,
+									"icon": null,
+									"id": 27
+								},
+								{
+									"label": "Loofah - Star Soap Loaf",
+									"link": null,
+									"icon": null,
+									"id": 28
+								},
+								{
+									"label": "Loofah - Round Soap Loaf",
+									"link": null,
+									"icon": null,
+									"id": 29
+								}
 							]
 						},
 						{
 							"title": "Shop By Products",
 							"id": 30,
+							"icon": null,
 							"links": [
-								{ "label": "Gift Sets / Hampers", "link": null, "id": 31 },
-								{ "label": "Bath Bombs", "link": null, "id": 32 },
-								{ "label": "Soaps", "link": null, "id": 33 },
-								{ "label": "Soap Flowers", "link": null, "id": 34 },
-								{ "label": "Products with Gemstones", "link": null, "id": 35 },
-								{ "label": "Shampoos", "link": null, "id": 36 },
-								{ "label": "Body Lotions & Butters", "link": null, "id": 37 }
+								{
+									"label": "Gift Sets / Hampers",
+									"link": null,
+									"icon": null,
+									"id": 31
+								},
+								{ "label": "Bath Bombs", "link": null, "icon": null, "id": 32 },
+								{ "label": "Soaps", "link": null, "icon": null, "id": 33 },
+								{ "label": "Soap Flowers", "link": null, "icon": null, "id": 34 },
+								{
+									"label": "Products with Gemstones",
+									"icon": null,
+									"link": null,
+									"id": 35
+								},
+								{ "label": "Shampoos", "link": null, "icon": null, "id": 36 },
+								{
+									"label": "Body Lotions & Butters",
+									"icon": null,
+									"link": null,
+									"id": 37
+								}
 							]
 						},
 						{
 							"title": "Beauty Accessories",
 							"id": 38,
+							"icon": null,
 							"links": [
-								{ "label": "Gemstone Face Rollers", "link": null, "id": 39 },
-								{ "label": "Teardrop Konjac Sponge", "link": null, "id": 40 },
+								{
+									"label": "Gemstone Face Rollers",
+									"icon": null,
+									"link": null,
+									"id": 39
+								},
+								{
+									"label": "Teardrop Konjac Sponge",
+									"icon": null,
+									"link": null,
+									"id": 40
+								},
 								{
 									"label": "Natural Japan Style Konjac Sponge",
 									"link": null,
+									"icon": null,
 									"id": 41
 								},
-								{ "label": "Egyptian Luxury Loofah", "link": null, "id": 42 },
-								{ "label": "Glove, Mitts & Wraps", "link": null, "id": 43 },
-								{ "label": "Fun Fruit Shape Sponges", "link": null, "id": 44 },
+								{
+									"label": "Egyptian Luxury Loofah",
+									"link": null,
+									"icon": null,
+									"id": 42
+								},
+								{
+									"label": "Glove, Mitts & Wraps",
+									"link": null,
+									"icon": null,
+									"id": 43
+								},
+								{
+									"label": "Fun Fruit Shape Sponges",
+									"link": null,
+									"icon": null,
+									"id": 44
+								},
 								{
 									"label": "Natural Soap Bags and Scrunches",
 									"link": null,
+									"icon": null,
 									"id": 45
 								}
 							]
@@ -140,93 +250,156 @@
 						{
 							"title": "Bath Salts & Florals",
 							"id": 46,
+							"icon": null,
 							"links": [
-								{ "label": "Bath Salts in Vials", "link": null, "id": 47 },
+								{
+									"label": "Bath Salts in Vials",
+									"link": null,
+									"icon": null,
+									"id": 47
+								},
 								{
 									"label": "Wild Hare Salt & Flowers Sets",
 									"link": null,
+									"icon": null,
 									"id": 48
 								},
-								{ "label": "Himalayan Bath Salt Blends", "link": null, "id": 49 },
+								{
+									"label": "Himalayan Bath Salt Blends",
+									"link": null,
+									"icon": null,
+									"id": 49
+								},
 								{
 									"label": "Aromatherapy Bath Potion in Kraft Bags",
 									"link": null,
+									"icon": null,
 									"id": 50
 								},
 								{
 									"label": "Floral Bath Soak & Facial Steam Blend",
 									"link": null,
+									"icon": null,
 									"id": 51
 								},
 								{
 									"label": "Aromatherapy Bath Potion - 7 kg",
 									"link": null,
+									"icon": null,
 									"id": 52
 								},
-								{ "label": "Himalayan Bath Salt - 25 kg", "link": null, "id": 53 }
+								{
+									"label": "Himalayan Bath Salt - 25 kg",
+									"link": null,
+									"icon": null,
+									"id": 53
+								}
 							]
 						},
 						{
 							"title": "Soap Flowers",
 							"id": 54,
+							"icon": null,
 							"links": [
-								{ "label": "Soap Flowers Gift Boxes", "link": null, "id": 55 },
-								{ "label": "Gift Soap Flower Bouquet", "link": null, "id": 56 },
+								{
+									"label": "Soap Flowers Gift Boxes",
+									"link": null,
+									"icon": null,
+									"id": 55
+								},
+								{
+									"label": "Gift Soap Flower Bouquet",
+									"link": null,
+									"icon": null,
+									"id": 56
+								},
 								{
 									"label": "Ready to Retail Soap Flowers",
 									"link": null,
+									"icon": null,
 									"id": 57
 								},
 								{
 									"label": "Petite Soap Flower Bouquets",
 									"link": null,
+									"icon": null,
 									"id": 58
 								},
-								{ "label": "Luxury Soap Flowers", "link": null, "id": 59 },
-								{ "label": "Soap Flower Bouquets", "link": null, "id": 60 },
-								{ "label": "Craft Soap Flowers", "link": null, "id": 61 }
+								{
+									"label": "Luxury Soap Flowers",
+									"link": null,
+									"icon": null,
+									"id": 59
+								},
+								{
+									"label": "Soap Flower Bouquets",
+									"link": null,
+									"icon": null,
+									"id": 60
+								},
+								{
+									"label": "Craft Soap Flowers",
+									"link": null,
+									"icon": null,
+									"id": 61
+								}
 							]
 						},
 						{
 							"title": "Fragrance",
 							"id": 62,
-							"links": [{ "label": "Craft Soap Flowers", "link": null, "id": 63 }]
+							"icon": null,
+							"links": [
+								{
+									"label": "Craft Soap Flowers",
+									"icon": null,
+									"link": null,
+									"id": 63
+								}
+							]
 						}
 					]
 				},
 				{
 					"label": "Accessories",
 					"id": 64,
+					"icon": null,
 					"type": "single"
 				},
 				{
 					"label": "Artisan Tea",
 					"id": 65,
+					"icon": null,
 					"type": "single"
 				},
 				{
 					"label": "Home Fragrance",
 					"id": 66,
+					"icon": null,
 					"type": "single"
 				},
 				{
 					"label": "Home & Garden",
 					"id": 67,
+					"icon": null,
 					"type": "single"
 				},
 				{
 					"label": "Gemstones & Esoteric Gifts",
 					"id": 68,
+					"icon": null,
 					"type": "single"
 				},
 				{
 					"label": "Incense",
 					"id": 69,
+					"icon": null,
 					"type": "single"
 				},
 				{
 					"label": "Displays & Packaging",
 					"id": 70,
+					"icon": null,
 					"type": "single"
 				}
 			]
