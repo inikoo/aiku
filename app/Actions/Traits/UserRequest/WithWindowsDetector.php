@@ -10,7 +10,6 @@ namespace App\Actions\Traits\UserRequest;
 
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
-use Stevebauman\Location\Facades\Location as FacadesLocation;
 
 trait WithWindowsDetector
 {

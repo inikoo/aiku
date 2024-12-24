@@ -18,7 +18,6 @@ use App\Models\Analytics\UserRequest;
 use App\Models\SysAdmin\User;
 use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Support\Carbon;
-use Stevebauman\Location\Facades\Location as FacadesLocation;
 
 class ProcessUserRequest extends GrpAction
 {

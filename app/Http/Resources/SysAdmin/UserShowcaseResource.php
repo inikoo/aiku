@@ -8,8 +8,6 @@
 
 namespace App\Http\Resources\SysAdmin;
 
-use App\Actions\Analytics\UserRequest\ProcessUserRequest;
-use App\Actions\SysAdmin\User\StoreUserRequest;
 use App\Actions\Traits\UserRequest\WithLocationDetector;
 use App\Models\SysAdmin\User;
 use Illuminate\Contracts\Support\Arrayable;
