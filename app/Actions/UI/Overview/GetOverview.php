@@ -46,7 +46,7 @@ class GetOverview extends OrgAction
                     'name'  => 'Changelog',
                     'icon'  => 'fal fa-history',
                     'route' => '',
-                    'count' => 0
+                    'count' => $organisation->stats->number_audits ?? 0
                 ],
             ],
             'Comms & marketing' => [
@@ -54,7 +54,7 @@ class GetOverview extends OrgAction
                     'name'  => 'Post Rooms',
                     'icon'  => 'fal fa-booth-curtain',
                     'route' => '',
-                    'count' => $organisation->commsStats->number_post_rooms ?? 0
+                    'count' => $organisation->commsStats->number_org_post_rooms ?? 0
                 ],
                 [
                     'name'  => 'Outboxes',
@@ -246,22 +246,10 @@ class GetOverview extends OrgAction
             ],
             'Inventory'         => [
                 [
-                    'name'  => 'Stocks',
-                    'icon'  => 'fal fa-inventory',
-                    'route' => '',
-                    'count' => $organisation->goodsStats->number_stocks ?? 0
-                ],
-                [
                     'name'  => 'Org Stocks',
                     'icon'  => 'fal fa-warehouse',
                     'route' => '',
                     'count' => $organisation->inventoryStats->number_org_stocks ?? 0 // need hydrator
-                ],
-                [
-                    'name'  => 'Stock Families',
-                    'icon'  => 'fal fa-box',
-                    'route' => '',
-                    'count' => $organisation->goodsStats->number_stock_families ?? 0
                 ],
                 [
                     'name'  => 'Org Stock Families',
@@ -331,25 +319,25 @@ class GetOverview extends OrgAction
                     'name'  => 'Agents',
                     'icon'  => 'fal fa-people-arrows',
                     'route' => '',
-                    'count' => $organisation->supplyChainStats->number_agents ?? 0
+                    'count' => $organisation->procurementStats->number_org_agents ?? 0
                 ],
                 [
                     'name'  => 'Suppliers',
                     'icon'  => 'fal fa-person-dolly',
                     'route' => '',
-                    'count' => $organisation->supplyChainStats->number_suppliers ?? 0
+                    'count' => $organisation->procurementStats->number_org_suppliers ?? 0
                 ],
                 [
                     'name'  => 'Supplier Products',
                     'icon'  => 'fal fa-users-class',
                     'route' => '',
-                    'count' => $organisation->supplyChainStats->number_supplier_products ?? 0
+                    'count' => $organisation->procurementStats->number_org_supplier_products ?? 0
                 ],
                 [
                     'name'  => 'Purchase Orders',
                     'icon'  => 'fal fa-clipboard-list',
                     'route' => '',
-                    'count' => $organisation->supplyChainStats->number_purchase_orders ?? 0
+                    'count' => $organisation->procurementStats->number_purchase_orders ?? 0
                 ],
             ],
             'Accounting'        => [
