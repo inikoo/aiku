@@ -14,7 +14,7 @@ use App\Models\CRM\Customer;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property int $number_current_clients
+ * @property int $number_current_customer_clients
  */
 class CustomerResource extends JsonResource
 {
@@ -35,7 +35,7 @@ class CustomerResource extends JsonResource
             'email'                  => $customer->email,
             'phone'                  => $customer->phone,
             'created_at'             => $customer->created_at,
-            'number_current_clients' => $this->number_current_clients,
+            'number_current_customer_clients' => $this->number_current_customer_clients,
         ];
     }
 }

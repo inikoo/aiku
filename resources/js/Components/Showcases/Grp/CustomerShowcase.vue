@@ -32,7 +32,7 @@ interface CustomerDropshipping {
     email: string
     phone: string
     created_at: string
-    number_current_clients: number | null
+    number_current_customer_clients: number | null
     address: Address
     is_dropshipping: boolean
     state: string
@@ -65,7 +65,7 @@ const isModalAddress = ref(false)
                     <div class="flex w-full py-6">
                         <div v-if="data?.customer.is_dropshipping" class="flex-auto pl-6">
                             <dt class="text-sm text-gray-500">{{ trans('Total Clients') }}</dt>
-                            <dd class="mt-1 text-base font-semibold leading-6">{{ data?.customer?.number_current_clients || 0 }}</dd>
+                            <dd class="mt-1 text-base font-semibold leading-6">{{ data?.customer?.number_current_customer_clients || 0 }}</dd>
                         </div>
                         
                         <div class="flex-none self-end px-6">

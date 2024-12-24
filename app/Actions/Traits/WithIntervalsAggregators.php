@@ -17,10 +17,11 @@ trait WithIntervalsAggregators
     public function getIntervalsData(array $stats, $queryBase, $statField, $dateField = 'date', $sumField = 'sum_aggregate'): array
     {
         $stats = array_merge($stats, $this->getIntervalStats($queryBase, $statField, $dateField, $sumField));
+        $stats = array_merge($stats, $this->getPreviousYearsIntervalStats($queryBase, $statField, $dateField, $sumField));
+        $stats = array_merge($stats, $this->getPreviousQuartersIntervalStats($queryBase, $statField, $dateField, $sumField));
 
         return array_merge($stats, $this->getLastYearIntervalStats($queryBase, $statField, $dateField, $sumField));
     }
-
 
     public function getIntervalStats(
         $queryBase,
