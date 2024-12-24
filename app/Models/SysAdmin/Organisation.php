@@ -168,6 +168,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Language $language
  * @property-read LaravelCollection<int, Location> $locations
  * @property-read Media|null $logo
+ * @property-read LaravelCollection<int, Mailshot> $mailshots
  * @property-read \App\Models\SysAdmin\OrganisationMailshotsIntervals|null $mailshotsIntervals
  * @property-read \App\Models\SysAdmin\OrganisationManufactureStats|null $manufactureStats
  * @property-read LaravelCollection<int, ManufactureTask> $manufactureTasks

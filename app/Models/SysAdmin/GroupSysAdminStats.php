@@ -23,6 +23,43 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_guests_status_active
  * @property int $number_guests_status_inactive
  * @property int $number_user_requests
+ * @property int $number_audits
+ * @property int $number_audits_event_created
+ * @property int $number_audits_event_updated
+ * @property int $number_audits_event_deleted
+ * @property int $number_audits_event_restored
+ * @property int $number_audits_event_customer_note
+ * @property int $number_audits_event_migrated
+ * @property int $number_audits_event_other
+ * @property int $number_audits_user_type_system
+ * @property int $number_audits_user_type_user
+ * @property int $number_audits_user_type_web_user
+ * @property int $number_audits_user_type_other
+ * @property int $number_audits_user_type_system_event_created
+ * @property int $number_audits_user_type_system_event_updated
+ * @property int $number_audits_user_type_system_event_deleted
+ * @property int $number_audits_user_type_system_event_restored
+ * @property int $number_audits_user_type_system_event_customer_note
+ * @property int $number_audits_user_type_system_event_migrated
+ * @property int $number_audits_user_type_system_event_other
+ * @property int $number_audits_user_type_user_event_created
+ * @property int $number_audits_user_type_user_event_updated
+ * @property int $number_audits_user_type_user_event_deleted
+ * @property int $number_audits_user_type_user_event_restored
+ * @property int $number_audits_user_type_user_event_customer_note
+ * @property int $number_audits_user_type_user_event_other
+ * @property int $number_audits_user_type_web_user_event_created
+ * @property int $number_audits_user_type_web_user_event_updated
+ * @property int $number_audits_user_type_web_user_event_deleted
+ * @property int $number_audits_user_type_web_user_event_restored
+ * @property int $number_audits_user_type_web_user_event_customer_note
+ * @property int $number_audits_user_type_web_user_event_other
+ * @property int $number_audits_user_type_other_event_created
+ * @property int $number_audits_user_type_other_event_updated
+ * @property int $number_audits_user_type_other_event_deleted
+ * @property int $number_audits_user_type_other_event_restored
+ * @property int $number_audits_user_type_other_event_customer_note
+ * @property int $number_audits_user_type_other_event_other
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group
