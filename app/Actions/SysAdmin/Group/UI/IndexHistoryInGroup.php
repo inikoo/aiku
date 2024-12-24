@@ -12,6 +12,7 @@ namespace App\Actions\SysAdmin\Group\UI;
 
 use App\Actions\GrpAction;
 use App\Actions\SysAdmin\User\Traits\WithFormattedUserHistories;
+use App\Http\Resources\History\HistoryResource;
 use App\InertiaTable\InertiaTable;
 use App\Services\QueryBuilder;
 use Closure;
@@ -21,7 +22,6 @@ use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use OwenIt\Auditing\Models\Audit;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Http\Resources\SysAdmin\HistoriesResource;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -109,7 +109,7 @@ class IndexHistoryInGroup extends GrpAction
                     ],
                     'title'     => __('Changelog'),
                 ],
-                'data'        => HistoriesResource::collection($histories),
+                'data'        => HistoryResource::collection($histories),
             ]
         )->table($this->tableStructure());
     }
