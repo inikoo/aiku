@@ -15,18 +15,18 @@ return new class extends Migration
     use HasSysAdminStats;
     public function up(): void
     {
-        // Schema::table('organisation_stats', function (Blueprint $table) {
-        //     $this->auditFields($table);
-        // });
-        // Schema::table('group_sysadmin_stats', function (Blueprint $table) {
-        //     $this->auditFields($table);
-        // });
-        // Schema::table('user_stats', function (Blueprint $table) {
-        //     $this->auditFieldsForNonSystem($table);
-        // });
-        // Schema::table('web_user_stats', function (Blueprint $table) {
-        //     $this->auditFieldsForNonSystem($table);
-        // });
+        Schema::table('organisation_stats', function (Blueprint $table) {
+            $this->auditFields($table);
+        });
+        Schema::table('group_sysadmin_stats', function (Blueprint $table) {
+            $this->auditFields($table);
+        });
+        Schema::table('user_stats', function (Blueprint $table) {
+            $this->auditFieldsForNonSystem($table);
+        });
+        Schema::table('web_user_stats', function (Blueprint $table) {
+            $this->auditFieldsForNonSystem($table);
+        });
     }
 
 
