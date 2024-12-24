@@ -19,6 +19,22 @@ class PortfolioRecordSearch
 
     public function handle(Portfolio $portfolio): void
     {
+        $customer = $portfolio->customer;
+        if (!$customer) {
+            return;
+        }
+        if ($customer->trashed()) {
+            return;
+        }
+
+        $product = $portfolio->product;
+        if (!$product) {
+            return;
+        }
+        if ($product->trashed()) {
+            return;
+        }
+
 
         $portfolio->universalSearch()->updateOrCreate(
             [],
@@ -28,24 +44,24 @@ class PortfolioRecordSearch
                 'organisation_slug' => $portfolio->organisation->slug,
                 'shop_id'           => $portfolio->shop_id,
                 'shop_slug'         => $portfolio->shop->slug,
-                'customer_id'       => $portfolio->customer_id,
-                'customer_slug'     => $portfolio->customer->slug,
+                'customer_id'       => $customer->id,
+                'customer_slug'     => $customer->slug,
                 'sections'          => ['crm'],
-                'haystack_tier_1'   => trim($portfolio->product->name),
+                'haystack_tier_1'   => trim($product->name),
                 'result' => [
                     'route'         => [
                         'name'          => 'grp.org.shops.show.crm.customers.show.portfolios.index',
                         'parameters'    => [
                             $portfolio->organisation->slug,
                             $portfolio->shop->slug,
-                            $portfolio->customer->slug
+                            $customer->slug
                         ]
                     ],
                     'description' => [
-                        'label' => $portfolio->product->name,
+                        'label' => $product->name,
                     ],
                     'code'        => [
-                        'code' => $portfolio->product->code
+                        'code' => $product->code
                     ],
                     'icon'      => [
                         'icon' => 'fal fa-chess-board',

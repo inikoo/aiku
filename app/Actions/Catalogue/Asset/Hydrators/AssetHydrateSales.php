@@ -36,11 +36,17 @@ class AssetHydrateSales
     {
         $stats = [];
 
-        $queryBase = InvoiceTransaction::where('asset_id', $asset->id)->selectRaw('sum(grp_net_amount) as  sum_group  , sum(grp_net_amount) as  sum_org , sum(net_amount) as  sum_shop  ');
+        $queryBase = InvoiceTransaction::where('asset_id', $asset->id)->selectRaw('sum(net_amount) as  sum_aggregate  ');
+        $stats = $this->getIntervalsData($stats, $queryBase, 'sales_');
 
-        $stats = array_merge($stats, $this->processIntervalShopAssetsStats($queryBase));
+        $queryBase = InvoiceTransaction::where('asset_id', $asset->id)->selectRaw('sum(grp_net_amount) as  sum_aggregate');
+        $stats = $this->getIntervalsData($stats, $queryBase, 'sales_grp_currency_');
 
-        $asset->salesIntervals()->update($stats);
+        $queryBase = InvoiceTransaction::where('asset_id', $asset->id)->selectRaw('sum(org_net_amount) as  sum_aggregate');
+        $stats = $this->getIntervalsData($stats, $queryBase, 'sales_org_currency_');
+
+
+        $asset->salesIntervals->update($stats);
     }
 
 

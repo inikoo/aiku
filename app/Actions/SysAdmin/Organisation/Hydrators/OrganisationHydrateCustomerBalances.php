@@ -13,6 +13,7 @@ namespace App\Actions\SysAdmin\Organisation\Hydrators;
 use App\Actions\Traits\WithEnumStats;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class OrganisationHydrateCustomerBalances
@@ -35,17 +36,20 @@ class OrganisationHydrateCustomerBalances
     {
         $stats = [];
 
-        $stats['number_customers_with_balances'] = $organisation->customers->filter(function ($customer) {
-            return $customer->balance !== null;
-        })->count();
+        $stats['number_customers_with_balances'] = DB::table('customers')
+            ->where('organisation_id', $organisation->id)
+            ->where('balance', '!=', 0)
+            ->count();
 
-        $stats['number_customers_with_positive_balances']  = $organisation->customers->filter(function ($customer) {
-            return $customer->balance > 0;
-        })->count();
+        $stats['number_customers_with_positive_balances'] = DB::table('customers')
+            ->where('organisation_id', $organisation->id)
+            ->where('balance', '>', 0)
+            ->count();
 
-        $stats['number_customers_with_negative_balances']  = $organisation->customers->filter(function ($customer) {
-            return $customer->balance < 0;
-        })->count();
+        $stats['number_customers_with_negative_balances'] = DB::table('customers')
+            ->where('organisation_id', $organisation->id)
+            ->where('balance', '<', 0)
+            ->count();
 
 
         $organisation->accountingStats()->update($stats);

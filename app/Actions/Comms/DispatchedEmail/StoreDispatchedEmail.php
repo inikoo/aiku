@@ -10,6 +10,7 @@ namespace App\Actions\Comms\DispatchedEmail;
 
 use App\Actions\Comms\EmailAddress\StoreEmailAddress;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateDispatchedEmails;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailProviderEnum;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
@@ -34,20 +35,17 @@ class StoreDispatchedEmail extends OrgAction
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
         data_set($modelData, 'shop_id', $parent->shop_id);
-
         data_set($modelData, 'outbox_id', $parent->outbox_id);
-
-
         data_set($modelData, 'recipient_type', class_basename($recipient));
         data_set($modelData, 'recipient_id', $recipient->id);
-
 
         $emailAddress = StoreEmailAddress::run($parent->group, Arr::pull($modelData, 'email_address'));
         data_set($modelData, 'email_address_id', $emailAddress->id);
 
-
         /** @var DispatchedEmail $dispatchedEmail */
         $dispatchedEmail = $parent->dispatchedEmails()->create($modelData);
+
+        GroupHydrateDispatchedEmails::run($parent->group)->delay($this->hydratorsDelay);
 
         return $dispatchedEmail;
     }

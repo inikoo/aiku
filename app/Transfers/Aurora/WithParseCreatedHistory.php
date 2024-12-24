@@ -80,7 +80,8 @@ trait WithParseCreatedHistory
         }
 
         if (count($newValues) == 0) {
-            dd($this->auroraModelData);
+            print ">> exit A\n";
+            print_r($this->auroraModelData);
         }
 
         return $newValues;
@@ -113,7 +114,8 @@ trait WithParseCreatedHistory
         }
 
         if (count($newValues) == 0) {
-            dd($this->auroraModelData);
+            print ">> exit B\n";
+            print_r($this->auroraModelData);
         }
 
         return $newValues;
@@ -140,6 +142,8 @@ trait WithParseCreatedHistory
             $value = trim($matches[1]);
         } elseif (preg_match('/(.+) product created/', $abstract, $matches)) {
             $value = trim($matches[1]);
+        } elseif (preg_match('/(.+) termék létrehozva/', $abstract, $matches)) {
+            $value = trim($matches[1]);
         }
 
 
@@ -152,7 +156,8 @@ trait WithParseCreatedHistory
         }
 
         if (count($newValues) == 0) {
-            dd($this->auroraModelData);
+            print ">> exit C\n";
+            print_r($this->auroraModelData);
         }
 
 
@@ -184,7 +189,8 @@ trait WithParseCreatedHistory
         }
 
         if (count($newValues) == 0) {
-            dd($this->auroraModelData);
+            print ">> exit D\n";
+            print_r($this->auroraModelData);
         }
 
         return $newValues;
@@ -196,7 +202,7 @@ trait WithParseCreatedHistory
         $abstract  = $this->auroraModelData->{'History Abstract'};
 
         if (preg_match('/^ prospect record created/', $abstract) ||
-            $abstract == 'Byl vytvořenrospektový záznam'
+            $abstract == 'Byl vytvořenrospektový záznam' || $abstract == 'Bol vytvorený záznam o perspektíve'
         ) {
             return $newValues;
         }
@@ -206,10 +212,13 @@ trait WithParseCreatedHistory
             $newValues['name'] = trim($matches[1]);
         } elseif (preg_match('/^Bol vytvorený záznam o perspektíve(.+)/', $abstract, $matches)) {
             $newValues['name'] = trim($matches[1]);
+        } elseif (preg_match('/(.+) kilátásrekord létrehozva$/', $abstract, $matches)) {
+            $newValues['name'] = trim($matches[1]);
         }
 
         if (count($newValues) == 0) {
-            dd($this->auroraModelData);
+            print ">> exit E\n";
+            print_r($this->auroraModelData);
         }
 
         return $newValues;

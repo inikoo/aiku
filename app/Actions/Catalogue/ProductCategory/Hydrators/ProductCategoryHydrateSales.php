@@ -9,6 +9,7 @@
 namespace App\Actions\Catalogue\ProductCategory\Hydrators;
 
 use App\Actions\Traits\WithIntervalsAggregators;
+use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Accounting\InvoiceTransaction;
 use App\Models\Catalogue\ProductCategory;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -34,11 +35,25 @@ class ProductCategoryHydrateSales
 
     public function handle(ProductCategory $productCategory): void
     {
+        if ($productCategory->type == ProductCategoryTypeEnum::DEPARTMENT) {
+            $foreignKey = 'department_id';
+        } elseif ($productCategory->type == ProductCategoryTypeEnum::FAMILY) {
+            $foreignKey = 'family_id';
+        } else {
+            return;
+        }
+
         $stats = [];
 
-        $queryBase = InvoiceTransaction::where('shop_id', $productCategory->shop->id)->selectRaw('sum(grp_net_amount) as  sum_group  , sum(grp_net_amount) as  sum_org , sum(net) as  sum_shop  ');
+        $queryBase = InvoiceTransaction::where($foreignKey, $productCategory->id)->selectRaw('sum(net_amount) as  sum_aggregate  ');
+        $stats     = $this->getIntervalsData($stats, $queryBase, 'sales_');
 
-        $stats = array_merge($stats, $this->processIntervalShopAssetsStats($queryBase));
+        $queryBase = InvoiceTransaction::where($foreignKey, $productCategory->id)->selectRaw('sum(grp_net_amount) as  sum_aggregate');
+        $stats     = $this->getIntervalsData($stats, $queryBase, 'sales_grp_currency_');
+
+        $queryBase = InvoiceTransaction::where($foreignKey, $productCategory->id)->selectRaw('sum(org_net_amount) as  sum_aggregate');
+        $stats     = $this->getIntervalsData($stats, $queryBase, 'sales_org_currency_');
+
 
         $productCategory->salesIntervals()->update($stats);
     }

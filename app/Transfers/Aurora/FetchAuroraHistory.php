@@ -32,7 +32,8 @@ class FetchAuroraHistory extends FetchAurora
 
 
         if ($event == 'created' and $this->auroraModelData->{'Indirect Object'} != '') {
-            dd('xxx');
+            print "*** Error: Created with indirect object\n";
+            print_r($this->auroraModelData);
 
             return;
         }
@@ -102,7 +103,7 @@ class FetchAuroraHistory extends FetchAurora
         ) {
             print_r($oldValues);
             print_r($newValues);
-            dd($this->auroraModelData);
+            print_r($this->auroraModelData);
         }
 
 
@@ -147,21 +148,14 @@ class FetchAuroraHistory extends FetchAurora
 
     protected function parseAuditableFromHistory(): Customer|Location|Product|WarehouseArea|Prospect|null
     {
-        switch ($this->auroraModelData->{'Direct Object'}) {
-            case 'Customer':
-                return $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'});
-            case 'Location':
-                return $this->parseLocation($this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'}, $this->organisationSource);
-            case 'Product':
-                return $this->parseProduct($this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'});
-            case 'Warehouse Area':
-                return $this->parseWarehouseArea($this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'});
-            case 'Prospect':
-                return $this->parseProspect($this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'});
-        }
-
-
-        return null;
+        return match ($this->auroraModelData->{'Direct Object'}) {
+            'Customer' => $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'}),
+            'Location' => $this->parseLocation($this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'}, $this->organisationSource),
+            'Product' => $this->parseProduct($this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'}),
+            'Warehouse Area' => $this->parseWarehouseArea($this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'}),
+            'Prospect' => $this->parseProspect($this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'}),
+            default => null,
+        };
     }
 
 
@@ -212,7 +206,9 @@ class FetchAuroraHistory extends FetchAurora
 
 
                     ) {
-                        dd($this->auroraModelData);
+                        print "Error unknown indirect object for skipping\n";
+                        print_r($this->auroraModelData);
+
                     }
 
 

@@ -30,7 +30,7 @@ class FetchAuroraOrders extends FetchAuroraAction
     use WithAuroraAttachments;
     use WithAuroraParsers;
 
-    public string $commandSignature = 'fetch:orders {organisations?*} {--S|shop= : Shop slug} {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: transactions payments full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset} {--T|only_orders_no_transactions : Fetch only orders with no transactions} {--D|days= : fetch last n days}';
+    public string $commandSignature = 'fetch:orders {organisations?*} {--S|shop= : Shop slug} {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: transactions payments full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset} {--T|only_orders_no_transactions : Fetch only orders with no transactions} {--D|days= : fetch last n days} {--O|order= : order asc|desc}';
 
     private bool $errorReported = false;
 
@@ -298,7 +298,7 @@ class FetchAuroraOrders extends FetchAuroraAction
     {
         $query = DB::connection('aurora')->table('Order Dimension')->select('Order Key as source_id');
         $query = $this->commonSelectModelsToFetch($query);
-        $query->orderBy('Order Date');
+        $query->orderBy('Order Date', $this->orderDesc ? 'desc' : 'asc');
 
         return $query;
     }
@@ -307,6 +307,7 @@ class FetchAuroraOrders extends FetchAuroraAction
     {
         $query = DB::connection('aurora')->table('Order Dimension');
         $query = $this->commonSelectModelsToFetch($query);
+
         return $query->count();
     }
 

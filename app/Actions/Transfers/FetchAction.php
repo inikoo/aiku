@@ -57,6 +57,8 @@ class FetchAction
 
     protected bool $onlyOrdersNoTransactions = false;
     protected ?int $fromDays = null;
+    protected bool $orderDesc = false;
+
 
 
     public function __construct()

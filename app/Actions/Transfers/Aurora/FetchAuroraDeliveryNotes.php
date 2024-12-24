@@ -26,7 +26,7 @@ use Throwable;
 
 class FetchAuroraDeliveryNotes extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:delivery_notes {organisations?*} {--s|source_id=} {--S|shop= : Shop slug}  {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=} {--r|reset} {--T|only_orders_no_transactions : Fetch only orders with no transactions} {--D|days= : fetch last n days}';
+    public string $commandSignature = 'fetch:delivery_notes {organisations?*} {--s|source_id=} {--S|shop= : Shop slug}  {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=} {--r|reset} {--T|only_orders_no_transactions : Fetch only orders with no transactions} {--D|days= : fetch last n days} {--O|order= : order asc|desc}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId, bool $forceWithTransactions = false): ?DeliveryNote
     {
@@ -155,7 +155,7 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
             ->select('Delivery Note Key as source_id');
 
         $query = $this->commonSelectModelsToFetch($query);
-        $query->orderBy('Delivery Note Date');
+        $query->orderBy('Delivery Note Date', $this->orderDesc ? 'desc' : 'asc');
 
         return $query;
     }

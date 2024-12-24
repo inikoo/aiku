@@ -11,6 +11,7 @@ namespace App\Actions\Comms\Mailshot;
 use App\Actions\Comms\Mailshot\UI\HasUIMailshots;
 use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateMailshots;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateMailshots;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
@@ -50,6 +51,8 @@ class StoreMailshot extends OrgAction
 
             return $mailshot;
         });
+
+        GroupHydrateMailshots::dispatch($outbox->group)->delay($this->hydratorsDelay);
 
         OutboxHydrateMailshots::dispatch($outbox)->delay($this->hydratorsDelay);
 

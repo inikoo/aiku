@@ -10,17 +10,18 @@
 
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
-use App\Enums\DateIntervals\DateIntervalEnum;
-use App\Enums\DateIntervals\PreviousQuartersEnum;
-use App\Enums\DateIntervals\PreviousYearsEnum;
+use App\Actions\Traits\WithIntervalsAggregators;
 use App\Models\SysAdmin\Group;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GroupHydrateSysadminIntervals implements ShouldBeUnique
 {
     use AsAction;
+    use WithIntervalsAggregators;
+
 
     private Group $group;
     public function __construct(Group $group)
@@ -38,62 +39,10 @@ class GroupHydrateSysadminIntervals implements ShouldBeUnique
     {
 
         $stats = [];
-
-        $users = $group->users()->with('userRequests')->get();
-
-        foreach (DateIntervalEnum::values() as $col) {
-            $interval = DateIntervalEnum::from($col);
-            $count = 0;
-
-            foreach ($users as $user) {
-                $userRequestsQuery = $user->userRequests;
-                $count += $interval->wherePeriod($userRequestsQuery, 'date')->count();
-            }
-            $stats['user_requests_' . $col] = $count;
-        }
-
-
-        foreach (DateIntervalEnum::lastYearValues() as $col) {
-            $interval = DateIntervalEnum::from($col);
-            $count = 0;
-
-            foreach ($users as $user) {
-                $userRequestsQuery = $user->userRequests;
-                $count += $interval->whereLastYearPeriod($userRequestsQuery, 'date')->count();
-            }
-            $stats['user_requests_' . $col . '_ly'] = $count;
-        }
-
-        foreach (PreviousYearsEnum::values() as $col) {
-            $interval = PreviousYearsEnum::from($col);
-            $count = 0;
-
-            foreach ($users as $user) {
-                $userRequestsQuery = $user->userRequests;
-                $count += $interval->wherePeriod($userRequestsQuery, 'date')->count();
-            }
-            $stats['user_requests_' . $col] = $count;
-        }
-
-        foreach (PreviousQuartersEnum::values() as $col) {
-            $interval = PreviousQuartersEnum::from($col);
-            $count = 0;
-
-            foreach ($users as $user) {
-                $userRequestsQuery = $user->userRequests;
-                $count += $interval->wherePeriod($userRequestsQuery, 'date')->count();
-            }
-            $stats['user_requests_' . $col] = $count;
-        }
-
-        $group->sysadminIntervals()->updateOrCreate([], $stats);
+        $queryBase = DB::table('user_requests')->where('group_id', $group->id)->selectRaw('count(*) as  sum_aggregate ');
+        $stats = $this->getIntervalsData($stats, $queryBase, 'user_requests_');
+        $group->sysadminIntervals->update($stats);
     }
 
-    public string $commandSignature = 'hydrate:group_sysadmin_intervals';
 
-    public function asCommand($command): void
-    {
-        $group = Group::first();
-        $this->handle($group);
-    }
 }

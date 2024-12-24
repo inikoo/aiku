@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraEmailTrackingEvents extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:email_tracking_events {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new} {--D|days= : fetch last n days}';
+    public string $commandSignature = 'fetch:email_tracking_events {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new} {--D|days= : fetch last n days} {--O|order= : order asc|desc}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?EmailTrackingEvent
@@ -75,13 +75,15 @@ class FetchAuroraEmailTrackingEvents extends FetchAuroraAction
     {
         $query = DB::connection('aurora')->table('Email Tracking Event Dimension')->select('Email Tracking Event Key as source_id');
         $query = $this->commonSelectModelsToFetch($query);
-        return $query->orderBy('Email Tracking Event Date');
+
+        return $query->orderBy('Email Tracking Event Date', $this->orderDesc ? 'desc' : 'asc');
     }
 
     public function count(): ?int
     {
         $query = DB::connection('aurora')->table('Email Tracking Event Dimension');
         $query = $this->commonSelectModelsToFetch($query);
+
         return $query->count();
     }
 
@@ -90,6 +92,7 @@ class FetchAuroraEmailTrackingEvents extends FetchAuroraAction
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }
+
 
         if ($this->fromDays) {
             $query->where('Email Tracking Event Date', '>=', now()->subDays($this->fromDays)->format('Y-m-d'));

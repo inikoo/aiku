@@ -13,6 +13,7 @@ namespace App\Actions\SysAdmin\Group\Hydrators;
 use App\Actions\Traits\WithEnumStats;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GroupHydrateCustomerBalances
@@ -36,28 +37,23 @@ class GroupHydrateCustomerBalances
     {
         $stats = [];
 
-        $stats['number_customers_with_balances'] = $group->customers->filter(function ($customer) {
-            return $customer->balance !== null;
-        })->count();
+        $stats['number_customers_with_balances'] = DB::table('customers')
+            ->where('group_id', $group->id)
+            ->where('balance', '!=', 0)
+            ->count();
 
-        $stats['number_customers_with_positive_balances']  = $group->customers->filter(function ($customer) {
-            return $customer->balance > 0;
-        })->count();
+        $stats['number_customers_with_positive_balances'] = DB::table('customers')
+            ->where('group_id', $group->id)
+            ->where('balance', '>', 0)
+            ->count();
 
-        $stats['number_customers_with_negative_balances']  = $group->customers->filter(function ($customer) {
-            return $customer->balance < 0;
-        })->count();
+        $stats['number_customers_with_negative_balances'] = DB::table('customers')
+            ->where('group_id', $group->id)
+            ->where('balance', '<', 0)
+            ->count();
 
 
-        $group->accountingStats()->updateOrCreate([], $stats);
-    }
-
-    public string $commandSignature = 'hydrate:group_customer_balances';
-
-    public function asCommand($command): void
-    {
-        $group = Group::first();
-        $this->handle($group);
+        $group->accountingStats->update($stats);
     }
 
 

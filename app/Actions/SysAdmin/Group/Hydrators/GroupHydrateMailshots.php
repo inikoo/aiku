@@ -11,6 +11,9 @@
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
+use App\Enums\Comms\Mailshot\MailshotStateEnum;
+use App\Enums\Comms\Mailshot\MailshotTypeEnum;
+use App\Models\Comms\Mailshot;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -38,15 +41,33 @@ class GroupHydrateMailshots
             'number_mailshots' => $group->mailshots()->count(),
         ];
 
-        $group->commsStats()->updateOrCreate([], $stats);
-    }
-    public string $commandSignature = 'hydrate:group-mailshots';
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'mailshots',
+                field: 'state',
+                enum: MailshotStateEnum::class,
+                models: Mailshot::class,
+                where: function ($q) use ($group) {
+                    $q->where('group_id', $group->id);
+                }
+            )
+        );
 
-    public function asCommand($command): void
-    {
-        $group = Group::first();
-        $this->handle($group);
-    }
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'mailshots',
+                field: 'type',
+                enum: MailshotTypeEnum::class,
+                models: Mailshot::class,
+                where: function ($q) use ($group) {
+                    $q->where('group_id', $group->id);
+                }
+            )
+        );
 
+        $group->commsStats->update($stats);
+    }
 
 }

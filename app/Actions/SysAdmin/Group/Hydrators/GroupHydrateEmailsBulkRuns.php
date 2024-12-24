@@ -11,6 +11,8 @@
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
+use App\Enums\Comms\EmailBulkRun\EmailBulkRunStateEnum;
+use App\Models\Comms\EmailBulkRun;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -38,15 +40,22 @@ class GroupHydrateEmailsBulkRuns
             'number_email_bulk_runs' => $group->emailBulkRuns()->count(),
         ];
 
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'email_bulk_runs',
+                field: 'state',
+                enum: EmailBulkRunStateEnum::class,
+                models: EmailBulkRun::class,
+                where: function ($q) use ($group) {
+                    $q->where('group_id', $group->id);
+                }
+            )
+        );
+
         $group->commsStats()->update($stats);
     }
-    public string $commandSignature = 'hydrate:group_email_bulk_runs';
 
-    public function asCommand($command): void
-    {
-        $group = Group::first();
-        $this->handle($group);
-    }
 
 
 }

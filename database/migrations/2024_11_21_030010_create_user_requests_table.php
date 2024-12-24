@@ -15,6 +15,8 @@ return new class () extends Migration {
     {
         Schema::create('user_requests', function (Blueprint $table) {
             $table->id();
+            $table->unsignedSmallInteger('group_id')->index();
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedSmallInteger('aiku_scoped_section_id')->nullable()->index();
             $table->foreign('aiku_scoped_section_id')->references('id')->on('aiku_scoped_sections')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedSmallInteger('user_id')->index();

@@ -26,6 +26,7 @@ return new class () extends Migration {
             $table = $this->orgPostRoomsStats($table);
             $table = $this->outboxesStats($table);
             $table = $this->mailshotsStats($table);
+            $table = $this->bulkRunsStats($table);
             $table = $this->dispatchedEmailStats($table);
             $table = $this->emailAddressStatsFields($table);
 

@@ -48,7 +48,7 @@ return new class () extends Migration {
 
             $table->unsignedBigInteger('transaction_id')->nullable();
             $table->foreign('transaction_id')->references('id')->on('transactions')->nullOnDelete();
-            $table->unsignedInteger('recurring_bill_transaction_id')->nullable();
+            $table->unsignedBigInteger('recurring_bill_transaction_id')->nullable();
 
             $table->decimal('quantity', 16, 3);
 

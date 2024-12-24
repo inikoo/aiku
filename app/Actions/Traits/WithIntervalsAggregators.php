@@ -12,19 +12,29 @@ use App\Enums\DateIntervals\DateIntervalEnum;
 
 trait WithIntervalsAggregators
 {
+    public function getIntervalsData(array $stats, $queryBase, $statField, $dateField = 'date', $sumField = 'sum_aggregate'): array
+    {
+        $stats = array_merge($stats, $this->getIntervalStats($queryBase, $statField, $dateField, $sumField));
+
+        return array_merge($stats, $this->getLastYearIntervalStats($queryBase, $statField, $dateField, $sumField));
+    }
+
+
     public function getIntervalStats(
         $queryBase,
         string $statField,
         string $dateField = 'date',
-        string $sumField = 'sum_amount'
+        string $sumField = 'sum_aggregate'
     ): array {
         $stats = [];
         foreach (DateIntervalEnum::cases() as $period) {
             $query = $queryBase->clone();
             $query = $period->wherePeriod($query, $dateField);
 
-            $stats[$statField . $period->value] = $query->first()[$sumField] ?? 0;
+            $res                              = $query->first();
+            $stats[$statField.$period->value] = $res->{$sumField} ?? 0;
         }
+
         return $stats;
     }
 
@@ -32,13 +42,14 @@ trait WithIntervalsAggregators
         $queryBase,
         string $statField,
         string $dateField = 'date',
-        string $sumField = 'sum_amount'
+        string $sumField = 'sum_aggregate'
     ): array {
         $stats = [];
         foreach (DateIntervalEnum::cases() as $period) {
             $query = $queryBase->clone();
             if ($query = $period->whereLastYearPeriod($query, $dateField)) {
-                $stats[$statField . $period->value . '_ly'] = $query->first()[$sumField] ?? 0;
+                $res                                    = $query->first();
+                $stats[$statField.$period->value.'_ly'] = $res->{$sumField} ?? 0;
             }
         }
 
@@ -46,18 +57,5 @@ trait WithIntervalsAggregators
         return $stats;
     }
 
-    public function processIntervalShopAssetsStats($queryBase): array
-    {
-
-        $stats = [];
-        $stats = array_merge($stats, $this->getIntervalStats($queryBase, 'sales_', 'date', 'sum_shop'));
-        $stats = array_merge($stats, $this->getLastYearIntervalStats($queryBase, 'sales_', 'date', 'sum_shop'));
-        $stats = array_merge($stats, $this->getIntervalStats($queryBase, 'sales_grp_currency_', 'date', 'sum_group'));
-        $stats = array_merge($stats, $this->getLastYearIntervalStats($queryBase, 'sales_grp_currency_', 'date', 'sum_group'));
-        $stats = array_merge($stats, $this->getIntervalStats($queryBase, 'sales_org_currency_', 'date', 'sum_org'));
-        $stats = array_merge($stats, $this->getLastYearIntervalStats($queryBase, 'sales_org_currency_', 'date', 'sum_org'));
-
-        return $stats;
-    }
 
 }

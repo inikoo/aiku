@@ -11,10 +11,14 @@ namespace App\Actions\Comms\Mailshot;
 use App\Actions\Comms\DispatchedEmail\StoreDispatchedEmail;
 use App\Actions\Comms\Traits\WithSendBulkEmails;
 use App\Actions\OrgAction;
+use App\Enums\Comms\DispatchedEmail\DispatchedEmailProviderEnum;
+use App\Enums\Comms\Mailshot\MailshotStateEnum;
+use App\Enums\Comms\Mailshot\MailshotTypeEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
+use App\Models\Catalogue\Shop;
 use App\Models\Comms\Outbox;
-use App\Models\SysAdmin\User;
+use App\Models\CRM\Customer;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -35,20 +39,23 @@ class SendMailshotTest extends OrgAction
         $parent = StoreMailshot::run($outbox, [
             'subject' => $outbox->emailOngoingRun->email->subject,
             'email_id' => $outbox->emailOngoingRun->email_id,
+            'type' => MailshotTypeEnum::MARKETING,
+            'state' => MailshotStateEnum::IN_PROCESS
         ]);
-        $recipients = User::whereIn('email', Arr::get($modelData, 'emails', []))->get();
+        $recipients = Customer::whereIn('email', Arr::get($modelData, 'emails', []))->get();
 
         foreach ($recipients as $recipient) {
             $dispatchedEmail = StoreDispatchedEmail::run($parent, $recipient, [
                 'is_test'   => true,
-                'outbox_id' => Outbox::where('type', OutboxTypeEnum::TEST)->pluck('id')->first()
-
+                'outbox_id' => Outbox::where('type', OutboxTypeEnum::TEST)->pluck('id')->first(),
+                'email_address' => $recipient->email,
+                'provider' => DispatchedEmailProviderEnum::SES
             ]);
             $dispatchedEmail->refresh();
 
-            $emailHtmlBody = GetHtmlLayout::run($parent, $dispatchedEmail);
+            $emailHtmlBody = $outbox->emailOngoingRun->email->liveSnapshot->compiled_layout;
 
-            $unsubscribeUrl = route('org.unsubscribe.mailshot.show', $dispatchedEmail->ulid);
+            $unsubscribeUrl = route('iris.unsubscribe.show', $dispatchedEmail->id);
 
             $this->sendEmailWithMergeTags(
                 $dispatchedEmail,
@@ -69,16 +76,6 @@ class SendMailshotTest extends OrgAction
         return DispatchedEmailResource::collection($dispatchedEmails);
     }
 
-    public function prepareForValidation(ActionRequest $request): void
-    {
-        if ($request->exists('emails')) {
-            $request->merge([
-                'emails' =>
-                    array_map('trim', explode(",", $request->get('emails')))
-            ]);
-        }
-    }
-
     public function rules(): array
     {
         return [
@@ -87,9 +84,9 @@ class SendMailshotTest extends OrgAction
         ];
     }
 
-    public function asController(Outbox $outbox, ActionRequest $request): Collection
+    public function asController(Shop $shop, Outbox $outbox, ActionRequest $request): Collection
     {
-        $this->initialisationFromShop($outbox->shop, $request);
+        $this->initialisationFromShop($shop, $request);
 
         return $this->handle($outbox, $this->validatedData);
     }

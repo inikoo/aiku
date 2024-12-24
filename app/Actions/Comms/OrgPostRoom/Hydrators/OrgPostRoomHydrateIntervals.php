@@ -11,14 +11,17 @@
 namespace App\Actions\Comms\OrgPostRoom\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
+use App\Actions\Traits\WithIntervalsAggregators;
 use App\Models\Comms\OrgPostRoom;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class OrgPostRoomHydrateIntervals
 {
     use AsAction;
     use WithEnumStats;
+    use WithIntervalsAggregators;
 
     private OrgPostRoom $orgPostRoom;
 
@@ -34,14 +37,43 @@ class OrgPostRoomHydrateIntervals
 
     public function handle(OrgPostRoom $orgPostRoom): void
     {
-        $metrics = ['dispatched', 'opened', 'clicked', 'unsubscribed', 'bounced'];
+        $stats = [];
+
+
+        // direct from sources
+        //        $queryBase = DB::table('dispatched_emails')->leftJoin('outboxes', 'dispatched_emails.outbox_id', '=', 'outboxes.id')
+        //            ->where('outboxes.org_post_room_id', $orgPostRoom->id)
+        //            ->whereNotNull('dispatched_emails.sent_at')
+        //            ->selectRaw('count(*) as  sum_aggregate ');
+        //        $stats = $this->getIntervalsData($stats, $queryBase, 'dispatched_emails_','dispatched_emails.sent_at');
+
+
+        $metrics    = [
+            'dispatched_emails',
+            'opened_emails',
+            'clicked_emails',
+            'bounced_emails',
+            'unsubscribed',
+        ];
         $timeFrames = [
-            'emails_all','emails_1y', 'emails_1q', 'emails_1m', 'emails_1w',
-            'emails_3d', 'emails_1d', 'emails_ytd', 'emails_qtd', 'emails_mtd',
-            'emails_wtd', 'emails_tdy', 'emails_lm', 'emails_lw', 'emails_ld'
+            'all',
+            '1y',
+            '1q',
+            '1m',
+            '1w',
+            '3d',
+            '1d',
+            'ytd',
+            'qtd',
+            'mtd',
+            'wtd',
+            'tdy',
+            'lm',
+            'lw',
+            'ld'
         ];
 
-        $timeFramesLastYear = array_filter(array_map(fn ($frame) => $frame !== 'emails_all' ? $frame . '_ly' : null, $timeFrames));
+        $timeFramesLastYear = array_filter(array_map(fn ($frame) => $frame !== 'all' ? $frame.'_ly' : null, $timeFrames));
 
 
         $allKeys = [];
@@ -59,7 +91,6 @@ class OrgPostRoomHydrateIntervals
 
 
         $orgPostRoom->intervals()->update($stats);
-
     }
 
 

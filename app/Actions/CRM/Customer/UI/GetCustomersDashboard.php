@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 23-12-2024-16h-12m
@@ -9,10 +10,6 @@
 namespace App\Actions\CRM\Customer\UI;
 
 use App\Enums\CRM\Customer\CustomerStateEnum;
-use App\Enums\CRM\Prospect\ProspectContactedStateEnum;
-use App\Enums\CRM\Prospect\ProspectFailStatusEnum;
-use App\Enums\CRM\Prospect\ProspectStateEnum;
-use App\Enums\CRM\Prospect\ProspectSuccessStatusEnum;
 use App\Models\Catalogue\Shop;
 use Lorisleiva\Actions\Concerns\AsObject;
 

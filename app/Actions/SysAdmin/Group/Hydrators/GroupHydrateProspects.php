@@ -39,17 +39,6 @@ class GroupHydrateProspects
 
     public function handle(Group $group): void
     {
-        // $totalProspectCustomerMale = $group->prospects()
-        // ->whereHas('customer', function ($query) {
-        //     $query->where('gender', 'male');
-        // })
-        // ->count();
-        // dd($totalProspectCustomerMale->toArray());
-        // foreach(GenderEnum::values() as $gender) {
-
-        // }
-
-
         $stats = [
             'number_prospects' => $group->prospects()->count(),
             'number_prospects_dont_contact_me' => $group->prospects()->where('dont_contact_me', true)->count(),
@@ -68,18 +57,9 @@ class GroupHydrateProspects
             )
         );
 
-        // $stats = array_merge(
-        //     $stats,
-        //     $this->getEnumStats(
-        //         model: 'prospects',
-        //         field: 'gender',
-        //         enum: GenderEnum::class,
-        //         models: Prospect::class,
-        //         where: function ($q) use ($group) {
-        //             $q->where('group_id', $group->id);
-        //         }
-        //     )
-        // );
+        foreach (GenderEnum::values() as $gender) {
+            $stats['number_prospects_gender_' . $gender] = $group->prospects()->where('data->gender', $gender)->count();
+        }
 
         $stats = array_merge(
             $stats,

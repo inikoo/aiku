@@ -17,6 +17,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class GroupHydrateEmailAddresses
 {
     use AsAction;
+
     private Group $group;
 
     public function __construct(Group $group)
@@ -36,13 +37,6 @@ class GroupHydrateEmailAddresses
         ];
 
         $group->commsStats()->update($stats);
-    }
-    public string $commandSignature = 'hydrate:group_email_addresses';
-
-    public function asCommand($command): void
-    {
-        $group = Group::first();
-        $this->handle($group);
     }
 
 

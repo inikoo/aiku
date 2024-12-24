@@ -15,12 +15,12 @@ enum MailshotStateEnum: string
     use EnumHelperTrait;
 
     case IN_PROCESS = 'in-process';
-    case READY      = 'ready';
-    case SCHEDULED  = 'scheduled';
-    case SENDING    = 'sending';
-    case SENT       = 'sent';
-    case CANCELLED  = 'cancelled';
-    case STOPPED    = 'stopped';
+    case READY = 'ready';
+    case SCHEDULED = 'scheduled';
+    case SENDING = 'sending';
+    case SENT = 'sent';
+    case CANCELLED = 'cancelled';
+    case STOPPED = 'stopped';
 
     public static function labels(): array
     {
@@ -46,7 +46,7 @@ enum MailshotStateEnum: string
 
 
             ],
-            'ready' => [
+            'ready'      => [
 
                 'tooltip' => __('Ready'),
                 'icon'    => 'fal fa-spell-check',
@@ -54,7 +54,7 @@ enum MailshotStateEnum: string
 
 
             ],
-            'scheduled' => [
+            'scheduled'  => [
 
                 'tooltip' => __('Scheduled'),
                 'icon'    => 'fal fa-seedling',
@@ -62,26 +62,26 @@ enum MailshotStateEnum: string
 
 
             ],
-            'sending'        => [
+            'sending'    => [
 
                 'tooltip' => __('sending'),
                 'icon'    => 'fal fa-paper-plane',
                 'class'   => 'animate-pulse'
 
             ],
-            'sent'     => [
+            'sent'       => [
 
                 'tooltip' => __('sent'),
                 'icon'    => 'fal fa-paper-plane',
                 'class'   => 'text-green-600'
             ],
-            'cancelled'     => [
+            'cancelled'  => [
 
                 'tooltip' => __('cancelled'),
                 'icon'    => 'fal fa-paper-plane',
                 'class'   => 'text-red-600'
             ],
-            'stopped'     => [
+            'stopped'    => [
 
                 'tooltip' => __('stopped'),
                 'icon'    => 'fas fa-stop',

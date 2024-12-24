@@ -207,7 +207,7 @@ const shop = ref()
 						</Column>
 
 						<!-- Refunds -->
-						<Column sortable headerClass="align-right">
+						<Column sortable headerClass="align-right" hidden>
 							<template #header>
 								<div class="flex justify-end items-end">
 									<span class="font-bold">Refunds</span>
@@ -237,6 +237,7 @@ const shop = ref()
 
 						<!-- Refunds: Diff 1y -->
 						<Column
+						hidden
 							sortable
 							class="overflow-hidden transition-all"
 							headerClass="align-right"
@@ -548,13 +549,14 @@ const shop = ref()
 							<Row>
 								<Column footer="Total"> Total </Column>
 								<Column
+								hidden
 									:footer="
 										groupStats.total[
 											selectedDateOption
 										].total_refunds.toString()
 									"
 									footerStyle="text-align:right" />
-								<Column footer="" footerStyle="text-align:right" />
+								<Column hidden footer="" footerStyle="text-align:right" />
 
 								<Column
 									:footer="

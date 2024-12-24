@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 23-12-2024-15h-05m
@@ -6,30 +7,20 @@
  * copyright 2024
 */
 
-
 namespace App\Actions\CRM\Poll\UI;
 
-use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
-use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Actions\Traits\WithCustomersSubNavigation;
-use App\Enums\Catalogue\Asset\AssetTypeEnum;
-use App\Http\Resources\Catalogue\CollectionResource;
 use App\Http\Resources\CRM\PollsResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Poll;
-use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -48,10 +39,9 @@ class IndexPolls extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(Poll::class);
-        if($parent instanceof Shop){
+        if ($parent instanceof Shop) {
             $queryBuilder->where('polls.shop_id', $parent->id);
-        } elseif ($parent instanceof Organisation)
-        {
+        } elseif ($parent instanceof Organisation) {
             $queryBuilder->where('polls.organisation_id', $parent->id);
         }
         $queryBuilder
