@@ -11,6 +11,7 @@ namespace App\Actions\SysAdmin\User\UI;
 use App\Actions\Analytics\UserRequest\UI\ShowUserRequestLogs;
 use App\Actions\GrpAction;
 use App\Actions\Helpers\History\UI\IndexHistory;
+use App\Actions\SysAdmin\User\WithUserSubNavigation;
 use App\Actions\UI\Grp\SysAdmin\ShowSysAdminDashboard;
 use App\Enums\UI\SysAdmin\UserTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -24,6 +25,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowUser extends GrpAction
 {
+    use WithUserSubNavigation;
+
     public function asController(User $user, ActionRequest $request): User
     {
         $this->initialisation(app('group'), $request)->withTab(UserTabsEnum::values());
@@ -76,7 +79,7 @@ class ShowUser extends GrpAction
                 ],
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => UserTabsEnum::navigation()
+                    'navigation' => $this->getUserNavigation($user, $request)
                 ],
 
                 UserTabsEnum::SHOWCASE->value => $this->tab == UserTabsEnum::SHOWCASE->value ?
