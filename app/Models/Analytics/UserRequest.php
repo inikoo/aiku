@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  *
  * @property int $id
- * @property int $group_id
  * @property int|null $aiku_scoped_section_id
  * @property int $user_id
  * @property string $date
@@ -27,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $browser
  * @property string $ip_address
  * @property string $location
+ * @property int|null $group_id
  * @property-read \App\Models\Analytics\AikuScopedSection|null $aikuScopedSection
  * @property-read User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserRequest newModelQuery()

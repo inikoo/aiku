@@ -8,6 +8,7 @@
 
 use App\Stubs\Migrations\HasHelpersStats;
 use App\Stubs\Migrations\HasQueriesStats;
+use App\Stubs\Migrations\HasSysAdminStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     use HasHelpersStats;
     use HasQueriesStats;
+    use HasSysAdminStats;
 
     public function up(): void
     {
@@ -23,15 +25,18 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('organisation_id');
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
 
-            $table = $this->imagesStats($table);
-            $table = $this->attachmentsStats($table);
-            $table = $this->uploadStats($table);
-            $table = $this->getQueriesStats($table);
-
             $table->boolean('has_fulfilment')->default('false');
             $table->boolean('has_dropshipping')->default('false');
             $table->boolean('has_production')->default('false');
             $table->boolean('has_agents')->default('false');
+
+            $table = $this->imagesStats($table);
+            $table = $this->attachmentsStats($table);
+            $table = $this->uploadStats($table);
+            $table = $this->getQueriesStats($table);
+            $table = $this->auditFields($table);
+
+
 
 
             $table->timestampsTz();

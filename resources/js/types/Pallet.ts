@@ -57,7 +57,7 @@ export interface PalletCustomer {
     updated_at: Date
     shop?: string
     shop_slug?: string
-    number_current_clients?: number
+    number_current_customer_clients?: number
 }
 
 export interface PieCustomer {

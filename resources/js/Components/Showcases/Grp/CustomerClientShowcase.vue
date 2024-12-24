@@ -31,7 +31,7 @@ interface CustomerDropshipping {
     email: string
     phone: string
     created_at: string
-    number_current_clients: number | null
+    number_current_customer_clients: number | null
     address: Address
 }
 

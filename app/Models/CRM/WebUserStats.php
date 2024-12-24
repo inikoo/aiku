@@ -25,6 +25,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $last_failed_login_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int $number_audits
+ * @property int $number_audits_event_created
+ * @property int $number_audits_event_updated
+ * @property int $number_audits_event_deleted
+ * @property int $number_audits_event_restored
+ * @property int $number_audits_event_customer_note
+ * @property int $number_audits_event_other
  * @property-read \App\Models\CRM\WebUser $webUser
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WebUserStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WebUserStats newQuery()

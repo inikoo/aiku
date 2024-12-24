@@ -12,8 +12,8 @@ use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\GrpAction;
 use App\Actions\SysAdmin\User\StoreUserRequest;
 use App\Actions\Traits\Rules\WithNoStrictRules;
-use App\Actions\Traits\UserRequest\WithLocationDetector;
-use App\Actions\Traits\UserRequest\WithWindowsDetector;
+use App\Actions\Utils\GetLocationFromIp;
+use App\Actions\Utils\GetOsFromUserAgent;
 use App\Models\Analytics\UserRequest;
 use App\Models\SysAdmin\User;
 use hisorange\BrowserDetect\Parser as Browser;
@@ -22,8 +22,7 @@ use Illuminate\Support\Carbon;
 class ProcessUserRequest extends GrpAction
 {
     use WithNoStrictRules;
-    use WithLocationDetector;
-    use WithWindowsDetector;
+
 
     /**
      * @throws \Throwable
@@ -44,11 +43,11 @@ class ProcessUserRequest extends GrpAction
             'route_name'             => $routeData['name'],
             'route_params'           => json_encode($routeData['arguments']),
             'aiku_scoped_section_id' => $aiku_scoped_section_id,
-            'os'                     => $this->detectWindows11($parsedUserAgent),
+            'os'                     => GetOsFromUserAgent::run($parsedUserAgent),
             'device'                 => $parsedUserAgent->deviceType(),
             'browser'                => explode(' ', $parsedUserAgent->browserName())[0] ?: 'Unknown',
             'ip_address'             => $ip,
-            'location'               => json_encode($this->getLocation($ip))
+            'location'               => json_encode(GetLocationFromIp::run($ip)),
         ];
 
         return StoreUserRequest::make()->action(
