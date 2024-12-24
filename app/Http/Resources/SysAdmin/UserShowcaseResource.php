@@ -8,6 +8,7 @@
 
 namespace App\Http\Resources\SysAdmin;
 
+use App\Actions\Analytics\UserRequest\ProcessUserRequest;
 use App\Actions\SysAdmin\User\StoreUserRequest;
 use App\Models\SysAdmin\User;
 use Illuminate\Contracts\Support\Arrayable;
@@ -37,7 +38,7 @@ class UserShowcaseResource extends JsonResource
             'last_active_at'          => $user->stats->last_active_at,
             'last_login'              => [
                 'ip'          => $user->stats->last_login_ip,
-                'geolocation' => StoreUserRequest::make()->getLocation($user->stats->last_login_ip)
+                'geolocation' => ProcessUserRequest::make()->getLocation($user->stats->last_login_ip)
             ]
         ];
     }
