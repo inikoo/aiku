@@ -8,11 +8,11 @@
 
 namespace App\Actions\Retina\Storage\PalletDelivery\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentRentals;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPhysicalGoodInPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexServiceInPalletDelivery;
+use App\Actions\Fulfilment\UI\Catalogue\Rentals\IndexFulfilmentRentals;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Storage\UI\ShowStorageDashboard;

@@ -93,7 +93,6 @@ onMounted(() => {
 });
 
 
-console.log(layout.colorThemed)
 provide('isPreviewLoggedIn', isPreviewLoggedIn)
 provide('isPreviewMode', isPreviewMode)
 
@@ -230,9 +229,9 @@ provide('isPreviewMode', isPreviewMode)
     @apply italic border-l-4 border-gray-300 p-4 py-2 ml-6 mt-6 mb-2 bg-gray-50;
 }
 
-.editor-class a {
+/* .editor-class a {
     @apply hover:underline text-blue-600 cursor-pointer;
-}
+} */
 
 .editor-class hr {
     @apply border-gray-400 my-4;

@@ -23,7 +23,7 @@ class FetchAuroraInvoices extends FetchAuroraAction
 {
     use WithAuroraParsers;
 
-    public string $commandSignature = 'fetch:invoices {organisations?*} {--s|source_id=} {--S|shop= : Shop slug}  {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions payments full} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:invoices {organisations?*} {--s|source_id=} {--S|shop= : Shop slug}  {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions payments full} {--d|db_suffix=} {--r|reset} {--T|only_orders_no_transactions : Fetch only orders with no transactions} {--D|days= : fetch last n days} {--O|order= : order asc|desc}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId, bool $forceWithTransactions = false): ?Invoice
     {
@@ -90,6 +90,11 @@ class FetchAuroraInvoices extends FetchAuroraAction
             if ($doTransactions) {
                 $this->fetchInvoiceTransactions($organisationSource, $invoice);
                 $this->fetchInvoiceNoProductTransactions($organisationSource, $invoice);
+                $sourceData = explode(':', $invoice->source_id);
+
+                DB::connection('aurora')->table('Invoice Dimension')
+                    ->where('Invoice Key', $sourceData[1])
+                    ->update(['aiku_all_id' => $invoice->id]);
             }
 
 
@@ -178,18 +183,10 @@ class FetchAuroraInvoices extends FetchAuroraAction
     {
         $query = DB::connection('aurora')
             ->table('Invoice Dimension')
-            ->select('Invoice Key as source_id')
-            ->orderBy('Invoice Date');
+            ->select('Invoice Key as source_id');
 
-        if ($this->shop) {
-            $sourceData = explode(':', $this->shop->source_id);
-            $query->where('Invoice Store Key', $sourceData[1]);
-        }
-        if ($this->onlyNew) {
-            $query->whereNull('aiku_id');
-        }
-
-        $query->orderBy('Invoice Date');
+        $query = $this->commonSelectModelsToFetch($query);
+        $query->orderBy('Invoice Date', $this->orderDesc ? 'desc' : 'asc');
 
         return $query;
     }
@@ -197,15 +194,29 @@ class FetchAuroraInvoices extends FetchAuroraAction
     public function count(): ?int
     {
         $query = DB::connection('aurora')->table('Invoice Dimension');
+        $query = $this->commonSelectModelsToFetch($query);
+
+        return $query->count();
+    }
+
+    public function commonSelectModelsToFetch($query)
+    {
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
+        } elseif ($this->onlyOrdersNoTransactions) {
+            $query->whereNull('aiku_all_id');
         }
+
+        if ($this->fromDays) {
+            $query->where('Invoice Date', '>=', now()->subDays($this->fromDays)->format('Y-m-d'));
+        }
+
         if ($this->shop) {
             $sourceData = explode(':', $this->shop->source_id);
             $query->where('Invoice Store Key', $sourceData[1]);
         }
 
-        return $query->count();
+        return $query;
     }
 
     public function reset(): void

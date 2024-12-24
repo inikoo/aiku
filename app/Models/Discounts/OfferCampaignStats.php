@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_offers_state_in_process
  * @property int $number_offers_state_active
  * @property int $number_offers_state_finished
+ * @property int $number_offers_state_suspended
  * @property string|null $first_used_at
  * @property string|null $last_used_at
  * @property int $number_customers

@@ -8,9 +8,15 @@
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
+use App\Actions\Procurement\OrgAgent\Search\ReindexOrgAgentSearch;
+use App\Actions\Procurement\OrgAgent\StoreOrgAgent;
+use App\Actions\Procurement\OrgPartner\Search\ReindexOrgPartnerSearch;
+use App\Actions\Procurement\OrgPartner\StoreOrgPartner;
+use App\Actions\Procurement\OrgSupplier\Search\ReindexOrgSupplierSearch;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
 use App\Actions\Procurement\OrgSupplierProducts\StoreOrgSupplierProduct;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\Search\ReindexPurchaseOrderSearch;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToNotReceived;
@@ -29,9 +35,12 @@ use App\Actions\Procurement\StockDeliveryItem\StoreStockDeliveryItemBySelectedPu
 use App\Actions\Procurement\StockDeliveryItem\UpdateStateToCheckedStockDeliveryItem;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
+use App\Actions\SupplyChain\SupplierProduct\Search\ReindexSupplierProductsSearch;
 use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
+use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\Procurement\PurchaseOrder;
@@ -50,6 +59,7 @@ beforeAll(function () {
 
 beforeEach(function () {
     $this->organisation = createOrganisation();
+    $this->otherOrganisation = createOrganisation();
     $this->group        = group();
 
     $this->stocks             = createStocks($this->group);
@@ -425,3 +435,57 @@ test('check supplier delivery items all correct', function ($stockDeliveryItems)
     }
     expect($stockDeliveryItems[0]->stockDelivery->fresh()->state)->toEqual(StockDeliveryStateEnum::RECEIVED);
 })->depends('create supplier delivery items by selected purchase order');
+
+
+test('org suppliers notes search', function () {
+    $this->artisan('search:org_suppliers')->assertExitCode(0);
+
+    $orgSupplier = OrgSupplier::first();
+    ReindexOrgSupplierSearch::run($orgSupplier);
+    expect($orgSupplier->universalSearch()->count())->toBe(1);
+});
+
+test('org agents notes search', function () {
+    $this->artisan('search:org_agents')->assertExitCode(0);
+
+    $orgAgent = OrgAgent::first();
+    if (!$orgAgent) {
+        $orgAgent     = StoreOrgAgent::make()->action(
+            $this->organisation,
+            $this->agent,
+            []
+        );
+    }
+    ReindexOrgAgentSearch::run($orgAgent);
+    expect($orgAgent->universalSearch()->count())->toBe(1);
+});
+
+test('org partners notes search', function () {
+    $this->artisan('search:org_partners')->assertExitCode(0);
+
+    $orgPartner = OrgPartner::first();
+    if (!$orgPartner) {
+        $orgPartner = StoreOrgPartner::make()->action(
+            $this->organisation,
+            $this->otherOrganisation,
+        );
+    }
+    ReindexOrgPartnerSearch::run($orgPartner);
+    expect($orgPartner->universalSearch()->count())->toBe(1);
+});
+
+test('purchase orders notes search', function () {
+    $this->artisan('search:purchase_orders')->assertExitCode(0);
+
+    $purchaseOrder = PurchaseOrder::first();
+    ReindexPurchaseOrderSearch::run($purchaseOrder);
+    expect($purchaseOrder->universalSearch()->count())->toBe(1);
+});
+
+test('supplier products notes search', function () {
+    $this->artisan('search:supplier_products')->assertExitCode(0);
+
+    $supplierProduct = SupplierProduct::first();
+    ReindexSupplierProductsSearch::run($supplierProduct);
+    expect($supplierProduct->universalSearch()->count())->toBe(1);
+});

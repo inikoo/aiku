@@ -34,6 +34,8 @@ class EmployeesResource extends JsonResource
             'state'         => $employee->state,
             'positions'     => $this->job_positions ? JobPositionLightResource::collection(json_decode($this->job_positions)) : null,
             'state_icon'    => $employee->state->stateIcon()[$employee->state->value],
+            'organisation_name' => $this->organisation_name,
+            'organisation_slug' => $this->organisation_slug,
         ];
     }
 }

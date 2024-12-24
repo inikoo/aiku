@@ -10,6 +10,7 @@ import { Link, router } from "@inertiajs/vue3"
 import Tag from "@/Components/Tag.vue"
 import TagPallet from '@/Components/TagPallet.vue'
 import '@/Composables/Icon/PalletReturnStateEnum'  // Import all icon for State
+import '@/Composables/Icon/Pallet/PalletType'  // Import all icon for State
 
 import Icon from "@/Components/Icon.vue"
 import Button from '@/Components/Elements/Buttons/Button.vue'
@@ -173,7 +174,7 @@ onBeforeMount(() => {
 			<div class="space-x-1 space-y-2">
 				<span v-if="item.customer_reference" class="font-medium">{{ item.customer_reference }}</span>
 				<span v-if="item.notes" class="text-gray-400 text-xs">
-					<FontAwesomeIcon icon='fal fa-sticky-note' class='text-gray-400' fixed-width aria-hidden='true' />
+					<FontAwesomeIcon v-tooltip="trans('note')" icon='fal fa-sticky-note' class='text-gray-400' fixed-width aria-hidden='true' />
 					{{ item.notes }}
 				</span>
                 <span v-else class="text-gray-400 text-xs">-</span>
@@ -216,7 +217,8 @@ onBeforeMount(() => {
         <!-- Column: Location -->
 		<template #cell(location)="{ item: palletDelivery }">
       <!--   <pre>{{ palletDelivery }}</pre> -->
-            <Tag :label="palletDelivery.location_code" />
+            <Tag v-if="palletDelivery.location_code" :label="palletDelivery.location_code" />
+            <div v-else class="text-gray-400">-</div>
 		</template>
 
 
@@ -251,6 +253,8 @@ onBeforeMount(() => {
                 >
                     <Button icon="fal fa-undo" label="Undo picking" type="tertiary" size="xs" :loading="isUndoLoading === pallet.id" class="py-0" />
                 </Link>
+
+                <div v-else-if="pallet.state === 'lost'" class="text-red-300 italic">{{ trans("Pallet lost") }}</div>
 
                 <!-- Button: Set as not picked -->
                 <Popover v-if="pallet.state === 'picking'">

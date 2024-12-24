@@ -12,11 +12,12 @@ namespace App\Actions\Procurement\PurchaseOrder\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\Procurement\PurchaseOrder;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexPurchaseOrderSearch extends HydrateModel
 {
-    public string $commandSignature = 'purchase_order:search {organisations?*} {--s|slugs=} ';
+    public string $commandSignature = 'search:purchase_orders {organisations?*} {--s|slugs=} ';
 
 
     public function handle(PurchaseOrder $purchaseOrder): void
@@ -32,5 +33,25 @@ class ReindexPurchaseOrderSearch extends HydrateModel
     protected function getAllModels(): Collection
     {
         return PurchaseOrder::all();
+    }
+
+    protected function loopAll(Command $command): void
+    {
+        $command->info("Reindex Org Suppliers");
+        $count = PurchaseOrder::count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        PurchaseOrder::chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
     }
 }

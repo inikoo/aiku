@@ -10,11 +10,12 @@ namespace App\Actions\HumanResources\Employee\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\HumanResources\Employee;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexEmployeeSearch extends HydrateModel
 {
-    public string $commandSignature = 'employee:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:employees {organisations?*} {--s|slugs=}';
 
 
     public function handle(Employee $employee): void
@@ -31,5 +32,25 @@ class ReindexEmployeeSearch extends HydrateModel
     protected function getAllModels(): Collection
     {
         return Employee::withTrashed()->get();
+    }
+
+    protected function loopAll(Command $command): void
+    {
+        $command->info("Reindex Employees");
+        $count = Employee::withTrashed()->count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        Employee::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
     }
 }

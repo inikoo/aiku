@@ -10,11 +10,13 @@ namespace App\Actions\Billables\Charge\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Http\Resources\Catalogue\ChargesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Billables\Charge;
 use App\Models\Catalogue\Shop;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -28,7 +30,16 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexCharges extends OrgAction
 {
     use HasCatalogueAuthorisation;
-    private Shop|Organisation $parent;
+
+    private Group|Shop|Organisation $parent;
+
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup(group(), $request);
+
+        return $this->handle($this->parent);
+    }
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
@@ -47,7 +58,7 @@ class IndexCharges extends OrgAction
     }
 
 
-    public function handle(Shop|Organisation $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Shop|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -69,9 +80,13 @@ class IndexCharges extends OrgAction
         //     );
         // }
 
+        $queryBuilder->leftJoin('organisations', 'charges.organisation_id', '=', 'organisations.id')
+        ->leftJoin('shops', 'charges.shop_id', '=', 'shops.id');
 
         if (class_basename($parent) == 'Shop') {
             $queryBuilder->where('charges.shop_id', $parent->id);
+        } elseif ($parent instanceof Group) {
+            $queryBuilder->where('charges.group_id', $parent->id);
         } elseif (class_basename($parent) == 'Organisation') {
             $queryBuilder->where('charges.organisation_id', $parent->id);
             $queryBuilder->leftJoin('shops', 'charges.shop_id', 'shops.id');
@@ -81,7 +96,6 @@ class IndexCharges extends OrgAction
                 'shops.name as shop_name',
             );
         }
-
 
 
         return $queryBuilder
@@ -94,15 +108,24 @@ class IndexCharges extends OrgAction
                 'charges.description',
                 'charges.created_at',
                 'charges.updated_at',
+                'invoices_all',
+                'sales_all',
+                'customers_invoiced_all',
+                'shops.name as shop_name',
+                'shops.slug as shop_slug',
+                'organisations.name as organisation_name',
+                'organisations.slug as organisation_slug',
             ])
             ->leftJoin('charge_stats', 'charges.id', 'charge_stats.charge_id')
-            ->allowedSorts(['code', 'name','shop_code'])
+            ->leftJoin('asset_sales_intervals', 'charges.asset_id', 'asset_sales_intervals.asset_id')
+            ->leftJoin('asset_ordering_intervals', 'charges.asset_id', 'asset_ordering_intervals.asset_id')
+            ->allowedSorts(['code', 'name', 'shop_code', 'sales_all', 'customers_invoiced_all', 'invoices_all'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure(Shop|Organisation $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
+    public function tableStructure(Group|Shop|Organisation $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
@@ -111,13 +134,6 @@ class IndexCharges extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            // foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-            //     $table->elementGroup(
-            //         key: $key,
-            //         label: $elementGroup['label'],
-            //         elements: $elementGroup['elements']
-            //     );
-            // }
 
             $table
                 ->defaultSort('code')
@@ -146,7 +162,15 @@ class IndexCharges extends OrgAction
                 $table->column(key: 'shop_code', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
             };
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'customers_invoiced_all', label: __('customers'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'invoices_all', label: __('invoices'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'sales_all', label: __('amount'), canBeHidden: false, sortable: true, searchable: true);
+
+            if ($parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
+                        ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+            }
         };
     }
 
@@ -157,7 +181,6 @@ class IndexCharges extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $charges, ActionRequest $request): Response
     {
-
         return Inertia::render(
             'Org/Catalogue/Charges',
             [
@@ -167,12 +190,12 @@ class IndexCharges extends OrgAction
                 ),
                 'title'       => __('Charges'),
                 'pageHead'    => [
-                    'title'     => __('charges'),
-                    'icon'      => [
+                    'title'   => __('charges'),
+                    'icon'    => [
                         'icon'  => ['fal', 'fa-folder-tree'],
                         'title' => __('charges')
                     ],
-                    'actions'   => [
+                    'actions' => [
                         $this->canEdit && $request->route()->getName() == 'grp.org.shops.show.billables.charges.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -210,6 +233,17 @@ class IndexCharges extends OrgAction
             'grp.org.shops.show.billables.charges.index' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.overview.billables.charges.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,

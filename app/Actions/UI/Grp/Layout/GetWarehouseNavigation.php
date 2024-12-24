@@ -65,7 +65,7 @@ class GetWarehouseNavigation
                             ? [
                             "label" => __("SKUs"),
                             "icon"  => ["fal", "fa-box"],
-                            'root'  => 'grp.org.warehouses.show.inventory.org_stocks.current_org_stocks.',
+                            'root'  => 'grp.org.warehouses.show.inventory.org_stocks.',
                             "route" => [
                                 "name"       => "grp.org.warehouses.show.inventory.org_stocks.current_org_stocks.index",
                                 "parameters" => [$warehouse->organisation->slug, $warehouse->slug],
@@ -78,7 +78,7 @@ class GetWarehouseNavigation
                                 "label"   => __("Stored pallets"),
                                 "tooltip" => __("Fulfilment: Stored pallets"),
                                 "icon"    => ["fal", "fa-pallet"],
-                                "root"    => "grp.org.warehouses.show.inventory.pallets.current",
+                                "root"    => "grp.org.warehouses.show.inventory.pallets.",
                                 "route"   => [
                                     "name"       => "grp.org.warehouses.show.inventory.pallets.current.index",
                                     "parameters" => [$warehouse->organisation->slug, $warehouse->slug],
@@ -168,6 +168,7 @@ class GetWarehouseNavigation
                     'subSections' => [
                         [
                             'icon'  => ['fal', 'fa-tasks-alt'],
+                            'root'  => 'grp.org.warehouses.show.incoming.backlog',
                             'route' => [
                                 "name"       => "grp.org.warehouses.show.incoming.backlog",
                                 "parameters" => [
@@ -180,6 +181,7 @@ class GetWarehouseNavigation
                         [
                             'label' => __('stock deliveries'),
                             'icon'  => ['fal', 'fa-truck-container'],
+                            'root'  => 'grp.org.warehouses.show.incoming.stock_deliveries.',
                             'route' => [
                                 "name"       => "grp.org.warehouses.show.incoming.stock_deliveries.index",
                                 "parameters" => [
@@ -192,6 +194,7 @@ class GetWarehouseNavigation
                         [
                             'label' => __('fulfilment deliveries'),
                             'icon'  => ['fal', 'fa-truck-couch'],
+                            'root'  => 'grp.org.warehouses.show.incoming.pallet_deliveries.',
                             'route' => [
                                 "name"       => "grp.org.warehouses.show.incoming.pallet_deliveries.index",
                                 "parameters" => [

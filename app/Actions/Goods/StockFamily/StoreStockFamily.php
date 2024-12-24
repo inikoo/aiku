@@ -9,23 +9,36 @@
 namespace App\Actions\Goods\StockFamily;
 
 use App\Actions\Goods\StockFamily\Hydrators\StockFamilyHydrateUniversalSearch;
-use App\Actions\GrpAction;
+use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStockFamilies;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Models\SupplyChain\StockFamily;
 use App\Models\SysAdmin\Group;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class StoreStockFamily extends GrpAction
+class StoreStockFamily extends OrgAction
 {
+    use WithNoStrictRules;
+
+    /**
+     * @throws \Throwable
+     */
     public function handle(Group $group, $modelData): StockFamily
     {
-        /** @var StockFamily $stockFamily */
-        $stockFamily = $group->stockFamilies()->create($modelData);
-        $stockFamily->stats()->create();
+        $stockFamily = DB::transaction(function () use ($group, $modelData) {
+            /** @var StockFamily $stockFamily */
+            $stockFamily = $group->stockFamilies()->create($modelData);
+            $stockFamily->stats()->create();
+            $stockFamily->intervals()->create();
+
+            return $stockFamily;
+        });
+
         GroupHydrateStockFamilies::dispatch($this->group);
         StockFamilyHydrateUniversalSearch::dispatch($stockFamily);
         $stockFamily->refresh();
@@ -39,13 +52,13 @@ class StoreStockFamily extends GrpAction
             return true;
         }
 
-        return true;
+        return $request->user()->hasPermissionTo("goods.{$this->group->id}.edit");
     }
 
     public function rules(): array
     {
-        return [
-            'code'        => [
+        $rules = [
+            'code' => [
                 'required',
                 'alpha_dash',
                 'max:32',
@@ -57,24 +70,39 @@ class StoreStockFamily extends GrpAction
                     ]
                 ),
             ],
-            'name'        => ['required', 'required', 'string', 'max:255'],
-            'source_id'   => ['sometimes', 'nullable', 'string'],
-            'source_slug' => ['sometimes', 'nullable', 'string'],
-            'fetched_at'  => ['sometimes', 'date'],
+            'name' => ['required', 'required', 'string', 'max:255'],
         ];
+        if (!$this->strict) {
+            $rules['source_slug'] = ['sometimes', 'nullable', 'string'];
+            $rules                = $this->noStrictStoreRules($rules);
+        }
+
+        return $rules;
     }
 
-    public function action(Group $group, array $modelData): StockFamily
+    /**
+     * @throws \Throwable
+     */
+    public function action(Group $group, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): StockFamily
     {
+        if (!$audit) {
+            StockFamily::disableAuditing();
+        }
+
         $this->asAction = true;
-        $this->initialisation($group, $modelData);
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->initialisationFromGroup($group, $modelData);
 
         return $this->handle($group, $this->validatedData);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(ActionRequest $request): StockFamily
     {
-        $this->initialisation(group(), $request);
+        $this->initialisationFromGroup(group(), $request);
 
         return $this->handle(group(), $this->validatedData);
     }

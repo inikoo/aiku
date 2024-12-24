@@ -8,20 +8,29 @@
 
 namespace App\Stubs\Migrations;
 
-use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStateEnum;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Enums\Inventory\OrgStock\OrgStockQuantityStatusEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Inventory\OrgStockAuditDelta\OrgStockAuditDeltaTypeEnum;
 use App\Enums\Inventory\OrgStockFamily\OrgStockFamilyStateEnum;
+use App\Enums\Inventory\OrgStockMovement\OrgStockMovementFlowEnum;
+use App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum;
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
-use App\Enums\SupplyChain\Stock\StockStateEnum;
-use App\Enums\SupplyChain\StockFamily\StockFamilyStateEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasInventoryStats
 {
-    use HasLocationsStats;
+    public function inventoryStatsFields(Blueprint $table): Blueprint
+    {
+        $table = $this->warehousesStats($table);
+        $table = $this->warehousesAreasStats($table);
+        $table = $this->locationsStats($table);
+        $table = $this->orgStockFamiliesStats($table);
+        $table = $this->orgStockStats($table);
+        $table = $this->orgStocksMovementsStats($table);
+
+        return $this->orgStocksAuditStats($table);
+    }
 
     public function warehousesStats(Blueprint $table): Blueprint
     {
@@ -29,38 +38,37 @@ trait HasInventoryStats
         foreach (WarehouseStateEnum::cases() as $case) {
             $table->unsignedInteger('number_warehouses_state_'.$case->snake())->default(0);
         }
-        $table->unsignedSmallInteger('number_warehouse_areas')->default(0);
-
-        return $this->locationsStats($table);
-    }
-
-
-    public function goodsStatsFields(Blueprint $table): Blueprint
-    {
-        $table->unsignedInteger('number_stock_families')->default(0);
-        $table->unsignedInteger('number_current_stock_families')->default(0)->comment('active + discontinuing');
-
-        foreach (StockFamilyStateEnum::cases() as $stockFamilyState) {
-            $table->unsignedInteger('number_stock_families_state_'.$stockFamilyState->snake())->default(0);
-        }
-
-        return $this->stockStatsFields($table);
-    }
-
-    public function stockStatsFields(Blueprint $table): Blueprint
-    {
-
-        $table->unsignedInteger('number_stocks')->default(0);
-        $table->unsignedInteger('number_current_stocks')->default(0)->comment('active + discontinuing');
-
-        foreach (StockStateEnum::cases() as $stockState) {
-            $table->unsignedInteger('number_stocks_state_'.$stockState->snake())->default(0);
-        }
 
         return $table;
     }
 
-    public function orgInventoryStats(Blueprint $table): Blueprint
+    public function warehousesAreasStats(Blueprint $table): Blueprint
+    {
+        $table->unsignedSmallInteger('number_warehouse_areas')->default(0);
+
+        return $table;
+    }
+
+    public function locationsStats(Blueprint $table): Blueprint
+    {
+        $table->unsignedSmallInteger('number_locations')->default(0);
+        $table->unsignedSmallInteger('number_locations_status_operational')->default(0);
+        $table->unsignedSmallInteger('number_locations_status_broken')->default(0);
+        $table->unsignedSmallInteger('number_empty_locations')->default(0);
+        $table->unsignedSmallInteger('number_locations_no_stock_slots')->default(0);
+
+        $table->unsignedSmallInteger('number_locations_allow_stocks')->default(0);
+        $table->unsignedSmallInteger('number_locations_allow_fulfilment')->default(0);
+        $table->unsignedSmallInteger('number_locations_allow_dropshipping')->default(0);
+
+
+        $table->decimal('stock_value', 14)->default(0);
+        $table->decimal('stock_commercial_value', 14)->default(0);
+
+        return $table;
+    }
+
+    public function orgStockFamiliesStats(Blueprint $table): Blueprint
     {
         $table->unsignedInteger('number_org_stock_families')->default(0);
         $table->unsignedInteger('number_current_org_stock_families')->default(0)->comment('active + discontinuing');
@@ -69,12 +77,11 @@ trait HasInventoryStats
             $table->unsignedInteger('number_org_stock_families_state_'.$stockFamilyState->snake())->default(0);
         }
 
-        return $this->orgStockStats($table);
+        return $table;
     }
 
     public function orgStockStats(Blueprint $table): Blueprint
     {
-
         $table->unsignedInteger('number_org_stocks')->default(0);
         $table->unsignedInteger('number_current_org_stocks')->default(0)->comment('active + discontinuing');
         $table->unsignedInteger('number_dropped_org_stocks')->default(0)->comment('discontinued + abnormality');
@@ -91,28 +98,21 @@ trait HasInventoryStats
         return $table;
     }
 
-
-    public function deliveryNoteStats(Blueprint $table): Blueprint
+    public function orgStocksMovementsStats(Blueprint $table): Blueprint
     {
-        $table->unsignedInteger('number_deliveries')->default(0);
-        $table->unsignedInteger('number_deliveries_type_order')->default(0);
-        $table->unsignedInteger('number_deliveries_type_replacement')->default(0);
-
-
-        foreach (DeliveryNoteItemStateEnum::cases() as $case) {
-            $table->unsignedInteger('number_deliveries_state_'.$case->snake())->default(0);
+        $table->unsignedBigInteger('number_org_stock_movements')->default(0);
+        foreach (OrgStockMovementTypeEnum::cases() as $case) {
+            $table->unsignedBigInteger("number_org_stock_movements_type_{$case->snake()}")->default(0);
         }
-        foreach (DeliveryNoteItemStateEnum::cases() as $case) {
-            $table->unsignedInteger('number_deliveries_cancelled_at_state_'.$case->snake())->default(0);
+        foreach (OrgStockMovementFlowEnum::cases() as $case) {
+            $table->unsignedBigInteger("number_org_stock_movements_flow_{$case->snake()}")->default(0);
         }
-
 
         return $table;
     }
 
     public function orgStocksAuditStats(Blueprint $table): Blueprint
     {
-
         $table->unsignedInteger('number_org_stock_audits')->default(0);
         foreach (StoredItemAuditStateEnum::cases() as $case) {
             $table->unsignedInteger("number_org_stock_audits_state_{$case->snake()}")->default(0);
@@ -125,5 +125,6 @@ trait HasInventoryStats
 
         return $table;
     }
+
 
 }

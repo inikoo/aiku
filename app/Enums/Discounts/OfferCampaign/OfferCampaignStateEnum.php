@@ -9,31 +9,30 @@
 namespace App\Enums\Discounts\OfferCampaign;
 
 use App\Enums\EnumHelperTrait;
-use App\Models\Catalogue\Shop;
 
 enum OfferCampaignStateEnum: string
 {
     use EnumHelperTrait;
 
     case IN_PROCESS = 'in-process';
-    case ACTIVE     = 'active';
-    case FINISHED   = 'finished';
+    case ACTIVE = 'active';
+    case FINISHED = 'finished';
+    case SUSPENDED = 'suspended';
 
-    public static function labels(Shop $shop): array
+    public static function labels(): array
     {
-        $labels = [
-            'in-process'   => __('In process'),
-            'active'       => __('Active'),
-            'finished'     => __('Finished'),
+        return [
+            'in-process' => __('In process'),
+            'active'     => __('Active'),
+            'finished'   => __('Finished'),
+            'suspended'  => __('Suspended'),
         ];
-
-        return $labels;
     }
 
     public static function stateIcon(): array
     {
         return [
-            'in-process'   => [
+            'in-process' => [
                 'tooltip' => __('In Process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
@@ -43,7 +42,7 @@ enum OfferCampaignStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'active'    => [
+            'active'     => [
                 'tooltip' => __('Active'),
                 'icon'    => 'fal fa-share',
                 'class'   => 'text-indigo-400',
@@ -53,7 +52,7 @@ enum OfferCampaignStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'finished'    => [
+            'finished'   => [
                 'tooltip' => __('Finished'),
                 'icon'    => 'fal fa-spell-check',
                 'class'   => 'text-emerald-500',
@@ -63,6 +62,16 @@ enum OfferCampaignStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
+            'suspended'  => [
+                'tooltip' => __('Suspended'),
+                'icon'    => 'fal fa-pause',
+                'class'   => 'text-red-500',
+                'color'   => 'red',
+                'app'     => [
+                    'name' => 'pause',
+                    'type' => 'font-awesome-5'
+                ]
+            ]
         ];
     }
 }

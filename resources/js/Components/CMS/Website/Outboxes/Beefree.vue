@@ -3,14 +3,17 @@ import { onMounted, defineExpose, ref, inject } from "vue";
 import axios from "axios"
 import Bee from "@mailupinc/bee-plugin";
 import { routeType } from "@/types/route";
-import { router } from "@inertiajs/vue3"
 import EmptyState from "@/Components/Utils/EmptyState.vue";
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
+import { mergetags } from "@/Composables/variableList";
+import { notify } from "@kyvg/vue3-notification";
+
 
 const props = withDefaults(defineProps<{
     updateRoute: routeType;
     imagesUploadRoute: routeType
     snapshot: any
+    mergeTags: Array<any>
     apiKey: {
         client_id: string,
         client_secret: string,
@@ -20,74 +23,70 @@ const props = withDefaults(defineProps<{
 
 const locale = inject('locale', aikuLocaleStructure)
 const showBee = ref(false)
-var mergeTags = [
-    {
-        name: 'First Name',
-        value: '[first-name]'
-    }, {
-        name: 'Last Name',
-        value: '[last-name]'
-    }, {
-        name: 'Email',
-        value: '[email]'
-    }, {
-        name: 'Latest order date',
-        value: '[order-date]'
-    }
-];
+const token = ref(null)
+const beeInstance = ref(null)
 
 
-const onSaveEmail = (jsonFile, htmlFile) => {
+const emits = defineEmits<{
+    (e: 'onSave', value: string | number): void
+    (e: 'sendTest', value: string | number): void
+    (e: 'saveTemplate', value: string | number): void
+    (e: 'autoSave', value: string | number): void
+}>()
+
+
+/* const onSaveEmail = (jsonFile, htmlFile) => {
     axios
         .patch(
-            route(props.updateRoute.name, props.updateRoute.parameters), // Constructed URL
+            route(props.updateRoute.name, props.updateRoute.parameters),
             {
                 layout: JSON.parse(jsonFile),
-                compiled_layout: htmlFile
-            }, // Payload
-            {
-                onUploadProgress: (progressEvent) => {
-                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                    console.log(`Upload progress: ${percentCompleted}%`);
-                },
-            }
+            },
         )
         .then((response) => {
             console.log("autosave successful:", response.data);
-            // Handle success (equivalent to onFinish)
         })
         .catch((error) => {
             console.error("autosave failed:", error);
+            notify({
+                title: "Failed to save",
+			    type: "error",   
+            })
         })
         .finally(() => {
             console.log("autosave finished.");
         });
-}
+} */
 
+const getCatalog = () => {
+    console.log(beeInstance.value)
+};
 
 const beeConfig = () => {
-    const beeInstance = new Bee();
+    beeInstance.value = new Bee();
     var endpoint = "https://auth.getbee.io/apiauth";
     var payload = {
         client_id: props.apiKey.client_id,
         client_secret: props.apiKey.client_secret,
     };
+    var headers = {
+        Authorization: token.value ? `Bearer ${token.value.access_token}` : null,
+        'Content-Type': 'application/json',
+    }
     axios
-        .post(endpoint, payload)
+        .post(endpoint,payload,headers)
         .then((response) => {
-            const token = response.data;
+            token.value = response.data;
             const config = {
-                uid: token.userName,
+                uid: token.value.userName,
                 container: "bee-plugin-container",
                 language: "en-US",
-                /*   customCss: "https://bee-plugin-demos.getbee.io/themes/coral.css", */
                 loadingSpinnerDisableOnDialog: true,
                 saveRows: true,
                 disableBaseColors: true,
                 disableColorHistory: true,
                 templateLanguageAutoTranslation: true,
-                mergeTags: mergeTags,
-                /*  contentDialog, */
+                mergeTags: props.mergeTags,
                 customAttributes: {
                     attributes: [
                         {
@@ -109,48 +108,60 @@ const beeConfig = () => {
                     ]
                 },
                 autosave: 20,
-                onFilePickerInsert: function (data) {
-                    // Handle the selected file data
-                    console.log("File Inserted:", data);
-                    // Perform any necessary actions with the file data
+                onSend: (htmlFile, jsonFile) => {
+                    emits('sendTest', { jsonFile, htmlFile })
                 },
                 onSave: function (jsonFile, htmlFile) {
-                    onSaveEmail(jsonFile,null)
+                    emits('onSave', { jsonFile, htmlFile })
+                },
+                onSaveAsTemplate: (jsonFile, htmlFile) => {
+                    emits('saveTemplate', { jsonFile, htmlFile })
                 },
                 onAutoSave: function (jsonFile) {
-                    onSaveEmail(jsonFile,null)
+                    /* onSaveEmail(jsonFile, null) */
+                    emits('autoSave',jsonFile) 
                 }
             };
-            beeInstance
+            beeInstance.value
                 .getToken(payload.client_id, payload.client_secret)
-                .then(() => beeInstance.start(config, JSON.stringify(props.snapshot.layout)))
+                .then(() => {
+                    beeInstance.value.start(config, JSON.stringify(props.snapshot.layout))
+                    getCatalog()
+                })
         })
-        .catch((error) => {
+        .catch((error) => { 
+            if(error.message == "Network Error") location.reload();
             console.error("Error authenticating:", error);
         });
 }
 
-onMounted(() => {
-    if (props.apiKey.client_id && props.apiKey.client_secret) {
-        showBee.value = true
-        beeConfig()
-    } else {
-        showBee.value = false
-    }
 
+onMounted(() => { 
+    if (!token.value) {
+        if (props.apiKey.client_id && props.apiKey.client_secret) {
+            showBee.value = true
+            beeConfig()
+        } else {
+            showBee.value = false
+        }
+    }else{
+        token.value = beeInstance.value.updateToken() 
+    }
 });
 
-defineExpose({})
+defineExpose({
+    beeInstance,
+})
 
 </script>
 
 <template>
     <div class="bg-yellow-500 font-bold text-white flex justify-center">
-        This is Real Beefree api key from Ourora beecarefull
+        This is Real Beefree api key from Ourora becarefull
     </div>
 
     <div v-if="showBee" id="app">
-        <div id="bee-plugin-container" class="unlayer"></div>
+        <div id="bee-plugin-container" class="beefree"></div>
     </div>
 
     <div v-else>
@@ -169,8 +180,12 @@ defineExpose({})
 </template>
 
 
-<style>
-.unlayer {
+<style scoped>
+.beefree {
     height: calc(100vh - 177px);
+}
+
+.top-bar {
+    display: none;
 }
 </style>

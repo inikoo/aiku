@@ -29,19 +29,24 @@ class FetchAuroraStockFamilies extends FetchAuroraAction
                     $stockFamily = UpdateStockFamily::make()->action(
                         stockFamily: $stockFamily,
                         modelData: $stockFamilyData['stock_family'],
+                        hydratorsDelay: 60,
+                        strict: false,
                         audit: false
                     );
                 }
             } else {
                 $stockFamily = StoreStockFamily::make()->action(
                     group: $organisationSource->getOrganisation()->group,
-                    modelData: $stockFamilyData['stock_family']
+                    modelData: $stockFamilyData['stock_family'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
                 );
             }
 
             $organisation = $organisationSource->getOrganisation();
 
-            $effectiveStockFamily =    $stockFamily ?? $baseStockFamily;
+            $effectiveStockFamily = $stockFamily ?? $baseStockFamily;
 
             if (!$effectiveStockFamily->orgStockFamilies()->where('organisation_id', $organisation->id)->first()) {
                 StoreOrgStockFamily::run($organisation, $effectiveStockFamily, [
@@ -64,10 +69,7 @@ class FetchAuroraStockFamilies extends FetchAuroraAction
             ->select('Category Key as source_id')
             ->where('Category Branch Type', 'Head')
             ->where('Category Scope', 'Part')
-            ->orderBy('source_id')
-            ->when(app()->environment('testing'), function ($query) {
-                return $query->limit(20);
-            });
+            ->orderBy('source_id');
     }
 
     public function count(): ?int

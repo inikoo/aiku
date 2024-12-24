@@ -18,16 +18,16 @@ enum OrgPostRoomsTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case OVERVIEW            = 'overview';
+    case SHOWCASE            = 'showcase';
     case OUTBOXES            = 'outboxes';
     case MAILSHOTS           = 'mailshots';
 
     public function blueprint(): array
     {
         return match ($this) {
-            OrgPostRoomsTabsEnum::OVERVIEW => [
+            OrgPostRoomsTabsEnum::SHOWCASE => [
                 'title' => __('overview'),
-                'icon'  => 'fal fa-mailbox',
+                'icon'  => 'fal fa-tachometer-alt-fast',
             ],
             OrgPostRoomsTabsEnum::OUTBOXES => [
                 'title' => __('outboxes'),

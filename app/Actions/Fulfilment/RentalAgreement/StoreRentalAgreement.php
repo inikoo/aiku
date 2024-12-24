@@ -25,9 +25,9 @@ use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Redirect;
 
 class StoreRentalAgreement extends OrgAction
 {
@@ -202,7 +202,7 @@ class StoreRentalAgreement extends OrgAction
 
     public function htmlResponse(RentalAgreement $rentalAgreement): Response
     {
-        return Inertia::location(route('grp.org.fulfilments.show.crm.customers.show', [
+        return Redirect::route(route('grp.org.fulfilments.show.crm.customers.show', [
             'organisation'       => $rentalAgreement->organisation->slug,
             'fulfilment'         => $rentalAgreement->fulfilment->slug,
             'fulfilmentCustomer' => $rentalAgreement->fulfilmentCustomer->slug

@@ -3,7 +3,18 @@ export default {
         {
             key: ["container", "properties"],
             name: "Body",
-            type: "properties"
+            replaceForm: [
+                {
+                    key: ["background"],
+                    label: "Background",
+                    type: "background"
+                },
+                {
+                    key: ["text"],
+                    label: "Text",
+                    type: "textProperty"
+                }
+            ]
         },
         {
             key: ["phone"],
@@ -16,7 +27,7 @@ export default {
                 },
                 {
                     key: ["caption"],
-                    label: "caption",
+                    label: "Caption",
                     type: "text"
                 }
             ]
@@ -32,12 +43,12 @@ export default {
                 },
                 {
                     key: ["caption"],
-                    label: "caption",
+                    label: "Caption",
                     type: "text"
                 },
                 {
                     key: ["message"],
-                    label: "message",
+                    label: "Message",
                     type: "text"
                 }
             ]

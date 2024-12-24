@@ -9,11 +9,13 @@
 namespace App\Actions\Accounting\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\CustomerBalancesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -26,9 +28,9 @@ use App\Services\QueryBuilder;
 
 class IndexCustomerBalances extends OrgAction
 {
-    private Organisation|Shop $parent;
+    private Group|Organisation|Shop $parent;
 
-    public function handle(Shop|Organisation $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Shop|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -48,7 +50,10 @@ class IndexCustomerBalances extends OrgAction
             $queryBuilder->where('customers.organisation_id', $parent->id);
         } elseif ($parent instanceof Shop) {
             $queryBuilder->where('customers.shop_id', $parent->id);
+        } elseif ($parent instanceof Group) {
+            $queryBuilder->where('customers.group_id', $parent->id);
         }
+        $queryBuilder->leftjoin('organisations', 'customers.organisation_id', '=', 'organisations.id');
         $queryBuilder->leftjoin('shops', 'customers.shop_id', 'shops.id');
         $queryBuilder->leftjoin('fulfilments', 'fulfilments.shop_id', 'shops.id');
 
@@ -72,7 +77,11 @@ class IndexCustomerBalances extends OrgAction
                 'customers.balance as balance',
                 'shops.slug as shop_slug',
                 'shops.type as shop_type',
-                'fulfilments.slug as fulfilment_slug'
+                'fulfilments.slug as fulfilment_slug',
+                'shops.name as shop_name',
+                'shops.slug as shop_slug',
+                'organisations.name as organisation_name',
+                'organisations.slug as organisation_slug',
             ])
             ->allowedSorts(['id', 'name', 'slug','balance'])
             ->allowedFilters([$globalSearch])
@@ -80,7 +89,7 @@ class IndexCustomerBalances extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Shop|Organisation $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Group|Shop|Organisation $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {
@@ -95,13 +104,20 @@ class IndexCustomerBalances extends OrgAction
                     []
                 )
                 ->column(key: 'name', label: __('Customer'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'balance', label: __('balance'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('id');
+                ->column(key: 'balance', label: __('balance'), canBeHidden: false, sortable: true, searchable: true);
+            if ($parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
+                $table->column(key: 'shop_name', label: __('shop'), canBeHidden: false, searchable: true);
+            }
+            $table->defaultSort('id');
         };
     }
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        }
         $this->canEdit = $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
 
         return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
@@ -123,6 +139,14 @@ class IndexCustomerBalances extends OrgAction
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle($shop);
+    }
+
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup(group(), $request);
+
+        return $this->handle(group());
     }
 
     public function jsonResponse(LengthAwarePaginator $customers): AnonymousResourceCollection
@@ -198,6 +222,16 @@ class IndexCustomerBalances extends OrgAction
             array_merge(
                 ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', $routeParameters),
                 $headCrumb($routeParameters)
+            ),
+            'grp.overview.accounting.customer-balances.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name' => $routeName,
+                        'parameters' => $routeParameters
+                    ]
+                )
             ),
             default => []
         };

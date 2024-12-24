@@ -174,6 +174,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, OfferCampaign> $offerCampaigns
  * @property-read LaravelCollection<int, Offer> $offers
  * @property-read \App\Models\SysAdmin\OrganisationOrderHandlingStats|null $orderHandlingStats
+ * @property-read \App\Models\SysAdmin\OrganisationOrderingIntervals|null $orderingIntervals
  * @property-read \App\Models\SysAdmin\OrganisationOrderingStats|null $orderingStats
  * @property-read LaravelCollection<int, Order> $orders
  * @property-read LaravelCollection<int, OrgAgent> $orgAgents
@@ -351,6 +352,11 @@ class Organisation extends Model implements HasMedia, Auditable
     public function salesIntervals(): HasOne
     {
         return $this->hasOne(OrganisationSalesIntervals::class);
+    }
+
+    public function orderingIntervals(): HasOne
+    {
+        return $this->hasOne(OrganisationOrderingIntervals::class);
     }
 
     public function orderHandlingStats(): HasOne
@@ -595,7 +601,7 @@ class Organisation extends Model implements HasMedia, Auditable
         return $this->productCategories()->where('type', ProductCategoryTypeEnum::SUB_DEPARTMENT)->get();
     }
 
-    public function families(): ?LaravelCollection
+    public function getFamilies(): ?LaravelCollection
     {
         return $this->productCategories()->where('type', ProductCategoryTypeEnum::FAMILY)->get();
     }

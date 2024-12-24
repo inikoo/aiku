@@ -21,7 +21,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedBigInteger('invoice_transaction_id')->nullable()->comment('original transaction');
-            $table->foreign('invoice_transaction_id')->references('id')->on('invoice_transactions');
+            $table->foreign('invoice_transaction_id')->references('id')->on('invoice_transactions')->cascadeOnDelete();
             $table->unsignedBigInteger('post_invoice_transaction_id')->nullable()->comment('Associated refund transaction');
             $table->foreign('post_invoice_transaction_id')->references('id')->on('invoice_transactions');
 

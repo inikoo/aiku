@@ -41,7 +41,7 @@ class ProductCategoryHydrateFamilies
         }
 
         $stats = [
-            'number_families' => $productCategory->families()->count(),
+            'number_families' => $productCategory->getFamilies()->count(),
         ];
 
         $stats = array_merge(

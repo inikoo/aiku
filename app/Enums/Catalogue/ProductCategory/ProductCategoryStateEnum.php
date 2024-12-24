@@ -12,6 +12,7 @@ use App\Enums\EnumHelperTrait;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 
 enum ProductCategoryStateEnum: string
@@ -78,7 +79,7 @@ enum ProductCategoryStateEnum: string
         ];
     }
 
-    public static function countDepartments(Shop|Organisation|Collection $parent): array
+    public static function countDepartments(Group|Shop|Organisation|Collection $parent): array
     {
         if ($parent instanceof Organisation) {
             $stats = $parent->catalogueStats;
@@ -94,7 +95,7 @@ enum ProductCategoryStateEnum: string
         ];
     }
 
-    public static function countFamily(Shop|ProductCategory|Organisation|Collection $parent): array
+    public static function countFamily(Group|Shop|ProductCategory|Organisation|Collection $parent): array
     {
         if ($parent instanceof Organisation) {
             $stats = $parent->catalogueStats;

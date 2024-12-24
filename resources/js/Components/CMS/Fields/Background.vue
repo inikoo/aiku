@@ -2,6 +2,7 @@
 import { onMounted, watch, computed } from 'vue'
 import BackgroundProperty from '@/Components/Workshop/Properties/BackgroundProperty.vue'
 import { trans } from 'laravel-vue-i18n'
+import { routeType } from '@/types/route';
 
 const props = defineProps<{
     uploadImageRoute?: routeType
@@ -33,7 +34,7 @@ onMounted(() => {
 
 <template>
     <div v-if="model" class="">
-        <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Background') }}</div>
+<!--         <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Background') }}</div> -->
         <BackgroundProperty v-model="model" :uploadImageRoute="uploadImageRoute" />
     </div>
 </template>

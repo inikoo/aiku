@@ -98,7 +98,6 @@ class StoreShop extends OrgAction
             );
 
 
-
             $shop->stats()->create();
             $shop->accountingStats()->create();
             $shop->commsStats()->create();
@@ -108,7 +107,7 @@ class StoreShop extends OrgAction
             $shop->orderHandlingStats()->create();
             $shop->mailshotsIntervals()->create();
             $shop->discountsStats()->create();
-
+            $shop->orderingIntervals()->create();
 
 
             if ($shop->type === ShopTypeEnum::DROPSHIPPING) {
@@ -152,7 +151,6 @@ class StoreShop extends OrgAction
                     ]
                 );
                 SeedAikuScopedSections::make()->seedFulfilmentAikuScopedSection($fulfilment);
-
             } else {
                 SeedShopPermissions::run($shop);
                 SeedAikuScopedSections::make()->seedShopAikuScopedSection($shop);
@@ -194,10 +192,8 @@ class StoreShop extends OrgAction
         SeedJobPositions::run($organisation);
         SetIconAsShopLogo::dispatch($shop)->delay($this->hydratorsDelay);
 
+        SeedOfferCampaigns::run($shop);
 
-        if ($shop->type == ShopTypeEnum::B2B) {
-            SeedOfferCampaigns::run($shop);
-        }
 
         return $shop;
     }

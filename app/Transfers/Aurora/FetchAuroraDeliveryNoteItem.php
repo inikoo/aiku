@@ -18,62 +18,56 @@ class FetchAuroraDeliveryNoteItem extends FetchAurora
 {
     protected function parseDeliveryNoteTransaction(DeliveryNote $deliveryNote): void
     {
+        $orgStock = null;
         if ($this->auroraModelData->{'Part SKU'}) {
             $orgStock = $this->parseOrgStock($this->organisation->id.':'.$this->auroraModelData->{'Part SKU'});
-
-
-            if ($orgStock) {
-                $auroraTransaction = $this->organisation->id.':'.$this->auroraModelData->{'Map To Order Transaction Fact Key'};
-
-                $transaction = $this->parseTransaction($auroraTransaction);
-
-                $this->parsedData['type'] = $this->auroraModelData->{'Inventory Transaction Type'};
-
-                $state = match ($deliveryNote->state) {
-                    DeliveryNoteStateEnum::UNASSIGNED => DeliveryNoteItemStateEnum::UNASSIGNED,
-                    DeliveryNoteStateEnum::QUEUED => DeliveryNoteItemStateEnum::QUEUED,
-                    DeliveryNoteStateEnum::HANDLING, DeliveryNoteStateEnum::HANDLING_BLOCKED => DeliveryNoteItemStateEnum::HANDLING,
-                    DeliveryNoteStateEnum::PACKED => DeliveryNoteItemStateEnum::PACKED,
-                    DeliveryNoteStateEnum::FINALISED => DeliveryNoteItemStateEnum::FINALISED,
-                    DeliveryNoteStateEnum::DISPATCHED => DeliveryNoteItemStateEnum::DISPATCHED,
-                    DeliveryNoteStateEnum::CANCELLED => DeliveryNoteItemStateEnum::CANCELLED,
-                };
-
-
-                $quantity_required   = $this->auroraModelData->{'Required'};
-                $quantity_dispatched = -$this->auroraModelData->{'Inventory Transaction Quantity'};
-
-
-                $transactionID = $transaction?->id;
-
-
-                $stock = Stock::withTrashed()->find($orgStock->stock_id);
-
-                $this->parsedData['delivery_note_item'] = [
-                    'transaction_id'      => $transactionID,
-                    'state'               => $state,
-                    'quantity_required'   => $quantity_required,
-                    'quantity_picked'     => $this->auroraModelData->{'Picked'},
-                    'quantity_packed'     => $this->auroraModelData->{'Packed'},
-                    'quantity_dispatched' => $quantity_dispatched,
-                    'source_id'           => $this->organisation->id.':'.$this->auroraModelData->{'Inventory Transaction Key'},
-                    'created_at'          => $this->auroraModelData->{'Date Created'},
-                    'fetched_at'          => now(),
-                    'last_fetched_at'     => now(),
-                    'org_stock_id'        => $orgStock->id,
-                    'org_stock_family_id' => $orgStock->org_stock_family_id,
-                    'stock_id'            => $stock ? $stock->id : null,
-                    'stock_family_id'     => $stock ? $stock->stock_family_id : null
-
-
-                ];
-            } else {
-                print "Warning Part SKU  ".$this->auroraModelData->{'Part SKU'}." not found while creating DN item >".$this->auroraModelData->{'Inventory Transaction Key'}."\n";
-                dd('xx');
-            }
-        } else {
-            print "Warning Part SKU missing in inventory transaction >".$this->auroraModelData->{'Inventory Transaction Key'}."\n";
         }
+
+
+        $auroraTransaction = $this->organisation->id.':'.$this->auroraModelData->{'Map To Order Transaction Fact Key'};
+
+        $transaction = $this->parseTransaction($auroraTransaction);
+
+        $this->parsedData['type'] = $this->auroraModelData->{'Inventory Transaction Type'};
+
+        $state = match ($deliveryNote->state) {
+            DeliveryNoteStateEnum::UNASSIGNED => DeliveryNoteItemStateEnum::UNASSIGNED,
+            DeliveryNoteStateEnum::QUEUED => DeliveryNoteItemStateEnum::QUEUED,
+            DeliveryNoteStateEnum::HANDLING, DeliveryNoteStateEnum::HANDLING_BLOCKED => DeliveryNoteItemStateEnum::HANDLING,
+            DeliveryNoteStateEnum::PACKED => DeliveryNoteItemStateEnum::PACKED,
+            DeliveryNoteStateEnum::FINALISED => DeliveryNoteItemStateEnum::FINALISED,
+            DeliveryNoteStateEnum::DISPATCHED => DeliveryNoteItemStateEnum::DISPATCHED,
+            DeliveryNoteStateEnum::CANCELLED => DeliveryNoteItemStateEnum::CANCELLED,
+        };
+
+
+        $quantity_required   = $this->auroraModelData->{'Required'};
+        $quantity_dispatched = -$this->auroraModelData->{'Inventory Transaction Quantity'};
+
+
+        $transactionID = $transaction?->id;
+
+
+        $stock = Stock::withTrashed()->find($orgStock->stock_id);
+
+        $this->parsedData['delivery_note_item'] = [
+            'transaction_id'      => $transactionID,
+            'state'               => $state,
+            'quantity_required'   => $quantity_required,
+            'quantity_picked'     => $this->auroraModelData->{'Picked'},
+            'quantity_packed'     => $this->auroraModelData->{'Packed'},
+            'quantity_dispatched' => $quantity_dispatched,
+            'source_id'           => $this->organisation->id.':'.$this->auroraModelData->{'Inventory Transaction Key'},
+            'created_at'          => $this->auroraModelData->{'Date Created'},
+            'fetched_at'          => now(),
+            'last_fetched_at'     => now(),
+            'org_stock_id'        => $orgStock?->id,
+            'org_stock_family_id' => $orgStock?->org_stock_family_id,
+            'stock_id'            => $stock ? $stock->id : null,
+            'stock_family_id'     => $stock ? $stock->stock_family_id : null
+
+
+        ];
     }
 
     public function fetchDeliveryNoteTransaction(int $id, DeliveryNote $deliveryNote): ?array

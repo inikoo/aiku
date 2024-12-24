@@ -30,7 +30,7 @@ class SeedOfferCampaigns extends GrpAction
      */
     public function handle(Shop $shop): void
     {
-        if ($shop->type != ShopTypeEnum::B2B) {
+        if (!in_array($shop->type, [ShopTypeEnum::B2B, ShopTypeEnum::DROPSHIPPING])) {
             return;
         }
 
@@ -83,8 +83,11 @@ class SeedOfferCampaigns extends GrpAction
         }
     }
 
-    public string $commandSignature = 'shop:seed-offer-campaigns {shop? : shop slug}';
+    public string $commandSignature = 'shop:seed_offer_campaigns {shop? : shop slug}';
 
+    /**
+     * @throws \Throwable
+     */
     public function asCommand(Command $command): int
     {
         if ($command->argument('shop')) {

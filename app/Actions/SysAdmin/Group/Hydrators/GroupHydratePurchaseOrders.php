@@ -40,18 +40,18 @@ class GroupHydratePurchaseOrders
         ];
 
 
-        // $stats = array_merge(
-        //     $stats,
-        //     $this->getEnumStats(
-        //         model: 'purchase_orders',
-        //         field: 'status',
-        //         enum: PurchaseOrderDeliveryStatusEnum::class,
-        //         models: PurchaseOrder::class,
-        //         where: function ($q) use ($group) {
-        //             $q->where('group_id', $group->id);
-        //         }
-        //     )
-        // );
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'purchase_orders',
+                field: 'delivery_status',
+                enum: PurchaseOrderDeliveryStatusEnum::class,
+                models: PurchaseOrder::class,
+                where: function ($q) use ($group) {
+                    $q->where('group_id', $group->id);
+                }
+            )
+        );
 
 
         $stats = array_merge(
@@ -67,6 +67,6 @@ class GroupHydratePurchaseOrders
             )
         );
 
-        $group->supplyChainStats()->update($stats);
+        $group->procurementStats->update($stats);
     }
 }

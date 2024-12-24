@@ -43,6 +43,8 @@ class ProductsResource extends JsonResource
             'shop_slug'                 => $this->shop_slug,
             'shop_code'                 => $this->shop_code,
             'shop_name'                 => $this->shop_name,
+            'organisation_name'         => $this->organisation_name,
+            'organisation_slug'         => $this->organisation_slug,
             'department_slug'           => $this->department_slug,
             'department_code'           => $this->department_code,
             'department_name'           => $this->department_name,
@@ -55,6 +57,9 @@ class ProductsResource extends JsonResource
             'asset_id'                  => $this->asset_id,
             'stock'                     => $this->available_quantity,
             'tags'                      => $this->tags()->pluck('slug')->toArray(),
+            'customers_invoiced_all'    => $this->customers_invoiced_all,
+            'invoices_all'              => $this->invoices_all,
+            'sales_all'                 => $this->sales_all,
         ];
     }
 }

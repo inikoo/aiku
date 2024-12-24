@@ -9,27 +9,26 @@
 namespace App\Actions\CRM\Prospect\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
-use App\Actions\CRM\Prospect\Mailshots\UI\IndexProspectMailshots;
-use App\Actions\CRM\Prospect\Queries\UI\IndexProspectQueries;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\Traits\WithProspectsSubNavigation;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Enums\UI\CRM\ProspectsTabsEnum;
-use App\Http\Resources\CRM\ProspectQueriesResource;
 use App\Http\Resources\CRM\ProspectsResource;
 use App\Http\Resources\History\HistoryResource;
-use App\Http\Resources\Mail\MailshotsResource;
 use App\Http\Resources\Tag\TagResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Prospect;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -40,10 +39,13 @@ class IndexProspects extends OrgAction
 {
     use WithProspectsSubNavigation;
 
-    private Shop|Organisation|Fulfilment $parent;
+    private Group|Shop|Organisation|Fulfilment $parent;
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        }
         $this->canEdit = $request->user()->hasPermissionTo("crm.{$this->shop->id}.prospects.edit");
 
         return  $request->user()->hasPermissionTo("crm.{$this->shop->id}.prospects.view");
@@ -51,11 +53,21 @@ class IndexProspects extends OrgAction
     }
 
 
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->tab = ProspectsTabsEnum::PROSPECTS->value;
+        $this->parent = group();
+        $tabs = ProspectsTabsEnum::values();
+        unset($tabs[array_search(ProspectsTabsEnum::DASHBOARD->value, $tabs)]);
+        $this->initialisationFromGroup(group(), $request)->withTab($tabs);
+        return $this->handle(parent: $this->parent, prefix: ProspectsTabsEnum::PROSPECTS->value);
+    }
+
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(ProspectsTabsEnum::values());
         $this->parent = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(ProspectsTabsEnum::values());
 
         return $this->handle($this->parent, 'prospects');
     }
@@ -63,8 +75,8 @@ class IndexProspects extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisationFromShop($shop, $request)->withTab(ProspectsTabsEnum::values());
         $this->parent = $shop;
+        $this->initialisationFromShop($shop, $request)->withTab(ProspectsTabsEnum::values());
 
         return $this->handle($shop, 'prospects');
     }
@@ -86,7 +98,7 @@ class IndexProspects extends OrgAction
             ];
     }
 
-    public function handle(Organisation|Shop $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Organisation|Shop $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -103,17 +115,21 @@ class IndexProspects extends OrgAction
 
         $queryBuilder = QueryBuilder::for(Prospect::class);
 
-        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
+        if (!($parent instanceof Group)) {
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $queryBuilder->whereElementGroup(
+                    key: $key,
+                    allowedElements: array_keys($elementGroup['elements']),
+                    engine: $elementGroup['engine'],
+                    prefix: $prefix
+                );
+            }
         }
 
         if ($parent instanceof Shop) {
             $queryBuilder->where('prospects.shop_id', $parent->id);
+        } elseif ($parent instanceof Group) {
+            $queryBuilder->where('prospects.group_id', $parent->id);
         }
 
         return $queryBuilder
@@ -124,7 +140,7 @@ class IndexProspects extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Organisation|Shop|Tag $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Group|Organisation|Shop|Tag $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {
@@ -132,7 +148,7 @@ class IndexProspects extends OrgAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
-            if (class_basename($parent) != 'Tag') {
+            if (class_basename($parent) != 'Tag' and !($parent instanceof Group)) {
                 foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                     $table->elementGroup(
                         key: $key,
@@ -145,15 +161,17 @@ class IndexProspects extends OrgAction
 
             $table
                 ->withModelOperations($modelOperations)
-                ->withGlobalSearch()
-                ->withEmptyState(
+                ->withGlobalSearch();
+            if (!($parent instanceof Group)) {
+                $table->withEmptyState(
                     [
                         'title'       => __('No Prospects'),
                         'description' => null,
                         'count'       => $parent->crmStats->number_prospects
                     ]
-                )
-                ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
+                );
+            }
+            $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'phone', label: __('phone'), canBeHidden: false, sortable: true, searchable: true)
@@ -174,7 +192,6 @@ class IndexProspects extends OrgAction
     public function htmlResponse(LengthAwarePaginator $prospects, ActionRequest $request): Response
     {
         $subNavigation = $this->getSubNavigation($request);
-
         $dataProspect = [
             'data' => $this->tab == ProspectsTabsEnum::PROSPECTS->value
                 ? ProspectsResource::collection($prospects)
@@ -194,6 +211,37 @@ class IndexProspects extends OrgAction
             'tagsList' => TagResource::collection(Tag::where('type', 'crm')->get()),
         ];
 
+        $tabs = [
+            'tabs' => [
+                    'current'    => $this->tab,
+                    'navigation' => ProspectsTabsEnum::navigation(),
+                ],
+
+                ProspectsTabsEnum::DASHBOARD->value => $this->tab == ProspectsTabsEnum::DASHBOARD->value ?
+                    fn () => GetProspectsDashboard::run($this->parent, $request)
+                    : Inertia::lazy(fn () => GetProspectsDashboard::run($this->parent, $request)),
+                ProspectsTabsEnum::PROSPECTS->value => $this->tab == ProspectsTabsEnum::PROSPECTS->value ?
+                    fn () => $dataProspect
+                    : Inertia::lazy(fn () => $dataProspect),
+                ProspectsTabsEnum::HISTORY->value   => $this->tab == ProspectsTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistory::run(model: Prospect::class, prefix: ProspectsTabsEnum::HISTORY->value))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run(model: Prospect::class, prefix: ProspectsTabsEnum::HISTORY->value))),
+            ];
+
+        if ($this->parent instanceof Group) {
+            $subNavigation = null;
+            $tabs = [
+                'tabs' => [
+                    'current'    => $this->tab,
+                    'navigation' => Arr::except(ProspectsTabsEnum::navigation(), [ProspectsTabsEnum::DASHBOARD->value]),
+                ],
+                ProspectsTabsEnum::PROSPECTS->value => $this->tab == ProspectsTabsEnum::PROSPECTS->value ?
+                    fn () => $dataProspect
+                    : Inertia::lazy(fn () => $dataProspect),
+            ];
+        }
+
+
 
         return Inertia::render(
             'Org/Shop/CRM/Prospects',
@@ -203,7 +251,7 @@ class IndexProspects extends OrgAction
                     $request->route()->originalParameters(),
                 ),
                 'title'        => __('prospects'),
-                'pageHead'     => [
+                'pageHead'     => array_filter([
                     'icon'    => ['fal', 'fa-user-plus'],
                     'title'   => __('prospects'),
                     'actions' => [
@@ -239,7 +287,7 @@ class IndexProspects extends OrgAction
                         ] : false
                     ],
                     'subNavigation'    => $subNavigation,
-                ],
+                ]),
                 'uploads'      => [
                     'templates' => [
                         'routes' => [
@@ -259,50 +307,10 @@ class IndexProspects extends OrgAction
                         'parameters' => []
                     ],
                 ],
-                'tabs' => [
-                    'current'    => $this->tab,
-                    'navigation' => ProspectsTabsEnum::navigation(),
-                ],
-
-                ProspectsTabsEnum::DASHBOARD->value => $this->tab == ProspectsTabsEnum::DASHBOARD->value ?
-                    fn () => GetProspectsDashboard::run($this->parent, $request)
-                    : Inertia::lazy(fn () => GetProspectsDashboard::run($this->parent, $request)),
-                ProspectsTabsEnum::PROSPECTS->value => $this->tab == ProspectsTabsEnum::PROSPECTS->value ?
-                    fn () => $dataProspect
-                    : Inertia::lazy(fn () => $dataProspect),
-
-                ProspectsTabsEnum::LISTS->value => $this->tab == ProspectsTabsEnum::LISTS->value ?
-                    fn () => ProspectQueriesResource::collection(IndexProspectQueries::run(prefix: ProspectsTabsEnum::LISTS->value))
-                    : Inertia::lazy(fn () => ProspectQueriesResource::collection(IndexProspectQueries::run(prefix: ProspectsTabsEnum::LISTS->value))),
-
-                ProspectsTabsEnum::MAILSHOTS->value => $this->tab == ProspectsTabsEnum::MAILSHOTS->value ?
-                    fn () => MailshotsResource::collection(IndexProspectMailshots::run(shop: $this->parent, prefix: ProspectsTabsEnum::MAILSHOTS->value))
-                    : Inertia::lazy(fn () => MailshotsResource::collection(IndexProspectMailshots::run(shop: $this->parent, prefix: ProspectsTabsEnum::MAILSHOTS->value))),
-                ProspectsTabsEnum::HISTORY->value   => $this->tab == ProspectsTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistory::run(model: Prospect::class, prefix: ProspectsTabsEnum::HISTORY->value))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run(model: Prospect::class, prefix: ProspectsTabsEnum::HISTORY->value))),
-
+                ...$tabs
 
             ]
         )->table($this->tableStructure(parent: $this->parent, prefix: ProspectsTabsEnum::PROSPECTS->value))
-            ->table(
-                IndexProspectQueries::make()->tableStructure(
-                    modelOperations: [
-                        'createLink' => [
-                            [
-                                'route' => [
-                                    'name'       => 'grp.org.shops.show.crm.prospects.lists.create',
-                                    'parameters' => array_values($request->route()->originalParameters())
-                                ],
-                                'label' => __('New list'),
-                                'style' => 'primary'
-                            ],
-                        ]
-                    ],
-                    prefix: ProspectsTabsEnum::LISTS->value
-                )
-            )
-            ->table(IndexProspectMailshots::make()->tableStructure(prefix: ProspectsTabsEnum::MAILSHOTS->value))
             ->table(IndexHistory::make()->tableStructure(prefix: ProspectsTabsEnum::HISTORY->value));
     }
 
@@ -322,31 +330,6 @@ class IndexProspects extends OrgAction
         };
 
         return match ($routeName) {
-            'org.crm.prospects.index' =>
-            array_merge(
-                (new ShowCRMDashboard())->getBreadcrumbs(
-                    'crm.dashboard',
-                    $routeParameters
-                ),
-                $headCrumb(
-                    [
-                        'name' => 'org.crm.prospects.index',
-                    ]
-                ),
-            ),
-            'grp.org.shops.show.crm.prospects.uploads.index' =>
-            array_merge(
-                (new ShowCRMDashboard())->getBreadcrumbs(
-                    'org.crm.shop.dashboard',
-                    $routeParameters
-                ),
-                $headCrumb(
-                    [
-                        'name'       => 'grp.org.shops.show.crm.prospects.index',
-                        'parameters' => $routeParameters
-                    ]
-                )
-            ),
             'grp.org.shops.show.crm.prospects.index' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs(
@@ -359,6 +342,17 @@ class IndexProspects extends OrgAction
                     ]
                 )
             ),
+            'grp.overview.crm.prospects.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.overview.crm.prospects.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+
             default => []
         };
     }

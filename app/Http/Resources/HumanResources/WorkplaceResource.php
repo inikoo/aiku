@@ -37,6 +37,8 @@ class WorkplaceResource extends JsonResource
             'number_clocking_machines_type_static_nfc' => $workplace->stats->number_clocking_machines_type_static_nfc,
             'number_clocking_machines_type_mobile_app' => $workplace->stats->number_clocking_machines_type_mobile_app,
             'number_clockings'                         => $workplace->stats->number_clockings,
+            'organisation_name' => $this->organisation_name,
+            'organisation_slug' => $this->organisation_slug,
         ];
     }
 }

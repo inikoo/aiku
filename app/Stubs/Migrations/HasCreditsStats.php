@@ -21,6 +21,11 @@ trait HasCreditsStats
             return $table;
         }
 
+        $table->unsignedInteger('number_customers_with_balances')->default(0);
+        $table->unsignedInteger('number_customers_with_positive_balances')->default(0);
+        $table->unsignedInteger('number_customers_with_negative_balances')->default(0);
+
+
         if ($table->getTable() == 'shop_stats') {
             $table->decimal('customer_balances_amount', 16)->default(0);
             $table->decimal('customer_positive_balances_amount', 16)->default(0);

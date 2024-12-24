@@ -100,7 +100,7 @@ class FetchAuroraEmailBulkRuns extends FetchAuroraAction
                     ->where('Email Campaign Key', $sourceData[1])
                     ->update(['alt_aiku_id' => $emailRun->id]);
             } catch (Exception|Throwable $e) {
-                $this->recordError($organisationSource, $e, $emailRunData['emailRun'], 'EmailBulkRun', 'store');
+                $this->recordError($organisationSource, $e, $emailRunData['email_bulk_run'], 'EmailBulkRun', 'store');
 
                 return null;
             }

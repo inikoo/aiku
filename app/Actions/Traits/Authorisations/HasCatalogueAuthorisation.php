@@ -8,6 +8,7 @@
 
 namespace App\Actions\Traits\Authorisations;
 
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -33,6 +34,8 @@ trait HasCatalogueAuthorisation
                     'shops-view'.$this->organisation->id,
                 ]
             );
+        } elseif ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
         } else {
             $this->canEdit = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
             return $request->user()->hasPermissionTo("products.{$this->shop->id}.view");

@@ -6,31 +6,25 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Stubs\Migrations\HasGroupOrganisationRelationship;
+use App\Stubs\Migrations\HasInventoryStats;
 use App\Stubs\Migrations\HasSalesIntervals;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    use HasGroupOrganisationRelationship;
     use HasSalesIntervals;
+    use HasInventoryStats;
 
     public function up(): void
     {
-
         Schema::create('org_stock_stats', function (Blueprint $table) {
             $table->increments('id');
-            $table = $this->groupOrgRelationship($table);
             $table->unsignedInteger('org_stock_id')->index();
-            $table->foreign('org_stock_id')->references('id')->on('org_stocks');
-
+            $table->foreign('org_stock_id')->references('id')->on('org_stocks')->cascadeOnDelete();
             $table->unsignedSmallInteger('number_locations')->default(0);
 
-            $table->unsignedSmallInteger('number_movements')->default(0);
-
-
-            $table = $this->salesIntervalFields($table, ['shop_amount', 'org_amount', 'group_amount']);
+            $table = $this->orgStocksMovementsStats($table);
 
             $table->timestampsTz();
         });

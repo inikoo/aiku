@@ -16,7 +16,7 @@ return new class () extends Migration {
         Schema::create('invoice_has_no_invoice_transaction_offer_components', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('invoice_id');
-            $table->foreign('invoice_id')->references('id')->on('invoices');
+            $table->foreign('invoice_id')->references('id')->on('invoices')->cascadeOnDelete();
 
             $table->string('model_type')->index()->nullable();
             $table->unsignedInteger('model_id')->index()->nullable();

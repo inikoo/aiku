@@ -17,6 +17,9 @@ import {
   faRadio,
   faThermometerEmpty,
   faVial,
+  faPhoneVolume,
+  faSortAlt,
+  faProjectDiagram,
 } from "@fal";
 import { library } from "@fortawesome/fontawesome-svg-core";
 
@@ -28,6 +31,9 @@ library.add(
   faRadio,
   faThermometerEmpty,
   faVial,
+  faPhoneVolume,
+  faSortAlt,
+  faProjectDiagram
 );
 
 const props = defineProps<{

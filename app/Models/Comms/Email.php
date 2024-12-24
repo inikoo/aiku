@@ -9,6 +9,7 @@
 namespace App\Models\Comms;
 
 use App\Enums\Comms\Email\EmailBuilderEnum;
+use App\Models\Helpers\Deployment;
 use App\Models\Helpers\Snapshot;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\InShop;
@@ -41,6 +42,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Deployment> $deployments
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Snapshot|null $liveSnapshot
  * @property-read \App\Models\SysAdmin\Organisation|null $organisation
@@ -114,5 +116,9 @@ class Email extends Model implements Auditable
         return $this->belongsTo(Snapshot::class, 'live_snapshot_id');
     }
 
+    public function deployments(): MorphMany
+    {
+        return $this->morphMany(Deployment::class, 'model');
+    }
 
 }

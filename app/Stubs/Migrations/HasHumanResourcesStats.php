@@ -27,6 +27,16 @@ trait HasHumanResourcesStats
         return $table;
     }
 
+    public function getWorkplaceFieldStats(Blueprint $table): Blueprint
+    {
+        $table->unsignedSmallInteger('number_workplaces')->default(0);
+        foreach (WorkplaceTypeEnum::cases() as $case) {
+            $table->unsignedSmallInteger('number_workplaces_type_'.$case->snake())->default(0);
+        }
+
+        return $table;
+    }
+
     public function getEmployeeFieldStats(Blueprint $table): Blueprint
     {
         $table->unsignedSmallInteger('number_employees')->default(0);
@@ -48,16 +58,6 @@ trait HasHumanResourcesStats
         return $table;
     }
 
-    public function getWorkplaceFieldStats(Blueprint $table): Blueprint
-    {
-        $table->unsignedSmallInteger('number_workplaces')->default(0);
-        foreach (WorkplaceTypeEnum::cases() as $case) {
-            $table->unsignedSmallInteger('number_workplaces_type_'.$case->snake())->default(0);
-        }
-
-        return $table;
-    }
-
     public function getClockingMachinesFieldStats(Blueprint $table): Blueprint
     {
         $table->unsignedSmallInteger('number_clocking_machines')->default(0);
@@ -70,15 +70,16 @@ trait HasHumanResourcesStats
             $table->unsignedSmallInteger('number_clocking_machines_status_'.$case->snake())->default(0);
         }
 
-        return $this->getClockingsFieldStats($table);
+        return $table;
+
     }
 
     public function getClockingsFieldStats(Blueprint $table): Blueprint
     {
         $table->dateTimeTz('last_clocking_at')->nullable();
-        $table->unsignedSmallInteger('number_clockings')->default(0);
+        $table->unsignedInteger('number_clockings')->default(0);
         foreach (ClockingTypeEnum::cases() as $case) {
-            $table->unsignedSmallInteger('number_clockings_type_'.$case->snake())->default(0);
+            $table->unsignedInteger('number_clockings_type_'.$case->snake())->default(0);
         }
 
         return $table;
@@ -86,15 +87,15 @@ trait HasHumanResourcesStats
 
     public function getTimesheetsStats(Blueprint $table): Blueprint
     {
-        $table->unsignedSmallInteger('number_timesheets')->default(0);
+        $table->unsignedInteger('number_timesheets')->default(0);
         return $table;
     }
 
     public function getTimeTrackersStats(Blueprint $table): Blueprint
     {
-        $table->unsignedSmallInteger('number_time_trackers')->default(0);
+        $table->unsignedInteger('number_time_trackers')->default(0);
         foreach (TimeTrackerStatusEnum::cases() as $case) {
-            $table->unsignedSmallInteger('number_time_trackers_status_'.$case->snake())->default(0);
+            $table->unsignedInteger('number_time_trackers_status_'.$case->snake())->default(0);
         }
         return $table;
     }

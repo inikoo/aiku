@@ -12,10 +12,10 @@ namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithOrganisationSource;
-use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use App\Transfers\Aurora\WithAuroraParsers;
 use App\Transfers\AuroraOrganisationService;
+use App\Transfers\SourceOrganisationService;
 use App\Transfers\WowsbarOrganisationService;
 use Illuminate\Support\Facades\DB;
 
@@ -24,16 +24,15 @@ class FetchAuroraWebBlockLink extends OrgAction
     use WithAuroraParsers;
     use WithOrganisationSource;
 
-    protected AuroraOrganisationService|WowsbarOrganisationService|null $organisationSource = null;
+    protected AuroraOrganisationService|WowsbarOrganisationService|SourceOrganisationService|null $organisationSource = null;
 
     /**
      * @throws \Exception
      */
-    public function handle(Website $website, $auroraLink, $dbSuffix = ''): array
+    public function handle(SourceOrganisationService $organisationSource, Website $website, $auroraLink): array
     {
+        $this->organisationSource = $organisationSource;
 
-        $this->organisationSource = $this->getOrganisationSource($website->organisation);
-        $this->organisationSource->initialisation($website->organisation, $dbSuffix);
 
         if (!$this->isInternalLink($website, $auroraLink)) {
             $linkData = [
@@ -42,8 +41,8 @@ class FetchAuroraWebBlockLink extends OrgAction
             ];
         } else {
             $linkData = [
-                'type'       => 'internal',
-                'id' => null
+                'type' => 'internal',
+                'id'   => null
             ];
 
             $auroraLink        = $this->cleanUrl($auroraLink);
@@ -59,17 +58,14 @@ class FetchAuroraWebBlockLink extends OrgAction
                 ->first();
 
 
-
             //todo look for webpage also in Page Redirection Dimension
 
             $linkedWebpage = false;
 
             if ($auroraLink == "") {
                 $linkedWebpage = $website->storefront;
-            } else {
-                if ($auroraWebpageData) {
-                    $linkedWebpage = $this->parseWebpage($website->organisation_id.':'.$auroraWebpageData->source_id);
-                }
+            } elseif ($auroraWebpageData) {
+                $linkedWebpage = $this->parseWebpage($website->organisation_id.':'.$auroraWebpageData->source_id);
             }
 
             if ($linkedWebpage) {
@@ -96,7 +92,6 @@ class FetchAuroraWebBlockLink extends OrgAction
 
     public function isInternalLink($website, $auroraLink): bool
     {
-
         if (str_starts_with($auroraLink, "tel:")) {
             return false;
         }
@@ -107,8 +102,8 @@ class FetchAuroraWebBlockLink extends OrgAction
         if (!str_starts_with($auroraLink, "http")) {
             return true;
         }
-        $domain       = $website->domain;
-        $auroraLink   = $this->cleanUrl($auroraLink);
+        $domain     = $website->domain;
+        $auroraLink = $this->cleanUrl($auroraLink);
 
 
         $auroraDomain = preg_replace('/\/.*$/', "", $auroraLink);

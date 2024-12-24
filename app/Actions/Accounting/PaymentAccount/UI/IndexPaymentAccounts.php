@@ -10,6 +10,7 @@ namespace App\Actions\Accounting\PaymentAccount\UI;
 
 use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServiceProvider;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\PaymentAccountsResource;
 use App\Http\Resources\Catalogue\ShopResource;
@@ -17,6 +18,7 @@ use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Catalogue\Shop;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -30,9 +32,9 @@ use App\Services\QueryBuilder;
 
 class IndexPaymentAccounts extends OrgAction
 {
-    private Organisation|Shop|OrgPaymentServiceProvider $parent;
+    private Group|Organisation|Shop|OrgPaymentServiceProvider $parent;
 
-    public function handle(Shop|Organisation|OrgPaymentServiceProvider $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Shop|Organisation|OrgPaymentServiceProvider $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -53,6 +55,8 @@ class IndexPaymentAccounts extends OrgAction
             $queryBuilder->where('org_payment_service_provider_id', $parent->id);
         } elseif ($parent instanceof Shop) {
             $queryBuilder->where('payment_account_shop.shop_id', $parent->id);
+        } elseif ($parent instanceof Group) {
+            $queryBuilder->where('payment_accounts.group_id', $parent->id);
         }
 
         /*
@@ -65,7 +69,7 @@ class IndexPaymentAccounts extends OrgAction
             );
         }
         */
-
+        $queryBuilder->leftjoin('organisations', 'payment_accounts.organisation_id', 'organisations.id');
         return $queryBuilder
             ->defaultSort('payment_accounts.code')
             ->select([
@@ -79,7 +83,10 @@ class IndexPaymentAccounts extends OrgAction
                 'payment_service_providers.code as payment_service_provider_code',
                 'shops.code as shop_code',
                 'shops.name as shop_name',
-                'shops.id as shop_id'
+                'shops.id as shop_id',
+                'shops.slug as shop_slug',
+                'organisations.name as organisation_name',
+                'organisations.slug as organisation_slug',
             ])
             ->leftJoin('payment_account_shop', 'payment_account_shop.payment_account_id', 'payment_accounts.id')
             ->leftJoin('shops', 'payment_account_shop.shop_id', 'shops.id')
@@ -91,7 +98,7 @@ class IndexPaymentAccounts extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Shop|Organisation|OrgPaymentServiceProvider $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Group|Shop|Organisation|OrgPaymentServiceProvider $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {
@@ -123,6 +130,9 @@ class IndexPaymentAccounts extends OrgAction
                 )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+            if ($parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
+            }
 
             if (!$parent instanceof OrgPaymentServiceProvider) {
                 $table->column(key: 'payment_service_provider_code', label: __('provider'), canBeHidden: false, sortable: true, searchable: true);
@@ -137,6 +147,9 @@ class IndexPaymentAccounts extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        }
         $this->canEdit = $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
 
         return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
@@ -168,6 +181,15 @@ class IndexPaymentAccounts extends OrgAction
         return $this->handle($shop);
     }
 
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup(group(), $request);
+
+        return $this->handle(group());
+    }
+
+
     public function jsonResponse(LengthAwarePaginator $paymentAccounts): AnonymousResourceCollection
     {
         return PaymentAccountsResource::collection($paymentAccounts);
@@ -178,6 +200,12 @@ class IndexPaymentAccounts extends OrgAction
     {
         $routeName       = $request->route()->getName();
         $routeParameters = $request->route()->originalParameters();
+
+        if ($this->parent instanceof Group) {
+            $shops = $this->group->shops;
+        } else {
+            $shops = $this->organisation->shops;
+        }
 
         return Inertia::render(
             'Org/Accounting/PaymentAccounts',
@@ -212,7 +240,7 @@ class IndexPaymentAccounts extends OrgAction
 
 
                 ],
-                'shops_list'       => ShopResource::collection($this->organisation->shops),
+                'shops_list'       => ShopResource::collection($shops),
                 'data'             => PaymentAccountsResource::collection($paymentAccounts)
 
 
@@ -271,6 +299,16 @@ class IndexPaymentAccounts extends OrgAction
                     $routeParameters
                 ),
                 $headCrumb($routeParameters)
+            ),
+            'grp.overview.accounting.payment-accounts.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name' => $routeName,
+                        'parameters' => $routeParameters
+                    ]
+                )
             ),
             default => []
         };

@@ -11,11 +11,13 @@ namespace App\Actions\HumanResources\JobPosition\UI;
 use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use App\Actions\HumanResources\WithEmployeeSubNavigation;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Http\Resources\HumanResources\JobPositionsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -31,9 +33,9 @@ class IndexJobPositions extends OrgAction
 {
     use WithEmployeeSubNavigation;
 
-    private Employee|Organisation $parent;
+    private Group|Employee|Organisation $parent;
 
-    public function handle(Organisation|Employee $parent, string $prefix = null): LengthAwarePaginator
+    public function handle(Group|Organisation|Employee $parent, string $prefix = null): LengthAwarePaginator
     {
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
@@ -48,7 +50,7 @@ class IndexJobPositions extends OrgAction
 
         $queryBuilder = QueryBuilder::for(JobPosition::class);
         $queryBuilder->leftJoin('job_position_stats', 'job_positions.id', 'job_position_stats.job_position_id');
-        $queryBuilder->select(['code', 'job_positions.slug', 'name', 'number_employees_currently_working']);
+        $queryBuilder->select(['job_positions.code', 'job_positions.slug', 'job_positions.name', 'job_position_stats.number_employees_currently_working']);
         if ($parent instanceof Organisation) {
 
             $queryBuilder->where(function (Builder $query) use ($parent) {
@@ -56,16 +58,18 @@ class IndexJobPositions extends OrgAction
             });
 
 
+        } elseif ($parent instanceof Group) {
+            $queryBuilder->where('job_positions.group_id', $parent->id);
         } else {
             $queryBuilder->leftJoin('employee_has_job_positions', 'job_positions.id', 'employee_has_job_positions.job_position_id');
             $queryBuilder->where('employee_id', $parent->id);
             $queryBuilder->addSelect('employee_has_job_positions.share');
         }
-
+        $queryBuilder->leftjoin('organisations', 'job_positions.organisation_id', '=', 'organisations.id');
 
         return $queryBuilder
             ->defaultSort('job_positions.code')
-            ->allowedSorts(['code', 'name', 'number_employees_currently_working', 'share'])
+            ->allowedSorts(['job_positions.code', 'job_positions.name', 'number_employees_currently_working', 'share'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -73,6 +77,9 @@ class IndexJobPositions extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        }
         $this->canEdit = $request->user()->hasPermissionTo("org-supervisor.{$this->organisation->id}.human-resources");
 
         return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
@@ -84,7 +91,7 @@ class IndexJobPositions extends OrgAction
         return JobPositionsResource::collection($jobPositions);
     }
 
-    public function tableStructure(Organisation|Employee $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Group|Organisation|Employee $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {
@@ -122,6 +129,9 @@ class IndexJobPositions extends OrgAction
                 //$table->column(key: 'team', label: __('team'), canBeHidden: false, sortable: true, searchable: true);
             } else {
                 $table->column(key: 'share', label: __('Share'), canBeHidden: false, sortable: true, searchable: true);
+            }
+            if ($parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
             }
             $table->defaultSort('code');
         };
@@ -196,7 +206,15 @@ class IndexJobPositions extends OrgAction
         return $this->handle($employee);
     }
 
-    public function getBreadcrumbs(Organisation|Employee $parent, string $routeName, array $routeParameters): array
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup(group(), $request);
+
+        return $this->handle(group());
+    }
+
+    public function getBreadcrumbs(Group|Organisation|Employee $parent, string $routeName, array $routeParameters): array
     {
         $headCrumb = function (array $routeParameters = []) {
             return [
@@ -226,6 +244,15 @@ class IndexJobPositions extends OrgAction
                 $headCrumb(
                     [
                         'name'       => 'grp.org.hr.employees.show.positions.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            'grp.overview.human-resources.responsibilities.index' => array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
                         'parameters' => $routeParameters
                     ]
                 )

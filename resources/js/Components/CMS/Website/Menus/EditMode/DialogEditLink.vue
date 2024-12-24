@@ -21,6 +21,30 @@ const emits = defineEmits<{
     (e: 'onSave', value: string): void
 }>()
 
+
+function getRoute() {
+	if (route().current().includes('fulfilments')) {
+		return route('grp.org.fulfilments.show.web.webpages.index', {
+			organisation: route().params['organisation'],
+			fulfilment: route().params['fulfilment'],
+			website: route().params['website'],
+		})
+
+	} else if (route().current().includes('shop')) {
+		return route('grp.org.shops.show.web.webpages.index', {
+			organisation: route().params['organisation'],
+			shop: route().params['shop'],
+			website: route().params['website'],
+		})
+	}else {
+        return route('grp.org.shops.show.web.webpages.index', {
+			organisation: route().params['organisation'],
+			shop: route().params['shop'],
+			website: route().params['website'],
+		})
+    }
+}
+
 const localModel = ref({
     label : props.modelValue.label || null,
 	data : props.modelValue.link || {},
@@ -114,13 +138,7 @@ const selectQueryOnChange = (e) => {
 				:value="localModel"
 				:closeOnSelect="true"
 				label="href" 
-				:urlRoute="
-					route('grp.org.shops.show.web.webpages.index', {
-						organisation: route().params['organisation'],
-						shop: route().params['shop'],
-						website: route().params['website'],
-					})
-				"
+				:urlRoute="getRoute"
 				/>
 		</div>
       

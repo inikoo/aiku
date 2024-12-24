@@ -10,8 +10,8 @@ namespace App\Actions\Billables\Service\UI;
 
 use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
-use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentAssets;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
+use App\Actions\Fulfilment\UI\Catalogue\ShowFulfilmentCatalogueDashboard;
 use App\Actions\OrgAction;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Enums\UI\Catalogue\ServiceTabsEnum;
@@ -206,36 +206,36 @@ class ShowService extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.fulfilments.show.billables.show' =>
+            'grp.org.fulfilments.show.catalogue.show' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $service,
                     [
                         'index' => [
-                            'name'       => 'grp.org.fulfilments.show.billables.index',
+                            'name'       => 'grp.org.fulfilments.show.catalogue.index',
                             'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'grp.org.fulfilments.show.billables.show',
+                            'name'       => 'grp.org.fulfilments.show.catalogue.show',
                             'parameters' => $routeParameters
                         ]
                     ],
                     $suffix
                 )
             ),
-            'grp.org.fulfilments.show.billables.services.show' =>
+            'grp.org.fulfilments.show.catalogue.services.show' =>
             array_merge(
-                (new IndexFulfilmentAssets())->getBreadcrumbs($routeParameters),
+                (new ShowFulfilmentCatalogueDashboard())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $service,
                     [
                         'index' => [
-                            'name'       => 'grp.org.fulfilments.show.billables.services.index',
+                            'name'       => 'grp.org.fulfilments.show.catalogue.services.index',
                             'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'grp.org.fulfilments.show.billables.services.show',
+                            'name'       => 'grp.org.fulfilments.show.catalogue.services.show',
                             'parameters' => $routeParameters
                         ]
                     ],
@@ -266,7 +266,7 @@ class ShowService extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.fulfilments.show.billables.services.show' => [
+            'grp.org.fulfilments.show.catalogue.services.show' => [
                 'label' => $service->name,
                 'route' => [
                     'name'       => $routeName,

@@ -43,6 +43,10 @@ class DeliveryNotesResource extends JsonResource
             'customer_slug'  => $this->customer_slug,
             'customer_name'  => $this->customer_name,
             'number_items'   => $this->number_items,
+            'organisation_name' => $this->organisation_name,
+            'organisation_slug' => $this->organisation_slug,
+            'shop_name'         => $this->shop_name,
+            'shop_slug'         => $this->shop_slug,
         ];
     }
 }

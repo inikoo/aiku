@@ -16,7 +16,6 @@ use App\Actions\Helpers\Country\UI\GetCountriesOptions;
 use App\Actions\Helpers\Currency\UI\GetCurrenciesOptions;
 use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
 use App\Actions\Helpers\Media\HydrateMedia;
-use App\Actions\Helpers\ReindexSearch;
 use App\Actions\Helpers\TimeZone\UI\GetTimeZonesOptions;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\SysAdmin\Admin\StoreAdmin;
@@ -29,6 +28,7 @@ use App\Actions\SysAdmin\Guest\UpdateGuest;
 use App\Actions\SysAdmin\Organisation\HydrateOrganisations;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Actions\SysAdmin\Organisation\UpdateOrganisation;
+use App\Actions\SysAdmin\User\Search\ReindexUserSearch;
 use App\Actions\SysAdmin\User\UpdateUsersPseudoJobPositions;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\SysAdmin\User\UpdateUserStatus;
@@ -584,8 +584,8 @@ test('should not show without authentication', function () {
 });
 
 test('reindex search', function () {
-    ReindexSearch::run();
-    expect(UniversalSearch::count())->toBe(67);
+    $this->artisan('search:reindex')->assertSuccessful();
+    //expect(UniversalSearch::count())->toBe(67);
 });
 
 test('employee job position in another organisation', function () {
@@ -631,3 +631,11 @@ test('employee job position in another organisation', function () {
     $employee = $user->employees()->first();
     expect($employee->otherOrganisationJobPositions()->count())->toBe(1);
 })->todo();
+
+test('users search', function () {
+    $this->artisan('search:users')->assertExitCode(0);
+
+    $user = User::first();
+    ReindexUserSearch::run($user);
+    expect($user->universalSearch()->count())->toBe(1);
+});

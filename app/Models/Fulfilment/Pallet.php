@@ -64,7 +64,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $dispatched_at
  * @property string|null $notes
  * @property array $data
- * @property array $incident_report
+ * @property object $incident_report
  * @property bool $with_stored_items
  * @property int $number_stored_items
  * @property int $number_stored_items_state_submitted
@@ -121,7 +121,7 @@ class Pallet extends Model implements Auditable
     protected $guarded = [];
     protected $casts   = [
         'data'                    => 'array',
-        'incident_report'         => 'array',
+        'incident_report'         => 'object',
         'state'                   => PalletStateEnum::class,
         'status'                  => PalletStatusEnum::class,
         'type'                    => PalletTypeEnum::class,

@@ -11,11 +11,13 @@ namespace App\Models\Catalogue;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
+use App\Models\Accounting\InvoiceTransaction;
 use App\Models\Billables\Rental;
 use App\Models\Billables\Service;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Currency;
+use App\Models\Ordering\Transaction;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -63,9 +65,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricAsset> $historicAssets
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, InvoiceTransaction> $invoiceTransactions
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Model|\Eloquent|null $model
  * @property-read \App\Models\Catalogue\AssetOrderingIntervals|null $orderingIntervals
+ * @property-read \App\Models\Catalogue\AssetOrderingStats|null $orderingStats
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Catalogue\Product|null $product
  * @property-read \Illuminate\Database\Eloquent\Collection<int, RecurringBill> $recurringBills
@@ -74,6 +78,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Service|null $service
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\AssetStats|null $stats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Transaction> $transactions
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Asset newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Asset newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Asset onlyTrashed()
@@ -130,6 +135,21 @@ class Asset extends Model implements HasMedia
     public function salesIntervals(): HasOne
     {
         return $this->hasOne(AssetSalesIntervals::class);
+    }
+
+    public function orderingStats(): HasOne
+    {
+        return $this->hasOne(AssetOrderingStats::class);
+    }
+
+    public function invoiceTransactions(): HasMany
+    {
+        return $this->hasMany(InvoiceTransaction::class);
+    }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class);
     }
 
     public function orderingIntervals(): HasOne

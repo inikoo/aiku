@@ -19,7 +19,7 @@ return new class () extends Migration {
         Schema::create('asset_ordering_intervals', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('asset_id')->index();
-            $table->foreign('asset_id')->references('id')->on('assets');
+            $table->foreign('asset_id')->references('id')->on('assets')->cascadeOnDelete();
             $table = $this->unsignedIntegerDateIntervals($table, [
                 'invoices',
                 'orders',

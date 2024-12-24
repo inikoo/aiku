@@ -9,7 +9,7 @@
 namespace App\Actions\Catalogue\Shop\Hydrators;
 
 use App\Actions\Traits\WithIntervalsAggregators;
-use App\Models\Accounting\Invoice;
+use App\Models\Accounting\InvoiceTransaction;
 use App\Models\Catalogue\Shop;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -37,10 +37,14 @@ class ShopHydrateSales
     public function handle(Shop $shop): void
     {
         $stats = [];
+        $queryBase = InvoiceTransaction::where('shop_id', $shop->id)->selectRaw('sum(net_amount) as  sum_aggregate  ');
+        $stats = $this->getIntervalsData($stats, $queryBase, 'sales_');
 
-        $queryBase = Invoice::where('shop_id', $shop->id)->selectRaw('sum(grp_net_amount) as  sum_group  , sum(grp_net_amount) as  sum_org , sum(net_amount) as  sum_shop  ');
+        $queryBase = InvoiceTransaction::where('shop_id', $shop->id)->selectRaw('sum(grp_net_amount) as  sum_aggregate');
+        $stats = $this->getIntervalsData($stats, $queryBase, 'sales_grp_currency_');
 
-        $stats = array_merge($stats, $this->processIntervalShopAssetsStats($queryBase));
+        $queryBase = InvoiceTransaction::where('shop_id', $shop->id)->selectRaw('sum(org_net_amount) as  sum_aggregate');
+        $stats = $this->getIntervalsData($stats, $queryBase, 'sales_org_currency_');
 
         $shop->salesIntervals()->update($stats);
     }

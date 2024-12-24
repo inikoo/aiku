@@ -8,10 +8,10 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentRentals;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInDelivery;
+use App\Actions\Fulfilment\UI\Catalogue\Rentals\IndexFulfilmentRentals;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
@@ -26,7 +26,6 @@ use App\Http\Resources\Fulfilment\RentalsResource;
 use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -219,6 +218,21 @@ class ShowPalletDelivery extends OrgAction
                 PalletDeliveryStateEnum::CONFIRMED => [
                     [
                         'type'    => 'button',
+                        'style'   => 'negative',
+                        'icon'    => 'fal fa-times',
+                        'tooltip' => __('Cancel the delivery'),
+                        'label'   => __('cancel'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'post',
+                            'name'       => 'grp.models.pallet-delivery.cancel',
+                            'parameters' => [
+                                'palletDelivery' => $palletDelivery->id
+                            ]
+                        ]
+                    ],
+                    [
+                        'type'    => 'button',
                         'style'   => 'primary',
                         'icon'    => 'fal fa-check',
                         'tooltip' => __('Mark as received'),
@@ -227,20 +241,6 @@ class ShowPalletDelivery extends OrgAction
                         'route'   => [
                             'method'     => 'post',
                             'name'       => 'grp.models.pallet-delivery.received',
-                            'parameters' => [
-                                'palletDelivery' => $palletDelivery->id
-                            ]
-                        ]
-                    ],
-                    [
-                        'type'    => 'button',
-                        'style'   => 'cancel',
-                        'tooltip' => __('cancel'),
-                        'label'   => __('cancel'),
-                        'key'     => 'action',
-                        'route'   => [
-                            'method'     => 'post',
-                            'name'       => 'grp.models.pallet-delivery.cancel',
                             'parameters' => [
                                 'palletDelivery' => $palletDelivery->id
                             ]
@@ -457,7 +457,7 @@ class ShowPalletDelivery extends OrgAction
                 ],
 
                 'rentalRoute' => [
-                    'name'       => 'grp.org.fulfilments.show.billables.rentals.index',
+                    'name'       => 'grp.org.fulfilments.show.catalogue.rentals.index',
                     'parameters' => [
                         'organisation' => $palletDelivery->organisation->slug,
                         'fulfilment'   => $palletDelivery->fulfilment->slug

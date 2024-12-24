@@ -10,9 +10,8 @@
 
 namespace App\Actions\Comms\OrgPostRoom;
 
-use App\Actions\Comms\OrgPostRoom\Hydrators\OrgPostRoomHydrateEmailBulkRuns;
+use App\Actions\Comms\OrgPostRoom\Hydrators\OrgPostRoomHydrateRuns;
 use App\Actions\Comms\OrgPostRoom\Hydrators\OrgPostRoomHydrateIntervals;
-use App\Actions\Comms\OrgPostRoom\Hydrators\OrgPostRoomHydrateMailshots;
 use App\Actions\Comms\OrgPostRoom\Hydrators\OrgPostRoomHydrateOutboxes;
 use App\Actions\HydrateModel;
 use App\Models\Comms\OrgPostRoom;
@@ -26,13 +25,13 @@ class HydrateOrgPostRooms extends HydrateModel
     public function handle(OrgPostRoom $orgPostRoom): void
     {
         OrgPostRoomHydrateIntervals::run($orgPostRoom);
-        OrgPostRoomHydrateMailshots::run($orgPostRoom);
         OrgPostRoomHydrateOutboxes::run($orgPostRoom);
-        OrgPostRoomHydrateEmailBulkRuns::run($orgPostRoom);
+        OrgPostRoomHydrateRuns::run($orgPostRoom);
     }
 
     public function asCommand(Command $command): int
     {
+        $command->info('Hydrating Org Post Rooms');
         $count = OrgPostRoom::count();
         $bar   = $command->getOutput()->createProgressBar($count);
         $bar->setFormat('debug');
@@ -44,6 +43,7 @@ class HydrateOrgPostRooms extends HydrateModel
             }
         });
         $bar->finish();
+        $command->info("");
 
         return 0;
     }

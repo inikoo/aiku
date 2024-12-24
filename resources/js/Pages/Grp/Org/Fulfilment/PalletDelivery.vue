@@ -611,8 +611,12 @@ const changePalletType=(form,fieldName,value)=>{
 
     <!-- Section: Box Note -->
     <div class="grid grid-cols-3 h-fit lg:max-h-64 w-full lg:justify-center border-b border-gray-300">
-        <BoxNote v-for="(note, index) in notes_data" :key="index+note.label" :noteData="note"
-            :updateRoute="updateRoute" />
+        <BoxNote
+            v-for="(note, index) in notes_data"
+            :key="index+note.label"
+            :noteData="note"
+            :updateRoute="updateRoute"
+        />
     </div>
 
     <!-- Section: Timeline -->

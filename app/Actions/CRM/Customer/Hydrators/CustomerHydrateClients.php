@@ -29,8 +29,8 @@ class CustomerHydrateClients
     public function handle(Customer $customer): void
     {
         $stats = [
-            'number_clients'         => $customer->clients->count(),
-            'number_current_clients' => $customer->clients->where('status', true)->count(),
+            'number_customer_clients'         => $customer->clients->count(),
+            'number_current_customer_clients' => $customer->clients->where('status', true)->count(),
         ];
         $customer->stats()->update($stats);
     }

@@ -55,6 +55,11 @@ class FetchAction
     protected string $dbSuffix = '';
     protected ?array $model = null;
 
+    protected bool $onlyOrdersNoTransactions = false;
+    protected ?int $fromDays = null;
+    protected bool $orderDesc = false;
+
+
 
     public function __construct()
     {

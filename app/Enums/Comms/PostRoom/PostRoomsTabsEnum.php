@@ -16,7 +16,7 @@ enum PostRoomsTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case POST_ROOMS          = 'post_rooms';
+    case SHOWCASE          = 'showcase';
     case OUTBOXES            = 'outboxes';
     case MAILSHOTS           = 'mailshots';
     case DISPATCHED_EMAILS   = 'dispatched_emails';
@@ -24,9 +24,9 @@ enum PostRoomsTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-            PostRoomsTabsEnum::POST_ROOMS => [
-                'title' => __('post rooms'),
-                'icon'  => 'fal fa-mailbox',
+            PostRoomsTabsEnum::SHOWCASE => [
+                'title' => __('overview'),
+                'icon'  => 'fal fa-tachometer-alt-fast',
             ],
             PostRoomsTabsEnum::OUTBOXES => [
                 'title' => __('outboxes'),

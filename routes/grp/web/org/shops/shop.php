@@ -28,7 +28,7 @@ Route::prefix('{shop}')->name('show.')
             ->group(__DIR__."/catalogue.php");
 
         Route::name("billables.")->prefix('billables')
-            ->group(__DIR__."/assets.php");
+            ->group(__DIR__."/billables.php");
 
         Route::name("comms.")->prefix('comms')
             ->group(__DIR__."/comms.php");
@@ -42,6 +42,9 @@ Route::prefix('{shop}')->name('show.')
                 Route::prefix("prospects")
                     ->name("prospects.")
                     ->group(__DIR__."/prospects.php");
+                Route::prefix("polls")
+                    ->name("polls.")
+                    ->group(__DIR__."/polls.php");
             }
         );
 

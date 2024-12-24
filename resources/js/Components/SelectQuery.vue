@@ -75,6 +75,7 @@ const lastPage = ref(2)
 
 // Method: retrieve locations list
 const getOptions = async () => {
+    console.log(props.urlRoute)
     loading.value = true
     try {
         const response = await axios.get(props.urlRoute, {
@@ -181,13 +182,34 @@ defineExpose({
 </script>
 
 <template>
-    <Multiselect ref="_multiselectRef" v-model="value[fieldName]" @update:modelValue="emits('updateVModel')"
-        :placeholder="props.placeholder" :trackBy="props.trackBy" :label="props.label" :valueProp="props.valueProp"
-        :object="props.object" :clearOnSearch="props.clearOnSearch" :close-on-select="props.closeOnSelect" :disabled="disabled"
-        :searchable="props.searchable" :caret="props.caret" :canClear="props.canClear" :options="optionData"
-        :mode="props.mode" :appendNewOption="false" :on-create="onCreate" :create-option="props.createOption"
-        :noResultsText="loading ? 'loading...' : 'No Result'" @open="getOptions()" @search-change="SearchChange"
-        @change="props.onChange" :closeOnDeselect="closeOnDeselect" :isSelected="isSelected"  :loading="loadingCaret">
+    <Multiselect
+        ref="_multiselectRef"
+        v-model="value[fieldName]"
+        @update:modelValue="emits('updateVModel')"
+        :placeholder="props.placeholder"
+        :trackBy="props.trackBy"
+        :label="props.label"
+        :valueProp="props.valueProp"
+        :object="props.object"
+        :clearOnSearch="props.clearOnSearch"
+        :close-on-select="props.closeOnSelect"
+        :disabled="disabled"
+        :searchable="props.searchable"
+        :caret="props.caret"
+        :canClear="props.canClear"
+        :options="optionData"
+        :mode="props.mode"
+        :appendNewOption="false"
+        :on-create="onCreate"
+        :create-option="props.createOption"
+        :noResultsText="loading ? 'loading...' : 'No Result'"
+        @open="getOptions()"
+        @search-change="SearchChange"
+        @change="props.onChange"
+        :closeOnDeselect="closeOnDeselect"
+        :isSelected="isSelected"
+        :loading="loadingCaret"
+    >
         
         <template #tag="{ option, handleTagRemove, disabled }">
             <slot name="tag" :option="option" :handleTagRemove="handleTagRemove" :disabled="disabled">

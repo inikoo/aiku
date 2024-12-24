@@ -30,6 +30,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property OrgStockMovementFlowEnum $flow
  * @property bool $is_delivered
  * @property bool $is_received
+ * @property int|null $stock_family_id
+ * @property int|null $org_stock_family_id
+ * @property int|null $stock_id
  * @property int $org_stock_id
  * @property int|null $location_id
  * @property string|null $operation_type

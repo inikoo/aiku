@@ -11,11 +11,12 @@ namespace App\Actions\Fulfilment\StoredItemAudit\Search;
 use App\Actions\HydrateModel;
 use App\Models\Accounting\Invoice;
 use App\Models\Fulfilment\StoredItemAudit;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexStoredItemAuditSearch extends HydrateModel
 {
-    public string $commandSignature = 'stored-item-audit:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:stored_item_audits {organisations?*} {--s|slugs=}';
 
 
     public function handle(StoredItemAudit $storedItemAudit): void
@@ -31,5 +32,25 @@ class ReindexStoredItemAuditSearch extends HydrateModel
     protected function getAllModels(): Collection
     {
         return StoredItemAudit::get();
+    }
+
+    protected function loopAll(Command $command): void
+    {
+        $command->info("Reindex Stored Item Audits");
+        $count = StoredItemAudit::count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        StoredItemAudit::chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
     }
 }

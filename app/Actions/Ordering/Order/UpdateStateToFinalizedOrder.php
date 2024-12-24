@@ -34,8 +34,8 @@ class UpdateStateToFinalizedOrder extends OrgAction
      */
     public function handle(Order $order): Order
     {
-        $billingAddress     = $order->billingAddress;
-        $invoiceData        = [
+        $billingAddress = $order->billingAddress;
+        $invoiceData    = [
             'reference'        => $order->reference,
             'currency_id'      => $order->currency_id,
             'billing_address'  => Arr::except($billingAddress, 'id'),
@@ -57,7 +57,6 @@ class UpdateStateToFinalizedOrder extends OrgAction
         $transactions = $order->transactions;
 
         foreach ($transactions as $transaction) {
-
             $data = [
                 'tax_category_id' => $transaction->order->tax_category_id,
                 'quantity'        => $transaction->quantity_ordered,
@@ -70,19 +69,16 @@ class UpdateStateToFinalizedOrder extends OrgAction
                 $adjustment = Adjustment::find($transaction->model_id);
                 StoreInvoiceTransactionFromAdjustment::make()->action($invoice, $adjustment, []);
             } elseif ($transaction->model_type == 'Charge') {
-                $chargeData = [
-                    'charge_id' => $transaction->model_id
-                ];
-                StoreInvoiceTransactionFromCharge::make()->action($invoice, $chargeData);
+                StoreInvoiceTransactionFromCharge::make()->action(
+                    invoice: $invoice,
+                    charge: $transaction->model,
+                    modelData: []
+                );
             } elseif ($transaction->model_type == 'ShippingZone') {
-                $shippingData = [
-                    'shipping_zone_id' => $transaction->model_id
-                ];
-                StoreInvoiceTransactionFromShipping::make()->action($invoice, $shippingData);
+                StoreInvoiceTransactionFromShipping::make()->action($invoice, $transaction->model, []);
             } else {
                 StoreInvoiceTransaction::make()->action($invoice, $transaction->historicAsset, $data);
             }
-
         }
 
         $data = [
@@ -95,7 +91,7 @@ class UpdateStateToFinalizedOrder extends OrgAction
             ]);
 
             // $data[$order->state->value . '_at'] = null;
-            $data['finalised_at']                  = now();
+            $data['finalised_at'] = now();
 
             $this->update($order, $data);
 
@@ -119,6 +115,7 @@ class UpdateStateToFinalizedOrder extends OrgAction
     {
         $this->order = $order;
         $this->initialisationFromShop($order->shop, $request);
+
         return $this->handle($order);
     }
 }

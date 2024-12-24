@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dispatching\DeliveryNoteItem;
 
+use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateDeliveryNotes;
 use App\Actions\Dispatching\Picking\StorePicking;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
@@ -40,7 +41,6 @@ class StoreDeliveryNoteItem extends OrgAction
                 data_set($modelData, 'stock_id', $orgStock->stock_id);
                 data_set($modelData, 'stock_family_id', $orgStock->stock->stock_family_id);
             }
-
         }
 
         /** @var DeliveryNoteItem $deliveryNoteItem */
@@ -50,6 +50,12 @@ class StoreDeliveryNoteItem extends OrgAction
                 'quantity_required' => $deliveryNoteItem->quantity_required
             ]);
         }
+
+        if ($deliveryNoteItem->transaction_id and $deliveryNoteItem->transaction->asset) {
+            AssetHydrateDeliveryNotes::dispatch($deliveryNoteItem->transaction->asset);
+        }
+
+
 
         return $deliveryNoteItem;
     }
@@ -72,6 +78,7 @@ class StoreDeliveryNoteItem extends OrgAction
         if (!$this->strict) {
             $rules = $this->noStrictStoreRules($rules);
 
+
             $rules['transaction_id']      = [
                 'sometimes',
                 'nullable',
@@ -82,9 +89,14 @@ class StoreDeliveryNoteItem extends OrgAction
             $rules['quantity_picked']     = ['sometimes', 'numeric'];
             $rules['quantity_packed']     = ['sometimes', 'numeric'];
             $rules['quantity_dispatched'] = ['sometimes', 'numeric'];
+            $rules['org_stock_id']        = [
+                'sometimes',
+                'nullable',
+                Rule::Exists('org_stocks', 'id')->where('organisation_id', $this->organisation->id)
+            ];
             $rules['stock_id']            = ['sometimes', 'nullable', 'integer'];
-            $rules['stock_family_id']     = ['sometimes', 'nullable','integer'];
-            $rules['org_stock_family_id'] = ['sometimes', 'nullable','integer'];
+            $rules['stock_family_id']     = ['sometimes', 'nullable', 'integer'];
+            $rules['org_stock_family_id'] = ['sometimes', 'nullable', 'integer'];
         }
 
         return $rules;
@@ -92,7 +104,6 @@ class StoreDeliveryNoteItem extends OrgAction
 
     public function action(DeliveryNote $deliveryNote, array $modelData, int $hydratorsDelay = 0, $strict = true): DeliveryNoteItem
     {
-        // print_r($modelData);
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($deliveryNote->shop, $modelData);

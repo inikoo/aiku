@@ -85,6 +85,7 @@ import Variabel from "./Variables/Variables"
 import CustomLink from "./CustomLink/CustomLink.vue"
 import { trans } from "laravel-vue-i18n"
 import { routeType } from "@/types/route"
+import { irisVariable } from "@/Composables/variableList"
 
 const props = withDefaults(defineProps<{
     modelValue: string | null,
@@ -137,6 +138,9 @@ const editorInstance = useEditor({
         FontFamily.configure({
             types: ['textStyle'],
         }),
+        Link.configure({
+            openOnClick : false
+        }),
         customLink.extend({
             addProseMirrorPlugins() {
                 return [
@@ -185,9 +189,6 @@ const editorInstance = useEditor({
         ListItem,
         BulletList,
         OrderedList,
-        Link.configure({
-            openOnClick: false,
-        }),
         HardBreak.extend({
             addKeyboardShortcuts() {
                 return {
@@ -326,38 +327,11 @@ defineExpose({
 
 
 const setVariabel = (value) => {
-    console.log('dfsdfsfd',value)
     const content = `<span class="mention" data-type="mention" data-id="username" contenteditable="false">{{ ${value} }}</span>`;
     editorInstance.value?.chain().focus().insertContent(content).run();
 };
 
 
-const irisVariablesList = [
-    {
-        label: trans("Name"),
-        value: "{{ name }}",
-    },
-    {
-        label: trans("Username"),
-        value: "{{ username }}",
-    },
-    {
-        label: trans("Email"),
-        value: "{{ email }}",
-    },
-    {
-        label: trans("Favourites count"),
-        value: "{{ favourites_count }}",
-    },
-    {
-        label: trans("Cart count"),
-        value: "{{ cart_count }}",
-    },
-    {
-        label: trans("Cart amount"),
-        value: "{{ cart_amount }}",
-    },
-]
 
 // console.log(editorInstance)
 </script>
@@ -574,7 +548,7 @@ const irisVariablesList = [
                 <section id="tiptap-toolbar" class="py-1 px-2 flex items-center divide-x divide-gray-400 gap-2">
                     <Select v-if="toogle.includes('query')"
                         @change="(e) => setVariabel(e.value.value)"
-                        :options="irisVariablesList" optionLabel="label" size="small"
+                        :options="irisVariable" optionLabel="label" size="small"
                         :placeholder="trans('Select a variable to put')" class="w-full md:w-56" />
 
                     <div class="my-1.5 inline-flex flex-row flex-wrap items-center space-x-1 px-2">
@@ -734,9 +708,9 @@ const irisVariablesList = [
     @apply italic border-l-4 border-gray-300 p-4 py-2 ml-6 mt-6 mb-2 bg-gray-50;
 }
 
-:deep(.editor-class a) {
+/* :deep(.editor-class a) {
     @apply hover:underline text-blue-600 cursor-pointer;
-}
+} */
 
 :deep(.editor-class hr) {
     @apply border-gray-400 my-4;

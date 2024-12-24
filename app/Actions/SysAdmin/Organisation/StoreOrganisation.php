@@ -116,6 +116,7 @@ class StoreOrganisation extends GrpAction
                 $organisation->crmStats()->create();
                 $organisation->orderingStats()->create();
                 $organisation->salesIntervals()->create();
+                $organisation->orderingIntervals()->create();
                 $organisation->orderHandlingStats()->create();
                 $organisation->mailshotsIntervals()->create();
                 $organisation->fulfilmentStats()->create();

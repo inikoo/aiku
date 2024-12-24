@@ -36,7 +36,7 @@ return new class () extends Migration {
             $table->dateTimeTz('date')->index();
             $table->dateTimeTz('ready_at')->nullable();
             $table->dateTimeTz('scheduled_at')->nullable();
-
+            $table->dateTimeTz('recipients_stored_at')->nullable();
             $table->dateTimeTz('start_sending_at')->nullable();
             $table->dateTimeTz('sent_at')->nullable();
             $table->dateTimeTz('cancelled_at')->nullable();
@@ -54,6 +54,7 @@ return new class () extends Migration {
             $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();
             $table->string('source_alt_id')->nullable()->unique();
+            $table->string('source_alt2_id')->nullable()->unique();
 
 
         });

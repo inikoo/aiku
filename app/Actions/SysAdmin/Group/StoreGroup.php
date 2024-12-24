@@ -36,6 +36,7 @@ class StoreGroup
 
         $group->stats()->create();
         $group->supplyChainStats()->create();
+        $group->procurementStats()->create();
         $group->sysadminStats()->create();
         $group->humanResourcesStats()->create();
         $group->inventoryStats()->create();
@@ -53,6 +54,8 @@ class StoreGroup
         $group->dropshippingStats()->create();
         $group->commsStats()->create();
         $group->discountsStats()->create();
+        $group->orderingIntervals()->create();
+        $group->sysadminIntervals()->create();
 
         SeedGroupPermissions::run($group);
         SeedGroupPaymentServiceProviders::run($group);

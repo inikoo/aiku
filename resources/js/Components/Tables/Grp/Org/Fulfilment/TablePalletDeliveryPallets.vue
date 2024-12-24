@@ -183,7 +183,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 			<div v-else class="space-x-1 space-y-2">
 				<span v-if="item.customer_reference">{{ item.customer_reference }}</span>
 				<span v-if="item.notes" class="text-gray-400 text-xs">
-					<FontAwesomeIcon icon='fal fa-sticky-note' class='text-gray-400' fixed-width aria-hidden='true' />
+					<FontAwesomeIcon v-tooltip="trans('Note')" icon='fal fa-sticky-note' class='text-gray-400' fixed-width aria-hidden='true' />
 					{{ item.notes }}
 				</span>
                 <span v-else class="text-gray-400 text-xs">-</span>
@@ -248,7 +248,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
                     fieldType="select"
                     fieldName="rental_id"
                     placeholder="Select rental"
-                    label="code"
+                    label="name"
                     value-prop="id"
                 />
             </div>

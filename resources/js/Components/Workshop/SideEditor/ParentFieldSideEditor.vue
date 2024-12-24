@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import Accordion from 'primevue/accordion'
 import AccordionPanel from 'primevue/accordionpanel'
 import AccordionHeader from 'primevue/accordionheader'
 import AccordionContent from 'primevue/accordioncontent'
 import ChildFieldSideEditor from '@/Components/Workshop/SideEditor/ChildFieldSideEditor.vue'
-import { v4 as uuidv4 } from 'uuid';
+import { trans } from 'laravel-vue-i18n'
 
 import { getFormValue ,setFormValue, getComponent } from '@/Composables/SideEditorHelper'
 import { get } from 'lodash'
@@ -51,8 +50,14 @@ const emits = defineEmits<{
                     />
                 </template>
 
-                <template v-else>
-                    <div class="my-2 text-xs font-semibold">{{ get(blueprint, 'label', '') }}</div>
+                <template v-else >
+                   <!--  <div class="my-2 text-xs font-semibold">{{ get(blueprint, 'label', '') }}</div> -->
+                    <div 
+                         class="w-full my-2 text-center py-1 font-semibold select-none text-sm "
+                         :class="blueprint.label && 'border-b border-gray-300 py-2'"
+                    >
+                         {{ trans(get(blueprint, 'label', '')) }}
+                    </div>
                     
                     <component 
                         :is="getComponent(blueprint.type)" 
@@ -67,7 +72,7 @@ const emits = defineEmits<{
         </AccordionContent>
     </AccordionPanel>
 
-    <div v-else class="bg-white mt-[0px] mb-2 border-b border-gray-300 pb-3">
+    <div v-else class="bg-white mt-[0px] mb-2  pb-3">
         <template v-if="blueprint.replaceForm">
             <ChildFieldSideEditor 
                 :blueprint="blueprint.replaceForm"
@@ -78,7 +83,8 @@ const emits = defineEmits<{
         </template>
 
         <template v-else>
-            <div v-if="get(blueprint, 'label', '')" class="my-2 text-xs font-semibold">{{ get(blueprint, 'label', '') }}</div>
+           <!--  <div v-if="get(blueprint, 'label', '')" class="my-2 text-xs font-semibold">{{ get(blueprint, 'label', '') }}</div> -->
+            <div v-if="get(blueprint, 'label', '')" class="w-full my-2 text-start py-1 font-semibold select-none text-sm border-b border-gray-300">{{ trans(get(blueprint, 'label', '')) }}</div>
             <component 
                 :is="getComponent(blueprint.type)" 
                 :key="blueprint.key"
@@ -106,14 +112,15 @@ const emits = defineEmits<{
     width: 100%;
 }
 
-:deep(.p-accordionpanel.p-accordionpanel-active > .p-accordionheader) {
-    background-color: #E2E8F0 !important;
+.p-accordionpanel.p-accordionpanel-active > .p-accordionheader {
+    background-color: #433CC3 !important;
     border-radius: 0 !important;
+    color: #fdfdfd !important;
 }
 
-:deep(.p-accordionpanel.p-accordionpanel-active > .p-accordionheader:hover) {
-    background-color: #E2E8F0 !important;
-    /* color: #E2E8F0 !important; */
-    border-radius: 0 !important;
+.p-accordioncontent-content {
+    padding: 10px !important;
+    background-color: #F9F9F9 !important;
 }
+
 </style>

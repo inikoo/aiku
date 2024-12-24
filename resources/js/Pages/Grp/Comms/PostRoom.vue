@@ -12,6 +12,10 @@ import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import TableOutboxes from '@/Components/Tables/TableOutboxes.vue'
 import TableMailshots from '@/Components/Tables/TableMailshots.vue'
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faTachometerAltFast, faInboxOut, faFolder, faEnvelope } from "@fal"
+import TableDispatchedEmails from '@/Components/Tables/TableDispatchedEmails.vue'
+library.add(faTachometerAltFast, faInboxOut, faFolder, faEnvelope)
 
 // import FileShowcase from '@/xxxxxxxxxxxx'
 
@@ -19,10 +23,11 @@ const props = defineProps<{
     title: string,
     pageHead: TSPageHeading
     tabs: TSTabs
+    showcase: object
     outboxes: object
     mailshots: object
+    dispatched_emails: object
 }>()
-
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
@@ -31,7 +36,8 @@ const component = computed(() => {
     const components: Component = {
         showcase: DummyComponent,
         outboxes: TableOutboxes,
-        mailshots: TableMailshots
+        mailshots: TableMailshots,
+        dispatched_emails: TableDispatchedEmails
     }
 
     return components[currentTab.value]

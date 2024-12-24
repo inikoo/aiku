@@ -34,8 +34,12 @@ use App\Actions\Comms\Email\PublishEmail;
 use App\Actions\Comms\Email\UpdateEmailUnpublishedSnapshot;
 use App\Actions\Comms\EmailTemplate\UpdateEmailTemplate;
 use App\Actions\Comms\EmailTemplate\UploadImagesToEmailTemplate;
+use App\Actions\Comms\Mailshot\SendMailshotTest;
 use App\Actions\Comms\Mailshot\StoreMailshot;
 use App\Actions\Comms\Mailshot\UpdateMailshot;
+use App\Actions\Comms\Outbox\PublishOutbox;
+use App\Actions\Comms\Outbox\ToggleOutbox;
+use App\Actions\Comms\Outbox\UpdateWorkshopOutbox;
 use App\Actions\CRM\Customer\AddDeliveryAddressToCustomer;
 use App\Actions\CRM\Customer\DeleteCustomerDeliveryAddress;
 use App\Actions\CRM\Customer\DeletePortfolio;
@@ -483,6 +487,13 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
             Route::patch('switch-on', PublishBanner::class)->name('switch-on');
         });
     });
+
+    Route::name('outboxes.')->prefix('outboxes/{outbox:id}')->group(function () {
+        Route::patch('toggle', ToggleOutbox::class)->name('toggle')->withoutScopedBindings();
+        Route::post('publish', PublishOutbox::class)->name('publish')->withoutScopedBindings();
+        Route::patch('workshop', UpdateWorkshopOutbox::class)->name('workshop.update')->withoutScopedBindings();
+        Route::post('send/test', SendMailshotTest::class)->name('send.test')->withoutScopedBindings();
+    });
 });
 
 Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function () {
@@ -726,7 +737,6 @@ Route::patch('/payment/{payment:id}', UpdatePayment::class)->name('payment.updat
 
 
 
-Route::patch('/outbox/{outbox:id}', UpdateOutbox::class)->name('outbox.update');
 
 Route::patch('/purchase-order/{purchaseOrder:id}', UpdatePurchaseOrder::class)->name('purchase-order.update');
 

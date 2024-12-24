@@ -27,21 +27,21 @@ enum DeliveryNoteItemStateEnum: string
     public static function labels(): array
     {
         return [
-            'unassigned' => __('Unassigned'),
-            'queued'     => __('In Queue'),
-            'handling'   => __('Handling'),
+            'unassigned'       => __('Unassigned'),
+            'queued'           => __('In Queue'),
+            'handling'         => __('Handling'),
             'handling-blocked' => __('Handling Blocked'),
-            'packed'     => __('Packed'),
-            'finalised'  => __('Finalised'),
-            'dispatched' => __('Dispatched'),
-            'cancelled'  => __('Cancelled')
+            'packed'           => __('Packed'),
+            'finalised'        => __('Finalised'),
+            'dispatched'       => __('Dispatched'),
+            'cancelled'        => __('Cancelled')
         ];
     }
 
     public static function stateIcon(): array
     {
         return [
-            'unassigned' => [
+            'unassigned'       => [
                 'tooltip' => __('Unassigned'),
                 'icon'    => 'fal fa-chair',
                 'class'   => 'text-grey-500',  // Color for normal icon (Aiku)
@@ -51,7 +51,7 @@ enum DeliveryNoteItemStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'queued'     => [
+            'queued'           => [
                 'tooltip' => __('In Queue'),
                 'icon'    => 'fal fa-chair',
                 'class'   => 'text-lime-500',
@@ -61,7 +61,7 @@ enum DeliveryNoteItemStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'handling'   => [
+            'handling'         => [
                 'tooltip' => __('Handling'),
                 'icon'    => 'fal fa-hand-paper',
                 'class'   => 'text-gray-500',
@@ -81,7 +81,7 @@ enum DeliveryNoteItemStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'packed'     => [
+            'packed'           => [
                 'tooltip' => __('Packed'),
                 'icon'    => 'fal fa-box-check',
                 'class'   => 'text-gray-500',
@@ -91,7 +91,7 @@ enum DeliveryNoteItemStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'finalised'  => [
+            'finalised'        => [
                 'tooltip' => __('Finalised'),
                 'icon'    => 'fal fa-box-check',
                 'class'   => 'text-gray-500',

@@ -10,11 +10,12 @@ namespace App\Actions\Dispatching\DeliveryNote\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\Dispatching\DeliveryNote;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexDeliveryNotesSearch extends HydrateModel
 {
-    public string $commandSignature = 'delivery-note:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:delivery_notes {organisations?*} {--s|slugs=}';
 
 
     public function handle(DeliveryNote $deliveryNote): void
@@ -30,5 +31,25 @@ class ReindexDeliveryNotesSearch extends HydrateModel
     protected function getAllModels(): Collection
     {
         return DeliveryNote::withTrashed()->get();
+    }
+
+    protected function loopAll(Command $command): void
+    {
+        $command->info("Reindex Delivery Notes");
+        $count = DeliveryNote::withTrashed()->count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        DeliveryNote::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
     }
 }

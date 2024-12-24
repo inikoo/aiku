@@ -125,18 +125,20 @@ const fallbackColor = '#374151'  // Color
     </div>
 
     <Modal :isOpen="isModalOpen" @onClose="() => (isModalOpen = false, noteModalValue = noteData.note)">
-		<div class="min-h-72 max-h-96 px-2 overflow-auto">
-            <div class="text-xl font-semibold mb-2">{{ noteData.label }}'s note</div>
-			<div class="relative isolate">
-                <div v-if="noteModalValue" @click="() => noteModalValue = ''" class="z-10 absolute top-1 right-1 text-red-400 hover:text-red-600 text-xxs cursor-pointer">
-                    Clear
+		<div class="min-h-64 max-h-96 px-2 overflow-auto flex flex-col justify-between">
+            <div>
+                <div class="text-xl font-semibold mb-2">{{ noteData.label }} {{ trans("note") }}</div>
+                            <div class="relative isolate">
+                    <div v-if="noteModalValue" @click="() => noteModalValue = ''" class="z-10 absolute top-1 right-1 text-red-400 hover:text-red-600 text-xxs cursor-pointer">
+                        {{ trans("Clear") }}
+                    </div>
+                    <PureTextarea v-model="noteModalValue" counter :rows="6" @keydown.ctrl.enter="() => onSubmitNote()" maxLength="5000" />
                 </div>
-                <PureTextarea v-model="noteModalValue" counter :rows="6" @keydown.ctrl.enter="() => onSubmitNote()" maxLength="5000" />
             </div>
 
-            <div class="flex justify-end gap-x-2 mt-3">
+            <div class="flex justify-end gap-x-2 mt-7">
                 <Button label="cancel" @click="() => (isModalOpen = false, noteModalValue = noteData.note)" :style="'tertiary'" />
-                <Button label="Save" @click="() => onSubmitNote()" :loading="isSubmitNoteLoading" :disabled="noteModalValue == noteData.note" />
+                <Button label="Save (Ctrl + enter)" full @click="() => onSubmitNote()" :loading="isSubmitNoteLoading" :disabled="noteModalValue == noteData.note" />
             </div>
 		</div>
 	</Modal>

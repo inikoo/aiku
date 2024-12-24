@@ -12,6 +12,7 @@ use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Accounting\CreditTransaction;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceCategory;
+use App\Models\Accounting\InvoiceTransaction;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
@@ -31,12 +32,17 @@ use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\Catalogue\Subscription;
+use App\Models\Comms\DispatchedEmail;
+use App\Models\Comms\Email;
 use App\Models\Comms\EmailAddress;
+use App\Models\Comms\EmailBulkRun;
 use App\Models\Comms\EmailTemplate;
+use App\Models\Comms\Mailshot;
 use App\Models\Comms\OrgPostRoom;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
 use App\Models\CRM\Customer;
+use App\Models\CRM\Prospect;
 use App\Models\CRM\WebUser;
 use App\Models\Discounts\Offer;
 use App\Models\Discounts\OfferCampaign;
@@ -77,6 +83,7 @@ use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
+use App\Models\Web\Banner;
 use App\Models\Web\ExternalLink;
 use App\Models\Web\Redirect;
 use App\Models\Web\WebBlockType;
@@ -120,6 +127,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read LaravelCollection<int, DispatchedEmail> $DispatchedEmails
  * @property-read \App\Models\SysAdmin\GroupAccountingStats|null $accountingStats
  * @property-read LaravelCollection<int, Agent> $agents
  * @property-read LaravelCollection<int, AikuSection> $aikuScopedSections
@@ -127,6 +135,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Artefact> $artefacts
  * @property-read LaravelCollection<int, Asset> $assets
  * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read LaravelCollection<int, Banner> $banners
  * @property-read LaravelCollection<int, Barcode> $barcodes
  * @property-read \App\Models\SysAdmin\GroupCatalogueStats|null $catalogueStats
  * @property-read LaravelCollection<int, Charge> $charges
@@ -143,7 +152,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupDiscountsStats|null $discountsStats
  * @property-read \App\Models\SysAdmin\GroupDropshippingStat|null $dropshippingStats
  * @property-read LaravelCollection<int, EmailAddress> $emailAddresses
+ * @property-read LaravelCollection<int, EmailBulkRun> $emailBulkRuns
  * @property-read LaravelCollection<int, EmailTemplate> $emailTemplates
+ * @property-read LaravelCollection<int, Email> $emails
  * @property-read LaravelCollection<int, Employee> $employees
  * @property-read LaravelCollection<int, ExternalLink> $externalLinks
  * @property-read \App\Models\SysAdmin\GroupFulfilmentStats|null $fulfilmentStats
@@ -156,10 +167,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Ingredient> $ingredients
  * @property-read \App\Models\SysAdmin\GroupInventoryStats|null $inventoryStats
  * @property-read LaravelCollection<int, InvoiceCategory> $invoiceCategories
+ * @property-read LaravelCollection<int, InvoiceTransaction> $invoiceTransactions
  * @property-read LaravelCollection<int, Invoice> $invoices
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\JobPositionCategory> $jobPositionCategories
  * @property-read LaravelCollection<int, JobPosition> $jobPositions
  * @property-read LaravelCollection<int, Location> $locations
+ * @property-read LaravelCollection<int, Mailshot> $mailshots
  * @property-read \App\Models\SysAdmin\GroupMailshotsIntervals|null $mailshotsIntervals
  * @property-read \App\Models\SysAdmin\GroupManufactureStats|null $manufactureStats
  * @property-read LaravelCollection<int, ManufactureTask> $manufactureTasks
@@ -169,6 +182,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, OfferCampaign> $offerCampaigns
  * @property-read LaravelCollection<int, Offer> $offers
  * @property-read \App\Models\SysAdmin\GroupOrderHandlingStats|null $orderHandlingStats
+ * @property-read \App\Models\SysAdmin\GroupOrderingIntervals|null $orderingIntervals
  * @property-read \App\Models\SysAdmin\GroupOrderingStats|null $orderingStats
  * @property-read LaravelCollection<int, Order> $orders
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
@@ -183,9 +197,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Platform> $platforms
  * @property-read LaravelCollection<int, Portfolio> $portfolios
  * @property-read LaravelCollection<int, PostRoom> $postRooms
+ * @property-read \App\Models\SysAdmin\GroupProcurementStats|null $procurementStats
  * @property-read LaravelCollection<int, ProductCategory> $productCategories
  * @property-read LaravelCollection<int, Production> $productions
  * @property-read LaravelCollection<int, Product> $products
+ * @property-read LaravelCollection<int, Prospect> $prospects
  * @property-read LaravelCollection<int, PurchaseOrder> $purchaseOrders
  * @property-read LaravelCollection<int, Purge> $purges
  * @property-read LaravelCollection<int, Query> $queries
@@ -207,6 +223,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, SupplierProduct> $supplierProducts
  * @property-read LaravelCollection<int, Supplier> $suppliers
  * @property-read \App\Models\SysAdmin\GroupSupplyChainStats|null $supplyChainStats
+ * @property-read \App\Models\SysAdmin\GroupSysadminIntervals|null $sysadminIntervals
  * @property-read \App\Models\SysAdmin\GroupSysAdminStats|null $sysadminStats
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Task> $tasks
  * @property-read LaravelCollection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
@@ -387,6 +404,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasOne(GroupSupplyChainStats::class);
     }
 
+    public function procurementStats(): HasOne
+    {
+        return $this->hasOne(GroupProcurementStats::class);
+    }
+
     public function webStats(): HasOne
     {
         return $this->hasOne(GroupWebStats::class);
@@ -481,6 +503,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    public function invoiceTransactions(): HasMany
+    {
+        return $this->hasMany(InvoiceTransaction::class);
     }
 
     public function orders(): HasMany
@@ -613,6 +640,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasMany(Webpage::class);
     }
 
+    public function banners(): HasMany
+    {
+        return $this->hasMany(Banner::class);
+    }
+
     public function productCategories(): HasMany
     {
         return $this->hasMany(ProductCategory::class);
@@ -628,7 +660,7 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->productCategories()->where('type', ProductCategoryTypeEnum::SUB_DEPARTMENT)->get();
     }
 
-    public function families(): ?LaravelCollection
+    public function getFamilies(): ?LaravelCollection
     {
         return $this->productCategories()->where('type', ProductCategoryTypeEnum::FAMILY)->get();
     }
@@ -636,6 +668,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function customers(): HasMany
     {
         return $this->hasMany(Customer::class);
+    }
+
+    public function prospects(): HasMany
+    {
+        return $this->hasMany(Prospect::class);
     }
 
     public function dropshippingStats(): HasOne
@@ -658,6 +695,25 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasMany(Outbox::class);
     }
 
+    public function mailshots(): HasMany
+    {
+        return $this->hasMany(Mailshot::class);
+    }
+
+    public function emails(): HasMany
+    {
+        return $this->hasMany(Email::class);
+    }
+
+    public function emailBulkRuns(): HasMany
+    {
+        return $this->hasMany(EmailBulkRun::class);
+    }
+
+    public function DispatchedEmails(): HasMany
+    {
+        return $this->hasMany(DispatchedEmail::class);
+    }
 
     public function webBlockTypes(): HasMany
     {
@@ -793,4 +849,15 @@ class Group extends Authenticatable implements Auditable, HasMedia
     {
         return $this->hasMany(Packing::class);
     }
+
+    public function orderingIntervals(): HasOne
+    {
+        return $this->hasOne(GroupOrderingIntervals::class);
+    }
+
+    public function sysadminIntervals(): HasOne
+    {
+        return $this->hasOne(GroupSysadminIntervals::class);
+    }
+
 }

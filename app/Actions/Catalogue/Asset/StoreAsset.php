@@ -47,6 +47,8 @@ class StoreAsset extends OrgAction
         $asset->stats()->create();
         $asset->orderingIntervals()->create();
         $asset->salesIntervals()->create();
+        $asset->orderingStats()->create();
+
 
         AssetHydrateHistoricAssets::dispatch($asset)->delay($hydratorsDelay);
         ShopHydrateAssets::dispatch($asset->shop)->delay($hydratorsDelay);

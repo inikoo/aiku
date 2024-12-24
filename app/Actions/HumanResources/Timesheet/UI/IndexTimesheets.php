@@ -11,6 +11,7 @@ namespace App\Actions\HumanResources\Timesheet\UI;
 use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use App\Actions\HumanResources\WithEmployeeSubNavigation;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\Helpers\Period\PeriodEnum;
 use App\Enums\UI\HumanResources\TimesheetsTabsEnum;
@@ -18,6 +19,7 @@ use App\Http\Resources\HumanResources\TimesheetsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\Timesheet;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -34,9 +36,9 @@ class IndexTimesheets extends OrgAction
 {
     use WithEmployeeSubNavigation;
 
-    private Employee|Organisation|Guest $parent;
+    private Group|Employee|Organisation|Guest $parent;
 
-    public function handle(Organisation|Employee|Guest $parent, ?string $prefix = null, bool $isTodayTimesheet = false): LengthAwarePaginator
+    public function handle(Group|Organisation|Employee|Guest $parent, ?string $prefix = null, bool $isTodayTimesheet = false): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -47,10 +49,17 @@ class IndexTimesheets extends OrgAction
         $query = QueryBuilder::for(Timesheet::class);
 
         if ($parent instanceof Organisation) {
-            $query->where('organisation_id', $parent->id);
+            $query->where('timesheets.organisation_id', $parent->id);
         } elseif ($parent instanceof Employee) {
-            $query->where('subject_type', 'Employee')
-                ->where('subject_id', $parent->id);
+            $query->where('timesheets.subject_type', 'Employee')
+                ->where('timesheets.subject_id', $parent->id);
+        } elseif ($parent instanceof Group) {
+            $query->where('timesheets.group_id', $parent->id);
+            $query->leftjoin('organisations', 'timesheets.organisation_id', '=', 'organisations.id');
+            $query->addSelect([
+                'organisations.name as organisation_name',
+                'organisations.slug as organisation_slug',
+            ]);
         } else {
             $query->where('subject_type', 'Guest')->where('subject_id', $parent->id);
         }
@@ -60,11 +69,10 @@ class IndexTimesheets extends OrgAction
         }
 
         if ($isTodayTimesheet) {
-            $query->whereDate('date', now()->format('Y-m-d'));
+            $query->whereDate('timesheets.date', now()->format('Y-m-d'));
         }
 
         $query->withFilterPeriod('created_at');
-
         return $query
             ->defaultSort('date')
             ->allowedSorts(['date', 'subject_name', 'working_duration', 'breaks_duration'])
@@ -88,7 +96,7 @@ class IndexTimesheets extends OrgAction
         ];
     }
 
-    public function tableStructure(Organisation|Employee|Guest $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Group|Organisation|Employee|Guest $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
@@ -125,15 +133,21 @@ class IndexTimesheets extends OrgAction
             }
 
             $table->column(key: 'working_duration', label: __('working'), canBeHidden: false, sortable: true)
-                ->column(key: 'breaks_duration', label: __('breaks'), canBeHidden: false, sortable: true)
-                //   ->column(key: 'number_time_trackers', label: __('time tracker'), canBeHidden: false)
-                //  ->column(key: 'number_open_time_trackers', label: __('open time tracker'), canBeHidden: false)
-                ->defaultSort('date');
+                ->column(key: 'breaks_duration', label: __('breaks'), canBeHidden: false, sortable: true);
+            if ($parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
+            }
+            //   ->column(key: 'number_time_trackers', label: __('time tracker'), canBeHidden: false)
+            //  ->column(key: 'number_open_time_trackers', label: __('open time tracker'), canBeHidden: false)
+            $table->defaultSort('date');
         };
     }
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        }
         $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
 
         return
@@ -234,8 +248,16 @@ class IndexTimesheets extends OrgAction
         return $this->handle($employee);
     }
 
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup(group(), $request);
 
-    public function getBreadcrumbs(Organisation|Employee|Guest $parent, string $routeName, array $routeParameters): array
+        return $this->handle(group());
+    }
+
+
+    public function getBreadcrumbs(Group|Organisation|Employee|Guest $parent, string $routeName, array $routeParameters): array
     {
         $headCrumb = function (array $routeParameters = []) {
             return [
@@ -265,6 +287,15 @@ class IndexTimesheets extends OrgAction
                 $headCrumb(
                     [
                         'name'       => 'grp.org.hr.employees.show.timesheets.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            'grp.overview.human-resources.timesheets.index' => array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
                         'parameters' => $routeParameters
                     ]
                 )

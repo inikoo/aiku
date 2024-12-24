@@ -21,6 +21,7 @@ return new class () extends Migration {
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table = $this->userStatsFields($table);
             $table = $this->guestsStatsFields($table);
+            $table = $this->userRequestsStatsFields($table);
             $table->timestampsTz();
         });
     }

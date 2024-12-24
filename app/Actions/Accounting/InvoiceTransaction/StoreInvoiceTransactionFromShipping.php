@@ -13,18 +13,23 @@ use App\Actions\Traits\WithOrderExchanges;
 use App\Actions\Traits\WithStoreNoProductTransaction;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceTransaction;
+use App\Models\Ordering\ShippingZone;
+use Illuminate\Validation\Validator;
 
 class StoreInvoiceTransactionFromShipping extends OrgAction
 {
     use WithOrderExchanges;
-    use WithStoreInvoiceTransaction;
+    use WithStoreNoProductInvoiceTransaction;
     use WithStoreNoProductTransaction;
 
-    public function handle(Invoice $invoice, array $modelData): InvoiceTransaction
-    {
-        $modelData = $this->prepareShippingTransaction($modelData);
 
-        return $this->processInvoiceTransaction($invoice, $modelData);
+    private ?ShippingZone $shippingZone;
+
+    public function handle(Invoice $invoice, ?ShippingZone $shippingZone, array $modelData): InvoiceTransaction
+    {
+        $modelData = $this->prepareShippingTransaction($shippingZone, $modelData);
+
+        return $this->processNoProductInvoiceTransaction($invoice, $modelData);
     }
 
     public function rules(): array
@@ -32,13 +37,22 @@ class StoreInvoiceTransactionFromShipping extends OrgAction
         return $this->getRules();
     }
 
-    public function action(Invoice $invoice, array $modelData, bool $strict = true): InvoiceTransaction
+    public function afterValidator(Validator $validator): void
     {
-        $this->asAction = true;
-        $this->strict   = $strict;
+        if ($this->shippingZone and $this->shippingZone->shop_id != $this->shop->id) {
+            $validator->errors()->add('shipping_zone', 'Shipping Zone does not belong to this shop');
+        }
+    }
+
+    public function action(Invoice $invoice, ?ShippingZone $shippingZone, array $modelData, bool $strict = true): InvoiceTransaction
+    {
+        $this->asAction     = true;
+        $this->strict       = $strict;
+        $this->shippingZone = $shippingZone;
+
         $this->initialisationFromShop($invoice->shop, $modelData);
 
-        return $this->handle($invoice, $this->validatedData);
+        return $this->handle($invoice, $shippingZone, $this->validatedData);
     }
 
 

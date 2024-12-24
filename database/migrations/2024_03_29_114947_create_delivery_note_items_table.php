@@ -22,23 +22,27 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('delivery_note_id')->index();
-            $table->foreign('delivery_note_id')->references('id')->on('delivery_notes');
+            $table->foreign('delivery_note_id')->references('id')->on('delivery_notes')->cascadeOnDelete();
 
             $table->unsignedInteger('stock_family_id')->index()->nullable();
             $table->foreign('stock_family_id')->references('id')->on('stock_families');
 
             $table->unsignedInteger('stock_id')->index()->nullable();
-            $table->foreign('stock_id')->references('id')->on('stocks');
+            $table->foreign('stock_id')->references('id')->on('stocks')->nullOnUpdate();
 
             $table->unsignedInteger('org_stock_family_id')->index()->nullable();
-            $table->foreign('org_stock_family_id')->references('id')->on('org_stock_families');
+            $table->foreign('org_stock_family_id')->references('id')->on('org_stock_families')->nullOnUpdate();
 
-            $table->unsignedInteger('org_stock_id')->index();
-            $table->foreign('org_stock_id')->references('id')->on('org_stocks');
+            $table->unsignedInteger('org_stock_id')->index()->nullable();
+            $table->foreign('org_stock_id')->references('id')->on('org_stocks')->nullOnUpdate();
 
 
             $table->unsignedBigInteger('transaction_id')->index()->nullable();
-            $table->foreign('transaction_id')->references('id')->on('transactions');
+            $table->foreign('transaction_id')->references('id')->on('transactions')->nullOnDelete();
+
+            $table->unsignedBigInteger('invoice_transaction_id')->index()->nullable();
+            $table->foreign('invoice_transaction_id')->references('id')->on('invoice_transactions')->nullOnDelete();
+
 
             $table->string('notes')->nullable();
 
@@ -50,6 +54,15 @@ return new class () extends Migration {
             $table->decimal('quantity_picked', 16, 3)->nullable();
             $table->decimal('quantity_packed', 16, 3)->nullable();
             $table->decimal('quantity_dispatched', 16, 3)->nullable();
+
+            $table->decimal('revenue_amount', 16)->default(0);
+            $table->decimal('org_revenue_amount', 16)->default(0);
+            $table->decimal('grp_revenue_amount', 16)->default(0);
+
+            $table->decimal('profit_amount', 16)->nullable();
+            $table->decimal('org_profit_amount', 16)->nullable();
+            $table->decimal('grp_profit_amount', 16)->nullable();
+
 
             $table->jsonb('data');
             $table->timestampsTz();

@@ -30,6 +30,8 @@ class ClockingMachinesResource extends JsonResource
             'slug'                   => $this->slug,
             'name'                   => $this->name,
             'type'                   => $this->type,
+            'organisation_name' => $this->organisation_name,
+            'organisation_slug' => $this->organisation_slug,
         ];
     }
 }

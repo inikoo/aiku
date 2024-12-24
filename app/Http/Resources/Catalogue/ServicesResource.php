@@ -8,8 +8,7 @@
 
 namespace App\Http\Resources\Catalogue;
 
-use App\Http\Resources\Helpers\CurrencyResource;
-use App\Models\Helpers\Currency;
+use App\Actions\Utils\Abbreviate;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -23,25 +22,29 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $unit
  * @property int $currency_id
  * @property bool $is_auto_assign
+ * @property mixed $currency_code
  */
 class ServicesResource extends JsonResource
 {
     public function toArray($request): array
     {
-        $currency = Currency::find($this->currency_id);
-
-
         return [
-            'id'                       => $this->id,
-            'asset_id'                 => $this->asset_id,
-            'slug'                     => $this->slug,
-            'name'                     => $this->name,
-            'code'                     => $this->code,
-            'price'                    => $this->price,
-            'agreed_price'             => $this->agreed_price ?? $this->price,
-            'percentage_off'           => 0,
-            'unit'                     => $this->unit,
-            'currency'                 => CurrencyResource::make($currency),
+            'id'                => $this->id,
+            'asset_id'          => $this->asset_id,
+            'state_icon'        => $this->state->stateIcon()[$this->state->value],
+            'slug'              => $this->slug,
+            'name'              => $this->name,
+            'code'              => $this->code,
+            'price'             => $this->price,
+            'agreed_price'      => $this->agreed_price ?? $this->price,
+            'percentage_off'    => 0,
+            'unit'              => $this->unit,
+            'unit_abbreviation' => Abbreviate::run($this->unit),
+            'currency_code'     => $this->currency_code,
+            'organisation_name' => $this->organisation_name,
+            'organisation_slug' => $this->organizations,
+            'shop_name'         => $this->shop_name,
+            'shop_slug'         => $this->shop_slug,
         ];
     }
 }

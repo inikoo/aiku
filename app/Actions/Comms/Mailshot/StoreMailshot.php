@@ -11,6 +11,7 @@ namespace App\Actions\Comms\Mailshot;
 use App\Actions\Comms\Mailshot\UI\HasUIMailshots;
 use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateMailshots;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateMailshots;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
@@ -51,6 +52,8 @@ class StoreMailshot extends OrgAction
             return $mailshot;
         });
 
+        GroupHydrateMailshots::dispatch($outbox->group)->delay($this->hydratorsDelay);
+
         OutboxHydrateMailshots::dispatch($outbox)->delay($this->hydratorsDelay);
 
         return $mailshot;
@@ -65,7 +68,6 @@ class StoreMailshot extends OrgAction
         //todo
         return false;
     }
-
 
 
     public function rules(): array
@@ -85,7 +87,8 @@ class StoreMailshot extends OrgAction
             $rules['start_sending_at'] = ['nullable', 'date'];
             $rules['sent_at']          = ['nullable', 'date'];
             $rules['stopped_at']       = ['nullable', 'date'];
-            $rules['source_alt_id']  = ['sometimes', 'string', 'max:255'];
+            $rules['source_alt_id']    = ['sometimes', 'nullable', 'string', 'max:255'];
+            $rules['source_alt2_id']   = ['sometimes', 'nullable', 'string', 'max:255'];
 
 
             $rules = $this->noStrictStoreRules($rules);

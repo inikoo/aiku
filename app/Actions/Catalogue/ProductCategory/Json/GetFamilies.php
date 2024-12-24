@@ -26,15 +26,15 @@ class GetFamilies extends OrgAction
     use HasCatalogueAuthorisation;
     private Shop $parent;
 
-    public function asController(Shop $shop, Collection $scope, ActionRequest $request): LengthAwarePaginator
+    public function asController(Shop $shop, Collection $collection, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request);
 
-        return $this->handle(parent: $shop, scope: $scope);
+        return $this->handle(parent: $shop, collection: $collection);
     }
 
-    public function handle(Shop $parent, Collection $scope, $prefix = null): LengthAwarePaginator
+    public function handle(Shop $parent, Collection $collection, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -45,7 +45,7 @@ class GetFamilies extends OrgAction
 
         $queryBuilder = QueryBuilder::for(ProductCategory::class);
         $queryBuilder->where('product_categories.shop_id', $parent->id);
-        $queryBuilder->whereNotIn('product_categories.id', $scope->families()->pluck('model_id'));
+        $queryBuilder->whereNotIn('product_categories.id', $collection->families()->pluck('model_id'));
 
         return $queryBuilder
             ->defaultSort('product_categories.code')

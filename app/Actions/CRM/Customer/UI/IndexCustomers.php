@@ -11,7 +11,9 @@ namespace App\Actions\CRM\Customer\UI;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Traits\WithCustomersSubNavigation;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\UI\CRM\CustomersTabsEnum;
 use App\Http\Resources\CRM\CustomersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
@@ -29,12 +31,14 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexCustomers extends OrgAction
 {
+    use WithCustomersSubNavigation;
+
     private Group|Shop|Organisation $parent;
     private bool $canCreateShop = false;
 
     public function authorize(ActionRequest $request): bool
     {
-        if (str_starts_with($request->route()->getName(), 'grp.overview')) {
+        if ($this->parent instanceof Group) {
             return $request->user()->hasPermissionTo("group-overview");
         }
 
@@ -46,16 +50,16 @@ class IndexCustomers extends OrgAction
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($organisation, $request);
         $this->parent = $organisation;
+        $this->initialisation($organisation, $request)->withTab(CustomersTabsEnum::values());
 
         return $this->handle($this->parent);
     }
 
     public function inGroup(ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisationFromGroup(group(), $request);
         $this->parent = group();
+        $this->initialisationFromGroup(group(), $request)->withTab(CustomersTabsEnum::values());
 
         return $this->handle($this->parent);
     }
@@ -63,8 +67,8 @@ class IndexCustomers extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisationFromShop($shop, $request);
         $this->parent = $shop;
+        $this->initialisationFromShop($shop, $request)->withTab(CustomersTabsEnum::values());
 
         return $this->handle($shop);
     }
@@ -72,11 +76,15 @@ class IndexCustomers extends OrgAction
 
     public function handle(Group|Organisation|Shop $parent, $prefix = null): LengthAwarePaginator
     {
-        $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
-            $query->where(function ($query) use ($value) {
+        $globalSearch = AllowedFilter::callback('global', function ($query, $value) use ($parent) {
+            $query->where(function ($query) use ($value, $parent) {
                 $query->whereAnyWordStartWith('customers.name', $value)
                     ->orWhereStartWith('customers.email', $value)
                     ->orWhere('customers.reference', '=', $value);
+                if (class_basename($parent) == 'Group') {
+                    $query->orWhereStartWith('organisations.name', $value);
+                    $query->orWhereStartWith('shops.name', $value);
+                }
             });
         });
 
@@ -87,13 +95,39 @@ class IndexCustomers extends OrgAction
         $queryBuilder = QueryBuilder::for(Customer::class);
 
 
+        $allowedSort = [
+            'reference',
+            'name',
+            'number_current_clients',
+            'number_current_portfolios',
+            'slug',
+            'created_at',
+            'number_invoices_type_invoice',
+            'last_invoiced_at',
+            'sales_all',
+            // 'invoiced_net_amount',
+            'invoiced_org_net_amount',
+            'invoiced_grp_net_amount',
+            'platform_name',
+        ];
+
         if (class_basename($parent) == 'Shop') {
             $queryBuilder->where('customers.shop_id', $parent->id);
         } elseif (class_basename($parent) == 'Group') {
-            $queryBuilder->where('customers.group_id', $parent->id);
+            $queryBuilder->where('customers.group_id', $parent->id)
+                            ->select([
+                                'shops.name as shop_name',
+                                'shops.slug as shop_slug',
+                                'organisations.name as organisation_name',
+                                'organisations.slug as organisation_slug',
+                                'customers.organisation_id',
+                                'customers.shop_id',
+                            ])
+                            ->leftJoin('organisations', 'organisations.id', 'customers.organisation_id');
+            $allowedSort = array_merge(['organisation_name', 'shop_name'], $allowedSort);
         } else {
             $queryBuilder->where('customers.organisation_id', $parent->id)
-                ->addSelect([
+                ->select([
                     'shops.code as shop_code',
                     'shops.slug as shop_slug',
                 ])
@@ -115,7 +149,7 @@ class IndexCustomers extends OrgAction
 
         return $queryBuilder
             ->defaultSort('-created_at')
-            ->select([
+            ->addSelect([
                 'customers.location',
                 'customers.reference',
                 'customers.id',
@@ -142,20 +176,7 @@ class IndexCustomers extends OrgAction
             ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
             ->leftJoin('shops', 'customers.shop_id', 'shops.id')
             ->leftJoin('currencies', 'shops.currency_id', 'currencies.id')
-            ->allowedSorts([
-                'reference',
-                'name',
-                'number_current_clients',
-                'number_current_portfolios',
-                'slug',
-                'created_at',
-                'number_invoices_type_invoice',
-                'last_invoiced_at',
-                'invoiced_net_amount',
-                'invoiced_org_net_amount',
-                'invoiced_grp_net_amount',
-
-            ])
+            ->allowedSorts($allowedSort)
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -229,21 +250,28 @@ class IndexCustomers extends OrgAction
                         default => null
                     }
                 )
-                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'location', label: __('location'), canBeHidden: false, searchable: true)
-                ->column(key: 'created_at', label: __('since'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+            if ($parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
+                        ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+            } else {
+                $table->column(key: 'location', label: __('location'), canBeHidden: false, searchable: true);
+            }
+
+            $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+            ->column(key: 'created_at', label: __('since'), canBeHidden: false, sortable: true, searchable: true);
 
 
             if ($isDropshipping) {
                 $table->column(key: 'number_current_clients', label: __('Clients'), canBeHidden: false, sortable: true, searchable: true)
-                    ->column(key: 'number_current_portfolios', label: __('Portfolios'), canBeHidden: false, sortable: true, searchable: true)
-                    ->column(key: 'platforms', label: __('Platforms'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'number_current_portfolios', label: __('Portfolios'), canBeHidden: false, sortable: true, searchable: true)
+                // ->column(key: 'platforms', label: __('Platforms'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'platform_name', label: __('Platforms'), canBeHidden: false, sortable: true, searchable: true);
             }
 
             $table->column(key: 'last_invoiced_at', label: __('last invoice'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_invoices_type_invoice', label: __('invoices'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'invoiced_net_amount', label: __('sales'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'sales_all', label: __('sales'), canBeHidden: false, sortable: true, searchable: true);
 
             $table->defaultSort('-created_at');
         };
@@ -256,23 +284,35 @@ class IndexCustomers extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
     {
+        $navigation = CustomersTabsEnum::navigation();
+        if ($this->parent instanceof Group) {
+            unset($navigation[CustomersTabsEnum::DASHBOARD->value]);
+            $this->tab = $request->get('tab', array_key_first($navigation));
+        }
+
+        $subNavigation = [];
+        if ($this->parent instanceof Shop) {
+            $subNavigation = $this->getSubNavigation($request);
+        }
         $scope = $this->parent;
 
         $action = null;
 
         if (!$scope instanceof Group) {
             $action = [
-            'type'    => 'button',
-            'style'   => 'create',
-            'tooltip' => __('New Customer'),
-            'label'   => __('New Customer'),
-            'route'   => [
-                'name'       => 'grp.org.shops.show.crm.customers.create',
-                'parameters' => [
-                'organisation' => $scope->organisation->slug,
-                'shop'         => $scope->slug
-                ]
-            ]
+                [
+                    'type'    => 'button',
+                    'style'   => 'create',
+                    'tooltip' => __('New Customer'),
+                    'label'   => __('New Customer'),
+                    'route'   => [
+                        'name'       => 'grp.org.shops.show.crm.customers.create',
+                        'parameters' => [
+                            'organisation' => $scope->organisation->slug,
+                            'shop'         => $scope->slug
+                        ]
+                    ]
+                ],
             ];
         }
 
@@ -291,12 +331,23 @@ class IndexCustomers extends OrgAction
                         'icon'  => ['fal', 'fa-user'],
                         'title' => __('customer')
                     ],
-                    'actions' => $action
+                    'actions' => $action,
+                    'subNavigation'    => $subNavigation,
                 ]),
                 'data'        => CustomersResource::collection($customers),
+                'tabs' => [
+                    'current'    => $this->tab,
+                    'navigation' => $navigation
+                ],
+                CustomersTabsEnum::DASHBOARD->value => $this->tab == CustomersTabsEnum::DASHBOARD->value ?
+                fn () => GetCustomersDashboard::run($this->parent, $request)
+                : Inertia::lazy(fn () => GetCustomersDashboard::run($this->parent, $request)),
+                CustomersTabsEnum::CUSTOMERS->value => $this->tab == CustomersTabsEnum::CUSTOMERS->value ?
+                fn () => CustomersResource::collection($customers)
+                : Inertia::lazy(fn () => CustomersResource::collection($customers)),
 
             ]
-        )->table($this->tableStructure($this->parent));
+        )->table($this->tableStructure(parent:$this->parent, prefix:CustomersTabsEnum::CUSTOMERS->value));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
@@ -327,14 +378,14 @@ class IndexCustomers extends OrgAction
                     ]
                 )
             ),
-            'grp.overview.customers.index' =>
+            'grp.overview.crm.customers.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'grp.overview.customers.index',
+                        'name'       => 'grp.overview.crm.customers.index',
                         'parameters' => $routeParameters
                     ]
                 )

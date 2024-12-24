@@ -54,7 +54,7 @@ const isModalAddress = ref(false)
             <Link as="a" v-if="boxStats.fulfilment_customer.customer.reference"
                 :href="route('grp.org.fulfilments.show.crm.customers.show', [route().params.organisation, boxStats.fulfilment_customer.fulfilment.slug, boxStats.fulfilment_customer.slug])"
                 class="flex items-center w-fit flex-none gap-x-2 cursor-pointer secondaryLink">
-                <dt v-tooltip="'Company name'" class="flex-none">
+                <dt v-tooltip="trans('Customer Reference')" class="flex-none">
                     <span class="sr-only">Reference</span>
                     <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
@@ -65,7 +65,7 @@ const isModalAddress = ref(false)
             <!-- Field: Contact name -->
             <div v-if="boxStats.fulfilment_customer.customer.contact_name"
                 class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Contact name'" class="flex-none">
+                <dt v-tooltip="trans('Contact name')" class="flex-none">
                     <span class="sr-only">Contact name</span>
                     <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
@@ -77,7 +77,7 @@ const isModalAddress = ref(false)
             <!-- Field: Company name -->
             <div v-if="boxStats.fulfilment_customer.customer.company_name"
                 class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Company name'" class="flex-none">
+                <dt v-tooltip="trans('Company name')" class="flex-none">
                     <span class="sr-only">Company name</span>
                     <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
@@ -87,29 +87,29 @@ const isModalAddress = ref(false)
 
             <!-- Field: Email -->
             <div v-if="boxStats.fulfilment_customer?.customer.email" class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Email'" class="flex-none">
+                <dt v-tooltip="trans('Email')" class="flex-none">
                     <span class="sr-only">Email</span>
                     <FontAwesomeIcon icon='fal fa-envelope' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500 w-full pr-4 break-words leading-none">
+                <a :href="`mailto:${boxStats.fulfilment_customer?.customer.email}`" class="hover:underline text-xs text-gray-500 w-full pr-4 break-words leading-none">
                     {{ boxStats.fulfilment_customer?.customer.email }}
-                </dd>
+                </a>
             </div>
 
             <!-- Field: Phone -->
             <div v-if="boxStats.fulfilment_customer?.customer.phone" class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Phone'" class="flex-none">
+                <dt v-tooltip="trans('Phone')" class="flex-none">
                     <span class="sr-only">Phone</span>
                     <FontAwesomeIcon icon='fal fa-phone' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ boxStats.fulfilment_customer?.customer.phone }}</dd>
+                <a class="text-xs text-gray-500">{{ boxStats.fulfilment_customer?.customer.phone }}</a>
             </div>
 
             <!-- Field: Delivery Address -->
             <div class="flex items-start w-full flex-none gap-x-2 mb-1">
-                <dt v-tooltip="`Pallet Return's address`" class="flex-none">
+                <dt v-tooltip="trans(`Pallet Return's address`)" class="flex-none">
                     <span class="sr-only">Delivery address</span>
                     <FontAwesomeIcon icon='fal fa-map-marker-alt' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />

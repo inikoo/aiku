@@ -12,25 +12,29 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import axios from 'axios'
 import { notify } from '@kyvg/vue3-notification'
 import Tag from '@/Components/Tag.vue'
-import Multiselect from '@vueform/multiselect'
+// import Multiselect from '@vueform/multiselect'
+import MultiSelect from 'primevue/multiselect'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faBox, faHandHoldingBox, faPallet, faPencil } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import { trans } from 'laravel-vue-i18n'
+import Button from '@/Components/Elements/Buttons/Button.vue'
+import { debounce } from 'lodash'
+import { Table as TableTS } from '@/types/Table'
 library.add(faBox, faHandHoldingBox, faPallet, faPencil)
 
 const props = defineProps<{
-    data: {
-    },
-    tagsList: tag[]
+    data: TableTS,
+    tagsList: Tag[]
     tab?: string
     tagRoute?: {}
 }>()
 
-interface tag {
+interface Tag {
     id: number
     slug: string
     name: string
-    type: string
+    type: string  // 'inventory'
 }
 
 function locationRoute(location: Location) {
@@ -58,33 +62,50 @@ function locationRoute(location: Location) {
     }
 }
 
-const tagsListTemp = ref<tag[]>(props.tagsList)
+const tagsListTemp = ref<Tag[]>(props.tagsList)
 const onEditLocation = ref(false)
+const searchValueMultiselect = ref('')
 
-// Add new Tag
-const addNewTag = async (option: tag, idLocation: number) => {
-    // console.log('option', option, idLocation)
+// Section: Add new Tag
+const isLoadingSaveTag = ref(false)
+const addNewTag = async (tagName: string, currentTags: string[], idLocation: number) => {
+    isLoadingSaveTag.value = true
     try {
         const response: any = await axios.post(route('grp.models.location.tag.store', idLocation),
-            { name: option.name },
+            { name: tagName },
             {
                 headers: { "Content-Type": "multipart/form-data" },
             }
         )
-        tagsListTemp.value.push(response.data.data)  // (manipulation) Add new data to reactive data
-        // return option
-    } catch (error: any) {
+                
+        currentTags.push(response.data.data.slug)
+        updateTag(currentTags, idLocation)
+
         notify({
-            title: "Failed to add new tag",
-            text: error,
+            title: trans('Success!'),
+            text: trans('Adding new tag') + ` '${tagName}'`,
+            type: "success"
+        })
+
+        searchValueMultiselect.value = ''
+
+        tagsListTemp.value.push(response.data.data)
+    } catch (error: any) {
+        console.error(error.message)
+        notify({
+            title: trans('Something went wrong'),
+            text: trans('Failed to create tag') + ` '${tagName}'`,
             type: "error"
         })
-        // return false
+    } finally {
+        isLoadingSaveTag.value = false
     }
 }
 
-// On update data Tags (add tag or delete tag)
-const updateTagItemTable = async (tags: string[], idLocation: number) => {
+// Section: update tag
+const isSaveTag = ref(false)
+const updateTag = debounce(async (tags: string[], idLocation: number) => {
+    isSaveTag.value = true
     try {
         await axios.patch(route('grp.models.location.tag.attach', idLocation),
             { tags: tags },
@@ -93,18 +114,20 @@ const updateTagItemTable = async (tags: string[], idLocation: number) => {
         // Refetch the data of Table to update the item.tags (v-model doesn't work)
         router.reload(
             {
-                only: ['locations']
+                only: ['data']
             }
         )
     } catch (error: any) {
+        console.error(error.message)
         notify({
-            title: "Failed to update tag",
-            text: error,
+            title: trans('Something went wrong'),
+            text: trans('Failed to save tag'),
             type: "error"
         })
-        return false
+    } finally {
+        isSaveTag.value = false
     }
-}
+}, 1200)
 
 onMounted(() => {
     if (typeof window !== 'undefined') {
@@ -119,7 +142,6 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <!-- <pre>{{ tagsListTemp }}</pre> -->
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- Column: Code -->
         <template #cell(code)="{ item: location }">
@@ -155,10 +177,10 @@ onUnmounted(() => {
         </template>
 
         <!-- Column: Locations -->
-        <template #cell(tags)="{ item }">
+        <template #cell(tags)="{ item, proxyItem }">
             <div class="min-w-[200px] relative p-0">
-                <div v-if="onEditLocation !== item.slug" class="flex gap-x-1 gap-y-1.5 mb-2">
-                    <template v-if="item.tags.length">
+                <div v-if="onEditLocation !== item.slug" class="flex gap-x-1 gap-y-1.5 items-center">
+                    <template v-if="item.tags?.length">
                         <Tag v-for="tag in item.tags"
                             :label="tag"
                             :stringToColor="true"
@@ -166,82 +188,59 @@ onUnmounted(() => {
                         />
                     </template>
                     <div v-else class="italic text-gray-400">
-                        No tags
+                        {{ trans("No tags") }}
                     </div>
 
                     <!-- Icon: pencil -->
-                    <div class="flex items-center px-1" @click="() => onEditLocation = item.slug">
+                    <div class="flex items-center px-1 py-1" @click="() => onEditLocation = item.slug">
                         <FontAwesomeIcon icon='fal fa-pencil' class='text-gray-400 text-lg cursor-pointer hover:text-gray-500' fixed-width aria-hidden='true' />
                     </div>
                 </div>
                 
                 <div v-else>
-                    <Multiselect v-model="item.tags"
-                        :key="item.id"
-                        mode="tags"
-                        placeholder="Select the tag"
-                        valueProp="slug"
-                        trackBy="slug"
-                        label="name"
-                        @change="(tags) => (updateTagItemTable(tags, item.id))"
-                        :closeOnSelect="false"
-                        searchable
-                        createOption
-                        :onCreate="(tag: tag) => addNewTag(tag, item.id)"
-                        :caret="false"
+                    <MultiSelect
+                        :modelValue="proxyItem.tags"
+                        @update:modelValue="(tags) => updateTag(tags, item.id)"
                         :options="tagsListTemp"
-                        noResultsText="No one left. Type to add new one."
-                        appendNewTag
+                        optionValue="slug"
+                        optionLabel="name"
+                        filter
+                        placeholder="Select Tag"
+                        filterPlaceholder="Search tag here"
+                        :loading="isSaveTag || isLoadingSaveTag"
+                        :maxSelectedLabels="3"
+                        class="w-full"
+                        @filter="(e) => searchValueMultiselect = e.value"
                     >
-                        <template #tag="{ option, handleTagRemove, disabled }: {option: tag, handleTagRemove: Function, disabled: boolean}">
-                            <div class="px-0.5 py-[3px]">
-                                <Tag
-                                    :label="option.name"
-                                    :closeButton="true"
-                                    :stringToColor="true"
-                                    size="sm"
-                                    @onClose="(event) => handleTagRemove(option, event)"
+                        <template #emptyfilter>
+                            <div class="">
+                                {{ trans("No results for") }} <span class="font-semibold mr-2">{{ searchValueMultiselect }}</span>
+                                <Button
+                                    :label="`Create '${searchValueMultiselect}'`"
+                                    @click="() => addNewTag(searchValueMultiselect, item.tags, item.id)"
+                                    :loading="isLoadingSaveTag"
+                                    :style="'secondary'"
                                 />
                             </div>
                         </template>
-                    </Multiselect>
-                    <div class="text-gray-400 italic text-xs">
-                        Press Esc to finish edit or <span @click="() => onEditLocation = false" class="hover:text-gray-500 cursor-pointer">click here</span>.
+
+                        <template #value="{ value }">
+                            <div class="flex flex-wrap gap-x-1 gap-y-1.5">
+                                <template v-if="value.length">
+                                    <Tag v-for="val in value" :key="val" :label="val" stringToColor />
+                                </template>
+                                <div v-else class="text-gray-400 italic">
+                                    {{ trans("No tags selected") }}
+                                </div>
+                            </div>
+                        </template>
+                    </MultiSelect>
+
+                    <div class="mt-1 text-gray-400 italic text-xs">
+                        Press Esc to finish edit or <span @click="() => onEditLocation = false" class="underline hover:text-gray-500 cursor-pointer">click here</span>.
                     </div>
                 </div>
             </div>
         </template>
     </Table>
 </template>
-
-<style src="../../../../../../../node_modules/@vueform/multiselect/themes/default.css"></style>
-
-<style lang="scss">
-.multiselect-tags-search {
-    @apply focus:outline-none focus:ring-0 focus:border-none h-full #{!important}
-}
-
-.multiselect.is-active {
-    @apply shadow-none
-}
-
-// .multiselect-tag {
-//     @apply bg-gradient-to-r from-lime-300 to-lime-200 hover:bg-lime-400 ring-1 ring-lime-500 text-lime-600
-// }
-
-.multiselect-tags-search-wrapper {
-    @apply mb-0 #{!important}
-}
-
-.multiselect-tags {
-    @apply my-0.5 #{!important}
-}
-
-.multiselect-tags-search {
-    @apply px-1 #{!important}
-}
-
-.multiselect-tag-remove-icon {
-    @apply text-lime-800
-}
-</style>

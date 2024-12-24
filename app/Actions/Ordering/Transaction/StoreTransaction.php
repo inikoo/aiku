@@ -8,6 +8,7 @@
 
 namespace App\Actions\Ordering\Transaction;
 
+use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateOrders;
 use App\Actions\Ordering\Order\CalculateOrderTotalAmounts;
 use App\Actions\Ordering\Order\Hydrators\OrderHydrateTransactions;
 use App\Actions\OrgAction;
@@ -65,6 +66,9 @@ class StoreTransaction extends OrgAction
             CalculateOrderTotalAmounts::run($order);
             OrderHydrateTransactions::dispatch($order);
         }
+
+        AssetHydrateOrders::dispatch($transaction->asset);
+
 
         return $transaction;
     }

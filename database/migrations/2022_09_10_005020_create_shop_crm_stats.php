@@ -7,14 +7,13 @@
  */
 
 use App\Stubs\Migrations\HasCRMStats;
-use App\Stubs\Migrations\HasProspectStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasCRMStats;
-    use HasProspectStats;
+
     public function up(): void
     {
         Schema::create('shop_crm_stats', function (Blueprint $table) {
@@ -22,10 +21,10 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table = $this->customerStats($table);
-            $this->prospectsStats($table);
-            $table->unsignedSmallInteger('number_prospect_queries')->default(0);
-            $table->unsignedSmallInteger('number_customer_queries')->default(0);
-            $table->unsignedSmallInteger('number_surveys')->default(0);
+            $table = $this->prospectsStats($table);
+            $table = $this->crmQueriesStats($table);
+            $table = $this->getPollsStatsFields($table);
+            $table = $this->getWebUsersStatsFields($table);
             $table->timestampsTz();
         });
     }

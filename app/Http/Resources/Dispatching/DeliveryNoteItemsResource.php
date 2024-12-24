@@ -18,7 +18,6 @@ class DeliveryNoteItemsResource extends JsonResource
             'id'                  => $this->id,
             'state'               => $this->state,
             'state_icon'          => $this->state->stateIcon()[$this->state->value],
-            'status'              => $this->status,
             'quantity_required'   => intVal($this->quantity_required),
             'quantity_picked'     => intVal($this->quantity_picked),
             'quantity_packed'     => intVal($this->quantity_packed),

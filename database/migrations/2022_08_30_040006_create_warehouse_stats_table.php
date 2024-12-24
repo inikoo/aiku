@@ -8,7 +8,6 @@
 
 use App\Stubs\Migrations\HasFulfilmentStats;
 use App\Stubs\Migrations\HasInventoryStats;
-use App\Stubs\Migrations\HasLocationsStats;
 use App\Stubs\Migrations\HasOrderingStats;
 use App\Stubs\Migrations\HasSalesStats;
 use Illuminate\Database\Migrations\Migration;
@@ -16,7 +15,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    use HasLocationsStats;
+    use HasInventoryStats;
     use HasFulfilmentStats;
     use HasSalesStats;
     use HasInventoryStats;
@@ -28,10 +27,13 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('warehouse_id')->index();
             $table->foreign('warehouse_id')->references('id')->on('warehouses');
-            $table->unsignedSmallInteger('number_warehouse_areas')->default(0);
+
+            $table = $this->warehousesAreasStats($table);
             $table = $this->locationsStats($table);
-            $table = $this->deliveryNotesStatsFields($table);
+            $table = $this->orgStocksMovementsStats($table);
             $table = $this->orgStocksAuditStats($table);
+
+
             $table->unsignedSmallInteger('number_fulfilments')->default(0);
             $table = $this->fulfilmentCustomersStats($table);
             $table = $this->fulfilmentStats($table);

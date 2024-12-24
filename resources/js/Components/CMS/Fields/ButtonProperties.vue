@@ -73,25 +73,28 @@ const model = defineModel<ModelButtonProperties>()
 
 <template>
     <div  class="py-1.5">
-        <div class="w-full text-center py-2 font-semibold select-none bg-gray-100 mb-3">{{ trans('Link') }}</div>
+        <!-- <div class="w-full text-center py-2 font-semibold select-none bg-gray-100 mb-3">{{ trans('Link') }}</div> -->
+        <div  class="w-full my-2 text-center py-1 font-semibold select-none text-sm border-b border-gray-300">{{ trans("Link") }}</div>
         <div class="">
             <Link :modelValue="get(model, 'link', '')" @update:modelValue=" (newVal: string) => set(model, 'link', newVal)" />
             <!-- <PureInput v-model="model.link" /> -->
         </div>
     </div>
 
-    <div v-if="model?.container?.properties.dimension" class="border-t border-gray-300 pb-3">
-        <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Dimension') }}</div>
+    <div v-if="model?.container?.properties.dimension" class=" pb-3">
+       <!--  <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Dimension') }}</div> -->
+       <div  class="w-full my-2 text-center py-1 font-semibold select-none text-sm border-b border-gray-300">{{ trans('Dimension') }}</div>
         <DimensionProperty v-model="model.container.properties.dimension" />
     </div>
 
-    <div v-if="model?.container?.properties?.background" class="border-t border-gray-300 pb-3">
-        <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Background') }}</div>
+    <div v-if="model?.container?.properties?.background" class=" pb-3">
+        <!-- <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Background') }}</div> -->
+        <div  class="w-full my-2 text-center py-1 font-semibold select-none text-sm border-b border-gray-300">{{ trans('Background') }}</div>
         <BackgroundProperty v-model="model.container.properties.background" />
     </div>
 
-    <div v-if="model?.container?.properties?.text" class="border-t border-gray-300 pb-3">
-        <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Text') }}</div>
+    <div v-if="model?.container?.properties?.text" class=" pb-3">
+      <!--   <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Text') }}</div> -->
         <TextProperty v-model="model.container.properties.text" />
         <div class="px-3 flex gap-x-2 flex-nowrap">
             <PureInput
@@ -121,20 +124,21 @@ const model = defineModel<ModelButtonProperties>()
         </div>
     </div>
 
-    <div v-if="model?.container?.properties?.border" class="border-t border-gray-300">
-        <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Border') }}</div>
-
+    <div v-if="model?.container?.properties?.border" class="">
+    <!--     <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Border') }}</div> -->
+    <div  class="w-full my-2 text-center py-1 font-semibold select-none text-sm border-b border-gray-300">{{ trans('Border') }}</div>
         <BorderProperty v-model="model.container.properties.border" />
     </div>
 
-    <div v-if="model?.container?.properties?.padding" class="border-t border-gray-300">
-        <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Padding') }}</div>
-
+    <div v-if="model?.container?.properties?.padding" class="">
+       <!--  <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Padding') }}</div> -->
+       <div  class="w-full my-2 text-center py-1 font-semibold select-none text-sm border-b border-gray-300">{{ trans('Padding') }}</div>
         <PaddingMarginProperty v-model="model.container.properties.padding" />
     </div>
 
-    <div v-if="model?.container?.properties?.margin" class="border-t border-gray-300">
-        <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Margin') }}</div>
+    <div v-if="model?.container?.properties?.margin" class="">
+   <!--      <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Margin') }}</div> -->
+   <div  class="w-full my-2 text-center py-1 font-semibold select-none text-sm border-b border-gray-300">{{ trans('Margin') }}</div>
         <PaddingMarginProperty v-model="model.container.properties.margin" />
     </div>
 

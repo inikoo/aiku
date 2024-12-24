@@ -54,25 +54,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_org_stocks_quantity_status_critical
  * @property int $number_org_stocks_quantity_status_out_of_stock
  * @property int $number_org_stocks_quantity_status_error
- * @property int $number_deliveries
- * @property int $number_deliveries_type_order
- * @property int $number_deliveries_type_replacement
- * @property int $number_deliveries_state_unassigned
- * @property int $number_deliveries_state_queued
- * @property int $number_deliveries_state_handling
- * @property int $number_deliveries_state_handling_blocked
- * @property int $number_deliveries_state_packed
- * @property int $number_deliveries_state_finalised
- * @property int $number_deliveries_state_dispatched
- * @property int $number_deliveries_state_cancelled
- * @property int $number_deliveries_cancelled_at_state_unassigned
- * @property int $number_deliveries_cancelled_at_state_queued
- * @property int $number_deliveries_cancelled_at_state_handling
- * @property int $number_deliveries_cancelled_at_state_handling_blocked
- * @property int $number_deliveries_cancelled_at_state_packed
- * @property int $number_deliveries_cancelled_at_state_finalised
- * @property int $number_deliveries_cancelled_at_state_dispatched
- * @property int $number_deliveries_cancelled_at_state_cancelled
+ * @property int $number_org_stock_movements
+ * @property int $number_org_stock_movements_type_purchase
+ * @property int $number_org_stock_movements_type_return_dispatch
+ * @property int $number_org_stock_movements_type_return_picked
+ * @property int $number_org_stock_movements_type_return_consumption
+ * @property int $number_org_stock_movements_type_picked
+ * @property int $number_org_stock_movements_type_location_transfer
+ * @property int $number_org_stock_movements_type_found
+ * @property int $number_org_stock_movements_type_consumption
+ * @property int $number_org_stock_movements_type_write_off
+ * @property int $number_org_stock_movements_type_adjustment
+ * @property int $number_org_stock_movements_type_associate
+ * @property int $number_org_stock_movements_type_disassociate
+ * @property int $number_org_stock_movements_flow_in
+ * @property int $number_org_stock_movements_flow_out
+ * @property int $number_org_stock_movements_flow_no_change
  * @property int $number_org_stock_audits
  * @property int $number_org_stock_audits_state_in_process
  * @property int $number_org_stock_audits_state_completed

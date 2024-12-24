@@ -247,6 +247,7 @@ class IndexPalletReturns extends OrgAction
                                     'style'   => 'create',
                                     'tooltip' => !$this->parent->number_stored_items_status_storing ? __('Create new return (whole pallet)') : __('Create new return'),
                                     'label'   => !$this->parent->number_stored_items_status_storing ? __('Return (whole pallet)') : __('Return'),
+                                    'fullLoading'   => true,
                                     'route'   => [
                                         'method'     => 'post',
                                         'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
@@ -263,6 +264,7 @@ class IndexPalletReturns extends OrgAction
                                 'style'   => 'create',
                                 'tooltip' => __('Create new return (stored items)'),
                                 'label'   => __('Return (Stored items)'),
+                                'fullLoading'   => true,
                                 'route'   => [
                                     'method'     => 'post',
                                     'name'       => 'grp.models.fulfilment-customer.pallet-return-stored-items.store',

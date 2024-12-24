@@ -24,7 +24,7 @@ class GetMailshotMergeTags
         return [
             [
                 'name'  => __('Name'),
-                'value' => '{{name}}'
+                'value' => '[ name ]'
             ],
         ];
     }

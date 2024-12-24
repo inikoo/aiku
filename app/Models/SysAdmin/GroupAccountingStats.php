@@ -78,6 +78,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_invoices_type_refund
  * @property string|null $last_invoiced_at
  * @property int $number_credit_transactions
+ * @property int $number_customers_with_balances
+ * @property int $number_customers_with_positive_balances
+ * @property int $number_customers_with_negative_balances
  * @property string $customer_balances_grp_amount
  * @property string $customer_positive_balances_grp_amount
  * @property string $customer_negative_balances_grp_amount

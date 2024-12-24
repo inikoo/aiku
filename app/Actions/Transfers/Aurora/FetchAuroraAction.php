@@ -30,6 +30,38 @@ class FetchAuroraAction extends FetchAction
             $this->fetchAll = (bool)$command->option('all');
         }
 
+
+        if (in_array($command->getName(), [
+                'fetch:orders',
+                'fetch:invoices',
+                'fetch:delivery_notes',
+                'fetch:dispatched_emails',
+                'email_tracking_events',
+                'fetch:histories'
+            ]) and $command->option('order')) {
+            $this->orderDesc = (bool)$command->option('order') == 'desc';
+        }
+
+        if (in_array($command->getName(), [
+                'fetch:orders',
+                'fetch:invoices',
+                'fetch:delivery_notes',
+            ]) and $command->option('only_orders_no_transactions')) {
+            $this->onlyOrdersNoTransactions = (bool)$command->option('only_orders_no_transactions');
+        }
+
+        if (in_array($command->getName(), [
+                'fetch:orders',
+                'fetch:invoices',
+                'fetch:delivery_notes',
+                'fetch:dispatched_emails',
+                'email_tracking_events',
+                'fetch:histories'
+            ]) and $command->option('days')) {
+            $this->fromDays = (int)$command->option('days');
+        }
+
+
         if (in_array($command->getName(), [
                 'fetch:customers',
                 'fetch:web_users',

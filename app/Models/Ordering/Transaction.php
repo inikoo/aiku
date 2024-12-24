@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -78,6 +79,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $source_alt_id to be used in no products transactions
  * @property-read Asset|null $asset
  * @property-read Customer $customer
+ * @property-read DeliveryNoteItem|null $deliveryNoteItem
  * @property-read Collection<int, DeliveryNoteItem> $deliveryNoteItems
  * @property-read Collection<int, Feedback> $feedbacks
  * @property-read \App\Models\SysAdmin\Group $group
@@ -175,6 +177,11 @@ class Transaction extends Model
     public function offerComponents(): BelongsToMany
     {
         return $this->belongsToMany(OfferComponent::class, 'transaction_has_offer_components');
+    }
+
+    public function deliveryNoteItem(): HasOne
+    {
+        return $this->hasOne(DeliveryNoteItem::class);
     }
 
 

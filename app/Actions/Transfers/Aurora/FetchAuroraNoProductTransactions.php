@@ -12,9 +12,12 @@ use App\Actions\Ordering\Transaction\StoreTransactionFromAdjustment;
 use App\Actions\Ordering\Transaction\StoreTransactionFromCharge;
 use App\Actions\Ordering\Transaction\StoreTransactionFromShipping;
 use App\Actions\Ordering\Transaction\UpdateTransaction;
+use App\Models\Billables\Charge;
 use App\Models\Ordering\Order;
+use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\Transaction;
 use App\Transfers\SourceOrganisationService;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -30,6 +33,10 @@ class FetchAuroraNoProductTransactions
         $transactionData          = $organisationSource->fetchNoProductTransaction(id: $source_id, order: $order);
         if (!$transactionData) {
             return null;
+        }
+
+        if ($order->submitted_at) {
+            $transactionData['transaction']['submitted_at'] = $order->submitted_at;
         }
 
         $transactionData['transaction']['state']  = $order->state->value;
@@ -76,7 +83,18 @@ class FetchAuroraNoProductTransactions
 
     public function processShippingTransaction(Order $order, array $transactionData): Transaction
     {
+        /** @var ShippingZone $shippingZone */
+        $shippingZone = Arr::get($transactionData, 'model');
+
         if ($transaction = Transaction::where('source_alt_id', $transactionData['transaction']['source_alt_id'])->first()) {
+
+            data_set($transactionData, 'transaction.model', 'ShippingZone');
+            if ($shippingZone) {
+                data_set($transactionData, 'transaction.model_id', $shippingZone->id);
+                data_set($transactionData, 'transaction.asset_id', $shippingZone->id);
+                data_set($transactionData, 'transaction.historic_asset_id', $shippingZone->current_historic_asset_id);
+            }
+
             $transaction = UpdateTransaction::make()->action(
                 transaction: $transaction,
                 modelData: $transactionData['transaction'],
@@ -85,6 +103,7 @@ class FetchAuroraNoProductTransactions
         } else {
             $transaction = StoreTransactionFromShipping::make()->action(
                 order: $order,
+                shippingZone: $shippingZone,
                 modelData: $transactionData['transaction'],
                 strict: false
             );
@@ -101,7 +120,18 @@ class FetchAuroraNoProductTransactions
 
     public function processChargeTransaction(Order $order, array $transactionData): Transaction
     {
+        /** @var Charge $charge */
+        $charge = Arr::get($transactionData, 'model');
+
         if ($transaction = Transaction::where('source_alt_id', $transactionData['transaction']['source_alt_id'])->first()) {
+
+            data_set($transactionData, 'transaction.model', 'Charge');
+            if ($charge) {
+                data_set($transactionData, 'transaction.model_id', $charge->id);
+                data_set($transactionData, 'transaction.asset_id', $charge->id);
+                data_set($transactionData, 'transaction.historic_asset_id', $charge->current_historic_asset_id);
+            }
+
             $transaction = UpdateTransaction::make()->action(
                 transaction: $transaction,
                 modelData: $transactionData['transaction'],
@@ -110,6 +140,7 @@ class FetchAuroraNoProductTransactions
         } else {
             $transaction = StoreTransactionFromCharge::make()->action(
                 order: $order,
+                charge: $transactionData['model'],
                 modelData: $transactionData['transaction'],
                 strict: false
             );

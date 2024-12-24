@@ -11,6 +11,7 @@ namespace App\Models\SupplyChain;
 use App\Enums\SupplyChain\StockFamily\StockFamilyStateEnum;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Inventory\OrgStockFamily;
+use App\Models\Inventory\StockFamilyIntervals;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
@@ -54,6 +55,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
+ * @property-read StockFamilyIntervals|null $intervals
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Collection<int, OrgStockFamily> $orgStockFamilies
  * @property-read \App\Models\SupplyChain\StockFamilyStats|null $stats
@@ -128,6 +130,10 @@ class StockFamily extends Model implements HasMedia, Auditable
         return $this->hasOne(StockFamilyStats::class);
     }
 
+    public function intervals(): HasOne
+    {
+        return $this->hasOne(StockFamilyIntervals::class);
+    }
 
     public function orgStockFamilies(): HasMany
     {

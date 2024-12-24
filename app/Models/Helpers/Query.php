@@ -71,7 +71,7 @@ class Query extends Model implements Auditable
         'constrains'          => 'array',
         'compiled_constrains' => 'array',
         'informatics'         => 'array',
-        'source_constrains'          => 'array',
+        'source_constrains'   => 'array',
         'is_seeded'           => 'boolean',
         'has_arguments'       => 'boolean'
     ];
@@ -79,7 +79,7 @@ class Query extends Model implements Auditable
     protected $attributes = [
         'constrains'          => '{}',
         'compiled_constrains' => '{}',
-        'source_constrains'          => '{}',
+        'source_constrains'   => '{}',
     ];
 
     protected $guarded = [];
@@ -101,11 +101,8 @@ class Query extends Model implements Auditable
 
     public function customers(): MorphToMany
     {
-        return $this->morphedByMany(Customer::class, 'model', 'query_has_models', )->withTimestamps();
+        return $this->morphedByMany(Customer::class, 'model', 'query_has_models')->withTimestamps();
     }
-
-
-
 
 
 }

@@ -19,13 +19,13 @@ class StoreInvoiceTransactionFromAdjustment extends OrgAction
 {
     use WithOrderExchanges;
     use WithStoreNoProductTransaction;
-    use WithStoreInvoiceTransaction;
+    use WithStoreNoProductInvoiceTransaction;
 
     public function handle(Invoice $invoice, Adjustment $adjustment, array $modelData): InvoiceTransaction
     {
         $modelData = $this->prepareAdjustmentTransaction($adjustment, $modelData);
         $modelData = $this->processExchanges($modelData, $invoice->shop);
-        return $this->processInvoiceTransaction($invoice, $modelData);
+        return $this->processNoProductInvoiceTransaction($invoice, $modelData);
     }
 
     public function rules(): array

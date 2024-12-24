@@ -30,7 +30,7 @@ class FetchAuroraOrders extends FetchAuroraAction
     use WithAuroraAttachments;
     use WithAuroraParsers;
 
-    public string $commandSignature = 'fetch:orders {organisations?*} {--S|shop= : Shop slug} {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: transactions payments full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:orders {organisations?*} {--S|shop= : Shop slug} {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: transactions payments full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset} {--T|only_orders_no_transactions : Fetch only orders with no transactions} {--D|days= : fetch last n days} {--O|order= : order asc|desc}';
 
     private bool $errorReported = false;
 
@@ -56,16 +56,20 @@ class FetchAuroraOrders extends FetchAuroraAction
             return null;
         }
 
+        $sourceData = explode(':', $order->source_id);
+
 
         if (in_array('transactions', $this->with) or in_array('full', $this->with) or $forceWithTransactions) {
             $this->fetchTransactions($organisationSource, $order);
             $this->fetchNoProductTransactions($organisationSource, $order);
+
+            DB::connection('aurora')->table('Order Dimension')
+                ->where('Order Key', $sourceData[1])
+                ->update(['aiku_all_id' => $order->id]);
         }
         if (in_array('payments', $this->with) or in_array('full', $this->with)) {
             $this->fetchPayments($organisationSource, $order);
         }
-
-        $sourceData = explode(':', $order->source_id);
 
 
         if (in_array('full', $this->with)) {
@@ -112,7 +116,6 @@ class FetchAuroraOrders extends FetchAuroraAction
         $order = null;
         if (!empty($orderData['order']['source_id']) and $order = Order::withTrashed()->where('source_id', $orderData['order']['source_id'])->first()) {
             try {
-
                 /** @var Address $deliveryAddress */
                 $deliveryAddress = Arr::pull($orderData['order'], 'delivery_address');
 
@@ -132,7 +135,6 @@ class FetchAuroraOrders extends FetchAuroraAction
                     }
                 } elseif ($order->deliveryAddress) {
                     dd('todo make order to be collected');
-
                 }
 
 
@@ -165,33 +167,33 @@ class FetchAuroraOrders extends FetchAuroraAction
                 $this->errorReported = true;
             }
         } elseif ($orderData['parent']) {
-            // try {
-            $order = StoreOrder::make()->action(
-                parent: $orderData['parent'],
-                modelData: $orderData['order'],
-                strict: false,
-                hydratorsDelay: $this->hydratorsDelay,
-                audit: false
-            );
+            try {
+                $order = StoreOrder::make()->action(
+                    parent: $orderData['parent'],
+                    modelData: $orderData['order'],
+                    strict: false,
+                    hydratorsDelay: $this->hydratorsDelay,
+                    audit: false
+                );
 
-            Order::enableAuditing();
-            $this->saveMigrationHistory(
-                $order,
-                Arr::except($orderData['order'], ['fetched_at', 'last_fetched_at', 'source_id'])
-            );
+                Order::enableAuditing();
+                $this->saveMigrationHistory(
+                    $order,
+                    Arr::except($orderData['order'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                );
 
-            $this->recordNew($organisationSource);
+                $this->recordNew($organisationSource);
 
-            $sourceData = explode(':', $order->source_id);
-            DB::connection('aurora')->table('Order Dimension')
-                ->where('Order Key', $sourceData[1])
-                ->update(['aiku_id' => $order->id]);
-            //            } catch (Exception|Throwable $e) {
-            //                $this->recordError($organisationSource, $e, $orderData['order'], 'Order', 'store');
-            //                $this->errorReported = true;
-            //
-            //                return null;
-            //            }
+                $sourceData = explode(':', $order->source_id);
+                DB::connection('aurora')->table('Order Dimension')
+                    ->where('Order Key', $sourceData[1])
+                    ->update(['aiku_id' => $order->id]);
+            } catch (Exception|Throwable $e) {
+                $this->recordError($organisationSource, $e, $orderData['order'], 'Order', 'store');
+                $this->errorReported = true;
+
+                return null;
+            }
         }
 
         $this->processFetchAttachments($order, 'Order', $orderData['order']['source_id']);
@@ -294,20 +296,9 @@ class FetchAuroraOrders extends FetchAuroraAction
 
     public function getModelsQuery(): Builder
     {
-        $query = DB::connection('aurora')
-            ->table('Order Dimension')
-            ->select('Order Key as source_id')
-            ->where('Order State', '!=', 'InBasket');
-        if ($this->onlyNew) {
-            $query->whereNull('aiku_id');
-        }
-
-        if ($this->shop) {
-            $sourceData = explode(':', $this->shop->source_id);
-            $query->where('Order Store Key', $sourceData[1]);
-        }
-
-        $query->orderBy('Order Date');
+        $query = DB::connection('aurora')->table('Order Dimension')->select('Order Key as source_id');
+        $query = $this->commonSelectModelsToFetch($query);
+        $query->orderBy('Order Date', $this->orderDesc ? 'desc' : 'asc');
 
         return $query;
     }
@@ -315,8 +306,21 @@ class FetchAuroraOrders extends FetchAuroraAction
     public function count(): ?int
     {
         $query = DB::connection('aurora')->table('Order Dimension');
+        $query = $this->commonSelectModelsToFetch($query);
+
+        return $query->count();
+    }
+
+    public function commonSelectModelsToFetch($query)
+    {
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
+        } elseif ($this->onlyOrdersNoTransactions) {
+            $query->whereNull('aiku_all_id');
+        }
+
+        if ($this->fromDays) {
+            $query->where('Order Date', '>=', now()->subDays($this->fromDays)->format('Y-m-d'));
         }
 
         if ($this->shop) {
@@ -324,7 +328,7 @@ class FetchAuroraOrders extends FetchAuroraAction
             $query->where('Order Store Key', $sourceData[1]);
         }
 
-        return $query->count();
+        return $query;
     }
 
     public function reset(): void

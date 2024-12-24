@@ -123,26 +123,55 @@ class FetchAuroraDispatchedEmail extends FetchAurora
     public function parseProspectMailshot($recipient): Mailshot|null
     {
         $mailshot = Mailshot::where('source_alt_id', $this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Published Email Template Key'})->first();
+        if (!$mailshot) {
+            $mailshot = Mailshot::where('source_alt2_id', $this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Email Template Key'})->first();
+        }
+
 
         if (!$mailshot) {
+
+            $sourceAltId = null;
+            $sourceAlt2Id = null;
+            $subject = '?';
             $publishedEmailAuroraData = DB::connection('aurora')
                 ->table('Published Email Template Dimension')
                 ->where('Published Email Template Key', $this->auroraModelData->{'Email Tracking Published Email Template Key'})->first();
+
+            if ($publishedEmailAuroraData) {
+                $subject = $publishedEmailAuroraData->{'Published Email Template Subject'};
+                $sourceAltId = $this->organisation->id.':'.$publishedEmailAuroraData->{'Published Email Template Key'};
+            }
+
+            if (!$publishedEmailAuroraData) {
+                $emailAuroraData = DB::connection('aurora')
+                    ->table('Email Template Dimension')
+                    ->where('Email Template Key', $this->auroraModelData->{'Email Tracking Email Template Key'})->first();
+                if ($emailAuroraData) {
+                    $subject = $emailAuroraData->{'Email Template Subject'};
+                    $sourceAlt2Id = $this->organisation->id.':'.$emailAuroraData->{'Email Template Key'};
+                } else {
+                    return null;
+                }
+
+            }
 
 
             $outbox = $recipient->shop->outboxes()->where('code', OutboxCodeEnum::INVITE)->first();
 
             $mailshotData = [
-                'subject'           => $publishedEmailAuroraData->{'Published Email Template Subject'},
+                'subject'           => $subject,
                 'type'              => MailshotTypeEnum::INVITE,
                 'state'             => MailshotStateEnum::SENT,
-                'source_alt_id'     => $this->organisation->id.':'.$publishedEmailAuroraData->{'Published Email Template Key'},
+                'source_alt_id'     => $sourceAltId,
+                'source_alt2_id'     => $sourceAlt2Id,
+
                 'created_at'        => $this->parseDatetime($this->auroraModelData->{'Email Tracking Created Date'}),
                 'sent_at'           => $this->parseDatetime($this->auroraModelData->{'Email Tracking Sent Date'}),
                 'recipients_recipe' => [],
                 'fetched_at'        => now(),
                 'last_fetched_at'   => now(),
             ];
+
 
             $mailshot = StoreMailshot::make()->action(
                 outbox: $outbox,

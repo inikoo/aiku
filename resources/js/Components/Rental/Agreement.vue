@@ -165,14 +165,14 @@ const onSavedAgreement = (updateAll: boolean) => {
 
                     <div class="">
                         <LoadingIcon v-if="form.processing" class="text-[23px]" />
-                        <Popover v-else-if="form.isDirty">
+                        <Popover v-else-if="form.isDirty && updateRoute?.name">
                             <template #button="{ open }">
                                 <FontAwesomeIcon icon="fad fa-save" class="h-8" :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" aria-hidden="true" />
                             </template>
                             
                             <template #content="{ close: closed }">
                                 <div class="max-w-min">
-                                    <div class="mb-2 w-fit text-xs text-gray-500">{{trans('You can just update the discounts for future bills or apply it to current ones')}}</div>
+                                    <div class="mb-4 w-fit text-xs text-gray-500">{{trans('You can just update the discounts for future bills or apply it to current ones')}}</div>
                                     <div class="flex gap-x-2">
                                         <Button @click="() => (onSavedAgreement(false))" :label="trans('Update')" type="tertiary" />
                                         <Button @click="() => onSavedAgreement(true)" :label="trans('Update & Change Open Bills')" />

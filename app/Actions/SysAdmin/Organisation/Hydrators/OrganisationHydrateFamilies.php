@@ -36,7 +36,7 @@ class OrganisationHydrateFamilies
     public function handle(Organisation $organisation): void
     {
         $stats = [
-            'number_families' => $organisation->families()->count(),
+            'number_families' => $organisation->getFamilies()->count(),
         ];
 
         $stats = array_merge(

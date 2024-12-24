@@ -42,7 +42,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $customer_id
  * @property string $slug
  * @property bool $is_root
- * @property string $type
+ * @property WebUserTypeEnum $type
  * @property bool $status
  * @property string $username
  * @property string|null $email
@@ -63,7 +63,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
- * @property WebUserTypeEnum $state
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\CRM\Customer $customer
  * @property-read Group $group
@@ -99,12 +98,13 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
 
     protected $casts = [
 
-        'data'      => 'array',
-        'settings'  => 'array',
-        'state'     => WebUserTypeEnum::class,
-        'auth_type' => WebUserAuthTypeEnum::class,
-        'fetched_at'         => 'datetime',
-        'last_fetched_at'    => 'datetime',
+        'data'            => 'array',
+        'settings'        => 'array',
+        'status'          => 'boolean',
+        'type'            => WebUserTypeEnum::class,
+        'auth_type'       => WebUserAuthTypeEnum::class,
+        'fetched_at'      => 'datetime',
+        'last_fetched_at' => 'datetime',
     ];
 
     protected $attributes = [
@@ -117,7 +117,7 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
 
     public function generateTags(): array
     {
-        return ['crm','websites'];
+        return ['crm', 'websites'];
     }
 
     protected array $auditInclude = [

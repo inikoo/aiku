@@ -56,7 +56,6 @@ class IndexDeliveryNoteItems extends OrgAction
             ->select([
                 'delivery_note_items.id',
                 'delivery_note_items.state',
-                'delivery_note_items.status',
                 'delivery_note_items.quantity_required',
                 'delivery_note_items.quantity_picked',
                 'delivery_note_items.quantity_packed',

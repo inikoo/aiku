@@ -10,6 +10,7 @@ use App\Stubs\Migrations\HasCatalogueStats;
 use App\Stubs\Migrations\HasCreditsStats;
 use App\Stubs\Migrations\HasHelpersStats;
 use App\Stubs\Migrations\HasOrderingStats;
+use App\Stubs\Migrations\HasQueriesStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -19,6 +20,7 @@ return new class () extends Migration {
     use HasCreditsStats;
     use HasOrderingStats;
     use HasHelpersStats;
+    use HasQueriesStats;
     public function up(): void
     {
         Schema::create('shop_stats', function (Blueprint $table) {
@@ -28,6 +30,7 @@ return new class () extends Migration {
             $table = $this->catalogueStats($table);
             $table = $this->billableFields($table);
             $table = $this->uploadStats($table);
+            $table = $this->getQueriesStats($table);
             $table->timestampsTz();
         });
     }

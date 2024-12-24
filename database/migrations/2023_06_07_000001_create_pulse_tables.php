@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 17 Dec 2024 22:26:03 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
+
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Laravel\Pulse\Support\PulseMigration;
@@ -13,6 +19,9 @@ return new class () extends PulseMigration {
         if (! $this->shouldRun()) {
             return;
         }
+        Schema::dropIfExists('pulse_values');
+        Schema::dropIfExists('pulse_entries');
+        Schema::dropIfExists('pulse_aggregates');
 
         Schema::create('pulse_values', function (Blueprint $table) {
             $table->id();

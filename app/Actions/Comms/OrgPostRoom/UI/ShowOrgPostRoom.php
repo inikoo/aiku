@@ -13,7 +13,6 @@ use App\Actions\Comms\Mailshot\UI\IndexMailshots;
 use App\Actions\Comms\Outbox\UI\IndexOutboxes;
 use App\Actions\OrgAction;
 use App\Enums\Comms\PostRoom\OrgPostRoomsTabsEnum;
-use App\Enums\Comms\PostRoom\PostRoomsTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Mail\OrgPostRoomResource;
 use App\Http\Resources\Mail\OutboxesResource;
@@ -77,9 +76,9 @@ class ShowOrgPostRoom extends OrgAction
                     'navigation' => OrgPostRoomsTabsEnum::navigation(),
                 ],
                 // TODO: Overview <-- is. a dashbpard
-                // PostRoomsTabsEnum::OVERVIEW->value => $this->tab == PostRoomsTabsEnum::OVERVIEW->value ?
-                //     fn () => PostRoomResource::collection($orgPostRoom)
-                //     : Inertia::lazy(fn () => PostRoomResource::collection($orgPostRoom)),
+                OrgPostRoomsTabsEnum::SHOWCASE->value => $this->tab == OrgPostRoomsTabsEnum::SHOWCASE->value ?
+                    fn () => GetOrgPostRoomShowcase::run($orgPostRoom)
+                    : Inertia::lazy(fn () => GetOrgPostRoomShowcase::run($orgPostRoom)),
 
                 OrgPostRoomsTabsEnum::OUTBOXES->value => $this->tab == OrgPostRoomsTabsEnum::OUTBOXES->value ?
                     fn () => OutboxesResource::collection(IndexOutboxes::run($orgPostRoom, OrgPostRoomsTabsEnum::OUTBOXES->value))

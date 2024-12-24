@@ -37,7 +37,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Catalogue\Department
+ *
  *
  * @property int $id
  * @property ProductCategoryTypeEnum $type
@@ -78,6 +78,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read \App\Models\Catalogue\ProductCategoryOrderingIntervals|null $orderingIntervals
+ * @property-read \App\Models\Catalogue\ProductCategoryOrderingStats|null $orderingStats
  * @property-read Organisation $organisation
  * @property-read ProductCategory|null $parent
  * @property-read \App\Models\Catalogue\ProductCategorySalesIntervals|null $salesIntervals
@@ -169,6 +170,11 @@ class ProductCategory extends Model implements Auditable, HasMedia
         return $this->hasOne(ProductCategorySalesIntervals::class);
     }
 
+    public function orderingStats(): HasOne
+    {
+        return $this->hasOne(ProductCategoryOrderingStats::class);
+    }
+
     public function department(): BelongsTo
     {
         return $this->belongsTo(ProductCategory::class, 'department_id');
@@ -200,21 +206,14 @@ class ProductCategory extends Model implements Auditable, HasMedia
         return $this->children()->where('type', ProductCategoryTypeEnum::FAMILY)->get();
     }
 
-    public function families(): LaravelCollection
-    {
-        return $this->children()->where('type', ProductCategoryTypeEnum::FAMILY)->get();
-    }
-
-
-    public function products(): HasMany|null
+    public function getProducts(): LaravelCollection
     {
         return match ($this->type) {
-            ProductCategoryTypeEnum::DEPARTMENT => $this->hasMany(Product::class, 'department_id'),
-            ProductCategoryTypeEnum::FAMILY     => $this->hasMany(Product::class, 'family_id'),
-            default                             => null
+            ProductCategoryTypeEnum::DEPARTMENT => Product::where('department_id', $this->id)->get(),
+            ProductCategoryTypeEnum::FAMILY     => Product::where('family_id', $this->id)->get(),
+            ProductCategoryTypeEnum::SUB_DEPARTMENT => Product::where('sub_department_id', $this->id)->get(),
         };
     }
-
     public function collections(): MorphToMany
     {
         return $this->morphToMany(Collection::class, 'model', 'model_has_collections')->withTimestamps();

@@ -16,10 +16,15 @@ class FetchAuroraInvoiceTransaction extends FetchAurora
     protected function parseInvoiceTransaction(Invoice $invoice, bool $isFulfilment): void
     {
         if ($this->auroraModelData->{'Product Key'}) {
+            $transactionId = null;
+
+
             $transaction = $invoice->customer->transactions()->where('source_id', $this->organisation->id.':'.$this->auroraModelData->{'Order Transaction Fact Key'})->first();
+
 
             if ($transaction) {
                 $this->parsedData['model'] = $transaction;
+                $transactionId             = $transaction->id;
             } else {
                 $historicAsset = $this->parseHistoricAsset(
                     $this->organisation,
@@ -48,8 +53,10 @@ class FetchAuroraInvoiceTransaction extends FetchAurora
 
             $taxCategory = $this->parseTaxCategory($this->auroraModelData->{'Order Transaction Tax Category Key'});
 
+
             $this->parsedData['transaction'] = [
                 'order_id'        => $orderId,
+                'transaction_id'  => $transactionId,
                 'tax_category_id' => $taxCategory->id,
                 'quantity'        => $quantity,
                 'gross_amount'    => $this->auroraModelData->{'Order Transaction Gross Amount'},

@@ -13,6 +13,7 @@ use App\Actions\SysAdmin\Guest\Hydrators\GuestHydrateTimesheets;
 use App\Actions\SysAdmin\Guest\Hydrators\GuestHydrateTimeTracker;
 use App\Models\SysAdmin\Guest;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class HydrateGuest
@@ -32,10 +33,23 @@ class HydrateGuest
 
     public function asCommand(Command $command): int
     {
+        $command->info("Hydrating Guests");
+        $count = Guest::count();
 
-        $command->withProgressBar(Guest::all(), function (Guest $guest) {
-            $this->handle($guest);
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        Guest::chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
         });
+
+        $bar->finish();
+        $command->info("");
+
 
         return 0;
     }

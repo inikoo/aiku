@@ -119,7 +119,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\CRM\CustomerNote> $customerNotes
  * @property-read Address|null $deliveryAddress
  * @property-read Collection<int, DeliveryNote> $deliveryNotes
- * @property-read \App\Models\CRM\CustomerDropshippingStat|null $dropshippingStats
  * @property-read Collection<int, \App\Models\CRM\Favourite> $favourites
  * @property-read FulfilmentCustomer|null $fulfilmentCustomer
  * @property-read Group $group
@@ -362,12 +361,6 @@ class Customer extends Model implements HasMedia, Auditable
     {
         return $this->hasMany(Portfolio::class);
     }
-
-    public function dropshippingStats(): HasOne
-    {
-        return $this->hasOne(CustomerDropshippingStat::class);
-    }
-
 
     public function platforms(): MorphToMany
     {

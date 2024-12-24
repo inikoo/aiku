@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faCube, faFolder, } from '@fal'
+import { faCube, faChair, faFolder, } from '@fal'
 
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
@@ -28,13 +28,13 @@ import Tabs from '@/Components/Navigation/Tabs.vue'
 import type { DeliveryNote } from '@/types/warehouse'
 
 
-library.add(faFolder, faCube)
+library.add(faFolder, faCube, faChair)
 
 const props = defineProps<{
     title: string,
     pageHead: TSPageHeading
     tabs: TSTabs
-    skos_ordered?: {}
+    items?: {}
     pickings: {}
     alert?: {
         status: string
@@ -71,7 +71,7 @@ const currentTab = ref(props.tabs?.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const component = computed(() => {
     const components: Component = {
-        skos_ordered: TableSKOSOrdered,
+        items: TableSKOSOrdered,
         pickings: TablePickings,
     }
 

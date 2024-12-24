@@ -15,11 +15,14 @@ class FetchAuroraTransactionHasOfferComponent extends FetchAurora
 {
     protected function parseTransactionHasOfferComponent(Order $order): void
     {
+
+        if ($this->auroraModelData->{'Amount Discount'} < 0) {
+            return;
+        }
+
         $transaction = $this->parseTransaction($this->organisation->id.':'.$this->auroraModelData->{'Order Transaction Fact Key'});
 
         if (!$transaction) {
-            //print "Transaction not found\n";
-            //dd($this->auroraModelData);
             return;
         }
 
@@ -29,11 +32,15 @@ class FetchAuroraTransactionHasOfferComponent extends FetchAurora
             $offerComponent = $this->parseOfferComponent($this->organisation->id.':'.$this->auroraModelData->{'Deal Component Key'});
         }
 
+        $data = [];
         if (!$offerComponent) {
-            print 'No offer component found for '.$this->auroraModelData->{'Deal Component Key'}."\n";
-            print_r($this->auroraModelData);
-
-            return;
+            $data           = [
+                'fetch_error'      => true,
+                'fetch_error_data' => [
+                    'aurora_deal_component_key' => $this->auroraModelData->{'Deal Component Key'},
+                ]
+            ];
+            $offerComponent = $order->shop->offerComponents()->where('is_discretionary', true)->first();
         }
 
 
@@ -49,11 +56,6 @@ class FetchAuroraTransactionHasOfferComponent extends FetchAurora
             unset($fractionDiscount);
         }
 
-        if ($this->auroraModelData->{'Amount Discount'} < 0) {
-            return;
-        }
-
-
         $this->parsedData['transaction_has_offer_component'] = [
             'source_id'          => $this->organisation->id.':'.$this->auroraModelData->{'Order Transaction Deal Key'},
             'offer_component_id' => $offerComponent->id,
@@ -62,6 +64,7 @@ class FetchAuroraTransactionHasOfferComponent extends FetchAurora
             'is_pinned'          => $this->auroraModelData->{'Order Transaction Deal Pinned'} == 'Yes',
             'fetched_at'         => now(),
             'last_fetched_at'    => now(),
+            'data'               => $data,
         ];
 
         if (isset($fractionDiscount)) {

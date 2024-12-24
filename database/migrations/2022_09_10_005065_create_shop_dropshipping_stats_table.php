@@ -21,7 +21,7 @@ return new class () extends Migration {
             $table->id();
             $table->unsignedSmallInteger('shop_id');
             $table->foreign('shop_id')->references('id')->on('shops')->onUpdate('cascade')->onDelete('cascade');
-            $this->dropshippingStats($table);
+            $this->dropshippingStatsFields($table);
             $table->timestampsTz();
         });
     }

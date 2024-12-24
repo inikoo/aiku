@@ -25,162 +25,79 @@ class ShowOrganisationDashboard extends OrgAction
     public function handle(Organisation $organisation, ActionRequest $request): Response
     {
         $sales   = [
-            'sales'         => JsonResource::make($organisation->orderingStats),
-            'currency'      => $organisation->currency,
-            'total'         => [
-                'ytd' => [
-                    'total_sales' => $organisation->shops->sum(function ($shop) {
-                        return $shop->salesIntervals->sales_ytd ?? 0;
-                    }),
-                ],
-                'qtd' => [
-                    'total_sales' => $organisation->shops->sum(function ($shop) {
-                        return $shop->salesIntervals->sales_qtd ?? 0;
-                    }),
-                ],
-                'mtd' => [
-                    'total_sales' => $organisation->shops->sum(function ($shop) {
-                        return $shop->salesIntervals->sales_mtd ?? 0;
-                    }),
-                ],
-                'wtd' => [
-                    'total_sales' => $organisation->shops->sum(function ($shop) {
-                        return $shop->salesIntervals->sales_wtd ?? 0;
-                    }),
-                ],
-                'lm' => [
-                    'total_sales' => $organisation->shops->sum(function ($shop) {
-                        return $shop->salesIntervals->sales_lm ?? 0;
-                    }),
-                ],
-                'lw' => [
-                    'total_sales' => $organisation->shops->sum(function ($shop) {
-                        return $shop->salesIntervals->sales_lw ?? 0;
-                    }),
-                ],
-                'yda' => [
-                    'total_sales' => $organisation->shops->sum(function ($shop) {
-                        return $shop->salesIntervals->sales_yda ?? 0;
-                    }),
-                ],
-                'tdy' => [
-                    'total_sales' => $organisation->shops->sum(function ($shop) {
-                        return $shop->salesIntervals->sales_tdy ?? 0;
-                    }),
-                ],
-                '1y' => [
-                    'total_sales' => $organisation->shops->sum(function ($shop) {
-                        return $shop->salesIntervals->sales_1y ?? 0;
-                    }),
-                ],
-                '1q' => [
-                    'total_sales' => $organisation->shops->sum(function ($shop) {
-                        return $shop->salesIntervals->sales_1q ?? 0;
-                    }),
-                ],
-                '1m' => [
-                    'total_sales' => $organisation->shops->sum(function ($shop) {
-                        return $shop->salesIntervals->sales_1m ?? 0;
-                    }),
-                ],
-                '1w' => [
-                    'total_sales' => $organisation->shops->sum(function ($shop) {
-                        return $shop->salesIntervals->sales_1w ?? 0;
-                    }),
-                ],
-                'all' => [
-                    'total_sales'    => $organisation->salesIntervals->sales_org_currency_all
-                ]
-            ],
-            'shops' => $organisation->shops->map(function (Shop $shop) {
-                // Initialize the response data
-                $responseData = [
-                    'name'      => $shop->name,
-                    'slug'      => $shop->slug,
-                    'type'      => $shop->type,
-                    'currency'  => $shop->currency,
-                    'sales'     => $shop->salesIntervals,
-                    // 'invoices'  => [
-                    //     'number_invoices' => $organisation->salesStats->number_invoices_type_invoice ?? null
-                    // ],
-                    // 'refunds' => [
-                    //     'number_refunds' => $organisation->salesStats->number_invoices_type_refund ?? null
-                    // ],
-                ];
-
-                if ($shop->salesIntervals !== null) {
-                    $responseData['interval_percentages'] = [
-                            'sales' => [
-                                        'ytd' => [
-                                            'amount'     => $shop->salesIntervals->sales_ytd,
-                                            'percentage' => $this->calculatePercentageIncrease($shop->salesIntervals->sales_ytd, $shop->salesIntervals->sales_ytd_ly),
-                                            'difference' => $shop->salesIntervals->sales_ytd - $shop->salesIntervals->sales_ytd_ly
-                                        ],
-                                        'qtd' => [
-                                            'amount'     => $shop->salesIntervals->sales_qtd,
-                                            'percentage' => $this->calculatePercentageIncrease($shop->salesIntervals->sales_qtd, $shop->salesIntervals->sales_qtd_ly),
-                                            'difference' => $shop->salesIntervals->sales_qtd - $shop->salesIntervals->sales_qtd_ly
-                                        ],
-                                        'mtd' => [
-                                            'amount'     => $shop->salesIntervals->sales_mtd,
-                                            'percentage' => $this->calculatePercentageIncrease($shop->salesIntervals->sales_mtd, $shop->salesIntervals->sales_mtd_ly),
-                                            'difference' => $shop->salesIntervals->sales_mtd - $shop->salesIntervals->sales_mtd_ly
-                                        ],
-                                        'wtd' => [
-                                            'amount'     => $shop->salesIntervals->sales_wtd,
-                                            'percentage' => $this->calculatePercentageIncrease($shop->salesIntervals->sales_wtd, $shop->salesIntervals->sales_wtd_ly),
-                                            'difference' => $shop->salesIntervals->sales_wtd - $shop->salesIntervals->sales_wtd_ly
-                                        ],
-                                        'lm' => [
-                                            'amount'     => $shop->salesIntervals->sales_lm,
-                                            'percentage' => $this->calculatePercentageIncrease($shop->salesIntervals->sales_lm, $shop->salesIntervals->sales_lm_ly),
-                                            'difference' => $shop->salesIntervals->sales_lm - $shop->salesIntervals->sales_lm_ly
-                                        ],
-                                        'lw' => [
-                                            'amount'     => $shop->salesIntervals->sales_lw,
-                                            'percentage' => $this->calculatePercentageIncrease($shop->salesIntervals->sales_lw, $shop->salesIntervals->sales_lw_ly),
-                                            'difference' => $shop->salesIntervals->sales_lw - $shop->salesIntervals->sales_lw_ly
-                                        ],
-                                        'yda' => [
-                                            'amount'     => $shop->salesIntervals->sales_yda,
-                                            'percentage' => $this->calculatePercentageIncrease($shop->salesIntervals->sales_yda, $shop->salesIntervals->sales_yda_ly),
-                                            'difference' => $shop->salesIntervals->sales_yda - $shop->salesIntervals->sales_yda_ly
-                                        ],
-                                        'tdy' => [
-                                            'amount'     => $shop->salesIntervals->sales_tdy,
-                                            'percentage' => $this->calculatePercentageIncrease($shop->salesIntervals->sales_tdy, $shop->salesIntervals->sales_tdy_ly),
-                                            'difference' => $shop->salesIntervals->sales_tdy - $shop->salesIntervals->sales_tdy_ly
-                                        ],
-                                        '1y' => [
-                                            'amount'     => $shop->salesIntervals->sales_1y,
-                                            'percentage' => $this->calculatePercentageIncrease($shop->salesIntervals->sales_1y, $shop->salesIntervals->sales_1y_ly),
-                                            'difference' => $shop->salesIntervals->sales_1y - $shop->salesIntervals->sales_1y_ly
-                                        ],
-                                        '1q' => [
-                                            'amount'     => $shop->salesIntervals->sales_1q,
-                                            'percentage' => $this->calculatePercentageIncrease($shop->salesIntervals->sales_1q, $shop->salesIntervals->sales_1q_ly),
-                                            'difference' => $shop->salesIntervals->sales_1q - $shop->salesIntervals->sales_1q_ly
-                                        ],
-                                        '1m' => [
-                                            'amount'     => $shop->salesIntervals->sales_1m,
-                                            'percentage' => $this->calculatePercentageIncrease($shop->salesIntervals->sales_1m, $shop->salesIntervals->sales_1m_ly),
-                                            'difference' => $shop->salesIntervals->sales_1m - $shop->salesIntervals->sales_1m_ly
-                                        ],
-                                        '1w' => [
-                                            'amount'     => $shop->salesIntervals->sales_1w,
-                                            'percentage' => $this->calculatePercentageIncrease($shop->salesIntervals->sales_1w, $shop->salesIntervals->sales_1w_ly),
-                                            'difference' => $shop->salesIntervals->sales_1w - $shop->salesIntervals->sales_1w_ly
-                                        ],
-                                        'all' => [
-                                            'amount'     => $shop->salesIntervals->sales_all,
-                                        ],
-                                    ],
+                'sales'    => JsonResource::make($organisation->orderingStats),
+                'currency' => $organisation->currency,
+                'total'    => collect([
+                    'ytd' => 'sales_ytd',
+                    'qtd' => 'sales_qtd',
+                    'mtd' => 'sales_mtd',
+                    'wtd' => 'sales_wtd',
+                    'lm'  => 'sales_lm',
+                    'lw'  => 'sales_lw',
+                    'ld'  => 'sales_ld',
+                    'tdy' => 'sales_tdy',
+                    '1y'  => 'sales_1y',
+                    '1q'  => 'sales_1q',
+                    '1m'  => 'sales_1m',
+                    '1w'  => 'sales_1w',
+                ])->mapWithKeys(function ($salesInterval, $key) use ($organisation) {
+                    return [
+                        $key => [
+                            'total_sales'    => $organisation->shops->sum(fn ($shop) => $shop->salesIntervals->$salesInterval ?? 0),
+                            'total_invoices' => $organisation->shops->sum(fn ($shop) => $shop->orderingIntervals->{"invoices_{$key}"} ?? 0),
+                            'total_refunds'  => $organisation->shops->sum(fn ($shop) => $shop->orderingIntervals->{"refunds_{$key}"} ?? 0),
+                        ]
                     ];
-                }
+                })->toArray() + [
+                    'all' => [
+                        'total_sales'    => $organisation->salesIntervals->sales_org_currency_all ?? 0,
+                        'total_invoices' => $organisation->orderingIntervals->invoices_all ?? 0,
+                        'total_refunds'  => $organisation->orderingIntervals->refunds_all ?? 0,
+                    ],
+                ],
+                'shops' => $organisation->shops->map(function (Shop $shop) {
+                    $responseData = [
+                        'name'      => $shop->name,
+                        'slug'      => $shop->slug,
+                        'type'      => $shop->type,
+                        'currency'  => $shop->currency,
+                        'state'     => $shop->state
+                    ];
 
-                return $responseData;
-            })
+                    if ($shop->salesIntervals !== null) {
+                        $responseData['interval_percentages']['sales'] = $this->mapIntervals(
+                            $shop->salesIntervals,
+                            'sales',
+                            [
+                                'ytd', 'qtd', 'mtd', 'wtd', 'lm', 'lw', 'ld', 'tdy', '1y', '1q', '1m', '1w', 'all'
+                            ]
+                        );
+                    }
+
+                    if ($shop->orderingIntervals !== null) {
+                        $responseData['interval_percentages']['invoices'] = $this->mapIntervals(
+                            $shop->orderingIntervals,
+                            'invoices',
+                            [
+                                'ytd', 'qtd', 'mtd', 'wtd', 'lm', 'lw', 'ld', 'tdy', '1y', '1q', '1m', '1w', 'all'
+                            ]
+                        );
+                    }
+
+                    if ($shop->orderingIntervals !== null) {
+                        $responseData['interval_percentages']['refunds'] = $this->mapIntervals(
+                            $shop->orderingIntervals,
+                            'refunds',
+                            [
+                                'ytd', 'qtd', 'mtd', 'wtd', 'lm', 'lw', 'ld', 'tdy', '1y', '1q', '1m', '1w', 'all'
+                            ]
+                        );
+                    }
+
+                    return $responseData;
+                }),
         ];
+
         return Inertia::render(
             'Dashboard/OrganisationDashboard',
             [
@@ -218,12 +135,12 @@ class ShowOrganisationDashboard extends OrgAction
                     ],
                     [
                         'label'      => __('Yesterday'),
-                        'labelShort' => __('y'),
-                        'value'      => 'yda'
+                        'labelShort' => __('ld'),
+                        'value'      => 'ld'
                     ],
                     [
                         'label'      => __('Today'),
-                        'labelShort' => __('t'),
+                        'labelShort' => __('tdy'),
                         'value'      => 'tdy'
                     ],
                     [
@@ -324,13 +241,40 @@ class ShowOrganisationDashboard extends OrgAction
     //     return $data;
     // }
 
-    public function calculatePercentageIncrease($thisYear, $lastYear): ?float
+    protected function calculatePercentageIncrease($thisYear, $lastYear): ?float
     {
         if ($lastYear == 0) {
             return $thisYear > 0 ? null : 0;
         }
 
         return (($thisYear - $lastYear) / $lastYear) * 100;
+    }
+
+    protected function mapIntervals($intervalData, string $prefix, array $keys)
+    {
+        $result = [];
+        foreach ($keys as $key) {
+            $result[$key] = [
+                'amount'     => $intervalData->{$prefix . '_' . $key} ?? null,
+                'percentage' => isset($intervalData->{$prefix . '_' . $key}, $intervalData->{$prefix . '_' . $key . '_ly'})
+                    ? $this->calculatePercentageIncrease(
+                        $intervalData->{$prefix . '_' . $key},
+                        $intervalData->{$prefix . '_' . $key . '_ly'}
+                    )
+                    : null,
+                'difference' => isset($intervalData->{$prefix . '_' . $key}, $intervalData->{$prefix . '_' . $key . '_ly'})
+                    ? $intervalData->{$prefix . '_' . $key} - $intervalData->{$prefix . '_' . $key . '_ly'}
+                    : null,
+            ];
+        }
+
+        if (isset($result['all'])) {
+            $result['all'] = [
+                'amount' => $intervalData->{$prefix . '_all'} ?? null,
+            ];
+        }
+
+        return $result;
     }
 
     public function asController(Organisation $organisation, ActionRequest $request): Response

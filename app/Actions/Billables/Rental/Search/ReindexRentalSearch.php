@@ -8,27 +8,45 @@
 
 namespace App\Actions\Billables\Rental\Search;
 
+use App\Actions\HydrateModel;
 use App\Models\Billables\Rental;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ReindexRentalSearch
+class ReindexRentalSearch extends HydrateModel
 {
     use asAction;
 
-    public string $commandSignature = 'rentals:search';
+    public string $commandSignature = 'search:rentals {organisations?*} {--s|slugs=}';
 
     public function handle(Rental $rental): void
     {
         RentalRecordSearch::run($rental);
     }
 
-    public function asCommand(Command $command): int
+    protected function getModel(string $slug): Rental
     {
-        $command->withProgressBar(Rental::withTrashed()->all(), function (Rental $rental) {
-            $this->handle($rental);
+        return Rental::withTrashed()->where('slug', $slug)->first();
+    }
+
+    protected function loopAll(Command $command): void
+    {
+        $command->info("Reindex Rentals");
+        $count = Rental::withTrashed()->count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        Rental::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
         });
 
-        return 0;
+        $bar->finish();
+        $command->info("");
     }
 }

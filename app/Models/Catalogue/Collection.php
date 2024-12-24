@@ -48,6 +48,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\ProductCategory> $families
  * @property-read Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Collection> $inCollections
+ * @property-read \App\Models\Catalogue\CollectionsOrderingStats|null $orderingStats
  * @property-read Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\Product> $products
  * @property-read \App\Models\Catalogue\CollectionSalesIntervals|null $salesIntervals
@@ -105,6 +106,11 @@ class Collection extends Model implements Auditable
     public function salesIntervals(): HasOne
     {
         return $this->hasOne(CollectionSalesIntervals::class);
+    }
+
+    public function orderingStats(): HasOne
+    {
+        return $this->hasOne(CollectionsOrderingStats::class);
     }
 
     public function collectionCategories(): BelongsToMany

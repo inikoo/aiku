@@ -26,7 +26,7 @@ use Throwable;
 
 class FetchAuroraDeliveryNotes extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:delivery_notes {organisations?*} {--s|source_id=} {--S|shop= : Shop slug}  {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:delivery_notes {organisations?*} {--s|source_id=} {--S|shop= : Shop slug}  {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=} {--r|reset} {--T|only_orders_no_transactions : Fetch only orders with no transactions} {--D|days= : fetch last n days} {--O|order= : order asc|desc}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId, bool $forceWithTransactions = false): ?DeliveryNote
     {
@@ -138,9 +138,13 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
                 ->get() as $auroraData
         ) {
             $transactionsToDelete = array_diff($transactionsToDelete, [$organisation->id.':'.$auroraData->{'Inventory Transaction Key'}]);
-            FetchAuroraDeliveryNoteTransactions::run($organisationSource, $auroraData->{'Inventory Transaction Key'}, $deliveryNote);
+            FetchAuroraDeliveryNoteItems::run($organisationSource, $auroraData->{'Inventory Transaction Key'}, $deliveryNote);
         }
         $deliveryNote->deliveryNoteItems()->whereIn('id', array_keys($transactionsToDelete))->delete();
+
+        DB::connection('aurora')->table('Delivery Note Dimension')
+            ->where('Delivery Note Key', $sourceData[1])
+            ->update(['aiku_all_id' => $deliveryNote->id]);
     }
 
 
@@ -150,10 +154,8 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
             ->table('Delivery Note Dimension')
             ->select('Delivery Note Key as source_id');
 
-        if ($this->onlyNew) {
-            $query->whereNull('aiku_id');
-        }
-        $query->orderBy('Delivery Note Date');
+        $query = $this->commonSelectModelsToFetch($query);
+        $query->orderBy('Delivery Note Date', $this->orderDesc ? 'desc' : 'asc');
 
         return $query;
     }
@@ -161,12 +163,28 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
     public function count(): ?int
     {
         $query = DB::connection('aurora')->table('Delivery Note Dimension');
+        $query = $this->commonSelectModelsToFetch($query);
+        return $query->count();
+    }
 
+    public function commonSelectModelsToFetch($query)
+    {
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
+        } elseif ($this->onlyOrdersNoTransactions) {
+            $query->whereNull('aiku_all_id');
         }
 
-        return $query->count();
+        if ($this->fromDays) {
+            $query->where('Delivery Note Date', '>=', now()->subDays($this->fromDays)->format('Y-m-d'));
+        }
+
+        if ($this->shop) {
+            $sourceData = explode(':', $this->shop->source_id);
+            $query->where('Delivery Note Store Key', $sourceData[1]);
+        }
+
+        return $query;
     }
 
     public function reset(): void

@@ -99,10 +99,6 @@ class StoreCustomer extends OrgAction
                 )
             );
 
-            if ($customer->is_dropshipping) {
-                $customer->dropshippingStats()->create();
-            }
-
             if ($customer->is_fulfilment) {
                 StoreFulfilmentCustomerFromCustomer::run($customer, $shop, ['source_id' => $customer->source_id]);
             }

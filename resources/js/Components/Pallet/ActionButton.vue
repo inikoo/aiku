@@ -89,7 +89,7 @@ const typePallet = [
 </script>
 
 <template>
-    <Popover v-if="item.status === 'storing'" class="relative">
+    <Popover v-if="item.status === 'storing'" class="relative" position="bottom-[125%] right-1/2">
         <template #button>
             <Button :key="item.index" iconRight="fal fa-fragile" v-tooltip="trans('Set pallet as damaged')" :size="'xs'" type="negative" />
         </template>
@@ -120,7 +120,7 @@ const typePallet = [
             </div>
 
             <div class="flex justify-end mt-3">
-                <Button :style="'save'" :loading="loading" @click="setPalletStatus( palletStatus == 'damaged' ? item.setAsDamaged : item.setAsLost, close)" />
+                <Button :style="'save'" full :loading="loading" @click="setPalletStatus( palletStatus == 'damaged' ? item.setAsDamaged : item.setAsLost, close)" />
             </div>
         </template>
     </Popover>

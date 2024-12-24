@@ -23,6 +23,7 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops')->onUpdate('cascade')->onDelete('cascade');
             $table = $this->outboxesStats($table);
             $table = $this->mailshotsStats($table);
+            $table = $this->bulkRunsStats($table);
             $table = $this->dispatchedEmailStats($table);
 
             $table->timestampsTz();

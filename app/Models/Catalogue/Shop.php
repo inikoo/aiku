@@ -165,6 +165,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, OfferComponent> $offerComponents
  * @property-read LaravelCollection<int, Offer> $offers
  * @property-read \App\Models\Catalogue\ShopOrderHandlingStats|null $orderHandlingStats
+ * @property-read \App\Models\Catalogue\ShopOrderingIntervals|null $orderingIntervals
  * @property-read \App\Models\Catalogue\ShopOrderingStats|null $orderingStats
  * @property-read LaravelCollection<int, Order> $orders
  * @property-read PaymentAccountShop|OrgPaymentServiceProviderShop|null $pivot
@@ -291,6 +292,11 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->hasOne(ShopSalesIntervals::class);
     }
 
+    public function orderingIntervals(): HasOne
+    {
+        return $this->hasOne(ShopOrderingIntervals::class);
+    }
+
     public function orderHandlingStats(): HasOne
     {
         return $this->hasOne(ShopOrderHandlingStats::class);
@@ -361,7 +367,7 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->productCategories()->where('type', ProductCategoryTypeEnum::SUB_DEPARTMENT)->get();
     }
 
-    public function families(): LaravelCollection
+    public function getFamilies(): LaravelCollection
     {
         return $this->productCategories()->where('type', ProductCategoryTypeEnum::FAMILY)->get();
     }

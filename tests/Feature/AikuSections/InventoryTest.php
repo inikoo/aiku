@@ -16,6 +16,7 @@ use App\Actions\Goods\StockFamily\StoreStockFamily;
 use App\Actions\Helpers\Tag\StoreTag;
 use App\Actions\Inventory\Location\DeleteLocation;
 use App\Actions\Inventory\Location\HydrateLocation;
+use App\Actions\Inventory\Location\Search\ReindexLocationSearch;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\Tags\SyncTagsLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
@@ -26,13 +27,17 @@ use App\Actions\Inventory\LocationOrgStock\StoreLocationOrgStock;
 use App\Actions\Inventory\LocationOrgStock\UpdateLocationOrgStock;
 use App\Actions\Inventory\OrgStock\AddLostAndFoundOrgStock;
 use App\Actions\Inventory\OrgStock\RemoveLostAndFoundStock;
+use App\Actions\Inventory\OrgStock\Search\ReindexOrgStockSearch;
 use App\Actions\Inventory\OrgStock\StoreOrgStock;
 use App\Actions\Inventory\OrgStock\UpdateOrgStock;
+use App\Actions\Inventory\OrgStockFamily\Search\ReindexOrgStockFamilySearch;
 use App\Actions\Inventory\OrgStockFamily\StoreOrgStockFamily;
 use App\Actions\Inventory\Warehouse\HydrateWarehouse;
+use App\Actions\Inventory\Warehouse\Search\ReindexWarehouseSearch;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\HydrateWarehouseArea;
+use App\Actions\Inventory\WarehouseArea\Search\ReindexWarehouseAreaSearch;
 use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
@@ -833,4 +838,44 @@ test('UI get section route org warehouses index', function () {
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
         ->and($sectionScope->code)->toBe(AikuSectionEnum::ORG_WAREHOUSE->value)
         ->and($sectionScope->model_slug)->toBe($this->organisation->slug);
+});
+
+test('warehouse search', function () {
+    $this->artisan('search:warehouses')->assertExitCode(0);
+
+    $warehouse = Warehouse::first();
+    ReindexWarehouseSearch::run($warehouse);
+    expect($warehouse->universalSearch()->count())->toBe(1);
+});
+
+test('warehouse area search', function () {
+    $this->artisan('search:warehouse_areas')->assertExitCode(0);
+
+    $warehouseArea = WarehouseArea::first();
+    ReindexWarehouseAreaSearch::run($warehouseArea);
+    expect($warehouseArea->universalSearch()->count())->toBe(1);
+});
+
+test('location search', function () {
+    $this->artisan('search:locations')->assertExitCode(0);
+
+    $location = Location::first();
+    ReindexLocationSearch::run($location);
+    expect($location->universalSearch()->count())->toBe(1);
+});
+
+test('org stocks search', function () {
+    $this->artisan('search:org_stocks')->assertExitCode(0);
+
+    $orgStock = OrgStock::first();
+    ReindexOrgStockSearch::run($orgStock);
+    expect($orgStock->universalSearch()->count())->toBe(1);
+});
+
+test('org stock families search', function () {
+    $this->artisan('search:org_stock_families')->assertExitCode(0);
+
+    $orgStockFamily = OrgStockFamily::first();
+    ReindexOrgStockFamilySearch::run($orgStockFamily);
+    expect($orgStockFamily->universalSearch()->count())->toBe(1);
 });

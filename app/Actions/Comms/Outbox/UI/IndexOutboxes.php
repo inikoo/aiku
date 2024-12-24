@@ -8,10 +8,11 @@
 
 namespace App\Actions\Comms\Outbox\UI;
 
-use App\Actions\Comms\ShowCommsDashboard;
-use App\Actions\Comms\WithCommsSubNavigation;
+use App\Actions\Comms\Traits\WithCommsSubNavigation;
+use App\Actions\Comms\UI\ShowCommsDashboard;
 use App\Actions\Fulfilment\Fulfilment\UI\EditFulfilment;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Http\Resources\Mail\OutboxesResource;
 use App\InertiaTable\InertiaTable;
@@ -20,6 +21,7 @@ use App\Models\Comms\OrgPostRoom;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
 use App\Services\QueryBuilder;
@@ -35,11 +37,14 @@ class IndexOutboxes extends OrgAction
 {
     use WithCommsSubNavigation;
 
-    private Shop|Organisation|PostRoom|Website|Fulfilment $parent;
+    private Group|Shop|Organisation|PostRoom|Website|Fulfilment $parent;
 
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        }
         return $request->user()->hasAnyPermission([
             'shop-admin.'.$this->shop->id,
             'marketing.'.$this->shop->id.'.view',
@@ -49,7 +54,7 @@ class IndexOutboxes extends OrgAction
         ]);
     }
 
-    public function handle(Shop|Organisation|PostRoom|OrgPostRoom|Website|Fulfilment $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Shop|Organisation|PostRoom|OrgPostRoom|Website|Fulfilment $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -63,9 +68,13 @@ class IndexOutboxes extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(Outbox::class);
+        $queryBuilder = QueryBuilder::for(Outbox::class)
+                        ->leftJoin('organisations', 'outboxes.organisation_id', '=', 'organisations.id')
+                        ->leftJoin('shops', 'outboxes.shop_id', '=', 'shops.id');
 
-        if (class_basename($parent) == 'Shop') {
+        if ($parent instanceof Group) {
+            $queryBuilder->where('outboxes.group_id', $parent->id);
+        } elseif (class_basename($parent) == 'Shop') {
             $queryBuilder->where('outboxes.shop_id', $parent->id);
         } elseif (class_basename($parent) == 'PostRoom') {
             $queryBuilder->where('outboxes.post_room_id', $parent->id);
@@ -89,6 +98,10 @@ class IndexOutboxes extends OrgAction
                 'outbox_intervals.dispatched_emails_lw',
                 'outbox_intervals.opened_emails_lw',
                 'outbox_intervals.unsubscribed_lw',
+                'shops.name as shop_name',
+                'shops.slug as shop_slug',
+                'organisations.name as organisation_name',
+                'organisations.slug as organisation_slug',
             ])
             ->selectRaw('outbox_intervals.runs_all runs')
 
@@ -99,7 +112,6 @@ class IndexOutboxes extends OrgAction
             ->withPaginator($prefix)
             ->withQueryString();
     }
-
     public function tableStructure($parent, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $prefix) {
@@ -110,8 +122,12 @@ class IndexOutboxes extends OrgAction
             }
 
             $table->column(key: 'type', label: '', type: 'icon', canBeHidden: false)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'runs', label: __('Mailshots/Runs'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+            if ($parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
+                        ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+            }
+            $table->column(key: 'runs', label: __('Mailshots/Runs'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'dispatched_emails_lw', label: __('Dispatched').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'opened_emails_lw', label: __('Opened').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'unsubscribed_lw', label: __('Unsubscribed').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true);
@@ -150,6 +166,15 @@ class IndexOutboxes extends OrgAction
             ]
         )->table($this->tableStructure($this->parent));
     }
+
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup(group(), $request);
+
+        return $this->handle($this->parent);
+    }
+
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
@@ -238,6 +263,15 @@ class IndexOutboxes extends OrgAction
                     [
                         'name'       => 'grp.org.shops.show.web.websites.outboxes',
                         'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            'grp.overview.comms.outboxes.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.overview.comms.outboxes.index',
                     ]
                 )
             ),

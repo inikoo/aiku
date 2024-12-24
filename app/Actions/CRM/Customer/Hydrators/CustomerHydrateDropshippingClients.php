@@ -33,7 +33,7 @@ class CustomerHydrateDropshippingClients
             'number_current_customer_clients'                    => $customer->clients()->where('status', true)->count()
         ];
 
-        $customer->dropshippingStats()->update($stats);
+        $customer->stats->update($stats);
     }
 
 

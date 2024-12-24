@@ -32,9 +32,9 @@ const emits = defineEmits<{
 function physicalGoodsRoute(product: {}) {
     console.log(route().current())
     switch (route().current()) {
-        case 'grp.org.fulfilments.show.billables.outers.index':
+        case 'grp.org.fulfilments.show.catalogue.outers.index':
             return route(
-                'grp.org.fulfilments.show.billables.outers.show',
+                'grp.org.fulfilments.show.catalogue.outers.show',
                 [route().params['organisation'], route().params['fulfilment'], product.slug])
         default:
             return null

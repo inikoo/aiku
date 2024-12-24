@@ -21,11 +21,16 @@ trait HasSalesTransactionParents
         $table->unsignedInteger('customer_client_id')->nullable()->index();
         $table->foreign('customer_client_id')->references('id')->on('customer_clients');
 
-        $table->unsignedInteger('order_id')->nullable()->index();
-        $table->foreign('order_id')->references('id')->on('orders');
+        if ($table->getTable() === 'invoices' or $table->getTable() === 'transactions') {
+            $table->unsignedInteger('order_id')->nullable()->index();
+            $table->foreign('order_id')->references('id')->on('orders')->nullOnDelete();
+        }
         if ($table->getTable() === 'invoices') {
             $table->unsignedInteger('recurring_bill_id')->nullable()->index();
         }
         return $table;
     }
+
+
+
 }

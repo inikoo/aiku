@@ -15,6 +15,7 @@ use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Media;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Inventory\OrgStock;
+use App\Models\Inventory\StockIntervals;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
@@ -73,6 +74,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Media|null $image
  * @property-read MediaCollection<int, Media> $images
+ * @property-read StockIntervals|null $intervals
  * @property-read MediaCollection<int, Media> $media
  * @property-read Collection<int, OrgStock> $orgStocks
  * @property-read \App\Models\SupplyChain\StockStats|null $stats
@@ -185,11 +187,15 @@ class Stock extends Model implements HasMedia, Auditable
         return $this->hasOne(StockStats::class);
     }
 
+    public function intervals(): HasOne
+    {
+        return $this->hasOne(StockIntervals::class);
+    }
+
     public function stockFamily(): BelongsTo
     {
         return $this->belongsTo(StockFamily::class);
     }
-
 
     public function images(): BelongsToMany
     {

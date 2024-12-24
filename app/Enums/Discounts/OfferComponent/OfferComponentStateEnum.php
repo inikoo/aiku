@@ -17,6 +17,7 @@ enum OfferComponentStateEnum: string
     case IN_PROCESS = 'in-process';
     case ACTIVE     = 'active';
     case FINISHED   = 'finished';
+    case SUSPENDED  = 'suspended';
 
 
 }

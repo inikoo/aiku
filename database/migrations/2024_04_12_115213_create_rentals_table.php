@@ -27,7 +27,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('fulfilment_id')->nullable();
             $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
             $table->unsignedInteger('asset_id')->nullable();
-            $table->foreign('asset_id')->references('id')->on('assets');
+            $table->foreign('asset_id')->references('id')->on('assets')->cascadeOnDelete();
 
             $table->string('auto_assign_asset')->nullable()->comment('Used for auto assign this rent to this asset');
             $table->string('auto_assign_asset_type')->nullable()->comment('Used for auto assign this rent to this asset type');

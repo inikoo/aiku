@@ -38,9 +38,9 @@ const emits = defineEmits<{
 //     // console.log(route().current())
 //     switch (route().current()) {
 
-//         case "grp.org.fulfilments.show.billables.services.index":
+//         case "grp.org.fulfilments.show.catalogue.services.index":
 //             return route(
-//                 'grp.org.fulfilments.show.billables.services.show',
+//                 'grp.org.fulfilments.show.catalogue.services.show',
 //                 [route().params['organisation'], route().params['fulfilment'], service.slug])
 //         default:
 //             return null
@@ -112,7 +112,7 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
         <!-- Column: Quantity -->
         <template #cell(quantity)="{ item }">
             <div
-            v-if="state === 'in-process'" class="w-32">
+            v-if="state === 'in-process'" class="w-32 ml-auto">
                 <PureInput
                     :modelValue="item.quantity"
                     @onEnter="(e: number) => item.is_auto_assign ? false : onUpdateQuantity(item.id, e)"

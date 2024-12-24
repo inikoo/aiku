@@ -32,7 +32,7 @@ class ReindexFulfilmentCustomerSearch extends HydrateModel
     protected function loopAll(Command $command): void
     {
 
-        $command->info("Reindex Fulfilment customer search");
+        $command->info("Reindex Fulfilment customers");
 
         $count = FulfilmentCustomer::withTrashed()->count();
 

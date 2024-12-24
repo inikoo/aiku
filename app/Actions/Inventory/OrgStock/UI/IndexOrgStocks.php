@@ -283,7 +283,7 @@ class IndexOrgStocks extends OrgAction
             }
 
             if ($bucket == 'discontinued' or $bucket == 'abnormality') {
-                $table->column(key: 'discontinued_in_organisation_at', label:$bucket == 'discontinued' ? __('Discontinued') : __('Last seen'), canBeHidden: false, sortable: true, searchable: true);
+                $table->column(key: 'discontinued_in_organisation_at', label:$bucket == 'discontinued' ? __('Discontinued') : __('Last seen'), canBeHidden: false, sortable: true, searchable: true, type: 'date');
             }
 
         };

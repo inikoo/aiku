@@ -10,11 +10,12 @@ namespace App\Actions\Web\Website\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\Web\Website;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class ReindexWebsiteSearch extends HydrateModel
 {
-    public string $commandSignature = 'website:search {organisations?*} {--s|slugs=} ';
+    public string $commandSignature = 'search:websites {organisations?*} {--s|slugs=} ';
 
 
     public function handle(Website $website): void
@@ -30,5 +31,25 @@ class ReindexWebsiteSearch extends HydrateModel
     protected function getAllModels(): Collection
     {
         return Website::withTrashed()->get();
+    }
+
+    protected function loopAll(Command $command): void
+    {
+        $command->info("Reindex Websites");
+        $count = Website::withTrashed()->count();
+
+        $bar = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+
+        Website::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+
+        $bar->finish();
+        $command->info("");
     }
 }

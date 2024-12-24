@@ -39,15 +39,17 @@ const emits = defineEmits<{
         <Popover>
             <template #button="{ open }">
                 <!-- Style: Compare the hash from current data with hash from empty data -->
-                <Button
-                    :label="'Publish'"
-                    :style="!is_dirty
-                        ? 'tertiary'
-                        :  'primary'"
+                 <slot name="button" :open>
+                    <Button
+                        :label="'Publish'"
+                        :style="!is_dirty
+                            ? 'tertiary'
+                            :  'primary'"
                     :disabled="open"
-                    :key="is_dirty.toString()"
-                    :icon="'far fa-rocket-launch'"
-                />
+                        :key="is_dirty.toString()"
+                        :icon="'far fa-rocket-launch'"
+                    />
+                    </slot>
             </template>
 
             <!-- Section: Popover -->

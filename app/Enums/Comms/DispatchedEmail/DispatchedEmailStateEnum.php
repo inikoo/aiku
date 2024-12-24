@@ -108,7 +108,7 @@ enum DispatchedEmailStateEnum: string
             'soft-bounce' => [
 
                 'tooltip' => __('soft bounce'),
-                'icon'    => 'fal fa-square-triangle',
+                'icon'    => 'fal fa-square',
                 'class'   => 'text-orange-500'
 
             ],
