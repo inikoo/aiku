@@ -44,6 +44,6 @@ class GroupHydrateGuests implements ShouldBeUnique
         ];
 
 
-        $group->sysadminStats()->update($stats);
+        $group->sysadminStats->update($stats);
     }
 }

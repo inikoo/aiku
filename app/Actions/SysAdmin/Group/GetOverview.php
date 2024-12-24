@@ -51,13 +51,13 @@ class GetOverview extends OrgAction
                 [
                     'name'  => 'Guests',
                     'icon'  => 'fal fa-user-alien',
-                    'route' => '',
+                    'route' => '', // http://app.aiku.test/sysadmin/users?tab=guests
                     'count' => $group->sysadminStats->number_guests ?? 0
                 ],
                 [
-                    'name'  => 'Users Requests',
-                    'icon'  => 'fal fa-user-headset',
-                    'route' => '',
+                    'name'  => 'User requests',
+                    'icon'  => 'fal fa-road',
+                    'route' => '', // http://app.aiku.test/sysadmin/users?tab=users_requests
                     'count' => $group->sysadminStats->number_user_requests ?? 0
                 ],
             ],
