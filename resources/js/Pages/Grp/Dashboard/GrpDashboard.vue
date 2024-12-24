@@ -27,6 +27,7 @@ import { useGetCurrencySymbol } from "@/Composables/useCurrency"
 import Tag from "@/Components/Tag.vue"
 import { faFolderOpen, faSeedling, faTimesCircle, faTriangle } from "@fal"
 import { faArrowDown, faArrowUp } from "@fad"
+import Select from "primevue/select"
 
 library.add(
 	faTriangle,
@@ -135,21 +136,25 @@ const options = {
 
 const abcdef = computed(() => {
 	return props.groupStats.organisations
-		.filter((org) => org.type != "agent")
-		.map((org) => {
-			return {
-				name: org.name,
-				code: org.code,
-				interval_percentages: org.interval_percentages,
-				// refunds: org.refunds.number_refunds || 0,
-				// refunds_diff: 0,
-				// invoices: org.invoices.number_invoices || 0,
-				// invoices_diff: get(org, ['sales', `invoices_${selectedDateOption.value}`], 0),
-				sales: org.sales || 0,
-				// sales_diff: get(org, ['sales', `org_amount_${selectedDateOption.value}`], 0),
-			}
-		})
+    .filter((org) => org.type !== "agent") 
+    .map((org) => {
+      return {
+        name: org.name,
+        code: org.code,
+        interval_percentages: org.interval_percentages,
+        sales: org.sales || 0,
+        currency: selectedCurrency.value.code === "grp" 
+          ? props.groupStats.currency.code 
+          : org.currency.code,
+      };
+    });
 })
+
+const currency = ref([
+	{ name: "Group", code: "grp" },
+	{ name: "Organisation", code: "org" },
+])
+const selectedCurrency = ref(currency.value[0])
 
 const shop = ref()
 </script>
@@ -162,6 +167,16 @@ const shop = ref()
 		<!-- Section: Date options -->
 		<div class="col-span-12 space-y-4">
 			<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
+				<div class="flex justify-end items-center space-x-4">
+					<!-- Select Dropdown -->
+					<Select
+						v-model="selectedCurrency"
+						:options="currency"
+						optionLabel="name"
+						placeholder="Select Currency"
+						size="small"
+						class="w-full md:w-56" />
+				</div>
 				<div class="mt-4 block">
 					<nav class="isolate flex rounded border-b border-gray-300" aria-label="Tabs">
 						<div
@@ -192,7 +207,7 @@ const shop = ref()
 						<Column sortable>
 							<template #header>
 								<div class="flex items-center justify-between">
-									<span class="font-bold">Code</span>
+									<span class="font-semibold text-gray-700">Code</span>
 								</div>
 							</template>
 							<template #body="{ data }">
@@ -210,7 +225,7 @@ const shop = ref()
 						<Column sortable headerClass="align-right" hidden>
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-bold">Refunds</span>
+									<span class="font-semibold text-gray-700">Refunds</span>
 								</div>
 							</template>
 							<template #body="{ data }">
@@ -237,14 +252,14 @@ const shop = ref()
 
 						<!-- Refunds: Diff 1y -->
 						<Column
-						hidden
+							hidden
 							sortable
 							class="overflow-hidden transition-all"
 							headerClass="align-right"
 							headerStyle="text-align: green; width: 270px">
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-bold">
+									<span class="font-semibold text-gray-700">
 										<FontAwesomeIcon
 											fixed-width
 											icon="fal fa-triangle"
@@ -321,7 +336,7 @@ const shop = ref()
 							headerClass="align-right">
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-bold">Invoices</span>
+									<span class="font-semibold text-gray-700">Invoices</span>
 								</div>
 							</template>
 							<template #body="{ data }">
@@ -355,7 +370,7 @@ const shop = ref()
 							headerStyle="text-align: green; width: 200px">
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-bold">
+									<span class="font-semibold text-gray-700">
 										<FontAwesomeIcon
 											fixed-width
 											icon="fal fa-triangle"
@@ -439,7 +454,7 @@ const shop = ref()
 							headerStyle="text-align: green; width: 250px">
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-bold">Sales</span>
+									<span class="font-semibold text-gray-700">Sales</span>
 								</div>
 							</template>
 							<template #body="{ data }">
@@ -452,7 +467,7 @@ const shop = ref()
 											">
 											{{
 												useLocaleStore().numberShort(
-													groupStats.currency.code,
+													data.currency,
 													data.interval_percentages?.sales[
 														selectedDateOption
 													]?.amount || 0
@@ -466,14 +481,14 @@ const shop = ref()
 
 						<!-- Sales: Diff 1y -->
 						<Column
-						field="sales_diff"
+							field="sales_diff"
 							sortable
 							class="overflow-hidden transition-all"
 							headerClass="align-right"
 							headerStyle="text-align: green; width: 270px">
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-bold">
+									<span class="font-semibold text-gray-700">
 										<FontAwesomeIcon
 											fixed-width
 											icon="fal fa-triangle"
@@ -549,7 +564,7 @@ const shop = ref()
 							<Row>
 								<Column footer="Total"> Total </Column>
 								<Column
-								hidden
+									hidden
 									:footer="
 										groupStats.total[
 											selectedDateOption

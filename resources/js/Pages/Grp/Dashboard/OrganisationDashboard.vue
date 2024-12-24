@@ -33,6 +33,7 @@ import { useGetCurrencySymbol } from "@/Composables/useCurrency"
 import Tag from "@/Components/Tag.vue"
 import ToggleSwitch from "primevue/toggleswitch"
 import { faSortDown, faSortUp } from "@fas"
+import Select from "primevue/select"
 
 library.add(faTriangle, faChevronDown, faSortDown, faSortUp)
 
@@ -48,26 +49,34 @@ const props = defineProps<{
 console.log(props.dashboard, "hehe")
 const selectedDateOption = ref<string>("ytd")
 const locale = inject("locale", aikuLocaleStructure)
-const checked = ref(true);
+const checked = ref(true)
 
 const datas = computed(() => {
-  return props.dashboard.shops
-    .filter((org) => {
-      // Filter based on checkbox state
-      if (checked.value) {
-        return org.state !== "closed"; // Exclude closed shops when checked is true
-      }
-      return true; // Include all shops when checked is false
-    })
-    .map((org) => ({
-      name: org.name,
-      code: org.code,
-      interval_percentages: org.interval_percentages,
-      sales: org.sales || 0,
-    }));
-});
+	return props.dashboard.shops
+		.filter((org) => {
+			// Filter based on checkbox state
+			if (checked.value) {
+				return org.state !== "closed" // Exclude closed shops when checked is true
+			}
+			return true // Include all shops when checked is false
+		})
+		.map((org) => ({
+			name: org.name,
+			code: org.code,
+			interval_percentages: org.interval_percentages,
+			sales: org.sales || 0,
+			currency: selectedCurrency.value.code === "org" 
+          ? props.dashboard.currency.code 
+          : org.currency.code,
+		}))
+})
 const selectedTabGraph = ref(0)
 
+const currency = ref([
+	{ name: "Organisation", code: "org" },
+	{ name: "Shop", code: "shp" },
+])
+const selectedCurrency = ref(currency.value[0])
 </script>
 
 <template>
@@ -76,8 +85,18 @@ const selectedTabGraph = ref(0)
 		<!-- <pre>{{ props.groupStats.organisations }}</pre> -->
 		<div class="col-span-12 space-y-4">
 			<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
-				<div class="flex justify-end top-4 right-4">
+				<div class="flex justify-end items-center space-x-4">
+					<!-- ToggleSwitch -->
 					<ToggleSwitch v-model="checked" />
+
+					<!-- Select Dropdown -->
+					<Select
+						v-model="selectedCurrency"
+						:options="currency"
+						optionLabel="name"
+						placeholder="Select Currency"
+						size="small"
+						class="w-full md:w-56" />
 				</div>
 				<div class="mt-4 block">
 					<nav class="isolate flex rounded border-b border-gray-300" aria-label="Tabs">
@@ -123,10 +142,10 @@ const selectedTabGraph = ref(0)
 						</Column>
 
 						<!-- Refunds -->
-						<Column sortable headerClass="align-right">
+						<Column sortable hidden headerClass="align-right">
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-bold">Refunds</span>
+									<span class="font-semibold text-gray-700">Refunds</span>
 								</div>
 							</template>
 							<template #body="{ data }">
@@ -153,13 +172,14 @@ const selectedTabGraph = ref(0)
 
 						<!-- Refunds: Diff 1y -->
 						<Column
-						sortable
+							hidden
+							sortable
 							class="overflow-hidden transition-all"
 							headerClass="align-right"
 							headerStyle="text-align: green; width: 270px">
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-bold">
+									<span class="font-semibold text-gray-700">
 										<FontAwesomeIcon
 											fixed-width
 											icon="fal fa-triangle"
@@ -231,12 +251,12 @@ const selectedTabGraph = ref(0)
 
 						<!-- Invoice -->
 						<Column
-						sortable
+							sortable
 							class="overflow-hidden transition-all"
 							headerClass="align-right">
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-bold">Invoices</span>
+									<span class="font-semibold text-gray-700">Invoices</span>
 								</div>
 							</template>
 							<template #body="{ data }">
@@ -270,7 +290,7 @@ const selectedTabGraph = ref(0)
 							headerStyle="text-align: green; width: 200px">
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-bold">
+									<span class="font-semibold text-gray-700">
 										<FontAwesomeIcon
 											fixed-width
 											icon="fal fa-triangle"
@@ -347,14 +367,14 @@ const selectedTabGraph = ref(0)
 
 						<!-- Sales -->
 						<Column
-						field="sales"
+							field="sales"
 							sortable
 							class="overflow-hidden transition-all"
 							headerClass="align-right"
 							headerStyle="text-align: green; width: 250px">
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-bold">Sales</span>
+									<span class="font-semibold text-gray-700">Sales</span>
 								</div>
 							</template>
 							<template #body="{ data }">
@@ -367,7 +387,7 @@ const selectedTabGraph = ref(0)
 											">
 											{{
 												useLocaleStore().numberShort(
-													dashboard.currency.code,
+													data.currency,
 													data.interval_percentages?.sales[
 														selectedDateOption
 													]?.amount || 0
@@ -381,14 +401,14 @@ const selectedTabGraph = ref(0)
 
 						<!-- Sales: Diff 1y -->
 						<Column
-						field="sales_diff"
+							field="sales_diff"
 							sortable
 							class="overflow-hidden transition-all"
 							headerClass="align-right"
 							headerStyle="text-align: green; width: 270px">
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-bold">
+									<span class="font-semibold text-gray-700">
 										<FontAwesomeIcon
 											fixed-width
 											icon="fal fa-triangle"
@@ -463,11 +483,12 @@ const selectedTabGraph = ref(0)
 							<Row>
 								<Column footer="Total"> Total </Column>
 								<Column
+									hidden
 									:footer="
 										dashboard.total[selectedDateOption].total_refunds.toString()
 									"
 									footerStyle="text-align:right" />
-								<Column footer="" footerStyle="text-align:right" />
+								<Column hidden footer="" footerStyle="text-align:right" />
 
 								<Column
 									:footer="

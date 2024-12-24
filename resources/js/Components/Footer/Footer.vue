@@ -43,7 +43,7 @@ library.add(faHeart, faComputerClassic, faDiscord)
 
             <!-- Right: Tab Section -->
             <div class="flex items-center text-sm">
-                <FooterCurrency />
+               <!--  <FooterCurrency /> -->
                 <FooterLanguage />
                 <FooterActiveUsers />
             </div>
