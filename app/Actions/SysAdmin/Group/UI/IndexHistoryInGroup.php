@@ -21,9 +21,9 @@ use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use OwenIt\Auditing\Models\Audit;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Actions\SysAdmin\Group\GetOverview;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class IndexHistoryInGroup extends GrpAction
 {
@@ -63,10 +63,10 @@ class IndexHistoryInGroup extends GrpAction
             ->withQueryString();
     }
 
-    public function asController(ActionRequest $request): ActionRequest
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation(app('group'), $request);
-        return $request;
+        return $this->handle($this->group);
     }
 
     public function tableStructure($prefix = null, ?array $exportLinks = null): Closure
@@ -92,23 +92,23 @@ class IndexHistoryInGroup extends GrpAction
         };
     }
 
-    public function htmlResponse(ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $audits, ActionRequest $request): Response
     {
-        // return Inertia::render(
-        //     'Overview/OverviewHub',
-        //     [
-        //         // 'breadcrumbs' => $this->getBreadcrumbs(),
-        //         'title'       => __('overview'),
-        //         'pageHead'    => [
-        //             'icon'      => [
-        //                 'icon'  => ['fal', 'fa-mountains'],
-        //                 'title' => __('overview')
-        //             ],
-        //             'title'     => __('overview'),
-        //         ],
-        //         'data' => GetOverview::run($this->group)
-        //     ]
-        // );
+        return Inertia::render(
+            'Devel/Dummy',
+            [
+                // 'breadcrumbs' => $this->getBreadcrumbs(),
+                'title'       => __('Changelog'),
+                'pageHead'    => [
+                    'icon'      => [
+                        'icon'  => ['fal', 'fa-history'],
+                        'title' => __('Changelog')
+                    ],
+                    'title'     => __('Changelog'),
+                ],
+                'data' => $audits
+            ]
+        );
     }
 
     public function getBreadcrumbs(): array

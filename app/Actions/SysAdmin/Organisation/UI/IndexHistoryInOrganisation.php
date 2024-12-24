@@ -17,6 +17,8 @@ use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -63,16 +65,30 @@ class IndexHistoryInOrganisation extends OrgAction
             ->withQueryString();
     }
 
-    public function asController(Organisation $organisation, ActionRequest $request): ActionRequest
+    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->organisation = $organisation;
         $this->initialisation($organisation, $request);
-        return $request;
+        return $this->handle($this->organisation);
     }
 
-    public function htmlResponse(ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $audits, ActionRequest $request): Response
     {
-
+        return Inertia::render(
+            'Devel/Dummy',
+            [
+                // 'breadcrumbs' => $this->getBreadcrumbs(),
+                'title'       => __('Changelog'),
+                'pageHead'    => [
+                    'icon'      => [
+                        'icon'  => ['fal', 'fa-history'],
+                        'title' => __('Changelog')
+                    ],
+                    'title'     => __('Changelog'),
+                ],
+                'data' => $audits
+            ]
+        );
     }
 
     public function tableStructure($prefix = null, ?array $exportLinks = null): Closure
