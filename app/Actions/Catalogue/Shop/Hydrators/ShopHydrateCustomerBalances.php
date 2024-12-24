@@ -13,6 +13,7 @@ namespace App\Actions\Catalogue\Shop\Hydrators;
 use App\Actions\Traits\WithEnumStats;
 use App\Models\Catalogue\Shop;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class ShopHydrateCustomerBalances
@@ -36,17 +37,21 @@ class ShopHydrateCustomerBalances
     {
         $stats = [];
 
-        $stats['number_customers_with_balances'] = $shop->customers->filter(function ($customer) {
-            return $customer->balance !== null;
-        })->count();
+        $stats['number_customers_with_balances'] = DB::table('customers')
+            ->where('shop_id', $shop->id)
+            ->where('balance', '!=', 0)
+            ->count();
 
-        $stats['number_customers_with_positive_balances']  = $shop->customers->filter(function ($customer) {
-            return $customer->balance > 0;
-        })->count();
+        $stats['number_customers_with_positive_balances'] = DB::table('customers')
+            ->where('shop_id', $shop->id)
+            ->where('balance', '>', 0)
+            ->count();
 
-        $stats['number_customers_with_negative_balances']  = $shop->customers->filter(function ($customer) {
-            return $customer->balance < 0;
-        })->count();
+        $stats['number_customers_with_negative_balances'] = DB::table('customers')
+            ->where('shop_id', $shop->id)
+            ->where('balance', '<', 0)
+            ->count();
+
 
         $shop->accountingStats()->update($stats);
     }

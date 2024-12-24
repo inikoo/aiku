@@ -39,8 +39,14 @@ class GroupHydrateSysadminIntervals implements ShouldBeUnique
     {
 
         $stats = [];
-        $queryBase = DB::table('user_requests')->where('group_id', $group->id)->selectRaw('count(*) as  sum_aggregate ');
-        $stats = $this->getIntervalsData($stats, $queryBase, 'user_requests_');
+        $customerIds = DB::table('users')->where('group_id', $group->id)->pluck('id')->toArray(); // do like this cause the user_requests table doesn't have group_id
+        $queryBase = DB::table('user_requests')->whereIn('user_id', $customerIds)->selectRaw('count(*) as  sum_aggregate ');
+        $stats = array_merge(
+            $stats,
+            $this->getIntervalsData($stats, $queryBase, 'user_requests_'),
+            $this->getPreviousYearsIntervalStats($queryBase, 'user_requests_'),
+            $this->getPreviousQuartersIntervalStats($queryBase, 'user_requests_')
+        );
         $group->sysadminIntervals->update($stats);
     }
 
