@@ -9,6 +9,7 @@
 namespace App\Actions\SysAdmin;
 
 use App\Actions\Elasticsearch\IndexElasticsearchDocument;
+use App\Actions\Utils\GetOsFromUserAgent;
 use App\Enums\Elasticsearch\ElasticsearchUserRequestTypeEnum;
 use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Support\Carbon;
@@ -60,21 +61,12 @@ trait WithLogRequest
         return false;
     }
 
-    // if platform=='Windows 10' need to check if it is actually Windows 11 see:
-    // https://developers.whatismybrowser.com/learn/browser-detection/client-hints/detect-windows-11-client-hints
-    // https://stackoverflow.com/questions/68614445/how-to-detect-windows-11-from-user-agent
+
 
     public function detectWindows11($parsedUserAgent): string
     {
-        if ($parsedUserAgent->isWindows()) {
-            if (str_contains($parsedUserAgent->userAgent(), 'Windows NT 10.0; Win64; x64')) {
-                return 'Windows 11';
-            }
+        return GetOsFromUserAgent::run($parsedUserAgent);
 
-            return 'Windows 10';
-        }
-
-        return $parsedUserAgent->platformName();
     }
 
 
