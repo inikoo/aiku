@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { onBeforeMount } from 'vue'
+import { inject, onBeforeMount } from 'vue'
 import PaddingMarginProperty from '@/Components/Workshop/Properties/PaddingMarginProperty.vue'
 import { trans } from 'laravel-vue-i18n'
 import { set, get } from 'lodash'
 
 
 const model = defineModel<typeof localModel>()
+const emit = defineEmits(['update:modelValue'])
 
-const emit = defineEmits(['update:modelValue']);
+const onSaveWorkshopFromId: Function = inject('onSaveWorkshopFromId', (e?: number) => { console.log('onSaveWorkshopFromId not provided') })
+const side_editor_block_id = inject('side_editor_block_id', () => { console.log('side_editor_block_id not provided') })  // Get the block id that use this property
 
 // Create a local copy of the model for internal use
 const localModel = {
@@ -42,6 +44,7 @@ onBeforeMount(() => {
     if (!model.value?.bottom?.value) {
         set(model, 'value.bottom.value', localModel.bottom.value)
     }
+    onSaveWorkshopFromId(side_editor_block_id)
 })
 
 </script>

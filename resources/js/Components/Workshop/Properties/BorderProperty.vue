@@ -49,7 +49,7 @@ const model = defineModel<Borderproperty>({
 })
 
 const onSaveWorkshopFromId: Function = inject('onSaveWorkshopFromId', (e?: number) => { console.log('onSaveWorkshopFromId not provided') })
-const side_editor_block_id = inject('side_editor_block_id', (e) => { console.log('side_editor_block_id not provided') })  // Get the block id that use this property
+const side_editor_block_id = inject('side_editor_block_id', () => { console.log('side_editor_block_id not provided') })  // Get the block id that use this property
 
 const isAllValueAreSame = (scope?: {}) => {
     if (!scope) return false

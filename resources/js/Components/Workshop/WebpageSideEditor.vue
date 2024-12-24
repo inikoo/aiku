@@ -118,7 +118,7 @@ const openedBlockSideEditor = inject('openedBlockSideEditor', ref(null))
                 @change="onChangeOrderBlock"
                 ghost-class="ghost"
                 group="column"
-                itemKey="column_id"
+                itemKey="id"
                 class="mt-2 space-y-1 shadow"
             >
                 <template #item="{ element, index }">
