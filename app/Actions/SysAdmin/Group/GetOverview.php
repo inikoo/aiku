@@ -43,6 +43,12 @@ class GetOverview extends OrgAction
         $section = [
             'Sysadmin'          => [
                 [
+                    'name'  => 'Changelog',
+                    'icon'  => 'fal fa-history',
+                    'route' => '',
+                    'count' => $group->sysadminStats->number_audits ?? 0
+                ],
+                [
                     'name'  => 'Users',
                     'icon'  => 'fal fa-users',
                     'route' => '',
