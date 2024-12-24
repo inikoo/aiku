@@ -13,7 +13,7 @@ namespace App\Actions\SysAdmin\Organisation\UI;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\User\Traits\WithFormattedUserHistories;
 use App\Actions\UI\Overview\ShowOverviewHub;
-use App\Http\Resources\SysAdmin\HistoriesResource;
+use App\Http\Resources\History\HistoryResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -114,7 +114,7 @@ class IndexHistoryInOrganisation extends OrgAction
                     ],
                     'title'     => __('Changelog'),
                 ],
-                'data'        => HistoriesResource::collection($histories),
+                'data'        => HistoryResource::collection($histories),
             ]
         )->table($this->tableStructure());
     }

@@ -45,7 +45,7 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Changelog'),
                     'icon'  => 'fal fa-history',
-                    'route' => '',
+                    'route' => route('grp.org.overview.changelog.index', $organisation),
                     'count' => $organisation->stats->number_audits ?? 0
                 ],
             ],

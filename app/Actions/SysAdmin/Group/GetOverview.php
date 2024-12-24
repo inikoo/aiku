@@ -45,7 +45,7 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Changelog'),
                     'icon'  => 'fal fa-history',
-                    'route' => '',
+                    'route' => route('grp.overview.changelog.index'),
                     'count' => $group->sysadminStats->number_audits ?? 0
                 ],
                 [
@@ -71,7 +71,7 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Post Rooms'),
                     'icon'  => 'fal fa-booth-curtain',
-                    'route' => 'grp.overview.comms.post-rooms.index',
+                    'route' => route('grp.overview.comms.post-rooms.index'),
                     'count' => $group->commsStats->number_post_rooms ?? 0
                 ],
                 [
