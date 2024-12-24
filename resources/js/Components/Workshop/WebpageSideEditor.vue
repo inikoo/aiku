@@ -68,7 +68,7 @@ const sendDeleteBlock = async (block: Daum) => {
 // const onUpdatedBlock = (block) => {
 //      debouncedSendUpdate(block)
 // }
-const onSaveWorkshop = inject('onSaveWorkshop')
+const onSaveWorkshop = inject('onSaveWorkshop', () => { console.log('onSaveWorkshop not provided') })
 
 const onChangeOrderBlock = (e, d) => {
     console.log('klkl', e, d)
@@ -110,7 +110,7 @@ const openedBlockSideEditor = inject('openedBlockSideEditor', ref(null))
         <h2 class="text-sm font-semibold leading-6">{{trans('Blocks')}} </h2>
         <Button icon="fas fa-plus" type="dashed" size="xs" @click="openModalBlockList" />
     </div> -->
-    <div class="max-h-[calc(100vh-220px)] h-fit min-w-[350px] overflow-y-auto flex flex-col pr-3">
+    <div class="max-h-[calc(100vh-220px)] h-fit min-w-[350px] max-w-[400px] transition-all overflow-y-auto flex flex-col pr-3">
         <template v-if="webpage?.layout?.web_blocks.length > 0 || isAddBlockLoading">
             <draggable
                 :list="webpage.layout.web_blocks"
@@ -178,6 +178,7 @@ const openedBlockSideEditor = inject('openedBlockSideEditor', ref(null))
                                 <SideEditor
                                     v-model="element.web_block.layout.data.fieldValue"
                                     :blueprint="getBlueprint(element.type)"
+                                    :block="element"
                                     @update:modelValue="(e) => (onSaveWorkshop(element))"
                                     :uploadImageRoute="{...webpage.images_upload_route, parameters : { modelHasWebBlocks: element.id }}"
                                 />

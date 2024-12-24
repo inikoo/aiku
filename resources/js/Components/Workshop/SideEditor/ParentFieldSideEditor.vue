@@ -65,7 +65,7 @@ const emits = defineEmits<{
                         :modelValue="getFormValue(modelValue, blueprint.key)"
                         :uploadRoutes="uploadImageRoute" 
                         v-bind="blueprint?.props_data" 
-                        @update:modelValue="newValue => emits('update:modelValue',setFormValue(modelValue, blueprint.key, newValue))"
+                        @update:modelValue="newValue => emits('update:modelValue', setFormValue(modelValue, blueprint.key, newValue))"
                     />
                 </template>
             </div>
@@ -74,23 +74,23 @@ const emits = defineEmits<{
 
     <div v-else class="bg-white mt-[0px] mb-2  pb-3">
         <template v-if="blueprint.replaceForm">
-            <ChildFieldSideEditor 
+            <ChildFieldSideEditor
                 :blueprint="blueprint.replaceForm"
-                :modelValue="getFormValue(modelValue, blueprint.key)" 
+                :modelValue="getFormValue(modelValue, blueprint.key)"
                 :key="blueprint.key"
                 @update:modelValue="newValue => emits('update:modelValue',setFormValue(modelValue, blueprint.key, newValue))"
             />
         </template>
 
         <template v-else>
-           <!--  <div v-if="get(blueprint, 'label', '')" class="my-2 text-xs font-semibold">{{ get(blueprint, 'label', '') }}</div> -->
+           <!-- Section: Padding, Margin, Border -->
             <div v-if="get(blueprint, 'label', '')" class="w-full my-2 text-start py-1 font-semibold select-none text-sm border-b border-gray-300">{{ trans(get(blueprint, 'label', '')) }}</div>
             <component 
                 :is="getComponent(blueprint.type)" 
                 :key="blueprint.key"
-                :modelValue="getFormValue(modelValue, blueprint.key)"
                 :uploadRoutes="uploadImageRoute" 
                 v-bind="blueprint?.props_data" 
+                :modelValue="getFormValue(modelValue, blueprint.key)"
                 @update:modelValue="newValue => {
                     // console.log(index, 'getfomvalue', getFormValue(modelValue, blueprint.key))
                     emits('update:modelValue', setFormValue(modelValue, blueprint.key, newValue))

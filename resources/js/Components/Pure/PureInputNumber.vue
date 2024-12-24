@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<{
 })
 
 const emits = defineEmits<{
-    (e: 'update:modelValue', value: string | number): void
+    (e: 'update:modelValue', value: number): void
     (e: 'blur', value: string | number): void
     (e: 'onEnter', value: string | number): void
     (e: 'input', value: string | number): void

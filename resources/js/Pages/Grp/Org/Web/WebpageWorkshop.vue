@@ -128,7 +128,7 @@ const debounceSaveWorkshop = (block) => {
 			},
 			{
 				onStart: () => {
-					console.log('block ', block.id, block.type)
+					console.log('========== start save ', block.id, block.type)
 					isLoadingblock.value = block.id
 					isSavingBlock.value = true
 				},
@@ -165,6 +165,19 @@ const onSaveWorkshop = (block) => {
 	// Call debounceSaveWorkshop to handle save for this block
 	debounceSaveWorkshop(block)
 }
+const onSaveWorkshopFromId = (blockId?: number) => {
+	if (!blockId) return
+	
+	if (cancelTokens.value[blockId]) {
+		cancelTokens.value[blockId]()
+	}
+
+	const block = data.value.layout.web_blocks.find((block) => block.id === blockId)
+	if (block) {
+		debounceSaveWorkshop(block)
+	}
+}
+provide('onSaveWorkshopFromId', onSaveWorkshopFromId)
 provide('onSaveWorkshop', onSaveWorkshop)
 
 const sendOrderBlock = async (block: Object) => {
