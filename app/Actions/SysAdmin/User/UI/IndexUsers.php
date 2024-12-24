@@ -8,15 +8,11 @@
 
 namespace App\Actions\SysAdmin\User\UI;
 
-use App\Actions\Analytics\UserRequest\UI\IndexUserRequestLogs;
 use App\Actions\GrpAction;
-use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\SysAdmin\User\WithUsersSubNavigation;
 use App\Actions\SysAdmin\WithSysAdminAuthorization;
 use App\Actions\UI\Grp\SysAdmin\ShowSysAdminDashboard;
 use App\Enums\UI\SysAdmin\UsersTabsEnum;
-use App\Http\Resources\History\HistoryResource;
-use App\Http\Resources\SysAdmin\UserRequestLogsResource;
 use App\Http\Resources\SysAdmin\UsersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SysAdmin\Group;
@@ -35,7 +31,7 @@ class IndexUsers extends GrpAction
     use WithSysAdminAuthorization;
     use WithUsersSubNavigation;
 
-    private string $scope; 
+    private string $scope;
 
     protected function getElementGroups(Group $group): array
     {
@@ -167,15 +163,13 @@ class IndexUsers extends GrpAction
             'icon'  => ['fal', 'fa-user'],
             'title' => __('active users')
         ];
-        if($this->scope == 'suspended')
-        {
+        if ($this->scope == 'suspended') {
             $title = __('Suspended');
             $icon  = [
                 'icon'  => ['fal', 'fa-user-slash'],
                 'title' => __('suspended users')
             ];
-        } elseif ($this->scope == 'all')
-        {
+        } elseif ($this->scope == 'all') {
             $title = __('All');
             $icon  = [
                 'icon'  => ['fal', 'fa-users'],

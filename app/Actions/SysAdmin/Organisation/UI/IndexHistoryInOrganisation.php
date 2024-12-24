@@ -12,6 +12,8 @@ namespace App\Actions\SysAdmin\Organisation\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\User\Traits\WithFormattedUserHistories;
+use App\Actions\UI\Overview\ShowOverviewHub;
+use App\Http\Resources\SysAdmin\HistoriesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -72,25 +74,6 @@ class IndexHistoryInOrganisation extends OrgAction
         return $this->handle($this->organisation);
     }
 
-    public function htmlResponse(LengthAwarePaginator $audits, ActionRequest $request): Response
-    {
-        return Inertia::render(
-            'Devel/Dummy',
-            [
-                // 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('Changelog'),
-                'pageHead'    => [
-                    'icon'      => [
-                        'icon'  => ['fal', 'fa-history'],
-                        'title' => __('Changelog')
-                    ],
-                    'title'     => __('Changelog'),
-                ],
-                'data' => $audits
-            ]
-        );
-    }
-
     public function tableStructure($prefix = null, ?array $exportLinks = null): Closure
     {
         return function (InertiaTable $table) use ($exportLinks, $prefix) {
@@ -114,8 +97,63 @@ class IndexHistoryInOrganisation extends OrgAction
         };
     }
 
-    public function getBreadcrumbs()
+    public function htmlResponse(LengthAwarePaginator $histories, ActionRequest $request): Response
     {
-
+        return Inertia::render(
+            'SysAdmin/Histories',
+            [
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters(),
+                ),
+                'title'       => __('Changelog'),
+                'pageHead'    => [
+                    'icon'      => [
+                        'icon'  => ['fal', 'fa-history'],
+                        'title' => __('Changelog')
+                    ],
+                    'title'     => __('Changelog'),
+                ],
+                'data'        => HistoriesResource::collection($histories),
+            ]
+        )->table($this->tableStructure());
     }
+
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
+    {
+        $headCrumb = function (array $routeParameters, ?string $suffix) {
+            return [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __('Changelog'),
+                        'icon'  => 'fal fa-history'
+                    ],
+                    'suffix' => $suffix
+                ],
+            ];
+        };
+
+        return match ($routeName) {
+            'grp.org.overview.changelog.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(
+                    $routeName,
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name' => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                ),
+            ),
+            default => []
+        };
+    }
+
+
 }

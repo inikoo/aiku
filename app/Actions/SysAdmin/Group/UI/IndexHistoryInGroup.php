@@ -21,7 +21,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use OwenIt\Auditing\Models\Audit;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Actions\UI\Dashboards\ShowGroupDashboard;
+use App\Http\Resources\SysAdmin\HistoriesResource;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -92,12 +92,15 @@ class IndexHistoryInGroup extends GrpAction
         };
     }
 
-    public function htmlResponse(LengthAwarePaginator $audits, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $histories, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Devel/Dummy',
+            'SysAdmin/Histories',
             [
-                // 'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
                 'title'       => __('Changelog'),
                 'pageHead'    => [
                     'icon'      => [
@@ -106,27 +109,40 @@ class IndexHistoryInGroup extends GrpAction
                     ],
                     'title'     => __('Changelog'),
                 ],
-                'data' => $audits
+                'data'        => HistoriesResource::collection($histories),
             ]
-        );
+        )->table($this->tableStructure());
     }
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
     {
-        return
+        $headCrumb = function (array $routeParameters, ?string $suffix) {
+            return [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __('Changelog'),
+                        'icon'  => 'fal fa-history'
+                    ],
+                    'suffix' => $suffix
+                ],
+            ];
+        };
+
+        return match ($routeName) {
+            'grp.overview.changelog.index' =>
             array_merge(
-                ShowGroupDashboard::make()->getBreadcrumbs(),
-                // [
-                //     [
-                //         'type'   => 'simple',
-                //         'simple' => [
-                //             'route' => [
-                //                 'name' => 'grp.overview.hub'
-                //             ],
-                //             'label'  => __('Overview'),
-                //         ]
-                //     ]
-                // ]
-            );
+                ShowOverviewHub::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name' => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                ),
+            ),
+            default => []
+        };
     }
 }
