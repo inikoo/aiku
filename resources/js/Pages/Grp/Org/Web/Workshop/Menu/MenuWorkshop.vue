@@ -69,6 +69,7 @@ const isIframeLoading = ref(true)
 const iframeClass = ref("w-full h-full")
 const iframeSrc = ref(route("grp.websites.header.preview", [route().params["website"]]))
 
+console.log(Navigation.value)
 const addNavigation = () => {
   Navigation.value.push({
     label: "New Navigation",

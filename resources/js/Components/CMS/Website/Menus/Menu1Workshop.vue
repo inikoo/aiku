@@ -50,7 +50,7 @@ const selectedColor = props.colorThemed?.color
                             <!-- Subnav links -->
                             <div class="flex flex-col gap-y-2">
                                 <div v-for="link in subnav.links" class="flex items-center gap-x-2">
-                                    <FontAwesomeIcon icon="fas fa-chevron-right" class=" text-[10px] text-gray-400">
+                                    <FontAwesomeIcon :icon="link.icon ? link.icon  : 'fas fa-chevron-right'" class=" text-[10px] text-gray-400">
                                     </FontAwesomeIcon>
                                     <a :href="link.url"
                                         class=" text-gray-500 hover:text-gray-600 hover:underline cursor-pointer">

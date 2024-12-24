@@ -2,22 +2,20 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 12 Jul 2023 13:31:30 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Tue, 24 Dec 2024 12:48:34 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Traits\UserRequest;
+namespace App\Actions\Utils;
 
 use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 use Stevebauman\Location\Facades\Location as FacadesLocation;
 
-trait WithLocationDetector
+class GetLocationFromIp
 {
     use AsAction;
-    use WithAttributes;
 
-    public function getLocation(string|null $ip): array
+    public function handle(string|null $ip): array
     {
         if ($position = FacadesLocation::get($ip)) {
             return [
