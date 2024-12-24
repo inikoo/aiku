@@ -12,6 +12,8 @@ use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\GrpAction;
 use App\Actions\SysAdmin\User\StoreUserRequest;
 use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Actions\Traits\UserRequest\WithLocationDetector;
+use App\Actions\Traits\UserRequest\WithWindowsDetector;
 use App\Models\Analytics\UserRequest;
 use App\Models\SysAdmin\User;
 use hisorange\BrowserDetect\Parser as Browser;
@@ -21,6 +23,8 @@ use Stevebauman\Location\Facades\Location as FacadesLocation;
 class ProcessUserRequest extends GrpAction
 {
     use WithNoStrictRules;
+    use WithLocationDetector;
+    use WithWindowsDetector;
 
     /**
      * @throws \Throwable
@@ -54,31 +58,4 @@ class ProcessUserRequest extends GrpAction
             hydratorsDelay: 300
         );
     }
-
-    public function getLocation(string|null $ip): array
-    {
-        if ($position = FacadesLocation::get($ip)) {
-            return [
-                $position->countryCode,
-                $position->countryName,
-                $position->cityName
-            ];
-        }
-
-        return [];
-    }
-
-    public function detectWindows11($parsedUserAgent): string
-    {
-        if ($parsedUserAgent->isWindows()) {
-            if (str_contains($parsedUserAgent->userAgent(), 'Windows NT 10.0; Win64; x64')) {
-                return 'Windows 11';
-            }
-
-            return 'Windows 10';
-        }
-
-        return $parsedUserAgent->platformName() ?: 'Unknown';
-    }
-
 }

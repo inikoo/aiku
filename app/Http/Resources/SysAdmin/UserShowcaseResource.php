@@ -10,6 +10,7 @@ namespace App\Http\Resources\SysAdmin;
 
 use App\Actions\Analytics\UserRequest\ProcessUserRequest;
 use App\Actions\SysAdmin\User\StoreUserRequest;
+use App\Actions\Traits\UserRequest\WithLocationDetector;
 use App\Models\SysAdmin\User;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -17,6 +18,7 @@ use JsonSerializable;
 
 class UserShowcaseResource extends JsonResource
 {
+    use WithLocationDetector;
     public function toArray($request): array|Arrayable|JsonSerializable
     {
         /** @var User $user */
@@ -38,7 +40,7 @@ class UserShowcaseResource extends JsonResource
             'last_active_at'          => $user->stats->last_active_at,
             'last_login'              => [
                 'ip'          => $user->stats->last_login_ip,
-                'geolocation' => ProcessUserRequest::make()->getLocation($user->stats->last_login_ip)
+                'geolocation' => $this->getLocation($user->stats->last_login_ip)
             ]
         ];
     }
