@@ -102,7 +102,7 @@ class GetOverview extends OrgAction
                     'name'  => 'Email Bulk Runs',
                     'icon'  => 'fal fa-raygun',
                     'route' => '',
-                    'count' => $group->commsStats->number_email_bulk_runs ?? 0
+                    'count' => $group->commsStats->number_bulk_runs ?? 0
                 ],
                 [
                     'name'  => 'Email Addresses',
