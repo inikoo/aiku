@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { ref, watch, computed, onBeforeMount, toRaw } from 'vue'
+import { onMounted, inject } from 'vue'
 import DimensionProperty from '@/Components/Workshop/Properties/DimensionProperty.vue'
 import { trans } from 'laravel-vue-i18n'
 import { set } from 'lodash'
 
 const model = defineModel<typeof localModel>()
+
+const onSaveWorkshopFromId: Function = inject('onSaveWorkshopFromId', (e?: number) => { console.log('onSaveWorkshopFromId not provided') })
+const side_editor_block_id = inject('side_editor_block_id', () => { console.log('side_editor_block_id not provided') })  // Get the block id that use this property
 
 // Local copy of the model for two-way binding
 const localModel = {
@@ -13,15 +16,15 @@ const localModel = {
 }
 
 // Sync with the prop value initially
-onBeforeMount(() => {
-    if (!model.value?.height) {
-        console.log('============= height')
+onMounted(() => {
+    if (!model.value?.height && model.value?.height !== localModel.height) {
         set(model.value, 'height', localModel.height)
+        onSaveWorkshopFromId(side_editor_block_id, 'dimension value.height')
     }
 
-    if (!model.value?.width) {
-        console.log('============= width')
+    if (!model.value?.width && model.value?.width !== localModel.height) {
         set(model.value, 'width', localModel.width)
+        onSaveWorkshopFromId(side_editor_block_id, 'dimension value.width')
     }
 })
 

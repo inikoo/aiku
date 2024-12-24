@@ -2,14 +2,18 @@
 import { trans } from 'laravel-vue-i18n'
 import PureInputNumber from '@/Components/Pure/PureInputNumber.vue'
 import { Popover, PopoverButton, PopoverPanel, Switch } from '@headlessui/vue'
-import { ref } from 'vue'
+import { inject, ref } from 'vue'
 import { faBorderTop, faBorderLeft, faBorderBottom, faBorderRight, faBorderOuter, faArrowsAltV, faArrowsH } from "@fad"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faLink, faUnlink } from "@fal"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { get, set } from 'lodash'
 library.add(faBorderTop, faBorderLeft, faBorderBottom, faBorderRight, faBorderOuter, faLink, faUnlink, faArrowsAltV, faArrowsH )
 
 const model = defineModel()
+
+const onSaveWorkshopFromId: Function = inject('onSaveWorkshopFromId', (e?: number) => { console.log('onSaveWorkshopFromId not provided') })
+const side_editor_block_id = inject('side_editor_block_id', () => { console.log('side_editor_block_id not provided') })  // Get the block id that use this property
 
 </script>
 
@@ -30,10 +34,10 @@ const model = defineModel()
                         leave-from-class="translate-y-0 opacity-100" leave-to-class="translate-y-1 opacity-0">
                         <PopoverPanel v-slot="{ close }"
                             class="bg-white shadow mt-3 absolute top-full right-0 z-10 w-32 transform rounded overflow-hidden">
-                            <div @click="() => { model.height.unit = 'px', close() }" class="px-4 py-1.5 cursor-pointer"
+                            <div @click="() => { model.height.unit = 'px', onSaveWorkshopFromId(side_editor_block_id), close() }" class="px-4 py-1.5 cursor-pointer"
                                 :class="model.height.unit == 'px' ? 'bg-indigo-500 text-white' : 'hover:bg-indigo-100'">px
                             </div>
-                            <div @click="() => { model.height.unit = '%', close() }" class="px-4 py-1.5 cursor-pointer"
+                            <div @click="() => { model.height.unit = '%', onSaveWorkshopFromId(side_editor_block_id), close() }" class="px-4 py-1.5 cursor-pointer"
                                 :class="model.height.unit == '%' ? 'bg-indigo-500 text-white' : 'hover:bg-indigo-100'">%</div>
                         </PopoverPanel>
                     </transition>
@@ -49,8 +53,12 @@ const model = defineModel()
                                 <FontAwesomeIcon icon='fad fa-border-outer' v-tooltip="trans('Height')" class=''
                                     fixed-width aria-hidden='true' />
                                 <div class="col-span-4">
-                                    <PureInputNumber v-model="model.height.value"
-                                        class="" :suffix="model.height.unit" />
+                                    <PureInputNumber
+                                        :modelValue="get(model, 'height.value', 0)"
+                                        @update:modelValue="(newVal) => (set(model, 'height.value', newVal), onSaveWorkshopFromId(side_editor_block_id))"
+                                        class=""
+                                        :suffix="model.height.unit"
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -74,10 +82,10 @@ const model = defineModel()
                         leave-from-class="translate-y-0 opacity-100" leave-to-class="translate-y-1 opacity-0">
                         <PopoverPanel v-slot="{ close }"
                             class="bg-white shadow mt-3 absolute top-full right-0 z-10 w-32 transform rounded overflow-hidden">
-                            <div @click="() => { model.width.unit = 'px', close() }" class="px-4 py-1.5 cursor-pointer"
+                            <div @click="() => { model.width.unit = 'px', onSaveWorkshopFromId(side_editor_block_id), close() }" class="px-4 py-1.5 cursor-pointer"
                                 :class="model.width.unit == 'px' ? 'bg-indigo-500 text-white' : 'hover:bg-indigo-100'">px
                             </div>
-                            <div @click="() => { model.width.unit = '%', close() }" class="px-4 py-1.5 cursor-pointer"
+                            <div @click="() => { model.width.unit = '%', onSaveWorkshopFromId(side_editor_block_id), close() }" class="px-4 py-1.5 cursor-pointer"
                                 :class="model.width.unit == '%' ? 'bg-indigo-500 text-white' : 'hover:bg-indigo-100'">%</div>
                         </PopoverPanel>
                     </transition>
@@ -93,8 +101,12 @@ const model = defineModel()
                                 <FontAwesomeIcon icon='fad fa-border-outer' v-tooltip="trans('Width')" class=''
                                     fixed-width aria-hidden='true' />
                                 <div class="col-span-4">
-                                    <PureInputNumber v-model="model.width.value"
-                                        class="" :suffix="model.width.unit" />
+                                    <PureInputNumber
+                                        :modelValue="get(model, 'width.value', 0)"
+                                        @update:modelValue="(newVal) => (set(model, 'width.value', newVal), onSaveWorkshopFromId(side_editor_block_id))"
+                                        class=""
+                                        :suffix="model.width.unit"
+                                    />
                                 </div>
                             </div>
                         </div>
