@@ -43,7 +43,7 @@ class HydratePortfolio extends OrgAction
         //            'amount'                  => $customer->orders()->sum('net_amount'),
         //            'number_orders'           => $customer->orders()->count(),
         //            'number_ordered_quantity' => $customer->orders()->where('state', OrderStateEnum::DISPATCHED->value)->count(),
-        //            'number_clients'          => $customer->clients()->count(),
+        //            'number_customer_clients'          => $customer->clients()->count(),
         //            'last_ordered_at'         => $portfolio->last_added_at,
         //        ];
         //

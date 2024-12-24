@@ -98,7 +98,7 @@ class IndexCustomers extends OrgAction
         $allowedSort = [
             'reference',
             'name',
-            'number_current_clients',
+            'number_current_customer_clients',
             'number_current_portfolios',
             'slug',
             'created_at',
@@ -262,7 +262,7 @@ class IndexCustomers extends OrgAction
 
 
             if ($isDropshipping) {
-                $table->column(key: 'number_current_clients', label: __('Clients'), canBeHidden: false, sortable: true, searchable: true)
+                $table->column(key: 'number_current_customer_clients', label: __('Clients'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_current_portfolios', label: __('Portfolios'), canBeHidden: false, sortable: true, searchable: true)
                 // ->column(key: 'platforms', label: __('Platforms'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'platform_name', label: __('Platforms'), canBeHidden: false, sortable: true, searchable: true);

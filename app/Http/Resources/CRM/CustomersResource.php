@@ -13,7 +13,7 @@ use App\Http\Resources\Helpers\AddressResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property int $number_current_clients
+ * @property int $number_current_customer_clients
  * @property mixed $slug
  * @property mixed $reference
  * @property mixed $name
