@@ -43,6 +43,6 @@ class GroupHydrateUsers
 
 
 
-        $group->sysadminStats()->update($stats);
+        $group->sysadminStats->update($stats);
     }
 }

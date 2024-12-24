@@ -34,9 +34,8 @@ class GroupHydrateUserRequests implements ShouldBeUnique
 
     public function handle(Group $group): void
     {
-        $userIds = DB::table('users')->where('group_id', $group->id)->selectRaw('id')->pluck('id')->toArray(); // do like this cause the user_requests table doesn't have group_id
-        $stats['number_user_requests'] = DB::table('user_requests')->whereIn('user_id', $userIds)->count();
-        $group->sysadminStats()->update($stats);
+        $stats['number_user_requests'] = DB::table('user_requests')->where('group_id', $group->id)->count();
+        $group->sysadminStats->update($stats);
     }
 
 

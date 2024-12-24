@@ -60,13 +60,14 @@ class IndexGuests extends GrpAction
 
         $queryBuilder = QueryBuilder::for(Guest::class)
             ->leftJoin(
-                'users',
+                'user_has_models',
                 function ($leftJoin) {
                     $leftJoin
-                        ->on('users.parent_id', '=', 'guests.id')
-                        ->where('users.parent_type', '=', 'Guest');
+                        ->on('user_has_models.model_id', '=', 'guests.id')
+                        ->where('user_has_models.model_type', '=', 'Guest');
                 }
-            )->leftJoin('user_stats', 'user_stats.user_id', 'users.id');
+            )
+            ->leftJoin('user_stats', 'user_stats.user_id', 'user_has_models.user_id');
         foreach ($this->getElementGroups() as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,

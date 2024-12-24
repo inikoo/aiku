@@ -6,12 +6,13 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Stubs\Migrations\HasSysAdminStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    use \App\Stubs\Migrations\HasSysAdminStats;
+    use HasSysAdminStats;
 
     public function up(): void
     {
@@ -22,6 +23,7 @@ return new class () extends Migration {
             $table = $this->userStatsFields($table);
             $table = $this->guestsStatsFields($table);
             $table = $this->userRequestsStatsFields($table);
+            $table = $this->auditFields($table);
             $table->timestampsTz();
         });
     }
