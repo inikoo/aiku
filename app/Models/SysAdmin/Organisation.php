@@ -29,6 +29,7 @@ use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\Catalogue\Subscription;
+use App\Models\Comms\Mailshot;
 use App\Models\Comms\OrgPostRoom;
 use App\Models\Comms\Outbox;
 use App\Models\CRM\Customer;
@@ -764,6 +765,11 @@ class Organisation extends Model implements HasMedia, Auditable
     public function packings(): HasMany
     {
         return $this->hasMany(Packing::class);
+    }
+
+    public function mailshots(): HasMany
+    {
+        return $this->hasMany(Mailshot::class);
     }
 
 }
