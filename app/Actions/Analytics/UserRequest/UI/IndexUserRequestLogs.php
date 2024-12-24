@@ -10,7 +10,11 @@ namespace App\Actions\Analytics\UserRequest\UI;
 
 use App\Actions\Analytics\UserRequest\Traits\WithFormattedRequestLogs;
 use App\Actions\Elasticsearch\BuildElasticsearchClient;
+use App\Actions\GrpAction;
+use App\Actions\SysAdmin\User\WithUsersSubNavigation;
+use App\Actions\UI\Grp\SysAdmin\ShowSysAdminDashboard;
 use App\Enums\Elasticsearch\ElasticsearchUserRequestTypeEnum;
+use App\Http\Resources\SysAdmin\UserRequestLogsResource;
 use App\InertiaTable\InertiaTable;
 use Closure;
 use Elastic\Elasticsearch\Client;
@@ -18,12 +22,16 @@ use Elastic\Elasticsearch\Exception\ClientResponseException;
 use Elastic\Elasticsearch\Exception\ServerResponseException;
 use Exception;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Inertia\Inertia;
+use Inertia\Response;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsObject;
 
-class IndexUserRequestLogs
+class IndexUserRequestLogs extends GrpAction
 {
     use AsObject;
     use WithFormattedRequestLogs;
+    use WithUsersSubNavigation;
 
     public function handle($filter = ElasticsearchUserRequestTypeEnum::VISIT->value): LengthAwarePaginator|bool|array
     {
@@ -63,6 +71,23 @@ class IndexUserRequestLogs
         return [];
     }
 
+    public function htmlResponse(LengthAwarePaginator $requests, ActionRequest $request): Response
+    {
+        $subNavigation = $this->getUsersNavigation($this->group, $request);
+        return Inertia::render(
+            'SysAdmin/UserRequests',
+            [
+                'breadcrumbs' => $this->getBreadcrumbs(),
+                'title'       => __('User Requests'),
+                'pageHead'    => [
+                    'title'   => __('User Requests'),
+                    'subNavigation' => $subNavigation,
+                ],
+                'data'        => UserRequestLogsResource::collection($requests),
+            ]
+        )->table($this->tableStructure());
+    }
+
     public function tableStructure(): Closure
     {
         return function (InertiaTable $table) {
@@ -77,5 +102,33 @@ class IndexUserRequestLogs
                 ->column(key: 'location', label: __('location'), canBeHidden: false)
                 ->column(key: 'datetime', label: __('Date & Time'), canBeHidden: false, sortable: true);
         };
+    }
+
+    public function asController(ActionRequest $request)
+    {
+        $group = group();
+        $this->initialisation($group, $request);
+        return $this->handle();
+    }
+
+    public function getBreadcrumbs($suffix = null): array
+    {
+        return array_merge(
+            ShowSysAdminDashboard::make()->getBreadcrumbs(),
+            [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => [
+                            'name' => 'grp.sysadmin.users.request.index',
+                        ],
+                        'label' => __('User Requests'),
+                        'icon'  => 'fal fa-bars',
+                    ],
+                    'suffix' => $suffix
+
+                ]
+            ]
+        );
     }
 }

@@ -11,6 +11,7 @@ namespace App\Actions\SysAdmin\User\UI;
 use App\Actions\Analytics\UserRequest\UI\IndexUserRequestLogs;
 use App\Actions\GrpAction;
 use App\Actions\Helpers\History\UI\IndexHistory;
+use App\Actions\SysAdmin\User\WithUsersSubNavigation;
 use App\Actions\SysAdmin\WithSysAdminAuthorization;
 use App\Actions\UI\Grp\SysAdmin\ShowSysAdminDashboard;
 use App\Enums\UI\SysAdmin\UsersTabsEnum;
@@ -32,7 +33,9 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexUsers extends GrpAction
 {
     use WithSysAdminAuthorization;
+    use WithUsersSubNavigation;
 
+    private string $scope; 
 
     protected function getElementGroups(Group $group): array
     {
@@ -57,6 +60,24 @@ class IndexUsers extends GrpAction
 
                 ],
             ];
+    }
+
+    public function inSuspended(ActionRequest $request)
+    {
+        $group = group();
+        $this->scope = 'suspended';
+        $this->initialisation($group, $request);
+
+        return $this->handle($group, 'suspended');
+    }
+
+    public function inAll(ActionRequest $request)
+    {
+        $group = group();
+        $this->scope = 'all';
+        $this->initialisation($group, $request);
+
+        return $this->handle($group, 'all');
     }
 
     public function handle(Group $group, $scope = 'active', $prefix = null): LengthAwarePaginator
@@ -139,70 +160,57 @@ class IndexUsers extends GrpAction
 
     public function htmlResponse(LengthAwarePaginator $users, ActionRequest $request): Response
     {
+        $subNavigation = $this->getUsersNavigation($this->group, $request);
+        $title = __('Active');
+        $model = __('Users');
+        $icon  = [
+            'icon'  => ['fal', 'fa-user'],
+            'title' => __('active users')
+        ];
+        if($this->scope == 'suspended')
+        {
+            $title = __('Suspended');
+            $icon  = [
+                'icon'  => ['fal', 'fa-user-slash'],
+                'title' => __('suspended users')
+            ];
+        } elseif ($this->scope == 'all')
+        {
+            $title = __('All');
+            $icon  = [
+                'icon'  => ['fal', 'fa-users'],
+                'title' => __('all users')
+            ];
+        }
         return Inertia::render(
             'SysAdmin/Users',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName()),
                 'title'       => __('users'),
+                'pageHead' => [
+                    'title'         => $title,
+                    'model'         => $model,
+                    'icon'          => $icon,
+                    'subNavigation' => $subNavigation,
+                ],
 
                 'labels' => [
                     'usernameNoSet' => __('username no set')
                 ],
 
-                'tabs' => [
-                    'current'    => $this->tab,
-                    'navigation' => UsersTabsEnum::navigation(),
-                ],
-
-                UsersTabsEnum::ACTIVE_USERS->value => $this->tab == UsersTabsEnum::ACTIVE_USERS->value ?
-                    fn () => UsersResource::collection($users)
-                    : Inertia::lazy(fn () => UsersResource::collection($users)),
-
-                UsersTabsEnum::SUSPENDED_USERS->value => $this->tab == UsersTabsEnum::SUSPENDED_USERS->value ?
-                    fn () => UsersResource::collection(IndexUsers::run($this->group, 'suspended'))
-                    : Inertia::lazy(fn () => UsersResource::collection(IndexUsers::run($this->group, 'suspended'))),
-
-                UsersTabsEnum::USERS_REQUESTS->value => $this->tab == UsersTabsEnum::USERS_REQUESTS->value ?
-                    fn () => UserRequestLogsResource::collection(IndexUserRequestLogs::run())
-                    : Inertia::lazy(fn () => UserRequestLogsResource::collection(IndexUserRequestLogs::run())),
-
-                UsersTabsEnum::USERS->value => $this->tab == UsersTabsEnum::USERS->value ?
-                    fn () => UsersResource::collection(IndexUsers::run($this->group, 'all'))
-                    : Inertia::lazy(fn () => UsersResource::collection(IndexUsers::run($this->group, 'all'))),
-
-                UsersTabsEnum::USERS_HISTORIES->value => $this->tab == UsersTabsEnum::USERS_HISTORIES->value ?
-                    fn () => HistoryResource::collection(IndexHistory::run(User::class))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run(User::class)))
-
+                'data'        => UsersResource::collection($users),
             ]
         )->table(
             $this->tableStructure(
                 group: $this->group,
-                scope: 'all',
-                prefix: UsersTabsEnum::USERS->value
+                scope: $this->scope,
             )
-        )->table(
-            $this->tableStructure(
-                group: $this->group,
-                prefix: UsersTabsEnum::ACTIVE_USERS->value
-            )
-        )->table(
-            $this->tableStructure(
-                group: $this->group,
-                scope: 'suspended',
-                prefix: UsersTabsEnum::SUSPENDED_USERS->value
-            )
-        )
-            ->table(IndexUserRequestLogs::make()->tableStructure())
-            ->table(
-                IndexHistory::make()->tableStructure(
-                    prefix: UsersTabsEnum::USERS_HISTORIES->value
-                )
-            );
+        );
     }
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
+        $this->scope = 'active';
         $this->initialisation(app('group'), $request)->withTab(UsersTabsEnum::values());
 
         return $this->handle(group: $this->group, prefix: 'users');
@@ -230,6 +238,26 @@ class IndexUsers extends GrpAction
                 $headCrumb(
                     [
                         'name' => 'grp.sysadmin.users.index',
+                        null
+                    ]
+                ),
+            ),
+            'grp.sysadmin.users.suspended.index' =>
+            array_merge(
+                ShowSysAdminDashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name' => 'grp.sysadmin.users.suspended.index',
+                        null
+                    ]
+                ),
+            ),
+            'grp.sysadmin.users.all.index' =>
+            array_merge(
+                ShowSysAdminDashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name' => 'grp.sysadmin.users.all.index',
                         null
                     ]
                 ),
