@@ -1,13 +1,12 @@
 <?php
 
 /*
- * author Arya Permana - Kirin
- * created on 14-10-2024-13h-19m
- * github: https://github.com/KirinZero0
- * copyright 2024
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 25 Dec 2024 02:15:29 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Models\Catalogue;
+namespace App\Models\Goods;
 
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Models\SysAdmin\Group;
@@ -34,7 +33,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $master_department_id
  * @property bool $is_main
  * @property bool $status
- * @property ProductStateEnum $state
  * @property string $slug
  * @property string $code
  * @property string|null $name
@@ -55,18 +53,19 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property ProductStateEnum $state
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
  * @property-read MasterProduct|null $mainMasterProduct
- * @property-read \App\Models\Catalogue\MasterProductCategory|null $masterDepartment
- * @property-read \App\Models\Catalogue\MasterProductCategory|null $masterFamily
+ * @property-read \App\Models\Goods\MasterProductCategory|null $masterDepartment
+ * @property-read \App\Models\Goods\MasterProductCategory|null $masterFamily
  * @property-read \Illuminate\Database\Eloquent\Collection<int, MasterProduct> $masterProductVariants
- * @property-read \App\Models\Catalogue\MasterProductCategory|null $masterSubDepartment
+ * @property-read \App\Models\Goods\MasterProductCategory|null $masterSubDepartment
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
- * @property-read \App\Models\Catalogue\MasterProductSalesIntervals|null $salesIntervals
- * @property-read \App\Models\Catalogue\MasterProductStats|null $stats
+ * @property-read \App\Models\Goods\MasterProductSalesIntervals|null $salesIntervals
+ * @property-read \App\Models\Goods\MasterProductStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProduct newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProduct newQuery()

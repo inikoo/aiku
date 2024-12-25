@@ -9,7 +9,7 @@
 
 namespace App\Actions\UI\Goods\Catalogue;
 
-use App\Models\Catalogue\MasterShop;
+use App\Models\Goods\MasterShop;
 
 trait WithMasterCatalogueSubnavigation
 {

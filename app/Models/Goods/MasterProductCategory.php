@@ -1,15 +1,14 @@
 <?php
 
 /*
- * author Arya Permana - Kirin
- * created on 14-10-2024-13h-28m
- * github: https://github.com/KirinZero0
- * copyright 2024
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 25 Dec 2024 02:15:29 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Models\Catalogue;
+namespace App\Models\Goods;
 
-use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
+use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasHistory;
@@ -32,8 +31,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property int $master_shop_id
- * @property ProductCategoryTypeEnum $type
- * @property ProductCategoryStateEnum $state
+ * @property MasterProductCategoryTypeEnum $type
+ * @property bool $status
  * @property int|null $master_department_id
  * @property int|null $master_sub_department_id
  * @property int|null $master_parent_id
@@ -43,9 +42,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $description
  * @property int|null $image_id
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $activated_at
- * @property \Illuminate\Support\Carbon|null $discontinuing_at
- * @property \Illuminate\Support\Carbon|null $discontinued_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -55,11 +51,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
- * @property-read \App\Models\Catalogue\MasterShop $masterShop
+ * @property-read \App\Models\Goods\MasterShop $masterShop
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read MasterProductCategory|null $parent
- * @property-read \App\Models\Catalogue\MasterProductCategorySalesIntervals|null $salesIntervals
- * @property-read \App\Models\Catalogue\MasterProductCategoryStats|null $stats
+ * @property-read \App\Models\Goods\MasterProductCategorySalesIntervals|null $salesIntervals
+ * @property-read \App\Models\Goods\MasterProductCategoryStats|null $stats
  * @property-read MasterProductCategory|null $subDepartment
  * @property-read LaravelCollection<int, MasterProductCategory> $subDepartments
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
@@ -83,11 +79,7 @@ class MasterProductCategory extends Model implements Auditable, HasMedia
 
     protected $casts = [
         'data'             => 'array',
-        'state'            => ProductCategoryStateEnum::class,
-        'type'             => ProductCategoryTypeEnum::class,
-        'activated_at'     => 'datetime',
-        'discontinuing_at' => 'datetime',
-        'discontinued_at'  => 'datetime',
+        'type'             => MasterProductCategoryTypeEnum::class,
     ];
 
     protected $attributes = [
@@ -97,7 +89,7 @@ class MasterProductCategory extends Model implements Auditable, HasMedia
     public function generateTags(): array
     {
         return [
-            'catalogue',
+            'goods',
         ];
     }
 

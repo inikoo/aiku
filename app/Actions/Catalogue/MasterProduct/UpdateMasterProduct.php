@@ -12,7 +12,7 @@ namespace App\Actions\Catalogue\MasterProduct;
 use App\Actions\GrpAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\Product\ProductStateEnum;
-use App\Models\Catalogue\MasterProduct;
+use App\Models\Goods\MasterProduct;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;

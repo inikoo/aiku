@@ -1,17 +1,17 @@
 <?php
 
 /*
- * author Arya Permana - Kirin
- * created on 15-10-2024-09h-14m
- * github: https://github.com/KirinZero0
- * copyright 2024
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 25 Dec 2024 02:15:29 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Models\Catalogue;
+namespace App\Models\Goods;
 
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Models\Catalogue\ShopStats;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
@@ -36,7 +36,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property string $code
  * @property string|null $name
- * @property ShopStateEnum $state
+ * @property bool $status
  * @property ShopTypeEnum $type
  * @property int|null $image_id
  * @property array $data
@@ -44,15 +44,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property ShopStateEnum $state
  * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
- * @property-read LaravelCollection<int, \App\Models\Catalogue\MasterProductCategory> $masterProductCategories
- * @property-read LaravelCollection<int, \App\Models\Catalogue\MasterProduct> $masterProducts
+ * @property-read LaravelCollection<int, \App\Models\Goods\MasterProductCategory> $masterProductCategories
+ * @property-read LaravelCollection<int, \App\Models\Goods\MasterProduct> $masterProducts
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
- * @property-read \App\Models\Catalogue\MasterShopSalesIntervals|null $salesIntervals
- * @property-read \App\Models\Catalogue\ShopStats|null $stats
+ * @property-read \App\Models\Goods\MasterShopSalesIntervals|null $salesIntervals
+ * @property-read ShopStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShop newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShop newQuery()

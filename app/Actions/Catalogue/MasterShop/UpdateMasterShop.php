@@ -13,7 +13,7 @@ use App\Actions\GrpAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
-use App\Models\Catalogue\MasterShop;
+use App\Models\Goods\MasterShop;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 

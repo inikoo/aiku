@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 25 Dec 2024 02:23:56 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
+
 use App\Stubs\Migrations\HasSalesIntervals;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -10,10 +16,10 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('master_shop_sales_intervals', function (Blueprint $table) {
-            $table->id();
+            $table->smallIncrements('id');
             $table->unsignedSmallInteger('master_shop_id');
             $table->foreign('master_shop_id')->references('id')->on('master_shops')->onUpdate('cascade')->onDelete('cascade');
-            $table = $this->salesIntervalFields($table, ['master_shop_amount', 'group_amount']);
+            $table = $this->salesIntervalFields($table, ['group_amount']);
             $table->timestampsTz();
         });
     }

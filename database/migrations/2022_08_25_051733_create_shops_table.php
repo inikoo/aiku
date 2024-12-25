@@ -21,6 +21,8 @@ return new class () extends Migration {
         Schema::create('shops', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table = $this->groupOrgRelationship($table);
+            $table->unsignedSmallInteger('master_shop_id')->nullable()->index();
+            $table->foreign('master_shop_id')->references('id')->on('master_shops')->nullOnDelete();
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code');
             $table->string('name');

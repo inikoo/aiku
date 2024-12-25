@@ -12,7 +12,7 @@ namespace App\Actions\Catalogue\MasterShop;
 use App\Actions\GrpAction;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
-use App\Models\Catalogue\MasterShop;
+use App\Models\Goods\MasterShop;
 use App\Models\SysAdmin\Group;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;

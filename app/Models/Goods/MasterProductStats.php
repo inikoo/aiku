@@ -1,13 +1,12 @@
 <?php
 
 /*
- * author Arya Permana - Kirin
- * created on 16-10-2024-09h-58m
- * github: https://github.com/KirinZero0
- * copyright 2024
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 25 Dec 2024 02:15:29 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Models\Catalogue;
+namespace App\Models\Goods;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,13 +16,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $master_product_id
- * @property int $number_master_products_state_in_process
- * @property int $number_master_products_state_active
- * @property int $number_master_products_state_discontinuing
- * @property int $number_master_products_state_discontinued
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Catalogue\MasterProduct $masterProduct
+ * @property-read \App\Models\Goods\MasterProduct $masterProduct
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProductStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProductStats newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProductStats query()

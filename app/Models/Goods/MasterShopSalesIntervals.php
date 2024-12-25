@@ -1,13 +1,12 @@
 <?php
 
 /*
- * author Arya Permana - Kirin
- * created on 16-10-2024-09h-42m
- * github: https://github.com/KirinZero0
- * copyright 2024
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 25 Dec 2024 02:15:29 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Models\Catalogue;
+namespace App\Models\Goods;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,45 +16,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $master_shop_id
- * @property string $master_shop_amount_all
- * @property string $master_shop_amount_1y
- * @property string $master_shop_amount_1q
- * @property string $master_shop_amount_1m
- * @property string $master_shop_amount_1w
- * @property string $master_shop_amount_3d
- * @property string $master_shop_amount_1d
- * @property string $master_shop_amount_ytd
- * @property string $master_shop_amount_qtd
- * @property string $master_shop_amount_mtd
- * @property string $master_shop_amount_wtd
- * @property string $master_shop_amount_tdy
- * @property string $master_shop_amount_lm
- * @property string $master_shop_amount_lw
- * @property string $master_shop_amount_ld
- * @property string $master_shop_amount_1y_ly
- * @property string $master_shop_amount_1q_ly
- * @property string $master_shop_amount_1m_ly
- * @property string $master_shop_amount_1w_ly
- * @property string $master_shop_amount_3d_ly
- * @property string $master_shop_amount_1d_ly
- * @property string $master_shop_amount_ytd_ly
- * @property string $master_shop_amount_qtd_ly
- * @property string $master_shop_amount_mtd_ly
- * @property string $master_shop_amount_wtd_ly
- * @property string $master_shop_amount_tdy_ly
- * @property string $master_shop_amount_lm_ly
- * @property string $master_shop_amount_lw_ly
- * @property string $master_shop_amount_ld_ly
- * @property string $master_shop_amount_py1
- * @property string $master_shop_amount_py2
- * @property string $master_shop_amount_py3
- * @property string $master_shop_amount_py4
- * @property string $master_shop_amount_py5
- * @property string $master_shop_amount_pq1
- * @property string $master_shop_amount_pq2
- * @property string $master_shop_amount_pq3
- * @property string $master_shop_amount_pq4
- * @property string $master_shop_amount_pq5
  * @property string $group_amount_all
  * @property string $group_amount_1y
  * @property string $group_amount_1q
@@ -97,7 +57,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $group_amount_pq5
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Catalogue\MasterShop $masterShop
+ * @property-read \App\Models\Goods\MasterShop $masterShop
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShopSalesIntervals newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShopSalesIntervals newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShopSalesIntervals query()

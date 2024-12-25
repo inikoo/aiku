@@ -1,22 +1,21 @@
 <?php
 
 /*
- * author Arya Permana - Kirin
- * created on 16-10-2024-09h-46m
- * github: https://github.com/KirinZero0
- * copyright 2024
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 25 Dec 2024 02:15:29 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Models\Catalogue;
+namespace App\Models\Goods;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\MasterProductSalesIntervals
+ * App\Models\Catalogue\MasterProductCategorySalesIntervals
  *
  * @property int $id
- * @property int $master_product_id
+ * @property int $master_product_category_id
  * @property string $sales_grp_currency_all
  * @property string $sales_grp_currency_1y
  * @property string $sales_grp_currency_1q
@@ -214,18 +213,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $customers_pq5
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Catalogue\MasterProduct $masterProduct
- * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProductSalesIntervals newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProductSalesIntervals newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProductSalesIntervals query()
+ * @property-read \App\Models\Goods\MasterProductCategory $masterProductCategory
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProductCategorySalesIntervals newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProductCategorySalesIntervals newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProductCategorySalesIntervals query()
  * @mixin \Eloquent
  */
-class MasterProductSalesIntervals extends Model
+class MasterProductCategorySalesIntervals extends Model
 {
     protected $guarded = [];
 
-    public function masterProduct(): BelongsTo
+    public function masterProductCategory(): BelongsTo
     {
-        return $this->belongsTo(MasterProduct::class);
+        return $this->belongsTo(MasterProductCategory::class);
     }
 }
