@@ -86,7 +86,6 @@ test(
 );
 
 test('seed shop outboxes by command', function (Shop $shop) {
-    $this->artisan('shop:seed_outboxes '.$shop->slug)->assertExitCode(0);
     $this->artisan('shop:seed_outboxes')->assertExitCode(0);
     expect($shop->group->commsStats->number_outboxes)->toBe(23);
 })->depends('outbox seeded when shop created');
@@ -171,7 +170,7 @@ test('test post room hydrator', function ($shop) {
 })->depends('outbox seeded when shop created')->todo();
 
 
-test('test send email reset password', function ($shop) {
+test('test send email reset password', function () {
     $customer = $this->customer;
 
     $html = SendResetPasswordEmail::make()->action($customer, []);
@@ -257,7 +256,7 @@ test('UI Show Org Post Rooms', function () {
     });
 });
 
-test('UI Index MArketing Mailshots', function () {
+test('UI Index MMarketing Mailshots', function () {
     $response = $this->get(route('grp.org.shops.show.marketing.mailshots.index', [$this->organisation->slug, $this->shop->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {

@@ -2,11 +2,11 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 20 Jun 2024 17:50:47 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Tue, 24 Dec 2024 21:41:49 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\Group;
+namespace App\Actions\SysAdmin\Group\Seeders;
 
 use App\Actions\Helpers\Media\SaveModelImage;
 use App\Actions\Web\WebBlockType\StoreWebBlockType;

@@ -2,11 +2,11 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 06 Dec 2023 12:29:26 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Tue, 24 Dec 2024 21:46:38 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\Organisation;
+namespace App\Actions\SysAdmin\Organisation\Seeders;
 
 use App\Enums\SysAdmin\Authorisation\OrganisationPermissionsEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;

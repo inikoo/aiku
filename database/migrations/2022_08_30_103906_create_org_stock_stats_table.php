@@ -21,7 +21,7 @@ return new class () extends Migration {
         Schema::create('org_stock_stats', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('org_stock_id')->index();
-            $table->foreign('org_stock_id')->references('id')->on('org_stocks')->cascadeOnDelete();
+            $table->foreign('org_stock_id')->references('id')->on('org_stocks')->onDelete('cascade')->onUpdate('cascade');
             $table->unsignedSmallInteger('number_locations')->default(0);
 
             $table = $this->orgStocksMovementsStats($table);

@@ -45,6 +45,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $group_id
  * @property int $organisation_id
  * @property int|null $shop_id
+ * @property int|null $master_product_category_id
  * @property int|null $department_id
  * @property int|null $sub_department_id
  * @property int|null $parent_id

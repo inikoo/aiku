@@ -2,11 +2,11 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 30 Nov 2024 01:43:24 Central Indonesia Time, Kuala Lumpur, Malaysia
+ * Created: Tue, 24 Dec 2024 21:41:49 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\Group;
+namespace App\Actions\SysAdmin\Group\Seeders;
 
 use App\Actions\Comms\PostRoom\StorePostRoom;
 use App\Actions\Comms\PostRoom\UpdatePostRoom;

@@ -19,7 +19,7 @@ return new class () extends Migration {
         Schema::create('product_category_ordering_intervals', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedInteger('product_category_id')->index();
-            $table->foreign('product_category_id')->references('id')->on('product_categories');
+            $table->foreign('product_category_id')->references('id')->on('product_categories')->onDelete('cascade')->onUpdate('cascade');
             $table = $this->unsignedIntegerDateIntervals($table, [
                 'invoices',
                 'orders',

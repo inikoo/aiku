@@ -20,7 +20,7 @@ return new class () extends Migration {
         Schema::create('user_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('user_id')->index();
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
             $table = $this->userStats($table);
             $table = $this->auditFieldsForNonSystem($table);
 

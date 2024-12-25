@@ -2,14 +2,14 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 06 Dec 2023 12:29:26 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Tue, 24 Dec 2024 19:31:28 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Catalogue\Shop;
+namespace App\Actions\Catalogue\Shop\Seeders;
 
-use App\Enums\SysAdmin\Authorisation\ShopPermissionsEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
+use App\Enums\SysAdmin\Authorisation\ShopPermissionsEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
@@ -92,8 +92,8 @@ class SeedShopPermissions
 
     public function asCommand(Command $command): int
     {
+        $command->info("Seeding shop permissions");
         foreach (Shop::all() as $shop) {
-            $command->info("Seeding permissions for shop: $shop->name");
             setPermissionsTeamId($shop->group_id);
             $this->handle($shop);
         }

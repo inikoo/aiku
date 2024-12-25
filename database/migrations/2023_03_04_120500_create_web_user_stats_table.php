@@ -21,7 +21,7 @@ return new class () extends Migration {
         Schema::create('web_user_stats', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('web_user_id')->index();
-            $table->foreign('web_user_id')->references('id')->on('web_users');
+            $table->foreign('web_user_id')->references('id')->on('web_users')->onUpdate('cascade')->onDelete('cascade');
             $table = $this->userStats($table);
             $table = $this->auditFieldsForNonSystem($table);
             $table->timestampsTz();

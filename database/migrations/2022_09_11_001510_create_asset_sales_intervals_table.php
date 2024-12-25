@@ -19,7 +19,7 @@ return new class () extends Migration {
         Schema::create('asset_sales_intervals', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('asset_id')->index();
-            $table->foreign('asset_id')->references('id')->on('assets')->cascadeOnDelete();
+            $table->foreign('asset_id')->references('id')->on('assets')->onDelete('cascade')->onUpdate('cascade');
             $table = $this->salesDateIntervals($table, [
                 'sales',
                 'sales_org_currency',

@@ -42,6 +42,7 @@ use Spatie\Tags\HasTags;
  * @property int $group_id
  * @property int $organisation_id
  * @property int|null $shop_id
+ * @property int|null $master_product_id
  * @property int|null $asset_id
  * @property int|null $family_id
  * @property int|null $sub_department_id

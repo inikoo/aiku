@@ -9,6 +9,19 @@
 namespace App\Actions\SysAdmin\Group;
 
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateJobPositions;
+use App\Actions\SysAdmin\Group\Seeders\SeedAikuScopedSections;
+use App\Actions\SysAdmin\Group\Seeders\SeedAikuSections;
+use App\Actions\SysAdmin\Group\Seeders\SeedEmailTemplates;
+use App\Actions\SysAdmin\Group\Seeders\SeedGroupPaymentServiceProviders;
+use App\Actions\SysAdmin\Group\Seeders\SeedGroupPermissions;
+use App\Actions\SysAdmin\Group\Seeders\SeedJobPositionCategories;
+use App\Actions\SysAdmin\Group\Seeders\SeedJobPositionsScopeGroup;
+use App\Actions\SysAdmin\Group\Seeders\SeedPlatforms;
+use App\Actions\SysAdmin\Group\Seeders\SeedPostRooms;
+use App\Actions\SysAdmin\Group\Seeders\SeedSalesChannels;
+use App\Actions\SysAdmin\Group\Seeders\SeedStockImages;
+use App\Actions\SysAdmin\Group\Seeders\SeedWebBlockTypes;
+use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\Language;
@@ -56,6 +69,9 @@ class StoreGroup
         $group->discountsStats()->create();
         $group->orderingIntervals()->create();
         $group->sysadminIntervals()->create();
+        foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
+            $group->timeSeries()->create(['frequency' => $frequency]);
+        }
 
         SeedGroupPermissions::run($group);
         SeedGroupPaymentServiceProviders::run($group);
@@ -69,7 +85,6 @@ class StoreGroup
         SeedAikuSections::run($group);
         SeedPostRooms::run($group);
         SeedAikuScopedSections::make()->seedGroupAikuScopedSection($group);
-
 
         SetGroupLogo::run($group);
 

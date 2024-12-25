@@ -18,7 +18,7 @@ return new class () extends Migration {
         Schema::create('asset_ordering_stats', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('asset_id')->index();
-            $table->foreign('asset_id')->references('id')->on('assets')->cascadeOnDelete();
+            $table->foreign('asset_id')->references('id')->on('assets')->onDelete('cascade')->onUpdate('cascade');
             $table = $this->orderingStatsFields($table);
             $table->timestampsTz();
         });

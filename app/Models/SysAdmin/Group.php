@@ -226,6 +226,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupSysadminIntervals|null $sysadminIntervals
  * @property-read \App\Models\SysAdmin\GroupSysAdminStats|null $sysadminStats
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Task> $tasks
+ * @property-read LaravelCollection<int, \App\Models\SysAdmin\GroupTimeSeries> $timeSeries
  * @property-read LaravelCollection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read LaravelCollection<int, TopUp> $topUps
  * @property-read LaravelCollection<int, TradeUnit> $tradeUnits
@@ -858,6 +859,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function sysadminIntervals(): HasOne
     {
         return $this->hasOne(GroupSysadminIntervals::class);
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(GroupTimeSeries::class);
     }
 
 }

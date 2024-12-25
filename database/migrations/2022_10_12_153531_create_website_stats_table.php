@@ -20,7 +20,7 @@ return new class () extends Migration {
         Schema::create('website_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('website_id')->index();
-            $table->foreign('website_id')->references('id')->on('websites');
+            $table->foreign('website_id')->references('id')->on('websites')->onUpdate('cascade')->onDelete('cascade');
             $table = $this->getWebUsersStatsFields($table);
             $table = $this->getWebpagesStatsFields($table);
             $table = $this->getBannersStatsFields($table);

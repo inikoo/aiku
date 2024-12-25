@@ -20,11 +20,13 @@ use App\Models\Helpers\Currency;
 use App\Models\Ordering\Transaction;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\InShop;
+use App\Models\Utils\TimeSeries;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -78,6 +80,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Service|null $service
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\AssetStats|null $stats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, TimeSeries> $timeSeries
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Transaction> $transactions
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Asset newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Asset newQuery()
@@ -200,6 +203,11 @@ class Asset extends Model implements HasMedia
     public function model(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function timeSeries(): MorphMany
+    {
+        return $this->morphMany(TimeSeries::class, 'model');
     }
 
 }

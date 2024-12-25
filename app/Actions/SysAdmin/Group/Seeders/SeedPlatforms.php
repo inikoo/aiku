@@ -2,11 +2,11 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 19 Jun 2024 18:03:42 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Tue, 24 Dec 2024 21:41:49 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\Group;
+namespace App\Actions\SysAdmin\Group\Seeders;
 
 use App\Actions\GrpAction;
 use App\Actions\Ordering\Platform\StorePlatform;

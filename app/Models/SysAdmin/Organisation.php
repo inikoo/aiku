@@ -217,6 +217,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationStats|null $stats
  * @property-read LaravelCollection<int, Subscription> $subscriptions
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Task> $tasks
+ * @property-read LaravelCollection<int, \App\Models\SysAdmin\OrganisationTimeSeries> $timeSeries
  * @property-read Timezone $timezone
  * @property-read LaravelCollection<int, TopUp> $topUps
  * @property-read LaravelCollection<int, Upload> $uploads
@@ -771,6 +772,11 @@ class Organisation extends Model implements HasMedia, Auditable
     public function mailshots(): HasMany
     {
         return $this->hasMany(Mailshot::class);
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(OrganisationTimeSeries::class);
     }
 
 }

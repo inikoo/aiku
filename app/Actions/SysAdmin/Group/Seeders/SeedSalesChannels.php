@@ -2,11 +2,11 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 19 Nov 2024 15:05:43 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Created: Tue, 24 Dec 2024 21:41:49 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\Group;
+namespace App\Actions\SysAdmin\Group\Seeders;
 
 use App\Actions\Ordering\SalesChannel\StoreSalesChannel;
 use App\Actions\Ordering\SalesChannel\UpdateSalesChannel;

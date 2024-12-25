@@ -66,6 +66,7 @@ class UpdateMasterProduct extends GrpAction
         if ($this->asAction) {
             return true;
         }
+        return false;
     }
 
     /**

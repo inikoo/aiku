@@ -18,7 +18,7 @@ return new class () extends Migration {
         Schema::create('outbox_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('outbox_id')->nullable();
-            $table->foreign('outbox_id')->references('id')->on('outboxes');
+            $table->foreign('outbox_id')->references('id')->on('outboxes')->onUpdate('cascade')->onDelete('cascade');
 
             $table = $this->dispatchedEmailStats($table);
 

@@ -2,11 +2,11 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 09 Aug 2024 11:33:17 Central Indonesia Time, Kuala Lumpur, Malaysia
+ * Created: Tue, 24 Dec 2024 21:41:49 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\Group;
+namespace App\Actions\SysAdmin\Group\Seeders;
 
 use App\Actions\HumanResources\JobPosition\StoreJobPositionScopeGroup;
 use App\Actions\HumanResources\JobPosition\UpdateJobPositionScopeGroup;

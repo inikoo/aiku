@@ -1,13 +1,12 @@
 <?php
 
 /*
- * author Arya Permana - Kirin
- * created on 21-11-2024-11h-16m
- * github: https://github.com/KirinZero0
- * copyright 2024
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 24 Dec 2024 21:41:49 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Actions\SysAdmin\Group;
+namespace App\Actions\SysAdmin\Group\Seeders;
 
 use App\Actions\Analytics\AikuSection\StoreAikuSection;
 use App\Actions\GrpAction;

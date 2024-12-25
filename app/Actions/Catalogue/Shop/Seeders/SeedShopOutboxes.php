@@ -2,11 +2,11 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 02 Jul 2024 13:58:53 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Tue, 24 Dec 2024 19:31:28 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Catalogue\Shop;
+namespace App\Actions\Catalogue\Shop\Seeders;
 
 use App\Actions\Comms\Outbox\StoreOutbox;
 use App\Actions\Comms\Outbox\UpdateOutbox;
@@ -15,7 +15,6 @@ use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
-use Exception;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -23,6 +22,7 @@ class SeedShopOutboxes
 {
     use AsAction;
     use WithOutboxBuilder;
+
 
     /**
      * @throws \Throwable
@@ -63,27 +63,18 @@ class SeedShopOutboxes
         }
     }
 
-    public string $commandSignature = 'shop:seed_outboxes {shop? : The shop slug}';
+    public string $commandSignature = 'shop:seed_outboxes';
 
+    /**
+     * @throws \Throwable
+     */
     public function asCommand(Command $command): int
     {
-        if ($command->argument('shop') == null) {
-            $shops = Shop::all();
-            foreach ($shops as $shop) {
-                $this->handle($shop);
-            }
-
-            return 0;
+        $command->info("Seeding shop outboxes");
+        foreach (Shop::all() as $shop) {
+            setPermissionsTeamId($shop->group_id);
+            $this->handle($shop);
         }
-        try {
-            $shop = Shop::where('slug', $command->argument('shop'))->firstOrFail();
-        } catch (Exception $e) {
-            $command->error($e->getMessage());
-
-            return 1;
-        }
-
-        $this->handle($shop);
 
         return 0;
     }

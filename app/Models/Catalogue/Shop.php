@@ -93,6 +93,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
+ * @property int|null $master_shop_id
  * @property string $slug
  * @property string $code
  * @property string $name
@@ -195,6 +196,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\ShopStats|null $stats
  * @property-read LaravelCollection<int, Task> $tasks
  * @property-read TaxNumber|null $taxNumber
+ * @property-read LaravelCollection<int, \App\Models\Catalogue\ShopTimeSeries> $timeSeries
  * @property-read Timezone $timezone
  * @property-read LaravelCollection<int, TopUp> $topUps
  * @property-read LaravelCollection<int, Transaction> $transactions
@@ -620,6 +622,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function packings(): HasMany
     {
         return $this->hasMany(Packing::class);
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(ShopTimeSeries::class);
     }
 
 }

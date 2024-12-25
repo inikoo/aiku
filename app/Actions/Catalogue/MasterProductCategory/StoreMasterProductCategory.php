@@ -100,7 +100,6 @@ class StoreMasterProductCategory extends GrpAction
         return $this->handle($masterShop, $this->validatedData);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
     public function inDepartment(MasterShop $masterShop, MasterProductCategory $masterProductCategory, ActionRequest $request): MasterProductCategory
     {
         $this->initialisation($masterShop->group, $request);

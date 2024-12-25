@@ -2,14 +2,15 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 02 Jul 2024 13:59:20 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Tue, 24 Dec 2024 21:46:38 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\Organisation;
+namespace App\Actions\SysAdmin\Organisation\Seeders;
 
 use App\Actions\Comms\Outbox\StoreOutbox;
 use App\Actions\Comms\Outbox\UpdateOutbox;
+use App\Actions\SysAdmin\Organisation\WithOrganisationCommand;
 use App\Actions\Traits\WithOutboxBuilder;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\SysAdmin\Organisation;

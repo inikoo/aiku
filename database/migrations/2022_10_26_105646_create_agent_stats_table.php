@@ -20,7 +20,7 @@ return new class () extends Migration {
         Schema::create('agent_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('agent_id')->index();
-            $table->foreign('agent_id')->references('id')->on('agents');
+            $table->foreign('agent_id')->references('id')->on('agents')->onUpdate('cascade')->onDelete('cascade');
             $table = $this->suppliersStats($table);
             $table = $this->supplierProductsStats($table);
             $table = $this->purchaseOrdersStats($table);

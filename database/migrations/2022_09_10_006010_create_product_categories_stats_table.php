@@ -25,7 +25,7 @@ return new class () extends Migration {
         Schema::create('product_category_stats', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('product_category_id')->index();
-            $table->foreign('product_category_id')->references('id')->on('product_categories');
+            $table->foreign('product_category_id')->references('id')->on('product_categories')->onDelete('cascade')->onUpdate('cascade');
             $table = $this->catalogueFamilyStats($table);
             $table = $this->catalogueProductsStats($table);
             $table = $this->topSellersStats($table);

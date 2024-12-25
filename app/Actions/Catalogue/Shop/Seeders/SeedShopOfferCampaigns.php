@@ -2,11 +2,11 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 10 Sept 2024 14:55:18 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Tue, 24 Dec 2024 19:31:28 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Catalogue\Shop;
+namespace App\Actions\Catalogue\Shop\Seeders;
 
 use App\Actions\Discounts\Offer\StoreOffer;
 use App\Actions\Discounts\OfferCampaign\StoreOfferCampaign;
@@ -17,13 +17,13 @@ use App\Enums\Discounts\Offer\OfferStateEnum;
 use App\Enums\Discounts\OfferCampaign\OfferCampaignTypeEnum;
 use App\Enums\Discounts\OfferComponent\OfferComponentStateEnum;
 use App\Models\Catalogue\Shop;
-use Exception;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class SeedOfferCampaigns extends GrpAction
+class SeedShopOfferCampaigns extends GrpAction
 {
     use AsAction;
+
 
     /**
      * @throws \Throwable
@@ -83,30 +83,17 @@ class SeedOfferCampaigns extends GrpAction
         }
     }
 
-    public string $commandSignature = 'shop:seed_offer_campaigns {shop? : shop slug}';
+    public string $commandSignature = 'shop:seed_offer_campaigns';
 
     /**
      * @throws \Throwable
      */
     public function asCommand(Command $command): int
     {
-        if ($command->argument('shop')) {
-            try {
-                $shop = Shop::where('slug', $command->argument('shop'))->firstOrFail();
-            } catch (Exception $e) {
-                $command->error($e->getMessage());
-
-                return 1;
-            }
+        $command->info("Seeding shop offer campaigns");
+        foreach (Shop::all() as $shop) {
             $this->handle($shop);
-            echo "Success seed shop offer campaigns ✅ \n";
-        } else {
-            foreach (Shop::all() as $shop) {
-                $this->handle($shop);
-            }
-            echo "Success seed all shops offer campaigns ✅ \n";
         }
-
 
         return 0;
     }
