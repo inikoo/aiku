@@ -98,6 +98,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
  * @property-read \App\Models\SysAdmin\UserStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Task> $tasks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\UserTimeSeries> $timeSeries
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read \Illuminate\Database\Eloquent\Collection<int, UserRequest> $userRequests
@@ -267,6 +268,11 @@ class User extends Authenticatable implements HasMedia, Auditable
     {
         return $this->belongsToMany(JobPosition::class, 'user_has_pseudo_job_positions')->withTimestamps()
             ->using(UserHasPseudoJobPositions::class)->withPivot(['scopes']);
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(UserTimeSeries::class);
     }
 
 

@@ -72,6 +72,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read \App\Models\Inventory\OrgStockStats|null $stats
  * @property-read Stock|null $stock
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\OrgStockTimeSeries> $timeSeries
  * @property-read \Illuminate\Database\Eloquent\Collection<int, TradeUnit> $tradeUnits
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Inventory\OrgStockFactory factory($count = null, $state = [])
@@ -198,6 +199,11 @@ class OrgStock extends Model implements Auditable
         )
             ->withPivot(['quantity', 'notes'])
             ->withTimestamps();
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(OrgStockTimeSeries::class);
     }
 
 }

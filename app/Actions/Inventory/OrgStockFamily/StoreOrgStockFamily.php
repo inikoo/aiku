@@ -12,6 +12,7 @@ use App\Actions\Inventory\OrgStockFamily\Hydrators\OrgStockFamilyHydrateUniversa
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgStockFamilies;
 use App\Enums\Goods\StockFamily\StockFamilyStateEnum;
+use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Enums\Inventory\OrgStockFamily\OrgStockFamilyStateEnum;
 use App\Models\Goods\StockFamily;
 use App\Models\Inventory\OrgStockFamily;
@@ -27,18 +28,25 @@ class StoreOrgStockFamily extends OrgAction
         data_set($modelData, 'code', $stockFamily->code);
         data_set($modelData, 'name', $stockFamily->name);
 
-        data_set($modelData, 'state', match($stockFamily->state) {
-            StockFamilyStateEnum::IN_PROCESS    => OrgStockFamilyStateEnum::IN_PROCESS,
-            StockFamilyStateEnum::ACTIVE        => OrgStockFamilyStateEnum::ACTIVE,
-            StockFamilyStateEnum::DISCONTINUING => OrgStockFamilyStateEnum::DISCONTINUING,
-            StockFamilyStateEnum::DISCONTINUED  => OrgStockFamilyStateEnum::DISCONTINUED,
-        });
+        data_set(
+            $modelData,
+            'state',
+            match ($stockFamily->state) {
+                StockFamilyStateEnum::IN_PROCESS => OrgStockFamilyStateEnum::IN_PROCESS,
+                StockFamilyStateEnum::ACTIVE => OrgStockFamilyStateEnum::ACTIVE,
+                StockFamilyStateEnum::DISCONTINUING => OrgStockFamilyStateEnum::DISCONTINUING,
+                StockFamilyStateEnum::DISCONTINUED => OrgStockFamilyStateEnum::DISCONTINUED,
+            }
+        );
 
 
         /** @var OrgStockFamily $orgStockFamily */
         $orgStockFamily = $stockFamily->orgStockFamilies()->create($modelData);
         $orgStockFamily->stats()->create();
         $orgStockFamily->intervals()->create();
+        foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
+            $orgStockFamily->timeSeries()->create(['frequency' => $frequency]);
+        }
 
         OrgStockFamilyHydrateUniversalSearch::dispatch($orgStockFamily);
 

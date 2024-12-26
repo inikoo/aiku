@@ -12,6 +12,7 @@ use App\Actions\GrpAction;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateUniversalSearch;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateAgents;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
+use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Group;
@@ -68,6 +69,9 @@ class StoreAgent extends GrpAction
             /** @var Agent $agent */
             $agent = $organisation->agent()->create($modelData);
             $agent->stats()->create();
+            foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
+                $agent->timeSeries()->create(['frequency' => $frequency]);
+            }
             $agent->refresh();
 
             return $agent;

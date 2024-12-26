@@ -14,6 +14,7 @@ use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateAssets;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateAssets;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateAssets;
+use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Models\Billables\Charge;
 use App\Models\Billables\Rental;
 use App\Models\Billables\Service;
@@ -48,6 +49,9 @@ class StoreAsset extends OrgAction
         $asset->orderingIntervals()->create();
         $asset->salesIntervals()->create();
         $asset->orderingStats()->create();
+        foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
+            $asset->timeSeries()->create(['frequency' => $frequency]);
+        }
 
 
         AssetHydrateHistoricAssets::dispatch($asset)->delay($hydratorsDelay);

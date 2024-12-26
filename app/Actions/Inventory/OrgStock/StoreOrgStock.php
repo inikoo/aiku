@@ -14,6 +14,7 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgStocks;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Goods\Stock\StockStateEnum;
+use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Enums\Inventory\OrgStock\OrgStockQuantityStatusEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Models\Goods\Stock;
@@ -55,6 +56,9 @@ class StoreOrgStock extends OrgAction
             $orgStock = $stock->orgStocks()->create($modelData);
             $orgStock->stats()->create();
             $orgStock->intervals()->create();
+            foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
+                $orgStock->timeSeries()->create(['frequency' => $frequency]);
+            }
 
 
             if ($parent instanceof OrgStockFamily) {

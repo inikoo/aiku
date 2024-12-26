@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
+use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -59,6 +60,9 @@ class StoreProductCategory extends OrgAction
             $productCategory->orderingIntervals()->create();
             $productCategory->salesIntervals()->create();
             $productCategory->orderingStats()->create();
+            foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
+                $productCategory->timeSeries()->create(['frequency' => $frequency]);
+            }
 
             $productCategory->refresh();
             return $productCategory;

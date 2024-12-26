@@ -79,8 +79,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, OrgStock> $orgStocks
  * @property-read \App\Models\Goods\StockStats|null $stats
  * @property-read \App\Models\Goods\StockFamily|null $stockFamily
- * @property-read Collection<int, \App\Models\SupplyChain\SupplierProduct> $supplierProducts
- * @property-read Collection<int, TradeUnit> $tradeUnits
+ * @property-read Collection<int, SupplierProduct> $supplierProducts
+ * @property-read Collection<int, \App\Models\Goods\StockTimeSeries> $timeSeries
+ * @property-read Collection<int, \App\Models\Goods\TradeUnit> $tradeUnits
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Goods\StockFactory factory($count = null, $state = [])
  * @method static Builder<static>|Stock newModelQuery()
@@ -218,6 +219,11 @@ class Stock extends Model implements HasMedia, Auditable
     public function getMainSupplierProduct(): SupplierProduct
     {
         return$this->supplierProducts()->where('available', true)->orderBy('priority', 'desc')->first();
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(StockTimeSeries::class);
     }
 
 }

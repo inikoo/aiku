@@ -66,7 +66,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Goods\Ingredient> $ingredients
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Collection<int, Product> $outers
- * @property-read Collection<int, Stock> $stocks
+ * @property-read Collection<int, \App\Models\Goods\Stock> $stocks
  * @property-read Collection<int, SupplierProduct> $supplierProducts
  * @method static \Database\Factories\Goods\TradeUnitFactory factory($count = null, $state = [])
  * @method static Builder<static>|TradeUnit newModelQuery()

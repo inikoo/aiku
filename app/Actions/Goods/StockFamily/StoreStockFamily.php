@@ -12,6 +12,7 @@ use App\Actions\Goods\StockFamily\Hydrators\StockFamilyHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStockFamilies;
 use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Models\Goods\StockFamily;
 use App\Models\SysAdmin\Group;
 use App\Rules\IUnique;
@@ -35,6 +36,9 @@ class StoreStockFamily extends OrgAction
             $stockFamily = $group->stockFamilies()->create($modelData);
             $stockFamily->stats()->create();
             $stockFamily->intervals()->create();
+            foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
+                $stockFamily->timeSeries()->create(['frequency' => $frequency]);
+            }
 
             return $stockFamily;
         });

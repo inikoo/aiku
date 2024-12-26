@@ -11,6 +11,7 @@ namespace App\Actions\SysAdmin\User;
 use App\Actions\GrpAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateUsers;
 use App\Actions\SysAdmin\User\Search\UserRecordSearch;
+use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Guest;
@@ -44,6 +45,9 @@ class StoreUser extends GrpAction
             /** @var User $user */
             $user = User::create($modelData);
             $user->stats()->create();
+            foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
+                $user->timeSeries()->create(['frequency' => $frequency]);
+            }
             $user->refresh();
 
 

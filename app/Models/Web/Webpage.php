@@ -87,6 +87,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read Collection<int, Snapshot> $snapshots
  * @property-read \App\Models\Web\WebpageStats|null $stats
+ * @property-read Collection<int, \App\Models\Web\WebpageTimeSeries> $timeSeries
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Snapshot|null $unpublishedSnapshot
  * @property-read Collection<int, \App\Models\Web\WebBlock> $webBlocks
@@ -234,6 +235,11 @@ class Webpage extends Model implements Auditable
         return $this->belongsToMany(ExternalLink::class, 'web_block_has_external_link')
                     ->withPivot('website_id', 'web_block_id', 'show')
                     ->withTimestamps();
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(WebpageTimeSeries::class);
     }
 
 

@@ -47,6 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read \App\Models\Inventory\OrgStockFamilyStats|null $stats
  * @property-read StockFamily|null $stockFamily
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\OrgStockTimeSeries> $timeSeries
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStockFamily newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStockFamily newQuery()
@@ -111,5 +112,9 @@ class OrgStockFamily extends Model
         return $this->belongsTo(StockFamily::class);
     }
 
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(OrgStockTimeSeries::class);
+    }
 
 }

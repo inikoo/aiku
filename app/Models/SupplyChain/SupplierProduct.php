@@ -74,7 +74,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\SupplyChain\HistoricSupplierProduct> $historicSupplierProducts
  * @property-read Collection<int, OrgSupplierProduct> $orgSupplierProducts
  * @property-read \App\Models\SupplyChain\SupplierProductStats|null $stats
- * @property-read Collection<int, \App\Models\Goods\Stock> $stocks
+ * @property-read Collection<int, Stock> $stocks
  * @property-read \App\Models\SupplyChain\Supplier|null $supplier
  * @property-read Collection<int, TradeUnit> $tradeUnits
  * @property-read UniversalSearch|null $universalSearch

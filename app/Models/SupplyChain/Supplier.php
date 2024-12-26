@@ -89,6 +89,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SupplyChain\SupplierStats|null $stats
  * @property-read Collection<int, StockDelivery> $stockDeliveries
  * @property-read Collection<int, \App\Models\SupplyChain\SupplierProduct> $supplierProducts
+ * @property-read Collection<int, \App\Models\SupplyChain\SupplierTimeSeries> $timeSeries
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\SupplyChain\SupplierFactory factory($count = null, $state = [])
  * @method static Builder<static>|Supplier newModelQuery()
@@ -225,6 +226,11 @@ class Supplier extends Model implements HasMedia, Auditable
     public function agentSupplierPurchaseOrder(): HasMany
     {
         return $this->hasMany(AgentSupplierPurchaseOrder::class);
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(SupplierTimeSeries::class);
     }
 
 

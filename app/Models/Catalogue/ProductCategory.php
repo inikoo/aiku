@@ -89,6 +89,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, BackInStockReminder> $subDepartmentBackInStockReminders
  * @property-read LaravelCollection<int, Favourite> $subDepartmentFavourites
  * @property-read LaravelCollection<int, ProductCategory> $subDepartments
+ * @property-read LaravelCollection<int, \App\Models\Catalogue\ProductCategoryTimeSeries> $timeSeries
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Webpage|null $webpage
  * @method static \Database\Factories\Catalogue\ProductCategoryFactory factory($count = null, $state = [])
@@ -253,5 +254,10 @@ class ProductCategory extends Model implements Auditable, HasMedia
     public function subDepartmentBackInStockReminders(): HasMany
     {
         return $this->hasMany(BackInStockReminder::class, 'sub_department_id');
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(ProductCategoryTimeSeries::class);
     }
 }

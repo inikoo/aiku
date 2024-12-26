@@ -15,6 +15,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWebsites;
 use App\Actions\Web\Website\Search\WebsiteRecordSearch;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Helpers\Snapshot\SnapshotScopeEnum;
+use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\Catalogue\Shop;
@@ -49,6 +50,9 @@ class StoreWebsite extends OrgAction
         /** @var Website $website */
         $website = $shop->website()->create($modelData);
         $website->webStats()->create();
+        foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
+            $website->timeSeries()->create(['frequency' => $frequency]);
+        }
         $website->refresh();
 
         SeedWebsiteOutboxes::run($website);

@@ -2,13 +2,12 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 21 Dec 2024 22:45:21 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Thu, 26 Dec 2024 12:31:07 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\Inventory;
+namespace App\Models\Goods;
 
-use App\Models\Goods\StockFamily;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -175,7 +174,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $org_stock_movements_pq5
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read StockFamily $stockFamily
+ * @property-read \App\Models\Goods\StockFamily $stockFamily
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StockFamilyIntervals newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StockFamilyIntervals newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StockFamilyIntervals query()

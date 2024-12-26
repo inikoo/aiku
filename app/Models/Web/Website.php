@@ -101,6 +101,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Shop $shop
  * @property-read Collection<int, Snapshot> $snapshots
  * @property-read \App\Models\Web\Webpage|null $storefront
+ * @property-read Collection<int, \App\Models\Web\WebsiteTimeSeries> $timeSeries
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Snapshot|null $unpublishedFooterSnapshot
  * @property-read Snapshot|null $unpublishedHeaderSnapshot
@@ -262,6 +263,11 @@ class Website extends Model implements Auditable, HasMedia
         return $this->belongsToMany(ExternalLink::class, 'web_block_has_external_link')
                     ->withPivot('webpage_id', 'web_block_id', 'show')
                     ->withTimestamps();
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(WebsiteTimeSeries::class);
     }
 
 }

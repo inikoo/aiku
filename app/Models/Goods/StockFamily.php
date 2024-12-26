@@ -11,7 +11,6 @@ namespace App\Models\Goods;
 use App\Enums\Goods\StockFamily\StockFamilyStateEnum;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Inventory\OrgStockFamily;
-use App\Models\Inventory\StockFamilyIntervals;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
@@ -55,11 +54,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
- * @property-read StockFamilyIntervals|null $intervals
+ * @property-read \App\Models\Goods\StockFamilyIntervals|null $intervals
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Collection<int, OrgStockFamily> $orgStockFamilies
  * @property-read \App\Models\Goods\StockFamilyStats|null $stats
  * @property-read Collection<int, \App\Models\Goods\Stock> $stocks
+ * @property-read Collection<int, \App\Models\Goods\StockFamilyTimeSeries> $timeSeries
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Goods\StockFamilyFactory factory($count = null, $state = [])
  * @method static Builder<static>|StockFamily newModelQuery()
@@ -138,6 +138,11 @@ class StockFamily extends Model implements HasMedia, Auditable
     public function orgStockFamilies(): HasMany
     {
         return $this->hasMany(OrgStockFamily::class);
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(StockFamilyTimeSeries::class);
     }
 
 }
