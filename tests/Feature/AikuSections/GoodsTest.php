@@ -6,16 +6,17 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 /** @noinspection PhpUnhandledExceptionInspection */
+
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\Stock\UpdateStock;
 use App\Actions\Goods\StockFamily\DeleteStockFamily;
 use App\Actions\Goods\StockFamily\StoreStockFamily;
 use App\Actions\Goods\StockFamily\UpdateStockFamily;
-use App\Enums\SupplyChain\Stock\StockStateEnum;
-use App\Enums\SupplyChain\StockFamily\StockFamilyStateEnum;
+use App\Enums\Goods\Stock\StockStateEnum;
+use App\Enums\Goods\StockFamily\StockFamilyStateEnum;
+use App\Models\Goods\Stock;
+use App\Models\Goods\StockFamily;
 use App\Models\Goods\TradeUnit;
-use App\Models\SupplyChain\Stock;
-use App\Models\SupplyChain\StockFamily;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;

@@ -1,12 +1,12 @@
 <?php
 
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Tue, 30 Aug 2022 19:14:53 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 26 Dec 2024 12:06:14 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\SupplyChain;
+namespace App\Models\Goods;
 
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -34,7 +34,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_organisations_quantity_status_error
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\SupplyChain\Stock $stock
+ * @property-read \App\Models\Goods\Stock $stock
  * @method static Builder<static>|StockStats newModelQuery()
  * @method static Builder<static>|StockStats newQuery()
  * @method static Builder<static>|StockStats query()

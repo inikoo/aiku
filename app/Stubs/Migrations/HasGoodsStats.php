@@ -8,8 +8,8 @@
 
 namespace App\Stubs\Migrations;
 
-use App\Enums\SupplyChain\Stock\StockStateEnum;
-use App\Enums\SupplyChain\StockFamily\StockFamilyStateEnum;
+use App\Enums\Goods\Stock\StockStateEnum;
+use App\Enums\Goods\StockFamily\StockFamilyStateEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasGoodsStats

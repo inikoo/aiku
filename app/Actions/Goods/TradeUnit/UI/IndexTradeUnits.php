@@ -14,7 +14,6 @@ use App\Actions\UI\Goods\ShowGoodsDashboard;
 use App\Http\Resources\Goods\TradeUnitsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Goods\TradeUnit;
-use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
 use App\Services\QueryBuilder;
 use Closure;

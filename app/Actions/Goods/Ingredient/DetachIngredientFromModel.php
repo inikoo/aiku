@@ -12,8 +12,8 @@ namespace App\Actions\Goods\Ingredient;
 use App\Actions\GrpAction;
 use App\Models\Catalogue\Product;
 use App\Models\Goods\Ingredient;
+use App\Models\Goods\Stock;
 use App\Models\Goods\TradeUnit;
-use App\Models\SupplyChain\Stock;
 
 class DetachIngredientFromModel extends GrpAction
 {

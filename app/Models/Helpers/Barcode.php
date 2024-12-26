@@ -9,8 +9,8 @@
 namespace App\Models\Helpers;
 
 use App\Models\Catalogue\Asset;
+use App\Models\Goods\Stock;
 use App\Models\Goods\TradeUnit;
-use App\Models\SupplyChain\Stock;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\InGroup;
 use Eloquent;

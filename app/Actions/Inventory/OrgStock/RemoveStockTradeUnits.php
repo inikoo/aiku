@@ -8,7 +8,7 @@
 
 namespace App\Actions\Inventory\OrgStock;
 
-use App\Models\SupplyChain\Stock;
+use App\Models\Goods\Stock;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class RemoveStockTradeUnits

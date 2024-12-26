@@ -10,7 +10,6 @@ namespace App\Models\Goods;
 
 use App\Models\Catalogue\Product;
 use App\Models\Helpers\Barcode;
-use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasAttachments;

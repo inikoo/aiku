@@ -2,13 +2,14 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 15 Nov 2024 19:52:45 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Created: Thu, 26 Dec 2024 12:06:14 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\SupplyChain;
+namespace App\Models\Goods;
 
 use App\Models\Inventory\OrgStockHasOrgSupplierProduct;
+use App\Models\SupplyChain\SupplierProduct;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -24,7 +25,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, OrgStockHasOrgSupplierProduct> $orgStockHasOrgSupplierProducts
- * @property-read \App\Models\SupplyChain\Stock $stock
+ * @property-read \App\Models\Goods\Stock $stock
  * @property-read \App\Models\SupplyChain\SupplierProduct|null $supplierProduct
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StockHasSupplierProduct newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StockHasSupplierProduct newQuery()

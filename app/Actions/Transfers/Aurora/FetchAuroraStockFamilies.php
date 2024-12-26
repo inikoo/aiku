@@ -11,7 +11,7 @@ namespace App\Actions\Transfers\Aurora;
 use App\Actions\Goods\StockFamily\StoreStockFamily;
 use App\Actions\Goods\StockFamily\UpdateStockFamily;
 use App\Actions\Inventory\OrgStockFamily\StoreOrgStockFamily;
-use App\Models\SupplyChain\StockFamily;
+use App\Models\Goods\StockFamily;
 use App\Transfers\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;

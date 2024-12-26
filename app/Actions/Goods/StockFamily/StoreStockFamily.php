@@ -12,7 +12,7 @@ use App\Actions\Goods\StockFamily\Hydrators\StockFamilyHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStockFamilies;
 use App\Actions\Traits\Rules\WithNoStrictRules;
-use App\Models\SupplyChain\StockFamily;
+use App\Models\Goods\StockFamily;
 use App\Models\SysAdmin\Group;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;

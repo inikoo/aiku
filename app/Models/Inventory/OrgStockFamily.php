@@ -9,7 +9,7 @@
 namespace App\Models\Inventory;
 
 use App\Enums\Inventory\OrgStockFamily\OrgStockFamilyStateEnum;
-use App\Models\SupplyChain\StockFamily;
+use App\Models\Goods\StockFamily;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;

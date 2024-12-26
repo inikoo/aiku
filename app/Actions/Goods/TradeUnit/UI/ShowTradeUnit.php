@@ -16,7 +16,6 @@ use App\Enums\UI\SupplyChain\TradeUnitTabsEnum;
 use App\Http\Resources\Goods\TradeUnitResource;
 use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Models\Goods\TradeUnit;
-use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
 use Inertia\Inertia;
 use Inertia\Response;

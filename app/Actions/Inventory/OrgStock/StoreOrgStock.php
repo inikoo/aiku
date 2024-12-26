@@ -13,12 +13,12 @@ use App\Actions\Inventory\OrgStockFamily\Hydrators\OrgStockFamilyHydrateOrgStock
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgStocks;
 use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Enums\Goods\Stock\StockStateEnum;
 use App\Enums\Inventory\OrgStock\OrgStockQuantityStatusEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
-use App\Enums\SupplyChain\Stock\StockStateEnum;
+use App\Models\Goods\Stock;
 use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\OrgStockFamily;
-use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;

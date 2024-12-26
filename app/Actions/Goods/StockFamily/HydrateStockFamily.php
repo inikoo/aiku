@@ -9,7 +9,7 @@
 namespace App\Actions\Goods\StockFamily;
 
 use App\Actions\Goods\StockFamily\Hydrators\StockFamilyHydrateStocks;
-use App\Models\SupplyChain\StockFamily;
+use App\Models\Goods\StockFamily;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;

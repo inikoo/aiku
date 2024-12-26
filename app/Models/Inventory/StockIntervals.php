@@ -8,7 +8,7 @@
 
 namespace App\Models\Inventory;
 
-use App\Models\SupplyChain\Stock;
+use App\Models\Goods\Stock;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 

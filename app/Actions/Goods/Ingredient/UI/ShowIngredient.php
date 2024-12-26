@@ -15,7 +15,6 @@ use App\Actions\UI\Goods\ShowGoodsDashboard;
 use App\Enums\UI\SupplyChain\IngredientTabsEnum;
 use App\Http\Resources\Goods\IngredientResource;
 use App\Models\Goods\Ingredient;
-use App\Models\SupplyChain\Stock;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

@@ -2,13 +2,13 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 22 Jan 2024 12:59:06 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Thu, 26 Dec 2024 12:06:14 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\SupplyChain;
+namespace App\Models\Goods;
 
-use App\Enums\SupplyChain\StockFamily\StockFamilyStateEnum;
+use App\Enums\Goods\StockFamily\StockFamilyStateEnum;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Inventory\OrgStockFamily;
 use App\Models\Inventory\StockFamilyIntervals;
@@ -58,10 +58,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read StockFamilyIntervals|null $intervals
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Collection<int, OrgStockFamily> $orgStockFamilies
- * @property-read \App\Models\SupplyChain\StockFamilyStats|null $stats
- * @property-read Collection<int, \App\Models\SupplyChain\Stock> $stocks
+ * @property-read \App\Models\Goods\StockFamilyStats|null $stats
+ * @property-read Collection<int, \App\Models\Goods\Stock> $stocks
  * @property-read UniversalSearch|null $universalSearch
- * @method static \Database\Factories\SupplyChain\StockFamilyFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Goods\StockFamilyFactory factory($count = null, $state = [])
  * @method static Builder<static>|StockFamily newModelQuery()
  * @method static Builder<static>|StockFamily newQuery()
  * @method static Builder<static>|StockFamily onlyTrashed()

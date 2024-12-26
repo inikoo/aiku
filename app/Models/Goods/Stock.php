@@ -2,20 +2,20 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 23 Jan 2024 09:56:53 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Thu, 26 Dec 2024 12:06:14 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\SupplyChain;
+namespace App\Models\Goods;
 
-use App\Enums\SupplyChain\Stock\StockStateEnum;
-use App\Enums\SupplyChain\Stock\StockTradeUnitCompositionEnum;
-use App\Models\Goods\TradeUnit;
+use App\Enums\Goods\Stock\StockStateEnum;
+use App\Enums\Goods\Stock\StockTradeUnitCompositionEnum;
 use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Media;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\StockIntervals;
+use App\Models\SupplyChain\SupplierProduct;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
@@ -77,12 +77,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read StockIntervals|null $intervals
  * @property-read MediaCollection<int, Media> $media
  * @property-read Collection<int, OrgStock> $orgStocks
- * @property-read \App\Models\SupplyChain\StockStats|null $stats
- * @property-read \App\Models\SupplyChain\StockFamily|null $stockFamily
+ * @property-read \App\Models\Goods\StockStats|null $stats
+ * @property-read \App\Models\Goods\StockFamily|null $stockFamily
  * @property-read Collection<int, \App\Models\SupplyChain\SupplierProduct> $supplierProducts
  * @property-read Collection<int, TradeUnit> $tradeUnits
  * @property-read UniversalSearch|null $universalSearch
- * @method static \Database\Factories\SupplyChain\StockFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Goods\StockFactory factory($count = null, $state = [])
  * @method static Builder<static>|Stock newModelQuery()
  * @method static Builder<static>|Stock newQuery()
  * @method static Builder<static>|Stock onlyTrashed()

@@ -2,11 +2,11 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 22 Jan 2024 12:59:06 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Thu, 26 Dec 2024 12:06:14 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\SupplyChain;
+namespace App\Models\Goods;
 
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -28,7 +28,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\SupplyChain\StockFamily $stockFamily
+ * @property-read \App\Models\Goods\StockFamily $stockFamily
  * @method static Builder<static>|StockFamilyStats newModelQuery()
  * @method static Builder<static>|StockFamilyStats newQuery()
  * @method static Builder<static>|StockFamilyStats query()

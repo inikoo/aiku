@@ -10,7 +10,7 @@ namespace App\Actions\Goods\Stock;
 
 use App\Actions\Goods\Stock\Hydrators\StockHydrateGrossWeightFromTradeUnits;
 use App\Actions\HydrateModel;
-use App\Models\SupplyChain\Stock;
+use App\Models\Goods\Stock;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
 

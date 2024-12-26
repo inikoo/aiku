@@ -9,9 +9,9 @@
 
 namespace App\Http\Resources\Procurement;
 
-use Illuminate\Http\Resources\Json\JsonResource;
+use App\Models\Goods\Stock;
 use App\Models\SupplyChain\SupplierProduct;
-use App\Models\SupplyChain\Stock;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @property string $code

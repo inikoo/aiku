@@ -8,8 +8,8 @@
 
 namespace App\Transfers\Aurora;
 
+use App\Enums\Goods\Stock\StockStateEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
-use App\Enums\SupplyChain\Stock\StockStateEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 

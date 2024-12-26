@@ -2,11 +2,11 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 23 Jan 2024 11:02:24 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Thu, 26 Dec 2024 12:07:39 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Enums\SupplyChain\Stock;
+namespace App\Enums\Goods\Stock;
 
 use App\Enums\EnumHelperTrait;
 

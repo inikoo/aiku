@@ -11,7 +11,7 @@ namespace App\Transfers\Aurora;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStateEnum;
 use App\Models\Dispatching\DeliveryNote;
-use App\Models\SupplyChain\Stock;
+use App\Models\Goods\Stock;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraDeliveryNoteItem extends FetchAurora

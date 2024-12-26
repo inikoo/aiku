@@ -206,8 +206,8 @@ class AppServiceProvider extends ServiceProvider
                 'UniversalSearch'               => 'App\Models\Helpers\UniversalSearch',
 
                 // Supply Chain
-                'Stock'                         => 'App\Models\SupplyChain\Stock',
-                'StockFamily'                   => 'App\Models\SupplyChain\StockFamily',
+                'Stock'                         => 'App\Models\Goods\Stock',
+                'StockFamily'                   => 'App\Models\Goods\StockFamily',
                 'SupplierProduct'               => 'App\Models\SupplyChain\SupplierProduct',
                 'Supplier'                      => 'App\Models\SupplyChain\Supplier',
                 'Agent'                         => 'App\Models\SupplyChain\Agent',

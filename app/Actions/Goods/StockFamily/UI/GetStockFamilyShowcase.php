@@ -8,7 +8,7 @@
 
 namespace App\Actions\Goods\StockFamily\UI;
 
-use App\Models\SupplyChain\StockFamily;
+use App\Models\Goods\StockFamily;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class GetStockFamilyShowcase

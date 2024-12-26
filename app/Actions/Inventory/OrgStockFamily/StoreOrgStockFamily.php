@@ -11,10 +11,10 @@ namespace App\Actions\Inventory\OrgStockFamily;
 use App\Actions\Inventory\OrgStockFamily\Hydrators\OrgStockFamilyHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgStockFamilies;
+use App\Enums\Goods\StockFamily\StockFamilyStateEnum;
 use App\Enums\Inventory\OrgStockFamily\OrgStockFamilyStateEnum;
-use App\Enums\SupplyChain\StockFamily\StockFamilyStateEnum;
+use App\Models\Goods\StockFamily;
 use App\Models\Inventory\OrgStockFamily;
-use App\Models\SupplyChain\StockFamily;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 

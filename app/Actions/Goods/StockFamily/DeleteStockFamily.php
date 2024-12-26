@@ -9,7 +9,7 @@
 namespace App\Actions\Goods\StockFamily;
 
 use App\Actions\GrpAction;
-use App\Models\SupplyChain\StockFamily;
+use App\Models\Goods\StockFamily;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;

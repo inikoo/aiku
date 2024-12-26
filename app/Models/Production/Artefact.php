@@ -9,7 +9,7 @@
 namespace App\Models\Production;
 
 use App\Enums\Production\Artefact\ArtefactStateEnum;
-use App\Models\SupplyChain\Stock;
+use App\Models\Goods\Stock;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InProduction;

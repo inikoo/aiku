@@ -8,7 +8,7 @@
 
 namespace App\Actions\Goods\Stock\Hydrators;
 
-use App\Models\SupplyChain\Stock;
+use App\Models\Goods\Stock;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 

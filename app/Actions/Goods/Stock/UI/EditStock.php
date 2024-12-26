@@ -9,8 +9,8 @@
 namespace App\Actions\Goods\Stock\UI;
 
 use App\Actions\InertiaAction;
-use App\Models\SupplyChain\Stock;
-use App\Models\SupplyChain\StockFamily;
+use App\Models\Goods\Stock;
+use App\Models\Goods\StockFamily;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

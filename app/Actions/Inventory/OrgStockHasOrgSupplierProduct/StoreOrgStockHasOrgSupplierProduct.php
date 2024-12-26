@@ -10,10 +10,10 @@ namespace App\Actions\Inventory\OrgStockHasOrgSupplierProduct;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Models\Goods\StockHasSupplierProduct;
 use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\OrgStockHasOrgSupplierProduct;
 use App\Models\Procurement\OrgSupplierProduct;
-use App\Models\SupplyChain\StockHasSupplierProduct;
 use Illuminate\Validation\Validator;
 
 class StoreOrgStockHasOrgSupplierProduct extends OrgAction

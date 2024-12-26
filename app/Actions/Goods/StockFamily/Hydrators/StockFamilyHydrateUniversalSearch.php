@@ -8,7 +8,7 @@
 
 namespace App\Actions\Goods\StockFamily\Hydrators;
 
-use App\Models\SupplyChain\StockFamily;
+use App\Models\Goods\StockFamily;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StockFamilyHydrateUniversalSearch

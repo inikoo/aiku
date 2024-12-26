@@ -9,8 +9,8 @@
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\SupplyChain\StockFamily\StockFamilyStateEnum;
-use App\Models\SupplyChain\StockFamily;
+use App\Enums\Goods\StockFamily\StockFamilyStateEnum;
+use App\Models\Goods\StockFamily;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Arr;

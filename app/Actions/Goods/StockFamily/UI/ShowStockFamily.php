@@ -16,7 +16,7 @@ use App\Enums\UI\SupplyChain\StockFamilyTabsEnum;
 use App\Http\Resources\Goods\StockFamilyResource;
 use App\Http\Resources\Goods\StocksResource;
 use App\Http\Resources\History\HistoryResource;
-use App\Models\SupplyChain\StockFamily;
+use App\Models\Goods\StockFamily;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
