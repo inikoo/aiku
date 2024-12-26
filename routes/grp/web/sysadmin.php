@@ -12,7 +12,6 @@ use App\Actions\SysAdmin\Guest\ExportGuests;
 use App\Actions\SysAdmin\Guest\UI\CreateGuest;
 use App\Actions\SysAdmin\Guest\UI\EditGuest;
 use App\Actions\SysAdmin\Guest\UI\IndexGuests;
-use App\Actions\SysAdmin\Guest\UI\RemoveGuest;
 use App\Actions\SysAdmin\Guest\UI\ShowGuest;
 use App\Actions\SysAdmin\User\ExportUsers;
 use App\Actions\SysAdmin\User\UI\CreateUser;
@@ -43,4 +42,3 @@ Route::get('/guests/export', ExportGuests::class)->name('guests.export');
 
 Route::get('/guests/{guest}', ShowGuest::class)->name('guests.show');
 Route::get('/guests/{guest}/edit', EditGuest::class)->name('guests.edit');
-Route::get('/guests/{guest}/delete', RemoveGuest::class)->name('guests.remove');

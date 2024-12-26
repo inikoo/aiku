@@ -17,7 +17,6 @@ use App\Actions\Goods\StockFamily\ExportStockFamilies;
 use App\Actions\Goods\StockFamily\UI\CreateStockFamily;
 use App\Actions\Goods\StockFamily\UI\EditStockFamily;
 use App\Actions\Goods\StockFamily\UI\IndexStockFamilies;
-use App\Actions\Goods\StockFamily\UI\RemoveStockFamily;
 use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
 use App\Actions\Goods\TradeUnit\UI\EditTradeUnit;
 use App\Actions\Goods\TradeUnit\UI\IndexTradeUnits;
@@ -93,7 +92,6 @@ Route::prefix('families')->as('stock-families.')->group(function () {
     Route::prefix('{stockFamily}')->group(function () {
         Route::get('', ShowStockFamily::class)->name('show');
         Route::get('/edit', EditStockFamily::class)->name('edit');
-        Route::get('/delete', RemoveStockFamily::class)->name('remove');
 
 
         Route::prefix('stocks')->as('show.stocks.')->group(function () {

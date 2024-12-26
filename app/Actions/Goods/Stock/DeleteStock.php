@@ -43,6 +43,7 @@ class DeleteStock
     {
 
         try {
+            /** @var Stock $stock */
             $stock = Stock::findOrFail($command->argument('stock'));
         } catch (Exception $e) {
             $command->error('Stock not found '.$e->getMessage());
