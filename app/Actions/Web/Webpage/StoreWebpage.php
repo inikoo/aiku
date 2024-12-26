@@ -14,6 +14,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWebpages;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWebpages;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateChildWebpages;
+use App\Actions\Web\Webpage\Hydrators\WebpageHydrateSnapshots;
 use App\Actions\Web\Webpage\Search\WebpageRecordSearch;
 use App\Actions\Web\Website\Hydrators\WebsiteHydrateWebpages;
 use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
@@ -83,7 +84,6 @@ class StoreWebpage extends OrgAction
 
             return $webpage;
         });
-
 
         WebpageRecordSearch::dispatch($webpage);
         GroupHydrateWebpages::dispatch($webpage->group)->delay($this->hydratorsDelay);

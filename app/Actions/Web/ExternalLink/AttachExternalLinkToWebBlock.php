@@ -12,6 +12,8 @@ namespace App\Actions\Web\ExternalLink;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
+use App\Models\Web\ExternalLink;
+use App\Models\Web\WebBlock;
 use App\Models\Web\Webpage;
 use Illuminate\Support\Arr;
 
@@ -19,48 +21,46 @@ class AttachExternalLinkToWebBlock extends OrgAction
 {
     use HasWebAuthorisation;
 
-    public function handle(Webpage $webpage, array $modelData)
+    public function handle(Webpage $webpage, WebBlock $webBlock, ExternalLink $externalLink, array $modelData): void
     {
-        $webBlockId = Arr::get($modelData, 'web_block_id');
-        if ($webBlockId) {
-            foreach ($webpage->webBlocks as $webBlock) {
-                if ($webBlock->id == $webBlockId) {
-                    $webBlock->externalLinks()->attach($modelData['external_link_id'], [
-                        'group_id' => $webpage->group_id,
-                        'organisation_id' => $webpage->organisation_id,
-                        'webpage_id'    => $webpage->id,
-                        'website_id'    => $webpage->website_id,
-                        'show' => $webBlock->pivot->show,
-                    ]);
-                }
-            }
-        } else {
+        $webBlock->externalLinks()->attach(
+            $externalLink->id,
+            [
+                'group_id'        => $externalLink->group_id,
+                'organisation_id' => $webpage->organisation_id,
+                'webpage_id'      => $webpage->id,
+                'website_id'      => $webpage->website_id,
+                'show'            => Arr::get($modelData, 'show', true)
+            ]
+        );
 
-        }
+
+        //todo convert following lines in ExternalLinkHydrateWebsites,ExternalLinkHydrateWebpages,ExternalLinkHydrateWebBlocks
+
+        $externalLink->updateQuietly([
+            'number_websites_shown'    => $externalLink->websites()->wherePivot('show', true)->count(),
+            'number_websites_hidden'   => $externalLink->websites()->wherePivot('show', false)->count(),
+            'number_webpages_shown'    => $externalLink->webpages()->wherePivot('show', true)->count(),
+            'number_webpages_hidden'   => $externalLink->webpages()->wherePivot('show', false)->count(),
+            'number_web_blocks_shown'  => $externalLink->webBlocks()->wherePivot('show', true)->count(),
+            'number_web_blocks_hidden' => $externalLink->webBlocks()->wherePivot('show', false)->count(),
+        ]);
     }
 
     public function rules(): array
     {
         return [
-            'external_link_id' => [
-                'required',
-                'exists:external_links,id'
-            ],
-            'web_block_id' => [
-                'sometimes',
-                'exists:model_has_web_blocks,web_block_id'
-            ]
+            'show' => ['required', 'boolean']
         ];
     }
 
 
-    public function action(Webpage $webpage, array $modelData, int $hydratorsDelay = 0, bool $strict = true)
+    public function action(Webpage $webpage, WebBlock $webBlock, ExternalLink $externalLink, array $modelData): void
     {
-        $this->asAction       = true;
-        $this->strict         = $strict;
-        $this->hydratorsDelay = $hydratorsDelay;
+        $this->asAction = true;
+
         $this->initialisationFromGroup($webpage->group, $modelData);
 
-        $this->handle($webpage, $this->validatedData);
+        $this->handle($webpage, $webBlock, $externalLink, $this->validatedData);
     }
 }

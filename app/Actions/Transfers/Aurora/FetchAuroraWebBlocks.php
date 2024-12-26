@@ -8,6 +8,8 @@
 
 namespace App\Actions\Transfers\Aurora;
 
+use App\Actions\Web\ExternalLink\AttachExternalLinkToWebBlock;
+use App\Actions\Web\ExternalLink\CheckExternalLinkStatus;
 use App\Actions\Web\WebBlock\DeleteWebBlock;
 use App\Models\Catalogue\Product;
 use App\Transfers\Aurora\WithAuroraParsers;
@@ -173,7 +175,6 @@ class FetchAuroraWebBlocks
 
         // TODO: department, family, see_also & product
         // children webpages for department & family
-
 
 
         //     print "***>>".$auroraBlock["type"]."<<<***\n";
@@ -356,10 +357,17 @@ class FetchAuroraWebBlocks
         $externalLinks = $layout['external_links'] ?? null;
         if ($externalLinks) {
             foreach ($externalLinks as $link) {
-                StoreExternalLink::make()->action($webpage->group, [
-                    'url'          => $link,
-                    'webpage_id'   => $webpage->id,
-                    'web_block_id' => $webBlock->id,
+                $externalLink = $webpage->group->externalLinks()->where('url', $link)->first();
+                if (!$externalLink) {
+                    $externalLink = StoreExternalLink::make()->action($webpage->group, [
+                        'url'    => $link,
+                        'status' => CheckExternalLinkStatus::run($link)
+                    ]);
+                }
+
+
+                AttachExternalLinkToWebBlock::make()->action($webpage, $webBlock, $externalLink, [
+                    'show' => true // <-- fix this and set show value depending on if Seb-block is shown or not
                 ]);
             }
         }

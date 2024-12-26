@@ -227,6 +227,7 @@ class AppServiceProvider extends ServiceProvider
                 'Webpage'                       => 'App\Models\Web\Webpage',
                 'WebBlock'                      => 'App\Models\Web\WebBlock',
                 'WebBlockType'                  => 'App\Models\Web\WebBlockType',
+                'Banner'                        => 'App\Models\Web\Banner',
 
                 //Production
                 'Production'                    => 'App\Models\Production\Production',
