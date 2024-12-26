@@ -246,6 +246,7 @@ test('UI Index employees', function () {
 });
 
 test('UI create employee', function () {
+    $this->withoutExceptionHandling();
     $response = get(route('grp.org.hr.employees.create', [$this->organisation->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page

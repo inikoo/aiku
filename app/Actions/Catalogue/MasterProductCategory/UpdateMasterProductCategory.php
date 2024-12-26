@@ -11,13 +11,11 @@ namespace App\Actions\Catalogue\MasterProductCategory;
 
 use App\Actions\GrpAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Goods\MasterProductCategory;
 use App\Models\Goods\MasterShop;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateMasterProductCategory extends GrpAction
@@ -30,10 +28,7 @@ class UpdateMasterProductCategory extends GrpAction
 
     public function handle(MasterProductCategory $masterProductCategory, array $modelData): MasterProductCategory
     {
-        // dd($modelData);
-        $masterProductCategory = $this->update($masterProductCategory, $modelData, ['data']);
-
-        return $masterProductCategory;
+        return $this->update($masterProductCategory, $modelData, ['data']);
     }
 
     public function authorize(ActionRequest $request): bool
@@ -66,7 +61,7 @@ class UpdateMasterProductCategory extends GrpAction
             ],
             'name'        => ['sometimes', 'max:250', 'string'],
             'image_id'    => ['sometimes', 'required', 'exists:media,id'],
-            'state'       => ['sometimes', 'required', Rule::enum(ProductCategoryStateEnum::class)],
+            'status'      => ['sometimes', 'required', 'boolean'],
             'description' => ['sometimes', 'required', 'max:1500'],
             'master_department_id' => ['sometimes', 'nullable', 'exists:product_categories,id'],
             'master_sub_department_id' => ['sometimes', 'nullable', 'exists:product_categories,id']

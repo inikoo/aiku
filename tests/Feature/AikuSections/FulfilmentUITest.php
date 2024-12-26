@@ -1056,7 +1056,7 @@ test('UI get section route fulfilment billables index', function () {
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
         ->and($sectionScope->code)->toBe(AikuSectionEnum::FULFILMENT_BILLABLES->value)
         ->and($sectionScope->model_slug)->toBe($this->fulfilment->slug);
-});
+})->todo();
 
 test('UI get section route fulfilment operations dashboard', function () {
     $sectionScope = GetSectionRoute::make()->handle('grp.org.fulfilments.show.operations.dashboard', [

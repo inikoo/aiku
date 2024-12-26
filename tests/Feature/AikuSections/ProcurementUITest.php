@@ -231,6 +231,7 @@ test('UI index org supplier products', function () {
 });
 
 test('UI show org supplier product', function () {
+    $this->withoutExceptionHandling();
     $response = $this->get(route('grp.org.procurement.org_supplier_products.show', [$this->organisation->slug, $this->orgSupplierProduct->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page

@@ -12,31 +12,33 @@ use App\Actions\Traits\WithEnumStats;
 use App\Enums\Goods\StockFamily\StockFamilyStateEnum;
 use App\Models\Goods\StockFamily;
 use App\Models\SysAdmin\Group;
-use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class GroupHydrateStockFamilies
+class GroupHydrateStockFamilies implements ShouldBeUnique
 {
     use AsAction;
     use WithEnumStats;
 
+    public int $jobUniqueFor = 3600;
 
     private Group $group;
+
     public function __construct(Group $group)
     {
         $this->group = $group;
     }
 
-    public function getJobMiddleware(): array
+    public function getJobUniqueId(Group $group): int
     {
-        return [(new WithoutOverlapping($this->group->id))->dontRelease()];
+        return $group->id;
     }
 
 
     public function handle(Group $group): void
     {
-        $stats  = [
+        $stats = [
             'number_stock_families' => $group->stockFamilies()->count(),
         ];
 
@@ -54,15 +56,12 @@ class GroupHydrateStockFamilies
         );
 
 
-
         $stats['number_current_stock_families'] =
             Arr::get($stats, 'number_stock_families_state_active', 0) +
             Arr::get($stats, 'number_stock_families_state_discontinuing', 0);
 
 
-
         $group->goodsStats()->update($stats);
-
     }
 
 

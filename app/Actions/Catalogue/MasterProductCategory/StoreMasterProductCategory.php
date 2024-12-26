@@ -10,7 +10,7 @@
 namespace App\Actions\Catalogue\MasterProductCategory;
 
 use App\Actions\GrpAction;
-use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
+use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Goods\MasterProductCategory;
 use App\Models\Goods\MasterShop;
@@ -34,7 +34,7 @@ class StoreMasterProductCategory extends GrpAction
             } elseif ($parent->type == ProductCategoryTypeEnum::SUB_DEPARTMENT) {
                 data_set($modelData, 'master_sub_department_id', $parent->id);
             }
-        } elseif ($parent instanceof MasterShop) {
+        } else {
             data_set($modelData, 'group_id', $parent->group_id);
             data_set($modelData, 'master_shop_id', $parent->id);
         }
@@ -48,9 +48,9 @@ class StoreMasterProductCategory extends GrpAction
 
     public function rules(): array
     {
-        $rules = [
-            'type'                 => ['required', Rule::enum(ProductCategoryTypeEnum::class)],
-            'code'                 => [
+        return [
+            'type'        => ['required', Rule::enum(MasterProductCategoryTypeEnum::class)],
+            'code'        => [
                 'required',
                 $this->strict ? 'max:32' : 'max:255',
                 new AlphaDashDot(),
@@ -62,14 +62,16 @@ class StoreMasterProductCategory extends GrpAction
                     ]
                 ),
             ],
-            'name'                 => ['required', 'max:250', 'string'],
-            'image_id'             => ['sometimes', 'required', 'exists:media,id'],
-            'state'                => ['sometimes', Rule::enum(ProductCategoryStateEnum::class)],
-            'description'          => ['sometimes', 'required', 'max:1500'],
-            'created_at'           => ['sometimes', 'date'],
+            'name'        => ['required', 'max:250', 'string'],
+            'image_id'    => ['sometimes', 'required', 'exists:media,id'],
+            'status'      => [
+                'sometimes',
+                'required',
+                'boolean',
+            ],
+            'description' => ['sometimes', 'required', 'max:1500'],
+            'created_at'  => ['sometimes', 'date'],
         ];
-
-        return $rules;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -86,7 +88,7 @@ class StoreMasterProductCategory extends GrpAction
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->strict         = $strict;
-        $group = $parent->group;
+        $group                = $parent->group;
 
         $this->initialisation($group, $modelData);
 
@@ -107,10 +109,5 @@ class StoreMasterProductCategory extends GrpAction
         return $this->handle(parent: $masterProductCategory, modelData: $this->validatedData);
     }
 
-    public function inSubDepartment(MasterShop $masterShop, MasterProductCategory $masterProductCategory, ActionRequest $request): MasterProductCategory
-    {
-        $this->initialisation($masterShop->group, $request);
 
-        return $this->handle(parent: $masterProductCategory, modelData: $this->validatedData);
-    }
 }

@@ -114,7 +114,7 @@ class OrgStockFamily extends Model
 
     public function timeSeries(): HasMany
     {
-        return $this->hasMany(OrgStockTimeSeries::class);
+        return $this->hasMany(OrgStockFamilyTimeSeries::class);
     }
 
 }

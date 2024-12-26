@@ -32,7 +32,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class OrgStockFamilyTimeSeries extends Model
 {
-    protected $table = 'stock_family_time_series';
+    protected $table = 'org_stock_family_time_series';
 
     protected $guarded = [];
 

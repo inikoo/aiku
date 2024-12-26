@@ -20,6 +20,7 @@ class GroupHydrateShops
 {
     use AsAction;
     use WithEnumStats;
+
     private Group $group;
 
     public function __construct(Group $group)

@@ -38,13 +38,13 @@ class ReindexStoredItem extends HydrateModel
     protected function loopAll(Command $command): void
     {
         $command->info("Reindex Stored Items");
-        $count = StoredItem::withTrashed()->count();
+        $count = StoredItem::count();
 
         $bar = $command->getOutput()->createProgressBar($count);
         $bar->setFormat('debug');
         $bar->start();
 
-        StoredItem::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+        StoredItem::chunk(1000, function (Collection $models) use ($bar) {
             foreach ($models as $model) {
                 $this->handle($model);
                 $bar->advance();
