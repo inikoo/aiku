@@ -9,13 +9,9 @@
 namespace App\Models\Goods;
 
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
-use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
-use App\Models\Catalogue\ShopStats;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasHistory;
-use App\Models\Traits\HasImage;
-use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Collection as LaravelCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,7 +20,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
-use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -38,23 +33,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $name
  * @property bool $status
  * @property ShopTypeEnum $type
- * @property int|null $image_id
  * @property array $data
- * @property array $settings
- * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property ShopStateEnum $state
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Group $group
- * @property-read \App\Models\Helpers\Media|null $image
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
  * @property-read LaravelCollection<int, \App\Models\Goods\MasterProductCategory> $masterProductCategories
- * @property-read LaravelCollection<int, \App\Models\Goods\MasterProduct> $masterProducts
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read \App\Models\Goods\MasterShopSalesIntervals|null $salesIntervals
- * @property-read ShopStats|null $stats
- * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
+ * @property-read \App\Models\Goods\MasterShopStats|null $stats
+ * @property-read LaravelCollection<int, \App\Models\Goods\MasterShopTimeSeries> $timeSeries
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShop newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShop newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShop onlyTrashed()
@@ -63,24 +51,20 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShop withoutTrashed()
  * @mixin \Eloquent
  */
-class MasterShop extends Model implements HasMedia, Auditable
+class MasterShop extends Model implements Auditable
 {
     use SoftDeletes;
     use HasSlug;
-    use HasUniversalSearch;
     use HasHistory;
-    use HasImage;
 
     protected $casts = [
         'data'            => 'array',
-        'settings'        => 'array',
         'type'            => ShopTypeEnum::class,
-        'state'           => ShopStateEnum::class,
+        'status'           => 'boolean',
     ];
 
     protected $attributes = [
         'data'     => '{}',
-        'settings' => '{}',
     ];
 
     protected $guarded = [];
@@ -93,14 +77,13 @@ class MasterShop extends Model implements HasMedia, Auditable
     public function generateTags(): array
     {
         return [
-            'catalogue'
+            'goods'
         ];
     }
 
     protected array $auditInclude = [
         'code',
         'name',
-        'state',
     ];
 
 
@@ -120,7 +103,7 @@ class MasterShop extends Model implements HasMedia, Auditable
 
     public function stats(): HasOne
     {
-        return $this->hasOne(ShopStats::class);
+        return $this->hasOne(MasterShopStats::class);
     }
 
     public function masterProductCategories(): HasMany
@@ -128,12 +111,12 @@ class MasterShop extends Model implements HasMedia, Auditable
         return $this->hasMany(MasterProductCategory::class);
     }
 
-    public function masterDepartments(): LaravelCollection
+    public function getMasterDepartments(): LaravelCollection
     {
         return $this->masterProductCategories()->where('type', ProductCategoryTypeEnum::DEPARTMENT)->get();
     }
 
-    public function masterSubDepartments(): LaravelCollection
+    public function getMasterSubDepartments(): LaravelCollection
     {
         return $this->masterProductCategories()->where('type', ProductCategoryTypeEnum::SUB_DEPARTMENT)->get();
     }
@@ -143,7 +126,7 @@ class MasterShop extends Model implements HasMedia, Auditable
         return $this->masterProductCategories()->where('type', ProductCategoryTypeEnum::FAMILY)->get();
     }
 
-    public function masterProducts(): BelongsToMany
+    public function getMasterProducts(): BelongsToMany
     {
         return $this->belongsToMany(MasterProduct::class, 'master_shop_has_master_products')
             ->withTimestamps();
@@ -154,5 +137,9 @@ class MasterShop extends Model implements HasMedia, Auditable
         return $this->hasOne(MasterShopSalesIntervals::class);
     }
 
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(MasterShopTimeSeries::class);
+    }
 
 }
