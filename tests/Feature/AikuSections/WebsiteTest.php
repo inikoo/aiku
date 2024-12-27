@@ -17,7 +17,6 @@ use App\Actions\Web\ExternalLink\StoreExternalLink;
 use App\Actions\Web\ModelHasWebBlocks\DeleteModelHasWebBlocks;
 use App\Actions\Web\ModelHasWebBlocks\StoreModelHasWebBlock;
 use App\Actions\Web\ModelHasWebBlocks\UpdateModelHasWebBlocks;
-use App\Actions\Web\Webpage\Hydrators\WebpageHydrateSnapshots;
 use App\Actions\Web\Webpage\Search\ReindexWebpageSearch;
 use App\Actions\Web\Webpage\StoreWebpage;
 use App\Actions\Web\Website\LaunchWebsite;
@@ -54,7 +53,7 @@ beforeEach(function () {
         $this->organisation,
         $this->user,
         $this->shop
-        ) = createShop();
+    ) = createShop();
     $this->warehouse  = createWarehouse();
     $this->fulfilment = createFulfilment($this->organisation);
 
@@ -181,12 +180,12 @@ test('store external link', function (ModelHasWebBlocks $modelHasWebBlock) {
 
     expect($externalLink)->toBeInstanceOf(ExternalLink::class)
         ->and($externalLink->group_id)->toBe($group->id);
-        //        ->and($externalLink->number_websites_shown)->toBe(1)
-        //        ->and($externalLink->number_webpages_shown)->toBe(1)
-        //        ->and($externalLink->number_web_blocks_shown)->toBe(1)
-        //        ->and($externalLink->number_websites_hidden)->toBe(0)
-        //        ->and($externalLink->number_webpages_hidden)->toBe(0)
-        //        ->and($externalLink->number_web_blocks_hidden)->toBe(0)
+    //        ->and($externalLink->number_websites_shown)->toBe(1)
+    //        ->and($externalLink->number_webpages_shown)->toBe(1)
+    //        ->and($externalLink->number_web_blocks_shown)->toBe(1)
+    //        ->and($externalLink->number_websites_hidden)->toBe(0)
+    //        ->and($externalLink->number_webpages_hidden)->toBe(0)
+    //        ->and($externalLink->number_web_blocks_hidden)->toBe(0)
 
 
     return $externalLink;

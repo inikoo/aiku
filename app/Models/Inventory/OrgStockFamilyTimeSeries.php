@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  *
  * @property int $id
- * @property int $stock_family_id
+ * @property int $org_stock_family_id
  * @property TimeSeriesFrequencyEnum $frequency
  * @property string|null $from
  * @property string|null $to

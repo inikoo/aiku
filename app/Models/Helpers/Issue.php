@@ -29,9 +29,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $date
  * @property string|null $description
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read Collection<int, Customer> $customer
  * @property-read Collection<int, Employee> $employee
  * @property-read Collection<int, Shipper> $shipper
