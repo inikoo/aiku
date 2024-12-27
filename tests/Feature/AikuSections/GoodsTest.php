@@ -368,6 +368,26 @@ test('update master shop', function (MasterShop $masterShop) {
 
 })->depends('create master shop');
 
+
+test('create master shop from command', function () {
+
+
+    $this->artisan('master_shop:create',[
+        'group' => $this->group->slug,
+        'type' => ShopTypeEnum::DROPSHIPPING,
+        'code' => 'ds',
+        'name' => 'Dropshipping class'
+    ])->assertExitCode(0);
+
+
+
+    $group= $this->group->refresh();
+
+    expect($group->goodsStats->number_master_shops)->toBe(2)
+        ->and($group->goodsStats->number_current_master_shops)->toBe(1);
+
+});
+
 test('create master product category', function (MasterShop $masterShop) {
     $masterProductCategory = StoreMasterProductCategory::make()->action(
         $masterShop,

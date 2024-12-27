@@ -54,7 +54,7 @@ class IndexUserActions extends GrpAction
 
         return $queryBuilder
             ->defaultSort('created_at')
-            ->allowedSorts(['ip_address','auditable_id', 'auditable_type', 'user_type', 'url','created_at'])
+            ->allowedSorts(['ip_address','created_at', 'user_name', 'old_values', 'new_values','event'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -74,11 +74,11 @@ class IndexUserActions extends GrpAction
                 ->withGlobalSearch()
                 ->withExportLinks($exportLinks)
                 ->column(key: 'expand', label: '', type: 'icon')
-                ->column(key: 'datetime', label: __('Date'), canBeHidden: false, sortable: true)
-                ->column(key: 'user_name', label: __('User'), canBeHidden: false, sortable: true)
-                ->column(key: 'old_values', label: __('Old Value'), canBeHidden: false, sortable: true)
-                ->column(key: 'new_values', label: __('New Value'), canBeHidden: false, sortable: true)
-                ->column(key: 'event', label: __('Action'), canBeHidden: false, sortable: true)
+                ->column(key: 'datetime', label: __('Date'), canBeHidden: false, sortable: false)
+                ->column(key: 'user_name', label: __('User'), canBeHidden: false, sortable: false)
+                ->column(key: 'old_values', label: __('Old Value'), canBeHidden: false, sortable: false)
+                ->column(key: 'new_values', label: __('New Value'), canBeHidden: false, sortable: false)
+                ->column(key: 'event', label: __('Action'), canBeHidden: false, sortable: false)
                 ->defaultSort('ip_address');
         };
     }
