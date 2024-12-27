@@ -12,5 +12,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::name('user.')->prefix('user/{user:id}')->group(function () {
     Route::patch('', UpdateUser::class)->name('update');
-    Route::patch('organisation/{organisation:id}', UpdateUsersPseudoJobPositions::class)->name('pseudo-job-positions.updated')->withoutScopedBindings();
+    Route::patch('organisation/{organisation:id}', UpdateUsersPseudoJobPositions::class)->name('pseudo-job-positions.update')->withoutScopedBindings();
 });
