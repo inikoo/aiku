@@ -10,7 +10,7 @@ namespace App\Actions\Fulfilment\Fulfilment;
 
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Rules\WithShopRules;
+use App\Actions\Traits\Rules\WithStoreShopRules;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
@@ -19,7 +19,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreFulfilmentFromUI extends OrgAction
 {
-    use WithShopRules;
+    use WithStoreShopRules;
 
 
     public function authorize(ActionRequest $request): bool

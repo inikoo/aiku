@@ -12,10 +12,13 @@ use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Inventory\HasInventoryAuthorisation;
 use App\Actions\Inventory\UI\ShowInventoryDashboard;
+use App\Actions\Ordering\PurgedOrder\UI\IndexPurgedOrders;
 use App\Actions\OrgAction;
+use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Enums\UI\Procurement\OrgStockTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\OrgStockResource;
+use App\Http\Resources\Procurement\PurchaseOrdersResource;
 use App\Models\Goods\StockFamily;
 use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
@@ -102,13 +105,17 @@ class ShowOrgStock extends OrgAction
                     fn () => GetOrgStockShowcase::run($this->warehouse, $orgStock)
                     : Inertia::lazy(fn () => GetOrgStockShowcase::run($this->warehouse, $orgStock)),
 
+                OrgStockTabsEnum::PURCHASE_ORDERS->value => $this->tab == OrgStockTabsEnum::PURCHASE_ORDERS->value ?
+                    fn () => PurchaseOrdersResource::collection(IndexPurchaseOrders::run($orgStock))
+                    : Inertia::lazy(fn () => PurchaseOrdersResource::collection(IndexPurchaseOrders::run($orgStock))),
+
                 OrgStockTabsEnum::HISTORY->value => $this->tab == OrgStockTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($orgStock))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($orgStock)))
 
 
             ]
-        )->table();
+        )->table(IndexPurchaseOrders::make()->tableStructure($orgStock));
     }
 
 

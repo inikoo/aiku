@@ -35,19 +35,19 @@ class FetchAuroraShops extends FetchAuroraAction
 
 
             if ($shop = Shop::where('source_id', $shopData['shop']['source_id'])->first()) {
-                try {
-                    $shop = UpdateShop::make()->action(
-                        shop: $shop,
-                        modelData: $shopData['shop'],
-                        hydratorsDelay: $this->hydratorsDelay,
-                        strict: false,
-                        audit: false
-                    );
-                } catch (Exception|Throwable $e) {
-                    $this->recordError($organisationSource, $e, $shopData['shop'], 'Shop', 'update');
-
-                    return null;
-                }
+                // try {
+                $shop = UpdateShop::make()->action(
+                    shop: $shop,
+                    modelData: $shopData['shop'],
+                    hydratorsDelay: $this->hydratorsDelay,
+                    strict: false,
+                    audit: false
+                );
+                //                } catch (Exception|Throwable $e) {
+                //                    $this->recordError($organisationSource, $e, $shopData['shop'], 'Shop', 'update');
+                //
+                //                    return null;
+                //                }
 
                 if ($shopData['tax_number']) {
                     if (!$shop->taxNumber) {
@@ -66,7 +66,7 @@ class FetchAuroraShops extends FetchAuroraAction
                 $shop = StoreShop::make()->action(
                     organisation: $organisationSource->getOrganisation(),
                     modelData: $shopData['shop'],
-                    hydratorsDelay: $this->hydratorsDelay,
+                    hydratorsDelay: 5,
                     strict: false,
                     audit: false
                 );
