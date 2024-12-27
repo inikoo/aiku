@@ -16,8 +16,8 @@ return new class () extends Migration {
             $table->decimal('task_energy_cost');
             $table->decimal('task_other_cost');
             $table->decimal('task_work_cost');
-            $table->softDeletesTz();
             $table->timestampsTz();
+            $table->softDeletesTz();
         });
     }
 

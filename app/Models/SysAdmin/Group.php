@@ -55,6 +55,7 @@ use App\Models\Fulfilment\RecurringBill;
 use App\Models\Goods\Ingredient;
 use App\Models\Goods\MasterProduct;
 use App\Models\Goods\MasterProductCategory;
+use App\Models\Goods\MasterShop;
 use App\Models\Goods\Stock;
 use App\Models\Goods\StockFamily;
 use App\Models\Goods\TradeUnit;
@@ -124,9 +125,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $data
  * @property array $settings
  * @property int $number_organisations
- * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read LaravelCollection<int, DispatchedEmail> $DispatchedEmails
  * @property-read \App\Models\SysAdmin\GroupAccountingStats|null $accountingStats
  * @property-read LaravelCollection<int, Agent> $agents
@@ -178,6 +179,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, ManufactureTask> $manufactureTasks
  * @property-read LaravelCollection<int, MasterProductCategory> $masterProductCategories
  * @property-read LaravelCollection<int, MasterProduct> $masterProducts
+ * @property-read LaravelCollection<int, MasterShop> $masterShops
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read LaravelCollection<int, OfferCampaign> $offerCampaigns
  * @property-read LaravelCollection<int, Offer> $offers
@@ -769,6 +771,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function uploads(): HasMany
     {
         return $this->hasMany(Upload::class);
+    }
+
+    public function masterShops(): HasMany
+    {
+        return $this->hasMany(MasterShop::class);
     }
 
     public function masterProducts(): HasMany

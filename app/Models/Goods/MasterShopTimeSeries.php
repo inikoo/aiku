@@ -2,11 +2,11 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 26 Dec 2024 13:24:34 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Fri, 27 Dec 2024 12:11:25 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\Inventory;
+namespace App\Models\Goods;
 
 use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use Illuminate\Database\Eloquent\Model;
@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  *
  * @property int $id
- * @property int $org_stock_family_id
+ * @property int $master_shop_id
  * @property TimeSeriesFrequencyEnum $frequency
  * @property string|null $from
  * @property string|null $to
@@ -24,15 +24,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $number_records
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\OrgStockFamilyTimeSeriesRecord> $records
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStockFamilyTimeSeries newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStockFamilyTimeSeries newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStockFamilyTimeSeries query()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Goods\MasterShopTimeSeriesRecord> $records
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShopTimeSeries newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShopTimeSeries newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShopTimeSeries query()
  * @mixin \Eloquent
  */
-class OrgStockFamilyTimeSeries extends Model
+class MasterShopTimeSeries extends Model
 {
-    protected $table = 'org_stock_family_time_series';
+    protected $table = 'master_shop_time_series';
 
     protected $guarded = [];
 
@@ -48,6 +48,7 @@ class OrgStockFamilyTimeSeries extends Model
 
     public function records(): HasMany
     {
-        return $this->hasMany(OrgStockFamilyTimeSeriesRecord::class);
+        return $this->hasMany(MasterShopTimeSeriesRecord::class);
     }
+
 }

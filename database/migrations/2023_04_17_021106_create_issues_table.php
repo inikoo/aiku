@@ -20,8 +20,8 @@ return new class () extends Migration {
             $table->date('date');
             $table->text('description')->nullable();
             $table->jsonb('data');
-            $table->softDeletesTz();
             $table->timestampsTz();
+            $table->softDeletesTz();
         });
     }
 

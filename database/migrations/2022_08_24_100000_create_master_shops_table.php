@@ -22,11 +22,9 @@ return new class () extends Migration {
             $table->string('name', 255)->nullable();
             $table->boolean('status')->index()->default(true);
             $table->string('type')->index();
-            $table->unsignedInteger('image_id')->nullable();
             $table->jsonb('data');
-            $table->jsonb('settings');
-            $table->softDeletesTz();
             $table->timestampsTz();
+            $table->softDeletesTz();
         });
     }
 

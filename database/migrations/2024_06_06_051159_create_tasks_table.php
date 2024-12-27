@@ -31,8 +31,8 @@ return new class () extends Migration {
             $table->text('description')->nullable()->fulltext();
             $table->dateTimeTz('start_date')->nullable();
             $table->dateTimeTz('complete_date')->nullable();
-            $table->softDeletesTz();
             $table->timestampsTz();
+            $table->softDeletesTz();
         });
     }
 

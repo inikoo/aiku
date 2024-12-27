@@ -16,11 +16,20 @@ trait HasGoodsStats
 {
     public function goodsStatsFields(Blueprint $table): Blueprint
     {
+        $table = $this->masterShopsStatsFields($table);
         $table = $this->stockTradeUnitsFields($table);
         $table = $this->stockFamiliesStatsFields($table);
         $table = $this->stockStatsFields($table);
 
         return $this->ingredientsFields($table);
+    }
+
+    public function masterShopsStatsFields(Blueprint $table): Blueprint
+    {
+        $table->unsignedInteger('number_master_shops')->default(0);
+        $table->unsignedInteger('number_current_master_shops')->default(0)->comment('status=true');
+
+        return $table;
     }
 
     public function stockTradeUnitsFields(Blueprint $table): Blueprint
@@ -32,9 +41,6 @@ trait HasGoodsStats
         $table->unsignedInteger('number_trade_units_with_marketing_weight')->default(0);
         $table->unsignedInteger('number_trade_units_with_dimensions')->default(0);
         $table->unsignedInteger('number_trade_units_with_images')->default(0);
-
-
-
         return $table;
     }
 

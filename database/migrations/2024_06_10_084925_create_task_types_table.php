@@ -13,8 +13,8 @@ return new class () extends Migration {
             $table->string('code', 64)->index()->collation('und_ns');
             $table->string('name');
             $table->text('description')->nullable()->fulltext();
-            $table->softDeletesTz();
             $table->timestampsTz();
+            $table->softDeletesTz();
         });
     }
 
