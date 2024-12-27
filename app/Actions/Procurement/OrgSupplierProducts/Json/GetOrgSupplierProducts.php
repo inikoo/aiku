@@ -19,6 +19,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
@@ -38,11 +39,17 @@ class GetOrgSupplierProducts extends OrgAction
         $queryBuilder = QueryBuilder::for(OrgSupplierProduct::class);
         $queryBuilder->leftJoin('supplier_products', 'supplier_products.id', 'org_supplier_products.supplier_product_id')
                         ->leftJoin('stock_has_supplier_products', 'stock_has_supplier_products.supplier_product_id', '=', 'supplier_products.id')
-                        ->leftJoin('stocks', function ($join) {
-                            $join->on('stocks.id', '=', 'stock_has_supplier_products.stock_id')
-                                ->where('stocks.available', true);
-                        })
-                        ->leftJoin('org_stocks', 'org_stocks.stock_id', '=', 'stocks.id');
+                        ->leftJoinSub(
+                            DB::table('stocks')
+                                ->where('available', true)
+                                ->orderBy('created_at', 'asc')
+                                ->limit(1),
+                            'first_stock',
+                            'first_stock.id',
+                            '=',
+                            'stock_has_supplier_products.stock_id'
+                        )
+                        ->leftJoin('org_stocks', 'org_stocks.stock_id', '=', 'first_stock.id');
         $queryBuilder->leftjoin('suppliers', 'supplier_products.supplier_id', 'suppliers.id');
         $queryBuilder->leftJoin('purchase_order_transactions', function ($join) use ($purchaseOrder) {
             $join->on('purchase_order_transactions.org_supplier_product_id', '=', 'org_supplier_products.id')
@@ -75,7 +82,7 @@ class GetOrgSupplierProducts extends OrgAction
                 'purchase_order_transactions.id as purchase_order_transaction_id',
                 'purchase_orders.id as purchase_order_id',
                 'org_stocks.id as org_stock_id',
-                'stocks.id as stock_id',
+                'first_stock.id as stock_id',
                 'suppliers.name as supplier_name'
             ])
             ->allowedSorts(['code', 'name'])
