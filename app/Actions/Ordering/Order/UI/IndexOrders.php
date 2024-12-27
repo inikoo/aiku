@@ -494,7 +494,7 @@ class IndexOrders extends OrgAction
                     ]
                 )
             ),
-            'grp.overview.order.orders.index' =>
+            'grp.overview.ordering.orders.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(
                     $routeParameters
