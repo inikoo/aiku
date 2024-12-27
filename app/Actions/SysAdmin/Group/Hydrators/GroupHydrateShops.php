@@ -38,7 +38,11 @@ class GroupHydrateShops
     public function handle(Group $group): void
     {
         $stats = [
-            'number_shops' => DB::table('shops')->where('group_id', $group->id)->count()
+            'number_shops' => DB::table('shops')->where('group_id', $group->id)->count(),
+            'number_current_shops' => DB::table('shops')->where('group_id', $group->id)->whereIn('state', [
+                ShopStateEnum::OPEN,
+                ShopStateEnum::CLOSING_DOWN,
+            ])->count()
         ];
 
         $stats = array_merge(

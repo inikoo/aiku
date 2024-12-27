@@ -10,7 +10,7 @@ namespace App\Actions\Fulfilment\Fulfilment;
 
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\User\UserAddRoles;
-use App\Actions\Traits\Rules\WithShopRules;
+use App\Actions\Traits\Rules\WithStoreShopRules;
 use App\Actions\Utils\Abbreviate;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
@@ -25,7 +25,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreFulfilment extends OrgAction
 {
-    use WithShopRules;
+    use WithStoreShopRules;
 
     public function handle(Shop $shop, array $modelData): Fulfilment
     {

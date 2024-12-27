@@ -8,11 +8,13 @@
 
 namespace App\Actions\Catalogue\Shop;
 
+use App\Actions\Goods\MasterShop\Hydrators\MasterShopHydrateShops;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateUniversalSearch;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateShops;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateShops;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
@@ -31,6 +33,8 @@ class UpdateShop extends OrgAction
 {
     use WithActionUpdate;
     use WithModelAddressActions;
+    use WithNoStrictRules;
+
 
     public function authorize(ActionRequest $request): bool
     {
@@ -43,6 +47,8 @@ class UpdateShop extends OrgAction
 
     public function handle(Shop $shop, array $modelData): Shop
     {
+        $oldMasterShop = $shop->masterShop;
+
         if (Arr::exists($modelData, 'address')) {
             $addressData = Arr::get($modelData, 'address');
             Arr::forget($modelData, 'address');
@@ -82,11 +88,26 @@ class UpdateShop extends OrgAction
 
         $shop    = $this->update($shop, $modelData, ['data', 'settings']);
         $changes = $shop->getChanges();
+        $shop->refresh();
 
-        if (Arr::hasAny($changes, ['state'])) {
+        if (Arr::hasAny($changes, ['state', 'type'])) {
             GroupHydrateShops::dispatch($shop->group)->delay($this->hydratorsDelay);
             OrganisationHydrateShops::dispatch($shop->organisation)->delay($this->hydratorsDelay);
+            if ($shop->master_shop_id) {
+                MasterShopHydrateShops::dispatch($shop->masterShop)->delay($this->hydratorsDelay);
+            }
         }
+
+        if (Arr::hasAny($changes, ['master_shop_id'])) {
+            if ($shop->master_shop_id) {
+                MasterShopHydrateShops::dispatch($shop->masterShop)->delay($this->hydratorsDelay);
+            }
+            if ($oldMasterShop) {
+                MasterShopHydrateShops::dispatch($oldMasterShop)->delay($this->hydratorsDelay);
+            }
+        }
+
+
         if (count($changes) > 0) {
             ShopHydrateUniversalSearch::dispatch($shop);
         }
@@ -98,11 +119,18 @@ class UpdateShop extends OrgAction
     public function rules(): array
     {
         $rules = [
+            'master_shop_id' => [
+                'sometimes',
+                'nullable',
+                Rule::Exists('master_shops', 'id')->where('group_id', $this->organisation->group_id)
+
+            ],
+
             'name'                     => ['sometimes', 'required', 'string', 'max:255'],
             'code'                     => [
                 'sometimes',
                 'required',
-                'between:2,4',
+                'max:8',
                 'alpha_dash',
                 new IUnique(
                     table: 'shops',
@@ -139,7 +167,7 @@ class UpdateShop extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['last_fetched_at'] = ['sometimes', 'date'];
+            $rules = $this->noStrictUpdateRules($rules);
         }
 
         return $rules;

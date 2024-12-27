@@ -40,6 +40,7 @@ use App\Models\Dispatching\Picking;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Goods\MasterShop;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
@@ -161,6 +162,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Issue> $issues
  * @property-read LaravelCollection<int, Mailshot> $mailshots
  * @property-read \App\Models\Catalogue\ShopMailshotsIntervals|null $mailshotsIntervals
+ * @property-read MasterShop|null $masterShop
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read LaravelCollection<int, OfferCampaign> $offerCampaigns
  * @property-read LaravelCollection<int, OfferComponent> $offerComponents
@@ -377,6 +379,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function masterShop(): BelongsTo
+    {
+        return $this->belongsTo(MasterShop::class);
     }
 
     public function currency(): BelongsTo
