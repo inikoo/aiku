@@ -12,7 +12,6 @@ use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Inventory\HasInventoryAuthorisation;
 use App\Actions\Inventory\UI\ShowInventoryDashboard;
-use App\Actions\Ordering\PurgedOrder\UI\IndexPurgedOrders;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Enums\UI\Procurement\OrgStockTabsEnum;
