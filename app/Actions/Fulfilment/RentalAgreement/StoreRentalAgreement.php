@@ -202,10 +202,10 @@ class StoreRentalAgreement extends OrgAction
 
     public function htmlResponse(RentalAgreement $rentalAgreement): Response
     {
-        return Redirect::route(route('grp.org.fulfilments.show.crm.customers.show', [
+        return Redirect::route('grp.org.fulfilments.show.crm.customers.show', [
             'organisation'       => $rentalAgreement->organisation->slug,
             'fulfilment'         => $rentalAgreement->fulfilment->slug,
             'fulfilmentCustomer' => $rentalAgreement->fulfilmentCustomer->slug
-        ]));
+        ]);
     }
 }
