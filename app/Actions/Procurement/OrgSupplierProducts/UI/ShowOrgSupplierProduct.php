@@ -102,8 +102,8 @@ class ShowOrgSupplierProduct extends OrgAction
                 //     : Inertia::lazy(fn () => SupplierProductResource::collection(IndexOrgSupplierProducts::run($orgSupplierProduct))),
 
                 OrgSupplierProductTabsEnum::PURCHASE_ORDERS->value => $this->tab == OrgSupplierProductTabsEnum::PURCHASE_ORDERS->value ?
-                    fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($orgSupplierProduct->orgSupplier))
-                    : Inertia::lazy(fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($orgSupplierProduct->orgSupplier))),
+                    fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($orgSupplierProduct))
+                    : Inertia::lazy(fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($orgSupplierProduct))),
 
                 OrgSupplierProductTabsEnum::HISTORY->value => $this->tab == OrgSupplierProductTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($orgSupplierProduct))
@@ -117,7 +117,7 @@ class ShowOrgSupplierProduct extends OrgAction
         //         prefix: OrgSupplierProductTabsEnum::SUPPLIER_PRODUCTS->value
         //     )
         // )
-            ->table(IndexPurchaseOrders::make()->tableStructure(prefix: OrgSupplierProductTabsEnum::PURCHASE_ORDERS->value))
+            ->table(IndexPurchaseOrders::make()->tableStructure(parent:$orgSupplierProduct, prefix: OrgSupplierProductTabsEnum::PURCHASE_ORDERS->value))
             ->table(IndexHistory::make()->tableStructure(prefix: OrgSupplierProductTabsEnum::HISTORY->value));
     }
 
