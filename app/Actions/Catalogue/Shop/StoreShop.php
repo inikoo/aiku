@@ -13,6 +13,7 @@ use App\Actions\Catalogue\Shop\Seeders\SeedShopOfferCampaigns;
 use App\Actions\Catalogue\Shop\Seeders\SeedShopOutboxes;
 use App\Actions\Catalogue\Shop\Seeders\SeedShopPermissions;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilment;
+use App\Actions\Goods\MasterShop\Hydrators\MasterShopHydrateShops;
 use App\Actions\Helpers\Currency\SetCurrencyHistoricFields;
 use App\Actions\Helpers\Query\Seeders\ProspectQuerySeeder;
 use App\Actions\OrgAction;
@@ -22,7 +23,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateShops;
 use App\Actions\SysAdmin\Organisation\Seeders\SeedJobPositions;
 use App\Actions\SysAdmin\Organisation\SetIconAsShopLogo;
 use App\Actions\SysAdmin\User\UserAddRoles;
-use App\Actions\Traits\Rules\WithShopRules;
+use App\Actions\Traits\Rules\WithStoreShopRules;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -48,7 +49,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreShop extends OrgAction
 {
-    use WithShopRules;
+    use WithStoreShopRules;
     use WithModelAddressActions;
 
     public function authorize(ActionRequest $request): bool
@@ -200,6 +201,10 @@ class StoreShop extends OrgAction
         SetIconAsShopLogo::dispatch($shop)->delay($this->hydratorsDelay);
 
         SeedShopOfferCampaigns::run($shop);
+
+        if ($shop->master_shop_id) {
+            MasterShopHydrateShops::dispatch($shop->masterShop)->delay($this->hydratorsDelay);
+        }
 
 
         return $shop;
