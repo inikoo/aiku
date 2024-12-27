@@ -219,7 +219,7 @@ class IndexPurges extends OrgAction
                     ]
                 )
             ),
-            'grp.overview.order.purges.index' =>
+            'grp.overview.ordering.purges.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(
                     $routeParameters

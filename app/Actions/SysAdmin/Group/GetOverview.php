@@ -71,37 +71,37 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Post Rooms'),
                     'icon'  => 'fal fa-booth-curtain',
-                    'route' => route('grp.overview.comms.post-rooms.index'),
+                    'route' => '',
                     'count' => $group->commsStats->number_post_rooms ?? 0
                 ],
                 [
                     'name'  => __('Outboxes'),
                     'icon'  => 'fal fa-inbox-out',
-                    'route' => 'grp.overview.comms.outboxes-rooms.index',
+                    'route' => '',
                     'count' => $group->commsStats->number_outboxes ?? 0
                 ],
                 [
                     'name'  => __('Newsletters'),
                     'icon'  => 'fal fa-newspaper',
-                    'route' => 'grp.overview.marketing.newsletters.index',
+                    'route' => '',
                     'count' => $group->commsStats->number_mailshots_type_newsletter ?? 0
                 ],
                 [
                     'name'  => __('Marketing Mailshots'),
                     'icon'  => 'fal fa-mail-bulk',
-                    'route' => 'grp.overview.marketing.mailshots.index',//todo change to correct route
+                    'route' => '',
                     'count' => $group->commsStats->number_mailshots_type_marketing ?? 0
                 ],
                 [
                     'name'  => __('Prospects mailshots'),
                     'icon'  => 'fal fa-phone-volume',
-                    'route' => 'grp.overview.marketing.mailshots.index',//todo change to correct route
+                    'route' => '',
                     'count' => $group->commsStats->number_mailshots_type_invite ?? 0
                 ],
                 [
                     'name'  => __('Abandoned Cart mailshots'),
                     'icon'  => 'fal fa-scroll-old',
-                    'route' => 'grp.overview.marketing.mailshots.index',//todo change to correct route
+                    'route' => '',
                     'count' => $group->commsStats->number_mailshots_type_abandoned_cart ?? 0
                 ],
                 [
@@ -128,25 +128,25 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Departments'),
                     'icon'  => 'fal fa-folder-tree',
-                    'route' => 'grp.overview.catalogue.departments.index',
+                    'route' => route('grp.overview.catalogue.departments.index'),
                     'count' => $group->catalogueStats->number_departments ?? 0
                 ],
                 [
                     'name'  => __('Families'),
                     'icon'  => 'fal fa-folder',
-                    'route' => 'grp.overview.catalogue.families.index',
+                    'route' => route('grp.overview.catalogue.families.index'),
                     'count' => $group->catalogueStats->number_families ?? 0
                 ],
                 [
                     'name'  => __('Products'),
                     'icon'  => 'fal fa-boxes',
-                    'route' => 'grp.overview.catalogue.products.index',
+                    'route' => route('grp.overview.catalogue.products.index'),
                     'count' => $group->catalogueStats->number_products ?? 0
                 ],
                 [
                     'name'  => __('Collections'),
                     'icon'  => 'fal fa-album-collection',
-                    'route' => 'grp.overview.catalogue.collections.index',
+                    'route' => route('grp.overview.catalogue.collections.index'),
                     'count' => $group->catalogueStats->number_collections ?? 0
                 ],
             ],
@@ -166,13 +166,13 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Charges'),
                     'icon'  => 'fal fa-charging-station',
-                    'route' => 'grp.overview.billables.charges.index',
+                    'route' => route('grp.overview.billables.charges.index'),
                     'count' => $group->catalogueStats->number_assets_type_charge ?? 0
                 ],
                 [
                     'name'  => __('Services'),
                     'icon'  => 'fal fa-concierge-bell',
-                    'route' => 'grp.overview.billables.services.index',
+                    'route' => route('grp.overview.billables.services.index'),
                     'count' => $group->catalogueStats->number_services ?? 0
                 ],
             ],
@@ -180,13 +180,13 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Campaigns'),
                     'icon'  => 'fal fa-comment-dollar',
-                    'route' => 'grp.overview.offer.campaigns.index',
+                    'route' => route('grp.overview.offer.campaigns.index'),
                     'count' => $group->discountsStats->number_offer_campaigns ?? 0
                 ],
                 [
                     'name'  => __('Offers'),
                     'icon'  => 'fal fa-badge-percent',
-                    'route' => 'grp.overview.offer.offers.index',
+                    'route' => route('grp.overview.offer.offers.index'),
                     'count' => $group->discountsStats->number_offers ?? 0
                 ],
             ],
@@ -200,13 +200,13 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Webpages'),
                     'icon'  => 'fal fa-browser',
-                    'route' => 'grp.overview.web.webpages.index',
+                    'route' => route('grp.overview.web.webpages.index'),
                     'count' => $group->webStats->number_webpages ?? 0
                 ],
                 [
                     'name'  => __('Banners'),
                     'icon'  => 'fal fa-sign',
-                    'route' => 'grp.overview.web.banners.index',
+                    'route' => route('grp.overview.web.banners.index'),
                     'count' => $group->webStats->number_banners ?? 0
                 ],
             ],
@@ -214,19 +214,19 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Customers'),
                     'icon'  => 'fal fa-user',
-                    'route' => 'grp.overview.crm.customers.index',
+                    'route' => route('grp.overview.crm.customers.index'),
                     'count' => $group->crmStats->number_customers ?? 0
                 ],
                 [
                     'name'  => __('Prospects'),
                     'icon'  => 'fal fa-user-plus',
-                    'route' => 'grp.overview.crm.prospects.index',
+                    'route' => route('grp.overview.crm.prospects.index'),
                     'count' => $group->crmStats->number_prospects ?? 0
                 ],
                 [
                     'name'  => __('Web Users'),
                     'icon'  => 'fal fa-user-circle',
-                    'route' => 'grp.overview.crm.web-users.index',
+                    'route' => '',
                     'count' => $group->crmStats->number_web_users ?? 0
                 ],
             ],
@@ -234,25 +234,25 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Orders'),
                     'icon'  => 'fal fa-shopping-cart',
-                    'route' => 'grp.overview.order.orders.index',
+                    'route' => route('grp.overview.ordering.orders.index'),
                     'count' => $group->orderingStats->number_orders ?? 0
                 ],
                 [
                     'name'  => __('Purges'),
                     'icon'  => 'fal fa-trash-alt',
-                    'route' => 'grp.overview.order.purges.index',
+                    'route' => '',
                     'count' => $group->orderingStats->number_purges ?? 0
                 ],
                 [
                     'name'  => __('Invoices'),
                     'icon'  => 'fal fa-file-invoice-dollar',
-                    'route' => 'grp.overview.accounting.invoices.index',
+                    'route' => '',
                     'count' => $group->accountingStats->number_invoices ?? 0
                 ],
                 [
                     'name'  => __('Delivery Notes'),
                     'icon'  => 'fal fa-truck',
-                    'route' => 'grp.overview.order.orders.index',
+                    'route' => '',
                     'count' => $group->orderingStats->number_delivery_notes ?? 0
                 ],
                 [
@@ -348,25 +348,25 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Agents'),
                     'icon'  => 'fal fa-people-arrows',
-                    'route' => 'grp.overview.procurement.agents.index',
+                    'route' => route('grp.overview.procurement.agents.index'),
                     'count' => $group->supplyChainStats->number_agents ?? 0
                 ],
                 [
                     'name'  => __('Suppliers'),
                     'icon'  => 'fal fa-person-dolly',
-                    'route' => 'grp.overview.procurement.suppliers.index',
+                    'route' => route('grp.overview.procurement.suppliers.index'),
                     'count' => $group->supplyChainStats->number_suppliers ?? 0
                 ],
                 [
                     'name'  => __('Supplier Products'),
                     'icon'  => 'fal fa-users-class',
-                    'route' => 'grp.overview.procurement.supplier-products.index',
+                    'route' => route('grp.overview.procurement.supplier-products.index'),
                     'count' => $group->supplyChainStats->number_supplier_products ?? 0
                 ],
                 [
                     'name'  => __('Purchase Orders'),
                     'icon'  => 'fal fa-clipboard-list',
-                    'route' => 'grp.overview.procurement.purchase-orders.index',
+                    'route' => route('grp.overview.procurement.purchase-orders.index'),
                     'count' => $group->supplyChainStats->number_purchase_orders ?? 0
                 ],
             ],
@@ -374,19 +374,19 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Accounts'),
                     'icon'  => 'fal fa-money-check-alt',
-                    'route' => 'grp.overview.accounting.payment-accounts.index',
+                    'route' => route('grp.overview.accounting.payment-accounts.index'),
                     'count' => $group->accountingStats->number_payment_accounts ?? 0
                 ],
                 [
                     'name'  => __('Payments'),
                     'icon'  => 'fal fa-coin',
-                    'route' => 'grp.overview.accounting.payments.index',
+                    'route' => route('grp.overview.accounting.payments.index'),
                     'count' => $group->accountingStats->number_payments ?? 0
                 ],
                 [
                     'name'  => __('Customer Balances'),
                     'icon'  => 'fal fa-piggy-bank',
-                    'route' => 'grp.overview.accounting.customer-balances.index',
+                    'route' => route('grp.overview.accounting.customer-balances.index'),
                     'count' => $group->accountingStats->number_customers_with_balances ?? 0
                 ],
             ],
@@ -394,31 +394,31 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Workplaces'),
                     'icon'  => 'fal fa-building',
-                    'route' => 'grp.overview.human-resources.workplaces.index',
+                    'route' => '',
                     'count' => $group->humanResourcesStats->number_workplaces ?? 0
                 ],
                 [
                     'name'  => __('Responsibilities'),
                     'icon'  => 'fal fa-clipboard-list-check',
-                    'route' => 'grp.overview.human-resources.responsibilities.index',
+                    'route' => '',
                     'count' => $group->humanResourcesStats->number_job_positions ?? 0
                 ],
                 [
                     'name'  => __('Employees'),
                     'icon'  => 'fal fa-user-hard-hat',
-                    'route' => 'grp.overview.accounting.employees.index',
+                    'route' => '',
                     'count' => $group->humanResourcesStats->number_employees ?? 0
                 ],
                 [
                     'name'  => __('Clocking Machines'),
                     'icon'  => 'fal fa-chess-clock',
-                    'route' => 'grp.overview.accounting.clocking-machines.index',
+                    'route' => '',
                     'count' => $group->humanResourcesStats->number_clocking_machines ?? 0
                 ],
                 [
                     'name'  => __('Timesheets'),
                     'icon'  => 'fal fa-stopwatch',
-                    'route' => 'grp.overview.accounting.timesheets.index',
+                    'route' => '',
                     'count' => $group->humanResourcesStats->number_timesheets ?? 0
                 ],
             ],
