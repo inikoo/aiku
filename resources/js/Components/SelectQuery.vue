@@ -260,8 +260,50 @@ defineExpose({
     </Multiselect>
 </template>
 
-<style src="@vueform/multiselect/themes/default.css"></style>
+<style scoped>
+:deep(.multiselect-single-label) {
+    padding-right: calc(1.5rem + var(--ms-px, .035rem)*3) !important;
+}
 
+:deep(.multiselect-search) {
+    background: transparent !important;
+}
 
-<style src="@vueform/multiselect/themes/default.css"></style>
+/* For Multiselect */
+:deep(.multiselect-option.is-selected),
+:deep(.multiselect-option.is-selected.is-pointed) {
+    background-color: v-bind('layout?.app?.theme[4]') !important;
+    color: v-bind('layout?.app?.theme[5]') !important;
+}
 
+:deep(.multiselect-option.is-pointed) {
+	background-color: v-bind('layout?.app?.theme[4] + "15"') !important;
+    color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4]} 50%, black)`') !important;
+}
+
+:deep(.multiselect-option.is-disabled) {
+	@apply bg-gray-300 text-gray-500 !important;
+}
+
+:deep(.multiselect.is-active) {
+	border: var(--ms-border-width-active, var(--ms-border-width, 1px)) solid
+		var(--ms-border-color-active, var(--ms-border-color, #787878)) !important;
+	box-shadow: 0 0 0 var(--ms-ring-width, 3px) var(--ms-ring-color, rgba(42, 42, 42, 0.188)) !important;
+	/* box-shadow: 4px 0 0 0 calc(4px + 4px) rgba(42, 42, 42, 1); */
+}
+
+:deep(.multiselect-dropdown) {
+    max-height: 250px !important;
+}
+:deep(.multiselect-tags-search) {
+    @apply focus:outline-none focus:ring-0
+}
+
+:deep(.multiselect-tags) {
+    @apply m-0.5
+}
+
+:deep(.multiselect-tag-remove-icon) {
+    @apply text-lime-800
+}
+</style>

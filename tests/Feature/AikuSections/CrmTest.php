@@ -33,6 +33,7 @@ use App\Actions\CRM\Prospect\Search\ReindexProspectSearch;
 use App\Actions\CRM\Prospect\StoreProspect;
 use App\Actions\CRM\Prospect\Tags\SyncTagsProspect;
 use App\Actions\CRM\Prospect\UpdateProspect;
+use App\Actions\CRM\WebUser\HydrateWebUser;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Web\Website\StoreWebsite;
@@ -417,6 +418,12 @@ test('hydrate customers', function (Customer $customer) {
     HydrateCustomers::run($customer);
     $this->artisan('hydrate:customers')->assertExitCode(0);
 })->depends('create customer');
+
+test('hydrate web user', function (Customer $customer) {
+    $webUser = $customer->webUsers->first();
+    HydrateWebUser::run($webUser);
+    $this->artisan('hydrate:web_user')->assertExitCode(0);
+})->depends('create web user');
 
 test('store poll', function () {
     $poll = StorePoll::make()->action(

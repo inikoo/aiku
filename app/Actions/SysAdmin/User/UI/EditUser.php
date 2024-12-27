@@ -20,10 +20,12 @@ use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Enums\Production\Production\ProductionStateEnum;
 use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\HumanResources\JobPosition;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -201,9 +203,15 @@ class EditUser extends InertiaAction
                                     ];
                                 })->toArray(),
                                 // "value"             => $permissions,
-                                "value"             => Organisation::where('type', '=', 'shop')->get()->flatMap(function (Organisation $organisation) {
+                                "value"             => $user->pseudoJobPositions->flatMap(function (JobPosition $jobPosition) {
                                     return [
-                                        $organisation->slug         => new \stdClass()
+                                        $jobPosition->organisation->slug => [
+                                            $jobPosition->code => match (array_key_first($jobPosition->pivot->scopes)) {
+                                                class_basename(Shop::class) => [
+                                                    'shops' => $jobPosition->organisation->shops->whereIn('id', Arr::get($jobPosition->pivot->scopes, class_basename(Shop::class)))->pluck('slug')
+                                                ]
+                                            }
+                                        ]
                                     ];
                                 }),
                                 "fullComponentArea" => true,

@@ -14,12 +14,13 @@ use Illuminate\Support\Collection;
 
 class HydrateWebUser extends HydrateModel
 {
-    public string $commandSignature = 'hydrate:web-user {organisations?*} {--i|id=}';
+    public string $commandSignature = 'hydrate:web_user {organisations?*} {--s|slugs=}';
 
 
     public function handle(WebUser $webUser): void
     {
         $this->tokens($webUser);
+        WebUserHydrateAudits::run($webUser);
     }
 
     public function tokens(WebUser $webUser): void

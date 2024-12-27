@@ -19,9 +19,11 @@ use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Http\Resources\Procurement\PurchaseOrdersResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Inventory\OrgStock;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
+use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -39,9 +41,9 @@ class IndexPurchaseOrders extends OrgAction
     use WithOrgAgentSubNavigation;
     use WithOrgPartnerSubNavigation;
     use WithOrgSupplierSubNavigation;
-    private Group|Organisation|OrgAgent|OrgSupplier|OrgPartner $parent;
+    private Group|Organisation|OrgAgent|OrgSupplier|OrgPartner|OrgStock|OrgSupplierProduct $parent;
 
-    public function handle(Group|Organisation|OrgAgent|OrgSupplier|OrgPartner $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Organisation|OrgAgent|OrgSupplier|OrgPartner|OrgStock|OrgSupplierProduct $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -66,6 +68,16 @@ class IndexPurchaseOrders extends OrgAction
         } elseif (class_basename($parent) == 'Group') {
             $query->where('purchase_orders.group_id', $parent->id);
             $query->with('parent');
+        } elseif ($parent instanceof OrgStock) {
+            $query->leftJoin('purchase_order_transactions', 'purchase_orders.id', '=', 'purchase_order_transactions.purchase_order_id')
+                    ->where('purchase_order_transactions.org_stock_id', $parent->id)
+                    ->with('purchaseOrderTransactions');
+            $query->distinct('purchase_orders.id');
+        } elseif ($parent instanceof OrgSupplierProduct) {
+            $query->leftJoin('purchase_order_transactions', 'purchase_orders.id', '=', 'purchase_order_transactions.purchase_order_id')
+                    ->where('purchase_order_transactions.org_supplier_product_id', $parent->id)
+                    ->with('purchaseOrderTransactions');
+            $query->distinct('purchase_orders.id');
         } else {
             $query->where('purchase_orders.organisation_id', $parent->id);
             $query->with('parent');
