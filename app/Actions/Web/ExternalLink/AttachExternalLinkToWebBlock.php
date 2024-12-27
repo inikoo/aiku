@@ -12,6 +12,9 @@ namespace App\Actions\Web\ExternalLink;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
+use App\Actions\Web\ExternalLink\Hydrators\ExternalLinkHydrateWebBlocks;
+use App\Actions\Web\ExternalLink\Hydrators\ExternalLinkHydrateWebpages;
+use App\Actions\Web\ExternalLink\Hydrators\ExternalLinkHydrateWebsites;
 use App\Models\Web\ExternalLink;
 use App\Models\Web\WebBlock;
 use App\Models\Web\Webpage;
@@ -37,14 +40,9 @@ class AttachExternalLinkToWebBlock extends OrgAction
 
         //todo convert following lines in ExternalLinkHydrateWebsites,ExternalLinkHydrateWebpages,ExternalLinkHydrateWebBlocks
 
-        $externalLink->updateQuietly([
-            'number_websites_shown'    => $externalLink->websites()->wherePivot('show', true)->count(),
-            'number_websites_hidden'   => $externalLink->websites()->wherePivot('show', false)->count(),
-            'number_webpages_shown'    => $externalLink->webpages()->wherePivot('show', true)->count(),
-            'number_webpages_hidden'   => $externalLink->webpages()->wherePivot('show', false)->count(),
-            'number_web_blocks_shown'  => $externalLink->webBlocks()->wherePivot('show', true)->count(),
-            'number_web_blocks_hidden' => $externalLink->webBlocks()->wherePivot('show', false)->count(),
-        ]);
+        ExternalLinkHydrateWebsites::run($externalLink);
+        ExternalLinkHydrateWebpages::run($externalLink);
+        ExternalLinkHydrateWebBlocks::run($externalLink);
     }
 
     public function rules(): array
