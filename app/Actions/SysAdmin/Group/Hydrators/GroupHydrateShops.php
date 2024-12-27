@@ -14,6 +14,7 @@ use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\SysAdmin\Group;
 use App\Models\Catalogue\Shop;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GroupHydrateShops
@@ -37,7 +38,7 @@ class GroupHydrateShops
     public function handle(Group $group): void
     {
         $stats = [
-            'number_shops' => Shop::count()
+            'number_shops' => DB::table('shops')->where('group_id', $group->id)->count()
         ];
 
         $stats = array_merge(

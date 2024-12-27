@@ -23,8 +23,8 @@ return new class () extends Migration {
             $table->string('operative_reward_terms')->default(ManufactureTaskOperativeRewardTermsEnum::ABOVE_LOWER_LIMIT->value);
             $table->string('operative_reward_allowance_type')->default(ManufactureTaskOperativeRewardAllowanceTypeEnum::OFFSET_SALARY->value);
             $table->double('operative_reward_amount')->unsigned();
-            $table->softDeletesTz();
             $table->timestampsTz();
+            $table->softDeletesTz();
         });
     }
 

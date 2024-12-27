@@ -25,9 +25,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_stocks_state_discontinuing
  * @property int $number_stocks_state_discontinued
  * @property int $number_stocks_state_suspended
- * @property string|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $deleted_at
  * @property-read \App\Models\Goods\StockFamily $stockFamily
  * @method static Builder<static>|StockFamilyStats newModelQuery()
  * @method static Builder<static>|StockFamilyStats newQuery()

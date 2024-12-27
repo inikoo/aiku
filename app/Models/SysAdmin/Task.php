@@ -32,9 +32,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $description
  * @property string|null $start_date
  * @property string|null $complete_date
- * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read Model|\Eloquent|null $assigner
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation

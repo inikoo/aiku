@@ -18,8 +18,8 @@ return new class () extends Migration {
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
             $table->string('source_id')->nullable();
-            $table->softDeletesTz();
             $table->timestampsTz();
+            $table->softDeletesTz();
         });
     }
 

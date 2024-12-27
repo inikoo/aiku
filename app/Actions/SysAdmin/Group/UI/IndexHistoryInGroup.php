@@ -14,6 +14,7 @@ use App\Actions\GrpAction;
 use App\Actions\SysAdmin\User\Traits\WithFormattedUserHistories;
 use App\Http\Resources\History\HistoryResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\SysAdmin\Group;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -31,10 +32,8 @@ class IndexHistoryInGroup extends GrpAction
     use WithAttributes;
     use WithFormattedUserHistories;
 
-    public function handle($model, $prefix = null): LengthAwarePaginator|array|bool
+    public function handle(Group $group, $prefix = null): LengthAwarePaginator|array|bool
     {
-        $this->model = class_basename($model);
-
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('user_type', $value)
@@ -48,12 +47,9 @@ class IndexHistoryInGroup extends GrpAction
         }
 
         $queryBuilder = QueryBuilder::for(Audit::class);
+        $queryBuilder->where('group_id', $group->id);
 
         $queryBuilder->orderBy('id', 'DESC');
-        $queryBuilder->where('auditable_type', $this->model);
-        if (isset($model->id)) {
-            $queryBuilder->where('auditable_id', $model->id);
-        }
 
         return $queryBuilder
             ->defaultSort('audits.created_at')
@@ -83,11 +79,11 @@ class IndexHistoryInGroup extends GrpAction
                 ->withGlobalSearch()
                 ->withExportLinks($exportLinks)
                 ->column(key: 'expand', label: '', type: 'icon')
-                ->column(key: 'datetime', label: __('Date'), canBeHidden: false, sortable: true)
-                ->column(key: 'user_name', label: __('User'), canBeHidden: false, sortable: true)
-                ->column(key: 'old_values', label: __('Old Value'), canBeHidden: false, sortable: true)
-                ->column(key: 'new_values', label: __('New Value'), canBeHidden: false, sortable: true)
-                ->column(key: 'event', label: __('Action'), canBeHidden: false, sortable: true)
+                ->column(key: 'datetime', label: __('Date'), canBeHidden: false, sortable: false)
+                ->column(key: 'user_name', label: __('User'), canBeHidden: false, sortable: false)
+                ->column(key: 'old_values', label: __('Old Value'), canBeHidden: false, sortable: false)
+                ->column(key: 'new_values', label: __('New Value'), canBeHidden: false, sortable: false)
+                ->column(key: 'event', label: __('Action'), canBeHidden: false, sortable: false)
                 ->defaultSort('ip_address');
         };
     }

@@ -27,8 +27,8 @@ return new class () extends Migration {
             $table->jsonb('data');
             $table->jsonb('settings');
             $table->smallInteger('number_organisations')->default(0);
-            $table->softDeletesTz();
             $table->timestampsTz();
+            $table->softDeletesTz();
         });
     }
 

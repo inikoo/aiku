@@ -23,9 +23,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property ManufactureTaskOperativeRewardTermsEnum $operative_reward_terms
  * @property ManufactureTaskOperativeRewardAllowanceTypeEnum $operative_reward_allowance_type
  * @property float $operative_reward_amount
- * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read Production $production
  * @property-read \App\Models\SysAdmin\Task $task
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskProductionStat newModelQuery()

@@ -10,10 +10,12 @@
 namespace App\Actions\Catalogue\MasterShop;
 
 use App\Actions\GrpAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateMasterShops;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Goods\MasterShop;
+use App\Rules\AlphaDashDot;
+use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -24,20 +26,33 @@ class UpdateMasterShop extends GrpAction
     public function handle(MasterShop $masterShop, array $modelData): MasterShop
     {
         $masterShop = $this->update($masterShop, $modelData, ['data']);
+        if ($masterShop->wasChanged('status')) {
+            GroupHydrateMasterShops::dispatch($masterShop->group)->delay($this->hydratorsDelay);
+        }
 
         return $masterShop;
     }
 
     public function rules(): array
     {
-        $rules = [
-            'type'                 => ['sometimes', Rule::enum(ShopTypeEnum::class)],
-            'state'                 => ['sometimes', Rule::enum(ShopStateEnum::class)],
-            'name'                 => ['sometimes', 'max:250', 'string'],
-            'image_id'             => ['sometimes', 'sometimes', 'exists:media,id'],
+        return [
+            'type'   => ['sometimes', Rule::enum(ShopTypeEnum::class)],
+            'code'   => [
+                'sometimes',
+                'required',
+                $this->strict ? 'max:32' : 'max:255',
+                new AlphaDashDot(),
+                new IUnique(
+                    table: 'master_shops',
+                    extraConditions: [
+                        ['column' => 'group_id', 'value' => $this->group->id],
+                        ['column' => 'deleted_at', 'operator' => 'notNull'],
+                    ]
+                ),
+            ],
+            'name'   => ['sometimes', 'max:250', 'string'],
+            'status' => ['sometimes', 'required', 'boolean'],
         ];
-
-        return $rules;
     }
 
     public function authorize(ActionRequest $request): bool

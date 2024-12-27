@@ -16,9 +16,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $task_energy_cost
  * @property string $task_other_cost
  * @property string $task_work_cost
- * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\SysAdmin\Task $task
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskStat newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskStat newQuery()

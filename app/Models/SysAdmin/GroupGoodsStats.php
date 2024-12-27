@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $group_id
+ * @property int $number_master_shops
+ * @property int $number_current_master_shops status=true
  * @property int $number_trade_units
  * @property int $number_trade_units_with_barcode
  * @property int $number_trade_units_with_net_weight

@@ -24,8 +24,8 @@ return new class () extends Migration {
             $table = $this->stockStatsFields($table);
 
 
-            $table->softDeletesTz();
             $table->timestampsTz();
+            $table->softDeletesTz();
         });
     }
 

@@ -15,9 +15,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property string $name
  * @property string|null $description
- * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskType newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskType newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskType onlyTrashed()
