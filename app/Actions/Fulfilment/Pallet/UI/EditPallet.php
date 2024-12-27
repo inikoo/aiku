@@ -62,22 +62,24 @@ class EditPallet extends OrgAction
                 ),
                 'title'       => __('edit pallet'),
                 'pageHead'    => [
-                    'title'      => __('edit pallet'),
-                     'actions'   => [
-                         [
-                             'type'  => 'button',
-                             'style' => 'exitEdit',
-                             'route' => [
-                                 'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
-                                 'parameters' => array_values($request->route()->originalParameters())
-                             ]
-                         ]
-                     ]
+                    'icon'      => 'fal fa-pallet',
+                    'model'     => __('Edit Pallet'),
+                    'title'      => $pallet->reference,
+                    'actions'   => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'exitEdit',
+                            'route' => [
+                                'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
+                                'parameters' => array_values($request->route()->originalParameters())
+                            ]
+                        ]
+                    ]
                 ],
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('Item'),
+                            'label'  => __('Item'),
                             'icon'   => ['fal', 'fa-narwhal'],
                             'fields' => [
                                 'reference' => [

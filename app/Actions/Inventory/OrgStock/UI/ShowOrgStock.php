@@ -93,6 +93,7 @@ class ShowOrgStock extends OrgAction
                         'title' => __('sku'),
                         'icon'  => 'fal fa-box'
                     ],
+                    'model'   => __('SKU'),
                     'title'   => $orgStock->code,
 
                 ],
