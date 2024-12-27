@@ -273,7 +273,7 @@ class GetOverview extends OrgAction
                     'name'  => __('Org Stocks'),
                     'icon'  => 'fal fa-warehouse',
                     'route' => '',
-                    'count' => $group->inventoryStats->number_org_stocks ?? 0 // need hydrator
+                    'count' => $group->inventoryStats->number_org_stocks ?? 0
                 ],
                 [
                     'name'  => __('Stock Families'),
@@ -285,13 +285,13 @@ class GetOverview extends OrgAction
                     'name'  => __('Org Stock Families'),
                     'icon'  => 'fal fa-boxes-alt',
                     'route' => '',
-                    'count' => $group->inventoryStats->number_org_stock_families ?? 0 // need hydrator
+                    'count' => $group->inventoryStats->number_org_stock_families ?? 0
                 ],
                 [
                     'name'  => __('Org Stock Movements'),
                     'icon'  => 'fal fa-dolly',
                     'route' => '',
-                    'count' => $group->inventoryStats->number_org_stock_movements ?? 0 // need hydrator
+                    'count' => $group->inventoryStats->number_org_stock_movements ?? 0
                 ],
                 [
                     'name'  => __('Warehouses'),
@@ -329,7 +329,7 @@ class GetOverview extends OrgAction
                     'name'  => __('Stock Deliveries'),
                     'icon'  => 'fal fa-truck-loading',
                     'route' => '',
-                    'count' => $group->procurementStats->number_stock_deliveries ?? 0 // hydrator ?? 0
+                    'count' => $group->procurementStats->number_stock_deliveries ?? 0
                 ],
                 [
                     'name'  => __('Pallet Deliveries'),
@@ -387,7 +387,7 @@ class GetOverview extends OrgAction
                     'name'  => __('Customer Balances'),
                     'icon'  => 'fal fa-piggy-bank',
                     'route' => 'grp.overview.accounting.customer-balances.index',
-                    'count' => $group->accountingStats->number_customers_with_balances ?? 0 // need stats for this
+                    'count' => $group->accountingStats->number_customers_with_balances ?? 0
                 ],
             ],
             __('Human Resources')   => [
@@ -419,7 +419,7 @@ class GetOverview extends OrgAction
                     'name'  => __('Timesheets'),
                     'icon'  => 'fal fa-stopwatch',
                     'route' => 'grp.overview.accounting.timesheets.index',
-                    'count' => $group->humanResourcesStats->number_timesheets ?? 0 // need hydrator
+                    'count' => $group->humanResourcesStats->number_timesheets ?? 0
                 ],
             ],
         ];
