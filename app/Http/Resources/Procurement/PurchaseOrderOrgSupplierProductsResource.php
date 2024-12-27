@@ -10,7 +10,6 @@
 namespace App\Http\Resources\Procurement;
 
 use App\Models\Goods\Stock;
-use App\Models\SupplyChain\SupplierProduct;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**

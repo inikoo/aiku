@@ -8,10 +8,11 @@
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
-use App\Actions\Catalogue\MasterProductCategory\StoreMasterProductCategory;
-use App\Actions\Catalogue\MasterProductCategory\UpdateMasterProductCategory;
-use App\Actions\Catalogue\MasterShop\StoreMasterShop;
-use App\Actions\Catalogue\MasterShop\UpdateMasterShop;
+use App\Actions\Catalogue\Shop\UpdateShop;
+use App\Actions\Goods\MasterProductCategory\StoreMasterProductCategory;
+use App\Actions\Goods\MasterProductCategory\UpdateMasterProductCategory;
+use App\Actions\Goods\MasterShop\StoreMasterShop;
+use App\Actions\Goods\MasterShop\UpdateMasterShop;
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\Stock\UpdateStock;
 use App\Actions\Goods\StockFamily\DeleteStockFamily;
@@ -39,6 +40,11 @@ beforeAll(function () {
 beforeEach(function () {
     $this->group      = createGroup();
     $this->adminGuest = createAdminGuest($this->group);
+    list(
+        $this->organisation,
+        $this->user,
+        $this->shop
+    ) = createShop();
     Config::set("inertia.testing.page_paths", [resource_path("js/Pages/Grp")]);
     actingAs($this->adminGuest->getUser());
 });
@@ -372,7 +378,7 @@ test('update master shop', function (MasterShop $masterShop) {
 test('create master shop from command', function () {
 
 
-    $this->artisan('master_shop:create',[
+    $this->artisan('master_shop:create', [
         'group' => $this->group->slug,
         'type' => ShopTypeEnum::DROPSHIPPING,
         'code' => 'ds',
@@ -381,12 +387,29 @@ test('create master shop from command', function () {
 
 
 
-    $group= $this->group->refresh();
+    $group = $this->group->refresh();
 
     expect($group->goodsStats->number_master_shops)->toBe(2)
         ->and($group->goodsStats->number_current_master_shops)->toBe(1);
 
 });
+
+test('assign master shop to shop', function () {
+
+
+    $masterShop = MasterShop::first();
+    UpdateShop::make()->action(
+        $this->shop,
+        [
+            'master_shop_id' => $masterShop->id
+        ]
+    );
+    $masterShop->refresh();
+
+    expect($masterShop->stats->number_shops)->toBe(1)
+        ->and($masterShop->stats->number_current_shops)->toBe(0);
+});
+
 
 test('create master product category', function (MasterShop $masterShop) {
     $masterProductCategory = StoreMasterProductCategory::make()->action(

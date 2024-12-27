@@ -7,6 +7,7 @@
  */
 
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
+use App\Stubs\Migrations\HasCatalogueStats;
 use App\Stubs\Migrations\HasHelpersStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -14,12 +15,16 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasHelpersStats;
+    use HasCatalogueStats;
     public function up(): void
     {
         Schema::create('master_shop_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('master_shop_id')->index();
             $table->foreign('master_shop_id')->references('id')->on('master_shops');
+
+            $table = $this->shopsStatsFields($table);
+
 
             // Department
             $table->unsignedInteger('number_master_departments')->default(0);

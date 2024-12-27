@@ -22,14 +22,19 @@ use Illuminate\Database\Schema\Blueprint;
 
 trait HasCatalogueStats
 {
-    public function shopsStats(Blueprint $table): Blueprint
+    public function shopsStatsFields(Blueprint $table): Blueprint
     {
         $table->unsignedSmallInteger('number_shops')->default(0);
+        $table->unsignedSmallInteger('number_current_shops')->default(0)->comment('state=open+closing-down');
+
         foreach (ShopStateEnum::cases() as $shopState) {
             $table->unsignedSmallInteger('number_shops_state_'.$shopState->snake())->default(0);
         }
-        foreach (ShopTypeEnum::cases() as $shopType) {
-            $table->unsignedSmallInteger('number_shops_type_'.$shopType->snake())->default(0);
+
+        if ($table->getTable() != 'master_shop_stats') {
+            foreach (ShopTypeEnum::cases() as $shopType) {
+                $table->unsignedSmallInteger('number_shops_type_'.$shopType->snake())->default(0);
+            }
         }
 
         return $table;
@@ -62,6 +67,7 @@ trait HasCatalogueStats
 
         return $this->topSellersStats($table);
     }
+
 
     public function topSellersStats(Blueprint $table): Blueprint
     {

@@ -58,9 +58,7 @@ class IndexMasterShops extends GrpAction
                         'master_shops.code',
                         'master_shops.name',
                         'master_shops.slug',
-                        'master_shops.state',
                         'master_shops.type',
-                        'master_shops.image_id',
                     ]
             )
             ->allowedSorts(['code', 'name'])

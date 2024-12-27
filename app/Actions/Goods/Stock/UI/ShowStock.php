@@ -185,21 +185,30 @@ class ShowStock extends GrpAction
 
     public function getPrevious(Stock $stock, ActionRequest $request): ?array
     {
-        $previous = Stock::where('code', '<', $stock->code)->when(true, function ($query) use ($stock, $request) {
-            if ($request->route()->getName() == 'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.show') {
-                $query->where('stock_family_id', $stock->stockFamily->id);
-            }
-        })->orderBy('code', 'desc')->first();
+        $previous = optional($stock->code, function ($code) use ($stock, $request) {
+            return Stock::where('code', '<', $code)
+                ->when(
+                    $request->route()->getName() === 'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.show',
+                    fn ($query) => $query->where('stock_family_id', $stock->stockFamily->id)
+                )
+                ->orderBy('code', 'desc')
+                ->first();
+        });
+
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(Stock $stock, ActionRequest $request): ?array
     {
-        $next = Stock::where('code', '>', $stock->code)->when(true, function ($query) use ($stock, $request) {
-            if ($request->route()->getName() == 'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.show') {
-                $query->where('stock_family_id', $stock->stockFamily->id);
-            }
-        })->orderBy('code')->first();
+        $next = optional($stock->code, function ($code) use ($stock, $request) {
+            return Stock::where('code', '>', $code)
+                ->when(
+                    $request->route()->getName() === 'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.show',
+                    fn ($query) => $query->where('stock_family_id', $stock->stockFamily->id)
+                )
+                ->orderBy('code')
+                ->first();
+        });
 
         return $this->getNavigation($next, $request->route()->getName());
     }
