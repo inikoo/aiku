@@ -36,7 +36,14 @@ class GetOrgSupplierProducts extends OrgAction
         });
 
         $queryBuilder = QueryBuilder::for(OrgSupplierProduct::class);
-        $queryBuilder->leftJoin('supplier_products', 'supplier_products.id', 'org_supplier_products.supplier_product_id');
+        $queryBuilder->leftJoin('supplier_products', 'supplier_products.id', 'org_supplier_products.supplier_product_id')
+                        ->leftJoin('stock_has_supplier_products', 'stock_has_supplier_products.supplier_product_id', '=', 'supplier_products.id')
+                        ->leftJoin('stocks', function ($join) {
+                            $join->on('stocks.id', '=', 'stock_has_supplier_products.stock_id')
+                                ->where('stocks.available', true);
+                        })
+                        ->leftJoin('org_stocks', 'org_stocks.stock_id', '=', 'stocks.id');
+        $queryBuilder->leftjoin('suppliers', 'supplier_products.supplier_id', 'suppliers.id');
         $queryBuilder->leftJoin('purchase_order_transactions', function ($join) use ($purchaseOrder) {
             $join->on('purchase_order_transactions.org_supplier_product_id', '=', 'org_supplier_products.id')
                 ->where('purchase_order_transactions.purchase_order_id', $purchaseOrder->id);
@@ -66,7 +73,10 @@ class GetOrgSupplierProducts extends OrgAction
                 'supplier_products.current_historic_supplier_product_id as historic_id',
                 'purchase_order_transactions.quantity_ordered as quantity_ordered',
                 'purchase_order_transactions.id as purchase_order_transaction_id',
-                'purchase_orders.id as purchase_order_id'
+                'purchase_orders.id as purchase_order_id',
+                'org_stocks.id as org_stock_id',
+                'stocks.id as stock_id',
+                'suppliers.name as supplier_name'
             ])
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])

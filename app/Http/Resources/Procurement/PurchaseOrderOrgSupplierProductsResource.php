@@ -26,17 +26,15 @@ class PurchaseOrderOrgSupplierProductsResource extends JsonResource
     public function toArray($request): array
     {
 
-        $supplierProduct = SupplierProduct::find($this->supplier_product_id)->first();
-        $stock = $supplierProduct->getMainStock();
-        /** @var SupplierProduct $supplierProduct */
+        $stock = Stock::find($this->stock_id)->first();
         /** @var Stock $stock */
         return [
             'id'              => $this->id,
             'historic_id'     => $this->historic_id,
-            'org_stock_id'    => $stock->orgStocks->first()->id,
+            'org_stock_id'    => $this->org_stock_id,
             'code'            => $this->code,
             'name'            => $this->name,
-            'supplier_name'   => $supplierProduct->supplier->name,
+            'supplier_name'   => $this->supplier_name,
             'image_thumbnail' => $stock->imageSources(40, 40),
             'quantity_ordered' => $this->quantity_ordered ?? 0,
             'purchase_order_transaction_id' => $this->purchase_order_transaction_id,
