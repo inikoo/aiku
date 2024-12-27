@@ -179,13 +179,13 @@ test('store external link', function (ModelHasWebBlocks $modelHasWebBlock) {
     ]);
 
     expect($externalLink)->toBeInstanceOf(ExternalLink::class)
-        ->and($externalLink->group_id)->toBe($group->id);
-    //        ->and($externalLink->number_websites_shown)->toBe(1)
-    //        ->and($externalLink->number_webpages_shown)->toBe(1)
-    //        ->and($externalLink->number_web_blocks_shown)->toBe(1)
-    //        ->and($externalLink->number_websites_hidden)->toBe(0)
-    //        ->and($externalLink->number_webpages_hidden)->toBe(0)
-    //        ->and($externalLink->number_web_blocks_hidden)->toBe(0)
+        ->and($externalLink->group_id)->toBe($group->id)
+        ->and($externalLink->number_websites_shown)->toBe(1)
+        ->and($externalLink->number_webpages_shown)->toBe(1)
+        ->and($externalLink->number_web_blocks_shown)->toBe(1)
+        ->and($externalLink->number_websites_hidden)->toBe(0)
+        ->and($externalLink->number_webpages_hidden)->toBe(0)
+        ->and($externalLink->number_web_blocks_hidden)->toBe(0);
 
 
     return $externalLink;

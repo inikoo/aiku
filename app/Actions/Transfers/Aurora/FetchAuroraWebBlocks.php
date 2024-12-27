@@ -340,14 +340,14 @@ class FetchAuroraWebBlocks
 
         $webpage->modelHasWebBlocks()->create($modelHasWebBlocksData);
 
-        $this->postExternalLinks($webBlock, $webpage, $layout);
+        $this->postExternalLinks($webBlock, $webpage, $layout, Arr::get($modelHasWebBlocksData, 'show', true));
         $this->postProcessLayout($webBlock, $webpage, $layout);
 
         UpdateWebpageContent::run($webpage->refresh());
         /*   BroadcastPreviewWebpage::dispatch($webpage); */
     }
 
-    private function postExternalLinks(WebBlock $webBlock, Webpage $webpage, &$layout): void
+    private function postExternalLinks(WebBlock $webBlock, Webpage $webpage, &$layout, bool $webBlockShow): void
     {
         $code = $webBlock->webBlockType->code;
         if (!in_array($code, ['text', 'overview', 'images'])) {
@@ -367,7 +367,7 @@ class FetchAuroraWebBlocks
 
 
                 AttachExternalLinkToWebBlock::make()->action($webpage, $webBlock, $externalLink, [
-                    'show' => true // <-- fix this and set show value depending on if Seb-block is shown or not
+                    'show' => $webBlockShow // <-- fix this and set show value depending on if Seb-block is shown or not
                 ]);
             }
         }

@@ -16,6 +16,7 @@ use App\Actions\SysAdmin\Guest\UI\ShowGuest;
 use App\Actions\SysAdmin\User\ExportUsers;
 use App\Actions\SysAdmin\User\UI\CreateUser;
 use App\Actions\SysAdmin\User\UI\EditUser;
+use App\Actions\SysAdmin\User\UI\IndexUserActions;
 use App\Actions\SysAdmin\User\UI\IndexUsers;
 use App\Actions\SysAdmin\User\UI\ShowUser;
 use App\Actions\UI\Grp\SysAdmin\ShowSysAdminDashboard;
@@ -34,6 +35,7 @@ Route::get('/users/export', ExportUsers::class)->name('users.export');
 
 Route::get('/users/create', CreateUser::class)->name('users.create');
 Route::get('/users/{user}', ShowUser::class)->name('users.show');
+Route::get('/users/{user}/action', IndexUserActions::class)->name('users.show.actions.index');
 Route::get('/users/{user}/edit', EditUser::class)->name('users.edit');
 
 Route::get('/guests', IndexGuests::class)->name('guests.index');

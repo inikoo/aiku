@@ -18,16 +18,42 @@ trait WithUserSubNavigation
     {
         return [
             [
-                "label"    => __("Visit Logs"),
+                "label"    => __($user->username),
                 "route"     => [
-                    "name"       => "grp.sysadmin.users.request.index",
+                    "name"       => "grp.sysadmin.users.show",
                     "parameters" => [
-                        'user' => $user->username
+                        'user' => $user->slug
                     ],
                 ],
                 "leftIcon" => [
                     "icon"    => ["fal", "fa-user"],
+                    "tooltip" => __("User"),
+                ],
+            ],
+            [
+                "label"    => __("Visit Logs"),
+                "route"     => [
+                    // "name"       => "grp.sysadmin.users.request.index",
+                    // "parameters" => [
+                    //     'user' => $user->username
+                    // ],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-user"],
                     "tooltip" => __("Visit Logs"),
+                ],
+            ],
+            [
+                "label"    => __("Actions"),
+                "route"     => [
+                    "name"       => "grp.sysadmin.users.show.actions.index",
+                    "parameters" => [
+                        'user' => $user->slug
+                    ],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-clock"],
+                    "tooltip" => __("Actions"),
                 ],
             ],
         ];

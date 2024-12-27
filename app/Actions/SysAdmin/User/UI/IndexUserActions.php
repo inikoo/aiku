@@ -11,6 +11,7 @@ namespace App\Actions\SysAdmin\User\UI;
 
 use App\Actions\GrpAction;
 use App\Actions\SysAdmin\User\WithUsersSubNavigation;
+use App\Actions\SysAdmin\User\WithUserSubNavigation;
 use App\Actions\SysAdmin\WithSysAdminAuthorization;
 use App\Http\Resources\History\HistoryResource;
 use App\InertiaTable\InertiaTable;
@@ -25,10 +26,12 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexUserAudits extends GrpAction
+class IndexUserActions extends GrpAction
 {
     use WithSysAdminAuthorization;
-    use WithUsersSubNavigation;
+    use WithUserSubNavigation;
+
+    private User $user;
 
     public function handle(User $user, $prefix = null): LengthAwarePaginator
     {
@@ -46,7 +49,7 @@ class IndexUserAudits extends GrpAction
 
         $queryBuilder = QueryBuilder::for(Audit::class);
 
-        $queryBuilder->where('auditable_type', 'User')
+        $queryBuilder->where('user_type', 'User')
                         ->where('user_id', $user->id);
 
         return $queryBuilder
@@ -87,31 +90,18 @@ class IndexUserAudits extends GrpAction
 
     public function htmlResponse(LengthAwarePaginator $audits, ActionRequest $request): Response
     {
-        $subNavigation = $this->getUsersNavigation($this->group, $request);
-        $title = __('Active');
-        $model = __('Users');
+        $subNavigation = $this->getUserNavigation($this->user, $request);
+        $title = __('User Actions');
+        $model = __('Audit');
         $icon  = [
-            'icon'  => ['fal', 'fa-user'],
-            'title' => __('active users')
+            'icon'  => ['fal', 'fa-clock'],
+            'title' => __('User Actions')
         ];
-        if ($this->scope == 'suspended') {
-            $title = __('Suspended');
-            $icon  = [
-                'icon'  => ['fal', 'fa-user-slash'],
-                'title' => __('suspended users')
-            ];
-        } elseif ($this->scope == 'all') {
-            $title = __('All');
-            $icon  = [
-                'icon'  => ['fal', 'fa-users'],
-                'title' => __('all users')
-            ];
-        }
         return Inertia::render(
-            'SysAdmin/Users',
+            'SysAdmin/UserActions',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName()),
-                'title'       => __('users'),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
+                'title'       => __('User Actions'),
                 'pageHead' => [
                     'title'         => $title,
                     'model'         => $model,
@@ -119,16 +109,48 @@ class IndexUserAudits extends GrpAction
                     'subNavigation' => $subNavigation,
                 ],
 
-                'labels' => [
-                    'usernameNoSet' => __('username no set')
-                ],
-
                 'data'        => HistoryResource::collection($audits),
             ]
-        )->table(
-            $this->tableStructure(
-            )
-        );
+        )->table($this->tableStructure());
+    }
+
+    public function asController(User $user, ActionRequest $request)
+    {
+        $this->user = $user;
+        $this->initialisation(group(), $request);
+        return $this->handle($user);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
+    {
+        $headCrumb = function (array $routeParameters, ?string $suffix) {
+            return [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __('Actions'),
+                        'icon'  => 'fal fa-bars'
+                    ],
+                    'suffix' => $suffix
+                ]
+            ];
+        };
+
+        return match ($routeName) {
+            'grp.sysadmin.users.show.actions.index' =>
+            array_merge(
+                ShowUser::make()->getBreadcrumbs('grp.sysadmin.users.show', $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
+            ),
+            default => []
+        };
     }
 
 }
