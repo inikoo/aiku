@@ -65,6 +65,7 @@ class ShowUser extends GrpAction
                             'icon'  => ['fal', 'fa-terminal'],
                             'title' => __('user')
                         ],
+                    'subNavigation' => $this->getUserNavigation($user, $request),
                     'title'   => $user->username,
                     'actions' => [
                         $this->canEdit ? [
@@ -79,24 +80,24 @@ class ShowUser extends GrpAction
                 ],
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => $this->getUserNavigation($user, $request)
+                    'navigation' => UserTabsEnum::navigation()
                 ],
 
                 UserTabsEnum::SHOWCASE->value => $this->tab == UserTabsEnum::SHOWCASE->value ?
                     fn () => UserShowcaseResource::make($user)
                     : Inertia::lazy(fn () => UserShowcaseResource::make($user)),
 
-                UserTabsEnum::REQUEST_LOGS->value => $this->tab == UserTabsEnum::REQUEST_LOGS->value ?
-                    fn () => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username))
-                    : Inertia::lazy(fn () => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username))),
+                // UserTabsEnum::REQUEST_LOGS->value => $this->tab == UserTabsEnum::REQUEST_LOGS->value ?
+                //     fn () => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username))
+                //     : Inertia::lazy(fn () => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username))),
 
-                UserTabsEnum::ROLES->value => $this->tab == UserTabsEnum::ROLES->value ?
-                    fn () => $user->roles->pluck('name')
-                    : Inertia::lazy(fn () => $user->roles->pluck('name')),
+                // UserTabsEnum::ROLES->value => $this->tab == UserTabsEnum::ROLES->value ?
+                //     fn () => $user->roles->pluck('name')
+                //     : Inertia::lazy(fn () => $user->roles->pluck('name')),
 
-                UserTabsEnum::PERMISSIONS->value => $this->tab == UserTabsEnum::PERMISSIONS->value ?
-                    fn () => $user->getAllPermissions()->pluck('name')
-                    : Inertia::lazy(fn () => $user->getAllPermissions()->pluck('name')),
+                // UserTabsEnum::PERMISSIONS->value => $this->tab == UserTabsEnum::PERMISSIONS->value ?
+                //     fn () => $user->getAllPermissions()->pluck('name')
+                //     : Inertia::lazy(fn () => $user->getAllPermissions()->pluck('name')),
 
                 UserTabsEnum::HISTORY->value => $this->tab == UserTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($user))
