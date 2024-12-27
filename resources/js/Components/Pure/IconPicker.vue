@@ -14,19 +14,21 @@ library.add(faTimesCircle, faUser, faCactus, faBaby, faObjectGroup, faGalaxy, fa
 const props = withDefaults(
     defineProps<{
         modelValue: string | SVGElement;
-        iconList: Array<string>;
+        iconList: Array<string | [string, string]>;
         listType: string;
-        valueType : string
+        valueType: string; // "fontawesome | string | svg | array"
     }>(),
     {
-        iconList : [],
-        valueType : 'fontawesome',
+        iconList: [],
+        valueType: 'fontawesome',
         listType: 'extend',
     }
 );
 
 const _popover = ref();
-const allIcons = props.listType == 'extend' ? [faTimesCircle, faUser, faCactus, faBaby, faObjectGroup, faGalaxy, faLambda, faBackpack , ...props.iconList ] : props.listType
+const allIcons = props.listType === 'extend' 
+    ? [...[faTimesCircle, faUser, faCactus, faBaby, faObjectGroup, faGalaxy, faLambda, faBackpack], ...props.iconList] 
+    : props.iconList;
 
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string | SVGElement): void;
@@ -37,32 +39,52 @@ const toggle = (event: Event) => {
 };
 
 const renderIcon = (iconData: any) => {
-    if (iconData) {
-        // If iconData is an SVG string, return it as HTML
-        if (typeof iconData === 'string' && iconData.startsWith('<svg')) {
-            return iconData;
+ /*    return icon(faCircle).html[0]; */
+    if (!iconData) return icon(faCircle).html[0];
+
+    if (typeof iconData === 'string') {
+        if (iconData.startsWith('<svg')) {
+            return iconData; // SVG string
+        } else {
+            const [prefix, iconName] = iconData.split(' ');
+            return icon({ prefix, iconName }).html[0]; // FontAwesome string
         }
-
-        // Otherwise, assume it's a FontAwesome icon and get its SVG HTML
-        return icon(iconData).html[0];
+    } else if (Array.isArray(iconData)) {
+        const [prefix, iconName] = iconData;
+ 
+        return icon({ prefix, iconName }).html[0];
+    } else {
+        return icon(iconData).html[0]; // Assume it's a FontAwesome object
     }
-
-    return icon(faCircle).html[0];
-   
 };
 
-const onChangeIcon = (iconData) => {
-    if(props.valueType == 'fontawesome'){
-        emits('update:modelValue', iconData)
-    }else {
-        emits('update:modelValue', icon(iconData).html[0])
+const onChangeIcon = (iconData: any) => {
+    let updatedValue;
+
+    if (props.valueType === 'fontawesome') {
+        updatedValue = iconData;
+    } else if (props.valueType === 'string') {
+        if (typeof iconData === 'string') {
+            updatedValue = iconData;
+        } else if (Array.isArray(iconData)) {
+            updatedValue = iconData.join(' ');
+        } else {
+            updatedValue = `${iconData.prefix} ${iconData.iconName}`;
+        }
+    } else if (props.valueType === 'svg') {
+        updatedValue = icon(iconData).html[0];
+    }else if (props.valueType === 'array'){
+        updatedValue = [iconData.prefix, iconData.iconName]
     }
- 
-}
+
+    emits('update:modelValue', updatedValue);
+    _popover.value?.hide();
+};
 
 defineExpose({
     allIcons,
     popover: _popover,
+    modelValue: props.modelValue,
 });
 </script>
 
@@ -77,13 +99,15 @@ defineExpose({
             <div 
                 v-for="(iconData, index) in allIcons" 
                 :key="index"
-                class="flex flex-col items-center justify-center border border-gray-300 p-2 rounded-lg hover:bg-gray-100 cursor-pointer transition duration-300"
-                @click="()=>onChangeIcon(iconData)"
+                class="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-gray-100 cursor-pointer transition duration-300"
+                @click="() => onChangeIcon(iconData)"
             >
                 <!-- Render the icon -->
                 <span v-html="renderIcon(iconData)" class="text-gray-700 text-lg"></span>
                 <!-- Render the label -->
-                <span class="mt-2 text-xs text-gray-600 text-center">{{ iconData.iconName || 'SVG' }}</span>
+               <!--  <span class="mt-2 text-xs text-gray-600 text-center">
+                    {{ Array.isArray(iconData) ? iconData[1] : iconData.iconName || 'SVG' }}
+                </span> -->
             </div>
         </div>
     </Popover>

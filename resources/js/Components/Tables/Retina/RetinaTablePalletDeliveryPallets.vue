@@ -146,6 +146,7 @@ const typePallet = [
 				:saveRoute="item.auditRoute"
 				:storedItemsRoute="storedItemsRoute"
                 :state="props.state"
+				:editable="props.state == 'in-process'"
                 @renderTable="() => emits('renderTableKey')"
             />
 		</template>
