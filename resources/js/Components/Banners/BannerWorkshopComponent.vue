@@ -24,7 +24,7 @@ const screenView = ref("")
 </script>
 
 <template>
-    <div v-if="data.components.filter((item: any) => item.ulid != null).length > 0" class="w-full">
+    <div v-if="data.components?.filter((item: any) => item.ulid != null).length > 0" class="w-full">
         <!-- Button: Screen -->
         <div class="flex justify-end pr-2">
             <ScreenView @screenView="(val) => (screenView = val)" />
