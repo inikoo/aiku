@@ -14,14 +14,21 @@ use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Validation\Rule;
 
-trait WithShopRules
+trait WithStoreShopRules
 {
     protected function getStoreShopRules(): array
     {
         $rules = [
-            'code' => [
+            'master_shop_id' => [
+                'sometimes',
+                'nullable',
+                Rule::Exists('master_shops', 'id')->where('group_id', $this->organisation->group_id)
+
+            ],
+
+            'code'                     => [
                 'required',
-                'max:4',
+                'max:8',
                 'alpha_dash',
                 new IUnique(
                     table: 'shops',
@@ -32,7 +39,7 @@ trait WithShopRules
 
 
             ],
-            'name' => ['required', 'string', 'max:255'],
+            'name'                     => ['required', 'string', 'max:255'],
             'contact_name'             => ['nullable', 'string', 'max:255'],
             'company_name'             => ['nullable', 'string', 'max:255'],
             'email'                    => ['nullable', 'email'],
@@ -48,7 +55,7 @@ trait WithShopRules
             'settings'                 => ['sometimes', 'array'],
             'warehouses'               => ['sometimes', 'array'],
             'warehouses.*'             => [Rule::Exists('warehouses', 'id')->where('organisation_id', $this->organisation->id)],
-            'address'                  => ['sometimes','required', new ValidAddress()],
+            'address'                  => ['sometimes', 'required', new ValidAddress()],
 
         ];
 
@@ -56,11 +63,9 @@ trait WithShopRules
             $rules['source_id']  = ['sometimes', 'string', 'max:64'];
             $rules['fetched_at'] = ['sometimes', 'date'];
             $rules['created_at'] = ['sometimes', 'date'];
-            $rules['closed_at'] = ['sometimes','nullable',  'date'];
-
+            $rules['closed_at']  = ['sometimes', 'nullable', 'date'];
         }
 
         return $rules;
-
     }
 }

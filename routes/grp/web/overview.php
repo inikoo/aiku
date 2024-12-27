@@ -53,11 +53,19 @@ Route::name('changelog.')->prefix('changelog')->group(function () {
     Route::get('/', IndexHistoryInGroup::class)->name('index');
 });
 
+// ==== combine
 Route::name('comms.')->prefix('comms')->group(function () {
     Route::get('/post-rooms', IndexPostRooms::class)->name('post-rooms.index');
     Route::get('/post-rooms/{postRoom}', ShowPostRoom::class)->name('post-rooms.show');
     Route::get('/outboxes', [IndexOutboxes::class, 'inGroup'])->name('outboxes.index');
 });
+
+Route::name('marketing.')->prefix('marketing')->group(function () {
+    Route::get('/newsletters', [IndexNewsletterMailshots::class, 'inGroup'])->name('newsletters.index');
+    Route::get('/mailshots', [IndexMarketingMailshots::class, 'inGroup'])->name('mailshots.index');
+});
+// combine ====
+
 
 Route::name('catalogue.')->prefix('catalogue')->group(function () {
     Route::get('/products', [IndexProducts::class, 'inGroup'])->name('products.index');
@@ -67,7 +75,7 @@ Route::name('catalogue.')->prefix('catalogue')->group(function () {
 });
 
 Route::name('billables.')->prefix('billables')->group(function () {
-    Route::get('/shipping', [IndexShippingZoneSchemas::class, 'inGroup'])->name('shipping.index');
+    // Route::get('/shipping', [IndexShippingZoneSchemas::class, 'inGroup'])->name('shipping.index');
     Route::get('/charges', [IndexCharges::class, 'inGroup'])->name('charges.index');
     Route::get('/services', [IndexServices::class, 'inGroup'])->name('services.index');
 });
@@ -77,10 +85,6 @@ Route::name('offer.')->prefix('offer')->group(function () {
     Route::get('/offers', [IndexOffers::class, 'inGroup'])->name('offers.index');
 });
 
-Route::name('marketing.')->prefix('marketing')->group(function () {
-    Route::get('/newsletters', [IndexNewsletterMailshots::class, 'inGroup'])->name('newsletters.index');
-    Route::get('/mailshots', [IndexMarketingMailshots::class, 'inGroup'])->name('mailshots.index');
-});
 
 Route::name('web.')->prefix('web')->group(function () {
     Route::get('/webpages', [IndexWebpages::class, 'inGroup'])->name('webpages.index');
@@ -92,10 +96,10 @@ Route::name('crm.')->prefix('crm')->group(function () {
     Route::get('/prospects', [IndexProspects::class, 'inGroup'])->name('prospects.index');
 });
 
-Route::name('order.')->prefix('order')->group(function () {
+Route::name('ordering.')->prefix('ordering')->group(function () {
     Route::get('/orders', [IndexOrders::class, 'inGroup'])->name('orders.index');
-    Route::get('/purges', [IndexPurges::class, 'inGroup'])->name('purges.index');
-    Route::get('/delivery-notes', [IndexDeliveryNotes::class, 'inGroup'])->name('delivery-notes.index');
+    // Route::get('/purges', [IndexPurges::class, 'inGroup'])->name('purges.index');
+    // Route::get('/delivery-notes', [IndexDeliveryNotes::class, 'inGroup'])->name('delivery-notes.index');
 });
 
 Route::name('production.')->prefix('production')->group(function () {
@@ -120,17 +124,17 @@ Route::name('procurement.')->prefix('procurement')->group(function () {
 });
 
 Route::name('accounting.')->prefix('accounting')->group(function () {
-    Route::get('/invoices', [IndexInvoices::class, 'inGroup'])->name('invoices.index');
+    // Route::get('/invoices', [IndexInvoices::class, 'inGroup'])->name('invoices.index');
     Route::get('/payment-accounts', [IndexPaymentAccounts::class, 'inGroup'])->name('payment-accounts.index');
     Route::get('/payments', [IndexPayments::class, 'inGroup'])->name('payments.index');
     Route::get('/customer-balances', [IndexCustomerBalances::class, 'inGroup'])->name('customer-balances.index');
 });
 
 
-Route::name('human-resources.')->prefix('human-resources')->group(function () {
-    Route::get('/workplaces', [IndexWorkplaces::class, 'inGroup'])->name('workplaces.index');
-    Route::get('/responsibilities', [IndexJobPositions::class, 'inGroup'])->name('responsibilities.index');
-    Route::get('/employees', [IndexEmployees::class, 'inGroup'])->name('employees.index');
-    Route::get('/clocking-machines', [IndexClockingMachines::class, 'inGroup'])->name('clocking-machines.index');
-    Route::get('/timesheets', [IndexTimesheets::class, 'inGroup'])->name('timesheets.index');
+Route::name('hr.')->prefix('hr')->group(function () {
+    // Route::get('/workplaces', [IndexWorkplaces::class, 'inGroup'])->name('workplaces.index');
+    // Route::get('/responsibilities', [IndexJobPositions::class, 'inGroup'])->name('responsibilities.index');
+    // Route::get('/employees', [IndexEmployees::class, 'inGroup'])->name('employees.index');
+    // Route::get('/clocking-machines', [IndexClockingMachines::class, 'inGroup'])->name('clocking-machines.index');
+    // Route::get('/timesheets', [IndexTimesheets::class, 'inGroup'])->name('timesheets.index');
 });

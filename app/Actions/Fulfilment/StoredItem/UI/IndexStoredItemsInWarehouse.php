@@ -83,7 +83,7 @@ class IndexStoredItemsInWarehouse extends OrgAction
                         default => []
                     }
                 )
-                ->column(key: 'state', label: __('Delivery State'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'state', label: __('Delivery State'), canBeHidden: false, sortable: true, searchable: true, type: 'icon')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'customer_name', label: __('Customer Name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'actions', label: __('Action'), canBeHidden: false, sortable: true, searchable: true)
@@ -117,6 +117,7 @@ class IndexStoredItemsInWarehouse extends OrgAction
                 'title'                                                    => __('stored items'),
                 'pageHead'                                                 => [
                     'title'         => $title,
+                    'model'         => __('Inventory'),
                     'afterTitle'    => $afterTitle,
                     'iconRight'     => $iconRight,
                     'icon'          => $icon,

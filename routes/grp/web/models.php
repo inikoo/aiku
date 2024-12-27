@@ -664,6 +664,7 @@ require __DIR__."/models/billables/billables.php";
 require __DIR__."/models/hr/hr.php";
 require __DIR__."/models/website/webpages.php";
 require __DIR__."/models/supply_chain/agent.php";
+require __DIR__."/models/sys_admin/user.php";
 
 
 /*
