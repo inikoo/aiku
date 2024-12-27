@@ -146,7 +146,7 @@ class GetSectionRoute extends OrgAction
     {
         $sectionCode = match (true) {
             str_starts_with($route, 'dashboard') => AikuSectionEnum::FULFILMENT_DASHBOARD,
-            str_starts_with($route, 'billables') => AikuSectionEnum::FULFILMENT_BILLABLES,
+            str_starts_with($route, 'catalogue') => AikuSectionEnum::FULFILMENT_CATALOGUE,
             str_starts_with($route, 'operations') => AikuSectionEnum::FULFILMENT_OPERATION,
             str_starts_with($route, 'web') => AikuSectionEnum::FULFILMENT_WEBSITE,
             str_starts_with($route, 'crm') => AikuSectionEnum::FULFILMENT_CRM,
