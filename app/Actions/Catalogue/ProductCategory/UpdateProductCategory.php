@@ -73,7 +73,7 @@ class UpdateProductCategory extends OrgAction
                 ),
             ],
             'name'        => ['sometimes', 'max:250', 'string'],
-            'image_id'    => ['sometimes', 'required', 'exists:media,id'],
+            'image_id'    => ['sometimes', 'required', Rule::exists('media', 'id')->where('group_id', $this->organisation->group_id)],
             'state'       => ['sometimes', 'required', Rule::enum(ProductCategoryStateEnum::class)],
             'description' => ['sometimes', 'required', 'max:1500'],
             'department_id' => ['sometimes', 'nullable', 'exists:product_categories,id'],
