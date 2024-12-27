@@ -197,4 +197,6 @@ interface SourceOrganisationService
 
     public function fetchSubscriptionEvent($id);
 
+    public function fetchMasterDepartment($id);
+
 }

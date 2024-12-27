@@ -44,7 +44,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $source_department_id
+ * @property string|null $source_family_id
  * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
  * @property-read LaravelCollection<int, MasterProductCategory> $children
  * @property-read MasterProductCategory|null $department
@@ -80,6 +84,8 @@ class MasterProductCategory extends Model implements Auditable, HasMedia
     protected $casts = [
         'data'             => 'array',
         'type'             => MasterProductCategoryTypeEnum::class,
+        'fetched_at'         => 'datetime',
+        'last_fetched_at'    => 'datetime',
     ];
 
     protected $attributes = [
@@ -107,9 +113,7 @@ class MasterProductCategory extends Model implements Auditable, HasMedia
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom(function () {
-                return $this->code.'-'.$this->group->code;
-            })
+            ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(64);

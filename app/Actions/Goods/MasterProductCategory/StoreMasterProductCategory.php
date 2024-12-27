@@ -2,13 +2,15 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 27 Dec 2024 14:32:02 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Fri, 27 Dec 2024 16:21:48 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Goods\MasterProductCategory;
 
+use App\Actions\Goods\MasterShop\Hydrators\MasterShopHydrateMasterDepartments;
 use App\Actions\GrpAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Goods\MasterProductCategory;
@@ -20,6 +22,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreMasterProductCategory extends GrpAction
 {
+    use WithNoStrictRules;
+
     public function handle(MasterProductCategory|MasterShop $parent, array $modelData): MasterProductCategory
     {
         if ($parent instanceof MasterProductCategory) {
@@ -39,15 +43,19 @@ class StoreMasterProductCategory extends GrpAction
         }
 
         /** @var MasterProductCategory $masterProductCategory */
-        $masterProductCategory = MasterProductCategory::create($modelData);
+        $masterProductCategory = $parent->masterProductCategories()->create($modelData);
         $masterProductCategory->refresh();
+
+        if ($masterProductCategory->type == MasterProductCategoryTypeEnum::DEPARTMENT) {
+            MasterShopHydrateMasterDepartments::dispatch($masterProductCategory->masterShop)->delay($this->hydratorsDelay);
+        }
 
         return $masterProductCategory;
     }
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'type'        => ['required', Rule::enum(MasterProductCategoryTypeEnum::class)],
             'code'        => [
                 'required',
@@ -62,15 +70,21 @@ class StoreMasterProductCategory extends GrpAction
                 ),
             ],
             'name'        => ['required', 'max:250', 'string'],
-            'image_id'    => ['sometimes', 'required', 'exists:media,id'],
+            'image_id'    => ['sometimes', 'required', Rule::exists('media', 'id')->where('group_id', $this->group->id)],
             'status'      => [
                 'sometimes',
                 'required',
                 'boolean',
             ],
             'description' => ['sometimes', 'required', 'max:1500'],
-            'created_at'  => ['sometimes', 'date'],
         ];
+
+        if (!$this->strict) {
+            $rules['source_department_id'] = ['sometimes', 'required', 'max:32', 'string'];
+            $rules                         = $this->noStrictStoreRules($rules);
+        }
+
+        return $rules;
     }
 
     public function authorize(ActionRequest $request): bool

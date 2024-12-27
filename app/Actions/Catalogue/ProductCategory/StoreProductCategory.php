@@ -93,7 +93,7 @@ class StoreProductCategory extends OrgAction
                 ),
             ],
             'name'                 => ['required', 'max:250', 'string'],
-            'image_id'             => ['sometimes', 'required', 'exists:media,id'],
+            'image_id'             => ['sometimes', 'required', Rule::exists('media', 'id')->where('group_id', $this->organisation->group_id)],
             'state'                => ['sometimes', Rule::enum(ProductCategoryStateEnum::class)],
             'description'          => ['sometimes', 'required', 'max:1500'],
 

@@ -2,7 +2,7 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 27 Dec 2024 14:32:02 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Fri, 27 Dec 2024 21:46:46 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -30,9 +30,7 @@ class StoreMasterProduct extends GrpAction
         }
         data_set($modelData, 'status', $status);
 
-        if ($parent instanceof Group) {
-            $masterProduct = $parent->masterProducts()->create($modelData);
-        } else {
+        if (!$parent instanceof Group) {
             data_set($modelData, 'group_id', $parent->group_id);
             data_set($modelData, 'master_department_id', $parent->department_id);
 
@@ -42,8 +40,8 @@ class StoreMasterProduct extends GrpAction
             if ($parent->type == ProductCategoryTypeEnum::SUB_DEPARTMENT) {
                 data_set($modelData, 'master_sub_department_id', $parent->id);
             }
-            $masterProduct = $parent->masterProducts()->create($modelData);
         }
+        $masterProduct = $parent->masterProducts()->create($modelData);
 
         return $masterProduct;
     }
@@ -95,7 +93,7 @@ class StoreMasterProduct extends GrpAction
                     ->where('group_id', $this->group->id)
                     ->where('type', ProductCategoryTypeEnum::SUB_DEPARTMENT)
             ],
-            'image_id'           => ['sometimes', 'required', 'exists:media,id'],
+            'image_id'           => ['sometimes', 'required', Rule::exists('media', 'id')->where('group_id', $this->group->id)],
             'price'              => ['required', 'numeric', 'min:0'],
             'unit'               => ['sometimes', 'required', 'string'],
             'rrp'                => ['sometimes', 'required', 'numeric', 'min:0'],
