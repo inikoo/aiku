@@ -372,7 +372,7 @@ test('update master shop', function (MasterShop $masterShop) {
 test('create master shop from command', function () {
 
 
-    $this->artisan('master_shop:create',[
+    $this->artisan('master_shop:create', [
         'group' => $this->group->slug,
         'type' => ShopTypeEnum::DROPSHIPPING,
         'code' => 'ds',
@@ -381,7 +381,7 @@ test('create master shop from command', function () {
 
 
 
-    $group= $this->group->refresh();
+    $group = $this->group->refresh();
 
     expect($group->goodsStats->number_master_shops)->toBe(2)
         ->and($group->goodsStats->number_current_master_shops)->toBe(1);

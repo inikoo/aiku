@@ -10,7 +10,6 @@
 namespace App\Actions\SysAdmin\User\UI;
 
 use App\Actions\GrpAction;
-use App\Actions\SysAdmin\User\WithUsersSubNavigation;
 use App\Actions\SysAdmin\User\WithUserSubNavigation;
 use App\Actions\SysAdmin\WithSysAdminAuthorization;
 use App\Http\Resources\History\HistoryResource;
