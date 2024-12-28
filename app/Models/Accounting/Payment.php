@@ -48,7 +48,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property PaymentSubsequentStatusEnum|null $subsequent_status
  * @property int $currency_id
  * @property numeric $amount
- * @property numeric $group_amount
+ * @property numeric $grp_amount
  * @property numeric $org_amount
  * @property array $data
  * @property string $date Most relevant date at current state
@@ -95,7 +95,7 @@ class Payment extends Model implements Auditable
         'subsequent_status' => PaymentSubsequentStatusEnum::class,
         'type'              => PaymentTypeEnum::class,
         'amount'            => 'decimal:2',
-        'group_amount'      => 'decimal:2',
+        'grp_amount'      => 'decimal:2',
         'org_amount'        => 'decimal:2',
     ];
 

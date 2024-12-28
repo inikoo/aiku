@@ -34,7 +34,7 @@ return new class () extends Migration {
             $table = $this->getCustomersWhoFavouritedStatsFields($table);
             $table = $this->getCustomersWhoRemindedStatsFields($table);
 
-            $table = $this->salesIntervalFields($table, ['shop_amount', 'org_amount', 'group_amount']);
+            $table = $this->salesIntervalFields($table, ['shop_amount', 'org_amount', 'grp_amount']);
             $table->timestampsTz();
         });
     }

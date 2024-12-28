@@ -24,7 +24,7 @@ return new class () extends Migration {
             $table->unsignedInteger('number_orders')->default(0);
             $table->decimal('amount')->default(0);
             $table->decimal('org_amount')->default(0);
-            $table->decimal('group_amount')->default(0);
+            $table->decimal('grp_amount')->default(0);
             $table->timestampsTz();
         });
     }

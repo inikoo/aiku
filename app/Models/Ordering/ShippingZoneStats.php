@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_orders
  * @property string $amount
  * @property string $org_amount
- * @property string $group_amount
+ * @property string $grp_amount
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Ordering\ShippingZone $shippingZone

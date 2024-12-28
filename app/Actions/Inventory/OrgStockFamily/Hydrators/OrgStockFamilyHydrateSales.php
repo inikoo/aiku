@@ -40,7 +40,7 @@ class OrgStockFamilyHydrateSales
         $stats = $this->getIntervalsData($stats, $queryBase, 'org_amount_revenue_');
 
         $queryBase = DeliveryNoteItem::where('org_stock_family_id', $orgStockFamily->id)->selectRaw('sum(grp_revenue_amount) as  sum_aggregate  ');
-        $stats = $this->getIntervalsData($stats, $queryBase, 'group_amount_revenue_');
+        $stats = $this->getIntervalsData($stats, $queryBase, 'grp_amount_revenue_');
 
         $queryBase = DeliveryNoteItem::where('org_stock_family_id', $orgStockFamily->id)->selectRaw('sum(quantity_dispatched) as  sum_aggregate  ');
         $stats = $this->getIntervalsData($stats, $queryBase, 'dispatched_');

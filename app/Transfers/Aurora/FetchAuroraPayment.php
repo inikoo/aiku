@@ -76,7 +76,7 @@ class FetchAuroraPayment extends FetchAurora
             'reference'       => $this->auroraModelData->{'Payment Transaction ID'},
             'amount'          => $this->auroraModelData->{'Payment Transaction Amount'},
             'org_amount'      => $this->auroraModelData->{'Payment Transaction Amount'} * GetHistoricCurrencyExchange::run($shop->currency, $shop->organisation->currency, $createdAt),
-            'group_amount'    => $this->auroraModelData->{'Payment Transaction Amount'} * GetHistoricCurrencyExchange::run($shop->currency, $shop->group->currency, $createdAt),
+            'grp_amount'    => $this->auroraModelData->{'Payment Transaction Amount'} * GetHistoricCurrencyExchange::run($shop->currency, $shop->group->currency, $createdAt),
             'data'            => $data,
             'currency_id'     => $this->parseCurrencyID($this->auroraModelData->{'Payment Currency Code'}),
             'date'            => $lastUpdatedDate,

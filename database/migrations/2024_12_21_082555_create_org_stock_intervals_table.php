@@ -23,10 +23,10 @@ return new class () extends Migration {
             $table = $this->salesIntervalFields($table, [
                 'shop_amount_revenue',
                 'org_amount_revenue',
-                'group_amount_revenue',
+                'grp_amount_revenue',
                 'shop_amount_profit',
                 'org_amount_profit',
-                'group_amount_profit',
+                'grp_amount_profit',
             ]);
             $table = $this->unsignedIntegerDateIntervals($table, [
                 'dispatched',

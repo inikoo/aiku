@@ -8,6 +8,7 @@
 
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
+use App\Actions\Traits\Hydrators\WithPaymentAggregators;
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentTypeEnum;
@@ -20,6 +21,7 @@ class GroupHydratePayments
 {
     use AsAction;
     use WithEnumStats;
+    use WithPaymentAggregators;
 
     private Group $group;
 
@@ -36,19 +38,14 @@ class GroupHydratePayments
 
     public function handle(Group $group): void
     {
-        $amountGroupCurrencySuccessfullyPaid = $group->payments()->where('type', 'payment')
-            ->where('status', 'success')
-            ->sum('group_amount');
-        $amountGroupCurrencyRefunded         = $group->payments()->where('type', 'refund')
-            ->where('status', 'success')
-            ->sum('group_amount');
 
-        $stats = [
-            'number_payments'                       => $group->payments()->count(),
-            'group_amount'                          => $amountGroupCurrencySuccessfullyPaid + $amountGroupCurrencyRefunded,
-            'group_amount_successfully_paid'        => $amountGroupCurrencySuccessfullyPaid,
-            'group_amount_refunded'                 => $amountGroupCurrencyRefunded,
-        ];
+        $stats = array_merge(
+            [
+                'number_payments' => $group->payments()->count()
+            ],
+            $this->paidAmounts($group, 'grp_amount'),
+        );
+
 
         $stats = array_merge(
             $stats,

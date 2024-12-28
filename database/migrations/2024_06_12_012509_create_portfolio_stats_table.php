@@ -15,7 +15,7 @@ return new class () extends Migration {
 
             $table->decimal('amount')->default(0)->comment('Invoiced amount');
             $table->decimal('org_amount')->default(0)->comment('Invoiced amount');
-            $table->decimal('group_amount')->default(0)->comment('Invoiced amount');
+            $table->decimal('grp_amount')->default(0)->comment('Invoiced amount');
 
             $table->unsignedSmallInteger('number_orders')->default(0);
             $table->unsignedSmallInteger('number_ordered_quantity')->default(0);

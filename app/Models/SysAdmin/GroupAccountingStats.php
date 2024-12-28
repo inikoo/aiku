@@ -43,7 +43,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_payment_accounts_type_braintree_paypal
  * @property int $number_payment_accounts_type_checkout
  * @property int $number_payment_accounts_type_hokodo
- * @property int $number_payment_accounts_type_PASTPAY
+ * @property int $number_payment_accounts_type_pastpay
  * @property int $number_payment_accounts_type_cash_on_delivery
  * @property int $number_payment_accounts_type_xendit
  * @property int $number_payments
