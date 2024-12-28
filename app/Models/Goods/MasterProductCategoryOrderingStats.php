@@ -2,11 +2,11 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 21 Dec 2024 14:22:23 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sat, 28 Dec 2024 13:55:40 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\Catalogue;
+namespace App\Models\Goods;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  *
  * @property int $id
- * @property int $product_category_id
+ * @property int $master_product_category_id
  * @property string|null $last_order_created_at
  * @property string|null $last_order_submitted_at
  * @property string|null $last_order_dispatched_at
@@ -35,8 +35,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_orders_handing_type_shipping
  * @property int $number_transactions_out_of_stock_in_basket transactions at the time up submission from basket
  * @property string|null $out_of_stock_in_basket_grp_net_amount
- * @property string|null $out_of_stock_in_basket_org_net_amount
- * @property string $out_of_stock_in_basket_net_amount
  * @property int $number_transactions transactions including cancelled
  * @property int $number_current_transactions transactions excluding cancelled
  * @property int $number_transactions_state_creating
@@ -100,14 +98,14 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_delivery_note_items_state_cancelled
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCategoryOrderingStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCategoryOrderingStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCategoryOrderingStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProductCategoryOrderingStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProductCategoryOrderingStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProductCategoryOrderingStats query()
  * @mixin \Eloquent
  */
-class ProductCategoryOrderingStats extends Model
+class MasterProductCategoryOrderingStats extends Model
 {
-    protected $table = 'product_category_ordering_stats';
+    protected $table = 'master_product_category_ordering_stats';
 
     protected $guarded = [];
 }

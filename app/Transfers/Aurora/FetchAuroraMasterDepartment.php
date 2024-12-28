@@ -14,16 +14,10 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraMasterDepartment extends FetchAurora
 {
+    use WithMasterFetch;
     protected function parseModel(): void
     {
-        $shop = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Product Category Store Key'});
-
-        $masterShop = null;
-
-
-        if (in_array($shop->slug, ['uk', 'awd', 'awf', 'aroma', 'acar'])) {
-            $masterShop = $shop->masterShop;
-        }
+        $masterShop = $this->getMasterShop();
         if ($masterShop == null) {
             return;
         }

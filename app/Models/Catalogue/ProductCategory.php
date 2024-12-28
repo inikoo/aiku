@@ -177,6 +177,11 @@ class ProductCategory extends Model implements Auditable, HasMedia
         return $this->hasOne(ProductCategoryOrderingStats::class);
     }
 
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(ProductCategoryTimeSeries::class);
+    }
+
     public function department(): BelongsTo
     {
         return $this->belongsTo(ProductCategory::class, 'department_id');
@@ -256,8 +261,5 @@ class ProductCategory extends Model implements Auditable, HasMedia
         return $this->hasMany(BackInStockReminder::class, 'sub_department_id');
     }
 
-    public function timeSeries(): HasMany
-    {
-        return $this->hasMany(ProductCategoryTimeSeries::class);
-    }
+
 }

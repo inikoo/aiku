@@ -9,6 +9,7 @@
 namespace App\Actions\Goods\MasterProductCategory;
 
 use App\Actions\Goods\MasterShop\Hydrators\MasterShopHydrateMasterDepartments;
+use App\Actions\Goods\MasterShop\Hydrators\MasterShopHydrateMasterFamilies;
 use App\Actions\GrpAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
@@ -37,6 +38,8 @@ class UpdateMasterProductCategory extends GrpAction
         if ($masterProductCategory->wasChanged('status')) {
             if ($masterProductCategory->type == MasterProductCategoryTypeEnum::DEPARTMENT) {
                 MasterShopHydrateMasterDepartments::dispatch($masterProductCategory->masterShop)->delay($this->hydratorsDelay);
+            } elseif ($masterProductCategory->type == MasterProductCategoryTypeEnum::FAMILY) {
+                MasterShopHydrateMasterFamilies::dispatch($masterProductCategory->masterShop)->delay($this->hydratorsDelay);
             }
 
         }

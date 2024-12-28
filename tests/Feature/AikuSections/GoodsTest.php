@@ -23,7 +23,15 @@ use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Goods\Stock\StockStateEnum;
 use App\Enums\Goods\StockFamily\StockFamilyStateEnum;
 use App\Models\Goods\MasterProductCategory;
+use App\Models\Goods\MasterProductCategoryOrderingIntervals;
+use App\Models\Goods\MasterProductCategoryOrderingStats;
+use App\Models\Goods\MasterProductCategorySalesIntervals;
+use App\Models\Goods\MasterProductCategoryStats;
 use App\Models\Goods\MasterShop;
+use App\Models\Goods\MasterShopOrderingIntervals;
+use App\Models\Goods\MasterShopOrderingStats;
+use App\Models\Goods\MasterShopSalesIntervals;
+use App\Models\Goods\MasterShopStats;
 use App\Models\Goods\Stock;
 use App\Models\Goods\StockFamily;
 use App\Models\Goods\TradeUnit;
@@ -332,6 +340,11 @@ test('create master shop', function () {
     $group = $masterShop->group;
 
     expect($masterShop)->toBeInstanceOf(MasterShop::class)
+        ->and($masterShop->stats)->toBeInstanceOf(MasterShopStats::class)
+        ->and($masterShop->orderingStats)->toBeInstanceOf(MasterShopOrderingStats::class)
+        ->and($masterShop->orderingIntervals)->toBeInstanceOf(MasterShopOrderingIntervals::class)
+        ->and($masterShop->salesIntervals)->toBeInstanceOf(MasterShopSalesIntervals::class)
+        ->and($masterShop->timeSeries()->count())->toBe(5)
         ->and($masterShop)->not->toBeNull()
         ->and($masterShop->code)->toBe('SHOP1')
         ->and($masterShop->name)->toBe('shop1')
@@ -417,6 +430,11 @@ test('create master product category', function (MasterShop $masterShop) {
     $masterShop->refresh();
 
     expect($masterProductCategory)->toBeInstanceOf(MasterProductCategory::class)
+        ->and($masterProductCategory->stats)->toBeInstanceOf(MasterProductCategoryStats::class)
+        ->and($masterProductCategory->orderingStats)->toBeInstanceOf(MasterProductCategoryOrderingStats::class)
+        ->and($masterProductCategory->orderingIntervals)->toBeInstanceOf(MasterProductCategoryOrderingIntervals::class)
+        ->and($masterProductCategory->salesIntervals)->toBeInstanceOf(MasterProductCategorySalesIntervals::class)
+        ->and($masterProductCategory->timeSeries()->count())->toBe(5)
         ->and($masterProductCategory)->not->toBeNull()
         ->and($masterProductCategory->code)->toBe('PRODUCT_CATEGORY1')
         ->and($masterProductCategory->name)->toBe('product category 1')

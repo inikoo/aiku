@@ -67,12 +67,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_payments_type_refund_state_cancelled
  * @property int $number_payments_type_refund_state_error
  * @property int $number_payments_type_refund_state_declined
- * @property string $org_amount organisation currency, amount_successfully_paid-amount_returned
- * @property string $org_amount_successfully_paid
- * @property string $org_amount_refunded
- * @property string $group_amount Group currency, amount_successfully_paid-amount_returned
- * @property string $group_amount_successfully_paid
- * @property string $group_amount_refunded
+ * @property string $grp_amount_paid_balance Group currency, amount_successfully_paid-amount_returned
+ * @property string $grp_amount_successfully_paid
+ * @property string $grp_amount_refunded
  * @property int $number_invoices
  * @property int $number_invoices_type_invoice
  * @property int $number_invoices_type_refund

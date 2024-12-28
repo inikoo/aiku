@@ -9,10 +9,12 @@
 namespace App\Actions\Goods\MasterProductCategory;
 
 use App\Actions\Goods\MasterShop\Hydrators\MasterShopHydrateMasterDepartments;
+use App\Actions\Goods\MasterShop\Hydrators\MasterShopHydrateMasterFamilies;
 use App\Actions\GrpAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
+use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Models\Goods\MasterProductCategory;
 use App\Models\Goods\MasterShop;
 use App\Rules\AlphaDashDot;
@@ -26,8 +28,8 @@ class StoreMasterProductCategory extends GrpAction
 
     public function handle(MasterProductCategory|MasterShop $parent, array $modelData): MasterProductCategory
     {
+        data_set($modelData, 'group_id', $parent->group_id);
         if ($parent instanceof MasterProductCategory) {
-            data_set($modelData, 'group_id', $parent->group_id);
             data_set($modelData, 'master_department_id', $parent->id);
             data_set($modelData, 'master_shop_id', $parent->master_shop_id);
             data_set($modelData, 'master_parent_id', $parent->id);
@@ -38,16 +40,26 @@ class StoreMasterProductCategory extends GrpAction
                 data_set($modelData, 'master_sub_department_id', $parent->id);
             }
         } else {
-            data_set($modelData, 'group_id', $parent->group_id);
+
             data_set($modelData, 'master_shop_id', $parent->id);
         }
 
         /** @var MasterProductCategory $masterProductCategory */
-        $masterProductCategory = $parent->masterProductCategories()->create($modelData);
+        $masterProductCategory = MasterProductCategory::create($modelData);
+
+        $masterProductCategory->stats()->create();
+        $masterProductCategory->orderingIntervals()->create();
+        $masterProductCategory->orderingStats()->create();
+        $masterProductCategory->salesIntervals()->create();
+        foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
+            $masterProductCategory->timeSeries()->create(['frequency' => $frequency]);
+        }
         $masterProductCategory->refresh();
 
         if ($masterProductCategory->type == MasterProductCategoryTypeEnum::DEPARTMENT) {
             MasterShopHydrateMasterDepartments::dispatch($masterProductCategory->masterShop)->delay($this->hydratorsDelay);
+        } elseif ($masterProductCategory->type == MasterProductCategoryTypeEnum::FAMILY) {
+            MasterShopHydrateMasterFamilies::dispatch($masterProductCategory->masterShop)->delay($this->hydratorsDelay);
         }
 
         return $masterProductCategory;
@@ -80,6 +92,7 @@ class StoreMasterProductCategory extends GrpAction
         ];
 
         if (!$this->strict) {
+            $rules['source_family_id']     = ['sometimes', 'required', 'max:32', 'string'];
             $rules['source_department_id'] = ['sometimes', 'required', 'max:32', 'string'];
             $rules                         = $this->noStrictStoreRules($rules);
         }

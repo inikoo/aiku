@@ -511,5 +511,10 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
+    public function fetchMasterFamily($id): ?array
+    {
+        return null;
+    }
+
 
 }

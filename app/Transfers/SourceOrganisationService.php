@@ -199,4 +199,7 @@ interface SourceOrganisationService
 
     public function fetchMasterDepartment($id);
 
+    public function fetchMasterFamily($id);
+
+
 }

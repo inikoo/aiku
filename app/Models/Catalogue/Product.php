@@ -50,6 +50,7 @@ use Spatie\Tags\HasTags;
  * @property bool $is_main
  * @property bool $status
  * @property ProductStateEnum $state
+ * @property string $trade_config
  * @property string $slug
  * @property string $code
  * @property string|null $name

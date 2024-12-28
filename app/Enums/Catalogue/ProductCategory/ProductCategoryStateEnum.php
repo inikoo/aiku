@@ -21,6 +21,7 @@ enum ProductCategoryStateEnum: string
 
     case IN_PROCESS    = 'in-process';
     case ACTIVE        = 'active';
+    case INACTIVE     = 'inactive';
     case DISCONTINUING = 'discontinuing';
     case DISCONTINUED  = 'discontinued';
 
@@ -29,6 +30,7 @@ enum ProductCategoryStateEnum: string
         return [
             'in-process'            => __('In Process'),
             'active'                => __('Active'),
+            'inactive'             => __('Inactive'),
             'discontinuing'         => __('Discontinuing'),
             'discontinued'          => __('Discontinued'),
         ];
@@ -54,6 +56,16 @@ enum ProductCategoryStateEnum: string
                 'color'   => 'emerald',
                 'app'     => [
                     'name' => 'check',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'inactive' => [
+                'tooltip' => __('Inactive'),
+                'icon'    => 'fal fa-ban',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
+                'app'     => [
+                    'name' => 'ban',
                     'type' => 'font-awesome-5'
                 ]
             ],
@@ -90,6 +102,7 @@ enum ProductCategoryStateEnum: string
         return [
             'in-process'            => $stats->number_departments_state_in_process,
             'active'                => $stats->number_departments_state_active,
+            'inactive'             => $stats->number_departments_state_inactive,
             'discontinuing'         => $stats->number_departments_state_discontinuing,
             'discontinued'          => $stats->number_departments_state_discontinued,
         ];
@@ -106,6 +119,7 @@ enum ProductCategoryStateEnum: string
         return [
             'in-process'            => $stats->number_families_state_in_process,
             'active'                => $stats->number_families_state_active,
+            'inactive'             => $stats->number_families_state_inactive,
             'discontinuing'         => $stats->number_families_state_discontinuing,
             'discontinued'          => $stats->number_families_state_discontinued,
         ];
@@ -118,6 +132,7 @@ enum ProductCategoryStateEnum: string
         return [
             'in-process'            => $stats->number_sub_departments_state_in_process,
             'active'                => $stats->number_sub_departments_state_active,
+            'inactive'             => $stats->number_sub_departments_state_inactive,
             'discontinuing'         => $stats->number_sub_departments_state_discontinuing,
             'discontinued'          => $stats->number_sub_departments_state_discontinued,
         ];

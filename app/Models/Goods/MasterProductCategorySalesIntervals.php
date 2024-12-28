@@ -221,6 +221,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class MasterProductCategorySalesIntervals extends Model
 {
+    protected $table = 'master_product_category_sales_intervals';
     protected $guarded = [];
 
     public function masterProductCategory(): BelongsTo

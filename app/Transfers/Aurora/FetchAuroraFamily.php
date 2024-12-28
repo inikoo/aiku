@@ -20,10 +20,7 @@ class FetchAuroraFamily extends FetchAurora
         $parent        = null;
 
         if ($this->auroraModelData->{'Product Category Department Category Key'}) {
-
-
             $parent        = $this->parseDepartment($this->organisation->id.':'.$this->auroraModelData->{'Product Category Department Category Key'});
-
         }
         if (!$parent) {
             $parent = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Product Category Store Key'});

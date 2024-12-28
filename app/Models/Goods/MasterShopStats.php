@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_current_master_departments
  * @property int $number_master_departments_state_in_process
  * @property int $number_master_departments_state_active
+ * @property int $number_master_departments_state_inactive
  * @property int $number_master_departments_state_discontinuing
  * @property int $number_master_departments_state_discontinued
  * @property int $number_master_sub_departments

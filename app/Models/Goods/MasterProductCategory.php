@@ -14,6 +14,7 @@ use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InGroup;
 use Illuminate\Database\Eloquent\Collection as LaravelCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -55,13 +56,17 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
+ * @property-read LaravelCollection<int, MasterProductCategory> $masterProductCategories
  * @property-read \App\Models\Goods\MasterShop $masterShop
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
+ * @property-read \App\Models\Goods\MasterProductCategoryOrderingIntervals|null $orderingIntervals
+ * @property-read \App\Models\Goods\MasterProductCategoryOrderingStats|null $orderingStats
  * @property-read MasterProductCategory|null $parent
  * @property-read \App\Models\Goods\MasterProductCategorySalesIntervals|null $salesIntervals
  * @property-read \App\Models\Goods\MasterProductCategoryStats|null $stats
  * @property-read MasterProductCategory|null $subDepartment
  * @property-read LaravelCollection<int, MasterProductCategory> $subDepartments
+ * @property-read LaravelCollection<int, \App\Models\Goods\MasterProductCategoryTimeSeries> $timeSeries
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProductCategory newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProductCategory newQuery()
@@ -78,6 +83,7 @@ class MasterProductCategory extends Model implements Auditable, HasMedia
     use HasUniversalSearch;
     use HasHistory;
     use HasImage;
+    use InGroup;
 
     protected $guarded = [];
 
@@ -119,9 +125,36 @@ class MasterProductCategory extends Model implements Auditable, HasMedia
             ->slugsShouldBeNoLongerThan(64);
     }
 
-    public function group(): BelongsTo
+
+    public function stats(): HasOne
     {
-        return $this->belongsTo(Group::class);
+        return $this->hasOne(MasterProductCategoryStats::class);
+    }
+
+    public function orderingIntervals(): HasOne
+    {
+        return $this->hasOne(MasterProductCategoryOrderingIntervals::class);
+    }
+
+    public function salesIntervals(): HasOne
+    {
+        return $this->hasOne(MasterProductCategorySalesIntervals::class);
+    }
+
+    public function orderingStats(): HasOne
+    {
+        return $this->hasOne(MasterProductCategoryOrderingStats::class);
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(MasterProductCategoryTimeSeries::class);
+    }
+
+
+    public function masterProductCategories(): HasMany
+    {
+        return $this->hasMany(MasterProductCategory::class);
     }
 
     public function department(): BelongsTo
@@ -165,18 +198,12 @@ class MasterProductCategory extends Model implements Auditable, HasMedia
         };
     }
 
-    public function salesIntervals(): HasOne
-    {
-        return $this->hasOne(MasterProductCategorySalesIntervals::class);
-    }
 
-    public function stats(): HasOne
-    {
-        return $this->hasOne(MasterProductCategoryStats::class);
-    }
 
     public function masterShop(): BelongsTo
     {
         return $this->belongsTo(MasterShop::class);
     }
+
+
 }

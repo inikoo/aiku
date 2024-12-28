@@ -40,6 +40,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Group $group
  * @property-read LaravelCollection<int, \App\Models\Goods\MasterProductCategory> $masterProductCategories
+ * @property-read \App\Models\Goods\MasterShopOrderingIntervals|null $orderingIntervals
+ * @property-read \App\Models\Goods\MasterShopOrderingStats|null $orderingStats
  * @property-read \App\Models\Goods\MasterShopSalesIntervals|null $salesIntervals
  * @property-read \App\Models\Goods\MasterShopStats|null $stats
  * @property-read LaravelCollection<int, \App\Models\Goods\MasterShopTimeSeries> $timeSeries
@@ -106,6 +108,21 @@ class MasterShop extends Model implements Auditable
         return $this->hasOne(MasterShopStats::class);
     }
 
+    public function orderingStats(): HasOne
+    {
+        return $this->hasOne(MasterShopOrderingStats::class);
+    }
+
+    public function orderingIntervals(): HasOne
+    {
+        return $this->hasOne(MasterShopOrderingIntervals::class);
+    }
+
+    public function salesIntervals(): HasOne
+    {
+        return $this->hasOne(MasterShopSalesIntervals::class);
+    }
+
     public function masterProductCategories(): HasMany
     {
         return $this->hasMany(MasterProductCategory::class);
@@ -121,7 +138,7 @@ class MasterShop extends Model implements Auditable
         return $this->masterProductCategories()->where('type', ProductCategoryTypeEnum::SUB_DEPARTMENT)->get();
     }
 
-    public function masterFamilies(): LaravelCollection
+    public function getMasterFamilies(): LaravelCollection
     {
         return $this->masterProductCategories()->where('type', ProductCategoryTypeEnum::FAMILY)->get();
     }
@@ -132,10 +149,6 @@ class MasterShop extends Model implements Auditable
             ->withTimestamps();
     }
 
-    public function salesIntervals(): HasOne
-    {
-        return $this->hasOne(MasterShopSalesIntervals::class);
-    }
 
     public function timeSeries(): HasMany
     {
