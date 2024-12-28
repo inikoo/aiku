@@ -53,7 +53,7 @@ use App\Models\Dropshipping\Portfolio;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Goods\Ingredient;
-use App\Models\Goods\MasterProduct;
+use App\Models\Goods\MasterAsset;
 use App\Models\Goods\MasterProductCategory;
 use App\Models\Goods\MasterShop;
 use App\Models\Goods\Stock;
@@ -177,8 +177,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupMailshotsIntervals|null $mailshotsIntervals
  * @property-read \App\Models\SysAdmin\GroupManufactureStats|null $manufactureStats
  * @property-read LaravelCollection<int, ManufactureTask> $manufactureTasks
+ * @property-read LaravelCollection<int, MasterAsset> $masterAssets
  * @property-read LaravelCollection<int, MasterProductCategory> $masterProductCategories
- * @property-read LaravelCollection<int, MasterProduct> $masterProducts
  * @property-read LaravelCollection<int, MasterShop> $masterShops
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read LaravelCollection<int, OfferCampaign> $offerCampaigns
@@ -778,9 +778,9 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasMany(MasterShop::class);
     }
 
-    public function masterProducts(): HasMany
+    public function masterAssets(): HasMany
     {
-        return $this->hasMany(MasterProduct::class);
+        return $this->hasMany(MasterAsset::class);
     }
 
     public function masterProductCategories(): HasMany

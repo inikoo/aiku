@@ -10,8 +10,8 @@
 namespace App\Actions\Goods\Ingredient\UI;
 
 use App\Actions\Goods\HasGoodsAuthorisation;
+use App\Actions\Goods\UI\ShowGoodsDashboard;
 use App\Actions\GrpAction;
-use App\Actions\UI\Goods\ShowGoodsDashboard;
 use App\Http\Resources\Goods\IngredientsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Goods\Ingredient;
@@ -68,9 +68,9 @@ class IndexIngredients extends GrpAction
                 'ingredients.name',
                 'ingredients.number_trade_units',
                 'ingredients.number_stocks',
-                'ingredients.number_master_products',
+                'ingredients.number_trade_units',
             ])
-            ->allowedSorts(['name', 'number_trade_units', 'number_stocks', 'number_master_products'])
+            ->allowedSorts(['name', 'number_trade_units', 'number_stocks', 'number_trade_units'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -95,7 +95,7 @@ class IndexIngredients extends GrpAction
                 ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_trade_units', label: __('Trade Units'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_stocks', label: __('Stocks'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_master_products', label: __('Master Products'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_trade_units', label: __('Master Products'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
     }

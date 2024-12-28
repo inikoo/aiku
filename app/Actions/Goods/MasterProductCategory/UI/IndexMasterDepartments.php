@@ -1,15 +1,15 @@
 <?php
 
 /*
- * author Arya Permana - Kirin
- * created on 15-10-2024-14h-37m
- * github: https://github.com/KirinZero0
- * copyright 2024
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 29 Dec 2024 03:09:13 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Actions\UI\Goods\Catalogue;
+namespace App\Actions\Goods\MasterProductCategory\UI;
 
 use App\Actions\Catalogue\Collection\UI\ShowCollection;
+use App\Actions\Goods\UI\WithMasterCatalogueSubNavigation;
 use App\Actions\GrpAction;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Http\Resources\Goods\Catalogue\MasterDepartmentsResource;
@@ -27,7 +27,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexMasterDepartments extends GrpAction
 {
-    use WithMasterCatalogueSubnavigation;
+    use WithMasterCatalogueSubNavigation;
 
     private MasterShop $parent;
 

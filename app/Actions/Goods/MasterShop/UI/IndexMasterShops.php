@@ -1,16 +1,16 @@
 <?php
 
 /*
- * author Arya Permana - Kirin
- * created on 15-10-2024-10h-15m
- * github: https://github.com/KirinZero0
- * copyright 2024
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 29 Dec 2024 03:12:46 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Actions\UI\Goods\Catalogue;
+namespace App\Actions\Goods\MasterShop\UI;
 
+use App\Actions\Goods\UI\ShowGoodsDashboard;
+use App\Actions\Goods\UI\WithMasterCatalogueSubNavigation;
 use App\Actions\GrpAction;
-use App\Actions\UI\Goods\ShowGoodsDashboard;
 use App\Http\Resources\Goods\Catalogue\MasterShopsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Goods\MasterShop;
@@ -25,7 +25,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexMasterShops extends GrpAction
 {
-    use WithMasterCatalogueSubnavigation;
+    use WithMasterCatalogueSubNavigation;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -96,7 +96,7 @@ class IndexMasterShops extends GrpAction
 
     public function htmlResponse(LengthAwarePaginator $masterShops, ActionRequest $request): Response
     {
-        $subNavigation = $this->getMasterCatalogueSubnavigation($this->group);
+        $subNavigation = $this->getMasterCatalogueSubNavigation($this->group);
 
         return Inertia::render(
             'Goods/MasterShops',

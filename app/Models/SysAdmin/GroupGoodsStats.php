@@ -18,6 +18,28 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $group_id
  * @property int $number_master_shops
  * @property int $number_current_master_shops status=true
+ * @property int $number_master_product_categories
+ * @property int $number_current_master_product_categories status=true
+ * @property int $number_master_product_categories_type_department
+ * @property int $number_current_master_product_categories_type_department
+ * @property int $number_master_product_categories_type_sub_department
+ * @property int $number_current_master_product_categories_type_sub_department
+ * @property int $number_master_product_categories_type_family
+ * @property int $number_current_master_product_categories_type_family
+ * @property int $number_master_assets
+ * @property int $number_current_master_assets status=true
+ * @property int $number_master_assets_type_product
+ * @property int $number_current_master_assets_type_product
+ * @property int $number_master_assets_type_service
+ * @property int $number_current_master_assets_type_service
+ * @property int $number_master_assets_type_subscription
+ * @property int $number_current_master_assets_type_subscription
+ * @property int $number_master_assets_type_rental
+ * @property int $number_current_master_assets_type_rental
+ * @property int $number_master_assets_type_charge
+ * @property int $number_current_master_assets_type_charge
+ * @property int $number_master_assets_type_shipping_zone
+ * @property int $number_current_master_assets_type_shipping_zone
  * @property int $number_trade_units
  * @property int $number_trade_units_with_barcode
  * @property int $number_trade_units_with_net_weight

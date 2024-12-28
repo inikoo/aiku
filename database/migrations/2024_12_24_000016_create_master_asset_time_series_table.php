@@ -16,10 +16,10 @@ return new class () extends Migration {
 
     public function up(): void
     {
-        Schema::create('master_product_time_series', function (Blueprint $table) {
+        Schema::create('master_asset_time_series', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('master_product_id');
-            $table->foreign('master_product_id')->references('id')->on('master_products')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedSmallInteger('master_asset_id');
+            $table->foreign('master_asset_id')->references('id')->on('master_assets')->onUpdate('cascade')->onDelete('cascade');
             $this->getTimeSeriesFields($table);
         });
     }
@@ -27,6 +27,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('master_product_time_series');
+        Schema::dropIfExists('master_asset_time_series');
     }
 };

@@ -44,15 +44,14 @@ use Spatie\Tags\HasTags;
  * @property int $group_id
  * @property int $organisation_id
  * @property int|null $shop_id
- * @property int|null $master_product_id
  * @property int|null $asset_id
  * @property int|null $family_id
  * @property int|null $sub_department_id
  * @property int|null $department_id
  * @property bool $is_main
- * @property bool $status
+ * @property ProductStatusEnum $status
  * @property ProductStateEnum $state
- * @property string $trade_config
+ * @property ProductTradeConfigEnum $trade_config
  * @property string $slug
  * @property string $code
  * @property string|null $name

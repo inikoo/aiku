@@ -145,7 +145,7 @@ class MasterShop extends Model implements Auditable
 
     public function getMasterProducts(): BelongsToMany
     {
-        return $this->belongsToMany(MasterProduct::class, 'master_shop_has_master_products')
+        return $this->belongsToMany(MasterAsset::class, 'master_shop_has_master_products')
             ->withTimestamps();
     }
 

@@ -2,11 +2,11 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 23 Mar 2024 04:21:44 Malaysia Time, Mexico City, Mexico
+ * Created: Sun, 29 Dec 2024 03:14:17 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\Goods;
+namespace App\Actions\Goods\UI;
 
 use App\Actions\GrpAction;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;

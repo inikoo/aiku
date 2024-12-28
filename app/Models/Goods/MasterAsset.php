@@ -8,7 +8,7 @@
 
 namespace App\Models\Goods;
 
-use App\Enums\Catalogue\Product\ProductStateEnum;
+use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
@@ -31,51 +31,53 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $master_family_id
  * @property int|null $master_sub_department_id
  * @property int|null $master_department_id
+ * @property AssetTypeEnum $type
  * @property bool $is_main
  * @property bool $status
  * @property string $slug
  * @property string $code
  * @property string|null $name
  * @property string|null $description
- * @property string $unit
  * @property numeric|null $price
+ * @property string $units
+ * @property string|null $unit
  * @property array $data
- * @property array $settings
  * @property int|null $gross_weight outer weight including packing, grams
  * @property int|null $marketing_weight to be shown in website, grams
  * @property string|null $barcode mirror from trade_unit
- * @property numeric|null $rrp RRP per outer
+ * @property numeric|null $rrp RRP per outer grp currency
  * @property int|null $image_id
- * @property int|null $available_quantity outer available quantity for sale
  * @property numeric $variant_ratio
  * @property bool $variant_is_visible
- * @property int|null $main_master_product_id
+ * @property int|null $main_master_asset_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property ProductStateEnum $state
+ * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
- * @property-read MasterProduct|null $mainMasterProduct
+ * @property-read MasterAsset|null $mainMasterProduct
  * @property-read \App\Models\Goods\MasterProductCategory|null $masterDepartment
  * @property-read \App\Models\Goods\MasterProductCategory|null $masterFamily
- * @property-read \Illuminate\Database\Eloquent\Collection<int, MasterProduct> $masterProductVariants
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, MasterAsset> $masterProductVariants
  * @property-read \App\Models\Goods\MasterProductCategory|null $masterSubDepartment
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
- * @property-read \App\Models\Goods\MasterProductSalesIntervals|null $salesIntervals
- * @property-read \App\Models\Goods\MasterProductStats|null $stats
+ * @property-read \App\Models\Goods\MasterAssetSalesIntervals|null $salesIntervals
+ * @property-read \App\Models\Goods\MasterAssetStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProduct newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProduct newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProduct onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProduct query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProduct withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProduct withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterAsset newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterAsset newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterAsset onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterAsset query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterAsset withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterAsset withoutTrashed()
  * @mixin \Eloquent
  */
-class MasterProduct extends Model implements Auditable, HasMedia
+class MasterAsset extends Model implements Auditable, HasMedia
 {
     use SoftDeletes;
     use HasSlug;
@@ -86,14 +88,16 @@ class MasterProduct extends Model implements Auditable, HasMedia
     protected $guarded = [];
 
     protected $casts = [
-        'variant_ratio'          => 'decimal:3',
-        'price'                  => 'decimal:2',
-        'rrp'                    => 'decimal:2',
-        'data'                   => 'array',
-        'settings'               => 'array',
-        'status'                 => 'boolean',
-        'variant_is_visible'     => 'boolean',
-        'state'                  => ProductStateEnum::class,
+        'type'               => AssetTypeEnum::class,
+        'variant_ratio'      => 'decimal:3',
+        'price'              => 'decimal:2',
+        'rrp'                => 'decimal:2',
+        'data'               => 'array',
+        'settings'           => 'array',
+        'status'             => 'boolean',
+        'variant_is_visible' => 'boolean',
+        'fetched_at'         => 'datetime',
+        'last_fetched_at'    => 'datetime',
     ];
 
     protected $attributes = [
@@ -148,12 +152,12 @@ class MasterProduct extends Model implements Auditable, HasMedia
 
     public function masterProductVariants(): HasMany
     {
-        return $this->hasMany(MasterProduct::class, 'main_master_product_id');
+        return $this->hasMany(MasterAsset::class, 'main_master_product_id');
     }
 
     public function mainMasterProduct(): BelongsTo
     {
-        return $this->belongsTo(MasterProduct::class, 'main_master_product_id');
+        return $this->belongsTo(MasterAsset::class, 'main_master_product_id');
     }
 
     public function masterDepartment(): BelongsTo
@@ -173,12 +177,12 @@ class MasterProduct extends Model implements Auditable, HasMedia
 
     public function salesIntervals(): HasOne
     {
-        return $this->hasOne(MasterProductSalesIntervals::class);
+        return $this->hasOne(MasterAssetSalesIntervals::class);
     }
 
     public function stats(): HasOne
     {
-        return $this->hasOne(MasterProductStats::class);
+        return $this->hasOne(MasterAssetStats::class);
     }
 
 }

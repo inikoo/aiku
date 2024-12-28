@@ -1,19 +1,18 @@
 <?php
 
 /*
- * author Arya Permana - Kirin
- * created on 15-10-2024-10h-36m
- * github: https://github.com/KirinZero0
- * copyright 2024
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 29 Dec 2024 03:14:22 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Actions\UI\Goods\Catalogue;
+namespace App\Actions\Goods\UI;
 
 use App\Models\Goods\MasterShop;
 
-trait WithMasterCatalogueSubnavigation
+trait WithMasterCatalogueSubNavigation
 {
-    protected function getMasterCatalogueSubnavigation(): array
+    protected function getMasterCatalogueSubNavigation(): array
     {
         return [
             [
@@ -35,7 +34,7 @@ trait WithMasterCatalogueSubnavigation
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-cube'],
-                    'tooltip' => __('Master Products')
+                    'tooltip' => __('Master Assets')
                 ]
             ]
         ];

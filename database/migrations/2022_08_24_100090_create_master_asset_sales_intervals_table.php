@@ -15,10 +15,10 @@ return new class () extends Migration {
     use HasSalesIntervals;
     public function up(): void
     {
-        Schema::create('master_product_sales_intervals', function (Blueprint $table) {
+        Schema::create('master_asset_sales_intervals', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('master_product_id')->index();
-            $table->foreign('master_product_id')->references('id')->on('master_products');
+            $table->unsignedInteger('master_asset_id')->index();
+            $table->foreign('master_asset_id')->references('id')->on('master_assets');
             $table = $this->salesIntervalFields($table, [
                 'sales_grp_currency',
                 'invoices',
@@ -33,6 +33,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('master_product_sales_intervals');
+        Schema::dropIfExists('master_asset_sales_intervals');
     }
 };

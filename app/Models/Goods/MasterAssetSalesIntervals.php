@@ -12,10 +12,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\MasterProductSalesIntervals
+ *
  *
  * @property int $id
- * @property int $master_product_id
+ * @property int $master_asset_id
  * @property string $sales_grp_currency_all
  * @property string $sales_grp_currency_1y
  * @property string $sales_grp_currency_1q
@@ -213,18 +213,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $customers_pq5
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Goods\MasterProduct $masterProduct
- * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProductSalesIntervals newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProductSalesIntervals newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProductSalesIntervals query()
+ * @property-read \App\Models\Goods\MasterAsset $masterAsset
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterAssetSalesIntervals newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterAssetSalesIntervals newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterAssetSalesIntervals query()
  * @mixin \Eloquent
  */
-class MasterProductSalesIntervals extends Model
+class MasterAssetSalesIntervals extends Model
 {
     protected $guarded = [];
 
-    public function masterProduct(): BelongsTo
+    public function masterAsset(): BelongsTo
     {
-        return $this->belongsTo(MasterProduct::class);
+        return $this->belongsTo(MasterAsset::class);
     }
 }

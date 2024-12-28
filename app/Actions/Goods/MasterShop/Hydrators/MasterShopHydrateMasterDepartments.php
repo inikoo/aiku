@@ -33,8 +33,8 @@ class MasterShopHydrateMasterDepartments
     public function handle(MasterShop $masterShop): void
     {
         $stats = [
-            'number_master_departments' => $masterShop->getMasterDepartments()->count(),
-            'number_current_master_departments' => $masterShop->getMasterDepartments()->where('status', true)->count(),
+            'number_master_product_categories_type_department' => $masterShop->getMasterDepartments()->count(),
+            'number_current_master_product_categories_type_department' => $masterShop->getMasterDepartments()->where('status', true)->count(),
         ];
 
 

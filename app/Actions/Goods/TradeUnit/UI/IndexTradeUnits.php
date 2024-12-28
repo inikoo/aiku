@@ -9,8 +9,8 @@
 namespace App\Actions\Goods\TradeUnit\UI;
 
 use App\Actions\Goods\HasGoodsAuthorisation;
+use App\Actions\Goods\UI\ShowGoodsDashboard;
 use App\Actions\GrpAction;
-use App\Actions\UI\Goods\ShowGoodsDashboard;
 use App\Http\Resources\Goods\TradeUnitsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Goods\TradeUnit;

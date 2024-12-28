@@ -30,11 +30,11 @@ const props = defineProps<{
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(code)="{ item: masterProducts }">
-            {{ masterShop['code'] }}
+        <template #cell(code)="{ item: masterAsset }">
+            {{ masterAsset['code'] }}
         </template>
-        <template #cell(name)="{ item: masterProducts }">
-            {{ masterShop['name'] }}
+        <template #cell(name)="{ item: masterAsset }">
+            {{ masterAsset['name'] }}
         </template>
     </Table>
 </template>

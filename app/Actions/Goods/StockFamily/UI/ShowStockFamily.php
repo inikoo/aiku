@@ -9,9 +9,9 @@
 namespace App\Actions\Goods\StockFamily\UI;
 
 use App\Actions\Goods\Stock\UI\IndexStocks;
+use App\Actions\Goods\UI\ShowGoodsDashboard;
 use App\Actions\GrpAction;
 use App\Actions\Helpers\History\UI\IndexHistory;
-use App\Actions\UI\Goods\ShowGoodsDashboard;
 use App\Enums\UI\SupplyChain\StockFamilyTabsEnum;
 use App\Http\Resources\Goods\StockFamilyResource;
 use App\Http\Resources\Goods\StocksResource;

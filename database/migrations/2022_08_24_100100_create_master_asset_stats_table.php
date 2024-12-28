@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::create('master_product_stats', function (Blueprint $table) {
+        Schema::create('master_asset_stats', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('master_product_id')->index();
-            $table->foreign('master_product_id')->references('id')->on('master_products')->onDelete('cascade');
+            $table->unsignedInteger('master_asset_id')->index();
+            $table->foreign('master_asset_id')->references('id')->on('master_assets')->onDelete('cascade');
 
             $table->timestampsTz();
         });
@@ -19,6 +19,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('master_product_stats');
+        Schema::dropIfExists('master_asset_stats');
     }
 };

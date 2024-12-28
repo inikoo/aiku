@@ -441,8 +441,8 @@ test('create master product category', function (MasterShop $masterShop) {
         ->and($masterProductCategory->master_shop_id)->toBe($masterShop->id)
         ->and($masterProductCategory->group_id)->toBe($this->group->id)
         ->and($masterProductCategory->type)->toBe(MasterProductCategoryTypeEnum::DEPARTMENT)
-        ->and($masterShop->stats->number_master_departments)->toBe(1)
-        ->and($masterShop->stats->number_current_master_departments)->toBe(1);
+        ->and($masterShop->stats->number_master_product_categories_type_department)->toBe(1)
+        ->and($masterShop->stats->number_current_master_product_categories_type_department)->toBe(1);
 
     return $masterProductCategory;
 })->depends("create master shop");
@@ -463,6 +463,6 @@ test('update master product category', function (MasterProductCategory $masterPr
         ->and($updatedMasterProductCategory)->not->toBeNull()
         ->and($updatedMasterProductCategory->code)->toBe('PRODUCT_CATEGORY2')
         ->and($updatedMasterProductCategory->name)->toBe('product category 2')
-        ->and($masterShop->stats->number_master_departments)->toBe(1)
-        ->and($masterShop->stats->number_current_master_departments)->toBe(0);
+        ->and($masterShop->stats->number_master_product_categories_type_department)->toBe(1)
+        ->and($masterShop->stats->number_current_master_product_categories_type_department)->toBe(0);
 })->depends("create master product category");

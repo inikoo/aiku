@@ -1,19 +1,20 @@
 <?php
 
 /*
- * author Arya Permana - Kirin
- * created on 15-10-2024-11h-47m
- * github: https://github.com/KirinZero0
- * copyright 2024
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 29 Dec 2024 03:11:12 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Actions\UI\Goods\Catalogue;
+namespace App\Actions\Goods\MasterAsset\UI;
 
+use App\Actions\Goods\MasterShop\UI\ShowMasterShop;
+use App\Actions\Goods\UI\ShowGoodsDashboard;
+use App\Actions\Goods\UI\WithMasterCatalogueSubNavigation;
 use App\Actions\GrpAction;
-use App\Actions\UI\Goods\ShowGoodsDashboard;
 use App\Http\Resources\Goods\Catalogue\MasterProductsResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Goods\MasterProduct;
+use App\Models\Goods\MasterAsset;
 use App\Models\Goods\MasterShop;
 use App\Models\SysAdmin\Group;
 use App\Services\QueryBuilder;
@@ -24,9 +25,9 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexMasterProducts extends GrpAction
+class IndexMasterAssets extends GrpAction
 {
-    use WithMasterCatalogueSubnavigation;
+    use WithMasterCatalogueSubNavigation;
 
     private Group|MasterShop $parent;
 
@@ -49,7 +50,7 @@ class IndexMasterProducts extends GrpAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(MasterProduct::class);
+        $queryBuilder = QueryBuilder::for(MasterAsset::class);
         if ($parent instanceof Group) {
             $queryBuilder->where('master_products.group_id', $parent->id);
         } elseif ($parent instanceof MasterShop) {
@@ -99,15 +100,15 @@ class IndexMasterProducts extends GrpAction
         };
     }
 
-    public function jsonResponse(LengthAwarePaginator $masterProducts): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $masterAssets): AnonymousResourceCollection
     {
-        return MasterProductsResource::collection($masterProducts);
+        return MasterProductsResource::collection($masterAssets);
     }
 
-    public function htmlResponse(LengthAwarePaginator $masterProducts, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $masterAssets, ActionRequest $request): Response
     {
         if ($this->parent instanceof Group) {
-            $subNavigation = $this->getMasterCatalogueSubnavigation($this->parent);
+            $subNavigation = $this->getMasterCatalogueSubNavigation($this->parent);
             $title = __('master products');
             $model = '';
             $icon  = [
@@ -148,7 +149,7 @@ class IndexMasterProducts extends GrpAction
                     'iconRight'     => $iconRight,
                     'subNavigation' => $subNavigation,
                 ],
-                'data'        => MasterProductsResource::collection($masterProducts),
+                'data'        => MasterProductsResource::collection($masterAssets),
 
             ]
         )->table($this->tableStructure());
