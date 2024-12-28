@@ -16,6 +16,8 @@ use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\Product\ProductStateEnum;
+use App\Enums\Catalogue\Product\ProductStatusEnum;
+use App\Enums\Catalogue\Product\ProductTradeConfigEnum;
 use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Catalogue\Product;
@@ -44,15 +46,8 @@ class StoreProduct extends OrgAction
      */
     public function handle(Shop|ProductCategory $parent, array $modelData): Product
     {
-        $status = false;
-        if (in_array(Arr::get($modelData, 'state'), [ProductStateEnum::ACTIVE, ProductStateEnum::DISCONTINUING])) {
-            $status = true;
-        }
-        data_set($modelData, 'status', $status);
-
 
         $orgStocks = Arr::pull($modelData, 'org_stocks', []);
-
 
 
         if (count($orgStocks) == 1) {
@@ -244,11 +239,14 @@ class StoreProduct extends OrgAction
         }
 
 
-        $rules['org_stocks'] = ['present','array'];
+        $rules['org_stocks'] = ['present', 'array'];
 
         if (!$this->strict) {
             $rules                       = $this->noStrictStoreRules($rules);
             $rules['historic_source_id'] = ['sometimes', 'required', 'string', 'max:255'];
+            $rules['state']              = ['required', Rule::enum(ProductStateEnum::class)];
+            $rules['status']             = ['required', Rule::enum(ProductStatusEnum::class)];
+            $rules['trade_config']       = ['required', Rule::enum(ProductTradeConfigEnum::class)];
         }
 
         return $rules;

@@ -15,6 +15,8 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\Product\ProductStateEnum;
+use App\Enums\Catalogue\Product\ProductStatusEnum;
+use App\Enums\Catalogue\Product\ProductTradeConfigEnum;
 use App\Http\Resources\Catalogue\ProductResource;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Product;
@@ -78,7 +80,7 @@ class UpdateProduct extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'code'        => [
+            'code'         => [
                 'sometimes',
                 'required',
                 'max:32',
@@ -93,15 +95,18 @@ class UpdateProduct extends OrgAction
                     ]
                 ),
             ],
-            'name'        => ['sometimes', 'required', 'max:250', 'string'],
-            'price'       => ['sometimes', 'required', 'numeric', 'min:0'],
-            'description' => ['sometimes', 'required', 'max:1500'],
-            'rrp'         => ['sometimes', 'required', 'numeric'],
-            'data'        => ['sometimes', 'array'],
-            'settings'    => ['sometimes', 'array'],
-            'status'      => ['sometimes', 'required', 'boolean'],
-            'state'       => ['sometimes', 'required', Rule::enum(ProductStateEnum::class)],
-            'org_stocks'  => ['sometimes', 'present', 'array']
+            'name'         => ['sometimes', 'required', 'max:250', 'string'],
+            'price'        => ['sometimes', 'required', 'numeric', 'min:0'],
+            'description'  => ['sometimes', 'required', 'max:1500'],
+            'rrp'          => ['sometimes', 'required', 'numeric'],
+            'data'         => ['sometimes', 'array'],
+            'settings'     => ['sometimes', 'array'],
+            'status'       => ['sometimes', 'required', Rule::enum(ProductStatusEnum::class)],
+            'state'        => ['sometimes', 'required', Rule::enum(ProductStateEnum::class)],
+            'trade_config' => ['sometimes', 'required', Rule::enum(ProductTradeConfigEnum::class)],
+
+
+            'org_stocks' => ['sometimes', 'present', 'array']
         ];
 
 
