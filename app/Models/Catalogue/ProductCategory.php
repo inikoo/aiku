@@ -11,6 +11,7 @@ namespace App\Models\Catalogue;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\CRM\Favourite;
+use App\Models\Goods\MasterProductCategory;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Reminder\BackInStockReminder;
 use App\Models\SysAdmin\Group;
@@ -261,5 +262,9 @@ class ProductCategory extends Model implements Auditable, HasMedia
         return $this->hasMany(BackInStockReminder::class, 'sub_department_id');
     }
 
+    public function masterProductCategory(): BelongsTo
+    {
+        return $this->belongsTo(MasterProductCategory::class, );
+    }
 
 }

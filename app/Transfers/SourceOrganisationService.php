@@ -201,5 +201,7 @@ interface SourceOrganisationService
 
     public function fetchMasterFamily($id);
 
+    public function fetchMasterAsset($id);
+
 
 }

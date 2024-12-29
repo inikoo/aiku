@@ -32,7 +32,7 @@ return new class () extends Migration {
             $table->string('name', 255)->nullable();
             $table->text('description')->nullable()->fulltext();
 
-            $table->decimal('price', 18)->nullable();
+            $table->decimal('price', 18)->nullable()->comment('price per outer in grp currency');
             $table->decimal('units', 9, 3);
             $table->string('unit')->nullable();
 

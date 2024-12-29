@@ -516,5 +516,10 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
+    public function fetchMasterAsset($id): ?array
+    {
+        return null;
+    }
+
 
 }

@@ -42,25 +42,25 @@ class FetchAuroraMasterFamilies extends FetchAuroraAction
                     return null;
                 }
             } else {
-                //try {
-                $masterFamily = StoreMasterProductCategory::make()->action(
-                    parent: $masterFamilyData['parent'],
-                    modelData: $masterFamilyData['master_family'],
-                    hydratorsDelay: 10,
-                    strict: false
-                );
-                MasterProductCategory::enableAuditing();
-                $this->saveMigrationHistory(
-                    $masterFamily,
-                    Arr::except($masterFamilyData['master_family'], ['fetched_at', 'last_fetched_at', 'source_id'])
-                );
+                try {
+                    $masterFamily = StoreMasterProductCategory::make()->action(
+                        parent: $masterFamilyData['parent'],
+                        modelData: $masterFamilyData['master_family'],
+                        hydratorsDelay: 10,
+                        strict: false
+                    );
+                    MasterProductCategory::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $masterFamily,
+                        Arr::except($masterFamilyData['master_family'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                    );
 
-                $this->recordNew($organisationSource);
-                //                } catch (Exception|Throwable $e) {
-                //                    $this->recordError($organisationSource, $e, $masterFamilyData['master_family'], 'MasterFamily', 'store');
-                //
-                //                    return null;
-                //                }
+                    $this->recordNew($organisationSource);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $masterFamilyData['master_family'], 'MasterFamily', 'store');
+
+                    return null;
+                }
             }
 
 
@@ -95,7 +95,7 @@ class FetchAuroraMasterFamilies extends FetchAuroraAction
     public function commonSelectModelsToFetch($query)
     {
         $familySourceIDs = [];
-        $preQuery            = DB::connection('aurora')
+        $preQuery        = DB::connection('aurora')
             ->table('Store Dimension')
             ->select('Store Family Category Key');
         foreach ($preQuery->get() as $row) {
@@ -103,7 +103,6 @@ class FetchAuroraMasterFamilies extends FetchAuroraAction
         }
         $query->where('Category Branch Type', 'Head')
             ->whereIn('Category Root Key', $familySourceIDs);
-
 
 
         return $query;

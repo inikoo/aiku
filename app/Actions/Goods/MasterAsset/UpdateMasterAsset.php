@@ -78,7 +78,7 @@ class UpdateMasterAsset extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function action(MasterAsset $masterProduct, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): MasterAsset
+    public function action(MasterAsset $masterAsset, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): MasterAsset
     {
         $this->strict = $strict;
         if (!$audit) {
@@ -87,11 +87,11 @@ class UpdateMasterAsset extends OrgAction
 
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->masterAsset        = $masterProduct;
+        $this->masterAsset        = $masterAsset;
 
-        $this->initialisationFromGroup($masterProduct->group, $modelData);
+        $this->initialisationFromGroup($masterAsset->group, $modelData);
 
-        return $this->handle($masterProduct, $this->validatedData);
+        return $this->handle($masterAsset, $this->validatedData);
     }
 
 }
