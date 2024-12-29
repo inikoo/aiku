@@ -33,8 +33,8 @@ class MasterShopHydrateMasterFamilies
     public function handle(MasterShop $masterShop): void
     {
         $stats = [
-            'number_master_families' => $masterShop->getMasterFamilies()->count(),
-            'number_current_master_families' => $masterShop->getMasterFamilies()->where('status', true)->count(),
+            'number_master_product_categories_type_family' => $masterShop->getMasterFamilies()->count(),
+            'number_current_master_product_categories_type_family' => $masterShop->getMasterFamilies()->where('status', true)->count(),
         ];
 
 
