@@ -74,8 +74,6 @@ class FetchAuroraOrgStockMovement extends FetchAurora
                     strict: false
                 );
             }
-
-
         }
 
         $date = $this->parseDatetime($this->auroraModelData->{'Date'});
@@ -138,7 +136,7 @@ class FetchAuroraOrgStockMovement extends FetchAurora
             'is_delivered'    => $isDelivered,
             'type'            => $type,
             'quantity'        => $this->auroraModelData->{'Inventory Transaction Quantity'},
-            'amount'          => $this->auroraModelData->{'Inventory Transaction Amount'},
+            'org_amount'      => $this->auroraModelData->{'Inventory Transaction Amount'},
             'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Inventory Transaction Key'},
             'date'            => $date,
             'fetched_at'      => now(),
