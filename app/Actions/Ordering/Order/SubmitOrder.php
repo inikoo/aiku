@@ -27,8 +27,8 @@ class SubmitOrder
             'state' => OrderStateEnum::SUBMITTED
         ]);
 
-        OrganisationHydrateOrders::run($order->organisation);
-        ShopHydrateOrders::run($order->shop);
+        OrganisationHydrateOrders::dispatch($order->organisation);
+        ShopHydrateOrders::dispatch($order->shop);
 
         return $order;
     }

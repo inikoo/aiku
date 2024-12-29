@@ -58,12 +58,12 @@ class StoreOutbox extends OrgAction
         }
 
 
-        GroupHydrateOutboxes::run($outbox->group);
-        OrganisationHydrateOutboxes::run($outbox->organisation);
+        GroupHydrateOutboxes::dispatch($outbox->group);
+        OrganisationHydrateOutboxes::dispatch($outbox->organisation);
         if ($outbox->shop_id) {
-            ShopHydrateOutboxes::run($outbox->shop);
+            ShopHydrateOutboxes::dispatch($outbox->shop);
         }
-        PostRoomHydrateOutboxes::run($outbox->postRoom);
+        PostRoomHydrateOutboxes::dispatch($outbox->postRoom);
 
         return $outbox;
     }

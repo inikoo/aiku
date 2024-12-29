@@ -26,9 +26,9 @@ class UpdateFavourite extends OrgAction
     {
         $favourite = $this->update($favourite, $modelData, ['data']);
 
-        CustomerHydrateFavourites::run($favourite->customer);
-        ProductHydrateCustomersWhoFavourited::run($favourite->product);
-        ProductHydrateCustomersWhoFavouritedInCategories::run($favourite->product);
+        CustomerHydrateFavourites::dispatch($favourite->customer)->delay($this->hydratorsDelay);
+        ProductHydrateCustomersWhoFavourited::dispatch($favourite->product)->delay($this->hydratorsDelay);
+        ProductHydrateCustomersWhoFavouritedInCategories::dispatch($favourite->product)->delay($this->hydratorsDelay);
 
         return $favourite;
     }
