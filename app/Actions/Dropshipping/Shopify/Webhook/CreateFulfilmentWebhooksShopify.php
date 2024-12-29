@@ -32,7 +32,7 @@ class CreateFulfilmentWebhooksShopify extends OrgAction
         $deliveryAddress        = Arr::get($modelData, 'destination');
         $countryDeliveryAddress = Country::where('code', Arr::get($deliveryAddress, 'country_code'))->first();
 
-        $shopifyProducts     = collect($modelData['line_items']);
+        $shopifyProducts = collect($modelData['line_items']);
 
         $deliveryAddress = [
             'address_line_1'      => Arr::get($deliveryAddress, 'address1'),
@@ -55,13 +55,17 @@ class CreateFulfilmentWebhooksShopify extends OrgAction
 
         foreach ($shopifyProducts as $shopifyProduct) {
             $product = $shopifyUser->products()->where('shopify_product_id', $shopifyProduct['product_id'])->first();
-            $asset = $shopifyUser->organisation->assets()->where('id', $product->id)->first();
+            $asset   = $shopifyUser->organisation->assets()->where('id', $product->id)->first();
 
             if ($product) {
                 if ($asset) {
-                    StoreTransaction::make()->action($order, $asset->historicAsset, [
-                        'quantity_ordered' => $shopifyProduct['quantity'],
-                    ]);
+                    StoreTransaction::make()->action(
+                        order: $order,
+                        historicAsset: $asset->historicAsset,
+                        modelData: [
+                            'quantity_ordered' => $shopifyProduct['quantity'],
+                        ]
+                    );
                 }
             }
         }
