@@ -83,7 +83,7 @@ class CreateStockDelivery extends OrgAction
                 [
                     'type'         => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('Creating supplier deliveries'),
+                        'label' => __('Creating stock deliveries'),
                     ]
                 ]
             ]
