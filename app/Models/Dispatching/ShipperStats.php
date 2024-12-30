@@ -16,8 +16,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $shipper_id
- * @property int $number_delivery_notes
  * @property int $number_customers
+ * @property int $number_delivery_notes
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Dispatching\Shipper $shipper

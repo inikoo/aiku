@@ -19,7 +19,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
@@ -43,6 +42,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $website
  * @property string|null $tracking_url
  * @property array $data
+ * @property array $settings
+ * @property array $credentials
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at
@@ -52,7 +53,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Dispatching\Shipment> $shipments
- * @property-read Collection<int, \App\Models\Dispatching\ShippingEvent> $shippingEvents
  * @property-read \App\Models\Dispatching\ShipperStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static Builder<static>|Shipper newModelQuery()
@@ -73,13 +73,17 @@ class Shipper extends Model implements Auditable
 
     protected $casts = [
         'data'            => 'array',
+        'settings'        => 'array',
+        'credentials'     => 'array',
         'status'          => 'boolean',
         'fetched_at'      => 'datetime',
         'last_fetched_at' => 'datetime',
     ];
 
     protected $attributes = [
-        'data' => '{}',
+        'data'        => '{}',
+        'settings'    => '{}',
+        'credentials' => '{}',
     ];
 
     protected $guarded = [];
@@ -120,11 +124,6 @@ class Shipper extends Model implements Auditable
     public function shipments(): HasMany
     {
         return $this->hasMany(Shipment::class);
-    }
-
-    public function shippingEvents(): MorphToMany
-    {
-        return $this->morphToMany(ShippingEvent::class, 'provider');
     }
 
     public function stats(): HasOne

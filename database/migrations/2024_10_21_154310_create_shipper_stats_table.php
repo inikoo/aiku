@@ -17,8 +17,8 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('shipper_id')->index();
             $table->foreign('shipper_id')->references('id')->on('shippers');
-            $table->unsignedInteger('number_delivery_notes')->default(0);
             $table->unsignedInteger('number_customers')->default(0);
+            $table->unsignedInteger('number_delivery_notes')->default(0);
             $table->timestampsTz();
         });
     }

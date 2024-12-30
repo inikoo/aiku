@@ -83,7 +83,6 @@ class AppServiceProvider extends ServiceProvider
                 // Dispatching
                 'DeliveryNote'                  => 'App\Models\Dispatching\DeliveryNote',
                 'DeliveryNoteItem'              => 'App\Models\Dispatching\DeliveryNoteItem',
-                'ShippingEvent'                 => 'App\Models\Dispatching\ShippingEvent',
                 'PdfLabel'                      => 'App\Models\Dispatching\PdfLabel',
                 'Picking'                       => 'App\Models\Dispatching\Picking',
                 'Shipment'                      => 'App\Models\Dispatching\Shipment',
