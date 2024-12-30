@@ -39,6 +39,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Group $group
+ * @property-read LaravelCollection<int, \App\Models\Goods\MasterAsset> $masterAssets
  * @property-read LaravelCollection<int, \App\Models\Goods\MasterProductCategory> $masterProductCategories
  * @property-read \App\Models\Goods\MasterShopOrderingIntervals|null $orderingIntervals
  * @property-read \App\Models\Goods\MasterShopOrderingStats|null $orderingStats
@@ -153,6 +154,11 @@ class MasterShop extends Model implements Auditable
     public function timeSeries(): HasMany
     {
         return $this->hasMany(MasterShopTimeSeries::class);
+    }
+
+    public function masterAssets(): HasMany
+    {
+        return $this->hasMany(MasterAsset::class);
     }
 
 }

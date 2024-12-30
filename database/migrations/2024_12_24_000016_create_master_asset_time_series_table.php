@@ -18,7 +18,7 @@ return new class () extends Migration {
     {
         Schema::create('master_asset_time_series', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('master_asset_id');
+            $table->unsignedInteger('master_asset_id');
             $table->foreign('master_asset_id')->references('id')->on('master_assets')->onUpdate('cascade')->onDelete('cascade');
             $this->getTimeSeriesFields($table);
         });

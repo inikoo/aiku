@@ -88,10 +88,10 @@ class MasterProductCategory extends Model implements Auditable, HasMedia
     protected $guarded = [];
 
     protected $casts = [
-        'data'             => 'array',
-        'type'             => MasterProductCategoryTypeEnum::class,
-        'fetched_at'         => 'datetime',
-        'last_fetched_at'    => 'datetime',
+        'data'            => 'array',
+        'type'            => MasterProductCategoryTypeEnum::class,
+        'fetched_at'      => 'datetime',
+        'last_fetched_at' => 'datetime',
     ];
 
     protected $attributes = [
@@ -192,13 +192,11 @@ class MasterProductCategory extends Model implements Auditable, HasMedia
     public function masterAssets(): HasMany|null
     {
         return match ($this->type) {
-            ProductCategoryTypeEnum::DEPARTMENT => $this->hasMany(MasterAsset::class, 'master_department_id'),
-            ProductCategoryTypeEnum::FAMILY     => $this->hasMany(MasterAsset::class, 'master_family_id'),
-            default                             => null
+            MasterProductCategoryTypeEnum::DEPARTMENT => $this->hasMany(MasterAsset::class, 'master_department_id'),
+            MasterProductCategoryTypeEnum::FAMILY => $this->hasMany(MasterAsset::class, 'master_family_id'),
+            MasterProductCategoryTypeEnum::SUB_DEPARTMENT => $this->hasMany(MasterAsset::class, 'master_sub_department_id')
         };
     }
-
-
 
     public function masterShop(): BelongsTo
     {
