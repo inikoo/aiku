@@ -113,7 +113,7 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Email Addresses'),
                     'icon'  => 'fal fa-envelope',
-                    'route' => '', // real route index & show in group
+                    'route' => route('grp.overview.comms-marketing.email-addresses.index'), // real route index & show in group
                     'count' => $group->commsStats->number_email_addresses ?? 0
                 ],
                 [
