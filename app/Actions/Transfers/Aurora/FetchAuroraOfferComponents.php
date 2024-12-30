@@ -26,8 +26,6 @@ class FetchAuroraOfferComponents extends FetchAuroraAction
     {
         $offerComponentData = $organisationSource->fetchOfferComponent($organisationSourceId);
         if (!$offerComponentData) {
-            print "---> skipping\n";
-
             return null;
         }
         $offerComponent = OfferComponent::withTrashed()->where('source_id', $offerComponentData['offerComponent']['source_id'])->first();
