@@ -33,6 +33,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraIngredients;
 use App\Actions\Transfers\Aurora\FetchAuroraInvoices;
 use App\Actions\Transfers\Aurora\FetchAuroraLocations;
 use App\Actions\Transfers\Aurora\FetchAuroraMailshots;
+use App\Actions\Transfers\Aurora\FetchAuroraMasterFamilies;
 use App\Actions\Transfers\Aurora\FetchAuroraOfferCampaigns;
 use App\Actions\Transfers\Aurora\FetchAuroraOfferComponents;
 use App\Actions\Transfers\Aurora\FetchAuroraOffers;
@@ -63,6 +64,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraWarehouses;
 use App\Actions\Transfers\Aurora\FetchAuroraWebpages;
 use App\Actions\Transfers\Aurora\FetchAuroraWebsites;
 use App\Actions\Transfers\Aurora\FetchAuroraWebUsers;
+use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Helpers\TaxNumber\TaxNumberStatusEnum;
 use App\Models\Accounting\Invoice;
@@ -94,6 +96,7 @@ use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dispatching\Shipper;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Goods\Ingredient;
+use App\Models\Goods\MasterProductCategory;
 use App\Models\Goods\Stock;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
@@ -446,6 +449,17 @@ trait WithAuroraParsers
         }
 
         return $family;
+    }
+
+    public function parseMasterFamily(string $sourceId): ?MasterProductCategory
+    {
+        $masterFamily = MasterProductCategory::where('type', MasterProductCategoryTypeEnum::FAMILY)->where('source_family_id', $sourceId)->first();
+        if (!$masterFamily) {
+            $sourceData = explode(':', $sourceId);
+            $masterFamily     = FetchAuroraMasterFamilies::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $masterFamily;
     }
 
 

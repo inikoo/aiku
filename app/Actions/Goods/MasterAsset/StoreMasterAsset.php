@@ -12,12 +12,14 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateMasterAssets;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
+use App\Enums\Goods\MasterAsset\MasterAssetTypeEnum;
+use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Models\Goods\MasterAsset;
 use App\Models\Goods\MasterProductCategory;
 use App\Models\Goods\MasterShop;
-use App\Models\SysAdmin\Group;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -29,12 +31,25 @@ class StoreMasterAsset extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function handle(Group|MasterProductCategory $parent, array $modelData): MasterAsset
+    public function handle(MasterShop|MasterProductCategory $parent, array $modelData): MasterAsset
     {
+        $stocks = Arr::pull($modelData, 'stocks', []);
+
+        if (count($stocks) == 1) {
+            $units = $stocks[array_key_first($stocks)]['quantity'];
+        } else {
+            $units = 1;
+        }
+
+
+        data_set($modelData, 'units', $units);
+
+
         data_set($modelData, 'group_id', $parent->group_id);
 
         if ($parent instanceof MasterProductCategory) {
             data_set($modelData, 'master_department_id', $parent->master_department_id);
+            data_set($modelData, 'master_shop_id', $parent->master_shop_id);
 
             if ($parent->type == ProductCategoryTypeEnum::FAMILY) {
                 data_set($modelData, 'master_family_id', $parent->id);
@@ -44,10 +59,17 @@ class StoreMasterAsset extends OrgAction
             }
         }
 
-        $masterAsset = DB::transaction(function () use ($parent, $modelData) {
+        $masterAsset = DB::transaction(function () use ($parent, $modelData, $stocks) {
             /** @var MasterAsset $masterAsset */
             $masterAsset = $parent->masterAssets()->create($modelData);
             $masterAsset->stats()->create();
+            $masterAsset->orderingIntervals()->create();
+            $masterAsset->salesIntervals()->create();
+            $masterAsset->orderingStats()->create();
+            foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
+                $masterAsset->timeSeries()->create(['frequency' => $frequency]);
+            }
+            $masterAsset->stocks()->sync($stocks);
 
             return $masterAsset;
         });
@@ -84,21 +106,14 @@ class StoreMasterAsset extends OrgAction
             'name'                     => ['required', 'max:250', 'string'],
             'master_family_id'         => [
                 'sometimes',
-                'required',
+                'nullable',
                 Rule::exists('master_product_categories', 'id')
                     ->where('group_id', $this->group->id)
                     ->where('type', ProductCategoryTypeEnum::FAMILY)
             ],
-            'master_department_id'     => [
-                'sometimes',
-                'required',
-                Rule::exists('master_product_categories', 'id')
-                    ->where('group_id', $this->group->id)
-                    ->where('type', ProductCategoryTypeEnum::DEPARTMENT)
-            ],
             'master_sub_department_id' => [
                 'sometimes',
-                'required',
+                'nullable',
                 Rule::exists('master_product_categories', 'id')
                     ->where('group_id', $this->group->id)
                     ->where('type', ProductCategoryTypeEnum::SUB_DEPARTMENT)
@@ -118,6 +133,8 @@ class StoreMasterAsset extends OrgAction
             ],
             'variant_ratio'            => ['sometimes', 'required', 'numeric', 'gt:0'],
             'variant_is_visible'       => ['sometimes', 'required', 'boolean'],
+            'stocks'                   => ['present', 'array'],
+            'type'                     => ['required', Rule::enum(MasterAssetTypeEnum::class)]
 
         ];
 
