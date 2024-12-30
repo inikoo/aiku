@@ -13,7 +13,7 @@ use App\Actions\OrgAction;
 use App\Http\Resources\Catalogue\ProductBackInStockRemindersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Product;
-use App\Models\Reminder\BackInStockReminder;
+use App\Models\CRM\BackInStockReminder;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;

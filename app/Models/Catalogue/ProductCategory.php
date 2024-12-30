@@ -10,10 +10,10 @@ namespace App\Models\Catalogue;
 
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
+use App\Models\CRM\BackInStockReminder;
 use App\Models\CRM\Favourite;
 use App\Models\Goods\MasterProductCategory;
 use App\Models\Helpers\UniversalSearch;
-use App\Models\Reminder\BackInStockReminder;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;

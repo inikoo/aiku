@@ -10,7 +10,7 @@ namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\CRM\BackInStockReminder\StoreBackInStockReminder;
 use App\Actions\CRM\BackInStockReminder\UpdateBackInStockReminder;
-use App\Models\Reminder\BackInStockReminder;
+use App\Models\CRM\BackInStockReminder;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
