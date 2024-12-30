@@ -226,7 +226,7 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Web Users'),
                     'icon'  => 'fal fa-user-circle',
-                    'route' => '',
+                    'route' => route('grp.overview.crm.web-users.index'),
                     'count' => $group->crmStats->number_web_users ?? 0
                 ],
             ],
@@ -348,19 +348,19 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Agents'),
                     'icon'  => 'fal fa-people-arrows',
-                    'route' => route('grp.overview.procurement.agents.index'),
+                    'route' => route('grp.supply-chain.agents.index'),
                     'count' => $group->supplyChainStats->number_agents ?? 0
                 ],
                 [
                     'name'  => __('Suppliers'),
                     'icon'  => 'fal fa-person-dolly',
-                    'route' => route('grp.overview.procurement.suppliers.index'),
+                    'route' =>  route('grp.supply-chain.suppliers.index'),
                     'count' => $group->supplyChainStats->number_suppliers ?? 0
                 ],
                 [
                     'name'  => __('Supplier Products'),
                     'icon'  => 'fal fa-users-class',
-                    'route' => route('grp.overview.procurement.supplier-products.index'),
+                    'route' => route('grp.supply-chain.supplier_products.index'),
                     'count' => $group->supplyChainStats->number_supplier_products ?? 0
                 ],
                 [
@@ -394,7 +394,7 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Workplaces'),
                     'icon'  => 'fal fa-building',
-                    'route' => route('grp.overview.hr.workplaces.index'), 
+                    'route' => route('grp.overview.hr.workplaces.index'),
                     'count' => $group->humanResourcesStats->number_workplaces ?? 0
                 ],
                 [
