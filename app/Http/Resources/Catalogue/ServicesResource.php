@@ -42,7 +42,7 @@ class ServicesResource extends JsonResource
             'unit_abbreviation' => Abbreviate::run($this->unit),
             'currency_code'     => $this->currency_code,
             'organisation_name' => $this->organisation_name,
-            'organisation_slug' => $this->organizations,
+            'organisation_slug' => $this->organisation_slug,
             'shop_name'         => $this->shop_name,
             'shop_slug'         => $this->shop_slug,
         ];

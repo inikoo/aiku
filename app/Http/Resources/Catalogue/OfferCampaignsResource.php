@@ -34,7 +34,7 @@ class OfferCampaignsResource extends JsonResource
             'status'     => $this->status,
             'shop_slug'  => $this->shop_slug,
             'organisation_name' => $this->organisation_name,
-            'organisation_slug' => $this->organizations,
+            'organisation_slug' => $this->organisation_slug,
             'shop_name'         => $this->shop_name,
         ];
     }
