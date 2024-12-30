@@ -45,7 +45,7 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
                         modelData: [
                             'address' => $deliveryAddress,
                         ],
-                        hydratorsDelay: 60,
+                        hydratorsDelay: 900,
                         audit: false
                     );
                 } else {
@@ -56,7 +56,7 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
                 $deliveryNote = UpdateDeliveryNote::make()->action(
                     $deliveryNote,
                     $deliveryNoteData['delivery_note'],
-                    hydratorsDelay: 60,
+                    hydratorsDelay: 900,
                     strict: false,
                     audit: false
                 );
