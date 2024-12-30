@@ -68,6 +68,7 @@ class ShowWarehouse extends OrgAction
                             'title' => __('warehouse')
                         ],
                     'title'   => $warehouse->name,
+                    'model'   => __('location'),
                     'actions' => [
                         $this->canEdit ?
                             [

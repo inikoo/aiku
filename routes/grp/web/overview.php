@@ -30,7 +30,11 @@ use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\Discounts\Offer\UI\IndexOffers;
 use App\Actions\Discounts\OfferCampaign\UI\IndexOfferCampaigns;
-use App\Actions\Fulfilment\UI\Catalogue\Rentals\IndexFulfilmentRentals;
+use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
+use App\Actions\HumanResources\Employee\UI\IndexEmployees;
+use App\Actions\HumanResources\JobPosition\UI\IndexJobPositions;
+use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
+use App\Actions\HumanResources\Workplace\UI\IndexWorkplaces;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Production\Artefact\UI\IndexArtefacts;
@@ -131,9 +135,9 @@ Route::name('accounting.')->prefix('accounting')->group(function () {
 
 
 Route::name('hr.')->prefix('hr')->group(function () {
-    // Route::get('/workplaces', [IndexWorkplaces::class, 'inGroup'])->name('workplaces.index');
-    // Route::get('/responsibilities', [IndexJobPositions::class, 'inGroup'])->name('responsibilities.index');
-    // Route::get('/employees', [IndexEmployees::class, 'inGroup'])->name('employees.index');
-    // Route::get('/clocking-machines', [IndexClockingMachines::class, 'inGroup'])->name('clocking-machines.index');
-    // Route::get('/timesheets', [IndexTimesheets::class, 'inGroup'])->name('timesheets.index');
+    Route::get('/workplaces', [IndexWorkplaces::class, 'inGroup'])->name('workplaces.index');
+    Route::get('/responsibilities', [IndexJobPositions::class, 'inGroup'])->name('responsibilities.index');
+    Route::get('/employees', [IndexEmployees::class, 'inGroup'])->name('employees.index');
+    Route::get('/clocking-machines', [IndexClockingMachines::class, 'inGroup'])->name('clocking-machines.index');
+    Route::get('/timesheets', [IndexTimesheets::class, 'inGroup'])->name('timesheets.index');
 });
