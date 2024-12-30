@@ -20,15 +20,18 @@ use Throwable;
 
 class FetchAuroraOfferComponents extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:offer_components {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:offer_components {organisations?*} {--s|source_id=} {--d|db_suffix=} {--S|shop= : Shop slug} {--N|only_new : Fetch only new} ';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?OfferComponent
     {
         $offerComponentData = $organisationSource->fetchOfferComponent($organisationSourceId);
         if (!$offerComponentData) {
+            print "---> skipping\n";
+
             return null;
         }
-        if ($offerComponent = OfferComponent::withTrashed()->where('source_id', $offerComponentData['offerComponent']['source_id'])->first()) {
+        $offerComponent = OfferComponent::withTrashed()->where('source_id', $offerComponentData['offerComponent']['source_id'])->first();
+        if ($offerComponent) {
             try {
                 $offerComponent = UpdateOfferComponent::make()->action(
                     offerComponent: $offerComponent,
@@ -38,6 +41,13 @@ class FetchAuroraOfferComponents extends FetchAuroraAction
                     audit: false
                 );
                 $this->recordChange($organisationSource, $offerComponent->wasChanged());
+
+                $this->recordNew($organisationSource);
+
+                $sourceData = explode(':', $offerComponent->source_id);
+                DB::connection('aurora')->table('Deal Component Dimension')
+                    ->where('Deal Component Key', $sourceData[1])
+                    ->update(['aiku_id' => $offerComponent->id]);
             } catch (Exception $e) {
                 $this->recordError($organisationSource, $e, $offerComponentData['offerComponent'], 'OfferComponent', 'update');
 
@@ -79,16 +89,35 @@ class FetchAuroraOfferComponents extends FetchAuroraAction
 
     public function getModelsQuery(): Builder
     {
-        return DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Deal Component Dimension')
-            ->select('Deal Component Key as source_id')
-            ->orderBy('source_id');
+            ->select('Deal Component Key as source_id');
+
+        $query = $this->commonSelectModelsToFetch($query);
+
+        return $query->orderBy('source_id');
     }
 
     public function count(): ?int
     {
-        return DB::connection('aurora')->table('Deal Component Dimension')->count();
+        $query = DB::connection('aurora')->table('Deal Component Dimension');
+        $query = $this->commonSelectModelsToFetch($query);
+
+        return $query->count();
     }
 
+    public function commonSelectModelsToFetch($query)
+    {
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
+        if ($this->shop) {
+            $sourceData = explode(':', $this->shop->source_id);
+            $query->where('eal Component Store Key', $sourceData[1]);
+        }
+
+        return $query;
+    }
 
 }

@@ -127,7 +127,7 @@ class Offer extends Model implements Auditable
             ->generateSlugsFrom('code')
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(6);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function getRouteKeyName(): string
