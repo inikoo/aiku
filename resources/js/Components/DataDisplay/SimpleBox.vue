@@ -9,7 +9,7 @@ import { routeType } from "@/types/route"
 const props = defineProps<{
 	box_stats: {
 		name: string
-		number: number
+		value: number
 		route: routeType
 		icon: {
 			icon: string
@@ -36,7 +36,7 @@ const locale = inject("locale", aikuLocaleStructure)
 			</div>
 
 			<div class="mb-1 text-2xl font-semibold">
-				<CountUp :endVal="stats.number" :duration="1.5" :scrollSpyOnce="true" :options="{
+				<CountUp :endVal="stats.value" :duration="1.5" :scrollSpyOnce="true" :options="{
 					formattingFn: (value: number) => locale.number(value)
 				}" />
 			</div>
