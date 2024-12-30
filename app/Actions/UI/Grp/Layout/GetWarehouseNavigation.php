@@ -252,7 +252,7 @@ class GetWarehouseNavigation
                         [
                             'label'   => __('Fulfilment Returns'),
                             'tooltip' => __('Fulfilment returns'),
-                            'icon'    => ['fal', 'fa-sign-out'],
+                            'icon'    => 'fal fa-sign-out',
                             "root"    => "grp.org.warehouses.show.dispatching.pallet-returns.",
                             'route'   => [
                                 'name'       => 'grp.org.warehouses.show.dispatching.pallet-returns.index',

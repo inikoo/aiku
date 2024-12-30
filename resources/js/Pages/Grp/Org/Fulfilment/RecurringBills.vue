@@ -39,7 +39,6 @@ const component = computed(() => {
 });
 
 </script>
-
 <template>
   <Head :title="capitalize(title)"/>
   <PageHeading :data="pageHead"></PageHeading>

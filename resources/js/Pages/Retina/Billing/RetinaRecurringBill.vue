@@ -7,10 +7,13 @@ import { useTabChange } from "@/Composables/tab-change"
 import { capitalize } from "@/Composables/capitalize"
 import { computed, defineAsyncComponent, ref } from 'vue'
 import type { Component } from 'vue'
+import RecurringBillTransactions from '@/Pages/Grp/Org/Fulfilment/RecurringBillTransactions.vue'
+import BoxStatsRecurringBills from '@/Components/Fulfilment/BoxStatsRecurringBills.vue'
 
 import StartEndDate from '@/Components/Utils/StartEndDate.vue'
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { Tabs as TSTabs } from '@/types/Tabs'
+import { BoxStats } from '@/types/Pallet'
 
 // import FileShowcase from '@/xxxxxxxxxxxx'
 
@@ -19,11 +22,12 @@ const props = defineProps<{
     pageHead: TSPageHeading
     tabs: TSTabs
     status_rb: string
+    transactions: {}
     timeline_rb: {
         start_date: string
         end_date: string
     }
-    box_stats: {}
+    box_stats: BoxStats
     
 }>()
 
@@ -33,6 +37,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const component = computed(() => {
 
     const components: Component = {
+        transactions: RecurringBillTransactions,
         // showcase: FileShowcase
     }
 
@@ -57,9 +62,11 @@ const component = computed(() => {
             </div>
         </div>
         <div class="py-1 px-3 flex items-center">
-            <StartEndDate :startDate="timeline_rb.start_date" :endDate="timeline_rb.end_date" />
+            <StartEndDate :isEndDateNotEditable="true" :startDate="timeline_rb.start_date" :endDate="timeline_rb.end_date" />
         </div>
     </div>
+
+    <BoxStatsRecurringBills :boxStats="box_stats" />
 
     <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />

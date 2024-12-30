@@ -70,7 +70,10 @@ class ShowDispatchHub extends OrgAction
                             'name'       => 'grp.org.warehouses.show.dispatching.delivery-notes',
                             'parameters' => $request->route()->originalParameters()
                         ],
-                        'icon'  => ['fal', 'fa-boxes']
+                        'icon'  => [
+                            'icon'  => 'fal fa-truck',
+                            'tooltip' => __('Delivery Notes')
+                        ]
                     ],
                     [
                         'name' => __('Fulfilment Returns'),
@@ -79,7 +82,10 @@ class ShowDispatchHub extends OrgAction
                             'name'       => 'grp.org.warehouses.show.dispatching.pallet-returns.index',
                             'parameters' => $request->route()->originalParameters()
                         ],
-                        'icon'  => ['fal', 'fa-boxes']
+                        'icon'  => [
+                            'icon'  => 'fal fa-sign-out',
+                            'tooltip' => __('Fulfilment Returns')
+                        ]
                     ],
                 ],
 

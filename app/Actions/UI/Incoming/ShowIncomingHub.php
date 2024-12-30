@@ -65,7 +65,10 @@ class ShowIncomingHub extends OrgAction
                             'name'       => 'grp.org.warehouses.show.incoming.stock_deliveries.index',
                             'parameters' => $request->route()->originalParameters()
                         ],
-                        'icon'  => ['fal', 'fa-boxes']
+                        'icon'  => [
+                            'icon' => 'fal fa-truck-container',
+                            'tooltip' => __('Stock Deliveries')
+                        ]
                     ],
                     [
                         'name' => __('Fulfilment Deliveries'),
@@ -74,7 +77,10 @@ class ShowIncomingHub extends OrgAction
                             'name'       => 'grp.org.warehouses.show.incoming.pallet_deliveries.index',
                             'parameters' => $request->route()->originalParameters()
                         ],
-                        'icon'  => ['fal', 'fa-boxes']
+                        'icon'  => [
+                            'icon'  => 'fal fa-truck-couch',
+                            'tooltip' => __('Fulfilment Deliveries')
+                        ]
                     ],
                 ],
 
