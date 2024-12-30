@@ -24,6 +24,11 @@ function employeeRoute(employee: Employee) {
 				route().params["organisation"],
 				employee.slug,
 			])
+		case "grp.overview.hr.employees.index":
+			return route("grp.org.hr.employees.show", [
+				employee.organisation_slug,
+				employee.slug,
+			])
 	}
 }
 </script>

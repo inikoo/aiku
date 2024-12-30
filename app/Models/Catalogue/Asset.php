@@ -144,6 +144,16 @@ class Asset extends Model implements HasMedia
         return $this->hasOne(AssetOrderingStats::class);
     }
 
+    public function orderingIntervals(): HasOne
+    {
+        return $this->hasOne(AssetOrderingIntervals::class);
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(AssetTimeSeries::class);
+    }
+
     public function invoiceTransactions(): HasMany
     {
         return $this->hasMany(InvoiceTransaction::class);
@@ -154,10 +164,7 @@ class Asset extends Model implements HasMedia
         return $this->hasMany(Transaction::class);
     }
 
-    public function orderingIntervals(): HasOne
-    {
-        return $this->hasOne(AssetOrderingIntervals::class);
-    }
+
 
     public function barcode(): MorphToMany
     {
@@ -204,9 +211,5 @@ class Asset extends Model implements HasMedia
         return $this->morphTo();
     }
 
-    public function timeSeries(): HasMany
-    {
-        return $this->hasMany(AssetTimeSeries::class);
-    }
 
 }

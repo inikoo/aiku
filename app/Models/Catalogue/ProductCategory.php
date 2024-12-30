@@ -78,6 +78,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
+ * @property-read MasterProductCategory|null $masterProductCategory
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read \App\Models\Catalogue\ProductCategoryOrderingIntervals|null $orderingIntervals
  * @property-read \App\Models\Catalogue\ProductCategoryOrderingStats|null $orderingStats

@@ -16,11 +16,11 @@ import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faQuestionCircle, faIdCardAlt, faEnvelope, faPhone, faCalendarDay } from '@fal'
+import { faQuestionCircle, faIdCardAlt, faEnvelope, faPhone, faCalendarDay, faConciergeBell } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import OrderSummary from '@/Components/Summary/OrderSummary.vue'
 
-library.add(faQuestionCircle, faIdCardAlt, faEnvelope, faPhone, faCalendarDay)
+library.add(faQuestionCircle, faIdCardAlt, faEnvelope, faPhone, faCalendarDay, faConciergeBell)
 
 const locale = inject('locale', aikuLocaleStructure)
 const props = defineProps<{
@@ -35,7 +35,7 @@ const props = defineProps<{
             
             <!-- Field: Reference -->
             <Link as="a" v-if="boxStats.customer.data.customer.reference"
-                :href="route('grp.org.fulfilments.show.crm.customers.show', [route().params.organisation, boxStats.customer.data.fulfilment.slug, boxStats.customer.data.slug])"
+                :href="route().params.organisation && route('grp.org.fulfilments.show.crm.customers.show', [route().params.organisation, boxStats.customer.data.fulfilment.slug, boxStats.customer.data.slug])"
                 class="flex items-center w-fit flex-none gap-x-2 cursor-pointer secondaryLink">
                 <dt v-tooltip="'Company name'" class="flex-none">
                     <span class="sr-only">Reference</span>

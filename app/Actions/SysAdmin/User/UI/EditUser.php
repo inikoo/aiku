@@ -209,7 +209,8 @@ class EditUser extends InertiaAction
                                             $jobPosition->code => match (array_key_first($jobPosition->pivot->scopes)) {
                                                 class_basename(Shop::class) => [
                                                     'shops' => $jobPosition->organisation->shops->whereIn('id', Arr::get($jobPosition->pivot->scopes, class_basename(Shop::class)))->pluck('slug')
-                                                ]
+                                                ],
+                                                default => null
                                             }
                                         ]
                                     ];
