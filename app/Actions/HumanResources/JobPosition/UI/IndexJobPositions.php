@@ -65,7 +65,7 @@ class IndexJobPositions extends OrgAction
             $queryBuilder->addSelect('employee_has_job_positions.share');
         }
         $queryBuilder->leftjoin('organisations', 'job_positions.organisation_id', '=', 'organisations.id');
-        $queryBuilder->select(['job_positions.code', 'job_positions.slug', 'job_positions.name', 'job_position_stats.number_employees_currently_working', 'organisations.name as organisation_name']);
+        $queryBuilder->select(['job_positions.code', 'job_positions.slug', 'job_positions.name', 'job_position_stats.number_employees_currently_working', 'organisations.name as organisation_name', 'organisations.slug as organisation_slug']);
 
         return $queryBuilder
             ->defaultSort('job_positions.code')
