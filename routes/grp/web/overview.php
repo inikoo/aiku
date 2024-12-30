@@ -28,6 +28,7 @@ use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\Discounts\Offer\UI\IndexOffers;
 use App\Actions\Discounts\OfferCampaign\UI\IndexOfferCampaigns;
+use App\Actions\Fulfilment\UI\Catalogue\Rentals\IndexFulfilmentRentals;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Production\Artefact\UI\IndexArtefacts;
@@ -61,12 +62,6 @@ Route::name('comms-marketing.')->prefix('comms-marketing')->group(function () {
 
 });
 
-// Route::name('marketing.')->prefix('marketing')->group(function () {
-//     Route::get('/newsletters', [IndexNewsletterMailshots::class, 'inGroup'])->name('newsletters.index');
-//     Route::get('/mailshots', [IndexMarketingMailshots::class, 'inGroup'])->name('mailshots.index');
-// });
-
-
 Route::name('catalogue.')->prefix('catalogue')->group(function () {
     Route::get('/products', [IndexProducts::class, 'inGroup'])->name('products.index');
     Route::get('/departments', [IndexDepartments::class, 'inGroup'])->name('departments.index');
@@ -76,6 +71,7 @@ Route::name('catalogue.')->prefix('catalogue')->group(function () {
 
 Route::name('billables.')->prefix('billables')->group(function () {
     // Route::get('/shipping', [IndexShippingZoneSchemas::class, 'inGroup'])->name('shipping.index');
+    Route::get('/rentals', [IndexFulfilmentRentals::class, 'inGroup'])->name('rentals.index');
     Route::get('/charges', [IndexCharges::class, 'inGroup'])->name('charges.index');
     Route::get('/services', [IndexServices::class, 'inGroup'])->name('services.index');
 });
