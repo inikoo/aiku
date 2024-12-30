@@ -266,12 +266,12 @@ class IndexOutboxes extends OrgAction
                     ]
                 )
             ),
-            'grp.overview.comms.outboxes.index' =>
+            'grp.overview.comms-marketing.outboxes.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
-                        'name'       => 'grp.overview.comms.outboxes.index',
+                        'name'       => 'grp.overview.comms-marketing.outboxes.index',
                     ]
                 )
             ),

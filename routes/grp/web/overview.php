@@ -16,6 +16,11 @@ use App\Actions\Billables\Service\UI\IndexServices;
 use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
 use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
+use App\Actions\Comms\EmailAddress\UI\IndexEmailAddress;
+use App\Actions\Comms\EmailAddress\UI\ShowEmailAddress;
+use App\Actions\Comms\EmailBulkRun\UI\IndexEmailBulkRuns;
+use App\Actions\Comms\Mailshot\UI\IndexAbandonedCartMailshots;
+use App\Actions\Comms\Mailshot\UI\IndexInviteMailshots;
 use App\Actions\Comms\Mailshot\UI\IndexMarketingMailshots;
 use App\Actions\Comms\Mailshot\UI\IndexNewsletterMailshots;
 use App\Actions\Comms\Outbox\UI\IndexOutboxes;
@@ -25,15 +30,12 @@ use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\Discounts\Offer\UI\IndexOffers;
 use App\Actions\Discounts\OfferCampaign\UI\IndexOfferCampaigns;
-use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
 use App\Actions\HumanResources\Employee\UI\IndexEmployees;
 use App\Actions\HumanResources\JobPosition\UI\IndexJobPositions;
 use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
 use App\Actions\HumanResources\Workplace\UI\IndexWorkplaces;
 use App\Actions\Ordering\Order\UI\IndexOrders;
-use App\Actions\Ordering\Purge\UI\IndexPurges;
-use App\Actions\Ordering\ShippingZoneSchema\UI\IndexShippingZoneSchemas;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Production\Artefact\UI\IndexArtefacts;
 use App\Actions\Production\ManufactureTask\UI\IndexManufactureTasks;
@@ -49,23 +51,23 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowOverviewHub::class)->name('hub');
 
-Route::name('changelog.')->prefix('changelog')->group(function () {
-    Route::get('/', IndexHistoryInGroup::class)->name('index');
+Route::name('sysadmin.')->prefix('sysadmin')->group(function () {
+    Route::get('/changelog', IndexHistoryInGroup::class)->name('changelog.index');
 });
 
-// ==== combine
-Route::name('comms.')->prefix('comms')->group(function () {
+Route::name('comms-marketing.')->prefix('comms-marketing')->group(function () {
     Route::get('/post-rooms', IndexPostRooms::class)->name('post-rooms.index');
     Route::get('/post-rooms/{postRoom}', ShowPostRoom::class)->name('post-rooms.show');
     Route::get('/outboxes', [IndexOutboxes::class, 'inGroup'])->name('outboxes.index');
-});
-
-Route::name('marketing.')->prefix('marketing')->group(function () {
     Route::get('/newsletters', [IndexNewsletterMailshots::class, 'inGroup'])->name('newsletters.index');
-    Route::get('/mailshots', [IndexMarketingMailshots::class, 'inGroup'])->name('mailshots.index');
-});
-// combine ====
+    Route::get('/marketing-mailshots', [IndexMarketingMailshots::class, 'inGroup'])->name('marketing-mailshots.index');
+    Route::get('/invite-mailshots', [IndexInviteMailshots::class, 'inGroup'])->name('invite-mailshots.index');
+    Route::get('/abandoned-cart-mailshots', [IndexAbandonedCartMailshots::class, 'inGroup'])->name('abandoned-cart-mailshots.index');
+    Route::get('/email-bulk-runs', [IndexEmailBulkRuns::class, 'inGroup'])->name('email-bulk-runs.index');
+    Route::get('/email-addresses', IndexEmailAddress::class)->name('email-addresses.index');
+    Route::get('/email-address/{emailAddress}', ShowEmailAddress::class)->name('email-addresses.show');
 
+});
 
 Route::name('catalogue.')->prefix('catalogue')->group(function () {
     Route::get('/products', [IndexProducts::class, 'inGroup'])->name('products.index');
@@ -76,6 +78,7 @@ Route::name('catalogue.')->prefix('catalogue')->group(function () {
 
 Route::name('billables.')->prefix('billables')->group(function () {
     // Route::get('/shipping', [IndexShippingZoneSchemas::class, 'inGroup'])->name('shipping.index');
+    Route::get('/rentals', [IndexFulfilmentRentals::class, 'inGroup'])->name('rentals.index');
     Route::get('/charges', [IndexCharges::class, 'inGroup'])->name('charges.index');
     Route::get('/services', [IndexServices::class, 'inGroup'])->name('services.index');
 });
@@ -132,9 +135,9 @@ Route::name('accounting.')->prefix('accounting')->group(function () {
 
 
 Route::name('hr.')->prefix('hr')->group(function () {
-    // Route::get('/workplaces', [IndexWorkplaces::class, 'inGroup'])->name('workplaces.index');
-    // Route::get('/responsibilities', [IndexJobPositions::class, 'inGroup'])->name('responsibilities.index');
-    // Route::get('/employees', [IndexEmployees::class, 'inGroup'])->name('employees.index');
-    // Route::get('/clocking-machines', [IndexClockingMachines::class, 'inGroup'])->name('clocking-machines.index');
-    // Route::get('/timesheets', [IndexTimesheets::class, 'inGroup'])->name('timesheets.index');
+    Route::get('/workplaces', [IndexWorkplaces::class, 'inGroup'])->name('workplaces.index');
+    Route::get('/responsibilities', [IndexJobPositions::class, 'inGroup'])->name('responsibilities.index');
+    Route::get('/employees', [IndexEmployees::class, 'inGroup'])->name('employees.index');
+    Route::get('/clocking-machines', [IndexClockingMachines::class, 'inGroup'])->name('clocking-machines.index');
+    Route::get('/timesheets', [IndexTimesheets::class, 'inGroup'])->name('timesheets.index');
 });

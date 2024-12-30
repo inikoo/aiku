@@ -26,6 +26,13 @@ const timesheetRoute = (timesheet: Timesheet) => {
                 [route().params["organisation"],
                 route().params["employee"],
                 timesheet.id])
+        case "grp.overview.hr.timesheets.index":
+            return route(
+                "grp.org.hr.timesheets.show",
+                [
+                    timesheet.organisation_slug,
+                    timesheet.id
+                ])
         default:
             return route(
                 "grp.org.hr.timesheets.show",

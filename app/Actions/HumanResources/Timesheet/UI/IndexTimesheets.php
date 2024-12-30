@@ -55,14 +55,10 @@ class IndexTimesheets extends OrgAction
                 ->where('timesheets.subject_id', $parent->id);
         } elseif ($parent instanceof Group) {
             $query->where('timesheets.group_id', $parent->id);
-            $query->leftjoin('organisations', 'timesheets.organisation_id', '=', 'organisations.id');
-            $query->addSelect([
-                'organisations.name as organisation_name',
-                'organisations.slug as organisation_slug',
-            ]);
         } else {
             $query->where('subject_type', 'Guest')->where('subject_id', $parent->id);
         }
+        $query->leftjoin('organisations', 'timesheets.organisation_id', '=', 'organisations.id');
 
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
@@ -73,6 +69,19 @@ class IndexTimesheets extends OrgAction
         }
 
         $query->withFilterPeriod('created_at');
+        $query->select([
+            'timesheets.id',
+            'timesheets.date',
+            'timesheets.subject_name',
+            'timesheets.start_at',
+            'timesheets.end_at',
+            'timesheets.working_duration',
+            'timesheets.breaks_duration',
+            'timesheets.number_time_trackers',
+            'timesheets.number_open_time_trackers',
+            'organisations.name as organisation_name',
+            'organisations.slug as organisation_slug',
+        ]);
         return $query
             ->defaultSort('date')
             ->allowedSorts(['date', 'subject_name', 'working_duration', 'breaks_duration'])
@@ -173,7 +182,22 @@ class IndexTimesheets extends OrgAction
         ];
         $afterTitle    = null;
         $iconRight     = null;
+        $modelOperations = [
 
+            'createLink' => [
+                [
+                    'route' => [
+                        'name'       => 'grp.org.hr.timesheets.index',
+                        'parameters' => array_values($request->route()->originalParameters())
+                    ],
+                    'label' => __('per employee')
+                ]
+            ]
+
+        ];
+        if ($this->parent instanceof Group) {
+            $modelOperations = [];
+        }
         if ($this->parent instanceof Employee) {
             $afterTitle    = [
                 'label' => $title
@@ -215,19 +239,7 @@ class IndexTimesheets extends OrgAction
 
             ]
         )->table(
-            $this->tableStructure($this->parent, modelOperations: [
-
-                'createLink' => [
-                    [
-                        'route' => [
-                            'name'       => 'grp.org.hr.timesheets.index',
-                            'parameters' => array_values($request->route()->originalParameters())
-                        ],
-                        'label' => __('per employee')
-                    ]
-                ]
-
-            ])
+            $this->tableStructure($this->parent, modelOperations: $modelOperations)
         );
     }
 
@@ -291,11 +303,11 @@ class IndexTimesheets extends OrgAction
                     ]
                 )
             ),
-            'grp.overview.human-resources.timesheets.index' => array_merge(
+            'grp.overview.hr.timesheets.index' => array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name'       => $routeName,
+                        'name'       => 'grp.overview.hr.timesheets.index',
                         'parameters' => $routeParameters
                     ]
                 )

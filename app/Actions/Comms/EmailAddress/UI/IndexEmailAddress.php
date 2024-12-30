@@ -1,36 +1,36 @@
 <?php
 
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 19 Nov 2024 11:09:35 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2024, Raul A Perusquia Flores
- */
+ * Author: Ganes <gustiganes@gmail.com>
+ * Created on: 30-12-2024, Bali, Indonesia
+ * Github: https://github.com/Ganes556
+ * Copyright: 2024
+ *
+*/
 
-namespace App\Actions\Comms\PostRoom\UI;
+namespace App\Actions\Comms\EmailAddress\UI;
 
 use App\Actions\GrpAction;
 use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
-use App\Http\Resources\Mail\PostRoomResource;
+use App\Http\Resources\Mail\EmailAddressResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Comms\PostRoom;
+use App\Models\Comms\EmailAddress;
 use App\Models\SysAdmin\Group;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexPostRooms extends GrpAction
+class IndexEmailAddress extends GrpAction
 {
     public function handle($prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('post_rooms.code', '~*', "\y$value\y")
-                    ->orWhere('post_rooms.data', '=', $value);
+                $query->whereAnyWordStartWith('email_addresses.email', $value);
             });
         });
 
@@ -39,27 +39,20 @@ class IndexPostRooms extends GrpAction
         }
 
 
-        $queryBuilder = QueryBuilder::for(PostRoom::class);
-        $queryBuilder->where('post_rooms.group_id', $this->group->id);
+        $queryBuilder = QueryBuilder::for(EmailAddress::class);
+        $queryBuilder->where('email_addresses.group_id', $this->group->id);
 
         $queryBuilder
-            ->defaultSort('post_rooms.name')
+            ->defaultSort('email_addresses.email')
             ->select([
-                'post_rooms.id',
-                'post_rooms.slug',
-                'post_rooms.name',
-                'post_room_stats.number_outboxes',
-                'post_room_stats.number_mailshots',
-                'post_room_intervals.dispatched_emails_lw',
-                'post_room_intervals.opened_emails_lw',
-                'post_room_intervals.unsubscribed_lw'
-            ])
-            ->selectRaw('(post_room_intervals.runs_all) as runs')
-            ->leftJoin('post_room_stats', 'post_room_stats.post_room_id', '=', 'post_rooms.id')
-            ->leftJoin('post_room_intervals', 'post_room_intervals.post_room_id', '=', 'post_rooms.id');
+                'email_addresses.id',
+                'email_addresses.email',
+                'email_addresses.number_marketing_dispatches as marketing',
+                'email_addresses.number_transactional_dispatches as transactional'
+            ]);
 
         return $queryBuilder
-            ->allowedSorts(['name', 'runs', 'number_outboxes', 'number_mailshots', 'dispatched_emails_lw', 'opened_emails_lw', 'unsubscribed_lw'])
+            ->allowedSorts(['email', 'marketing', 'transactional'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -95,46 +88,38 @@ class IndexPostRooms extends GrpAction
                 ->withEmptyState(
                     match (class_basename($parent)) {
                         'Group' => [
-                            'title' => __("No post rooms found"),
-                            'count' => $parent->commsStats->number_org_post_rooms,
+                            'title' => __("No email address found"),
+                            'count' => $parent->commsStats->number_email_addresses,
                         ],
                         default => null
                     }
                 );
 
             $table
-                ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'runs', label: __('Mailshots/Runs'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'dispatched_emails_lw', label: __('Dispatched').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'opened_emails_lw', label: __('Opened').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'unsubscribed_lw', label: __('Unsubscribed').' '.__('1w'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'email', label: __('Email'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'marketing', label: __('Marketing'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'transactional', label: __('Transactional'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
-    public function jsonResponse(): AnonymousResourceCollection
+    public function htmlResponse(LengthAwarePaginator $emailAddress, ActionRequest $request): Response
     {
-        return PostRoomResource::collection($this->handle());
-    }
-
-
-    public function htmlResponse(LengthAwarePaginator $postRoom, ActionRequest $request): Response
-    {
-        $title      = __('Post Room');
+        $title      = __('Email Addresses');
         $icon       = [
-            'icon'  => ['fal', 'fa-cube'],
-            'title' => __('post rooms')
+            'icon'  => ['fal', 'fa-envelope'],
+            'title' => __('Email Addresses')
         ];
         $afterTitle = null;
         $iconRight  = null;
 
         return Inertia::render(
-            'Comms/PostRooms',
+            'Comms/EmailAddresses',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('post room'),
+                'title'       => __('email addresses'),
                 'pageHead'    => [
                     'title'      => $title,
                     'icon'       => $icon,
@@ -142,7 +127,7 @@ class IndexPostRooms extends GrpAction
                     'iconRight'  => $iconRight,
                 ],
 
-                'data' => PostRoomResource::collection($postRoom),
+                'data' => EmailAddressResource::collection($emailAddress),
 
             ]
         )->table($this->tableStructure($this->group));
@@ -157,16 +142,15 @@ class IndexPostRooms extends GrpAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('Post Rooms'),
+                        'label' => __('Email Addresses'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],
             ];
         };
 
-
         return match ($routeName) {
-            'grp.overview.comms-marketing.post-rooms.index' =>
+            'grp.overview.comms-marketing.email-addresses.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(

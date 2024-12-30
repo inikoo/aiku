@@ -6,14 +6,25 @@
 
 <script setup lang="ts">
 import SimpleBox from "@/Components/DataDisplay/SimpleBox.vue"
+import { routeType } from "@/types/route"
 const props = defineProps<{
-    data?: {}
+    data?: {
+        box_stats: {
+            name: string
+            number: number
+            route: routeType
+            icon: {
+                icon: string
+                tooltip: string
+            }
+        }[]
+    }
 }>()
 </script>
 
 
 <template>
-    <SimpleBox v-if="data" :data="data" />
+    <SimpleBox v-if="data?.box_stats" :box_stats="data.box_stats" />
     <div v-else>
         Warehouse Showcase
     </div>

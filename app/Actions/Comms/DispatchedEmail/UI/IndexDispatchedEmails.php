@@ -18,6 +18,7 @@ use App\Models\Comms\DispatchedEmail;
 use App\Models\Comms\Mailshot;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -30,9 +31,9 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexDispatchedEmails extends OrgAction
 {
-    private Organisation|Shop $parent;
+    private Group|Organisation|Shop $parent;
 
-    public function handle(Mailshot|Outbox|PostRoom|Organisation|Shop $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Mailshot|Outbox|PostRoom|Organisation|Shop $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {

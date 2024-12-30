@@ -150,7 +150,7 @@ onUnmounted(() => {
           <p class="text-gray-500 text-base mt-2">Ad spend this week</p>
           <!-- Red Exclamation Icon -->
           <div
-            class="absolute bottom-0 right-0 transform translate-x-1/2 translate-y-1/2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-md">
+            class="absolute bottom-0 right-0 transform translate-x-1/2 translate-y-1/2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md">
             !
           </div>
         </div>

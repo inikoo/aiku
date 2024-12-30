@@ -86,10 +86,8 @@ const selectedCurrency = ref(currency.value[0])
 		<div class="col-span-12 space-y-4">
 			<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
 				<div class="flex justify-end items-center space-x-4">
-					<!-- ToggleSwitch -->
 					<ToggleSwitch v-model="checked" />
 
-					<!-- Select Dropdown -->
 					<Select
 						v-model="selectedCurrency"
 						:options="currency"

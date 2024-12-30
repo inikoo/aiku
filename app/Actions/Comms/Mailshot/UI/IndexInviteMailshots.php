@@ -1,18 +1,19 @@
 <?php
 
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 19 Nov 2024 11:09:36 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2024, Raul A Perusquia Flores
- */
+ * author Arya Permana - Kirin
+ * created on 30-12-2024-13h-39m
+ * github: https://github.com/KirinZero0
+ * copyright 2024
+*/
 
 namespace App\Actions\Comms\Mailshot\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
+use App\Http\Resources\Mail\InviteMailshotsResource;
 use App\Http\Resources\Mail\MailshotResource;
-use App\Http\Resources\Mail\MarketingMailshotsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Mailshot;
@@ -29,7 +30,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexMarketingMailshots extends OrgAction
+class IndexInviteMailshots extends OrgAction
 {
     use HasUIMailshots;
     use HasCatalogueAuthorisation;
@@ -60,7 +61,10 @@ class IndexMarketingMailshots extends OrgAction
                                 $query->where('mailshots.post_room_id', $parent->id);
                             }
                         });
-        $queryBuilder->where('mailshots.type', OutboxCodeEnum::MARKETING->value);
+        $queryBuilder->where('mailshots.type', OutboxCodeEnum::INVITE->value);
+        if ($parent instanceof Group) {
+            $queryBuilder->where('mailshots.group_id', $parent->id);
+        }
         return $queryBuilder
             ->defaultSort('mailshots.id')
             ->select([
@@ -146,7 +150,7 @@ class IndexMarketingMailshots extends OrgAction
         $title = __('mailshots');
         if ($this->parent instanceof Group) {
             $actions = [];
-            $title = __('marketing mailshots');
+            $title = __('invite mailshots');
         }
 
         return Inertia::render(
@@ -162,7 +166,7 @@ class IndexMarketingMailshots extends OrgAction
                     'title'    => $title,
                     'actions'  => $actions,
                 ]),
-                'data' => MarketingMailshotsResource::collection($mailshots),
+                'data' => InviteMailshotsResource::collection($mailshots),
             ]
         )->table($this->tableStructure($this->parent));
     }
@@ -173,20 +177,5 @@ class IndexMarketingMailshots extends OrgAction
         $this->initialisationFromGroup(group(), $request);
 
         return $this->handle($this->parent);
-    }
-
-    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $organisation;
-        $this->initialisation($organisation, $request);
-        return $this->handle($organisation);
-    }
-
-    public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $organisation;
-        $this->initialisationFromShop($shop, $request);
-
-        return $this->handle($organisation);
     }
 }

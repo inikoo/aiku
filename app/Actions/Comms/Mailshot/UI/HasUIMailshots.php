@@ -35,8 +35,10 @@ trait HasUIMailshots
         };
 
         return match ($routeName) {
-            'grp.overview.marketing.mailshots.index',
-            'grp.overview.marketing.newsletters.index' =>
+            'grp.overview.comms-marketing.marketing-mailshots.index',
+            'grp.overview.comms-marketing.invite-mailshots.index',
+            'grp.overview.comms-marketing.abandoned-cart-mailshots.index',
+            'grp.overview.comms-marketing.newsletters.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(
                     $routeParameters
