@@ -206,6 +206,8 @@ class IndexStockDeliveries extends OrgAction
 
                 'label'     => __('Supplier Deliveries')
             ];
+        } elseif ($this->parent instanceof Warehouse) {
+            $model = __('Goods in');
         }
         return Inertia::render(
             'Procurement/StockDeliveries',
