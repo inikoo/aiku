@@ -13,9 +13,14 @@ import { capitalize } from "@/Composables/capitalize"
 const props = defineProps<{
     title: string
     pageHead: {}
-    stats_box: {
-        label: string
-        value: number
+    box_stats: {
+        name: string
+        number: number
+        route: routeType
+        icon: {
+            icon: string
+            tooltip: string
+        }
     }[]
 }>()
 
@@ -23,6 +28,7 @@ const props = defineProps<{
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faInventory, faWarehouse, faMapSigns, faBox, faBoxesAlt } from '@fal'
 import SimpleBox from '@/Components/DataDisplay/SimpleBox.vue'
+import { routeType } from '@/types/route'
 
 library.add(faInventory, faWarehouse, faMapSigns, faBox, faBoxesAlt);
 
@@ -32,8 +38,8 @@ library.add(faInventory, faWarehouse, faMapSigns, faBox, faBoxesAlt);
 
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
+    <!-- {{ box_stats }} -->
 
-    <SimpleBox v-if="stats_box" :data="stats_box" :link="link"/>
-
+    <SimpleBox v-if="box_stats" :box_stats="box_stats" />
 
 </template>

@@ -55,7 +55,7 @@ class NewsletterMailshotsResource extends JsonResource
             'clicked'              => percentage($mailshot->clicked, $mailshot->delivered),
             'spam'                 => percentage($mailshot->spam, $mailshot->delivered),
             'organisation_name' => $this->organisation_name,
-            'organisation_slug' => $this->organizations,
+            'organisation_slug' => $this->organisation_slug,
             'shop_name'         => $this->shop_name,
             'shop_slug'         => $this->shop_slug,
             // 'percentage_bounced'   => $mailshot->start_sending_at ?

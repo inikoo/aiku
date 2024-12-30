@@ -10,14 +10,14 @@
 namespace App\Actions\Comms\EmailBulkRun\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Http\Resources\Mail\EmailBulkRunsResource;
-use App\Http\Resources\Mail\MailshotResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\EmailBulkRun;
-use App\Models\Comms\Mailshot;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -30,9 +30,9 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexEmailBulkRuns extends OrgAction
 {
-    private Organisation|Shop|Outbox $parent;
+    private Group|Organisation|Shop|Outbox $parent;
 
-    public function handle(Organisation|Shop|Outbox $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Organisation|Shop|Outbox $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -46,11 +46,14 @@ class IndexEmailBulkRuns extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(EmailBulkRun::class);
-
+        $queryBuilder->leftJoin('organisations', 'email_bulk_runs.organisation_id', '=', 'organisations.id')
+        ->leftJoin('shops', 'email_bulk_runs.shop_id', '=', 'shops.id');
         if ($parent instanceof Outbox) {
             $queryBuilder->where('email_bulk_runs.outbox_id', $parent->id);
         } elseif ($parent instanceof Shop) {
             $queryBuilder->where('email_bulk_runs.shop_id', $parent->id);
+        } elseif ($parent instanceof Group) {
+            $queryBuilder->where('email_bulk_runs.group_id', $parent->id);
         } else {
             $queryBuilder->where('email_bulk_runs.organisation_id', $parent->id);
         }
@@ -61,8 +64,12 @@ class IndexEmailBulkRuns extends OrgAction
                 'email_bulk_runs.id',
                 'email_bulk_runs.subject',
                 'email_bulk_runs.state',
+                'shops.name as shop_name',
+                'shops.slug as shop_slug',
+                'organisations.name as organisation_name',
+                'organisations.slug as organisation_slug',
             ])
-            ->allowedSorts(['email_bulk_runs.subject', 'email_bulk_runs.state'])
+            ->allowedSorts(['email_bulk_runs.subject', 'email_bulk_runs.state', 'shop_name', 'organisation_name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -83,6 +90,10 @@ class IndexEmailBulkRuns extends OrgAction
                 ->withModelOperations($modelOperations)
                 ->column(key: 'subject', label: __('subject'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true);
+            if ($parent instanceof Group) {
+                $table->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true)
+                    ->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true);
+            }
         };
     }
 
@@ -92,36 +103,33 @@ class IndexEmailBulkRuns extends OrgAction
     }
 
 
-    // public function htmlResponse(LengthAwarePaginator $mailshots, ActionRequest $request): Response
-    // {
+    public function htmlResponse(LengthAwarePaginator $mailshots, ActionRequest $request): Response
+    {
 
-    //     return Inertia::render(
-    //         'Comms/Mailshots',
-    //         [
-    //             'breadcrumbs' => $this->getBreadcrumbs(
-    //                 $request->route()->getName(),
-    //                 $request->route()->originalParameters(),
-    //                 $this->parent
-    //             ),
-    //             'title'       => __('mailshots'),
-    //             'pageHead'    => [
-    //                 'title'    => __('mailshots'),
-    //                 'actions'  => [
-    //                     [
-    //                         'type'    => 'button',
-    //                         'style'   => 'create',
-    //                         'label'   => __('mailshot'),
-    //                         'route'   => [
-    //                             'name'       => 'grp.org.shops.show.marketing.mailshots.create',
-    //                             'parameters' => array_values($request->route()->originalParameters())
-    //                         ]
-    //                     ]
-    //                 ],
-    //             ],
-    //             'data' => MailshotResource::collection($mailshots),
-    //         ]
-    //     )->table($this->tableStructure($this->parent));
-    // }
+        return Inertia::render(
+            'Comms/Mailshots',
+            [
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters(),
+                ),
+                'title'       => __('Email Bulk Runs'),
+                'pageHead'    => [
+                    'title'    => __('Email Bulk Runs'),
+                    'icon'     => ['fal', 'fa-raygun'],
+                ],
+                'data' => EmailBulkRunsResource::collection($mailshots),
+            ]
+        )->table($this->tableStructure($this->parent));
+    }
+
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup($this->parent, $request);
+
+        return $this->handle(parent: $this->parent);
+    }
 
     // public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     // {
@@ -159,4 +167,37 @@ class IndexEmailBulkRuns extends OrgAction
     //     $this->initialisation($request);
     //     return $this->handle($outbox);
     // }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
+    {
+        $headCrumb = function (array $routeParameters, ?string $suffix) {
+            return [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __('Email Bulk Runs'),
+                        'icon'  => 'fal fa-bars'
+                    ],
+                    'suffix' => $suffix
+                ]
+            ];
+        };
+
+
+        return match ($routeName) {
+            'grp.overview.comms-marketing.email-bulk-runs.index', =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
+            ),
+            default => []
+        };
+    }
 }

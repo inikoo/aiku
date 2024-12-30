@@ -12,9 +12,9 @@ use App\Models\Goods\MasterShop;
 
 trait WithMasterFetch
 {
-    public function getMasterShop(): ?MasterShop
+    public function getMasterShop($field = 'Product Category Store Key'): ?MasterShop
     {
-        $shop = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Product Category Store Key'});
+        $shop = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{$field});
 
         $masterShop = null;
 

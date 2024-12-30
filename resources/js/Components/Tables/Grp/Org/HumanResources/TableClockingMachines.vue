@@ -25,6 +25,13 @@ function clockingMachineRoute(clockingMachine: ClockingMachine) {
           route().params.workplace,
           clockingMachine.slug
         ]);
+    case "grp.overview.hr.clocking-machines.index":
+      return route(
+        "grp.org.hr.clocking_machines.show",
+        [
+          clockingMachine.organisation_slug,
+          clockingMachine.slug
+        ]);
     case "grp.org.hr.clocking_machines.index":
     default:
       return route(

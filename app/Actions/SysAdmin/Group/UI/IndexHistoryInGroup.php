@@ -127,7 +127,7 @@ class IndexHistoryInGroup extends GrpAction
         };
 
         return match ($routeName) {
-            'grp.overview.changelog.index' =>
+            'grp.overview.sysadmin.changelog.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(

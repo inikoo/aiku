@@ -47,9 +47,9 @@ class IndexWorkplaces extends OrgAction
         $queryBuilder = QueryBuilder::for(Workplace::class);
 
         if ($parent instanceof Organisation) {
-            $queryBuilder->where('organisation_id', $parent->id);
+            $queryBuilder->where('workplaces.organisation_id', $parent->id);
         } elseif ($parent instanceof Group) {
-            $queryBuilder->where('group_id', $parent->id);
+            $queryBuilder->where('workplaces.group_id', $parent->id);
         }
 
         $queryBuilder->leftjoin('organisations', 'workplaces.organisation_id', '=', 'organisations.id');
@@ -205,7 +205,7 @@ class IndexWorkplaces extends OrgAction
                     $routeParameters
                 )
             ),
-            'grp.overview.human-resources.workplaces.index' =>
+            'grp.overview.hr.workplaces.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(

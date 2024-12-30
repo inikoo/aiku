@@ -176,6 +176,11 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
+    public function fetchMasterAssetHasStock($id): ?array
+    {
+        return null;
+    }
+
     public function fetchDepartment($id): ?array
     {
         return null;

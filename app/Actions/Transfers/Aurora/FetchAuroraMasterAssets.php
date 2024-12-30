@@ -11,7 +11,6 @@ namespace App\Actions\Transfers\Aurora;
 use App\Actions\Goods\MasterAsset\StoreMasterAsset;
 use App\Actions\Goods\MasterAsset\UpdateMasterAsset;
 use App\Actions\Helpers\Media\SaveModelImages;
-use App\Models\Catalogue\Product;
 use App\Models\Goods\MasterAsset;
 use App\Transfers\SourceOrganisationService;
 use Exception;
@@ -34,7 +33,7 @@ class FetchAuroraMasterAssets extends FetchAuroraAction
         }
 
         $sourceData = explode(':', $masterAssetData['master_asset']['source_id']);
-        $stocks  = $organisationSource->fetchProductHasOrgStock($sourceData[1])['stocks'];
+        $stocks  = $organisationSource->fetchMasterAssetHasStock($sourceData[1])['stocks'];
 
         data_set(
             $masterAssetData,
@@ -43,44 +42,47 @@ class FetchAuroraMasterAssets extends FetchAuroraAction
         );
 
         /** @var MasterAsset $masterAsset */
-        if ($masterAsset = Product::withTrashed()->where('source_id', $masterAssetData['master_asset']['source_id'])->first()) {
-            try {
-                $masterAsset = UpdateMasterAsset::make()->action(
-                    masterAsset: $masterAsset,
-                    modelData: $masterAssetData['master_asset'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                    audit: false
-                );
-            } catch (Exception|Throwable $e) {
-                $this->recordError($organisationSource, $e, $masterAssetData['master_asset'], 'MasterAsset', 'update');
+        $masterAsset = MasterAsset::withTrashed()->where('source_id', $masterAssetData['master_asset']['source_id'])->first();
 
-                return null;
-            }
+
+        if ($masterAsset) {
+            // try {
+            $masterAsset = UpdateMasterAsset::make()->action(
+                masterAsset: $masterAsset,
+                modelData: $masterAssetData['master_asset'],
+                hydratorsDelay: 60,
+                strict: false,
+                audit: false
+            );
+            //            } catch (Exception|Throwable $e) {
+            //                $this->recordError($organisationSource, $e, $masterAssetData['master_asset'], 'MasterAsset', 'update');
+            //
+            //                return null;
+            //            }
         } else {
-            try {
-                $masterAsset = StoreMasterAsset::make()->action(
-                    parent: $masterAssetData['parent'],
-                    modelData: $masterAssetData['master_asset'],
-                    hydratorsDelay: 120,
-                    strict: false,
-                    audit: false
-                );
+            // try {
+            $masterAsset = StoreMasterAsset::make()->action(
+                parent: $masterAssetData['parent'],
+                modelData: $masterAssetData['master_asset'],
+                hydratorsDelay: 120,
+                strict: false,
+                audit: false
+            );
 
-                MasterAsset::enableAuditing();
-                $this->saveMigrationHistory(
-                    $masterAsset,
-                    Arr::except($masterAssetData['master_asset'], ['fetched_at', 'last_fetched_at'])
-                );
+            MasterAsset::enableAuditing();
+            $this->saveMigrationHistory(
+                $masterAsset,
+                Arr::except($masterAssetData['master_asset'], ['fetched_at', 'last_fetched_at'])
+            );
 
-                $this->recordNew($organisationSource);
+            $this->recordNew($organisationSource);
 
 
-            } catch (Exception|Throwable $e) {
-                $this->recordError($organisationSource, $e, $masterAssetData['master_asset'], 'MasterAsset', 'store');
-
-                return null;
-            }
+            //            } catch (Exception|Throwable $e) {
+            //                $this->recordError($organisationSource, $e, $masterAssetData['master_asset'], 'MasterAsset', 'store');
+            //
+            //                return null;
+            //            }
         }
 
         $sourceData = explode(':', $masterAsset->source_id);
@@ -91,14 +93,14 @@ class FetchAuroraMasterAssets extends FetchAuroraAction
                 if (isset($imageData['image_path']) and isset($imageData['filename'])) {
                     try {
                         SaveModelImages::run(
-                            $masterAsset,
-                            [
+                            model:$masterAsset,
+                            imageData:[
                                 'path'         => $imageData['image_path'],
                                 'originalName' => $imageData['filename'],
 
                             ],
-                            'photo',
-                            'product_images'
+                            scope:'photo',
+                            mediaScope:'master_asset_images'
                         );
                     } catch (Exception $e) {
                         $this->recordError($organisationSource, $e, $imageData, 'Image', 'store');

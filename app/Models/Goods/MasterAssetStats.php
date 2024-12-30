@@ -14,7 +14,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  *
  *
- * @property-read \App\Models\Goods\MasterAsset|null $masterAsset
+ * @property int $id
+ * @property int $master_asset_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Goods\MasterAsset $masterAsset
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterAssetStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterAssetStats newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterAssetStats query()
@@ -22,7 +26,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class MasterAssetStats extends Model
 {
-    protected $table = 'master_product_stats';
+    protected $table = 'master_asset_stats';
 
     protected $guarded = [];
 

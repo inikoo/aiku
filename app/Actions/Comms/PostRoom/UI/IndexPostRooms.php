@@ -166,7 +166,7 @@ class IndexPostRooms extends GrpAction
 
 
         return match ($routeName) {
-            'grp.overview.comms.post-rooms.index' =>
+            'grp.overview.comms-marketing.post-rooms.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
