@@ -228,7 +228,7 @@ class Customer extends Model implements HasMedia, Auditable
                 return $slug;
             })
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(36)
+            ->slugsShouldBeNoLongerThan(128)
             ->doNotGenerateSlugsOnUpdate();
     }
 

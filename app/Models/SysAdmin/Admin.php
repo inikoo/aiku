@@ -58,7 +58,7 @@ class Admin extends Model
         return SlugOptions::create()
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(8);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function getRouteKeyName(): string

@@ -97,7 +97,7 @@ class Production extends Model implements Auditable
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(4);
+            ->slugsShouldBeNoLongerThan(64);
     }
 
     public function generateTags(): array

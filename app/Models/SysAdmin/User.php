@@ -177,7 +177,7 @@ class User extends Authenticatable implements HasMedia, Auditable
                 return head(explode('@', trim($this->username)));
             })
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(16);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
 

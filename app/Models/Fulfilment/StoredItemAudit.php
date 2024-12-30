@@ -82,7 +82,8 @@ class StoredItemAudit extends Model implements Auditable
         return SlugOptions::create()
             ->generateSlugsFrom('reference')
             ->doNotGenerateSlugsOnUpdate()
-            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(64);
+            ->saveSlugsTo('slug')
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function warehouse(): BelongsTo

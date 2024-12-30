@@ -276,7 +276,7 @@ class Shop extends Model implements HasMedia, Auditable
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(6);
+            ->slugsShouldBeNoLongerThan(664);
     }
 
     public function crmStats(): HasOne

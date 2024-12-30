@@ -87,7 +87,7 @@ class OrgStockFamily extends Model
             ->generateSlugsFrom(function () {
                 return $this->code. ' '.$this->organisation->code;
             })
-            ->slugsShouldBeNoLongerThan(32)
+            ->slugsShouldBeNoLongerThan(128)
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');
     }

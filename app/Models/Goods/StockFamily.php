@@ -110,7 +110,7 @@ class StockFamily extends Model implements HasMedia, Auditable
     {
         return SlugOptions::create()
             ->generateSlugsFrom('code')
-            ->slugsShouldBeNoLongerThan(32)
+            ->slugsShouldBeNoLongerThan(128)
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');
     }

@@ -114,7 +114,7 @@ class ClockingMachine extends Authenticatable implements Auditable
             ->generateSlugsFrom('name')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(64);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function workplace(): BelongsTo

@@ -194,7 +194,7 @@ class Employee extends Model implements HasMedia, Auditable
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(16);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function jobPositions(): BelongsToMany

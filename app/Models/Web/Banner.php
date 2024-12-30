@@ -129,7 +129,7 @@ class Banner extends Model implements HasMedia, Auditable
             })
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(16);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function snapshots(): MorphMany

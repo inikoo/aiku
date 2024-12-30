@@ -22,7 +22,8 @@ trait IsMedia
                 return preg_replace('/\.(png|jpg|jpeg|webp|avif|svg)$/i', '', $this->name);
             })
             ->doNotGenerateSlugsOnUpdate()
-            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(24);
+            ->saveSlugsTo('slug')
+            ->slugsShouldBeNoLongerThan(128);
     }
 
 
