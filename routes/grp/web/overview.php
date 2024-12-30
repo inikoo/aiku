@@ -18,6 +18,8 @@ use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
 use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
 use App\Actions\Comms\EmailAddress\UI\IndexEmailAddress;
 use App\Actions\Comms\EmailBulkRun\UI\IndexEmailBulkRuns;
+use App\Actions\Comms\Mailshot\UI\IndexAbandonedCartMailshots;
+use App\Actions\Comms\Mailshot\UI\IndexInviteMailshots;
 use App\Actions\Comms\Mailshot\UI\IndexMailshots;
 use App\Actions\Comms\Mailshot\UI\IndexMarketingMailshots;
 use App\Actions\Comms\Mailshot\UI\IndexNewsletterMailshots;
@@ -55,8 +57,8 @@ Route::name('comms-marketing.')->prefix('comms-marketing')->group(function () {
     Route::get('/outboxes', [IndexOutboxes::class, 'inGroup'])->name('outboxes.index');
     Route::get('/newsletters', [IndexNewsletterMailshots::class, 'inGroup'])->name('newsletters.index');
     Route::get('/marketing-mailshots', [IndexMarketingMailshots::class, 'inGroup'])->name('marketing-mailshots.index');
-    // Route::get('/invite-mailshots', [IndexMailshots::class, 'inGroup'])->name('invite-mailshots.index');
-    // Route::get('/abandoned-card-mailshots', [IndexMailshots::class, 'inGroup'])->name('abandoned-card-mailshots.index');
+    Route::get('/invite-mailshots', [IndexInviteMailshots::class, 'inGroup'])->name('invite-mailshots.index');
+    Route::get('/abandoned-cart-mailshots', [IndexAbandonedCartMailshots::class, 'inGroup'])->name('abandoned-cart-mailshots.index');
     Route::get('/email-bulk-runs', [IndexEmailBulkRuns::class, 'inGroup'])->name('email-bulk-runs.index');
     Route::get('/email-addresses', IndexEmailAddress::class)->name('email-addresses.index');
 
