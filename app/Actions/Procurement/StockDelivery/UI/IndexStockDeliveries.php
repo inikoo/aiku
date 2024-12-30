@@ -152,11 +152,11 @@ class IndexStockDeliveries extends OrgAction
     public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request): Response
     {
         $subNavigation = null;
-        $title = __('Supplier Deliveries');
+        $title = __('Stock Deliveries');
         $model = '';
         $icon  = [
             'icon'  => ['fal', 'fa-truck-container'],
-            'title' => __('supplier deliveries')
+            'title' => __('Stock deliveries')
         ];
         $afterTitle = null;
         $iconRight = null;
@@ -167,14 +167,14 @@ class IndexStockDeliveries extends OrgAction
             $model = '';
             $icon  = [
                 'icon'  => ['fal', 'fa-people-arrows'],
-                'title' => __('supplier deliveries')
+                'title' => __('Stock deliveries')
             ];
             $iconRight    = [
                 'icon' => 'fal fa-truck-container',
             ];
             $afterTitle = [
 
-                'label'     => __('Supplier Deliveries')
+                'label'     => __('Stock Deliveries')
             ];
         } elseif ($this->parent instanceof OrgPartner) {
             $subNavigation = $this->getOrgPartnerNavigation($this->parent);
@@ -182,14 +182,14 @@ class IndexStockDeliveries extends OrgAction
             $model = '';
             $icon  = [
                 'icon'  => ['fal', 'fa-users-class'],
-                'title' => __('supplier deliveries')
+                'title' => __('Stock deliveries')
             ];
             $iconRight    = [
                 'icon' => 'fal fa-truck-container',
             ];
             $afterTitle = [
 
-                'label'     => __('Supplier Deliveries')
+                'label'     => __('Stock Deliveries')
             ];
         } elseif ($this->parent instanceof OrgSupplier) {
             $subNavigation = $this->getOrgSupplierNavigation($this->parent);
@@ -197,14 +197,14 @@ class IndexStockDeliveries extends OrgAction
             $model = '';
             $icon  = [
                 'icon'  => ['fal', 'fa-person-dolly'],
-                'title' => __('supplier deliveries')
+                'title' => __('Stock deliveries')
             ];
             $iconRight    = [
                 'icon' => 'fal fa-truck-container',
             ];
             $afterTitle = [
 
-                'label'     => __('Supplier Deliveries')
+                'label'     => __('Stock Deliveries')
             ];
         } elseif ($this->parent instanceof Warehouse) {
             $model = __('Goods in');
@@ -213,7 +213,7 @@ class IndexStockDeliveries extends OrgAction
             'Procurement/StockDeliveries',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
-                'title'       => __('supplier deliveries'),
+                'title'       => __('Stock deliveries'),
                 'pageHead'    => [
                     'title'         => $title,
                     'icon'          => $icon,
@@ -225,7 +225,7 @@ class IndexStockDeliveries extends OrgAction
                             'name'       => 'grp.org.procurement.stock_deliveries.create',
                             'parameters' => array_values($request->route()->originalParameters())
                         ],
-                        'label' => __('supplier deliveries')
+                        'label' => __('Stock deliveries')
                     ] : false,
                     'subNavigation' => $subNavigation,
                 ],

@@ -38,5 +38,12 @@ class GroupHydrateUserRequests implements ShouldBeUnique
         $group->sysadminStats->update($stats);
     }
 
+    public string $commandSignature = 'hydrate:group_user_requests';
+
+    public function asCommand($command): void
+    {
+        $group = Group::first();
+        $this->handle($group);
+    }
 
 }

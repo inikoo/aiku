@@ -229,7 +229,7 @@
     </thead>
     <tbody>
 
-    @foreach($return->services as $service)
+    @foreach($return->services() as $service)
         <tr class="@if($loop->last) last @endif">
             <td style="text-align:left">{{ $service->code }}</td>
             <td style="text-align:left">{{ $service->name }}</td>
@@ -254,7 +254,7 @@
     </thead>
     <tbody>
 
-    @foreach($return->physicalGoods as $physicalGood)
+    @foreach($return->products() as $physicalGood)
         <tr class="@if($loop->last) last @endif">
             <td style="text-align:left">{{ $physicalGood->code }}</td>
             <td style="text-align:left">{{ $physicalGood->name }}</td>

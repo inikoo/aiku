@@ -44,6 +44,10 @@ const props = defineProps<{
 
 function outboxRoute(outbox: Outbox) {
     switch (route().current()) {
+        case 'grp.overview.comms-marketing.outboxes.index':
+            return route(
+                'grp.org.shops.show.comms.outboxes.show',
+                [outbox.organisation_slug, outbox.shop_slug, outbox.slug])
         case 'grp.org.shops.show.comms.outboxes.index':
         return route(
                 'grp.org.shops.show.comms.outboxes.show',

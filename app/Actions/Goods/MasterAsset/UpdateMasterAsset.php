@@ -12,9 +12,13 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateMasterAssets;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
 use App\Models\Goods\MasterAsset;
+use App\Models\Goods\MasterProductCategory;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
+use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateMasterAsset extends OrgAction
@@ -27,6 +31,20 @@ class UpdateMasterAsset extends OrgAction
 
     public function handle(MasterAsset $masterAsset, array $modelData): MasterAsset
     {
+
+        if (Arr::has($modelData, 'master_family_id')) {
+            $masterDepartmentID = null;
+            $masterFamily = null;
+            if ($modelData['master_family_id']) {
+                $masterFamily = MasterProductCategory::where('id', $modelData['master_family_id'])->first();
+            }
+
+            if ($masterFamily) {
+                $masterDepartmentID = $masterFamily->master_department_id;
+            }
+            data_set($modelData, 'master_department_id', $masterDepartmentID);
+        }
+
         $masterAsset = $this->update($masterAsset, $modelData);
         if ($masterAsset->wasChanged('status')) {
             GroupHydrateMasterAssets::dispatch($masterAsset->group)->delay($this->hydratorsDelay);
@@ -38,7 +56,7 @@ class UpdateMasterAsset extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'code'        => [
+            'code'             => [
                 'sometimes',
                 'required',
                 'max:32',
@@ -52,12 +70,19 @@ class UpdateMasterAsset extends OrgAction
                     ]
                 ),
             ],
-            'name'        => ['sometimes', 'required', 'max:250', 'string'],
-            'price'       => ['sometimes', 'required', 'numeric', 'min:0'],
-            'description' => ['sometimes', 'required', 'max:1500'],
-            'rrp'         => ['sometimes', 'required', 'numeric'],
-            'data'        => ['sometimes', 'array'],
-            'status'      => ['sometimes', 'required', 'boolean'],
+            'name'             => ['sometimes', 'required', 'max:250', 'string'],
+            'price'            => ['sometimes', 'required', 'numeric', 'min:0'],
+            'description'      => ['sometimes', 'required', 'max:1500'],
+            'rrp'              => ['sometimes', 'required', 'numeric'],
+            'data'             => ['sometimes', 'array'],
+            'status'           => ['sometimes', 'required', 'boolean'],
+            'master_family_id' => [
+                'sometimes',
+                'nullable',
+                Rule::exists('master_product_categories', 'id')
+                    ->where('master_shop_id', $this->masterAsset->master_shop_id)
+                    ->where('type', MasterProductCategoryTypeEnum::FAMILY)
+            ],
         ];
 
         if (!$this->strict) {
@@ -72,6 +97,7 @@ class UpdateMasterAsset extends OrgAction
         if ($this->asAction) {
             return true;
         }
+
         return false;
     }
 
@@ -87,7 +113,7 @@ class UpdateMasterAsset extends OrgAction
 
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->masterAsset        = $masterAsset;
+        $this->masterAsset    = $masterAsset;
 
         $this->initialisationFromGroup($masterAsset->group, $modelData);
 

@@ -77,7 +77,6 @@ const filteredData = computed(() => {
 		<div>
 			<template v-if="filteredData.length">
 				<div v-for="section in filteredData" :key="section.section" class="mb-6">
-					<!-- Section Header with Collapse Button -->
 					<div
 						class="flex justify-between items-center font-semibold text-gray-700 mb-2 border-b pb-2">
 						<span>{{ section.section }}</span>
@@ -114,7 +113,7 @@ const filteredData = computed(() => {
 								</Link>
 							</div>
 
-							<div class="text-right text-gray-500">
+							<div class="text-right text-gray-700">
 								{{ locale.number(item.count) }}
 							</div>
 						</div>

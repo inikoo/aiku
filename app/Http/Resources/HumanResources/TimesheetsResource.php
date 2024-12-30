@@ -40,8 +40,8 @@ class TimesheetsResource extends JsonResource
             'breaks_duration'                          => $this->breaks_duration,
             'number_time_trackers'                     => $this->number_time_trackers,
             'number_open_time_trackers'                => $this->number_open_time_trackers,
-            'organisation_name' => $this->organisation_name,
-            'organisation_slug' => $this->organisation_slug,
+            'organisation_name'                        => $this->organisation_name,
+            'organisation_slug'                        => $this->organisation_slug,
 
         ];
     }

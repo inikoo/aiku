@@ -20,6 +20,10 @@ function workplaceRoute(workplace: Workplace) {
             return route(
                 'grp.org.hr.workplaces.show',
                 [route().params['organisation'],workplace.slug]);
+        case 'grp.overview.hr.workplaces.index':
+            return route(
+                'grp.org.hr.workplaces.show',
+                [workplace.organisation_slug, workplace.slug]);
 
     }
 

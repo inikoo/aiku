@@ -11,6 +11,7 @@ namespace App\Actions\Helpers\Media;
 use App\Actions\Helpers\Media\Hydrators\MediaHydrateMultiplicity;
 use App\Actions\Helpers\Media\Hydrators\MediaHydrateUsage;
 use App\Models\Catalogue\Product;
+use App\Models\Goods\MasterAsset;
 use App\Models\Helpers\Media;
 use App\Models\Web\WebBlock;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -20,7 +21,7 @@ class SaveModelImages
 {
     use AsAction;
 
-    public function handle(Product|WebBlock $model, array $imageData, string $scope = 'image', string $mediaScope = 'images'): Media
+    public function handle(MasterAsset|Product|WebBlock $model, array $imageData, string $scope = 'image', string $mediaScope = 'images'): Media
     {
         $group_id        = $model->group_id;
         $organisation_id = $model->organisation_id;
