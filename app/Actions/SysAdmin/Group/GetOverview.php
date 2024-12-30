@@ -95,13 +95,13 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Invite mailshots'),
                     'icon'  => 'fal fa-phone-volume',
-                    'route' => '', // the index not exist yet
+                    'route' => route('grp.overview.comms-marketing.invite-mailshots.index'),
                     'count' => $group->commsStats->number_mailshots_type_invite ?? 0
                 ],
                 [
                     'name'  => __('Abandoned Cart mailshots'),
                     'icon'  => 'fal fa-scroll-old',
-                    'route' => '', // the index not exist yet
+                    'route' => route('grp.overview.comms-marketing.abandoned-cart-mailshots.index'),
                     'count' => $group->commsStats->number_mailshots_type_abandoned_cart ?? 0
                 ],
                 [

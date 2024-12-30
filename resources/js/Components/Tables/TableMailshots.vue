@@ -27,6 +27,10 @@ function mailshotRoute(mailshot: Mailshot) {
             return null
         case 'grp.overview.comms-marketing.marketing-mailshots.index':
             return null
+        case 'grp.overview.comms-marketing.invite-mailshots.index':
+            return null
+        case 'grp.overview.comms-marketing.abandoned-cart-mailshots.index':
+            return null
         case 'grp.org.shops.show.marketing.mailshots.index':
             return route(
                 'grp.org.shops.show.marketing.mailshots.show',
