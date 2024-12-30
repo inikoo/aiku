@@ -41,6 +41,11 @@ class EmailAddress extends Model
 
     protected $guarded = [];
 
+    public function getRouteKeyName(): string
+    {
+        return 'email';
+    }
+
     public function mailshot(): BelongsTo
     {
         return $this->belongsTo(Mailshot::class);

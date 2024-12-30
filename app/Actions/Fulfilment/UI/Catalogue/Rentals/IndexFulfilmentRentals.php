@@ -10,12 +10,14 @@ namespace App\Actions\Fulfilment\UI\Catalogue\Rentals;
 
 use App\Actions\Fulfilment\UI\Catalogue\ShowFulfilmentCatalogueDashboard;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Enums\Billables\Rental\RentalStateEnum;
 use App\Enums\UI\Fulfilment\RentalsTabsEnum;
 use App\Http\Resources\Fulfilment\RentalsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Billables\Rental;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -28,6 +30,8 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexFulfilmentRentals extends OrgAction
 {
+    public Fulfilment|Group $parent;
+
     protected function getElementGroups(Fulfilment $parent): array
     {
         return [
@@ -47,7 +51,7 @@ class IndexFulfilmentRentals extends OrgAction
         ];
     }
 
-    public function handle(Fulfilment $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Fulfilment $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -61,20 +65,25 @@ class IndexFulfilmentRentals extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(Rental::class);
-        $queryBuilder->where('rentals.shop_id', $parent->shop_id);
+
+        if ($parent instanceof Group) {
+            $queryBuilder->where('rentals.group_id', $parent->id);
+        } else {
+            $queryBuilder->where('rentals.shop_id', $parent->shop_id);
+        }
+
         $queryBuilder->join('assets', 'rentals.asset_id', '=', 'assets.id');
         $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
 
-
-
-
-        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
+        if ($parent instanceof Fulfilment) {
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $queryBuilder->whereElementGroup(
+                    key: $key,
+                    allowedElements: array_keys($elementGroup['elements']),
+                    engine: $elementGroup['engine'],
+                    prefix: $prefix
+                );
+            }
         }
 
         $queryBuilder
@@ -106,6 +115,10 @@ class IndexFulfilmentRentals extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        }
+
         $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
         $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
@@ -114,6 +127,7 @@ class IndexFulfilmentRentals extends OrgAction
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(RentalsTabsEnum::values());
 
         return $this->handle($fulfilment, RentalsTabsEnum::RENTALS->value);
@@ -129,31 +143,43 @@ class IndexFulfilmentRentals extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $rentals, ActionRequest $request): Response
     {
+
+        $title = __('fulfilment');
+        $icon = [
+            'icon'  => ['fal', 'fa-garage'],
+            'title' => __('rentals')
+        ];
+        $pageHeadTitle = __('rentals');
+        $actions = [
+            [
+                'type'    => 'button',
+                'style'   => 'primary',
+                'icon'    => 'fal fa-plus',
+                'label'   => __('Create rental'),
+                'route'   => [
+                    'name'       => 'grp.org.fulfilments.show.catalogue.rentals.create',
+                    'parameters' => array_values($request->route()->originalParameters())
+                ]
+            ]
+        ];
+
+        if ($this->parent instanceof Group) {
+            $title = __('rentals');
+            $actions = null;
+        }
+
         return Inertia::render(
             'Org/Fulfilment/Rentals',
             [
-                'title'       => __('fulfilment'),
+                'title'       => $title,
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
-                    'icon'    => [
-                        'icon'  => ['fal', 'fa-garage'],
-                        'title' => __('rentals')
-                    ],
-                    'title'         => __('rentals'),
-                    'actions'       => [
-                        [
-                            'type'  => 'button',
-                            'style' => 'primary',
-                            'icon'  => 'fal fa-plus',
-                            'label' => __('Create rental'),
-                            'route' => [
-                                'name'       => 'grp.org.fulfilments.show.catalogue.rentals.create',
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ]
-                        ],
-                    ]
+                    'icon'    => $icon,
+                    'title'         => $pageHeadTitle,
+                    'actions'       => $actions
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
@@ -167,14 +193,14 @@ class IndexFulfilmentRentals extends OrgAction
             ]
         )->table(
             $this->tableStructure(
-                parent: $this->fulfilment,
+                parent: $this->parent,
                 prefix: RentalsTabsEnum::RENTALS->value
             )
         );
     }
 
     public function tableStructure(
-        Fulfilment $parent,
+        Group|Fulfilment $parent,
         ?array $modelOperations = null,
         $prefix = null,
         $canEdit = false
@@ -186,12 +212,14 @@ class IndexFulfilmentRentals extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-                $table->elementGroup(
-                    key: $key,
-                    label: $elementGroup['label'],
-                    elements: $elementGroup['elements']
-                );
+            if ($parent instanceof Fulfilment) {
+                foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                    $table->elementGroup(
+                        key: $key,
+                        label: $elementGroup['label'],
+                        elements: $elementGroup['elements']
+                    );
+                }
             }
 
             $table
@@ -200,13 +228,18 @@ class IndexFulfilmentRentals extends OrgAction
                 ->withEmptyState(
                     [
                         'title' => __("No rentals found"),
-                        'count' => $parent->shop->stats->number_assets_type_rental
+                        'count' => ($parent instanceof Group) ? $parent->catalogueStats->number_rentals : $parent->shop->stats->number_assets_type_rental
                     ]
                 );
 
             $table
                 ->column(key: 'state', label: '', canBeHidden: false, type: 'icon')
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
+            if ($parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
+                    ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+            }
+            $table
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'rental_price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
                 ->column(key: 'workflow', label: __('workflow'), canBeHidden: false, searchable: true, className: 'hello')
@@ -220,8 +253,17 @@ class IndexFulfilmentRentals extends OrgAction
         return RentalsResource::collection($rentals);
     }
 
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup($this->parent, $request)->withTab(RentalsTabsEnum::values());
+        ;
 
-    public function getBreadcrumbs(array $routeParameters, $suffix = null): array
+        return $this->handle($this->parent, RentalsTabsEnum::RENTALS->value);
+    }
+
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
     {
         $headCrumb = function (array $routeParameters = []) use ($suffix) {
             return [
@@ -237,7 +279,8 @@ class IndexFulfilmentRentals extends OrgAction
             ];
         };
 
-        return
+        return match ($routeName) {
+            'grp.org.fulfilments.show.catalogue.rentals.index' =>
             array_merge(
                 ShowFulfilmentCatalogueDashboard::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-ballot'),
                 $headCrumb(
@@ -246,7 +289,19 @@ class IndexFulfilmentRentals extends OrgAction
                         'parameters' => $routeParameters
                     ]
                 )
-            );
+            ),
+            'grp.overview.billables.rentals.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+        };
+
     }
 
 

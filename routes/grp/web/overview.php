@@ -17,10 +17,10 @@ use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
 use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
 use App\Actions\Comms\EmailAddress\UI\IndexEmailAddress;
+use App\Actions\Comms\EmailAddress\UI\ShowEmailAddress;
 use App\Actions\Comms\EmailBulkRun\UI\IndexEmailBulkRuns;
 use App\Actions\Comms\Mailshot\UI\IndexAbandonedCartMailshots;
 use App\Actions\Comms\Mailshot\UI\IndexInviteMailshots;
-use App\Actions\Comms\Mailshot\UI\IndexMailshots;
 use App\Actions\Comms\Mailshot\UI\IndexMarketingMailshots;
 use App\Actions\Comms\Mailshot\UI\IndexNewsletterMailshots;
 use App\Actions\Comms\Outbox\UI\IndexOutboxes;
@@ -65,14 +65,9 @@ Route::name('comms-marketing.')->prefix('comms-marketing')->group(function () {
     Route::get('/abandoned-cart-mailshots', [IndexAbandonedCartMailshots::class, 'inGroup'])->name('abandoned-cart-mailshots.index');
     Route::get('/email-bulk-runs', [IndexEmailBulkRuns::class, 'inGroup'])->name('email-bulk-runs.index');
     Route::get('/email-addresses', IndexEmailAddress::class)->name('email-addresses.index');
+    Route::get('/email-address/{emailAddress}', ShowEmailAddress::class)->name('email-addresses.show');
 
 });
-
-// Route::name('marketing.')->prefix('marketing')->group(function () {
-//     Route::get('/newsletters', [IndexNewsletterMailshots::class, 'inGroup'])->name('newsletters.index');
-//     Route::get('/mailshots', [IndexMarketingMailshots::class, 'inGroup'])->name('mailshots.index');
-// });
-
 
 Route::name('catalogue.')->prefix('catalogue')->group(function () {
     Route::get('/products', [IndexProducts::class, 'inGroup'])->name('products.index');
@@ -83,6 +78,7 @@ Route::name('catalogue.')->prefix('catalogue')->group(function () {
 
 Route::name('billables.')->prefix('billables')->group(function () {
     // Route::get('/shipping', [IndexShippingZoneSchemas::class, 'inGroup'])->name('shipping.index');
+    Route::get('/rentals', [IndexFulfilmentRentals::class, 'inGroup'])->name('rentals.index');
     Route::get('/charges', [IndexCharges::class, 'inGroup'])->name('charges.index');
     Route::get('/services', [IndexServices::class, 'inGroup'])->name('services.index');
 });

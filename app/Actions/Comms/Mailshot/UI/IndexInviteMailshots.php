@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 30-12-2024-13h-39m
@@ -13,7 +14,6 @@ use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Http\Resources\Mail\InviteMailshotsResource;
 use App\Http\Resources\Mail\MailshotResource;
-use App\Http\Resources\Mail\MarketingMailshotsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Mailshot;

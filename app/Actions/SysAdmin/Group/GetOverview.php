@@ -160,7 +160,7 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Rentals'),
                     'icon'  => 'fal fa-garage',
-                    'route' => '',
+                    'route' => route('grp.overview.billables.rentals.index'),
                     'count' => $group->catalogueStats->number_rentals ?? 0
                 ],
                 [
