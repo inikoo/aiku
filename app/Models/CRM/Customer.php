@@ -217,15 +217,7 @@ class Customer extends Model implements HasMedia, Auditable
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                $slug = $this->company_name;
-                if ($slug == '') {
-                    $slug = $this->contact_name;
-                }
-                if ($slug == '' or $slug == 'Unknown') {
-                    $slug = $this->reference;
-                }
-
-                return $slug;
+                return $this->reference.'-'.$this->shop->slug;
             })
             ->saveSlugsTo('slug')
             ->slugsShouldBeNoLongerThan(128)
