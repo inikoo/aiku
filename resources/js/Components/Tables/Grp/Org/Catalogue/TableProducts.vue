@@ -101,6 +101,10 @@ function productRoute(product: Product) {
             return route(
                 'retina.dropshipping.portfolios.show',
                 [product.slug])
+        case 'grp.overview.catalogue.products.index':
+            return route(
+                'grp.org.shops.show.catalogue.products.current_products.show',
+                [product.organisation_slug, product.shop_slug, product.slug])
         default:
             return null
     }
