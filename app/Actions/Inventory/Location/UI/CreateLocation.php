@@ -38,6 +38,8 @@ class CreateLocation extends OrgAction
                 'title'       => __('new location'),
                 'pageHead'    => [
                     'title'   => __('new location'),
+                    'icon'    => 'fal fa-warehouse',
+                    'model'   => __('warehouse'),
                     'actions' => [
                         [
                             'type'  => 'button',
@@ -67,7 +69,7 @@ class CreateLocation extends OrgAction
                         ],
                         [
                             'title'  => __('capacity'),
-                            'icon'   => 'fa-light fa-phone',
+                            // 'icon'   => 'fa-light fa-phone',
                             'fields' => [
                                 'max_weight' => [
                                     'type'  => 'input',

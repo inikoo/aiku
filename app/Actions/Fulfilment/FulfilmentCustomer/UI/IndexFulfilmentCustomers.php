@@ -166,6 +166,7 @@ class IndexFulfilmentCustomers extends OrgAction
                 'title'       => __('customers'),
                 'pageHead'    => [
                     'title'     => __('customers'),
+                    'model'     => $this->fulfilment->shop->name,
                     'icon'      => [
                         'icon'  => ['fal', 'fa-user'],
                         'title' => __('customer')

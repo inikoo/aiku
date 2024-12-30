@@ -43,6 +43,7 @@ class ShowInventoryDashboard extends OrgAction
                 'title'          => __('Inventory'),
                 'pageHead'       => [
                     'title'          => __('Inventory'),
+                    'model'         => __('warehouse'),
                     'icon'           => [
                         'icon' => 'fal fa-pallet-alt'
                     ],
