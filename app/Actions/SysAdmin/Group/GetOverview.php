@@ -394,31 +394,31 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Workplaces'),
                     'icon'  => 'fal fa-building',
-                    'route' => '',
+                    'route' => route('grp.overview.hr.workplaces.index'), 
                     'count' => $group->humanResourcesStats->number_workplaces ?? 0
                 ],
                 [
                     'name'  => __('Responsibilities'),
                     'icon'  => 'fal fa-clipboard-list-check',
-                    'route' => '',
+                    'route' => route('grp.overview.hr.responsibilities.index'),
                     'count' => $group->humanResourcesStats->number_job_positions ?? 0
                 ],
                 [
                     'name'  => __('Employees'),
                     'icon'  => 'fal fa-user-hard-hat',
-                    'route' => '',
+                    'route' => route('grp.overview.hr.employees.index'),
                     'count' => $group->humanResourcesStats->number_employees ?? 0
                 ],
                 [
                     'name'  => __('Clocking Machines'),
                     'icon'  => 'fal fa-chess-clock',
-                    'route' => '',
+                    'route' => route('grp.overview.hr.clocking-machines.index'),
                     'count' => $group->humanResourcesStats->number_clocking_machines ?? 0
                 ],
                 [
                     'name'  => __('Timesheets'),
                     'icon'  => 'fal fa-stopwatch',
-                    'route' => '',
+                    'route' => route('grp.overview.hr.timesheets.index'),
                     'count' => $group->humanResourcesStats->number_timesheets ?? 0
                 ],
             ],

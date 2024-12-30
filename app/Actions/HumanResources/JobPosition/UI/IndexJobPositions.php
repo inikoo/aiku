@@ -50,14 +50,13 @@ class IndexJobPositions extends OrgAction
 
         $queryBuilder = QueryBuilder::for(JobPosition::class);
         $queryBuilder->leftJoin('job_position_stats', 'job_positions.id', 'job_position_stats.job_position_id');
-        $queryBuilder->select(['job_positions.code', 'job_positions.slug', 'job_positions.name', 'job_position_stats.number_employees_currently_working']);
         if ($parent instanceof Organisation) {
-
+            
             $queryBuilder->where(function (Builder $query) use ($parent) {
                 $query->where('organisation_id', $parent->id)->orWhere('organisation_id', null);
             });
-
-
+            
+            
         } elseif ($parent instanceof Group) {
             $queryBuilder->where('job_positions.group_id', $parent->id);
         } else {
@@ -66,6 +65,7 @@ class IndexJobPositions extends OrgAction
             $queryBuilder->addSelect('employee_has_job_positions.share');
         }
         $queryBuilder->leftjoin('organisations', 'job_positions.organisation_id', '=', 'organisations.id');
+        $queryBuilder->select(['job_positions.code', 'job_positions.slug', 'job_positions.name', 'job_position_stats.number_employees_currently_working', 'organisations.name as organisation_name']);
 
         return $queryBuilder
             ->defaultSort('job_positions.code')
@@ -248,7 +248,7 @@ class IndexJobPositions extends OrgAction
                     ]
                 )
             ),
-            'grp.overview.human-resources.responsibilities.index' => array_merge(
+            'grp.overview.hr.responsibilities.index' => array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
