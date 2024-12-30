@@ -13,6 +13,8 @@ use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Charge\ChargeStateEnum;
 use App\Enums\Catalogue\Product\ProductStateEnum;
+use App\Enums\Catalogue\Product\ProductStatusEnum;
+use App\Enums\Catalogue\Product\ProductTradeConfigEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -138,8 +140,16 @@ trait HasCatalogueStats
         $table->unsignedInteger('number_products')->default(0);
         $table->unsignedInteger('number_current_products')->default(0)->comment('state: active+discontinuing');
 
-        foreach (ProductStateEnum::cases() as $productState) {
-            $table->unsignedInteger('number_products_state_'.$productState->snake())->default(0);
+        foreach (ProductStateEnum::cases() as $case) {
+            $table->unsignedInteger('number_products_state_'.$case->snake())->default(0);
+        }
+
+        foreach (ProductStatusEnum::cases() as $case) {
+            $table->unsignedInteger('number_products_status_'.$case->snake())->default(0);
+        }
+
+        foreach (ProductTradeConfigEnum::cases() as $case) {
+            $table->unsignedInteger('number_products_trade_config_'.$case->snake())->default(0);
         }
 
         $table->unsignedInteger('number_rentals')->default(0);

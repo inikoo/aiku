@@ -52,7 +52,7 @@ class StoreDeliveryNoteItem extends OrgAction
         }
 
         if ($deliveryNoteItem->transaction_id and $deliveryNoteItem->transaction->asset) {
-            AssetHydrateDeliveryNotes::dispatch($deliveryNoteItem->transaction->asset);
+            AssetHydrateDeliveryNotes::dispatch($deliveryNoteItem->transaction->asset)->delay($this->hydratorsDelay);
         }
 
 

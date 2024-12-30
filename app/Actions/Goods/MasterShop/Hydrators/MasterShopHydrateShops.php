@@ -2,7 +2,7 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 27 Dec 2024 16:01:56 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Fri, 27 Dec 2024 23:18:23 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -10,8 +10,8 @@ namespace App\Actions\Goods\MasterShop\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
-use App\Models\Goods\MasterShop;
 use App\Models\Catalogue\Shop;
+use App\Models\Goods\MasterShop;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -33,7 +33,6 @@ class MasterShopHydrateShops
         return [(new WithoutOverlapping($this->masterShop->id))->dontRelease()];
     }
 
-
     public function handle(MasterShop $masterShop): void
     {
         $stats = [
@@ -42,7 +41,6 @@ class MasterShopHydrateShops
                 ShopStateEnum::OPEN,
                 ShopStateEnum::CLOSING_DOWN,
             ])->count()
-
         ];
 
         $stats = array_merge(
@@ -61,4 +59,6 @@ class MasterShopHydrateShops
 
         $masterShop->stats()->update($stats);
     }
+
+
 }

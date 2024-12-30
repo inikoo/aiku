@@ -35,13 +35,22 @@ class UpdateAsset extends OrgAction
         /** @var Product|Rental|Service|Subscription $model */
         $model = $asset->model;
 
+        if ($model instanceof Product) {
+            $status = false;
+            if (in_array($model->state, [ProductStateEnum::ACTIVE, ProductStateEnum::DISCONTINUING])) {
+                $status = true;
+            }
+        } else {
+            $status = $model->status;
+        }
+
 
         data_set($modelData, 'code', $model->code);
         data_set($modelData, 'name', $model->name);
         data_set($modelData, 'price', $model->price, overwrite: false);
         data_set($modelData, 'unit', $model->unit, overwrite: false);
         data_set($modelData, 'units', $model->units, overwrite: false);
-        data_set($modelData, 'status', $model->status);
+        data_set($modelData, 'status', $status);
         data_set($modelData, 'current_historic_asset_id', $model->current_historic_asset_id);
 
 

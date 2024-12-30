@@ -20,7 +20,7 @@ class SyncProductTradeUnits
     {
         $product->tradeUnits()->sync($tradeUnitsData);
 
-        ProductHydrateGrossWeightFromTradeUnits::run($product);
+        ProductHydrateGrossWeightFromTradeUnits::dispatch($product);
 
 
         return $product;

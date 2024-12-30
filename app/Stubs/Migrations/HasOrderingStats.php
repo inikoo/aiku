@@ -22,6 +22,8 @@ use Illuminate\Database\Schema\Blueprint;
 
 trait HasOrderingStats
 {
+    use HasAmounts;
+
     public function orderingStatsFields(Blueprint $table): Blueprint
     {
         $table = $this->ordersStatsFields($table);
@@ -133,10 +135,21 @@ trait HasOrderingStats
 
     public function transactionsStatsFields(Blueprint $table): Blueprint
     {
+        $allowedCurrencies = $this->allowedCurrencies($table);
+
         $table->unsignedBigInteger('number_transactions_out_of_stock_in_basket')->default(0)->comment('transactions at the time up submission from basket');
-        $table->decimal('out_of_stock_in_basket_net_amount', 16)->default(0);
-        $table->decimal('out_of_stock_in_basket_grp_net_amount', 16)->nullable();
-        $table->decimal('out_of_stock_in_basket_org_net_amount', 16)->nullable();
+
+        if ($allowedCurrencies['grp']) {
+            $table->decimal('out_of_stock_in_basket_grp_net_amount', 16)->nullable();
+        }
+
+        if ($allowedCurrencies['org']) {
+            $table->decimal('out_of_stock_in_basket_org_net_amount', 16)->nullable();
+        }
+        if ($allowedCurrencies['shop']) {
+            $table->decimal('out_of_stock_in_basket_net_amount', 16)->default(0);
+        }
+
 
         if ($table->getTable() == 'order_stats') {
             $table->unsignedBigInteger('number_transactions_at_submission')->default(0)->comment('transactions at the time up submission from basket');
@@ -161,7 +174,6 @@ trait HasOrderingStats
 
     public function invoiceTransactionsStatsFields(Blueprint $table): Blueprint
     {
-
         $table->unsignedBigInteger('number_invoice_transactions')->default(0)->comment('transactions including cancelled');
         $table->unsignedBigInteger('number_positive_invoice_transactions')->default(0)->comment('amount>0');
         $table->unsignedBigInteger('number_negative_invoice_transactions')->default(0)->comment('amount<0');
@@ -178,7 +190,6 @@ trait HasOrderingStats
 
     public function deliveryNoteItemsStatsFields(Blueprint $table): Blueprint
     {
-
         $table->unsignedBigInteger('number_delivery_note_items')->default(0)->comment('transactions including cancelled');
         $table->unsignedBigInteger('number_uphold_delivery_note_items')->default(0)->comment('transactions excluding cancelled');
 
@@ -191,6 +202,8 @@ trait HasOrderingStats
 
     public function orderingOffersStatsFields(Blueprint $table): Blueprint
     {
+        $allowedCurrencies = $this->allowedCurrencies($table);
+
 
         $table->unsignedSmallInteger('number_offer_campaigns')->default(0);
         $table->unsignedInteger('number_offers')->default(0);
@@ -198,18 +211,22 @@ trait HasOrderingStats
 
         $table->unsignedBigInteger('number_transactions_with_offers')->default(0);
 
-        $table->decimal('discounts_amount', 16)->default(0)->comment('from % offs');
-        $table->decimal('org_discounts_amount', 16)->nullable();
-        $table->decimal('grp_discounts_amount', 16)->nullable();
 
-        $table->decimal('giveaways_value_amount', 16)->default(0)->comment('Value of goods given for free');
-        $table->decimal('org_giveaways_value_amount', 16)->nullable();
-        $table->decimal('grp_giveaways_value_amount', 16)->nullable();
-
-        $table->decimal('cashback_amount', 16)->default(0);
-        $table->decimal('org_cashback_amount', 16)->nullable();
-        $table->decimal('grp_cashback_amount', 16)->nullable();
-
+        if ($allowedCurrencies['shop']) {
+            $table->decimal('discounts_amount', 16)->default(0)->comment('from % offs');
+            $table->decimal('giveaways_value_amount', 16)->default(0)->comment('Value of goods given for free');
+            $table->decimal('cashback_amount', 16)->default(0);
+        }
+        if ($allowedCurrencies['org']) {
+            $table->decimal('org_giveaways_value_amount', 16)->nullable();
+            $table->decimal('org_cashback_amount', 16)->nullable();
+            $table->decimal('org_discounts_amount', 16)->nullable();
+        }
+        if ($allowedCurrencies['grp']) {
+            $table->decimal('grp_discounts_amount', 16)->nullable();
+            $table->decimal('grp_giveaways_value_amount', 16)->nullable();
+            $table->decimal('grp_cashback_amount', 16)->nullable();
+        }
 
 
         return $table;

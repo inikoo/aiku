@@ -22,9 +22,9 @@ return new class () extends Migration {
             $table->foreign('org_stock_family_id')->references('id')->on('org_stock_families');
             $table = $this->salesIntervalFields($table, [
                 'org_amount_revenue',
-                'group_amount_revenue',
+                'grp_amount_revenue',
                 'org_amount_profit',
-                'group_amount_profit',
+                'grp_amount_profit',
             ]);
             $table = $this->unsignedIntegerDateIntervals($table, [
                 'dispatched',

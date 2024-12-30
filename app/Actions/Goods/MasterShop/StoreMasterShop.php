@@ -2,7 +2,7 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 27 Dec 2024 14:32:02 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sat, 28 Dec 2024 17:54:08 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -37,6 +37,9 @@ class StoreMasterShop extends GrpAction
             $masterShop = $group->masterShops()->create($modelData);
             $masterShop->stats()->create();
             $masterShop->salesIntervals()->create();
+            $masterShop->orderingStats()->create();
+            $masterShop->orderingIntervals()->create();
+
             foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
                 $masterShop->timeSeries()->create(['frequency' => $frequency]);
             }

@@ -20,8 +20,8 @@ return new class () extends Migration {
             $table->unsignedInteger('stock_id')->index();
             $table->foreign('stock_id')->references('id')->on('stocks')->cascadeOnDelete();
             $table = $this->salesIntervalFields($table, [
-                'group_amount_revenue',
-                'group_amount_profit',
+                'grp_amount_revenue',
+                'grp_amount_profit',
             ]);
             $table = $this->unsignedIntegerDateIntervals($table, [
                 'dispatched',

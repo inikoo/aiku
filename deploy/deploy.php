@@ -14,7 +14,6 @@ set('bin/php', function () {
 
 desc('🚡 Migrating database');
 task('deploy:migrate', function () {
-    artisan('migrate --force --database=backup --path=database/migrations/backup', ['skipIfNoEnv', 'showOutput'])();
     artisan('migrate --force', ['skipIfNoEnv', 'showOutput'])();
 });
 desc('🏗️ Build vue app');
@@ -26,6 +25,8 @@ desc('Set release');
 task('deploy:set-release', function () {
     run("cd {{release_path}} && sed -i~ '/^RELEASE=/s/=.*/=\"{{release_semver}}\"/' .env   ");
 });
+
+set('keep_releases', 1000);
 
 set('shared_dirs', ['storage', 'private']);
 set('shared_files', [

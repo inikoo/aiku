@@ -23,6 +23,8 @@ return new class () extends Migration {
             $table->increments('id');
             $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('shop_id')->nullable();
+            $table->unsignedSmallInteger('master_asset_id')->nullable()->index();
+            $table->foreign('master_asset_id')->references('id')->on('master_assets')->nullOnDelete();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->string('slug')->unique()->collation('und_ns');
             $table->boolean('is_main')->default(true)->index();

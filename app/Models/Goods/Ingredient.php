@@ -28,7 +28,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $data
  * @property int $number_trade_units
  * @property int $number_stocks
- * @property int $number_master_products
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at

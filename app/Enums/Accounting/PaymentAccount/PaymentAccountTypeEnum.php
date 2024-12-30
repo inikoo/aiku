@@ -14,25 +14,18 @@ enum PaymentAccountTypeEnum: string
 {
     use EnumHelperTrait;
 
-    case PAYPAL    = 'paypal';
+    case PAYPAL = 'paypal';
     case WORLD_PAY = 'world-pay';
-    case BANK      = 'bank';
-    case SOFORT    = 'sofort';
-
+    case BANK = 'bank';
+    case SOFORT = 'sofort';
     case CASH = 'cash';
-
     case ACCOUNT = 'account';
-
     case BRAINTREE = 'braintree';
-
     case BRAINTREE_PAYPAL = 'braintree-paypal';
-
     case CHECKOUT = 'checkout';
-    case HOKODO   = 'hokodo';
-
-    case PASTPAY          = 'PASTPAY';
+    case HOKODO = 'hokodo';
+    case PASTPAY = 'pastpay';
     case CASH_ON_DELIVERY = 'cash-on-delivery';
-
     case XENDIT = 'xendit';
 
 

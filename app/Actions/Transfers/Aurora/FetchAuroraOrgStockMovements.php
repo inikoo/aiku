@@ -28,7 +28,7 @@ class FetchAuroraOrgStockMovements extends FetchAuroraAction
                 $orgStockMovement = UpdateOrgStockMovement::make()->action(
                     $orgStockMovement,
                     modelData: $orgStockMovementData['orgStockMovement'],
-                    hydratorsDelay: 60,
+                    hydratorsDelay: 1200,
                     strict: false
                 );
             } else {
@@ -37,7 +37,7 @@ class FetchAuroraOrgStockMovements extends FetchAuroraAction
                         orgStock: $orgStockMovementData['orgStock'],
                         location: $orgStockMovementData['location'],
                         modelData: $orgStockMovementData['orgStockMovement'],
-                        hydratorsDelay: 60,
+                        hydratorsDelay: 1200,
                         strict: false
                     );
                     $sourceData       = explode(':', $orgStockMovement->source_id);

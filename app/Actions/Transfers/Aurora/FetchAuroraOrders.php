@@ -127,7 +127,7 @@ class FetchAuroraOrders extends FetchAuroraAction
                                 'address' => $deliveryAddress,
                                 'type'    => 'delivery'
                             ],
-                            hydratorsDelay: 60,
+                            hydratorsDelay: 300,
                             audit: false
                         );
                     } else {
@@ -147,7 +147,7 @@ class FetchAuroraOrders extends FetchAuroraAction
                             'address' => $billingAddress,
                             'type'    => 'billing'
                         ],
-                        hydratorsDelay: 60,
+                        hydratorsDelay: 300,
                         audit: false
                     );
                 } else {

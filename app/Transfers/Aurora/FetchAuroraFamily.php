@@ -17,31 +17,34 @@ class FetchAuroraFamily extends FetchAurora
 
     protected function parseModel(): void
     {
-        $parent        = null;
+        $parent = null;
 
         if ($this->auroraModelData->{'Product Category Department Category Key'}) {
-
-
-            $parent        = $this->parseDepartment($this->organisation->id.':'.$this->auroraModelData->{'Product Category Department Category Key'});
-
+            $parent = $this->parseDepartment($this->organisation->id.':'.$this->auroraModelData->{'Product Category Department Category Key'});
         }
         if (!$parent) {
             $parent = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Product Category Store Key'});
         }
 
-        $this->parsedData['parent'] = $parent;
 
         $code = $this->cleanTradeUnitReference($this->auroraModelData->{'Category Code'});
 
 
+        if ($code == '') {
+            return;
+        }
+
+        $this->parsedData['parent'] = $parent;
+
+
         $this->parsedData['family'] = [
-            'type'                     => ProductCategoryTypeEnum::FAMILY,
-            'code'                     => $code,
-            'name'                     => $this->auroraModelData->{'Category Label'},
-            'source_family_id'         => $this->organisation->id.':'.$this->auroraModelData->{'Category Key'},
-            'images'                   => $this->parseImages(),
-            'fetched_at'               => now(),
-            'last_fetched_at'          => now(),
+            'type'             => ProductCategoryTypeEnum::FAMILY,
+            'code'             => $code,
+            'name'             => $this->auroraModelData->{'Category Label'},
+            'source_family_id' => $this->organisation->id.':'.$this->auroraModelData->{'Category Key'},
+            'images'           => $this->parseImages(),
+            'fetched_at'       => now(),
+            'last_fetched_at'  => now(),
         ];
 
         $createdAt = $this->parseDatetime($this->auroraModelData->{'Product Category Valid From'});

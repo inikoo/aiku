@@ -8,6 +8,7 @@
 
 namespace App\Actions\Catalogue\Shop\Hydrators;
 
+use App\Actions\Traits\Hydrators\WithPaymentAggregators;
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentTypeEnum;
@@ -20,6 +21,7 @@ class ShopHydratePayments
 {
     use AsAction;
     use WithEnumStats;
+    use WithPaymentAggregators;
 
     private Shop $shop;
 
@@ -35,37 +37,15 @@ class ShopHydratePayments
 
     public function handle(Shop $shop): void
     {
-        $amountOrganisationCurrencySuccessfullyPaid = $shop->payments()
-            ->where('type', 'payment')
-            ->where('status', 'success')
-            ->sum('org_amount');
-        $amountOrganisationCurrencyRefunded         = $shop->payments()
-            ->where('type', 'refund')
-            ->where('status', 'success')
-            ->sum('org_amount');
+        $stats = array_merge(
+            [
+                'number_payments' => $shop->payments()->count()
+            ],
+            $this->paidAmounts($shop, 'amount'),
+            $this->paidAmounts($shop, 'org_amount'),
+            $this->paidAmounts($shop, 'grp_amount'),
+        );
 
-        $amountSuccessfullyPaid = $shop->payments()
-            ->where('type', 'payment')
-            ->where('status', 'success')
-            ->sum('amount');
-        $amountRefunded         = $shop->payments()
-            ->where('type', 'refund')
-            ->where('status', 'success')
-            ->sum('amount');
-
-
-        $stats = [
-
-            'number_payments'              => $shop->payments()->count(),
-            'amount'                       => $amountSuccessfullyPaid + $amountOrganisationCurrencyRefunded,
-            'amount_successfully_paid'     => $amountSuccessfullyPaid,
-            'amount_refunded'              => $amountRefunded,
-            'org_amount'                   => $amountOrganisationCurrencySuccessfullyPaid + $amountOrganisationCurrencyRefunded,
-            'org_amount_successfully_paid' => $amountOrganisationCurrencySuccessfullyPaid,
-            'org_amount_refunded'          => $amountOrganisationCurrencyRefunded
-
-
-        ];
 
         $stats = array_merge(
             $stats,

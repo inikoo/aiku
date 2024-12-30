@@ -48,8 +48,6 @@ trait HasAssetModel
         $table = $this->groupOrgRelationship($table);
         $table->unsignedSmallInteger('shop_id')->nullable();
         $table->foreign('shop_id')->references('id')->on('shops');
-        $table->unsignedSmallInteger('master_product_id')->nullable()->index();
-        $table->foreign('master_product_id')->references('id')->on('master_products')->nullOnDelete();
         $table->unsignedInteger('asset_id')->nullable();
         $table->foreign('asset_id')->references('id')->on('assets');
         $table->unsignedInteger('family_id')->nullable();

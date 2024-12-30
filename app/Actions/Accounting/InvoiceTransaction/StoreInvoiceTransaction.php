@@ -79,8 +79,8 @@ class StoreInvoiceTransaction extends OrgAction
             ]);
         }
 
-        AssetHydrateInvoices::dispatch($invoiceTransaction->asset);
-        AssetHydrateInvoicedCustomers::dispatch($invoiceTransaction->asset);
+        AssetHydrateInvoices::dispatch($invoiceTransaction->asset)->delay($this->hydratorsDelay);
+        AssetHydrateInvoicedCustomers::dispatch($invoiceTransaction->asset)->delay($this->hydratorsDelay);
 
         return $invoiceTransaction;
     }
@@ -105,10 +105,11 @@ class StoreInvoiceTransaction extends OrgAction
     }
 
 
-    public function action(Invoice $invoice, Transaction|HistoricAsset $model, array $modelData, bool $strict = true): InvoiceTransaction
+    public function action(Invoice $invoice, Transaction|HistoricAsset $model, array $modelData, int $hydratorsDelay = 0, bool $strict = true): InvoiceTransaction
     {
         $this->asAction = true;
         $this->strict   = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($invoice->shop, $modelData);
 
         return $this->handle($invoice, $model, $this->validatedData);

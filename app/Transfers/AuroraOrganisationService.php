@@ -52,6 +52,9 @@ use App\Transfers\Aurora\FetchAuroraInvoice;
 use App\Transfers\Aurora\FetchAuroraInvoiceTransaction;
 use App\Transfers\Aurora\FetchAuroraLocation;
 use App\Transfers\Aurora\FetchAuroraMailshot;
+use App\Transfers\Aurora\FetchAuroraMasterAsset;
+use App\Transfers\Aurora\FetchAuroraMasterDepartment;
+use App\Transfers\Aurora\FetchAuroraMasterFamily;
 use App\Transfers\Aurora\FetchAuroraNoProductInvoiceTransaction;
 use App\Transfers\Aurora\FetchAuroraNoProductTransaction;
 use App\Transfers\Aurora\FetchAuroraNoProductTransactionHasOfferComponent;
@@ -590,6 +593,21 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchSubscriptionEvent($id): ?array
     {
         return (new FetchAuroraSubscriptionEvent($this))->fetch($id);
+    }
+
+    public function fetchMasterDepartment($id): ?array
+    {
+        return (new FetchAuroraMasterDepartment($this))->fetch($id);
+    }
+
+    public function fetchMasterFamily($id): ?array
+    {
+        return (new FetchAuroraMasterFamily($this))->fetch($id);
+    }
+
+    public function fetchMasterAsset($id): ?array
+    {
+        return (new FetchAuroraMasterAsset($this))->fetch($id);
     }
 
 }

@@ -35,7 +35,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_orders_handing_type_collection
  * @property int $number_orders_handing_type_shipping
  * @property int $number_transactions_out_of_stock_in_basket transactions at the time up submission from basket
- * @property string $out_of_stock_in_basket_net_amount
  * @property string|null $out_of_stock_in_basket_grp_net_amount
  * @property string|null $out_of_stock_in_basket_org_net_amount
  * @property int $number_transactions transactions including cancelled

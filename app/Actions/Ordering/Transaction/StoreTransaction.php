@@ -67,7 +67,7 @@ class StoreTransaction extends OrgAction
             OrderHydrateTransactions::dispatch($order);
         }
 
-        AssetHydrateOrders::dispatch($transaction->asset);
+        AssetHydrateOrders::dispatch($transaction->asset)->delay($this->hydratorsDelay);
 
 
         return $transaction;
@@ -106,9 +106,11 @@ class StoreTransaction extends OrgAction
         return $rules;
     }
 
-    public function action(Order $order, HistoricAsset $historicAsset, array $modelData, bool $strict = true): Transaction
+    public function action(Order $order, HistoricAsset $historicAsset, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Transaction
     {
+        $this->asAction       = true;
         $this->strict = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($order->shop, $modelData);
 
         return $this->handle($order, $historicAsset, $this->validatedData);

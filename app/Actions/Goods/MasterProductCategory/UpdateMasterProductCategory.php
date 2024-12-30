@@ -2,24 +2,31 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 27 Dec 2024 14:32:02 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Fri, 27 Dec 2024 21:46:47 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Goods\MasterProductCategory;
 
+use App\Actions\Goods\MasterShop\Hydrators\MasterShopHydrateMasterDepartments;
+use App\Actions\Goods\MasterShop\Hydrators\MasterShopHydrateMasterFamilies;
 use App\Actions\GrpAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Goods\MasterProductCategory;
 use App\Models\Goods\MasterShop;
+use App\Models\Inventory\Location;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateMasterProductCategory extends GrpAction
 {
     use WithActionUpdate;
+    use WithNoStrictRules;
 
     private MasterProductCategory $masterProductCategory;
 
@@ -27,7 +34,16 @@ class UpdateMasterProductCategory extends GrpAction
 
     public function handle(MasterProductCategory $masterProductCategory, array $modelData): MasterProductCategory
     {
-        return $this->update($masterProductCategory, $modelData, ['data']);
+        $masterProductCategory = $this->update($masterProductCategory, $modelData, ['data']);
+        if ($masterProductCategory->wasChanged('status')) {
+            if ($masterProductCategory->type == MasterProductCategoryTypeEnum::DEPARTMENT) {
+                MasterShopHydrateMasterDepartments::dispatch($masterProductCategory->masterShop)->delay($this->hydratorsDelay);
+            } elseif ($masterProductCategory->type == MasterProductCategoryTypeEnum::FAMILY) {
+                MasterShopHydrateMasterFamilies::dispatch($masterProductCategory->masterShop)->delay($this->hydratorsDelay);
+            }
+
+        }
+        return $masterProductCategory;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -59,12 +75,16 @@ class UpdateMasterProductCategory extends GrpAction
                 ),
             ],
             'name'        => ['sometimes', 'max:250', 'string'],
-            'image_id'    => ['sometimes', 'required', 'exists:media,id'],
+            'image_id'    => ['sometimes', 'required', Rule::exists('media', 'id')->where('group_id', $this->group->id)],
             'status'      => ['sometimes', 'required', 'boolean'],
             'description' => ['sometimes', 'required', 'max:1500'],
             'master_department_id' => ['sometimes', 'nullable', 'exists:product_categories,id'],
             'master_sub_department_id' => ['sometimes', 'nullable', 'exists:product_categories,id']
         ];
+
+        if (!$this->strict) {
+            $rules = $this->noStrictUpdateRules($rules);
+        }
 
         return $rules;
     }
@@ -78,11 +98,15 @@ class UpdateMasterProductCategory extends GrpAction
 
     public function action(MasterProductCategory $masterProductCategory, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): MasterProductCategory
     {
+        $this->strict          = $strict;
+        if (!$audit) {
+            Location::disableAuditing();
+        }
         $this->asAction        = true;
         $this->masterProductCategory = $masterProductCategory;
         $this->masterShop = $masterProductCategory->masterShop;
         $this->hydratorsDelay  = $hydratorsDelay;
-        $this->strict          = $strict;
+
         $this->initialisation($masterProductCategory->group, $modelData);
 
         return $this->handle($masterProductCategory, $this->validatedData);

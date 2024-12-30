@@ -9,9 +9,9 @@
 namespace App\Actions\Goods\TradeUnit\UI;
 
 use App\Actions\Goods\HasGoodsAuthorisation;
+use App\Actions\Goods\UI\ShowGoodsDashboard;
 use App\Actions\GrpAction;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
-use App\Actions\UI\Goods\ShowGoodsDashboard;
 use App\Enums\UI\SupplyChain\TradeUnitTabsEnum;
 use App\Http\Resources\Goods\TradeUnitResource;
 use App\Http\Resources\Helpers\Attachment\AttachmentsResource;

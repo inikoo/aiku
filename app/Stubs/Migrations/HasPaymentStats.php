@@ -16,6 +16,7 @@ use Illuminate\Database\Schema\Blueprint;
 
 trait HasPaymentStats
 {
+    use HasAmounts;
     public function paymentServiceProviderStats(Blueprint $table): Blueprint
     {
         $table->unsignedSmallInteger('number_org_payment_service_providers')->default(0);
@@ -50,21 +51,23 @@ trait HasPaymentStats
             }
         }
 
+        $allowedCurrencies = $this->allowedCurrencies($table);
 
-        if ($table->getTable() == 'shop_accounting_stats') {
-            $table->decimal('amount', 16)->comment('amount_successfully_paid-amount_returned')->default(0);
+        if ($allowedCurrencies['shop']) {
+            $table->decimal('amount_paid_balance', 16)->comment('amount_successfully_paid-amount_returned')->default(0);
             $table->decimal('amount_successfully_paid', 16)->default(0);
             $table->decimal('amount_refunded', 16)->default(0);
         }
-
-        $table->decimal('org_amount', 16)->comment('organisation currency, amount_successfully_paid-amount_returned')->default(0);
-        $table->decimal('org_amount_successfully_paid', 16)->default(0);
-        $table->decimal('org_amount_refunded', 16)->default(0);
-
-        $table->decimal('group_amount', 16)->comment('Group currency, amount_successfully_paid-amount_returned')->default(0);
-        $table->decimal('group_amount_successfully_paid', 16)->default(0);
-        $table->decimal('group_amount_refunded', 16)->default(0);
-
+        if ($allowedCurrencies['org']) {
+            $table->decimal('org_amount_paid_balance', 16)->comment('organisation currency, amount_successfully_paid-amount_returned')->default(0);
+            $table->decimal('org_amount_successfully_paid', 16)->default(0);
+            $table->decimal('org_amount_refunded', 16)->default(0);
+        }
+        if ($allowedCurrencies['grp']) {
+            $table->decimal('grp_amount_paid_balance', 16)->comment('Group currency, amount_successfully_paid-amount_returned')->default(0);
+            $table->decimal('grp_amount_successfully_paid', 16)->default(0);
+            $table->decimal('grp_amount_refunded', 16)->default(0);
+        }
 
         return $table;
     }

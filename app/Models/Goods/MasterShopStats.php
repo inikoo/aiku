@@ -22,19 +22,28 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_shops_state_open
  * @property int $number_shops_state_closing_down
  * @property int $number_shops_state_closed
- * @property int $number_master_departments
- * @property int $number_current_master_departments
- * @property int $number_master_departments_state_in_process
- * @property int $number_master_departments_state_active
- * @property int $number_master_departments_state_discontinuing
- * @property int $number_master_departments_state_discontinued
- * @property int $number_master_sub_departments
- * @property int $number_current_master_sub_departments state: active+discontinuing
- * @property int $number_master_families
- * @property int $number_current_master_families state: active+discontinuing
- * @property int $number_orphan_master_families
- * @property int $number_master_products
- * @property int $number_current_master_products state: active+discontinuing
+ * @property int $number_master_product_categories
+ * @property int $number_current_master_product_categories status=true
+ * @property int $number_master_product_categories_type_department
+ * @property int $number_current_master_product_categories_type_department
+ * @property int $number_master_product_categories_type_sub_department
+ * @property int $number_current_master_product_categories_type_sub_department
+ * @property int $number_master_product_categories_type_family
+ * @property int $number_current_master_product_categories_type_family
+ * @property int $number_master_assets
+ * @property int $number_current_master_assets status=true
+ * @property int $number_master_assets_type_product
+ * @property int $number_current_master_assets_type_product
+ * @property int $number_master_assets_type_service
+ * @property int $number_current_master_assets_type_service
+ * @property int $number_master_assets_type_subscription
+ * @property int $number_current_master_assets_type_subscription
+ * @property int $number_master_assets_type_rental
+ * @property int $number_current_master_assets_type_rental
+ * @property int $number_master_assets_type_charge
+ * @property int $number_current_master_assets_type_charge
+ * @property int $number_master_assets_type_shipping_zone
+ * @property int $number_current_master_assets_type_shipping_zone
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Goods\MasterShop $masterShop

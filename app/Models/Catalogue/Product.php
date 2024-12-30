@@ -9,6 +9,8 @@
 namespace App\Models\Catalogue;
 
 use App\Enums\Catalogue\Product\ProductStateEnum;
+use App\Enums\Catalogue\Product\ProductStatusEnum;
+use App\Enums\Catalogue\Product\ProductTradeConfigEnum;
 use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
 use App\Models\CRM\Favourite;
 use App\Models\Goods\TradeUnit;
@@ -42,14 +44,14 @@ use Spatie\Tags\HasTags;
  * @property int $group_id
  * @property int $organisation_id
  * @property int|null $shop_id
- * @property int|null $master_product_id
  * @property int|null $asset_id
  * @property int|null $family_id
  * @property int|null $sub_department_id
  * @property int|null $department_id
  * @property bool $is_main
- * @property bool $status
+ * @property ProductStatusEnum $status
  * @property ProductStateEnum $state
+ * @property ProductTradeConfigEnum $trade_config
  * @property string $slug
  * @property string $code
  * @property string|null $name
@@ -136,9 +138,10 @@ class Product extends Model implements Auditable, HasMedia
         'rrp'                    => 'decimal:2',
         'data'                   => 'array',
         'settings'               => 'array',
-        'status'                 => 'boolean',
         'variant_is_visible'     => 'boolean',
         'state'                  => ProductStateEnum::class,
+        'status'                 => ProductStatusEnum::class,
+        'trade_config'           => ProductTradeConfigEnum::class,
         'unit_relationship_type' => ProductUnitRelationshipType::class,
         'fetched_at'             => 'datetime',
         'last_fetched_at'        => 'datetime'
@@ -162,6 +165,7 @@ class Product extends Model implements Auditable, HasMedia
         'description',
         'status',
         'state',
+        'trade_config',
         'price',
         'rrp',
         'currency_id',

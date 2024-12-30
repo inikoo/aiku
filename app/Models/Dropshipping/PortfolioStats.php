@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $portfolio_id
  * @property string $amount Invoiced amount
  * @property string $org_amount Invoiced amount
- * @property string $group_amount Invoiced amount
+ * @property string $grp_amount Invoiced amount
  * @property int $number_orders
  * @property int $number_ordered_quantity
  * @property int $number_customer_clients

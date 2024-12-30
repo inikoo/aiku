@@ -79,7 +79,7 @@ return new class () extends Migration {
             $table->foreign('image_id')->references('id')->on('media');
         });
 
-        Schema::table('master_products', function (Blueprint $table) {
+        Schema::table('master_assets', function (Blueprint $table) {
             $table->foreign('image_id')->references('id')->on('media');
         });
 
@@ -89,7 +89,7 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::table('master_products', function (Blueprint $table) {
+        Schema::table('master_assets', function (Blueprint $table) {
             $table->dropForeign('image_id_foreign');
         });
         Schema::table('master_product_categories', function (Blueprint $table) {

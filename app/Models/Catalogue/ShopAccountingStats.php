@@ -37,7 +37,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_payment_accounts_type_braintree_paypal
  * @property int $number_payment_accounts_type_checkout
  * @property int $number_payment_accounts_type_hokodo
- * @property int $number_payment_accounts_type_PASTPAY
+ * @property int $number_payment_accounts_type_pastpay
  * @property int $number_payment_accounts_type_cash_on_delivery
  * @property int $number_payment_accounts_type_xendit
  * @property int $number_payments
@@ -61,15 +61,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_payments_type_refund_state_cancelled
  * @property int $number_payments_type_refund_state_error
  * @property int $number_payments_type_refund_state_declined
- * @property string $amount amount_successfully_paid-amount_returned
+ * @property string $amount_paid_balance amount_successfully_paid-amount_returned
  * @property string $amount_successfully_paid
  * @property string $amount_refunded
- * @property string $org_amount organisation currency, amount_successfully_paid-amount_returned
+ * @property string $org_amount_paid_balance organisation currency, amount_successfully_paid-amount_returned
  * @property string $org_amount_successfully_paid
  * @property string $org_amount_refunded
- * @property string $group_amount Group currency, amount_successfully_paid-amount_returned
- * @property string $group_amount_successfully_paid
- * @property string $group_amount_refunded
+ * @property string $grp_amount_paid_balance Group currency, amount_successfully_paid-amount_returned
+ * @property string $grp_amount_successfully_paid
+ * @property string $grp_amount_refunded
  * @property int $number_credit_transactions
  * @property int $number_customers_with_balances
  * @property int $number_customers_with_positive_balances

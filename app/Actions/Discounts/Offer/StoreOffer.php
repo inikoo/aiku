@@ -23,6 +23,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\Discounts\Offer;
 use App\Models\Discounts\OfferCampaign;
+use App\Models\Helpers\Query;
 use App\Rules\IUnique;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -35,7 +36,7 @@ class StoreOffer extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function handle(OfferCampaign $offerCampaign, null|Shop|Product|ProductCategory|Customer $trigger, array $modelData): Offer
+    public function handle(OfferCampaign $offerCampaign, null|Shop|Product|ProductCategory|Customer|Query $trigger, array $modelData): Offer
     {
 
         $modelData = $this->prepareOfferData($offerCampaign, $trigger, $modelData);
@@ -96,7 +97,7 @@ class StoreOffer extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function action(OfferCampaign $offerCampaign, null|Shop|Product|ProductCategory|Customer $trigger, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Offer
+    public function action(OfferCampaign $offerCampaign, null|Shop|Product|ProductCategory|Customer|Query $trigger, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Offer
     {
         if (!$audit) {
             Offer::disableAuditing();

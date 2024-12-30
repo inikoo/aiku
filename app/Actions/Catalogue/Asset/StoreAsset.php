@@ -14,6 +14,7 @@ use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateAssets;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateAssets;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateAssets;
+use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Models\Billables\Charge;
 use App\Models\Billables\Rental;
@@ -26,6 +27,16 @@ class StoreAsset extends OrgAction
 {
     public function handle(Product|Rental|Service|Charge|ShippingZone $parent, array $modelData, int $hydratorsDelay = 0): Asset
     {
+        if ($parent instanceof Product) {
+            $status = false;
+            if (in_array($parent->state, [ProductStateEnum::ACTIVE, ProductStateEnum::DISCONTINUING])) {
+                $status = true;
+            }
+        } else {
+            $status = $parent->status;
+        }
+
+
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
         data_set($modelData, 'shop_id', $parent->shop_id);
@@ -35,7 +46,7 @@ class StoreAsset extends OrgAction
         data_set($modelData, 'price', $parent->price, overwrite: false);
         data_set($modelData, 'unit', $parent->unit, overwrite: false);
         data_set($modelData, 'units', $parent->units, overwrite: false);
-        data_set($modelData, 'status', $parent->status);
+        data_set($modelData, 'status', $status);
         data_set($modelData, 'created_at', $parent->created_at);
         data_set($modelData, 'currency_id', $parent->currency_id);
 

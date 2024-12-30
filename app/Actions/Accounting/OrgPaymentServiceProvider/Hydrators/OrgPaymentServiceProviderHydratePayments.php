@@ -8,6 +8,7 @@
 
 namespace App\Actions\Accounting\OrgPaymentServiceProvider\Hydrators;
 
+use App\Actions\Traits\Hydrators\WithPaymentAggregators;
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentTypeEnum;
@@ -20,6 +21,8 @@ class OrgPaymentServiceProviderHydratePayments
 {
     use AsAction;
     use WithEnumStats;
+    use WithPaymentAggregators;
+
 
     private OrgPaymentServiceProvider $orgPaymentServiceProvider;
 
@@ -35,21 +38,13 @@ class OrgPaymentServiceProviderHydratePayments
 
     public function handle(OrgPaymentServiceProvider $orgPaymentServiceProvider): void
     {
-        $amountOrganisationCurrencySuccessfullyPaid = $orgPaymentServiceProvider->payments()
-            ->where('payments.type', 'payment')
-            ->where('status', 'success')
-            ->sum('org_amount');
-        $amountOrganisationCurrencyRefunded         = $orgPaymentServiceProvider->payments()
-            ->where('payments.type', 'refund')
-            ->where('status', 'success')
-            ->sum('org_amount');
-
-        $stats = [
-            'number_payments'              => $orgPaymentServiceProvider->payments()->count(),
-            'org_amount'                   => $amountOrganisationCurrencySuccessfullyPaid + $amountOrganisationCurrencyRefunded,
-            'org_amount_successfully_paid' => $amountOrganisationCurrencySuccessfullyPaid,
-            'org_amount_refunded'          => $amountOrganisationCurrencyRefunded
-        ];
+        $stats = array_merge(
+            [
+                'number_payments' => $orgPaymentServiceProvider->payments()->count()
+            ],
+            $this->paidAmounts($orgPaymentServiceProvider, 'org_amount'),
+            $this->paidAmounts($orgPaymentServiceProvider, 'grp_amount'),
+        );
 
 
         $stats = array_merge(

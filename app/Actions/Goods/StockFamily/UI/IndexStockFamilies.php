@@ -9,8 +9,8 @@
 namespace App\Actions\Goods\StockFamily\UI;
 
 use App\Actions\Goods\HasGoodsAuthorisation;
+use App\Actions\Goods\UI\ShowGoodsDashboard;
 use App\Actions\GrpAction;
-use App\Actions\UI\Goods\ShowGoodsDashboard;
 use App\Enums\Goods\StockFamily\StockFamilyStateEnum;
 use App\Http\Resources\Goods\StockFamiliesResource;
 use App\InertiaTable\InertiaTable;

@@ -38,10 +38,9 @@ trait WithParseUpdateHistory
             $oldValues = $this->extractFromTable($matches, $oldValues, $field, $auditable);
         } elseif (preg_match('/<div class="field tr"><div>Előző érték:<\/div><div>(.*)<\/div><\/div>/', $haystack, $matches)) {
             $oldValues = $this->extractFromTable($matches, $oldValues, $field, $auditable);
-        } elseif (preg_match('/changed from Price: £|€([\d.]+) /', $haystack, $matches)) {
-            if (empty($matches[1])) {
-                dd($this->auroraModelData);
-            }
+        } elseif (preg_match('/changed from Price: £([\d.]+)/', $haystack, $matches)) {
+            $oldValues[$field] = $matches[1];
+        } elseif (preg_match('/changed from Price: €([\d.]+)/', $haystack, $matches)) {
             $oldValues[$field] = $matches[1];
         } elseif (preg_match('/&rArr; názov spoločnosti(.+) bol odstránen/', $haystack, $matches)) {
             $oldValues[$field] = $matches[1];

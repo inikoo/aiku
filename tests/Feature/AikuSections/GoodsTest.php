@@ -23,7 +23,15 @@ use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Goods\Stock\StockStateEnum;
 use App\Enums\Goods\StockFamily\StockFamilyStateEnum;
 use App\Models\Goods\MasterProductCategory;
+use App\Models\Goods\MasterProductCategoryOrderingIntervals;
+use App\Models\Goods\MasterProductCategoryOrderingStats;
+use App\Models\Goods\MasterProductCategorySalesIntervals;
+use App\Models\Goods\MasterProductCategoryStats;
 use App\Models\Goods\MasterShop;
+use App\Models\Goods\MasterShopOrderingIntervals;
+use App\Models\Goods\MasterShopOrderingStats;
+use App\Models\Goods\MasterShopSalesIntervals;
+use App\Models\Goods\MasterShopStats;
 use App\Models\Goods\Stock;
 use App\Models\Goods\StockFamily;
 use App\Models\Goods\TradeUnit;
@@ -332,6 +340,11 @@ test('create master shop', function () {
     $group = $masterShop->group;
 
     expect($masterShop)->toBeInstanceOf(MasterShop::class)
+        ->and($masterShop->stats)->toBeInstanceOf(MasterShopStats::class)
+        ->and($masterShop->orderingStats)->toBeInstanceOf(MasterShopOrderingStats::class)
+        ->and($masterShop->orderingIntervals)->toBeInstanceOf(MasterShopOrderingIntervals::class)
+        ->and($masterShop->salesIntervals)->toBeInstanceOf(MasterShopSalesIntervals::class)
+        ->and($masterShop->timeSeries()->count())->toBe(5)
         ->and($masterShop)->not->toBeNull()
         ->and($masterShop->code)->toBe('SHOP1')
         ->and($masterShop->name)->toBe('shop1')
@@ -343,7 +356,6 @@ test('create master shop', function () {
 
     return $masterShop;
 });
-
 
 
 test('update master shop', function (MasterShop $masterShop) {
@@ -371,32 +383,25 @@ test('update master shop', function (MasterShop $masterShop) {
     $group = $masterShop->group;
     expect($group->goodsStats->number_master_shops)->toBe(1)
         ->and($group->goodsStats->number_current_master_shops)->toBe(0);
-
 })->depends('create master shop');
 
 
 test('create master shop from command', function () {
-
-
     $this->artisan('master_shop:create', [
         'group' => $this->group->slug,
-        'type' => ShopTypeEnum::DROPSHIPPING,
-        'code' => 'ds',
-        'name' => 'Dropshipping class'
+        'type'  => ShopTypeEnum::DROPSHIPPING,
+        'code'  => 'ds',
+        'name'  => 'Dropshipping class'
     ])->assertExitCode(0);
-
 
 
     $group = $this->group->refresh();
 
     expect($group->goodsStats->number_master_shops)->toBe(2)
         ->and($group->goodsStats->number_current_master_shops)->toBe(1);
-
 });
 
 test('assign master shop to shop', function () {
-
-
     $masterShop = MasterShop::first();
     UpdateShop::make()->action(
         $this->shop,
@@ -422,14 +427,22 @@ test('create master product category', function (MasterShop $masterShop) {
     );
 
     $masterProductCategory->refresh();
+    $masterShop->refresh();
 
     expect($masterProductCategory)->toBeInstanceOf(MasterProductCategory::class)
+        ->and($masterProductCategory->stats)->toBeInstanceOf(MasterProductCategoryStats::class)
+        ->and($masterProductCategory->orderingStats)->toBeInstanceOf(MasterProductCategoryOrderingStats::class)
+        ->and($masterProductCategory->orderingIntervals)->toBeInstanceOf(MasterProductCategoryOrderingIntervals::class)
+        ->and($masterProductCategory->salesIntervals)->toBeInstanceOf(MasterProductCategorySalesIntervals::class)
+        ->and($masterProductCategory->timeSeries()->count())->toBe(5)
         ->and($masterProductCategory)->not->toBeNull()
         ->and($masterProductCategory->code)->toBe('PRODUCT_CATEGORY1')
         ->and($masterProductCategory->name)->toBe('product category 1')
         ->and($masterProductCategory->master_shop_id)->toBe($masterShop->id)
         ->and($masterProductCategory->group_id)->toBe($this->group->id)
-        ->and($masterProductCategory->type)->toBe(MasterProductCategoryTypeEnum::DEPARTMENT);
+        ->and($masterProductCategory->type)->toBe(MasterProductCategoryTypeEnum::DEPARTMENT)
+        ->and($masterShop->stats->number_master_product_categories_type_department)->toBe(1)
+        ->and($masterShop->stats->number_current_master_product_categories_type_department)->toBe(1);
 
     return $masterProductCategory;
 })->depends("create master shop");
@@ -440,13 +453,16 @@ test('update master product category', function (MasterProductCategory $masterPr
         [
             'code' => 'PRODUCT_CATEGORY2',
             'name' => 'product category 2',
+            'status' => false
         ]
     );
 
     $updatedMasterProductCategory->refresh();
-
+    $masterShop = $updatedMasterProductCategory->masterShop;
     expect($updatedMasterProductCategory)->toBeInstanceOf(MasterProductCategory::class)
         ->and($updatedMasterProductCategory)->not->toBeNull()
         ->and($updatedMasterProductCategory->code)->toBe('PRODUCT_CATEGORY2')
-        ->and($updatedMasterProductCategory->name)->toBe('product category 2');
+        ->and($updatedMasterProductCategory->name)->toBe('product category 2')
+        ->and($masterShop->stats->number_master_product_categories_type_department)->toBe(1)
+        ->and($masterShop->stats->number_current_master_product_categories_type_department)->toBe(0);
 })->depends("create master product category");

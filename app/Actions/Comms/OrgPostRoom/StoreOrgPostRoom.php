@@ -32,16 +32,16 @@ class StoreOrgPostRoom extends OrgAction
             data_set($modelData, 'name', $postRoom->name);
 
 
-            /** @var OrgPostRoom $postRoom */
+            /** @var OrgPostRoom $orgPostRoom */
             $orgPostRoom = $organisation->orgPostRooms()->create($modelData);
             $orgPostRoom->stats()->create();
             $orgPostRoom->intervals()->create();
 
             return $orgPostRoom;
         });
-        GroupHydrateOrgPostRooms::run($orgPostRoom->group);
-        OrganisationHydrateOrgPostRooms::run($orgPostRoom->organisation);
-        PostRoomHydrateOrgPostRooms::run($postRoom);
+        GroupHydrateOrgPostRooms::dispatch($orgPostRoom->group);
+        OrganisationHydrateOrgPostRooms::dispatch($orgPostRoom->organisation);
+        PostRoomHydrateOrgPostRooms::dispatch($postRoom);
 
         return $orgPostRoom;
     }
