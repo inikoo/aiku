@@ -143,7 +143,7 @@ class IndexEmailAddress extends GrpAction
                     'simple' => [
                         'route' => $routeParameters,
                         'label' => __('Email Addresses'),
-                        'icon'  => 'fal fa-envelope'
+                        'icon'  => 'fal fa-bars'
                     ],
                 ],
             ];
