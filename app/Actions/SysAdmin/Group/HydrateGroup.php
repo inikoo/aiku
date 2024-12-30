@@ -80,17 +80,18 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWarehouseAreas;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWarehouses;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWebpages;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWebsites;
-use App\Actions\Traits\WithNormalise;
+use App\Actions\Traits\Hydrators\WithHydrateCommand;
 use App\Models\SysAdmin\Group;
-use Exception;
-use Illuminate\Console\Command;
 
 class HydrateGroup extends HydrateModel
 {
-    use WithNormalise;
+    use WithHydrateCommand;
+    public string $commandSignature = 'hydrate:groups';
 
-    public string $commandSignature = 'hydrate:groups {group? : Group slug}';
-
+    public function __construct()
+    {
+        $this->model = Group::class;
+    }
 
     public function handle(Group $group): void
     {
@@ -176,30 +177,4 @@ class HydrateGroup extends HydrateModel
 
     }
 
-
-    public function asCommand(Command $command): int
-    {
-        if ($command->argument('group')) {
-            try {
-                $group = Group::where('slug', $command->argument('group'))->firstorFail();
-            } catch (Exception $e) {
-                $command->error($e->getMessage());
-
-                return 1;
-            }
-
-
-            $this->handle($group);
-        } else {
-            $groups = Group::all();
-
-            foreach ($groups as $group) {
-                $this->handle($group);
-            }
-        }
-
-        $command->info('Groups Hydrated');
-
-        return 0;
-    }
 }

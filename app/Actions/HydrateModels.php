@@ -19,6 +19,10 @@ class HydrateModels extends HydrateModel
 
     public function asCommand(Command $command): int
     {
+        if ($this->checkIfCanHydrate(['sysadmin', 'sys'], $command)) {
+            $this->hydrateSysadmin($command);
+        }
+
         if ($this->checkIfCanHydrate(['crm'], $command)) {
             $this->hydrateCrm($command);
         }
@@ -53,10 +57,6 @@ class HydrateModels extends HydrateModel
 
         if ($this->checkIfCanHydrate(['comms'], $command)) {
             $this->hydrateComms($command);
-        }
-
-        if ($this->checkIfCanHydrate(['sysadmin', 'sys'], $command)) {
-            $this->hydrateSysadmin($command);
         }
 
         if ($this->checkIfCanHydrate(['ordering'], $command)) {
@@ -221,7 +221,7 @@ class HydrateModels extends HydrateModel
     {
         $command->info('CRM section 👸🏻');
         $command->call('hydrate:customers');
-        $command->call('hydrate:prospects');
+        $command->call('hydrate:web_users');
     }
 
     protected function hydrateFulfilment(Command $command): void

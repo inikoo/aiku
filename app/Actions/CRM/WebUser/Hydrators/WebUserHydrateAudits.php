@@ -1,14 +1,12 @@
 <?php
 
 /*
- * Author: Ganes <gustiganes@gmail.com>
- * Created on: 27-12-2024, Bali, Indonesia
- * Github: https://github.com/Ganes556
- * Copyright: 2024
- *
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 31 Dec 2024 01:00:00 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Actions\CRM\WebUser;
+namespace App\Actions\CRM\WebUser\Hydrators;
 
 use App\Enums\Helpers\Audit\AuditEventEnum;
 use App\Models\CRM\WebUser;

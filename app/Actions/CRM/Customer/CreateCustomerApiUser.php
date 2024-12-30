@@ -2,7 +2,7 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -10,7 +10,7 @@
 
 namespace App\Actions\CRM\Customer;
 
-use App\Actions\CRM\WebUser\HydrateWebUser;
+use App\Actions\CRM\WebUser\Hydrators\WebUserHydrateApiTokens;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Models\CRM\Customer;
 use Exception;
@@ -34,7 +34,8 @@ class CreateCustomerApiUser
             Arr::get($tokenData, 'name', 'full-access'),
             Arr::get($tokenData, 'abilities', ['*']),
         )->plainTextToken;
-        HydrateWebUser::make()->tokens($webUser);
+
+        WebUserHydrateApiTokens::dispatch($webUser);
         return $token;
     }
 
