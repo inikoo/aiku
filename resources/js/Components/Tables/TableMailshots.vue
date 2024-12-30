@@ -23,10 +23,6 @@ function mailshotRoute(mailshot: Mailshot) {
     switch (route().current()) {
         case 'grp.overview.comms-marketing.email-bulk-runs.index':
             return null
-        case 'grp.overview.comms-marketing.newsletters.index':
-            return null
-        case 'grp.overview.comms-marketing.marketing-mailshots.index':
-            return null
         case 'grp.org.shops.show.marketing.mailshots.index':
             return route(
                 'grp.org.shops.show.marketing.mailshots.show',
@@ -42,7 +38,7 @@ function mailshotRoute(mailshot: Mailshot) {
         default:
             return route(
                 'grp.org.shops.show.marketing.mailshots.show',
-                [route().params.organisation, route().params.shop, mailshot.slug]);
+                [mailshot.organisation_slug, mailshot.shop_slug, mailshot.slug]);
     }
 }
 
