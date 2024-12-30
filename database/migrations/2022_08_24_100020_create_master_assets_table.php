@@ -18,6 +18,9 @@ return new class () extends Migration {
 
             $table->unsignedSmallInteger('group_id')->index();
             $table->foreign('group_id')->references('id')->on('groups')->nullOnDelete();
+            $table->unsignedInteger('master_shop_id')->nullable();
+            $table->foreign('master_shop_id')->references('id')->on('master_shops')->nullOnDelete();
+
             $table->unsignedInteger('master_family_id')->nullable();
             $table->foreign('master_family_id')->references('id')->on('master_product_categories')->nullOnDelete();
             $table->unsignedInteger('master_sub_department_id')->nullable();

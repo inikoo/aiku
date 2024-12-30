@@ -39,6 +39,10 @@ function collectionRoute(collection: {}) {
             return route(
                 "grp.org.shops.show.catalogue.collections.show",
                 [route().params["organisation"], collection.shop, collection.slug])
+        case 'grp.overview.catalogue.collections.index':
+            return route(
+                'grp.org.shops.show.catalogue.collections.show',
+                [collection.organisation_slug, collection.shop_slug, collection.slug])
     }
 }
 

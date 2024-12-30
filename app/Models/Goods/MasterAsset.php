@@ -8,13 +8,14 @@
 
 namespace App\Models\Goods;
 
-use App\Enums\Catalogue\Asset\AssetTypeEnum;
+use App\Enums\Goods\MasterAsset\MasterAssetTypeEnum;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -31,14 +32,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $master_family_id
  * @property int|null $master_sub_department_id
  * @property int|null $master_department_id
- * @property AssetTypeEnum $type
+ * @property MasterAssetTypeEnum $type
  * @property bool $is_main
  * @property bool $status
  * @property string $slug
  * @property string $code
  * @property string|null $name
  * @property string|null $description
- * @property numeric|null $price
+ * @property numeric|null $price price per outer in grp currency
  * @property string $units
  * @property string|null $unit
  * @property array $data
@@ -56,6 +57,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property int $master_shop_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
@@ -66,8 +68,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, MasterAsset> $masterProductVariants
  * @property-read \App\Models\Goods\MasterProductCategory|null $masterSubDepartment
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
+ * @property-read \App\Models\Goods\MasterAssetOrderingIntervals|null $orderingIntervals
+ * @property-read \App\Models\Goods\MasterAssetOrderingStats|null $orderingStats
  * @property-read \App\Models\Goods\MasterAssetSalesIntervals|null $salesIntervals
  * @property-read \App\Models\Goods\MasterAssetStats|null $stats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Goods\Stock> $stocks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Goods\MasterAssetTimeSeries> $timeSeries
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterAsset newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterAsset newQuery()
@@ -88,12 +94,11 @@ class MasterAsset extends Model implements Auditable, HasMedia
     protected $guarded = [];
 
     protected $casts = [
-        'type'               => AssetTypeEnum::class,
+        'type'               => MasterAssetTypeEnum::class,
         'variant_ratio'      => 'decimal:3',
         'price'              => 'decimal:2',
         'rrp'                => 'decimal:2',
         'data'               => 'array',
-        'settings'           => 'array',
         'status'             => 'boolean',
         'variant_is_visible' => 'boolean',
         'fetched_at'         => 'datetime',
@@ -102,7 +107,6 @@ class MasterAsset extends Model implements Auditable, HasMedia
 
     protected $attributes = [
         'data'     => '{}',
-        'settings' => '{}',
     ];
 
     public function generateTags(): array
@@ -121,11 +125,6 @@ class MasterAsset extends Model implements Auditable, HasMedia
         'price',
         'rrp',
         'unit',
-        'is_auto_assign',
-        'auto_assign_trigger',
-        'auto_assign_subject',
-        'auto_assign_subject_type',
-        'auto_assign_status',
         'is_main',
     ];
 
@@ -175,14 +174,39 @@ class MasterAsset extends Model implements Auditable, HasMedia
         return $this->belongsTo(MasterProductCategory::class, 'master_family_id');
     }
 
+
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(MasterAssetStats::class);
+    }
+
     public function salesIntervals(): HasOne
     {
         return $this->hasOne(MasterAssetSalesIntervals::class);
     }
 
-    public function stats(): HasOne
+    public function orderingStats(): HasOne
     {
-        return $this->hasOne(MasterAssetStats::class);
+        return $this->hasOne(MasterAssetOrderingStats::class);
+    }
+
+    public function orderingIntervals(): HasOne
+    {
+        return $this->hasOne(MasterAssetOrderingIntervals::class);
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(MasterAssetTimeSeries::class);
+    }
+
+    public function stocks(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Stock::class,
+            'master_asset_has_stocks',
+        )->withPivot(['quantity', 'notes'])->withTimestamps();
     }
 
 }
