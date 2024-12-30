@@ -83,7 +83,7 @@ class IndexEmployees extends OrgAction
         } else {
             $queryBuilder->where('employees.group_id', $parent->id);
         }
-        $queryBuilder->leftjoin('organisations', 'employees.organisation_id', '=', 'organisations.id' );
+        $queryBuilder->leftjoin('organisations', 'employees.organisation_id', '=', 'organisations.id');
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
@@ -108,7 +108,7 @@ class IndexEmployees extends OrgAction
                 $join->on('employees.id', '=', 'job_positions.employee_id');
             });
             $queryBuilder->addSelect('job_positions');
-        } 
+        }
         // elseif (class_basename($parent) == 'Group') {
         //     $queryBuilder->leftJoin('employee_has_job_positions', 'employee_has_job_positions.employee_id', 'employees.id')
         //         ->where('job_position_id', $parent->id);

@@ -48,6 +48,7 @@ class ShowEmailAddress extends GrpAction
             'Comms/EmailAddress',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $emailAddress,
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
@@ -63,27 +64,25 @@ class ShowEmailAddress extends GrpAction
     }
 
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(EmailAddress $emailAddress, string $routeName, array $routeParameters): array
     {
-        $headCrumb = function (array $routeParameters = []) {
+        $headCrumb = function (array $routeParameters = []) use ($emailAddress) {
             return [
                 [
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('Email Addresses'),
-                        'icon'  => 'fal fa-envelope'
+                        'label' => $emailAddress->email,
                     ],
                 ],
             ];
         };
 
         return match ($routeName) {
-            'grp.overview.comms-marketing.email-addresses.show' =>
-            array_merge(
+            default => array_merge(
                 IndexEmailAddress::make()->getBreadcrumbs(
-                    $routeName,
-                    $routeParameters
+                    'grp.overview.comms-marketing.email-addresses.index',
+                    []
                 ),
                 $headCrumb(
                     [
@@ -92,7 +91,6 @@ class ShowEmailAddress extends GrpAction
                     ]
                 )
             ),
-            default => []
         };
     }
 }
