@@ -54,17 +54,26 @@ class ShowIncomingHub extends OrgAction
                         'icon'  => ['fal', 'fa-arrow-to-bottom'],
                         'title' => __('incoming')
                     ],
-                    'title' => __('Goods in backlog'),
+                    'model' => __('Goods in'),
+                    'title' => __('Incoming Hub'),
                 ],
                 'box_stats' => [
                     [
-                        'title' => __('Stock Deliveries'),
+                        'name' => __('Stock Deliveries'),
                         'value' => $scope->procurementStats->number_stock_deliveries,
+                        'route' => [
+                            'name'       => 'grp.org.warehouses.show.incoming.stock_deliveries.index',
+                            'parameters' => $request->route()->originalParameters()
+                        ],
                         'icon'  => ['fal', 'fa-boxes']
                     ],
                     [
-                        'title' => __('Fulfilment Deliveries'),
+                        'name' => __('Fulfilment Deliveries'),
                         'value' => $scope->fulfilmentStats->number_pallet_deliveries,
+                        'route' => [
+                            'name'       => 'grp.org.warehouses.show.incoming.pallet_deliveries.index',
+                            'parameters' => $request->route()->originalParameters()
+                        ],
                         'icon'  => ['fal', 'fa-boxes']
                     ],
                 ],

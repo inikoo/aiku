@@ -26,9 +26,11 @@ class CreateWarehouseArea extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('new warehouse area'),
+                'title'       => __('create warehouse area'),
                 'pageHead'    => [
-                    'title'        => __('new warehouse area'),
+                    'model'        => __('warehouse area'),
+                    'title'        => __('create'),
+                    'icon'         => 'fal fa-map-signs',
                     'actions'      => [
                         [
                             'type'  => 'button',
