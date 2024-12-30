@@ -31,7 +31,7 @@ enum OrgStockTabsEnum: string
     case HISTORY             = 'history';
     case IMAGES              = 'images';
     case ATTACHMENTS         = 'attachments';
-    case ISSUES              = 'issues';
+    case FEEDBACKS              = 'feedbacks';
 
 
 
@@ -52,7 +52,7 @@ enum OrgStockTabsEnum: string
                 'title' => __('stock history'),
                 'icon'  => 'fal fa-scanner',
             ],
-            OrgStockTabsEnum::ISSUES => [
+            OrgStockTabsEnum::FEEDBACKS => [
                 'align' => 'right',
                 'type'  => 'icon',
                 'title' => __('issues'),

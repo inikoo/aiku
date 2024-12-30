@@ -118,7 +118,7 @@ class AppServiceProvider extends ServiceProvider
                 'Deployment'                    => 'App\Models\Helpers\Deployment',
                 'Fetch'                         => 'App\Models\Helpers\Fetch',
                 'FetchRecord'                   => 'App\Models\Helpers\FetchRecord',
-                'Issue'                         => 'App\Models\Helpers\Issue',
+                'Feedback'                      => 'App\Models\Helpers\Feedback',
                 'Query'                         => 'App\Models\Helpers\Query',
                 'SerialReference'               => 'App\Models\Helpers\SerialReference',
                 'Snapshot'                      => 'App\Models\Helpers\Snapshot',

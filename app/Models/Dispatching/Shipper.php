@@ -8,7 +8,6 @@
 
 namespace App\Models\Dispatching;
 
-use App\Models\Helpers\Issue;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
@@ -51,7 +50,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
- * @property-read Collection<int, Issue> $issues
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Dispatching\Shipment> $shipments
  * @property-read Collection<int, \App\Models\Dispatching\ShippingEvent> $shippingEvents
@@ -122,11 +120,6 @@ class Shipper extends Model implements Auditable
     public function shipments(): HasMany
     {
         return $this->hasMany(Shipment::class);
-    }
-
-    public function issues(): MorphToMany
-    {
-        return $this->morphToMany(Issue::class, 'issuable');
     }
 
     public function shippingEvents(): MorphToMany

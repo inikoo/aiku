@@ -22,7 +22,7 @@ enum StockFamilyTabsEnum: string
     case STOCKS   = 'stocks';
     case HISTORY  = 'history';
     case IMAGES   = 'images';
-    case ISSUES   = 'issues';
+    case FEEDBACKS   = 'feedbacks';
 
 
 
@@ -38,7 +38,7 @@ enum StockFamilyTabsEnum: string
                 'title' => __('sales'),
                 'icon'  => 'fal fa-dollar-sign',
             ],
-            StockFamilyTabsEnum::ISSUES => [
+            StockFamilyTabsEnum::FEEDBACKS => [
                 'align' => 'right',
                 'type'  => 'icon',
                 'title' => __('issues'),

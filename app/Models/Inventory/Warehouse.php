@@ -17,7 +17,6 @@ use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Helpers\Address;
-use App\Models\Helpers\Issue;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
@@ -72,7 +71,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, DeliveryNote> $deliveryNotes
  * @property-read Collection<int, Fulfilment> $fulfilments
  * @property-read \App\Models\SysAdmin\Group $group
- * @property-read Collection<int, Issue> $issues
  * @property-read Collection<int, \App\Models\Inventory\Location> $locations
  * @property-read Organisation $organisation
  * @property-read Collection<int, PalletDelivery> $palletDeliveries
@@ -170,11 +168,6 @@ class Warehouse extends Model implements Auditable
     public function stats(): HasOne
     {
         return $this->hasOne(WarehouseStats::class);
-    }
-
-    public function issues(): MorphToMany
-    {
-        return $this->morphToMany(Issue::class, 'issuable');
     }
 
     public function roles(): MorphMany

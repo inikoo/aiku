@@ -12,7 +12,6 @@ use App\Audits\Redactors\EmployeePinRedactor;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\Miscellaneous\GenderEnum;
-use App\Models\Helpers\Issue;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\SysAdmin\EmployeeHasOtherOrganisationJobPosition;
 use App\Models\SysAdmin\Group;
@@ -85,7 +84,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $images
- * @property-read Collection<int, Issue> $issues
  * @property-read EmployeeHasOtherOrganisationJobPosition|\App\Models\HumanResources\EmployeeHasJobPositions|null $pivot
  * @property-read Collection<int, \App\Models\HumanResources\JobPosition> $jobPositions
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $media
@@ -225,11 +223,6 @@ class Employee extends Model implements HasMedia, Auditable
     public function getRouteKeyName(): string
     {
         return 'slug';
-    }
-
-    public function issues(): MorphToMany
-    {
-        return $this->morphToMany(Issue::class, 'issuable');
     }
 
     public function workplaces(): BelongsToMany
