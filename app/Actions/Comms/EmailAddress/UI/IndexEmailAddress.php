@@ -8,7 +8,6 @@
  *
 */
 
-
 namespace App\Actions\Comms\EmailAddress\UI;
 
 use App\Actions\GrpAction;

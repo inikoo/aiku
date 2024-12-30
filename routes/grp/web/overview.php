@@ -16,6 +16,9 @@ use App\Actions\Billables\Service\UI\IndexServices;
 use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
 use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
+use App\Actions\Comms\EmailAddress\UI\IndexEmailAddress;
+use App\Actions\Comms\EmailBulkRun\UI\IndexEmailBulkRuns;
+use App\Actions\Comms\Mailshot\UI\IndexMailshots;
 use App\Actions\Comms\Mailshot\UI\IndexMarketingMailshots;
 use App\Actions\Comms\Mailshot\UI\IndexNewsletterMailshots;
 use App\Actions\Comms\Outbox\UI\IndexOutboxes;
@@ -25,15 +28,7 @@ use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\Discounts\Offer\UI\IndexOffers;
 use App\Actions\Discounts\OfferCampaign\UI\IndexOfferCampaigns;
-use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
-use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
-use App\Actions\HumanResources\Employee\UI\IndexEmployees;
-use App\Actions\HumanResources\JobPosition\UI\IndexJobPositions;
-use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
-use App\Actions\HumanResources\Workplace\UI\IndexWorkplaces;
 use App\Actions\Ordering\Order\UI\IndexOrders;
-use App\Actions\Ordering\Purge\UI\IndexPurges;
-use App\Actions\Ordering\ShippingZoneSchema\UI\IndexShippingZoneSchemas;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Production\Artefact\UI\IndexArtefacts;
 use App\Actions\Production\ManufactureTask\UI\IndexManufactureTasks;
@@ -49,22 +44,27 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowOverviewHub::class)->name('hub');
 
-Route::name('changelog.')->prefix('changelog')->group(function () {
-    Route::get('/', IndexHistoryInGroup::class)->name('index');
+Route::name('sysadmin.')->prefix('sysadmin')->group(function () {
+    Route::get('/changelog', IndexHistoryInGroup::class)->name('changelog.index');
 });
 
-// ==== combine
-Route::name('comms.')->prefix('comms')->group(function () {
+Route::name('comms-marketing.')->prefix('comms-marketing')->group(function () {
     Route::get('/post-rooms', IndexPostRooms::class)->name('post-rooms.index');
     Route::get('/post-rooms/{postRoom}', ShowPostRoom::class)->name('post-rooms.show');
     Route::get('/outboxes', [IndexOutboxes::class, 'inGroup'])->name('outboxes.index');
+    Route::get('/newsletters', [IndexNewsletterMailshots::class, 'inGroup'])->name('newsletters.index');
+    Route::get('/marketing-mailshots', [IndexMarketingMailshots::class, 'inGroup'])->name('marketing-mailshots.index');
+    // Route::get('/invite-mailshots', [IndexMailshots::class, 'inGroup'])->name('invite-mailshots.index');
+    // Route::get('/abandoned-card-mailshots', [IndexMailshots::class, 'inGroup'])->name('abandoned-card-mailshots.index');
+    Route::get('/email-bulk-runs', [IndexEmailBulkRuns::class, 'inGroup'])->name('email-bulk-runs.index');
+    Route::get('/email-addresses', IndexEmailAddress::class)->name('email-addresses.index');
+
 });
 
-Route::name('marketing.')->prefix('marketing')->group(function () {
-    Route::get('/newsletters', [IndexNewsletterMailshots::class, 'inGroup'])->name('newsletters.index');
-    Route::get('/mailshots', [IndexMarketingMailshots::class, 'inGroup'])->name('mailshots.index');
-});
-// combine ====
+// Route::name('marketing.')->prefix('marketing')->group(function () {
+//     Route::get('/newsletters', [IndexNewsletterMailshots::class, 'inGroup'])->name('newsletters.index');
+//     Route::get('/mailshots', [IndexMarketingMailshots::class, 'inGroup'])->name('mailshots.index');
+// });
 
 
 Route::name('catalogue.')->prefix('catalogue')->group(function () {

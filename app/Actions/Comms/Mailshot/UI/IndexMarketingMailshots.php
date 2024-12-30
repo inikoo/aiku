@@ -143,8 +143,10 @@ class IndexMarketingMailshots extends OrgAction
             ]
         ];
 
+        $title = __('mailshots');
         if ($this->parent instanceof Group) {
             $actions = [];
+            $title = __('marketing mailshots');
         }
 
         return Inertia::render(
@@ -155,9 +157,9 @@ class IndexMarketingMailshots extends OrgAction
                     $request->route()->originalParameters(),
                     $this->parent
                 ),
-                'title'       => __('mailshots'),
+                'title'       => $title,
                 'pageHead'    => array_filter([
-                    'title'    => __('mailshots'),
+                    'title'    => $title,
                     'actions'  => $actions,
                 ]),
                 'data' => MarketingMailshotsResource::collection($mailshots),

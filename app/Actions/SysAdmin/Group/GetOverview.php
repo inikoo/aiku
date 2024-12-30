@@ -45,25 +45,25 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Changelog'),
                     'icon'  => 'fal fa-history',
-                    'route' => route('grp.overview.changelog.index'),
+                    'route' => route('grp.overview.sysadmin.changelog.index'),
                     'count' => $group->sysadminStats->number_audits ?? 0
                 ],
                 [
                     'name'  => __('Users'),
                     'icon'  => 'fal fa-users',
-                    'route' => '',
+                    'route' => route('grp.sysadmin.users.all.index'),
                     'count' => $group->sysadminStats->number_users ?? 0
                 ],
                 [
                     'name'  => __('Guests'),
                     'icon'  => 'fal fa-user-alien',
-                    'route' => '', // http://app.aiku.test/sysadmin/users?tab=guests
+                    'route' => route('grp.sysadmin.guests.index'),
                     'count' => $group->sysadminStats->number_guests ?? 0
                 ],
                 [
                     'name'  => __('User Requests'),
                     'icon'  => 'fal fa-road',
-                    'route' => '', // http://app.aiku.test/sysadmin/users?tab=users_requests
+                    'route' => route('grp.sysadmin.users.request.index'),
                     'count' => $group->sysadminStats->number_user_requests ?? 0
                 ],
             ],
@@ -71,49 +71,49 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Post Rooms'),
                     'icon'  => 'fal fa-booth-curtain',
-                    'route' => '',
+                    'route' => route('grp.overview.comms-marketing.post-rooms.index'),
                     'count' => $group->commsStats->number_post_rooms ?? 0
                 ],
                 [
                     'name'  => __('Outboxes'),
                     'icon'  => 'fal fa-inbox-out',
-                    'route' => '',
+                    'route' => route('grp.overview.comms-marketing.outboxes.index'),
                     'count' => $group->commsStats->number_outboxes ?? 0
                 ],
                 [
                     'name'  => __('Newsletters'),
                     'icon'  => 'fal fa-newspaper',
-                    'route' => '',
+                    'route' => route('grp.overview.comms-marketing.newsletters.index'),
                     'count' => $group->commsStats->number_mailshots_type_newsletter ?? 0
                 ],
                 [
                     'name'  => __('Marketing Mailshots'),
                     'icon'  => 'fal fa-mail-bulk',
-                    'route' => '',
+                    'route' => route('grp.overview.comms-marketing.marketing-mailshots.index'),
                     'count' => $group->commsStats->number_mailshots_type_marketing ?? 0
                 ],
                 [
-                    'name'  => __('Prospects mailshots'),
+                    'name'  => __('Invite mailshots'),
                     'icon'  => 'fal fa-phone-volume',
-                    'route' => '',
+                    'route' => '', // the index not exist yet
                     'count' => $group->commsStats->number_mailshots_type_invite ?? 0
                 ],
                 [
                     'name'  => __('Abandoned Cart mailshots'),
                     'icon'  => 'fal fa-scroll-old',
-                    'route' => '',
+                    'route' => '', // the index not exist yet
                     'count' => $group->commsStats->number_mailshots_type_abandoned_cart ?? 0
                 ],
                 [
                     'name'  => __('Email Bulk Runs'),
                     'icon'  => 'fal fa-raygun',
-                    'route' => '',
+                    'route' => route('grp.overview.comms-marketing.email-bulk-runs.index'),
                     'count' => $group->commsStats->number_bulk_runs ?? 0
                 ],
                 [
                     'name'  => __('Email Addresses'),
                     'icon'  => 'fal fa-envelope',
-                    'route' => '',
+                    'route' => '', // real route index & show in group
                     'count' => $group->commsStats->number_email_addresses ?? 0
                 ],
                 [
