@@ -54,7 +54,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property numeric|null $org_exchange
  * @property numeric|null $grp_net_amount
  * @property numeric|null $org_net_amount
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $fetched_at

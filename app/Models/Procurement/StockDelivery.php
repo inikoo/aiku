@@ -71,14 +71,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $grp_exchange
  * @property string|null $org_exchange
  * @property bool $is_costed
- * @property array $cost_data
+ * @property array<array-key, mixed> $cost_data
  * @property string|null $cost_items
  * @property string|null $cost_extra
  * @property string|null $cost_shipping
  * @property string|null $cost_duties
  * @property string $cost_tax
  * @property string $cost_total
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at

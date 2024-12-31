@@ -29,7 +29,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $quantity_packed
  * @property int|null $packer_id
  * @property PackingEngineEnum $engine
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property string|null $queued_at
  * @property string|null $packing_at
  * @property string|null $packing_blocked_at

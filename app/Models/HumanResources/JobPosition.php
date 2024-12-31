@@ -36,7 +36,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property JobPositionScopeEnum $scope
  * @property string|null $department
  * @property string|null $team
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property bool $locked Seeded job positions should be locked
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

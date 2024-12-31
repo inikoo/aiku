@@ -25,9 +25,9 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property string $slug
  * @property string $code
  * @property bool $status
- * @property array $data
- * @property array $settings
- * @property array $credentials
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
+ * @property array<array-key, mixed> $credentials
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits

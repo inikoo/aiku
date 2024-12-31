@@ -23,7 +23,6 @@ return new class () extends Migration {
             $table->foreign('master_product_category_id')->references('id')->on('master_product_categories');
 
             $table = $this->masterAssetsStatsFields($table);
-
             $table = $this->catalogueDepartmentStatsFields($table);
             $table = $this->catalogueFamilyStats($table);
             $table = $this->catalogueProductsStats($table);

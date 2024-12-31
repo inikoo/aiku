@@ -54,7 +54,7 @@ use Spatie\Tags\HasTags;
  * @property bool $has_dropshipping_slots
  * @property bool $has_fulfilment
  * @property string|null $barcode
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $audited_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

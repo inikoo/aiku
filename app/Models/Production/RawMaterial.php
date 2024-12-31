@@ -41,7 +41,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $unit_cost
  * @property string|null $quantity_on_location
  * @property RawMaterialStockStatusEnum $stock_status
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at

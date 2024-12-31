@@ -52,7 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $quantity_in_locations stock quantity in units
  * @property string $value_in_locations
  * @property float|null $available_forecast days
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $activated_in_organisation_at

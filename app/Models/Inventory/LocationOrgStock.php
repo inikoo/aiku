@@ -31,8 +31,8 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property LocationStockTypeEnum $type
  * @property int|null $picking_priority
  * @property string|null $notes
- * @property array $data
- * @property array $settings
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
  * @property string|null $audited_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

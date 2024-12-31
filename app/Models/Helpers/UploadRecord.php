@@ -17,8 +17,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $upload_id
  * @property int|null $row_number
- * @property array $values
- * @property array $errors
+ * @property array<array-key, mixed> $values
+ * @property array<array-key, mixed> $errors
  * @property string|null $fail_column
  * @property string $status
  * @property \Illuminate\Support\Carbon|null $created_at
