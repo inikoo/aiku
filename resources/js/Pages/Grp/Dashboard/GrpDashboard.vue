@@ -14,7 +14,7 @@ import Row from "primevue/row"
 import ColumnGroup from "primevue/columngroup"
 import { computed } from "vue"
 import { useTruncate } from "@/Composables/useTruncate"
-
+import ToggleSwitch from "primevue/toggleswitch"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faChevronDown } from "@far"
 import { faPlay, faSortDown, faSortUp } from "@fas"
@@ -28,16 +28,10 @@ import Tag from "@/Components/Tag.vue"
 import { faFolderOpen, faSeedling, faTimesCircle, faTriangle } from "@fal"
 import { faArrowDown, faArrowUp } from "@fad"
 import Select from "primevue/select"
-import tippy from 'tippy.js';
-import 'tippy.js/dist/tippy.css';
-library.add(
-	faTriangle,
-	faChevronDown,
-	faSeedling,
-	faTimesCircle,
-	faFolderOpen,
-	faPlay
-)
+import tippy from "tippy.js"
+import "tippy.js/dist/tippy.css"
+import DashboardCard from "@/Components/DataDisplay/DashboardCard.vue"
+library.add(faTriangle, faChevronDown, faSeedling, faTimesCircle, faFolderOpen, faPlay)
 
 const props = defineProps<{
 	groupStats: {
@@ -136,27 +130,36 @@ const options = {
 
 const abcdef = computed(() => {
 	return props.groupStats.organisations
-    .filter((org) => org.type !== "agent") 
-    .map((org) => {
-      return {
-        name: org.name,
-        code: org.code,
-        interval_percentages: org.interval_percentages,
-        sales: org.sales || 0,
-        currency: selectedCurrency.value.code === "grp" 
-          ? props.groupStats.currency.code 
-          : org.currency.code,
-      };
-    });
+		.filter((org) => org.type !== "agent")
+		.map((org) => {
+			return {
+				name: org.name,
+				code: org.code,
+				interval_percentages: org.interval_percentages,
+				sales: org.sales || 0,
+				currency:
+					selectedCurrency.value.code === "grp"
+						? props.groupStats.currency.code
+						: org.currency.code,
+			}
+		})
 })
 
 const currency = ref([
 	{ name: "Group", code: "grp" },
 	{ name: "Organisation", code: "org" },
 ])
-const selectedCurrency = ref(currency.value[0])
 
-const shop = ref()
+const selectedCurrency = ref(currency.value[0])
+const isOrganisation = ref(selectedCurrency.value.code === "org")
+const toggleCurrency = () => {
+	selectedCurrency.value = isOrganisation.value ? currency.value[1] : currency.value[0]
+}
+const isNegative = (value: number): boolean => value < 0
+
+const formatValue = (value: number): string => {
+	return value < 0 ? `-$${Math.abs(value).toLocaleString()}` : `$${value.toLocaleString()}`
+}
 </script>
 
 <template>
@@ -168,15 +171,29 @@ const shop = ref()
 		<div class="col-span-12 space-y-4">
 			<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
 				<div class="flex justify-end items-center space-x-4">
-					<!-- Select Dropdown -->
-					<Select
-						v-model="selectedCurrency"
-						:options="currency"
-						optionLabel="name"
-						placeholder="Select Currency"
-						size="small"
-						class="w-full md:w-56" />
+					<div class="flex items-center space-x-4">
+						<!-- Group Label -->
+						<p
+							class="font-medium transition-opacity"
+							:class="{ 'opacity-60': isOrganisation }">
+							Group
+						</p>
+
+						<!-- PrimeVue Toggle Switch -->
+						<ToggleSwitch
+							v-model="isOrganisation"
+							class="mx-2"
+							@change="toggleCurrency" />
+
+						<!-- Organisation Label -->
+						<p
+							class="font-medium transition-opacity"
+							:class="{ 'opacity-60': !isOrganisation }">
+							Organisation
+						</p>
+					</div>
 				</div>
+
 				<div class="mt-4 block">
 					<nav class="isolate flex rounded border-b border-gray-300" aria-label="Tabs">
 						<div
@@ -207,7 +224,7 @@ const shop = ref()
 						<Column sortable>
 							<template #header>
 								<div class="flex items-center justify-between">
-									<span class="font-semibold text-gray-700">Code</span>
+									<span class="font-bold">Code</span>
 								</div>
 							</template>
 							<template #body="{ data }">
@@ -225,12 +242,11 @@ const shop = ref()
 						<Column sortable headerClass="align-right" hidden>
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-semibold text-gray-700">Refunds</span>
+									<span class="font-bold">Refunds</span>
 								</div>
 							</template>
 							<template #body="{ data }">
 								<div class="flex justify-end relative">
-								
 									<Transition name="spin-to-down" mode="out-in">
 										<div
 											:key="
@@ -238,14 +254,14 @@ const shop = ref()
 													selectedDateOption
 												]?.amount || 0
 											">
-											<span >
-											{{
-												locale.number(
-													data.interval_percentages?.refunds[
-														selectedDateOption
-													]?.amount || 0
-												)
-											}}
+											<span>
+												{{
+													locale.number(
+														data.interval_percentages?.refunds[
+															selectedDateOption
+														]?.amount || 0
+													)
+												}}
 											</span>
 										</div>
 									</Transition>
@@ -262,7 +278,7 @@ const shop = ref()
 							headerStyle="text-align: green; width: 270px">
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-semibold text-gray-700">
+									<span class="font-semibold">
 										<FontAwesomeIcon
 											fixed-width
 											icon="fal fa-triangle"
@@ -339,7 +355,7 @@ const shop = ref()
 							headerClass="align-right">
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-semibold text-gray-700">Invoices</span>
+									<span class="font-bold">Invoices</span>
 								</div>
 							</template>
 							<template #body="{ data }">
@@ -370,10 +386,10 @@ const shop = ref()
 							sortable
 							class="overflow-hidden transition-all"
 							headerClass="align-right"
-							headerStyle="text-align: green; width: 200px">
+							headerStyle="width: 200px">
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-semibold text-gray-700">
+									<span class="font-bold">
 										<FontAwesomeIcon
 											fixed-width
 											icon="fal fa-triangle"
@@ -457,19 +473,21 @@ const shop = ref()
 							headerStyle="text-align: green; width: 250px">
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-semibold text-gray-700">Sales</span>
+									<span class="font-bold">Sales</span>
 								</div>
 							</template>
 							<template #body="{ data }">
 								<div class="flex justify-end relative">
 									<Transition name="spin-to-down" mode="out-in">
 										<div
-										v-tooltip="useLocaleStore().currencyFormat(
+											v-tooltip="
+												useLocaleStore().currencyFormat(
 													data.currency,
 													data.interval_percentages?.sales[
 														selectedDateOption
 													]?.amount || 0
-												)"
+												)
+											"
 											:key="
 												data.interval_percentages?.sales[selectedDateOption]
 													?.amount
@@ -497,7 +515,7 @@ const shop = ref()
 							headerStyle="text-align: green; width: 270px">
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-semibold text-gray-700">
+									<span class="font-bold text-gray-700">
 										<FontAwesomeIcon
 											fixed-width
 											icon="fal fa-triangle"
@@ -554,7 +572,6 @@ const shop = ref()
 														: 'fas fa-play'
 												"
 												style="font-size: 20px; margin-top: 6px"
-												
 												:class="
 													data.interval_percentages.sales[
 														selectedDateOption
@@ -593,10 +610,12 @@ const shop = ref()
 								<Column footer="" footerStyle="text-align:right" />
 
 								<Column
-								v-tooltip="useLocaleStore().currencyFormat(
+									v-tooltip="
+										useLocaleStore().currencyFormat(
 											groupStats.currency.code,
 											Number(groupStats.total[selectedDateOption].total_sales)
-										)"
+										)
+									"
 									:footer="
 										useLocaleStore().numberShort(
 											groupStats.currency.code,
@@ -739,6 +758,33 @@ const shop = ref()
                 </div> -->
 			</div>
 		</div>
+		<div class="col-span-12">
+			<div class="flex flex-row flex-wrap gap-4">
+				<!-- Changed to flex-row for horizontal layout -->
+				<DashboardCard
+					v-for="(org, index) in props.groupStats.organisations.filter(
+						(org) => org.type !== 'agent'
+					)"
+					:key="index"
+					:value="
+						useLocaleStore().currencyFormat(
+							groupStats.currency.code,
+							org.interval_percentages?.sales?.[selectedDateOption]?.amount || 0
+						)
+					"
+					:description="`Sales for ${org.name}`"
+					:showRedBorder="
+						isNegative(
+							org.interval_percentages?.sales?.[selectedDateOption]?.amount || 0
+						)
+					"
+					:showIcon="
+						isNegative(
+							org.interval_percentages?.sales?.[selectedDateOption]?.amount || 0
+						)
+					" />
+			</div>
+		</div>
 
 		<!-- <pre>{{ groupStats }}</pre> -->
 	</div>
@@ -748,5 +794,8 @@ const shop = ref()
 .align-right {
 	justify-items: end;
 	text-align: right;
+}
+.transition-opacity {
+	transition: opacity 0.3s ease-in-out;
 }
 </style>

@@ -65,18 +65,22 @@ const datas = computed(() => {
 			code: org.code,
 			interval_percentages: org.interval_percentages,
 			sales: org.sales || 0,
-			currency: selectedCurrency.value.code === "org" 
-          ? props.dashboard.currency.code 
-          : org.currency.code,
+			currency:
+				selectedCurrency.value.code === "org"
+					? props.dashboard.currency.code
+					: org.currency.code,
 		}))
 })
-const selectedTabGraph = ref(0)
-
 const currency = ref([
+	{ name: "Group", code: "grp" },
 	{ name: "Organisation", code: "org" },
-	{ name: "Shop", code: "shp" },
 ])
+
 const selectedCurrency = ref(currency.value[0])
+const isOrganisation = ref(selectedCurrency.value.code === "org")
+const toggleCurrency = () => {
+	selectedCurrency.value = isOrganisation.value ? currency.value[1] : currency.value[0]
+}
 </script>
 
 <template>
@@ -85,17 +89,30 @@ const selectedCurrency = ref(currency.value[0])
 		<!-- <pre>{{ props.groupStats.organisations }}</pre> -->
 		<div class="col-span-12 space-y-4">
 			<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
-				<div class="flex justify-end items-center space-x-4">
+				<div class="flex justify-between items-center">
 					<ToggleSwitch v-model="checked" />
 
-					<Select
-						v-model="selectedCurrency"
-						:options="currency"
-						optionLabel="name"
-						placeholder="Select Currency"
-						size="small"
-						class="w-full md:w-56" />
+					<!-- Right Side Group-Organisation Toggle -->
+					<div class="flex items-center space-x-4">
+						<p
+							class="font-medium transition-opacity"
+							:class="{ 'opacity-60': isOrganisation }">
+							Group
+						</p>
+
+						<ToggleSwitch
+							v-model="isOrganisation"
+							class="mx-2"
+							@change="toggleCurrency" />
+
+						<p
+							class="font-medium transition-opacity"
+							:class="{ 'opacity-60': !isOrganisation }">
+							Organisation
+						</p>
+					</div>
 				</div>
+
 				<div class="mt-4 block">
 					<nav class="isolate flex rounded border-b border-gray-300" aria-label="Tabs">
 						<div
@@ -143,7 +160,7 @@ const selectedCurrency = ref(currency.value[0])
 						<Column sortable hidden headerClass="align-right">
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-semibold text-gray-700">Refunds</span>
+									<span class="font-bold">Refunds</span>
 								</div>
 							</template>
 							<template #body="{ data }">
@@ -177,7 +194,7 @@ const selectedCurrency = ref(currency.value[0])
 							headerStyle="text-align: green; width: 270px">
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-semibold text-gray-700">
+									<span class="font-bold">
 										<FontAwesomeIcon
 											fixed-width
 											icon="fal fa-triangle"
@@ -217,7 +234,7 @@ const selectedCurrency = ref(currency.value[0])
 														  }${data.interval_percentages.refunds[
 																selectedDateOption
 														  ].percentage.toFixed(2)}%`
-														: `0%`
+														: `0.0%`
 												}}
 											</span>
 											<FontAwesomeIcon
@@ -254,7 +271,7 @@ const selectedCurrency = ref(currency.value[0])
 							headerClass="align-right">
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-semibold text-gray-700">Invoices</span>
+									<span class="font-bold">Invoices</span>
 								</div>
 							</template>
 							<template #body="{ data }">
@@ -288,7 +305,7 @@ const selectedCurrency = ref(currency.value[0])
 							headerStyle="text-align: green; width: 200px">
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-semibold text-gray-700">
+									<span class="font-bold">
 										<FontAwesomeIcon
 											fixed-width
 											icon="fal fa-triangle"
@@ -331,7 +348,7 @@ const selectedCurrency = ref(currency.value[0])
 																  }${data.interval_percentages.invoices[
 																		selectedDateOption
 																  ].percentage.toFixed(2)}%`
-																: `0%`
+																: `0.0%`
 														}}
 													</span>
 													<FontAwesomeIcon
@@ -372,13 +389,21 @@ const selectedCurrency = ref(currency.value[0])
 							headerStyle="text-align: green; width: 250px">
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-semibold text-gray-700">Sales</span>
+									<span class="font-bold">Sales</span>
 								</div>
 							</template>
 							<template #body="{ data }">
 								<div class="flex justify-end relative">
 									<Transition name="spin-to-down" mode="out-in">
 										<div
+										v-tooltip="
+												useLocaleStore().currencyFormat(
+													data.currency,
+													data.interval_percentages?.sales[
+														selectedDateOption
+													]?.amount || 0
+												)
+											"
 											:key="
 												data.interval_percentages?.sales[selectedDateOption]
 													?.amount
@@ -406,7 +431,7 @@ const selectedCurrency = ref(currency.value[0])
 							headerStyle="text-align: green; width: 270px">
 							<template #header>
 								<div class="flex justify-end items-end">
-									<span class="font-semibold text-gray-700">
+									<span class="font-bold">
 										<FontAwesomeIcon
 											fixed-width
 											icon="fal fa-triangle"
@@ -446,7 +471,7 @@ const selectedCurrency = ref(currency.value[0])
 														  }${data.interval_percentages.sales[
 																selectedDateOption
 														  ].percentage.toFixed(2)}%`
-														: `0%`
+														: `0.0%`
 												}}
 											</span>
 											<FontAwesomeIcon
@@ -519,5 +544,9 @@ const selectedCurrency = ref(currency.value[0])
 .align-right {
 	justify-items: end;
 	text-align: right;
+}
+
+.transition-opacity {
+	transition: opacity 0.3s ease-in-out;
 }
 </style>
