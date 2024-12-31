@@ -19,7 +19,7 @@ enum PurchaseOrderStateEnum: string
     case CONFIRMED = 'confirmed';
     case SETTLED = 'settled';
     case CANCELLED = 'cancelled';
-    case NOT_RECEIVED = 'not-received';
+    case NOT_RECEIVED = 'not_received';
 
     public static function labels(): array
     {
@@ -29,7 +29,7 @@ enum PurchaseOrderStateEnum: string
             'confirmed'  => __('Confirmed'),
             'settled'    => __('Settled'),
             'cancelled'  => __('Cancelled'),
-            'not-received' => __('Not Received')
+            'not_received' => __('Not Received')
         ];
     }
 
@@ -87,7 +87,7 @@ enum PurchaseOrderStateEnum: string
                 ]
 
             ],
-            'not-received' => [
+            'not_received' => [
                 'tooltip' => __('Not Received'),
                 'icon'    => 'fal fa-exclamation-circle',
                 'class'   => 'text-warning-500',

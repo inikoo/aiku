@@ -7,7 +7,7 @@
  */
 
 use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
-use App\Enums\Procurement\StockDelivery\StockDeliveryStatusEnum;
+use App\Stubs\Migrations\HasProcurementStats;
 use App\Stubs\Migrations\IsProcurementOrder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use IsProcurementOrder;
+    use HasProcurementStats;
 
     public function up(): void
     {
@@ -23,20 +24,21 @@ return new class () extends Migration {
 
 
             $table->string('state')->index()->default(StockDeliveryStateEnum::IN_PROCESS->value);
-            $table->string('status')->index()->default(StockDeliveryStatusEnum::PROCESSING->value);
             $table->dateTimeTz('date')->comment('latest relevant date');
 
             $table->dateTimeTz('dispatched_at')->nullable();
             $table->dateTimeTz('received_at')->nullable();
             $table->dateTimeTz('checked_at')->nullable();
-            $table->dateTimeTz('settled_at')->nullable();
+            $table->dateTimeTz('placed_at')->nullable();
             $table->dateTimeTz('cancelled_at')->nullable();
+            $table->dateTimeTz('not_received_at')->nullable();
 
             $table = $this->bodyProcurementOrder($table);
 
             $table->unsignedSmallInteger('number_purchase_orders')->default(0)->index();
 
             $table = $this->statsProcurementOrder($table);
+            $table = $this->stockDeliveryItemsStats($table);
             $table = $this->costingProcurementOrder($table);
             return $this->footerProcurementOrder($table);
 

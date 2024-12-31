@@ -185,7 +185,7 @@ class ShowCustomerOrder extends OrgAction
                             'created_at' => '2021-12-01T09:46:06.000000Z'
                         ]
                     ],
-                    'delivery_status' => [
+                    'delivery_state' => [
                         'tooltip' => 'In process',
                         'icon'    => 'fal fa-seedling',
                         'class'   => 'text-lime-500',

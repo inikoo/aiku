@@ -78,16 +78,16 @@ const disableBeforeToday = (date: Date) => {
             :tooltip="trans('Detail')" :label="capitalize(data_pallet.state)" icon="fal fa-truck-couch">
             <div class="flex items-center w-full flex-none gap-x-2 mb-2">
                 <dt class="flex-none">
-                    <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
-                    <FontAwesomeIcon :icon='box_stats.delivery_status.icon' :class='box_stats.delivery_status.class'
+                    <span class="sr-only">{{ box_stats.delivery_state.tooltip }}</span>
+                    <FontAwesomeIcon :icon='box_stats.delivery_state.icon' :class='box_stats.delivery_state.class'
                         fixed-width aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.delivery_status.tooltip }}</dd>
+                <dd class="text-xs text-gray-500">{{ box_stats.delivery_state.tooltip }}</dd>
             </div>
 
             <div class="flex items-center w-full flex-none gap-x-2">
                 <dt class="flex-none">
-                    <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
+                    <span class="sr-only">{{ box_stats.delivery_state.tooltip }}</span>
                     <FontAwesomeIcon :icon="['fal', 'calendar-day']" :class='box_stats.delivery_status.class'
                         fixed-width aria-hidden='true' />
                 </dt>

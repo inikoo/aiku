@@ -161,11 +161,11 @@ console.log('fff', props.box_stats)
             
             <div class="border-t border-gray-300 pt-1">
                 <div class="flex items-center w-full flex-none gap-x-2" 
-                    :class='box_stats.delivery_status.class'>
+                    :class='box_stats.delivery_state.class'>
                     <dt class="flex-none">
-                        <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
+                        <span class="sr-only">{{ box_stats.delivery_state.tooltip }}</span>
                         <FontAwesomeIcon
-                            :icon='box_stats.delivery_status.icon'
+                            :icon='box_stats.delivery_state.icon'
                             size="xs"
                             fixed-width aria-hidden='true' />
                     </dt>

@@ -13,7 +13,7 @@ use App\Actions\GrpAction;
 use App\Actions\Procurement\WithNoStrictProcurementOrderRules;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStatusEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\AgentSupplierPurchaseOrder;
 use App\Models\SupplyChain\Supplier;
@@ -74,7 +74,7 @@ class StoreAgentSupplierPurchaseOrder extends GrpAction
                 ) : null,
             ],
             'state'           => ['sometimes', 'required', Rule::enum(PurchaseOrderStateEnum::class)],
-            'delivery_status' => ['sometimes', 'required', Rule::enum(PurchaseOrderDeliveryStatusEnum::class)],
+            'delivery_state' => ['sometimes', 'required', Rule::enum(PurchaseOrderDeliveryStateEnum::class)],
             'cost_items'      => ['sometimes', 'required', 'numeric', 'min:0'],
             'cost_shipping'   => ['sometimes', 'required', 'numeric', 'min:0'],
             'cost_total'      => ['sometimes', 'required', 'numeric', 'min:0'],

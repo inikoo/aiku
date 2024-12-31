@@ -1,16 +1,16 @@
 <?php
 
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Tue, 09 May 2023 13:09:10 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 31 Dec 2024 19:12:28 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Procurement\PurchaseOrderTransaction;
+namespace App\Enums\SupplyChain\AgentSupplierPurchaseOrders;
 
 use App\Enums\EnumHelperTrait;
 
-enum PurchaseOrderTransactionStateEnum: string
+enum AgentSupplierPurchaseOrderStateEnum: string
 {
     use EnumHelperTrait;
 
@@ -36,7 +36,7 @@ enum PurchaseOrderTransactionStateEnum: string
     public static function stateIcon(): array
     {
         return [
-            'in_process'   => [
+            'in_process' => [
                 'tooltip' => __('Creating'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
@@ -46,7 +46,7 @@ enum PurchaseOrderTransactionStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'submitted'    => [
+            'submitted'  => [
                 'tooltip' => __('Submitted'),
                 'icon'    => 'fal fa-paper-plane',
                 'class'   => 'text-indigo-400',
@@ -56,7 +56,7 @@ enum PurchaseOrderTransactionStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'confirmed'    => [
+            'confirmed'  => [
                 'tooltip' => __('Confirmed'),
                 'icon'    => 'fal fa-check-circle',
                 'class'   => 'text-gray-500',
@@ -66,7 +66,7 @@ enum PurchaseOrderTransactionStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'settled'      => [
+            'settled'    => [
                 'tooltip' => __('Settled'),
                 'icon'    => 'fal fa-check-double',
                 'class'   => 'text-success-500',
@@ -76,7 +76,7 @@ enum PurchaseOrderTransactionStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'cancelled'    => [
+            'cancelled'  => [
                 'tooltip' => __('Cancelled'),
                 'icon'    => 'fal fa-times-circle',
                 'class'   => 'text-danger-500',
@@ -99,4 +99,5 @@ enum PurchaseOrderTransactionStateEnum: string
             ]
         ];
     }
+
 }

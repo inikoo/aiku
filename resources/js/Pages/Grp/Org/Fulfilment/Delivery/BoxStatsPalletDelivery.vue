@@ -139,8 +139,8 @@ onMounted(() => {
             <!-- <pre>{{ dataPalletDelivery }}</pre> -->
             <div class="flex items-center w-full flex-none gap-x-2 mb-2">
                 <dt class="flex-none">
-                    <span class="sr-only">{{ boxStats.delivery_status.tooltip }}</span>
-                    <FontAwesomeIcon :icon='boxStats.delivery_status.icon' :class='boxStats.delivery_status.class'
+                    <span class="sr-only">{{ boxStats.delivery_state.tooltip }}</span>
+                    <FontAwesomeIcon :icon='boxStats.delivery_state.icon' :class='boxStats.delivery_status.class'
                         fixed-width aria-hidden='true' />
                 </dt>
                 <dd class=" text-gray-500" :class='boxStats.delivery_status.class'>{{

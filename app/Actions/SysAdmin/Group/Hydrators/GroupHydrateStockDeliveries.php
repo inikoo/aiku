@@ -12,7 +12,6 @@ namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
-use App\Enums\Procurement\StockDelivery\StockDeliveryStatusEnum;
 use App\Models\Procurement\StockDelivery;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -38,14 +37,16 @@ class GroupHydrateStockDeliveries
 
     public function handle(Group $group): void
     {
-
         $queryBase = DB::table('stock_deliveries')
             ->where('group_id', $group->id)
             ->whereNull('deleted_at');
 
         $stats = [
             'number_stock_deliveries' => $queryBase->clone()->count(),
-            'number_stock_deliveries_except_cancelled' => $queryBase->clone()->where('status', '!=', StockDeliveryStatusEnum::CANCELLED->value)->count(),
+            'number_current_stock_deliveries' => $queryBase->clone()->whereNotIn('state', [
+                StockDeliveryStateEnum::CANCELLED->value,
+                StockDeliveryStateEnum::NOT_RECEIVED->value
+            ])->count(),
         ];
 
         $stats = array_merge(
@@ -61,18 +62,6 @@ class GroupHydrateStockDeliveries
             )
         );
 
-        $stats = array_merge(
-            $stats,
-            $this->getEnumStats(
-                model: 'stock_deliveries',
-                field: 'status',
-                enum: StockDeliveryStatusEnum::class,
-                models: StockDelivery::class,
-                where: function ($q) use ($group) {
-                    $q->where('group_id', $group->id);
-                }
-            )
-        );
 
         $group->procurementStats->update($stats);
     }

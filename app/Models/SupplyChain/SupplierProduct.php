@@ -199,9 +199,8 @@ class SupplierProduct extends Model implements Auditable
         return $this->belongsToMany(Stock::class, 'stock_has_supplier_products');
     }
 
-
-    public function getMainStock(): Stock
-    {
-        return$this->stocks()->where('available', true)->orderBy('created_at')->first();
-    }
+    //    public function getMainStock(): Stock
+    //    {
+    //        return$this->stocks()->where('available', true)->orderBy('created_at')->first();
+    //    }
 }

@@ -7,7 +7,7 @@
  */
 
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
-use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStatusEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStateEnum;
 use App\Stubs\Migrations\HasProcurementStats;
 use App\Stubs\Migrations\IsProcurementOrder;
 use Illuminate\Database\Migrations\Migration;
@@ -23,7 +23,7 @@ return new class () extends Migration {
 
             $table = $this->headProcurementOrder($table);
             $table->string('state')->index()->default(PurchaseOrderTransactionStateEnum::IN_PROCESS->value);
-            $table->string('delivery_status')->index()->default(PurchaseOrderTransactionDeliveryStatusEnum::PROCESSING->value);
+            $table->string('delivery_state')->index()->default(PurchaseOrderTransactionDeliveryStateEnum::IN_PROCESS->value);
             $table->text('notes')->nullable();
             $table->dateTimeTz('date')->comment('latest relevant date');
             $table->dateTimeTz('in_process_at')->nullable();
@@ -31,9 +31,12 @@ return new class () extends Migration {
             $table->dateTimeTz('confirmed_at')->nullable();
             $table->dateTimeTz('settled_at')->nullable();
             $table->dateTimeTz('cancelled_at')->nullable();
+            $table->dateTimeTz('not_received_at')->nullable();
 
             $table = $this->bodyProcurementOrder($table);
             $table = $this->statsProcurementOrder($table);
+            $table = $this->purchaseOrderTransactionsStats($table);
+
             $table = $this->costingProcurementOrder($table);
             $table = $this->stockDeliveriesStats($table);
             return $this->footerProcurementOrder($table);

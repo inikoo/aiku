@@ -58,7 +58,6 @@ trait IsProcurementOrder
 
     protected function statsProcurementOrder($table)
     {
-        $table->smallInteger('number_of_items')->default(0);
         $table->float('gross_weight', 16)->default(null)->nullable();
         $table->float('net_weight', 16)->default(null)->nullable();
         return $table;

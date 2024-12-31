@@ -142,9 +142,9 @@ const isModalAddress = ref(false)
             </div>
 
             <div class="border-t border-gray-300 pt-1.5">
-                <div class="flex items-center flex-none gap-x-2 w-fit" :class='boxStats.delivery_status.class' v-tooltip="trans('Delivery status')">
+                <div class="flex items-center flex-none gap-x-2 w-fit" :class='boxStats.delivery_state.class' v-tooltip="trans('Delivery status')">
                     <dt class="flex-none">
-                        <span class="sr-only">{{ boxStats.delivery_status.tooltip }}</span>
+                        <span class="sr-only">{{ boxStats.delivery_state.tooltip }}</span>
                         <FontAwesomeIcon
                             :icon='boxStats.delivery_status.icon'
                             fixed-width

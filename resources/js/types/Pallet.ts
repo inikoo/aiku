@@ -136,7 +136,7 @@ export interface FieldOrderSummary {
 
 // Box Stats in Pallet Delivery
 export interface BoxStats {
-    delivery_status: Icon
+    delivery_state: Icon
     fulfilment_customer: {
         address: AddressManagement
         customer: {

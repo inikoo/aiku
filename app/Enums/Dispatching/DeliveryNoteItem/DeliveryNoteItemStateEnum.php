@@ -18,7 +18,7 @@ enum DeliveryNoteItemStateEnum: string
     case UNASSIGNED = 'unassigned';
     case QUEUED = 'queued'; // picker assigned
     case HANDLING = 'handling'; // picking and packing
-    case HANDLING_BLOCKED = 'handling-blocked';
+    case HANDLING_BLOCKED = 'handling_blocked';
     case PACKED = 'packed';
     case FINALISED = 'finalised';
     case DISPATCHED = 'dispatched';

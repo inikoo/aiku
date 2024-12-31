@@ -9,7 +9,6 @@
 namespace App\Models\Procurement;
 
 use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
-use App\Enums\Procurement\StockDelivery\StockDeliveryStatusEnum;
 use App\Models\Helpers\Address;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddress;
@@ -44,13 +43,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $parent_name Parent name on the time of consolidation
  * @property string $reference
  * @property StockDeliveryStateEnum $state
- * @property StockDeliveryStatusEnum $status
- * @property string $date latest relevant date
- * @property string|null $dispatched_at
- * @property string|null $received_at
- * @property string|null $checked_at
- * @property string|null $settled_at
- * @property string|null $cancelled_at
+ * @property \Illuminate\Support\Carbon $date latest relevant date
+ * @property \Illuminate\Support\Carbon|null $dispatched_at
+ * @property \Illuminate\Support\Carbon|null $received_at
+ * @property \Illuminate\Support\Carbon|null $checked_at
+ * @property \Illuminate\Support\Carbon|null $placed_at
+ * @property \Illuminate\Support\Carbon|null $cancelled_at
+ * @property \Illuminate\Support\Carbon|null $not_received_at
  * @property int|null $agent_id
  * @property int|null $supplier_id
  * @property int|null $partner_id
@@ -111,7 +110,13 @@ class StockDelivery extends Model implements HasMedia, Auditable
         'data'            => 'array',
         'cost_data'       => 'array',
         'state'           => StockDeliveryStateEnum::class,
-        'status'          => StockDeliveryStatusEnum::class,
+        'date'            => 'datetime',
+        'dispatched_at'   => 'datetime',
+        'received_at'     => 'datetime',
+        'checked_at'      => 'datetime',
+        'placed_at'       => 'datetime',
+        'cancelled_at'    => 'datetime',
+        'not_received_at' => 'datetime',
         'fetched_at'      => 'datetime',
         'last_fetched_at' => 'datetime',
     ];

@@ -27,12 +27,12 @@ class UpdateStateToSettledStockDelivery
     public function handle(StockDelivery $stockDelivery): StockDelivery
     {
         $data = [
-            'state' => StockDeliveryStateEnum::SETTLED,
+            'state' => StockDeliveryStateEnum::PLACED,
         ];
 
         if ($stockDelivery->state === StockDeliveryStateEnum::CHECKED) {
-            $data[$stockDelivery->state->value . '_at']    = null;
-            $data['settled_at']                            = now();
+            $data[$stockDelivery->state->value.'_at'] = null;
+            $data['placed_at']                        = now();
 
             $stockDelivery = $this->update($stockDelivery, $data);
 

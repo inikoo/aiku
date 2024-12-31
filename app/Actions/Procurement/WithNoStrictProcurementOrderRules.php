@@ -40,7 +40,7 @@ trait WithNoStrictProcurementOrderRules
         $rules['dispatched_at'] = ['sometimes', 'nullable', 'date'];
         $rules['received_at']   = ['sometimes', 'nullable', 'date'];
         $rules['checked_at']    = ['sometimes', 'nullable', 'date'];
-        $rules['settled_at']    = ['sometimes', 'nullable', 'date'];
+        $rules['placed_at']    = ['sometimes', 'nullable', 'date'];
         $rules['cancelled_at']  = ['sometimes', 'nullable', 'date'];
 
         return $rules;

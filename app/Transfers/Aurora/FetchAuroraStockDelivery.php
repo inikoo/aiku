@@ -10,7 +10,6 @@ namespace App\Transfers\Aurora;
 
 use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
-use App\Enums\Procurement\StockDelivery\StockDeliveryStatusEnum;
 use App\Models\Helpers\Currency;
 use Illuminate\Support\Facades\DB;
 
@@ -53,7 +52,11 @@ class FetchAuroraStockDelivery extends FetchAurora
 
         //print ">>".$this->auroraModelData->{'Supplier Delivery State'}."\n";
         $state = match ($this->auroraModelData->{'Supplier Delivery State'}) {
-            "Cancelled", "NoReceived", "Placed", "Costing", "InvoiceChecked" => StockDeliveryStateEnum::SETTLED,
+            "Cancelled"  => StockDeliveryStateEnum::CANCELLED,
+            "NoReceived", => StockDeliveryStateEnum::NOT_RECEIVED,
+            "Placed",  "Costing", "InvoiceChecked" => StockDeliveryStateEnum::PLACED,
+
+
             "InProcess", "Confirmed", "Manufactured", "QC_Pass"."Submitted" => StockDeliveryStateEnum::IN_PROCESS,
 
             "Inputted", "Dispatched" => StockDeliveryStateEnum::DISPATCHED,
@@ -61,12 +64,7 @@ class FetchAuroraStockDelivery extends FetchAurora
             "Checked" => StockDeliveryStateEnum::CHECKED,
         };
 
-        $status = match ($this->auroraModelData->{'Supplier Delivery State'}) {
-            "Placed", "Costing", "InvoiceChecked" => StockDeliveryStatusEnum::PLACED,
-            "NoReceived" => StockDeliveryStatusEnum::NOT_RECEIVED,
-            "Cancelled" => StockDeliveryStatusEnum::CANCELLED,
-            default => StockDeliveryStatusEnum::PROCESSING,
-        };
+
 
 
         $cancelled_at = null;
@@ -94,7 +92,7 @@ class FetchAuroraStockDelivery extends FetchAurora
             'dispatched_at' => $this->parseDatetime($this->auroraModelData->{'Supplier Delivery Dispatched Date'}),
             'received_at'   => $this->parseDatetime($this->auroraModelData->{'Supplier Delivery Received Date'}),
             'checked_at'    => $this->parseDatetime($this->auroraModelData->{'Supplier Delivery Checked Date'}),
-            'settled_at'    => $this->parseDatetime($this->auroraModelData->{'Supplier Delivery Placed Date'}),
+            'placed_at'    => $this->parseDatetime($this->auroraModelData->{'Supplier Delivery Placed Date'}),
             'cancelled_at'  => $cancelled_at,
 
             'parent_code' => $this->auroraModelData->{'Supplier Delivery Parent Code'},
@@ -102,7 +100,6 @@ class FetchAuroraStockDelivery extends FetchAurora
 
             "reference" => $this->auroraModelData->{'Supplier Delivery Public ID'} ?? $this->auroraModelData->{'Supplier Delivery Key'},
             "state"     => $state,
-            "status"    => $status,
 
             "cost_items" => $this->auroraModelData->{'Supplier Delivery Items Amount'},
             // "cost_shipping" => $this->auroraModelData->{'Supplier Delivery Shipping Net Amount'},

@@ -121,7 +121,7 @@ const props = defineProps<{
 			gross_weight: string
 			net_weight: string
 			notes: string
-			delivery_status: string
+			delivery_state: string
 		}
 		order_summary: {}
 	}
