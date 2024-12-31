@@ -13,7 +13,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div>
+    <table>
         <thead>
             <tr class="text-gray-600 bg-gray-200">
                 <th scope="col" class="py-3.5 pl-4 pr-3 text-left font-semibold tracking-wide">
@@ -40,7 +40,7 @@ const props = defineProps<{
                 </td>
             </tr>
         </tbody>
-    </div>
+    </table>
 </template>
 
 <style scoped></style>

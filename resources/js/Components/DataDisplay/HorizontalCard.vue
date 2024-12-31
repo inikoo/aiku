@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, defineProps } from "vue";
+import { ref, watch } from "vue";
 import Chart from "primevue/chart";
 
 // Define props for dynamic data and options

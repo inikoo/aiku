@@ -8,9 +8,11 @@
 
 namespace App\Actions\UI\Retina\Billing\UI;
 
+use App\Actions\Retina\Billing\IndexUnpaidInvoices;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Http\Resources\Accounting\InvoicesResource;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use Inertia\Inertia;
@@ -28,7 +30,8 @@ class ShowBillingDashboard
         return Inertia::render('Billing/RetinaBillingDashboard', [
             'title'    => __('Billing'),
             'pieData'  => $this->getDashboardData($request->user()->customer->fulfilmentCustomer),
-            'customer' => CustomersResource::make($request->user()->customer)->resolve()
+            'customer' => CustomersResource::make($request->user()->customer)->resolve(),
+            'unpaid_invoices' => InvoicesResource::collection(IndexUnpaidInvoices::run($request->user()->customer->fulfilmentCustomer))
         ]);
     }
 

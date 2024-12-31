@@ -2,7 +2,7 @@
 import { trans } from 'laravel-vue-i18n'
 import { usePage } from "@inertiajs/vue3"
 import { ref } from 'vue'
-import { Dialog, DialogPanel, Popover, PopoverButton, PopoverGroup, PopoverPanel } from '@headlessui/vue'
+import { Dialog, DialogPanel } from '@headlessui/vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faTimes, faBars, faChevronDown } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'

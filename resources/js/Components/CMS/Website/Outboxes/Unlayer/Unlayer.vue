@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, defineExpose, ref } from "vue";
+import { onMounted, ref } from "vue";
 import { loadScript, getNextEditorId, useUnlayer } from "./script-loader";
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification";

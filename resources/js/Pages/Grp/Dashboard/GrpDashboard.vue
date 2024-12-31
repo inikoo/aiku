@@ -17,7 +17,7 @@ import { useTruncate } from "@/Composables/useTruncate"
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faChevronDown } from "@far"
-import { faSortDown, faSortUp } from "@fas"
+import { faPlay, faSortDown, faSortUp } from "@fas"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { Head } from "@inertiajs/vue3"
 import { trans } from "laravel-vue-i18n"
@@ -28,15 +28,15 @@ import Tag from "@/Components/Tag.vue"
 import { faFolderOpen, faSeedling, faTimesCircle, faTriangle } from "@fal"
 import { faArrowDown, faArrowUp } from "@fad"
 import Select from "primevue/select"
-
+import tippy from 'tippy.js';
+import 'tippy.js/dist/tippy.css';
 library.add(
 	faTriangle,
 	faChevronDown,
 	faSeedling,
 	faTimesCircle,
 	faFolderOpen,
-	faSortUp,
-	faSortDown
+	faPlay
 )
 
 const props = defineProps<{
@@ -230,6 +230,7 @@ const shop = ref()
 							</template>
 							<template #body="{ data }">
 								<div class="flex justify-end relative">
+								
 									<Transition name="spin-to-down" mode="out-in">
 										<div
 											:key="
@@ -237,6 +238,7 @@ const shop = ref()
 													selectedDateOption
 												]?.amount || 0
 											">
+											<span >
 											{{
 												locale.number(
 													data.interval_percentages?.refunds[
@@ -244,6 +246,7 @@ const shop = ref()
 													]?.amount || 0
 												)
 											}}
+											</span>
 										</div>
 									</Transition>
 								</div>
@@ -299,7 +302,7 @@ const shop = ref()
 														  }${data.interval_percentages.refunds[
 																selectedDateOption
 														  ].percentage.toFixed(2)}%`
-														: `0%`
+														: `0.0%`
 												}}
 											</span>
 											<FontAwesomeIcon
@@ -413,7 +416,7 @@ const shop = ref()
 																  }${data.interval_percentages.invoices[
 																		selectedDateOption
 																  ].percentage.toFixed(2)}%`
-																: `0%`
+																: `0.0%`
 														}}
 													</span>
 													<FontAwesomeIcon
@@ -461,6 +464,12 @@ const shop = ref()
 								<div class="flex justify-end relative">
 									<Transition name="spin-to-down" mode="out-in">
 										<div
+										v-tooltip="useLocaleStore().currencyFormat(
+													data.currency,
+													data.interval_percentages?.sales[
+														selectedDateOption
+													]?.amount || 0
+												)"
 											:key="
 												data.interval_percentages?.sales[selectedDateOption]
 													?.amount
@@ -528,7 +537,7 @@ const shop = ref()
 														  }${data.interval_percentages.sales[
 																selectedDateOption
 														  ].percentage.toFixed(2)}%`
-														: `0%`
+														: `0.0%`
 												}}
 											</span>
 											<FontAwesomeIcon
@@ -541,16 +550,17 @@ const shop = ref()
 													data.interval_percentages.sales[
 														selectedDateOption
 													].percentage < 0
-														? 'fas fa-sort-down'
-														: 'fas fa-sort-up'
+														? 'fas fa-play'
+														: 'fas fa-play'
 												"
 												style="font-size: 20px; margin-top: 6px"
+												
 												:class="
 													data.interval_percentages.sales[
 														selectedDateOption
 													].percentage < 0
-														? 'text-red-500'
-														: 'text-green-500'
+														? 'text-red-500 rotate-90'
+														: 'text-green-500 rotate-[-90deg]'
 												" />
 											<div v-else style="width: 20px; height: 20px"></div>
 										</div>

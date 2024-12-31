@@ -240,25 +240,25 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Purges'),
                     'icon'  => 'fal fa-trash-alt',
-                    'route' => '',
+                    'route' => route('grp.overview.ordering.purges.index'),
                     'count' => $group->orderingStats->number_purges ?? 0
                 ],
                 [
                     'name'  => __('Invoices'),
                     'icon'  => 'fal fa-file-invoice-dollar',
-                    'route' => '',
+                    'route' => route('grp.overview.ordering.invoices.index'),
                     'count' => $group->accountingStats->number_invoices ?? 0
                 ],
                 [
                     'name'  => __('Delivery Notes'),
                     'icon'  => 'fal fa-truck',
-                    'route' => '',
+                    'route' => route('grp.overview.ordering.delivery-notes.index'),
                     'count' => $group->orderingStats->number_delivery_notes ?? 0
                 ],
                 [
                     'name'  => __('Transactions'),
                     'icon'  => 'fal fa-exchange-alt',
-                    'route' => '',
+                    'route' => route('grp.overview.ordering.transactions.index'),
                     'count' => $group->orderingStats->number_invoice_transactions ?? 0
                 ],
             ],
@@ -266,25 +266,25 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Stocks'),
                     'icon'  => 'fal fa-inventory',
-                    'route' => '',
+                    'route' => route('grp.goods.stocks.index'),
                     'count' => $group->goodsStats->number_stocks ?? 0
                 ],
                 [
                     'name'  => __('Org Stocks'),
                     'icon'  => 'fal fa-warehouse',
-                    'route' => '',
+                    'route' => route('grp.overview.inventory.org-stocks.index'),
                     'count' => $group->inventoryStats->number_org_stocks ?? 0
                 ],
                 [
                     'name'  => __('Stock Families'),
                     'icon'  => 'fal fa-box',
-                    'route' => '',
+                    'route' => route('grp.goods.stock-families.index'),
                     'count' => $group->goodsStats->number_stock_families ?? 0
                 ],
                 [
                     'name'  => __('Org Stock Families'),
                     'icon'  => 'fal fa-boxes-alt',
-                    'route' => '',
+                    'route' => route('grp.overview.inventory.org-stock-families.index'),
                     'count' => $group->inventoryStats->number_org_stock_families ?? 0
                 ],
                 [

@@ -17,7 +17,7 @@ import { Link } from "@inertiajs/vue3"
 import { trans } from 'laravel-vue-i18n'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
-import { computed, getCurrentInstance, onMounted, onUnmounted, ref, Transition, watch, reactive, inject, defineExpose } from 'vue'
+import { computed, getCurrentInstance, onMounted, onUnmounted, ref, Transition, watch, reactive, inject } from 'vue'
 import qs from 'qs'
 import clone from 'lodash-es/clone'
 import filter from 'lodash-es/filter'

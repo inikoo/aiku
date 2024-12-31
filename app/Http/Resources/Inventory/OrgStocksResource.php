@@ -41,6 +41,9 @@ class OrgStocksResource extends JsonResource
             'family_slug'                     => $this->family_slug,
             'family_code'                     => $this->family_code,
             'discontinued_in_organisation_at' => $this->discontinued_in_organisation_at,
+            'organisation_name'               => $this->organisation_name,
+            'organisation_slug'               => $this->organisation_slug,
+            'warehouse_slug'                  => $this->warehouse_slug,
         ];
     }
 }

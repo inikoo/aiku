@@ -37,6 +37,14 @@ function stockRoute(stock: Stock) {
           route().params["warehouse"],
           stock.slug
         ]);
+    case "grp.overview.inventory.org-stocks.index":
+      return route(
+        "grp.org.warehouses.show.inventory.org_stocks.current_org_stocks.show",
+        [
+          stock.organisation_slug,
+          stock.warehouse_slug,
+          stock.slug
+        ]);
     case "grp.org.warehouses.show.inventory.org_stocks.index":
       return route(
         "grp.org.warehouses.show.inventory.org_stocks.show",

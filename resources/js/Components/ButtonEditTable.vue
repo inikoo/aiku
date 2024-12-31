@@ -5,7 +5,7 @@
 -->
 
 <script setup lang="ts">
-import { withDefaults, ref } from "vue"
+import { ref } from "vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { router } from "@inertiajs/vue3"
 import { notify } from "@kyvg/vue3-notification"
