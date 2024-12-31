@@ -19,6 +19,18 @@ enum PurchaseOrderTransactionStateEnum: string
     case CONFIRMED = 'confirmed';
     case SETTLED = 'settled';
     case CANCELLED = 'cancelled';
-    case NOT_RECEIVED = 'not-received';
+    case NOT_RECEIVED = 'not_received';
+
+    public static function labels(): array
+    {
+        return [
+            'in_process' => __('In process'),
+            'submitted'  => __('Submitted'),
+            'confirmed'  => __('Confirmed'),
+            'settled'    => __('Settled'),
+            'cancelled'  => __('Cancelled'),
+            'not_received' => __('Not Received')
+        ];
+    }
 
 }

@@ -14,7 +14,7 @@ enum MailshotStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS = 'in-process';
+    case IN_PROCESS = 'in_process';
     case READY = 'ready';
     case SCHEDULED = 'scheduled';
     case SENDING = 'sending';
@@ -25,7 +25,7 @@ enum MailshotStateEnum: string
     public static function labels(): array
     {
         return [
-            'in-process' => __('In process'),
+            'in_process' => __('In process'),
             'ready'      => __('Ready'),
             'scheduled'  => __('Scheduled'),
             'sending'    => __('Sending'),
@@ -38,7 +38,7 @@ enum MailshotStateEnum: string
     public static function stateIcon(): array
     {
         return [
-            'in-process' => [
+            'in_process' => [
 
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',

@@ -20,8 +20,8 @@ enum PalletStateEnum: string
 {
     use EnumHelperTrait;
 
-    // Status: in-process
-    case IN_PROCESS = 'in-process';
+    // Status: in_process
+    case IN_PROCESS = 'in_process';
 
     // Status: receiving
     case SUBMITTED  = 'submitted';
@@ -53,7 +53,7 @@ enum PalletStateEnum: string
     public static function labels(): array
     {
         return [
-            'in-process'     => __('In process'),
+            'in_process'     => __('In process'),
             'submitted'      => __('Submitted'),
             'confirmed'      => __('Confirmed'),
             'not-received'   => __('Not Received'),
@@ -74,7 +74,7 @@ enum PalletStateEnum: string
     public static function stateIcon(): array
     {
         return [
-            'in-process'   => [
+            'in_process'   => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
@@ -240,7 +240,7 @@ enum PalletStateEnum: string
         }
 
         return [
-            'in-process'     => $stats->number_pallets_state_in_process,
+            'in_process'     => $stats->number_pallets_state_in_process,
             'submitted'      => $stats->number_pallets_state_submitted,
             'confirmed'      => $stats->number_pallets_state_confirmed,
             'not-received'   => $stats->number_pallets_state_not_received,

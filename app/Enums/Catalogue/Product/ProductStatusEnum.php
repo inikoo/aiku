@@ -20,7 +20,7 @@ enum ProductStatusEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS = 'in-process';
+    case IN_PROCESS = 'in_process';
     case FOR_SALE = 'for-sale';
     case NOT_FOR_SALE = 'not-for-sale';
     case OUT_OF_STOCK = 'out-of-stock';
@@ -30,7 +30,7 @@ enum ProductStatusEnum: string
     public static function labels($bucket = null): array
     {
         return [
-            'in-process'   => __('In Process'),
+            'in_process'   => __('In Process'),
             'for-sale'     => __('For Sale'),
             'not-for-sale' => __('Not For Sale'),
             'out-of-stock' => __('Out of Stock'),
@@ -41,7 +41,7 @@ enum ProductStatusEnum: string
     public static function stateIcon(): array
     {
         return [
-            'in-process'   => [
+            'in_process'   => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
@@ -103,7 +103,7 @@ enum ProductStatusEnum: string
         $stats = $parent->stats;
 
         return [
-            'in-process'   => $stats->number_products_state_in_process,
+            'in_process'   => $stats->number_products_state_in_process,
             'for-sale'     => $stats->number_products_state_for_sale,
             'not-for-sale' => $stats->number_products_state_not_for_sale,
             'out-of-stock' => $stats->number_products_state_out_of_stock,

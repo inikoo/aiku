@@ -14,7 +14,7 @@ enum EmailTemplateStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS = 'in-process';
+    case IN_PROCESS = 'in_process';
     case ACTIVE = 'active';
     case SUSPENDED = 'suspended';
 
@@ -22,7 +22,7 @@ enum EmailTemplateStateEnum: string
     public static function labels(): array
     {
         return [
-            'in-process' => __('In construction'),
+            'in_process' => __('In construction'),
             'live'       => __('Live'),
             'suspended'  => __('Suspended')
         ];

@@ -20,7 +20,7 @@ enum PalletDeliveryStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS   = 'in-process';
+    case IN_PROCESS   = 'in_process';
     case SUBMITTED    = 'submitted';
     case CONFIRMED    = 'confirmed';
     case RECEIVED     = 'received';
@@ -31,7 +31,7 @@ enum PalletDeliveryStateEnum: string
     public static function labels($forElements = false): array
     {
         return [
-            'in-process'   => __('In Process'),
+            'in_process'   => __('In Process'),
             'submitted'    => __('Submitted'),
             'confirmed'    => __('Confirmed'),
             'received'     => __('Received'),
@@ -45,7 +45,7 @@ enum PalletDeliveryStateEnum: string
     {
         // Icon is imported in resources/js/Composables/Icon/PalletDeliveryStateEnum.ts
         return [
-            'in-process'   => [
+            'in_process'   => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
@@ -129,7 +129,7 @@ enum PalletDeliveryStateEnum: string
         }
 
         return [
-            'in-process'   => $stats->number_pallet_deliveries_state_in_process,
+            'in_process'   => $stats->number_pallet_deliveries_state_in_process,
             'submitted'    => $stats->number_pallet_deliveries_state_submitted,
             'confirmed'    => $stats->number_pallet_deliveries_state_confirmed,
             'received'     => $stats->number_pallet_deliveries_state_received,
@@ -142,7 +142,7 @@ enum PalletDeliveryStateEnum: string
     public static function notifications(string $reference): array
     {
         return [
-            'in-process'   => [
+            'in_process'   => [
                 'title'    => __("Pallet delivery :reference created", ['reference' => $reference]),
                 'subtitle' => __('Pallet delivery has been created')
             ],

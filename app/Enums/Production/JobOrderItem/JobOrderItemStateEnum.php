@@ -9,7 +9,7 @@ enum JobOrderItemStateEnum: string
     use EnumHelperTrait;
 
     // Status: receiving
-    case IN_PROCESS   = 'in-process';
+    case IN_PROCESS   = 'in_process';
     case SUBMITTED    = 'submitted';
     case CONFIRMED    = 'confirmed';
     case RECEIVED     = 'received';
@@ -37,7 +37,7 @@ enum JobOrderItemStateEnum: string
     public static function labels(): array
     {
         return [
-            'in-process'   => __('In process'),
+            'in_process'   => __('In process'),
             'submitted'    => __('Submitted'),
             'confirmed'    => __('Confirmed'),
             'not-received' => __('Not Received'),
@@ -56,7 +56,7 @@ enum JobOrderItemStateEnum: string
     public static function stateIcon(): array
     {
         return [
-            'in-process' => [
+            'in_process' => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)

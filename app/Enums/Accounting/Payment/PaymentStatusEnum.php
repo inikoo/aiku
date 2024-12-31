@@ -13,14 +13,14 @@ use App\Enums\EnumHelperTrait;
 enum PaymentStatusEnum: string
 {
     use EnumHelperTrait;
-    case IN_PROCESS = 'in-process';
+    case IN_PROCESS = 'in_process';
     case SUCCESS    = 'success';
     case FAIL       = 'fail';
 
     public static function stateIcon(): array
     {
         return [
-            'in-process'   => [
+            'in_process'   => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',

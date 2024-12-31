@@ -11,7 +11,7 @@ enum JobOrderStateEnum: string
     use EnumHelperTrait;
 
 
-    case IN_PROCESS   = 'in-process';
+    case IN_PROCESS   = 'in_process';
     case SUBMITTED    = 'submitted';
     case CONFIRMED    = 'confirmed';
     case RECEIVED     = 'received';
@@ -22,7 +22,7 @@ enum JobOrderStateEnum: string
     public static function labels($forElements = false): array
     {
         return [
-            'in-process'   => __('In Process'),
+            'in_process'   => __('In Process'),
             'submitted'    => __('Submitted'),
             'confirmed'    => __('Confirmed'),
             'received'     => __('Received'),
@@ -36,7 +36,7 @@ enum JobOrderStateEnum: string
     {
         // Icon is imported in resources/js/Composables/Icon/PalletDeliveryStateEnum.ts
         return [
-            'in-process' => [
+            'in_process' => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)

@@ -18,7 +18,7 @@ enum WebsiteStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS = 'in-process';
+    case IN_PROCESS = 'in_process';
     case LIVE       = 'live';
     case CLOSED     = 'closed';
 
@@ -26,7 +26,7 @@ enum WebsiteStateEnum: string
     public static function labels(): array
     {
         return [
-            'in-process' => __('In construction'),
+            'in_process' => __('In construction'),
             'live'       => __('Live'),
             'closed'     => __('Closed'),
         ];
@@ -38,20 +38,20 @@ enum WebsiteStateEnum: string
             $webStats = $parent->webStats;
 
             return [
-                'in-process' => $webStats->number_websites_state_in_process,
+                'in_process' => $webStats->number_websites_state_in_process,
                 'live'       => $webStats->number_websites_state_live,
                 'closed'     => $webStats->number_websites_state_closed,
             ];
         } elseif ($parent instanceof Shop) {
             return [
-                'in-process' => $parent->website()->where('state', self::IN_PROCESS)->count(),
+                'in_process' => $parent->website()->where('state', self::IN_PROCESS)->count(),
                 'live'       => $parent->website()->where('state', self::LIVE)->count(),
                 'closed'     => $parent->website()->where('state', self::CLOSED)->count(),
             ];
         }
 
         return [
-            'in-process' => $parent->shop->website()->where('state', self::IN_PROCESS)->count(),
+            'in_process' => $parent->shop->website()->where('state', self::IN_PROCESS)->count(),
             'live'       => $parent->shop->website()->where('state', self::LIVE)->count(),
             'closed'     => $parent->shop->website()->where('state', self::CLOSED)->count(),
         ];
@@ -62,7 +62,7 @@ enum WebsiteStateEnum: string
     public static function stateIcon(): array
     {
         return [
-            'in-process' => [
+            'in_process' => [
 
                 'tooltip' => __('in process'),
                 'icon'    => 'fal fa-seedling',

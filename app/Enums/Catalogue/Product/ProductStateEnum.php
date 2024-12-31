@@ -20,7 +20,7 @@ enum ProductStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS    = 'in-process';
+    case IN_PROCESS    = 'in_process';
     case ACTIVE        = 'active';
     case DISCONTINUING = 'discontinuing';
     case DISCONTINUED  = 'discontinued';
@@ -30,7 +30,7 @@ enum ProductStateEnum: string
     {
         if (!$bucket or $bucket == 'all') {
             return [
-                'in-process'    => __('In Process'),
+                'in_process'    => __('In Process'),
                 'active'        => __('Active'),
                 'discontinuing' => __('Discontinuing'),
                 'discontinued'  => __('Discontinued'),
@@ -49,7 +49,7 @@ enum ProductStateEnum: string
     public static function stateIcon(): array
     {
         return [
-            'in-process'    => [
+            'in_process'    => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
@@ -101,7 +101,7 @@ enum ProductStateEnum: string
 
         if (!$bucket or $bucket == 'all') {
             return [
-                'in-process'    => $stats->number_products_state_in_process,
+                'in_process'    => $stats->number_products_state_in_process,
                 'active'        => $stats->number_products_state_active,
                 'discontinuing' => $stats->number_products_state_discontinuing,
                 'discontinued'  => $stats->number_products_state_discontinued
