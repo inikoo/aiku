@@ -44,7 +44,7 @@ const layout = useLayoutStore()
                                     :class="dataUser.id == layout.user.id ? 'text-[#FDD835]' : ''"
                                 >
                                     <Image :src="dataUser.avatar_thumbnail" :alt="dataUser.username" class="h-5 rounded-full shadow overflow-hidden" />
-                                    <p class="flex flex-col items-start">
+                                    <div class="flex flex-col items-start">
                                         <span class="capitalize text-xs">{{ dataUser?.username }}</span>
                                         <div class="relative">
                                             <Transition name="spin-to-down">
@@ -54,7 +54,7 @@ const layout = useLayoutStore()
                                                 <div v-else class="text-[9px] capitalize text-white opacity-60 italic">{{ trans('Unknown') }}</div>
                                             </Transition>
                                         </div>
-                                    </p>
+                                    </div>
                                     <!-- <span v-if="dataUser.loggedIn" class="text-gray-800">{{ dataUser.route?.name ? trans(dataUser.route.label ?? '') : '' }}</span>
                                             <span v-else-if="getAwayStatus(dataUser.last_active)" class="text-gray-800">{{ getAwayStatus(dataUser.last_active) ? 'Away' : '' }}</span> -->
                                     <!-- <span v-if="dataUser.route.subject" class="capitalize text-gray-300">{{ dataUser.route.subject }}</span> -->

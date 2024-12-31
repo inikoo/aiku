@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Timeline from '@/Components/Utils/Timeline.vue'
-import { defineProps, ref } from "vue";
+import { ref } from "vue";
 import { Pie } from "vue-chartjs";
 import {
     Chart as ChartJS,

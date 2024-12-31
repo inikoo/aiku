@@ -8,7 +8,7 @@
 
 import { useForm } from '@inertiajs/vue3'
 import { routeType } from '@/types/route'
-import { ref, computed, defineExpose } from 'vue'
+import { ref, computed } from 'vue'
 import axios from 'axios'
 import { getComponent } from '@/Composables/Listing/FieldFormList'  // Fieldform list
 
