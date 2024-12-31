@@ -31,6 +31,7 @@ use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\Discounts\Offer\UI\IndexOffers;
 use App\Actions\Discounts\OfferCampaign\UI\IndexOfferCampaigns;
+use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Fulfilment\UI\Catalogue\Rentals\IndexFulfilmentRentals;
 use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
 use App\Actions\HumanResources\Employee\UI\IndexEmployees;
@@ -38,6 +39,8 @@ use App\Actions\HumanResources\JobPosition\UI\IndexJobPositions;
 use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
 use App\Actions\HumanResources\Workplace\UI\IndexWorkplaces;
 use App\Actions\Ordering\Order\UI\IndexOrders;
+use App\Actions\Ordering\Purge\UI\IndexPurges;
+use App\Actions\Ordering\Transaction\UI\IndexTransactions;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Production\Artefact\UI\IndexArtefacts;
 use App\Actions\Production\ManufactureTask\UI\IndexManufactureTasks;
@@ -104,8 +107,10 @@ Route::name('crm.')->prefix('crm')->group(function () {
 
 Route::name('ordering.')->prefix('ordering')->group(function () {
     Route::get('/orders', [IndexOrders::class, 'inGroup'])->name('orders.index');
-    // Route::get('/purges', [IndexPurges::class, 'inGroup'])->name('purges.index');
-    // Route::get('/delivery-notes', [IndexDeliveryNotes::class, 'inGroup'])->name('delivery-notes.index');
+    Route::get('/purges', [IndexPurges::class, 'inGroup'])->name('purges.index');
+    Route::get('/invoices', [IndexInvoices::class, 'inGroup'])->name('invoices.index');
+    Route::get('/delivery-notes', [IndexDeliveryNotes::class, 'inGroup'])->name('delivery-notes.index');
+    Route::get('/transactions', [IndexTransactions::class, 'inGroup'])->name('transactions.index');
 });
 
 Route::name('inventory.')->prefix('inventory')->group(function () {
@@ -132,7 +137,6 @@ Route::name('procurement.')->prefix('procurement')->group(function () {
 });
 
 Route::name('accounting.')->prefix('accounting')->group(function () {
-    // Route::get('/invoices', [IndexInvoices::class, 'inGroup'])->name('invoices.index');
     Route::get('/payment-accounts', [IndexPaymentAccounts::class, 'inGroup'])->name('payment-accounts.index');
     Route::get('/payments', [IndexPayments::class, 'inGroup'])->name('payments.index');
     Route::get('/customer-balances', [IndexCustomerBalances::class, 'inGroup'])->name('customer-balances.index');

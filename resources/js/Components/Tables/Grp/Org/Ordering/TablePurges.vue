@@ -29,6 +29,10 @@ defineProps<{
 function purgeRoute(purge: {}) {
     console.log(route().current())
     switch (route().current()) {
+        case "grp.overview.ordering.purges.index":
+            return route(
+                "grp.org.shops.show.ordering.purges.show",
+                [purge.organisation_name, purge.shop_name, purge.id])
         case "grp.org.shops.show.ordering.purges.index":
             return route(
                 "grp.org.shops.show.ordering.purges.show",

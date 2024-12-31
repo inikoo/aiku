@@ -240,25 +240,25 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Purges'),
                     'icon'  => 'fal fa-trash-alt',
-                    'route' => '',
+                    'route' => route('grp.overview.ordering.purges.index'),
                     'count' => $group->orderingStats->number_purges ?? 0
                 ],
                 [
                     'name'  => __('Invoices'),
                     'icon'  => 'fal fa-file-invoice-dollar',
-                    'route' => '',
+                    'route' => route('grp.overview.ordering.invoices.index'),
                     'count' => $group->accountingStats->number_invoices ?? 0
                 ],
                 [
                     'name'  => __('Delivery Notes'),
                     'icon'  => 'fal fa-truck',
-                    'route' => '',
+                    'route' => route('grp.overview.ordering.delivery-notes.index'),
                     'count' => $group->orderingStats->number_delivery_notes ?? 0
                 ],
                 [
                     'name'  => __('Transactions'),
                     'icon'  => 'fal fa-exchange-alt',
-                    'route' => '',
+                    'route' => route('grp.overview.ordering.transactions.index'),
                     'count' => $group->orderingStats->number_invoice_transactions ?? 0
                 ],
             ],

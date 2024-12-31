@@ -427,7 +427,7 @@ class IndexInvoices extends OrgAction
                 )
             ),
 
-            'grp.overview.accounting.invoices.index' =>
+            'grp.overview.ordering.invoices.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(
                     $routeParameters
