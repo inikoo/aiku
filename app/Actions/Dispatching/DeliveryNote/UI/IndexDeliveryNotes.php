@@ -81,6 +81,8 @@ class IndexDeliveryNotes extends OrgAction
 
         if ($parent instanceof Warehouse) {
             $query->where('delivery_notes.warehouse_id', $parent->id);
+        } elseif ($parent instanceof Group) {
+            $query->where('delivery_notes.group_id', $parent->id);
         } elseif ($parent instanceof Order) {
             $query->leftjoin('delivery_note_order', 'delivery_note_order.delivery_note_id', '=', 'delivery_notes.id');
             $query->where('delivery_note_order.order_id', $parent->id);
@@ -312,9 +314,9 @@ class IndexDeliveryNotes extends OrgAction
     {
         $this->parent = group();
         $this->bucket = 'all';
-        $this->initialisationFromGroup(group(), $request);
+        $this->initialisationFromGroup(group(), $request)->withTab(DeliveryNotesTabsEnum::values());
 
-        return $this->handle(group());
+        return $this->handle($this->parent, DeliveryNotesTabsEnum::DELIVERY_NOTES->value);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
@@ -370,7 +372,7 @@ class IndexDeliveryNotes extends OrgAction
                     ]
                 )
             ),
-            'grp.overview.procurement.delivery-notes.index' =>
+            'grp.overview.ordering.delivery-notes.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
