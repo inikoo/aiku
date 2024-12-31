@@ -25,7 +25,7 @@ const locale = useLocaleStore();
 const layout = inject('layout', layoutStructure)
 
 function deliveryNoteRoute(deliveryNote: DeliveryNote) {
-    console.log(deliveryNote)
+    // console.log(deliveryNote)
     switch (route().current()) {
         case "shops.show.orders.show":
             return route(

@@ -20,6 +20,8 @@ use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 
 class UpdateUser extends GrpAction
 {
@@ -135,5 +137,10 @@ class UpdateUser extends GrpAction
     public function jsonResponse(User $user): UsersResource
     {
         return new UsersResource($user);
+    }
+
+    public function htmlResponse(User $user): RedirectResponse
+    {
+        return Redirect::route('grp.sysadmin.users.edit', $user->slug);
     }
 }
