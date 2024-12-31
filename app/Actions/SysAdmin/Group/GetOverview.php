@@ -394,7 +394,7 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Workplaces'),
                     'icon'  => 'fal fa-building',
-                    'route' => route('grp.overview.hr.workplaces.index'), 
+                    'route' => route('grp.overview.hr.workplaces.index'),
                     'count' => $group->humanResourcesStats->number_workplaces ?? 0
                 ],
                 [

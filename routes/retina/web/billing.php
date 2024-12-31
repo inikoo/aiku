@@ -20,5 +20,5 @@ Route::prefix('recurring')->as('recurring.')->group(function () {
 });
 
 Route::prefix('invoices')->as('invoices.')->group(function () {
-    Route::get('/', IndexInvoices::class)->name('index');
+    Route::get('/', [IndexInvoices::class, 'inRetina'])->name('index');
 });

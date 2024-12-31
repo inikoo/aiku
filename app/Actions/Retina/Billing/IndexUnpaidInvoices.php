@@ -6,7 +6,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Accounting\Invoice\UI;
+namespace App\Actions\Retina\Billing;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
@@ -39,7 +39,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexInvoices extends OrgAction
+class IndexUnpaidInvoices extends OrgAction
 {
     use WithFulfilmentCustomerSubNavigation;
     use WithCustomerSubNavigation;
@@ -80,6 +80,8 @@ class IndexInvoices extends OrgAction
         } else {
             abort(422);
         }
+
+        $queryBuilder->whereNull('paid_at');
 
         $queryBuilder->leftjoin('organisations', 'invoices.organisation_id', '=', 'organisations.id');
         $queryBuilder->leftjoin('shops', 'invoices.shop_id', '=', 'shops.id');
