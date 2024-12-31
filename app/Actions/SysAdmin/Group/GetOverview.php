@@ -296,19 +296,19 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Warehouses'),
                     'icon'  => 'fal fa-warehouse-alt',
-                    'route' => '',
+                    'route' => route('grp.overview.inventory.warehouses.index'),
                     'count' => $group->inventoryStats->number_warehouses ?? 0
                 ],
                 [
                     'name'  => __('Warehouses Areas'),
                     'icon'  => 'fal fa-industry-alt',
-                    'route' => '',
+                    'route' => route('grp.overview.inventory.warehouses-areas.index'),
                     'count' => $group->inventoryStats->number_warehouse_areas ?? 0
                 ],
                 [
                     'name'  => __('Locations'),
                     'icon'  => 'fal fa-location-arrow',
-                    'route' => '',
+                    'route' => route('grp.overview.inventory.locations.index'),
                     'count' => $group->inventoryStats->number_locations ?? 0
                 ],
             ],
