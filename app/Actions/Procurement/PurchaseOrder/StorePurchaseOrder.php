@@ -28,6 +28,7 @@ use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
 use App\Rules\IUnique;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
@@ -186,13 +187,13 @@ class StorePurchaseOrder extends OrgAction
         return $this->handle($orgPartner, $this->validatedData);
     }
 
-    public function htmlResponse(PurchaseOrder $purchaseOrder)
+    public function htmlResponse(PurchaseOrder $purchaseOrder): RedirectResponse
     {
         if ($this->parent instanceof OrgAgent) {
             return Redirect::route('grp.org.procurement.org_agents.show.purchase-orders.show', [$purchaseOrder->organisation->slug, $this->parent->slug, $purchaseOrder->slug]);
         } elseif ($this->parent instanceof OrgSupplier) {
             return Redirect::route('grp.org.procurement.org_suppliers.show.purchase-orders.show', [$purchaseOrder->organisation->slug, $this->parent->slug, $purchaseOrder->slug]);
-        } elseif ($this->parent instanceof OrgPartner) {
+        } else{
             return Redirect::route('grp.org.procurement.org_partners.show.purchase-orders.show', [$purchaseOrder->organisation->slug, $this->parent->slug, $purchaseOrder->slug]);
         }
     }
