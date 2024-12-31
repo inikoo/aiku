@@ -53,6 +53,7 @@ use App\Actions\SysAdmin\Group\UI\IndexHistoryInGroup;
 use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\Web\Banner\UI\IndexBanners;
 use App\Actions\Web\Webpage\UI\IndexWebpages;
+use App\Actions\Web\Website\UI\IndexWebsites;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowOverviewHub::class)->name('hub');
@@ -95,8 +96,8 @@ Route::name('offer.')->prefix('offer')->group(function () {
     Route::get('/offers', [IndexOffers::class, 'inGroup'])->name('offers.index');
 });
 
-
 Route::name('web.')->prefix('web')->group(function () {
+    Route::get('/websites', [IndexWebsites::class, 'inGroup'])->name('websites.index');
     Route::get('/webpages', [IndexWebpages::class, 'inGroup'])->name('webpages.index');
     Route::get('/banners', [IndexBanners::class, 'inGroup'])->name('banners.index');
 });

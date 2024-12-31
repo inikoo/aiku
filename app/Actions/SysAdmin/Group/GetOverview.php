@@ -194,7 +194,7 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Websites'),
                     'icon'  => 'fal fa-globe',
-                    'route' => '',
+                    'route' => route('grp.overview.web.websites.index'),
                     'count' => $group->webStats->number_websites ?? 0
                 ],
                 [

@@ -24,7 +24,7 @@ const props = defineProps<{
 
 function websiteShopRoute(website: Website) {
 	return route("grp.org.shops.show.web.websites.show", [
-		route().params.organisation,
+		website.organisation_slug,
 		website.shop_slug,
 		website.slug,
 	])
@@ -32,7 +32,7 @@ function websiteShopRoute(website: Website) {
 
 function websiteFulfilmentRoute(website: Website) {
 	return route("grp.org.fulfilments.show.web.websites.show", [
-		route().params.organisation,
+		website.organisation_slug,
 		website.fulfilment_slug,
 		website.slug,
 	])
