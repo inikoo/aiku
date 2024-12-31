@@ -284,7 +284,7 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Org Stock Families'),
                     'icon'  => 'fal fa-boxes-alt',
-                    'route' => '',
+                    'route' => route('grp.overview.inventory.org-stock-families.index'),
                     'count' => $group->inventoryStats->number_org_stock_families ?? 0
                 ],
                 [

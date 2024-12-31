@@ -21,7 +21,14 @@ function stockFamilyRoute(stockFamily: StockFamily) {
             return route(
                 'grp.org.warehouses.show.inventory.org_stock_families.show',
                 [route().params['organisation'], route().params['warehouse'], stockFamily.slug]);
-
+      case 'grp.overview.inventory.org-stock-families.index':
+        return route(
+            "grp.org.warehouses.show.inventory.org_stock_families.show",
+            [
+            stockFamily.organisation_slug,
+            stockFamily.warehouse_slug,
+            stockFamily.slug
+            ]);
       default:
             return route(
                'grp.org.warehouses.show.inventory.org_stock_families.show',
@@ -32,7 +39,14 @@ function stockFamilyRoute(stockFamily: StockFamily) {
 
 function orgStockFamilyOrgStocksRoute(stockFamily: StockFamily) {
   switch (route().current()) {
-
+    case 'grp.overview.inventory.org-stock-families.index':
+        return route(
+            "grp.org.warehouses.show.inventory.org_stock_families.show.org_stocks.index",
+            [
+            stockFamily.organisation_slug,
+            stockFamily.warehouse_slug,
+            stockFamily.slug
+            ]);
     case 'grp.org.warehouses.show.inventory.org_stock_families.index':
       return route(
         'grp.org.warehouses.show.inventory.org_stock_families.show.org_stocks.index',

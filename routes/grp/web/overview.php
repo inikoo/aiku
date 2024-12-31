@@ -40,6 +40,7 @@ use App\Actions\HumanResources\JobPosition\UI\IndexJobPositions;
 use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
 use App\Actions\HumanResources\Workplace\UI\IndexWorkplaces;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
+use App\Actions\Inventory\OrgStockFamily\UI\IndexOrgStockFamilies;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\Ordering\Purge\UI\IndexPurges;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
@@ -119,6 +120,7 @@ Route::name('inventory.')->prefix('inventory')->group(function () {
     // Route::get('/job-orders', [IndexJoborder::class, 'inGroup'])->name('job-orders.index');
     // Route::get('/artisans', [IndexJoborder::class, 'inGroup'])->name('artisans.index');
     Route::get('/org-stocks', [IndexOrgStocks::class, 'inGroup'])->name('org-stocks.index');
+    Route::get('/org-stock-families', [IndexOrgStockFamilies::class, 'inGroup'])->name('org-stock-families.index');
     // Route::get('/locations', [IndexRawMaterials::class, 'inGroup'])->name('locations.index');
 
 });
