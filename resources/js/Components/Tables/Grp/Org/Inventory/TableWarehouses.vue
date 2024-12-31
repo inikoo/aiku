@@ -26,6 +26,10 @@ function warehouseRoute(warehouse: Warehouse) {
             return route(
                 'grp.org.warehouses.show.infrastructure.dashboard',
                 [route().params['organisation'], warehouse.slug])
+        default:
+            return route(
+                'grp.org.warehouses.show.infrastructure.dashboard',
+                [warehouse.organisation_slug, warehouse.slug])
     }
 }
 
@@ -35,6 +39,10 @@ function warehouseAreasRoute(warehouse: Warehouse) {
             return route(
                 'grp.org.warehouses.show.infrastructure.warehouse_areas.index',
                 [route().params['organisation'], warehouse.slug])
+        default:
+            return route(
+                'grp.org.warehouses.show.infrastructure.warehouse_areas.index',
+                [warehouse.organisation_slug, warehouse.slug])
     }
 }
 
@@ -44,6 +52,10 @@ function locationsRoute(warehouse: Warehouse) {
             return route(
                 'grp.org.warehouses.show.infrastructure.locations.index',
                 [route().params['organisation'], warehouse.slug])
+        default:
+            return route(
+                'grp.org.warehouses.show.infrastructure.locations.index',
+                [warehouse.organisation_slug, warehouse.slug])
     }
 }
 

@@ -55,6 +55,10 @@ function locationRoute(location: Location) {
             return route(
                 'grp.org.warehouses.show.infrastructure.warehouse_areas.show.locations.show',
                 [route().params['organisation'], route().params['warehouse'], route().params['warehouseArea'], location.slug])
+        case  'grp.overview.inventory.locations.index':
+            return route(
+                'grp.org.warehouses.show.infrastructure.locations.show',
+                [location.organisation_slug, location.warehouse_slug, location.slug])
         default:
             return route(
                 'grp.org.locations.show',

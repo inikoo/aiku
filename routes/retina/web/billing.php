@@ -7,6 +7,7 @@
  */
 
 use App\Actions\Retina\Billing\IndexInvoices;
+use App\Actions\Retina\Billing\ShowInvoice;
 use App\Actions\Retina\Storage\RecurringBill\UI\IndexRecurringBills;
 use App\Actions\Retina\Storage\RecurringBill\UI\ShowRecurringBill;
 use App\Actions\UI\Retina\Billing\UI\ShowBillingDashboard;
@@ -21,4 +22,5 @@ Route::prefix('recurring')->as('recurring.')->group(function () {
 
 Route::prefix('invoices')->as('invoices.')->group(function () {
     Route::get('/', [IndexInvoices::class, 'inRetina'])->name('index');
+    Route::get('{invoice}', [ShowInvoice::class, 'inRetina'])->name('show');
 });

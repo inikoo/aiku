@@ -119,7 +119,7 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Dispatched Emails'),
                     'icon'  => 'fal fa-paper-plane',
-                    'route' => '',
+                    'route' => route('grp.overview.comms-marketing.dispatched-emails.index'),
                     'count' => $group->commsStats->number_dispatched_emails ?? 0
                 ],
 
@@ -194,7 +194,7 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Websites'),
                     'icon'  => 'fal fa-globe',
-                    'route' => '',
+                    'route' => route('grp.overview.web.websites.index'),
                     'count' => $group->webStats->number_websites ?? 0
                 ],
                 [
@@ -296,19 +296,19 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Warehouses'),
                     'icon'  => 'fal fa-warehouse-alt',
-                    'route' => '',
+                    'route' => route('grp.overview.inventory.warehouses.index'),
                     'count' => $group->inventoryStats->number_warehouses ?? 0
                 ],
                 [
                     'name'  => __('Warehouses Areas'),
                     'icon'  => 'fal fa-industry-alt',
-                    'route' => '',
+                    'route' => route('grp.overview.inventory.warehouses-areas.index'),
                     'count' => $group->inventoryStats->number_warehouse_areas ?? 0
                 ],
                 [
                     'name'  => __('Locations'),
                     'icon'  => 'fal fa-location-arrow',
-                    'route' => '',
+                    'route' => route('grp.overview.inventory.locations.index'),
                     'count' => $group->inventoryStats->number_locations ?? 0
                 ],
             ],

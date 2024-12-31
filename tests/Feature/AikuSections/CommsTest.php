@@ -291,3 +291,165 @@ test('UI Index Newsletter Mailshots', function () {
             ->has('breadcrumbs', 3);
     });
 });
+
+test('UI Index PostRoom Overview', function () {
+    $response = $this->get(route('grp.overview.comms-marketing.post-rooms.index'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Comms/PostRooms')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'Post Room')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index Outboxes Overview', function () {
+    $response = $this->get(route('grp.overview.comms-marketing.outboxes.index'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Comms/Outboxes')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'outboxes')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index Newsletter Overview', function () {
+    $response = $this->get(route('grp.overview.comms-marketing.newsletters.index'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Comms/Mailshots')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'newsletter')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index Marketing Mailshots Overview', function () {
+    $response = $this->get(route('grp.overview.comms-marketing.marketing-mailshots.index'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Comms/Mailshots')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'marketing mailshots')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index Invite Marketing Overview', function () {
+    $response = $this->get(route('grp.overview.comms-marketing.invite-mailshots.index'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Comms/Mailshots')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'invite mailshots')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index Abandoned Cart Mailshots Overview', function () {
+    $response = $this->get(route('grp.overview.comms-marketing.abandoned-cart-mailshots.index'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Comms/Mailshots')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'abandoned cart mailshots')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index Email Bulk Runs Overview', function () {
+    $response = $this->get(route('grp.overview.comms-marketing.email-bulk-runs.index'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Comms/Mailshots')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'Email Bulk Runs')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index Email Addresses Overview', function () {
+    $response = $this->get(route('grp.overview.comms-marketing.email-addresses.index'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Comms/EmailAddresses')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'Email Addresses')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index Dispatched Emails Overview', function () {
+    $response = $this->get(route('grp.overview.comms-marketing.dispatched-emails.index'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Comms/DispatchedEmails')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'dispatched emails')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});

@@ -507,7 +507,8 @@ const handleClickSubDepartment = (department: string, subDepartmentSlug: any, op
 
         // If department have 'options' (i.e. web, wah, cus)
         if(optionType?.some(option => optionsList[option])){
-            newForm[props.fieldName][subDepartmentSlug] = {}  // declare empty object so able to put new key
+            // newForm[props.fieldName][subDepartmentSlug] = {}  // declare empty object so able to put new key
+            set(newForm, [props.fieldName, subDepartmentSlug], {})
             for (const type in optionType) {
                 // type == 'fulfilment' | 'warehouse' | 'shop'
                 newForm[props.fieldName][subDepartmentSlug][optionType[type]] = optionsList[optionType[type]].map(xxx => xxx.slug)

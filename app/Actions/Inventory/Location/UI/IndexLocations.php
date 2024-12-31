@@ -11,6 +11,7 @@ namespace App\Actions\Inventory\Location\UI;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Enums\UI\Inventory\WarehouseAreaTabsEnum;
 use App\Enums\UI\Inventory\WarehouseTabsEnum;
 use App\Http\Resources\Inventory\LocationsResource;
@@ -22,6 +23,7 @@ use App\Models\Fulfilment\Pallet;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -37,10 +39,13 @@ use Spatie\Tags\Tag;
 
 class IndexLocations extends OrgAction
 {
-    private Warehouse|WarehouseArea|Organisation $parent;
+    private Group|Warehouse|WarehouseArea|Organisation $parent;
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        }
 
         if ($this->maya) {
             return true; //Idk the auth for this
@@ -63,6 +68,15 @@ class IndexLocations extends OrgAction
         $this->initialisation($this->parent, $request);
 
         return $this->handle(parent: $warehouse);
+    }
+
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->scope = $this->parent;
+        $this->initialisationFromGroup(group(), $request)->withTab(WarehouseAreaTabsEnum::values());
+
+        return $this->handle($this->parent);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -102,7 +116,7 @@ class IndexLocations extends OrgAction
     }
 
 
-    public function handle(Warehouse|WarehouseArea|Organisation $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Warehouse|WarehouseArea|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -115,6 +129,10 @@ class IndexLocations extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(Location::class);
+
+        if ($parent instanceof Group) {
+            $queryBuilder->where('locations.group_id', $parent->id);
+        }
 
         return $queryBuilder
             ->defaultSort('locations.code')
@@ -131,9 +149,12 @@ class IndexLocations extends OrgAction
                     'locations.has_dropshipping_slots',
                     'warehouses.slug as warehouse_slug',
                     'warehouse_areas.slug as warehouse_area_slug',
-                    'warehouse_area_id'
+                    'warehouse_area_id',
+                    'organisations.slug as organisation_slug',
+                    'organisations.name as organisation_name'
                 ]
             )
+            ->leftJoin('organisations', 'locations.organisation_id', 'organisations.id')
             ->leftJoin('location_stats', 'location_stats.location_id', 'locations.id')
             ->leftJoin('warehouses', 'locations.warehouse_id', 'warehouses.id')
             ->leftJoin('warehouse_areas', 'locations.warehouse_area_id', 'warehouse_areas.id')
@@ -154,7 +175,7 @@ class IndexLocations extends OrgAction
     }
 
 
-    public function tableStructure(Warehouse|WarehouseArea|Organisation $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Group|Warehouse|WarehouseArea|Organisation $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
@@ -197,8 +218,11 @@ class IndexLocations extends OrgAction
                     }
                 )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'scope', label: __('scope'), canBeHidden: false)
-                ->column(key: 'tags', label: __('tags'), canBeHidden: false)
+                ->column(key: 'scope', label: __('scope'), canBeHidden: false);
+            if ($parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true);
+            }
+            $table->column(key: 'tags', label: __('tags'), canBeHidden: false)
                 ->defaultSort('code');
         };
     }
@@ -231,6 +255,18 @@ class IndexLocations extends OrgAction
             ];
         }
 
+        $icon = [
+            'icon'  => ['fal', 'fa-inventory'],
+            'title' => __('locations')
+        ];
+
+        if ($scope instanceof Group) {
+            $icon = [
+                'icon'  => ['fal', 'fa-location-arrow'],
+                'title' => __('locations')
+            ];
+        }
+
         return Inertia::render(
             'Org/Warehouse/Locations',
             [
@@ -242,10 +278,7 @@ class IndexLocations extends OrgAction
                 'pageHead'    => [
                     'title'     => __('locations'),
                     'container' => $container,
-                    'icon'      => [
-                        'icon'  => ['fal', 'fa-inventory'],
-                        'title' => __('locations')
-                    ],
+                    'icon'      => $icon,
                     'actions'   => [
                         $this->canEdit
                         && (
@@ -330,6 +363,16 @@ class IndexLocations extends OrgAction
         };
 
         return match ($routeName) {
+            'grp.overview.inventory.locations.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
             'grp.org.warehouses.show.infrastructure.locations.index' =>
             array_merge(
                 (new ShowWarehouse())->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'warehouse'])),

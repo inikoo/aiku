@@ -9,9 +9,14 @@ import { ref } from "vue";
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import TableWarehouseAreas from "@/Components/Tables/Grp/Org/Inventory/TableWarehouseAreas.vue";
 import { capitalize } from "@/Composables/capitalize";
+import { library } from "@fortawesome/fontawesome-svg-core";
 // import Button from "@/Components/Elements/Buttons/Button.vue";
 // import { get } from 'lodash'
 // import UploadExcel from "@/Components/Upload/UploadExcel.vue";
+import {
+    faIndustryAlt
+} from "@fal";
+library.add(faIndustryAlt);
 
 const props = defineProps<{
     data: {}

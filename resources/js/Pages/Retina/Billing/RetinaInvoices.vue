@@ -28,13 +28,13 @@ const props = defineProps<{
 
 const locale = useLocaleStore();
 
-function recurringBillRoute(recurringBill: RecurringBill) {
+function invoiceRoute(invoice: RecurringBill) {
     switch (route().current()) {
         default:
             return route(
-                'retina.billing.recurring.show',
+                'retina.billing.invoices.show',
                 [
-                    recurringBill.slug
+                invoice.slug
                 ])
     }
 }
@@ -47,7 +47,7 @@ function recurringBillRoute(recurringBill: RecurringBill) {
     <PageHeading :data="pageHead" />
     <Table :resource="data" class="mt-5">
         <template #cell(reference)="{ item: invoice }">
-            <Link href="" class="primaryLink py-0.5">
+            <Link :href="invoiceRoute(invoice)" class="primaryLink py-0.5">
             {{ invoice.reference }}
             </Link>
         </template>
