@@ -599,10 +599,10 @@ const openModal = (action :any) => {
                 <a :href="route(routes.delivery_note.deliveryNotePdfRoute.name, routes.delivery_note.deliveryNotePdfRoute.parameters)"
                     as="a" target="_blank" class="flex items-center">
                     <button class="flex items-center">
-                        <dt class="flex-none">
+                        <div class="flex-none">
                             <FontAwesomeIcon :icon="faFilePdf" fixed-width aria-hidden="true"
                                 class="text-gray-500 hover:text-indigo-500 transition-colors duration-200" />
-                        </dt>
+                        </div>
                     </button>
                 </a>
             </div>

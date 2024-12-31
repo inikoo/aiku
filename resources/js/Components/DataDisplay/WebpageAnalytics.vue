@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, reactive, computed, watch, ref } from "vue"
+import { reactive, computed, watch, ref } from "vue"
 import Chart from "primevue/chart"
 import DateRangePicker from "@/Components/Utils/ModalDatePicker.vue"
 import { router } from "@inertiajs/vue3"

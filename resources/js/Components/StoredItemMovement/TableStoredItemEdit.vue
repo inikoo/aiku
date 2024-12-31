@@ -2,7 +2,7 @@
 import { trans } from 'laravel-vue-i18n'
 import { useLocaleStore } from "@/Stores/locale"
 import Button from '@/Components/Elements/Buttons/Button.vue'
-import { computed, ref, watch, onMounted, defineExpose } from "vue"
+import { computed, ref, watch, onMounted } from "vue"
 import PureInputNumber from "@/Components/Pure/PureInputNumber.vue"
 import { cloneDeep, get } from 'lodash'
 import Popover from '@/Components/Popover.vue'

@@ -24,56 +24,58 @@ const product = props.data.data;
 <!--            />-->
         </div>
         <table class="lg:mr-6 lg:ml-0 md:ml-28 md:mr-28">
-            <tr>
-                <td class="px-1 border border-gray-200">All sales since: Thu 30 Mar 2023</td>
-            </tr>
-            <tr>
-                <td class="px-1 border border-gray-200">€0.00</td>
-                <td class="px-1 border border-gray-200">0</td>
-                <td class="px-1 border border-gray-200">0 (NA)</td>
-            </tr>
-            <tr>
-                <td class="px-1 border border-gray-200">2023</td>
-                <td class="px-1 border border-gray-200">2022</td>
-                <td class="px-1 border border-gray-200">2021</td>
-                <td class="px-1 border border-gray-200">2020</td>
-                <td class="px-1 border border-gray-200">2019</td>
-            </tr>
-            <tr>
-                <td class="px-1 border border-gray-200">€0</td>
-                <td class="px-1 border border-gray-200">€0</td>
-                <td class="px-1 border border-gray-200">€0</td>
-                <td class="px-1 border border-gray-200">€0</td>
-                <td class="px-1 border border-gray-200">€0</td>
-            </tr>
-            <tr>
-                <td class="px-1 border border-gray-200">0</td>
-                <td class="px-1 border border-gray-200">0</td>
-                <td class="px-1 border border-gray-200">0</td>
-                <td class="px-1 border border-gray-200">0</td>
-                <td class="px-1 border border-gray-200">0</td>
-            </tr>
-            <tr>
-                <td class="px-1 border border-gray-200">2Q 23</td>
-                <td class="px-1 border border-gray-200">1Q 23</td>
-                <td class="px-1 border border-gray-200">4Q 22</td>
-                <td class="px-1 border border-gray-200">3Q 22</td>
-                <td class="px-1 border border-gray-200">2Q 22</td>
-            </tr>
-            <tr>
-                <td class="px-1 border border-gray-200">€0</td>
-                <td class="px-1 border border-gray-200">€0</td>
-                <td class="px-1 border border-gray-200">€0</td>
-                <td class="px-1 border border-gray-200">€0</td>
-                <td class="px-1 border border-gray-200">€0</td>
-            </tr>
-            <tr>
-                <td class="px-1 border border-gray-200">0</td>
-                <td class="px-1 border border-gray-200">0</td>
-                <td class="px-1 border border-gray-200">0</td>
-                <td class="px-1 border border-gray-200">0</td>
-                <td class="px-1 border border-gray-200">0</td>
-            </tr>
+            <tbody>
+                <tr>
+                    <td class="px-1 border border-gray-200">All sales since: Thu 30 Mar 2023</td>
+                </tr>
+                <tr>
+                    <td class="px-1 border border-gray-200">€0.00</td>
+                    <td class="px-1 border border-gray-200">0</td>
+                    <td class="px-1 border border-gray-200">0 (NA)</td>
+                </tr>
+                <tr>
+                    <td class="px-1 border border-gray-200">2023</td>
+                    <td class="px-1 border border-gray-200">2022</td>
+                    <td class="px-1 border border-gray-200">2021</td>
+                    <td class="px-1 border border-gray-200">2020</td>
+                    <td class="px-1 border border-gray-200">2019</td>
+                </tr>
+                <tr>
+                    <td class="px-1 border border-gray-200">€0</td>
+                    <td class="px-1 border border-gray-200">€0</td>
+                    <td class="px-1 border border-gray-200">€0</td>
+                    <td class="px-1 border border-gray-200">€0</td>
+                    <td class="px-1 border border-gray-200">€0</td>
+                </tr>
+                <tr>
+                    <td class="px-1 border border-gray-200">0</td>
+                    <td class="px-1 border border-gray-200">0</td>
+                    <td class="px-1 border border-gray-200">0</td>
+                    <td class="px-1 border border-gray-200">0</td>
+                    <td class="px-1 border border-gray-200">0</td>
+                </tr>
+                <tr>
+                    <td class="px-1 border border-gray-200">2Q 23</td>
+                    <td class="px-1 border border-gray-200">1Q 23</td>
+                    <td class="px-1 border border-gray-200">4Q 22</td>
+                    <td class="px-1 border border-gray-200">3Q 22</td>
+                    <td class="px-1 border border-gray-200">2Q 22</td>
+                </tr>
+                <tr>
+                    <td class="px-1 border border-gray-200">€0</td>
+                    <td class="px-1 border border-gray-200">€0</td>
+                    <td class="px-1 border border-gray-200">€0</td>
+                    <td class="px-1 border border-gray-200">€0</td>
+                    <td class="px-1 border border-gray-200">€0</td>
+                </tr>
+                <tr>
+                    <td class="px-1 border border-gray-200">0</td>
+                    <td class="px-1 border border-gray-200">0</td>
+                    <td class="px-1 border border-gray-200">0</td>
+                    <td class="px-1 border border-gray-200">0</td>
+                    <td class="px-1 border border-gray-200">0</td>
+                </tr>
+            </tbody>
         </table>
 
         <table class="table-auto lg:ml-10 lg:mr-6 md:ml-28 md:mr-28">

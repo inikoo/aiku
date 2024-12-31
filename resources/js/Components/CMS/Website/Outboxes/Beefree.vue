@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, defineExpose, ref, inject } from "vue";
+import { onMounted, ref, inject } from "vue";
 import axios from "axios"
 import Bee from "@mailupinc/bee-plugin";
 import { routeType } from "@/types/route";
