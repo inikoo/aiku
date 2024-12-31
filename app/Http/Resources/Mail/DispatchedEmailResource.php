@@ -29,6 +29,10 @@ class DispatchedEmailResource extends JsonResource
             'state'                          => $this->state->stateIcon()[$this->state->value],
             'created_at'                     => $this->created_at,
             'updated_at'                     => $this->updated_at,
+            'shop_code'                 => $this->shop_code,
+            'shop_name'                 => $this->shop_name,
+            'organisation_name'         => $this->organisation_name,
+            'organisation_slug'         => $this->organisation_slug,
         );
     }
 }
