@@ -29,7 +29,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property string $name
  * @property string $model
- * @property string $is_static
+ * @property bool $is_static
  * @property array $constrains
  * @property array $compiled_constrains
  * @property bool $has_arguments
@@ -73,6 +73,7 @@ class Query extends Model implements Auditable
         'informatics'         => 'array',
         'source_constrains'   => 'array',
         'is_seeded'           => 'boolean',
+        'is_static'           => 'boolean',
         'has_arguments'       => 'boolean'
     ];
 
@@ -84,10 +85,44 @@ class Query extends Model implements Auditable
 
     protected $guarded = [];
 
+    public function generateTags(): array
+    {
+
+        if (in_array($this->model, ['Prospect','Customer'])) {
+            return [
+                'crm'
+            ];
+        }
+
+        return [
+            'helpers'
+        ];
+
+
+    }
+
+
+    protected array $auditInclude = [
+        'name',
+        'model',
+        'is_static',
+        'constrains'
+    ];
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('name')
+            ->generateSlugsFrom(function () {
+                $slug = $this->name;
+                if ($this->shop) {
+                    $slug .= '-'.$this->shop->slug;
+                } elseif ($this->organisation) {
+                    $slug .= '-'.$this->organisation->slug;
+                } else {
+                    $slug .= '-'.$this->group->slug;
+                }
+                return $slug;
+            })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(128);
