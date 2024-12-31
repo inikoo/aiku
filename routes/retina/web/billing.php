@@ -6,7 +6,7 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-use App\Actions\Accounting\Invoice\UI\IndexInvoices;
+use App\Actions\Retina\Billing\IndexInvoices;
 use App\Actions\Retina\Storage\RecurringBill\UI\IndexRecurringBills;
 use App\Actions\Retina\Storage\RecurringBill\UI\ShowRecurringBill;
 use App\Actions\UI\Retina\Billing\UI\ShowBillingDashboard;
