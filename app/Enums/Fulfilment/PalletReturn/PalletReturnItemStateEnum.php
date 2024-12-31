@@ -25,7 +25,7 @@ enum PalletReturnItemStateEnum: string
     case CONFIRMED       = 'confirmed';
     case PICKING         = 'picking';
     case PICKED          = 'picked';
-    case NOT_PICKED      = 'not-picked';
+    case NOT_PICKED      = 'not_picked';
     case DISPATCHED      = 'dispatched';
     case CANCEL          = 'cancel';
 
@@ -37,7 +37,7 @@ enum PalletReturnItemStateEnum: string
             'confirmed'                => __('Confirmed'),
             'picking'                  => __('Picking'),
             'picked'                   => __('Picked'),
-            'not-picked'               => __('Not Picked'),
+            'not_picked'               => __('Not Picked'),
             'dispatched'               => __('Dispatched'),
             'cancel'                   => __('Cancel')
         ];
@@ -76,7 +76,7 @@ enum PalletReturnItemStateEnum: string
                 'class'   => 'text-slate-500',
                 'color'   => 'slate'
             ],
-            'not-picked' => [
+            'not_picked' => [
                 'tooltip' => __('Not Picked'),
                 'icon'    => 'fal fa-times',
                 'class'   => 'text-red-500',
@@ -111,7 +111,7 @@ enum PalletReturnItemStateEnum: string
             'confirmed'    => $stats->number_pallet_returns_state_confirmed,
             'picking'      => $stats->number_pallet_returns_state_picking,
             'picked'       => $stats->number_pallet_returns_state_picked,
-            'not-picked'   => $stats->number_pallet_returns_state_not_picked,
+            'not_picked'   => $stats->number_pallet_returns_state_not_picked,
             'dispatched'   => $stats->number_pallet_returns_state_dispatched,
             'cancel'       => $stats->number_pallet_returns_state_cancel
         ];

@@ -13,11 +13,11 @@ enum JobOrderItemStateEnum: string
     case SUBMITTED    = 'submitted';
     case CONFIRMED    = 'confirmed';
     case RECEIVED     = 'received';
-    case BOOKING_IN   = 'booking-in';
-    case BOOKED_IN    = 'booked-in';
+    case BOOKING_IN   = 'booking_in';
+    case BOOKED_IN    = 'booked_in';
 
-    // Status: not-received
-    case NOT_RECEIVED = 'not-received';
+    // Status: not_received
+    case NOT_RECEIVED = 'not_received';
 
     // Status: storing
     case STORING    = 'storing';
@@ -40,10 +40,10 @@ enum JobOrderItemStateEnum: string
             'in_process'   => __('In process'),
             'submitted'    => __('Submitted'),
             'confirmed'    => __('Confirmed'),
-            'not-received' => __('Not Received'),
+            'not_received' => __('Not Received'),
             'received'     => __('Received'),
-            'booking-in'   => __('Booking in'),
-            'booked-in'    => __('Booked in'),
+            'booking_in'   => __('Booking in'),
+            'booked_in'    => __('Booked in'),
             'storing'      => __('Storing'),
             'picking'      => __('Picking'),
             'picked'       => __('Picked'),
@@ -96,7 +96,7 @@ enum JobOrderItemStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'not-received' => [
+            'not_received' => [
                 'tooltip' => __('not received'),
                 'icon'    => 'fal fa-times',
                 'class'   => 'text-red-500',
@@ -106,7 +106,7 @@ enum JobOrderItemStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'booking-in' => [
+            'booking_in' => [
                 'tooltip' => __('Booking in'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-purple-500',
@@ -116,7 +116,7 @@ enum JobOrderItemStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'booked-in' => [
+            'booked_in' => [
                 'tooltip' => __('Booked in'),
                 'icon'    => 'fal fa-check-double',
                 'class'   => 'text-purple-300',

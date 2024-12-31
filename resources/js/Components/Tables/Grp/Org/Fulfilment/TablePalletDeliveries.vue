@@ -173,7 +173,7 @@ const onClickReceived = (receivedRoute: routeType) => {
         <template #cell(estimated_delivery_date)="{ item: palletDelivery }">
             <div>
                 {{ useFormatTime (palletDelivery.estimated_delivery_date) }}
-                <span v-if="palletDelivery.state === 'in-process' || palletDelivery.state === 'submitted' || palletDelivery.state === 'confirmed'" class="text-gray-400">
+                <span v-if="palletDelivery.state === 'in_process' || palletDelivery.state === 'submitted' || palletDelivery.state === 'confirmed'" class="text-gray-400">
                     ({{useDaysLeftFromToday(palletDelivery.estimated_delivery_date)}})
                 </span>
             </div>

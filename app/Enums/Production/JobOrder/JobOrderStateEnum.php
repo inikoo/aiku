@@ -15,9 +15,9 @@ enum JobOrderStateEnum: string
     case SUBMITTED    = 'submitted';
     case CONFIRMED    = 'confirmed';
     case RECEIVED     = 'received';
-    case NOT_RECEIVED = 'not-received';
-    case BOOKING_IN   = 'booking-in';
-    case BOOKED_IN    = 'booked-in';
+    case NOT_RECEIVED = 'not_received';
+    case BOOKING_IN   = 'booking_in';
+    case BOOKED_IN    = 'booked_in';
 
     public static function labels($forElements = false): array
     {
@@ -26,9 +26,9 @@ enum JobOrderStateEnum: string
             'submitted'    => __('Submitted'),
             'confirmed'    => __('Confirmed'),
             'received'     => __('Received'),
-            'not-received' => __('Not Received'),
-            'booking-in'   => __('Booking In'),
-            'booked-in'    => __('Booked In')
+            'not_received' => __('Not Received'),
+            'booking_in'   => __('Booking In'),
+            'booked_in'    => __('Booked In')
         ];
     }
 
@@ -76,7 +76,7 @@ enum JobOrderStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'not-received' => [
+            'not_received' => [
                 'tooltip' => __('Not Received'),
                 'icon'    => 'fal fa-times',
                 'class'   => 'text-red-500',
@@ -86,7 +86,7 @@ enum JobOrderStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'booking-in' => [
+            'booking_in' => [
                 'tooltip' => __('Booking in'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-purple-500',
@@ -96,7 +96,7 @@ enum JobOrderStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'booked-in' => [
+            'booked_in' => [
                 'tooltip' => __('Booked in'),
                 'icon'    => 'fal fa-check-double',
                 'class'   => 'text-purple-500',

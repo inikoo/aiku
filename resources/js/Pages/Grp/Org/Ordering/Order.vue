@@ -474,7 +474,7 @@ const openModal = (action :any) => {
     </div>
 
     <!-- Section: Timeline -->
-    <div v-if="props.data?.data?.state != 'in-process' && currentTab != 'products'" class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
+    <div v-if="props.data?.data?.state != 'in_process' && currentTab != 'products'" class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
         <Timeline v-if="timelines" :options="timelines" :state="props.data?.data?.state" :slidesPerView="6" />
     </div>
 

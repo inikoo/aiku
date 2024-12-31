@@ -74,7 +74,7 @@ class IndexPallets extends OrgAction
 
         $query->where('pallets.fulfilment_id', $fulfilment->id);
 
-        $query->whereNotIn('pallets.status', ['in-process', 'not-received', 'returned', 'incident']);
+        $query->whereNotIn('pallets.status', ['in_process', 'not_received', 'returned', 'incident']);
 
         foreach ($this->getElementGroups($fulfilment) as $key => $elementGroup) {
             $query->whereElementGroup(

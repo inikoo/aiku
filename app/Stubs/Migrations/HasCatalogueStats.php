@@ -27,7 +27,7 @@ trait HasCatalogueStats
     public function shopsStatsFields(Blueprint $table): Blueprint
     {
         $table->unsignedSmallInteger('number_shops')->default(0);
-        $table->unsignedSmallInteger('number_current_shops')->default(0)->comment('state=open+closing-down');
+        $table->unsignedSmallInteger('number_current_shops')->default(0)->comment('state=open+closing_down');
 
         foreach (ShopStateEnum::cases() as $shopState) {
             $table->unsignedSmallInteger('number_shops_state_'.$shopState->snake())->default(0);

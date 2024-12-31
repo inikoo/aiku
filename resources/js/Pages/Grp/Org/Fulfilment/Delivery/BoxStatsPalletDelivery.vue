@@ -155,12 +155,12 @@ onMounted(() => {
                         aria-hidden='true' />
                 </dt>
 
-                <Popover v-if="dataPalletDelivery.state == 'in-process' || dataPalletDelivery.state == 'submitted' || dataPalletDelivery.state == 'confirmed'" position="" style="z-index: 20">
+                <Popover v-if="dataPalletDelivery.state == 'in_process' || dataPalletDelivery.state == 'submitted' || dataPalletDelivery.state == 'confirmed'" position="" style="z-index: 20">
                     <template #button>
                         <div v-if="dataPalletDelivery.estimated_delivery_date"
                             v-tooltip="useDaysLeftFromToday(dataPalletDelivery.estimated_delivery_date)"
                             class="group  text-gray-500"
-                            :class="[dataPalletDelivery.state === 'in-process' ? 'underline' : '']"    
+                            :class="[dataPalletDelivery.state === 'in_process' ? 'underline' : '']"
                         >
                             {{ useFormatTime(dataPalletDelivery?.estimated_delivery_date) }}
                             <FontAwesomeIcon icon='fal fa-pencil' size="sm"

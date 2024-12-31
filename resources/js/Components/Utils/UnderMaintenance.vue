@@ -37,7 +37,7 @@ const handleLaunch = () => {
             <FontAwesomeIcon v-else icon='fal fa-construction' class='h-12' aria-hidden='true' />
 
             <div class="mt-4 text-3xl font-bold tracking-tight text-gray-700 sm:text-5xl">
-                <h3 v-if="data.state == 'in-process'">
+                <h3 v-if="data.state == 'in_process'">
                     {{ trans("Page is under construction") }}
                 </h3>
                 <h3 v-else-if="data.state === 'live'">
@@ -51,13 +51,13 @@ const handleLaunch = () => {
             </div>
 
             <div class="mt-10 flex items-center justify-center gap-x-6">
-                <Button v-if="data.state === 'in-process'" :style="`secondary`" @click="router.visit(route('org.websites.workshop',data.slug))">
+                <Button v-if="data.state === 'in_process'" :style="`secondary`" @click="router.visit(route('org.websites.workshop',data.slug))">
                     <div class="flex items-center gap-x-1">
                         <FontAwesomeIcon icon='fal fa-drafting-compass' class='' aria-hidden='true' />
                         {{ trans("Workshop") }}
                     </div>
                 </Button>
-                <Button v-if="data.state === 'in-process'" :style="`primary`" @click="handleLaunch">
+                <Button v-if="data.state === 'in_process'" :style="`primary`" @click="handleLaunch">
                     <div class="flex items-center gap-x-1">
                         <span>{{ trans("Launch") }}</span>
                         <FontAwesomeIcon icon='fas fa-rocket-launch' class='' aria-hidden='true' />

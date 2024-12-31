@@ -244,12 +244,12 @@ class ShowCustomerOrder extends OrgAction
                         'id'            => 7,
                         'customer_name' => 'airHEAD Designs Ltd',
                         'reference'     => 'ADL-002',
-                        'state'         => 'in-process',
+                        'state'         => 'in_process',
                         'timeline'      => [
-                            'in-process' => [
+                            'in_process' => [
                                 'label'     => 'In Process',
                                 'tooltip'   => 'In Process',
-                                'key'       => 'in-process',
+                                'key'       => 'in_process',
                                 'timestamp' => '2024-08-25T18:13:50.000000Z'
                             ],
                             'submitted' => [
@@ -270,16 +270,16 @@ class ShowCustomerOrder extends OrgAction
                                 'key'       => 'received',
                                 'timestamp' => null
                             ],
-                            'booking-in' => [
+                            'booking_in' => [
                                 'label'     => 'Booking In',
                                 'tooltip'   => 'Booking In',
-                                'key'       => 'booking-in',
+                                'key'       => 'booking_in',
                                 'timestamp' => null
                             ],
-                            'booked-in' => [
+                            'booked_in' => [
                                 'label'     => 'Booked In',
                                 'tooltip'   => 'Booked In',
-                                'key'       => 'booked-in',
+                                'key'       => 'booked_in',
                                 'timestamp' => null
                             ]
                         ],

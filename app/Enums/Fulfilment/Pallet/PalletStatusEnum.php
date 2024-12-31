@@ -24,7 +24,7 @@ enum PalletStatusEnum: string
 
     case IN_PROCESS   = 'in_process';
     case RECEIVING    = 'receiving';
-    case NOT_RECEIVED = 'not-received';
+    case NOT_RECEIVED = 'not_received';
     case STORING      = 'storing';
     case RETURNING    = 'returning';
     case RETURNED     = 'returned';
@@ -35,7 +35,7 @@ enum PalletStatusEnum: string
         $labels = [
             'in_process'   => __('In process'),
             'receiving'    => __('Receiving'),
-            'not-received' => __('Not received'),
+            'not_received' => __('Not received'),
             'storing'      => __('Storing'),
             'returning'    => __('Returning'),
             'returned'     => __('Returned'),
@@ -46,7 +46,7 @@ enum PalletStatusEnum: string
 
         if ($parent instanceof Fulfilment or $parent instanceof Warehouse) {
             unset($labels['in_process']);
-            unset($labels['not-received']);
+            unset($labels['not_received']);
             unset($labels['incident']);
             unset($labels['returned']);
         } elseif ($parent instanceof FulfilmentCustomer) {
@@ -79,7 +79,7 @@ enum PalletStatusEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'not-received' => [
+            'not_received' => [
                 'tooltip' => __('not received'),
                 'icon'    => 'fal fa-times',
                 'class'   => 'text-red-500',
@@ -144,7 +144,7 @@ enum PalletStatusEnum: string
         $counts = [
             'in_process'   => $stats->number_pallets_status_in_process,
             'receiving'    => $stats->number_pallets_status_receiving,
-            'not-received' => $stats->number_pallets_status_not_received,
+            'not_received' => $stats->number_pallets_status_not_received,
             'storing'      => $stats->number_pallets_status_storing,
             'returning'    => $stats->number_pallets_status_returning,
             'incident'     => $stats->number_pallets_status_incident,
@@ -152,7 +152,7 @@ enum PalletStatusEnum: string
         ];
         if ($parent instanceof Fulfilment  or $parent instanceof Warehouse) {
             unset($counts['in_process']);
-            unset($counts['not-received']);
+            unset($counts['not_received']);
             unset($counts['incident']);
             unset($counts['returned']);
         } elseif ($parent instanceof FulfilmentCustomer) {

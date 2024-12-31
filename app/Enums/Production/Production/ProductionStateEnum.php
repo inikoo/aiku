@@ -16,6 +16,6 @@ enum ProductionStateEnum: string
 
     case IN_PROCESS   = 'in_process';
     case OPEN         = 'open';
-    case CLOSING_DOWN = 'closing-down';
+    case CLOSING_DOWN = 'closing_down';
     case CLOSED       = 'closed';
 }

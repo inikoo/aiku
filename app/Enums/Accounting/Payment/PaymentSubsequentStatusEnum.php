@@ -16,5 +16,5 @@ enum PaymentSubsequentStatusEnum: string
 
     case UNCHANGED   = 'unchanged';
     case REFUNDED    = 'refunded';
-    case WITH_REFUND = 'with-refund';
+    case WITH_REFUND = 'with_refund';
 }

@@ -19,8 +19,8 @@ enum EmailTrackingEventTypeEnum: string
     case DELIVERED            = 'delivered';
     case OPENED               = 'opened';
     case CLICKED              = 'clicked';
-    case SOFT_BOUNCE          = 'soft-bounce';
-    case HARD_BOUNCE          = 'hard-bounce';
+    case SOFT_BOUNCE          = 'soft_bounce';
+    case HARD_BOUNCE          = 'hard_bounce';
     case MARKED_AS_SPAM       = 'marked-as-spam';
     case ERROR                = 'error';
 }

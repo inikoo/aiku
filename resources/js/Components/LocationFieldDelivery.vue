@@ -80,14 +80,14 @@ const onChangeLocation = (closeModal: Function) => {
     <!-- <pre>{{ pallet.state }}</pre> -->
         <Popover >
             <template #button>
-                <!-- <Button :type="pallet.state == 'booked-in' ? 'primary' : 'tertiary'" :icon="['fal', 'inventory']"
+                <!-- <Button :type="pallet.state == 'booked_in' ? 'primary' : 'tertiary'" :icon="['fal', 'inventory']"
                     tooltip="Set location for pallet" :key="pallet.index" :size="'xs'" /> -->
                 <div v-if="pallet.location_code" class="text-gray-400">
                     {{ pallet.location_code }}
                     <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='ml-1' fixed-width aria-hidden='true' />
                 </div>
 
-                <Button v-else-if="pallet.state !== 'not-received'"
+                <Button v-else-if="pallet.state !== 'not_received'"
                     type="primary"
                     :label="trans('Set location')"
                     :tooltip="trans('Set location for pallet')"

@@ -92,7 +92,7 @@ const disableBeforeToday = (date: Date) => {
                         fixed-width aria-hidden='true' />
                 </dt>
 
-                <Popover v-if="data_pallet.state === 'in-process'" position="">
+                <Popover v-if="data_pallet.state === 'in_process'" position="">
                     <template #button>
                         <div v-if="data_pallet.estimated_delivery_date"
                             v-tooltip="useDaysLeftFromToday(data_pallet.estimated_delivery_date)"

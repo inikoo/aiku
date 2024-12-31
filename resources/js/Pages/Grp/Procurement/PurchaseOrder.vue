@@ -309,7 +309,7 @@ const fallbackColor = "#374151"
 
 	<!-- Section: Timeline -->
 	<div
-		v-if="data?.data?.state != 'in-process' && currentTab != 'products'"
+		v-if="data?.data?.state != 'in_process' && currentTab != 'products'"
 		class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
 		<Timeline
 			v-if="timelines"

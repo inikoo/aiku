@@ -19,7 +19,7 @@ enum SalesChannelTypeEnum: string
     case SHOWROOM = 'showroom';
     case EMAIL = 'email';
     case MARKETPLACE = 'marketplace';
-    case SOCIAL_MEDIA = 'social-media';
+    case SOCIAL_MEDIA = 'social_media';
     case PLATFORM = 'platform'; // e.g. Shopify, Magento, WooCommerce
     case OTHER = 'other';
     case NA = 'na';
@@ -33,7 +33,7 @@ enum SalesChannelTypeEnum: string
             'email'        => __('Email'),
             'other'        => __('Other'),
             'marketplace'  => __('Marketplace'),
-            'social-media' => __('Social media'),
+            'social_media' => __('Social media'),
             'platform'     => __('Platform'),
             'na'           => __('N/A'),
 

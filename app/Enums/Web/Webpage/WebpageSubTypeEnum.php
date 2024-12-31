@@ -40,7 +40,7 @@ enum WebpageSubTypeEnum: string
     case CHECKOUT = 'checkout';
     case LOGIN = 'login';
     case REGISTER = 'register';
-    case CALL_BACK = 'call-back';
+    case CALL_BACK = 'call_back';
     case APPOINTMENT = 'appointment';
     case PRICING = 'pricing';
 

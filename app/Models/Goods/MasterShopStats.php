@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $master_shop_id
  * @property int $number_shops
- * @property int $number_current_shops state=open+closing-down
+ * @property int $number_current_shops state=open+closing_down
  * @property int $number_shops_state_in_process
  * @property int $number_shops_state_open
  * @property int $number_shops_state_closing_down
