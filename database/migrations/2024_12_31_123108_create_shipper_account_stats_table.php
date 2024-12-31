@@ -2,7 +2,7 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 21 Oct 2024 23:45:49 Central Indonesia Time, Office, Bali, Indonesia
+ * Created: Tue, 31 Dec 2024 20:31:24 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -15,17 +15,17 @@ return new class () extends Migration {
     use HasDispatchingStats;
     public function up(): void
     {
-        Schema::create('shipper_stats', function (Blueprint $table) {
+        Schema::create('shipper_account_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('shipper_id')->index();
-            $table->foreign('shipper_id')->references('id')->on('shippers');
+            $table->unsignedSmallInteger('shipper_account_id')->index();
+            $table->foreign('shipper_account_id')->references('id')->on('shipper_accounts');
+
             $table->timestampTz('first_used_at')->nullable();
             $table->timestampTz('last_used_at')->nullable();
             $table->unsignedInteger('number_customers')->default(0);
             $table->unsignedInteger('number_delivery_notes')->default(0);
             $table = $this->shipmentsStatsFields($table);
             $table = $this->shipmentTrackingsStatsFields($table);
-            $table = $this->shipperAccountsStatsFields($table);
 
             $table->timestampsTz();
         });
@@ -34,6 +34,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('shipper_stats');
+        Schema::dropIfExists('shipper_account_stats');
     }
 };

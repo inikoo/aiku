@@ -54,9 +54,19 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $supplier_id
  * @property int|null $partner_id
  * @property int $number_purchase_orders
- * @property int $number_of_items
  * @property float|null $gross_weight
  * @property float|null $net_weight
+ * @property int $number_stock_delivery_items Number supplier deliveries
+ * @property int $number_stock_delivery_items_except_cancelled Number supplier deliveries
+ * @property int $number_stock_delivery_items_state_in_process
+ * @property int $number_stock_delivery_items_state_confirmed
+ * @property int $number_stock_delivery_items_state_ready_to_ship
+ * @property int $number_stock_delivery_items_state_dispatched
+ * @property int $number_stock_delivery_items_state_received
+ * @property int $number_stock_delivery_items_state_checked
+ * @property int $number_stock_delivery_items_state_placed
+ * @property int $number_stock_delivery_items_state_cancelled
+ * @property int $number_stock_delivery_items_state_not_received
  * @property int $currency_id
  * @property string|null $grp_exchange
  * @property string|null $org_exchange

@@ -31,6 +31,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $organisation_id
  * @property int|null $shop_id
  * @property int|null $shipper_id
+ * @property int|null $shipper_account_id
  * @property int|null $customer_id
  * @property string $status
  * @property string|null $reference
@@ -39,7 +40,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property array $data
  * @property string|null $shipped_at
  * @property string|null $tracked_at
- * @property int $tracked_count
+ * @property int $number_shipment_trackings
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at

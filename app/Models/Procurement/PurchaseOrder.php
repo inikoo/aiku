@@ -46,7 +46,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $parent_name Parent name on the time of consolidation
  * @property string $reference
  * @property PurchaseOrderStateEnum $state
- * @property PurchaseOrderDeliveryStateEnum $delivery_status
+ * @property PurchaseOrderDeliveryStateEnum $delivery_state
  * @property string|null $notes
  * @property \Illuminate\Support\Carbon $date latest relevant date
  * @property string|null $in_process_at
@@ -54,12 +54,30 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $confirmed_at
  * @property \Illuminate\Support\Carbon|null $settled_at
  * @property \Illuminate\Support\Carbon|null $cancelled_at
+ * @property string|null $not_received_at
  * @property int|null $agent_id
  * @property int|null $supplier_id
  * @property int|null $partner_id
- * @property int $number_of_items
  * @property float|null $gross_weight
  * @property float|null $net_weight
+ * @property int $number_purchase_order_transactions
+ * @property int $number_current_purchase_order_transactions Number purchase order transactions (except: cancelled and not_received)
+ * @property int $number_open_purchase_order_transactions Number purchase order transactions (except: in_process,settled,cancelled,not_received)
+ * @property int $number_purchase_order_transactions_state_in_process
+ * @property int $number_purchase_order_transactions_state_submitted
+ * @property int $number_purchase_order_transactions_state_confirmed
+ * @property int $number_purchase_order_transactions_state_settled
+ * @property int $number_purchase_order_transactions_state_cancelled
+ * @property int $number_purchase_order_transactions_state_not_received
+ * @property int $number_purchase_orders_transactions_delivery_state_in_process
+ * @property int $number_purchase_orders_transactions_delivery_state_confirmed
+ * @property int $number_purchase_orders_transactions_delivery_state_ready_to_shi
+ * @property int $number_purchase_orders_transactions_delivery_state_dispatched
+ * @property int $number_purchase_orders_transactions_delivery_state_received
+ * @property int $number_purchase_orders_transactions_delivery_state_checked
+ * @property int $number_purchase_orders_transactions_delivery_state_settled
+ * @property int $number_purchase_orders_transactions_delivery_state_not_received
+ * @property int $number_purchase_orders_transactions_delivery_state_cancelled
  * @property int $currency_id
  * @property string|null $grp_exchange
  * @property string|null $org_exchange
@@ -73,6 +91,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $cost_total
  * @property int $number_stock_deliveries Number supplier deliveries
  * @property int $number_current_stock_deliveries Number supplier deliveries (except: cancelled and not_received)
+ * @property int $number_is_costed_stock_deliveries is_costed=true
+ * @property int $number_is_not_costed_stock_deliveries is_costed=false
+ * @property int $number_is_costed_stock_deliveries_state_placed state=placed is_costed=true
+ * @property int $number_is_not_costed_stock_deliveries_state_placed state=placed  is_costed=true
  * @property int $number_stock_deliveries_state_in_process
  * @property int $number_stock_deliveries_state_confirmed
  * @property int $number_stock_deliveries_state_ready_to_ship

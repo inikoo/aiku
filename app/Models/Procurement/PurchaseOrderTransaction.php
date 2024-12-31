@@ -33,7 +33,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $stock_id Null allowed when org_stock is exclusive to an organization
  * @property int $org_stock_id
  * @property PurchaseOrderTransactionStateEnum $state
- * @property PurchaseOrderTransactionDeliveryStateEnum $delivery_status
+ * @property PurchaseOrderTransactionDeliveryStateEnum $delivery_state
  * @property string|null $quantity_ordered
  * @property string|null $quantity_dispatched
  * @property string|null $quantity_fail
