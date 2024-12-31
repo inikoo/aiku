@@ -119,7 +119,7 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Dispatched Emails'),
                     'icon'  => 'fal fa-paper-plane',
-                    'route' => '',
+                    'route' => route('grp.overview.comms-marketing.dispatched-emails.index'),
                     'count' => $group->commsStats->number_dispatched_emails ?? 0
                 ],
 
