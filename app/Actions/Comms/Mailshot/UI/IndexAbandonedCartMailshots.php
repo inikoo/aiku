@@ -150,7 +150,7 @@ class IndexAbandonedCartMailshots extends OrgAction
         $title = __('mailshots');
         if ($this->parent instanceof Group) {
             $actions = [];
-            $title = __('invite mailshots');
+            $title = __('abandoned cart mailshots');
         }
 
         return Inertia::render(

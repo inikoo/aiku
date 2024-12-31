@@ -10,6 +10,7 @@ namespace App\Actions\Inventory\Warehouse\UI;
 
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Enums\UI\Inventory\WarehousesTabsEnum;
@@ -32,6 +33,10 @@ class IndexWarehouses extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        }
+
         $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
 
         return $request->user()->hasAnyPermission(
@@ -43,8 +48,18 @@ class IndexWarehouses extends OrgAction
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(WarehousesTabsEnum::values());
         return $this->handle($organisation, 'warehouses');
+    }
+
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->scope = $this->parent;
+        $this->initialisationFromGroup(group(), $request)->withTab(WarehousesTabsEnum::values());
+
+        return $this->handle($this->parent, WarehousesTabsEnum::WAREHOUSES->value);
     }
 
     protected function getElementGroups(Organisation|Group $parent): array
@@ -64,7 +79,7 @@ class IndexWarehouses extends OrgAction
         ];
     }
 
-    public function handle(Organisation $organisation, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -79,10 +94,14 @@ class IndexWarehouses extends OrgAction
 
         $queryBuilder = QueryBuilder::for(Warehouse::class);
 
-        $queryBuilder->where('organisation_id', $organisation->id);
+        if ($parent instanceof Group) {
+            $queryBuilder->where('warehouses.group_id', $parent->id);
+        } else {
+            $queryBuilder->where('organisation_id', $parent->id);
+        }
 
 
-        foreach ($this->getElementGroups($organisation) as $key => $elementGroup) {
+        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
@@ -100,25 +119,28 @@ class IndexWarehouses extends OrgAction
                 'warehouse_stats.number_warehouse_areas',
                 'warehouse_stats.number_locations',
                 'warehouses.slug as slug',
-                'warehouses.state as state'
+                'warehouses.state as state',
+                'organisations.slug as organisation_slug',
+                'organisations.name as organisation_name'
             ])
             ->leftJoin('warehouse_stats', 'warehouse_stats.warehouse_id', 'warehouses.id')
+            ->leftJoin('organisations', 'warehouses.organisation_id', 'organisations.id')
             ->allowedSorts(['code', 'name', 'number_warehouse_areas', 'number_locations'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure(Organisation $organisation, $prefix = null): Closure
+    public function tableStructure(Group|Organisation $parent, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($organisation, $prefix) {
+        return function (InertiaTable $table) use ($parent, $prefix) {
             if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
 
-            foreach ($this->getElementGroups($organisation) as $key => $elementGroup) {
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                 $table->elementGroup(
                     key: $key,
                     label: $elementGroup['label'],
@@ -132,7 +154,7 @@ class IndexWarehouses extends OrgAction
                     [
                         'title'       => __('no warehouses'),
                         'description' => $this->canEdit ? __('Get started by creating a new warehouse.') : null,
-                        'count'       => $organisation->inventoryStats->number_warehouses,
+                        'count'       => $parent->inventoryStats->number_warehouses,
                         'action'      => $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -140,15 +162,18 @@ class IndexWarehouses extends OrgAction
                             'label'   => __('warehouse'),
                             'route'   => [
                                 'name'       => 'grp.org.warehouses.create',
-                                'parameters' => $organisation->slug
+                                'parameters' => $parent->slug
                             ]
                         ] : null
                     ]
                 )
                 ->column(key: 'state', label: '', canBeHidden: false, sortable: false, searchable: false, type: 'avatar')
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_warehouse_areas', label: __('warehouse areas'), canBeHidden: false, sortable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+            if ($parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true);
+            }
+            $table->column(key: 'number_warehouse_areas', label: __('warehouse areas'), canBeHidden: false, sortable: true)
                 ->column(key: 'number_locations', label: __('locations'), canBeHidden: false, sortable: true)
                 ->defaultSort('code');
         };
@@ -166,7 +191,10 @@ class IndexWarehouses extends OrgAction
         return Inertia::render(
             'Org/Warehouse/Warehouses',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
                 'title'       => __('warehouses'),
                 'pageHead'    => [
                     'title'   => __('warehouses'),
@@ -205,30 +233,46 @@ class IndexWarehouses extends OrgAction
 
             ]
         )->table($this->tableStructure(
-            organisation:$this->organisation,
+            parent:$this->parent,
             prefix:WarehousesTabsEnum::WAREHOUSES->value
         ))->table(IndexHistory::make()->tableStructure(prefix: WarehousesTabsEnum::WAREHOUSES_HISTORIES->value));
     }
 
-    public function getBreadcrumbs(array $routeParameters, $suffix = null): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
-        return array_merge(
-            ShowGroupDashboard::make()->getBreadcrumbs(),
-            [
+        $headCrumb = function (array $routeParameters = []) use ($suffix) {
+            return [
                 [
                     'type'   => 'simple',
                     'simple' => [
-                        'route' => [
-                            'name'       => 'grp.org.warehouses.index',
-                            'parameters' => $routeParameters
-                        ],
+                        'route' => $routeParameters,
                         'label' => __('Warehouses'),
                         'icon'  => 'fal fa-bars',
                     ],
                     'suffix' => $suffix
-
-                ]
-            ]
-        );
+                ],
+            ];
+        };
+        return match($routeName) {
+            'grp.overview.inventory.warehouses.index' =>
+                array_merge(
+                    ShowOverviewHub::make()->getBreadcrumbs(),
+                    $headCrumb(
+                        [
+                            'name'       => $routeName,
+                            'parameters' => $routeParameters
+                        ]
+                    )
+                ),
+            default =>  array_merge(
+                ShowGroupDashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.warehouses.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+        };
     }
 }

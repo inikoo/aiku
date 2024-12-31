@@ -33,6 +33,9 @@ class OrgStockFamiliesResource extends JsonResource
             'number_current_org_stocks' => $this->number_current_org_stocks,
             'created_at'                => $this->created_at,
             'updated_at'                => $this->updated_at,
+            'organisation_name'               => $this->organisation_name,
+            'organisation_slug'               => $this->organisation_slug,
+            'warehouse_slug'                  => $this->warehouse_slug,
         ];
     }
 }

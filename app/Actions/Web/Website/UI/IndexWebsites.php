@@ -11,6 +11,7 @@ namespace App\Actions\Web\Website\UI;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Enums\Web\Website\WebsiteStateEnum;
@@ -34,7 +35,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexWebsites extends OrgAction
 {
     use HasWebAuthorisation;
-    private Organisation|Fulfilment|Shop $parent;
+    private Group|Organisation|Fulfilment|Shop $parent;
 
 
 
@@ -45,6 +46,15 @@ class IndexWebsites extends OrgAction
         $this->initialisation($organisation, $request);
 
         return $this->handle($organisation);
+    }
+
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->scope = $this->parent;
+        $this->initialisationFromGroup(group(), $request);
+
+        return $this->handle($this->parent);
     }
 
 
@@ -108,8 +118,9 @@ class IndexWebsites extends OrgAction
         return $queryBuilder
             ->defaultSort('websites.code')
             ->select(['websites.id', 'websites.code', 'websites.slug', 'websites.name', 'websites.slug', 'websites.domain', 'websites.status', 'websites.state','websites.shop_id',
-                      'shops.type as shop_type', 'shops.slug as shop_slug'])
+                      'shops.type as shop_type', 'shops.slug as shop_slug','shops.name as shop_name','organisations.name as organisation_name','organisations.slug as organisation_slug'])
             ->leftJoin('shops', 'websites.shop_id', 'shops.id')
+            ->leftJoin('organisations', 'websites.organisation_id', 'organisations.id')
             ->allowedSorts([ 'code', 'name','domain','state'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -153,9 +164,11 @@ class IndexWebsites extends OrgAction
                 )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], sortable: true, type: 'icon')
                 ->column(key: 'code', label: __('code'), sortable: true)
-                ->column(key: 'name', label: __('name'), sortable: true)
-                ->column(key: 'routeUniqueVisitor', label: __('unique visitor'))
-                ->column(key: 'domain', label: __('domain'), sortable: true)
+                ->column(key: 'name', label: __('name'), sortable: true);
+            if (!($parent instanceof Group)) {
+                $table->column(key: 'routeUniqueVisitor', label: __('unique visitor'));
+            }
+            $table->column(key: 'domain', label: __('domain'), sortable: true)
                 ->defaultSort('code');
         };
     }
@@ -295,6 +308,17 @@ class IndexWebsites extends OrgAction
                 $headCrumb(
                     [
                         'name'       => 'grp.org.shops.show.catalogue.dashboard',
+                        'parameters' => $routeParameters
+                    ]
+                ),
+            ),
+
+            'grp.overview.web.websites.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
                         'parameters' => $routeParameters
                     ]
                 ),

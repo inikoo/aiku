@@ -47,11 +47,15 @@ class WebsitesResource extends JsonResource
             'status'            => $this->status,
             'shop_type'         => $this->shop_type,
             'shop_slug'         => $this->shop_slug,
+            'shop_name'                 => $this->shop_name,
+            'organisation_name'         => $this->organisation_name,
+            'organisation_slug'         => $this->organisation_slug,
             'routeUniqueVisitor'    => [
                 'name' => "grp.json.website.unique-visitors",
                 'parameters' => [$this->resource->slug]
             ],
             'fulfilment_slug'   => $fulfilment_slug
+
         ];
     }
 }
