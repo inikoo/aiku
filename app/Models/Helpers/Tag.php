@@ -18,8 +18,8 @@ use Spatie\Tags\Tag as BaseTag;
  * App\Models\Helpers\Tag
  *
  * @property int $id
- * @property array $name
- * @property array $slug
+ * @property array<array-key, mixed> $name
+ * @property array<array-key, mixed> $slug
  * @property string|null $tag_slug
  * @property string|null $label
  * @property string|null $type

@@ -16,6 +16,24 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $master_asset_id
+ * @property int $number_product_variants
+ * @property int $number_customers_who_favourited
+ * @property int $number_customers_who_un_favourited
+ * @property int $number_customers_who_reminded
+ * @property int $number_customers_who_un_reminded
+ * @property int $number_assets
+ * @property int $number_current_assets state: active+discontinuing
+ * @property int $number_historic_assets
+ * @property int $number_assets_state_in_process
+ * @property int $number_assets_state_active
+ * @property int $number_assets_state_discontinuing
+ * @property int $number_assets_state_discontinued
+ * @property int $number_assets_type_product
+ * @property int $number_assets_type_service
+ * @property int $number_assets_type_subscription
+ * @property int $number_assets_type_rental
+ * @property int $number_assets_type_charge
+ * @property int $number_assets_type_shipping_zone
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Goods\MasterAsset $masterAsset

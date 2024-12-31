@@ -10,14 +10,12 @@ use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Stubs\Migrations\HasCatalogueStats;
 use App\Stubs\Migrations\HasOrderingStats;
-use App\Stubs\Migrations\HasSalesIntervals;
 use App\Stubs\Migrations\HasSalesStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    use HasSalesIntervals;
     use HasCatalogueStats;
     use HasSalesStats;
     use HasOrderingStats;

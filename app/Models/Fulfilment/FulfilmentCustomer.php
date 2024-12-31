@@ -117,7 +117,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_recurring_bills
  * @property int $number_recurring_bills_status_current
  * @property int $number_recurring_bills_status_former
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at

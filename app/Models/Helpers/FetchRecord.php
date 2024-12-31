@@ -22,8 +22,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $source_id
  * @property string|null $model_type
  * @property string|null $model_id
- * @property array $model_data
- * @property array $data
+ * @property array<array-key, mixed> $model_data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Helpers\Fetch $fetch

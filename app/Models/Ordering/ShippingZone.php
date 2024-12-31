@@ -35,8 +35,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $is_failover
  * @property string $code
  * @property string $name
- * @property array $price
- * @property array $territories
+ * @property array<array-key, mixed> $price
+ * @property array<array-key, mixed> $territories
  * @property int $position
  * @property int $currency_id
  * @property int|null $asset_id

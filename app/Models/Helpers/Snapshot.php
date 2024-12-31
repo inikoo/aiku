@@ -37,7 +37,7 @@ use Illuminate\Support\Arr;
  * @property string|null $published_at
  * @property string|null $published_until
  * @property string $checksum
- * @property array $layout
+ * @property array<array-key, mixed> $layout
  * @property string|null $compiled_layout e.g. html in case of email builders
  * @property string|null $comment
  * @property bool $first_commit

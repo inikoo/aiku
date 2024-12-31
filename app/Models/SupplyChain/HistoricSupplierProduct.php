@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property \Illuminate\Support\Carbon|null $fetched_at
  * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property string|null $source_id
- * @property array $sources
+ * @property array<array-key, mixed> $sources
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SupplyChain\HistoricSupplierProductStats|null $stats
  * @property-read \App\Models\SupplyChain\SupplierProduct|null $supplierProduct

@@ -56,7 +56,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $grp_exchange
  * @property string|null $org_exchange
  * @property bool $is_costed
- * @property array $cost_data
+ * @property array<array-key, mixed> $cost_data
  * @property string|null $cost_items
  * @property string|null $cost_extra
  * @property string|null $cost_shipping
@@ -78,7 +78,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_stock_deliveries_state_placed
  * @property int $number_stock_deliveries_state_cancelled
  * @property int $number_stock_deliveries_state_not_received
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at

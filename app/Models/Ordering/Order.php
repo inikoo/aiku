@@ -68,7 +68,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $delivery_locked
  * @property int|null $estimated_weight grams
  * @property int|null $weight actual weight, grams
- * @property array $payment_data
+ * @property array<array-key, mixed> $payment_data
  * @property int|null $billing_address_id
  * @property int|null $delivery_address_id
  * @property int|null $collection_address_id
@@ -105,7 +105,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $tax_amount
  * @property string $total_amount
  * @property string $payment_amount
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property string|null $fetched_at
  * @property string|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $created_at

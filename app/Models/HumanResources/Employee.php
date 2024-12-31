@@ -63,11 +63,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $employment_start_at
  * @property string|null $employment_end_at
  * @property string|null $emergency_contact
- * @property array|null $salary
- * @property array|null $working_hours
+ * @property array<array-key, mixed>|null $salary
+ * @property array<array-key, mixed>|null $working_hours
  * @property numeric $week_working_hours
- * @property array $data
- * @property array $errors
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $errors
  * @property string|null $pin
  * @property int|null $image_id
  * @property \Illuminate\Support\Carbon|null $fetched_at
@@ -77,7 +77,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
- * @property array $migration_data
+ * @property array<array-key, mixed> $migration_data
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $attachments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \App\Models\HumanResources\Clocking> $clockings

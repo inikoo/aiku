@@ -45,7 +45,7 @@ use Illuminate\Support\Facades\Auth;
  * @property int $number_clicks
  * @property bool $mask_as_spam
  * @property bool $provoked_unsubscribe
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property bool $is_test
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

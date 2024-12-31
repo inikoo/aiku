@@ -43,7 +43,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property bool $blame_customer
  * @property bool $blame_other
  * @property string|null $message
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property string|null $source_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

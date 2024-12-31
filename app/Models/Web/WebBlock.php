@@ -27,8 +27,8 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property int $group_id
  * @property int $web_block_type_id
  * @property string|null $checksum
- * @property array $layout
- * @property array $data
+ * @property array<array-key, mixed> $layout
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $migration_checksum

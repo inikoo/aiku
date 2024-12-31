@@ -9,40 +9,40 @@
 namespace App\Stubs\Migrations;
 
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Str;
 
 trait HasCommsIntervals
 {
     use HasDateIntervalsStats;
 
-    protected function getCommsIntervals($table)
+    protected function getCommsIntervals($case, $table): Blueprint
     {
-        foreach (OutboxTypeEnum::cases() as $case) {
-            $fields = [
-                $case->value.'_dispatched_emails',
-                $case->value.'_opened_emails',
-                $case->value.'_clicked_emails',
-                $case->value.'_bounced_emails',
-                $case->value.'_subscribed',
-                $case->value.'_unsubscribed',
+        $outboxType = Str::snake(str_replace('-', '_', $case->value));
 
-            ];
+        $fields = [
+            $outboxType.'_dispatched_emails',
+            $outboxType.'_opened_emails',
+            $outboxType.'_clicked_emails',
+            $outboxType.'_bounced_emails',
+            $outboxType.'_subscribed',
+            $outboxType.'_unsubscribed',
 
-            if (in_array($case, [
-                OutboxTypeEnum::CUSTOMER_NOTIFICATION,
-                OutboxTypeEnum::USER_NOTIFICATION
-            ])) {
-                unset($fields[$case->value.'_subscribed']);
-                unset($fields[$case->value.'_unsubscribed']);
-            }
+        ];
 
-            if ($case == OutboxTypeEnum::USER_NOTIFICATION) {
-                unset($fields[$case->value.'_opened_emails']);
-                unset($fields[$case->value.'_clicked_emails']);
-            }
-
-            $table = $this->unsignedIntegerDateIntervals($table, $fields);
+        if (in_array($case, [
+            OutboxTypeEnum::CUSTOMER_NOTIFICATION,
+            OutboxTypeEnum::USER_NOTIFICATION
+        ])) {
+            unset($fields[$outboxType.'_subscribed']);
+            unset($fields[$outboxType.'_unsubscribed']);
         }
 
-        return $table;
+        if ($case == OutboxTypeEnum::USER_NOTIFICATION) {
+            unset($fields[$outboxType.'_opened_emails']);
+            unset($fields[$outboxType.'_clicked_emails']);
+        }
+
+        return $this->unsignedIntegerDateIntervals($table, $fields);
     }
 }

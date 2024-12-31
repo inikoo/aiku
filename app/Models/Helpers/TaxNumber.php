@@ -28,7 +28,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $country_id
  * @property TaxNumberStatusEnum $status
  * @property bool $valid
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property bool $historic
  * @property int $usage
  * @property string|null $checksum hash of country_code,number,status

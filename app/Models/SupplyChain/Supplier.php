@@ -57,10 +57,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $identity_document_number
  * @property string|null $contact_website
  * @property int|null $address_id
- * @property array $location
+ * @property array<array-key, mixed> $location
  * @property int $currency_id
- * @property array $settings
- * @property array $data
+ * @property array<array-key, mixed> $settings
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $archived_at
@@ -69,7 +69,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_slug
  * @property string|null $source_id
- * @property array $sources
+ * @property array<array-key, mixed> $sources
  * @property-read \App\Models\Helpers\Address|null $address
  * @property-read Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read \App\Models\SupplyChain\Agent|null $agent

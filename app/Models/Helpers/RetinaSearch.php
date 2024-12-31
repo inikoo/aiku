@@ -29,10 +29,10 @@ use Laravel\Scout\Searchable;
  * @property string $status
  * @property float $weight
  * @property string|null $date
- * @property array $sections
- * @property array $permissions
- * @property array $web_users
- * @property array $result
+ * @property array<array-key, mixed> $sections
+ * @property array<array-key, mixed> $permissions
+ * @property array<array-key, mixed> $web_users
+ * @property array<array-key, mixed> $result
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RetinaSearch newModelQuery()
