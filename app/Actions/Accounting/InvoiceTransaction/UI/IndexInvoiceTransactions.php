@@ -26,6 +26,8 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexInvoiceTransactions extends OrgAction
 {
+    protected Group|Invoice $parent;
+
     public function handle(Group|Invoice $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -53,26 +55,25 @@ class IndexInvoiceTransactions extends OrgAction
         );
 
         if ($parent instanceof Group) {
-            $queryBuilder
-            ->where('invoice_transactions.group_id', $parent->id)
+            $queryBuilder->where('invoice_transactions.group_id', $parent->id)
             ->leftJoin('invoices', 'invoice_transactions.invoice_id', 'invoices.id')
             ->leftJoin('currencies', 'invoices.currency_id', 'currencies.id')
-            ->addSelect(
-                DB::raw("currencies.code AS currency_code")
+            ->addSelect("currencies.code AS currency_code")
+            ->groupBy(
+                'historic_assets.code',
+                'historic_assets.name',
+                'assets.slug',
+                'currencies.code'
             );
         } else {
-            $queryBuilder
-            ->where('invoice_transactions.invoice_id', $parent->id)
-            ->addSelect(
-                DB::raw("'{$parent->currency->code}' AS currency_code")
+            $queryBuilder->where('invoice_transactions.invoice_id', $parent->id)
+            ->addSelect(DB::raw("'{$parent->currency->code}' AS currency_code"))
+            ->groupBy(
+                'historic_assets.code',
+                'historic_assets.name',
+                'assets.slug'
             );
         }
-
-        $queryBuilder->groupBy(
-            'historic_assets.code',
-            'historic_assets.name',
-            'assets.slug'
-        );
 
         $queryBuilder->defaultSort('code');
 
@@ -107,11 +108,19 @@ class IndexInvoiceTransactions extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $transactions, ActionRequest $request): Response
     {
-        $title      = __('Transactions');
+        $title      = __('Invoice Transactions');
         $icon       = [
             'icon'  => ['fal', 'fa-exchange-alt'],
-            'title' => __('Transactions')
+            'title' => __('Invoice Transactions')
         ];
+
+        if ($this->parent instanceof Group) {
+            $title = __('Transactions');
+            $icon = [
+                'icon'  => ['fal', 'fa-exchange-alt'],
+                'title' => __('Transactions')
+            ];
+        }
 
         return Inertia::render(
             'Org/Accounting/InvoiceTransactions',
@@ -120,7 +129,7 @@ class IndexInvoiceTransactions extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('Transactions'),
+                'title'       => $title,
                 'pageHead'    => [
                     'title'      => $title,
                     'icon'       => $icon,
