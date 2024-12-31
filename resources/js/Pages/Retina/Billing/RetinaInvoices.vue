@@ -7,9 +7,9 @@ import { ref } from 'vue'
 
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import Table from "@/Components/Table/Table.vue"
+import { useLocaleStore } from '@/Stores/locale'
 import { RecurringBill } from '@/types/recurring_bill'
 
-import { useLocaleStore } from '@/Stores/locale'
 import { useFormatTime } from '@/Composables/useFormatTime'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -25,6 +25,8 @@ const props = defineProps<{
     data: {}
 
 }>()
+
+const locale = useLocaleStore();
 
 function recurringBillRoute(recurringBill: RecurringBill) {
     switch (route().current()) {
@@ -44,27 +46,39 @@ function recurringBillRoute(recurringBill: RecurringBill) {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
     <Table :resource="data" class="mt-5">
-        <template #cell(reference)="{ item: recurringBill }">
-            <Link :href="recurringBillRoute(recurringBill)" class="primaryLink">
-                {{ recurringBill['reference'] }}
+        <template #cell(reference)="{ item: invoice }">
+            <Link href="" class="primaryLink py-0.5">
+            {{ invoice.reference }}
             </Link>
         </template>
 
-           <!-- Column: Net -->
-       <!--  <template #cell(net_amount)="{ item: bill }">
-            <div class="text-gray-500">
-                {{ useLocaleStore().currencyFormat(bill.currency_code, bill.net_amount) }}
+        <!-- Column: Date -->
+        <template #cell(type)="{ item }">
+            <div class="text-center">
+            <!-- {{ item.type }} -->
+                <FontAwesomeIcon :icon='item.type?.icon?.icon' v-tooltip="item.type?.icon?.tooltip" :class='item.type?.icon?.class' fixed-width aria-hidden='true' />
             </div>
-        </template> -->
-
-        <!-- Column: Start date -->
-        <template #cell(start_date)="{ item }">
-            {{ useFormatTime(item.start_date) }}
         </template>
 
-        <!-- Column: End date -->
-        <template #cell(end_date)="{ item }">
-            {{ useFormatTime(item.end_date) }}
+        <!-- Column: Date -->
+        <template #cell(date)="{ item }">
+            <div class="text-gray-500 text-right">
+                {{ useFormatTime(item.date, { localeCode: locale.language.code, formatTime: "aiku" }) }}
+            </div>
+        </template>
+
+        <!-- Column: Net -->
+        <template #cell(net_amount)="{ item: invoice }">
+            <div class="text-gray-500">
+                {{ useLocaleStore().currencyFormat(invoice.currency_code, invoice.net_amount) }}
+            </div>
+        </template>
+
+        <!-- Column: Total -->
+        <template #cell(total_amount)="{ item: invoice }">
+            <div :class="invoice.total_amount >= 0 ? 'text-gray-500' : 'text-red-400'">
+                {{ useLocaleStore().currencyFormat(invoice.currency_code, invoice.total_amount) }}
+            </div>
         </template>
     </Table>
 </template>
