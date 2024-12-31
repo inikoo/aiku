@@ -13,6 +13,7 @@ use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Http\Resources\CRM\WebUsersResource;
 use App\InertiaTable\InertiaTable;
@@ -21,6 +22,7 @@ use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Catalogue\Shop;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
 use App\Services\QueryBuilder;
@@ -38,10 +40,10 @@ class IndexWebUsers extends OrgAction
     use WithFulfilmentCustomerSubNavigation;
     use WithCustomerSubNavigation;
 
-    private Shop|Organisation|Customer|FulfilmentCustomer|Website $parent;
+    private Group|Shop|Organisation|Customer|FulfilmentCustomer|Website $parent;
 
 
-    public function handle(Shop|Organisation|Customer|FulfilmentCustomer|Website $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Shop|Organisation|Customer|FulfilmentCustomer|Website $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -53,12 +55,15 @@ class IndexWebUsers extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(WebUser::class);
-
+        $queryBuilder->leftJoin('organisations', 'web_users.organisation_id', '=', 'organisations.id')
+                ->leftJoin('shops', 'web_users.shop_id', '=', 'shops.id');
 
         if ($parent instanceof Customer) {
             $queryBuilder->where('customer_id', $parent->id);
         } elseif ($parent instanceof FulfilmentCustomer) {
             $queryBuilder->where('customer_id', $parent->customer_id);
+        } elseif ($parent instanceof Group) {
+            $queryBuilder->where('web_users.group_id', $parent->id);
         } elseif ($parent instanceof Website) {
             $queryBuilder->where('website_id', $parent->id);
         } elseif ($parent instanceof Organisation) {
@@ -70,7 +75,18 @@ class IndexWebUsers extends OrgAction
 
         return $queryBuilder
             ->defaultSort('username')
-            ->select(['web_users.username', 'web_users.id', 'web_users.email', 'web_users.slug', 'web_users.created_at'])
+            ->select([
+                'web_users.username',
+                'web_users.id',
+                'web_users.email',
+                'web_users.slug',
+                'web_users.created_at',
+                'shops.slug as shop_slug',
+                'shops.code as shop_code',
+                'shops.name as shop_name',
+                'organisations.name as organisation_name',
+                'organisations.slug as organisation_slug',
+                ])
             ->allowedSorts(['email', 'username'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
@@ -158,7 +174,7 @@ class IndexWebUsers extends OrgAction
         )->table($this->tableStructure($this->parent));
     }
 
-    public function tableStructure(Shop|Organisation|Customer|FulfilmentCustomer|Website $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
+    public function tableStructure(Group|Shop|Organisation|Customer|FulfilmentCustomer|Website $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $parent, $canEdit) {
             if ($prefix) {
@@ -208,11 +224,24 @@ class IndexWebUsers extends OrgAction
                     }
                 )
                 ->withGlobalSearch()
-                ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true);
+            if ($parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
+                    ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+            }
+            $table
                 ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'created_at', label: __('Created at'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('username');
         };
+    }
+
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup($this->parent, $request);
+
+        return $this->handle(parent: $this->parent);
     }
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
@@ -290,6 +319,16 @@ class IndexWebUsers extends OrgAction
                 ),
                 $headCrumb(
                     $routeParameters
+                )
+            ),
+            'grp.overview.crm.web-users.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
                 )
             ),
             default => []

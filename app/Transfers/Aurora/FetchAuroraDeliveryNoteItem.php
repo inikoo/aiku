@@ -47,8 +47,11 @@ class FetchAuroraDeliveryNoteItem extends FetchAurora
 
         $transactionID = $transaction?->id;
 
+        $stock = null;
 
-        $stock = Stock::withTrashed()->find($orgStock->stock_id);
+        if ($orgStock) {
+            $stock = Stock::withTrashed()->find($orgStock->stock_id);
+        }
 
         $this->parsedData['delivery_note_item'] = [
             'transaction_id'      => $transactionID,

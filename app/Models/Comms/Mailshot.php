@@ -140,7 +140,7 @@ class Mailshot extends Model implements Auditable
             })
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(64);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function parent(): MorphTo

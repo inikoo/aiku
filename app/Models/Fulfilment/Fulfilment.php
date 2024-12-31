@@ -94,7 +94,7 @@ class Fulfilment extends Model
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(6);
+            ->slugsShouldBeNoLongerThan(64);
     }
 
     public function stats(): HasOne

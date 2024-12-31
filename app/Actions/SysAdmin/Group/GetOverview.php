@@ -226,7 +226,7 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Web Users'),
                     'icon'  => 'fal fa-user-circle',
-                    'route' => '',
+                    'route' => route('grp.overview.crm.web-users.index'),
                     'count' => $group->crmStats->number_web_users ?? 0
                 ],
             ],
@@ -240,25 +240,25 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Purges'),
                     'icon'  => 'fal fa-trash-alt',
-                    'route' => '',
+                    'route' => route('grp.overview.ordering.purges.index'),
                     'count' => $group->orderingStats->number_purges ?? 0
                 ],
                 [
                     'name'  => __('Invoices'),
                     'icon'  => 'fal fa-file-invoice-dollar',
-                    'route' => '',
+                    'route' => route('grp.overview.ordering.invoices.index'),
                     'count' => $group->accountingStats->number_invoices ?? 0
                 ],
                 [
                     'name'  => __('Delivery Notes'),
                     'icon'  => 'fal fa-truck',
-                    'route' => '',
+                    'route' => route('grp.overview.ordering.delivery-notes.index'),
                     'count' => $group->orderingStats->number_delivery_notes ?? 0
                 ],
                 [
                     'name'  => __('Transactions'),
                     'icon'  => 'fal fa-exchange-alt',
-                    'route' => '',
+                    'route' => route('grp.overview.ordering.transactions.index'),
                     'count' => $group->orderingStats->number_invoice_transactions ?? 0
                 ],
             ],
@@ -348,19 +348,19 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Agents'),
                     'icon'  => 'fal fa-people-arrows',
-                    'route' => route('grp.overview.procurement.agents.index'),
+                    'route' => route('grp.supply-chain.agents.index'),
                     'count' => $group->supplyChainStats->number_agents ?? 0
                 ],
                 [
                     'name'  => __('Suppliers'),
                     'icon'  => 'fal fa-person-dolly',
-                    'route' => route('grp.overview.procurement.suppliers.index'),
+                    'route' =>  route('grp.supply-chain.suppliers.index'),
                     'count' => $group->supplyChainStats->number_suppliers ?? 0
                 ],
                 [
                     'name'  => __('Supplier Products'),
                     'icon'  => 'fal fa-users-class',
-                    'route' => route('grp.overview.procurement.supplier-products.index'),
+                    'route' => route('grp.supply-chain.supplier_products.index'),
                     'count' => $group->supplyChainStats->number_supplier_products ?? 0
                 ],
                 [

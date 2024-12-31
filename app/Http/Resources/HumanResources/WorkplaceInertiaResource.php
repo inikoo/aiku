@@ -27,7 +27,8 @@ class WorkplaceInertiaResource extends JsonResource
             'slug'          => $workplace->slug,
             'name'          => $workplace->name,
             'type'          => $workplace->type,
-            'organisation_name' => $workplace->organisation_name
+            'organisation_name' => $workplace->organisation_name,
+            'organisation_slug' => $workplace->organisation_slug
         ];
     }
 }

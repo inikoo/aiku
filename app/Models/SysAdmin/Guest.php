@@ -121,7 +121,7 @@ class Guest extends Model implements HasMedia, Auditable
         return SlugOptions::create()
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(16)
+            ->slugsShouldBeNoLongerThan(128)
             ->doNotGenerateSlugsOnUpdate();
     }
 

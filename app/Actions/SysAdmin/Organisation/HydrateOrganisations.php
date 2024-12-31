@@ -17,6 +17,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCustomerBalan
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateDeliveryNotes;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateDepartments;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateFamilies;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateInvoiceIntervals;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateInvoices;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateLocations;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgAgents;
@@ -56,15 +57,20 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouseArea
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouses;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWebpages;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWebsites;
-use App\Actions\Traits\WithNormalise;
+use App\Actions\Traits\Hydrators\WithHydrateCommand;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\SysAdmin\Organisation;
-use Illuminate\Console\Command;
 
 class HydrateOrganisations extends HydrateModel
 {
-    use WithNormalise;
+    use WithHydrateCommand;
 
+    public string $commandSignature = 'hydrate:organisations {--s|slug=}';
+
+    public function __construct()
+    {
+        $this->model = Organisation::class;
+    }
 
     public function handle(Organisation $organisation): void
     {
@@ -95,7 +101,11 @@ class HydrateOrganisations extends HydrateModel
         OrganisationHydrateCustomerBalances::run($organisation);
 
 
+
         if ($organisation->type == OrganisationTypeEnum::SHOP) {
+
+            OrganisationHydrateInvoiceIntervals::run($organisation);
+
             OrganisationHydrateDepartments::run($organisation);
             OrganisationHydrateSubDepartments::run($organisation);
             OrganisationHydrateFamilies::run($organisation);
@@ -132,34 +142,4 @@ class HydrateOrganisations extends HydrateModel
     }
 
 
-    public string $commandSignature = 'hydrate:organisations {organisations?*}';
-
-    public function asCommand(Command $command): int
-    {
-
-        $command->info("Hydrating organisations");
-        $count = Organisation::count();
-
-        $bar = $command->getOutput()->createProgressBar($count);
-        $bar->setFormat('debug');
-        $bar->start();
-
-
-        if ($command->argument('organisations')) {
-            $organisations = Organisation::whereIn('slug', $command->argument('organisations'))->get();
-        } else {
-            $organisations = Organisation::all();
-        }
-
-
-        foreach ($organisations as $organisation) {
-            $this->handle($organisation);
-            $bar->advance();
-        }
-
-        $bar->finish();
-        $command->info("");
-
-        return 0;
-    }
 }

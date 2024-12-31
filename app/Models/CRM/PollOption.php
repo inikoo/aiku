@@ -74,7 +74,7 @@ class PollOption extends Model implements Auditable
                 return Abbreviate::run($this->value, 8).'-'.$this->poll->slug;
             })
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(64)
+            ->slugsShouldBeNoLongerThan(128)
             ->doNotGenerateSlugsOnUpdate();
     }
 

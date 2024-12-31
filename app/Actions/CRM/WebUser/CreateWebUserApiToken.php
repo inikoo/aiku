@@ -8,6 +8,7 @@
 
 namespace App\Actions\CRM\WebUser;
 
+use App\Actions\CRM\WebUser\Hydrators\WebUserHydrateApiTokens;
 use App\Models\CRM\WebUser;
 use Exception;
 use Illuminate\Console\Command;
@@ -28,7 +29,7 @@ class CreateWebUserApiToken
             Arr::get($tokenData, 'abilities', ['*']),
         )->plainTextToken;
 
-        HydrateWebUser::make()->tokens($webUser);
+        WebUserHydrateApiTokens::dispatch($webUser);
         return $token;
     }
 

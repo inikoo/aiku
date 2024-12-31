@@ -111,7 +111,7 @@ class OfferCampaign extends Model implements Auditable
             })
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(64);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function getRouteKeyName(): string

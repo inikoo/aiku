@@ -25,11 +25,11 @@ const props = defineProps<{
 }>()
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faInventory, faWarehouse, faMapSigns, faBox, faBoxesAlt } from '@fal'
+import { faInventory, faWarehouse, faMapSigns, faBox, faBoxesAlt, faSignOut } from '@fal'
 import SimpleBox from '@/Components/DataDisplay/SimpleBox.vue'
 import { routeType } from '@/types/route'
 
-library.add(faInventory, faWarehouse, faMapSigns, faBox, faBoxesAlt);
+library.add(faInventory, faWarehouse, faMapSigns, faBox, faBoxesAlt, faSignOut);
 
 </script>
 

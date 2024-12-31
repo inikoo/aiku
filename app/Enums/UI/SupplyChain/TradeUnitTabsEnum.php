@@ -22,7 +22,7 @@ enum TradeUnitTabsEnum: string
     case HISTORY             = 'history';
     case IMAGES              = 'images';
     case ATTACHMENTS         = 'attachments';
-    case ISSUES              = 'issues';
+    case FEEDBACKS              = 'feedbacks';
 
 
 
@@ -30,7 +30,7 @@ enum TradeUnitTabsEnum: string
     {
         return match ($this) {
 
-            TradeUnitTabsEnum::ISSUES => [
+            TradeUnitTabsEnum::FEEDBACKS => [
                 'align' => 'right',
                 'type'  => 'icon',
                 'title' => __('issues'),

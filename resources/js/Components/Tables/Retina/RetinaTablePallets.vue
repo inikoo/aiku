@@ -7,6 +7,7 @@
 <script setup lang="ts">
 import Table from '@/Components/Table/Table.vue'
 import { library } from "@fortawesome/fontawesome-svg-core"
+import { Link } from '@inertiajs/vue3'
 
 import { faTimes, faStickyNote } from '@fal'
 import TagPallet from '@/Components/TagPallet.vue'
@@ -22,58 +23,58 @@ const props = defineProps<{
 }>()
 
 
-// function palletRoute(pallet: Pallet) {
-//     switch (route().current()) {
-//         case 'grp.org.fulfilments.show.operations.pallets.current.index':
-//             return route(
-//                 'grp.org.fulfilments.show.operations.pallets.current.show',
-//                 [
-//                     route().params['organisation'],
-//                     route().params['fulfilment'],
-//                     pallet['slug']
-//                 ])
-//         case 'grp.org.warehouses.show.inventory.pallets.current.index':
-//             return route(
-//                 'grp.org.warehouses.show.inventory.pallets.current.show',
-//                 [
-//                     route().params['organisation'],
-//                     route().params['warehouse'],
-//                     pallet['slug']
-//                 ])
+function palletRoute(pallet: Pallet) {
+    switch (route().current()) {
+        case 'grp.org.fulfilments.show.operations.pallets.current.index':
+            return route(
+                'grp.org.fulfilments.show.operations.pallets.current.show',
+                [
+                    route().params['organisation'],
+                    route().params['fulfilment'],
+                    pallet['slug']
+                ])
+        case 'grp.org.warehouses.show.inventory.pallets.current.index':
+            return route(
+                'grp.org.warehouses.show.inventory.pallets.current.show',
+                [
+                    route().params['organisation'],
+                    route().params['warehouse'],
+                    pallet['slug']
+                ])
 
-//         case 'grp.org.warehouses.show.infrastructure.locations.show':
-//             return route(
-//                 'grp.org.warehouses.show.infrastructure.locations.show.pallets.show',
-//                 [
-//                     route().params['organisation'],
-//                     route().params['warehouse'],
-//                     route().params['location'],
-//                     pallet['slug']
-//                 ])
-//         case 'grp.org.fulfilments.show.crm.customers.show':
-//             return route(
-//                 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
-//                 [
-//                     route().params['organisation'],
-//                     route().params['fulfilment'],
-//                     route().params['fulfilmentCustomer'],
-//                     pallet['slug']
-//                 ])
+        case 'grp.org.warehouses.show.infrastructure.locations.show':
+            return route(
+                'grp.org.warehouses.show.infrastructure.locations.show.pallets.show',
+                [
+                    route().params['organisation'],
+                    route().params['warehouse'],
+                    route().params['location'],
+                    pallet['slug']
+                ])
+        case 'grp.org.fulfilments.show.crm.customers.show':
+            return route(
+                'grp.org.fulfilments.show.crm.customers.show.pallets.show',
+                [
+                    route().params['organisation'],
+                    route().params['fulfilment'],
+                    route().params['fulfilmentCustomer'],
+                    pallet['slug']
+                ])
 
-//         default:
-//             return []
-//     }
-// }
+        default:
+            return []
+    }
+}
 
 </script>
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <!-- <template #cell(reference)="{ item: pallet }">
-            <Link :href="'palletRoute(pallet)'" class="primaryLink">
-                {{ pallet['reference'] }}
+        <template #cell(reference)="{ item: pallet }">
+            <Link :href="palletRoute(pallet)" class="primaryLink">
+                {{ pallet.reference }}
             </Link>
-        </template> -->
+        </template>
 
         <template #cell(state)="{ item: pallet }">
             <!-- <Icon v-if="pallet['state_icon']" :data="pallet['state_icon']" class="px-1" /> -->
@@ -89,9 +90,9 @@ const props = defineProps<{
         </template>
 
         <!-- Column: Pallet Reference -->
-        <template #cell(reference)="{ item: pallet }">
+      <!--   <template #cell(reference)="{ item: pallet }">
             {{ pallet.reference }}
-        </template>
+        </template> -->
 
         <!-- Column: Rental name -->
         <template #cell(rental)="{ item: pallet }">

@@ -1,16 +1,14 @@
 <?php
 
 /*
- * author Arya Permana - Kirin
- * created on 15-10-2024-16h-07m
- * github: https://github.com/KirinZero0
- * copyright 2024
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 31 Dec 2024 04:34:09 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Models\Reminder;
+namespace App\Models\CRM;
 
 use App\Models\Catalogue\Product;
-use App\Models\CRM\Customer;
 use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -34,7 +32,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $fetched_at
  * @property string|null $last_fetched_at
  * @property string|null $source_id
- * @property-read Customer $customer
+ * @property-read \App\Models\CRM\Customer $customer
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read Product $product

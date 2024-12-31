@@ -21,7 +21,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -47,7 +46,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $source_id
  * @property-read Customer|null $customer
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatching\DeliveryNote> $deliveryNotes
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatching\ShipmentEvent> $events
  * @property-read Group $group
  * @property-read Organisation $organisation
  * @property-read \App\Models\Dispatching\Shipper|null $shipper
@@ -82,11 +80,6 @@ class Shipment extends Model
     public function shipper(): BelongsTo
     {
         return $this->belongsTo(Shipper::class);
-    }
-
-    public function events(): HasMany
-    {
-        return $this->hasMany(ShipmentEvent::class);
     }
 
 

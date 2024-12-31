@@ -120,7 +120,7 @@ class Workplace extends Model implements Auditable
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(8);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
 

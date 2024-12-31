@@ -16,14 +16,18 @@ use App\Actions\CRM\Customer\Hydrators\CustomerHydrateOrders;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateTopUps;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
 use App\Actions\CRM\Customer\Search\CustomerRecordSearch;
-use App\Actions\HydrateModel;
+use App\Actions\Traits\Hydrators\WithHydrateCommand;
 use App\Models\CRM\Customer;
-use Illuminate\Support\Collection;
 
-class HydrateCustomers extends HydrateModel
+class HydrateCustomers
 {
-    public string $commandSignature = 'hydrate:customers {organisations?*} {--s|slugs=}';
+    use WithHydrateCommand;
+    public string $commandSignature = 'hydrate:customers {organisations?*} {--s|slug=}';
 
+    public function __construct()
+    {
+        $this->model = Customer::class;
+    }
 
     public function handle(Customer $customer): void
     {
@@ -38,13 +42,6 @@ class HydrateCustomers extends HydrateModel
         CustomerHydrateCreditTransactions::run($customer);
     }
 
-    protected function getModel(string $slug): Customer
-    {
-        return Customer::where('slug', $slug)->first();
-    }
 
-    protected function getAllModels(): Collection
-    {
-        return Customer::withTrashed()->get();
-    }
+
 }

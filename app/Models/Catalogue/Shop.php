@@ -45,7 +45,6 @@ use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\InvoiceTransactionHasFeedback;
-use App\Models\Helpers\Issue;
 use App\Models\Helpers\Query;
 use App\Models\Helpers\SerialReference;
 use App\Models\Helpers\TaxNumber;
@@ -159,7 +158,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
  * @property-read LaravelCollection<int, Invoice> $invoices
- * @property-read LaravelCollection<int, Issue> $issues
  * @property-read LaravelCollection<int, Mailshot> $mailshots
  * @property-read \App\Models\Catalogue\ShopMailshotsIntervals|null $mailshotsIntervals
  * @property-read MasterShop|null $masterShop
@@ -278,7 +276,7 @@ class Shop extends Model implements HasMedia, Auditable
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(6);
+            ->slugsShouldBeNoLongerThan(664);
     }
 
     public function crmStats(): HasOne
@@ -454,11 +452,6 @@ class Shop extends Model implements HasMedia, Auditable
     public function discountsStats(): HasOne
     {
         return $this->hasOne(ShopDiscountsStats::class);
-    }
-
-    public function issues(): MorphToMany
-    {
-        return $this->morphToMany(Issue::class, 'issuable');
     }
 
     public function shippingZoneSchemas(): HasMany

@@ -9,7 +9,6 @@
 namespace App\Models\SupplyChain;
 
 use App\Models\Helpers\Currency;
-use App\Models\Helpers\Issue;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
@@ -30,7 +29,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
@@ -82,7 +80,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $images
- * @property-read Collection<int, Issue> $issues
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Collection<int, OrgSupplier> $orgSuppliers
  * @property-read Collection<int, PurchaseOrder> $purchaseOrders
@@ -196,11 +193,6 @@ class Supplier extends Model implements HasMedia, Auditable
     public function agent(): BelongsTo
     {
         return $this->belongsTo(Agent::class);
-    }
-
-    public function issues(): MorphToMany
-    {
-        return $this->morphToMany(Issue::class, 'issuable');
     }
 
     public function currency(): BelongsTo

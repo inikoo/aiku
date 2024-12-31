@@ -16,30 +16,23 @@ enum MarketplaceSupplierTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE           = 'showcase';
-    case SUPPLIER_PRODUCTS  = 'supplier_products';
-    case ISSUES             = 'issues';
-    case HISTORY            = 'history';
-
-    case DATA               = 'data';
-
-    case SYSTEM_USERS       = 'system_users';
-
-    case ATTACHMENTS        = 'attachments';
-    case IMAGES             = 'images';
-
+    case SHOWCASE = 'showcase';
+    case SUPPLIER_PRODUCTS = 'supplier_products';
+    case FEEDBACKS = 'feedbacks';
+    case HISTORY = 'history';
+    case DATA = 'data';
+    case SYSTEM_USERS = 'system_users';
+    case ATTACHMENTS = 'attachments';
+    case IMAGES = 'images';
 
 
     public function blueprint(): array
     {
         return match ($this) {
-
-
             MarketplaceSupplierTabsEnum::SUPPLIER_PRODUCTS => [
                 'title' => __('products'),
                 'icon'  => 'fal fa-box-usd',
             ],
-
 
 
             MarketplaceSupplierTabsEnum::SHOWCASE => [
@@ -54,7 +47,7 @@ enum MarketplaceSupplierTabsEnum: string
                 'align' => 'right',
             ],
 
-            MarketplaceSupplierTabsEnum::ISSUES => [
+            MarketplaceSupplierTabsEnum::FEEDBACKS => [
                 'title' => __('issues'),
                 'icon'  => 'fal fa-poop',
                 'type'  => 'icon',
@@ -77,14 +70,13 @@ enum MarketplaceSupplierTabsEnum: string
                 'icon'  => 'fal fa-paper-plane',
                 'type'  => 'icon',
                 'align' => 'right',
-            ],MarketplaceSupplierTabsEnum::HISTORY => [
+            ],
+            MarketplaceSupplierTabsEnum::HISTORY => [
                 'title' => __('changelog'),
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
                 'align' => 'right'
             ],
-
-
         };
     }
 }

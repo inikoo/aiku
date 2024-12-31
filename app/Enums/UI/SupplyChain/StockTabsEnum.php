@@ -23,7 +23,7 @@ enum StockTabsEnum: string
     case HISTORY             = 'history';
     case IMAGES              = 'images';
     case ATTACHMENTS         = 'attachments';
-    case ISSUES              = 'issues';
+    case FEEDBACKS              = 'feedbacks';
 
 
 
@@ -36,7 +36,7 @@ enum StockTabsEnum: string
                 'icon'  => 'fal fa-dollar-sign',
             ],
 
-            StockTabsEnum::ISSUES => [
+            StockTabsEnum::FEEDBACKS => [
                 'align' => 'right',
                 'type'  => 'icon',
                 'title' => __('issues'),

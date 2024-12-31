@@ -392,30 +392,3 @@ test('update shipment', function ($lastShipment) {
 
     expect($shipment->reference)->toBe($arrayData['reference']);
 })->depends('create shipment');
-
-/*
-test('create shipping event', function ($deliveryNote, $shipper) {
-
-    $arrayData = [
-        'events' => [
-            'state' => 'in-process'
-        ]
-    ];
-
-    $shippingEvent = StoreShippingEvent::make()->action($shipper, $arrayData);
-    expect($shippingEvent)->toBeInstanceOf(ShippingEvent::class);
-
-    return $shippingEvent;
-})->depends('create shipper');
-
-test('update shipping event', function ($shippingEvent) {
-    $arrayData = [
-        'events' => [
-            'state' => 'delivered'
-        ]
-    ];
-
-    $shippingEvent = UpdateShippingEvent::make()->action($shippingEvent, $arrayData);
-
-    expect($shippingEvent->events)->toBe($arrayData['events']);
-})->depends('create shipping event');*/

@@ -28,13 +28,11 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\Goods\Stock;
 use App\Models\Helpers\Address;
-use App\Models\Helpers\Issue;
 use App\Models\Helpers\Media;
 use App\Models\Helpers\TaxNumber;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
-use App\Models\Reminder\BackInStockReminder;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddress;
@@ -112,7 +110,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\CRM\Appointment> $appointments
  * @property-read MediaCollection<int, Media> $attachments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
- * @property-read Collection<int, BackInStockReminder> $backInStockReminder
+ * @property-read Collection<int, \App\Models\CRM\BackInStockReminder> $backInStockReminder
  * @property-read Collection<int, CustomerClient> $clients
  * @property-read \App\Models\CRM\CustomerComms|null $comms
  * @property-read Collection<int, CreditTransaction> $creditTransactions
@@ -125,7 +123,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Media|null $image
  * @property-read MediaCollection<int, Media> $images
  * @property-read Collection<int, Invoice> $invoices
- * @property-read Collection<int, Issue> $issues
  * @property-read MediaCollection<int, Media> $media
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read Collection<int, Order> $orders
@@ -220,18 +217,10 @@ class Customer extends Model implements HasMedia, Auditable
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                $slug = $this->company_name;
-                if ($slug == '') {
-                    $slug = $this->contact_name;
-                }
-                if ($slug == '' or $slug == 'Unknown') {
-                    $slug = $this->reference;
-                }
-
-                return $slug;
+                return $this->reference.'-'.$this->shop->slug;
             })
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(36)
+            ->slugsShouldBeNoLongerThan(128)
             ->doNotGenerateSlugsOnUpdate();
     }
 
@@ -329,11 +318,6 @@ class Customer extends Model implements HasMedia, Auditable
     public function taxNumber(): MorphOne
     {
         return $this->morphOne(TaxNumber::class, 'owner');
-    }
-
-    public function issues(): MorphToMany
-    {
-        return $this->morphToMany(Issue::class, 'issuable');
     }
 
     public function fulfilmentCustomer(): HasOne

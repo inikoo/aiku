@@ -47,12 +47,16 @@ class IndexEmailAddress extends GrpAction
             ->select([
                 'email_addresses.id',
                 'email_addresses.email',
-                'email_addresses.number_marketing_dispatches as marketing',
-                'email_addresses.number_transactional_dispatches as transactional'
+                'email_addresses.number_marketing_dispatches',
+                'email_addresses.number_transactional_dispatches',
+                'email_addresses.last_marketing_dispatch_at',
+                'email_addresses.last_transactional_dispatch_at',
+                'email_addresses.soft_bounced_at',
+                'email_addresses.hard_bounced_at',
             ]);
 
         return $queryBuilder
-            ->allowedSorts(['email', 'marketing', 'transactional'])
+            ->allowedSorts(['email', 'marketing', 'transactional', 'last_marketing_dispatch', 'last_transactional_dispatch', 'soft_bounced', 'hard_bounced'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -97,8 +101,12 @@ class IndexEmailAddress extends GrpAction
 
             $table
                 ->column(key: 'email', label: __('Email'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'marketing', label: __('Marketing'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'transactional', label: __('Transactional'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'number_marketing_dispatches', label: __('Marketing'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_transactional_dispatches', label: __('Transactional'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'last_marketing_dispatch_at', label: __('Last Marketing Dispatch'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'last_transactional_dispatch_at', label: __('Last Transactional Dispatch'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'soft_bounced_at', label: __('Soft Bounced'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'hard_bounced_at', label: __('Hard Bounced'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
@@ -150,8 +158,7 @@ class IndexEmailAddress extends GrpAction
         };
 
         return match ($routeName) {
-            'grp.overview.comms-marketing.email-addresses.index' =>
-            array_merge(
+            default => array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
@@ -159,8 +166,7 @@ class IndexEmailAddress extends GrpAction
                         'parameters' => $routeParameters
                     ]
                 )
-            ),
-            default => []
+            )
         };
     }
 }

@@ -175,15 +175,6 @@ class IndexSuppliers extends GrpAction
         return $this->handle($group);
     }
 
-    public function inOverview(ActionRequest $request): LengthAwarePaginator
-    {
-        $group        = app('group');
-        $this->parent = $group;
-        $this->initialisation($group, $request);
-
-        return $this->handle($group);
-    }
-
     public function inAgent(Agent $agent, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $agent;

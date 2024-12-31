@@ -12,10 +12,10 @@ use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Product\ProductStatusEnum;
 use App\Enums\Catalogue\Product\ProductTradeConfigEnum;
 use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
+use App\Models\CRM\BackInStockReminder;
 use App\Models\CRM\Favourite;
 use App\Models\Goods\TradeUnit;
 use App\Models\Inventory\OrgStock;
-use App\Models\Reminder\BackInStockReminder;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
@@ -192,7 +192,7 @@ class Product extends Model implements Auditable, HasMedia
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(64);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function stats(): HasOne

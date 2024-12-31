@@ -144,7 +144,8 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
                 return preg_replace('/@/', '_at_', $slug);
             })
             ->doNotGenerateSlugsOnUpdate()
-            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(64);
+            ->saveSlugsTo('slug')
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function sendPasswordResetNotification($token): void

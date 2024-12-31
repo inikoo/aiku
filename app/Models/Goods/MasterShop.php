@@ -96,7 +96,7 @@ class MasterShop extends Model implements Auditable
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(6);
+            ->slugsShouldBeNoLongerThan(64);
     }
 
     public function group(): BelongsTo

@@ -169,7 +169,8 @@ class Pallet extends Model implements Auditable
             ->generateSlugsFrom('reference')
             ->doNotGenerateSlugsOnUpdate()
             ->doNotGenerateSlugsOnCreate()
-            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(64);
+            ->saveSlugsTo('slug')
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function scopeLocationId(Builder $query, $located): Builder

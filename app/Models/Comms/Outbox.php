@@ -133,7 +133,7 @@ class Outbox extends Model
             })
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(64);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
 

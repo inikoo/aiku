@@ -101,7 +101,7 @@ class RentalAgreement extends Model implements Auditable
             ->generateSlugsFrom('reference')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(64);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function recurringBills(): HasMany

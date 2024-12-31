@@ -16,22 +16,20 @@ enum SupplierProductTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE               = 'showcase';
-    case PURCHASE_SALES         = 'purchase_sales';
-    case SUPPLIER_PRODUCTS      = 'supplier_products';
-    case PURCHASE_ORDERS        = 'purchase_orders';
-    case DELIVERIES             = 'deliveries';
-    case ISSUES                 = 'issues';
-    case HISTORY                = 'history';
-    case ATTACHMENTS            = 'attachments';
-    case IMAGES                 = 'images';
-
+    case SHOWCASE = 'showcase';
+    case PURCHASE_SALES = 'purchase_sales';
+    case SUPPLIER_PRODUCTS = 'supplier_products';
+    case PURCHASE_ORDERS = 'purchase_orders';
+    case DELIVERIES = 'deliveries';
+    case FEEDBACKS = 'feedbacks';
+    case HISTORY = 'history';
+    case ATTACHMENTS = 'attachments';
+    case IMAGES = 'images';
 
 
     public function blueprint(): array
     {
         return match ($this) {
-
             SupplierProductTabsEnum::SHOWCASE => [
                 'title' => __('supplier product'),
                 'icon'  => 'fas fa-info-circle',
@@ -54,7 +52,7 @@ enum SupplierProductTabsEnum: string
                 'icon'  => 'fal fa-truck',
             ],
 
-            SupplierProductTabsEnum::ISSUES => [
+            SupplierProductTabsEnum::FEEDBACKS => [
                 'title' => __('issues'),
                 'icon'  => 'fal fa-poop',
                 'type'  => 'icon',
@@ -78,8 +76,6 @@ enum SupplierProductTabsEnum: string
                 'type'  => 'icon',
                 'align' => 'right'
             ],
-
-
         };
     }
 }

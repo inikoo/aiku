@@ -9,13 +9,13 @@
 
 namespace App\Actions\CRM\BackInStockReminder;
 
-use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCustomersWhoRemindedInCategories;
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCustomersWhoReminded;
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCustomersWhoRemindedInCategories;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateBackInStockReminders;
 use App\Actions\OrgAction;
 use App\Models\Catalogue\Product;
+use App\Models\CRM\BackInStockReminder;
 use App\Models\CRM\Customer;
-use App\Models\Reminder\BackInStockReminder;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreBackInStockReminder extends OrgAction

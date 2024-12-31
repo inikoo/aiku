@@ -111,10 +111,14 @@ class OfferComponent extends Model implements Auditable
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('code')
+
+            ->generateSlugsFrom(function () {
+                return $this->code.'-'.$this->offer->slug;
+            })
+
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(6);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function getRouteKeyName(): string

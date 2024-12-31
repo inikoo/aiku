@@ -131,7 +131,7 @@ class Service extends Model implements Auditable
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(64);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function recurringBills(): MorphToMany

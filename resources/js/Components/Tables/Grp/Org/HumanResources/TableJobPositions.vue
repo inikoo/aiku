@@ -25,6 +25,13 @@ function jobPositionRoute(jobPosition: JobPosition) {
                     route().params['organisation'],
                     jobPosition.slug
                 ]);
+      case 'grp.overview.hr.responsibilities.index':
+            return route(
+                'grp.org.hr.job_positions.show',
+                [
+                    jobPosition.organisation_slug,
+                    jobPosition.slug
+                ]);
 
     }
 }
