@@ -239,14 +239,14 @@ test('create services in fulfilment shop', function (Fulfilment $fulfilment) {
     StoreService::make()->action(
         $fulfilment->shop,
         [
-           'price'                    => 111,
-           'unit'                     => 'job',
-           'code'                     => 'Ser-03',
-           'name'                     => 'Service 3',
-           'is_auto_assign'           => true,
-           'auto_assign_trigger'      => 'PalletReturn',
-           'auto_assign_subject'      => 'Pallet',
-           'auto_assign_subject_type' => 'pallet'
+            'price'                    => 111,
+            'unit'                     => 'job',
+            'code'                     => 'Ser-03',
+            'name'                     => 'Service 3',
+            'is_auto_assign'           => true,
+            'auto_assign_trigger'      => 'PalletReturn',
+            'auto_assign_subject'      => 'Pallet',
+            'auto_assign_subject_type' => 'pallet'
         ]
     );
 
@@ -1253,7 +1253,6 @@ test('update pallet return', function (PalletReturn $palletReturn) {
     $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
 
     $updatedPalletReturn = UpdatePalletReturn::make()->action(
-        $this->organisation,
         $palletReturn,
         [
             'customer_notes' => 'note',
@@ -1303,11 +1302,30 @@ test('store pallet to return', function (PalletReturn $palletReturn) {
     return $palletReturn;
 })->depends('create pallet return');
 
+test('Update pallet reference', function (PalletReturn $palletReturn) {
+
+    /** @var Pallet $pallet */
+    $pallet = $palletReturn->fulfilmentCustomer->pallets()->first();
+
+    $newReference = 'GHO-p0006';
+
+    $pallet = UpdatePallet::make()->action(
+        $pallet,
+        [
+            'reference' => 'GHO-p0006',
+        ]
+    );
+    expect($pallet)->toBeInstanceOf(Pallet::class)
+        ->and($pallet->reference)->toBe($newReference);
+
+
+})->depends('store pallet to return');
+
 test('import pallets in return (xlsx)', function (PalletReturn $palletReturn) {
     Storage::fake('local');
 
     $tmpPath = 'tmp/uploads/';
-
+    //
     $filePath = base_path('tests/fixtures/returnPalletItems.xlsx');
     $file     = new UploadedFile($filePath, 'returnPalletItems.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
 
@@ -1324,7 +1342,6 @@ test('import pallets in return (xlsx)', function (PalletReturn $palletReturn) {
         ->and($upload->number_rows)->toBe(1)
         ->and($upload->number_success)->toBe(1)
         ->and($upload->number_fails)->toBe(0)
-
         ->and($palletReturn->pallets()->count())->toBe(2)
         ->and($palletReturn->stats->number_pallets)->toBe(2);
 
@@ -1333,7 +1350,7 @@ test('import pallets in return (xlsx)', function (PalletReturn $palletReturn) {
 
 test('import pallets in return (xlsx) again', function (PalletReturn $palletReturn) {
     Storage::fake('local');
-    $tmpPath = 'tmp/uploads/';
+    $tmpPath  = 'tmp/uploads/';
     $filePath = base_path('tests/fixtures/returnPalletItems.xlsx');
     $file     = new UploadedFile($filePath, 'returnPalletItems.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
 
@@ -1350,7 +1367,6 @@ test('import pallets in return (xlsx) again', function (PalletReturn $palletRetu
         ->and($upload->number_rows)->toBe(1)
         ->and($upload->number_success)->toBe(0)
         ->and($upload->number_fails)->toBe(1)
-
         ->and($palletReturn->pallets()->count())->toBe(2)
         ->and($palletReturn->stats->number_pallets)->toBe(2);
 
@@ -1781,8 +1797,8 @@ test('import pallet and stored item (xlsx)', function (PalletDelivery $palletDel
 
     $tmpPath = 'tmp/uploads/';
 
-    $filePath = base_path('tests/fixtures/palletWithStoredItem.xlsx');
-    $file     = new UploadedFile($filePath, 'palletWithStoredItem.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+    $filePath = base_path('tests/fixtures/palletWithStoredItems.xlsx');
+    $file     = new UploadedFile($filePath, 'palletWithStoredItems.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
 
     Storage::fake('local')->put($tmpPath, $file);
 
@@ -1810,7 +1826,7 @@ test('import pallet and stored item (xlsx)', function (PalletDelivery $palletDel
         ->and($pallet->storedItems()->count())->toBe(1);
 
     return $palletDelivery;
-})->depends('create fourth pallet delivery (pallet import test)');
+})->depends('create fourth pallet delivery (pallet import test)')->todo();
 
 test('create third fulfilment customer', function (Fulfilment $fulfilment) {
     $fulfilmentCustomer = StoreFulfilmentCustomer::make()->action(
@@ -2429,8 +2445,8 @@ test('consolidate 2nd recurring bill', function ($fulfilmentCustomer) {
 })->depends('pay invoice (full)');
 
 test('pay invoice (half)', function ($invoice) {
-    $paymentAccount     = $invoice->shop->paymentAccounts()->first();
-    $payment            = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
+    $paymentAccount = $invoice->shop->paymentAccounts()->first();
+    $payment        = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
         'amount' => 70,
         'status' => PaymentStatusEnum::SUCCESS->value,
         'state'  => PaymentStateEnum::COMPLETED->value

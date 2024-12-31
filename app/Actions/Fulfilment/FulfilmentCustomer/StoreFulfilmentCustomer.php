@@ -24,6 +24,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class StoreFulfilmentCustomer extends OrgAction
 {
+    /**
+     * @throws \Throwable
+     */
     public function handle(Fulfilment $fulfilment, array $modelData): FulfilmentCustomer
     {
         data_set($fulfilmmentCustomerModelData, 'pallets_storage', in_array('pallets_storage', $modelData['interest']));
@@ -98,6 +101,9 @@ class StoreFulfilmentCustomer extends OrgAction
         ]));
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(Fulfilment $fulfilment, ActionRequest $request): FulfilmentCustomer
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
@@ -105,11 +111,13 @@ class StoreFulfilmentCustomer extends OrgAction
         return $this->handle($fulfilment, $this->validatedData);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function action(Fulfilment $fulfilment, array $modelData): FulfilmentCustomer
     {
         $this->asAction = true;
         $this->initialisationFromFulfilment($fulfilment, $modelData);
-        // dd($modelData);
 
         return $this->handle($fulfilment, $this->validatedData);
     }

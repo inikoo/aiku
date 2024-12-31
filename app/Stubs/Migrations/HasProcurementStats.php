@@ -17,6 +17,19 @@ use Illuminate\Database\Schema\Blueprint;
 
 trait HasProcurementStats
 {
+    public function procurementStatsFields(Blueprint $table): Blueprint
+    {
+
+        $table = $this->orgAgentStats($table);
+        $table = $this->orgSuppliersStats($table);
+        $table = $this->orgSupplierProductsStats($table);
+        $table = $this->purchaseOrdersStats($table);
+        $table = $this->stockDeliveriesStats($table);
+        $table = $this->purchaseOrderTransactionsStats($table);
+
+        return $this->stockDeliveryItemsStats($table);
+    }
+
     public function orgAgentStats(Blueprint $table): Blueprint
     {
         $table->unsignedInteger('number_org_agents')->default(0)->comment('Total number agens active+archived');

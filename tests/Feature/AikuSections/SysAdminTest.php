@@ -489,12 +489,12 @@ test('can show hr dashboard', function (Guest $guest) {
 test('Hydrate group', function (Group $group) {
     HydrateGroup::run($group);
 
-    $this->artisan('hydrate:groups '.$group->slug)->assertSuccessful();
+    $this->artisan('hydrate:groups')->assertSuccessful();
 })->depends('create group');
 
 test('Hydrate organisations', function (Organisation $organisation) {
     HydrateOrganisations::run($organisation);
-    $this->artisan('hydrate:organisations '.$organisation->slug)->assertSuccessful();
+    $this->artisan('hydrate:organisations')->assertSuccessful();
 })->depends('create organisation type shop');
 
 test('seed stock images', function () {
