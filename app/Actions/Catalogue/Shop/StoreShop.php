@@ -113,6 +113,15 @@ class StoreShop extends OrgAction
             $shop->mailshotsIntervals()->create();
             $shop->discountsStats()->create();
             $shop->orderingIntervals()->create();
+
+            $shop->outboxNewsletterIntervals()->create();
+            $shop->outboxMarketingIntervals()->create();
+            $shop->outboxMarketingNotificationIntervals()->create();
+            $shop->outboxCustomerNotificationIntervals()->create();
+            $shop->outboxColdEmailsIntervals()->create();
+            $shop->outboxPushIntervals()->create();
+
+
             foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
                 $shop->timeSeries()->create(['frequency' => $frequency]);
             }

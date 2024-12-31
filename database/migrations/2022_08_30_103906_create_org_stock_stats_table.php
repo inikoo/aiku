@@ -8,13 +8,11 @@
 
 use App\Stubs\Migrations\HasInventoryStats;
 use App\Stubs\Migrations\HasProcurementStats;
-use App\Stubs\Migrations\HasSalesIntervals;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    use HasSalesIntervals;
     use HasInventoryStats;
     use HasProcurementStats;
     public function up(): void
