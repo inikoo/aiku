@@ -164,9 +164,11 @@ class IndexWebsites extends OrgAction
                 )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], sortable: true, type: 'icon')
                 ->column(key: 'code', label: __('code'), sortable: true)
-                ->column(key: 'name', label: __('name'), sortable: true)
-                // ->column(key: 'routeUniqueVisitor', label: __('unique visitor'))
-                ->column(key: 'domain', label: __('domain'), sortable: true)
+                ->column(key: 'name', label: __('name'), sortable: true);
+            if (!($parent instanceof Group)) {
+                $table->column(key: 'routeUniqueVisitor', label: __('unique visitor'));
+            }
+            $table->column(key: 'domain', label: __('domain'), sortable: true)
                 ->defaultSort('code');
         };
     }
