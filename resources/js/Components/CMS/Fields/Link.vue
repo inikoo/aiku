@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, defineEmits, onMounted } from "vue"
+import { ref, watch, onMounted } from "vue"
 import { trans } from "laravel-vue-i18n"
 import RadioButton from "primevue/radiobutton"
 import PureInput from "@/Components/Pure/PureInput.vue"

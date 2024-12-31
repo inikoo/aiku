@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, defineExpose } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 
 const showPopup = ref(false);
 const customDiv = ref(null);

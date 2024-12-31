@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, HtmlHTMLAttributes, ref } from "vue";
+import { HtmlHTMLAttributes, ref } from "vue";
 import { Pie } from "vue-chartjs";
 import {
     Chart as ChartJS,

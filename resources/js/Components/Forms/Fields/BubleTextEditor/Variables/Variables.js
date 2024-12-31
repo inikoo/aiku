@@ -2,7 +2,8 @@ import Mention  from "@tiptap/extension-mention"
 import { Plugin } from "prosemirror-state"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { PluginKey } from '@tiptap/pm/state'
-import { mergeAttributes, Node } from '@tiptap/core'
+import { mergeAttributes } from '@tiptap/core'
+// import { Node } from '@tiptap/core'
 
 export const MentionPluginKey = new PluginKey('mention')
 

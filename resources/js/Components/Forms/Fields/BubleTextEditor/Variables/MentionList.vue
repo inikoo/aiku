@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watch, ref, defineExpose } from 'vue';
+import { watch, ref } from 'vue';
 
 const props = withDefaults(defineProps<{
   items: {

@@ -1,7 +1,7 @@
 <script setup>
-import { ref } from 'vue'
-import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+// import { ref } from 'vue'
+// import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
+// import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheck, faPlus, faMinus } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { Head } from '@inertiajs/vue3'
