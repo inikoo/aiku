@@ -6,13 +6,13 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Stubs\Migrations\HasSalesIntervals;
+use App\Stubs\Migrations\HasDateIntervalsStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    use HasSalesIntervals;
+    use HasDateIntervalsStats;
 
     public function up(): void
     {
@@ -20,7 +20,7 @@ return new class () extends Migration {
             $table->increments('id');
             $table->unsignedInteger('product_category_id')->index();
             $table->foreign('product_category_id')->references('id')->on('product_categories')->onDelete('cascade')->onUpdate('cascade');
-            $table = $this->salesDateIntervals($table, [
+            $table = $this->decimalDateIntervals($table, [
                 'sales',
                 'sales_org_currency',
                 'sales_grp_currency'

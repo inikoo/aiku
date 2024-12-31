@@ -29,12 +29,9 @@ return new class () extends Migration {
             $table = $this->catalogueFamilyStats($table);
             $table = $this->catalogueProductsStats($table);
             $table = $this->topSellersStats($table);
-
-
             $table = $this->getCustomersWhoFavouritedStatsFields($table);
             $table = $this->getCustomersWhoRemindedStatsFields($table);
 
-            $table = $this->salesIntervalFields($table, ['shop_amount', 'org_amount', 'grp_amount']);
             $table->timestampsTz();
         });
     }

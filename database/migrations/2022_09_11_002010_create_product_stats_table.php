@@ -6,17 +6,14 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Stubs\Migrations\HasBackInStockReminderStats;
 use App\Stubs\Migrations\HasCatalogueStats;
 use App\Stubs\Migrations\HasFavouritesStats;
-use App\Stubs\Migrations\HasSalesIntervals;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    use HasSalesIntervals;
     use HasCatalogueStats;
     use HasFavouritesStats;
     use HasBackInStockReminderStats;
@@ -31,10 +28,6 @@ return new class () extends Migration {
             $table = $this->productVariantFields($table);
             $table = $this->getCustomersWhoFavouritedStatsFields($table);
             $table = $this->getCustomersWhoRemindedStatsFields($table);
-
-            foreach (ProductStateEnum::cases() as $case) {
-                $table->unsignedInteger('number_products_state_'.$case->snake())->default(0);
-            }
 
             $table->timestampsTz();
         });

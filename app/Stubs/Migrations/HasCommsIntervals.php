@@ -21,15 +21,18 @@ trait HasCommsIntervals
                 $case->value.'_dispatched_emails',
                 $case->value.'_opened_emails',
                 $case->value.'_clicked_emails',
-                $case->value.'_unsubscribed_emails',
-                $case->value.'_bounced_emails'
+                $case->value.'_bounced_emails',
+                $case->value.'_subscribed',
+                $case->value.'_unsubscribed',
+
             ];
 
             if (in_array($case, [
                 OutboxTypeEnum::CUSTOMER_NOTIFICATION,
                 OutboxTypeEnum::USER_NOTIFICATION
             ])) {
-                unset($fields[$case->value.'_unsubscribed_emails']);
+                unset($fields[$case->value.'_subscribed']);
+                unset($fields[$case->value.'_unsubscribed']);
             }
 
             if ($case == OutboxTypeEnum::USER_NOTIFICATION) {

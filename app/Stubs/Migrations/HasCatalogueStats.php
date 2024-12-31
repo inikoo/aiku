@@ -52,12 +52,7 @@ trait HasCatalogueStats
 
     public function catalogueStats(Blueprint $table): Blueprint
     {
-        $table->unsignedInteger('number_departments')->default(0);
-        $table->unsignedInteger('number_current_departments')->default(0);
-
-        foreach (ProductCategoryStateEnum::cases() as $departmentState) {
-            $table->unsignedInteger('number_departments_state_'.$departmentState->snake())->default(0);
-        }
+        $table = $this->catalogueDepartmentStatsFields($table);
 
         $table->unsignedInteger('number_collection_categories')->default(0);
         $table->unsignedInteger('number_collections')->default(0);
@@ -69,6 +64,18 @@ trait HasCatalogueStats
 
         return $this->topSellersStats($table);
     }
+
+    public function catalogueDepartmentStatsFields(Blueprint $table): Blueprint
+    {
+        $table->unsignedInteger('number_departments')->default(0);
+        $table->unsignedInteger('number_current_departments')->default(0);
+
+        foreach (ProductCategoryStateEnum::cases() as $departmentState) {
+            $table->unsignedInteger('number_departments_state_'.$departmentState->snake())->default(0);
+        }
+        return $table;
+    }
+
 
 
     public function topSellersStats(Blueprint $table): Blueprint
@@ -194,5 +201,10 @@ trait HasCatalogueStats
 
         return $table;
     }
+
+
+
+
+
 
 }

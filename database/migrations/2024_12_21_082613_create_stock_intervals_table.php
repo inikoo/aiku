@@ -6,22 +6,22 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Stubs\Migrations\HasSalesIntervals;
+use App\Stubs\Migrations\HasDateIntervalsStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    use HasSalesIntervals;
+    use HasDateIntervalsStats;
     public function up(): void
     {
         Schema::create('stock_intervals', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('stock_id')->index();
             $table->foreign('stock_id')->references('id')->on('stocks')->cascadeOnDelete();
-            $table = $this->salesIntervalFields($table, [
-                'grp_amount_revenue',
-                'grp_amount_profit',
+            $table = $this->decimalDateIntervals($table, [
+                'revenue_grp_currency',
+                'profit_grp_currency',
             ]);
             $table = $this->unsignedIntegerDateIntervals($table, [
                 'dispatched',

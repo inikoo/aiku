@@ -22,6 +22,7 @@ return new class () extends Migration {
             $table->foreign('product_category_id')->references('id')->on('product_categories')->onDelete('cascade')->onUpdate('cascade');
             $table = $this->unsignedIntegerDateIntervals($table, [
                 'invoices',
+                'refunds',
                 'orders',
                 'delivery_notes',
                 'customers_invoiced'
