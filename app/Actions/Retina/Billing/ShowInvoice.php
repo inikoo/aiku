@@ -48,6 +48,9 @@ class ShowInvoice extends RetinaAction
 
     public function htmlResponse(Invoice $invoice, ActionRequest $request): Response
     {
+        $payAmount   = $invoice->total_amount - $invoice->payment_amount;
+        $roundedDiff = round($payAmount, 2);
+
         return Inertia::render(
             'Billing/RetinaInvoice',
             [
@@ -161,7 +164,8 @@ class ShowInvoice extends RetinaAction
                             ]
 
                         ],
-                        'paid_amount' => $invoice->payment_amount
+                        'paid_amount' => $invoice->payment_amount,
+                        'pay_amount'  => $roundedDiff
                     ]
                 ],
 
