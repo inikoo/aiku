@@ -23,6 +23,8 @@ class UpdateStockDelivery extends OrgAction
     use WithNoStrictProcurementOrderRules;
 
 
+    private StockDelivery $stockDelivery;
+
     public function handle(StockDelivery $stockDelivery, array $modelData): StockDelivery
     {
         return $this->update($stockDelivery, $modelData, ['data']);
@@ -40,24 +42,36 @@ class UpdateStockDelivery extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'reference'   => [
+            'reference' => [
                 'sometimes',
                 'required',
                 $this->strict ? 'alpha_dash' : 'string',
-                $this->strict ? new IUnique(
-                    table: 'stock_deliveries',
-                    extraConditions: [
-                        ['column' => 'organisation_id', 'value' => $this->organisation->id],
-                    ]
-                ) : null,
             ],
         ];
 
+
+        if ($this->strict) {
+            $rules['reference'][] = new IUnique(
+                table: 'stock_deliveries',
+                extraConditions: [
+                    [
+                        'column' => 'organisation_id',
+                        'value'  => $this->organisation->id
+                    ],
+                    [
+                        'column'   => 'id',
+                        'operator' => '!=',
+                        'value'    => $this->stockDelivery->id
+                    ]
+                ]
+            );
+        }
+
+
         if (!$this->strict) {
-            $rules                 = $this->noStrictUpdateRules($rules);
+            $rules = $this->noStrictUpdateRules($rules);
             $rules = $this->noStrictProcurementOrderRules($rules);
             $rules = $this->noStrictStockDeliveryRules($rules);
-
         }
 
         return $rules;
@@ -71,6 +85,7 @@ class UpdateStockDelivery extends OrgAction
         }
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
+        $this->stockDelivery       = $stockDelivery;
         $this->initialisation($stockDelivery->organisation, $modelData);
 
         return $this->handle($stockDelivery, $this->validatedData);

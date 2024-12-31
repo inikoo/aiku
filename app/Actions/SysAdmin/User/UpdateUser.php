@@ -77,7 +77,7 @@ class UpdateUser extends GrpAction
                     ]
                 ),
             ],
-            'password'       => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') || !$this->strict ? null : Password::min(8)->uncompromised()],
+            'password'       => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') || !$this->strict ? Password::min(3) : Password::min(8)->uncompromised()],
             'email'          => [
                 'sometimes',
                 'nullable',

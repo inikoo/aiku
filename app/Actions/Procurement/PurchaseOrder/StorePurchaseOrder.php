@@ -97,13 +97,7 @@ class StorePurchaseOrder extends OrgAction
             'reference'       => [
                 'sometimes',
                 'required',
-                $this->strict ? 'alpha_dash' : 'string',
-                $this->strict ? new IUnique(
-                    table: 'purchase_orders',
-                    extraConditions: [
-                        ['column' => 'organisation_id', 'value' => $this->organisation->id],
-                    ]
-                ) : null,
+                $this->strict ? 'alpha_dash' : 'string'
             ],
             'state'           => ['sometimes', 'required', Rule::enum(PurchaseOrderStateEnum::class)],
             'delivery_state' => ['sometimes', 'required', Rule::enum(PurchaseOrderDeliveryStateEnum::class)],
@@ -113,6 +107,16 @@ class StorePurchaseOrder extends OrgAction
             'date'            => ['sometimes', 'required'],
             'currency_id'     => ['sometimes', 'required'],
         ];
+
+        if ($this->strict) {
+            $rules['reference'][] = new IUnique(
+                table: 'purchase_orders',
+                extraConditions: [
+                    ['column' => 'organisation_id', 'value' => $this->organisation->id],
+                ]
+            );
+        }
+
 
         if (!$this->strict) {
             $rules = $this->noStrictStoreRules($rules);
