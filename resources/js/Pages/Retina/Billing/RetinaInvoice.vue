@@ -99,7 +99,7 @@
       history: {}
   }>()
   
-  console.log('qwe', props.box_stats)
+  console.log('qwe', props)
   
   const currentTab = ref<string>(props.tabs.current)
   const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
