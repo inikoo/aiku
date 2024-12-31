@@ -49,7 +49,7 @@ class IndexPurges extends OrgAction
         if ($parent instanceof Shop) {
             $query->where('shop_id', $parent->id);
         } elseif ($parent instanceof Group) {
-            $query->where('group_id', $parent->id);
+            $query->where('purges.group_id', $parent->id);
         } else {
             abort(419);
         }

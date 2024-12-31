@@ -6,18 +6,9 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Accounting\Invoice\UI;
+namespace App\Actions\Retina\Billing;
 
-use App\Actions\Catalogue\Shop\UI\ShowShop;
-use App\Actions\CRM\Customer\UI\ShowCustomer;
-use App\Actions\CRM\Customer\UI\ShowCustomerClient;
-use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
-use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
-use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
-use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
-use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
-use App\Actions\UI\Accounting\ShowAccountingDashboard;
+use App\Actions\RetinaAction;
 use App\Http\Resources\Accounting\InvoicesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Invoice;
@@ -39,11 +30,8 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexInvoices extends OrgAction
+class IndexInvoices extends RetinaAction
 {
-    use WithFulfilmentCustomerSubNavigation;
-    use WithCustomerSubNavigation;
-
     private Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|Shop $parent;
 
     public function handle(Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|Shop|Order $parent, $prefix = null): LengthAwarePaginator
@@ -80,6 +68,8 @@ class IndexInvoices extends OrgAction
         } else {
             abort(422);
         }
+
+        $queryBuilder->whereNull('paid_at');
 
         $queryBuilder->leftjoin('organisations', 'invoices.organisation_id', '=', 'organisations.id');
         $queryBuilder->leftjoin('shops', 'invoices.shop_id', '=', 'shops.id');
@@ -212,21 +202,6 @@ class IndexInvoices extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $invoices, ActionRequest $request): Response
     {
-        $subNavigation = [];
-
-        if ($this->parent instanceof CustomerClient) {
-            $subNavigation = $this->getCustomerClientSubNavigation($this->parent, $request);
-        } elseif ($this->parent instanceof Customer) {
-            if ($this->parent->is_dropshipping) {
-                $subNavigation = $this->getCustomerDropshippingSubNavigation($this->parent, $request);
-            } else {
-                $subNavigation = $this->getCustomerSubNavigation($this->parent, $request);
-            }
-        } elseif ($this->parent instanceof FulfilmentCustomer) {
-            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
-        }
-
-
         $title = __('Invoices');
 
         $icon  = [
@@ -285,7 +260,7 @@ class IndexInvoices extends OrgAction
         $routeParameters = $request->route()->originalParameters();
 
         return Inertia::render(
-            'Org/Accounting/Invoices',
+            'Billing/RetinaInvoices',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $routeName,
@@ -299,7 +274,6 @@ class IndexInvoices extends OrgAction
                     'afterTitle'    => $afterTitle,
                     'iconRight'     => $iconRight,
                     'icon'          => $icon,
-                    'subNavigation' => $subNavigation,
                     'actions'       => $actions
                 ],
                 'data'        => InvoicesResource::collection($invoices),
@@ -309,154 +283,16 @@ class IndexInvoices extends OrgAction
         )->table($this->tableStructure($this->parent));
     }
 
-
-    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $organisation;
-        $this->initialisation($organisation, $request);
-
-        return $this->handle($organisation);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $shop;
-        $this->initialisationFromShop($shop, $request);
-
-        return $this->handle($shop);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $fulfilment;
-        $this->initialisationFromFulfilment($fulfilment, $request);
-
-        return $this->handle($fulfilment);
-    }
-
-    public function inGroup(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = group();
-        $this->initialisationFromGroup(group(), $request);
-
-        return $this->handle(group());
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $fulfilmentCustomer;
-        $this->initialisationFromFulfilment($fulfilment, $request);
-
-        return $this->handle($fulfilmentCustomer);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
     public function inRetina(ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $request->user()->customer->fulfilmentCustomer;
-        $fulfilment = $request->user()->customer->fulfilmentCustomer->fulfilment;
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisation($request);
 
         return $this->handle($this->parent);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inCustomer(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $customer;
-        $this->initialisationFromShop($shop, $request);
-
-        return $this->handle(parent: $customer);
-    }
-
-
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        $headCrumb = function (array $routeParameters = []) {
-            return [
-                [
-                    'type'   => 'simple',
-                    'simple' => [
-                        'route' => $routeParameters,
-                        'label' => __('Invoices'),
-                        'icon'  => 'fal fa-bars',
-
-                    ],
-                ],
-            ];
-        };
-
-
-        return match ($routeName) {
-            'grp.org.fulfilments.show.crm.customers.show.invoices.index' =>
-            array_merge(
-                ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
-                $headCrumb()
-            ),
-            'grp.org.accounting.shops.show.invoices.index' =>
-            array_merge(
-                ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.shops.show.dashboard', $routeParameters),
-                $headCrumb()
-            ),
-            'grp.org.accounting.invoices.index' =>
-            array_merge(
-                ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', $routeParameters),
-                $headCrumb()
-            ),
-            'grp.org.fulfilments.show.operations.invoices.index' =>
-            array_merge(
-                ShowFulfilment::make()->getBreadcrumbs(routeParameters: $routeParameters),
-                $headCrumb()
-            ),
-            'grp.org.shops.show.crm.customers.show.invoices.index' =>
-            array_merge(
-                ShowCustomer::make()->getBreadcrumbs('grp.org.shops.show.crm.customers.show', $routeParameters),
-                $headCrumb(
-                    [
-                        'name'       => 'grp.org.shops.show.crm.customers.show.invoices.index',
-                        'parameters' => $routeParameters
-                    ]
-                )
-            ),
-            'grp.org.shops.show.ordering.invoices.index' =>
-            array_merge(
-                ShowShop::make()->getBreadcrumbs($routeParameters),
-                $headCrumb(
-                    [
-                        'name'       => 'grp.org.shops.show.ordering.invoices.index',
-                        'parameters' => $routeParameters
-                    ]
-                )
-            ),
-            'grp.org.shops.show.crm.customers.show.customer-clients.invoices.index' =>
-            array_merge(
-                ShowCustomerClient::make()->getBreadcrumbs('grp.org.shops.show.crm.customers.show.customer-clients.show', $routeParameters),
-                $headCrumb(
-                    [
-                        'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.invoices.index',
-                        'parameters' => $routeParameters
-                    ]
-                )
-            ),
-
-            'grp.overview.ordering.invoices.index' =>
-            array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(
-                    $routeParameters
-                ),
-                $headCrumb(
-                    [
-                        'name'       => $routeName,
-                        'parameters' => $routeParameters
-                    ]
-                )
-            ),
-
-
-            default => []
-        };
+        return [];
     }
 }
