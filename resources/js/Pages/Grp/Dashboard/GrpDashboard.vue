@@ -593,6 +593,10 @@ const shop = ref()
 								<Column footer="" footerStyle="text-align:right" />
 
 								<Column
+								v-tooltip="useLocaleStore().currencyFormat(
+											groupStats.currency.code,
+											Number(groupStats.total[selectedDateOption].total_sales)
+										)"
 									:footer="
 										useLocaleStore().numberShort(
 											groupStats.currency.code,
