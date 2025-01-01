@@ -14,13 +14,13 @@ use Lorisleiva\Actions\Concerns\AsAction;
 trait WithFetchScriptWebBlock
 {
     use AsAction;
-    public function processScriptData($auroraBlock): array
+    public function processScriptData(array $auroraBlock): array
     {
+        $layout = [];
         $rawScript = $auroraBlock['html'] ?? $auroraBlock['src'];
         preg_match('/<script\b[^>]*>(.*?)<\/script>/is', $rawScript, $matches);
         $script = $matches[0] ?? null;
-        $cleaned_script = preg_replace('/\s+/', ' ', trim($script));
-
+        $cleaned_script = $script !== null ? preg_replace('/\s+/', ' ', trim($script)) : null;
         data_set($layout, "data.fieldValue.value", $cleaned_script);
 
         return $layout;
