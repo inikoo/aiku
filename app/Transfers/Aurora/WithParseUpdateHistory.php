@@ -58,6 +58,10 @@ trait WithParseUpdateHistory
             $oldValues[$field] = $matches[1];
         } elseif (preg_match('/contact name was deleted$/', $haystack, $matches)) {
             $oldValues[$field] = 'Unknown name';
+        }elseif (preg_match('/price changed from ([£€])([\d.]+)/', $haystack, $matches)) {
+            $oldValues[$field] = $matches[2];
+        }elseif (preg_match('/price changed from zł([\d.]+)/', $haystack, $matches)) {
+            $oldValues[$field] = $matches[1];
         }
 
 
@@ -99,6 +103,8 @@ trait WithParseUpdateHistory
         } elseif (preg_match('/to Price: ([£€])([\d.]+)/', $haystack, $matches)) {
             $newValues[$field] = $matches[2];
         }elseif (preg_match('/to Price: zł([\d.]+)/', $haystack, $matches)) {
+            $newValues[$field] = $matches[1];
+        }elseif (preg_match('/to zł([\d.]+)/', $haystack, $matches)) {
             $newValues[$field] = $matches[1];
         }
 
