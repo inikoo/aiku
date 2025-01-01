@@ -35,8 +35,14 @@ class FetchAuroraEmailTrackingEvent extends FetchAurora
             'Delivered' => EmailTrackingEventTypeEnum::DELIVERED,
             'Opened','Read' => EmailTrackingEventTypeEnum::OPENED,
             'Clicked' => EmailTrackingEventTypeEnum::CLICKED,
-            'Send to SES Error' => EmailTrackingEventTypeEnum::ERROR
+            'Send to SES Error' => EmailTrackingEventTypeEnum::ERROR,
+            default => null
         };
+
+        if($type==null){
+            print_r($this->auroraModelData);
+            return;
+        }
 
         $data = [];
 
