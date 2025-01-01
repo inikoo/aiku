@@ -8,8 +8,8 @@
 
 namespace App\Transfers\Aurora;
 
+use App\Enums\Comms\EmailTrackingEvent\EmailTrackingEventTypeEnum;
 use Illuminate\Support\Facades\DB;
-use Str;
 
 class FetchAuroraEmailTrackingEvent extends FetchAurora
 {
@@ -26,14 +26,17 @@ class FetchAuroraEmailTrackingEvent extends FetchAurora
 
         $this->parsedData['dispatchedEmail'] = $dispatchedEmail;
 
-        //enum('Sent','Rejected by SES','Send','Read','Hard Bounce','Soft Bounce','Spam','Delivered','Opened','Clicked','Send to SES Error')
         $type = match ($this->auroraModelData->{'Email Tracking Event Type'}) {
-            'Send to SES Error' => 'declined-by-provider',
-            'Spam' => 'marked-as-spam',
-            default => Str::kebab($this->auroraModelData->{'Email Tracking Event Type'})
+            'Sent','Send' => EmailTrackingEventTypeEnum::SENT,
+            'Rejected by SES' => EmailTrackingEventTypeEnum::DECLINED_BY_PROVIDER,
+            'Hard Bounce' => EmailTrackingEventTypeEnum::HARD_BOUNCE,
+            'Soft Bounce' => EmailTrackingEventTypeEnum::SOFT_BOUNCE,
+            'Spam' => EmailTrackingEventTypeEnum::MARKED_AS_SPAM,
+            'Delivered' => EmailTrackingEventTypeEnum::DELIVERED,
+            'Opened','Read' => EmailTrackingEventTypeEnum::OPENED,
+            'Clicked' => EmailTrackingEventTypeEnum::CLICKED,
+            'Send to SES Error' => EmailTrackingEventTypeEnum::ERROR
         };
-
-
 
         $data = [];
 
