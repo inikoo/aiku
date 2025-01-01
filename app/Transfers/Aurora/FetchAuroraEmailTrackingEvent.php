@@ -24,8 +24,6 @@ class FetchAuroraEmailTrackingEvent extends FetchAurora
             return;
         }
 
-        $this->parsedData['dispatchedEmail'] = $dispatchedEmail;
-
         $type = match ($this->auroraModelData->{'Email Tracking Event Type'}) {
             'Sent','Send' => EmailTrackingEventTypeEnum::SENT,
             'Rejected by SES' => EmailTrackingEventTypeEnum::DECLINED_BY_PROVIDER,
@@ -35,14 +33,15 @@ class FetchAuroraEmailTrackingEvent extends FetchAurora
             'Delivered' => EmailTrackingEventTypeEnum::DELIVERED,
             'Opened','Read' => EmailTrackingEventTypeEnum::OPENED,
             'Clicked' => EmailTrackingEventTypeEnum::CLICKED,
-            'Send to SES Error' => EmailTrackingEventTypeEnum::ERROR,
+            'Send to SES Error','Error' => EmailTrackingEventTypeEnum::ERROR,
             default => null
         };
 
-        if($type==null){
+        if ($type == null) {
             print_r($this->auroraModelData);
             return;
         }
+        $this->parsedData['dispatchedEmail'] = $dispatchedEmail;
 
         $data = [];
 
