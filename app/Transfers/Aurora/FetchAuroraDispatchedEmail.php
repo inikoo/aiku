@@ -35,13 +35,18 @@ class FetchAuroraDispatchedEmail extends FetchAurora
             return;
         }
 
-
-        //enum('Ready','Sent to SES','Rejected by SES','Sent','Soft Bounce','Hard Bounce','Delivered','Spam','Opened','Clicked','Error')
         $state = match ($this->auroraModelData->{'Email Tracking State'}) {
+            'Ready' => DispatchedEmailStateEnum::READY,
             'Sent to SES' => DispatchedEmailStateEnum::SENT_TO_PROVIDER,
             'Rejected by SES' => DispatchedEmailStateEnum::REJECTED_BY_PROVIDER,
+            'Sent' => DispatchedEmailStateEnum::SENT,
+            'Soft Bounce' => DispatchedEmailStateEnum::SOFT_BOUNCE,
+            'Hard Bounce' => DispatchedEmailStateEnum::HARD_BOUNCE,
+            'Delivered' => DispatchedEmailStateEnum::DELIVERED,
             'Spam' => DispatchedEmailStateEnum::SPAM,
-            default => Str::kebab($this->auroraModelData->{'Email Tracking State'})
+            'Opened' => DispatchedEmailStateEnum::OPENED,
+            'Clicked' => DispatchedEmailStateEnum::CLICKED,
+            'Error' => DispatchedEmailStateEnum::ERROR
         };
 
 
