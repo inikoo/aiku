@@ -30,7 +30,6 @@ const props = defineProps<{
     stored_items : {}
     pallet_stored_items : {}
 }>()
-
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 

@@ -17,6 +17,7 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletStoredItem;
 use App\Models\Inventory\Warehouse;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -27,7 +28,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPalletStoredItems extends OrgAction
 {
-    public function handle(FulfilmentCustomer|Pallet|Warehouse $parent): LengthAwarePaginator
+    public function handle(Group|FulfilmentCustomer|Pallet|Warehouse $parent): LengthAwarePaginator
     {
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {

@@ -8,6 +8,7 @@
 
 namespace App\Http\Resources\Production;
 
+use App\Enums\Production\Production\ProductionStateEnum;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -26,6 +27,7 @@ class ProductionsResource extends JsonResource
             'slug'                     => $this->slug,
             'code'                     => $this->code,
             'name'                     => $this->name,
+            'state_icon'               => ProductionStateEnum::stateIcon($this->state->value),
             'number_raw_materials'     => $this->number_raw_materials,
             'number_artefacts'         => $this->number_artefacts,
             'number_manufacture_tasks' => $this->number_manufacture_tasks,
