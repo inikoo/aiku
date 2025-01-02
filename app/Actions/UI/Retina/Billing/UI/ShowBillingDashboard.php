@@ -44,7 +44,8 @@ class ShowBillingDashboard
 
         $stats['transactions'] = [
             'label' => __('Total Transactions'),
-            'count' => $parent->fulfilmentCustomer->transactions->count()
+            'count' => $parent->fulfilmentCustomer->transactions->count(),
+            'amount'=> $parent->fulfilmentCustomer->transactions()->sum('net_amount')
         ];
 
         $stats['unpaid_bills'] = [
@@ -53,7 +54,12 @@ class ShowBillingDashboard
                                 ->whereHas('invoices', function ($query) {
                                     $query->whereNull('paid_at');
                                 })
-                                ->count()
+                                ->count(),
+            'amount' => $parent->fulfilmentCustomer->recurringBills()
+                        ->whereHas('invoices', function ($query) {
+                            $query->whereNull('paid_at');
+                        })
+                        ->sum('invoices.total_amount')
         ];
 
         $stats['paid_bills'] = [
@@ -62,7 +68,12 @@ class ShowBillingDashboard
                             ->whereHas('invoices', function ($query) {
                                 $query->whereColumn('payment_amount', '>=', 'total_amount');
                             })
-                            ->count()
+                            ->count(),
+            'amount' => $parent->fulfilmentCustomer->recurringBills()
+                    ->whereHas('invoices', function ($query) {
+                        $query->whereColumn('payment_amount', '>=', 'total_amount');
+                    })
+                    ->sum('invoices.total_amount')
         ];
 
         return $stats;
