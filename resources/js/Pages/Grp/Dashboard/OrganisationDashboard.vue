@@ -72,8 +72,8 @@ const datas = computed(() => {
 		}))
 })
 const currency = ref([
-	{ name: "Group", code: "grp" },
 	{ name: "Organisation", code: "org" },
+	{ name: "Shop", code: "shp" },
 ])
 
 const selectedCurrency = ref(currency.value[0])
@@ -97,7 +97,7 @@ const toggleCurrency = () => {
 						<p
 							class="font-medium transition-opacity"
 							:class="{ 'opacity-60': isOrganisation }">
-							Group
+							Organisation
 						</p>
 
 						<ToggleSwitch
@@ -108,7 +108,7 @@ const toggleCurrency = () => {
 						<p
 							class="font-medium transition-opacity"
 							:class="{ 'opacity-60': !isOrganisation }">
-							Organisation
+							Shop
 						</p>
 					</div>
 				</div>

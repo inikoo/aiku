@@ -43,6 +43,7 @@ use App\Actions\HumanResources\Workplace\UI\IndexWorkplaces;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Actions\Inventory\OrgStockFamily\UI\IndexOrgStockFamilies;
+use App\Actions\Inventory\OrgStockMovement\UI\IndexOrgStockMovements;
 use App\Actions\Inventory\Warehouse\UI\IndexWarehouses;
 use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
 use App\Actions\Ordering\Order\UI\IndexOrders;
@@ -127,6 +128,7 @@ Route::name('inventory.')->prefix('inventory')->group(function () {
     // Route::get('/artisans', [IndexJoborder::class, 'inGroup'])->name('artisans.index');
     Route::get('/org-stocks', [IndexOrgStocks::class, 'inGroup'])->name('org-stocks.index');
     Route::get('/org-stock-families', [IndexOrgStockFamilies::class, 'inGroup'])->name('org-stock-families.index');
+    Route::get('/org-stock-movements', [IndexOrgStockMovements::class, 'inGroup'])->name('org-stock-movements.index');
     Route::get('/warehouses', [IndexWarehouses::class, 'inGroup'])->name('warehouses.index');
     Route::get('/warehouses-areas', [IndexWarehouseAreas::class, 'inGroup'])->name('warehouses-areas.index');
     Route::get('/locations', [IndexLocations::class, 'inGroup'])->name('locations.index');

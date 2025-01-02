@@ -290,7 +290,7 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Org Stock Movements'),
                     'icon'  => 'fal fa-dolly',
-                    'route' => '',
+                    'route' => route('grp.overview.inventory.org-stock-movements.index'),
                     'count' => $group->inventoryStats->number_org_stock_movements ?? 0
                 ],
                 [
