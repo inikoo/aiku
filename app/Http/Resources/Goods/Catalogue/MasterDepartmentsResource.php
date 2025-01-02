@@ -35,11 +35,6 @@ class MasterDepartmentsResource extends JsonResource
             'slug'               => $this->slug,
             'code'               => $this->code,
             'name'               => $this->name,
-            'state'              => [
-                'icon'    => $this->state->stateIcon()[$this->state->value]['icon'],
-                'class'   => $this->state->stateIcon()[$this->state->value]['class'],
-                'tooltip' => $this->state->labels()[$this->state->value],
-            ],
             'description'              => $this->description,
             'created_at'               => $this->created_at,
             'updated_at'               => $this->updated_at,
