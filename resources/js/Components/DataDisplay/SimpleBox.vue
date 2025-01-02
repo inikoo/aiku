@@ -15,7 +15,7 @@ const props = defineProps<{
 		icon: {
 			icon: string
 			tooltip: string
-		}
+		} | string
 	}[]
 }>()
 
@@ -36,7 +36,7 @@ const isLoading = ref<null | number>(null)
 			<div class="flex justify-between items-center mb-1">
 				<div class="capitalize">{{ stats.name }}</div>
 				<LoadingIcon v-if="isLoading === index" class="text-xl text-gray-400" />
-				<Icon v-else :data="stats.icon" class="text-xl text-gray-400" />
+				<Icon v-else :data="stats.icon?.icon ? stats.icon : { icon: stats.icon }" class="text-xl text-gray-400" />
 			</div>
 
 			<div class="mb-1 text-2xl font-semibold">

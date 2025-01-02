@@ -84,7 +84,7 @@ const onChangeEstimateDate = async (newDate: Date, close: Function) => {
                 
                 <Popover v-else position="right-0">
                     <template #button>
-                        <div class="flex flex-nowrap items-center gap-x-1">
+                        <div class="flex flex-nowrap text-left items-center gap-x-1">
                             <Transition name="spin-to-down">
                                 <div :key="endDate">{{ useFormatTime(endDate)}}</div>
                             </Transition>

@@ -10,6 +10,7 @@ import type { Component } from 'vue'
 
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { Tabs as TSTabs } from '@/types/Tabs'
+import SimpleBox from '@/Components/DataDisplay/SimpleBox.vue'
 
 // import FileShowcase from '@/xxxxxxxxxxxx'
 
@@ -17,6 +18,11 @@ const props = defineProps<{
     title: string,
     pageHead: TSPageHeading
     tabs: TSTabs
+    dashboard_stats: {
+        label: string
+        count: number
+        icon: string
+    }[]
 
     
 }>()
@@ -43,4 +49,5 @@ const component = computed(() => {
     <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
 
     <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />
+    <SimpleBox v-if="currentTab === 'dashboard' && dashboard_stats" :box_stats="dashboard_stats" />
 </template>

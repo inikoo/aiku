@@ -144,6 +144,7 @@ class IndexMarketingMailshots extends OrgAction
         ];
 
         $title = __('mailshots');
+        $model = __('marketing');
         if ($this->parent instanceof Group) {
             $actions = [];
             $title = __('marketing mailshots');
@@ -160,6 +161,8 @@ class IndexMarketingMailshots extends OrgAction
                 'title'       => $title,
                 'pageHead'    => array_filter([
                     'title'    => $title,
+                    'icon'     => 'fal fa-mail-bulk',
+                    'model'    => $model,
                     'actions'  => $actions,
                 ]),
                 'data' => MarketingMailshotsResource::collection($mailshots),

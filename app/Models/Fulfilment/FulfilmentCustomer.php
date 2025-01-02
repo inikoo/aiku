@@ -187,6 +187,11 @@ class FulfilmentCustomer extends Model
         return $this->belongsTo(Customer::class);
     }
 
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(FulfilmentTransaction::class, 'fulfilment_customer_id');
+    }
+
     public function pallets(): HasMany
     {
         return $this->hasMany(Pallet::class);
