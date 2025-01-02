@@ -316,7 +316,7 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Pallets'),
                     'icon'  => 'fal fa-pallet',
-                    'route' => '',
+                    'route' => route('grp.overview.fulfilment.pallets.index'),
                     'count' => $group->fulfilmentStats->number_pallets ?? 0
                 ],
                 [
