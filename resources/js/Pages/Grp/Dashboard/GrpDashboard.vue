@@ -31,6 +31,7 @@ import Select from "primevue/select"
 import tippy from "tippy.js"
 import "tippy.js/dist/tippy.css"
 import DashboardCard from "@/Components/DataDisplay/DashboardCard.vue"
+import shinyButton from "@/Components/ShinyButton.vue"
 library.add(faTriangle, faChevronDown, faSeedling, faTimesCircle, faFolderOpen, faPlay)
 
 const props = defineProps<{
@@ -166,7 +167,6 @@ const formatValue = (value: number): string => {
 	<Head :title="trans('Dashboard')" />
 	<div class="grid grid-cols-12 m-3 gap-4">
 		<!-- <pre>{{ props.groupStats.organisations }}</pre> -->
-
 		<!-- Section: Date options -->
 		<div class="col-span-12 space-y-4">
 			<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
