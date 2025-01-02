@@ -28,7 +28,7 @@ class ShowMarketingDashboard extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): ActionRequest
     {
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(MarketingTabsEnum::values());
 
         return $request;
     }
@@ -46,16 +46,37 @@ class ShowMarketingDashboard extends OrgAction
                         'icon'  => ['fal', 'fa-bullhorn'],
                         'title' => __('marketing')
                     ],
+                    'model'     => __('marketing'),
                     'iconRight' => [
                         'icon'  => ['fal', 'fa-chart-network'],
                         'title' => __('marketing')
                     ],
-                    'title' => __('marketing dashboard'),
+                    'title' => __('dashboard'),
                 ],
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => MarketingTabsEnum::navigation()
                 ],
+                'dashboard_stats'   => [
+                    [
+                        'name' => __('Newsletters'),
+                        'value' => 0,  // TODO: Add the actual value
+                        'icon'  => ['fal', 'fa-newspaper'],
+                        'route' => [
+                            'name'       => 'grp.org.shops.show.marketing.newsletters.index',
+                            'parameters' => $request->route()->originalParameters()
+                        ]
+                    ],
+                    [
+                        'name' => __('Mailshots'),
+                        'value' => 0,  // TODO: Add the actual value
+                        'icon'  => ['fal', 'fa-mail-bulk'],
+                        'route' => [
+                            'name'       => 'grp.org.shops.show.marketing.mailshots.index',
+                            'parameters' => $request->route()->originalParameters()
+                        ]
+                    ],
+                ]
 
 
             ]

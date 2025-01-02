@@ -149,6 +149,7 @@ class IndexOfferCampaigns extends OrgAction
                 'title'       => __('Campaigns'),
                 'pageHead'    => [
                     'title'      => $title,
+                    'model'      => __('Offers'),
                     'afterTitle' => $afterTitle,
                     'iconRight'  => $iconRight,
                     'icon'       => $icon,

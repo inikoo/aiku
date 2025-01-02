@@ -133,6 +133,7 @@ class ShowLocation extends OrgAction
                         'title' => __('locations'),
                         'icon'  => 'fal fa-inventory'
                     ],
+                    'model'     => __('location'),
                     'title'     => $location->slug,
                     'actions'   => [
                         $this->canEdit ? $this->getEditActionIcon($request) : null,

@@ -146,12 +146,12 @@ const isModalAddress = ref(false)
                     <dt class="flex-none">
                         <span class="sr-only">{{ boxStats.delivery_state.tooltip }}</span>
                         <FontAwesomeIcon
-                            :icon='boxStats.delivery_status.icon'
+                            :icon='boxStats.delivery_state.icon'
                             fixed-width
                             aria-hidden='true'
                         />
                     </dt>
-                    <dd class="text-xs">{{ boxStats.delivery_status.tooltip }}</dd>
+                    <dd class="text-xs">{{ boxStats.delivery_state.tooltip }}</dd>
                 </div>
             </div>
 

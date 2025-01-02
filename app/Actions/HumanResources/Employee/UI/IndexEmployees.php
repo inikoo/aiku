@@ -214,6 +214,7 @@ class IndexEmployees extends OrgAction
                         'title' => __('Employee'),
                         'icon'  => 'fal fa-user-hard-hat'
                     ],
+                    'model'   => __('Human Resources'),
                     'title'   => __('employees'),
                     'actions' =>
                         $this->canEdit ? [
