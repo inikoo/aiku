@@ -79,17 +79,17 @@ class EditGroupSettings extends GrpAction
                         ],
                     ],
                     [
-                        'label'  => __('Comms'),
+                        'label'  => __('Email Builder'),
                         'icon'   => 'fa-light fa-satellite-dish',
                         'fields' => [
                             "client_id" => [
                                 "type"        => "input",
-                                "label"       => __("Client ID"),
+                                "label"       => __("Beefree Client ID"),
                                 "value"       => $group->settings['beefree']['client_id'] ?? '',
                             ],
                             "client_secret" => [
                                 "type"        => "input",
-                                "label"       => __("Client Secret"),
+                                "label"       => __("Beefree Client Secret"),
                                 "value"       => $group->settings['beefree']['client_secret'] ?? '',
                             ],
                             // "grant_type" => [
