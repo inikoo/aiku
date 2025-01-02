@@ -43,6 +43,59 @@ class ShowOverviewHub extends GrpAction
                     ],
                     'title'     => __('overview'),
                 ],
+                'widget' => [
+                    [
+                        'label' => __('the nutrition store'),
+                        'data' => [
+                            [
+                                'label' => __('total orders today'),
+                                'value' => 275,
+                                'type' => 'single-card-success'
+                            ],
+                            [
+                                'label' => __('sales today'),
+                                'value' => [
+                                    'number' => 2345,
+                                    'currency_code' => 'USD',
+                                ],
+                                'type' => 'single-card'
+                            ]
+                        ],
+                        'type' => 'multi-card',
+                    ],
+                    [
+                        'label' => __('the yoga store'),
+                        'data' => [
+                            [
+                                'label' => __('ad spend this week'),
+                                'value' => 46,
+                                'type' => 'single-card'
+                            ],
+                            [
+                                'label' => __('sales today'),
+                                'value' => [
+                                    'number' => 2345,
+                                    'currency_code' => 'USD',
+                                ],
+                                'type' => 'single-card'
+                            ]
+                        ],
+                        'type' => 'multi-card',
+                    ],
+                    [
+                        'label' => __('ad spend this week'),
+                        'value' => [
+                            'number' => 2345,
+                            'currency_code' => 'USD',
+                        ],
+                        'type' => 'single-card-success',
+                    ],
+                    [
+                        'label' => __('card adbandoment rate'),
+                        'value' => 45,
+                        'type' => 'single-card',
+                    ]
+                ],
                 'data' => GetOverview::run($this->group)
             ]
         );
