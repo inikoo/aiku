@@ -50,7 +50,7 @@ class ShowBillingDashboard
         $stats['unpaid_bills'] = [
             'label' => __('Unpaid Bills'),
             'count' => $parent->fulfilmentCustomer->recurringBills()
-                                ->whereHas('invoice', function ($query) {
+                                ->whereHas('invoices', function ($query) {
                                     $query->whereNull('paid_at');
                                 })
                                 ->count()
@@ -59,10 +59,10 @@ class ShowBillingDashboard
         $stats['paid_bills'] = [
             'label' => __('Paid Bills'),
             'count' => $parent->fulfilmentCustomer->recurringBills()
-                                ->whereHas('invoice', function ($query) {
-                                    $query->where('payment_amount', '>=', 'total_amount');
-                                })
-                                ->count()
+                            ->whereHas('invoices', function ($query) {
+                                $query->whereColumn('payment_amount', '>=', 'total_amount');
+                            })
+                            ->count()
         ];
 
         return $stats;
