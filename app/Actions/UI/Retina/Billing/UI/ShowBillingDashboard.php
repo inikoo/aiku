@@ -17,7 +17,6 @@ use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -50,7 +49,7 @@ class ShowBillingDashboard
         $stats['transactions'] = [
             'label' => __('Total Transactions'),
             'count' => $parent->fulfilmentCustomer->transactions->count(),
-            'amount'=> $parent->fulfilmentCustomer->transactions()->sum('net_amount')
+            'amount' => $parent->fulfilmentCustomer->transactions()->sum('net_amount')
         ];
 
         $stats['unpaid_bills'] = [

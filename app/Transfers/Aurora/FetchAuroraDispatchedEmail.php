@@ -18,7 +18,6 @@ use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Comms\Mailshot;
 use App\Models\CRM\Prospect;
 use Illuminate\Support\Facades\DB;
-use Str;
 
 class FetchAuroraDispatchedEmail extends FetchAurora
 {
