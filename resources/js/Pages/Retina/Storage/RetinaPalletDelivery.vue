@@ -628,7 +628,7 @@ const typePallet = [
 
 
     <!-- Section: Timeline -->
-    <div v-if="timeline.state != 'in-process'" class="border-b border-gray-200">
+    <div v-if="timeline.state != 'in_process'" class="border-b border-gray-200">
         <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="6" />
     </div>
 

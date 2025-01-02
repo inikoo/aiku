@@ -22,12 +22,13 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePurchaseOrder
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStatusEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
 use App\Rules\IUnique;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
@@ -97,22 +98,26 @@ class StorePurchaseOrder extends OrgAction
             'reference'       => [
                 'sometimes',
                 'required',
-                $this->strict ? 'alpha_dash' : 'string',
-                $this->strict ? new IUnique(
-                    table: 'purchase_orders',
-                    extraConditions: [
-                        ['column' => 'organisation_id', 'value' => $this->organisation->id],
-                    ]
-                ) : null,
+                $this->strict ? 'alpha_dash' : 'string'
             ],
             'state'           => ['sometimes', 'required', Rule::enum(PurchaseOrderStateEnum::class)],
-            'delivery_status' => ['sometimes', 'required', Rule::enum(PurchaseOrderDeliveryStatusEnum::class)],
+            'delivery_state' => ['sometimes', 'required', Rule::enum(PurchaseOrderDeliveryStateEnum::class)],
             'cost_items'      => ['sometimes', 'required', 'numeric', 'min:0'],
             'cost_shipping'   => ['sometimes', 'required', 'numeric', 'min:0'],
             'cost_total'      => ['sometimes', 'required', 'numeric', 'min:0'],
             'date'            => ['sometimes', 'required'],
             'currency_id'     => ['sometimes', 'required'],
         ];
+
+        if ($this->strict) {
+            $rules['reference'][] = new IUnique(
+                table: 'purchase_orders',
+                extraConditions: [
+                    ['column' => 'organisation_id', 'value' => $this->organisation->id],
+                ]
+            );
+        }
+
 
         if (!$this->strict) {
             $rules = $this->noStrictStoreRules($rules);
@@ -182,13 +187,13 @@ class StorePurchaseOrder extends OrgAction
         return $this->handle($orgPartner, $this->validatedData);
     }
 
-    public function htmlResponse(PurchaseOrder $purchaseOrder)
+    public function htmlResponse(PurchaseOrder $purchaseOrder): RedirectResponse
     {
         if ($this->parent instanceof OrgAgent) {
             return Redirect::route('grp.org.procurement.org_agents.show.purchase-orders.show', [$purchaseOrder->organisation->slug, $this->parent->slug, $purchaseOrder->slug]);
         } elseif ($this->parent instanceof OrgSupplier) {
             return Redirect::route('grp.org.procurement.org_suppliers.show.purchase-orders.show', [$purchaseOrder->organisation->slug, $this->parent->slug, $purchaseOrder->slug]);
-        } elseif ($this->parent instanceof OrgPartner) {
+        } else{
             return Redirect::route('grp.org.procurement.org_partners.show.purchase-orders.show', [$purchaseOrder->organisation->slug, $this->parent->slug, $purchaseOrder->slug]);
         }
     }

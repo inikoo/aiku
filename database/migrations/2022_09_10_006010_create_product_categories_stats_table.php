@@ -9,14 +9,12 @@
 use App\Stubs\Migrations\HasBackInStockReminderStats;
 use App\Stubs\Migrations\HasCatalogueStats;
 use App\Stubs\Migrations\HasFavouritesStats;
-use App\Stubs\Migrations\HasSalesIntervals;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasCatalogueStats;
-    use HasSalesIntervals;
     use HasFavouritesStats;
     use HasBackInStockReminderStats;
 
@@ -29,12 +27,9 @@ return new class () extends Migration {
             $table = $this->catalogueFamilyStats($table);
             $table = $this->catalogueProductsStats($table);
             $table = $this->topSellersStats($table);
-
-
             $table = $this->getCustomersWhoFavouritedStatsFields($table);
             $table = $this->getCustomersWhoRemindedStatsFields($table);
 
-            $table = $this->salesIntervalFields($table, ['shop_amount', 'org_amount', 'grp_amount']);
             $table->timestampsTz();
         });
     }

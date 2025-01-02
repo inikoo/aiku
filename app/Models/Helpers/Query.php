@@ -30,8 +30,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $name
  * @property string $model
  * @property bool $is_static
- * @property array $constrains
- * @property array $compiled_constrains
+ * @property array<array-key, mixed> $constrains
+ * @property array<array-key, mixed> $compiled_constrains
  * @property bool $has_arguments
  * @property string|null $seed_code
  * @property int|null $number_items
@@ -42,7 +42,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
- * @property array $source_constrains
+ * @property array<array-key, mixed> $source_constrains
  * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Customer> $customers

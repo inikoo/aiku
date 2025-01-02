@@ -52,11 +52,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property WebsiteStateEnum $state
  * @property bool $status
  * @property string $domain
- * @property array $settings
- * @property array $data
- * @property array $structure
- * @property array $layout
- * @property array $published_layout
+ * @property array<array-key, mixed> $settings
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $structure
+ * @property array<array-key, mixed> $layout
+ * @property array<array-key, mixed> $published_layout
  * @property int|null $unpublished_header_snapshot_id
  * @property int|null $live_header_snapshot_id
  * @property string|null $published_header_checksum

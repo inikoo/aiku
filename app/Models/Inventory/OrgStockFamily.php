@@ -33,7 +33,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property string|null $name
  * @property OrgStockFamilyStateEnum $state
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $activated_in_organisation_at

@@ -18,7 +18,7 @@ enum DeliveryNoteItemStateEnum: string
     case UNASSIGNED = 'unassigned';
     case QUEUED = 'queued'; // picker assigned
     case HANDLING = 'handling'; // picking and packing
-    case HANDLING_BLOCKED = 'handling-blocked';
+    case HANDLING_BLOCKED = 'handling_blocked';
     case PACKED = 'packed';
     case FINALISED = 'finalised';
     case DISPATCHED = 'dispatched';
@@ -30,7 +30,7 @@ enum DeliveryNoteItemStateEnum: string
             'unassigned'       => __('Unassigned'),
             'queued'           => __('In Queue'),
             'handling'         => __('Handling'),
-            'handling-blocked' => __('Handling Blocked'),
+            'handling_blocked' => __('Handling Blocked'),
             'packed'           => __('Packed'),
             'finalised'        => __('Finalised'),
             'dispatched'       => __('Dispatched'),
@@ -71,7 +71,7 @@ enum DeliveryNoteItemStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'handling-blocked' => [
+            'handling_blocked' => [
                 'tooltip' => __('Handling Blocked'),
                 'icon'    => 'fal fa-hand-paper',
                 'class'   => 'text-gray-500',

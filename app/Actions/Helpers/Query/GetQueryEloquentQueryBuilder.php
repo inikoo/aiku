@@ -33,7 +33,7 @@ class GetQueryEloquentQueryBuilder
 
         return $this->buildQuery(
             $class,
-            $query->parent,
+            $query->model,
             $customArguments ?: $query->compiled_constrains
         );
     }

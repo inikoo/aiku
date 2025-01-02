@@ -426,7 +426,6 @@ class ShowOrder extends OrgAction
                         'estimated_weight' => $estWeight
                     ],
 
-                    // 'delivery_status' => OrderStateEnum::stateIcon($order->state->value),
                     'order_summary' => [
                         [
                             [

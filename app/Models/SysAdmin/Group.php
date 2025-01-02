@@ -121,9 +121,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $timezone_id
  * @property int $currency_id customer accounting currency
  * @property int|null $image_id
- * @property array $limits
- * @property array $data
- * @property array $settings
+ * @property array<array-key, mixed> $limits
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
  * @property int $number_organisations
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -190,6 +190,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read LaravelCollection<int, OrgPostRoom> $orgPostRooms
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Organisation> $organisations
+ * @property-read \App\Models\SysAdmin\GroupOutboxColdEmailsIntervals|null $outboxColdEmailsIntervals
+ * @property-read \App\Models\SysAdmin\GroupOutboxCustomerNotificationIntervals|null $outboxCustomerNotificationIntervals
+ * @property-read \App\Models\SysAdmin\GroupOutboxMarketingIntervals|null $outboxMarketingIntervals
+ * @property-read \App\Models\SysAdmin\GroupOutboxMarketingNotificationIntervals|null $outboxMarketingNotificationIntervals
+ * @property-read \App\Models\SysAdmin\GroupOutboxNewsletterIntervals|null $outboxNewsletterIntervals
+ * @property-read \App\Models\SysAdmin\GroupOutboxPushIntervals|null $outboxPushIntervals
+ * @property-read \App\Models\SysAdmin\GroupOutboxTestIntervals|null $outboxTestIntervals
+ * @property-read \App\Models\SysAdmin\GroupOutboxUserNotificationIntervals|null $outboxUserNotificationIntervals
  * @property-read LaravelCollection<int, Outbox> $outboxes
  * @property-read LaravelCollection<int, Packing> $packings
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
@@ -871,6 +879,47 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function timeSeries(): HasMany
     {
         return $this->hasMany(GroupTimeSeries::class);
+    }
+
+    public function outboxNewsletterIntervals(): HasOne
+    {
+        return $this->hasOne(GroupOutboxNewsletterIntervals::class);
+    }
+
+
+    public function outboxMarketingIntervals(): HasOne
+    {
+        return $this->hasOne(GroupOutboxMarketingIntervals::class);
+    }
+
+    public function outboxMarketingNotificationIntervals(): HasOne
+    {
+        return $this->hasOne(GroupOutboxMarketingNotificationIntervals::class);
+    }
+
+    public function outboxCustomerNotificationIntervals(): HasOne
+    {
+        return $this->hasOne(GroupOutboxCustomerNotificationIntervals::class);
+    }
+
+    public function outboxColdEmailsIntervals(): HasOne
+    {
+        return $this->hasOne(GroupOutboxColdEmailsIntervals::class);
+    }
+
+    public function outboxUserNotificationIntervals(): HasOne
+    {
+        return $this->hasOne(GroupOutboxUserNotificationIntervals::class);
+    }
+
+    public function outboxPushIntervals(): HasOne
+    {
+        return $this->hasOne(GroupOutboxPushIntervals::class);
+    }
+
+    public function outboxTestIntervals(): HasOne
+    {
+        return $this->hasOne(GroupOutboxTestIntervals::class);
     }
 
 }

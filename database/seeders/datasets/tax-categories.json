@@ -186,7 +186,7 @@
     "Tax Category Code": "SK-SR",
     "Tax Category Name": "DPH 20%",
     "Tax Category Rate": 0.200000,
-    "Tax Category Active": "Yes",
+    "Tax Category Active": "No",
     "Tax Category Country 2 Alpha Code": "SK",
     "Tax Category Metadata": "{}",
     "aiku_id": null
@@ -668,6 +668,18 @@
     "Tax Category Rate": 0.220000,
     "Tax Category Active": "Yes",
     "Tax Category Country 2 Alpha Code": "EE",
+    "Tax Category Metadata": "{}",
+    "aiku_id": null
+  },
+  {
+    "Tax Category Key": 101,
+    "Tax Category Type": "Standard",
+    "Tax Category Type Name": "Daň z pridanej hodnoty",
+    "Tax Category Code": "SK-SR23",
+    "Tax Category Name": "DPH 23%",
+    "Tax Category Rate": 0.230000,
+    "Tax Category Active": "Yes",
+    "Tax Category Country 2 Alpha Code": "SK",
     "Tax Category Metadata": "{}",
     "aiku_id": null
   }

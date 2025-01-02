@@ -9,8 +9,8 @@
 
 namespace App\Models\SupplyChain;
 
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStatusEnum;
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Enums\SupplyChain\AgentSupplierPurchaseOrders\AgentSupplierPurchaseOrderDeliveryStateEnum;
+use App\Enums\SupplyChain\AgentSupplierPurchaseOrders\AgentSupplierPurchaseOrderStateEnum;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Procurement\PurchaseOrder;
@@ -42,8 +42,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property int|null $purchase_order_id
  * @property int|null $supplier_id
- * @property PurchaseOrderStateEnum $state
- * @property PurchaseOrderDeliveryStatusEnum $delivery_status
+ * @property AgentSupplierPurchaseOrderStateEnum $state
+ * @property AgentSupplierPurchaseOrderDeliveryStateEnum $delivery_state
  * @property string|null $notes
  * @property \Illuminate\Support\Carbon $date latest relevant date
  * @property string|null $in_process_at
@@ -51,11 +51,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $confirmed_at
  * @property \Illuminate\Support\Carbon|null $settled_at
  * @property \Illuminate\Support\Carbon|null $cancelled_at
+ * @property string|null $not_received_at
  * @property int $currency_id
  * @property string|null $grp_exchange
  * @property string|null $org_exchange
  * @property bool $is_costed
- * @property array $cost_data
+ * @property array<array-key, mixed> $cost_data
  * @property string|null $cost_items
  * @property string|null $cost_extra
  * @property string|null $cost_shipping
@@ -63,17 +64,21 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $cost_tax
  * @property string $cost_total
  * @property int $number_stock_deliveries Number supplier deliveries
- * @property int $number_stock_deliveries_except_cancelled Number supplier deliveries
+ * @property int $number_current_stock_deliveries Number supplier deliveries (except: cancelled and not_received)
+ * @property int $number_is_costed_stock_deliveries is_costed=true
+ * @property int $number_is_not_costed_stock_deliveries is_costed=false
+ * @property int $number_is_costed_stock_deliveries_state_placed state=placed is_costed=true
+ * @property int $number_is_not_costed_stock_deliveries_state_placed state=placed  is_costed=true
  * @property int $number_stock_deliveries_state_in_process
+ * @property int $number_stock_deliveries_state_confirmed
+ * @property int $number_stock_deliveries_state_ready_to_ship
  * @property int $number_stock_deliveries_state_dispatched
  * @property int $number_stock_deliveries_state_received
  * @property int $number_stock_deliveries_state_checked
- * @property int $number_stock_deliveries_state_settled
- * @property int $number_stock_deliveries_status_processing
- * @property int $number_stock_deliveries_status_not_received
- * @property int $number_stock_deliveries_status_settled_placed
- * @property int $number_stock_deliveries_status_settled_cancelled
- * @property array $data
+ * @property int $number_stock_deliveries_state_placed
+ * @property int $number_stock_deliveries_state_cancelled
+ * @property int $number_stock_deliveries_state_not_received
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at
@@ -112,8 +117,8 @@ class AgentSupplierPurchaseOrder extends Model implements HasMedia, Auditable
     protected $casts = [
         'data'            => 'array',
         'cost_data'       => 'array',
-        'state'           => PurchaseOrderStateEnum::class,
-        'delivery_status' => PurchaseOrderDeliveryStatusEnum::class,
+        'state'           => AgentSupplierPurchaseOrderStateEnum::class,
+        'delivery_state' => AgentSupplierPurchaseOrderDeliveryStateEnum::class,
         'date'            => 'datetime',
         'submitted_at'    => 'datetime',
         'confirmed_at'    => 'datetime',

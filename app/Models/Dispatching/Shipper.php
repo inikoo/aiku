@@ -41,9 +41,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $phone
  * @property string|null $website
  * @property string|null $tracking_url
- * @property array $data
- * @property array $settings
- * @property array $credentials
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at
@@ -74,7 +73,6 @@ class Shipper extends Model implements Auditable
     protected $casts = [
         'data'            => 'array',
         'settings'        => 'array',
-        'credentials'     => 'array',
         'status'          => 'boolean',
         'fetched_at'      => 'datetime',
         'last_fetched_at' => 'datetime',
@@ -83,7 +81,6 @@ class Shipper extends Model implements Auditable
     protected $attributes = [
         'data'        => '{}',
         'settings'    => '{}',
-        'credentials' => '{}',
     ];
 
     protected $guarded = [];

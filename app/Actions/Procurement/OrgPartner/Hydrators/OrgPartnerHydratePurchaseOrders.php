@@ -10,7 +10,7 @@ namespace App\Actions\Procurement\OrgPartner\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStatusEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
 use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -52,8 +52,8 @@ class OrgPartnerHydratePurchaseOrders
 
         $stats = array_merge($stats, $this->getEnumStats(
             model:'purchase_orders',
-            field: 'delivery_status',
-            enum: PurchaseOrderDeliveryStatusEnum::class,
+            field: 'delivery_state',
+            enum: PurchaseOrderDeliveryStateEnum::class,
             models: PurchaseOrder::class,
             where: function ($q) use ($orgPartner) {
                 $q->where('parent_id', $orgPartner->id)->where('parent_type', 'OrgPartner');

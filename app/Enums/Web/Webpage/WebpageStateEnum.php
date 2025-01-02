@@ -17,7 +17,7 @@ enum WebpageStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS = 'in-process';
+    case IN_PROCESS = 'in_process';
     case READY      = 'ready';
 
     case LIVE   = 'live';
@@ -27,7 +27,7 @@ enum WebpageStateEnum: string
     public static function labels(): array
     {
         return [
-            'in-process' => __('In construction'),
+            'in_process' => __('In construction'),
             'ready'      => __('Ready'),
             'live'       => __('Live'),
             'closed'     => __('Closed'),
@@ -43,7 +43,7 @@ enum WebpageStateEnum: string
 
 
         return [
-            'in-process' => $webStats->number_webpages_state_in_process,
+            'in_process' => $webStats->number_webpages_state_in_process,
             'ready'      => $webStats->number_webpages_state_ready,
             'live'       => $webStats->number_webpages_state_live,
             'closed'     => $webStats->number_webpages_state_closed,

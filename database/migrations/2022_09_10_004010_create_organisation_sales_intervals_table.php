@@ -20,7 +20,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('organisation_id');
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
-            $table = $this->salesDateIntervals($table, [
+            $table = $this->decimalDateIntervals($table, [
                 'sales_org_currency',
                 'sales_grp_currency'
             ]);

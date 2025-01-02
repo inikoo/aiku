@@ -16,7 +16,7 @@ enum StockStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS    = 'in-process';
+    case IN_PROCESS    = 'in_process';
     case ACTIVE        = 'active';
     case DISCONTINUING = 'discontinuing';
     case DISCONTINUED  = 'discontinued';
@@ -25,7 +25,7 @@ enum StockStateEnum: string
     public static function labels(): array
     {
         return [
-            'in-process'    => __('In process'),
+            'in_process'    => __('In process'),
             'active'        => __('Active'),
             'discontinuing' => __('Discontinuing'),
             'discontinued'  => __('Discontinued'),
@@ -36,7 +36,7 @@ enum StockStateEnum: string
     public static function stateIcon(): array
     {
         return [
-            'in-process'    => [
+            'in_process'    => [
                 'tooltip' => __('in process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-indigo-500'
@@ -73,7 +73,7 @@ enum StockStateEnum: string
         }
 
         return [
-            'in-process'    => $stats->number_stocks_state_in_process,
+            'in_process'    => $stats->number_stocks_state_in_process,
             'active'        => $stats->number_stocks_state_active,
             'discontinuing' => $stats->number_stocks_state_discontinuing,
             'discontinued'  => $stats->number_stocks_state_discontinued,

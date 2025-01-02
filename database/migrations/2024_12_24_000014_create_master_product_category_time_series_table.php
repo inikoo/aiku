@@ -17,7 +17,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('master_product_category_time_series', function (Blueprint $table) {
-            $table->smallIncrements('id');
+            $table->increments('id');
             $table->unsignedSmallInteger('master_product_category_id');
             $table->foreign('master_product_category_id')->references('id')->on('master_product_categories')->onUpdate('cascade')->onDelete('cascade');
             $this->getTimeSeriesFields($table);

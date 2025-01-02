@@ -53,7 +53,7 @@ function storedItemRoute(storedItem) {
         </template>
         
         <template #cell(actions)="{ item: value }">
-            <div v-if="value.state == 'in-process' || route().current() == 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show'">
+            <div v-if="value.state == 'in_process' || route().current() == 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show'">
                 <Link
                     :href="route(value.deleteRoute.name, value.deleteRoute.parameters)"
                     method="delete"

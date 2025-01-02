@@ -8,6 +8,7 @@
 
 namespace App\Transfers\Aurora;
 
+use App\Enums\Goods\StockFamily\StockFamilyStateEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -32,10 +33,10 @@ class FetchAuroraStockFamily extends FetchAurora
             'code'            => $code,
             'name'            => $this->auroraModelData->{'Category Label'},
             'state'           => match ($this->auroraModelData->{'Part Category Status'}) {
-                'InUse'         => 'active',
-                'Discontinuing' => 'discontinuing',
-                'NotInUse'      => 'discontinued',
-                default         => 'in-process',
+                'InUse'         => StockFamilyStateEnum::ACTIVE,
+                'Discontinuing' => StockFamilyStateEnum::DISCONTINUING,
+                'NotInUse'      => StockFamilyStateEnum::DISCONTINUED,
+                default         => StockFamilyStateEnum::IN_PROCESS
             },
             'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Category Key'},
             'source_slug'     => $sourceSlug,

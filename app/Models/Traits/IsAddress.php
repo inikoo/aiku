@@ -60,7 +60,9 @@ trait IsAddress
         $json = json_encode(
             array_filter(
                 array_map(
-                    'strtolower',
+                    function ($value) {
+                        return $value !== null ? strtolower($value) : $value;
+                    },
                     $this->only(
                         'address_line_1',
                         'address_line_2',

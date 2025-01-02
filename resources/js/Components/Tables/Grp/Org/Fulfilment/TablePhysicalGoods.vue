@@ -88,7 +88,7 @@ function physicalGoodsRoute(product: {}) {
         </template>
 
         <template #cell(actions)="{ item: service }">
-            <div v-if="props.state == 'in-process'">
+            <div v-if="props.state == 'in_process'">
                 <Link
                     :href="service.deletePhysicalGoodRoute?.name ? route(service.deletePhysicalGoodRoute.name, service.deletePhysicalGoodRoute.parameters) : '#'"
                     method="delete"

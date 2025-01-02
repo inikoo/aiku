@@ -50,7 +50,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property numeric $amount
  * @property numeric $grp_amount
  * @property numeric $org_amount
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property string $date Most relevant date at current state
  * @property string|null $completed_at
  * @property string|null $cancelled_at

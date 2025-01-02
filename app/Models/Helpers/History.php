@@ -22,14 +22,14 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $customer_id
  * @property string|null $user_type
  * @property int|null $user_id
- * @property array $tags
+ * @property array<array-key, mixed> $tags
  * @property string $auditable_type
  * @property int $auditable_id
  * @property string $event
  * @property string|null $comments
- * @property array|null $old_values
- * @property array|null $new_values
- * @property array|null $data
+ * @property array<array-key, mixed>|null $old_values
+ * @property array<array-key, mixed>|null $new_values
+ * @property array<array-key, mixed>|null $data
  * @property string|null $url
  * @property string|null $ip_address
  * @property string|null $user_agent

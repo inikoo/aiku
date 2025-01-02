@@ -9,7 +9,7 @@
 namespace App\Actions\SupplyChain\Agent\Hydrators;
 
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStatusEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
 use App\Models\SupplyChain\Agent;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Arr;
@@ -47,12 +47,12 @@ class AgentHydratePurchaseOrders
         }
 
         $purchaseOrderStatusCounts =  $agent->purchaseOrders()
-            ->selectRaw('delivery_status, count(*) as total')
-            ->groupBy('delivery_status')
-            ->pluck('total', 'delivery_status')->all();
+            ->selectRaw('delivery_state, count(*) as total')
+            ->groupBy('delivery_state')
+            ->pluck('total', 'delivery_state')->all();
 
-        foreach (PurchaseOrderDeliveryStatusEnum::cases() as $purchaseOrderStatusEnum) {
-            $stats['number_purchase_orders_delivery_status_'.$purchaseOrderStatusEnum->snake()] = Arr::get($purchaseOrderStatusCounts, $purchaseOrderStatusEnum->value, 0);
+        foreach (PurchaseOrderDeliveryStateEnum::cases() as $purchaseOrderStatusEnum) {
+            $stats['number_purchase_orders_delivery_state_'.$purchaseOrderStatusEnum->snake()] = Arr::get($purchaseOrderStatusCounts, $purchaseOrderStatusEnum->value, 0);
         }
 
         $agent->stats()->update($stats);

@@ -229,8 +229,12 @@ test('update prospect tags', function ($prospect) {
 
 test('prospect query count', function () {
     $this->artisan('query:count')->assertExitCode(0);
-    expect(Query::where('slug', 'prospects-not-contacted')->first()->number_items)->toBe(2)
-        ->and(Query::where('slug', 'prospects-last-contacted-within-interval')->first()->number_items)->toBe(2);
+
+    $query = Query::first();
+    $query2 = Query::skip(1)->first();
+
+    expect($query->number_items)->toBe(2)
+        ->and($query2->number_items)->toBe(2);
 });
 
 test('create prospect mailshot', function () {

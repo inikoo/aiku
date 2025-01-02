@@ -33,12 +33,12 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property string $next_push_identifier
  * @property EmailPushExitStatusEnum $exit_status
  * @property string|null $exit_breakpoint
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at
  * @property \Illuminate\Support\Carbon|null $last_fetched_at
- * @property array $sources
+ * @property array<array-key, mixed> $sources
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Comms\DispatchedEmail> $dispatchedEmails
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation

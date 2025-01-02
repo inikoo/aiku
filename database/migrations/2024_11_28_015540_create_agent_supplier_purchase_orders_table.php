@@ -1,7 +1,13 @@
 <?php
 
-use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStatusEnum;
-use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 31 Dec 2024 16:11:02 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
+
+use App\Enums\SupplyChain\AgentSupplierPurchaseOrders\AgentSupplierPurchaseOrderDeliveryStateEnum;
+use App\Enums\SupplyChain\AgentSupplierPurchaseOrders\AgentSupplierPurchaseOrderStateEnum;
 use App\Stubs\Migrations\HasProcurementStats;
 use App\Stubs\Migrations\IsProcurementOrder;
 use Illuminate\Database\Migrations\Migration;
@@ -26,8 +32,8 @@ return new class () extends Migration {
             $table->unsignedInteger('supplier_id')->nullable();
             $table->foreign('supplier_id')->references('id')->on('suppliers');
 
-            $table->string('state')->index()->default(PurchaseOrderTransactionStateEnum::IN_PROCESS->value);
-            $table->string('delivery_status')->index()->default(PurchaseOrderTransactionDeliveryStatusEnum::PROCESSING->value);
+            $table->string('state')->index()->default(AgentSupplierPurchaseOrderStateEnum::IN_PROCESS->value);
+            $table->string('delivery_state')->index()->default(AgentSupplierPurchaseOrderDeliveryStateEnum::IN_PROCESS->value);
             $table->text('notes')->nullable();
             $table->dateTimeTz('date')->comment('latest relevant date');
             $table->dateTimeTz('in_process_at')->nullable();
@@ -35,6 +41,7 @@ return new class () extends Migration {
             $table->dateTimeTz('confirmed_at')->nullable();
             $table->dateTimeTz('settled_at')->nullable();
             $table->dateTimeTz('cancelled_at')->nullable();
+            $table->dateTimeTz('not_received_at')->nullable();
 
             $table = $this->costingProcurementOrder($table);
             $table = $this->stockDeliveriesStats($table);

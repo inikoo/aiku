@@ -388,7 +388,7 @@ class ShowPalletReturn extends RetinaAction
                             ],
                         ]
                     ),
-                    'delivery_status'              => PalletReturnStateEnum::stateIcon()[$palletReturn->state->value],
+                    'delivery_state'              => PalletReturnStateEnum::stateIcon()[$palletReturn->state->value],
                     'order_summary'                => [
                         [
                             // [

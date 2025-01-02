@@ -34,7 +34,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $customer_notes
  * @property string|null $public_notes
  * @property string|null $internal_notes
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at

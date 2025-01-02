@@ -40,7 +40,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $tax_category_id
  * @property string|null $grp_exchange
  * @property string|null $org_exchange
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at

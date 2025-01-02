@@ -15,7 +15,7 @@ enum CustomerStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS = 'in-process';
+    case IN_PROCESS = 'in_process';
     case REGISTERED = 'registered';
     case ACTIVE = 'active';
     case LOSING = 'losing';
@@ -24,7 +24,7 @@ enum CustomerStateEnum: string
     public static function labels(): array
     {
         return [
-            'in-process' => __('In Process'),
+            'in_process' => __('In Process'),
             'registered' => __('Registered'),
             'active'     => __('Active'),
             'losing'     => __('Losing'),
@@ -35,7 +35,7 @@ enum CustomerStateEnum: string
     public static function stateIcon(): array
     {
         return [
-            'in-process'    => [
+            'in_process'    => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-circle-notch',
                 'class'   => 'text-lime-500',
@@ -73,7 +73,7 @@ enum CustomerStateEnum: string
         $stats = $parent->crmStats;
 
         return [
-            'in-process' => $stats->number_customers_state_in_process,
+            'in_process' => $stats->number_customers_state_in_process,
             'registered'    => $stats->number_customers_state_registered,
             'active'         => $stats->number_customers_state_active,
             'losing'      => $stats->number_customers_state_losing,

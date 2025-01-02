@@ -22,6 +22,7 @@ return new class () extends Migration {
             $table->foreign('asset_id')->references('id')->on('assets')->onDelete('cascade')->onUpdate('cascade');
             $table = $this->unsignedIntegerDateIntervals($table, [
                 'invoices',
+                'refunds',
                 'orders',
                 'delivery_notes',
                 'customers_invoiced'

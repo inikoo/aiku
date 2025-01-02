@@ -100,12 +100,14 @@ class UpdatePalletReturn extends OrgAction
 
         if (!request()->user() instanceof WebUser) {
             $rules = [
+                'reference'      => ['sometimes', 'string', 'max:255'],
                 'public_notes'   => ['sometimes', 'nullable', 'string', 'max:4000'],
                 'internal_notes' => ['sometimes', 'nullable', 'string', 'max:4000'],
             ];
         }
 
         return [
+
             'customer_notes'      => ['sometimes', 'nullable', 'string', 'max:5000'],
             'address'             => ['sometimes'],
             'delivery_address_id' => ['sometimes', Rule::exists('addresses', 'id')],
@@ -133,12 +135,10 @@ class UpdatePalletReturn extends OrgAction
         return $this->handle($palletReturn, $this->validatedData);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function action(Organisation $organisation, PalletReturn $palletReturn, $modelData): PalletReturn
+    public function action(PalletReturn $palletReturn, $modelData): PalletReturn
     {
         $this->action = true;
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $modelData);
-        $this->setRawAttributes($modelData);
 
         return $this->handle($palletReturn, $this->validatedData);
     }

@@ -59,14 +59,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property WebpageSubTypeEnum $sub_type
  * @property int|null $unpublished_snapshot_id
  * @property int|null $live_snapshot_id
- * @property array $published_layout
+ * @property array<array-key, mixed> $published_layout
  * @property \Illuminate\Support\Carbon|null $ready_at
  * @property \Illuminate\Support\Carbon|null $live_at
  * @property \Illuminate\Support\Carbon|null $closed_at
  * @property string|null $published_checksum
  * @property bool $is_dirty
- * @property array $data
- * @property array $settings
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at
@@ -74,7 +74,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
- * @property array $migration_data
+ * @property array<array-key, mixed> $migration_data
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, Deployment> $deployments
  * @property-read Collection<int, \App\Models\Web\ExternalLink> $externalLinks

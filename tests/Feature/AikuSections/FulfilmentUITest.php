@@ -790,6 +790,7 @@ test('UI edit rental', function () {
 });
 
 test('UI create rental', function () {
+    $this->withoutExceptionHandling();
     $response = get(route('grp.org.fulfilments.show.catalogue.rentals.create', [$this->organisation->slug, $this->fulfilment->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page

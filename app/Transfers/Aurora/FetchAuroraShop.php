@@ -86,9 +86,9 @@ class FetchAuroraShop extends FetchAurora
 
         $state = Str::snake($this->auroraModelData->{'Store Status'} == 'Normal' ? 'Open' : $this->auroraModelData->{'Store Status'}, '-');
         $state = match ($state) {
-            'in-process' => ShopStateEnum::IN_PROCESS,
+            'in_process' => ShopStateEnum::IN_PROCESS,
             'open' => ShopStateEnum::OPEN,
-            'closing-down' => ShopStateEnum::CLOSING_DOWN,
+            'closing_down' => ShopStateEnum::CLOSING_DOWN,
             'closed' => ShopStateEnum::CLOSED,
         };
 

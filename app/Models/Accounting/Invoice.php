@@ -77,8 +77,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $date
  * @property \Illuminate\Support\Carbon|null $tax_liability_at
  * @property \Illuminate\Support\Carbon|null $paid_at
- * @property array $payment_data
- * @property array $data
+ * @property array<array-key, mixed> $payment_data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at

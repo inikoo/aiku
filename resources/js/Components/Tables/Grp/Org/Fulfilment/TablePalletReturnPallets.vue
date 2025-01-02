@@ -57,11 +57,11 @@ const listStatusNotPicked = [
     },
     {
         label: trans('Other incident'),
-        value: 'other-incident'
+        value: 'other_incident'
     }
 ]
 const selectedStatusNotPicked = reactive({
-    status: 'other-incident',
+    status: 'other_incident',
     notes: ''
 })
 const errorNotPicked = reactive({
@@ -145,7 +145,7 @@ onBeforeMount(() => {
 
 <template>
     <!-- <pre>{{data}}</pre> -->
-    <Table :resource="data" :name="tab" class="mt-5" :isCheckBox="state == 'in-process'"
+    <Table :resource="data" :name="tab" class="mt-5" :isCheckBox="state == 'in_process'"
      @onSelectRow="onChangeCheked" :selectedRow="selectedRow" checkboxKey='pallet_id'
     >
 
@@ -223,7 +223,7 @@ onBeforeMount(() => {
 
 
         <!-- Column: Actions -->
-        <template #cell(actions)="{ item: pallet }" v-if="props.state == 'in-process' || props.state == 'picking'">
+        <template #cell(actions)="{ item: pallet }" v-if="props.state == 'in_process' || props.state == 'picking'">
             <!-- State: Pick or not-picked -->
             <div v-if="props.state == 'picking' && layout.app.name == 'Aiku'" class="flex gap-x-2 ">
                 <!-- {{ pallet.state }} -->

@@ -14,7 +14,7 @@ enum CustomerStatusEnum: string
 {
     use EnumHelperTrait;
 
-    case PENDING_APPROVAL = 'pending-approval';
+    case PENDING_APPROVAL = 'pending_approval';
     case APPROVED         = 'approved';
     case REJECTED         = 'rejected';
     case BANNED           = 'banned';

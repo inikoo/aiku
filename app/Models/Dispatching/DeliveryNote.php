@@ -83,7 +83,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $end_packing
  * @property string|null $picking_on_hold_time Time when picking was put on hold (seconds)
  * @property string|null $packing_on_hold_time Time when packing was put on hold (seconds)
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at

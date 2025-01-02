@@ -30,7 +30,7 @@ class UpdateStateToCheckedStockDelivery
             'state' => StockDeliveryStateEnum::CHECKED,
         ];
 
-        if (in_array($stockDelivery->state, [StockDeliveryStateEnum::RECEIVED, StockDeliveryStateEnum::SETTLED])) {
+        if (in_array($stockDelivery->state, [StockDeliveryStateEnum::RECEIVED, StockDeliveryStateEnum::PLACED])) {
             $data[$stockDelivery->state->value . '_at']    = null;
             $data['checked_at']                            = now();
 

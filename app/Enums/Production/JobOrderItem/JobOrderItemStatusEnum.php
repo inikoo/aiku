@@ -9,7 +9,7 @@ enum JobOrderItemStatusEnum: string
     use EnumHelperTrait;
 
     case RECEIVING    = 'receiving';
-    case NOT_RECEIVED = 'not-received';
+    case NOT_RECEIVED = 'not_received';
     case STORING      = 'storing';
     case RETURNING    = 'returning';
     case RETURNED     = 'returned';
@@ -19,7 +19,7 @@ enum JobOrderItemStatusEnum: string
     {
         $labels = [
             'receiving'    => __('Receiving'),
-            'not-received' => __('Not received'),
+            'not_received' => __('Not received'),
             'storing'      => __('Storing'),
             'returning'    => __('Returning'),
             'returned'     => __('Returned'),
@@ -44,7 +44,7 @@ enum JobOrderItemStatusEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'not-received' => [
+            'not_received' => [
                 'tooltip' => __('not received'),
                 'icon'    => 'fal fa-times',
                 'class'   => 'text-red-500',

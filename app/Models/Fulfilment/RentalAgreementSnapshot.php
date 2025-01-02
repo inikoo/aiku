@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $rental_agreement_id
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property bool $is_first_snapshot
  * @property int $clauses_added
  * @property int $clauses_removed

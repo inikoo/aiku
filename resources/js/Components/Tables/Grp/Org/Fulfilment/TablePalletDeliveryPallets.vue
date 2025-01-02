@@ -171,7 +171,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 
 		<!-- Column: Pallet Reference -->
 		<template #cell(customer_reference)="{ item }">
-			<div v-if="state == 'in-process'" class="w-full">
+			<div v-if="state == 'in_process'" class="w-full">
 				<FieldEditableTable
                     :data="item"
                     @onSave="onSaved"
@@ -193,7 +193,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 
 		<!-- Column: Notes -->
 		<template #cell(notes)="{ item }">
-			<div v-if="state == 'in-process'" class="min-w-32">
+			<div v-if="state == 'in_process'" class="min-w-32">
 				<FieldEditableTable
                     :data="item"
                     @onSave="onSaved"
@@ -211,7 +211,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
                 :pallet="item"
 				:saveRoute="item.storeStoredItemRoute"
 				:storedItemsRoute="storedItemsRoute"
-                :editable="props.state == 'in-process'"
+                :editable="props.state == 'in_process'"
                 @renderTable="() => emits('renderTableKey')"
             />
 		</template>
@@ -219,7 +219,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 
 		<!-- Column: Set Location -->
 		<template #cell(location)="{ item: pallet }">
-			<div v-if="pallet.state == 'received' || pallet.state == 'booked-in' || pallet.state == 'booking-in'" class="flex gap-x-1 gap-y-2 items-center">
+			<div v-if="pallet.state == 'received' || pallet.state == 'booked_in' || pallet.state == 'booking_in'" class="flex gap-x-1 gap-y-2 items-center">
 				<LocationFieldDelivery
                     :key="pallet.state"
                     :pallet="pallet"
@@ -237,7 +237,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 
 		<!-- Column: Rental -->
 		<template #cell(rental)="{ item: pallet }">
-			<div v-if="props.state == 'booked-in'">{{ pallet.rental_name }}</div>
+			<div v-if="props.state == 'booked_in'">{{ pallet.rental_name }}</div>
 			<div v-else class="w-64">
                 <FieldEditableTable
                     :key="'rental_id' + pallet.id"
@@ -258,7 +258,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 		<!-- Column: Actions -->
 		<template #cell(actions)="{ item: pallet }">
 			<!-- State: Delete Pallet (in_process) -->
-			<div v-if="props.state == 'in-process'">
+			<div v-if="props.state == 'in_process'">
 				<Link
                     :href="route(pallet.deleteRoute.name, pallet.deleteRoute.parameters)"
                     method="delete"
@@ -273,7 +273,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 
 
 			<!-- State: not received -->
-			<div v-else-if="pallet.state == 'not-received'">
+			<div v-else-if="pallet.state == 'not_received'">
 				<ButtonEditTable class="mx-2" type="secondary" label="Undo" :capitalize="false" :size="'xs'"
 					:key="pallet.index" routeName="undoNotReceivedRoute" :data="pallet"
 					@onSuccess="() => emits('renderTableKey')" />
@@ -281,8 +281,8 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 
 
 			<!-- State: Received -->
-			<div v-else-if="(props.state == 'received' || props.state == 'booking-in' || props.state == 'not-received') && !pallet.location_id" class="flex">
-				<ButtonEditTable class="mx-2" :type="pallet.state == 'not-received' ? 'secondary' : 'negative'"
+			<div v-else-if="(props.state == 'received' || props.state == 'booking_in' || props.state == 'not_received') && !pallet.location_id" class="flex">
+				<ButtonEditTable class="mx-2" :type="pallet.state == 'not_received' ? 'secondary' : 'negative'"
 					:icon="['fal', 'times']" tooltip="Set as not received" :size="'xs'" :key="pallet.index"
 					routeName="notReceivedRoute" :data="pallet" @onSuccess="() => emits('renderTableKey')" />
 			</div>

@@ -63,7 +63,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $set_as_incident_at
  * @property \Illuminate\Support\Carbon|null $dispatched_at
  * @property string|null $notes
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property object $incident_report
  * @property bool $with_stored_items
  * @property int $number_stored_items

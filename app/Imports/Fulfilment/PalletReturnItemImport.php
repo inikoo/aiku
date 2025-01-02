@@ -53,6 +53,7 @@ class PalletReturnItemImport implements ToCollection, WithHeadingRow, SkipsOnFai
 
         $fail = false;
 
+
         if ($this->scope->type == PalletReturnTypeEnum::PALLET) {
             try {
                 AttachPalletToReturn::make()->action(

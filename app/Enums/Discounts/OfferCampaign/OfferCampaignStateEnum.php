@@ -14,7 +14,7 @@ enum OfferCampaignStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS = 'in-process';
+    case IN_PROCESS = 'in_process';
     case ACTIVE = 'active';
     case FINISHED = 'finished';
     case SUSPENDED = 'suspended';
@@ -22,7 +22,7 @@ enum OfferCampaignStateEnum: string
     public static function labels(): array
     {
         return [
-            'in-process' => __('In process'),
+            'in_process' => __('In process'),
             'active'     => __('Active'),
             'finished'   => __('Finished'),
             'suspended'  => __('Suspended'),
@@ -32,7 +32,7 @@ enum OfferCampaignStateEnum: string
     public static function stateIcon(): array
     {
         return [
-            'in-process' => [
+            'in_process' => [
                 'tooltip' => __('In Process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)

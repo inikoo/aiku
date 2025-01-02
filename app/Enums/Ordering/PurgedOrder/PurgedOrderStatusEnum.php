@@ -14,7 +14,7 @@ enum PurgedOrderStatusEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS = 'in-process';
+    case IN_PROCESS = 'in_process';
     case PURGED = 'purged';
     case EXCULPATED = 'exculpated'; // Inactive order when purge created, that get activated before order purged
     case CANCELLED = 'cancelled';

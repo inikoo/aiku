@@ -15,6 +15,8 @@ enum StockDeliveryItemStateEnum: string
     use EnumHelperTrait;
 
     case IN_PROCESS     = 'in_process';
+    case CONFIRMED = 'confirmed';
+    case READY_TO_SHIP = 'ready_to_ship';
     case DISPATCHED   = 'dispatched';
     case RECEIVED     = 'received';
     case CHECKED      = 'checked';

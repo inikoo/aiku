@@ -92,7 +92,7 @@ class OutboxHydrateIntervals
                 ->select(
                     DB::raw("
                         CASE 
-                            WHEN state IN ('soft-bounce', 'hard-bounce') THEN 'bounced'
+                            WHEN state IN ('soft_bounce', 'hard_bounce') THEN 'bounced'
                             ELSE state 
                         END as state_group
                     "),

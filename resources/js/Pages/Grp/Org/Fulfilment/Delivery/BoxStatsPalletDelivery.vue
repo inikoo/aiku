@@ -139,8 +139,8 @@ onMounted(() => {
             <!-- <pre>{{ dataPalletDelivery }}</pre> -->
             <div class="flex items-center w-full flex-none gap-x-2 mb-2">
                 <dt class="flex-none">
-                    <span class="sr-only">{{ boxStats.delivery_status.tooltip }}</span>
-                    <FontAwesomeIcon :icon='boxStats.delivery_status.icon' :class='boxStats.delivery_status.class'
+                    <span class="sr-only">{{ boxStats.delivery_state.tooltip }}</span>
+                    <FontAwesomeIcon :icon='boxStats.delivery_state.icon' :class='boxStats.delivery_status.class'
                         fixed-width aria-hidden='true' />
                 </dt>
                 <dd class=" text-gray-500" :class='boxStats.delivery_status.class'>{{
@@ -155,12 +155,12 @@ onMounted(() => {
                         aria-hidden='true' />
                 </dt>
 
-                <Popover v-if="dataPalletDelivery.state == 'in-process' || dataPalletDelivery.state == 'submitted' || dataPalletDelivery.state == 'confirmed'" position="" style="z-index: 20">
+                <Popover v-if="dataPalletDelivery.state == 'in_process' || dataPalletDelivery.state == 'submitted' || dataPalletDelivery.state == 'confirmed'" position="" style="z-index: 20">
                     <template #button>
                         <div v-if="dataPalletDelivery.estimated_delivery_date"
                             v-tooltip="useDaysLeftFromToday(dataPalletDelivery.estimated_delivery_date)"
                             class="group  text-gray-500"
-                            :class="[dataPalletDelivery.state === 'in-process' ? 'underline' : '']"    
+                            :class="[dataPalletDelivery.state === 'in_process' ? 'underline' : '']"
                         >
                             {{ useFormatTime(dataPalletDelivery?.estimated_delivery_date) }}
                             <FontAwesomeIcon icon='fal fa-pencil' size="sm"

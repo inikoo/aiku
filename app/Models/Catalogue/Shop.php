@@ -104,7 +104,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $identity_document_type
  * @property string|null $identity_document_number
  * @property int|null $address_id
- * @property array $location
+ * @property array<array-key, mixed> $location
  * @property int|null $collection_address_id
  * @property ShopStateEnum $state
  * @property ShopTypeEnum $type
@@ -117,8 +117,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $image_id
  * @property int|null $shipping_zone_schema_id
  * @property int|null $discount_shipping_zone_schema_id
- * @property array $data
- * @property array $settings
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
  * @property int|null $sender_email_id
  * @property int|null $prospects_sender_email_id
  * @property \Illuminate\Support\Carbon|null $fetched_at
@@ -172,6 +172,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read PaymentAccountShop|OrgPaymentServiceProviderShop|null $pivot
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read Organisation $organisation
+ * @property-read \App\Models\Catalogue\ShopOutboxColdEmailsIntervals|null $outboxColdEmailsIntervals
+ * @property-read \App\Models\Catalogue\ShopOutboxCustomerNotificationIntervals|null $outboxCustomerNotificationIntervals
+ * @property-read \App\Models\Catalogue\ShopOutboxMarketingIntervals|null $outboxMarketingIntervals
+ * @property-read \App\Models\Catalogue\ShopOutboxMarketingNotificationIntervals|null $outboxMarketingNotificationIntervals
+ * @property-read \App\Models\Catalogue\ShopOutboxNewsletterIntervals|null $outboxNewsletterIntervals
+ * @property-read \App\Models\Catalogue\ShopOutboxPushIntervals|null $outboxPushIntervals
  * @property-read LaravelCollection<int, Outbox> $outboxes
  * @property-read LaravelCollection<int, Packing> $packings
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
@@ -627,6 +633,37 @@ class Shop extends Model implements HasMedia, Auditable
     public function timeSeries(): HasMany
     {
         return $this->hasMany(ShopTimeSeries::class);
+    }
+
+    public function outboxNewsletterIntervals(): HasOne
+    {
+        return $this->hasOne(ShopOutboxNewsletterIntervals::class);
+    }
+
+
+    public function outboxMarketingIntervals(): HasOne
+    {
+        return $this->hasOne(ShopOutboxMarketingIntervals::class);
+    }
+
+    public function outboxMarketingNotificationIntervals(): HasOne
+    {
+        return $this->hasOne(ShopOutboxMarketingNotificationIntervals::class);
+    }
+
+    public function outboxCustomerNotificationIntervals(): HasOne
+    {
+        return $this->hasOne(ShopOutboxCustomerNotificationIntervals::class);
+    }
+
+    public function outboxColdEmailsIntervals(): HasOne
+    {
+        return $this->hasOne(ShopOutboxColdEmailsIntervals::class);
+    }
+
+    public function outboxPushIntervals(): HasOne
+    {
+        return $this->hasOne(ShopOutboxPushIntervals::class);
     }
 
 }

@@ -22,6 +22,8 @@ return new class () extends Migration {
 
             $table = $this->purchaseOrdersStats($table);
             $table = $this->stockDeliveriesStats($table);
+            $table = $this->purchaseOrderTransactionsStats($table);
+            $table = $this->stockDeliveryItemsStats($table);
 
             $table->timestampsTz();
         });

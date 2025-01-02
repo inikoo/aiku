@@ -9,7 +9,6 @@
 namespace App\Models\Procurement;
 
 use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
-use App\Enums\Procurement\StockDelivery\StockDeliveryStatusEnum;
 use App\Models\Helpers\Address;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddress;
@@ -44,32 +43,42 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $parent_name Parent name on the time of consolidation
  * @property string $reference
  * @property StockDeliveryStateEnum $state
- * @property StockDeliveryStatusEnum $status
- * @property string $date latest relevant date
- * @property string|null $dispatched_at
- * @property string|null $received_at
- * @property string|null $checked_at
- * @property string|null $settled_at
- * @property string|null $cancelled_at
+ * @property \Illuminate\Support\Carbon $date latest relevant date
+ * @property \Illuminate\Support\Carbon|null $dispatched_at
+ * @property \Illuminate\Support\Carbon|null $received_at
+ * @property \Illuminate\Support\Carbon|null $checked_at
+ * @property \Illuminate\Support\Carbon|null $placed_at
+ * @property \Illuminate\Support\Carbon|null $cancelled_at
+ * @property \Illuminate\Support\Carbon|null $not_received_at
  * @property int|null $agent_id
  * @property int|null $supplier_id
  * @property int|null $partner_id
  * @property int $number_purchase_orders
- * @property int $number_of_items
  * @property float|null $gross_weight
  * @property float|null $net_weight
+ * @property int $number_stock_delivery_items Number supplier deliveries
+ * @property int $number_stock_delivery_items_except_cancelled Number supplier deliveries
+ * @property int $number_stock_delivery_items_state_in_process
+ * @property int $number_stock_delivery_items_state_confirmed
+ * @property int $number_stock_delivery_items_state_ready_to_ship
+ * @property int $number_stock_delivery_items_state_dispatched
+ * @property int $number_stock_delivery_items_state_received
+ * @property int $number_stock_delivery_items_state_checked
+ * @property int $number_stock_delivery_items_state_placed
+ * @property int $number_stock_delivery_items_state_cancelled
+ * @property int $number_stock_delivery_items_state_not_received
  * @property int $currency_id
  * @property string|null $grp_exchange
  * @property string|null $org_exchange
  * @property bool $is_costed
- * @property array $cost_data
+ * @property array<array-key, mixed> $cost_data
  * @property string|null $cost_items
  * @property string|null $cost_extra
  * @property string|null $cost_shipping
  * @property string|null $cost_duties
  * @property string $cost_tax
  * @property string $cost_total
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at
@@ -111,7 +120,13 @@ class StockDelivery extends Model implements HasMedia, Auditable
         'data'            => 'array',
         'cost_data'       => 'array',
         'state'           => StockDeliveryStateEnum::class,
-        'status'          => StockDeliveryStatusEnum::class,
+        'date'            => 'datetime',
+        'dispatched_at'   => 'datetime',
+        'received_at'     => 'datetime',
+        'checked_at'      => 'datetime',
+        'placed_at'       => 'datetime',
+        'cancelled_at'    => 'datetime',
+        'not_received_at' => 'datetime',
         'fetched_at'      => 'datetime',
         'last_fetched_at' => 'datetime',
     ];

@@ -87,7 +87,7 @@ class FetchAuroraDeletedSupplierProduct extends FetchAurora
 
                 'is_available'          => false,
                 'state'                 => $state,
-                'stock_quantity_status' => 'no-applicable',
+                'stock_quantity_status' => 'no_applicable',
                 'stock_id'              => $stock->id,
 
                 'deleted_at'      => $deleted_at,

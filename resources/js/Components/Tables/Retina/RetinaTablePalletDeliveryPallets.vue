@@ -104,7 +104,7 @@ const typePallet = [
 
         <!-- Column: Pallet Reference (Customer's), Notes-->
 		<template #cell(customer_reference)="{ item }">
-            <div v-if="state == 'in-process'" class="min-w-48">
+            <div v-if="state == 'in_process'" class="min-w-48">
                 <FieldEditableTable
                     :data="item"
                     @onSave="onSaveField"
@@ -126,7 +126,7 @@ const typePallet = [
 
         <!-- Column: Notes -->
 		<template #cell(notes)="{ item }">
-			<div v-if="state == 'in-process'" class="min-w-40">
+			<div v-if="state == 'in_process'" class="min-w-40">
 				<FieldEditableTable :data="item" @onSave="onSaveField" fieldName="notes" placeholder="Enter pallet notes"/>
 			</div>
 			<div v-else>
@@ -146,7 +146,7 @@ const typePallet = [
 				:saveRoute="item.auditRoute"
 				:storedItemsRoute="storedItemsRoute"
                 :state="props.state"
-				:editable="props.state == 'in-process'"
+				:editable="props.state == 'in_process'"
                 @renderTable="() => emits('renderTableKey')"
             />
 		</template>
@@ -163,7 +163,7 @@ const typePallet = [
 
         <!-- Column: Actions -->
 		<template #cell(actions)="{ item: pallet }">
-			<div v-if="props.state == 'in-process'">
+			<div v-if="props.state == 'in_process'">
 				<Link
 					:href="route(pallet.deleteRoute.name, pallet.deleteRoute.parameters)"
 					method="delete"
@@ -179,7 +179,7 @@ const typePallet = [
 				</Link>
 			</div>
 <!--
-			<div v-else-if="pallet.state == 'not-received'">
+			<div v-else-if="pallet.state == 'not_received'">
 				<ButtonEditTable
 					class="mx-2"
 					type="secondary"
@@ -197,7 +197,7 @@ const typePallet = [
 				<div class="flex">
 					<ButtonEditTable
 						class="mx-2"
-						:type="pallet.state == 'not-received' ? 'secondary' : 'negative'"
+						:type="pallet.state == 'not_received' ? 'secondary' : 'negative'"
 						:icon="['fal', 'times']"
 						tooltip="Set as not received"
 						:size="'xs'"
@@ -216,7 +216,7 @@ const typePallet = [
 
         <!-- Column: Type -->
 		<template #cell(type)="{ item: pallet }">
-            <div v-if="props.state == 'in-process'" class="w-40">
+            <div v-if="props.state == 'in_process'" class="w-40">
 				<FieldEditableTable
                     :data="pallet"
                     @onSave="onSaveField"

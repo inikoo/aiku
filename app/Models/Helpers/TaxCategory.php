@@ -25,7 +25,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $status
  * @property numeric $rate
  * @property int|null $country_id
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property string|null $source_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

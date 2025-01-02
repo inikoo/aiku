@@ -52,9 +52,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $name
  * @property WarehouseStateEnum $state
  * @property int|null $address_id
- * @property array $location
- * @property array $settings
- * @property array $data
+ * @property array<array-key, mixed> $location
+ * @property array<array-key, mixed> $settings
+ * @property array<array-key, mixed> $data
  * @property bool $allow_stocks
  * @property bool $allow_fulfilment
  * @property bool $allow_dropshipping

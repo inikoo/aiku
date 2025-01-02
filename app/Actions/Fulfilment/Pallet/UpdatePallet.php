@@ -131,6 +131,24 @@ class UpdatePallet extends OrgAction
             'received_at'        => ['sometimes','nullable',  'date'],
             'booked_in_at'       => ['sometimes', 'nullable', 'date'],
             'storing_at'         => ['sometimes', 'nullable', 'date'],
+            'reference'          => [
+                'sometimes',
+                'nullable',
+                'max:64',
+                'string',
+                Rule::notIn(['export', 'create', 'upload']),
+                new IUnique(
+                    table: 'pallets',
+                    extraConditions: [
+                        ['column' => 'fulfilment_customer_id', 'value' => $this->pallet->fulfilmentCustomer->id],
+                        [
+                            'column'   => 'id',
+                            'operator' => '!=',
+                            'value'    => $this->pallet->id
+                        ],
+                    ]
+                ),
+            ],
 
         ];
         if (!$this->strict) {

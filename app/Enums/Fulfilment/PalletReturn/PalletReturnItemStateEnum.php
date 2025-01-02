@@ -20,24 +20,24 @@ enum PalletReturnItemStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS      = 'in-process';
+    case IN_PROCESS      = 'in_process';
     case SUBMITTED       = 'submitted';
     case CONFIRMED       = 'confirmed';
     case PICKING         = 'picking';
     case PICKED          = 'picked';
-    case NOT_PICKED      = 'not-picked';
+    case NOT_PICKED      = 'not_picked';
     case DISPATCHED      = 'dispatched';
     case CANCEL          = 'cancel';
 
     public static function labels(): array
     {
         return [
-            'in-process'               => __('In Process'),
+            'in_process'               => __('In Process'),
             'submitted'                => __('Submitted'),
             'confirmed'                => __('Confirmed'),
             'picking'                  => __('Picking'),
             'picked'                   => __('Picked'),
-            'not-picked'               => __('Not Picked'),
+            'not_picked'               => __('Not Picked'),
             'dispatched'               => __('Dispatched'),
             'cancel'                   => __('Cancel')
         ];
@@ -46,7 +46,7 @@ enum PalletReturnItemStateEnum: string
     public static function stateIcon(): array
     {
         return [
-            'in-process' => [
+            'in_process' => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
@@ -76,7 +76,7 @@ enum PalletReturnItemStateEnum: string
                 'class'   => 'text-slate-500',
                 'color'   => 'slate'
             ],
-            'not-picked' => [
+            'not_picked' => [
                 'tooltip' => __('Not Picked'),
                 'icon'    => 'fal fa-times',
                 'class'   => 'text-red-500',
@@ -106,12 +106,12 @@ enum PalletReturnItemStateEnum: string
         }
 
         return [
-            'in-process'   => $stats->number_pallet_returns_state_in_process,
+            'in_process'   => $stats->number_pallet_returns_state_in_process,
             'submitted'    => $stats->number_pallet_returns_state_submitted,
             'confirmed'    => $stats->number_pallet_returns_state_confirmed,
             'picking'      => $stats->number_pallet_returns_state_picking,
             'picked'       => $stats->number_pallet_returns_state_picked,
-            'not-picked'   => $stats->number_pallet_returns_state_not_picked,
+            'not_picked'   => $stats->number_pallet_returns_state_not_picked,
             'dispatched'   => $stats->number_pallet_returns_state_dispatched,
             'cancel'       => $stats->number_pallet_returns_state_cancel
         ];

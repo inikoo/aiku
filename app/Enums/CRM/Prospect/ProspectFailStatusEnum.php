@@ -16,30 +16,27 @@ enum ProspectFailStatusEnum: string
 {
     use EnumHelperTrait;
 
-    case NA             = 'no-applicable';
-    case NOT_INTERESTED = 'not-interested';
-
+    case NA             = 'no_applicable';
+    case NOT_INTERESTED = 'not_interested';
     case UNSUBSCRIBED = 'unsubscribed';
-
-    case HARD_BOUNCED = 'hard-bounced';
-
+    case HARD_BOUNCED = 'hard_bounced';
     case INVALID = 'invalid';
 
     public static function labels(): array
     {
         return [
-            'no-applicable'  => __('NA'),
-            'not-interested' => __('Not interested'),
+            'no_applicable'  => __('NA'),
+            'not_interested' => __('Not interested'),
             'unsubscribed'   => __('Unsubscribed'),
             'invalid'        => __('Invalid'),
-            'hard-bounced'   => __('Hard Bounced'),
+            'hard_bounced'   => __('Hard Bounced'),
         ];
     }
 
     public static function statusIcon(): array
     {
         return [
-            'no-applicable' => [
+            'no_applicable' => [
 
                 'tooltip' => __('NA'),
                 'icon'    => 'fal fa-location-slash',
@@ -47,7 +44,7 @@ enum ProspectFailStatusEnum: string
 
             ],
 
-            'not-interested' => [
+            'not_interested' => [
 
                 'tooltip' => __('not interested'),
                 'icon'    => 'fal fa-snooze',
@@ -69,7 +66,7 @@ enum ProspectFailStatusEnum: string
                 'class'   => 'text-red-300'
             ],
 
-            'hard-bounced' => [
+            'hard_bounced' => [
 
                 'tooltip' => __('Hard Bounced'),
                 'icon'    => 'fal fa-exclamation-circle',
@@ -85,11 +82,11 @@ enum ProspectFailStatusEnum: string
         $stats = $parent->crmStats;
 
         return [
-            'no-applicable'  => $stats->number_prospects_fail_status_no_applicable,
-            'not-interested' => $stats->number_prospects_fail_status_not_interested,
+            'no_applicable'  => $stats->number_prospects_fail_status_no_applicable,
+            'not_interested' => $stats->number_prospects_fail_status_not_interested,
             'unsubscribed'   => $stats->number_prospects_fail_status_unsubscribed,
             'invalid'        => $stats->number_prospects_fail_status_invalid,
-            'hard-bounced'   => $stats->number_prospects_fail_status_hard_bounced,
+            'hard_bounced'   => $stats->number_prospects_fail_status_hard_bounced,
 
         ];
     }

@@ -15,7 +15,7 @@ use Illuminate\Database\Schema\Blueprint;
 
 trait HasDateIntervalsStats
 {
-    public function salesDateIntervals(Blueprint $table, array $subjects = []): Blueprint
+    public function decimalDateIntervals(Blueprint $table, array $subjects = []): Blueprint
     {
         foreach ($subjects as $subject) {
             $subject = $subject ? $subject.'_' : '';

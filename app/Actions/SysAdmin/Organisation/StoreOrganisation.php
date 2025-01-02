@@ -119,6 +119,19 @@ class StoreOrganisation extends GrpAction
                 $organisation->timeSeries()->create(['frequency' => $frequency]);
             }
 
+            if ($organisation->type == OrganisationTypeEnum::SHOP or $organisation->type == OrganisationTypeEnum::DIGITAL_AGENCY) {
+                $organisation->outboxNewsletterIntervals()->create();
+                $organisation->outboxMarketingIntervals()->create();
+                $organisation->outboxMarketingNotificationIntervals()->create();
+                $organisation->outboxCustomerNotificationIntervals()->create();
+                $organisation->outboxColdEmailsIntervals()->create();
+                $organisation->outboxPushIntervals()->create();
+            }
+
+            $organisation->outboxUserNotificationIntervals()->create();
+            $organisation->outboxTestIntervals()->create();
+
+
             if ($organisation->type == OrganisationTypeEnum::SHOP) {
                 $organisation->crmStats()->create();
                 $organisation->orderingStats()->create();
