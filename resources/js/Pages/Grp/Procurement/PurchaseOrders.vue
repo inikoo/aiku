@@ -13,7 +13,7 @@ import { capitalize } from "@/Composables/capitalize"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { inject, ref, computed, onMounted, onUnmounted } from "vue"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
-import { faGhost, faSeedling, faShare, faSignOutAlt, faSpellCheck } from "@fal"
+import { faCheckCircle, faCheckDouble, faExclamationCircle, faGhost, faPaperPlane, faSeedling, faShare, faSignOutAlt, faSpellCheck, faTimesCircle } from "@fal"
 
 const locale = inject("locale", aikuLocaleStructure)
 
@@ -22,7 +22,12 @@ library.add(
     faSeedling,
     faSpellCheck,
     faSignOutAlt,
-    faGhost
+    faGhost,
+    faExclamationCircle,
+    faTimesCircle,
+    faCheckDouble,
+    faCheckCircle,
+    faPaperPlane
 )
 
 const props = defineProps <{

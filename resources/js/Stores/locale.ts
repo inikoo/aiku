@@ -49,12 +49,7 @@ export const useLocaleStore = defineStore("locale", () => {
 	}
 
 	const numberShort = (currencyCode: string, number: number) => {
-		// Handle the case when the number is 0
-		if (number === 0) {
-			return "0.0 m"
-		}
 
-		// Format the number using Intl.NumberFormat
 		let formattedNumber = new Intl.NumberFormat(language.value.code, {
 			notation: "compact",
 			compactDisplay: "short",
@@ -62,7 +57,6 @@ export const useLocaleStore = defineStore("locale", () => {
 			currency: currencyCode,
 		}).format(number)
 
-		// Replace notation letters (e.g., K, M) with lowercase and add a space
 		formattedNumber = formattedNumber.replace(/(\d)([KMGTPE])/g, (match, p1, p2) => {
 			return `${p1} ${p2.toLowerCase()}`
 		})
@@ -72,3 +66,4 @@ export const useLocaleStore = defineStore("locale", () => {
 
 	return { language, languageOptions, number, currencyFormat, numberShort }
 })
+//make same class for all dashboard font size wight and all

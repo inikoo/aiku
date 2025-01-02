@@ -16,7 +16,7 @@ const props = defineProps<{
 </script>
 
 <template>
-
+  
     <FontAwesomeIcon v-if="data?.icon" v-tooltip="title ? title : capitalize(data.tooltip ?? '')" aria-hidden="true"
         :icon="data.icon" :class="data.class" fixed-width />
 
