@@ -79,17 +79,17 @@ class EditGroupSettings extends GrpAction
                         ],
                     ],
                     [
-                        'label'  => __('Comms'),
+                        'label'  => __('Email Builder'),
                         'icon'   => 'fa-light fa-satellite-dish',
                         'fields' => [
                             "client_id" => [
                                 "type"        => "input",
-                                "label"       => __("Client ID"),
+                                "label"       => __("Beefree Client ID"),
                                 "value"       => $group->settings['beefree']['client_id'] ?? '',
                             ],
                             "client_secret" => [
                                 "type"        => "input",
-                                "label"       => __("Client Secret"),
+                                "label"       => __("Beefree Client Secret"),
                                 "value"       => $group->settings['beefree']['client_secret'] ?? '',
                             ],
                             // "grant_type" => [
@@ -100,6 +100,27 @@ class EditGroupSettings extends GrpAction
                         ],
 
                     ],
+                    [
+                        'label'  => __('Email Provider'),
+                        'icon'   => 'fa-light fa-satellite-dish',
+                        'fields' => [
+                            "access_id" => [
+                                "type"        => "input",
+                                "label"       => __("Access ID"),
+                                "value"       => $group->settings['email']['provider']['access_id'] ?? '',
+                            ],
+                            "access_key" => [
+                                "type"        => "input",
+                                "label"       => __("Access Key"),
+                                "value"       => $group->settings['email']['provider']['access_key'] ?? '',
+                            ],
+                            "region" => [
+                                "type"        => "input",
+                                "label"       => __("Region"),
+                                "value"       => $group->settings['email']['provider']['region'] ?? '',
+                            ]
+                        ]
+                    ]
                 ],
                 "args" => [
                     "updateRoute" => [

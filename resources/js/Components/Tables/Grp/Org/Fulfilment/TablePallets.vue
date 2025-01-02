@@ -34,6 +34,14 @@ defineProps<{
 
 function palletRoute(pallet: Pallet) {
     switch (route().current()) {
+        case "grp.overview.fulfilment.pallets.index":
+            return route(
+                "grp.org.fulfilments.show.operations.pallets.current.show",
+                [
+                    pallet.organisation_slug,
+                    pallet.fulfilment_slug,
+                    pallet.slug
+                ])
         case "grp.org.fulfilments.show.operations.pallets.current.index":
             return route(
                 "grp.org.fulfilments.show.operations.pallets.current.show",
@@ -78,7 +86,14 @@ function palletRoute(pallet: Pallet) {
 
 function fulfilmentCustomerRoute(pallet: Pallet) {
     switch (route().current()) {
-
+        case "grp.overview.fulfilment.pallets.index":
+            return route(
+                "grp.org.fulfilments.show.crm.customers.show",
+                [
+                    pallet.organisation_slug,
+                    pallet.fulfilment_slug,
+                    pallet.fulfilment_customer_slug
+                ])
         case "grp.org.fulfilments.show.operations.pallets.current.index":
         case "grp.org.fulfilments.show.operations.returned_pallets.index":
             return route(

@@ -316,13 +316,13 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Pallets'),
                     'icon'  => 'fal fa-pallet',
-                    'route' => '',
+                    'route' => route('grp.overview.fulfilment.pallets.index'),
                     'count' => $group->fulfilmentStats->number_pallets ?? 0
                 ],
                 [
                     'name'  => __('Stored Items'),
                     'icon'  => 'fal fa-box-open',
-                    'route' => '',
+                    'route' => route('grp.overview.fulfilment.stored-items.index'),
                     'count' => $group->fulfilmentStats->number_stored_items ?? 0
                 ],
                 [

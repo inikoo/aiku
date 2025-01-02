@@ -10,6 +10,26 @@ import PageHeading from '@/Components/Headings/PageHeading.vue';
 import TablePurchaseOrders from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrders.vue";
 import { capitalize } from "@/Composables/capitalize"
 
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { inject, ref, computed, onMounted, onUnmounted } from "vue"
+import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
+import { faCheckCircle, faCheckDouble, faExclamationCircle, faGhost, faPaperPlane, faSeedling, faShare, faSignOutAlt, faSpellCheck, faTimesCircle } from "@fal"
+
+const locale = inject("locale", aikuLocaleStructure)
+
+library.add(
+	faShare,
+    faSeedling,
+    faSpellCheck,
+    faSignOutAlt,
+    faGhost,
+    faExclamationCircle,
+    faTimesCircle,
+    faCheckDouble,
+    faCheckCircle,
+    faPaperPlane
+)
+
 const props = defineProps <{
     pageHead: object
     title: string

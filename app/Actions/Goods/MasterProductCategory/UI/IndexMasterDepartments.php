@@ -9,6 +9,7 @@
 namespace App\Actions\Goods\MasterProductCategory\UI;
 
 use App\Actions\Catalogue\Collection\UI\ShowCollection;
+use App\Actions\Goods\MasterShop\UI\ShowMasterShop;
 use App\Actions\Goods\UI\WithMasterCatalogueSubNavigation;
 use App\Actions\GrpAction;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
@@ -64,7 +65,7 @@ class IndexMasterDepartments extends GrpAction
                 'master_product_categories.slug',
                 'master_product_categories.code',
                 'master_product_categories.name',
-                'master_product_categories.state',
+                'master_product_categories.status',
                 'master_product_categories.description',
                 'master_product_categories.created_at',
                 'master_product_categories.updated_at',
@@ -92,8 +93,7 @@ class IndexMasterDepartments extends GrpAction
                     [
                         'title'       => __("No departments found"),
                     ],
-                )
-                ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
+                );
 
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
             ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
@@ -125,7 +125,7 @@ class IndexMasterDepartments extends GrpAction
         ];
 
         return Inertia::render(
-            'Org/Catalogue/Departments',
+            'Goods/MasterDepartments',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
