@@ -79,7 +79,7 @@ class ShowGoodsDashboard extends GrpAction
 
                         ],
                         [
-                            'name'  => 'Catalogue',
+                            'name'  => 'Master Shops',
                             'icon'  => ['fal', 'fa-books'],
                             'route'  => [
                                 'name'       => 'grp.goods.catalogue.shops.index',
