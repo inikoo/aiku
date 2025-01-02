@@ -26,19 +26,20 @@ class FetchAuroraOrderDispatchedEmail extends FetchAurora
             return;
         }
 
-        $outboxType = match ($this->auroraModelData->{'Order Sent Email Type'}) {
+        $outboxCode = match ($this->auroraModelData->{'Order Sent Email Type'}) {
             'Order Notification' => OutboxCodeEnum::ORDER_CONFIRMATION,
             'Dispatch Notification' => OutboxCodeEnum::DELIVERY_CONFIRMATION,
             'Basket Reminder 1', 'Basket Reminder 2', 'Basket Reminder 3' => OutboxCodeEnum::BASKET_PUSH,
             default => null
         };
-        if ($outboxType == null) {
+        if ($outboxCode == null) {
             print "Error no outbox type\n";
             return;
         }
 
-        $outbox = $order->shop->outboxes()->where('code', $outboxType)->first();
+        $outbox = $order->shop->outboxes()->where('code', $outboxCode)->first();
         if (!$outbox) {
+            print "Error no outbox with code $outboxCode->value  \n";
             return;
         }
 

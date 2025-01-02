@@ -22,14 +22,14 @@ class FetchAuroraOrderDispatchedEmails extends FetchAuroraAction
     {
         $orderDispatchedEmailData = $organisationSource->fetchOrderDispatchedEmail($organisationSourceId);
         if (!$orderDispatchedEmailData) {
-            print "error no dispatched email data\n";
+            print "error no dispatched email data $organisationSourceId\n";
 
             return null;
         }
 
 
         if (!$orderDispatchedEmailData['dispatchedEmail']) {
-            print "error no dispatched email (*)\n";
+            print "error no dispatched email (*) $organisationSourceId\n";
 
             return null;
         }
