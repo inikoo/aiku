@@ -14,7 +14,9 @@ use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Accounting\InvoicesResource;
 use App\Http\Resources\CRM\CustomersResource;
+use App\Models\CRM\Customer;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -30,9 +32,40 @@ class ShowBillingDashboard
         return Inertia::render('Billing/RetinaBillingDashboard', [
             'title'    => __('Billing'),
             'pieData'  => $this->getDashboardData($request->user()->customer->fulfilmentCustomer),
+            'transactionsData' => $this->getTransactionsData($request->user()->customer),
             'customer' => CustomersResource::make($request->user()->customer)->resolve(),
             'unpaid_invoices' => InvoicesResource::collection(IndexUnpaidInvoices::run($request->user()->customer->fulfilmentCustomer))
         ]);
+    }
+
+    public function getTransactionsData(Customer $parent): array
+    {
+        $stats = [];
+
+        $stats['transactions'] = [
+            'label' => __('Total Transactions'),
+            'count' => $parent->fulfilmentCustomer->transactions->count()
+        ];
+
+        $stats['unpaid_bills'] = [
+            'label' => __('Unpaid Bills'),
+            'count' => $parent->fulfilmentCustomer->recurringBills()
+                                ->whereHas('invoice', function ($query) {
+                                    $query->whereNull('paid_at');
+                                })
+                                ->count()
+        ];
+
+        $stats['paid_bills'] = [
+            'label' => __('Paid Bills'),
+            'count' => $parent->fulfilmentCustomer->recurringBills()
+                                ->whereHas('invoice', function ($query) {
+                                    $query->where('payment_amount', '>=', 'total_amount');
+                                })
+                                ->count()
+        ];
+
+        return $stats;
     }
 
     public function getDashboardData(FulfilmentCustomer $parent): array
