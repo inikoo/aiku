@@ -15,6 +15,7 @@ use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 
 enum PalletStatusEnum: string
@@ -30,7 +31,7 @@ enum PalletStatusEnum: string
     case RETURNED     = 'returned';
     case INCIDENT     = 'incident';
 
-    public static function labels(FulfilmentCustomer|Fulfilment|Warehouse|Location|PalletDelivery|PalletReturn|null $parent = null): array
+    public static function labels(Group|FulfilmentCustomer|Fulfilment|Warehouse|Location|PalletDelivery|PalletReturn|null $parent = null): array
     {
         $labels = [
             'in_process'   => __('In process'),
@@ -131,11 +132,11 @@ enum PalletStatusEnum: string
     }
 
     public static function count(
-        Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn|Location $parent,
+        Group|Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn|Location $parent,
     ): array {
         if ($parent instanceof FulfilmentCustomer) {
             $stats = $parent;
-        } elseif ($parent instanceof Organisation) {
+        } elseif ($parent instanceof Organisation or $parent instanceof Group) {
             $stats = $parent->fulfilmentStats;
         } else {
             $stats = $parent->stats;
