@@ -17,7 +17,7 @@ const props = defineProps<{
     state:any
     key:any 
 }>()
-console.log(props)
+console.log('test')
 const isLoading = ref<string | boolean>(false)
 function storedItemRoute(storedItem) {
     switch (route().current()) {

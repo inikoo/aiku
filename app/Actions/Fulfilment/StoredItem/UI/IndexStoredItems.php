@@ -11,6 +11,7 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Enums\UI\Fulfilment\StoredItemsInWarehouseTabsEnum;
 use App\Http\Resources\Fulfilment\ReturnStoredItemsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
@@ -25,6 +26,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
+use App\Models\SysAdmin\Group;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
@@ -32,7 +34,9 @@ class IndexStoredItems extends OrgAction
 {
     use WithFulfilmentCustomerSubNavigation;
 
-    public function handle(Organisation|FulfilmentCustomer|Fulfilment $parent, $prefix = null): LengthAwarePaginator
+    private Group|Organisation|FulfilmentCustomer|Fulfilment $parent;
+
+    public function handle(Group|Organisation|FulfilmentCustomer|Fulfilment $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -54,6 +58,10 @@ class IndexStoredItems extends OrgAction
                 if ($parent instanceof Fulfilment) {
                     $query->where('fulfilment_id', $parent->id);
                 }
+
+                if ($parent instanceof Group) {
+                    $query->where('stored_items.group_id', $parent->id);
+                }
             })
             ->allowedSorts(['slug', 'state'])
             ->allowedFilters([$globalSearch, 'slug', 'state'])
@@ -71,6 +79,7 @@ class IndexStoredItems extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
+            // dd(class_basename($parent) );
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
@@ -81,12 +90,21 @@ class IndexStoredItems extends OrgAction
                             'count'         => $parent->count(),
                             'description'   => __("No items stored in this customer")
                         ],
+                        'Group' => [
+                            'title'         => __("No stored items found"),
+                            'count'         => $parent->count(),
+                            'description'   => __("No items stored in this group")
+                        ],
                         default => []
                     }
                 )
                 ->column(key: 'state', label: __('Delivery State'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'customer_name', label: __('Customer Name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'customer_name', label: __('Customer Name'), canBeHidden: false, sortable: true, searchable: true);
+            if (class_basename($parent) == 'Group') {
+                $table->column(key: 'organisation_name', label: __('Organisation'), canBeHidden: false, sortable: true, searchable: true);
+            }
+            $table->column(key: 'customer_name', label: __('Customer Name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'actions', label: __('Action'), canBeHidden: false, sortable: true, searchable: true)
                 // ->column(key: 'notes', label: __('Notes'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('slug');
@@ -95,6 +113,9 @@ class IndexStoredItems extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        }
         $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
         return
@@ -136,7 +157,10 @@ class IndexStoredItems extends OrgAction
         return Inertia::render(
             'Org/Fulfilment/StoredItems',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters(),
+                ),
                 'title'       => __('stored items'),
                 'pageHead'    => [
                     'title'         => $title,
@@ -167,7 +191,7 @@ class IndexStoredItems extends OrgAction
                     : Inertia::lazy(fn () => ReturnStoredItemsResource::collection(IndexPalletStoredItems::run($this->parent))),
 
             ]
-        )->table($this->tableStructure($storedItems, prefix: StoredItemsInWarehouseTabsEnum::STORED_ITEMS->value))
+        )->table($this->tableStructure($this->parent, prefix: StoredItemsInWarehouseTabsEnum::STORED_ITEMS->value))
         ->table(
             IndexPalletStoredItems::make()->tableStructure(
                 $this->parent,
@@ -176,9 +200,18 @@ class IndexStoredItems extends OrgAction
         );
     }
 
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup($this->parent, $request)->withTab(StoredItemsInWarehouseTabsEnum::values());
+
+        return $this->handle($this->parent, 'stored_items');
+    }
+
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request);
         return $this->handle($fulfilmentCustomer, 'stored_items');
     }
@@ -194,24 +227,51 @@ class IndexStoredItems extends OrgAction
         return $this->handle($fulfilmentCustomer, 'stored_items');
     }
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return array_merge(
-            ShowFulfilmentCustomer::make()->getBreadcrumbs(request()->route()->originalParameters()),
-            [
+        // dd($routeParameters);
+        $headCrumb = function (array $routeParameters) {
+            return [
                 [
                     'type'   => 'simple',
                     'simple' => [
-                        'route' => [
-                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
-                            'parameters' => request()->route()->originalParameters()
-                        ],
+                        'route' => $routeParameters,
                         'label' => __('stored items'),
                         'icon'  => 'fal fa-bars',
                     ],
 
                 ]
-            ]
-        );
+            ];
+        };
+
+        return match ($routeName) {
+            'grp.overview.fulfilment.stored-items.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            default => array_merge(
+                ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('stored items'),
+                            'icon'  => 'fal fa-bars',
+                        ],
+
+                    ]
+                ]
+            ),
+        };
     }
 }
