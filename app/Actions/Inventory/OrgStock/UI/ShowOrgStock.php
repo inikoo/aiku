@@ -148,7 +148,8 @@ class ShowOrgStock extends OrgAction
 
 
         return match ($routeName) {
-            'grp.org.warehouses.show.inventory.org_stocks.current_org_stocks.show' =>
+            'grp.org.warehouses.show.inventory.org_stocks.current_org_stocks.show',
+            'grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.show', =>
             array_merge(
                 (new ShowInventoryDashboard())->getBreadcrumbs($routeParameters),
                 $headCrumb(
@@ -224,6 +225,7 @@ class ShowOrgStock extends OrgAction
 
         return match ($routeName) {
             'grp.org.warehouses.show.inventory.org_stocks.current_org_stocks.show',
+            'grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.show',
             'grp.org.warehouses.show.inventory.org-stocks.show' => [
                 'label' => $orgStock->name,
                 'route' => [

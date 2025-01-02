@@ -13,6 +13,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
+use App\Models\SysAdmin\Group;
 use Lorisleiva\Actions\ActionRequest;
 
 trait HasFulfilmentAssetsAuthorisation
@@ -28,6 +29,8 @@ trait HasFulfilmentAssetsAuthorisation
             $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+        } elseif ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
         } elseif ($this->parent instanceof Warehouse or $this->parent instanceof Location) {
             $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.edit");
 
