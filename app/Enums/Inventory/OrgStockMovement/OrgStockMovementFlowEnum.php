@@ -9,6 +9,8 @@
 namespace App\Enums\Inventory\OrgStockMovement;
 
 use App\Enums\EnumHelperTrait;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 
 enum OrgStockMovementFlowEnum: string
 {
@@ -18,4 +20,25 @@ enum OrgStockMovementFlowEnum: string
     case IN        = 'in';
     case OUT       = 'out';
     case NO_CHANGE = 'no-change';
+
+    public static function labels(): array
+    {
+        return [
+            'in'        => __('In'),
+            'out'       => __('Out'),
+            'no-change' => __('No Change')
+        ];
+    }
+
+    public static function count(Group|Organisation $parent): array
+    {
+        $stats = $parent->inventoryStats;
+
+        return [
+            'in'        => $stats->number_org_stock_movements_flow_in,
+            'out'       => $stats->number_org_stock_movements_flow_out,
+            'no-change' => $stats->number_org_stock_movements_flow_no_change
+        ];
+    }
+
 }
