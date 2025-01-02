@@ -140,17 +140,17 @@ onMounted(() => {
             <div class="flex items-center w-full flex-none gap-x-2 mb-2">
                 <dt class="flex-none">
                     <span class="sr-only">{{ boxStats.delivery_state.tooltip }}</span>
-                    <FontAwesomeIcon :icon='boxStats.delivery_state.icon' :class='boxStats.delivery_status.class'
+                    <FontAwesomeIcon :icon='boxStats.delivery_state.icon' :class='boxStats.delivery_state.class'
                         fixed-width aria-hidden='true' />
                 </dt>
-                <dd class=" text-gray-500" :class='boxStats.delivery_status.class'>{{
-                    boxStats.delivery_status.tooltip }}</dd>
+                <dd class=" text-gray-500" :class='boxStats.delivery_state.class'>{{
+                    boxStats.delivery_state.tooltip }}</dd>
             </div>
 
             <!-- Set estimated date -->
             <div class="flex items-center w-full gap-x-2">
                 <dt v-tooltip="'Estimated received date'" class="flex-none">
-                    <span class="sr-only">{{ boxStats.delivery_status.tooltip }}</span>
+                    <span class="sr-only">{{ boxStats.delivery_state.tooltip }}</span>
                     <FontAwesomeIcon :icon="['fal', 'calendar-day']" class="text-gray-400" fixed-width
                         aria-hidden='true' />
                 </dt>

@@ -154,6 +154,7 @@ class IndexOffers extends OrgAction
                 'title'       => __('Offers'),
                 'pageHead'    => [
                     'title'      => $title,
+                    'model'      => __('Offers'),
                     'afterTitle' => $afterTitle,
                     'iconRight'  => $iconRight,
                     'icon'       => $icon,

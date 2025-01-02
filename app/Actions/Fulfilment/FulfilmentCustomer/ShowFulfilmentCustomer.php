@@ -136,8 +136,8 @@ class ShowFulfilmentCustomer extends OrgAction
                     'icon'          => [
                         'title' => __('customer'),
                         'icon'  => 'fal fa-user',
-
                     ],
+                    'model'         => __('customer'),
                     'subNavigation' => $this->getFulfilmentCustomerSubNavigation($fulfilmentCustomer, $request),
                     'title'         => $fulfilmentCustomer->customer->name,
                     'afterTitle'    => [

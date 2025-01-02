@@ -19,12 +19,11 @@ defineProps<{
 
 
 function offerRoute(offer: Order) {
-    // console.log(route().current())
     switch (route().current()) {
-        case "grp.org.shops.show.discounts.campaigns.index":
-            // return route(
-            //     "grp.org.shops.show.discounts.campaigns.show",
-            //     [route().params["organisation"], , route().params["shop"], route().params["customer"], offer.slug])
+        case "grp.org.shops.show.discounts.offers.index":
+            return route(
+                "grp.org.shops.show.discounts.offers.show",
+                [route().params["organisation"], route().params["shop"], offer.slug])
         default:
             return ''
     }

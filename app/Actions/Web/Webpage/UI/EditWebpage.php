@@ -92,7 +92,7 @@ class EditWebpage extends OrgAction
                             'fields' => [
                                 'google_search' => [
                                     'type'     => 'googleSearch',
-                                    'domain'    => 'https://example.com/',   // TODO
+                                    'domain'    => $webpage->website->domain . '/',
                                     'value'    => [
                                         'image'         => [    // TODO
                                             'original'  => 'https://socialsharepreview.com/api/image-proxy?url=https%3A%2F%2Fwww.zelolab.com%2Fwp-content%2Fuploads%2F2022%2F12%2Fhow-to-create-and-set-up-a-social-share-preview-image-on-your-website.jpg',
