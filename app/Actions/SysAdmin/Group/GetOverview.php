@@ -322,7 +322,7 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('Stored Items'),
                     'icon'  => 'fal fa-box-open',
-                    'route' => '',
+                    'route' => route('grp.overview.fulfilment.stored-items.index'),
                     'count' => $group->fulfilmentStats->number_stored_items ?? 0
                 ],
                 [
