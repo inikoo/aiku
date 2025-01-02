@@ -60,6 +60,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRentals;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSales;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProductSuppliers;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProspects;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePurchaseOrders;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePurges;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRedirects;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateServices;
@@ -132,6 +133,7 @@ class HydrateGroup extends HydrateModel
         GroupHydrateOrgStockMovements::run($group);
         GroupHydrateTimesheets::run($group);
         GroupHydrateSubscriptions::run($group);
+        GroupHydratePurchaseOrders::run($group);
 
         GroupHydrateMasterShops::run($group);
 
