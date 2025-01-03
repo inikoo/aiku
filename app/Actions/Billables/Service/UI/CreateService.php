@@ -44,23 +44,32 @@ class CreateService extends OrgAction
                             [
                                 'title'  => __('New Service'),
                                 'fields' => [
+                                    'code' => [
+                                        'type'       => 'input',
+                                        'label'      => __('code'),
+                                        'required'   => true
+                                    ],
+                                    'name' => [
+                                        'type'       => 'input',
+                                        'label'      => __('name'),
+                                        'required'   => true
+                                    ],
                                     'price' => [
                                         'type'       => 'input',
                                         'label'      => __('price'),
                                         'required'   => true
                                     ],
                                     'unit' => [
-                                        'type'     => 'select',
+                                        'type'     => 'input',
                                         'label'    => __('unit'),
                                         'required' => true,
-                                        'options'  => Options::forEnum(RentalUnitEnum::class)
                                     ],
-                                    'state' => [
-                                        'type'     => 'select',
-                                        'label'    => __('state'),
-                                        'required' => true,
-                                        'options'  => Options::forEnum(ServiceStateEnum::class)
-                                    ]
+                                    // 'state' => [
+                                    //     'type'     => 'select',
+                                    //     'label'    => __('state'),
+                                    //     'required' => true,
+                                    //     'options'  => Options::forEnum(ServiceStateEnum::class)
+                                    // ]
 
                                 ]
                             ]
