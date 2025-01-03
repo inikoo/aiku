@@ -6,11 +6,9 @@
  * copyright 2025
 */
 
-
 namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Http\Resources\HumanResources\EmployeeResource;
-use App\Models\Goods\Stock;
 use App\Models\HumanResources\Employee;
 use Lorisleiva\Actions\Concerns\AsObject;
 

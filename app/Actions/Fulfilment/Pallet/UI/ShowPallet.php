@@ -121,15 +121,14 @@ class ShowPallet extends OrgAction
             'label'     => '(' . $this->pallet->customer_reference . ')'
         ];
 
-        if($this->parent instanceof FulfilmentCustomer)
-        {
+        if ($this->parent instanceof FulfilmentCustomer) {
             $icon = [
                 'icon'    => ['fal', 'fa-user'],
                 'tooltip' => __('Customer')
             ];
             $model = $this->parent->customer->name;
         }
-        
+
         $subNavigation = [];
         $navigation = PalletTabsEnum::navigation($pallet);
 
