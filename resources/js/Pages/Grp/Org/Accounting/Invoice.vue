@@ -215,7 +215,7 @@ watch(paymentData, () => {
                     <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">#{{ box_stats?.customer.reference }}</dd>
+                <dd class="text-base text-gray-500">#{{ box_stats?.customer.reference }}</dd>
             </Link>
 
             <!-- Field: Contact name -->
@@ -225,7 +225,7 @@ watch(paymentData, () => {
                     <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats?.customer.contact_name }}</dd>
+                <dd class="text-base text-gray-500">{{ box_stats?.customer.contact_name }}</dd>
             </div>
 
             <!-- Field: Company name -->
@@ -235,7 +235,7 @@ watch(paymentData, () => {
                     <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats?.customer.company_name }}</dd>
+                <dd class="text-base text-gray-500">{{ box_stats?.customer.company_name }}</dd>
             </div>
 
             <!-- Field: Tax number -->
@@ -246,7 +246,7 @@ watch(paymentData, () => {
                     <FontAwesomeIcon icon='fal fa-passport' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats?.customer.tax_number }}</dd>
+                <dd class="text-base text-gray-500">{{ box_stats?.customer.tax_number }}</dd>
             </div> -->
 
             <!-- Field: Location -->
@@ -256,7 +256,7 @@ watch(paymentData, () => {
                     <span class="sr-only">Location</span>
                     <FontAwesomeIcon icon='fal fa-map-marked-alt' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">
+                <dd class="text-base text-gray-500">
                     <AddressLocation :data="box_stats?.customer.location" />
                 </dd>
             </div> -->
@@ -268,7 +268,7 @@ watch(paymentData, () => {
                     <FontAwesomeIcon icon='fal fa-phone' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats?.customer.phone }}</dd>
+                <dd class="text-base text-gray-500">{{ box_stats?.customer.phone }}</dd>
             </div>
 
             <!-- Field: Address -->
@@ -279,7 +279,7 @@ watch(paymentData, () => {
                         aria-hidden='true' />
                 </dt>
 
-                <dd class="text-xs text-gray-500 w-full">
+                <dd class="text-base text-gray-500 w-full">
                     <div v-if="invoice.address" class="relative bg-gray-50 border border-gray-300 rounded px-2 py-1">
                         <div v-html="invoice.address.formatted_address" />
                     </div>
@@ -302,7 +302,7 @@ watch(paymentData, () => {
                     <component :is="box_stats.information.recurring_bill?.route?.name ? Link : 'div'"
                         as="dd"
                         :href="box_stats.information.recurring_bill?.route?.name ? route(box_stats.information.recurring_bill?.route?.name, box_stats.information.recurring_bill.route.parameters) : ''"
-                        class="text-xs text-gray-500"
+                        class="text-base text-gray-500"
                         :class="box_stats.information.recurring_bill?.route?.name ? 'cursor-pointer primaryLink' : ''">
                         {{ box_stats.information.recurring_bill?.reference || '-' }} 
                     </component>
@@ -313,7 +313,7 @@ watch(paymentData, () => {
                     <dt class="flex-none">
                         <FontAwesomeIcon icon='fal fa-calendar-alt' fixed-width aria-hidden='true' class="text-gray-500" />
                     </dt>
-                    <dd class="text-xs text-gray-500" :class='"ff"'>
+                    <dd class="text-base text-gray-500" :class='"ff"'>
                         {{ useFormatTime(props.invoice.date) }}
                     </dd>
                 </div>
