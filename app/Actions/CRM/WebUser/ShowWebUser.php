@@ -65,11 +65,16 @@ class ShowWebUser extends OrgAction
 
     public function htmlResponse(WebUser $webUser, ActionRequest $request): Response
     {
-
+        $model = __('web user');
+        $iconRight  = [];
         $subNavigation = [];
 
         if ($this->parent instanceof  FulfilmentCustomer) {
+            $model = $this->parent->customer->name;
             $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+            $iconRight = [
+                'icon' => 'fal fa-terminal',
+            ];
         }
 
 
@@ -82,10 +87,11 @@ class ShowWebUser extends OrgAction
                     $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
-                    'model'         => __('web user'),
+                    'model'         => $model,
                     'title'         => $webUser->username,
                     'subNavigation' => $subNavigation,
-                'icon'              => 'fal fa-terminal',
+                    'icon'              => 'fal fa-user',
+                    'iconRight' => $iconRight,
                 // 'meta'          => [
                     //     [
                     //         'name' => $webUser->username
