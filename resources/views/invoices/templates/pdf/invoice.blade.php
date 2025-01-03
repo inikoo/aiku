@@ -106,8 +106,8 @@
                 </div>
             </td>
 
-            <td style="text-align: right;">Order Number<br/>
-                <b>{{ $invoice->order?->number }}</b>
+            <td style="text-align: right;">Invoice Number<br/>
+                <b>{{ $invoice->reference }}</b>
             </td>
 
         </tr>
@@ -135,9 +135,6 @@
                 Tax liability date: <b>{{ $invoice->tax_liability_at->format('j F Y') }}</b>
             </div>
 
-            <div style="text-align: right">
-                Order Date: <b>{{ $invoice->order?->date->format('j F Y') }}</b>
-            </div>
         </td>
     </tr>
 </table>
@@ -161,7 +158,7 @@
                 </div>
             </div>
         </td>
-        <td width="50%" style="vertical-align:bottom;border: 0mm solid #888888;text-align: right">
+<!--        <td width="50%" style="vertical-align:bottom;border: 0mm solid #888888;text-align: right">
 
             <div style="text-align:right;">
                 <b>1 box</b>
@@ -173,7 +170,7 @@
                         id="formatted_consignment">XIWSKU</span></b>
             </div>
 
-        </td>
+        </td>-->
     </tr>
 </table>
 <table width="100%" style="font-family: sans-serif;" cellpadding="10">
@@ -181,32 +178,26 @@
         <td width="45%" style="border: 0.1mm solid #888888;"><span
                 style="font-size: 7pt; color: #555555; font-family: sans-serif;">Billing address:</span>
             <div>
-                The Firs Stone Lodge Lane
+                {{ $invoice->billingAddress->address_line_1 }}
             </div>
             <div>
-                Ipswich
+                {{ $invoice->billingAddress->locality }}
             </div>
             <div>
-                IP2 9AR
-            </div>
-            <div>
-                United Kingdom
+                {{ $invoice->billingAddress->country->name }}
             </div>
         </td>
         <td width="10%">&nbsp;</td>
         <td width="45%" style="border: 0.1mm solid #888888;">
             <span style="font-size: 7pt; color: #555555; font-family: sans-serif;">Delivery address:</span>
             <div>
-                The Firs Stone Lodge Lane
+                {{ $invoice->address->address_line_1 }}
             </div>
             <div>
-                Ipswich
+                {{ $invoice->address->locality }}
             </div>
             <div>
-                IP2 9AR
-            </div>
-            <div>
-                United Kingdom
+                {{ $invoice->address->country->name }}
             </div>
         </td>
     </tr>
@@ -218,8 +209,8 @@
     <tr>
         <td style="width:14%;text-align:left">Code</td>
 
-        <td style="text-align:left">Description</td>
-        <td style="text-align:left;width:20% ">Discount</td>
+        <td style="text-align:left" colspan="2">Description</td>
+{{--        <td style="text-align:left;width:20% ">Discount</td>--}}
         <td style="text-align:left;width:20% ">Price</td>
 
         <td style="text-align:left">Qty</td>
@@ -233,15 +224,15 @@
     <tr class="@if($loop->last) last @endif">
         <td style="text-align:left">{{ $transaction->asset['code'] }}</td>
 
-        <td style="text-align:left">
-            {{ $transaction->asset['description'] }}
+        <td style="text-align:left" colspan="2">
+            {{ $transaction->asset['name'] }}
         </td>
-        <td style="text-align:left">{{ $transaction->discounts_amount }}</td>
-        <td style="text-align:left">{{ $transaction->asset['price'] }}</td>
+{{--        <td style="text-align:left">{{ $transaction->discounts_amount }}</td>--}}
+        <td style="text-align:left">{{ $invoice->currency->symbol . $transaction->asset['price'] }}</td>
 
-        <td style="text-align:right">{{ $transaction->quantity }}</td>
+        <td style="text-align:right">{{ (int) $transaction->quantity }}</td>
 
-        <td style="text-align:right">{{ $transaction->net_amount }}</td>
+        <td style="text-align:right">{{ $invoice->currency->symbol . $transaction->net_amount }}</td>
     </tr>
     @endforeach
 
@@ -250,31 +241,31 @@
     <tr>
         <td style="border:none" colspan="4"></td>
         <td>Items Net</td>
-        <td>{{ $invoice->total_amount }}</td>
+        <td>{{ $invoice->currency->symbol . $invoice->net_amount }}</td>
     </tr>
 
     <tr>
         <td style="border:none" colspan="4"></td>
         <td>Shipping</td>
-        <td>{{ $invoice->order?->shipping_amount }}</td>
+        <td>{{ $invoice->currency->symbol . $invoice->shipping_amount }}</td>
     </tr>
 
     <tr class="total_net">
         <td style="border:none" colspan="4"></td>
         <td>Total Net</td>
-        <td>{{ $invoice->net_amount }}</td>
+        <td>{{ $invoice->currency->symbol . $invoice->net_amount + $invoice->shipping_amount }}</td>
     </tr>
 
     <tr>
         <td style="border:none" colspan="4"></td>
         <td class="totals">TAX <br> <small>GB-SR VAT 20%</small></td>
-        <td class="totals">{{ $invoice->order?->tax }}</td>
+        <td class="totals">{{ $invoice->currency->symbol . $invoice->tax_amount }}</td>
     </tr>
 
     <tr class="total">
         <td style="border:none" colspan="4"></td>
         <td><b>Total</b></td>
-        <td>{{ $totalNet }}</td>
+        <td>{{ $invoice->currency->symbol . $invoice->total_amount }}</td>
     </tr>
     </tbody>
 
@@ -296,7 +287,7 @@
     </tr>
 
     <tbody>
-    @foreach($invoice->order?->payments ?? [] as $payment)
+    @foreach($invoice->payments as $payment)
     <tr class="@if($loop->last) last @endif">
         <td style="text-align:left">
             {{ $payment->paymentAccount['name'] }}
@@ -314,7 +305,7 @@
 <br>
 <br>
 
-<div style="text-align: center; font-style: italic;">
+<!--<div style="text-align: center; font-style: italic;">
     The exporter of products covered by this document GB356317102000 declares that, unless otherwise clearly
     indicated, these products are of UK preferential origin. Such products are covered by the The EU-UK Trade and
     Cooperation Agreement and MUST be regarded with a preferential 0% tariff code.
@@ -326,7 +317,7 @@
     EORI: GB356317102000 XI EORI: XI356317102000 Thank you for your order. Bank Details:
     Beneficiary: AW Aromatics Ltd Bank: HSBC UK Bank PLC Address: Carmel House, 49 - 63 Fargate,S1 2HD, Sheffield UK
     Account Number: 70861278 Bank Code: 404157 Swift: HBUKGB4B IBAN: GB15HBUK40415770861278
-</div>
+</div>-->
 
 <htmlpagefooter name="myfooter">
     <div
