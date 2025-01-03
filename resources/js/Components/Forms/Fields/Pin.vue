@@ -56,7 +56,7 @@ const generateNewPin = () => {
     <div class="flex items-center space-x-2">
         <div v-for="(value, index) in form[fieldName]" :key="index" class="relative">
             <input type="text" disabled maxlength="1" v-model="form[fieldName][index]"
-                class="w-10 h-10 text-center text-xs font-semibold border-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                class="w-9 h-9 text-center text-xs font-semibold border border-gray-300 rounded-md " />
         </div>
     </div>
 </template>
