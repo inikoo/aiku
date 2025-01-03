@@ -19,18 +19,11 @@ enum EmployeeTabsEnum: string
     case SHOWCASE                       = 'showcase';
     case HISTORY                        = 'history';
     case ATTACHMENTS                    = 'attachments';
-    case IMAGES                         = 'images';
 
 
     public function blueprint(): array
     {
         return match ($this) {
-            EmployeeTabsEnum::IMAGES => [
-                'title' => __('images'),
-                'icon'  => 'fal fa-camera-retro',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
             EmployeeTabsEnum::ATTACHMENTS => [
                 'title' => __('attachments'),
                 'icon'  => 'fal fa-paperclip',

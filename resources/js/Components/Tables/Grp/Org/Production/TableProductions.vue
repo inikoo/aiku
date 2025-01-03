@@ -8,6 +8,7 @@
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Production} from "@/types/production";
+import Icon from '@/Components/Icon.vue'
 
 const props = defineProps<{
     data: object,
@@ -41,6 +42,13 @@ function locationsRoute(production: Production) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
+        <template #cell(state_icon)="{ item: production }">
+            <!-- <Link :href="productionRoute(production)" class="primaryLink">
+                {{ production['code'] }}
+            </Link> -->
+            <Icon :data="production['state_icon']" class="px-1" />
+        </template>
+
         <template #cell(code)="{ item: production }">
             <Link :href="productionRoute(production)" class="primaryLink">
                 {{ production['code'] }}

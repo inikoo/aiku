@@ -292,7 +292,7 @@ trait WithAuroraParsers
         $addressData['dependent_locality']  = (string)Str::of($auAddressData->{$prefix.' Address Dependent Locality'} ?? null)->limit(187);
         $addressData['administrative_area'] = (string)Str::of($auAddressData->{$prefix.' Address Administrative Area'} ?? null)->limit(187);
         foreach ($addressData as $key => $value) {
-            if($value){
+            if ($value) {
                 $value = $this->sanitiseText($value);
             }
             $addressData[$key] = $value;
