@@ -48,7 +48,7 @@ trait WithSendBulkEmails
         $placeholder = Str::kebab(trim($placeholder));
 
         return match ($placeholder) {
-            'name'        => $dispatchedEmail->getName(),
+            'customer-name' => $dispatchedEmail->recipient->name,
             'unsubscribe' => sprintf(
                 "<a ses:no-track href=\"$unsubscribeUrl\">%s</a>",
                 __('Unsubscribe')
