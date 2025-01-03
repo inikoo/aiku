@@ -290,6 +290,10 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
         Route::patch('{service:id}', UpdateService::class)->name('update')->withoutScopedBindings();
     });
 
+    Route::prefix('fulfilment/{fulfilment:id}/goods')->name('fulfilment.goods.')->group(function () {
+        Route::post('/', [StoreProduct::class, 'inFulfilment'])->name('store');
+    });
+
     Route::prefix('/shop/{shop:id}/catalogue/collections')->name('catalogue.collections.')->group(function () {
         Route::post('/', StoreCollection::class)->name('store');
         Route::patch('{collection:id}', UpdateCollection::class)->name('update')->withoutScopedBindings();

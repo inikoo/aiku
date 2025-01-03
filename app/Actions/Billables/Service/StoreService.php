@@ -20,10 +20,15 @@ use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Models\Billables\Service;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\SysAdmin\Organisation;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
+use Google\Service\ShoppingContent\ActionReason;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
+use Lorisleiva\Actions\ActionRequest;
 
 class StoreService extends OrgAction
 {
@@ -123,6 +128,15 @@ class StoreService extends OrgAction
         ];
     }
 
+    public function htmlResponse(Service $service)
+    {
+        return Redirect::route('grp.org.fulfilments.show.catalogue.services.show', [
+            'organisation' => $service->organisation->slug,
+            'fulfilment'   => $service->shop->fulfilment->slug,
+            'service'      => $service->slug
+        ]);
+    }
+
     public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0): Service
     {
         $this->hydratorsDelay = $hydratorsDelay;
@@ -132,6 +146,13 @@ class StoreService extends OrgAction
         $this->initialisationFromShop($shop, $modelData);
 
         return $this->handle($shop, $this->validatedData);
+    }
+
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request)
+    {
+        $this->initialisationFromShop($fulfilment->shop, $request);
+
+        return $this->handle($fulfilment->shop, $this->validatedData);
     }
 
 

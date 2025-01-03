@@ -23,6 +23,7 @@ use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Goods\TradeUnit;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\AlphaDashDot;
@@ -262,6 +263,21 @@ class StoreProduct extends OrgAction
         $this->handle($shop, $this->validatedData);
 
         return Redirect::route('grp.org.shops.show.catalogue.products.index', $shop);
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): RedirectResponse
+    {
+        $this->initialisationFromShop($fulfilment->shop, $request);
+        $product = $this->handle($fulfilment->shop, $this->validatedData);
+
+        return Redirect::route('grp.org.fulfilments.show.catalogue.outers.show', [
+            'organisation' => $organisation->slug,
+            'fulfilment'   => $fulfilment->slug,
+            'product'      => $product->slug
+        ]);
     }
 
     /**
