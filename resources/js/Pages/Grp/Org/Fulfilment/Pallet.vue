@@ -39,6 +39,7 @@ const component = computed(() => {
 
 })
 
+console.log('plm',props)
 </script>
 
 <template>

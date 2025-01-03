@@ -30,6 +30,7 @@ enum PalletTabsEnum: string
             PalletTabsEnum::STORED_ITEMS => [
                 'title' => __('stored items'),
                 'icon'  => 'fal fa-narwhal',
+                'number' => 23
             ],
             PalletTabsEnum::HISTORY => [
                 'title' => __('history'),

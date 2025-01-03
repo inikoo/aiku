@@ -415,11 +415,10 @@ class ShowInvoice extends OrgAction
                     'name'       => $routeName,
                     'parameters' => [
                         'organisation'       => $invoice->organisation->slug,
-                        'fulfilment'         => $this->parent->slug,
+                        'fulfilment'         => $invoice->shop->fulfilment->slug,
                         'fulfilmentCustomer' => $this->parent->slug,
                         'invoice'            => $invoice->slug
                     ]
-
                 ]
             ],
         };
