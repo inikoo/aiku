@@ -56,6 +56,8 @@ use App\Models\Catalogue\HistoricAsset;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
+use App\Models\Helpers\Country;
+use App\Models\Helpers\Language;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
 use Inertia\Testing\AssertableInertia;
@@ -740,3 +742,30 @@ test('Billables: services search', function () {
     ReindexServiceSearch::run($service);
     expect($service->universalSearch()->count())->toBe(1);
 });
+
+test('update shop setting', function ($shop) {
+    $c = Country::first();
+    $l = Language::first();
+
+    $modelData = [
+        'company_name' => 'new company name',
+        'code' => "NEW",
+        'name' => "new_name",
+        'type' => ShopTypeEnum::DROPSHIPPING,
+        'country_id' => $c->id,
+        'language_id' => $l->id,
+        'email' => "test@gmail.com",
+        'phone' => "08912312313"
+
+    ];
+    $shop = UpdateShop::make()->action($shop, $modelData);
+    expect($shop)->toBeInstanceOf(Shop::class)
+        ->and($shop->company_name)->toBe('new company name')
+        ->and($shop->code)->toBe('NEW')
+        ->and($shop->name)->toBe('new_name')
+        ->and($shop->type)->toBe(ShopTypeEnum::DROPSHIPPING)
+        ->and($shop->country_id)->toBe($c->id)
+        ->and($shop->language_id)->toBe($l->id)
+        ->and($shop->email)->toBe('test@gmail.com')
+        ->and($shop->phone)->toBe('08912312313');
+})->depends('create shop');

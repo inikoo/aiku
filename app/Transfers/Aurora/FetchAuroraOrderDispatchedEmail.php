@@ -17,27 +17,32 @@ class FetchAuroraOrderDispatchedEmail extends FetchAurora
     {
         $order = $this->parseOrder($this->organisation->id.':'.$this->auroraModelData->{'Order Sent Email Order Key'});
         if (!$order) {
+            //print "Error no order\n";
             return;
         }
         $dispatchedEmail = $this->parseDispatchedEmail($this->organisation->id.':'.$this->auroraModelData->{'Order Sent Email Email Tracking Key'});
         if (!$dispatchedEmail) {
+            //print "Error no dispatchedEmail\n";
             return;
         }
 
-        $outboxType = match ($this->auroraModelData->{'Order Sent Email Type'}) {
+        $outboxCode = match ($this->auroraModelData->{'Order Sent Email Type'}) {
             'Order Notification' => OutboxCodeEnum::ORDER_CONFIRMATION,
             'Dispatch Notification' => OutboxCodeEnum::DELIVERY_CONFIRMATION,
             'Basket Reminder 1', 'Basket Reminder 2', 'Basket Reminder 3' => OutboxCodeEnum::BASKET_PUSH,
             default => null
         };
-        if ($outboxType == null) {
+        if ($outboxCode == null) {
+            //print "Error no outbox type\n";
             return;
         }
 
-        $outbox = $order->shop->outboxes()->where('type', $outboxType)->first();
+        $outbox = $order->shop->outboxes()->where('code', $outboxCode)->first();
         if (!$outbox) {
+            //print "Error no outbox with code $outboxCode->value  \n";
             return;
         }
+
 
 
         $this->parsedData['order']           = $order;

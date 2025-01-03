@@ -9,9 +9,9 @@
 namespace App\Transfers\Aurora;
 
 use App\Actions\Transfers\Aurora\FetchAuroraStockFamilies;
+use App\Enums\Goods\Stock\StockStateEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
-use App\Enums\SupplyChain\Stock\StockStateEnum;
-use App\Models\SupplyChain\StockFamily;
+use App\Models\Goods\StockFamily;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 

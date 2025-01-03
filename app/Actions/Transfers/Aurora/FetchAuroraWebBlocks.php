@@ -8,6 +8,8 @@
 
 namespace App\Actions\Transfers\Aurora;
 
+use App\Actions\Web\ExternalLink\AttachExternalLinkToWebBlock;
+use App\Actions\Web\ExternalLink\CheckExternalLinkStatus;
 use App\Actions\Web\WebBlock\DeleteWebBlock;
 use App\Models\Catalogue\Product;
 use App\Transfers\Aurora\WithAuroraParsers;
@@ -175,7 +177,6 @@ class FetchAuroraWebBlocks
         // children webpages for department & family
 
 
-
         //     print "***>>".$auroraBlock["type"]."<<<***\n";
 
         switch ($auroraBlock["type"]) {
@@ -339,14 +340,14 @@ class FetchAuroraWebBlocks
 
         $webpage->modelHasWebBlocks()->create($modelHasWebBlocksData);
 
-        $this->postExternalLinks($webBlock, $webpage, $layout);
+        $this->postExternalLinks($webBlock, $webpage, $layout, Arr::get($modelHasWebBlocksData, 'show', true));
         $this->postProcessLayout($webBlock, $webpage, $layout);
 
         UpdateWebpageContent::run($webpage->refresh());
         /*   BroadcastPreviewWebpage::dispatch($webpage); */
     }
 
-    private function postExternalLinks(WebBlock $webBlock, Webpage $webpage, &$layout): void
+    private function postExternalLinks(WebBlock $webBlock, Webpage $webpage, &$layout, bool $webBlockShow): void
     {
         $code = $webBlock->webBlockType->code;
         if (!in_array($code, ['text', 'overview', 'images'])) {
@@ -356,10 +357,17 @@ class FetchAuroraWebBlocks
         $externalLinks = $layout['external_links'] ?? null;
         if ($externalLinks) {
             foreach ($externalLinks as $link) {
-                StoreExternalLink::make()->action($webpage->group, [
-                    'url'          => $link,
-                    'webpage_id'   => $webpage->id,
-                    'web_block_id' => $webBlock->id,
+                $externalLink = $webpage->group->externalLinks()->where('url', $link)->first();
+                if (!$externalLink) {
+                    $externalLink = StoreExternalLink::make()->action($webpage->group, [
+                        'url'    => $link,
+                        'status' => CheckExternalLinkStatus::run($link)
+                    ]);
+                }
+
+
+                AttachExternalLinkToWebBlock::make()->action($webpage, $webBlock, $externalLink, [
+                    'show' => $webBlockShow // <-- fix this and set show value depending on if Seb-block is shown or not
                 ]);
             }
         }

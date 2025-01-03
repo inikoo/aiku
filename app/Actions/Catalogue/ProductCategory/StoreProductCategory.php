@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
+use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -59,6 +60,9 @@ class StoreProductCategory extends OrgAction
             $productCategory->orderingIntervals()->create();
             $productCategory->salesIntervals()->create();
             $productCategory->orderingStats()->create();
+            foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
+                $productCategory->timeSeries()->create(['frequency' => $frequency]);
+            }
 
             $productCategory->refresh();
             return $productCategory;
@@ -89,7 +93,7 @@ class StoreProductCategory extends OrgAction
                 ),
             ],
             'name'                 => ['required', 'max:250', 'string'],
-            'image_id'             => ['sometimes', 'required', 'exists:media,id'],
+            'image_id'             => ['sometimes', 'required', Rule::exists('media', 'id')->where('group_id', $this->organisation->group_id)],
             'state'                => ['sometimes', Rule::enum(ProductCategoryStateEnum::class)],
             'description'          => ['sometimes', 'required', 'max:1500'],
 

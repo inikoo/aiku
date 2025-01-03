@@ -46,6 +46,9 @@ class PalletsResource extends JsonResource
             'fulfilment_customer_name'         => $this->fulfilment_customer_name,
             'fulfilment_customer_slug'         => $this->fulfilment_customer_slug,
             'fulfilment_customer_id'           => $this->fulfilment_customer_id,
+            'organisation_name'                => $this->organisation_name,
+            'organisation_slug'                => $this->organisation_slug,
+            'fulfilment_slug'                  => $this->fulfilment_slug,
             'notes'                            => (string)$this->notes,
             'state'                            => $this->state,
             'type_icon'                        => $this->type->typeIcon()[$this->type->value],
@@ -143,10 +146,16 @@ class PalletsResource extends JsonResource
                 'name'       => 'grp.models.pallet.damaged',
                 'parameters' => [$this->id]
             ],
-            'auditRoute' => [
-                'name'       => 'grp.models.pallet.stored-items.audit',
-                'parameters' => [$this->id]
-            ],
+            'auditRoute' => match (request()->routeIs('retina.*')) {
+                true => [
+                    'name'       => 'retina.models.pallet.stored-items.audit',
+                    'parameters' => [$this->id]
+                ],
+                default => [
+                    'name'       => 'grp.models.pallet.stored-items.audit',
+                    'parameters' => [$this->id]
+                ]
+            },
             'resetAuditRoute' => [
                 'name'       => 'grp.models.pallet.stored-items.audit.reset',
                 'parameters' => [$this->id]

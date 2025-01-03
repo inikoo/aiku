@@ -19,7 +19,7 @@ enum ShippingStateEnum: string
     use EnumHelperTrait;
     use IsBillableState;
 
-    case IN_PROCESS        = 'in-process';
+    case IN_PROCESS        = 'in_process';
     case ACTIVE            = 'active';
     case DISCONTINUED      = 'discontinued';
 
@@ -33,7 +33,7 @@ enum ShippingStateEnum: string
 
 
         return [
-            'in-process'   => $stats->number_shippings_state_in_process,
+            'in_process'   => $stats->number_shippings_state_in_process,
             'active'       => $stats->number_shippings_state_active,
             'discontinued' => $stats->number_shippings_state_discontinued
         ];

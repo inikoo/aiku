@@ -17,10 +17,11 @@ trait WithOrganisationsArgument
 {
     protected function getOrganisations(Command $command): LazyCollection
     {
-        return Organisation::query()->whereIn('type', [OrganisationTypeEnum::SHOP->value,OrganisationTypeEnum::DIGITAL_AGENCY->value])
+        return Organisation::query()->whereIn('type', [OrganisationTypeEnum::SHOP->value, OrganisationTypeEnum::DIGITAL_AGENCY->value])
             ->when($command->argument('organisations'), function ($query) use ($command) {
                 $query->whereIn('slug', $command->argument('organisations'));
             })
             ->cursor();
     }
+
 }

@@ -22,7 +22,6 @@ return new class () extends Migration {
             $table->jsonb('data');
             $table->unsignedInteger('number_trade_units')->default(0);
             $table->unsignedInteger('number_stocks')->default(0);
-            $table->unsignedInteger('number_master_products')->default(0);
             $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();

@@ -12,6 +12,7 @@ use Illuminate\Database\Schema\Blueprint;
 
 trait HasUsageStats
 {
+    use HasAmounts;
     public function usageStats(Blueprint $table): Blueprint
     {
         $table->timestampTz('first_used_at')->nullable();
@@ -26,14 +27,22 @@ trait HasUsageStats
         $table->unsignedInteger('number_orders')->default(0);
         $table->unsignedInteger('number_invoices')->default(0);
         $table->unsignedInteger('number_delivery_notes')->default(0);
-        $table->decimal('amount')->default(0);
-        if (!in_array($table->getTable(), ['group_discounts_stats', 'organisation_discounts_stats'])) {
+
+
+        $allowedCurrencies = $this->allowedCurrencies($table);
+
+        if ($allowedCurrencies['shop']) {
+            $table->decimal('amount')->default(0);
+        }
+
+        if ($allowedCurrencies['org']) {
             $table->decimal('org_amount')->default(0);
         }
 
-        if ($table->getTable() != 'group_discounts_stats') {
-            $table->decimal('group_amount')->default(0);
+        if ($allowedCurrencies['grp']) {
+            $table->decimal('grp_amount')->default(0);
         }
+
 
         return $table;
     }

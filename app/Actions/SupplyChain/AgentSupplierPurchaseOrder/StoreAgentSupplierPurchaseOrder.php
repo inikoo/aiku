@@ -13,7 +13,7 @@ use App\Actions\GrpAction;
 use App\Actions\Procurement\WithNoStrictProcurementOrderRules;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStatusEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\AgentSupplierPurchaseOrder;
 use App\Models\SupplyChain\Supplier;
@@ -27,9 +27,11 @@ class StoreAgentSupplierPurchaseOrder extends GrpAction
     use WithNoStrictRules;
     use WithNoStrictProcurementOrderRules;
 
+
+    private Supplier $supplier;
+
     public function handle(PurchaseOrder $purchaseOrder, Supplier $supplier, array $modelData): AgentSupplierPurchaseOrder
     {
-
         if (!Arr::get($modelData, 'reference')) {
             data_set(
                 $modelData,
@@ -62,25 +64,29 @@ class StoreAgentSupplierPurchaseOrder extends GrpAction
     public function rules(): array
     {
         $rules = [
-            'reference'       => [
+            'reference'      => [
                 'sometimes',
                 'required',
-                $this->strict ? 'alpha_dash' : 'string',
-                $this->strict ? new IUnique(
-                    table: 'agent_supplier_purchase_orders',
-                    extraConditions: [
-                        ['column' => 'group_id', 'value' => $this->group->id],
-                    ]
-                ) : null,
+                $this->strict ? 'alpha_dash' : 'string'
             ],
-            'state'           => ['sometimes', 'required', Rule::enum(PurchaseOrderStateEnum::class)],
-            'delivery_status' => ['sometimes', 'required', Rule::enum(PurchaseOrderDeliveryStatusEnum::class)],
-            'cost_items'      => ['sometimes', 'required', 'numeric', 'min:0'],
-            'cost_shipping'   => ['sometimes', 'required', 'numeric', 'min:0'],
-            'cost_total'      => ['sometimes', 'required', 'numeric', 'min:0'],
-            'date'            => ['sometimes', 'required'],
-            'currency_id'     => ['sometimes', 'required'],
+            'state'          => ['sometimes', 'required', Rule::enum(PurchaseOrderStateEnum::class)],
+            'delivery_state' => ['sometimes', 'required', Rule::enum(PurchaseOrderDeliveryStateEnum::class)],
+            'cost_items'     => ['sometimes', 'required', 'numeric', 'min:0'],
+            'cost_shipping'  => ['sometimes', 'required', 'numeric', 'min:0'],
+            'cost_total'     => ['sometimes', 'required', 'numeric', 'min:0'],
+            'date'           => ['sometimes', 'required'],
+            'currency_id'    => ['sometimes', 'required'],
         ];
+
+
+        if ($this->strict) {
+            $rules['reference'][] = new IUnique(
+                table: 'agent_supplier_purchase_orders',
+                extraConditions: [
+                    ['column' => 'supplier_id', 'value' => $this->supplier->id],
+                ]
+            );
+        }
 
         if (!$this->strict) {
             $rules = $this->noStrictStoreRules($rules);
@@ -99,6 +105,7 @@ class StoreAgentSupplierPurchaseOrder extends GrpAction
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
+        $this->supplier       = $supplier;
         $this->initialisation($supplier->group, $modelData);
 
 

@@ -11,6 +11,7 @@ import type { Component } from 'vue'
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
+import SimpleBox from '@/Components/DataDisplay/SimpleBox.vue'
 
 // import FileShowcase from '@/xxxxxxxxxxxx'
 import CountUp from 'vue-countup-v3'
@@ -56,7 +57,9 @@ const component = computed(() => {
     <!-- <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" /> -->
 
     <!-- <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" /> -->
-    <div class="flex gap-x-3 gap-y-4 p-4 flex-wrap">
+    <SimpleBox v-if="stats" :box_stats="stats" />
+
+    <!-- <div class="flex gap-x-3 gap-y-4 p-4 flex-wrap">
         <div v-for="zzz in stats" class="bg-gray-50 min-w-64 border border-gray-300 rounded-md p-6">
             <div class="flex justify-between items-center mb-1">
                 <div class="">{{ zzz.label }}</div>
@@ -74,5 +77,5 @@ const component = computed(() => {
                 />
             </div>
         </div>        
-    </div>
+    </div> -->
 </template>

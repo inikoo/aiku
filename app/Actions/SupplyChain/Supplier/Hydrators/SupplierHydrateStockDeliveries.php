@@ -9,7 +9,6 @@
 namespace App\Actions\SupplyChain\Supplier\Hydrators;
 
 use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
-use App\Enums\Procurement\StockDelivery\StockDeliveryStatusEnum;
 use App\Models\SupplyChain\Supplier;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -33,14 +32,6 @@ class SupplierHydrateStockDeliveries
             $stats['number_stock_deliveries_state_'.$productState->snake()] = Arr::get($stockDeliveryStateCounts, $productState->value, 0);
         }
 
-        $stockDeliveryStatusCounts =  $supplier->stockDeliveries()
-            ->selectRaw('status, count(*) as total')
-            ->groupBy('status')
-            ->pluck('total', 'status')->all();
-
-        foreach (StockDeliveryStatusEnum::cases() as $stockDeliveryStatusEnum) {
-            $stats['number_stock_deliveries_status_'.$stockDeliveryStatusEnum->snake()] = Arr::get($stockDeliveryStatusCounts, $stockDeliveryStatusEnum->value, 0);
-        }
 
         $supplier->stats()->update($stats);
     }

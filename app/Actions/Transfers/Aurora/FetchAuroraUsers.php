@@ -11,6 +11,7 @@ namespace App\Actions\Transfers\Aurora;
 use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\SysAdmin\User\UpdateUsersPseudoJobPositions;
+use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\User;
 use App\Transfers\SourceOrganisationService;
@@ -37,6 +38,12 @@ class FetchAuroraUsers extends FetchAuroraAction
             if ($userData['user']) {
                 if ($user = User::withTrashed()->where('source_id', $userData['user']['source_id'])->first()) {
                     try {
+
+                        if ($user->auth_type == UserAuthTypeEnum::DEFAULT) {
+                            data_forget($userData, 'user.password');
+                            data_forget($userData, 'user.auth_type');
+                        }
+
                         $user = UpdateUser::make()->action(
                             user: $user,
                             modelData: $userData['user'],

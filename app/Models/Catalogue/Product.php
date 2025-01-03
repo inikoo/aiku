@@ -9,11 +9,13 @@
 namespace App\Models\Catalogue;
 
 use App\Enums\Catalogue\Product\ProductStateEnum;
+use App\Enums\Catalogue\Product\ProductStatusEnum;
+use App\Enums\Catalogue\Product\ProductTradeConfigEnum;
 use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
+use App\Models\CRM\BackInStockReminder;
 use App\Models\CRM\Favourite;
 use App\Models\Goods\TradeUnit;
 use App\Models\Inventory\OrgStock;
-use App\Models\Reminder\BackInStockReminder;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
@@ -47,8 +49,9 @@ use Spatie\Tags\HasTags;
  * @property int|null $sub_department_id
  * @property int|null $department_id
  * @property bool $is_main
- * @property bool $status
+ * @property ProductStatusEnum $status
  * @property ProductStateEnum $state
+ * @property ProductTradeConfigEnum $trade_config
  * @property string $slug
  * @property string $code
  * @property string|null $name
@@ -56,8 +59,8 @@ use Spatie\Tags\HasTags;
  * @property numeric|null $price
  * @property string $units
  * @property string $unit
- * @property array $data
- * @property array $settings
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
  * @property int $currency_id
  * @property int|null $current_historic_asset_id
  * @property int|null $gross_weight outer weight including packing, grams
@@ -135,9 +138,10 @@ class Product extends Model implements Auditable, HasMedia
         'rrp'                    => 'decimal:2',
         'data'                   => 'array',
         'settings'               => 'array',
-        'status'                 => 'boolean',
         'variant_is_visible'     => 'boolean',
         'state'                  => ProductStateEnum::class,
+        'status'                 => ProductStatusEnum::class,
+        'trade_config'           => ProductTradeConfigEnum::class,
         'unit_relationship_type' => ProductUnitRelationshipType::class,
         'fetched_at'             => 'datetime',
         'last_fetched_at'        => 'datetime'
@@ -161,6 +165,7 @@ class Product extends Model implements Auditable, HasMedia
         'description',
         'status',
         'state',
+        'trade_config',
         'price',
         'rrp',
         'currency_id',
@@ -187,7 +192,7 @@ class Product extends Model implements Auditable, HasMedia
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(64);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function stats(): HasOne

@@ -40,7 +40,6 @@ class ShowEmployee extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit   = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
-        $this->canDelete = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
 
         return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
     }
@@ -54,10 +53,7 @@ class ShowEmployee extends OrgAction
 
     public function htmlResponse(Employee $employee, ActionRequest $request): Response
     {
-        // Uncomment this to test the error page
-        //valid values 500, 503, 404, 403, 422
-        // abort(403);
-        // dd(AttachmentsResource::collection(IndexAttachments::run($employee)));
+
         return Inertia::render(
             'Org/HumanResources/Employee',
             [
@@ -75,6 +71,7 @@ class ShowEmployee extends OrgAction
                         'title' => __('Employee'),
                         'icon'  => 'fal fa-user-hard-hat'
                     ],
+                    'model'     => __('Employee'),
                     'title'         => $employee->contact_name,
                     'subNavigation' => $this->getEmployeeSubNavigation($employee, $request),
                     'meta'          => [
@@ -88,7 +85,6 @@ class ShowEmployee extends OrgAction
                         ],
                     ],
                     'actions'       => [
-                        $this->canDelete ? $this->getDeleteActionIcon($request) : null,
                         $this->canEdit ? $this->getEditActionIcon($request) : null,
                     ],
                 ],
@@ -113,7 +109,9 @@ class ShowEmployee extends OrgAction
                     'navigation' => EmployeeTabsEnum::navigation()
                 ],
 
-
+                EmployeeTabsEnum::SHOWCASE->value => $this->tab == EmployeeTabsEnum::SHOWCASE->value ?
+                    fn () => GetEmployeeShowcase::run($employee)
+                    : Inertia::lazy(fn () => GetEmployeeShowcase::run($employee)),
                 EmployeeTabsEnum::HISTORY->value => $this->tab == EmployeeTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($employee))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($employee))),

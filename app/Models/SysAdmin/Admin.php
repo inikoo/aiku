@@ -24,7 +24,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property string $name
  * @property string $email
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -58,7 +58,7 @@ class Admin extends Model
         return SlugOptions::create()
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(8);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function getRouteKeyName(): string

@@ -9,7 +9,7 @@
 namespace App\Actions\Inventory\OrgStock;
 
 use App\Actions\Goods\Stock\Hydrators\StockInitialiseImageID;
-use App\Models\SupplyChain\Stock;
+use App\Models\Goods\Stock;
 use Lorisleiva\Actions\Concerns\AsAction;
 use stdClass;
 

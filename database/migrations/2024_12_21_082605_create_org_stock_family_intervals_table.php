@@ -6,13 +6,13 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Stubs\Migrations\HasSalesIntervals;
+use App\Stubs\Migrations\HasDateIntervalsStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    use HasSalesIntervals;
+    use HasDateIntervalsStats;
 
     public function up(): void
     {
@@ -20,11 +20,11 @@ return new class () extends Migration {
             $table->increments('id');
             $table->unsignedInteger('org_stock_family_id')->index();
             $table->foreign('org_stock_family_id')->references('id')->on('org_stock_families');
-            $table = $this->salesIntervalFields($table, [
-                'org_amount_revenue',
-                'group_amount_revenue',
-                'org_amount_profit',
-                'group_amount_profit',
+            $table = $this->decimalDateIntervals($table, [
+                'revenue_org_currency',
+                'revenue_grp_currency',
+                'profit_org_currency',
+                'profit_grp_currency',
             ]);
             $table = $this->unsignedIntegerDateIntervals($table, [
                 'dispatched',

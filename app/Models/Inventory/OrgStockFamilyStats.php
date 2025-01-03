@@ -30,9 +30,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_org_stocks_quantity_status_critical
  * @property int $number_org_stocks_quantity_status_out_of_stock
  * @property int $number_org_stocks_quantity_status_error
- * @property string|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $deleted_at
  * @property-read \App\Models\Inventory\OrgStockFamily $orgStockFamily
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStockFamilyStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStockFamilyStats newQuery()

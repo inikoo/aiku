@@ -59,18 +59,33 @@ class ShowDispatchHub extends OrgAction
                         'icon'  => ['fal', 'fa-conveyor-belt-alt'],
                         'title' => __('locations')
                     ],
+                    'model'     => __('Goods Out'),
                     'title'     => __('Dispatching backlog'),
                             ],
                 'box_stats' => [
                     [
-                        'title' => __('Delivery Notes'),
+                        'name' => __('Delivery Notes'),
                         'value' => $scope->orderingStats->number_delivery_notes,
-                        'icon'  => ['fal', 'fa-boxes']
+                        'route' => [
+                            'name'       => 'grp.org.warehouses.show.dispatching.delivery-notes',
+                            'parameters' => $request->route()->originalParameters()
+                        ],
+                        'icon'  => [
+                            'icon'  => 'fal fa-truck',
+                            'tooltip' => __('Delivery Notes')
+                        ]
                     ],
                     [
-                        'title' => __('Fulfilment Returns'),
+                        'name' => __('Fulfilment Returns'),
                         'value' => $scope->fulfilmentStats->number_pallet_returns,
-                        'icon'  => ['fal', 'fa-boxes']
+                        'route' => [
+                            'name'       => 'grp.org.warehouses.show.dispatching.pallet-returns.index',
+                            'parameters' => $request->route()->originalParameters()
+                        ],
+                        'icon'  => [
+                            'icon'  => 'fal fa-sign-out',
+                            'tooltip' => __('Fulfilment Returns')
+                        ]
                     ],
                 ],
 

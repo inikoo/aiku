@@ -29,6 +29,7 @@ use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\Catalogue\Subscription;
+use App\Models\Comms\Mailshot;
 use App\Models\Comms\OrgPostRoom;
 use App\Models\Comms\Outbox;
 use App\Models\CRM\Customer;
@@ -113,10 +114,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $phone
  * @property bool $status
  * @property int|null $address_id
- * @property array $location
- * @property array $data
- * @property array $settings
- * @property array $source
+ * @property array<array-key, mixed> $location
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
+ * @property array<array-key, mixed> $source
  * @property int $country_id
  * @property int $language_id
  * @property int $timezone_id
@@ -167,6 +168,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Language $language
  * @property-read LaravelCollection<int, Location> $locations
  * @property-read Media|null $logo
+ * @property-read LaravelCollection<int, Mailshot> $mailshots
  * @property-read \App\Models\SysAdmin\OrganisationMailshotsIntervals|null $mailshotsIntervals
  * @property-read \App\Models\SysAdmin\OrganisationManufactureStats|null $manufactureStats
  * @property-read LaravelCollection<int, ManufactureTask> $manufactureTasks
@@ -185,6 +187,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, OrgStock> $orgStocks
  * @property-read LaravelCollection<int, OrgSupplierProduct> $orgSupplierProducts
  * @property-read LaravelCollection<int, OrgSupplier> $orgSuppliers
+ * @property-read \App\Models\SysAdmin\OrganisationOutboxColdEmailsIntervals|null $outboxColdEmailsIntervals
+ * @property-read \App\Models\SysAdmin\OrganisationOutboxCustomerNotificationIntervals|null $outboxCustomerNotificationIntervals
+ * @property-read \App\Models\SysAdmin\OrganisationOutboxMarketingIntervals|null $outboxMarketingIntervals
+ * @property-read \App\Models\SysAdmin\OrganisationOutboxMarketingNotificationIntervals|null $outboxMarketingNotificationIntervals
+ * @property-read \App\Models\SysAdmin\OrganisationOutboxNewsletterIntervals|null $outboxNewsletterIntervals
+ * @property-read \App\Models\SysAdmin\OrganisationOutboxPushIntervals|null $outboxPushIntervals
+ * @property-read \App\Models\SysAdmin\OrganisationOutboxTestIntervals|null $outboxTestIntervals
+ * @property-read \App\Models\SysAdmin\OrganisationOutboxUserNotificationIntervals|null $outboxUserNotificationIntervals
  * @property-read LaravelCollection<int, Outbox> $outboxes
  * @property-read LaravelCollection<int, Packing> $packings
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
@@ -215,6 +225,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationStats|null $stats
  * @property-read LaravelCollection<int, Subscription> $subscriptions
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Task> $tasks
+ * @property-read LaravelCollection<int, \App\Models\SysAdmin\OrganisationTimeSeries> $timeSeries
  * @property-read Timezone $timezone
  * @property-read LaravelCollection<int, TopUp> $topUps
  * @property-read LaravelCollection<int, Upload> $uploads
@@ -764,6 +775,57 @@ class Organisation extends Model implements HasMedia, Auditable
     public function packings(): HasMany
     {
         return $this->hasMany(Packing::class);
+    }
+
+    public function mailshots(): HasMany
+    {
+        return $this->hasMany(Mailshot::class);
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(OrganisationTimeSeries::class);
+    }
+
+    public function outboxNewsletterIntervals(): HasOne
+    {
+        return $this->hasOne(OrganisationOutboxNewsletterIntervals::class);
+    }
+
+
+    public function outboxMarketingIntervals(): HasOne
+    {
+        return $this->hasOne(OrganisationOutboxMarketingIntervals::class);
+    }
+
+    public function outboxMarketingNotificationIntervals(): HasOne
+    {
+        return $this->hasOne(OrganisationOutboxMarketingNotificationIntervals::class);
+    }
+
+    public function outboxCustomerNotificationIntervals(): HasOne
+    {
+        return $this->hasOne(OrganisationOutboxCustomerNotificationIntervals::class);
+    }
+
+    public function outboxColdEmailsIntervals(): HasOne
+    {
+        return $this->hasOne(OrganisationOutboxColdEmailsIntervals::class);
+    }
+
+    public function outboxUserNotificationIntervals(): HasOne
+    {
+        return $this->hasOne(OrganisationOutboxUserNotificationIntervals::class);
+    }
+
+    public function outboxPushIntervals(): HasOne
+    {
+        return $this->hasOne(OrganisationOutboxPushIntervals::class);
+    }
+
+    public function outboxTestIntervals(): HasOne
+    {
+        return $this->hasOne(OrganisationOutboxTestIntervals::class);
     }
 
 }

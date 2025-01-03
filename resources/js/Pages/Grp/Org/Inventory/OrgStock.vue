@@ -29,6 +29,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import TableLocations from "@/Components/Tables/Grp/Org/Inventory/TableLocations.vue";
 import StockShowcase from "@/Components/Showcases/Grp/StockShowcase.vue";
 import { capitalize } from "@/Composables/capitalize"
+import TablePurchaseOrders from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrders.vue";
 library.add(
     faInventory,
     faBox,
@@ -59,6 +60,7 @@ const props = defineProps<{
     supplier_products: object;
     products: object;
     locations: object;
+    purchase_orders: {};
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -73,6 +75,7 @@ const component = computed(() => {
         products: TableProducts,
         details: ModelDetails,
         history: ModelChangelog,
+        purchase_orders: TablePurchaseOrders,
     };
     return components[currentTab.value];
 

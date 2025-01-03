@@ -83,7 +83,7 @@ class IndexEmployees extends OrgAction
         } else {
             $queryBuilder->where('employees.group_id', $parent->id);
         }
-        $queryBuilder->leftjoin('organisations', 'employees.organisation_id', '=', 'organisations.id', 'organisations.name as organisation_name', 'organisations.slug as organisation_slug', );
+        $queryBuilder->leftjoin('organisations', 'employees.organisation_id', '=', 'organisations.id');
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
@@ -94,7 +94,7 @@ class IndexEmployees extends OrgAction
             );
         }
 
-        $queryBuilder->select(['employees.slug', 'employees.job_title', 'employees.contact_name', 'employees.state']);
+        $queryBuilder->select(['employees.slug', 'employees.job_title', 'employees.contact_name', 'employees.state', 'organisations.name as organisation_name', 'organisations.slug as organisation_slug',]);
 
         if (class_basename($parent) == 'Organisation') {
             $jobPositions = DB::table('employee_has_job_positions')
@@ -108,10 +108,11 @@ class IndexEmployees extends OrgAction
                 $join->on('employees.id', '=', 'job_positions.employee_id');
             });
             $queryBuilder->addSelect('job_positions');
-        } elseif (class_basename($parent) == 'Group') {
-            $queryBuilder->leftJoin('employee_has_job_positions', 'employee_has_job_positions.employee_id', 'employees.id')
-                ->where('job_position_id', $parent->id);
         }
+        // elseif (class_basename($parent) == 'Group') {
+        //     $queryBuilder->leftJoin('employee_has_job_positions', 'employee_has_job_positions.employee_id', 'employees.id')
+        //         ->where('job_position_id', $parent->id);
+        // }
 
         return $queryBuilder
             ->defaultSort('slug')
@@ -202,6 +203,7 @@ class IndexEmployees extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $employees, ActionRequest $request): Response
     {
+        // dd($employees);
         return Inertia::render(
             'Org/HumanResources/Employees',
             [
@@ -212,6 +214,7 @@ class IndexEmployees extends OrgAction
                         'title' => __('Employee'),
                         'icon'  => 'fal fa-user-hard-hat'
                     ],
+                    'model'   => __('Human Resources'),
                     'title'   => __('employees'),
                     'actions' =>
                         $this->canEdit ? [
@@ -318,7 +321,7 @@ class IndexEmployees extends OrgAction
                 ShowHumanResourcesDashboard::make()->getBreadcrumbs($routeParameters),
                 $headCrumb($routeName, $routeParameters)
             ),
-            'grp.overview.human-resources.employees.index' =>
+            'grp.overview.hr.employees.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb($routeName, $routeParameters)

@@ -37,13 +37,13 @@ class GroupHydrateEmailsBulkRuns
     public function handle(Group $group): void
     {
         $stats = [
-            'number_email_bulk_runs' => $group->emailBulkRuns()->count(),
+            'number_bulk_runs' => $group->emailBulkRuns()->count(),
         ];
 
         $stats = array_merge(
             $stats,
             $this->getEnumStats(
-                model: 'email_bulk_runs',
+                model: 'bulk_runs',
                 field: 'state',
                 enum: EmailBulkRunStateEnum::class,
                 models: EmailBulkRun::class,

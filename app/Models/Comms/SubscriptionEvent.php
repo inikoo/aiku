@@ -26,7 +26,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property string $type subscribe|unsubscribe
  * @property string|null $origin_type EmailBulkRun|Mailshot|Website|Customer (Customer is used when a user unsubscribes from aiku UI)
  * @property string|null $origin_id
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon $created_at
  * @property string|null $fetched_at
  * @property string|null $last_fetched_at

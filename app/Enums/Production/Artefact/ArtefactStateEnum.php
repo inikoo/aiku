@@ -15,14 +15,14 @@ enum ArtefactStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS        = 'in-process';
+    case IN_PROCESS        = 'in_process';
     case ACTIVE            = 'active';
     case DISCONTINUED      = 'discontinued';
 
     public static function labels(): array
     {
         return [
-            'in-process'    => __('In process'),
+            'in_process'    => __('In process'),
             'active'        => __('Active'),
             'discontinued'  => __('Discontinued'),
         ];
@@ -31,7 +31,7 @@ enum ArtefactStateEnum: string
     public static function stateIcon(): array
     {
         return [
-            'in-process' => [
+            'in_process' => [
                 'tooltip' => __('in process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-indigo-500'
@@ -54,7 +54,7 @@ enum ArtefactStateEnum: string
         $stats = $parent->inventoryStats;
 
         return [
-            'in-process'        => $stats->number_stocks_state_in_process,
+            'in_process'        => $stats->number_stocks_state_in_process,
             'active'            => $stats->number_stocks_state_active,
             'discontinued'      => $stats->number_stocks_state_discontinued,
         ];

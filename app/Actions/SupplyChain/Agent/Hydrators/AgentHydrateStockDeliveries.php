@@ -10,7 +10,6 @@ namespace App\Actions\SupplyChain\Agent\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
-use App\Enums\Procurement\StockDelivery\StockDeliveryStatusEnum;
 use App\Models\Procurement\StockDelivery;
 use App\Models\SupplyChain\Agent;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -48,15 +47,7 @@ class AgentHydrateStockDeliveries
             }
         ));
 
-        $stats = array_merge($stats, $this->getEnumStats(
-            model:'stock_deliveries',
-            field: 'status',
-            enum: StockDeliveryStatusEnum::class,
-            models: StockDelivery::class,
-            where: function ($q) use ($agent) {
-                $q->where('agent_id', $agent->id);
-            }
-        ));
+
 
         $agent->stats()->update($stats);
     }

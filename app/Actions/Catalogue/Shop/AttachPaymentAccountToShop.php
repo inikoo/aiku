@@ -33,7 +33,7 @@ class AttachPaymentAccountToShop
             ]
         );
 
-        ShopHydratePaymentAccounts::run($shop);
+        ShopHydratePaymentAccounts::dispatch($shop);
 
         return $shop;
     }

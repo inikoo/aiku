@@ -35,7 +35,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property int|null $unpublished_snapshot_id
  * @property int|null $live_snapshot_id
  * @property int|null $screenshot_id
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at

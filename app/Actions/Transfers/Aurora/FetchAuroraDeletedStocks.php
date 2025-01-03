@@ -10,7 +10,7 @@ namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\Stock\UpdateStock;
-use App\Models\SupplyChain\Stock;
+use App\Models\Goods\Stock;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;

@@ -17,7 +17,6 @@ use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Helpers\Address;
-use App\Models\Helpers\Issue;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
@@ -53,9 +52,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $name
  * @property WarehouseStateEnum $state
  * @property int|null $address_id
- * @property array $location
- * @property array $settings
- * @property array $data
+ * @property array<array-key, mixed> $location
+ * @property array<array-key, mixed> $settings
+ * @property array<array-key, mixed> $data
  * @property bool $allow_stocks
  * @property bool $allow_fulfilment
  * @property bool $allow_dropshipping
@@ -72,7 +71,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, DeliveryNote> $deliveryNotes
  * @property-read Collection<int, Fulfilment> $fulfilments
  * @property-read \App\Models\SysAdmin\Group $group
- * @property-read Collection<int, Issue> $issues
  * @property-read Collection<int, \App\Models\Inventory\Location> $locations
  * @property-read Organisation $organisation
  * @property-read Collection<int, PalletDelivery> $palletDeliveries
@@ -81,6 +79,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, PickingRoute> $pickingRoutes
  * @property-read Collection<int, Role> $roles
  * @property-read \App\Models\Inventory\WarehouseStats|null $stats
+ * @property-read Collection<int, \App\Models\Inventory\WarehouseTimeSeries> $timeSeries
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Collection<int, UniversalSearch> $universalSearches
  * @property-read Collection<int, \App\Models\Inventory\WarehouseArea> $warehouseAreas
@@ -143,7 +142,7 @@ class Warehouse extends Model implements Auditable
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(4);
+            ->slugsShouldBeNoLongerThan(64);
     }
 
     public function getRouteKeyName(): string
@@ -169,11 +168,6 @@ class Warehouse extends Model implements Auditable
     public function stats(): HasOne
     {
         return $this->hasOne(WarehouseStats::class);
-    }
-
-    public function issues(): MorphToMany
-    {
-        return $this->morphToMany(Issue::class, 'issuable');
     }
 
     public function roles(): MorphMany
@@ -219,6 +213,11 @@ class Warehouse extends Model implements Auditable
     public function aikuScopedSections(): MorphToMany
     {
         return $this->morphToMany(AikuSection::class, 'model', 'aiku_scoped_sections');
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(WarehouseTimeSeries::class);
     }
 
 }

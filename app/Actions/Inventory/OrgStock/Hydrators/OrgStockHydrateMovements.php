@@ -10,6 +10,7 @@ namespace App\Actions\Inventory\OrgStock\Hydrators;
 
 use App\Models\Inventory\OrgStock;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class OrgStockHydrateMovements
@@ -34,7 +35,7 @@ class OrgStockHydrateMovements
 
         $orgStock->stats->update(
             [
-                'number_movements' => $orgStock->orgStockMovements()->count()
+                'number_org_stock_movements' =>   DB::table('org_stock_movements')->where('org_stock_id', $orgStock->id)->count(),
             ]
         );
     }

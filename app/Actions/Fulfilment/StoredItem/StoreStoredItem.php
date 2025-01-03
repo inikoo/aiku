@@ -114,11 +114,10 @@ class StoreStoredItem extends OrgAction
     {
         /** @var FulfilmentCustomer $fulfilmentCustomer */
         $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
+        $this->fulfilmentCustomer = $fulfilmentCustomer;
+        $this->fulfilment         = $fulfilmentCustomer->fulfilment;
 
         $this->initialisation($fulfilmentCustomer->organisation, $request);
-
-        $this->fulfilment         = $fulfilmentCustomer->fulfilment;
-        $this->fulfilmentCustomer = $fulfilmentCustomer;
 
         return $this->handle($fulfilmentCustomer, $this->validateAttributes());
     }

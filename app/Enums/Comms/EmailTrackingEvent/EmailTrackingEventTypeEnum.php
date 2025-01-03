@@ -15,12 +15,12 @@ enum EmailTrackingEventTypeEnum: string
     use EnumHelperTrait;
 
     case SENT                 = 'sent';
-    case DECLINED_BY_PROVIDER = 'declined-by-provider';
+    case DECLINED_BY_PROVIDER = 'declined_by_provider';
     case DELIVERED            = 'delivered';
     case OPENED               = 'opened';
     case CLICKED              = 'clicked';
-    case SOFT_BOUNCE          = 'soft-bounce';
-    case HARD_BOUNCE          = 'hard-bounce';
-    case MARKED_AS_SPAM       = 'marked-as-spam';
+    case SOFT_BOUNCE          = 'soft_bounce';
+    case HARD_BOUNCE          = 'hard_bounce';
+    case MARKED_AS_SPAM       = 'marked_as_spam';
     case ERROR                = 'error';
 }

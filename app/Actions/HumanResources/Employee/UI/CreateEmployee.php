@@ -87,13 +87,13 @@ class CreateEmployee extends OrgAction
                                     'value' => ''
                                 ],
                                 'state'               => [
-                                    'label'    => __('state'),
-                                    'type'     => 'radio',
-                                    'mode'     => 'card',
+                                    'label'     => __('state'),
+                                    'type'      => 'radio',
+                                    'mode'      => 'card',
                                     'valueProp' => 'value',
-                                    'required' => true,
-                                    'value'    => EmployeeStateEnum::HIRED->value,
-                                    'options'  => [
+                                    'required'  => true,
+                                    'value'     => EmployeeStateEnum::HIRED->value,
+                                    'options'   => [
                                         [
                                             'title'       => __('Hired'),
                                             'description' => __('Will start in future date'),
@@ -129,10 +129,10 @@ class CreateEmployee extends OrgAction
                                     'required' => true,
                                     'label'    => __('position'),
                                     'options'  => [
-                                        'positions'           => JobPositionResource::collection($this->organisation->jobPositions),
-                                        'shops'               => ShopResource::collection($this->organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get()),
-                                        'fulfilments'         => ShopResource::collection($this->organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
-                                        'warehouses'          => WarehouseResource::collection($this->organisation->warehouses),
+                                        'positions'   => JobPositionResource::collection($this->organisation->jobPositions),
+                                        'shops'       => ShopResource::collection($this->organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get()),
+                                        'fulfilments' => ShopResource::collection($this->organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
+                                        'warehouses'  => WarehouseResource::collection($this->organisation->warehouses),
                                     ],
                                     'value'    => new \stdClass(),
                                     'full'     => true
@@ -189,7 +189,7 @@ class CreateEmployee extends OrgAction
     public function getBreadcrumbs($routeParameters): array
     {
         return array_merge(
-            IndexEmployees::make()->getBreadcrumbs($routeParameters),
+            IndexEmployees::make()->getBreadcrumbs('grp.org.hr.employees.index', $routeParameters),
             [
                 [
                     'type'          => 'creatingModel',

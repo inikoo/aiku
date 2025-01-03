@@ -8,10 +8,14 @@
 
 namespace App\Actions\UI\Retina\Billing\UI;
 
+use App\Actions\Retina\Billing\IndexUnpaidInvoices;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Http\Resources\Accounting\InvoicesResource;
 use App\Http\Resources\CRM\CustomersResource;
+use App\Http\Resources\Helpers\CurrencyResource;
+use App\Models\CRM\Customer;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -28,8 +32,63 @@ class ShowBillingDashboard
         return Inertia::render('Billing/RetinaBillingDashboard', [
             'title'    => __('Billing'),
             'pieData'  => $this->getDashboardData($request->user()->customer->fulfilmentCustomer),
-            'customer' => CustomersResource::make($request->user()->customer)->resolve()
+            'transactionsData' => $this->getTransactionsData($request->user()->customer),
+            'customer' => CustomersResource::make($request->user()->customer)->resolve(),
+            'unpaid_invoices' => InvoicesResource::collection(IndexUnpaidInvoices::run($request->user()->customer->fulfilmentCustomer))
         ]);
+    }
+
+    public function getTransactionsData(Customer $parent): array
+    {
+        $stats = [];
+
+        $stats['currency'] = [
+            'currency' => CurrencyResource::make($parent->fulfilmentCustomer->fulfilment->shop->currency)->resolve()
+        ];
+
+        $stats['transactions'] = [
+            'label' => __('Total Transactions'),
+            'count' => $parent->fulfilmentCustomer->transactions->count(),
+            'amount' => $parent->fulfilmentCustomer->transactions()->sum('net_amount')
+        ];
+
+        $stats['unpaid_bills'] = [
+            'label' => __('Unpaid Bills'),
+            'count' => $parent->fulfilmentCustomer->recurringBills()
+                                ->whereHas('invoices', function ($query) {
+                                    $query->whereNull('paid_at');
+                                })
+                                ->count(),
+            'amount' => $parent->fulfilmentCustomer->recurringBills()
+                                ->whereHas('invoices', function ($query) {
+                                    $query->whereNull('paid_at');
+                                })
+                                ->with('invoices') // Load the related invoices
+                                ->get()
+                                ->sum(function ($bill) {
+                                    return $bill->invoices->sum('total_amount');
+                                }),
+        ];
+
+        $stats['paid_bills'] = [
+            'label' => __('Paid Bills'),
+            'count' => $parent->fulfilmentCustomer->recurringBills()
+                            ->whereHas('invoices', function ($query) {
+                                $query->whereColumn('payment_amount', '>=', 'total_amount');
+                            })
+                            ->count(),
+            'amount' => $parent->fulfilmentCustomer->recurringBills()
+                    ->whereHas('invoices', function ($query) {
+                        $query->whereColumn('payment_amount', '>=', 'total_amount');
+                    })
+                    ->with('invoices') // Load the related invoices
+                    ->get()
+                    ->sum(function ($bill) {
+                        return $bill->invoices->sum('total_amount');
+                    }),
+        ];
+
+        return $stats;
     }
 
     public function getDashboardData(FulfilmentCustomer $parent): array

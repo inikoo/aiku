@@ -56,7 +56,7 @@ use Spatie\Tags\Tag;
  * @property string|null $identity_document_number
  * @property string|null $contact_website
  * @property int|null $address_id
- * @property array $location
+ * @property array<array-key, mixed> $location
  * @property bool $is_valid_email
  * @property ProspectStateEnum $state
  * @property ProspectContactedStateEnum $contacted_state
@@ -66,7 +66,7 @@ use Spatie\Tags\Tag;
  * @property bool $can_contact_by_email
  * @property bool $can_contact_by_phone
  * @property bool $can_contact_by_address
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property string|null $contacted_at
  * @property \Illuminate\Support\Carbon|null $last_contacted_at
  * @property \Illuminate\Support\Carbon|null $last_opened_at
@@ -216,7 +216,7 @@ class Prospect extends Model implements Auditable
             })
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(64);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function subscriptionEvents(): MorphMany

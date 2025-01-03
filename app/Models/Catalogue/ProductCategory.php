@@ -10,9 +10,10 @@ namespace App\Models\Catalogue;
 
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
+use App\Models\CRM\BackInStockReminder;
 use App\Models\CRM\Favourite;
+use App\Models\Goods\MasterProductCategory;
 use App\Models\Helpers\UniversalSearch;
-use App\Models\Reminder\BackInStockReminder;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
@@ -45,6 +46,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $group_id
  * @property int $organisation_id
  * @property int|null $shop_id
+ * @property int|null $master_product_category_id
  * @property int|null $department_id
  * @property int|null $sub_department_id
  * @property int|null $parent_id
@@ -53,7 +55,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $name
  * @property string|null $description
  * @property int|null $image_id
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $activated_at
  * @property \Illuminate\Support\Carbon|null $discontinuing_at
  * @property \Illuminate\Support\Carbon|null $discontinued_at
@@ -76,6 +78,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
+ * @property-read MasterProductCategory|null $masterProductCategory
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read \App\Models\Catalogue\ProductCategoryOrderingIntervals|null $orderingIntervals
  * @property-read \App\Models\Catalogue\ProductCategoryOrderingStats|null $orderingStats
@@ -88,6 +91,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, BackInStockReminder> $subDepartmentBackInStockReminders
  * @property-read LaravelCollection<int, Favourite> $subDepartmentFavourites
  * @property-read LaravelCollection<int, ProductCategory> $subDepartments
+ * @property-read LaravelCollection<int, \App\Models\Catalogue\ProductCategoryTimeSeries> $timeSeries
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Webpage|null $webpage
  * @method static \Database\Factories\Catalogue\ProductCategoryFactory factory($count = null, $state = [])
@@ -152,7 +156,7 @@ class ProductCategory extends Model implements Auditable, HasMedia
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(64);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function stats(): HasOne
@@ -173,6 +177,11 @@ class ProductCategory extends Model implements Auditable, HasMedia
     public function orderingStats(): HasOne
     {
         return $this->hasOne(ProductCategoryOrderingStats::class);
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(ProductCategoryTimeSeries::class);
     }
 
     public function department(): BelongsTo
@@ -253,4 +262,10 @@ class ProductCategory extends Model implements Auditable, HasMedia
     {
         return $this->hasMany(BackInStockReminder::class, 'sub_department_id');
     }
+
+    public function masterProductCategory(): BelongsTo
+    {
+        return $this->belongsTo(MasterProductCategory::class, );
+    }
+
 }

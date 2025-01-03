@@ -34,6 +34,9 @@ class LocationsResource extends JsonResource
             'has_stock_slots'        => $location->has_stock_slots,
             'has_fulfilment'         => $location->has_fulfilment,
             'has_dropshipping_slots' => $location->has_dropshipping_slots,
+            'organisation_slug'      => $location->organisation_slug,
+            'organisation_name'      => $location->organisation_name,
+            'warehouse_slug'          => $location->warehouse_slug,
 
             'quantity' => $this->whenPivotLoaded(new LocationOrgStock(), function () {
                 return $this->pivot->quantity;

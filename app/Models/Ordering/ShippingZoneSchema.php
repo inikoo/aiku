@@ -99,7 +99,7 @@ class ShippingZoneSchema extends Model implements Auditable
             })
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(6);
+            ->slugsShouldBeNoLongerThan(64);
     }
 
     public function getRouteKeyName(): string

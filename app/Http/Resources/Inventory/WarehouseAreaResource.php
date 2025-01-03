@@ -29,6 +29,8 @@ class WarehouseAreaResource extends JsonResource
             'number_locations' => $this->number_locations,
 
             'warehouse_slug' => $this->warehouse_slug,
+            'organisation_slug' => $this->organisation_slug,
+            'organisation_name' => $this->organisation_name,
         ];
     }
 }

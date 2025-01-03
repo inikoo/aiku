@@ -9,7 +9,7 @@
 namespace App\Models\Inventory;
 
 use App\Enums\Inventory\OrgStockFamily\OrgStockFamilyStateEnum;
-use App\Models\SupplyChain\StockFamily;
+use App\Models\Goods\StockFamily;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
@@ -33,7 +33,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property string|null $name
  * @property OrgStockFamilyStateEnum $state
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $activated_in_organisation_at
@@ -47,6 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read \App\Models\Inventory\OrgStockFamilyStats|null $stats
  * @property-read StockFamily|null $stockFamily
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\OrgStockFamilyTimeSeries> $timeSeries
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStockFamily newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStockFamily newQuery()
@@ -86,7 +87,7 @@ class OrgStockFamily extends Model
             ->generateSlugsFrom(function () {
                 return $this->code. ' '.$this->organisation->code;
             })
-            ->slugsShouldBeNoLongerThan(32)
+            ->slugsShouldBeNoLongerThan(128)
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');
     }
@@ -111,5 +112,9 @@ class OrgStockFamily extends Model
         return $this->belongsTo(StockFamily::class);
     }
 
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(OrgStockFamilyTimeSeries::class);
+    }
 
 }

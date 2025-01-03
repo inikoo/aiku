@@ -11,7 +11,6 @@ namespace App\Actions\Fulfilment\FulfilmentCustomer;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateCustomers;
 use App\Actions\Fulfilment\FulfilmentCustomer\Search\FulfilmentCustomerRecordSearch;
 use App\Actions\OrgAction;
-use App\Actions\Utils\Abbreviate;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
@@ -43,7 +42,7 @@ class StoreFulfilmentCustomerFromCustomer extends OrgAction
             [
                 'model'           => SerialReferenceModelEnum::PALLET_DELIVERY,
                 'organisation_id' => $fulfilmentCustomer->organisation->id,
-                'format'          => Abbreviate::run($fulfilmentCustomer->slug).'-%03d'
+                'format'          => $fulfilmentCustomer->slug.'-%03d'
             ]
         );
 
@@ -51,7 +50,7 @@ class StoreFulfilmentCustomerFromCustomer extends OrgAction
             [
                 'model'           => SerialReferenceModelEnum::PALLET_RETURN,
                 'organisation_id' => $fulfilmentCustomer->organisation->id,
-                'format'          => Abbreviate::run($fulfilmentCustomer->slug).'-r%03d'
+                'format'          => $fulfilmentCustomer->slug.'-r%03d'
             ]
         );
 
@@ -60,7 +59,7 @@ class StoreFulfilmentCustomerFromCustomer extends OrgAction
             [
                 'model'           => SerialReferenceModelEnum::PALLET,
                 'organisation_id' => $fulfilmentCustomer->organisation->id,
-                'format'          => Abbreviate::run($fulfilmentCustomer->slug).'-p%04d'
+                'format'          => $fulfilmentCustomer->slug.'-p%04d'
             ]
         );
 
@@ -68,7 +67,7 @@ class StoreFulfilmentCustomerFromCustomer extends OrgAction
             [
                 'model'           => SerialReferenceModelEnum::RECURRING_BILL,
                 'organisation_id' => $fulfilmentCustomer->organisation->id,
-                'format'          => Abbreviate::run($fulfilmentCustomer->slug).'-b%03d'
+                'format'          => $fulfilmentCustomer->slug.'-b%03d'
             ]
         );
 
@@ -76,7 +75,7 @@ class StoreFulfilmentCustomerFromCustomer extends OrgAction
             [
                 'model'           => SerialReferenceModelEnum::STORED_ITEM_AUDIT,
                 'organisation_id' => $fulfilmentCustomer->organisation->id,
-                'format'          => Abbreviate::run($fulfilmentCustomer->slug).'-sia%03d'
+                'format'          => $fulfilmentCustomer->slug.'-sia%03d'
             ]
         );
 

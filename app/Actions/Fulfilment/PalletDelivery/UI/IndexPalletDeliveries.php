@@ -250,6 +250,8 @@ class IndexPalletDeliveries extends OrgAction
             ];
         } elseif ($this->parent instanceof Fulfilment) {
             $model = __('Operations');
+        } elseif ($this->parent instanceof Warehouse) {
+            $model = __('Goods in');
         }
 
         if ($this->parent instanceof  FulfilmentCustomer) {

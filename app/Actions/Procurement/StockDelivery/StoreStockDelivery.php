@@ -64,22 +64,27 @@ class StoreStockDelivery extends OrgAction
                 'sometimes',
                 'required',
                 $this->strict ? 'alpha_dash' : 'string',
-                $this->strict ? new IUnique(
-                    table: 'stock_deliveries',
-                    extraConditions: [
-                        ['column' => 'organisation_id', 'value' => $this->organisation->id],
-                    ]
-                ) : null,
             ],
-
-
         ];
+
+        if ($this->strict) {
+            $rules['reference'][] = new IUnique(
+                table: 'stock_deliveries',
+                extraConditions: [
+                    ['column' => 'organisation_id', 'value' => $this->organisation->id],
+                ]
+            );
+        }
+
 
         if (!$this->strict) {
             $rules = $this->noStrictStoreRules($rules);
             $rules = $this->noStrictProcurementOrderRules($rules);
             $rules = $this->noStrictStockDeliveryRules($rules);
         }
+
+
+
 
         return $rules;
     }

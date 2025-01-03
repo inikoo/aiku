@@ -10,10 +10,10 @@ namespace App\Actions\Goods\StockFamily\Hydrators;
 
 use App\Actions\Goods\StockFamily\UpdateStockFamily;
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\SupplyChain\Stock\StockStateEnum;
-use App\Enums\SupplyChain\StockFamily\StockFamilyStateEnum;
-use App\Models\SupplyChain\Stock;
-use App\Models\SupplyChain\StockFamily;
+use App\Enums\Goods\Stock\StockStateEnum;
+use App\Enums\Goods\StockFamily\StockFamilyStateEnum;
+use App\Models\Goods\Stock;
+use App\Models\Goods\StockFamily;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;

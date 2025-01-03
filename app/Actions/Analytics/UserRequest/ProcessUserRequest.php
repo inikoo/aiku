@@ -12,15 +12,17 @@ use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\GrpAction;
 use App\Actions\SysAdmin\User\StoreUserRequest;
 use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Actions\Utils\GetLocationFromIp;
+use App\Actions\Utils\GetOsFromUserAgent;
 use App\Models\Analytics\UserRequest;
 use App\Models\SysAdmin\User;
 use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Support\Carbon;
-use Stevebauman\Location\Facades\Location as FacadesLocation;
 
 class ProcessUserRequest extends GrpAction
 {
     use WithNoStrictRules;
+
 
     /**
      * @throws \Throwable
@@ -41,11 +43,11 @@ class ProcessUserRequest extends GrpAction
             'route_name'             => $routeData['name'],
             'route_params'           => json_encode($routeData['arguments']),
             'aiku_scoped_section_id' => $aiku_scoped_section_id,
-            'os'                     => $this->detectWindows11($parsedUserAgent),
+            'os'                     => GetOsFromUserAgent::run($parsedUserAgent),
             'device'                 => $parsedUserAgent->deviceType(),
             'browser'                => explode(' ', $parsedUserAgent->browserName())[0] ?: 'Unknown',
             'ip_address'             => $ip,
-            'location'               => json_encode($this->getLocation($ip))
+            'location'               => json_encode(GetLocationFromIp::run($ip)),
         ];
 
         return StoreUserRequest::make()->action(
@@ -54,31 +56,4 @@ class ProcessUserRequest extends GrpAction
             hydratorsDelay: 300
         );
     }
-
-    public function getLocation(string|null $ip): array
-    {
-        if ($position = FacadesLocation::get($ip)) {
-            return [
-                $position->countryCode,
-                $position->countryName,
-                $position->cityName
-            ];
-        }
-
-        return [];
-    }
-
-    public function detectWindows11($parsedUserAgent): string
-    {
-        if ($parsedUserAgent->isWindows()) {
-            if (str_contains($parsedUserAgent->userAgent(), 'Windows NT 10.0; Win64; x64')) {
-                return 'Windows 11';
-            }
-
-            return 'Windows 10';
-        }
-
-        return $parsedUserAgent->platformName() ?: 'Unknown';
-    }
-
 }

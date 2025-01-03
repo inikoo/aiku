@@ -14,6 +14,7 @@ use App\Actions\Inventory\WarehouseArea\Search\WarehouseAreaRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWarehouseAreas;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouseAreas;
+use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Rules\IUnique;
@@ -36,6 +37,9 @@ class StoreWarehouseArea extends OrgAction
             /** @var WarehouseArea $warehouseArea */
             $warehouseArea = $warehouse->warehouseAreas()->create($modelData);
             $warehouseArea->stats()->create();
+            foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
+                $warehouseArea->timeSeries()->create(['frequency' => $frequency]);
+            }
 
             return $warehouseArea;
         });

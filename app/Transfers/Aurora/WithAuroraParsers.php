@@ -33,6 +33,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraIngredients;
 use App\Actions\Transfers\Aurora\FetchAuroraInvoices;
 use App\Actions\Transfers\Aurora\FetchAuroraLocations;
 use App\Actions\Transfers\Aurora\FetchAuroraMailshots;
+use App\Actions\Transfers\Aurora\FetchAuroraMasterFamilies;
 use App\Actions\Transfers\Aurora\FetchAuroraOfferCampaigns;
 use App\Actions\Transfers\Aurora\FetchAuroraOfferComponents;
 use App\Actions\Transfers\Aurora\FetchAuroraOffers;
@@ -63,6 +64,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraWarehouses;
 use App\Actions\Transfers\Aurora\FetchAuroraWebpages;
 use App\Actions\Transfers\Aurora\FetchAuroraWebsites;
 use App\Actions\Transfers\Aurora\FetchAuroraWebUsers;
+use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Helpers\TaxNumber\TaxNumberStatusEnum;
 use App\Models\Accounting\Invoice;
@@ -94,6 +96,8 @@ use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dispatching\Shipper;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Goods\Ingredient;
+use App\Models\Goods\MasterProductCategory;
+use App\Models\Goods\Stock;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Country;
@@ -109,7 +113,6 @@ use App\Models\Inventory\Location;
 use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
-use App\Models\Production\Production;
 use App\Models\Ordering\Adjustment;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Purge;
@@ -121,9 +124,9 @@ use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\OrgSupplierProduct;
+use App\Models\Production\Production;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\HistoricSupplierProduct;
-use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\Web\Webpage;
@@ -289,7 +292,10 @@ trait WithAuroraParsers
         $addressData['dependent_locality']  = (string)Str::of($auAddressData->{$prefix.' Address Dependent Locality'} ?? null)->limit(187);
         $addressData['administrative_area'] = (string)Str::of($auAddressData->{$prefix.' Address Administrative Area'} ?? null)->limit(187);
         foreach ($addressData as $key => $value) {
-            $addressData[$key] = $this->sanitiseText($value);
+            if ($value) {
+                $value = $this->sanitiseText($value);
+            }
+            $addressData[$key] = $value;
         }
         $addressData['country_id'] = $this->parseCountryID($country, $prefix);
 
@@ -446,6 +452,17 @@ trait WithAuroraParsers
         }
 
         return $family;
+    }
+
+    public function parseMasterFamily(string $sourceId): ?MasterProductCategory
+    {
+        $masterFamily = MasterProductCategory::where('type', MasterProductCategoryTypeEnum::FAMILY)->where('source_family_id', $sourceId)->first();
+        if (!$masterFamily) {
+            $sourceData = explode(':', $sourceId);
+            $masterFamily     = FetchAuroraMasterFamilies::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $masterFamily;
     }
 
 

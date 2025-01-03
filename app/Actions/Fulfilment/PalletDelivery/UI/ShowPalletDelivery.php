@@ -511,7 +511,7 @@ class ShowPalletDelivery extends OrgAction
                 'data'       => PalletDeliveryResource::make($palletDelivery),
                 'box_stats'  => [
                     'fulfilment_customer' => FulfilmentCustomerResource::make($palletDelivery->fulfilmentCustomer)->getArray(),
-                    'delivery_status'     => PalletDeliveryStateEnum::stateIcon()[$palletDelivery->state->value],
+                    'delivery_state'     => PalletDeliveryStateEnum::stateIcon()[$palletDelivery->state->value],
                     'order_summary'       => [
                         [
                             // [

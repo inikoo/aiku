@@ -49,6 +49,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Inventory\Location> $locations
  * @property-read Organisation $organisation
  * @property-read \App\Models\Inventory\WarehouseAreaStats|null $stats
+ * @property-read Collection<int, \App\Models\Inventory\WarehouseAreaTimeSeries> $timeSeries
  * @property-read UniversalSearch|null $universalSearch
  * @property-read \App\Models\Inventory\Warehouse $warehouse
  * @method static \Database\Factories\Inventory\WarehouseAreaFactory factory($count = null, $state = [])
@@ -99,7 +100,7 @@ class WarehouseArea extends Model implements Auditable
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(32);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function locations(): HasMany
@@ -115,5 +116,10 @@ class WarehouseArea extends Model implements Auditable
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(WarehouseAreaTimeSeries::class);
     }
 }

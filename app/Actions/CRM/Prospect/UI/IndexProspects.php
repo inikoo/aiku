@@ -22,6 +22,7 @@ use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Prospect;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Helpers\Tag;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -33,7 +34,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\Tags\Tag;
 
 class IndexProspects extends OrgAction
 {
@@ -43,23 +43,30 @@ class IndexProspects extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->parent instanceof Group) {
+        if ($this->parent instanceof Shop) {
+            $this->canEdit = $request->user()->hasPermissionTo("crm.{$this->shop->id}.prospects.edit");
+
+            return $this->canEdit = $request->user()->hasPermissionTo("crm.{$this->shop->id}.prospects.view");
+        } elseif ($this->parent instanceof Fulfilment) {
+            $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+
+            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+        } elseif ($this->parent instanceof Group) {
             return $request->user()->hasPermissionTo("group-overview");
         }
-        $this->canEdit = $request->user()->hasPermissionTo("crm.{$this->shop->id}.prospects.edit");
 
-        return  $request->user()->hasPermissionTo("crm.{$this->shop->id}.prospects.view");
-
+        return false;
     }
 
 
     public function inGroup(ActionRequest $request): LengthAwarePaginator
     {
-        $this->tab = ProspectsTabsEnum::PROSPECTS->value;
+        $this->tab    = ProspectsTabsEnum::PROSPECTS->value;
         $this->parent = group();
-        $tabs = ProspectsTabsEnum::values();
+        $tabs         = ProspectsTabsEnum::values();
         unset($tabs[array_search(ProspectsTabsEnum::DASHBOARD->value, $tabs)]);
         $this->initialisationFromGroup(group(), $request)->withTab($tabs);
+
         return $this->handle(parent: $this->parent, prefix: ProspectsTabsEnum::PROSPECTS->value);
     }
 
@@ -98,7 +105,7 @@ class IndexProspects extends OrgAction
             ];
     }
 
-    public function handle(Group|Organisation|Shop $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Organisation|Shop|Fulfilment|Tag $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -115,7 +122,7 @@ class IndexProspects extends OrgAction
 
         $queryBuilder = QueryBuilder::for(Prospect::class);
 
-        if (!($parent instanceof Group)) {
+        if ($parent instanceof Organisation or $parent instanceof Shop) {
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                 $queryBuilder->whereElementGroup(
                     key: $key,
@@ -128,8 +135,16 @@ class IndexProspects extends OrgAction
 
         if ($parent instanceof Shop) {
             $queryBuilder->where('prospects.shop_id', $parent->id);
+        } elseif ($parent instanceof Fulfilment) {
+            $queryBuilder->where('prospects.shop_id', $parent->shop_id);
+        } elseif ($parent instanceof Organisation) {
+            $queryBuilder->where('prospects.organisation_id', $parent->id);
         } elseif ($parent instanceof Group) {
             $queryBuilder->where('prospects.group_id', $parent->id);
+        } elseif ($parent instanceof Tag) {
+            $queryBuilder->leftJoin('taggables', 'taggables.tag_id', '=', 'tags.id')
+                 ->where('taggables.taggable_id', $parent->id)
+                 ->where('taggables.taggable_type', 'Prospect');
         }
 
         return $queryBuilder
@@ -140,7 +155,7 @@ class IndexProspects extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Group|Organisation|Shop|Tag $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Group|Organisation|Shop|Fulfilment|Tag $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {
@@ -192,13 +207,13 @@ class IndexProspects extends OrgAction
     public function htmlResponse(LengthAwarePaginator $prospects, ActionRequest $request): Response
     {
         $subNavigation = $this->getSubNavigation($request);
-        $dataProspect = [
+        $dataProspect  = [
             'data' => $this->tab == ProspectsTabsEnum::PROSPECTS->value
                 ? ProspectsResource::collection($prospects)
                 : Inertia::lazy(fn () => ProspectsResource::collection($prospects)),
 
             'tagRoute' => [
-                'store' => [
+                'store'  => [
                     'name'       => 'grp.models.prospect.tag.store',
                     'parameters' => [],
                 ],
@@ -213,25 +228,25 @@ class IndexProspects extends OrgAction
 
         $tabs = [
             'tabs' => [
-                    'current'    => $this->tab,
-                    'navigation' => ProspectsTabsEnum::navigation(),
-                ],
+                'current'    => $this->tab,
+                'navigation' => ProspectsTabsEnum::navigation(),
+            ],
 
-                ProspectsTabsEnum::DASHBOARD->value => $this->tab == ProspectsTabsEnum::DASHBOARD->value ?
-                    fn () => GetProspectsDashboard::run($this->parent, $request)
-                    : Inertia::lazy(fn () => GetProspectsDashboard::run($this->parent, $request)),
-                ProspectsTabsEnum::PROSPECTS->value => $this->tab == ProspectsTabsEnum::PROSPECTS->value ?
-                    fn () => $dataProspect
-                    : Inertia::lazy(fn () => $dataProspect),
-                ProspectsTabsEnum::HISTORY->value   => $this->tab == ProspectsTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistory::run(model: Prospect::class, prefix: ProspectsTabsEnum::HISTORY->value))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run(model: Prospect::class, prefix: ProspectsTabsEnum::HISTORY->value))),
-            ];
+            ProspectsTabsEnum::DASHBOARD->value => $this->tab == ProspectsTabsEnum::DASHBOARD->value ?
+                fn () => GetProspectsDashboard::run($this->parent, $request)
+                : Inertia::lazy(fn () => GetProspectsDashboard::run($this->parent, $request)),
+            ProspectsTabsEnum::PROSPECTS->value => $this->tab == ProspectsTabsEnum::PROSPECTS->value ?
+                fn () => $dataProspect
+                : Inertia::lazy(fn () => $dataProspect),
+            ProspectsTabsEnum::HISTORY->value   => $this->tab == ProspectsTabsEnum::HISTORY->value ?
+                fn () => HistoryResource::collection(IndexHistory::run(model: Prospect::class, prefix: ProspectsTabsEnum::HISTORY->value))
+                : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run(model: Prospect::class, prefix: ProspectsTabsEnum::HISTORY->value))),
+        ];
 
         if ($this->parent instanceof Group) {
             $subNavigation = null;
-            $tabs = [
-                'tabs' => [
+            $tabs          = [
+                'tabs'                              => [
                     'current'    => $this->tab,
                     'navigation' => Arr::except(ProspectsTabsEnum::navigation(), [ProspectsTabsEnum::DASHBOARD->value]),
                 ],
@@ -240,7 +255,6 @@ class IndexProspects extends OrgAction
                     : Inertia::lazy(fn () => $dataProspect),
             ];
         }
-
 
 
         return Inertia::render(
@@ -252,9 +266,9 @@ class IndexProspects extends OrgAction
                 ),
                 'title'        => __('prospects'),
                 'pageHead'     => array_filter([
-                    'icon'    => ['fal', 'fa-user-plus'],
-                    'title'   => __('prospects'),
-                    'actions' => [
+                    'icon'          => ['fal', 'fa-user-plus'],
+                    'title'         => __('prospects'),
+                    'actions'       => [
                         $this->canEdit ? [
                             'type'    => 'buttonGroup',
                             'buttons' =>
@@ -286,7 +300,7 @@ class IndexProspects extends OrgAction
 
                         ] : false
                     ],
-                    'subNavigation'    => $subNavigation,
+                    'subNavigation' => $subNavigation,
                 ]),
                 'uploads'      => [
                     'templates' => [
@@ -298,7 +312,7 @@ class IndexProspects extends OrgAction
                     'channel'   => 'uploads.org.'.request()->user()->id
                 ],
                 'uploadRoutes' => [
-                    'upload' => [
+                    'upload'  => [
                         'name'       => 'org.models.shop.prospects.upload',
                         'parameters' => $this->parent->id
                     ],

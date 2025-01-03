@@ -6,8 +6,8 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Enums\SupplyChain\Stock\StockStateEnum;
-use App\Enums\SupplyChain\Stock\StockTradeUnitCompositionEnum;
+use App\Enums\Goods\Stock\StockStateEnum;
+use App\Enums\Goods\Stock\StockTradeUnitCompositionEnum;
 use App\Stubs\Migrations\HasAssetCodeDescription;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

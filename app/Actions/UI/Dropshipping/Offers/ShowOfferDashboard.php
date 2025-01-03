@@ -45,11 +45,12 @@ class ShowOfferDashboard extends OrgAction
                         'icon'  => ['fal', 'fa-badge-percent'],
                         'title' => __('offer')
                     ],
+                    'model'     => __('Offers'),
                     'iconRight' => [
                         'icon'  => ['fal', 'fa-chart-network'],
                         'title' => __('offer')
                     ],
-                    'title' => __('offers dashboard'),
+                    'title' => __('dashboard'),
                 ],
                 'tabs' => [
                     'current'    => $this->tab,
@@ -57,14 +58,22 @@ class ShowOfferDashboard extends OrgAction
                 ],
                 'stats'     => [
                     [
-                        'label'     => __('Campaigns'),
-                        'count'     => $this->shop->discountsStats->number_current_offer_campaigns,
-                        'icon'      => 'fal fa-comment-dollar'
+                        'name'     => __('Campaigns'),
+                        'value'     => $this->shop->discountsStats->number_current_offer_campaigns,
+                        'icon'      => 'fal fa-comment-dollar',
+                        'route'     => [
+                            'name'       => 'grp.org.shops.show.discounts.campaigns.index',
+                            'parameters' => $request->route()->originalParameters()
+                        ]
                     ],
                     [
-                        'label'     => __('Offers'),
-                        'count'     => $this->shop->discountsStats->number_offers,
-                        'icon'      => 'fal fa-badge-percent'
+                        'name'     => __('Offers'),
+                        'value'     => $this->shop->discountsStats->number_offers,
+                        'icon'      => 'fal fa-badge-percent',
+                        'route'     => [
+                            'name'       => 'grp.org.shops.show.discounts.offers.index',
+                            'parameters' => $request->route()->originalParameters()
+                        ]
                     ],
                 ]
 

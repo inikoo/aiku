@@ -21,33 +21,38 @@ class FetchAuroraOrderDispatchedEmails extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): null
     {
         $orderDispatchedEmailData = $organisationSource->fetchOrderDispatchedEmail($organisationSourceId);
-        if ($orderDispatchedEmailData) {
-            if (!$orderDispatchedEmailData['dispatchedEmail']) {
-                return null;
-            }
-
-            if (ModelHasDispatchedEmail::where('source_id', $orderDispatchedEmailData['modelHasDispatchedEmail']['source_id'])->first()) {
-                $orderDispatchedEmailData['order']->dispatchedEmails()->updateExistingPivot(
-                    $orderDispatchedEmailData['dispatchedEmail']->id,
-                    [
-                        'last_fetched_at' => $orderDispatchedEmailData['modelHasDispatchedEmail']['last_fetched_at'],
-                    ]
-                );
-            } else {
-                $orderDispatchedEmailData['order']->dispatchedEmails()->attach(
-                    [
-                        $orderDispatchedEmailData['dispatchedEmail']->id => [
-                            'source_id'       => $orderDispatchedEmailData['modelHasDispatchedEmail']['source_id'],
-                            'fetched_at'      => $orderDispatchedEmailData['modelHasDispatchedEmail']['fetched_at'],
-                            'outbox_id'       => $orderDispatchedEmailData['outbox']->id
-                        ]
-                    ]
-                );
-            }
-
+        if (!$orderDispatchedEmailData) {
+            //print "error no dispatched email data $organisationSourceId\n";
 
             return null;
         }
+
+
+        if (!$orderDispatchedEmailData['dispatchedEmail']) {
+            //print "error no dispatched email (*) $organisationSourceId\n";
+
+            return null;
+        }
+
+        if (ModelHasDispatchedEmail::where('source_id', $orderDispatchedEmailData['modelHasDispatchedEmail']['source_id'])->first()) {
+            $orderDispatchedEmailData['order']->dispatchedEmails()->updateExistingPivot(
+                $orderDispatchedEmailData['dispatchedEmail']->id,
+                [
+                    'last_fetched_at' => $orderDispatchedEmailData['modelHasDispatchedEmail']['last_fetched_at'],
+                ]
+            );
+        } else {
+            $orderDispatchedEmailData['order']->dispatchedEmails()->attach(
+                [
+                    $orderDispatchedEmailData['dispatchedEmail']->id => [
+                        'source_id' => $orderDispatchedEmailData['modelHasDispatchedEmail']['source_id'],
+                        'fetched_at' => $orderDispatchedEmailData['modelHasDispatchedEmail']['fetched_at'],
+                        'outbox_id' => $orderDispatchedEmailData['outbox']->id
+                    ]
+                ]
+            );
+        }
+
 
         return null;
     }

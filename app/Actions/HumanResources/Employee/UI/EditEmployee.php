@@ -216,11 +216,11 @@ class EditEmployee extends OrgAction
         ];
 
         $sections['pin'] = [
-            'label'  => __('Pin'),
-            'icon'   => 'fal fa-key',
+            'label'  => __('Clocking PIN'),
+            'icon'   => 'fal fa-chess-clock',
             'fields' => [
                 'pin' => [
-                    'type'  => 'input',
+                    'type'  => 'pin',
                     'label' => __('pin'),
                     'value' => $employee->pin
                 ],
@@ -253,9 +253,9 @@ class EditEmployee extends OrgAction
                 ),
                 'pageHead'    => [
                     'title'   => $employee->contact_name,
+                    'model'   => __('Edit Employee'),
                     'subNavigation' => $this->getEmployeeSubNavigation($employee, $request),
-
-
+                    'icon'    => 'fal fa-user-hard-hat',
                     'actions' => [
                         [
                             'type'  => 'button',

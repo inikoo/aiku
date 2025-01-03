@@ -87,6 +87,8 @@ interface SourceOrganisationService
 
     public function fetchProductHasOrgStock($id);
 
+    public function fetchMasterAssetHasStock($id);
+
     public function fetchStock($id);
 
     public function fetchStockFamily($id);
@@ -196,5 +198,12 @@ interface SourceOrganisationService
     public function fetchEmailBulkRun($id);
 
     public function fetchSubscriptionEvent($id);
+
+    public function fetchMasterDepartment($id);
+
+    public function fetchMasterFamily($id);
+
+    public function fetchMasterAsset($id);
+
 
 }

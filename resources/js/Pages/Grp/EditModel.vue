@@ -200,7 +200,7 @@ function connectToPlatform(routeName, parameters) {
                         <div v-show="sectionIdx == currentTab" class="pt-4" >
                             <div class="sr-only absolute -top-16" :id="`field${sectionIdx}`"/>
                             <!-- Title -->
-                            <div class="flex items-center gap-x-2" ref="_buttonRefs">
+                            <div v-if="sectionData.title || sectionData.subtitle" class="mb-4 flex items-center gap-x-2" ref="_buttonRefs">
                                 <h3 v-if="sectionData.title" class="text-lg leading-6 font-medium text-gray-700 capitalize">
                                     {{ sectionData.title }}
                                 </h3>
@@ -210,7 +210,7 @@ function connectToPlatform(routeName, parameters) {
                             </div>
 
                             <!-- Looping Field -->
-                            <div class="my-2 pt-4 space-y-5 transition-all duration-1000 ease-in-out" :class="fieldGroupAnimateSection">
+                            <div class="my-2 space-y-5 transition-all duration-1000 ease-in-out" :class="fieldGroupAnimateSection">
                                 <template v-for="(fieldData, fieldName, index) in sectionData.fields" :key="index">
                                     <!-- Field: is not hidden = true -->
                                     <div v-if="!fieldData?.hidden" class="py-2 mt-1 flex text-sm text-gray-700 sm:mt-0">

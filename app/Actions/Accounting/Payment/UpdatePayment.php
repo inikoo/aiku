@@ -43,7 +43,7 @@ class UpdatePayment extends OrgAction
             'reference'    => ['sometimes', 'nullable', 'max:255', 'string'],
             'amount'       => ['sometimes', 'decimal:0,2'],
             'org_amount'   => ['sometimes', 'numeric'],
-            'group_amount' => ['sometimes', 'numeric'],
+            'grp_amount' => ['sometimes', 'numeric'],
         ];
 
         if (!$this->strict) {

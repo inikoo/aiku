@@ -51,23 +51,28 @@ class UpdatePurchaseOrder extends OrgAction
                 'sometimes',
                 'required',
                 $this->strict ? 'alpha_dash' : 'string',
-                $this->strict ? new IUnique(
-                    table: 'purchase_orders',
-                    extraConditions: [
-                        [
-                            'column' => 'organisation_id',
-                            'value'  => $this->organisation->id,
-                        ],
-                        [
-                            'column'   => 'id',
-                            'operator' => '!=',
-                            'value'    => $this->purchaseOrder->id
-                        ]
-                    ]
-                ) : null,
             ],
             'notes' => ['sometimes', 'string']
         ];
+
+        if ($this->strict) {
+            $rules['reference'][] = new IUnique(
+                table: 'purchase_orders',
+                extraConditions: [
+                    [
+                        'column' => 'organisation_id',
+                        'value'  => $this->organisation->id,
+                    ],
+                    [
+                        'column'   => 'id',
+                        'operator' => '!=',
+                        'value'    => $this->purchaseOrder->id
+                    ]
+                ]
+            );
+        }
+
+
 
         if (!$this->strict) {
             $rules = $this->noStrictUpdateRules($rules);

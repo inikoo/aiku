@@ -28,13 +28,16 @@ Route::middleware(["auth"])->group(function () {
             echo "<td><h4>Name</h4></td>";
             echo "<td><h4>Corresponding Action</h4></td>";
             echo "</tr>";
+            $i = 0;
             foreach ($routeCollection as $value) {
-                echo "<tr>";
+                $background = $i % 2 == 0 ? 'background-color: #EEEEEE;' : '';
+                echo "<tr style='$background'>";
                 echo "<td>".$value->methods()[0]."</td>";
                 echo "<td>".$value->uri()."</td>";
                 echo "<td>".$value->getName()."</td>";
                 echo "<td>".preg_replace('/([^\\\\]+)$/', '<span style="background: #c790ff; padding: 0px 2px">$1</span>', $value->getActionName())."</td>";
                 echo "</tr>";
+                $i++;
             }
             echo "</table>";
         });

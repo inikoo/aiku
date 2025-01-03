@@ -23,8 +23,8 @@ enum DispatchedEmailStateEnum: string
     case SENT = 'sent';
 
     case DELIVERED = 'delivered';
-    case HARD_BOUNCE = 'hard-bounce';
-    case SOFT_BOUNCE = 'soft-bounce';
+    case HARD_BOUNCE = 'hard_bounce';
+    case SOFT_BOUNCE = 'soft_bounce';
     case OPENED = 'opened';
 
     case CLICKED = 'clicked';
@@ -41,8 +41,8 @@ enum DispatchedEmailStateEnum: string
             'rejected_by_provider' => __('Rejected'),
             'sent'                 => __('Sent'),
             'delivered'            => __('Delivered'),
-            'hard-bounce'          => __('Hard bounce'),
-            'soft-bounce'          => __('Soft bounce'),
+            'hard_bounce'          => __('Hard bounce'),
+            'soft_bounce'          => __('Soft bounce'),
             'opened'               => __('Opened'),
             'clicked'              => __('Clicked'),
             'spam'                 => __('Spam'),
@@ -97,7 +97,7 @@ enum DispatchedEmailStateEnum: string
                 'icon'    => 'fal fa-inbox-in',
 
             ],
-            'hard-bounce'          => [
+            'hard_bounce'          => [
 
                 'tooltip' => __('hand bounce'),
                 'icon'    => 'fal fa-exclamation-triangle',
@@ -105,7 +105,7 @@ enum DispatchedEmailStateEnum: string
 
             ],
 
-            'soft-bounce' => [
+            'soft_bounce' => [
 
                 'tooltip' => __('soft bounce'),
                 'icon'    => 'fal fa-square',

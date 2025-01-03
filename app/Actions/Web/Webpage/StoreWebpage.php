@@ -16,6 +16,7 @@ use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateChildWebpages;
 use App\Actions\Web\Webpage\Search\WebpageRecordSearch;
 use App\Actions\Web\Website\Hydrators\WebsiteHydrateWebpages;
+use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
@@ -60,6 +61,9 @@ class StoreWebpage extends OrgAction
             /** @var Webpage $webpage */
             $webpage = $parent->webpages()->create($modelData);
             $webpage->stats()->create();
+            foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
+                $webpage->timeSeries()->create(['frequency' => $frequency]);
+            }
             $webpage->refresh();
 
             $snapshot = StoreWebpageSnapshot::run(
@@ -79,7 +83,6 @@ class StoreWebpage extends OrgAction
 
             return $webpage;
         });
-
 
         WebpageRecordSearch::dispatch($webpage);
         GroupHydrateWebpages::dispatch($webpage->group)->delay($this->hydratorsDelay);

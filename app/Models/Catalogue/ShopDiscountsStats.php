@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_delivery_notes
  * @property string $amount
  * @property string $org_amount
- * @property string $group_amount
+ * @property string $grp_amount
  * @property int $number_offer_campaigns
  * @property int $number_current_offer_campaigns
  * @property int $number_offer_campaigns_state_in_process

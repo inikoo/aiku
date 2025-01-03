@@ -27,7 +27,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property JobOrderItemStateEnum $state
  * @property string|null $notes
  * @property int $quantity
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -86,7 +86,8 @@ class JobOrderItem extends Model
             ->generateSlugsFrom('reference')
             ->doNotGenerateSlugsOnUpdate()
             ->doNotGenerateSlugsOnCreate()
-            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(64);
+            ->saveSlugsTo('slug')
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function organisation(): BelongsTo

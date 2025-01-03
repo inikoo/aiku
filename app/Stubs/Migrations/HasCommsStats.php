@@ -47,7 +47,7 @@ trait HasCommsStats
 
     public function mailshotsStats(Blueprint $table): Blueprint
     {
-        $table->unsignedSmallInteger('number_mailshots')->default(0);
+        $table->unsignedInteger('number_mailshots')->default(0);
 
         foreach (MailshotStateEnum::cases() as $state) {
             $table->unsignedInteger('number_mailshots_state_'.$state->snake())->default(0);
@@ -62,7 +62,7 @@ trait HasCommsStats
 
     public function bulkRunsStats(Blueprint $table): Blueprint
     {
-        $table->unsignedSmallInteger('number_bulk_runs')->default(0);
+        $table->unsignedInteger('number_bulk_runs')->default(0);
 
         foreach (EmailBulkRunStateEnum::cases() as $state) {
             $table->unsignedInteger('number_bulk_runs_state_'.$state->snake())->default(0);

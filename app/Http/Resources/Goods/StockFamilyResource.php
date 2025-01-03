@@ -8,7 +8,7 @@
 
 namespace App\Http\Resources\Goods;
 
-use App\Models\SupplyChain\StockFamily;
+use App\Models\Goods\StockFamily;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class StockFamilyResource extends JsonResource

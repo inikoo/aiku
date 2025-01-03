@@ -33,10 +33,10 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
  * @property string $disk
  * @property string|null $conversions_disk
  * @property int $size
- * @property array $manipulations
- * @property array $custom_properties
- * @property array $generated_conversions
- * @property array $responsive_images
+ * @property array<array-key, mixed> $manipulations
+ * @property array<array-key, mixed> $custom_properties
+ * @property array<array-key, mixed> $generated_conversions
+ * @property array<array-key, mixed> $responsive_images
  * @property int $multiplicity
  * @property int $usage
  * @property bool $is_animated

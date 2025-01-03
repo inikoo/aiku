@@ -10,9 +10,9 @@ namespace App\Models\Inventory;
 
 use App\Enums\Inventory\OrgStock\OrgStockQuantityStatusEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
+use App\Models\Goods\Stock;
 use App\Models\Goods\TradeUnit;
 use App\Models\Procurement\OrgSupplierProduct;
-use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
@@ -52,7 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $quantity_in_locations stock quantity in units
  * @property string $value_in_locations
  * @property float|null $available_forecast days
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $activated_in_organisation_at
@@ -72,6 +72,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read \App\Models\Inventory\OrgStockStats|null $stats
  * @property-read Stock|null $stock
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\OrgStockTimeSeries> $timeSeries
  * @property-read \Illuminate\Database\Eloquent\Collection<int, TradeUnit> $tradeUnits
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Inventory\OrgStockFactory factory($count = null, $state = [])
@@ -198,6 +199,11 @@ class OrgStock extends Model implements Auditable
         )
             ->withPivot(['quantity', 'notes'])
             ->withTimestamps();
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(OrgStockTimeSeries::class);
     }
 
 }

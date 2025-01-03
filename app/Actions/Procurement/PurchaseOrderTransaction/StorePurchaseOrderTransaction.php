@@ -13,7 +13,7 @@ use App\Actions\Procurement\PurchaseOrder\CalculatePurchaseOrderTotalAmounts;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithStoreProcurementOrderItem;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
-use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStatusEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStateEnum;
 use App\Models\Inventory\OrgStock;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderTransaction;
@@ -46,7 +46,7 @@ class StorePurchaseOrderTransaction extends OrgAction
 
         if (!$this->strict) {
             $rules['state']           = ['sometimes', 'required', Rule::enum(PurchaseOrderTransactionStateEnum::class)];
-            $rules['delivery_status'] = ['sometimes', 'required', Rule::enum(PurchaseOrderTransactionDeliveryStatusEnum::class)];
+            $rules['delivery_state'] = ['sometimes', 'required', Rule::enum(PurchaseOrderTransactionDeliveryStateEnum::class)];
             $rules['submitted_at']    = ['sometimes', 'required', 'date'];
             $rules['net_amount']      = ['sometimes', 'numeric'];
             $rules['org_exchange']    = ['sometimes', 'numeric'];

@@ -107,7 +107,7 @@ class StoreDeliveryNote extends OrgAction
                     ]
                 ),
             ],
-            'email'           => ['sometimes', 'nullable', 'email'],
+            'email'           => ['sometimes', 'nullable', $this->strict ? 'email' : 'string'],
             'phone'           => ['sometimes', 'nullable', 'string'],
             'date'            => ['required', 'date'],
             'warehouse_id'    => [
@@ -119,7 +119,7 @@ class StoreDeliveryNote extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['stats']  = [
+            $rules['stats'] = [
                 'sometimes',
                 'required',
                 new Enum(DeliveryNoteStateEnum::class)

@@ -136,8 +136,8 @@ class ShowFulfilmentCustomer extends OrgAction
                     'icon'          => [
                         'title' => __('customer'),
                         'icon'  => 'fal fa-user',
-
                     ],
+                    'model'        => __('customer'),
                     'subNavigation' => $this->getFulfilmentCustomerSubNavigation($fulfilmentCustomer, $request),
                     'title'         => $fulfilmentCustomer->customer->name,
                     'afterTitle'    => [
@@ -154,7 +154,6 @@ class ShowFulfilmentCustomer extends OrgAction
                             'type'    => 'button',
                             'style'   => 'edit',
                             'tooltip' => __('Edit Customer'),
-                            // 'label'   => __('Edit Customer'),
                             'route'   => [
                                 'name'       => 'grp.org.fulfilments.show.crm.customers.show.edit',
                                 'parameters' => array_values($request->route()->originalParameters())

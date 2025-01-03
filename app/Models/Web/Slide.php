@@ -22,7 +22,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property string|null $ulid
  * @property int $snapshot_id
  * @property bool $visibility
- * @property array|null $layout
+ * @property array<array-key, mixed>|null $layout
  * @property int|null $image_id
  * @property int|null $mobile_image_id
  * @property int|null $tablet_image_id

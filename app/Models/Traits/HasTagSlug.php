@@ -23,7 +23,7 @@ trait HasTagSlug
             ->doNotGenerateSlugsOnUpdate()
             ->doNotGenerateSlugsOnCreate()
             ->saveSlugsTo('tag_slug')
-            ->slugsShouldBeNoLongerThan(16);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
 

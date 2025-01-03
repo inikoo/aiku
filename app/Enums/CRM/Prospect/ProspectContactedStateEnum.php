@@ -16,19 +16,18 @@ enum ProspectContactedStateEnum: string
 {
     use EnumHelperTrait;
 
-    case NA = 'no-applicable';
-
-    case SOFT_BOUNCED = 'soft-bounced';
-    case NEVER_OPEN   = 'never-open';
+    case NA = 'no_applicable';
+    case SOFT_BOUNCED = 'soft_bounced';
+    case NEVER_OPEN   = 'never_open';
     case OPEN         = 'open';
     case CLICKED      = 'clicked';
 
     public static function labels(): array
     {
         return [
-            'no-applicable' => __('NA'),
-            'soft-bounced'  => __('Bounced'),
-            'never-open'    => __('Never open'),
+            'no_applicable' => __('NA'),
+            'soft_bounced'  => __('Bounced'),
+            'never_open'    => __('Never open'),
             'open'          => __('Open'),
             'clicked'       => __('Clicked'),
         ];
@@ -37,20 +36,20 @@ enum ProspectContactedStateEnum: string
     public static function stateIcon(): array
     {
         return [
-            'no-applicable' => [
+            'no_applicable' => [
                 'tooltip' => __('NA'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-indigo-500'
 
 
             ],
-            'soft-bounced'  => [
+            'soft_bounced'  => [
 
                 'tooltip' => __('Bounced'),
                 'icon'    => 'fal fa-dungeon',
 
             ],
-            'never-open'    => [
+            'never_open'    => [
 
                 'tooltip' => __('Never open'),
                 'icon'    => 'fal fa-eye-slash',
@@ -73,9 +72,9 @@ enum ProspectContactedStateEnum: string
         $stats = $parent->crmStats;
 
         return [
-            'no-applicable' => $stats->number_prospects_contacted_state_no_applicable,
-            'soft-bounced'  => $stats->number_prospects_contacted_state_soft_bounced,
-            'never-open'    => $stats->number_prospects_contacted_state_never_open,
+            'no_applicable' => $stats->number_prospects_contacted_state_no_applicable,
+            'soft_bounced'  => $stats->number_prospects_contacted_state_soft_bounced,
+            'never_open'    => $stats->number_prospects_contacted_state_never_open,
             'open'          => $stats->number_prospects_contacted_state_open,
             'clicked'       => $stats->number_prospects_contacted_state_clicked
         ];

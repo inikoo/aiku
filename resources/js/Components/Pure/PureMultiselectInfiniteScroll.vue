@@ -24,6 +24,7 @@ const props = defineProps<{
     classes?: {}
     fetchRoute: routeType
     required?: boolean
+    isLoading?: boolean
     placeholder?: string
     labelProp?: string
     noOptionsText?: string
@@ -35,7 +36,7 @@ const emits = defineEmits<{
 const layout = inject('layout', layoutStructure)
 
 
-const isLoading = ref<string | boolean>(false)
+const isComponentLoading = ref<string | boolean>(false)
 
 const getUrlFetch = (additionalParams: {}) => {
     return route(
@@ -51,7 +52,7 @@ const optionsList = ref<any[]>([])
 const optionsMeta = ref<Meta | null>(null)
 const optionsLinks = ref<Links | null>(null)
 const fetchProductList = async (url?: string) => {
-    isLoading.value = 'fetchProduct'
+    isComponentLoading.value = 'fetchProduct'
 
     const urlToFetch = url || route(props.fetchRoute.name, props.fetchRoute.parameters)
 
@@ -73,7 +74,7 @@ const fetchProductList = async (url?: string) => {
             type: 'error',
         })
     }
-    isLoading.value = false
+    isComponentLoading.value = false
 }
     
 const onSearchQuery = debounce(async (query: string) => {
@@ -88,7 +89,7 @@ const onFetchNext = () => {
     // console.log(dropdown?.scrollTop, dropdown?.clientHeight, dropdown?.scrollHeight)
 
     const bottomReached = (dropdown?.scrollTop || 0) + (dropdown?.clientHeight || 0) >= (dropdown?.scrollHeight || 10) - 10
-    if (bottomReached && optionsLinks.value?.next && isLoading.value != 'fetchProduct') {
+    if (bottomReached && optionsLinks.value?.next && isComponentLoading.value != 'fetchProduct') {
         // console.log(dropdown?.scrollTop, dropdown?.clientHeight, dropdown?.scrollHeight)
         fetchProductList(optionsLinks.value.next)
     }
@@ -134,8 +135,8 @@ onUnmounted(() => {
             :clearOnBlur="false"
             clearOnSearch
             autofocus
-            :caret="isLoading ? false : true"
-            :loading="isLoading === 'fetchProduct'"
+            :caret="isComponentLoading ? false : true"
+            :loading="isLoading || isComponentLoading === 'fetchProduct'"
             :placeholder="placeholder || trans('Select option')"
             :resolve-on-load="true"
             :min-chars="1"
@@ -166,14 +167,14 @@ onUnmounted(() => {
             </template> -->
 
             <template #nooptions>
-                <div v-if="isLoading !== 'fetchProduct'" class="py-2 px-3 text-gray-600 bg-white text-left rtl:text-right">
+                <div v-if="isComponentLoading !== 'fetchProduct'" class="py-2 px-3 text-gray-600 bg-white text-left rtl:text-right">
                     {{ noOptionsText || trans('No options')}}
                 </div>
                 <div></div>
             </template>
 
             <template #afterlist>
-                <div v-if="isLoading === 'fetchProduct'" class="py-2 flex justify-center text-xl">
+                <div v-if="isComponentLoading === 'fetchProduct'" class="py-2 flex justify-center text-xl">
                     <LoadingIcon />
                 </div>
             </template>

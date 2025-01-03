@@ -51,7 +51,7 @@ const props = defineProps<{
                             </span>
                         </div>
 
-                        <div v-if="stats.pallets.state?.damaged?.count || stats.pallets.state?.lost?.count || stats.pallets.state?.['other-incident'].count"
+                        <div v-if="stats.pallets.state?.damaged?.count || stats.pallets.state?.lost?.count || stats.pallets.state?.['other_incident'].count"
                             class="">
                             <div
                                 class="text-sm text-red-400 border border-red-300 bg-red-50 rounded px-2 py-2 font-normal">
@@ -68,12 +68,12 @@ const props = defineProps<{
                                     <!-- Lost: -->
                                     {{ stats.pallets.state?.lost?.count }}
                                 </div>
-                                <div v-if="stats.pallets.state['other-incident'].count">
-                                    <FontAwesomeIcon :icon="stats.pallets.state?.['other-incident']?.icon?.icon"
-                                        :class="stats.pallets.state?.['other-incident']?.icon?.class" fixed-width
+                                <div v-if="stats.pallets.state['other_incident'].count">
+                                    <FontAwesomeIcon :icon="stats.pallets.state?.['other_incident']?.icon?.icon"
+                                        :class="stats.pallets.state?.['other_incident']?.icon?.class" fixed-width
                                         aria-hidden='true' />
                                     <!-- Other incident: -->
-                                    {{ stats.pallets.state?.['other-incident'].count }}
+                                    {{ stats.pallets.state?.['other_incident'].count }}
                                 </div>
                             </div>
                         </div>

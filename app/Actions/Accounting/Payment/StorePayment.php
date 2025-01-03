@@ -8,6 +8,7 @@
 
 namespace App\Actions\Accounting\Payment;
 
+use App\Actions\Accounting\OrgPaymentServiceProvider\Hydrators\OrgPaymentServiceProviderHydratePayments;
 use App\Actions\Accounting\Payment\Search\PaymentRecordSearch;
 use App\Actions\Accounting\PaymentAccount\Hydrators\PaymentAccountHydratePayments;
 use App\Actions\Accounting\PaymentGateway\Checkout\Channels\MakePaymentUsingCheckout;
@@ -57,7 +58,7 @@ class StorePayment extends OrgAction
 
 
         data_set($modelData, 'org_amount', Arr::get($modelData, 'amount') * GetCurrencyExchange::run($customer->shop->currency, $paymentAccount->organisation->currency), overwrite: false);
-        data_set($modelData, 'group_amount', Arr::get($modelData, 'amount') * GetCurrencyExchange::run($customer->shop->currency, $paymentAccount->organisation->group->currency), overwrite: false);
+        data_set($modelData, 'grp_amount', Arr::get($modelData, 'amount') * GetCurrencyExchange::run($customer->shop->currency, $paymentAccount->organisation->group->currency), overwrite: false);
 
 
         $payment = DB::transaction(function () use ($paymentAccount, $modelData, $currencyCode, $totalAmount) {
@@ -89,6 +90,7 @@ class StorePayment extends OrgAction
         PaymentServiceProviderHydratePayments::dispatch($payment->paymentAccount->paymentServiceProvider)->delay($this->hydratorsDelay);
         PaymentAccountHydratePayments::dispatch($payment->paymentAccount)->delay($this->hydratorsDelay);
         ShopHydratePayments::dispatch($payment->shop)->delay($this->hydratorsDelay);
+        OrgPaymentServiceProviderHydratePayments::dispatch($payment->orgPaymentServiceProvider)->delay($this->hydratorsDelay);
 
 
         PaymentRecordSearch::dispatch($payment);
@@ -112,7 +114,7 @@ class StorePayment extends OrgAction
             'amount'        => ['required', 'decimal:0,2'],
             'total_amount'  => ['sometimes', 'decimal:0,2'],
             'org_amount'    => ['sometimes', 'numeric'],
-            'group_amount'  => ['sometimes', 'numeric'],
+            'grp_amount'  => ['sometimes', 'numeric'],
             'data'          => ['sometimes', 'array'],
             'date'          => ['sometimes', 'date'],
             'status'        => ['sometimes', 'required', Rule::enum(PaymentStatusEnum::class)],

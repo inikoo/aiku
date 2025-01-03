@@ -29,9 +29,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property string $name
  * @property string $model
- * @property string $is_static
- * @property array $constrains
- * @property array $compiled_constrains
+ * @property bool $is_static
+ * @property array<array-key, mixed> $constrains
+ * @property array<array-key, mixed> $compiled_constrains
  * @property bool $has_arguments
  * @property string|null $seed_code
  * @property int|null $number_items
@@ -42,7 +42,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
- * @property array $source_constrains
+ * @property array<array-key, mixed> $source_constrains
  * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Customer> $customers
@@ -73,6 +73,7 @@ class Query extends Model implements Auditable
         'informatics'         => 'array',
         'source_constrains'   => 'array',
         'is_seeded'           => 'boolean',
+        'is_static'           => 'boolean',
         'has_arguments'       => 'boolean'
     ];
 
@@ -84,13 +85,47 @@ class Query extends Model implements Auditable
 
     protected $guarded = [];
 
+    public function generateTags(): array
+    {
+
+        if (in_array($this->model, ['Prospect','Customer'])) {
+            return [
+                'crm'
+            ];
+        }
+
+        return [
+            'helpers'
+        ];
+
+
+    }
+
+
+    protected array $auditInclude = [
+        'name',
+        'model',
+        'is_static',
+        'constrains'
+    ];
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('name')
+            ->generateSlugsFrom(function () {
+                $slug = $this->name;
+                if ($this->shop) {
+                    $slug .= '-'.$this->shop->slug;
+                } elseif ($this->organisation) {
+                    $slug .= '-'.$this->organisation->slug;
+                } else {
+                    $slug .= '-'.$this->group->slug;
+                }
+                return $slug;
+            })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(64);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function getRouteKeyName(): string

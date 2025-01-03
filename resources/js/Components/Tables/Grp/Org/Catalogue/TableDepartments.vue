@@ -38,6 +38,10 @@ function departmentRoute(department: Department) {
                 'grp.org.shops.show.catalogue.departments.show',
                 [route().params['organisation'], department.shop_slug, department.slug])
 
+        case 'grp.overview.catalogue.departments.index':
+            return route(
+                'grp.org.shops.show.catalogue.departments.show',
+                [department.organisation_slug, department.shop_slug, department.slug])
 
         default:
             return null

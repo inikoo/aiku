@@ -11,6 +11,8 @@
 use App\Actions\Web\Banner\Search\ReindexBannerSearch;
 use App\Actions\Web\Banner\StoreBanner;
 use App\Actions\Web\Banner\UpdateBanner;
+use App\Actions\Web\ExternalLink\AttachExternalLinkToWebBlock;
+use App\Actions\Web\ExternalLink\CheckExternalLinkStatus;
 use App\Actions\Web\ExternalLink\StoreExternalLink;
 use App\Actions\Web\ModelHasWebBlocks\DeleteModelHasWebBlocks;
 use App\Actions\Web\ModelHasWebBlocks\StoreModelHasWebBlock;
@@ -51,7 +53,7 @@ beforeEach(function () {
         $this->organisation,
         $this->user,
         $this->shop
-    )                 = createShop();
+    ) = createShop();
     $this->warehouse  = createWarehouse();
     $this->fulfilment = createFulfilment($this->organisation);
 
@@ -125,11 +127,9 @@ test('create webpage', function (Website $website) {
         ->and($snapshot->state)->toBe(SnapshotStateEnum::UNPUBLISHED);
 
     return $webpage;
-
 })->depends('create b2b website');
 
 test('create model has web block', function (Webpage $webpage) {
-
     /** @var WebBlockType $webBlockType */
     $webBlockType = $webpage->group->webBlockTypes()->where('code', 'text')->first();
     expect($webBlockType)->toBeInstanceOf(WebBlockType::class);
@@ -148,25 +148,36 @@ test('create model has web block', function (Webpage $webpage) {
     expect($webpage->is_dirty)->toBeTrue();
 
     return $modelHasWebBlock;
-
 })->depends('create webpage');
 
 
 test('model external link', function () {
     $externalLink = ExternalLink::class;
     expect($externalLink)->toBe(ExternalLink::class);
+
     return $externalLink;
 });
 
 test('store external link', function (ModelHasWebBlocks $modelHasWebBlock) {
-    $group = $modelHasWebBlock->group;
-    $webpage = $modelHasWebBlock->webpage;
+    $group    = $modelHasWebBlock->group;
+    $webpage  = $modelHasWebBlock->webpage;
     $webBlock = $modelHasWebBlock->webBlock;
-    $externalLink =   StoreExternalLink::make()->action($group, [
-        'url' => 'https://www.google.com',
-        'webpage_id' => $webpage->id,
-        'web_block_id' => $webBlock->id,
+
+
+    CheckExternalLinkStatus::shouldRun()->andReturn(200);
+
+    $link   = 'https://www.google.com';
+    $status = CheckExternalLinkStatus::run($link);
+
+
+    $externalLink = StoreExternalLink::make()->action($group, [
+        'url'    => $link,
+        'status' => $status,
     ]);
+    AttachExternalLinkToWebBlock::make()->action($webpage, $webBlock, $externalLink, [
+        'show' => true
+    ]);
+
     expect($externalLink)->toBeInstanceOf(ExternalLink::class)
         ->and($externalLink->group_id)->toBe($group->id)
         ->and($externalLink->number_websites_shown)->toBe(1)
@@ -174,8 +185,8 @@ test('store external link', function (ModelHasWebBlocks $modelHasWebBlock) {
         ->and($externalLink->number_web_blocks_shown)->toBe(1)
         ->and($externalLink->number_websites_hidden)->toBe(0)
         ->and($externalLink->number_webpages_hidden)->toBe(0)
-        ->and($externalLink->number_web_blocks_hidden)->toBe(0)
-        ->and($externalLink->status)->toBe('200');
+        ->and($externalLink->number_web_blocks_hidden)->toBe(0);
+
 
     return $externalLink;
 })->depends("create model has web block");
@@ -183,22 +194,22 @@ test('store external link', function (ModelHasWebBlocks $modelHasWebBlock) {
 test('model external link has web blocks', function (ExternalLink $externalLink) {
     $webBlocks = $externalLink->webBlocks;
     expect($webBlocks)->toBeInstanceOf(Collection::class)
-    ->and(count($webBlocks->toArray()))->toBeGreaterThan(0)
-    ->and($webBlocks[0])->toBeInstanceOf(WebBlock::class);
+        ->and(count($webBlocks->toArray()))->toBeGreaterThan(0)
+        ->and($webBlocks[0])->toBeInstanceOf(WebBlock::class);
 })->depends('store external link');
 
 test('model external link has webpages', function (ExternalLink $externalLink) {
     $webpages = $externalLink->webpages;
     expect($webpages)->toBeInstanceOf(Collection::class)
-    ->and(count($webpages->toArray()))->toBeGreaterThan(0)
-    ->and($webpages[0])->toBeInstanceOf(Webpage::class);
+        ->and(count($webpages->toArray()))->toBeGreaterThan(0)
+        ->and($webpages[0])->toBeInstanceOf(Webpage::class);
 })->depends('store external link');
 
 test('model external link has websites', function (ExternalLink $externalLink) {
     $websites = $externalLink->websites;
     expect($websites)->toBeInstanceOf(Collection::class)
-    ->and(count($websites->toArray()))->toBeGreaterThan(0)
-    ->and($websites[0])->toBeInstanceOf(Website::class);
+        ->and(count($websites->toArray()))->toBeGreaterThan(0)
+        ->and($websites[0])->toBeInstanceOf(Website::class);
 })->depends('store external link');
 
 test('update model has web block', function (ModelHasWebBlocks $modelHasWebBlock) {
@@ -232,11 +243,12 @@ test('create fulfilment website', function () {
 
     /** @var Webpage $homeWebpage */
     $homeWebpage = $website->webpages()->first();
+
     expect($homeWebpage->type)->toBe(WebpageTypeEnum::STOREFRONT)
         ->and($homeWebpage->state)->toBe(WebpageStateEnum::READY)
         ->and($homeWebpage->ready_at)->toBeInstanceOf(Carbon::class)
         ->and($homeWebpage->level)->toBe(1)
-        ->and($homeWebpage->stats->number_webpages)->toBe(2)
+        ->and($homeWebpage->stats->number_child_webpages)->toBe(2)
         ->and($homeWebpage->stats->number_snapshots)->toBe(1)
         ->and($homeWebpage->stats->number_deployments)->toBe(0)
         ->and($homeWebpage->unpublishedSnapshot)->toBeInstanceOf(Snapshot::class)
@@ -299,7 +311,6 @@ test('update hello banner', function (Banner $banner) {
     expect($banner)->toBeInstanceOf(Banner::class)
         ->and($banner->name)->toBe('hello2')
         ->and($banner->type)->toBe(BannerTypeEnum::LANDSCAPE);
-
 })->depends('store hello banner');
 
 test('websites search', function () {

@@ -33,7 +33,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $description
  * @property int|null $image_id
  * @property int|null $shop_id
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -83,7 +83,7 @@ class CollectionCategory extends Model implements Auditable
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(64);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function stats(): HasOne

@@ -15,7 +15,7 @@ enum PurgeStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS    = 'in-process';
+    case IN_PROCESS    = 'in_process';
     case PURGING    = 'purging';
     case FINISHED       = 'finished';
     case CANCELLED       = 'cancelled';

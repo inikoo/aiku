@@ -36,7 +36,6 @@ class UpdateDeliveryNote extends OrgAction
 
     public function handle(DeliveryNote $deliveryNote, array $modelData): DeliveryNote
     {
-
         $deliveryNote = $this->update($deliveryNote, $modelData, ['data']);
         $changes      = $deliveryNote->getChanges();
 
@@ -47,8 +46,8 @@ class UpdateDeliveryNote extends OrgAction
                 AssignPickerToPicking::make()->action(
                     $item->pickings,
                     [
-                    'picker_id' => $deliveryNote->picker_id
-                ]
+                        'picker_id' => $deliveryNote->picker_id
+                    ]
                 );
             }
         }
@@ -58,15 +57,15 @@ class UpdateDeliveryNote extends OrgAction
                 AssignPackerToPicking::make()->action(
                     $item->pickings,
                     [
-                    'packer_id' => $deliveryNote->packer_id
-                ]
+                        'packer_id' => $deliveryNote->packer_id
+                    ]
                 );
             }
         }
 
         DeliveryNoteRecordSearch::dispatch($deliveryNote);
 
-        if (Arr::hasAny($changes, ['type', 'state','status'])) {
+        if (Arr::hasAny($changes, ['type', 'state', 'status'])) {
             DeliveryNoteRecordSearch::dispatch($deliveryNote)->delay($this->hydratorsDelay);
             GroupHydrateDeliveryNotes::dispatch($deliveryNote->group)->delay($this->hydratorsDelay);
             OrganisationHydrateDeliveryNotes::dispatch($deliveryNote->organisation)->delay($this->hydratorsDelay);
@@ -75,14 +74,13 @@ class UpdateDeliveryNote extends OrgAction
         }
 
 
-
         return $deliveryNote;
     }
 
     public function rules(): array
     {
         $rules = [
-            'reference'        => [
+            'reference' => [
                 'sometimes',
                 'string',
                 'max:64',
@@ -94,12 +92,12 @@ class UpdateDeliveryNote extends OrgAction
                     ]
                 ),
             ],
-            'state'            => ['sometimes', 'required', new Enum(DeliveryNoteStateEnum::class)],
-            'email'            => ['sometimes', 'nullable', 'string', 'email'],
-            'phone'            => ['sometimes', 'nullable', 'string'],
-            'date'             => ['sometimes', 'date'],
-            'picker_id'        => ['sometimes'],
-            'packer_id'        => ['sometimes']
+            'state'     => ['sometimes', 'required', new Enum(DeliveryNoteStateEnum::class)],
+            'email'     => ['sometimes', 'nullable', 'string', $this->strict ? 'email' : 'string'],
+            'phone'     => ['sometimes', 'nullable', 'string'],
+            'date'      => ['sometimes', 'date'],
+            'picker_id' => ['sometimes'],
+            'packer_id' => ['sometimes']
         ];
 
         if (!$this->strict) {

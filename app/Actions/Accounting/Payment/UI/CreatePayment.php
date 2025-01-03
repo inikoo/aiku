@@ -61,7 +61,7 @@ class CreatePayment extends InertiaAction
                                     'label' => __('amount'),
                                     'value' => ''
                                 ],
-                                'group_amount' => [
+                                'grp_amount' => [
                                     'type'  => 'input',
                                     'label' => __('group currency amount'),
                                     'value' => ''

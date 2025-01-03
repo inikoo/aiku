@@ -32,7 +32,7 @@ class StorePostRoom extends OrgAction
 
             return $postRoom;
         });
-        GroupHydratePostRooms::run($group);
+        GroupHydratePostRooms::dispatch($group);
 
         return $postRoom;
     }

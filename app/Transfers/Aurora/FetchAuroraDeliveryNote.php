@@ -120,6 +120,17 @@ class FetchAuroraDeliveryNote extends FetchAurora
             }
         }
 
+
+        $email = $this->auroraModelData->{'Delivery Note Email'};
+        if ($email != null) {
+            $email = trim($email);
+        }
+
+        $phone = $this->auroraModelData->{'Delivery Note Telephone'};
+        if ($phone != null) {
+            $phone = trim($phone);
+        }
+
         $this->parsedData["delivery_note"] = [
             "reference"        => $reference,
             'date'             => $this->auroraModelData->{'Delivery Note Date Created'},
@@ -133,8 +144,8 @@ class FetchAuroraDeliveryNote extends FetchAurora
             'finalised_at'     => $this->auroraModelData->{'Delivery Note Date Done Approved'},
             'dispatched_at'    => $this->auroraModelData->{'Delivery Note Date Dispatched'},
             'weight'           => $weight,
-            'email'            => $this->auroraModelData->{'Delivery Note Email'},
-            'phone'            => $this->auroraModelData->{'Delivery Note Telephone'},
+            'email'            => $email,
+            'phone'            => $phone,
             'delivery_address' => $deliveryAddress,
             'warehouse_id'     => $warehouse->id,
             'delivery_locked'  => $deliveryLocked,

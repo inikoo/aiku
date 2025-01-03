@@ -11,11 +11,12 @@ namespace App\Actions\Inventory\Warehouse;
 use App\Actions\Inventory\Warehouse\Search\WarehouseRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWarehouses;
-use App\Actions\SysAdmin\Group\SeedAikuScopedSections;
+use App\Actions\SysAdmin\Group\Seeders\SeedAikuScopedSections;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouses;
-use App\Actions\SysAdmin\Organisation\SeedJobPositions;
+use App\Actions\SysAdmin\Organisation\Seeders\SeedJobPositions;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Actions\Traits\WithModelAddressActions;
+use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\Inventory\Warehouse;
@@ -57,6 +58,9 @@ class StoreWarehouse extends OrgAction
                 $warehouse = $this->addDirectAddress($warehouse, $addressData);
             }
             SeedWarehousePermissions::run($warehouse);
+            foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
+                $warehouse->timeSeries()->create(['frequency' => $frequency]);
+            }
 
             $orgAdmins = $organisation->group->users()->with('roles')->get()->filter(
                 fn ($user) => $user->roles->where('name', "org-admin-$organisation->id")->toArray()

@@ -16,14 +16,14 @@ enum OrgStockAuditStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS   = 'in-process';
+    case IN_PROCESS   = 'in_process';
     case COMPLETED    = 'completed';
 
 
     public static function labels(): array
     {
         return [
-            'in-process'   => __('In Process'),
+            'in_process'   => __('In Process'),
             'completed'    => __('Completed'),
         ];
     }
@@ -31,7 +31,7 @@ enum OrgStockAuditStateEnum: string
     public static function stateIcon(): array
     {
         return [
-            'in-process' => [
+            'in_process' => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
@@ -62,7 +62,7 @@ enum OrgStockAuditStateEnum: string
 
 
         return [
-            'in-process'   => $stats->number_org_stock_audits_state_in_process,
+            'in_process'   => $stats->number_org_stock_audits_state_in_process,
             'completed'    => $stats->number_org_stock_audits_state_cmpleted,
         ];
     }
@@ -70,7 +70,7 @@ enum OrgStockAuditStateEnum: string
     public static function notifications(string $reference): array
     {
         return [
-            'in-process'   => [
+            'in_process'   => [
                 'title'    => __("Audit :reference created", ['reference' => $reference]),
                 'subtitle' => __('Audit (stored items) has been created')
             ],

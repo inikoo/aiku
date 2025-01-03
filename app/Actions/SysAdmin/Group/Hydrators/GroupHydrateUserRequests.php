@@ -34,10 +34,16 @@ class GroupHydrateUserRequests implements ShouldBeUnique
 
     public function handle(Group $group): void
     {
-
         $stats['number_user_requests'] = DB::table('user_requests')->where('group_id', $group->id)->count();
-        $group->sysadminStats()->update($stats);
+        $group->sysadminStats->update($stats);
     }
 
+    public string $commandSignature = 'hydrate:group_user_requests';
+
+    public function asCommand($command): void
+    {
+        $group = Group::first();
+        $this->handle($group);
+    }
 
 }

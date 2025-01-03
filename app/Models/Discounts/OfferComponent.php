@@ -38,7 +38,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $status
  * @property string $slug
  * @property string $code
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property string|null $trigger_scope
  * @property string|null $trigger_type
  * @property string|null $trigger_id
@@ -53,7 +53,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
- * @property array $source_data
+ * @property array<array-key, mixed> $source_data
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, InvoiceTransaction> $invoiceTransactions
@@ -111,10 +111,14 @@ class OfferComponent extends Model implements Auditable
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('code')
+
+            ->generateSlugsFrom(function () {
+                return $this->code.'-'.$this->offer->slug;
+            })
+
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(6);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function getRouteKeyName(): string

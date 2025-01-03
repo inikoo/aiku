@@ -20,24 +20,24 @@ enum PalletDeliveryStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS   = 'in-process';
+    case IN_PROCESS   = 'in_process';
     case SUBMITTED    = 'submitted';
     case CONFIRMED    = 'confirmed';
     case RECEIVED     = 'received';
-    case NOT_RECEIVED = 'not-received';
-    case BOOKING_IN   = 'booking-in';
-    case BOOKED_IN    = 'booked-in';
+    case NOT_RECEIVED = 'not_received';
+    case BOOKING_IN   = 'booking_in';
+    case BOOKED_IN    = 'booked_in';
 
     public static function labels($forElements = false): array
     {
         return [
-            'in-process'   => __('In Process'),
+            'in_process'   => __('In Process'),
             'submitted'    => __('Submitted'),
             'confirmed'    => __('Confirmed'),
             'received'     => __('Received'),
-            'not-received' => __('Not Received'),
-            'booking-in'   => __('Booking In'),
-            'booked-in'    => __('Booked In')
+            'not_received' => __('Not Received'),
+            'booking_in'   => __('Booking In'),
+            'booked_in'    => __('Booked In')
         ];
     }
 
@@ -45,7 +45,7 @@ enum PalletDeliveryStateEnum: string
     {
         // Icon is imported in resources/js/Composables/Icon/PalletDeliveryStateEnum.ts
         return [
-            'in-process'   => [
+            'in_process'   => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
@@ -85,7 +85,7 @@ enum PalletDeliveryStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'not-received' => [
+            'not_received' => [
                 'tooltip' => __('Not Received'),
                 'icon'    => 'fal fa-times',
                 'class'   => 'text-red-500',
@@ -95,7 +95,7 @@ enum PalletDeliveryStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'booking-in'   => [
+            'booking_in'   => [
                 'tooltip' => __('Booking in'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-purple-500',
@@ -105,7 +105,7 @@ enum PalletDeliveryStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'booked-in'    => [
+            'booked_in'    => [
                 'tooltip' => __('Booked in'),
                 'icon'    => 'fal fa-check-double',
                 'class'   => 'text-purple-500',
@@ -129,20 +129,20 @@ enum PalletDeliveryStateEnum: string
         }
 
         return [
-            'in-process'   => $stats->number_pallet_deliveries_state_in_process,
+            'in_process'   => $stats->number_pallet_deliveries_state_in_process,
             'submitted'    => $stats->number_pallet_deliveries_state_submitted,
             'confirmed'    => $stats->number_pallet_deliveries_state_confirmed,
             'received'     => $stats->number_pallet_deliveries_state_received,
-            'not-received' => $stats->number_pallet_deliveries_state_not_received,
-            'booking-in'   => $stats->number_pallet_deliveries_state_booking_in,
-            'booked-in'    => $stats->number_pallet_deliveries_state_booked_in,
+            'not_received' => $stats->number_pallet_deliveries_state_not_received,
+            'booking_in'   => $stats->number_pallet_deliveries_state_booking_in,
+            'booked_in'    => $stats->number_pallet_deliveries_state_booked_in,
         ];
     }
 
     public static function notifications(string $reference): array
     {
         return [
-            'in-process'   => [
+            'in_process'   => [
                 'title'    => __("Pallet delivery :reference created", ['reference' => $reference]),
                 'subtitle' => __('Pallet delivery has been created')
             ],
@@ -158,15 +158,15 @@ enum PalletDeliveryStateEnum: string
                 'title'    => __("Pallet delivery :reference received", ['reference' => $reference]),
                 'subtitle' => __('Pallet delivery has been received')
             ],
-            'not-received' => [
+            'not_received' => [
                 'title'    => __("Pallet delivery :reference not received", ['reference' => $reference]),
                 'subtitle' => __('Pallet delivery has not been received')
             ],
-            'booking-in'   => [
+            'booking_in'   => [
                 'title'    => __("Pallet delivery :reference booking in", ['reference' => $reference]),
                 'subtitle' => __('Pallet delivery has been booking in')
             ],
-            'booked-in'    => [
+            'booked_in'    => [
                 'title'    => __("Pallet delivery :reference booked in", ['reference' => $reference]),
                 'subtitle' => __('Pallet delivery has been booked in')
             ],

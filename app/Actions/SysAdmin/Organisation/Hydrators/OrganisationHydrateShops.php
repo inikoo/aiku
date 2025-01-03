@@ -14,12 +14,14 @@ use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Catalogue\Shop;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class OrganisationHydrateShops
 {
     use AsAction;
     use WithEnumStats;
+
     private Organisation $organisation;
 
     public function __construct(Organisation $organisation)
@@ -36,7 +38,11 @@ class OrganisationHydrateShops
     public function handle(Organisation $organisation): void
     {
         $stats = [
-            'number_shops' => Shop::count()
+            'number_shops' => DB::table('shops')->where('organisation_id', $organisation->id)->count(),
+            'number_current_shops' => DB::table('shops')->where('organisation_id', $organisation->id)->whereIn('state', [
+                ShopStateEnum::OPEN,
+                ShopStateEnum::CLOSING_DOWN,
+            ])->count()
         ];
 
         $stats = array_merge(

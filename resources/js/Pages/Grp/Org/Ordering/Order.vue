@@ -474,7 +474,7 @@ const openModal = (action :any) => {
     </div>
 
     <!-- Section: Timeline -->
-    <div v-if="props.data?.data?.state != 'in-process' && currentTab != 'products'" class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
+    <div v-if="props.data?.data?.state != 'in_process' && currentTab != 'products'" class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
         <Timeline v-if="timelines" :options="timelines" :state="props.data?.data?.state" :slidesPerView="6" />
     </div>
 
@@ -599,10 +599,10 @@ const openModal = (action :any) => {
                 <a :href="route(routes.delivery_note.deliveryNotePdfRoute.name, routes.delivery_note.deliveryNotePdfRoute.parameters)"
                     as="a" target="_blank" class="flex items-center">
                     <button class="flex items-center">
-                        <dt class="flex-none">
+                        <div class="flex-none">
                             <FontAwesomeIcon :icon="faFilePdf" fixed-width aria-hidden="true"
                                 class="text-gray-500 hover:text-indigo-500 transition-colors duration-200" />
-                        </dt>
+                        </div>
                     </button>
                 </a>
             </div>

@@ -48,11 +48,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $name
  * @property EmailBuilderEnum|null $builder current default builder for future emails
  * @property OutboxStateEnum $state
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property array $sources
+ * @property array<array-key, mixed> $sources
  * @property-read Collection<int, \App\Models\Comms\DispatchedEmail> $dispatchedEmails
  * @property-read Collection<int, \App\Models\Comms\EmailBulkRun> $emailBulkRuns
  * @property-read \App\Models\Comms\EmailOngoingRun|null $emailOngoingRun
@@ -67,6 +67,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Comms\PostRoom|null $postRoom
  * @property-read Shop|null $shop
  * @property-read \App\Models\Comms\OutboxStats|null $stats
+ * @property-read Collection<int, \App\Models\Comms\OutboxTimeSeries> $timeSeries
  * @property-read Website|null $website
  * @method static \Database\Factories\Comms\OutboxFactory factory($count = null, $state = [])
  * @method static Builder<static>|Outbox newModelQuery()
@@ -132,7 +133,7 @@ class Outbox extends Model
             })
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(64);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
 
@@ -194,6 +195,11 @@ class Outbox extends Model
     public function orgPostRoom(): BelongsTo
     {
         return $this->belongsTo(OrgPostRoom::class);
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(OutboxTimeSeries::class);
     }
 
 }

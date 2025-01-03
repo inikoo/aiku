@@ -32,8 +32,13 @@ class SyncStoredItemToPalletAudit extends OrgAction
         SyncStoredItemToPallet::run($pallet, $modelData);
         $originalQty = $pallet->storedItems()->count();
 
-        foreach (Arr::get($modelData, 'stored_item_ids', []) as $key => $storedItem) {
-            $pallet->storedItemAuditDeltas()->create([
+
+        // TODO Maybe some error with this and need to fixed
+        /*foreach (Arr::get($modelData, 'stored_item_ids', []) as $key => $storedItem) {
+            $pallet->storedItemAuditDeltas()->updateOrCreate([
+                'stored_item_id'    => $key,
+                'organisation_id'   => $pallet->organisation_id,
+            ], [
                 'group_id'          => $pallet->group_id,
                 'organisation_id'   => $pallet->organisation_id,
                 'stored_item_id'    => $key,
@@ -41,7 +46,7 @@ class SyncStoredItemToPalletAudit extends OrgAction
                 'audited_quantity'  => $storedItem['quantity'] + $originalQty,
                 'audited_at'        => now()
             ]);
-        }
+        }*/
     }
 
     public function authorize(ActionRequest $request): bool

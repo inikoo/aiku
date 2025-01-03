@@ -9,7 +9,6 @@
 namespace App\Models\SupplyChain;
 
 use App\Models\Helpers\Currency;
-use App\Models\Helpers\Issue;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
@@ -30,7 +29,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
@@ -59,10 +57,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $identity_document_number
  * @property string|null $contact_website
  * @property int|null $address_id
- * @property array $location
+ * @property array<array-key, mixed> $location
  * @property int $currency_id
- * @property array $settings
- * @property array $data
+ * @property array<array-key, mixed> $settings
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $archived_at
@@ -71,7 +69,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_slug
  * @property string|null $source_id
- * @property array $sources
+ * @property array<array-key, mixed> $sources
  * @property-read \App\Models\Helpers\Address|null $address
  * @property-read Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read \App\Models\SupplyChain\Agent|null $agent
@@ -82,13 +80,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $images
- * @property-read Collection<int, Issue> $issues
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Collection<int, OrgSupplier> $orgSuppliers
  * @property-read Collection<int, PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\SupplyChain\SupplierStats|null $stats
  * @property-read Collection<int, StockDelivery> $stockDeliveries
  * @property-read Collection<int, \App\Models\SupplyChain\SupplierProduct> $supplierProducts
+ * @property-read Collection<int, \App\Models\SupplyChain\SupplierTimeSeries> $timeSeries
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\SupplyChain\SupplierFactory factory($count = null, $state = [])
  * @method static Builder<static>|Supplier newModelQuery()
@@ -197,11 +195,6 @@ class Supplier extends Model implements HasMedia, Auditable
         return $this->belongsTo(Agent::class);
     }
 
-    public function issues(): MorphToMany
-    {
-        return $this->morphToMany(Issue::class, 'issuable');
-    }
-
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class);
@@ -225,6 +218,11 @@ class Supplier extends Model implements HasMedia, Auditable
     public function agentSupplierPurchaseOrder(): HasMany
     {
         return $this->hasMany(AgentSupplierPurchaseOrder::class);
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(SupplierTimeSeries::class);
     }
 
 

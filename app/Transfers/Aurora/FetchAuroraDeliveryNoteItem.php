@@ -11,7 +11,7 @@ namespace App\Transfers\Aurora;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStateEnum;
 use App\Models\Dispatching\DeliveryNote;
-use App\Models\SupplyChain\Stock;
+use App\Models\Goods\Stock;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraDeliveryNoteItem extends FetchAurora
@@ -47,8 +47,11 @@ class FetchAuroraDeliveryNoteItem extends FetchAurora
 
         $transactionID = $transaction?->id;
 
+        $stock = null;
 
-        $stock = Stock::withTrashed()->find($orgStock->stock_id);
+        if ($orgStock) {
+            $stock = Stock::withTrashed()->find($orgStock->stock_id);
+        }
 
         $this->parsedData['delivery_note_item'] = [
             'transaction_id'      => $transactionID,

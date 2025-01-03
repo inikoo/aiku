@@ -30,6 +30,7 @@ return new class () extends Migration {
             $table->string('website', 256)->nullable();
             $table->string('tracking_url')->nullable();
             $table->jsonb('data');
+            $table->jsonb('settings');
             $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();

@@ -10,6 +10,7 @@ namespace App\Actions\Comms\DispatchedEmail\UI;
 
 use App\Actions\Comms\PostRoom\UI\ShowPostRoom;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\UI\Marketing\MarketingHub;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\InertiaTable\InertiaTable;
@@ -18,6 +19,7 @@ use App\Models\Comms\DispatchedEmail;
 use App\Models\Comms\Mailshot;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -30,9 +32,9 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexDispatchedEmails extends OrgAction
 {
-    private Organisation|Shop $parent;
+    private Group|Organisation|Shop $parent;
 
-    public function handle(Mailshot|Outbox|PostRoom|Organisation|Shop $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Mailshot|Outbox|PostRoom|Organisation|Shop $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -47,7 +49,10 @@ class IndexDispatchedEmails extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(DispatchedEmail::class);
-        if (is_array($this->elementGroups) || is_object($this->elementGroups)) {
+        $queryBuilder->leftJoin('organisations', 'dispatched_emails.organisation_id', '=', 'organisations.id')
+            ->leftJoin('shops', 'dispatched_emails.shop_id', '=', 'shops.id');
+
+        if (is_array($this->elementGroups) || is_object($this->elementGroups) && !($parent instanceof Group)) {
             foreach ($this->elementGroups as $key => $elementGroup) {
                 $queryBuilder->whereElementGroup(
                     key: $key,
@@ -65,7 +70,11 @@ class IndexDispatchedEmails extends OrgAction
                 'dispatched_emails.number_reads',
                 'dispatched_emails.number_clicks',
                 'outboxes.slug as outbox_id',
-                'outboxes.slug as outboxes_id'
+                'outboxes.slug as outboxes_id',
+                'shops.name as shop_name',
+                'shops.slug as shop_slug',
+                'organisations.name as organisation_name',
+                'organisations.slug as organisation_slug',
             ])
             ->leftJoin('outboxes', 'outboxes.id', 'dispatched_emails.outbox_id')
             ->leftJoin('post_rooms', 'outboxes.post_room_id', 'post_rooms.id')
@@ -78,6 +87,9 @@ class IndexDispatchedEmails extends OrgAction
                 }
                 if (class_basename($parent) == 'Mailshot') {
                     $query->where('dispatched_emails.mailshot_id', $parent->id);
+                }
+                if (class_basename($parent) == 'Group') {
+                    $query->where('dispatched_emails.group_id', $parent->id);
                 }
             })
             ->allowedSorts(['dispatched_emails.state', 'dispatched_emails.number_reads', 'dispatched_emails.number_clicks'])
@@ -97,13 +109,20 @@ class IndexDispatchedEmails extends OrgAction
             }
 
             $table
-                ->column(key: 'state', label: '', type: 'icon', canBeHidden: false)
-                ->column(key: 'number_reads', label: __('reads'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'state', label: '', type: 'icon', canBeHidden: false);
+            if ($parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
+                    ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+            }
+            $table->column(key: 'number_reads', label: __('reads'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_clicks', label: __('clicks'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        }
         $this->canEdit = $request->user()->hasPermissionTo('mail.edit');
         return
             (
@@ -128,17 +147,27 @@ class IndexDispatchedEmails extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('dispatched emails '),
+                'title'       => __('dispatched emails'),
                 'pageHead'    => [
                     'title' => __('dispatched emails'),
+                    'icon'  => ['fal', 'fa-paper-plane'],
                 ],
-                'dispatched emails' => DispatchedEmailResource::collection($dispatched_emails),
-
-
+                ...array_merge(
+                    ($this->parent instanceof Group) ?
+                    ['data' => DispatchedEmailResource::collection($dispatched_emails)] :
+                    ['dispatched_emails' => DispatchedEmailResource::collection($dispatched_emails)]
+                ),
             ]
         )->table($this->tableStructure($this->parent));
     }
 
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup($this->parent, $request);
+
+        return $this->handle(parent: $this->parent);
+    }
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
@@ -173,12 +202,13 @@ class IndexDispatchedEmails extends OrgAction
     {
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
-                $routeName => [
-                    'route'           => $routeName,
-                    'routeParameters' => $routeParameters,
-                    'modelLabel'      => [
-                        'label' => __('Outbox')
-                    ]
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __('Dispatched Emails'),
+                        'icon'  => 'fal fa-bars'
+                    ],
                 ],
             ];
         };
@@ -196,6 +226,16 @@ class IndexDispatchedEmails extends OrgAction
             array_merge(
                 (new ShowPostRoom())->getBreadcrumbs(),
                 $headCrumb([])
+            ),
+            'grp.overview.comms-marketing.dispatched-emails.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ]
+                )
             ),
             default => []
         };

@@ -12,7 +12,7 @@ use App\Actions\Goods\StockFamily\Hydrators\StockFamilyHydrateStocks;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStocks;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithOrganisationArgument;
-use App\Models\SupplyChain\Stock;
+use App\Models\Goods\Stock;
 use Exception;
 use Illuminate\Console\Command;
 
@@ -43,6 +43,7 @@ class DeleteStock
     {
 
         try {
+            /** @var Stock $stock */
             $stock = Stock::findOrFail($command->argument('stock'));
         } catch (Exception $e) {
             $command->error('Stock not found '.$e->getMessage());

@@ -7,16 +7,16 @@
 */
 
 export const IconList = {
-    'in-process': "fal fa-seedling",
+    'in_process': "fal fa-seedling",
     'creating': "fal fa-seedling",
     'submitted': "fal fa-paper-plane",
     'confirmed': "fal fa-check-circle",
     'received': "fal fa-check",
-    'not-received': "fal fa-times",
+    'not_received': "fal fa-times",
 
     'checked': "fal fa-check",
-    'booking-in': "fal fa-check",
-    'booked-in': "fal fa-check-double",
+    'booking_in': "fal fa-check",
+    'booked_in': "fal fa-check-double",
     'storing': "fal fa-archive",
     'dispatched': "fal fa-shipping-fast",
     'picking': "fal fa-hand-paper",
@@ -24,7 +24,7 @@ export const IconList = {
     'picked': "fal fa-box-check",
     'damaged': "fal fa-fragile",
     'lost': "fal fa-ghost",
-    'other-incident': "fal fa-exclamation-circle",
+    'other_incident': "fal fa-exclamation-circle",
 
     'in_warehouse': "fal fa-warehouse",
     'handling': "fal fa-hands-helping",

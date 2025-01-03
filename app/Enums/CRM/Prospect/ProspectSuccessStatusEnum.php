@@ -16,14 +16,14 @@ enum ProspectSuccessStatusEnum: string
 {
     use EnumHelperTrait;
 
-    case NA         = 'no-applicable';
+    case NA         = 'no_applicable';
     case REGISTERED = 'registered';
     case INVOICED   = 'invoiced';
 
     public static function labels(): array
     {
         return [
-            'no-applicable' => __('NA'),
+            'no_applicable' => __('NA'),
             'registered'    => __('Registered'),
             'invoiced'      => __('Invoiced'),
         ];
@@ -32,7 +32,7 @@ enum ProspectSuccessStatusEnum: string
     public static function statusIcon(): array
     {
         return [
-            'no-applicable' => [
+            'no_applicable' => [
 
                 'tooltip' => __('NA'),
                 'icon'    => 'fal fa-location-slash',
@@ -57,7 +57,7 @@ enum ProspectSuccessStatusEnum: string
         $stats = $parent->crmStats;
 
         return [
-            'no-applicable' => $stats->number_prospects_success_status_no_applicable,
+            'no_applicable' => $stats->number_prospects_success_status_no_applicable,
             'registered'    => $stats->number_prospects_success_status_registered,
             'invoiced'      => $stats->number_prospects_success_status_invoiced,
         ];

@@ -16,14 +16,14 @@ enum OrganisationTypeEnum: string
 
     case SHOP           = 'shop';
     case AGENT          = 'agent';
-    case DIGITAL_AGENCY = 'digital-agency';
+    case DIGITAL_AGENCY = 'digital_agency';
 
     public static function labels(): array
     {
         return [
             'shop'           => __('Shop'),
             'agent'          => __('Agent'),
-            'digital-agency' => __('Digital Agency'),
+            'digital_agency' => __('Digital Agency'),
         ];
     }
 
@@ -40,7 +40,7 @@ enum OrganisationTypeEnum: string
                 'icon'    => 'fal fa-people-arrows',
 
             ],
-            'digital-agency' => [
+            'digital_agency' => [
                 'tooltip' => __('Digital Agency'),
                 'icon'    => 'fal fa-ad',
             ],

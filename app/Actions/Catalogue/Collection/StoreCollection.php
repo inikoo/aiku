@@ -22,6 +22,7 @@ use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreCollection extends OrgAction
@@ -76,7 +77,7 @@ class StoreCollection extends OrgAction
                 ),
             ],
             'name'                 => ['required', 'max:250', 'string'],
-            'image_id'             => ['sometimes', 'required', 'exists:media,id'],
+            'image_id'             => ['sometimes', 'required', Rule::exists('media', 'id')->where('group_id', $this->organisation->group_id)],
             'description'          => ['sometimes', 'required', 'max:1500'],
             ];
     }

@@ -24,6 +24,8 @@ import Avatar from '@/Components/Forms/Fields/Avatar.vue'
 import Checkbox from '@/Components/Forms/Fields/Checkbox.vue'
 import AppTheme from '@/Components/Forms/Fields/AppTheme.vue'
 import Action from '@/Components/Forms/Fields/Action.vue'
+import AppLogin from '@/Components/Forms/Fields/AppLogin.vue'
+import Pin from '@/Components/Forms/Fields/Pin.vue'
 
 const GoogleSearch = defineAsyncComponent(() => import('@/Components/Forms/Fields/GoogleSearch.vue'))
 const EmployeeState = defineAsyncComponent(() => import('@/Components/Forms/Fields/Employee/EmployeeState.vue'))
@@ -38,7 +40,6 @@ const Interest = defineAsyncComponent(() => import('@/Components/Forms/Fields/In
 const EmployeePosition = defineAsyncComponent(() => import('@/Components/Forms/Fields/EmployeePosition.vue'))
 const MailshotRecipient = defineAsyncComponent(() => import('@/Components/Forms/Fields/MailshotRecipients.vue'))
 
-const AppLogin = defineAsyncComponent(() => import('@/Components/Forms/Fields/AppLogin.vue'))
 
 export const componentsList: {[key: string]: Component} = {
     'input': Input,
@@ -75,6 +76,7 @@ export const componentsList: {[key: string]: Component} = {
     'app_theme': AppTheme,
     'googleSearch': GoogleSearch,
     'employeeState': EmployeeState,
+    'pin' : Pin
 }
 
 export const getComponent = (componentName: string) => {

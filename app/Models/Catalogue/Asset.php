@@ -39,6 +39,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $group_id
  * @property int $organisation_id
  * @property int|null $shop_id
+ * @property int|null $master_asset_id
  * @property string $slug
  * @property bool $is_main
  * @property AssetTypeEnum $type
@@ -53,7 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property numeric $units mirror of asset model
  * @property string|null $unit mirror of asset model
  * @property int $currency_id
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -78,6 +79,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Service|null $service
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\AssetStats|null $stats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\AssetTimeSeries> $timeSeries
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Transaction> $transactions
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Asset newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Asset newQuery()
@@ -124,7 +126,7 @@ class Asset extends Model implements HasMedia
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(64);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function stats(): HasOne
@@ -142,6 +144,16 @@ class Asset extends Model implements HasMedia
         return $this->hasOne(AssetOrderingStats::class);
     }
 
+    public function orderingIntervals(): HasOne
+    {
+        return $this->hasOne(AssetOrderingIntervals::class);
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(AssetTimeSeries::class);
+    }
+
     public function invoiceTransactions(): HasMany
     {
         return $this->hasMany(InvoiceTransaction::class);
@@ -152,10 +164,7 @@ class Asset extends Model implements HasMedia
         return $this->hasMany(Transaction::class);
     }
 
-    public function orderingIntervals(): HasOne
-    {
-        return $this->hasOne(AssetOrderingIntervals::class);
-    }
+
 
     public function barcode(): MorphToMany
     {
@@ -201,5 +210,6 @@ class Asset extends Model implements HasMedia
     {
         return $this->morphTo();
     }
+
 
 }

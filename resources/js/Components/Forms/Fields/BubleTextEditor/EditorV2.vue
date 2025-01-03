@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, defineExpose } from "vue"
+import { onBeforeUnmount, onMounted, ref } from "vue"
 import { useEditor, EditorContent, BubbleMenu } from '@tiptap/vue-3'
 /* import type DataTable from "@/models/table" */
 import Select from 'primevue/select'

@@ -38,11 +38,11 @@ const listStatusNotPicked = [
     },
     {
         label: trans('Other incident'),
-        value: 'other-incident'
+        value: 'other_incident'
     }
 ]
 const selectedStatusNotPicked = reactive({
-    status: 'other-incident',
+    status: 'other_incident',
     notes: ''
 })
 const errorNotPicked = reactive({
@@ -134,7 +134,7 @@ onBeforeMount(() => {
 </script>
 
 <template>
-    <Table :resource="data" :name="'stored_items'" class="mt-5" :isCheckBox="state == 'in-process' ? true : false"
+    <Table :resource="data" :name="'stored_items'" class="mt-5" :isCheckBox="state == 'in_process' ? true : false"
         @onSelectRow="onChangeCheked" ref="_table" :selectedRow="selectedRow">
         
         <template #cell(reference)="{ item: value }">
@@ -148,14 +148,14 @@ onBeforeMount(() => {
         <template #cell(quantity)="{ item: item }">
             <div class="w-full flex justify-end">
                 <div class="flex min-w-8 max-w-32 justify-end">
-                    <PureInputNumber v-if="item.is_checked && state == 'in-process'" v-model="item.data.quantity"
+                    <PureInputNumber v-if="item.is_checked && state == 'in_process'" v-model="item.data.quantity"
                         :maxValue="item.total_quantity" :minValue="1" @update:modelValue="changeValueQty" />
-                    <div v-if="state != 'in-process'" class="py-3">{{ item.data.quantity }}</div>
+                    <div v-if="state != 'in_process'" class="py-3">{{ item.data.quantity }}</div>
                 </div>
             </div>
         </template>
 
-        <template #cell(actions)="{ item: pallet }" v-if="props.state == 'in-process' || props.state == 'picking'">
+        <template #cell(actions)="{ item: pallet }" v-if="props.state == 'in_process' || props.state == 'picking'">
             <div v-if="props.state == 'picking' && layout.app.name == 'Aiku'" class="flex gap-x-2 relative">
                 <Link v-if="pallet.state === 'picking'" as="div"
                     :href="route(pallet.updateRoute.name, pallet.updateRoute.parameters)"

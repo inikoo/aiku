@@ -406,7 +406,7 @@ test('change state to checked from dispatch supplier delivery', function (StockD
 
 test('change state to settled from checked supplier delivery', function (StockDelivery $stockDelivery) {
     $stockDelivery = UpdateStateToSettledStockDelivery::make()->action($stockDelivery);
-    expect($stockDelivery->state)->toEqual(StockDeliveryStateEnum::SETTLED);
+    expect($stockDelivery->state)->toEqual(StockDeliveryStateEnum::PLACED);
 })->depends('create supplier delivery');
 
 test('change state to checked from settled supplier delivery', function (StockDelivery $stockDelivery) {

@@ -13,7 +13,7 @@ use App\Enums\EnumHelperTrait;
 enum ShippingZoneSchemaStateEnum: string
 {
     use EnumHelperTrait;
-    case IN_PROCESS    = 'in-process';
+    case IN_PROCESS    = 'in_process';
     case LIVE       = 'live';
     case DECOMMISSIONED = 'decommissioned';
 

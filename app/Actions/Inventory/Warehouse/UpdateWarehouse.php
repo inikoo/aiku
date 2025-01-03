@@ -40,7 +40,7 @@ class UpdateWarehouse extends OrgAction
 
 
         if ($warehouse->wasChanged('state')) {
-            GroupHydrateWarehouses::run($warehouse->group)->delay($this->hydratorsDelay);
+            GroupHydrateWarehouses::dispatch($warehouse->group)->delay($this->hydratorsDelay);
             OrganisationHydrateWarehouses::dispatch($warehouse->organisation)->delay($this->hydratorsDelay);
         }
         WarehouseRecordSearch::dispatch($warehouse);

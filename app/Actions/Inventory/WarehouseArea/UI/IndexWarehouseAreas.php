@@ -11,11 +11,13 @@ namespace App\Actions\Inventory\WarehouseArea\UI;
 use App\Actions\Inventory\UI\ShowInventoryDashboard;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Enums\UI\Inventory\WarehouseTabsEnum;
 use App\Http\Resources\Inventory\WarehouseAreaResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -29,11 +31,13 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexWarehouseAreas extends OrgAction
 {
-    protected Warehouse|Organisation $parent;
+    protected Group|Warehouse|Organisation $parent;
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->parent instanceof Organisation) {
+        if ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        } elseif ($this->parent instanceof Organisation) {
             $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
 
             return $request->user()->hasAnyPermission(
@@ -66,6 +70,14 @@ class IndexWarehouseAreas extends OrgAction
         return $this->handle($organisation);
     }
 
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup(group(), $request)->withTab(WarehouseTabsEnum::values());
+
+        return $this->handle($this->parent);
+    }
+
     public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $warehouse;
@@ -74,7 +86,7 @@ class IndexWarehouseAreas extends OrgAction
         return $this->handle($warehouse);
     }
 
-    public function handle(Warehouse|Organisation $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Warehouse|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -89,6 +101,10 @@ class IndexWarehouseAreas extends OrgAction
 
         $queryBuilder = QueryBuilder::for(WarehouseArea::class);
 
+        if ($parent instanceof Group) {
+            $queryBuilder->where('warehouse_areas.group_id', $parent->id);
+        }
+
 
         return $queryBuilder
             ->defaultSort('warehouse_areas.code')
@@ -99,11 +115,14 @@ class IndexWarehouseAreas extends OrgAction
                     'warehouse_areas.name',
                     'number_locations',
                     'warehouses.slug as warehouse_slug',
-                    'warehouse_areas.slug'
+                    'warehouse_areas.slug',
+                    'organisations.slug as organisation_slug',
+                    'organisations.name as organisation_name'
                 ]
             )
             ->leftJoin('warehouse_area_stats', 'warehouse_area_stats.warehouse_area_id', 'warehouse_areas.id')
             ->leftJoin('warehouses', 'warehouse_areas.warehouse_id', 'warehouses.id')
+            ->leftJoin('organisations', 'warehouse_areas.organisation_id', 'organisations.id')
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Warehouse') {
                     $query->where('warehouse_areas.warehouse_id', $parent->id);
@@ -194,6 +213,18 @@ class IndexWarehouseAreas extends OrgAction
             ];
         }
 
+        $icon = [
+            'icon'  => ['fal', 'fa-map-signs'],
+            'title' => __('warehouse areas')
+        ];
+
+        if ($scope instanceof Group) {
+            $icon = [
+                'icon'  => ['fal', 'fa-industry-alt'],
+                'title' => __('warehouses areas')
+            ];
+        }
+
         return Inertia::render(
             'Org/Warehouse/WarehouseAreas',
             [
@@ -205,10 +236,7 @@ class IndexWarehouseAreas extends OrgAction
                 'pageHead'    => [
                     'title'     => __('warehouse areas'),
                     'container' => $container,
-                    'icon'      => [
-                        'icon'  => ['fal', 'fa-map-signs'],
-                        'title' => __('warehouse areas')
-                    ],
+                    'icon'      => $icon,
                     'actions'   => [
                         $this->canEdit && $request->route()->getName() == 'grp.org.warehouses.show.infrastructure.warehouse_areas.index' ? [
                             'type'   => 'buttonGroup',
@@ -262,6 +290,16 @@ class IndexWarehouseAreas extends OrgAction
         };
 
         return match ($routeName) {
+            'grp.overview.inventory.warehouses-areas.index' =>
+            array_merge(
+                ShowOverviewHub::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
             'grp.org.warehouse-areas.index' =>
             array_merge(
                 (new ShowInventoryDashboard())->getBreadcrumbs($routeParameters),

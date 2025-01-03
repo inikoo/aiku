@@ -21,10 +21,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_customers_who_un_favourited
  * @property int $number_customers_who_reminded
  * @property int $number_customers_who_un_reminded
- * @property int $number_products_state_in_process
- * @property int $number_products_state_active
- * @property int $number_products_state_discontinuing
- * @property int $number_products_state_discontinued
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Catalogue\Product $product

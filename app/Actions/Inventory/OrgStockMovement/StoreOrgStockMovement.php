@@ -34,10 +34,10 @@ class StoreOrgStockMovement extends OrgAction
         data_set($modelData, 'date', now(), overwrite: false);
 
 
-        data_set($modelData, 'group_amount', Arr::get($modelData, 'amount') * GetCurrencyExchange::run($orgStock->organisation->currency, $orgStock->group->currency), overwrite: false);
+        data_set($modelData, 'grp_amount', Arr::get($modelData, 'org_amount') * GetCurrencyExchange::run($orgStock->organisation->currency, $orgStock->group->currency), overwrite: false);
 
         $class = OrgStockMovementClassEnum::MOVEMENT;
-        if (in_array($modelData['type'], [OrgStockMovementTypeEnum::ASSOCIATE,OrgStockMovementTypeEnum::DISASSOCIATE])) {
+        if (in_array($modelData['type'], [OrgStockMovementTypeEnum::ASSOCIATE, OrgStockMovementTypeEnum::DISASSOCIATE])) {
             $class = OrgStockMovementClassEnum::HELPER;
         }
 
@@ -63,13 +63,13 @@ class StoreOrgStockMovement extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'date'          => ['required', 'date'],
-            'quantity'      => ['required', 'numeric'],
-            'amount'        => ['required', 'numeric'],
-            'data'          => ['sometimes', 'array'],
-            'type'          => ['required', Rule::enum(OrgStockMovementTypeEnum::class)],
-            'is_delivered'  => ['sometimes', 'boolean'],
-            'is_received'   => ['sometimes', 'boolean'],
+            'date'         => ['required', 'date'],
+            'quantity'     => ['required', 'numeric'],
+            'org_amount'   => ['required', 'numeric'],
+            'data'         => ['sometimes', 'array'],
+            'type'         => ['required', Rule::enum(OrgStockMovementTypeEnum::class)],
+            'is_delivered' => ['sometimes', 'boolean'],
+            'is_received'  => ['sometimes', 'boolean'],
         ];
         if (!$this->strict) {
             $rules['fetched_at'] = ['sometimes', 'date'];

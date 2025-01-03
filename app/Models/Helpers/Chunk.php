@@ -22,7 +22,7 @@ use Pgvector\Laravel\Vector;
  * @property string $guid
  * @property string $sort_order
  * @property string|null $content
- * @property array|null $metadata
+ * @property array<array-key, mixed>|null $metadata
  * @property \Pgvector\Laravel\Vector|null $embedding_768
  * @property \Pgvector\Laravel\Vector|null $embedding_1536
  * @property \Pgvector\Laravel\Vector|null $embedding_2048

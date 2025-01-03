@@ -78,7 +78,10 @@ class IndexRecurringBills extends RetinaAction
                         'count'       => $parent->number_recurring_bills
                     ]
                 )
-                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'net_amount', label: __('net'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'start_date', label: __('start date'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'end_date', label: __('end date'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 

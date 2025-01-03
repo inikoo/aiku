@@ -33,8 +33,7 @@ class GetSerialReference
             $res = DB::table('serial_references')->select('serial')
                 ->where('id', $serialReference->id)->first();
 
-            /** @noinspection PhpPossiblePolymorphicInvocationInspection */
-            $serial = (int) $res->serial + 1;
+            $serial = (int)$res->serial + 1;
 
 
             DB::table('serial_references')

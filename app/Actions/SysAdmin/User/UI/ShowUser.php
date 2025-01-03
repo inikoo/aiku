@@ -11,6 +11,7 @@ namespace App\Actions\SysAdmin\User\UI;
 use App\Actions\Analytics\UserRequest\UI\ShowUserRequestLogs;
 use App\Actions\GrpAction;
 use App\Actions\Helpers\History\UI\IndexHistory;
+use App\Actions\SysAdmin\User\WithUserSubNavigation;
 use App\Actions\UI\Grp\SysAdmin\ShowSysAdminDashboard;
 use App\Enums\UI\SysAdmin\UserTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -24,6 +25,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowUser extends GrpAction
 {
+    use WithUserSubNavigation;
+
     public function asController(User $user, ActionRequest $request): User
     {
         $this->initialisation(app('group'), $request)->withTab(UserTabsEnum::values());
@@ -62,6 +65,7 @@ class ShowUser extends GrpAction
                             'icon'  => ['fal', 'fa-terminal'],
                             'title' => __('user')
                         ],
+                    'subNavigation' => $this->getUserNavigation($user, $request),
                     'title'   => $user->username,
                     'actions' => [
                         $this->canEdit ? [
@@ -83,17 +87,17 @@ class ShowUser extends GrpAction
                     fn () => UserShowcaseResource::make($user)
                     : Inertia::lazy(fn () => UserShowcaseResource::make($user)),
 
-                UserTabsEnum::REQUEST_LOGS->value => $this->tab == UserTabsEnum::REQUEST_LOGS->value ?
-                    fn () => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username))
-                    : Inertia::lazy(fn () => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username))),
+                // UserTabsEnum::REQUEST_LOGS->value => $this->tab == UserTabsEnum::REQUEST_LOGS->value ?
+                //     fn () => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username))
+                //     : Inertia::lazy(fn () => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username))),
 
-                UserTabsEnum::ROLES->value => $this->tab == UserTabsEnum::ROLES->value ?
-                    fn () => $user->roles->pluck('name')
-                    : Inertia::lazy(fn () => $user->roles->pluck('name')),
+                // UserTabsEnum::ROLES->value => $this->tab == UserTabsEnum::ROLES->value ?
+                //     fn () => $user->roles->pluck('name')
+                //     : Inertia::lazy(fn () => $user->roles->pluck('name')),
 
-                UserTabsEnum::PERMISSIONS->value => $this->tab == UserTabsEnum::PERMISSIONS->value ?
-                    fn () => $user->getAllPermissions()->pluck('name')
-                    : Inertia::lazy(fn () => $user->getAllPermissions()->pluck('name')),
+                // UserTabsEnum::PERMISSIONS->value => $this->tab == UserTabsEnum::PERMISSIONS->value ?
+                //     fn () => $user->getAllPermissions()->pluck('name')
+                //     : Inertia::lazy(fn () => $user->getAllPermissions()->pluck('name')),
 
                 UserTabsEnum::HISTORY->value => $this->tab == UserTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($user))

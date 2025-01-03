@@ -19,9 +19,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $order_id
  * @property int $number_transactions_out_of_stock_in_basket transactions at the time up submission from basket
- * @property string $out_of_stock_in_basket_net_amount
  * @property string|null $out_of_stock_in_basket_grp_net_amount
  * @property string|null $out_of_stock_in_basket_org_net_amount
+ * @property string $out_of_stock_in_basket_net_amount
  * @property int $number_transactions_at_submission transactions at the time up submission from basket
  * @property int $number_created_transactions_after_submission
  * @property int $number_updated_transactions_after_submission
@@ -44,13 +44,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_offer_components
  * @property int $number_transactions_with_offers
  * @property string $discounts_amount from % offs
+ * @property string $giveaways_value_amount Value of goods given for free
+ * @property string $cashback_amount
+ * @property string|null $org_giveaways_value_amount
+ * @property string|null $org_cashback_amount
  * @property string|null $org_discounts_amount
  * @property string|null $grp_discounts_amount
- * @property string $giveaways_value_amount Value of goods given for free
- * @property string|null $org_giveaways_value_amount
  * @property string|null $grp_giveaways_value_amount
- * @property string $cashback_amount
- * @property string|null $org_cashback_amount
  * @property string|null $grp_cashback_amount
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

@@ -74,16 +74,26 @@ class AppServiceProvider extends ServiceProvider
                 'TariffCode'                    => 'App\Models\Helpers\TariffCode',
                 'Timezone'                      => 'App\Models\Helpers\Timezone',
 
+                // Billables
+                'Charge'                        => 'App\Models\Billables\Charge',
+                'Rental'                        => 'App\Models\Billables\Rental',
+                'Service'                       => 'App\Models\Billables\Service',
+
                 // CRM
-                'Customer'                      => 'App\Models\CRM\Customer',
-                'Prospect'                      => 'App\Models\CRM\Prospect',
                 'Appointment'                   => 'App\Models\CRM\Appointment',
+                'BackInStockReminder'           => 'App\Models\CRM\BackInStockReminder',
+                'Customer'                      => 'App\Models\CRM\Customer',
+                'CustomerNote'                  => 'App\Models\CRM\CustomerNote',
+                'Favourite'                     => 'App\Models\CRM\Favourite',
+                'Poll'                          => 'App\Models\CRM\Poll',
+                'PollOption'                    => 'App\Models\CRM\PollOption',
+                'PollReply'                     => 'App\Models\CRM\PollReply',
+                'Prospect'                      => 'App\Models\CRM\Prospect',
                 'WebUser'                       => 'App\Models\CRM\WebUser',
 
                 // Dispatching
                 'DeliveryNote'                  => 'App\Models\Dispatching\DeliveryNote',
                 'DeliveryNoteItem'              => 'App\Models\Dispatching\DeliveryNoteItem',
-                'ShippingEvent'                 => 'App\Models\Dispatching\ShippingEvent',
                 'PdfLabel'                      => 'App\Models\Dispatching\PdfLabel',
                 'Picking'                       => 'App\Models\Dispatching\Picking',
                 'Shipment'                      => 'App\Models\Dispatching\Shipment',
@@ -108,7 +118,14 @@ class AppServiceProvider extends ServiceProvider
                 'RecurringBill'                 => 'App\Models\Fulfilment\RecurringBill',
 
                 // Goods
+                'Ingredient'                    => 'App\Models\Goods\Ingredient',
+                'MasterAsset'                   => 'App\Models\Goods\MasterAsset',
+                'MasterProductCategory'         => 'App\Models\Goods\MasterProductCategory',
+                'MasterShop'                    => 'App\Models\Goods\MasterShop',
+                'Stock'                         => 'App\Models\Goods\Stock',
+                'StockFamily'                   => 'App\Models\Goods\StockFamily',
                 'TradeUnit'                     => 'App\Models\Goods\TradeUnit',
+
 
                 // Helpers
                 'Address'                       => 'App\Models\Helpers\Address',
@@ -118,7 +135,7 @@ class AppServiceProvider extends ServiceProvider
                 'Deployment'                    => 'App\Models\Helpers\Deployment',
                 'Fetch'                         => 'App\Models\Helpers\Fetch',
                 'FetchRecord'                   => 'App\Models\Helpers\FetchRecord',
-                'Issue'                         => 'App\Models\Helpers\Issue',
+                'Feedback'                      => 'App\Models\Helpers\Feedback',
                 'Query'                         => 'App\Models\Helpers\Query',
                 'SerialReference'               => 'App\Models\Helpers\SerialReference',
                 'Snapshot'                      => 'App\Models\Helpers\Snapshot',
@@ -127,6 +144,7 @@ class AppServiceProvider extends ServiceProvider
                 'Upload'                        => 'App\Models\Helpers\Upload',
                 'UploadRecord'                  => 'App\Models\Helpers\UploadRecord',
                 'Media'                         => 'App\Models\Helpers\Media',
+                'UniversalSearch'               => 'App\Models\Helpers\UniversalSearch',
 
                 // Human Resources
                 'JobPosition'                   => 'App\Models\HumanResources\JobPosition',
@@ -170,11 +188,7 @@ class AppServiceProvider extends ServiceProvider
                 'HistoricAsset'                 => 'App\Models\Catalogue\HistoricAsset',
                 'Product'                       => 'App\Models\Catalogue\Product',
                 'Collection'                    => 'App\Models\Catalogue\Collection',
-                'Rental'                        => 'App\Models\Billables\Rental',
-                'Service'                       => 'App\Models\Billables\Service',
-                'Charge'                        => 'App\Models\Billables\Charge',
                 'Shipping'                      => 'App\Models\Catalogue\Shipping',
-                'Adjustment'                    => 'App\Models\Ordering\Adjustment',
 
                 // Discounts
                 'Offer'                         => 'App\Models\Discounts\Offer',
@@ -185,13 +199,15 @@ class AppServiceProvider extends ServiceProvider
                 'FcmToken'                      => 'App\Models\Notifications\FcmToken',
 
                 // Ordering
+                'Adjustment'                    => 'App\Models\Ordering\Adjustment',
                 'Order'                         => 'App\Models\Ordering\Order',
-                'Transaction'                   => 'App\Models\Ordering\Transaction',
+                'Purge'                         => 'App\Models\Ordering\Purge',
+                'SalesChannel'                  => 'App\Models\Ordering\SalesChannel',
                 'ShippingZone'                  => 'App\Models\Ordering\ShippingZone',
                 'ShippingZoneSchema'            => 'App\Models\Ordering\ShippingZoneSchema',
+                'Transaction'                   => 'App\Models\Ordering\Transaction',
 
                 // Procurement
-                'HistoricSupplierProduct'       => 'App\Models\SupplyChain\HistoricSupplierProduct',
                 'OrgAgent'                      => 'App\Models\Procurement\OrgAgent',
                 'OrgSupplier'                   => 'App\Models\Procurement\OrgSupplier',
                 'OrgSupplierProduct'            => 'App\Models\Procurement\OrgSupplierProduct',
@@ -199,15 +215,12 @@ class AppServiceProvider extends ServiceProvider
                 'PurchaseOrderTransaction'      => 'App\Models\Procurement\PurchaseOrderTransaction',
                 'StockDelivery'                 => 'App\Models\Procurement\StockDelivery',
                 'StockDeliveryItem'             => 'App\Models\Procurement\StockDeliveryItem',
-                'SupplierProductTradeUnit'      => 'App\Models\SupplyChain\SupplierProductTradeUnit',
                 'OrgPartner'                    => 'App\Models\Procurement\OrgPartner',
 
-                // Search
-                'UniversalSearch'               => 'App\Models\Helpers\UniversalSearch',
 
                 // Supply Chain
-                'Stock'                         => 'App\Models\SupplyChain\Stock',
-                'StockFamily'                   => 'App\Models\SupplyChain\StockFamily',
+                'HistoricSupplierProduct'       => 'App\Models\SupplyChain\HistoricSupplierProduct',
+                'SupplierProductTradeUnit'      => 'App\Models\SupplyChain\SupplierProductTradeUnit',
                 'SupplierProduct'               => 'App\Models\SupplyChain\SupplierProduct',
                 'Supplier'                      => 'App\Models\SupplyChain\Supplier',
                 'Agent'                         => 'App\Models\SupplyChain\Agent',
@@ -227,6 +240,7 @@ class AppServiceProvider extends ServiceProvider
                 'Webpage'                       => 'App\Models\Web\Webpage',
                 'WebBlock'                      => 'App\Models\Web\WebBlock',
                 'WebBlockType'                  => 'App\Models\Web\WebBlockType',
+                'Banner'                        => 'App\Models\Web\Banner',
 
                 //Production
                 'Production'                    => 'App\Models\Production\Production',

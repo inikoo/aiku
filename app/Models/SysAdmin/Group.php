@@ -26,8 +26,6 @@ use App\Models\Billables\Service;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\CollectionCategory;
-use App\Models\Catalogue\MasterProduct;
-use App\Models\Catalogue\MasterProductCategory;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
@@ -55,6 +53,11 @@ use App\Models\Dropshipping\Portfolio;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Goods\Ingredient;
+use App\Models\Goods\MasterAsset;
+use App\Models\Goods\MasterProductCategory;
+use App\Models\Goods\MasterShop;
+use App\Models\Goods\Stock;
+use App\Models\Goods\StockFamily;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Currency;
@@ -66,19 +69,17 @@ use App\Models\HumanResources\JobPosition;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
-use App\Models\Production\Artefact;
-use App\Models\Production\ManufactureTask;
-use App\Models\Production\Production;
-use App\Models\Production\RawMaterial;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Purge;
 use App\Models\Ordering\SalesChannel;
 use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\Production\Artefact;
+use App\Models\Production\ManufactureTask;
+use App\Models\Production\Production;
+use App\Models\Production\RawMaterial;
 use App\Models\SupplyChain\Agent;
-use App\Models\SupplyChain\Stock;
-use App\Models\SupplyChain\StockFamily;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\Traits\HasHistory;
@@ -120,13 +121,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $timezone_id
  * @property int $currency_id customer accounting currency
  * @property int|null $image_id
- * @property array $limits
- * @property array $data
- * @property array $settings
+ * @property array<array-key, mixed> $limits
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
  * @property int $number_organisations
- * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read LaravelCollection<int, DispatchedEmail> $DispatchedEmails
  * @property-read \App\Models\SysAdmin\GroupAccountingStats|null $accountingStats
  * @property-read LaravelCollection<int, Agent> $agents
@@ -176,8 +177,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupMailshotsIntervals|null $mailshotsIntervals
  * @property-read \App\Models\SysAdmin\GroupManufactureStats|null $manufactureStats
  * @property-read LaravelCollection<int, ManufactureTask> $manufactureTasks
+ * @property-read LaravelCollection<int, MasterAsset> $masterAssets
  * @property-read LaravelCollection<int, MasterProductCategory> $masterProductCategories
- * @property-read LaravelCollection<int, MasterProduct> $masterProducts
+ * @property-read LaravelCollection<int, MasterShop> $masterShops
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read LaravelCollection<int, OfferCampaign> $offerCampaigns
  * @property-read LaravelCollection<int, Offer> $offers
@@ -188,6 +190,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read LaravelCollection<int, OrgPostRoom> $orgPostRooms
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Organisation> $organisations
+ * @property-read \App\Models\SysAdmin\GroupOutboxColdEmailsIntervals|null $outboxColdEmailsIntervals
+ * @property-read \App\Models\SysAdmin\GroupOutboxCustomerNotificationIntervals|null $outboxCustomerNotificationIntervals
+ * @property-read \App\Models\SysAdmin\GroupOutboxMarketingIntervals|null $outboxMarketingIntervals
+ * @property-read \App\Models\SysAdmin\GroupOutboxMarketingNotificationIntervals|null $outboxMarketingNotificationIntervals
+ * @property-read \App\Models\SysAdmin\GroupOutboxNewsletterIntervals|null $outboxNewsletterIntervals
+ * @property-read \App\Models\SysAdmin\GroupOutboxPushIntervals|null $outboxPushIntervals
+ * @property-read \App\Models\SysAdmin\GroupOutboxTestIntervals|null $outboxTestIntervals
+ * @property-read \App\Models\SysAdmin\GroupOutboxUserNotificationIntervals|null $outboxUserNotificationIntervals
  * @property-read LaravelCollection<int, Outbox> $outboxes
  * @property-read LaravelCollection<int, Packing> $packings
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
@@ -226,6 +236,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupSysadminIntervals|null $sysadminIntervals
  * @property-read \App\Models\SysAdmin\GroupSysAdminStats|null $sysadminStats
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Task> $tasks
+ * @property-read LaravelCollection<int, \App\Models\SysAdmin\GroupTimeSeries> $timeSeries
  * @property-read LaravelCollection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read LaravelCollection<int, TopUp> $topUps
  * @property-read LaravelCollection<int, TradeUnit> $tradeUnits
@@ -770,9 +781,14 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasMany(Upload::class);
     }
 
-    public function masterProducts(): HasMany
+    public function masterShops(): HasMany
     {
-        return $this->hasMany(MasterProduct::class);
+        return $this->hasMany(MasterShop::class);
+    }
+
+    public function masterAssets(): HasMany
+    {
+        return $this->hasMany(MasterAsset::class);
     }
 
     public function masterProductCategories(): HasMany
@@ -858,6 +874,52 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function sysadminIntervals(): HasOne
     {
         return $this->hasOne(GroupSysadminIntervals::class);
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(GroupTimeSeries::class);
+    }
+
+    public function outboxNewsletterIntervals(): HasOne
+    {
+        return $this->hasOne(GroupOutboxNewsletterIntervals::class);
+    }
+
+
+    public function outboxMarketingIntervals(): HasOne
+    {
+        return $this->hasOne(GroupOutboxMarketingIntervals::class);
+    }
+
+    public function outboxMarketingNotificationIntervals(): HasOne
+    {
+        return $this->hasOne(GroupOutboxMarketingNotificationIntervals::class);
+    }
+
+    public function outboxCustomerNotificationIntervals(): HasOne
+    {
+        return $this->hasOne(GroupOutboxCustomerNotificationIntervals::class);
+    }
+
+    public function outboxColdEmailsIntervals(): HasOne
+    {
+        return $this->hasOne(GroupOutboxColdEmailsIntervals::class);
+    }
+
+    public function outboxUserNotificationIntervals(): HasOne
+    {
+        return $this->hasOne(GroupOutboxUserNotificationIntervals::class);
+    }
+
+    public function outboxPushIntervals(): HasOne
+    {
+        return $this->hasOne(GroupOutboxPushIntervals::class);
+    }
+
+    public function outboxTestIntervals(): HasOne
+    {
+        return $this->hasOne(GroupOutboxTestIntervals::class);
     }
 
 }

@@ -8,7 +8,12 @@
 
 namespace App\Actions\UI\Grp\Layout;
 
+use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Inventory\Warehouse;
+use App\Models\Production\Production;
 use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\OrganisationAuthorisedModels;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -44,9 +49,11 @@ class GetOrganisationNavigation
         }
 
         $shops_navigation = [];
+        /** @var OrganisationAuthorisedModels $authorisedModel */
         foreach (
             $organisation->authorisedModels()->where('user_id', $user->id)->where('model_type', 'Shop')->get() as $authorisedModel
         ) {
+            /** @var Shop $shop */
             $shop                          = $authorisedModel->model;
             $shops_navigation[$shop->slug] = [
                 'type'          => $shop->type,
@@ -79,6 +86,7 @@ class GetOrganisationNavigation
         foreach (
             $organisation->authorisedModels()->where('user_id', $user->id)->where('model_type', 'Fulfilment')->get() as $authorisedModel
         ) {
+            /** @var Fulfilment $fulfilment */
             $fulfilment                                = $authorisedModel->model;
             $fulfilments_navigation[$fulfilment->slug] = [
                 'type'              => $fulfilment->type ?? 'fulfilment',
@@ -105,6 +113,7 @@ class GetOrganisationNavigation
                 ->where('model_type', 'Production')
                 ->get() as $authorisedModel
         ) {
+            /** @var Production $production */
             $production         = $authorisedModel->model;
             $navigation['productions_navigation']
             [$production->slug] = GetProductionNavigation::run($production, $user);
@@ -142,14 +151,11 @@ class GetOrganisationNavigation
                 ->where('model_type', 'Warehouse')
                 ->get() as $authorisedModel
         ) {
+            /** @var Warehouse $warehouse */
             $warehouse                                             = $authorisedModel->model;
+
             $navigation['warehouses_navigation'][$warehouse->slug] = GetWarehouseNavigation::run($warehouse, $user);
         }
-
-
-
-
-
 
         if ($user->hasPermissionTo("procurement.$organisation->id.view")) {
             $navigation['procurement'] = [
@@ -388,6 +394,22 @@ class GetOrganisationNavigation
             ];
         }
 
+
+        // if ($user->hasPermissionTo('org-overview.'.$organisation->id)) {
+        // }
+        $navigation['overview'] = [
+            'label'   => __('Overview'),
+            'tooltip' => __('Overview'),
+            'icon'    => ['fal', 'fa-mountains'],
+            'root'    => 'grp.org.overview.',
+
+            'route' => [
+                'name'       => 'grp.org.overview.hub',
+                'parameters' => [$organisation->slug],
+            ],
+
+            'topMenu' => []
+        ];
 
         if ($user->hasPermissionTo('org-reports.'.$organisation->id)) {
             $navigation['reports'] = [

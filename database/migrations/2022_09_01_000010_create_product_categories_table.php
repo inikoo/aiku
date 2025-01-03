@@ -28,6 +28,8 @@ return new class () extends Migration {
             $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
+            $table->unsignedSmallInteger('master_product_category_id')->nullable()->index();
+            $table->foreign('master_product_category_id')->references('id')->on('master_product_categories')->nullOnDelete();
             $table->unsignedInteger('department_id')->nullable()->index();
             $table->unsignedInteger('sub_department_id')->nullable()->index();
             $table->unsignedInteger('parent_id')->nullable()->index();

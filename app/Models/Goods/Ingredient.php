@@ -25,18 +25,17 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $group_id
  * @property string $slug
  * @property string $name
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property int $number_trade_units
  * @property int $number_stocks
- * @property int $number_master_products
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at
  * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property string|null $source_id
- * @property array $sources
- * @property array $source_data
- * @property array $source_extra_ingredients
+ * @property array<array-key, mixed> $sources
+ * @property array<array-key, mixed> $source_data
+ * @property array<array-key, mixed> $source_extra_ingredients
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Goods\TradeUnit> $tradeUnits

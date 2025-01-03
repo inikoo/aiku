@@ -15,7 +15,7 @@ enum OrgStockFamilyStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS        = 'in-process';
+    case IN_PROCESS        = 'in_process';
     case ACTIVE            = 'active';
     case DISCONTINUING     = 'discontinuing';
     case DISCONTINUED      = 'discontinued';
@@ -23,7 +23,7 @@ enum OrgStockFamilyStateEnum: string
     public static function labels(): array
     {
         return [
-            'in-process'            => __('In Process'),
+            'in_process'            => __('In Process'),
             'active'                => __('Active'),
             'discontinuing'         => __('Discontinuing'),
             'discontinued'          => __('Discontinued'),
@@ -32,7 +32,7 @@ enum OrgStockFamilyStateEnum: string
     public static function stateIcon(): array
     {
         return [
-            'in-process' => [
+            'in_process' => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',
@@ -79,7 +79,7 @@ enum OrgStockFamilyStateEnum: string
         $stats = $organisation->inventoryStats;
 
         return [
-            'in-process'            => $stats->number_org_stock_families_state_in_process,
+            'in_process'            => $stats->number_org_stock_families_state_in_process,
             'active'                => $stats->number_org_stock_families_state_active,
             'discontinuing'         => $stats->number_org_stock_families_state_discontinuing,
             'discontinued'          => $stats->number_org_stock_families_state_discontinued,

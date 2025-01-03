@@ -8,7 +8,7 @@
 
 namespace App\Models\Procurement;
 
-use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStatusEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Models\Inventory\OrgStock;
 use App\Models\SupplyChain\HistoricSupplierProduct;
@@ -30,10 +30,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $supplier_product_id
  * @property int|null $historic_supplier_product_id
  * @property int|null $org_supplier_product_id
- * @property int|null $stock_id Null allowed when org_stock is exclusive to an organiation
+ * @property int|null $stock_id Null allowed when org_stock is exclusive to an organization
  * @property int $org_stock_id
  * @property PurchaseOrderTransactionStateEnum $state
- * @property PurchaseOrderTransactionDeliveryStatusEnum $delivery_status
+ * @property PurchaseOrderTransactionDeliveryStateEnum $delivery_state
  * @property string|null $quantity_ordered
  * @property string|null $quantity_dispatched
  * @property string|null $quantity_fail
@@ -43,7 +43,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $org_net_amount
  * @property string|null $grp_exchange
  * @property string|null $org_exchange
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $fetched_at
@@ -70,7 +70,7 @@ class PurchaseOrderTransaction extends Model
     protected $casts = [
         'data'            => 'array',
         'state'           => PurchaseOrderTransactionStateEnum::class,
-        'delivery_status' => PurchaseOrderTransactionDeliveryStatusEnum::class
+        'delivery_state' => PurchaseOrderTransactionDeliveryStateEnum::class
     ];
 
     protected $attributes = [

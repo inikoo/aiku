@@ -57,7 +57,7 @@ export interface PalletCustomer {
     updated_at: Date
     shop?: string
     shop_slug?: string
-    number_current_clients?: number
+    number_current_customer_clients?: number
 }
 
 export interface PieCustomer {
@@ -136,7 +136,7 @@ export interface FieldOrderSummary {
 
 // Box Stats in Pallet Delivery
 export interface BoxStats {
-    delivery_status: Icon
+    delivery_state: Icon
     fulfilment_customer: {
         address: AddressManagement
         customer: {

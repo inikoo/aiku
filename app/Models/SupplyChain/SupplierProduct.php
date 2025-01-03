@@ -10,6 +10,7 @@ namespace App\Models\SupplyChain;
 
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductTradeUnitCompositionEnum;
+use App\Models\Goods\Stock;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Procurement\OrgSupplierProduct;
@@ -53,8 +54,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $units_per_pack units per pack
  * @property int|null $units_per_carton units per carton
  * @property string|null $cbm carton cubic meters
- * @property array $settings
- * @property array $data
+ * @property array<array-key, mixed> $settings
+ * @property array<array-key, mixed> $data
  * @property string|null $activated_at
  * @property string|null $discontinuing_at
  * @property string|null $discontinued_at
@@ -65,7 +66,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_slug
  * @property string|null $source_id
- * @property array $sources
+ * @property array<array-key, mixed> $sources
  * @property-read \App\Models\SupplyChain\Agent|null $agent
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Group $group
@@ -73,7 +74,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\SupplyChain\HistoricSupplierProduct> $historicSupplierProducts
  * @property-read Collection<int, OrgSupplierProduct> $orgSupplierProducts
  * @property-read \App\Models\SupplyChain\SupplierProductStats|null $stats
- * @property-read Collection<int, \App\Models\SupplyChain\Stock> $stocks
+ * @property-read Collection<int, Stock> $stocks
  * @property-read \App\Models\SupplyChain\Supplier|null $supplier
  * @property-read Collection<int, TradeUnit> $tradeUnits
  * @property-read UniversalSearch|null $universalSearch
@@ -198,9 +199,8 @@ class SupplierProduct extends Model implements Auditable
         return $this->belongsToMany(Stock::class, 'stock_has_supplier_products');
     }
 
-
-    public function getMainStock(): Stock
-    {
-        return$this->stocks()->where('available', true)->orderBy('created_at')->first();
-    }
+    //    public function getMainStock(): Stock
+    //    {
+    //        return$this->stocks()->where('available', true)->orderBy('created_at')->first();
+    //    }
 }

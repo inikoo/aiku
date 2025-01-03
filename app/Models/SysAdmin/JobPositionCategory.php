@@ -25,7 +25,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $department
  * @property string|null $team
  * @property JobPositionScopeEnum $scope
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group
@@ -55,7 +55,7 @@ class JobPositionCategory extends Model
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(24);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function getRouteKeyName(): string

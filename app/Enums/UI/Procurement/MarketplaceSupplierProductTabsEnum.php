@@ -16,19 +16,17 @@ enum MarketplaceSupplierProductTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE           = 'showcase';
-    case ISSUES             = 'issues';
-    case HISTORY            = 'history';
-    case DATA               = 'data';
-    case ATTACHMENTS        = 'attachments';
-    case IMAGES             = 'images';
-
+    case SHOWCASE = 'showcase';
+    case FEEDBACKS = 'feedbacks';
+    case HISTORY = 'history';
+    case DATA = 'data';
+    case ATTACHMENTS = 'attachments';
+    case IMAGES = 'images';
 
 
     public function blueprint(): array
     {
         return match ($this) {
-
             MarketplaceSupplierProductTabsEnum::SHOWCASE => [
                 'title' => __('supplier product'),
                 'icon'  => 'fas fa-info-circle',
@@ -41,7 +39,7 @@ enum MarketplaceSupplierProductTabsEnum: string
                 'align' => 'right',
             ],
 
-            MarketplaceSupplierProductTabsEnum::ISSUES => [
+            MarketplaceSupplierProductTabsEnum::FEEDBACKS => [
                 'title' => __('issues'),
                 'icon'  => 'fal fa-poop',
                 'type'  => 'icon',
@@ -65,8 +63,6 @@ enum MarketplaceSupplierProductTabsEnum: string
                 'type'  => 'icon',
                 'align' => 'right'
             ],
-
-
         };
     }
 }

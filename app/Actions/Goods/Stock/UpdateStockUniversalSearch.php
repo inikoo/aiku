@@ -9,7 +9,7 @@
 namespace App\Actions\Goods\Stock;
 
 use App\Actions\Goods\Stock\Hydrators\StockHydrateUniversalSearch;
-use App\Models\SupplyChain\Stock;
+use App\Models\Goods\Stock;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 

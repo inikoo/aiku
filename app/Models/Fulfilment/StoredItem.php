@@ -38,8 +38,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $received_at
  * @property string|null $booked_in_at
  * @property string|null $settled_at
- * @property array $data
- * @property array $incident_report
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $incident_report
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $source_id

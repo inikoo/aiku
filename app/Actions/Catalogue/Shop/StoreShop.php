@@ -9,21 +9,26 @@
 namespace App\Actions\Catalogue\Shop;
 
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
+use App\Actions\Catalogue\Shop\Seeders\SeedShopOfferCampaigns;
+use App\Actions\Catalogue\Shop\Seeders\SeedShopOutboxes;
+use App\Actions\Catalogue\Shop\Seeders\SeedShopPermissions;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilment;
+use App\Actions\Goods\MasterShop\Hydrators\MasterShopHydrateShops;
 use App\Actions\Helpers\Currency\SetCurrencyHistoricFields;
 use App\Actions\Helpers\Query\Seeders\ProspectQuerySeeder;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateShops;
-use App\Actions\SysAdmin\Group\SeedAikuScopedSections;
+use App\Actions\SysAdmin\Group\Seeders\SeedAikuScopedSections;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateShops;
-use App\Actions\SysAdmin\Organisation\SeedJobPositions;
+use App\Actions\SysAdmin\Organisation\Seeders\SeedJobPositions;
 use App\Actions\SysAdmin\Organisation\SetIconAsShopLogo;
 use App\Actions\SysAdmin\User\UserAddRoles;
-use App\Actions\Traits\Rules\WithShopRules;
+use App\Actions\Traits\Rules\WithStoreShopRules;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
+use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Helpers\Address;
@@ -44,7 +49,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreShop extends OrgAction
 {
-    use WithShopRules;
+    use WithStoreShopRules;
     use WithModelAddressActions;
 
     public function authorize(ActionRequest $request): bool
@@ -108,6 +113,18 @@ class StoreShop extends OrgAction
             $shop->mailshotsIntervals()->create();
             $shop->discountsStats()->create();
             $shop->orderingIntervals()->create();
+
+            $shop->outboxNewsletterIntervals()->create();
+            $shop->outboxMarketingIntervals()->create();
+            $shop->outboxMarketingNotificationIntervals()->create();
+            $shop->outboxCustomerNotificationIntervals()->create();
+            $shop->outboxColdEmailsIntervals()->create();
+            $shop->outboxPushIntervals()->create();
+
+
+            foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
+                $shop->timeSeries()->create(['frequency' => $frequency]);
+            }
 
 
             if ($shop->type === ShopTypeEnum::DROPSHIPPING) {
@@ -192,7 +209,11 @@ class StoreShop extends OrgAction
         SeedJobPositions::run($organisation);
         SetIconAsShopLogo::dispatch($shop)->delay($this->hydratorsDelay);
 
-        SeedOfferCampaigns::run($shop);
+        SeedShopOfferCampaigns::run($shop);
+
+        if ($shop->master_shop_id) {
+            MasterShopHydrateShops::dispatch($shop->masterShop)->delay($this->hydratorsDelay);
+        }
 
 
         return $shop;

@@ -43,7 +43,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $device_name
  * @property string|null $device_uuid
  * @property string|null $qr_code
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at
@@ -114,7 +114,7 @@ class ClockingMachine extends Authenticatable implements Auditable
             ->generateSlugsFrom('name')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(64);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function workplace(): BelongsTo

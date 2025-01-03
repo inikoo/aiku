@@ -8,8 +8,7 @@
 
 namespace App\Actions\Goods\Stock\UI;
 
-use App\Http\Resources\Inventory\LocationOrgStocksResource;
-use App\Models\SupplyChain\Stock;
+use App\Models\Goods\Stock;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class GetStockShowcase

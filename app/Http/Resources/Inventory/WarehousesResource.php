@@ -29,7 +29,9 @@ class WarehousesResource extends JsonResource
             'name'                   => $this->name,
             'number_locations'       => $this->number_locations,
             'number_warehouse_areas' => $this->number_warehouse_areas,
-            'state_icon'             => $this->state->stateIcon()[$this->state->value]
+            'state_icon'             => $this->state->stateIcon()[$this->state->value],
+            'organisation_name'      => $this->organisation_name,
+            'organisation_slug'      => $this->organisation_slug,
         ];
     }
 }

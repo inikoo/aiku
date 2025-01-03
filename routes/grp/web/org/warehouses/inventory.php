@@ -21,7 +21,6 @@ use App\Actions\Goods\Stock\UI\ShowStock;
 use App\Actions\Goods\StockFamily\ExportStockFamilies;
 use App\Actions\Goods\StockFamily\UI\CreateStockFamily;
 use App\Actions\Goods\StockFamily\UI\EditStockFamily;
-use App\Actions\Goods\StockFamily\UI\RemoveStockFamily;
 use App\Actions\Inventory\OrgStock\ExportOrgStocks;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Actions\Inventory\OrgStock\UI\ShowOrgStock;
@@ -90,7 +89,7 @@ Route::prefix('families')->as('org_stock_families.')->group(function () {
     Route::get('', IndexOrgStockFamilies::class)->name('index');
     Route::get('/active', [IndexOrgStockFamilies::class,  'active'])->name('active.index');
     Route::get('/in-process', [IndexOrgStockFamilies::class, 'inProcess'])->name('in-process.index');
-    Route::get('/disontinuing', [IndexOrgStockFamilies::class, 'discontinuing'])->name('discontinuing.index');
+    Route::get('/discontinuing', [IndexOrgStockFamilies::class, 'discontinuing'])->name('discontinuing.index');
     Route::get('/discontinued', [IndexOrgStockFamilies::class, 'discontinued'])->name('discontinued.index');
     Route::get('/export', ExportStockFamilies::class)->name('export');
     Route::get('/create', CreateStockFamily::class)->name('create');
@@ -98,7 +97,6 @@ Route::prefix('families')->as('org_stock_families.')->group(function () {
     Route::prefix('{orgStockFamily}')->group(function () {
         Route::get('', ShowOrgStockFamily::class)->name('show');
         Route::get('/edit', EditStockFamily::class)->name('edit');
-        Route::get('/delete', RemoveStockFamily::class)->name('remove');
 
         Route::name('show.')->group(function () {
             Route::prefix('stocks')->as('org_stocks.')->group(function () {

@@ -9,7 +9,7 @@
 namespace App\Actions\Goods\Stock\UI;
 
 use App\Actions\GrpAction;
-use App\Models\SupplyChain\StockFamily;
+use App\Models\Goods\StockFamily;
 use App\Models\SysAdmin\Group;
 use Inertia\Inertia;
 use Inertia\Response;

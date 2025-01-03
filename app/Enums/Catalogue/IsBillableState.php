@@ -13,7 +13,7 @@ trait IsBillableState
     public static function labels(): array
     {
         return [
-            'in-process'   => __('In Process'),
+            'in_process'   => __('In Process'),
             'active'       => __('Active'),
             'discontinued' => __('Discontinued'),
         ];
@@ -22,7 +22,7 @@ trait IsBillableState
     public static function stateIcon(): array
     {
         return [
-            'in-process' => [
+            'in_process' => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)

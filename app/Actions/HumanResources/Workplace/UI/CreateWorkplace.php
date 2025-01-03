@@ -119,7 +119,7 @@ class CreateWorkplace extends OrgAction
     public function getBreadcrumbs(array $routeParameters): array
     {
         return array_merge(
-            IndexWorkplaces::make()->getBreadcrumbs($routeParameters),
+            IndexWorkplaces::make()->getBreadcrumbs('grp.org.hr.workplaces.index', $routeParameters),
             [
                 [
                     'type'          => 'creatingModel',

@@ -63,6 +63,7 @@ class FetchAuroraTopUp extends FetchAurora
 
         $this->parsedData['payment'] = $payment;
         $this->parsedData['topUp']   = [
+            'reference'       => 'au-'.$this->organisation->slug.'-'.$this->auroraModelData->{'Top Up Key'},
             'created_at'      => $date,
             'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Top Up Key'},
             'fetched_at'      => now(),

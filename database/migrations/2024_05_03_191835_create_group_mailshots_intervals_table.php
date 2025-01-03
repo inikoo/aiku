@@ -13,13 +13,20 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasDateIntervalsStats;
+
     public function up(): void
     {
         Schema::create('group_mailshots_intervals', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('group_id');
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
-            $table = $this->unsignedIntegerDateIntervals($table, ['newsletters', 'marketing_emails', 'abandoned_carts', 'total_mailshots', 'total_emails']);
+            $table = $this->unsignedIntegerDateIntervals($table, [
+                'newsletters',
+                'marketing_emails',
+                'abandoned_carts',
+                'total_mailshots',
+                'total_emails'
+            ]);
             $table->timestampsTz();
         });
     }

@@ -252,7 +252,7 @@ class IndexClockingMachines extends OrgAction
                         ]
                 ])
             ),
-            'grp.overview.human-resources.clocking-machines.index',
+            'grp.overview.hr.clocking-machines.index',
             =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(),

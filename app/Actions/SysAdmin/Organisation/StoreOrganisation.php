@@ -12,11 +12,16 @@ use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvi
 use App\Actions\GrpAction;
 use App\Actions\Helpers\Currency\SetCurrencyHistoricFields;
 use App\Actions\Procurement\OrgPartner\StoreOrgPartner;
-use App\Actions\SysAdmin\Group\SeedAikuScopedSections;
+use App\Actions\SysAdmin\Group\Seeders\SeedAikuScopedSections;
+use App\Actions\SysAdmin\Organisation\Seeders\SeedJobPositions;
+use App\Actions\SysAdmin\Organisation\Seeders\SeedOrganisationOutboxes;
+use App\Actions\SysAdmin\Organisation\Seeders\SeedOrganisationPermissions;
+use App\Actions\SysAdmin\Organisation\Seeders\SeedOrgPostRooms;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
+use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -73,7 +78,6 @@ class StoreOrganisation extends GrpAction
                 SeedOrganisationOutboxes::run($organisation);
             }
 
-
             StoreOrganisationAddress::make()->action(
                 $organisation,
                 [
@@ -111,6 +115,22 @@ class StoreOrganisation extends GrpAction
             $organisation->dropshippingStats()->create();
             $organisation->webStats()->create();
             $organisation->commsStats()->create();
+            foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
+                $organisation->timeSeries()->create(['frequency' => $frequency]);
+            }
+
+            if ($organisation->type == OrganisationTypeEnum::SHOP or $organisation->type == OrganisationTypeEnum::DIGITAL_AGENCY) {
+                $organisation->outboxNewsletterIntervals()->create();
+                $organisation->outboxMarketingIntervals()->create();
+                $organisation->outboxMarketingNotificationIntervals()->create();
+                $organisation->outboxCustomerNotificationIntervals()->create();
+                $organisation->outboxColdEmailsIntervals()->create();
+                $organisation->outboxPushIntervals()->create();
+            }
+
+            $organisation->outboxUserNotificationIntervals()->create();
+            $organisation->outboxTestIntervals()->create();
+
 
             if ($organisation->type == OrganisationTypeEnum::SHOP) {
                 $organisation->crmStats()->create();

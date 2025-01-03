@@ -21,6 +21,15 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_products_state_active
  * @property int $number_products_state_discontinuing
  * @property int $number_products_state_discontinued
+ * @property int $number_products_status_in_process
+ * @property int $number_products_status_for_sale
+ * @property int $number_products_status_not_for_sale
+ * @property int $number_products_status_out_of_stock
+ * @property int $number_products_status_discontinued
+ * @property int $number_products_trade_config_auto
+ * @property int $number_products_trade_config_force_offline
+ * @property int $number_products_trade_config_force_out_of_stock
+ * @property int $number_products_trade_config_force_for_sale
  * @property int $number_rentals
  * @property int $number_rentals_state_in_process
  * @property int $number_rentals_state_active
@@ -38,12 +47,14 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_current_families state: active+discontinuing
  * @property int $number_families_state_in_process
  * @property int $number_families_state_active
+ * @property int $number_families_state_inactive
  * @property int $number_families_state_discontinuing
  * @property int $number_families_state_discontinued
  * @property int $number_departments
  * @property int $number_current_departments state: active+discontinuing
  * @property int $number_departments_state_in_process
  * @property int $number_departments_state_active
+ * @property int $number_departments_state_inactive
  * @property int $number_departments_state_discontinuing
  * @property int $number_departments_state_discontinued
  * @property \Illuminate\Support\Carbon|null $created_at

@@ -189,10 +189,8 @@ class ShowInvoice extends OrgAction
                         ],
                         [
                             'label'       => __('Tax'),
-                            'information' => __('Tax is based on 10% of total order.'),
                             'price_total' => $invoice->tax_amount
-                        ],
-
+                        ]
                     ],
                     [
                         [
@@ -415,11 +413,10 @@ class ShowInvoice extends OrgAction
                     'name'       => $routeName,
                     'parameters' => [
                         'organisation'       => $invoice->organisation->slug,
-                        'fulfilment'         => $this->parent->slug,
+                        'fulfilment'         => $invoice->shop->fulfilment->slug,
                         'fulfilmentCustomer' => $this->parent->slug,
                         'invoice'            => $invoice->slug
                     ]
-
                 ]
             ],
         };

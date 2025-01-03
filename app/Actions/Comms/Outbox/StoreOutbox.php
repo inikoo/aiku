@@ -18,6 +18,7 @@ use App\Enums\Comms\Outbox\OutboxBuilderEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\OrgPostRoom;
 use App\Models\Comms\Outbox;
@@ -52,14 +53,17 @@ class StoreOutbox extends OrgAction
         $outbox = $orgPostRoom->outboxes()->create($modelData);
         $outbox->stats()->create();
         $outbox->intervals()->create();
-
-
-        GroupHydrateOutboxes::run($outbox->group);
-        OrganisationHydrateOutboxes::run($outbox->organisation);
-        if ($outbox->shop_id) {
-            ShopHydrateOutboxes::run($outbox->shop);
+        foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
+            $outbox->timeSeries()->create(['frequency' => $frequency]);
         }
-        PostRoomHydrateOutboxes::run($outbox->postRoom);
+
+
+        GroupHydrateOutboxes::dispatch($outbox->group);
+        OrganisationHydrateOutboxes::dispatch($outbox->organisation);
+        if ($outbox->shop_id) {
+            ShopHydrateOutboxes::dispatch($outbox->shop);
+        }
+        PostRoomHydrateOutboxes::dispatch($outbox->postRoom);
 
         return $outbox;
     }

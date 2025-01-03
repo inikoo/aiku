@@ -117,7 +117,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_recurring_bills
  * @property int $number_recurring_bills_status_current
  * @property int $number_recurring_bills_status_former
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -178,13 +178,18 @@ class FulfilmentCustomer extends Model
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(64);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
 
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(FulfilmentTransaction::class, 'fulfilment_customer_id');
     }
 
     public function pallets(): HasMany

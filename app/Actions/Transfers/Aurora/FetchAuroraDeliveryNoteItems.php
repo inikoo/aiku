@@ -32,7 +32,7 @@ class FetchAuroraDeliveryNoteItems
                 $deliveryNoteItem = UpdateDeliveryNoteItem::make()->action(
                     deliveryNoteItem: $deliveryNoteItem,
                     modelData: $transactionData['delivery_note_item'],
-                    hydratorsDelay: 60,
+                    hydratorsDelay: 1200,
                     strict: false
                 );
             } else {
@@ -41,7 +41,7 @@ class FetchAuroraDeliveryNoteItems
                 $deliveryNoteItem = StoreDeliveryNoteItem::make()->action(
                     deliveryNote: $deliveryNote,
                     modelData:    $transactionData['delivery_note_item'],
-                    hydratorsDelay: 60,
+                    hydratorsDelay: 1200,
                     strict: false
                 );
 

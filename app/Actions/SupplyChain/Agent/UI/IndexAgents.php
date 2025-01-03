@@ -152,13 +152,6 @@ class IndexAgents extends GrpAction
         return $this->handle();
     }
 
-    public function inOverview(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation(app('group'), $request);
-
-        return $this->handle();
-    }
-
     public function jsonResponse(LengthAwarePaginator $agent): AnonymousResourceCollection
     {
         return AgentsResource::collection($agent);

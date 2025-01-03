@@ -144,6 +144,7 @@ class IndexNewsletterMailshots extends OrgAction
             ]
         ];
 
+        $model = __('marketing');
         if ($this->parent instanceof Group) {
             $actions = [];
         }
@@ -158,6 +159,8 @@ class IndexNewsletterMailshots extends OrgAction
                 'title'       => __('newsletter'),
                 'pageHead'    => array_filter([
                     'title'    => __('newsletter'),
+                    'model'    => $model,
+                    'icon'     => ['fal', 'fa-newspaper'],
                     'actions'  => $actions,
                 ]),
                 'data' => NewsletterMailshotsResource::collection($mailshots),

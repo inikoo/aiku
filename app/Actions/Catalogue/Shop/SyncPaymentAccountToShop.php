@@ -40,7 +40,7 @@ class SyncPaymentAccountToShop extends OrgAction
                 ]
             );
 
-            ShopHydratePaymentAccounts::run($shop);
+            ShopHydratePaymentAccounts::dispatch($shop);
         } else {
             $paymentAccount->shops()->detach();
         }

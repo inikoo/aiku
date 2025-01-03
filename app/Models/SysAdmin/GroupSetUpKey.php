@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $key
  * @property GroupSetUpKeyStateEnum $state
  * @property \Illuminate\Support\Carbon $expires_at
- * @property array $limits
+ * @property array<array-key, mixed> $limits
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupSetUpKey newModelQuery()

@@ -21,7 +21,7 @@ enum StoredItemStateEnum: string
     use EnumHelperTrait;
 
     case SUBMITTED     = 'submitted';
-    case IN_PROCESS    = 'in-process';
+    case IN_PROCESS    = 'in_process';
     case ACTIVE        = 'active';
     case DISCONTINUING = 'discontinuing';
     case DISCONTINUED  = 'discontinued';
@@ -31,7 +31,7 @@ enum StoredItemStateEnum: string
     {
         return [
             'submitted'     => __('Submitted'),
-            'in-process'    => __('In Process'),
+            'in_process'    => __('In Process'),
             'active'        => __('Active'),
             'discontinuing' => __('Discontinuing'),
             'discontinued'  => __('Discontinued'),
@@ -47,7 +47,7 @@ enum StoredItemStateEnum: string
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
                 'color'   => 'lime',  // Color for box (Retina)
             ],
-            'in-process'   => [
+            'in_process'   => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
@@ -89,7 +89,7 @@ enum StoredItemStateEnum: string
 
         return [
             'submitted'       => $stats?->number_stored_items_in_submitted,
-            'in-process'      => $stats?->number_stored_items_in_process,
+            'in_process'      => $stats?->number_stored_items_in_process,
             'active'          => $stats?->number_stored_items_received,
             'discontinuing'   => $stats?->number_stored_items_booked_in,
             'discontinued'    => $stats?->number_stored_items_settled

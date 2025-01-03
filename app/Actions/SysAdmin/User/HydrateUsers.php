@@ -9,38 +9,27 @@
 namespace App\Actions\SysAdmin\User;
 
 use App\Actions\HydrateModel;
+use App\Actions\SysAdmin\User\Hydrators\UserHydrateAudits;
 use App\Actions\SysAdmin\User\Hydrators\UserHydrateModels;
+use App\Actions\Traits\Hydrators\WithHydrateCommand;
 use App\Models\SysAdmin\User;
-use Illuminate\Console\Command;
-use Illuminate\Support\Collection;
 
 class HydrateUsers extends HydrateModel
 {
+    use WithHydrateCommand;
+
     public string $commandSignature = 'hydrate:users';
 
+    public function __construct()
+    {
+        $this->model = User::class;
+    }
 
     public function handle(User $user): void
     {
+        UserHydrateAudits::run($user);
         SetUserAuthorisedModels::run($user);
         UserHydrateModels::run($user);
     }
 
-    public function asCommand(Command $command): int
-    {
-        $command->info('Hydrating Users');
-        $count = User::count();
-        $bar   = $command->getOutput()->createProgressBar($count);
-        $bar->setFormat('debug');
-        $bar->start();
-        User::chunk(1000, function (Collection $models) use ($bar) {
-            foreach ($models as $model) {
-                $this->handle($model);
-                $bar->advance();
-            }
-        });
-        $bar->finish();
-        $command->info("");
-
-        return 0;
-    }
 }

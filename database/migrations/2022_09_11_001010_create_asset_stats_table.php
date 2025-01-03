@@ -7,13 +7,11 @@
  */
 
 use App\Stubs\Migrations\HasCatalogueStats;
-use App\Stubs\Migrations\HasSalesIntervals;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    use HasSalesIntervals;
     use HasCatalogueStats;
 
     public function up(): void
@@ -21,7 +19,7 @@ return new class () extends Migration {
         Schema::create('asset_stats', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('asset_id')->index();
-            $table->foreign('asset_id')->references('id')->on('assets')->cascadeOnDelete();
+            $table->foreign('asset_id')->references('id')->on('assets')->onDelete('cascade')->onUpdate('cascade');
             $table->unsignedInteger('number_historic_assets')->default(0);
             $table = $this->assetStatsBis($table);
             $table->timestampsTz();

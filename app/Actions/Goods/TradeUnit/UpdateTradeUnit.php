@@ -32,7 +32,6 @@ class UpdateTradeUnit extends GrpAction
             foreach ($tradeUnit->stocks as $stock) {
                 StockHydrateGrossWeightFromTradeUnits::dispatch($stock);
             }
-
         }
 
         return $tradeUnit;
@@ -68,14 +67,14 @@ class UpdateTradeUnit extends GrpAction
             'marketing_weight' => ['sometimes', 'required', 'numeric'],
             'dimensions'       => ['sometimes', 'required'],
             'type'             => ['sometimes', 'required'],
-            'image_id'         => ['sometimes', 'required', 'exists:media,id'],
+            'image_id'         => ['sometimes', 'required', Rule::exists('media', 'id')->where('group_id', $this->group->id)],
             'data'             => ['sometimes', 'required']
         ];
 
         if (!$this->strict) {
             $rules['gross_weight'] = ['sometimes', 'nullable', 'numeric'];
             $rules['net_weight']   = ['sometimes', 'nullable', 'numeric'];
-            $rules = $this->noStrictUpdateRules($rules);
+            $rules                 = $this->noStrictUpdateRules($rules);
         }
 
         return $rules;
@@ -83,11 +82,11 @@ class UpdateTradeUnit extends GrpAction
 
     public function action(TradeUnit $tradeUnit, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): TradeUnit
     {
-        $this->strict         = $strict;
+        $this->strict = $strict;
         if (!$audit) {
             TradeUnit::disableAuditing();
         }
-        $this->tradeUnit      = $tradeUnit;
+        $this->tradeUnit = $tradeUnit;
 
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($tradeUnit->group, $modelData);
@@ -97,8 +96,9 @@ class UpdateTradeUnit extends GrpAction
 
     public function asController(TradeUnit $tradeUnit, ActionRequest $request): TradeUnit
     {
-        $this->tradeUnit      = $tradeUnit;
+        $this->tradeUnit = $tradeUnit;
         $this->initialisation($tradeUnit->group, $request);
+
         return $this->handle($tradeUnit, $this->validatedData);
     }
 }

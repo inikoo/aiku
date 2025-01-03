@@ -49,7 +49,7 @@ class IndexPurges extends OrgAction
         if ($parent instanceof Shop) {
             $query->where('shop_id', $parent->id);
         } elseif ($parent instanceof Group) {
-            $query->where('group_id', $parent->id);
+            $query->where('purges.group_id', $parent->id);
         } else {
             abort(419);
         }
@@ -219,7 +219,7 @@ class IndexPurges extends OrgAction
                     ]
                 )
             ),
-            'grp.overview.order.purges.index' =>
+            'grp.overview.ordering.purges.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(
                     $routeParameters

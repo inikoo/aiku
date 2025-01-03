@@ -72,7 +72,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
  * @property string $tax_amount
  * @property string $total_amount
  * @property string $payment_amount
- * @property array|null $data
+ * @property array<array-key, mixed>|null $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -134,7 +134,8 @@ class PalletDelivery extends Model
         return SlugOptions::create()
             ->generateSlugsFrom('reference')
             ->doNotGenerateSlugsOnUpdate()
-            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(64);
+            ->saveSlugsTo('slug')
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function discountAmount(): Attribute

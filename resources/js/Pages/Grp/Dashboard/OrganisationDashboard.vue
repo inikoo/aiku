@@ -33,6 +33,7 @@ import { useGetCurrencySymbol } from "@/Composables/useCurrency"
 import Tag from "@/Components/Tag.vue"
 import ToggleSwitch from "primevue/toggleswitch"
 import { faSortDown, faSortUp } from "@fas"
+import Select from "primevue/select"
 
 library.add(faTriangle, faChevronDown, faSortDown, faSortUp)
 
@@ -48,26 +49,38 @@ const props = defineProps<{
 console.log(props.dashboard, "hehe")
 const selectedDateOption = ref<string>("ytd")
 const locale = inject("locale", aikuLocaleStructure)
-const checked = ref(true);
+const checked = ref(true)
 
 const datas = computed(() => {
-  return props.dashboard.shops
-    .filter((org) => {
-      // Filter based on checkbox state
-      if (checked.value) {
-        return org.state !== "closed"; // Exclude closed shops when checked is true
-      }
-      return true; // Include all shops when checked is false
-    })
-    .map((org) => ({
-      name: org.name,
-      code: org.code,
-      interval_percentages: org.interval_percentages,
-      sales: org.sales || 0,
-    }));
-});
-const selectedTabGraph = ref(0)
+	return props.dashboard.shops
+		.filter((org) => {
+			// Filter based on checkbox state
+			if (checked.value) {
+				return org.state !== "closed" // Exclude closed shops when checked is true
+			}
+			return true // Include all shops when checked is false
+		})
+		.map((org) => ({
+			name: org.name,
+			code: org.code,
+			interval_percentages: org.interval_percentages,
+			sales: org.sales || 0,
+			currency:
+				selectedCurrency.value.code === "org"
+					? props.dashboard.currency.code
+					: org.currency.code,
+		}))
+})
+const currency = ref([
+	{ name: "Organisation", code: "org" },
+	{ name: "Shop", code: "shp" },
+])
 
+const selectedCurrency = ref(currency.value[0])
+const isOrganisation = ref(selectedCurrency.value.code === "org")
+const toggleCurrency = () => {
+	selectedCurrency.value = isOrganisation.value ? currency.value[1] : currency.value[0]
+}
 </script>
 
 <template>
@@ -76,9 +89,30 @@ const selectedTabGraph = ref(0)
 		<!-- <pre>{{ props.groupStats.organisations }}</pre> -->
 		<div class="col-span-12 space-y-4">
 			<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
-				<div class="flex justify-end top-4 right-4">
+				<div class="flex justify-between items-center">
 					<ToggleSwitch v-model="checked" />
+
+					<!-- Right Side Group-Organisation Toggle -->
+					<div class="flex items-center space-x-4">
+						<p
+							class="font-medium transition-opacity"
+							:class="{ 'opacity-60': isOrganisation }">
+							Organisation
+						</p>
+
+						<ToggleSwitch
+							v-model="isOrganisation"
+							class="mx-2"
+							@change="toggleCurrency" />
+
+						<p
+							class="font-medium transition-opacity"
+							:class="{ 'opacity-60': !isOrganisation }">
+							Shop
+						</p>
+					</div>
 				</div>
+
 				<div class="mt-4 block">
 					<nav class="isolate flex rounded border-b border-gray-300" aria-label="Tabs">
 						<div
@@ -123,7 +157,7 @@ const selectedTabGraph = ref(0)
 						</Column>
 
 						<!-- Refunds -->
-						<Column sortable headerClass="align-right">
+						<Column sortable hidden headerClass="align-right">
 							<template #header>
 								<div class="flex justify-end items-end">
 									<span class="font-bold">Refunds</span>
@@ -153,7 +187,8 @@ const selectedTabGraph = ref(0)
 
 						<!-- Refunds: Diff 1y -->
 						<Column
-						sortable
+							hidden
+							sortable
 							class="overflow-hidden transition-all"
 							headerClass="align-right"
 							headerStyle="text-align: green; width: 270px">
@@ -199,7 +234,7 @@ const selectedTabGraph = ref(0)
 														  }${data.interval_percentages.refunds[
 																selectedDateOption
 														  ].percentage.toFixed(2)}%`
-														: `0%`
+														: `0.0%`
 												}}
 											</span>
 											<FontAwesomeIcon
@@ -231,7 +266,7 @@ const selectedTabGraph = ref(0)
 
 						<!-- Invoice -->
 						<Column
-						sortable
+							sortable
 							class="overflow-hidden transition-all"
 							headerClass="align-right">
 							<template #header>
@@ -313,7 +348,7 @@ const selectedTabGraph = ref(0)
 																  }${data.interval_percentages.invoices[
 																		selectedDateOption
 																  ].percentage.toFixed(2)}%`
-																: `0%`
+																: `0.0%`
 														}}
 													</span>
 													<FontAwesomeIcon
@@ -347,7 +382,7 @@ const selectedTabGraph = ref(0)
 
 						<!-- Sales -->
 						<Column
-						field="sales"
+							field="sales"
 							sortable
 							class="overflow-hidden transition-all"
 							headerClass="align-right"
@@ -361,13 +396,21 @@ const selectedTabGraph = ref(0)
 								<div class="flex justify-end relative">
 									<Transition name="spin-to-down" mode="out-in">
 										<div
+										v-tooltip="
+												useLocaleStore().currencyFormat(
+													data.currency,
+													data.interval_percentages?.sales[
+														selectedDateOption
+													]?.amount || 0
+												)
+											"
 											:key="
 												data.interval_percentages?.sales[selectedDateOption]
 													?.amount
 											">
 											{{
 												useLocaleStore().numberShort(
-													dashboard.currency.code,
+													data.currency,
 													data.interval_percentages?.sales[
 														selectedDateOption
 													]?.amount || 0
@@ -381,7 +424,7 @@ const selectedTabGraph = ref(0)
 
 						<!-- Sales: Diff 1y -->
 						<Column
-						field="sales_diff"
+							field="sales_diff"
 							sortable
 							class="overflow-hidden transition-all"
 							headerClass="align-right"
@@ -428,7 +471,7 @@ const selectedTabGraph = ref(0)
 														  }${data.interval_percentages.sales[
 																selectedDateOption
 														  ].percentage.toFixed(2)}%`
-														: `0%`
+														: `0.0%`
 												}}
 											</span>
 											<FontAwesomeIcon
@@ -463,11 +506,12 @@ const selectedTabGraph = ref(0)
 							<Row>
 								<Column footer="Total"> Total </Column>
 								<Column
+									hidden
 									:footer="
 										dashboard.total[selectedDateOption].total_refunds.toString()
 									"
 									footerStyle="text-align:right" />
-								<Column footer="" footerStyle="text-align:right" />
+								<Column hidden footer="" footerStyle="text-align:right" />
 
 								<Column
 									:footer="
@@ -500,5 +544,9 @@ const selectedTabGraph = ref(0)
 .align-right {
 	justify-items: end;
 	text-align: right;
+}
+
+.transition-opacity {
+	transition: opacity 0.3s ease-in-out;
 }
 </style>

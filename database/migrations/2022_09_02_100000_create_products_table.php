@@ -7,6 +7,8 @@
  */
 
 use App\Enums\Catalogue\Product\ProductStateEnum;
+use App\Enums\Catalogue\Product\ProductStatusEnum;
+use App\Enums\Catalogue\Product\ProductTradeConfigEnum;
 use App\Stubs\Migrations\HasAssetModel;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
@@ -23,8 +25,9 @@ return new class () extends Migration {
 
             $table = $this->productFields($table);
             $table->boolean('is_main')->default(true)->index();
-            $table->boolean('status')->default(false)->index();
-            $table->string('state')->default(ProductStateEnum::IN_PROCESS)->index();
+            $table->string('status')->default(ProductStatusEnum::IN_PROCESS->value)->index();
+            $table->string('state')->default(ProductStateEnum::IN_PROCESS->value)->index();
+            $table->string('trade_config')->default(ProductTradeConfigEnum::AUTO->value)->index();
 
             $table = $this->assetModelFields($table);
 

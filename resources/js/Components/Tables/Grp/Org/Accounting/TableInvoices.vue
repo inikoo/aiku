@@ -38,6 +38,10 @@ function invoiceRoute(invoice: Invoice) {
             return route(
                 'grp.org.fulfilments.show.crm.customers.show.invoices.show',
                 [route().params['organisation'], route().params['fulfilment'], route().params['fulfilmentCustomer'], invoice.slug])
+        case 'grp.overview.ordering.invoices.index':
+            return route(
+                'grp.org.accounting.invoices.show',
+                [invoice.organisation_slug, invoice.slug])
         default:
             return route(
                 'grp.org.accounting.invoices.show',

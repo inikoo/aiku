@@ -10,6 +10,8 @@ namespace App\Transfers\Aurora;
 
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\Product\ProductStateEnum;
+use App\Enums\Catalogue\Product\ProductStatusEnum;
+use App\Enums\Catalogue\Product\ProductTradeConfigEnum;
 use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
 use Illuminate\Support\Facades\DB;
 
@@ -49,16 +51,42 @@ class FetchAuroraProduct extends FetchAurora
         $data     = [];
         $settings = [];
 
-        $status = 1;
-        if ($this->auroraModelData->{'Product Status'} == 'Discontinued') {
-            $status = 0;
-        }
 
         $state = match ($this->auroraModelData->{'Product Status'}) {
             'InProcess' => ProductStateEnum::IN_PROCESS,
             'Discontinuing' => ProductStateEnum::DISCONTINUING,
             'Discontinued' => ProductStateEnum::DISCONTINUED,
             default => ProductStateEnum::ACTIVE
+        };
+
+
+        //enum('Online Force Out of Stock','Online Auto','Offline','Online Force For Sale')
+
+        if ($this->auroraModelData->{'Product Status'} == 'InProcess') {
+            $status = ProductStatusEnum::IN_PROCESS;
+        } elseif ($this->auroraModelData->{'Product Status'} == 'Discontinued') {
+            $status = ProductStatusEnum::DISCONTINUED;
+        } elseif ($this->auroraModelData->{'Product Web Configuration'} == 'Offline') {
+            $status = ProductStatusEnum::NOT_FOR_SALE;
+        } elseif ($this->auroraModelData->{'Product Web Configuration'} == 'Online Force Out of Stock') {
+            $status = ProductStatusEnum::OUT_OF_STOCK;
+        } elseif ($this->auroraModelData->{'Product Web Configuration'} == 'Online Force For Sale') {
+            $status = ProductStatusEnum::FOR_SALE;
+        } else {
+            //enum('For Sale','Out of Stock','Discontinued','Offline')
+            $status = match ($this->auroraModelData->{'Product Web State'}) {
+                'Discontinued' => ProductStatusEnum::DISCONTINUED,
+                'Offline' => ProductStatusEnum::NOT_FOR_SALE,
+                'Out of Stock' => ProductStatusEnum::OUT_OF_STOCK,
+                default => ProductStatusEnum::FOR_SALE
+            };
+        }
+
+        $tradeConfig = match ($this->auroraModelData->{'Product Web Configuration'}) {
+            'Online Force For Sale' => ProductTradeConfigEnum::FORCE_FOR_SALE,
+            'Online Force Out of Stock' => ProductTradeConfigEnum::FORCE_OUT_OF_STOCK,
+            'Offline' => ProductTradeConfigEnum::FORCE_OFFLINE,
+            default => ProductTradeConfigEnum::AUTO
         };
 
 
@@ -98,13 +126,16 @@ class FetchAuroraProduct extends FetchAurora
             'status'                 => $status,
             'unit'                   => $this->auroraModelData->{'Product Unit Label'},
             'state'                  => $state,
+            'trade_config'           => $tradeConfig,
             'data'                   => $data,
             'settings'               => $settings,
             'created_at'             => $created_at,
             'trade_unit_composition' => ProductUnitRelationshipType::SINGLE,
             'source_id'              => $this->organisation->id.':'.$this->auroraModelData->{'Product ID'},
             'historic_source_id'     => $this->organisation->id.':'.$this->auroraModelData->{'Product Current Key'},
-            'images'                 => $this->parseImages()
+            'images'                 => $this->parseImages(),
+            'fetched_at'             => now(),
+            'last_fetched_at'        => now(),
         ];
 
 

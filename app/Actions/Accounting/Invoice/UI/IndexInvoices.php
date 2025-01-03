@@ -22,6 +22,7 @@ use App\Http\Resources\Accounting\InvoicesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Invoice;
 use App\Models\CRM\Customer;
+use App\Models\CRM\WebUser;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Catalogue\Shop;
@@ -181,6 +182,10 @@ class IndexInvoices extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($request->user() instanceof  WebUser) {
+            return true;
+        }
+
         if ($this->parent instanceof Organisation) {
             return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
         } elseif ($this->parent instanceof Customer or $this->parent instanceof CustomerClient) {
@@ -349,6 +354,16 @@ class IndexInvoices extends OrgAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
+    public function inRetina(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $request->user()->customer->fulfilmentCustomer;
+        $fulfilment = $request->user()->customer->fulfilmentCustomer->fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($this->parent);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
     public function inCustomer(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $customer;
@@ -427,7 +442,7 @@ class IndexInvoices extends OrgAction
                 )
             ),
 
-            'grp.overview.accounting.invoices.index' =>
+            'grp.overview.ordering.invoices.index' =>
             array_merge(
                 ShowOverviewHub::make()->getBreadcrumbs(
                     $routeParameters

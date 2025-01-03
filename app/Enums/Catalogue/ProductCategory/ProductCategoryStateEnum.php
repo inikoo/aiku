@@ -19,16 +19,18 @@ enum ProductCategoryStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS    = 'in-process';
+    case IN_PROCESS    = 'in_process';
     case ACTIVE        = 'active';
+    case INACTIVE     = 'inactive';
     case DISCONTINUING = 'discontinuing';
     case DISCONTINUED  = 'discontinued';
 
     public static function labels($forElements = false): array
     {
         return [
-            'in-process'            => __('In Process'),
+            'in_process'            => __('In Process'),
             'active'                => __('Active'),
+            'inactive'             => __('Inactive'),
             'discontinuing'         => __('Discontinuing'),
             'discontinued'          => __('Discontinued'),
         ];
@@ -37,7 +39,7 @@ enum ProductCategoryStateEnum: string
     public static function stateIcon(): array
     {
         return [
-            'in-process' => [
+            'in_process' => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',
@@ -54,6 +56,16 @@ enum ProductCategoryStateEnum: string
                 'color'   => 'emerald',
                 'app'     => [
                     'name' => 'check',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'inactive' => [
+                'tooltip' => __('Inactive'),
+                'icon'    => 'fal fa-ban',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
+                'app'     => [
+                    'name' => 'ban',
                     'type' => 'font-awesome-5'
                 ]
             ],
@@ -88,8 +100,9 @@ enum ProductCategoryStateEnum: string
         }
 
         return [
-            'in-process'            => $stats->number_departments_state_in_process,
+            'in_process'            => $stats->number_departments_state_in_process,
             'active'                => $stats->number_departments_state_active,
+            'inactive'             => $stats->number_departments_state_inactive,
             'discontinuing'         => $stats->number_departments_state_discontinuing,
             'discontinued'          => $stats->number_departments_state_discontinued,
         ];
@@ -104,8 +117,9 @@ enum ProductCategoryStateEnum: string
         }
 
         return [
-            'in-process'            => $stats->number_families_state_in_process,
+            'in_process'            => $stats->number_families_state_in_process,
             'active'                => $stats->number_families_state_active,
+            'inactive'             => $stats->number_families_state_inactive,
             'discontinuing'         => $stats->number_families_state_discontinuing,
             'discontinued'          => $stats->number_families_state_discontinued,
         ];
@@ -116,8 +130,9 @@ enum ProductCategoryStateEnum: string
         $stats = $parent->stats;
 
         return [
-            'in-process'            => $stats->number_sub_departments_state_in_process,
+            'in_process'            => $stats->number_sub_departments_state_in_process,
             'active'                => $stats->number_sub_departments_state_active,
+            'inactive'             => $stats->number_sub_departments_state_inactive,
             'discontinuing'         => $stats->number_sub_departments_state_discontinuing,
             'discontinued'          => $stats->number_sub_departments_state_discontinued,
         ];

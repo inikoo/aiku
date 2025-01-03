@@ -88,17 +88,17 @@ class ShowRecurringBill extends OrgAction
                         ],
                     'model'              => __('Recurring Bill'),
                     'title'              => $recurringBill->slug,
-                    'actions'            => [
-                        [
-                            'type'  => 'button',
-                            'style' => 'edit',
-                            'label' => __('Edit'),
-                            'route' => [
-                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.edit',
-                                'parameters' => array_values($request->route()->originalParameters()),
-                            ]
-                        ],
-                    ],
+                    // 'actions'            => [
+                    //     [
+                    //         'type'  => 'button',
+                    //         'style' => 'edit',
+                    //         'label' => __('Edit'),
+                    //         'route' => [
+                    //             'name'       => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.edit',
+                    //             'parameters' => array_values($request->route()->originalParameters()),
+                    //         ]
+                    //     ],
+                    // ],
                 ],
                 'updateRoute'   => [
                     'name'       => 'grp.models.recurring-bill.update',

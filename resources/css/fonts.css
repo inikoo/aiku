@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Comfortaa&family=Inter&family=Laila&family=Lobster&family=Playfair&family=Port+Lligat+Slab&family=Quicksand&family=Yatra+One&display=swap');
 /* @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa&family=Inter&family=Laila&family=Lobster&family=Playfair&family=Port+Lligat+Slab&family=Quicksand&family=Yatra+One&display=swap');
 
 
 /* Raleway */
@@ -9,75 +10,57 @@
 }
 
 
-/* Playfair */
-/* @font-face {
-    font-family: 'Playfair';
-    src: url('@/css/Fonts/PlayfairDisplay-Regular.ttf') format('ttf');
-    font-weight: 400;
-    font-style: normal;
-}
-@font-face {
-    font-family: 'Playfair';
-    src: url('@/css/Fonts/PlayfairDisplay-Italic.ttf') format('ttf');
-    font-weight: 400;
-    font-style: italic;
-} */
-
-
-@import url('https://fonts.googleapis.com/css2?family=Comfortaa&family=Inter&family=Laila&family=Lobster&family=Playfair&family=Port+Lligat+Slab&family=Quicksand&family=Yatra+One&display=swap');
-
-
 /* Raleway */
 @font-face {
     font-family: 'Raleway';
-    src: url(/assets/Fonts/Raleway/Raleway-100.ttf);
+    src: url('@fonts/Raleway/Raleway-100.ttf');
 }
 @font-face {
     font-family: 'Raleway';
     font-weight: 200;
-    src: url(/assets/Fonts/Raleway/Raleway-200.ttf);
+    src: url('@fonts/Raleway/Raleway-200.ttf');
 }
 @font-face {
     font-family: 'Raleway';
     font-weight: 300;
-    src: url(/assets/Fonts/Raleway/Raleway-300.ttf);
+    src: url('@fonts/Raleway/Raleway-300.ttf');
 }
 @font-face {
     font-family: 'Raleway';
     font-weight: 400;
-    src: url(/assets/Fonts/Raleway/Raleway-400.ttf);
+    src: url('@fonts/Raleway/Raleway-400.ttf');
 }
 @font-face {
     font-family: 'Raleway';
     font-weight: 500;
-    src: url(/assets/Fonts/Raleway/Raleway-500.ttf);
+    src: url('@fonts/Raleway/Raleway-500.ttf');
 }
 @font-face {
     font-family: 'Raleway';
     font-weight: 600;
-    src: url(/assets/Fonts/Raleway/Raleway-600.ttf);
+    src: url('@fonts/Raleway/Raleway-600.ttf');
 }
 @font-face {
     font-family: 'Raleway';
     font-weight: 700;
-    src: url(/assets/Fonts/Raleway/Raleway-700.ttf);
+    src: url('@fonts/Raleway/Raleway-700.ttf');
 }
 @font-face {
     font-family: 'Raleway';
     font-weight: 800;
-    src: url(/assets/Fonts/Raleway/Raleway-800.ttf);
+    src: url('@fonts/Raleway/Raleway-800.ttf');
 }
 @font-face {
     font-family: 'Raleway';
     font-weight: 900;
-    src: url(/assets/Fonts/Raleway/Raleway-900.ttf);
+    src: url('@fonts/Raleway/Raleway-900.ttf');
 }
 
 
 /* Roman Melikhov */
 @font-face {
     font-family: 'Roman Melikhov';
-    src: url(/assets/Fonts/Conneqt_Bold/Roman_Melikhov_-_Conneqt_Bold.otf);
+    src: url('@fonts/Conneqt_Bold/Roman_Melikhov_-_Conneqt_Bold.otf');
 }
 
 
@@ -85,30 +68,30 @@
 @font-face {
     font-family: 'Source Sans Pro';
     font-weight: 200;
-    src: url(/assets/Fonts/Source_Sans_Pro/SourceSansPro-200.ttf);
+    src: url('@fonts/Source_Sans_Pro/SourceSansPro-200.ttf');
 }
 @font-face {
     font-family: 'Source Sans Pro';
     font-weight: 300;
-    src: url(/assets/Fonts/Source_Sans_Pro/SourceSansPro-300.ttf);
+    src: url('@fonts/Source_Sans_Pro/SourceSansPro-300.ttf');
 }
 @font-face {
     font-family: 'Source Sans Pro';
     font-weight: 400;
-    src: url(/assets/Fonts/Source_Sans_Pro/SourceSansPro-400.ttf);
+    src: url('@fonts/Source_Sans_Pro/SourceSansPro-400.ttf');
 }
 @font-face {
     font-family: 'Source Sans Pro';
     font-weight: 600;
-    src: url(/assets/Fonts/Source_Sans_Pro/SourceSansPro-600.ttf);
+    src: url('@fonts/Source_Sans_Pro/SourceSansPro-600.ttf');
 }
 @font-face {
     font-family: 'Source Sans Pro';
     font-weight: 700;
-    src: url(/assets/Fonts/Source_Sans_Pro/SourceSansPro-700.ttf);
+    src: url('@fonts/Source_Sans_Pro/SourceSansPro-700.ttf');
 }
 @font-face {
     font-family: 'Source Sans Pro';
     font-weight: 900;
-    src: url(/assets/Fonts/Source_Sans_Pro/SourceSansPro-900.ttf);
+    src: url('@fonts/Source_Sans_Pro/SourceSansPro-900.ttf');
 }

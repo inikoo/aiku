@@ -35,14 +35,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property string $name
  * @property WarehouseStateEnum $state
- * @property array $settings
- * @property array $data
+ * @property array<array-key, mixed> $settings
+ * @property array<array-key, mixed> $data
  * @property string|null $opened_at
  * @property string|null $closed_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property array $sources
+ * @property array<array-key, mixed> $sources
  * @property-read \Illuminate\Database\Eloquent\Collection<int, AikuSection> $aikuScopedSections
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Production\Artefact> $artefacts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
@@ -97,7 +97,7 @@ class Production extends Model implements Auditable
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(4);
+            ->slugsShouldBeNoLongerThan(64);
     }
 
     public function generateTags(): array

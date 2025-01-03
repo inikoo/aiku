@@ -24,6 +24,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { useLayoutStore } from "@/Stores/layout"
 import ButtonAction from "@/Components/Pallet/ActionButton.vue"
 import { trans } from "laravel-vue-i18n"
+import PureMultiselectInfiniteScroll from "@/Components/Pure/PureMultiselectInfiniteScroll.vue"
 
 library.add(faTrashAlt, faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp, faStickyNote,faSquare);
 
@@ -87,32 +88,32 @@ const locationsList = ref([]);
 
 // Method: Get locations list from current Warehouse
 const getLocationsList = async () => {
-  isLoading.value = true;
-  try {
-    const response = await axios.get(route("grp.org.warehouses.show.infrastructure.locations.index", { "organisation": layout?.currentParams?.organisation, "warehouse": layout?.currentParams?.warehouse }));
+//   isLoading.value = true;
+//   try {
+//     const response = await axios.get(route("grp.org.warehouses.show.infrastructure.locations.index", { "organisation": layout?.currentParams?.organisation, "warehouse": layout?.currentParams?.warehouse }));
+//     console.log(response.data)
+//     // Add 'disabled' key to current location
+//     locationsList.value = response.data.data.map(loc => {
+//       if (loc.slug == route().params.location) {
+//         return {
+//           ...loc,
+//           disabled: true
+//         };
+//       }
+//       return loc;
+//     });
 
-    // Add 'disabled' key to current location
-    locationsList.value = response.data.data.map(loc => {
-      if (loc.slug == route().params.location) {
-        return {
-          ...loc,
-          disabled: true
-        };
-      }
-      return loc;
-    });
-
-    // console.log('resposne', locationsList.value)
-    isLoading.value = false;
-  } catch (error) {
-    console.error(error);
-    isLoading.value = false;
-    // notify({
-    //     title: "Failed",
-    //     text: "Error while fetching data",
-    //     type: "error"
-    // })
-  }
+//     // console.log('resposne', locationsList.value)
+//     isLoading.value = false;
+//   } catch (error) {
+//     console.error(error);
+//     isLoading.value = false;
+//     // notify({
+//     //     title: "Failed",
+//     //     text: "Error while fetching data",
+//     //     type: "error"
+//     // })
+//   }
 };
 
 // Method: On submit move pallet
@@ -130,8 +131,8 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
       onSuccess: (e) => {
         closePopup()
         notify({
-          title: "Pallet moved!",
-          text: "Pallet has been moved",
+          title: trans("Success!"),
+          text: trans("Pallet has been moved"),
           type: "success"
         })
       }
@@ -201,7 +202,7 @@ const onUpdateStatus=(routes,data)=>{
     </template>
 
     <!-- Column: Action (move pallet) -->
-    <template #cell(actions)="{ item }">
+    <template #cell(actions)="{ item, proxyItem }">
       <div class="flex gap-x-1 gap-y-1.5 isolate">
         <!-- Action: Move Pallet -->
         <Popover v-if="item.status === 'storing' && isMovePallet" class="relative" position="bottom-[125%] right-1/2">
@@ -217,10 +218,18 @@ const onUpdateStatus=(routes,data)=>{
             <div class="w-[250px]">
               <div class="text-xs px-1 my-2">{{ trans('Select new location to move')}}:</div>
               <div>
-                <Multiselect ref="_multiselectRef" v-model="palletSelected[item.reference]" :canClear="false"
+                <PureMultiselectInfiniteScroll
+                    v-model="palletSelected[item.reference]"
+                    :fetchRoute="{ name: 'grp.org.warehouses.show.infrastructure.locations.index', parameters: { organisation: layout?.currentParams?.organisation, warehouse: layout?.currentParams?.warehouse } }"
+                    :placeholder="trans('Select warehouse')"
+                    valueProp="id"
+                    labelProp="code"
+                    :isLoading="isLoadingMove"
+                />
+                <!-- <Multiselect ref="_multiselectRef" v-model="palletSelected[item.reference]" :canClear="false"
                   :canDeselect="false" label="code" valueProp="id" placeholder="Select location.."
                   :options="locationsList" :noResultsText="isLoading ? 'loading...' : 'No Result'">
-                </Multiselect>
+                </Multiselect> -->
               </div>
               <div class="flex justify-end mt-2">
                 <Button

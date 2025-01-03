@@ -9,7 +9,7 @@
 /** @noinspection PhpUnhandledExceptionInspection */
 
 use App\Actions\Analytics\GetSectionRoute;
-use App\Actions\Catalogue\Shop\SeedOfferCampaigns;
+use App\Actions\Catalogue\Shop\Seeders\SeedShopOfferCampaigns;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Discounts\Offer\Search\ReindexOfferSearch;
 use App\Actions\Discounts\Offer\StoreOffer;
@@ -58,10 +58,8 @@ beforeEach(function () {
 
 test('seed offer campaigns', function () {
     $shop = $this->shop;
-    SeedOfferCampaigns::run($shop);
-    $this->artisan('shop:seed_offer_campaigns', [
-        'shop' => $shop->slug,
-    ])->assertSuccessful();
+    SeedShopOfferCampaigns::run($shop);
+    $this->artisan('shop:seed_offer_campaigns')->assertSuccessful();
 
     $this->group->refresh();
     $this->organisation->refresh();

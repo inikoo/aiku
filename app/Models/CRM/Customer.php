@@ -26,15 +26,13 @@ use App\Models\Dropshipping\Portfolio;
 use App\Models\Dropshipping\ShopifyUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItem;
+use App\Models\Goods\Stock;
 use App\Models\Helpers\Address;
-use App\Models\Helpers\Issue;
 use App\Models\Helpers\Media;
 use App\Models\Helpers\TaxNumber;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
-use App\Models\Reminder\BackInStockReminder;
-use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddress;
@@ -81,7 +79,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $identity_document_number
  * @property string|null $contact_website
  * @property int|null $address_id
- * @property array $location
+ * @property array<array-key, mixed> $location
  * @property int|null $delivery_address_id
  * @property CustomerStatusEnum $status
  * @property CustomerStateEnum $state
@@ -92,8 +90,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $last_submitted_order_at
  * @property \Illuminate\Support\Carbon|null $last_dispatched_delivery_at
  * @property \Illuminate\Support\Carbon|null $last_invoiced_at
- * @property array $data
- * @property array $settings
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
  * @property string|null $internal_notes
  * @property string|null $warehouse_internal_notes
  * @property string|null $warehouse_public_notes
@@ -106,13 +104,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
- * @property array $migration_data
+ * @property array<array-key, mixed> $migration_data
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, \App\Models\CRM\Appointment> $appointments
  * @property-read MediaCollection<int, Media> $attachments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
- * @property-read Collection<int, BackInStockReminder> $backInStockReminder
+ * @property-read Collection<int, \App\Models\CRM\BackInStockReminder> $backInStockReminder
  * @property-read Collection<int, CustomerClient> $clients
  * @property-read \App\Models\CRM\CustomerComms|null $comms
  * @property-read Collection<int, CreditTransaction> $creditTransactions
@@ -125,7 +123,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Media|null $image
  * @property-read MediaCollection<int, Media> $images
  * @property-read Collection<int, Invoice> $invoices
- * @property-read Collection<int, Issue> $issues
  * @property-read MediaCollection<int, Media> $media
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read Collection<int, Order> $orders
@@ -220,18 +217,10 @@ class Customer extends Model implements HasMedia, Auditable
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                $slug = $this->company_name;
-                if ($slug == '') {
-                    $slug = $this->contact_name;
-                }
-                if ($slug == '' or $slug == 'Unknown') {
-                    $slug = $this->reference;
-                }
-
-                return $slug;
+                return $this->reference.'-'.$this->shop->slug;
             })
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(36)
+            ->slugsShouldBeNoLongerThan(128)
             ->doNotGenerateSlugsOnUpdate();
     }
 
@@ -329,11 +318,6 @@ class Customer extends Model implements HasMedia, Auditable
     public function taxNumber(): MorphOne
     {
         return $this->morphOne(TaxNumber::class, 'owner');
-    }
-
-    public function issues(): MorphToMany
-    {
-        return $this->morphToMany(Issue::class, 'issuable');
     }
 
     public function fulfilmentCustomer(): HasOne

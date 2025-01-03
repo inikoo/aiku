@@ -317,7 +317,7 @@ class ShowPurchaseOrder extends OrgAction
                         'gross_weight' => $purchaseOrder->gross_weight,
                         'net_weight'   => $purchaseOrder->net_weight,
                         'notes'          => $purchaseOrder->notes,
-                        'delivery_status' => $purchaseOrder->delivery_status,
+                        'delivery_state' => $purchaseOrder->delivery_state,
                     ],
 
                     'order_summary' => [

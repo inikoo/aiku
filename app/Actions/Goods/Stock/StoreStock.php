@@ -14,10 +14,11 @@ use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\GrpAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStocks;
 use App\Actions\Traits\Rules\WithNoStrictRules;
-use App\Enums\SupplyChain\Stock\StockStateEnum;
+use App\Enums\Goods\Stock\StockStateEnum;
+use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Enums\UI\SupplyChain\StockFamilyTabsEnum;
-use App\Models\SupplyChain\Stock;
-use App\Models\SupplyChain\StockFamily;
+use App\Models\Goods\Stock;
+use App\Models\Goods\StockFamily;
 use App\Models\SysAdmin\Group;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
@@ -49,6 +50,9 @@ class StoreStock extends GrpAction
             $stock = $parent->stocks()->create($modelData);
             $stock->stats()->create();
             $stock->intervals()->create();
+            foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
+                $stock->timeSeries()->create(['frequency' => $frequency]);
+            }
 
 
             if ($this->strict) {

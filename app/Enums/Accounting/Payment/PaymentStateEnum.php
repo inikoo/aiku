@@ -13,7 +13,7 @@ use App\Enums\EnumHelperTrait;
 enum PaymentStateEnum: string
 {
     use EnumHelperTrait;
-    case IN_PROCESS = 'in-process';
+    case IN_PROCESS = 'in_process';
     case APPROVING  = 'approving';
     case COMPLETED  = 'completed';
     case CANCELLED  = 'cancelled';

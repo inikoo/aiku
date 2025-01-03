@@ -19,6 +19,10 @@ class HydrateModels extends HydrateModel
 
     public function asCommand(Command $command): int
     {
+        if ($this->checkIfCanHydrate(['sysadmin', 'sys'], $command)) {
+            $this->hydrateSysadmin($command);
+        }
+
         if ($this->checkIfCanHydrate(['crm'], $command)) {
             $this->hydrateCrm($command);
         }
@@ -55,10 +59,6 @@ class HydrateModels extends HydrateModel
             $this->hydrateComms($command);
         }
 
-        if ($this->checkIfCanHydrate(['sysadmin', 'sys'], $command)) {
-            $this->hydrateSysadmin($command);
-        }
-
         if ($this->checkIfCanHydrate(['ordering'], $command)) {
             $this->hydrateOrdering($command);
         }
@@ -90,6 +90,9 @@ class HydrateModels extends HydrateModel
     protected function hydrateGoods(Command $command): void
     {
         $command->info('Goods section ⛅️');
+
+        $command->call('hydrate:master_shops');
+
         //todo search $command->call('hydrate:stocks');
         //todo search $command->call('hydrate:stock_families');
         //todo search $command->call('hydrate:trade_units');
@@ -170,6 +173,9 @@ class HydrateModels extends HydrateModel
         $command->info('Accounting section 💰');
         $command->call('hydrate:payments');
         $command->call('hydrate:payment_accounts');
+        $command->call('hydrate:org_payment_service_provider');
+
+
         // $command->call('hydrate:topups'); -> error on record search
         //todo $command->call('hydrate:customer_balances');
     }
@@ -215,7 +221,7 @@ class HydrateModels extends HydrateModel
     {
         $command->info('CRM section 👸🏻');
         $command->call('hydrate:customers');
-        $command->call('hydrate:prospects');
+        $command->call('hydrate:web_users');
     }
 
     protected function hydrateFulfilment(Command $command): void

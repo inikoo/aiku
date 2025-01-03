@@ -59,8 +59,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_authorised_warehouses
  * @property int $number_authorised_productions
  * @property string|null $remember_token
- * @property array $data
- * @property array $settings
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
  * @property bool $reset_password
  * @property int $language_id
  * @property int|null $image_id
@@ -71,7 +71,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
- * @property array $sources
+ * @property array<array-key, mixed> $sources
  * @property string|null $legacy_password source password
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $authorisedAgentsOrganisations
@@ -98,6 +98,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
  * @property-read \App\Models\SysAdmin\UserStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Task> $tasks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\UserTimeSeries> $timeSeries
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read \Illuminate\Database\Eloquent\Collection<int, UserRequest> $userRequests
@@ -176,7 +177,7 @@ class User extends Authenticatable implements HasMedia, Auditable
                 return head(explode('@', trim($this->username)));
             })
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(16);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
 
@@ -267,6 +268,11 @@ class User extends Authenticatable implements HasMedia, Auditable
     {
         return $this->belongsToMany(JobPosition::class, 'user_has_pseudo_job_positions')->withTimestamps()
             ->using(UserHasPseudoJobPositions::class)->withPivot(['scopes']);
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(UserTimeSeries::class);
     }
 
 

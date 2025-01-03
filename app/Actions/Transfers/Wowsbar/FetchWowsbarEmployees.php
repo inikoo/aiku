@@ -28,6 +28,9 @@ class FetchWowsbarEmployees extends FetchWowsbarAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Employee
     {
+        setPermissionsTeamId($organisationSource->getOrganisation()->group_id);
+
+
         if ($employeeData = $organisationSource->fetchEmployee($organisationSourceId)) {
             if ($employee = Employee::where('source_id', $employeeData['employee']['source_id'])->first()) {
                 $employee = UpdateEmployee::make()->action(

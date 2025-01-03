@@ -41,379 +41,385 @@ class GetOverview extends OrgAction
     public function getSection(Group $group): array
     {
         $section = [
-            'Sysadmin'          => [
+            __('Sysadmin')          => [
                 [
-                    'name'  => 'Users',
+                    'name'  => __('Changelog'),
+                    'icon'  => 'fal fa-history',
+                    'route' => route('grp.overview.sysadmin.changelog.index'),
+                    'count' => $group->sysadminStats->number_audits ?? 0
+                ],
+                [
+                    'name'  => __('Users'),
                     'icon'  => 'fal fa-users',
-                    'route' => '',
+                    'route' => route('grp.sysadmin.users.all.index'),
                     'count' => $group->sysadminStats->number_users ?? 0
                 ],
                 [
-                    'name'  => 'Guests',
+                    'name'  => __('Guests'),
                     'icon'  => 'fal fa-user-alien',
-                    'route' => '',
+                    'route' => route('grp.sysadmin.guests.index'),
                     'count' => $group->sysadminStats->number_guests ?? 0
                 ],
                 [
-                    'name'  => 'Users Requests',
-                    'icon'  => 'fal fa-user-headset',
-                    'route' => '',
+                    'name'  => __('User Requests'),
+                    'icon'  => 'fal fa-road',
+                    'route' => route('grp.sysadmin.users.request.index'),
                     'count' => $group->sysadminStats->number_user_requests ?? 0
                 ],
             ],
-            'Comms & marketing' => [
+            __('Comms') . ' & ' . __('Marketing') => [
                 [
-                    'name'  => 'Post Rooms',
+                    'name'  => __('Post Rooms'),
                     'icon'  => 'fal fa-booth-curtain',
-                    'route' => 'grp.overview.comms.post-rooms.index',
+                    'route' => route('grp.overview.comms-marketing.post-rooms.index'),
                     'count' => $group->commsStats->number_post_rooms ?? 0
                 ],
                 [
-                    'name'  => 'Outboxes',
+                    'name'  => __('Outboxes'),
                     'icon'  => 'fal fa-inbox-out',
-                    'route' => 'grp.overview.comms.outboxes-rooms.index',
+                    'route' => route('grp.overview.comms-marketing.outboxes.index'),
                     'count' => $group->commsStats->number_outboxes ?? 0
                 ],
                 [
-                    'name'  => 'Newsletters',
+                    'name'  => __('Newsletters'),
                     'icon'  => 'fal fa-newspaper',
-                    'route' => 'grp.overview.marketing.newsletters.index',
+                    'route' => route('grp.overview.comms-marketing.newsletters.index'),
                     'count' => $group->commsStats->number_mailshots_type_newsletter ?? 0
                 ],
                 [
-                    'name'  => 'Marketing mailshots',
+                    'name'  => __('Marketing Mailshots'),
                     'icon'  => 'fal fa-mail-bulk',
-                    'route' => 'grp.overview.marketing.mailshots.index',//todo change to correct route
+                    'route' => route('grp.overview.comms-marketing.marketing-mailshots.index'),
                     'count' => $group->commsStats->number_mailshots_type_marketing ?? 0
                 ],
                 [
-                    'name'  => 'Prospects mailshots',
+                    'name'  => __('Invite mailshots'),
                     'icon'  => 'fal fa-phone-volume',
-                    'route' => 'grp.overview.marketing.mailshots.index',//todo change to correct route
+                    'route' => route('grp.overview.comms-marketing.invite-mailshots.index'),
                     'count' => $group->commsStats->number_mailshots_type_invite ?? 0
                 ],
                 [
-                    'name'  => 'Abandoned cart mailshots',
+                    'name'  => __('Abandoned Cart mailshots'),
                     'icon'  => 'fal fa-scroll-old',
-                    'route' => 'grp.overview.marketing.mailshots.index',//todo change to correct route
+                    'route' => route('grp.overview.comms-marketing.abandoned-cart-mailshots.index'),
                     'count' => $group->commsStats->number_mailshots_type_abandoned_cart ?? 0
                 ],
                 [
-                    'name'  => 'Email Bulk Runs',
+                    'name'  => __('Email Bulk Runs'),
                     'icon'  => 'fal fa-raygun',
-                    'route' => '',
-                    'count' => $group->commsStats->number_email_bulk_runs ?? 0
+                    'route' => route('grp.overview.comms-marketing.email-bulk-runs.index'),
+                    'count' => $group->commsStats->number_bulk_runs ?? 0
                 ],
                 [
-                    'name'  => 'Email Addresses',
+                    'name'  => __('Email Addresses'),
                     'icon'  => 'fal fa-envelope',
-                    'route' => '',
+                    'route' => route('grp.overview.comms-marketing.email-addresses.index'), // real route index & show in group
                     'count' => $group->commsStats->number_email_addresses ?? 0
                 ],
                 [
-                    'name'  => 'Dispatched Emails',
+                    'name'  => __('Dispatched Emails'),
                     'icon'  => 'fal fa-paper-plane',
-                    'route' => '',
+                    'route' => route('grp.overview.comms-marketing.dispatched-emails.index'),
                     'count' => $group->commsStats->number_dispatched_emails ?? 0
                 ],
 
             ],
-            'Catalogue'         => [
+            __('Catalogue')         => [
                 [
-                    'name'  => 'Departments',
+                    'name'  => __('Departments'),
                     'icon'  => 'fal fa-folder-tree',
-                    'route' => 'grp.overview.catalogue.departments.index',
+                    'route' => route('grp.overview.catalogue.departments.index'),
                     'count' => $group->catalogueStats->number_departments ?? 0
                 ],
                 [
-                    'name'  => 'Families',
+                    'name'  => __('Families'),
                     'icon'  => 'fal fa-folder',
-                    'route' => 'grp.overview.catalogue.families.index',
+                    'route' => route('grp.overview.catalogue.families.index'),
                     'count' => $group->catalogueStats->number_families ?? 0
                 ],
                 [
-                    'name'  => 'Products',
+                    'name'  => __('Products'),
                     'icon'  => 'fal fa-boxes',
-                    'route' => 'grp.overview.catalogue.products.index',
+                    'route' => route('grp.overview.catalogue.products.index'),
                     'count' => $group->catalogueStats->number_products ?? 0
                 ],
                 [
-                    'name'  => 'Collections',
+                    'name'  => __('Collections'),
                     'icon'  => 'fal fa-album-collection',
-                    'route' => 'grp.overview.catalogue.collections.index',
+                    'route' => route('grp.overview.catalogue.collections.index'),
                     'count' => $group->catalogueStats->number_collections ?? 0
                 ],
             ],
-            'Billables'         => [
+            __('Billables')         => [
                 // [
-                //     'name' => 'Shipping',
+                //     'name' => __('Shipping'),
                 //     'icon' => 'fal fa-shipping-fast',
                 //     'route' => 'grp.overview.billables.shipping.index',
                 //     'count' => $group->catalogueStats->number_shipping_zone_schemas ?? 0
                 // ],
                 [
-                    'name'  => 'Rentals',
+                    'name'  => __('Rentals'),
                     'icon'  => 'fal fa-garage',
-                    'route' => '',
+                    'route' => route('grp.overview.billables.rentals.index'),
                     'count' => $group->catalogueStats->number_rentals ?? 0
                 ],
                 [
-                    'name'  => 'Charges',
+                    'name'  => __('Charges'),
                     'icon'  => 'fal fa-charging-station',
-                    'route' => 'grp.overview.billables.charges.index',
+                    'route' => route('grp.overview.billables.charges.index'),
                     'count' => $group->catalogueStats->number_assets_type_charge ?? 0
                 ],
                 [
-                    'name'  => 'Services',
+                    'name'  => __('Services'),
                     'icon'  => 'fal fa-concierge-bell',
-                    'route' => 'grp.overview.billables.services.index',
+                    'route' => route('grp.overview.billables.services.index'),
                     'count' => $group->catalogueStats->number_services ?? 0
                 ],
             ],
-            'Offer'             => [
+            __('Offer')             => [
                 [
-                    'name'  => 'Campaigns',
+                    'name'  => __('Campaigns'),
                     'icon'  => 'fal fa-comment-dollar',
-                    'route' => 'grp.overview.offer.campaigns.index',
+                    'route' => route('grp.overview.offer.campaigns.index'),
                     'count' => $group->discountsStats->number_offer_campaigns ?? 0
                 ],
                 [
-                    'name'  => 'Offers',
+                    'name'  => __('Offers'),
                     'icon'  => 'fal fa-badge-percent',
-                    'route' => 'grp.overview.offer.offers.index',
+                    'route' => route('grp.overview.offer.offers.index'),
                     'count' => $group->discountsStats->number_offers ?? 0
                 ],
             ],
-            'Web'               => [
+            __('Web')               => [
                 [
-                    'name'  => 'Websites',
+                    'name'  => __('Websites'),
                     'icon'  => 'fal fa-globe',
-                    'route' => '',
+                    'route' => route('grp.overview.web.websites.index'),
                     'count' => $group->webStats->number_websites ?? 0
                 ],
                 [
-                    'name'  => 'Webpages',
+                    'name'  => __('Webpages'),
                     'icon'  => 'fal fa-browser',
-                    'route' => 'grp.overview.web.webpages.index',
+                    'route' => route('grp.overview.web.webpages.index'),
                     'count' => $group->webStats->number_webpages ?? 0
                 ],
                 [
-                    'name'  => 'Banners',
+                    'name'  => __('Banners'),
                     'icon'  => 'fal fa-sign',
-                    'route' => 'grp.overview.web.banners.index',
+                    'route' => route('grp.overview.web.banners.index'),
                     'count' => $group->webStats->number_banners ?? 0
                 ],
             ],
-            'CRM'               => [
+            __('CRM')               => [
                 [
-                    'name'  => 'Customers',
+                    'name'  => __('Customers'),
                     'icon'  => 'fal fa-user',
-                    'route' => 'grp.overview.crm.customers.index',
+                    'route' => route('grp.overview.crm.customers.index'),
                     'count' => $group->crmStats->number_customers ?? 0
                 ],
                 [
-                    'name'  => 'Prospects',
+                    'name'  => __('Prospects'),
                     'icon'  => 'fal fa-user-plus',
-                    'route' => 'grp.overview.crm.prospects.index',
+                    'route' => route('grp.overview.crm.prospects.index'),
                     'count' => $group->crmStats->number_prospects ?? 0
                 ],
                 [
-                    'name'  => 'Web Users',
+                    'name'  => __('Web Users'),
                     'icon'  => 'fal fa-user-circle',
-                    'route' => 'grp.overview.crm.web-users.index',
+                    'route' => route('grp.overview.crm.web-users.index'),
                     'count' => $group->crmStats->number_web_users ?? 0
                 ],
             ],
-            'Ordering'          => [
+            __('Ordering')          => [
                 [
-                    'name'  => 'Orders',
+                    'name'  => __('Orders'),
                     'icon'  => 'fal fa-shopping-cart',
-                    'route' => 'grp.overview.order.orders.index',
+                    'route' => route('grp.overview.ordering.orders.index'),
                     'count' => $group->orderingStats->number_orders ?? 0
                 ],
                 [
-                    'name'  => 'Purges',
+                    'name'  => __('Purges'),
                     'icon'  => 'fal fa-trash-alt',
-                    'route' => 'grp.overview.order.purges.index',
+                    'route' => route('grp.overview.ordering.purges.index'),
                     'count' => $group->orderingStats->number_purges ?? 0
                 ],
                 [
-                    'name'  => 'Invoices',
+                    'name'  => __('Invoices'),
                     'icon'  => 'fal fa-file-invoice-dollar',
-                    'route' => 'grp.overview.accounting.invoices.index',
+                    'route' => route('grp.overview.ordering.invoices.index'),
                     'count' => $group->accountingStats->number_invoices ?? 0
                 ],
                 [
-                    'name'  => 'Delivery Notes',
+                    'name'  => __('Delivery Notes'),
                     'icon'  => 'fal fa-truck',
-                    'route' => 'grp.overview.order.orders.index',
+                    'route' => route('grp.overview.ordering.delivery-notes.index'),
                     'count' => $group->orderingStats->number_delivery_notes ?? 0
                 ],
                 [
-                    'name'  => 'Transactions',
+                    'name'  => __('Transactions'),
                     'icon'  => 'fal fa-exchange-alt',
-                    'route' => '',
+                    'route' => route('grp.overview.ordering.transactions.index'),
                     'count' => $group->orderingStats->number_invoice_transactions ?? 0
                 ],
             ],
-            'Inventory'         => [
+            __('Inventory')         => [
                 [
-                    'name'  => 'Stocks',
+                    'name'  => __('Stocks'),
                     'icon'  => 'fal fa-inventory',
-                    'route' => '',
+                    'route' => route('grp.goods.stocks.index'),
                     'count' => $group->goodsStats->number_stocks ?? 0
                 ],
                 [
-                    'name'  => 'Org Stocks',
+                    'name'  => __('Org Stocks'),
                     'icon'  => 'fal fa-warehouse',
-                    'route' => '',
-                    'count' => $group->inventoryStats->number_org_stocks ?? 0 // need hydrator
+                    'route' => route('grp.overview.inventory.org-stocks.index'),
+                    'count' => $group->inventoryStats->number_org_stocks ?? 0
                 ],
                 [
-                    'name'  => 'Stock Families',
+                    'name'  => __('Stock Families'),
                     'icon'  => 'fal fa-box',
-                    'route' => '',
+                    'route' => route('grp.goods.stock-families.index'),
                     'count' => $group->goodsStats->number_stock_families ?? 0
                 ],
                 [
-                    'name'  => 'Org Stock Families',
+                    'name'  => __('Org Stock Families'),
                     'icon'  => 'fal fa-boxes-alt',
-                    'route' => '',
-                    'count' => $group->inventoryStats->number_org_stock_families ?? 0 // need hydrator
+                    'route' => route('grp.overview.inventory.org-stock-families.index'),
+                    'count' => $group->inventoryStats->number_org_stock_families ?? 0
                 ],
                 [
-                    'name'  => 'Org Stock Movements',
+                    'name'  => __('Org Stock Movements'),
                     'icon'  => 'fal fa-dolly',
-                    'route' => '',
-                    'count' => $group->inventoryStats->number_org_stock_movements ?? 0 // need hydrator
+                    'route' => route('grp.overview.inventory.org-stock-movements.index'),
+                    'count' => $group->inventoryStats->number_org_stock_movements ?? 0
                 ],
                 [
-                    'name'  => 'Warehouses',
+                    'name'  => __('Warehouses'),
                     'icon'  => 'fal fa-warehouse-alt',
-                    'route' => '',
+                    'route' => route('grp.overview.inventory.warehouses.index'),
                     'count' => $group->inventoryStats->number_warehouses ?? 0
                 ],
                 [
-                    'name'  => 'Warehouses Areas',
+                    'name'  => __('Warehouses Areas'),
                     'icon'  => 'fal fa-industry-alt',
-                    'route' => '',
+                    'route' => route('grp.overview.inventory.warehouses-areas.index'),
                     'count' => $group->inventoryStats->number_warehouse_areas ?? 0
                 ],
                 [
-                    'name'  => 'Locations',
+                    'name'  => __('Locations'),
                     'icon'  => 'fal fa-location-arrow',
-                    'route' => '',
+                    'route' => route('grp.overview.inventory.locations.index'),
                     'count' => $group->inventoryStats->number_locations ?? 0
                 ],
             ],
-            'Fulfilment'        => [
+            __('Fulfilment')        => [
                 [
-                    'name'  => 'Pallets',
+                    'name'  => __('Pallets'),
                     'icon'  => 'fal fa-pallet',
-                    'route' => '',
+                    'route' => route('grp.overview.fulfilment.pallets.index'),
                     'count' => $group->fulfilmentStats->number_pallets ?? 0
                 ],
                 [
-                    'name'  => 'Stored Items',
+                    'name'  => __('Stored Items'),
                     'icon'  => 'fal fa-box-open',
-                    'route' => '',
+                    'route' => route('grp.overview.fulfilment.stored-items.index'),
                     'count' => $group->fulfilmentStats->number_stored_items ?? 0
                 ],
                 [
-                    'name'  => 'Stock Deliveries',
+                    'name'  => __('Stock Deliveries'),
                     'icon'  => 'fal fa-truck-loading',
                     'route' => '',
-                    'count' => $group->procurementStats->number_stock_deliveries ?? 0 // hydrator ?? 0
+                    'count' => $group->procurementStats->number_stock_deliveries ?? 0
                 ],
                 [
-                    'name'  => 'Pallet Deliveries',
+                    'name'  => __('Pallet Deliveries'),
                     'icon'  => 'fal fa-pallet-alt',
                     'route' => '',
                     'count' => $group->fulfilmentStats->number_pallet_deliveries ?? 0
                 ],
                 [
-                    'name'  => 'Pallet Returns',
+                    'name'  => __('Pallet Returns'),
                     'icon'  => 'fal fa-forklift',
                     'route' => '',
                     'count' => $group->fulfilmentStats->number_pallet_returns ?? 0
                 ],
             ],
-            'Procurement'       => [
+            __('Procurement')       => [
                 [
-                    'name'  => 'Agents',
+                    'name'  => __('Agents'),
                     'icon'  => 'fal fa-people-arrows',
-                    'route' => 'grp.overview.procurement.agents.index',
+                    'route' => route('grp.supply-chain.agents.index'),
                     'count' => $group->supplyChainStats->number_agents ?? 0
                 ],
                 [
-                    'name'  => 'Suppliers',
+                    'name'  => __('Suppliers'),
                     'icon'  => 'fal fa-person-dolly',
-                    'route' => 'grp.overview.procurement.suppliers.index',
+                    'route' =>  route('grp.supply-chain.suppliers.index'),
                     'count' => $group->supplyChainStats->number_suppliers ?? 0
                 ],
                 [
-                    'name'  => 'Supplier Products',
+                    'name'  => __('Supplier Products'),
                     'icon'  => 'fal fa-users-class',
-                    'route' => 'grp.overview.procurement.supplier-products.index',
+                    'route' => route('grp.supply-chain.supplier_products.index'),
                     'count' => $group->supplyChainStats->number_supplier_products ?? 0
                 ],
                 [
-                    'name'  => 'Purchase Orders',
+                    'name'  => __('Purchase Orders'),
                     'icon'  => 'fal fa-clipboard-list',
-                    'route' => 'grp.overview.procurement.purchase-orders.index',
+                    'route' => route('grp.overview.procurement.purchase-orders.index'),
                     'count' => $group->supplyChainStats->number_purchase_orders ?? 0
                 ],
             ],
-            'Accounting'        => [
+            __('Accounting')        => [
                 [
-                    'name'  => 'Accounts',
+                    'name'  => __('Accounts'),
                     'icon'  => 'fal fa-money-check-alt',
-                    'route' => 'grp.overview.accounting.payment-accounts.index',
+                    'route' => route('grp.overview.accounting.payment-accounts.index'),
                     'count' => $group->accountingStats->number_payment_accounts ?? 0
                 ],
                 [
-                    'name'  => 'Payments',
+                    'name'  => __('Payments'),
                     'icon'  => 'fal fa-coin',
-                    'route' => 'grp.overview.accounting.payments.index',
+                    'route' => route('grp.overview.accounting.payments.index'),
                     'count' => $group->accountingStats->number_payments ?? 0
                 ],
                 [
-                    'name'  => 'Customer Balances',
+                    'name'  => __('Customer Balances'),
                     'icon'  => 'fal fa-piggy-bank',
-                    'route' => 'grp.overview.accounting.customer-balances.index',
-                    'count' => $group->accountingStats->number_customers_with_balances ?? 0 // need stats for this
+                    'route' => route('grp.overview.accounting.customer-balances.index'),
+                    'count' => $group->accountingStats->number_customers_with_balances ?? 0
                 ],
             ],
-            'Human Resources'   => [
+            __('Human Resources')   => [
                 [
-                    'name'  => 'Workplaces',
+                    'name'  => __('Workplaces'),
                     'icon'  => 'fal fa-building',
-                    'route' => 'grp.overview.human-resources.workplaces.index',
+                    'route' => route('grp.overview.hr.workplaces.index'),
                     'count' => $group->humanResourcesStats->number_workplaces ?? 0
                 ],
                 [
-                    'name'  => 'Responsibilities',
+                    'name'  => __('Responsibilities'),
                     'icon'  => 'fal fa-clipboard-list-check',
-                    'route' => 'grp.overview.human-resources.responsibilities.index',
+                    'route' => route('grp.overview.hr.responsibilities.index'),
                     'count' => $group->humanResourcesStats->number_job_positions ?? 0
                 ],
                 [
-                    'name'  => 'Employees',
+                    'name'  => __('Employees'),
                     'icon'  => 'fal fa-user-hard-hat',
-                    'route' => 'grp.overview.accounting.employees.index',
+                    'route' => route('grp.overview.hr.employees.index'),
                     'count' => $group->humanResourcesStats->number_employees ?? 0
                 ],
                 [
-                    'name'  => 'Clocking Machines',
+                    'name'  => __('Clocking Machines'),
                     'icon'  => 'fal fa-chess-clock',
-                    'route' => 'grp.overview.accounting.clocking-machines.index',
+                    'route' => route('grp.overview.hr.clocking-machines.index'),
                     'count' => $group->humanResourcesStats->number_clocking_machines ?? 0
                 ],
                 [
-                    'name'  => 'Timesheets',
+                    'name'  => __('Timesheets'),
                     'icon'  => 'fal fa-stopwatch',
-                    'route' => 'grp.overview.accounting.timesheets.index',
-                    'count' => $group->humanResourcesStats->number_timesheets ?? 0 // need hydrator
+                    'route' => route('grp.overview.hr.timesheets.index'),
+                    'count' => $group->humanResourcesStats->number_timesheets ?? 0
                 ],
             ],
         ];

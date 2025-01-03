@@ -11,18 +11,19 @@ namespace App\Actions\SysAdmin\Guest;
 use App\Actions\SysAdmin\Guest\Hydrators\GuestHydrateClockings;
 use App\Actions\SysAdmin\Guest\Hydrators\GuestHydrateTimesheets;
 use App\Actions\SysAdmin\Guest\Hydrators\GuestHydrateTimeTracker;
+use App\Actions\Traits\Hydrators\WithHydrateCommand;
 use App\Models\SysAdmin\Guest;
-use Illuminate\Console\Command;
-use Illuminate\Support\Collection;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 class HydrateGuest
 {
-    use asAction;
+    use WithHydrateCommand;
+
 
     public string $commandSignature = 'hydrate:guests';
-
-
+    public function __construct()
+    {
+        $this->model = Guest::class;
+    }
     public function handle(Guest $guest): void
     {
         GuestHydrateTimesheets::run($guest);
@@ -30,27 +31,4 @@ class HydrateGuest
         GuestHydrateTimeTracker::run($guest);
     }
 
-
-    public function asCommand(Command $command): int
-    {
-        $command->info("Hydrating Guests");
-        $count = Guest::count();
-
-        $bar = $command->getOutput()->createProgressBar($count);
-        $bar->setFormat('debug');
-        $bar->start();
-
-        Guest::chunk(1000, function (Collection $models) use ($bar) {
-            foreach ($models as $model) {
-                $this->handle($model);
-                $bar->advance();
-            }
-        });
-
-        $bar->finish();
-        $command->info("");
-
-
-        return 0;
-    }
 }

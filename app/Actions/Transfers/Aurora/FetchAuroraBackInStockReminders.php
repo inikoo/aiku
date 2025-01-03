@@ -10,7 +10,7 @@ namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\CRM\BackInStockReminder\StoreBackInStockReminder;
 use App\Actions\CRM\BackInStockReminder\UpdateBackInStockReminder;
-use App\Models\Reminder\BackInStockReminder;
+use App\Models\CRM\BackInStockReminder;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
@@ -35,7 +35,7 @@ class FetchAuroraBackInStockReminders extends FetchAuroraAction
                     $backInStockReminder = UpdateBackInStockReminder::make()->action(
                         backInStockReminder: $backInStockReminder,
                         modelData: $backInStockReminderData['back_in_stock_reminder'],
-                        hydratorsDelay: 60,
+                        hydratorsDelay: 900,
                         strict: false,
                     );
                     $this->recordChange($organisationSource, $backInStockReminder->wasChanged());
@@ -51,7 +51,7 @@ class FetchAuroraBackInStockReminders extends FetchAuroraAction
                         customer: $backInStockReminderData['customer'],
                         product: $backInStockReminderData['product'],
                         modelData: $backInStockReminderData['back_in_stock_reminder'],
-                        hydratorsDelay: 60,
+                        hydratorsDelay: 900,
                         strict: false
                     );
 

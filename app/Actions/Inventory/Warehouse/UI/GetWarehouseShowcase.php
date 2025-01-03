@@ -22,7 +22,7 @@ class GetWarehouseShowcase
             'box_stats' => [
                 [
                     'name'     => trans_choice('warehouse area|warehouse areas', $warehouse->stats->number_warehouse_areas),
-                    'number'   => $warehouse->stats->number_warehouse_areas,
+                    'value'   => $warehouse->stats->number_warehouse_areas,
                     'route'     => [
                         'name'       => 'grp.org.warehouses.show.infrastructure.warehouse_areas.index',
                         'parameters' => array_merge($routeParameters, [$warehouse->slug])
@@ -34,7 +34,7 @@ class GetWarehouseShowcase
                 ],
                 [
                     'name'     => trans_choice('location|locations', $warehouse->stats->number_locations),
-                    'number'   => $warehouse->stats->number_locations,
+                    'value'   => $warehouse->stats->number_locations,
                     'route'     => [
                         'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
                         'parameters' => array_merge($routeParameters, [$warehouse->slug])

@@ -36,8 +36,8 @@ class AddTagToCustomerWithoutTags
             }
         });
 
-        TagHydrateSubjects::run($tag);
-        TagHydrateProspects::run($tag);
+        TagHydrateSubjects::dispatch($tag);
+        TagHydrateProspects::dispatch($tag);
         TagHydrateUniversalSearch::dispatch($tag);
     }
 

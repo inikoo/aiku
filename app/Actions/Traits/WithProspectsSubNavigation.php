@@ -8,12 +8,20 @@
 
 namespace App\Actions\Traits;
 
+use App\Models\Fulfilment\Fulfilment;
 use Lorisleiva\Actions\ActionRequest;
 
 trait WithProspectsSubNavigation
 {
     public function getSubNavigation(ActionRequest $request): array
     {
+        $parent = $this->parent;
+
+        if ($parent instanceof Fulfilment) {
+            $parent = $parent->shop;
+        }
+
+
         $meta = [];
 
         $meta[] = [
@@ -28,7 +36,7 @@ trait WithProspectsSubNavigation
                     ]
                 )
             ],
-            'number'   => $this->parent->crmStats->number_prospects,
+            'number'   => $parent->crmStats->number_prospects,
             'label'    => __('Prospects'),
             'leftIcon' => [
                 'icon'    => 'fal fa-transporter',
@@ -36,13 +44,13 @@ trait WithProspectsSubNavigation
             ]
         ];
 
-        if ($this->parent->crmStats->number_prospects > 0) {
+        if ($parent->crmStats->number_prospects > 0) {
             $meta[] = [
                 'route'     => [
                     'name'       => 'grp.org.shops.show.crm.prospects.mailshots.index',
                     'parameters' => $request->route()->originalParameters()
                 ],
-                'number'   => $this->parent->commsStats->number_mailshots_type_prospect_mailshot,
+                'number'   => $parent->commsStats->number_mailshots_type_prospect_mailshot,
                 'label'    => __('Mailshots'),
                 'leftIcon' => [
                     'icon'    => 'fal fa-mail-bulk',
@@ -56,7 +64,7 @@ trait WithProspectsSubNavigation
             //     'name'       => 'grp.org.shops.show.crm.prospects.lists.index',
             //     'parameters' => $request->route()->originalParameters()
             // ],
-            'number'   => $this->parent->crmStats->number_prospect_queries,
+            'number'   => $parent->crmStats->number_prospect_queries,
             'label'    => __('Lists'),
             'leftIcon' => [
                 'icon'    => 'fal fa-code-branch',
@@ -69,7 +77,7 @@ trait WithProspectsSubNavigation
                 'name'       => 'grp.org.shops.show.crm.prospects.tags.index',
                 'parameters' => $request->route()->originalParameters()
             ],
-            'number'   => $this->parent->crmStats->number_tags,
+            'number'   => $parent->crmStats->number_tags,
             'label'    => __('Tags'),
             'leftIcon' => [
                 'icon'    => 'fal fa-tags',

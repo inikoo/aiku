@@ -69,9 +69,9 @@ class GetOutboxShowcase
                 'value' => $stats->number_dispatched_emails_state_spam,
             ],
             [
-                'label' => DispatchedEmailStateEnum::labels()['soft-bounce'],
+                'label' => DispatchedEmailStateEnum::labels()['soft_bounce'],
                 'key'   => 'dispatched_emails_state_delivered',
-                'icon'  => DispatchedEmailStateEnum::stateIcon()['soft-bounce']['icon'],
+                'icon'  => DispatchedEmailStateEnum::stateIcon()['soft_bounce']['icon'],
                 'class' => 'bg-orange-200' ,
                 'color' => 'rgb(59 130 56)',
                 'value' => $stats->number_dispatched_emails_state_delivereds,
@@ -109,9 +109,9 @@ class GetOutboxShowcase
                 'value' => $stats->number_dispatched_emails_state_rejected_by_provider,
             ],
             [
-                'label' => DispatchedEmailStateEnum::labels()['hard-bounce'],
+                'label' => DispatchedEmailStateEnum::labels()['hard_bounce'],
                 'key'   => 'dispatched_emails_state_delivered',
-                'icon'  => DispatchedEmailStateEnum::stateIcon()['hard-bounce']['icon'],
+                'icon'  => DispatchedEmailStateEnum::stateIcon()['hard_bounce']['icon'],
                 'class' => 'bg-red-200' ,
                 'color' => 'rgb(59 130 34)',
                 'value' => $stats->number_dispatched_emails_state_hard_bounce,

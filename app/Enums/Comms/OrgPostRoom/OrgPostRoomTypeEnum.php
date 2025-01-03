@@ -17,10 +17,10 @@ enum OrgPostRoomTypeEnum: string
 
     case NEWSLETTER = 'newsletter';
     case MARKETING = 'marketing';
-    case MARKETING_NOTIFICATION = 'marketing-notification'; // halfway between marketing and transactional
-    case CUSTOMER_NOTIFICATION = 'customer-notification'; // e.g. forgot email, welcome email, etc
-    case COLD_EMAIL = 'cold-emails'; // send to prospects
-    case USER_NOTIFICATION = 'user-notification'; // internal notifications
+    case MARKETING_NOTIFICATION = 'marketing_notification'; // halfway between marketing and transactional
+    case CUSTOMER_NOTIFICATION = 'customer_notification'; // e.g. forgot email, welcome email, etc
+    case COLD_EMAIL = 'cold_emails'; // send to prospects
+    case USER_NOTIFICATION = 'user_notification'; // internal notifications
     case TEST = 'test';
 
     public function label(): string

@@ -20,7 +20,7 @@ enum WebsiteTypeEnum: string
     case B2C          = 'b2c';
     case DROPSHIPPING = 'dropshipping';
     case FULFILMENT   = 'fulfilment';
-    case DIGITAL_AGENCY = 'digital-agency';
+    case DIGITAL_AGENCY = 'digital_agency';
 
 
     public static function labels(): array

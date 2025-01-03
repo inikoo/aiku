@@ -16,6 +16,7 @@ use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateUniversalSearch;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSuppliers;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithModelAddressActions;
+use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Group;
@@ -59,6 +60,9 @@ class StoreSupplier extends GrpAction
             /** @var Supplier $supplier */
             $supplier = $parent->suppliers()->create($modelData);
             $supplier->stats()->create();
+            foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
+                $supplier->timeSeries()->create(['frequency' => $frequency]);
+            }
             SetCurrencyHistoricFields::run($supplier->currency, $supplier->created_at);
 
             $supplier = $this->addAddressToModelFromArray($supplier, $addressData, 'contact');

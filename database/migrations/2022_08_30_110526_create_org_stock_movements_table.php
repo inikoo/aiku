@@ -44,8 +44,8 @@ return new class () extends Migration {
             $table->foreign('location_id')->references('id')->on('locations');
             $table->nullableMorphs('operation');
             $table->decimal('quantity', 16, 3);
-            $table->decimal('amount', 16, 3);
-            $table->decimal('group_amount', 16, 3);
+            $table->decimal('org_amount', 16, 3);
+            $table->decimal('grp_amount', 16, 3);
             $table->jsonb('data');
             $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();

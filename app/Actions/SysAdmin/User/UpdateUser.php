@@ -20,6 +20,8 @@ use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 
 class UpdateUser extends GrpAction
 {
@@ -31,9 +33,8 @@ class UpdateUser extends GrpAction
     public function handle(User $user, array $modelData): User
     {
         if (Arr::exists($modelData, 'password')) {
-            $this->set('auth_type', UserAuthTypeEnum::DEFAULT);
+            data_set($modelData, 'auth_type', UserAuthTypeEnum::DEFAULT);
         }
-
 
         $user = $this->update($user, $modelData, ['profile', 'settings']);
 
@@ -75,7 +76,7 @@ class UpdateUser extends GrpAction
                     ]
                 ),
             ],
-            'password'       => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') || !$this->strict ? null : Password::min(8)->uncompromised()],
+            'password'       => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') || !$this->strict ? Password::min(3) : Password::min(8)->uncompromised()],
             'email'          => [
                 'sometimes',
                 'nullable',
@@ -135,5 +136,10 @@ class UpdateUser extends GrpAction
     public function jsonResponse(User $user): UsersResource
     {
         return new UsersResource($user);
+    }
+
+    public function htmlResponse(User $user): RedirectResponse
+    {
+        return Redirect::route('grp.sysadmin.users.edit', $user->slug);
     }
 }

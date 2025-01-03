@@ -4,10 +4,9 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-import { defineStore } from 'pinia'
-import type { Language } from '@/types/Locale'
-import { ref } from 'vue'
-
+import { defineStore } from "pinia"
+import type { Language } from "@/types/Locale"
+import { ref } from "vue"
 
 // export const useLocaleStore = defineStore('locale', {
 //     state: () => ({
@@ -30,38 +29,41 @@ import { ref } from 'vue'
 //     }
 // })
 
-export const useLocaleStore = defineStore('locale', () => {
-    const language = ref<Language>({
-        id: 68,
-        code: 'en',
-        name: 'English',
-    })
-    const languageOptions = ref<Language[]>([language.value])
+export const useLocaleStore = defineStore("locale", () => {
+	const language = ref<Language>({
+		id: 68,
+		code: "en",
+		name: "English",
+	})
+	const languageOptions = ref<Language[]>([language.value])
 
-    const number = (number: number) => {
-        return new Intl.NumberFormat(language.value.code).format(number)
-    }
+	const number = (number: number) => {
+		return new Intl.NumberFormat(language.value.code).format(number)
+	}
 
-    const currencyFormat = (currencyCode: string, amount: number) => {
-        return new Intl.NumberFormat(language.value.code, { style: 'currency', currency: currencyCode }).format(amount)
-    }
+	const currencyFormat = (currencyCode: string, amount: number) => {
+		return new Intl.NumberFormat(language.value.code, {
+			style: "currency",
+			currency: currencyCode,
+		}).format(amount)
+	}
 
-    const numberShort = ((currencyCode: string, number: number) => {
-        // Format the number using Intl.NumberFormat
-        let formattedNumber = new Intl.NumberFormat(language.value.code, {
-            notation: 'compact',
-            compactDisplay: 'short',
-            style: 'currency',
-            currency: currencyCode,
-        }).format(number);
-    
-        formattedNumber = formattedNumber.replace(/(\d)([KMGTPE])/g, (match, p1, p2) => {
-            return `${p1} ${p2.toLowerCase()}`;
-        });
-    
-        return formattedNumber;
-    });
-    
+	const numberShort = (currencyCode: string, number: number) => {
 
-    return { language, languageOptions, number, currencyFormat, numberShort }
+		let formattedNumber = new Intl.NumberFormat(language.value.code, {
+			notation: "compact",
+			compactDisplay: "short",
+			style: "currency",
+			currency: currencyCode,
+		}).format(number)
+
+		formattedNumber = formattedNumber.replace(/(\d)([KMGTPE])/g, (match, p1, p2) => {
+			return `${p1} ${p2.toLowerCase()}`
+		})
+
+		return formattedNumber
+	}
+
+	return { language, languageOptions, number, currencyFormat, numberShort }
 })
+//make same class for all dashboard font size wight and all

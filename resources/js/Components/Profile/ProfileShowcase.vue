@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 
 import AppLogin from "@/Components/Forms/Fields/AppLogin.vue"
+import { trans } from 'laravel-vue-i18n'
 
 library.add(faAndroid)
 
@@ -48,7 +49,7 @@ const props = defineProps<{
                             #{{ data?.data?.id }} {{ data?.data?.username }}
                         </div>
                     </div>
-                    <div class="mt-4">
+                    <!-- <div class="mt-4">
                         <div class="font-medium">
                             Description
                         </div>
@@ -58,32 +59,32 @@ const props = defineProps<{
                         <div v-else class="text-gray-400 italic">
                             {{ 'No description yet' }}
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
             <!-- Section: Contact Information -->
             <div class="mt-6 border-l border-gray-300 pl-6 space-y-3">
-                <div class="font-semibold">Contact Information</div>
+                <div class="font-semibold">{{ trans("Contact Information") }} <span class="ml-1 text-gray-400 font-normal">#{{ data?.data?.id }} {{ data?.data?.username }}</span></div>
 
                 <div class="space-y-2">
-                    <div class="grid grid-cols-3 gap-x-5 text-sm">
+                    <!-- <div class="grid grid-cols-3 gap-x-5 text-sm">
                         <div class="text-gray-400">
                             Status
                         </div>
                         <div class="col-span-2 font-medium capitalize">
                             {{ data?.data?.status?.tooltip }}
                         </div>
-                    </div>
+                    </div> -->
 
-                    <div class="grid grid-cols-3 gap-x-5 text-sm">
+                    <!-- <div class="grid grid-cols-3 gap-x-5 text-sm">
                         <div class="text-gray-400">
                             User type
                         </div>
                         <div class="col-span-2 font-medium capitalize">
                             {{ data?.data?.parent_type || '-' }}
                         </div>
-                    </div>
+                    </div> -->
 
                     <div class="grid grid-cols-3 gap-x-5 text-sm">
                         <div class="text-gray-400">
@@ -96,30 +97,30 @@ const props = defineProps<{
 
                     <div class="grid grid-cols-3 gap-x-5 text-sm">
                         <div class="text-gray-400">
-                            Email
+                            {{ trans("Email") }}
                         </div>
                         <div class="col-span-2 font-medium">
-                            {{ data?.data?.email }}
+                            {{ data?.data?.email || '-' }}
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-x-5 text-sm">
+                    <!-- <div class="grid grid-cols-3 gap-x-5 text-sm">
                         <div class="text-gray-400">
                             Roles
                         </div>
                         <div class="col-span-2 font-medium">
                             {{ data?.data?.roles?.length }} roles
                         </div>
-                    </div>
+                    </div> -->
 
-                    <div class="grid grid-cols-3 gap-x-5 text-sm">
+                    <!-- <div class="grid grid-cols-3 gap-x-5 text-sm">
                         <div class="text-gray-400">
                             Permissions
                         </div>
                         <div class="col-span-2 font-medium">
                             {{ data?.data?.permissions?.length }} access
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>

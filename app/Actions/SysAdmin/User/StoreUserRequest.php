@@ -20,7 +20,7 @@ class StoreUserRequest extends GrpAction
     public function handle(User $user, array $modelData): UserRequest
     {
         $userRequest = $user->userRequests()->create($modelData);
-        GroupHydrateUserRequests::run($user->group)->delay($this->hydratorsDelay);
+        GroupHydrateUserRequests::dispatch($user->group)->delay($this->hydratorsDelay);
         return $userRequest;
     }
 

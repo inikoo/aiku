@@ -13,7 +13,7 @@ use App\Models\CRM\Customer;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property int $number_current_clients
+ * @property int $number_current_customer_clients
  */
 class PortfolioResource extends JsonResource
 {

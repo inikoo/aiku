@@ -86,7 +86,6 @@ test(
 );
 
 test('seed shop outboxes by command', function (Shop $shop) {
-    $this->artisan('shop:seed_outboxes '.$shop->slug)->assertExitCode(0);
     $this->artisan('shop:seed_outboxes')->assertExitCode(0);
     expect($shop->group->commsStats->number_outboxes)->toBe(23);
 })->depends('outbox seeded when shop created');
@@ -171,7 +170,7 @@ test('test post room hydrator', function ($shop) {
 })->depends('outbox seeded when shop created')->todo();
 
 
-test('test send email reset password', function ($shop) {
+test('test send email reset password', function () {
     $customer = $this->customer;
 
     $html = SendResetPasswordEmail::make()->action($customer, []);
@@ -257,7 +256,7 @@ test('UI Show Org Post Rooms', function () {
     });
 });
 
-test('UI Index MArketing Mailshots', function () {
+test('UI Index MMarketing Mailshots', function () {
     $response = $this->get(route('grp.org.shops.show.marketing.mailshots.index', [$this->organisation->slug, $this->shop->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
@@ -286,6 +285,168 @@ test('UI Index Newsletter Mailshots', function () {
                 'pageHead',
                 fn (AssertableInertia $page) => $page
                     ->where('title', 'newsletter')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index PostRoom Overview', function () {
+    $response = $this->get(route('grp.overview.comms-marketing.post-rooms.index'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Comms/PostRooms')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'Post Room')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index Outboxes Overview', function () {
+    $response = $this->get(route('grp.overview.comms-marketing.outboxes.index'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Comms/Outboxes')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'outboxes')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index Newsletter Overview', function () {
+    $response = $this->get(route('grp.overview.comms-marketing.newsletters.index'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Comms/Mailshots')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'newsletter')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index Marketing Mailshots Overview', function () {
+    $response = $this->get(route('grp.overview.comms-marketing.marketing-mailshots.index'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Comms/Mailshots')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'marketing mailshots')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index Invite Marketing Overview', function () {
+    $response = $this->get(route('grp.overview.comms-marketing.invite-mailshots.index'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Comms/Mailshots')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'invite mailshots')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index Abandoned Cart Mailshots Overview', function () {
+    $response = $this->get(route('grp.overview.comms-marketing.abandoned-cart-mailshots.index'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Comms/Mailshots')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'abandoned cart mailshots')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index Email Bulk Runs Overview', function () {
+    $response = $this->get(route('grp.overview.comms-marketing.email-bulk-runs.index'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Comms/Mailshots')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'Email Bulk Runs')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index Email Addresses Overview', function () {
+    $response = $this->get(route('grp.overview.comms-marketing.email-addresses.index'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Comms/EmailAddresses')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'Email Addresses')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index Dispatched Emails Overview', function () {
+    $response = $this->get(route('grp.overview.comms-marketing.dispatched-emails.index'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Comms/DispatchedEmails')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'dispatched emails')
                     ->etc()
             )
             ->has('data')

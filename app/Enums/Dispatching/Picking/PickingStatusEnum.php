@@ -17,7 +17,7 @@ enum PickingStatusEnum: string
     case PROCESSING = 'processing';
     case PICKED = 'picked';
     case PARTIALLY_PICKED = 'partially-picked';
-    case NOT_PICKED = 'not-picked';
+    case NOT_PICKED = 'not_picked';
     case CANCELLED = 'cancelled';
 
     public static function labels($forElements = false): array
@@ -26,7 +26,7 @@ enum PickingStatusEnum: string
             'processing'          => __('Processing'),
             'picked'              => __('Picked'),
             'picked-blocked'      => __('Picked Partially'),
-            'not-picked'          => __('Not Picked'),
+            'not_picked'          => __('Not Picked'),
             'cancelled'           => __('Cancelled'),
 
         ];
@@ -66,7 +66,7 @@ enum PickingStatusEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'not-picked'          => [
+            'not_picked'          => [
                 'tooltip' => __('Not Picked'),
                 'icon'    => 'fal fa-hand-paper',
                 'class'   => 'text-gray-500',

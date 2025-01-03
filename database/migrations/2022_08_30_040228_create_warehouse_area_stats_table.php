@@ -21,7 +21,7 @@ return new class () extends Migration {
         Schema::create('warehouse_area_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('warehouse_area_id')->index();
-            $table->foreign('warehouse_area_id')->references('id')->on('warehouse_areas');
+            $table->foreign('warehouse_area_id')->references('id')->on('warehouse_areas')->onUpdate('cascade')->onDelete('cascade');
             $table = $this->locationsStats($table);
             $table = $this->fulfilmentAssetsStats($table);
             $table->timestampsTz();

@@ -23,7 +23,7 @@ class RawMaterialsResource extends JsonResource
             'slug'    => $this->slug,
             'code'    => $this->code,
             'organisation_name' => $this->organisation_name,
-            'organisation_slug' => $this->organizations,
+            'organisation_slug' => $this->organisation_slug
         ];
     }
 }

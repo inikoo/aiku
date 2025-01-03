@@ -43,9 +43,13 @@ class FetchAuroraCustomer extends FetchAurora
             $deliveryAddress['country_id'] = $this->parsedData['shop']->country_id;
         }
 
+        $taxNumberFromAurora = $this->auroraModelData->{'Customer Tax Number'};
+        if ($taxNumberFromAurora) {
+            $taxNumberFromAurora = preg_replace("/[^a-zA-Z0-9\-]/", "", $this->sanitiseText($taxNumberFromAurora));
+        }
 
         $taxNumber = $this->parseTaxNumber(
-            number: preg_replace("/[^a-zA-Z0-9\-]/", "", $this->sanitiseText($this->auroraModelData->{'Customer Tax Number'})),
+            number: $taxNumberFromAurora,
             countryID: $billingAddress['country_id'],
             rawData: (array)$this->auroraModelData
         );
@@ -160,10 +164,14 @@ class FetchAuroraCustomer extends FetchAurora
             $this->parsedData['customer']['contact_website'] = $website;
         }
 
-        $identityDocumentNumber = $this->cleanCompanyNumber(Str::limit($this->auroraModelData->{'Customer Registration Number'}));
-        if ($identityDocumentNumber != '' and $company != $identityDocumentNumber) {
-            $this->parsedData['customer']['identity_document_number'] = $identityDocumentNumber;
+        $identityDocumentNumber = $this->auroraModelData->{'Customer Registration Number'};
+        if ($identityDocumentNumber) {
+            $identityDocumentNumber = $this->cleanCompanyNumber(Str::limit($identityDocumentNumber));
+            if ($identityDocumentNumber != '' and $company != $identityDocumentNumber) {
+                $this->parsedData['customer']['identity_document_number'] = $identityDocumentNumber;
+            }
         }
+
 
         if ($billingAddress != $deliveryAddress) {
             $this->parsedData['customer']['delivery_address'] = $deliveryAddress;

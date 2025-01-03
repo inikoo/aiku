@@ -10,6 +10,7 @@ namespace App\Transfers\Aurora;
 
 use App\Actions\Utils\Abbreviate;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Discounts\Offer\OfferStateEnum;
 use Illuminate\Support\Facades\DB;
 
@@ -17,12 +18,16 @@ class FetchAuroraOffer extends FetchAurora
 {
     protected function parseModel(): void
     {
+        $shop = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Deal Store Key'});
+
+
         $offerCampaign = $this->parseOfferCampaign($this->organisation->id.':'.$this->auroraModelData->{'Deal Campaign Key'});
         if (!$offerCampaign) {
+            if ($shop->type == ShopTypeEnum::FULFILMENT) {
+                return;
+            }
             print "Offer Campaign not found ".$this->auroraModelData->{'Deal Campaign Key'}." \n";
             exit;
-
-            return;
         }
 
         $status = false;

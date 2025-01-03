@@ -10,6 +10,7 @@ import vue from "@vitejs/plugin-vue";
 import i18n from "laravel-vue-i18n/vite";
 import { fileURLToPath, URL } from "node:url";
 import {codecovVitePlugin} from "@codecov/vite-plugin";
+import path from "node:path"
 
 export default defineConfig(
     {
@@ -52,7 +53,9 @@ export default defineConfig(
                             import.meta.url)),
                 "@fas": fileURLToPath(
                     new URL("./private/fa/pro-solid-svg-icons",
-                            import.meta.url))
+                            import.meta.url)),
+                "@fonts": path.resolve(__dirname, "./public/assets/Fonts/"),
+                "@art": path.resolve(__dirname, "./public/art/"),
             }
         },
         build  : {
@@ -68,6 +71,13 @@ export default defineConfig(
                                 "/")[0].toString();
                         }
                     }
+                }
+            }
+        },
+        css: {
+            preprocessorOptions: {
+                scss: {
+                    silenceDeprecations: ['legacy-js-api'],
                 }
             }
         }

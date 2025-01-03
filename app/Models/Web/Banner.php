@@ -51,8 +51,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $date
  * @property string|null $live_at
  * @property string|null $switch_off_at
- * @property array $compiled_layout
- * @property array $data
+ * @property array<array-key, mixed> $compiled_layout
+ * @property array<array-key, mixed> $data
  * @property int|null $image_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -129,7 +129,7 @@ class Banner extends Model implements HasMedia, Auditable
             })
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(16);
+            ->slugsShouldBeNoLongerThan(128);
     }
 
     public function snapshots(): MorphMany

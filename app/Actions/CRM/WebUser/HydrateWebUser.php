@@ -8,37 +8,28 @@
 
 namespace App\Actions\CRM\WebUser;
 
+use App\Actions\CRM\WebUser\Hydrators\WebUserHydrateApiTokens;
+use App\Actions\CRM\WebUser\Hydrators\WebUserHydrateAudits;
 use App\Actions\HydrateModel;
+use App\Actions\Traits\Hydrators\WithHydrateCommand;
 use App\Models\CRM\WebUser;
-use Illuminate\Support\Collection;
 
 class HydrateWebUser extends HydrateModel
 {
-    public string $commandSignature = 'hydrate:web-user {organisations?*} {--i|id=}';
+    use WithHydrateCommand;
+    public string $commandSignature = 'hydrate:web_user {organisations?*} {--s|slug=}';
 
+    public function __construct()
+    {
+        $this->model = WebUser::class;
+    }
 
     public function handle(WebUser $webUser): void
     {
-        $this->tokens($webUser);
-    }
-
-    public function tokens(WebUser $webUser): void
-    {
-        $webUser->update(
-            [
-               'number_api_tokens' => $webUser->tokens->count()
-            ]
-        );
+        WebUserHydrateApiTokens::run($webUser);
+        WebUserHydrateAudits::run($webUser);
     }
 
 
-    protected function getModel(string $slug): WebUser
-    {
-        return WebUser::where('slug', $slug)->first();
-    }
 
-    protected function getAllModels(): Collection
-    {
-        return WebUser::withTrashed()->get();
-    }
 }

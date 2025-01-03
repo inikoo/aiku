@@ -10,7 +10,7 @@ namespace App\Transfers\Aurora;
 
 use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStatusEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
 use App\Models\Helpers\Currency;
 use App\Models\Production\Production;
 use Illuminate\Support\Facades\DB;
@@ -19,8 +19,6 @@ class FetchAuroraPurchaseOrder extends FetchAurora
 {
     protected function parseModel(): void
     {
-
-
         if ($this->auroraModelData->{'Purchase Order Parent'} == 'Supplier') {
             $supplierData = Db::connection('aurora')->table('Supplier Dimension')
                 ->select('aiku_ignore')
@@ -29,8 +27,6 @@ class FetchAuroraPurchaseOrder extends FetchAurora
                 return;
             }
         }
-
-
 
 
         if (in_array($this->auroraModelData->{'Purchase Order Parent'}, ['Parcel', 'Container'])) {
@@ -63,7 +59,7 @@ class FetchAuroraPurchaseOrder extends FetchAurora
         $this->parsedData["org_parent"] = $orgParent;
 
         $cancelledAt = null;
-        $createdAt = $this->parseDatetime($this->auroraModelData->{'Purchase Order Creation Date'});
+        $createdAt   = $this->parseDatetime($this->auroraModelData->{'Purchase Order Creation Date'});
         $submittedAt = $this->parseDatetime($this->auroraModelData->{'Purchase Order Submitted Date'});
         $confirmedAt = $this->parseDatetime($this->auroraModelData->{'Purchase Order Confirmed Date'});
 
@@ -100,19 +96,17 @@ class FetchAuroraPurchaseOrder extends FetchAurora
         }
 
 
-        $deliveryStatus = match ($this->auroraModelData->{'Purchase Order State'}) {
-            "Placed", "Costing", "InvoiceChecked" => PurchaseOrderDeliveryStatusEnum::SETTLED,
-            "NoReceived" => PurchaseOrderDeliveryStatusEnum::NOT_RECEIVED,
-            "Cancelled" => PurchaseOrderDeliveryStatusEnum::CANCELLED,
-            "Manufactured", "Inputted" => PurchaseOrderDeliveryStatusEnum::READY_TO_SHIP,
-            "Dispatched" => PurchaseOrderDeliveryStatusEnum::DISPATCHED,
-            "Confirmed" => PurchaseOrderDeliveryStatusEnum::CONFIRMED,
-            "Received" => PurchaseOrderDeliveryStatusEnum::RECEIVED,
-            "Checked", "QC_Pass" => PurchaseOrderDeliveryStatusEnum::CHECKED,
-            default => PurchaseOrderDeliveryStatusEnum::PROCESSING,
+        $deliveryState = match ($this->auroraModelData->{'Purchase Order State'}) {
+            "Placed", "Costing", "InvoiceChecked" => PurchaseOrderDeliveryStateEnum::PLACED,
+            "NoReceived" => PurchaseOrderDeliveryStateEnum::NOT_RECEIVED,
+            "Cancelled" => PurchaseOrderDeliveryStateEnum::CANCELLED,
+            "Manufactured", "Inputted" => PurchaseOrderDeliveryStateEnum::READY_TO_SHIP,
+            "Dispatched" => PurchaseOrderDeliveryStateEnum::DISPATCHED,
+            "Confirmed" => PurchaseOrderDeliveryStateEnum::CONFIRMED,
+            "Received" => PurchaseOrderDeliveryStateEnum::RECEIVED,
+            "Checked", "QC_Pass" => PurchaseOrderDeliveryStateEnum::CHECKED,
+            default => PurchaseOrderDeliveryStateEnum::IN_PROCESS,
         };
-
-
 
 
         $org_exchange = $this->auroraModelData->{'Purchase Order Currency Exchange'};
@@ -137,9 +131,9 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             'parent_code' => $this->auroraModelData->{'Purchase Order Parent Code'},
             'parent_name' => $this->auroraModelData->{'Purchase Order Parent Name'},
 
-            "reference"       => (string)$this->auroraModelData->{'Purchase Order Public ID'} ?? $this->auroraModelData->{'Purchase Order Key'},
-            "state"           => $state,
-            "delivery_status" => $deliveryStatus,
+            "reference"      => (string)$this->auroraModelData->{'Purchase Order Public ID'} ?? $this->auroraModelData->{'Purchase Order Key'},
+            "state"          => $state,
+            "delivery_state" => $deliveryState,
 
             "cost_items"    => $this->auroraModelData->{'Purchase Order Items Net Amount'},
             "cost_shipping" => $this->auroraModelData->{'Purchase Order Shipping Net Amount'},
@@ -155,8 +149,6 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             'fetched_at'      => now(),
             'last_fetched_at' => now()
         ];
-
-
     }
 
     protected function fetchData($id): object|null

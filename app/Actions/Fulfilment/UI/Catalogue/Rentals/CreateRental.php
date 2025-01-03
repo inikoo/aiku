@@ -32,33 +32,33 @@ class CreateRental extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
-                'title'    => __('new rental'),
-                'pageHead' => [
+                'title'       => __('new rental'),
+                'pageHead'    => [
                     'title' => __('new rental')
                 ],
-                'formData' => [
+                'formData'    => [
                     'fullLayout' => true,
                     'blueprint'  =>
                         [
                             [
                                 'title'  => __('name'),
                                 'fields' => [
-                                    'code' => [
-                                        'type'       => 'input',
-                                        'label'      => __('code'),
-                                        'required'   => true
+                                    'code'  => [
+                                        'type'     => 'input',
+                                        'label'    => __('code'),
+                                        'required' => true
                                     ],
-                                    'name' => [
-                                        'type'       => 'input',
-                                        'label'      => __('name'),
-                                        'required'   => true
+                                    'name'  => [
+                                        'type'     => 'input',
+                                        'label'    => __('name'),
+                                        'required' => true
                                     ],
                                     'price' => [
-                                        'type'       => 'input',
-                                        'label'      => __('price'),
-                                        'required'   => true
+                                        'type'     => 'input',
+                                        'label'    => __('price'),
+                                        'required' => true
                                     ],
-                                    'unit' => [
+                                    'unit'  => [
                                         'type'     => 'select',
                                         'label'    => __('unit'),
                                         'required' => true,
@@ -73,7 +73,7 @@ class CreateRental extends OrgAction
                                 ]
                             ]
                         ],
-                    'route' => [
+                    'route'      => [
                         'name'       => 'grp.models.org.fulfilment.rentals.store',
                         'parameters' => [
                             'organisation' => $fulfilment->organisation_id,
@@ -105,6 +105,7 @@ class CreateRental extends OrgAction
     {
         return array_merge(
             IndexFulfilmentRentals::make()->getBreadcrumbs(
+                'grp.org.fulfilments.show.catalogue.rentals.index',
                 routeParameters: $routeParameters,
             ),
             [

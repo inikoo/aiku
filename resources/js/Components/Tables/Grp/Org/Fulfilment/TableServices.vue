@@ -85,7 +85,7 @@ function serviceRoute(service: {}) {
         </template>
 
         <!-- <template #cell(actions)="{ item: service }">
-            <div v-if="props.state == 'in-process'">
+            <div v-if="props.state == 'in_process'">
                 <Link
                     :href="route(service.deleteServiceRoute.name, service.deleteServiceRoute.parameters)"
                     method="delete"

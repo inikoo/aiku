@@ -40,6 +40,10 @@ class FetchAuroraShop extends FetchAurora
 
     protected function parseModel(): void
     {
+        $masterShopId = null;
+
+
+
         $this->parsedData['source_department_key'] = $this->auroraModelData->{'Store Department Category Key'};
         $this->parsedData['source_family_key']     = $this->auroraModelData->{'Store Family Category Key'};
 
@@ -52,19 +56,40 @@ class FetchAuroraShop extends FetchAurora
             countryID: $this->parseCountryID($auroraSettings['tax_country_code'])
         );
 
+        if ($this->auroraModelData->code == 'AROM') {
+            $this->auroraModelData->code = 'AROMA';
+        }
+
         $type = match (strtolower($this->auroraModelData->{'Store Type'})) {
-            'b2b'          => ShopTypeEnum::B2B,
-            'b2c'          => ShopTypeEnum::B2C,
-            'fulfilment'   => ShopTypeEnum::FULFILMENT,
+            'b2b' => ShopTypeEnum::B2B,
+            'b2c' => ShopTypeEnum::B2C,
+            'fulfilment' => ShopTypeEnum::FULFILMENT,
             'dropshipping' => ShopTypeEnum::DROPSHIPPING,
         };
 
+
+        if ($type == ShopTypeEnum::FULFILMENT) {
+            $masterShopId = $this->organisation->group->masterShops()->where('type', ShopTypeEnum::FULFILMENT)->first()->id;
+        } elseif ($type == ShopTypeEnum::DROPSHIPPING) {
+            if ($this->auroraModelData->code != 'DS') {
+                $masterShopId = $this->organisation->group->masterShops()->where('type', ShopTypeEnum::DROPSHIPPING)->first()->id;
+            }
+        } elseif ($type == ShopTypeEnum::B2B) {
+            if (in_array($this->auroraModelData->code, ['AWAD', 'AC','ACE','ACAR'])) {
+                $masterShopId = $this->organisation->group->masterShops()->where('type', ShopTypeEnum::B2B)->where('code', 'ac')->first()->id;
+            } elseif ($this->auroraModelData->code == 'AROMA') {
+                $masterShopId = $this->organisation->group->masterShops()->where('type', ShopTypeEnum::B2B)->where('code', 'aroma')->first()->id;
+            } elseif (!in_array($this->auroraModelData->code, ['HA', 'AB', 'AWT', 'HH'])) {
+                $masterShopId = $this->organisation->group->masterShops()->where('type', ShopTypeEnum::B2B)->first()->id;
+            }
+        }
+
         $state = Str::snake($this->auroraModelData->{'Store Status'} == 'Normal' ? 'Open' : $this->auroraModelData->{'Store Status'}, '-');
         $state = match ($state) {
-            'in-process'   => ShopStateEnum::IN_PROCESS,
-            'open'         => ShopStateEnum::OPEN,
-            'closing-down' => ShopStateEnum::CLOSING_DOWN,
-            'closed'       => ShopStateEnum::CLOSED,
+            'in_process' => ShopStateEnum::IN_PROCESS,
+            'open' => ShopStateEnum::OPEN,
+            'closing_down' => ShopStateEnum::CLOSING_DOWN,
+            'closed' => ShopStateEnum::CLOSED,
         };
 
         $settings = [
@@ -76,10 +101,11 @@ class FetchAuroraShop extends FetchAurora
 
 
         $this->parsedData['shop'] = [
-            'code'         => $this->auroraModelData->code,
-            'name'         => $this->auroraModelData->{'Store Name'},
-            'company_name' => $this->auroraModelData->{'Store Company Name'},
-            'contact_name' => $this->auroraModelData->{'Store Contact Name'},
+            'master_shop_id' => $masterShopId,
+            'code'           => $this->auroraModelData->code,
+            'name'           => $this->auroraModelData->{'Store Name'},
+            'company_name'   => $this->auroraModelData->{'Store Company Name'},
+            'contact_name'   => $this->auroraModelData->{'Store Contact Name'},
 
 
             'email' => $this->auroraModelData->{'Store Email'},

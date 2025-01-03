@@ -10,6 +10,7 @@ namespace App\Actions\CRM\WebUser;
 
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\SysAdmin\Group;
 use Lorisleiva\Actions\ActionRequest;
 
 trait WithAuthorizeWebUserScope
@@ -21,6 +22,8 @@ trait WithAuthorizeWebUserScope
             $this->canDelete = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
 
             return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+        } elseif ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
         } elseif ($this->parent instanceof FulfilmentCustomer) {
             $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
             $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");

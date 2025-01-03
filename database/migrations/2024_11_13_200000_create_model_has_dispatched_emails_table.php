@@ -12,9 +12,9 @@ return new class () extends Migration {
             $table->unsignedBigInteger('model_id');
             $table->string('model_type');
             $table->unsignedBigInteger('dispatched_email_id')->index();
-            $table->foreign('dispatched_email_id')->references('id')->on('dispatched_emails');
+            $table->foreign('dispatched_email_id')->references('id')->on('dispatched_emails')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedSmallInteger('outbox_id')->index();
-            $table->foreign('outbox_id')->references('id')->on('outboxes');
+            $table->foreign('outbox_id')->references('id')->on('outboxes')->onUpdate('cascade')->onDelete('cascade');
             $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();

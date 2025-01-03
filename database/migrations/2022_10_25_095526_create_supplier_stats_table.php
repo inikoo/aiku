@@ -22,7 +22,7 @@ return new class () extends Migration {
         Schema::create('supplier_stats', function (Blueprint $table) {
             $table->mediumIncrements('id');
             $table->unsignedInteger('supplier_id')->index();
-            $table->foreign('supplier_id')->references('id')->on('suppliers');
+            $table->foreign('supplier_id')->references('id')->on('suppliers')->onUpdate('cascade')->onDelete('cascade');
             $table = $this->supplierProductsStats($table);
             $table = $this->purchaseOrdersStats($table);
             $table = $this->stockDeliveriesStats($table);

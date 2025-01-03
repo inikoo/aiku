@@ -17,17 +17,17 @@ use Lorisleiva\Actions\ActionRequest;
 class CreateAgent extends GrpAction
 {
     use HasSupplyChainFields;
+
     public function htmlResponse(ActionRequest $request): Response
     {
-
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('new agent'),
                 'pageHead'    => [
-                    'title'        => __('new agent'),
-                    'actions'      => [
+                    'title'   => __('new agent'),
+                    'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'cancel',
@@ -39,7 +39,7 @@ class CreateAgent extends GrpAction
                         ]
                     ]
                 ],
-                'formData' => [
+                'formData'    => [
                     'blueprint' => $this->supplyChainFields(),
                     'route'     => [
                         'name' => 'grp.models.agent.store',
@@ -52,7 +52,6 @@ class CreateAgent extends GrpAction
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->hasPermissionTo('supply-chain.edit');
-
     }
 
 
@@ -63,10 +62,10 @@ class CreateAgent extends GrpAction
         return $request;
     }
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs($routeParameters): array
     {
         return array_merge(
-            IndexAgents::make()->getBreadcrumbs(),
+            IndexAgents::make()->getBreadcrumbs('grp.supply-chain.agents.index', $routeParameters),
             [
                 [
                     'type'          => 'creatingModel',

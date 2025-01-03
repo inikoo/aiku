@@ -40,11 +40,11 @@ use App\Models\Dispatching\Picking;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Goods\MasterShop;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\InvoiceTransactionHasFeedback;
-use App\Models\Helpers\Issue;
 use App\Models\Helpers\Query;
 use App\Models\Helpers\SerialReference;
 use App\Models\Helpers\TaxNumber;
@@ -93,6 +93,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
+ * @property int|null $master_shop_id
  * @property string $slug
  * @property string $code
  * @property string $name
@@ -103,7 +104,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $identity_document_type
  * @property string|null $identity_document_number
  * @property int|null $address_id
- * @property array $location
+ * @property array<array-key, mixed> $location
  * @property int|null $collection_address_id
  * @property ShopStateEnum $state
  * @property ShopTypeEnum $type
@@ -116,8 +117,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $image_id
  * @property int|null $shipping_zone_schema_id
  * @property int|null $discount_shipping_zone_schema_id
- * @property array $data
- * @property array $settings
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
  * @property int|null $sender_email_id
  * @property int|null $prospects_sender_email_id
  * @property \Illuminate\Support\Carbon|null $fetched_at
@@ -157,9 +158,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
  * @property-read LaravelCollection<int, Invoice> $invoices
- * @property-read LaravelCollection<int, Issue> $issues
  * @property-read LaravelCollection<int, Mailshot> $mailshots
  * @property-read \App\Models\Catalogue\ShopMailshotsIntervals|null $mailshotsIntervals
+ * @property-read MasterShop|null $masterShop
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read LaravelCollection<int, OfferCampaign> $offerCampaigns
  * @property-read LaravelCollection<int, OfferComponent> $offerComponents
@@ -171,6 +172,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read PaymentAccountShop|OrgPaymentServiceProviderShop|null $pivot
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read Organisation $organisation
+ * @property-read \App\Models\Catalogue\ShopOutboxColdEmailsIntervals|null $outboxColdEmailsIntervals
+ * @property-read \App\Models\Catalogue\ShopOutboxCustomerNotificationIntervals|null $outboxCustomerNotificationIntervals
+ * @property-read \App\Models\Catalogue\ShopOutboxMarketingIntervals|null $outboxMarketingIntervals
+ * @property-read \App\Models\Catalogue\ShopOutboxMarketingNotificationIntervals|null $outboxMarketingNotificationIntervals
+ * @property-read \App\Models\Catalogue\ShopOutboxNewsletterIntervals|null $outboxNewsletterIntervals
+ * @property-read \App\Models\Catalogue\ShopOutboxPushIntervals|null $outboxPushIntervals
  * @property-read LaravelCollection<int, Outbox> $outboxes
  * @property-read LaravelCollection<int, Packing> $packings
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
@@ -195,6 +202,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\ShopStats|null $stats
  * @property-read LaravelCollection<int, Task> $tasks
  * @property-read TaxNumber|null $taxNumber
+ * @property-read LaravelCollection<int, \App\Models\Catalogue\ShopTimeSeries> $timeSeries
  * @property-read Timezone $timezone
  * @property-read LaravelCollection<int, TopUp> $topUps
  * @property-read LaravelCollection<int, Transaction> $transactions
@@ -274,7 +282,7 @@ class Shop extends Model implements HasMedia, Auditable
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(6);
+            ->slugsShouldBeNoLongerThan(664);
     }
 
     public function crmStats(): HasOne
@@ -377,6 +385,11 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->hasMany(Payment::class);
     }
 
+    public function masterShop(): BelongsTo
+    {
+        return $this->belongsTo(MasterShop::class);
+    }
+
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class);
@@ -445,11 +458,6 @@ class Shop extends Model implements HasMedia, Auditable
     public function discountsStats(): HasOne
     {
         return $this->hasOne(ShopDiscountsStats::class);
-    }
-
-    public function issues(): MorphToMany
-    {
-        return $this->morphToMany(Issue::class, 'issuable');
     }
 
     public function shippingZoneSchemas(): HasMany
@@ -620,6 +628,42 @@ class Shop extends Model implements HasMedia, Auditable
     public function packings(): HasMany
     {
         return $this->hasMany(Packing::class);
+    }
+
+    public function timeSeries(): HasMany
+    {
+        return $this->hasMany(ShopTimeSeries::class);
+    }
+
+    public function outboxNewsletterIntervals(): HasOne
+    {
+        return $this->hasOne(ShopOutboxNewsletterIntervals::class);
+    }
+
+
+    public function outboxMarketingIntervals(): HasOne
+    {
+        return $this->hasOne(ShopOutboxMarketingIntervals::class);
+    }
+
+    public function outboxMarketingNotificationIntervals(): HasOne
+    {
+        return $this->hasOne(ShopOutboxMarketingNotificationIntervals::class);
+    }
+
+    public function outboxCustomerNotificationIntervals(): HasOne
+    {
+        return $this->hasOne(ShopOutboxCustomerNotificationIntervals::class);
+    }
+
+    public function outboxColdEmailsIntervals(): HasOne
+    {
+        return $this->hasOne(ShopOutboxColdEmailsIntervals::class);
+    }
+
+    public function outboxPushIntervals(): HasOne
+    {
+        return $this->hasOne(ShopOutboxPushIntervals::class);
     }
 
 }

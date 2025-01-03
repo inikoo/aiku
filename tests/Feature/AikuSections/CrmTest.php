@@ -33,6 +33,7 @@ use App\Actions\CRM\Prospect\Search\ReindexProspectSearch;
 use App\Actions\CRM\Prospect\StoreProspect;
 use App\Actions\CRM\Prospect\Tags\SyncTagsProspect;
 use App\Actions\CRM\Prospect\UpdateProspect;
+use App\Actions\CRM\WebUser\HydrateWebUser;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Web\Website\StoreWebsite;
@@ -46,6 +47,7 @@ use App\Enums\CRM\Poll\PollTypeEnum;
 use App\Models\Analytics\AikuScopedSection;
 use App\Models\Comms\Mailshot;
 use App\Models\Comms\Outbox;
+use App\Models\CRM\BackInStockReminder;
 use App\Models\CRM\Customer;
 use App\Models\CRM\CustomerNote;
 use App\Models\CRM\Favourite;
@@ -57,7 +59,6 @@ use App\Models\CRM\WebUser;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Query;
 use App\Models\Ordering\Order;
-use App\Models\Reminder\BackInStockReminder;
 use App\Models\Web\Website;
 use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia;
@@ -228,8 +229,12 @@ test('update prospect tags', function ($prospect) {
 
 test('prospect query count', function () {
     $this->artisan('query:count')->assertExitCode(0);
-    expect(Query::where('slug', 'prospects-not-contacted')->first()->number_items)->toBe(2)
-        ->and(Query::where('slug', 'prospects-last-contacted-within-interval')->first()->number_items)->toBe(2);
+
+    $query = Query::first();
+    $query2 = Query::skip(1)->first();
+
+    expect($query->number_items)->toBe(2)
+        ->and($query2->number_items)->toBe(2);
 });
 
 test('create prospect mailshot', function () {
@@ -418,6 +423,12 @@ test('hydrate customers', function (Customer $customer) {
     $this->artisan('hydrate:customers')->assertExitCode(0);
 })->depends('create customer');
 
+test('hydrate web user', function (Customer $customer) {
+    $webUser = $customer->webUsers->first();
+    HydrateWebUser::run($webUser);
+    $this->artisan('hydrate:web_user')->assertExitCode(0);
+})->depends('create web user');
+
 test('store poll', function () {
     $poll = StorePoll::make()->action(
         $this->shop,
@@ -598,6 +609,7 @@ test('update open question poll reply', function (PollReply $pollReply) {
 })->depends('store open question poll reply');
 
 test('UI Index customers', function () {
+    $this->withoutExceptionHandling();
     $response = $this->get(route('grp.org.shops.show.crm.customers.index', [$this->organisation->slug, $this->shop->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {

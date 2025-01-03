@@ -24,7 +24,7 @@ class ArtefactsResource extends JsonResource
             'code'    => $this->code,
             'name'    => $this->name,
             'organisation_name' => $this->organisation_name,
-            'organisation_slug' => $this->organizations,
+            'organisation_slug' => $this->organisation_slug,
         ];
     }
 }

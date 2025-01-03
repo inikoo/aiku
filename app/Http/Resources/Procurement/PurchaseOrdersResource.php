@@ -32,8 +32,8 @@ class PurchaseOrdersResource extends JsonResource
             'number_of_items'   => $this->number_of_items,
             'date'              => $this->date,
             'currency_code'     => $this->currency->code,
-            'organisation_name' => $this->organisation_name,
-            'organisation_slug' => $this->organisation_slug,
+            'organisation_name' => $this->organisation?->name,
+            'organisation_slug' => $this->organisation?->slug,
         ];
     }
 

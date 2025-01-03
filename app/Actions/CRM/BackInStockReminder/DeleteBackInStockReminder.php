@@ -9,12 +9,12 @@
 
 namespace App\Actions\CRM\BackInStockReminder;
 
-use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCustomersWhoRemindedInCategories;
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCustomersWhoReminded;
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCustomersWhoRemindedInCategories;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateBackInStockReminders;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\Reminder\BackInStockReminder;
+use App\Models\CRM\BackInStockReminder;
 use Lorisleiva\Actions\ActionRequest;
 
 class DeleteBackInStockReminder extends OrgAction
@@ -27,9 +27,9 @@ class DeleteBackInStockReminder extends OrgAction
     {
         $backInStockReminder->delete();
 
-        CustomerHydrateBackInStockReminders::run($this->backInStockReminder->customer);
-        ProductHydrateCustomersWhoReminded::run($this->backInStockReminder->product);
-        ProductHydrateCustomersWhoRemindedInCategories::run($this->backInStockReminder->product);
+        CustomerHydrateBackInStockReminders::dispatch($this->backInStockReminder->customer);
+        ProductHydrateCustomersWhoReminded::dispatch($this->backInStockReminder->product);
+        ProductHydrateCustomersWhoRemindedInCategories::dispatch($this->backInStockReminder->product);
 
         return $backInStockReminder;
     }

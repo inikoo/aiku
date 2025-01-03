@@ -17,24 +17,21 @@ enum SupplierTabsEnum: string
     use HasTabs;
 
 
-    case SHOWCASE           = 'showcase';
-    case PURCHASES_SALES    = 'purchase_sales';
-    case HISTORY            = 'history';
+    case SHOWCASE = 'showcase';
+    case PURCHASES_SALES = 'purchase_sales';
+    case HISTORY = 'history';
 
 
-    case SYSTEM_USERS       = 'system_users';
+    case SYSTEM_USERS = 'system_users';
 
-    case ATTACHMENTS        = 'attachments';
-    case IMAGES             = 'images';
-    case ISSUES             = 'issues';
-
-
+    case ATTACHMENTS = 'attachments';
+    case IMAGES = 'images';
+    case FEEDBACKS = 'feedbacks';
 
 
     public function blueprint(): array
     {
         return match ($this) {
-
             SupplierTabsEnum::PURCHASES_SALES => [
                 'title' => __('purchases/sales'),
                 'icon'  => 'fal fa-money-bill',
@@ -45,7 +42,7 @@ enum SupplierTabsEnum: string
             ],
 
 
-            SupplierTabsEnum::ISSUES => [
+            SupplierTabsEnum::FEEDBACKS => [
                 'title' => __('issues'),
                 'icon'  => 'fal fa-poop',
                 'type'  => 'icon',
@@ -68,14 +65,13 @@ enum SupplierTabsEnum: string
                 'icon'  => 'fal fa-paper-plane',
                 'type'  => 'icon',
                 'align' => 'right',
-            ],SupplierTabsEnum::HISTORY => [
+            ],
+            SupplierTabsEnum::HISTORY => [
                 'title' => __('changelog'),
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
                 'align' => 'right'
             ],
-
-
         };
     }
 }

@@ -55,6 +55,45 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $invoices_pq3
  * @property int $invoices_pq4
  * @property int $invoices_pq5
+ * @property int $refunds_all
+ * @property int $refunds_1y
+ * @property int $refunds_1q
+ * @property int $refunds_1m
+ * @property int $refunds_1w
+ * @property int $refunds_3d
+ * @property int $refunds_1d
+ * @property int $refunds_ytd
+ * @property int $refunds_qtd
+ * @property int $refunds_mtd
+ * @property int $refunds_wtd
+ * @property int $refunds_tdy
+ * @property int $refunds_lm
+ * @property int $refunds_lw
+ * @property int $refunds_ld
+ * @property int $refunds_1y_ly
+ * @property int $refunds_1q_ly
+ * @property int $refunds_1m_ly
+ * @property int $refunds_1w_ly
+ * @property int $refunds_3d_ly
+ * @property int $refunds_1d_ly
+ * @property int $refunds_ytd_ly
+ * @property int $refunds_qtd_ly
+ * @property int $refunds_mtd_ly
+ * @property int $refunds_wtd_ly
+ * @property int $refunds_tdy_ly
+ * @property int $refunds_lm_ly
+ * @property int $refunds_lw_ly
+ * @property int $refunds_ld_ly
+ * @property int $refunds_py1
+ * @property int $refunds_py2
+ * @property int $refunds_py3
+ * @property int $refunds_py4
+ * @property int $refunds_py5
+ * @property int $refunds_pq1
+ * @property int $refunds_pq2
+ * @property int $refunds_pq3
+ * @property int $refunds_pq4
+ * @property int $refunds_pq5
  * @property int $orders_all
  * @property int $orders_1y
  * @property int $orders_1q

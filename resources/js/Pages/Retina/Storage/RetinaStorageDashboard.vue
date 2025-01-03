@@ -79,7 +79,7 @@ const options = {
                     <div class="text-lg">
                         {{ customer?.shop }}
                         <!-- <span class="text-gray-400">
-                            ({{ customer?.number_current_clients || 0 }} clients)
+                            ({{ customer?.number_current_customer_clients || 0 }} clients)
                         </span> -->
                     </div>
                 </div>
@@ -127,7 +127,7 @@ const options = {
                                     </span>
                                 </div>
 
-                                <div v-if="storageData.pallets.state?.damaged?.count || storageData.pallets.state?.lost?.count || storageData.pallets.state?.['other-incident'].count" class="">
+                                <div v-if="storageData.pallets.state?.damaged?.count || storageData.pallets.state?.lost?.count || storageData.pallets.state?.['other_incident'].count" class="">
                                     <div class="text-sm text-red-400 border border-red-300 bg-red-50 rounded px-2 py-2 font-normal">
                                         <div v-if="!storageData.pallets.state?.damaged?.count">
                                             <FontAwesomeIcon :icon='storageData.pallets.state?.damaged?.icon.icon' :class='storageData.pallets.state?.damaged?.icon.class' fixed-width aria-hidden='true' />
@@ -139,10 +139,10 @@ const options = {
                                             <!-- Lost: -->
                                             {{ storageData.pallets.state?.lost?.count }}
                                         </div>
-                                        <div v-if="!storageData.pallets.state?.['other-incident'].count">
-                                            <FontAwesomeIcon :icon="storageData.pallets.state?.['other-incident']?.icon?.icon" :class="storageData.pallets.state?.['other-incident']?.icon?.class" fixed-width aria-hidden='true' />
+                                        <div v-if="!storageData.pallets.state?.['other_incident'].count">
+                                            <FontAwesomeIcon :icon="storageData.pallets.state?.['other_incident']?.icon?.icon" :class="storageData.pallets.state?.['other_incident']?.icon?.class" fixed-width aria-hidden='true' />
                                             <!-- Other incident: -->
-                                            {{ storageData.pallets.state?.['other-incident'].count }}
+                                            {{ storageData.pallets.state?.['other_incident'].count }}
                                         </div>
                                     </div>
                                 </div>

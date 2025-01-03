@@ -157,7 +157,7 @@ class StoreGuest extends GrpAction
                 ),
                 Rule::notIn(['export', 'create'])
             ],
-            'user.password'          => ['required', app()->isLocal() || app()->environment('testing') || !$this->strict ? null : Password::min(8)->uncompromised()],
+            'user.password'          => ['required', app()->isLocal() || app()->environment('testing') || !$this->strict ? Password::min(3) : Password::min(8)->uncompromised()],
             'user.reset_password'    => ['sometimes', 'boolean'],
             'user.email'             => [
                 'sometimes',

@@ -16,17 +16,17 @@ enum ShopStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS   = 'in-process';
+    case IN_PROCESS   = 'in_process';
     case OPEN         = 'open';
-    case CLOSING_DOWN = 'closing-down';
+    case CLOSING_DOWN = 'closing_down';
     case CLOSED       = 'closed';
 
     public static function labels($forElements = false): array
     {
         return [
-            'in-process'      => __('In Process'),
+            'in_process'      => __('In Process'),
             'open'            => __('Open'),
-            'closing-down'    => __('Closing Down'),
+            'closing_down'    => __('Closing Down'),
             'closed'          => __('Closed')
         ];
     }
@@ -38,9 +38,9 @@ enum ShopStateEnum: string
         $stats = $parent->catalogueStats;
 
         return [
-            'in-process'      => $stats->number_shops_state_in_process,
+            'in_process'      => $stats->number_shops_state_in_process,
             'open'            => $stats->number_shops_state_open,
-            'closing-down'    => $stats->number_shops_state_closing_down,
+            'closing_down'    => $stats->number_shops_state_closing_down,
             'closed'          => $stats->number_shops_state_closed
         ];
     }

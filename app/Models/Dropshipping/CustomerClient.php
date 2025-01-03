@@ -46,7 +46,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property string|null $email
  * @property string|null $phone
  * @property int|null $address_id
- * @property array $location
+ * @property array<array-key, mixed> $location
  * @property string $ulid
  * @property \Illuminate\Support\Carbon|null $deactivated_at
  * @property \Illuminate\Support\Carbon|null $created_at

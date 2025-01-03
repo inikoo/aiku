@@ -46,8 +46,8 @@ enum FulfilmentCustomerTabsEnum: string
                 'icon'  => 'fal fa-clipboard-list-check',
             ],
             FulfilmentCustomerTabsEnum::SHOWCASE => [
-                'title' => __('customer'),
-                'icon'  => 'fas fa-info-circle',
+                'title' => __('showcase'),
+                'icon'  => 'fal fa-tachometer-alt',
             ],
             FulfilmentCustomerTabsEnum::AGREED_PRICES => [
                 'title' => __('agreed prices'),
