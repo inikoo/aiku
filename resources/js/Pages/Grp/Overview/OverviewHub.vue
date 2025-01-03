@@ -44,14 +44,21 @@ import DashboardCard from "@/Components/DataDisplay/DashboardCard.vue"
 const props = defineProps<{
 	title: string
 	pageHead: any
-	data: {
-		data: Array<{
-			section: string
-			data: Array<{
-				name: string
-				icon: string
-				route: string
-				count: number
+	dashboard: {
+		columns: Array<{
+			widgets: Array<{
+				type: string
+				data: {
+					data: Array<{
+						section: string
+						data: Array<{
+							name: string
+							icon: string
+							route: string
+							count: number
+						}>
+					}>
+				}
 			}>
 		}>
 	}
@@ -112,6 +119,12 @@ onMounted(() => {
 onUnmounted(() => {
 	document.removeEventListener("click", handleClickOutside)
 })
+
+const columnClasses = computed(() => {
+  const totalColumns = props.dashboard?.columns?.length || 1;
+  const columnSpan = Math.floor(12 / totalColumns);
+  return `col-span-${columnSpan}`;
+});
 </script>
 
 <template>
@@ -121,85 +134,29 @@ onUnmounted(() => {
 
 	<!-- Dashboard Grid -->
 	<div class="grid grid-cols-12 m-3 gap-4">
-		<!-- Left Column -->
-		<div class="col-span-6 space-y-4">
-			<!-- Predicted Months DataTable -->
-			<SectionTable :data="props.data.data" />
-		</div>
+		<template v-for="(column, colIndex) in props.dashboard.columns" :key="colIndex">
+      <div :class="columnClasses" class="space-y-4">
+        <!-- Loop through widgets in each column -->
+        <template v-for="(widget, widgetIndex) in column.widgets" :key="widgetIndex">
+          <!-- Render Overview Table -->
+          <div v-if="widget.type === 'overview_table'">
+            <SectionTable :data="widget.data.data" />
+          </div>
 
-		<div class="col-span-3 space-y-4">
-			<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
-				<h3 class="text-gray-500 font-semibold text-lg mb-2">The Nutrition Store</h3>
-				<div class="relative bg-gray-100 border border-green-500 rounded-lg px-2 py-3 mb-3">
-					<div>
-						<p class="text-4xl font-bold leading-tight">275</p>
-						<p class="text-gray-500 text-base mt-1">Total orders today</p>
-					</div>
+		  <DashboardCard
+            v-else-if="widget.type === 'card_currency' || widget.type === 'card_percentage'"
+            :value="widget.value"
+            :description="widget.label"
+            :showRedBorder="widget.type === 'card_currency'"
+            :showIcon="widget.type === 'card_currency'"
+          />
 
-					<div
-						class="absolute bottom-0 right-0 transform translate-x-1/2 translate-y-1/2 bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow">
-						✓
-					</div>
-				</div>
-				<div>
-					<p class="text-4xl font-bold leading-tight">$6,058</p>
-					<p class="text-gray-500 text-base mt-1">Sales today</p>
-				</div>
-			</div>
-
-			<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
-				<h3 class="text-gray-500 font-semibold text-lg mb-2">The Yoga Store</h3>
-				<div class="relative py-3 mb-1" style="height: 102px">
-					<!-- Adjusted height -->
-					<div>
-						<p class="text-4xl font-bold leading-tight">46</p>
-						<p class="text-gray-500 text-base mt-1">Ad spend this week</p>
-					</div>
-					<!-- Red Icon in Bottom Right -->
-				</div>
-				<div>
-					<p class="text-4xl font-bold leading-tight">$2,596</p>
-					<p class="text-gray-500 text-base mt-1">Sales today</p>
-				</div>
-			</div>
-		</div>
-
-		<!-- Added Beside Right -->
-		<div class="col-span-3 space-y-4">
-			<div class="flex flex-col gap-4">
-				<!-- Card 1: Cart Abandonment Rate -->
-				<DashboardCard
-					:showRedBorder="true"
-					:showIcon="true"
-					value="$2,345"
-					description="Ad spend this week" />
-				<!-- Card without red border or icon -->
-				<DashboardCard
-					:showRedBorder="false"
-					:showIcon="false"
-					value="45%"
-					description="Cart abandonment rate" />
-
-				<!-- Card 3: Total Newsletter Subscribers -->
-				<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
-					<p class="text-4xl font-bold leading-tight text-gray-700">
-						55.7<span class="text-xl">K</span>
-					</p>
-					<p class="text-gray-500 text-base mt-2">Total newsletter subscribers</p>
-					<!-- Progress Bar -->
-					<div class="mt-4">
-						<div class="w-full bg-gray-300 rounded-full h-1.5">
-							<div class="bg-blue-500 h-1.5 rounded-full" style="width: 55%"></div>
-						</div>
-						<div class="flex justify-between text-xs text-gray-500 mt-1">
-							<span>55%</span>
-							<span>100%</span>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+          <!-- Fallback for unknown widget types -->
+         
+        </template>
+      </div>
+    </template>
+  </div>
 </template>
 
 <style scoped>

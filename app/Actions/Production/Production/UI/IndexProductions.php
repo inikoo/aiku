@@ -65,6 +65,7 @@ class IndexProductions extends OrgAction
                 'productions.code as code',
                 'productions.id',
                 'productions.name',
+                'productions.state',
                 'productions.slug as slug',
                 'number_raw_materials',
                 'number_artefacts',
@@ -105,6 +106,7 @@ class IndexProductions extends OrgAction
                         ] : null
                     ]
                 )
+                ->column(key: 'state_icon', label: '', canBeHidden: false, sortable: false, searchable: false, type: 'icon')
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_raw_materials', label: __('materials'), canBeHidden: false, sortable: true, searchable: true)

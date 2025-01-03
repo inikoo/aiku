@@ -216,11 +216,11 @@ class EditEmployee extends OrgAction
         ];
 
         $sections['pin'] = [
-            'label'  => __('Pin'),
-            'icon'   => 'fal fa-key',
+            'label'  => __('Clocking PIN'),
+            'icon'   => 'fal fa-chess-clock',
             'fields' => [
                 'pin' => [
-                    'type'  => 'input',
+                    'type'  => 'pin',
                     'label' => __('pin'),
                     'value' => $employee->pin
                 ],

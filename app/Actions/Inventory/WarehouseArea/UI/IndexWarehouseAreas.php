@@ -35,7 +35,9 @@ class IndexWarehouseAreas extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->parent instanceof Organisation) {
+        if ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        } elseif ($this->parent instanceof Organisation) {
             $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
 
             return $request->user()->hasAnyPermission(
@@ -44,8 +46,6 @@ class IndexWarehouseAreas extends OrgAction
                     'org-supervisor.'.$this->organisation->id
                 ]
             );
-        } elseif ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
         }
 
         $this->canEdit = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
@@ -213,7 +213,7 @@ class IndexWarehouseAreas extends OrgAction
             ];
         }
 
-        $icon =  [
+        $icon = [
             'icon'  => ['fal', 'fa-map-signs'],
             'title' => __('warehouse areas')
         ];
