@@ -139,6 +139,8 @@ class FetchAuroraInvoices extends FetchAuroraAction
 
         $invoice->payments()->sync($modelHasPayments);
 
+
+
         try {
             DB::table('payments')->whereIn('source_id', $paymentsToDelete)->delete();
         } catch (Exception) {
