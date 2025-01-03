@@ -63,7 +63,7 @@ class ShowOrganisationDashboard extends OrgAction
                         'type'      => $shop->type,
                         'currency'  => $shop->currency,
                         'state'     => $shop->state,
-                        'route'    =>   $shop->type == ShopTypeEnum::FULFILMENT 
+                        'route'    =>   $shop->type == ShopTypeEnum::FULFILMENT
                         ? [
                             'name'       => 'grp.org.fulfilments.show.dashboard',
                             'parameters' => [

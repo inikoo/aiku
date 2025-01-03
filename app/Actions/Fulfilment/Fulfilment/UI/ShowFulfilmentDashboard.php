@@ -30,7 +30,7 @@ class ShowFulfilmentDashboard extends OrgAction
         return $this->handle($fulfilment);
     }
 
-    public function handle(Fulfilment $fulfilment) : Fulfilment 
+    public function handle(Fulfilment $fulfilment): Fulfilment
     {
         return $fulfilment;
     }
