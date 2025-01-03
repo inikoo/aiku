@@ -24,11 +24,35 @@ class StoredItemRecordSearch
             [
                 'group_id'          => $storedItem->group_id,
                 'organisation_id'   => $storedItem->organisation_id,
+                'organisation_slug' => $storedItem->organisation->slug,
+                'fulfilment_id'     => $storedItem->fulfilment_id,
+                'fulfilment_slug'   => $storedItem->fulfilment->slug,
                 'sections'          => ['fulfilment'],
-                'haystack_tier_1'   => $storedItem->reference,
+                'haystack_tier_1'   => trim($storedItem->reference . ' ' .$storedItem->fulfilmentCustomer->customer->name),
                 'haystack_tier_2'   => $storedItem->notes,
                 'keyword'           => $storedItem->slug,
-                'keyword_2'         => $storedItem->reference,
+                'keyword_2'         => trim($storedItem->reference),
+                'result'            => [
+                    'route'     => [
+                        'name'          => 'grp.org.warehouses.show.inventory.stored_items.current.show',
+                        'parameters'    => [
+                            'organisation'       => $storedItem->organisation->slug,
+                            'warehouse'         => $storedItem->organisation->warehouses->first()->slug, // should has warehouse
+                            'storedItem' => $storedItem->slug
+                        ]
+                    ],
+                    'description' => [
+                        'label' => $storedItem->fulfilmentCustomer->customer->name
+                    ],
+                    'code'        => [
+                        'label'   => $storedItem->reference,
+                        'tooltip' => __('reference')
+                    ],
+                    'icon'          => [
+                        'icon'  => 'fal fa-user',
+                    ],
+                    'state_icon' => $storedItem->state->stateIcon()[$storedItem->state->value],
+                ]
             ]
         );
     }

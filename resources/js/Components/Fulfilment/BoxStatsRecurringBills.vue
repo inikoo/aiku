@@ -33,59 +33,60 @@ const props = defineProps<{
         <!-- Box: Customer -->
         <BoxStatPallet class="py-1 sm:py-2 px-4" :label="'dataPalletDelivery.customer_name'" icon="fal fa-user">
             
-            <!-- Field: Reference -->
-            <Link as="a" v-if="boxStats.customer.data.customer.reference"
-                :href="route().params.organisation && route('grp.org.fulfilments.show.crm.customers.show', [route().params.organisation, boxStats.customer.data.fulfilment.slug, boxStats.customer.data.slug])"
-                class="flex items-center w-fit flex-none gap-x-2 cursor-pointer secondaryLink">
-                <dt v-tooltip="'Company name'" class="flex-none">
-                    <span class="sr-only">Reference</span>
-                    <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-sm text-gray-500">{{ boxStats.customer.data.customer.reference }}</dd>
-            </Link>
+            <div class="space-y-1">
+                <!-- Field: Reference -->
+                <Link as="a" v-if="boxStats.customer.data.customer.reference"
+                    :href="route().params.organisation && route('grp.org.fulfilments.show.crm.customers.show', [route().params.organisation, boxStats.customer.data.fulfilment.slug, boxStats.customer.data.slug])"
+                    class="flex items-center w-fit flex-none gap-x-2 cursor-pointer secondaryLink">
+                    <dt v-tooltip="'Company name'" class="flex-none">
+                        <span class="sr-only">Reference</span>
+                        <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
+                            aria-hidden='true' />
+                    </dt>
+                    <dd class="text-base text-gray-500">{{ boxStats.customer.data.customer.reference }}</dd>
+                </Link>
+                
+                <!-- Field: Contact name -->
+                <div v-if="boxStats.customer.data.customer.contact_name"
+                    class="flex items-center w-full flex-none gap-x-2">
+                    <dt v-tooltip="'Contact name'" class="flex-none">
+                        <span class="sr-only">Contact name</span>
+                        <FontAwesomeIcon icon='fal fa-user' size="xs" class='pl-1 text-gray-400' fixed-width
+                            aria-hidden='true' />
+                    </dt>
+                    <dd class="text-base text-gray-500">{{ boxStats.customer.data.customer.contact_name }}</dd>
+                </div>
 
-            <!-- Field: Contact name -->
-            <div v-if="boxStats.customer.data.customer.contact_name"
-                class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Contact name'" class="flex-none">
-                    <span class="sr-only">Contact name</span>
-                    <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-sm text-gray-500">{{ boxStats.customer.data.customer.contact_name }}</dd>
-            </div>
+                <!-- Field: Company name -->
+                <div v-if="boxStats.customer.data.customer.company_name"
+                    class="flex items-center w-full flex-none gap-x-2">
+                    <dt v-tooltip="'Company name'" class="flex-none">
+                        <span class="sr-only">Company name</span>
+                        <FontAwesomeIcon icon='fal fa-building' size="xs" class='pl-1 text-gray-400' fixed-width
+                            aria-hidden='true' />
+                    </dt>
+                    <dd class="text-base text-gray-500">{{ boxStats.customer.data.customer.company_name }}</dd>
+                </div>
 
+                <!-- Field: Email -->
+                <div v-if="boxStats.customer.data?.customer.email" class="flex items-center w-full flex-none gap-x-2">
+                    <dt v-tooltip="'Email'" class="flex-none">
+                        <span class="sr-only">Email</span>
+                        <FontAwesomeIcon icon='fal fa-envelope' size="xs" class='pl-1 text-gray-400' fixed-width
+                            aria-hidden='true' />
+                    </dt>
+                    <dd class="text-base text-gray-500 white w-full truncate">{{ boxStats.customer.data?.customer.email }}</dd>
+                </div>
 
-            <!-- Field: Company name -->
-            <div v-if="boxStats.customer.data.customer.company_name"
-                class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Company name'" class="flex-none">
-                    <span class="sr-only">Company name</span>
-                    <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-sm text-gray-500">{{ boxStats.customer.data.customer.company_name }}</dd>
-            </div>
-
-            <!-- Field: Email -->
-            <div v-if="boxStats.customer.data?.customer.email" class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Email'" class="flex-none">
-                    <span class="sr-only">Email</span>
-                    <FontAwesomeIcon icon='fal fa-envelope' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-sm text-gray-500 white w-full truncate">{{ boxStats.customer.data?.customer.email }}</dd>
-            </div>
-
-            <!-- Field: Phone -->
-            <div v-if="boxStats.customer.data?.customer.phone" class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Phone'" class="flex-none">
-                    <span class="sr-only">Phone</span>
-                    <FontAwesomeIcon icon='fal fa-phone' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-sm text-gray-500">{{ boxStats.customer.data?.customer.phone }}</dd>
+                <!-- Field: Phone -->
+                <div v-if="boxStats.customer.data?.customer.phone" class="flex items-center w-full flex-none gap-x-2">
+                    <dt v-tooltip="'Phone'" class="flex-none">
+                        <span class="sr-only">Phone</span>
+                        <FontAwesomeIcon icon='fal fa-phone' size="xs" class='pl-1 text-gray-400' fixed-width
+                            aria-hidden='true' />
+                    </dt>
+                    <dd class="text-base text-gray-500">{{ boxStats.customer.data?.customer.phone }}</dd>
+                </div>
             </div>
         </BoxStatPallet>
 

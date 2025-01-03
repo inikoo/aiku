@@ -253,9 +253,9 @@ class EditEmployee extends OrgAction
                 ),
                 'pageHead'    => [
                     'title'   => $employee->contact_name,
+                    'model'   => __('Edit Employee'),
                     'subNavigation' => $this->getEmployeeSubNavigation($employee, $request),
-
-
+                    'icon'    => 'fal fa-user-hard-hat',
                     'actions' => [
                         [
                             'type'  => 'button',

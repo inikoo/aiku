@@ -114,6 +114,8 @@ const submitUpload = async () => {
 			text: "The upload has successfully",
 			type: "success",
 		})
+		router.reload()  // To reload the table to show new data
+		closeModal()
 		useEchoGrpPersonal().isShowProgress = true
 	} catch (error: any) {
 		console.error(error)
@@ -156,6 +158,7 @@ const closeModal = () => {
 							v-model="selectedType"
 							:options="typeEmployee"
 							optionLabel="name"
+							fluid
 							placeholder="Select a type"
 							class="w-full md:w-40">
 							<template #optiongroup="slotProps">

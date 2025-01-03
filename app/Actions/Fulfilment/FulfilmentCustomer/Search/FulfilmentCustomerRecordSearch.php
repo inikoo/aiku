@@ -36,7 +36,7 @@ class FulfilmentCustomerRecordSearch
                 'organisation_slug' => $fulfilmentCustomer->organisation->slug,
                 'fulfilment_id'     => $fulfilmentCustomer->fulfilment_id,
                 'fulfilment_slug'   => $fulfilmentCustomer->fulfilment->slug,
-                'sections'          => ['crm'],
+                'sections'          => ['fulfilment'],
                 'haystack_tier_1'   => trim($fulfilmentCustomer->customer->email.' '.$fulfilmentCustomer->customer->contact_name.' '.$fulfilmentCustomer->customer->company_name),
                 'result'            => [
                     'route'     => [
@@ -48,36 +48,34 @@ class FulfilmentCustomerRecordSearch
                         ]
                     ],
                     'container'     => [
-                        'key'     => 'address',
-                        'label'   => $fulfilmentCustomer->customer->location
+                        'label' => $fulfilmentCustomer->customer->shop->name
                     ],
-                    'title'         => $fulfilmentCustomer->customer->name,
-                    'afterTitle'    => [
-                        'label'     => '('.$fulfilmentCustomer->customer->reference.')',
+                    'description' => [
+                        'label' => $fulfilmentCustomer->customer->name
+                    ],
+                    'code'        => [
+                        'label'   => $fulfilmentCustomer->customer->reference,
+                        'tooltip' => __('reference')
                     ],
                     'icon'          => [
                         'icon'  => 'fal fa-user',
                     ],
+                    'state_icon' => $fulfilmentCustomer->customer->state->stateIcon()[$fulfilmentCustomer->customer->state->value],
                     'meta'          => [
                         [
-                            'key'   => 'status',
-                            'label' => $fulfilmentCustomer->status
+                            'key'     => 'contact_name',
+                            'label'   => $fulfilmentCustomer->customer->contact_name,
+                            'tooltip' => __('Contact name')
                         ],
                         [
-                            'key'       => 'created_date',
-                            'type'      => 'date',
-                            'label'     => $fulfilmentCustomer->customer->created_at,
-                            'tooltip'   => 'Created at'
+                            'key'     => 'email',
+                            'label'   => $fulfilmentCustomer->customer->email,
+                            'tooltip' => __('Email')
                         ],
                         [
-                            'key'       => 'email',
-                            'label'     => $fulfilmentCustomer->customer->email,
-                            'tooltip'   => 'Email'
-                        ],
-                        [
-                            'key'       => 'contact_name',
-                            'label'     => $fulfilmentCustomer->customer->contact_name,
-                            'tooltip'   => 'Contact name'
+                            'key'     => 'pallet',
+                            'label'   => $fulfilmentCustomer->number_pallets,
+                            'tooltip' => __('pallet')
                         ],
                     ],
                 ]

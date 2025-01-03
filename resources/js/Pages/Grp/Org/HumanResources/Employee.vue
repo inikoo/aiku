@@ -45,6 +45,7 @@ import Popover from '@/Components/Popover.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import UploadAttachment from '@/Components/Upload/UploadAttachment.vue';
 import ShowcaseEmployee from '@/Components/Showcases/Grp/ShowcaseEmployee.vue';
+import { trans } from 'laravel-vue-i18n'
 
 library.add(
     faIdCard,
@@ -85,6 +86,7 @@ const props = defineProps<{
     job_positions?: Table
     attachments?: {}
     attachmentRoutes?:object
+    showcase : object
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -133,7 +135,13 @@ const component = computed(() => {
             </div>
         </template>
         <template #other>
-            <Button v-if="currentTab === 'attachments'" @click="() => isModalUploadOpen = true" label="Attach" icon="upload"/>
+            <Button
+                v-if="currentTab === 'attachments'"
+                @click="() => isModalUploadOpen = true"
+                :label="trans('Attach file')"
+                icon="fal fa-upload"
+                type="secondary"
+            />
         </template>
 
     </PageHeading>
