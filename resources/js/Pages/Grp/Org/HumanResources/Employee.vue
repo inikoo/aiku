@@ -44,6 +44,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Popover from '@/Components/Popover.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import UploadAttachment from '@/Components/Upload/UploadAttachment.vue';
+import ShowcaseEmployee from '@/Components/Showcases/Grp/ShowcaseEmployee.vue';
 import { trans } from 'laravel-vue-i18n'
 
 library.add(
@@ -85,6 +86,7 @@ const props = defineProps<{
     job_positions?: Table
     attachments?: {}
     attachmentRoutes?:object
+    showcase : object
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -94,7 +96,7 @@ const attachmentRoutes = ref(props.attachmentRoutes)
 const component = computed(() => {
 
     const components = {
-        details: ModelDetails,
+        showcase: ShowcaseEmployee,
         history: TableHistories,
         data: DataModel,
         timesheets: TableTimesheets,

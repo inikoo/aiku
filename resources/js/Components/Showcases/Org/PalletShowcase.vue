@@ -43,7 +43,6 @@ console.log(props)
 const blueprint = {
     note: {
         label: 'Note',
-        value: props.data.data.notes || '-'
     },
     reference: {
         label: 'Reference',

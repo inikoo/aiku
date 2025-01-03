@@ -6,7 +6,7 @@ import { ref } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faSyncAlt, faHistory } from '@fortawesome/free-solid-svg-icons';
 import { library } from '@fortawesome/fontawesome-svg-core';
-library.add( faSyncAlt);
+library.add(faSyncAlt);
 
 
 
@@ -22,41 +22,43 @@ const emits = defineEmits()
 const originalPin = props.form[props.fieldName]
 const loading = ref(false)
 
-const historyPin = () =>{
-    const data = { ...props.form, [props.fieldName] :  originalPin}
+const historyPin = () => {
+    const data = { ...props.form, [props.fieldName]: originalPin }
     emits("update:form", data);
 }
- 
+
 const generateNewPin = () => {
-  router.get(route('generate-pin'), {}, {
-    onFinish: () => {
-      console.log('Request selesai');
-    },
-    onSuccess: (response: { pin: number[] }) => {
-      props.form[props.fieldName] = response.pin;
-    },
-    onError: (error) => {
-        notify({
-            title: "Failed",
-            text: "Error while fetching data",
-            type: "error"
-        })
-    },
-  });
+    router.get(route('generate-pin'), {}, {
+        onFinish: () => {
+            console.log('Request selesai');
+        },
+        onSuccess: (response: { pin: number[] }) => {
+            props.form[props.fieldName] = response.pin;
+        },
+        onError: (error) => {
+            notify({
+                title: "Failed",
+                text: "Error while fetching data",
+                type: "error"
+            })
+        },
+    });
 };
 
 </script>
 
 <template>
     <div class="mb-4 flex space-x-2">
-        <Button @click="historyPin" type="tertiary" :icon="faHistory" size="xs"  />
+        <Button @click="historyPin" type="tertiary" :icon="faHistory" size="xs" />
         <Button @click="generateNewPin" label="generate" :icon="faSyncAlt" size="xs" :loading="loading" />
     </div>
-   
-    <div class="flex items-center space-x-2">
-        <div v-for="(value, index) in form[fieldName]" :key="index" class="relative">
-            <input type="text" disabled maxlength="1" v-model="form[fieldName][index]"
-                class="w-9 h-9 text-center text-xs font-semibold border border-gray-300 rounded-md " />
+
+    <div class="flex  gap-1 flex-wrap rounded-lg">
+        <div v-for="(value, index) in Array.from(form[fieldName])" :key="index"
+            class="relative w-10 h-10 flex items-center justify-center text-lg font-medium border border-gray-300 rounded-lg bg-white shadow-sm hover:bg-blue-50 transition duration-150">
+            <span>{{ value }}</span>
         </div>
     </div>
+
+
 </template>

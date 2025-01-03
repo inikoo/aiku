@@ -141,10 +141,10 @@ class IndexProspects extends OrgAction
             $queryBuilder->where('prospects.organisation_id', $parent->id);
         } elseif ($parent instanceof Group) {
             $queryBuilder->where('prospects.group_id', $parent->id);
-        }elseif ($parent instanceof Tag) {
-           $queryBuilder->leftJoin('taggables', 'taggables.tag_id', '=', 'tags.id')
-                ->where('taggables.taggable_id', $parent->id)
-                ->where('taggables.taggable_type', 'Prospect');
+        } elseif ($parent instanceof Tag) {
+            $queryBuilder->leftJoin('taggables', 'taggables.tag_id', '=', 'tags.id')
+                 ->where('taggables.taggable_id', $parent->id)
+                 ->where('taggables.taggable_type', 'Prospect');
         }
 
         return $queryBuilder
@@ -210,7 +210,7 @@ class IndexProspects extends OrgAction
         $dataProspect  = [
             'data' => $this->tab == ProspectsTabsEnum::PROSPECTS->value
                 ? ProspectsResource::collection($prospects)
-                : Inertia::lazy(fn() => ProspectsResource::collection($prospects)),
+                : Inertia::lazy(fn () => ProspectsResource::collection($prospects)),
 
             'tagRoute' => [
                 'store'  => [
@@ -233,14 +233,14 @@ class IndexProspects extends OrgAction
             ],
 
             ProspectsTabsEnum::DASHBOARD->value => $this->tab == ProspectsTabsEnum::DASHBOARD->value ?
-                fn() => GetProspectsDashboard::run($this->parent, $request)
-                : Inertia::lazy(fn() => GetProspectsDashboard::run($this->parent, $request)),
+                fn () => GetProspectsDashboard::run($this->parent, $request)
+                : Inertia::lazy(fn () => GetProspectsDashboard::run($this->parent, $request)),
             ProspectsTabsEnum::PROSPECTS->value => $this->tab == ProspectsTabsEnum::PROSPECTS->value ?
-                fn() => $dataProspect
-                : Inertia::lazy(fn() => $dataProspect),
+                fn () => $dataProspect
+                : Inertia::lazy(fn () => $dataProspect),
             ProspectsTabsEnum::HISTORY->value   => $this->tab == ProspectsTabsEnum::HISTORY->value ?
-                fn() => HistoryResource::collection(IndexHistory::run(model: Prospect::class, prefix: ProspectsTabsEnum::HISTORY->value))
-                : Inertia::lazy(fn() => HistoryResource::collection(IndexHistory::run(model: Prospect::class, prefix: ProspectsTabsEnum::HISTORY->value))),
+                fn () => HistoryResource::collection(IndexHistory::run(model: Prospect::class, prefix: ProspectsTabsEnum::HISTORY->value))
+                : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run(model: Prospect::class, prefix: ProspectsTabsEnum::HISTORY->value))),
         ];
 
         if ($this->parent instanceof Group) {
@@ -251,8 +251,8 @@ class IndexProspects extends OrgAction
                     'navigation' => Arr::except(ProspectsTabsEnum::navigation(), [ProspectsTabsEnum::DASHBOARD->value]),
                 ],
                 ProspectsTabsEnum::PROSPECTS->value => $this->tab == ProspectsTabsEnum::PROSPECTS->value ?
-                    fn() => $dataProspect
-                    : Inertia::lazy(fn() => $dataProspect),
+                    fn () => $dataProspect
+                    : Inertia::lazy(fn () => $dataProspect),
             ];
         }
 
