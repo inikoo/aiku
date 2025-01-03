@@ -111,6 +111,11 @@ class ShowPallet extends OrgAction
     {
         // dd($pallet->status->statusIcon()[$pallet->status->value]);
         $subNavigation = [];
+        $navigation = PalletTabsEnum::navigation($pallet);
+
+        if ($pallet->number_stored_items == 0) {
+            unset($navigation[PalletTabsEnum::STORED_ITEMS->value]);
+        }
 
         if ($this->parent instanceof FulfilmentCustomer) {
             $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
@@ -189,7 +194,7 @@ class ShowPallet extends OrgAction
                 ],
                 'tabs'                          => [
                     'current'    => $this->tab,
-                    'navigation' => PalletTabsEnum::navigation(),
+                    'navigation' => $navigation,
                 ],
                 PalletTabsEnum::SHOWCASE->value => $this->tab == PalletTabsEnum::SHOWCASE->value ?
                     fn () => $this->jsonResponse($pallet) : Inertia::lazy(fn () => $this->jsonResponse($pallet)),
