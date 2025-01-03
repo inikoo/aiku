@@ -93,6 +93,7 @@ class UpdateUser extends GrpAction
                 ),
             ],
             'contact_name'   => ['sometimes', 'string', 'max:255'],
+            'settings'       => ['sometimes'],
             'reset_password' => ['sometimes', 'boolean'],
             'auth_type'      => ['sometimes', Rule::enum(UserAuthTypeEnum::class)],
             'status'         => ['sometimes', 'boolean'],

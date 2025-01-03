@@ -100,6 +100,11 @@ const props = defineProps<{
 		labelShort: string
 		value: string
 	}[]
+	dashboard_stats: {
+		settings: {
+			
+		}
+	}
 }>()
 
 console.log("groupStats total: ", props.groupStats.total)
@@ -109,7 +114,7 @@ const layout = inject("layout", layoutStructure)
 const locale = inject("locale", aikuLocaleStructure)
 
 // Decriptor: Date interval
-const selectedDateOption = ref<string>("ytd")
+const selectedDateOption = ref<string>(props.dashboard_stats.settings.selected_interval || 'ytd')
 
 // const currencyValue = ref('group')
 
