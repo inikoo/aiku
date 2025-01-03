@@ -12,6 +12,7 @@ import { onMounted, provide } from 'vue'
 import { initialiseIrisApp } from '@/Composables/initialiseIris'
 import { useIrisLayoutStore } from "@/Stores/irisLayout"
 import { irisStyleVariables } from '@/Composables/Workshop'
+import { trans } from 'laravel-vue-i18n'
 
 initialiseIrisApp()
 
@@ -34,7 +35,10 @@ onMounted(() => {
 
 <template>
     <div class="relative editor-class">
-        <ScreenWarning v-if="layout.app.environment === 'staging'" />
+        <ScreenWarning v-if="layout.app.environment === 'staging'">
+            {{ trans("This environment is for testing and development purposes only. The data you enter will be deleted in the future.") }}
+        </ScreenWarning>
+
         <div :class="[theme.layout === 'blog' ? 'container max-w-7xl mx-auto shadow-xl' : '']" :style="{ fontFamily: theme.fontFamily}">
         <!--     <IrisLoginInformation /> -->
             <IrisHeader v-if="header.header" :data="header" :colorThemed="theme" :menu="navigation"/>
