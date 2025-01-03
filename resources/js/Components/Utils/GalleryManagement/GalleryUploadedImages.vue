@@ -46,20 +46,26 @@ const emits = defineEmits<{
 const toggleImageSelection = (imageId: number) => {
     const index = selectedIdImages.value.indexOf(imageId);
 
-    if (index > -1) { 
+    if (index > -1) {
         // If it exists, remove it
         selectedIdImages.value.splice(index, 1);
-    } else { // If it doesn't exist
-        if(props.maxSelected) { 
-            if(selectedIdImages.value.length < props.maxSelected) {
-                // If it doesn't exist, add it
-                selectedIdImages.value.push(imageId);
-            }
-        } else {
+    } else {
+        // If it doesn't exist
+        if (props.maxSelected === 1) {
+            // If maxSelected is 1, just select and unselect without warning
+            selectedIdImages.value = [imageId];
+        } else if (!props.maxSelected || selectedIdImages.value.length < props.maxSelected) {
+            // Add it if maxSelected is not defined or not reached
             selectedIdImages.value.push(imageId);
+        } else {
+            notify({
+                title: trans('Selection limit reached'),
+                text: trans(`You can only select up to ${props.maxSelected} images.`),
+                type: 'warning',
+            });
         }
     }
-}
+};
 
 // Method: submit selected stock images
 const isLoadingSubmit = ref<boolean>(false)

@@ -22,6 +22,8 @@ import { Root as RootWebpage } from '@/types/webpageTypes'
 import { trans } from 'laravel-vue-i18n'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import ButtonPreviewEdit from '@/Components/Workshop/Tools/ButtonPreviewEdit.vue';
+import ButtonPreviewLogin from '@/Components/Workshop/Tools/ButtonPreviewLogin.vue';
 
 
 defineOptions({ layout: WebPreview })
@@ -101,14 +103,15 @@ provide('isPreviewMode', isPreviewMode)
     <!-- <pre>{{ props }}</pre> -->
     <div class="editor-class">
         <!-- Tools: login view, edit-preview -->
-        <div v-if="isInWorkshop" class="bg-gray-200 shadow-xl px-8 py-4 flex items-center gap-x-2">
-            <span :class="!isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged out</span>
-            <Toggle v-model="isPreviewLoggedIn" />
-            <span :class="isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged in</span>
-            <div class="h-6 w-px bg-gray-400 mx-2"></div>
-            <span :class="!isPreviewMode ? 'text-gray-600' : 'text-gray-400'">Edit</span>
-            <Toggle v-model="isPreviewMode" />
-            <span :class="isPreviewMode ? 'text-gray-600' : 'text-gray-400'">Preview</span>
+        <div v-if="isInWorkshop" class="bg-gray-200 shadow-xl px-8 py-4 flex justify-center items-center gap-x-2">
+            <ButtonPreviewLogin
+                v-model="isPreviewLoggedIn"
+            />
+
+            <!-- <div class="h-6 w-px bg-gray-400 mx-2"></div>
+            <ButtonPreviewEdit
+                v-model="isPreviewMode"
+            /> -->
         </div>
 
         <div class="shadow-xl" :class="layout.colorThemed.layout == 'fullscreen' ? 'w-full' : 'container max-w-7xl mx-auto '">
@@ -126,9 +129,9 @@ provide('isPreviewMode', isPreviewMode)
             <!-- Webpage -->
             <div v-if="data" class="relative editor-class">
                 <div v-if="data?.layout?.web_blocks?.length">
-                    <TransitionGroup tag="div" name="zzz" class="relative">
+                    <TransitionGroup tag="div" name="list" class="relative">
                         <section v-for="(activityItem, activityItemIdx) in data?.layout?.web_blocks" :key="activityItem.id" class="w-full">
-                            <component
+                            <!-- <component
                                 v-if="showWebpage(activityItem)"
                                 :key="activityItemIdx"
                                 class="w-full"
@@ -136,28 +139,21 @@ provide('isPreviewMode', isPreviewMode)
                                 :webpageData="webpage" :blockData="activityItem"
                                 v-model="activityItem.web_block.layout.data.fieldValue"
                                 :fieldValue="activityItem.web_block?.layout?.data?.fieldValue"
-                                @autoSave="() => debouncedSendUpdateBlock(activityItem)" />
+                                @autoSave="() => debouncedSendUpdateBlock(activityItem)" /> -->
+                            <component
+                                v-show="showWebpage(activityItem)"
+                                class="w-full"
+                                :is="getIrisComponent(activityItem.type)"
+                                :webpageData="webpage" :blockData="activityItem"
+                                :fieldValue="activityItem.web_block?.layout?.data?.fieldValue"
+                            />
+                            <!-- {{ activityItem.type }} -->
                         </section>
                     </TransitionGroup>
                 </div>
 
                 <div v-else class="py-8">
-                    <div v-if="!isInWorkshop" class="mx-auto">
-                        <div class="text-center text-gray-500">
-                            {{ trans('Your journey starts here') }}
-                        </div>
-                        <div class="w-64 mx-auto">
-                            <Button label="add new block" class="mt-3" full type="dashed"
-                                @click="() => iframeToParent('openModalBlockList')">
-                                <div class="text-gray-500">
-                                    <FontAwesomeIcon icon='fal fa-plus' class='' fixed-width aria-hidden='true' />
-                                    {{ trans('Add block') }}
-                                </div>
-                            </Button>
-                        </div>
-                    </div>
-
-                    <EmptyState v-else :data="{
+                    <EmptyState :data="{
                         title: trans('Pick First Block For Your Website'),
                         description: trans('Pick block from list')
                     }" />

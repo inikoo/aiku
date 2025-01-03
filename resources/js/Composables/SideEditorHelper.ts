@@ -24,7 +24,7 @@ import TextProperty from '@/Components/Workshop/Properties/TextProperty.vue'
 
 import { set } from 'lodash'
 
-
+// Field list of SideEditor
 export const getComponent = (componentName: string) => {
     const components: Component = {
         'text': InputText,
@@ -35,11 +35,13 @@ export const getComponent = (componentName: string) => {
         'socialMedia': socialMedia,
         "VisibleLoggedIn": ButtonVisibleLoggedIn,
        /*  "properties": PanelProperties, */
+        
         "background": Background,
         "border": Border,
         "padding": Padding,
         "margin": Margin,
         "dimension": Dimension,
+
         "button": ButtonProperties,
         "link": Link,
         "overview_form": OverviewForm,
@@ -52,7 +54,7 @@ export const getComponent = (componentName: string) => {
     return components[componentName] ?? NotFoundComponents
 }
 
-export const getFormValue = (data: any, fieldKeys: string | string[]) => {
+export const getFormValue = (data: {}, fieldKeys: string | string[]) => {
     const keys = Array.isArray(fieldKeys) ? fieldKeys : [fieldKeys];
     return keys.reduce((acc, key) => acc && acc[key], data) ?? null;
 };

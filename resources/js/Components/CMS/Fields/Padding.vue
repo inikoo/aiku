@@ -1,20 +1,21 @@
 <script setup lang="ts">
-import { watch, onMounted, ref } from 'vue'
+import { onBeforeMount } from 'vue'
 import PaddingMarginProperty from '@/Components/Workshop/Properties/PaddingMarginProperty.vue'
 import { trans } from 'laravel-vue-i18n'
+import { set, get } from 'lodash'
+import { onMounted } from 'vue'
+import { inject } from 'vue'
 
-// Define props and emits
-const props = defineProps({
-    modelValue: {
-        type: Object,
-        required: true,
-    },
-});
 
-const emit = defineEmits(['update:modelValue']);
+const model = defineModel<typeof localModel>()
+const emit = defineEmits(['update:modelValue'])
+
+const onSaveWorkshopFromId: Function = inject('onSaveWorkshopFromId', (e?: number) => { console.log('onSaveWorkshopFromId not provided') })
+const side_editor_block_id = inject('side_editor_block_id', () => { console.log('side_editor_block_id not provided') })  // Get the block id that use this property
+
 
 // Create a local copy of the model for internal use
-const localModel = ref({
+const localModel = {
     unit: "px",
     top: {
         value: null
@@ -28,30 +29,38 @@ const localModel = ref({
     bottom: {
         value: null
     }
-});
+}
 
-// Initialize localModel with the prop value on mount
 onMounted(() => {
-    if (props.modelValue) {
-        localModel.value = props.modelValue;
+    if (!model.value?.unit && model.value?.unit !== localModel.unit ) {
+        set(model, 'value.unit', localModel.unit)
+        onSaveWorkshopFromId(side_editor_block_id, 'padding value.unit')
     }
-});
+    if (!model.value?.top?.value && model.value?.top?.value !== localModel.top?.value ) {
+        set(model, 'value.top.value', localModel.top.value)
+        onSaveWorkshopFromId(side_editor_block_id, 'padding value.top.value')
+    }
+    if (!model.value?.left?.value && model.value?.left?.value !== localModel.left?.value ) {
+        set(model, 'value.left.value', localModel.left.value)
+        onSaveWorkshopFromId(side_editor_block_id, 'padding value.left.value')
+    }
+    if (!model.value?.right?.value && model.value?.right?.value !== localModel.right?.value ) {
+        set(model, 'value.right.value', localModel.right.value)
+        onSaveWorkshopFromId(side_editor_block_id, 'padding value.right.value')
+    }
+    if (!model.value?.bottom?.value && model.value?.bottom?.value !== localModel.bottom?.value ) {
+        set(model, 'value.bottom.value', localModel.bottom.value)
+        onSaveWorkshopFromId(side_editor_block_id, 'padding value.bottom.value')
+    }
 
-// Watch localModel and emit updates
-watch(
-    localModel,
-    (newValue) => {
-        emit('update:modelValue', newValue);
-    },
-    { deep: true }
-);
+})
 
 </script>
 
 <template>
-    <div v-if="localModel" class="border-t border-gray-300 bg-gray-100 pb-3">
+    <div class="border-t border-gray-300 bg-gray-100 pb-3">
         <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Padding') }}</div>
-        <PaddingMarginProperty v-model="localModel" />
+        <PaddingMarginProperty :modelValue="model || localModel" @update:modelValue="(e) => (console.log('bbb', e), model = e)" :scope="trans('Padding')" />
     </div>
 </template>
 

@@ -37,8 +37,10 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div type="button" v-if="!modelValue.link || modelValue?.link == ''"
-        class="relative block w-full p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+    <div v-if="!modelValue.link || modelValue?.link == ''" type="button"
+        class="relative block w-full p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        :style="getStyles(modelValue?.container?.properties)"
+    >
         <font-awesome-icon :icon="['fal', 'paperclip']" class="mx-auto h-12 w-12 text-gray-400" />
         <span class="mt-2 block text-sm font-semibold text-gray-900">I Frame</span>
     </div>

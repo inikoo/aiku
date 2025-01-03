@@ -10,7 +10,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faCopy, faEye, faEyeSlash, faTimesCircle, faSpinnerThird)
 
 const props = withDefaults(defineProps<{
-    modelValue: string | number
+    modelValue: string | number | null
     placeholder?: string
     readonly?: boolean
     autofocus?: boolean
@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<{
 })
 
 const emits = defineEmits<{
-    (e: 'update:modelValue', value: string | number): void
+    (e: 'update:modelValue', value: number): void
     (e: 'blur', value: string | number): void
     (e: 'onEnter', value: string | number): void
     (e: 'input', value: string | number): void

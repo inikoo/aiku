@@ -4,14 +4,13 @@ import { trans } from 'laravel-vue-i18n'
 import Popover from "@/Components/Utils/Popover.vue"
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { computed, ref } from 'vue'
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSpinnerThird } from '@fad'
 import { faAsterisk } from '@fas'
 import { faRocketLaunch } from '@far'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 library.add(faSpinnerThird, faAsterisk, faRocketLaunch)
 
 const props = defineProps<{
@@ -25,8 +24,8 @@ const compRandomKey = computed(() => {
 })
 
 const emits = defineEmits<{
-    (e: 'update:modelValue', value: any): void
-    (e: 'onPublish', value : any): void
+    (e: 'update:modelValue', value: string): void
+    (e: 'onPublish', value: {close: Function, open: boolean}): void
 }>()
 
 
@@ -38,19 +37,19 @@ const emits = defineEmits<{
 
         <!-- Popover (comment section) is appear if it 2nd publishing or more -->
         <Popover>
-            <template #button="{ isOpen }">
+            <template #button="{ open }">
                 <!-- Style: Compare the hash from current data with hash from empty data -->
-                 <slot name="button" isOpen>
-                    <Button v-if="!isOpen"
+                 <slot name="button" :open>
+                    <Button
                         :label="'Publish'"
                         :style="!is_dirty
-                                ? 'disabled'
-                                :  'primary'"
-                        :key="!is_dirty ? compRandomKey : uuidv4()"
+                            ? 'tertiary'
+                            :  'primary'"
+                    :disabled="open"
+                        :key="is_dirty.toString()"
                         :icon="'far fa-rocket-launch'"
                     />
-                    <Button v-else :style="`cancel`" icon="fal fa-times" label="Cancel" />
-                </slot>
+                    </slot>
             </template>
 
             <!-- Section: Popover -->
@@ -61,18 +60,24 @@ const emits = defineEmits<{
                         <span class="capitalize">{{ trans('comment') }}</span>
                     </div>
                     <div class="py-2.5">
-                        <textarea rows="3" :value="modelValue"
-                            @input="$emit('update:modelValue', $event.target?.value)"
-                            class="block w-64 lg:w-96 rounded-md shadow-sm border-gray-300 focus:border-gray-500 focus:ring-gray-500 sm:text-sm" />
+                        <textarea
+                            rows="3"
+                            :value="modelValue"
+                            :placeholder="trans('Add additional comment')"
+                            @input="emits('update:modelValue', $event.target?.value)"
+                            class="block w-64 lg:w-96 rounded-md shadow-sm placeholder:text-gray-400 border-gray-300 focus:border-gray-500 focus:ring-gray-500 sm:text-sm" />
                     </div>
                     <div class="flex justify-end">
-                        <Button size="xs"  icon="far fa-rocket-launch" label="Publish" @click=" ()=>emits('onPublish', {open, close})"
-                            :key="modelValue.length" :style="modelValue.length ? 'primary' : 'disabled'">
-                            <template #icon>
-                                <LoadingIcon v-if="isLoading" />
-                                <FontAwesomeIcon v-else icon='far fa-rocket-launch' class='' aria-hidden='true' />
-                            </template>
-                        </Button>
+                        <Button
+                            size="s"
+                            full
+                            icon="far fa-rocket-launch"
+                            label="Publish"
+                            @click="() => emits('onPublish', {open, close})"
+                            :key="(modelValue.length > 0 ).toString()"
+                            :style="modelValue.length ? 'primary' : 'disabled'"
+                            :loading="isLoading"
+                        />
                     </div>
                 </div>
             </template>
