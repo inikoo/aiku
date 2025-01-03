@@ -34,17 +34,17 @@ class ShopHydrateSales
         return [(new WithoutOverlapping($this->shop->id))->dontRelease()];
     }
 
-    public function handle(Shop $shop): void
+    public function handle(Shop $shop, ?array $intervals = null, $doPreviousIntervals = null): void
     {
-        $stats = [];
+        $stats     = [];
         $queryBase = InvoiceTransaction::where('shop_id', $shop->id)->selectRaw('sum(net_amount) as  sum_aggregate  ');
-        $stats = $this->getIntervalsData($stats, $queryBase, 'sales_');
+        $stats     = $this->getIntervalsData($stats, $queryBase, 'sales_', $intervals, $doPreviousIntervals);
 
         $queryBase = InvoiceTransaction::where('shop_id', $shop->id)->selectRaw('sum(grp_net_amount) as  sum_aggregate');
-        $stats = $this->getIntervalsData($stats, $queryBase, 'sales_grp_currency_');
+        $stats     = $this->getIntervalsData($stats, $queryBase, 'sales_grp_currency_', $intervals, $doPreviousIntervals);
 
         $queryBase = InvoiceTransaction::where('shop_id', $shop->id)->selectRaw('sum(org_net_amount) as  sum_aggregate');
-        $stats = $this->getIntervalsData($stats, $queryBase, 'sales_org_currency_');
+        $stats     = $this->getIntervalsData($stats, $queryBase, 'sales_org_currency_', $intervals, $doPreviousIntervals);
 
         $shop->salesIntervals()->update($stats);
     }
