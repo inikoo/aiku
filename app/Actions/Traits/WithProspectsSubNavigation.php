@@ -17,7 +17,7 @@ trait WithProspectsSubNavigation
     {
         $parent = $this->parent;
 
-        if($parent instanceof Fulfilment) {
+        if ($parent instanceof Fulfilment) {
             $parent = $parent->shop;
         }
 

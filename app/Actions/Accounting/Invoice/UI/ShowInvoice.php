@@ -189,10 +189,8 @@ class ShowInvoice extends OrgAction
                         ],
                         [
                             'label'       => __('Tax'),
-                            'information' => __('Tax is based on 10% of total order.'),
                             'price_total' => $invoice->tax_amount
-                        ],
-
+                        ]
                     ],
                     [
                         [
