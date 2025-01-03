@@ -12,6 +12,7 @@ use App\Actions\GrpAction;
 use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\WithInertia;
+use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\UI\SysAdmin\ProfileTabsEnum;
 use App\Http\Resources\HumanResources\TimesheetsResource;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -25,15 +26,25 @@ class ShowProfileIndexTimesheets extends GrpAction
     use WithInertia;
     use WithActionButtons;
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): ?LengthAwarePaginator
     {
         $this->initialisation(group(), $request)->withTab(ProfileTabsEnum::values());
 
-        return IndexTimesheets::run($request->user()->parent, ProfileTabsEnum::TIMESHEETS->value);
+        $employees = $request->user()->employees;
+        if (count($employees) > 0) {
+            $employee = $employees->first();
+            if ($employee->type->value == EmployeeTypeEnum::EMPLOYEE->value) {
+                return IndexTimesheets::run($employee, null, ProfileTabsEnum::TIMESHEETS->value);
+            }
+        }
+        return null;
     }
 
-    public function jsonResponse(LengthAwarePaginator $timesheets): AnonymousResourceCollection
+    public function jsonResponse(?LengthAwarePaginator $timesheets): AnonymousResourceCollection
     {
+        if ($timesheets == null) {
+            return TimesheetsResource::collection(collect([]));
+        }
         return TimesheetsResource::collection($timesheets);
     }
 }
