@@ -8,7 +8,6 @@
 
 namespace App\Actions\CRM\Customer\Search;
 
-use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Models\CRM\Customer;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -27,6 +26,7 @@ class CustomerRecordSearch
         }
 
         $modelData =  [
+            'sections' => ['crm'],
             'group_id'          => $customer->group_id,
             'organisation_id'   => $customer->organisation_id,
             'organisation_slug' => $customer->organisation->slug,
@@ -88,7 +88,6 @@ class CustomerRecordSearch
         ];
 
         if ($customer->is_fulfilment && $customer->shop->exists) {
-            $modelData['sections'][] = AikuSectionEnum::FULFILMENT_CRM->value;
             $modelData['fulfilment_id'] = $customer->shop->fulfilment_id;
             $modelData['fulfilment_slug'] = $customer->shop->fulfilment->slug;
             $modelData['result'] = array_merge_recursive($modelData['result'], [
@@ -102,7 +101,6 @@ class CustomerRecordSearch
                 ]
             ]);
         } else {
-            $modelData['sections'][] = AikuSectionEnum::SHOP_CRM->value;
             $modelData['shop_id'] = $customer->shop_id;
             $modelData['shop_slug'] = $customer->shop->slug;
             $modelData['result'] = array_merge_recursive($modelData['result'], [

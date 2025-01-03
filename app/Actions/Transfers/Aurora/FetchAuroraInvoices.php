@@ -110,10 +110,13 @@ class FetchAuroraInvoices extends FetchAuroraAction
     {
         $organisation = $organisationSource->getOrganisation();
 
-        $paymentsToDelete = $invoice->payments()->pluck('source_id')->all();
-        $sourceData       = explode(':', $invoice->source_id);
+        $paymentsToDelete = $invoice->payments()->withTrashed()->pluck('source_id')->all();
+
+        $sourceData = explode(':', $invoice->source_id);
 
         $modelHasPayments = [];
+
+
         foreach (
 
             DB::connection('aurora')
@@ -134,14 +137,33 @@ class FetchAuroraInvoices extends FetchAuroraAction
         }
 
 
-        $invoice->payments()->syncWithoutDetaching($modelHasPayments);
+        $invoice->payments()->sync($modelHasPayments);
 
-        $invoice->payments()->whereIn('id', $paymentsToDelete)->delete();
+
+
+        try {
+            DB::table('payments')->whereIn('source_id', $paymentsToDelete)->delete();
+        } catch (Exception) {
+            //
+        }
     }
 
     private function fetchInvoiceTransactions($organisationSource, Invoice $invoice): void
     {
-        $transactionsToDelete = $invoice->invoiceTransactions()->whereIn('model_type', ['Product', 'Service'])->pluck('source_id', 'id')->all();
+
+        if (!$invoice->trashed()) {
+            $trashedInvoiceTransactions = $invoice->invoiceTransactions()->onlyTrashed()->get();
+
+            foreach ($trashedInvoiceTransactions as $trashedModel) {
+                $trashedModel->forceDelete();
+            }
+        }
+
+
+        $transactionsToDelete = $invoice->invoiceTransactions()->withTrashed()->whereIn('model_type', ['Product', 'Service','Rental'])->pluck('source_id', 'id')->all();
+
+
+
         $this->allowLegacy    = true;
 
         $sourceData = explode(':', $invoice->source_id);
@@ -153,15 +175,19 @@ class FetchAuroraInvoices extends FetchAuroraAction
                 ->where('Invoice Key', $sourceData[1])
                 ->get() as $auroraData
         ) {
+
             $transactionsToDelete = array_diff($transactionsToDelete, [$organisationSource->getOrganisation()->id.':'.$auroraData->{'Order Transaction Fact Key'}]);
             FetchAuroraInvoiceTransactions::run($organisationSource, $auroraData->{'Order Transaction Fact Key'}, $invoice);
         }
+
+
         $invoice->invoiceTransactions()->whereIn('id', array_keys($transactionsToDelete))->delete();
     }
 
     private function fetchInvoiceNoProductTransactions($organisationSource, Invoice $invoice): void
     {
-        $transactionsToDelete = $invoice->invoiceTransactions()->whereNotIn('model_type', ['Product', 'Service'])->pluck('source_alt_id', 'id')->all();
+        $transactionsToDelete = $invoice->invoiceTransactions()->withTrashed()->whereNotIn('model_type', ['Product', 'Service','Rental'])->pluck('source_alt_id', 'id')->all();
+
         $this->allowLegacy    = true;
 
         $sourceData = explode(':', $invoice->source_id);
@@ -176,7 +202,13 @@ class FetchAuroraInvoices extends FetchAuroraAction
             $transactionsToDelete = array_diff($transactionsToDelete, [$organisationSource->getOrganisation()->id.':'.$auroraData->{'Order No Product Transaction Fact Key'}]);
             FetchAuroraNoProductInvoiceTransactions::run($organisationSource, $auroraData->{'Order No Product Transaction Fact Key'}, $invoice);
         }
-        $invoice->invoiceTransactions()->whereIn('id', array_keys($transactionsToDelete))->delete();
+
+        foreach ($transactionsToDelete as $id => $source_id) {
+            $invoice->invoiceTransactions()->where('id', $id)->forceDelete();
+
+        }
+
+
     }
 
     public function getModelsQuery(): Builder

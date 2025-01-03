@@ -71,6 +71,7 @@ class ShowEmployee extends OrgAction
                         'title' => __('Employee'),
                         'icon'  => 'fal fa-user-hard-hat'
                     ],
+                    'model'     => __('Employee'),
                     'title'         => $employee->contact_name,
                     'subNavigation' => $this->getEmployeeSubNavigation($employee, $request),
                     'meta'          => [
@@ -108,7 +109,9 @@ class ShowEmployee extends OrgAction
                     'navigation' => EmployeeTabsEnum::navigation()
                 ],
 
-
+                EmployeeTabsEnum::SHOWCASE->value => $this->tab == EmployeeTabsEnum::SHOWCASE->value ?
+                    fn () => GetEmployeeShowcase::run($employee)
+                    : Inertia::lazy(fn () => GetEmployeeShowcase::run($employee)),
                 EmployeeTabsEnum::HISTORY->value => $this->tab == EmployeeTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($employee))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($employee))),

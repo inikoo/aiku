@@ -56,7 +56,7 @@ class ReindexSearch extends HydrateModel
             $this->reindexComms($command);
         }
 
-        if ($this->checkIfCanReindex(['sysadmin'], $command)) {
+        if ($this->checkIfCanReindex(['sysadmin', 'sys'], $command)) {
             $this->reindexSysadmin($command);
         }
 

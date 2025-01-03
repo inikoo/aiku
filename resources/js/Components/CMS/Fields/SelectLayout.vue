@@ -2,21 +2,25 @@
 import { ref, toRaw } from "vue"
 import Modal from "@/Components/Utils/Modal.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faImage } from '@fas'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { set } from "lodash"
+import { trans } from "laravel-vue-i18n"
+import { routeType } from "@/types/route"
+library.add(faImage)
+
+const props = defineProps<{
+	uploadRoutes: routeType  // import to avoid warning in console
+}>()
 
 type Layout =
 	| { name: string; layout_type: string; grid: string; images: number; flex?: undefined }
 	| { name: string; layout_type: string; flex: string[]; images: number; grid?: undefined }
 
-const props = defineProps({
-	modelValue: {
-		type: Object,
-		required: false,
-		default: null,
-	},
-})
-const emit = defineEmits(["update:modelValue"])
-const isModalOpen = ref(false)
+const model = defineModel<string>()
 
+const isModalOpen = ref(false)
 
 const layouts = ref<Layout[]>([
 	{ name: "Layout Single Wide Image", layout_type: "1", grid: "grid-cols-1", images: 1 },
@@ -41,7 +45,7 @@ const layouts = ref<Layout[]>([
 } */
 
 const onSubmitNote = async (layoutType: string) => {
-	emit("update:modelValue", layoutType)
+	set(model, "value", layoutType)
 	isModalOpen.value = false
 }
 </script>
@@ -53,13 +57,13 @@ const onSubmitNote = async (layoutType: string) => {
 
 	<Modal :isOpen="isModalOpen" @onClose="() => (isModalOpen = false)">
 		<div class="h-auto px-2 overflow-auto">
-			<div class="text-xl font-semibold mb-2">Select a Layout Type</div>
+			<div class="text-xl font-semibold mb-2">{{ trans("Select a Layout Type") }}</div>
 			<div class="relative">
 				<div class="grid grid-cols-3 gap-4">
 					<div v-for="layout in layouts" :key="layout.layout_type"
 						class="p-2 cursor-pointer transition-all group relative" :class="{
-							'border-blue-500 ring-2 rounded': modelValue === layout.layout_type,
-							'hover:border-blue-300 hover:bg-gray-100': !modelValue || modelValue !== layout.layout_type,
+							'border-blue-500 ring-2 rounded': model === layout.layout_type,
+							'hover:border-blue-300 hover:bg-gray-100': !model || model !== layout.layout_type,
 						}">
 						<div class="border rounded-lg p-4">
 							<div v-if="layout.grid" :class="'grid gap-2 ' + layout.grid">
@@ -81,10 +85,10 @@ const onSubmitNote = async (layoutType: string) => {
 						<div
 							class="absolute inset-0 flex items-center justify-center bg-opacity-50 bg-black text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
 							<Button label="Select"  @click="() => onSubmitNote(layout.layout_type)"
-								class="transition-colors" :class="{
-									'bg-gray-300': !modelValue,
-									'bg-blue-500 hover:bg-blue-600': modelValue,
-								}" />
+								class="transition-colors"
+								:class="[
+									model ? 'bg-blue-500 hover:bg-blue-600' : 'bg-gray-300'
+							]" />
 						</div>
 					</div>
 				</div>

@@ -110,6 +110,26 @@ class ShowPallet extends OrgAction
     public function htmlResponse(Pallet $pallet, ActionRequest $request): Response
     {
         // dd($pallet->status->statusIcon()[$pallet->status->value]);
+        $icon = [
+            'icon'    => ['fal', 'fa-pallet'],
+            'tooltip' => __('Pallet')
+        ];
+        $model = __('Pallet');
+        $title = $this->pallet->reference;
+        $iconRight = $pallet->status->statusIcon()[$pallet->status->value];
+        $afterTitle = [
+            'label'     => '(' . $this->pallet->customer_reference . ')'
+        ];
+
+        if($this->parent instanceof FulfilmentCustomer)
+        {
+            $icon = [
+                'icon'    => ['fal', 'fa-user'],
+                'tooltip' => __('Customer')
+            ];
+            $model = $this->parent->customer->name;
+        }
+        
         $subNavigation = [];
         $navigation = PalletTabsEnum::navigation($pallet);
 
@@ -144,18 +164,12 @@ class ShowPallet extends OrgAction
                     'next'     => $this->getNext($pallet, $request),
                 ],
                 'pageHead'                      => [
-                    'icon'          =>
-                        [
-                            'icon'    => ['fal', 'fa-pallet'],
-                            'tooltip' => __('Pallet')
-                        ],
-                    'title'         => $this->pallet->reference,
-                    'model'         => __('Pallet'),
-                    'iconRight'     => $pallet->status->statusIcon()[$pallet->status->value],
+                    'icon'          => $icon,
+                    'title'         => $title,
+                    'model'         => $model,
+                    'iconRight'     => $iconRight,
                     'noCapitalise'  => true,
-                    'afterTitle'    => [
-                        'label'     => '(' . $this->pallet->customer_reference . ')'
-                    ],
+                    'afterTitle'    => $afterTitle,
                     'subNavigation' => $subNavigation,
                     'actions'       => [
                         // [

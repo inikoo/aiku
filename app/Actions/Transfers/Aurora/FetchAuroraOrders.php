@@ -225,8 +225,12 @@ class FetchAuroraOrders extends FetchAuroraAction
             $paymentsToDelete = array_diff($paymentsToDelete, [$organisation->id.':'.$auroraData->{'Payment Key'}]);
         }
 
-        $order->payments()->syncWithoutDetaching($modelHasPayments);
-        $order->payments()->whereIn('id', $paymentsToDelete)->delete();
+        $order->payments()->sync($modelHasPayments);
+        try {
+            DB::table('payments')->whereIn('source_id', $paymentsToDelete)->delete();
+        } catch (Exception) {
+            //
+        }
     }
 
 

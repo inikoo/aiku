@@ -8,11 +8,13 @@
 
 namespace App\Actions\Helpers\UniversalSearch\UI;
 
+use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\OrgAction;
 use App\Http\Resources\Helpers\UniversalSearchResource;
 use App\Models\Helpers\UniversalSearch;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 
@@ -68,6 +70,9 @@ class IndexUniversalSearch extends OrgAction
 
     public function asController(ActionRequest $request): AnonymousResourceCollection
     {
+        // $param = Arr::except($request->all(), ['route_src', 'q']);
+        // $aikuScopedSection = GetSectionRoute::make()->run($request->input('route_src'), $param);
+        // dd($aikuScopedSection->code);
         $searchResults = $this->handle(
             query: $request->input('q', '') ?? '',
             sections: $this->parseSections($request->input('route_src')),
@@ -108,45 +113,29 @@ class IndexUniversalSearch extends OrgAction
     public function parseOrganisationSections($route): array|null
     {
         $routes = [
-            'accounting.' => ['accounting'],
-            // 'productions.' => ['productions'],
-            'procurement.' => ['procurement'],
-            'websites.' => ['web'],
-            'fulfilments.show.web.' => ['web'],
-            'fulfilments.' => ['fulfilment'],
-            'shops.show.billables.' => ['billables'],
-            // 'reports.' => ['reports'],
-            'shops.show.catalogue.' => ['catalogue'],
-            // 'shops.show.mail.' => ['mail'],
-            // 'shops.show.marketing.' => ['marketing'],
-            'shops.show.discounts.' => ['discounts'],
-            'shops.show.ordering.' => ['ordering', 'dispatching'],
-            'shops.show.web.' => ['web'],
-            'shops.show.crm.' => ['crm'],
-            // 'shops.' => ['assets', 'catalogue', 'mail', 'marketing', 'discounts', 'ordering', 'dispatching', 'web', 'crm', 'billables'],
-            'shops.' => ['billables', 'catalogue', 'discounts', 'ordering', 'dispatching', 'web', 'crm'],
-            'hr.' => ['hr'],
-            'warehouses.show.infrastructure.' => ['infrastructure'],
-            'warehouses.show.dispatching' => ['dispatching'],
-            'warehouses.' => ['infrastructure', 'inventory', 'dispatching']
+            'shops.show.crm.' => 'crm',
+            'ordering.' => 'ordering',
+
+            'fulfilments.show.crm' => 'fulfilment',
+            'pallets.' => 'fulfilment',
+            'stored_items.' => 'fulfilment',
+            'stock_deliveries.' => 'fulfilment',
+            'pallet_deliveries.' => 'fulfilment',
+            'pallet_returns.' => 'fulfilment',
         ];
 
         if (empty($route) || str_starts_with($route, "dashboard.") || str_starts_with($route, "settings.")) {
-            $result = collect($routes)
-                    ->flatten()
-                    ->unique()
-                    ->values()
-                    ->all();
-            return $result;
+            $sections = array_values($routes);
+            return array_unique($sections);
         }
 
+        $sections = [];
         foreach ($routes as $prefix => $result) {
-            if (str_starts_with($route, $prefix)) {
-                return $result;
+            if (str_contains($route, $prefix)) {
+                $sections[] = $result;
             }
         }
 
-
-        return null;
+        return $sections;
     }
 }

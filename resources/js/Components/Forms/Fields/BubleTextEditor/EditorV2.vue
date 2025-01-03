@@ -88,7 +88,7 @@ import { routeType } from "@/types/route"
 import { irisVariable } from "@/Composables/variableList"
 
 const props = withDefaults(defineProps<{
-    modelValue: string,
+    modelValue: string | null,
     toogle?: string[],
     type?: string,
     editable?: boolean

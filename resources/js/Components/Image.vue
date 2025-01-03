@@ -8,18 +8,16 @@ const props = withDefaults(defineProps<{
     src?: {
         original: string
         original_2x?: string
-        avif?: string,
-        avif_2x?: string,
-        webp?: string,
-        webp_2x?: string,
+        avif?: string
+        avif_2x?: string
+        webp?: string
+        webp_2x?: string
     }
     imageCover?: boolean
-    alt?: string,
+    alt?: string
     class?: string
 }>(), {
-    src: {
-        original: fallbackPath
-    }
+    src: () => { return ref({ original: fallbackPath }) },
 })
 
 const emits = defineEmits<{
@@ -34,7 +32,7 @@ const avif: Ref<string | undefined> = ref(get(imageSrc, ['value', 'avif'], fallb
 const webp: Ref<string | undefined> = ref(get(imageSrc, ['value', 'webp'], fallbackPath))
 const original = ref(get(imageSrc, ['value', 'original'], fallbackPath))
 
-watch(src.value, (newValue) => {
+watch(() => src.value, (newValue) => {
     if(!newValue) {
         
     }

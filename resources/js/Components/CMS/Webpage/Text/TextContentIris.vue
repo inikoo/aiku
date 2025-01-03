@@ -4,8 +4,11 @@ import { getStyles } from '@/Composables/styles'
 const props = defineProps<{
 	fieldValue: {
         value: string
+        container: {
+            properties: {}
+        }
     }
-    properties: {}
+    // properties: {}
 }>()
 
 </script>

@@ -27,6 +27,7 @@ class ProfileResource extends JsonResource
             'avatar'        => $user->imageSources(48, 48),
             'email'         => $user->email,
             'about'         => $user->about,
+            'created_at'    => $user->created_at,
             'status'        => match ($user->status) {
                 true => [
                     'tooltip' => __('active'),

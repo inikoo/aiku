@@ -208,13 +208,13 @@ console.log(route().params)
                     </li>
                 </ul>
 
-                <!-- <div v-else class="mt-24 text-center text-gray-500 text-lg italic">
+                <div v-else class="mt-24 text-center text-gray-500 text-lg italic">
                     <div class="mb-2">{{ trans('You have no banner yet.') }}</div>
                     <a target="_blank"
                         :href="route('grp.org.shops.show.web.banners.index', [layout.currentParams.organisation, layout.currentParams.shop, layout.currentParams.website])">
                         <Button label="Create banner" iconRight="fal fa-external-link" />
                     </a>
-                </div> -->
+                </div>
             </div>
 
             <div v-else class="flex justify-center pt-32 items-center">

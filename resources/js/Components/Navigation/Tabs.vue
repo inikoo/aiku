@@ -93,8 +93,6 @@ const tabIconClass = function (isCurrent: boolean, type: string | undefined, ali
                             <FontAwesomeIcon v-else-if="tab.icon" :icon="tab.icon" :class="tabIconClass(tabSlug === currentTab, tab.type, tab.align, tab.iconClass || '')" aria-hidden="true"/>
                             {{ tab.title }}
 
-                            <span v-if="tab.number" class="inline-flex items-center w-fit mx-1 rounded-full px-2 py-0.5 text-xs font-medium tabular-nums bg-gray-200">{{ tab.number }}</span>
-
                             <FontAwesomeIcon v-if="tab.indicator" icon='fas fa-circle' class='animate-pulse absolute top-3 -right-1 text-blue-500 text-[6px]' fixed-width aria-hidden='true' />
                         </button>
                     </template>

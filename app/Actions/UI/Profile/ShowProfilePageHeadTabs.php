@@ -24,10 +24,10 @@ class ShowProfilePageHeadTabs extends GrpAction
     public function asController(ActionRequest $request): array
     {
         $this->initialisation(group(), $request)->withTab(ProfileTabsEnum::values());
-
         return [
             "pageHead"                       => [
-                "title"        => __("My Profile"),
+                "title"        => $request->user()->contact_name,
+                'model'        => __('Profile'),
                 'actions'      => [
                     [
                         'type'  => 'button',

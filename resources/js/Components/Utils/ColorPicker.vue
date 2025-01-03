@@ -30,7 +30,7 @@ interface Color {
 
 // Props and emits setup
 const props = withDefaults(defineProps<{
-    color: string
+    color: string | null
     closeButton?: boolean
     isEditable?: boolean
 }>(), {
@@ -76,7 +76,7 @@ const opacityToHexCode = (opacity: number) => {
                     <ColorPicker
                         style="width: 220px;"
                         theme="dark"
-                        :color="color"
+                        :color="color || 'rgba(255, 255, 255, 1)'"
                         :sucker-hide="true"
                         @changeColor="(e) => {emits('changeColor', {...e, hex: e.hex + opacityToHexCode(e.rgba.a)})}"
                     />
