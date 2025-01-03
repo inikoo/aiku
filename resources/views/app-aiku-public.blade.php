@@ -6,6 +6,12 @@
         <title inertia>{{ config('app.name', 'Aiku') }}</title>
         <link rel="icon" type="image/png" href="{{ url('favicons/favicon.png') }}">
         <link rel="icon" href="{{ url('favicon.svg') }}" type="image/svg+xml">
+        
+        @if (config('app.env', 'production') === 'staging')
+        <!-- == -->
+        <meta name="robots" content="noindex">
+        @endif
+
         @routes('aiku-public')
         {{Vite::useHotFile('aiku-public.hot')->useBuildDirectory('aiku-public')->withEntryPoints(['resources/js/app-aiku-public.js'])}}
         @inertiaHead
