@@ -23,15 +23,20 @@ class ShowFulfilmentDashboard extends OrgAction
     }
 
 
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): ActionRequest
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): Fulfilment
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $request;
+        return $this->handle($fulfilment);
+    }
+
+    public function handle(Fulfilment $fulfilment): Fulfilment
+    {
+        return $fulfilment;
     }
 
 
-    public function htmlResponse(ActionRequest $request): Response
+    public function htmlResponse(Fulfilment $fulfilment, ActionRequest $request): Response
     {
         return Inertia::render(
             'Org/Fulfilment/FulfilmentDashboard',
@@ -49,6 +54,66 @@ class ShowFulfilmentDashboard extends OrgAction
                     ],
                     'title' => __('fulfilment central command'),
                 ],
+                'stats' => [
+                    'customers' => [
+                        'active' => [
+                            'label' => __('Active Customers'),
+                            'count' => $fulfilment->stats->number_customers_status_active
+                        ],
+                        'inactive' => [
+                            'label' => __('Inactive Customers'),
+                            'count' => $fulfilment->stats->number_customers_status_inactive
+                        ]
+                        ],
+                    'pallet_deliveries' => [
+                        'label' => __('Deliveries'),
+                        'count' => $fulfilment->stats->number_pallet_deliveries
+                    ],
+                    'pallet_returns' => [
+                        'label' => __('Returns'),
+                        'count' => $fulfilment->stats->number_pallet_returns
+                    ],
+                    'pallets' => [
+                        'all'   => [
+                            'label' => __('Pallets'),
+                            'count' => $fulfilment->stats->number_pallets
+                        ],
+                        'pallets_with_stored_items' => [
+                            'label' => __('Pallets with items'),
+                            'count' => $fulfilment->stats->number_pallets_with_stored_items
+                        ],
+                        'pallets_type_pallet' => [
+                            'label' => __('Pallets type pallet'),
+                            'count' => $fulfilment->stats->number_pallets_type_pallet
+                        ],
+                        'pallets_type_box' => [
+                            'label' => __('Pallets type box'),
+                            'count' => $fulfilment->stats->number_pallets_type_box
+                        ],
+                        'pallets_type_oversize' => [
+                            'label' => __('Pallets type oversize'),
+                            'count' => $fulfilment->stats->number_pallets_type_oversize
+                        ],
+                    ],
+                    'stored_items' => [
+                        'label' => __('Stored items'),
+                        'count' => $fulfilment->stats->number_stored_items
+                    ],
+                    'recurring_bills' => [
+                        'all'     => [
+                            'label' => __('Recurring Bills'),
+                            'count' => $fulfilment->stats->number_recurring_bills
+                        ],
+                        'current' => [
+                            'label' => __('Current Recurring Bills'),
+                            'count' => $fulfilment->stats->number_recurring_bills_status_current
+                        ],
+                        'former' => [
+                            'label' => __('Former Recurring Bills'),
+                            'count' => $fulfilment->stats->number_recurring_bills_status_former
+                        ],
+                    ]
+                ]
 
 
             ]

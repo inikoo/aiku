@@ -6,6 +6,7 @@ import PureTextarea from '@/Components/Pure/PureTextarea.vue'
 import { trans } from 'laravel-vue-i18n'
 import { routeType } from '@/types/route'
 import PureTimeline from '@/Components/Pure/PureTimeline.vue'
+import Timeline from '@/Components/Utils/Timeline.vue'
 import Tag from '@/Components/Tag.vue'
 
 const props = defineProps<{
@@ -42,7 +43,6 @@ console.log(props)
 const blueprint = {
     note: {
         label: 'Note',
-        value: props.data.data.notes || '-'
     },
     reference: {
         label: 'Reference',
@@ -107,31 +107,34 @@ const fakeTimeline = [
         timestamp: new Date(),
     },
 ]
+
+const note = ""
 </script>
 
 
 <template>
 <!--     <pre>{{ data.data }}</pre>-->
     <div class="grid max-w-2xl grid-cols-1 gap-x-8 gap-y-4 lg:gap-y-16 lg:max-w-7xl lg:grid-cols-2 px-4 lg:px-8 pb-10 pt-4">
-        <div class="col-span-2 w-full pb-4 border-b border-gray-300">
-            <PureTimeline :options="data.data.timeline" :slidesPerView="5" color="#6366f1" />
+        <div class="col-span-2 w-full pb-4 border-b border-gray-300 overflow-x-auto whitespace-nowrap">
+            <Timeline :options="data.data.timeline" :slidesPerView="8" :state="data.data.state" />
         </div>
+
 
         <!-- Section: field data -->
         <dl class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-8 lg:gap-x-8">
-            <div class="col-span-2 ">
+            <div class="col-span-2 " v-if="blueprint.note.value">
                 <dt class="font-medium">{{ blueprint.note.label }}</dt>
                 <dd class="mt-2 text-sm text-gray-500 text-justify">
                     <PureTextarea :modelValue="blueprint.note.value" :rows="5" :placeholder="trans('No note from customer.')" disabled />
                 </dd>
             </div>
 
-            <div class="border-t border-gray-200 pt-4">
+            <div :class="[ blueprint.note.value && 'border-t border-gray-200','pt-4']">
                 <dt class="font-medium">{{ blueprint.reference.label }}</dt>
                 <dd class="mt-2 text-sm text-gray-500 text-justify">{{ blueprint.reference.value }}</dd>
             </div>
 
-            <div class="border-t border-gray-200 pt-4">
+            <div :class="[ blueprint.note.value && 'border-t border-gray-200','pt-4']">
                 <dt class="font-medium">{{ blueprint.customer.label }}</dt>
                 <dd class="mt-2 text-sm text-gray-500 text-justify">
                     <Link :href="route(blueprint.customer.value.route.name, blueprint.customer.value.route.parameters)" class="primaryLink">
@@ -142,7 +145,7 @@ const fakeTimeline = [
             </div>
 
             <!-- Field: Items -->
-            <div class="border-t border-gray-200 pt-4">
+            <div class="border-t border-gray-200 pt-4" v-if="blueprint.items.value.length > 0">
                 <dt class="font-medium">{{ blueprint.items.label }}</dt>
                 <dd class="mt-2 text-sm text-gray-500 text-justify">
                     <span v-if="blueprint.items.value.length" class="flex gap-1">

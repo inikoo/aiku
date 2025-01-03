@@ -33,6 +33,8 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { faIdCardAlt, faMapMarkedAlt, faPhone, faChartLine, faCreditCard, faCube, faFolder, faPercent, faCalendarAlt, faDollarSign, faMapMarkerAlt, faPencil } from '@fal'
 import { faClock, faFileInvoice, faFilePdf } from '@fas'
 import { faCheck } from '@far'
+import { usePage } from '@inertiajs/vue3';
+
 library.add(faCheck, faIdCardAlt, faMapMarkedAlt, faPhone, faFolder, faCube, faChartLine, faCreditCard, faClock, faFileInvoice, faPercent, faCalendarAlt, faDollarSign, faFilePdf, faMapMarkerAlt, faPencil)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
@@ -97,9 +99,10 @@ const props = defineProps<{
     payments: {}
     details: {}
     history: {}
+    layout: {
+        group: {}
+    }
 }>()
-
-console.log('qwe', props.box_stats)
 
 const currentTab = ref<string>(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -176,7 +179,7 @@ const onSubmitPayment = () => {
                 }
             }
         )
-        
+
     } catch (error: unknown) {
         errorPaymentMethod.value = error
     }
@@ -304,7 +307,7 @@ watch(paymentData, () => {
                         :href="box_stats.information.recurring_bill?.route?.name ? route(box_stats.information.recurring_bill?.route?.name, box_stats.information.recurring_bill.route.parameters) : ''"
                         class="text-xs text-gray-500"
                         :class="box_stats.information.recurring_bill?.route?.name ? 'cursor-pointer primaryLink' : ''">
-                        {{ box_stats.information.recurring_bill?.reference || '-' }} 
+                        {{ box_stats.information.recurring_bill?.reference || '-' }}
                     </component>
                 </div>
 
@@ -327,10 +330,11 @@ watch(paymentData, () => {
                         :totalAmount="Number(props.invoice.total_amount)"
                         :paidAmount="Number(box_stats.information.paid_amount)"
                         :payAmount="Number(box_stats.information.pay_amount)"
+                        :currencyCode="invoice.currency_code"
                         :class="[Number(box_stats.information.pay_amount) ? 'hover:bg-gray-100 cursor-pointer' : '']"
                     />
 
-                    
+
                 </div>
             </div>
         </BoxStatPallet>

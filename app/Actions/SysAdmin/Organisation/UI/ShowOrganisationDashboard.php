@@ -9,6 +9,7 @@
 namespace App\Actions\SysAdmin\Organisation\UI;
 
 use App\Actions\OrgAction;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -55,13 +56,28 @@ class ShowOrganisationDashboard extends OrgAction
                         'total_refunds'  => $organisation->orderingIntervals->refunds_all ?? 0,
                     ],
                 ],
-                'shops' => $organisation->shops->map(function (Shop $shop) {
+                'shops' => $organisation->shops->map(function (Shop $shop) use ($organisation) {
                     $responseData = [
                         'name'      => $shop->name,
                         'slug'      => $shop->slug,
                         'type'      => $shop->type,
                         'currency'  => $shop->currency,
-                        'state'     => $shop->state
+                        'state'     => $shop->state,
+                        'route'    =>   $shop->type == ShopTypeEnum::FULFILMENT
+                        ? [
+                            'name'       => 'grp.org.fulfilments.show.dashboard',
+                            'parameters' => [
+                                'organisation' => $organisation->slug,
+                                'fulfilment'   => $shop->slug
+                            ]
+                        ]
+                        : [
+                            'name'       => 'grp.org.shops.show.dashboard',
+                            'parameters' => [
+                                'organisation' => $organisation->slug,
+                                'shop'         => $shop->slug
+                            ]
+                        ]
                     ];
 
                     if ($shop->salesIntervals !== null) {

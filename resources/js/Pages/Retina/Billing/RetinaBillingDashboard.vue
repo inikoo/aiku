@@ -50,7 +50,6 @@ const props = defineProps<{
     }
 }>()
 
-console.log('ss', props)
 const locale = useLocaleStore()
 const date = new Date()
 
