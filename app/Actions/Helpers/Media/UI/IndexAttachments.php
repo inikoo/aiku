@@ -94,18 +94,11 @@ class IndexAttachments extends OrgAction
 
             $table->column(key: 'scope', label: __('Scope'), canBeHidden: false, searchable: true);
             $table->column(key: 'caption', label: __('Caption'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'action', label: __('Action'), canBeHidden: false, sortable: false, searchable: false);
+            $table->column(key: 'action', label: __('Actions'), canBeHidden: false, sortable: false, searchable: false);
         };
     }
 
-    // public function authorize(ActionRequest $request): bool
-    // {
-    //     if($this->asAction){
-    //         return true;
-    //     }
 
-    //     return false;
-    // }
 
     public function jsonResponse(LengthAwarePaginator $attachments): AnonymousResourceCollection
     {
