@@ -11,6 +11,7 @@ namespace App\Actions\Fulfilment\FulfilmentCustomer;
 use App\Actions\Catalogue\HasRentalAgreement;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\GetFulfilmentCustomerShowcase;
+use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomerNote;
 use App\Actions\Fulfilment\RentalAgreementClause\UI\IndexRentalAgreementClauses;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
@@ -187,12 +188,16 @@ class ShowFulfilmentCustomer extends OrgAction
                     fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))),
 
+                FulfilmentCustomerTabsEnum::NOTE->value => $this->tab == FulfilmentCustomerTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))),
 
             ]
         )
             ->table(IndexStoredItems::make()->tableStructure($fulfilmentCustomer->storedItems))
             ->table(IndexRentalAgreementClauses::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::AGREED_PRICES->value))
-            ->table(IndexHistory::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::HISTORY->value));
+            ->table(IndexHistory::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::HISTORY->value))
+            ->table(IndexFulfilmentCustomerNote::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::NOTE->value));
     }
 
 
