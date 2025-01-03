@@ -76,7 +76,7 @@ class RecurringBillRecordSearch
                 'organisation_slug' => $recurringBill->organisation->slug,
                 'fulfilment_id'     => $recurringBill->fulfilment_id,
                 'fulfilment_slug'   => $recurringBill->fulfilment->slug,
-                'sections'          => ['fulfilment-operations'],
+                'sections'          => ['fulfilment'],
                 'haystack_tier_1'   => $recurringBill->reference,
                 'result'            => $result
             ]
