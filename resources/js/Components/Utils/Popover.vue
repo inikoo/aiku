@@ -21,8 +21,8 @@ const props = defineProps({
 
 <template>
   <Popover :popover-placement="'bottom-start'">
-    <PopoverButton tabindex="-1">
-      <slot name="button"></slot>
+    <PopoverButton tabindex="-1" v-slot="{ open }">
+      <slot name="button" :open></slot>
     </PopoverButton>
 
     <transition
@@ -36,7 +36,7 @@ const props = defineProps({
       <PopoverPanel v-slot="{ close }" ref="panelPopover"
         :class="`absolute z-50 mt-3 transform py-3 px-4 bg-white rounded-md shadow-md w-fit ${position}`" >
         <!-- Pass closePopover method to content slot -->
-        <slot name="content" :close="close"></slot>
+        <slot name="content" :close :open></slot>
       </PopoverPanel>
     </transition>
   </Popover>

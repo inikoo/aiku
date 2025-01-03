@@ -33,7 +33,7 @@
   }>()
   
   onMounted(() => {
-      props.data.compiled_layout.components = cloneDeep(props.data.compiled_layout.components).filter((item: {visibility: boolean}) => item.visibility === true)
+      props.data.compiled_layout.components = cloneDeep(props.data?.compiled_layout?.components)?.filter((item: {visibility: boolean}) => item.visibility === true)
   })
   
   // Method: Copy ulid

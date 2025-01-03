@@ -5,7 +5,10 @@
   -->
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, IframeHTMLAttributes } from "vue"
+import { ref, onMounted, onUnmounted, watch, IframeHTMLAttributes, provide, inject } from "vue"
+
+import { getComponent } from '@/Composables/getWorkshopComponents'
+import { getIrisComponent } from '@/Composables/getIrisComponents'
 import { Head, router } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
@@ -18,7 +21,7 @@ import Drawer from "primevue/drawer"
 /* import { socketWeblock } from "@/Composables/SocketWebBlock" */
 import Toggle from "@/Components/Pure/Toggle.vue"
 import { setIframeView } from "@/Composables/Workshop"
-import ProgressSpinner from 'primevue/progressspinner';
+import ProgressSpinner from 'primevue/progressspinner'
 import Button from "@/Components/Elements/Buttons/Button.vue"
 
 import { Root, Daum } from "@/types/webBlockTypes"
@@ -30,8 +33,11 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { trans } from "laravel-vue-i18n"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
-import ButtonPreviewLogin from "@/Components/Workshop/Tools/ButtonPreviewLogin.vue";
-import ButtonPreviewEdit from "@/Components/Workshop/Tools/ButtonPreviewEdit.vue";
+import ButtonPreviewLogin from "@/Components/Workshop/Tools/ButtonPreviewLogin.vue"
+import ButtonPreviewEdit from "@/Components/Workshop/Tools/ButtonPreviewEdit.vue"
+import { debounce } from "lodash"
+import { layoutStructure } from "@/Composables/useLayoutStructure"
+import { routeType } from "@/types/route"
 
 library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars)
 
@@ -42,21 +48,13 @@ const props = defineProps<{
 	webBlockTypes: Root
 }>()
 
+provide('isInWorkshop', true)
 
-const comment = ref("")
+const layout = inject('layout', layoutStructure)
+
 const isLoading = ref<string | boolean>(false)
 const openDrawer = ref<string | boolean>(false)
 const isPreviewMode = ref<boolean>(false)
-const iframeSrc = 
-	route("grp.websites.preview", [
-		route().params["website"],
-		route().params["webpage"],
-		{
-			organisation: route().params["organisation"],
-			shop: route().params["shop"],
-		},
-	]
-)
 const data = ref(props.webpage)
 const iframeClass = ref("w-full h-full")
 const isIframeLoading = ref(true)
@@ -65,13 +63,15 @@ const isPreviewLoggedIn = ref(false)
 const isModalBlockList = ref(false)
 /* const socketConnectionWebpage = props.webpage ? socketWeblock(props.webpage.slug) : null */
 const _iframe = ref<IframeHTMLAttributes | null>(null)
-const isLoadingblock = ref<string | null>(null)
-const isSavingBlock = ref(false)
-const isAddBlockLoading = ref<string | null>(null)
 const addBlockCancelToken = ref<Function | null>(null)
 const orderBlockCancelToken = ref<Function | null>(null)
 const deleteBlockCancelToken = ref<Function | null>(null)
 
+const openedBlockSideEditor = ref<number | null>(null)
+provide('openedBlockSideEditor', openedBlockSideEditor)
+
+// Method: Add block
+const isAddBlockLoading = ref<string | null>(null)
 const addNewBlock = async (block: Daum) => {
 	if (addBlockCancelToken.value) addBlockCancelToken.value()
 	router.post(
@@ -88,7 +88,7 @@ const addNewBlock = async (block: Daum) => {
             },
 			onSuccess:(e) => { 
 				data.value = e.props.webpage 
-				sendToIframe({ key: 'reload', value: {} })
+				// sendToIframe({ key: 'reload', value: {} })
 			},
 			onError: (error) => {
 				notify({
@@ -101,41 +101,89 @@ const addNewBlock = async (block: Daum) => {
 	)
 }
 
-const sendBlockUpdate = async (block: Daum) => {
-	router.patch(
-		route(props.webpage.update_model_has_web_blocks_route.name, {
-			modelHasWebBlocks: block.id,
-		}),
-		{
-			layout: block.web_block.layout,
-			show_logged_in: block.visibility.in,
-			show_logged_out: block.visibility.out,
-			show: block.show,
-		},
-		{
-			onStart: () => {
-				isLoadingblock.value = "deleteBlock" + block.id,
-				isSavingBlock.value = true
+// Method: save workshop
+const isLoadingblock = ref<string | null>(null)
+const isSavingBlock = ref(false)
+const cancelTokens = ref<Record<string, Function>>({}) // A map to store cancel tokens by block id
+// Object to store individual debounce timers for each block
+const debounceTimers = ref({})
+
+const debounceSaveWorkshop = (block) => {
+	// If the debounce timer exists, cancel it
+	if (debounceTimers.value[block.id]) {
+		clearTimeout(debounceTimers.value[block.id])
+	}
+
+	// Set a new debounce timer for this block
+	debounceTimers.value[block.id] = setTimeout(() => {
+		router.patch(
+			route(props.webpage.update_model_has_web_blocks_route.name, {
+				modelHasWebBlocks: block.id,
+			}),
+			{
+				layout: block.web_block.layout,
+				show_logged_in: block.visibility.in,
+				show_logged_out: block.visibility.out,
+				show: block.show,
 			},
-			onFinish: () => {
-				isLoadingblock.value = null
-				isSavingBlock.value = false
-			},
-			onSuccess:(e) => { 
-				data.value = e.props.webpage 
-				sendToIframe({ key: 'reload', value: {} })
-			},
-			onError: (error) => {
-				notify({
-					title: trans("Something went wrong"),
-					text: error.message,
-					type: "error",
-				})
-			},
-			preserveScroll: true,
-		}
-	)
+			{
+				onStart: () => {
+					console.log('========== start save ', block.id, block.type)
+					isLoadingblock.value = block.id
+					isSavingBlock.value = true
+				},
+				onCancelToken: (cclToken) => {
+					cancelTokens.value[block.id] = cclToken.cancel
+				},
+				onFinish: () => {
+					isLoadingblock.value = null
+					isSavingBlock.value = false
+					delete cancelTokens.value[block.id]
+				},
+				onSuccess: (e) => {
+					data.value = e.props.webpage
+				},
+				onError: (error) => {
+					notify({
+						title: trans("Something went wrong"),
+						text: error.message,
+						type: "error",
+					})
+				},
+				preserveScroll: true,
+			}
+		)
+	}, 1500) // Debounce time of 1500ms for each block
 }
+
+const onSaveWorkshop = (block) => {
+	// Cancel the ongoing save for the specific block if it's in progress
+	if (cancelTokens.value[block.id]) {
+		cancelTokens.value[block.id]()
+	}
+
+	// Call debounceSaveWorkshop to handle save for this block
+	debounceSaveWorkshop(block)
+}
+const onSaveWorkshopFromId = (blockId: number, from?: string) => {
+	// Debug purpose
+	if (from) {
+		console.log('onSaveWorkshopFromId from:', from)
+	}
+
+	if (!blockId) return
+	
+	if (cancelTokens.value[blockId]) {
+		cancelTokens.value[blockId]()
+	}
+
+	const block = data.value.layout.web_blocks.find((block) => block.id === blockId)
+	if (block) {
+		debounceSaveWorkshop(block)
+	}
+}
+provide('onSaveWorkshopFromId', onSaveWorkshopFromId)
+provide('onSaveWorkshop', onSaveWorkshop)
 
 const sendOrderBlock = async (block: Object) => {
 	if (orderBlockCancelToken.value) orderBlockCancelToken.value()
@@ -153,7 +201,7 @@ const sendOrderBlock = async (block: Object) => {
             },
 			onSuccess:(e) => { 
 				data.value = e.props.webpage 
-				sendToIframe({ key: 'reload', value: {} })
+				// sendToIframe({ key: 'reload', value: {} })
 			},
             onError: (error) => {
                 notify({
@@ -166,14 +214,16 @@ const sendOrderBlock = async (block: Object) => {
     )
 }
 
+// Method: Delete Block
+const isLoadingDeleteBlock = ref<number | null>(null)
 const sendDeleteBlock = async (block: Daum) => {
 	if (deleteBlockCancelToken.value) deleteBlockCancelToken.value()
 	router.delete(
         route(props.webpage.delete_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
         {
-            onStart: () => isLoadingblock.value = 'deleteBlock' + block.id,
+            onStart: () => isLoadingDeleteBlock.value = block.id,
             onFinish: () => {
-				isLoadingblock.value = null
+				isLoadingDeleteBlock.value = null
 				orderBlockCancelToken.value = null
 			},
 			onCancelToken: (cancelToken) => {
@@ -181,7 +231,7 @@ const sendDeleteBlock = async (block: Daum) => {
             },
 			onSuccess:(e) => { 
 				data.value = e.props.webpage 
-				sendToIframe({ key: 'reload', value: {} })
+				// sendToIframe({ key: 'reload', value: {} })
 			},
             onError: (error) => {
                 notify({
@@ -194,20 +244,32 @@ const sendDeleteBlock = async (block: Daum) => {
     )
 }
 
-const onPublish = async (action: {}, popover: {}) => {
+// Method: Publish
+const comment = ref("")
+const isLoadingPublish = ref(false)
+const onPublish = async (action: routeType, popover: {close: Function, open: Function}) => {
 	try {
 		// Ensure action is defined and has necessary properties
 		if (!action || !action.method || !action.name || !action.parameters) {
 			throw new Error("Invalid action parameters")
 		}
 
-		isLoading.value = true
+		isLoadingPublish.value = true
 
 		// Make sure route and axios are defined and used correctly
 		const response = await axios[action.method](route(action.name, action.parameters), {
 			comment: comment.value,
 			publishLayout: { blocks: data.value.layout },
 		})
+
+		if (response.status === 200) {
+			comment.value = ""
+			notify({
+				title: trans('Published!'),
+				text: trans('Webpage data has been published successfully'),
+				type: 'success',
+			})
+		}
 		popover.close()
 	} catch (error) {
 		// Ensure the error is logged properly
@@ -215,32 +277,42 @@ const onPublish = async (action: {}, popover: {}) => {
 		const errorMessage =
 			error.response?.data?.message || error.message || "Unknown error occurred"
 		notify({
-			title: "Something went wrong.",
+			title: trans("Something went wrong"),
 			text: errorMessage,
 			type: "error",
 		})
 	} finally {
-		isLoading.value = false
+		isLoadingPublish.value = false
 	}
 }
 
-const handleIframeError = () => {
-	console.error("Failed to load iframe content.")
-}
+// const handleIframeError = () => {
+// 	console.error("Failed to load iframe content.")
+// }
 
+const iframeSrc = 
+	route("grp.websites.preview", [
+		route().params["website"],
+		route().params["webpage"],
+		{
+			organisation: route().params["organisation"],
+			shop: route().params["shop"],
+		},
+	]
+)
 const openFullScreenPreview = () => {
 	window.open(iframeSrc + '&isInWorkshop=true', "_blank")
 }
 
 const setHideBlock = (block : Daum) => {
 	block.show = !block.show 
-	isLoadingblock.value = "deleteBlock" + block.id,
-	sendBlockUpdate(block)
+	// isLoadingblock.value = "deleteBlock" + block.id,
+	onSaveWorkshop(block)
 }
 
-const sendToIframe = (data: any) => {
-	_iframe.value?.contentWindow.postMessage(data, "*")
-}
+// const sendToIframe = (data: any) => {
+// 	_iframe.value?.contentWindow.postMessage(data, "*")
+// }
 
 
 // watch(isPreviewMode, (newVal) => {
@@ -252,20 +324,28 @@ onMounted(() => {
 		socketConnectionWebpage.actions.subscribe((value: Root) => {
 			data.value = { ...data.value, ...value }
 		}) */
-	window.addEventListener("message", (event) => {
-		if (event.origin !== window.location.origin) return;
-		const { data } = event;
-		if (event.data === "openModalBlockList") {
-			isModalBlockList.value = true
-		} else if (data.key === 'autosave') {
-			sendBlockUpdate(data.value)
-		}
-	})
+	// window.addEventListener("message", (event) => {
+	// 	if (event.origin !== window.location.origin) return;
+	// 	const { data } = event;
+	// 	if (event.data === "openModalBlockList") {
+	// 		isModalBlockList.value = true
+	// 	} else if (data.key === 'autosave') {
+	// 		onSaveWorkshop(data.value)
+	// 	}
+	// })
 })
 
 onUnmounted(() => {
 /* 	if (socketConnectionWebpage) socketConnectionWebpage.actions.unsubscribe() */
 })
+
+const isShowInWebpage = (activityItem) => {
+    if (activityItem?.web_block?.layout && activityItem.show) {
+        if (isPreviewLoggedIn.value && activityItem.visibility.in) return true
+        else if (!isPreviewLoggedIn.value && activityItem.visibility.out) return true
+        else return false
+    } else return false
+}
 
 </script>
 
@@ -274,10 +354,11 @@ onUnmounted(() => {
 	<PageHeading :data="pageHead">
 		<template #button-publish="{ action }">
 			<Publish
-				:isLoading="isLoading"
+				:isLoading="isLoadingPublish"
 				:is_dirty="data.is_dirty"
 				v-model="comment"
-				@onPublish="(popover) => onPublish(action.route, popover)" />
+				@onPublish="(popover) => onPublish(action.route, popover)"
+			/>
 		</template>
 
 		<template #afterTitle v-if="isSavingBlock">
@@ -285,16 +366,17 @@ onUnmounted(() => {
 		</template>
 	</PageHeading>
 
-	<div class="grid grid-cols-5 h-[84vh]">
+	<div class="flex gap-x-2">
 		<!-- Section: Side editor -->
-		<div class="col-span-1 lg:block hidden h-full border-2 bg-gray-200 px-3 py-1">
+		<div class="hidden lg:flex lg:flex-col border-2 bg-gray-200 pl-3 py-1">
 			<WebpageSideEditor
 				v-model="isModalBlockList"
 				:isLoadingblock
+				:isLoadingDeleteBlock
 				:isAddBlockLoading
 				:webpage="data"
 				:webBlockTypes="webBlockTypes"
-				@update="sendBlockUpdate"
+				@update="onSaveWorkshop"
 				@delete="sendDeleteBlock"
 				@add="addNewBlock"
 				@order="sendOrderBlock" 
@@ -303,16 +385,13 @@ onUnmounted(() => {
 		</div>
 
 		<!-- Section: Preview -->
-		<div v-if="true" class="lg:col-span-4 col-span-5 h-full flex flex-col bg-gray-200">
+		<div class="h-[calc(100vh-180px)] w-full max-w-full flex flex-col bg-gray-200 overflow-x-auto">
 			<div class="flex justify-between">
-				<div
+				<!-- <div
 					class="py-1 px-2 cursor-pointer lg:hidden block"
 					title="Desktop view"
 					v-tooltip="'Navigation'">
-					<FontAwesomeIcon
-						:icon="faBars"
-						aria-hidden="true"
-						@click="() => (openDrawer = true)" />
+					<FontAwesomeIcon @click="() => (openDrawer = true)" :icon="faBars" aria-hidden="true" />
 					<Drawer v-model:visible="openDrawer" :header="''" :dismissable="true">
 						<WebpageSideEditor
 							v-model="isModalBlockList"
@@ -321,7 +400,7 @@ onUnmounted(() => {
 							ref="_WebpageSideEditor"
 							:webpage="data"
 							:webBlockTypes="webBlockTypes"
-							@update="sendBlockUpdate"
+							@update="onSaveWorkshop"
 							@delete="sendDeleteBlock"
 							@add="addNewBlock"
 							@order="sendOrderBlock"
@@ -330,7 +409,7 @@ onUnmounted(() => {
 								}
 							" />
 					</Drawer>
-				</div>
+				</div> -->
 
 				<!-- Section: Screenview -->
 				<div class="flex">
@@ -346,16 +425,14 @@ onUnmounted(() => {
 				<!-- Tools: login-logout, edit-preview -->
 				<div class="flex gap-3 items-center px-4">
 					<ButtonPreviewLogin
-						:modelValue="isPreviewLoggedIn"
-						@update:modelValue="(newVal) => sendToIframe({ key: 'isPreviewLoggedIn', value: newVal }) "
+						v-model="isPreviewLoggedIn"
 					/>
 
-					<div class="h-6 w-px bg-gray-400 mx-2"></div>
+					<!-- <div class="h-6 w-px bg-gray-400 mx-2"></div> -->
 
-					<ButtonPreviewEdit
-						:modelValue="isPreviewMode"
-						@update:modelValue="(newVal) => sendToIframe({ key: 'isPreviewMode', value: newVal }) "
-					/>
+					<!-- <ButtonPreviewEdit
+						v-model="isPreviewMode"
+					/> -->
 				</div>
 			</div>
 
@@ -368,25 +445,89 @@ onUnmounted(() => {
 						class="animate-spin w-6"
 						aria-hidden="true" />
 				</div> -->
-				<div v-if="isIframeLoading" class="loading-overlay">
+				<!-- <div v-if="isIframeLoading" class="loading-overlay">
 					<ProgressSpinner />
-				</div>
+				</div> -->
 
-				<div v-show="!isIframeLoading" class="h-full w-full bg-white overflow-auto">
-					<iframe
+				<div class="h-full w-full bg-white overflow-auto">
+					<!-- <iframe
 						ref="_iframe"
 						:src="iframeSrc"
 						:title="props.title"
 						:class="[iframeClass, isIframeLoading ? 'hidden' : '']"
 						@error="handleIframeError"
-						@load="isIframeLoading = false" />
+						@load="isIframeLoading = false" /> -->
+					<div v-if="data" class="relative">
+						<div v-if="data?.layout?.web_blocks?.length">
+							<TransitionGroup tag="div" name="list" class="relative">
+								<template
+									v-for="(activityItem, activityItemIdx) in data?.layout?.web_blocks"
+									:key="activityItem.id"
+								>
+									<section
+										v-show="isShowInWebpage(activityItem)"
+										class="w-full component-iseditable transition-transform"
+										:style="{
+											border: openedBlockSideEditor === activityItemIdx ? `2px solid ${layout?.app?.theme?.[0]}` : undefined,
+										}"
+										@click="() => openedBlockSideEditor === activityItemIdx ? null : openedBlockSideEditor = activityItemIdx"
+									>
+										<!-- <component
+											v-show="isShowInWebpage(activityItem)"
+											:key="activityItemIdx"
+											class="w-full"
+											:is="isPreviewMode ? getIrisComponent(activityItem?.type) : getComponent(activityItem?.type)"
+											:webpageData="webpage" :blockData="activityItem"
+											v-model="activityItem.web_block.layout.data.fieldValue"
+											:fieldValue="activityItem.web_block?.layout?.data?.fieldValue"
+											@autoSave="() => onSaveWorkshop(activityItem)"
+										/> -->
+										<component
+											:is="getComponent(activityItem?.type)"
+											:webpageData="webpage"
+											:blockData="activityItem"
+											v-model="activityItem.web_block.layout.data.fieldValue"
+											:fieldValue="activityItem.web_block?.layout?.data?.fieldValue"
+											@autoSave="() => onSaveWorkshop(activityItem)"
+										/>
+									</section>
+								</template>
+							</TransitionGroup>
+						</div>
+
+						<div v-else class="py-8">
+							<!-- <div v-if="'!isInWorkshop'" class="mx-auto">
+								<div class="text-center text-gray-500">
+									{{ trans('Your journey starts here') }}
+								</div>
+								<div class="w-64 mx-auto">
+									<Button label="add new block" class="mt-3" full type="dashed"
+										@click="() => isModalBlockList = true">
+										<div class="text-gray-500">
+											<FontAwesomeIcon icon='fal fa-plus' class='' fixed-width aria-hidden='true' />
+											{{ trans('Add block') }}
+										</div>
+									</Button>
+								</div>
+							</div> -->
+
+							<!-- <EmptyState v-else :data="{
+								title: trans('Pick First Block For Your Website'),
+								description: trans('Pick block from list')
+							}" /> -->
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+:deep(.component-iseditable) {
+    @apply hover:bg-black/30 border border-transparent hover:border-black/80 border-dashed cursor-pointer;
+}
+
 iframe {
 	height: 100%;
 	transition: width 0.3s ease;

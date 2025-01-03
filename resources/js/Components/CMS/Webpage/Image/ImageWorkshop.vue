@@ -5,13 +5,15 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue"
 import Image from "@/Components/Image.vue"
-import { ref, toRaw } from "vue"
+import { ref, toRaw, inject } from "vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import GalleryManagement from "@/Components/Utils/GalleryManagement/GalleryManagement.vue"
 import Modal from "@/Components/Utils/Modal.vue"
 import { notify } from "@kyvg/vue3-notification"
 import axios from "axios"
 import { trans } from "laravel-vue-i18n";
+import { set } from "lodash";
+import { routeType } from "@/types/route"
 
 library.add(faCube, faStar, faImage, faPencil)
 
@@ -19,37 +21,42 @@ const props = defineProps<{
 	modelValue: any
 	webpageData?: any
 	blockData:Object
+	// uploadRoutes: routeType
 }>()
+
 const emits = defineEmits<{
 	(e: "update:modelValue", value: any): void
 	(e: "autoSave"): void
 }>()
 
+const isInWorkshop = inject('isInWorkshop', false)
+
 const openGallery = ref(false)
 const activeImageIndex = ref<number | null>(null)
 
-const setImage = (imageData: any) => {
+// Method: on select image from stock images/uploaded images
+const submitImage = (imageData: {source: {}}[]) => {
 	if (activeImageIndex.value !== null) {
-		const images = props.modelValue?.value?.images || []
+		// const images = toRaw(props.modelValue?.value?.images) || []
 
-		while (images.length <= activeImageIndex.value) {
-			images.push({
-				source: null,
-				link_data: null,
-			})
+		// props.modelValue?.value?.images.splice(2, 0, imageData[0])
+
+		// const fff = ['cccc', 'xxxx', 'ffff'];
+		// const dataToPut = 'bebebe';
+
+		// Ensure the array is long enough by filling with empty objects if necessary
+		while (props.modelValue?.value?.images.length <= activeImageIndex.value) {
+			props.modelValue?.value?.images.push({});
 		}
-	
-		const flattenedSource = imageData[0].source ? imageData[0].source : imageData
 
-		images[activeImageIndex.value].source = {
-			...flattenedSource,
-		}
-    
+		// Replace the value at the specified index with dataToPut
+		// props.modelValue.value.images[activeImageIndex.value] = imageData[0];
+		set(props.modelValue.value, ['images', activeImageIndex.value], {
+			link_data: {},
+			source: toRaw(imageData[0] || {})?.source,
+		})
 
-		emits("update:modelValue", {
-		...toRaw(props.modelValue), // Strips Vue's reactivity for safe usage
-		value: { ...toRaw(props.modelValue?.value), images: images },
-		});
+		// console.log(props.modelValue?.value?.images)
 
 
 		emits("autoSave")
@@ -76,7 +83,7 @@ const onUpload = async (files: File[], clear: Function) => {
 				},
 			}
 		)
-		setImage(response.data.data)
+		submitImage(response.data.data)
 	} catch (error) {
 		console.log(error)
 		notify({
@@ -180,49 +187,46 @@ const getImageSlots = (layoutType: string) => {
 </script>
 
 <template>
-	<div v-if="modelValue?.value?.images" class="flex flex-wrap">
+	<div class="flex flex-wrap">
 		<div
 			v-for="index in getImageSlots(modelValue?.value?.layout_type)"
-			:key="index"
-			class="group relative p-2 "
+			:key="`${index}-${modelValue?.value?.images?.[index - 1]?.source?.avif}`"
+			class="group relative p-2 hover:bg-white/40"
 			:class="getColumnWidthClass(modelValue?.value?.layout_type, index - 1)">
 			<a
-				v-if="modelValue?.value?.images?.[index - 1]?.source"
 				:href="getHref(index - 1)"
 				target="_blank"
 				rel="noopener noreferrer"
-				class="transition-shadow aspect-h-1 aspect-w-1 w-full">
+				class="w-full"
+				@click="(e) => isInWorkshop ? e.preventDefault() : null">
 				<Image
 					:src="modelValue?.value?.images?.[index - 1]?.source"
-					class="w-full object-cover object-center group-hover:opacity-75"
 				/>
-
 			</a>
 
 			<div
-				class="absolute flex items-center justify-center gap-x-2 top-0 py-1 opacity-0 group-hover:-top-4 group-hover:opacity-100 transition-all left-0 w-full hover:text-indigo-500 rounded-lg cursor-pointer"
+				class="bg-gray-800/50 hover:bg-gray-800/80 w-fit absolute flex items-center justify-center gap-x-2 py-2 px-3 opacity-0 top-2/3 group-hover:top-1/2 group-hover:-translate-y-1/2 group-hover:opacity-100 transition-all left-1/2 -translate-x-1/2 text-gray-300 hover:text-white rounded cursor-pointer"
 				@click="openImageGallery(index - 1)">
 				<FontAwesomeIcon icon='fas fa-image' class='text-lg opacity-40' fixed-width aria-hidden='true' />
-				<div class="text-sm font-semibold">
+				<div class="text-sm font-semibold whitespace-nowrap">
 					{{ trans("Change image") }}
 				</div>
 			</div>
 		</div>
-	</div>
 
-	<!-- <Gallery
+		<!-- <Gallery
 		:open="openGallery"
 		@on-close="openGallery = false"
 		:uploadRoutes="route(webpageData?.images_upload_route.name, { modelHasWebBlocks: id })"
-		@onPick="setImage"
+		@onPick="submitImage"
 		@onUpload="onUpload" /> -->
 
 
-		<Modal :isOpen="openGallery" @onClose="() => (openGallery = false)" width="w-3/4">
+		<Modal :isOpen="openGallery" @onClose="() => (openGallery = false, activeImageIndex = null)" width="w-3/4">
 			<GalleryManagement 
 				:maxSelected="1" 
 				:closePopup="() => (openGallery = false)" 
-				@submitSelectedImages="setImage" 
+				@submitSelectedImages="submitImage" 
 				:submitUpload="onUpload"
 				:uploadRoute="{
 					...webpageData?.images_upload_route,
@@ -232,4 +236,7 @@ const getImageSlots = (layoutType: string) => {
 				}"
 			/>
 		</Modal>
+	</div>
+
+	
 </template>

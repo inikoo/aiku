@@ -48,7 +48,7 @@ class ShowWebpageWorkshop extends OrgAction
         return Inertia::render(
             'Org/Web/WebpageWorkshop',
             [
-                'title'       => __("Webpage's workshop"),
+                'title'       => $webpage->code . ' ' . __("workshop"),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()

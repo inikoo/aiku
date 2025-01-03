@@ -1,47 +1,39 @@
 <script setup lang="ts">
-import { ref, watch, computed, onBeforeMount, toRaw } from 'vue';
-import DimensionProperty from '@/Components/Workshop/Properties/DimensionProperty.vue';
-import { trans } from 'laravel-vue-i18n';
+import { onMounted, inject } from 'vue'
+import DimensionProperty from '@/Components/Workshop/Properties/DimensionProperty.vue'
+import { trans } from 'laravel-vue-i18n'
+import { set } from 'lodash'
 
-// Define props and emits
-const props = defineProps({
-    modelValue: {
-        type: Object,
-        required: true,
-    },
-});
+const model = defineModel<typeof localModel>()
 
-const emit = defineEmits(['update:modelValue']);
+const onSaveWorkshopFromId: Function = inject('onSaveWorkshopFromId', (e?: number) => { console.log('onSaveWorkshopFromId not provided') })
+const side_editor_block_id = inject('side_editor_block_id', () => { console.log('side_editor_block_id not provided') })  // Get the block id that use this property
 
 // Local copy of the model for two-way binding
-const localModel = ref({
+const localModel = {
     height: { value: null, unit: 'px' },
     width: { value: null, unit: '%' },
-});
+}
 
 // Sync with the prop value initially
-onBeforeMount(() => {
-    if (props.modelValue) {
-        localModel.value = toRaw(props.modelValue);
+onMounted(() => {
+    if (!model.value?.height && model.value?.height !== localModel.height) {
+        set(model.value, 'height', localModel.height)
+        onSaveWorkshopFromId(side_editor_block_id, 'dimension value.height')
     }
-});
 
-// Watch localModel and emit updates
-watch(
-    localModel,
-    (newValue) => {
-        emit('update:modelValue', newValue);
-    },
-    { deep: true }
-);
+    if (!model.value?.width && model.value?.width !== localModel.width) {
+        set(model.value, 'width', localModel.width)
+        onSaveWorkshopFromId(side_editor_block_id, 'dimension value.width')
+    }
+})
 
-const compModel = computed(() => JSON.stringify(localModel.value));
 </script>
 
 <template>
-    <div v-if="localModel" class="border-t border-gray-300 bg-gray-100 pb-3">
+    <div class="border-t border-gray-300 bg-gray-100 pb-3">
         <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Dimension') }}</div>
-        <DimensionProperty v-model="localModel" />
+        <DimensionProperty v-model="model" />
     </div>
 </template>
 

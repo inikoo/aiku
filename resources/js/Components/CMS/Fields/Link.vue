@@ -45,7 +45,6 @@ const targets = ref([
 ])
 
 watch(localModel, (newValue) => {
-	console.log('masukkk')
 	const data = {
 		type: newValue.type,
 		href: newValue.href,
