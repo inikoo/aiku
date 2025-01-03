@@ -34,6 +34,7 @@ import Tag from "@/Components/Tag.vue"
 import ToggleSwitch from "primevue/toggleswitch"
 import { faSortDown, faSortUp } from "@fas"
 import Select from "primevue/select"
+import { Link } from "@inertiajs/vue3"
 
 library.add(faTriangle, faChevronDown, faSortDown, faSortUp)
 
@@ -65,6 +66,7 @@ const datas = computed(() => {
 			code: org.code,
 			interval_percentages: org.interval_percentages,
 			sales: org.sales || 0,
+			route: org.route,
 			currency:
 				selectedCurrency.value.code === "org"
 					? props.dashboard.currency.code
@@ -80,6 +82,10 @@ const selectedCurrency = ref(currency.value[0])
 const isOrganisation = ref(selectedCurrency.value.code === "org")
 const toggleCurrency = () => {
 	selectedCurrency.value = isOrganisation.value ? currency.value[1] : currency.value[0]
+}
+
+function ShopDashboard(shop: any) {
+	return route(shop.route.name, shop.route.parameters)
 }
 </script>
 
@@ -149,7 +155,9 @@ const toggleCurrency = () => {
 								<div class="relative">
 									<Transition name="spin-to-down" mode="out-in">
 										<div :key="data.name">
-											{{ data.name }}
+											<Link :href="ShopDashboard(data)" class="primaryLink">
+												{{ data.name }}
+											</Link>
 										</div>
 									</Transition>
 								</div>
@@ -278,17 +286,18 @@ const toggleCurrency = () => {
 								<div class="flex justify-end relative">
 									<Transition name="spin-to-down" mode="out-in">
 										<div
+											v-tooltip="useLocaleStore().numberShort(data.currency,data.interval_percentages?.invoices[
+														selectedDateOption
+													]?.amount || 0)"
 											:key="
 												data.interval_percentages?.invoices[
 													selectedDateOption
 												]?.amount || 0
 											">
 											{{
-												locale.number(
-													data.interval_percentages?.invoices[
+												useLocaleStore().numberShort(data.currency,data.interval_percentages?.invoices[
 														selectedDateOption
-													]?.amount || 0
-												)
+													]?.amount || 0)
 											}}
 										</div>
 									</Transition>
@@ -321,6 +330,7 @@ const toggleCurrency = () => {
 											<!-- {{ `${data.interval_percentages?.invoices?.[selectedDateOption]?.difference}_${data.interval_percentages?.invoices?.[selectedDateOption]?.percentage}` }} -->
 											<Transition name="spin-to-down" mode="out-in">
 												<div
+										
 													:key="`${data.interval_percentages?.invoices[selectedDateOption].difference}_${data.interval_percentages?.invoices[selectedDateOption].percentage}`"
 													style="
 														display: flex;
@@ -396,7 +406,7 @@ const toggleCurrency = () => {
 								<div class="flex justify-end relative">
 									<Transition name="spin-to-down" mode="out-in">
 										<div
-										v-tooltip="
+											v-tooltip="
 												useLocaleStore().currencyFormat(
 													data.currency,
 													data.interval_percentages?.sales[
@@ -515,9 +525,10 @@ const toggleCurrency = () => {
 
 								<Column
 									:footer="
-										dashboard.total[
+									useLocaleStore().numberShort(dashboard.currency.code,Number(dashboard.total[
 											selectedDateOption
-										].total_invoices.toString()
+										].total_invoices.toString())
+									)
 									"
 									footerStyle="text-align:right" />
 								<Column footer="" footerStyle="text-align:right" />
