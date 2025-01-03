@@ -30,14 +30,17 @@ import { faArrowDown, faArrowUp } from "@fad"
 import Select from "primevue/select"
 import tippy from "tippy.js"
 import "tippy.js/dist/tippy.css"
-import DashboardCard from "@/Components/DataDisplay/DashboardCard.vue"
+import DashboardCard from "@/Components/DataDisplay/InfoDashboardCard.vue"
 import shinyButton from "@/Components/ShinyButton.vue"
+import axios from 'axios'
+
 library.add(faTriangle, faChevronDown, faSeedling, faTimesCircle, faFolderOpen, faPlay)
 
 const props = defineProps<{
 	groupStats: {
 		currency: {
 			code: string
+			symbol: string
 		}
 		total: {
 			[key: string]: {
@@ -52,6 +55,7 @@ const props = defineProps<{
 			code: string
 			currency: {
 				code: string
+				symbol: string
 			}
 			invoices: {
 				number_invoices: number
@@ -147,20 +151,45 @@ const abcdef = computed(() => {
 })
 
 const currency = ref([
-	{ name: "Group", code: "grp" },
-	{ name: "Organisation", code: "org" },
+	{ name: "Group", code: "grp", symbol: props.groupStats.currency.symbol },
+	{ name: "Organisation", code: "org", symbol: null },
 ])
+
+const organisationSymbols = computed(() => {
+	const symbols = props.groupStats.organisations
+		.filter((org) => org.type !== "agent") 
+		.map((org) => org.currency.symbol) 
+		.filter(Boolean)
+	return [...new Set(symbols)].join(" / ") 
+})
 
 const selectedCurrency = ref(currency.value[0])
 const isOrganisation = ref(selectedCurrency.value.code === "org")
 const toggleCurrency = () => {
+	isOrganisation.value = !isOrganisation.value
 	selectedCurrency.value = isOrganisation.value ? currency.value[1] : currency.value[0]
 }
 const isNegative = (value: number): boolean => value < 0
 
-const formatValue = (value: number): string => {
-	return value < 0 ? `-$${Math.abs(value).toLocaleString()}` : `$${value.toLocaleString()}`
-}
+const updateRouteAndUser = async (interval: string) => {
+    selectedDateOption.value = interval;
+
+    try {
+        const response = await axios.patch(route('grp.models.user.update', layout.user.id), {
+          
+                settings: {
+                    selected_interval: interval,
+                },
+       
+        });
+        console.log('Update successful:', response.data); 
+    } catch (error) {
+        console.error('Error updating user:', error.response?.data || error.message);
+    }
+};
+
+console.log( layout.user.id,'layoutt');
+
 </script>
 
 <template>
@@ -176,7 +205,7 @@ const formatValue = (value: number): string => {
 						<p
 							class="font-medium transition-opacity"
 							:class="{ 'opacity-60': isOrganisation }">
-							Group
+							{{ props.groupStats.currency.symbol }} 
 						</p>
 
 						<!-- PrimeVue Toggle Switch -->
@@ -189,7 +218,7 @@ const formatValue = (value: number): string => {
 						<p
 							class="font-medium transition-opacity"
 							:class="{ 'opacity-60': !isOrganisation }">
-							Organisation
+							{{ organisationSymbols }}
 						</p>
 					</div>
 				</div>
@@ -199,7 +228,7 @@ const formatValue = (value: number): string => {
 						<div
 							v-for="(interval, idxInterval) in interval_options"
 							:key="idxInterval"
-							@click="() => (selectedDateOption = interval.value)"
+							@click="updateRouteAndUser(interval.value)"
 							:class="[
 								interval.value === selectedDateOption
 									? ''
@@ -362,13 +391,22 @@ const formatValue = (value: number): string => {
 								<div class="flex justify-end relative">
 									<Transition name="spin-to-down" mode="out-in">
 										<div
+											v-tooltip="
+												useLocaleStore().numberShort(
+													data.currency,
+													data.interval_percentages?.invoices[
+														selectedDateOption
+													]?.amount || 0
+												)
+											"
 											:key="
 												data.interval_percentages?.invoices[
 													selectedDateOption
 												]?.amount || 0
 											">
 											{{
-												locale.number(
+												useLocaleStore().numberShort(
+													data.currency,
 													data.interval_percentages?.invoices[
 														selectedDateOption
 													]?.amount || 0
@@ -602,9 +640,14 @@ const formatValue = (value: number): string => {
 
 								<Column
 									:footer="
-										groupStats.total[
-											selectedDateOption
-										].total_invoices.toString()
+										useLocaleStore().numberShort(
+											groupStats.currency.code,
+											Number(
+												groupStats.total[
+													selectedDateOption
+												].total_invoices.toString()
+											)
+										)
 									"
 									footerStyle="text-align:right" />
 								<Column footer="" footerStyle="text-align:right" />
