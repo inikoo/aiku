@@ -58,7 +58,7 @@ const onLogoutAuth = () => {
             icon_right: null,
         },
     }
-    window.Echo.join(`grp.live.users`).whisper('otherIsNavigating', dataActiveUser)
+    window.Echo.join(`retina.active.users`).whisper('otherIsNavigating', dataActiveUser)
     useLiveUsers().unsubscribe()  // Unsubscribe from Laravel Echo
 }
 

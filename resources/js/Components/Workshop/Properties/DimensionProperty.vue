@@ -25,7 +25,7 @@ const side_editor_block_id = inject('side_editor_block_id', () => { console.log(
                 <div class="text-xs">{{ trans('Height') }}</div>
                 <Popover v-slot="{ open }" class="relative">
                     <PopoverButton :class="open ? 'text-indigo-500' : ''" class="underline">
-                        {{ model.height.unit }}
+                        {{ model?.height.unit }}
                     </PopoverButton>
 
                     <transition enter-active-class="transition duration-200 ease-out"
@@ -35,10 +35,10 @@ const side_editor_block_id = inject('side_editor_block_id', () => { console.log(
                         <PopoverPanel v-slot="{ close }"
                             class="bg-white shadow mt-3 absolute top-full right-0 z-10 w-32 transform rounded overflow-hidden">
                             <div @click="() => { model.height.unit = 'px', onSaveWorkshopFromId(side_editor_block_id), close() }" class="px-4 py-1.5 cursor-pointer"
-                                :class="model.height.unit == 'px' ? 'bg-indigo-500 text-white' : 'hover:bg-indigo-100'">px
+                                :class="model?.height.unit == 'px' ? 'bg-indigo-500 text-white' : 'hover:bg-indigo-100'">px
                             </div>
                             <div @click="() => { model.height.unit = '%', onSaveWorkshopFromId(side_editor_block_id), close() }" class="px-4 py-1.5 cursor-pointer"
-                                :class="model.height.unit == '%' ? 'bg-indigo-500 text-white' : 'hover:bg-indigo-100'">%</div>
+                                :class="model?.height.unit == '%' ? 'bg-indigo-500 text-white' : 'hover:bg-indigo-100'">%</div>
                         </PopoverPanel>
                     </transition>
                 </Popover>
@@ -57,7 +57,7 @@ const side_editor_block_id = inject('side_editor_block_id', () => { console.log(
                                         :modelValue="get(model, 'height.value', 0)"
                                         @update:modelValue="(newVal) => (set(model, 'height.value', newVal), onSaveWorkshopFromId(side_editor_block_id))"
                                         class=""
-                                        :suffix="model.height.unit"
+                                        :suffix="model?.height.unit"
                                     />
                                 </div>
                             </div>
@@ -73,7 +73,7 @@ const side_editor_block_id = inject('side_editor_block_id', () => { console.log(
                 <div class="text-xs">{{ trans('Width') }}</div>
                 <Popover v-slot="{ open }" class="relative">
                     <PopoverButton :class="open ? 'text-indigo-500' : ''" class="underline">
-                        {{ model.width.unit }}
+                        {{ model?.width.unit }}
                     </PopoverButton>
 
                     <transition enter-active-class="transition duration-200 ease-out"
@@ -83,10 +83,10 @@ const side_editor_block_id = inject('side_editor_block_id', () => { console.log(
                         <PopoverPanel v-slot="{ close }"
                             class="bg-white shadow mt-3 absolute top-full right-0 z-10 w-32 transform rounded overflow-hidden">
                             <div @click="() => { model.width.unit = 'px', onSaveWorkshopFromId(side_editor_block_id), close() }" class="px-4 py-1.5 cursor-pointer"
-                                :class="model.width.unit == 'px' ? 'bg-indigo-500 text-white' : 'hover:bg-indigo-100'">px
+                                :class="model?.width.unit == 'px' ? 'bg-indigo-500 text-white' : 'hover:bg-indigo-100'">px
                             </div>
                             <div @click="() => { model.width.unit = '%', onSaveWorkshopFromId(side_editor_block_id), close() }" class="px-4 py-1.5 cursor-pointer"
-                                :class="model.width.unit == '%' ? 'bg-indigo-500 text-white' : 'hover:bg-indigo-100'">%</div>
+                                :class="model?.width.unit == '%' ? 'bg-indigo-500 text-white' : 'hover:bg-indigo-100'">%</div>
                         </PopoverPanel>
                     </transition>
                 </Popover>
@@ -105,7 +105,7 @@ const side_editor_block_id = inject('side_editor_block_id', () => { console.log(
                                         :modelValue="get(model, 'width.value', 0)"
                                         @update:modelValue="(newVal) => (set(model, 'width.value', newVal), onSaveWorkshopFromId(side_editor_block_id))"
                                         class=""
-                                        :suffix="model.width.unit"
+                                        :suffix="model?.width.unit"
                                     />
                                 </div>
                             </div>

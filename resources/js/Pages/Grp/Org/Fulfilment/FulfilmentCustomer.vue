@@ -42,7 +42,7 @@ import { notify } from '@kyvg/vue3-notification'
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 import type { Navigation } from "@/types/Tabs";
 import Modal from "@/Components/Utils/Modal.vue"
-import Button from '@/Components/Elements/Buttons/Button.vue'
+import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 library.add(faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare, faTruckLoading, faFileInvoice, faExclamationTriangle, faUsdCircle)
 
@@ -67,6 +67,7 @@ const component = computed(() => {
     const components: Component = {
         showcase: FulfilmentCustomerShowcase,
         agreed_prices: TableRentalAgreementClauses,
+        history : TableHistories
     }
 
     return components[currentTab.value]
