@@ -119,7 +119,7 @@ const fakeTimeline = [
 
         <!-- Section: field data -->
         <dl class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-8 lg:gap-x-8">
-            <div class="col-span-2 ">
+            <div class="col-span-2 " v-if="blueprint.note.value">
                 <dt class="font-medium">{{ blueprint.note.label }}</dt>
                 <dd class="mt-2 text-sm text-gray-500 text-justify">
                     <PureTextarea :modelValue="blueprint.note.value" :rows="5" :placeholder="trans('No note from customer.')" disabled />
@@ -142,7 +142,7 @@ const fakeTimeline = [
             </div>
 
             <!-- Field: Items -->
-            <div class="border-t border-gray-200 pt-4">
+            <div class="border-t border-gray-200 pt-4" v-if="blueprint.items.value.length > 0">
                 <dt class="font-medium">{{ blueprint.items.label }}</dt>
                 <dd class="mt-2 text-sm text-gray-500 text-justify">
                     <span v-if="blueprint.items.value.length" class="flex gap-1">

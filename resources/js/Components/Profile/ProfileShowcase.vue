@@ -99,7 +99,7 @@ const props = defineProps<{
                             Email
                         </div>
                         <div class="col-span-2 font-medium">
-                            {{ data?.data?.email }}
+                            {{ data?.data?.email || '-' }}
                         </div>
                     </div>
 

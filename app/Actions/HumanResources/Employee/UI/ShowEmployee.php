@@ -40,7 +40,6 @@ class ShowEmployee extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit   = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
-        $this->canDelete = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
 
         return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
     }
@@ -54,10 +53,7 @@ class ShowEmployee extends OrgAction
 
     public function htmlResponse(Employee $employee, ActionRequest $request): Response
     {
-        // Uncomment this to test the error page
-        //valid values 500, 503, 404, 403, 422
-        // abort(403);
-        // dd(AttachmentsResource::collection(IndexAttachments::run($employee)));
+
         return Inertia::render(
             'Org/HumanResources/Employee',
             [
@@ -89,7 +85,6 @@ class ShowEmployee extends OrgAction
                         ],
                     ],
                     'actions'       => [
-                        $this->canDelete ? $this->getDeleteActionIcon($request) : null,
                         $this->canEdit ? $this->getEditActionIcon($request) : null,
                     ],
                 ],

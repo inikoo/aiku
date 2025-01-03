@@ -24,7 +24,7 @@ Route::get('/', ShowWarehouse::class)->name('dashboard');
 Route::get('edit', EditWarehouse::class)->name('edit');
 
 Route::scopeBindings()->prefix('areas')->name('warehouse_areas.')->group(function () {
-    Route::get('', [IndexWarehouseAreas::class, 'inOrganisation'])->name('index');
+    Route::get('', IndexWarehouseAreas::class)->name('index');
     Route::get('create', CreateWarehouseArea::class)->name('create');
 
 
