@@ -44,6 +44,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Popover from '@/Components/Popover.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import UploadAttachment from '@/Components/Upload/UploadAttachment.vue';
+import ShowcaseEmployee from '@/Components/Showcases/Grp/ShowcaseEmployee.vue';
 
 library.add(
     faIdCard,
@@ -93,7 +94,7 @@ const attachmentRoutes = ref(props.attachmentRoutes)
 const component = computed(() => {
 
     const components = {
-        details: ModelDetails,
+        showcase: ShowcaseEmployee,
         history: TableHistories,
         data: DataModel,
         timesheets: TableTimesheets,
