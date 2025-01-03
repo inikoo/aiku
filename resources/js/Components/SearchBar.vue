@@ -50,6 +50,7 @@ const urlSearch = () => {
         : `${location.origin}/search`
 } 
 const fetchApi = debounce(async (query: string) => {
+    isOnTyping.value = false
     if (query !== '') {
         resultsSearch.value = null
         isLoadingSearch.value = true
@@ -65,6 +66,12 @@ const fetchApi = debounce(async (query: string) => {
             .catch(err => console.log(err))
     }
 }, 700)
+const isOnTyping = ref(false)
+const onTypeSearch = () => {
+    // searchValue.value = e.target.value
+    isOnTyping.value = true
+    fetchApi(searchValue.value)
+}
 
 function countModelTypes(data) {
     // Initialize an empty object to store counts
@@ -106,9 +113,13 @@ function countModelTypes(data) {
                         <div class="relative border-b border-gray-300">
                             <FontAwesomeIcon class="pointer-events-none absolute top-3.5 left-4 h-5 w-5 text-gray-400"
                                 aria-hidden="true" icon="fa-regular fa-search" size="lg" />
-                            <input v-model="searchValue" @input="() => fetchApi(searchValue)" type="text"
+                            <input
+                                v-model="searchValue"
+                                @input="() => onTypeSearch()"
+                                type="text"
                                 class="h-12 w-full border-0 bg-transparent pl-11 pr-4 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
-                                placeholder="Search...">
+                                placeholder="Search..."
+                            >
                         </div>
 
                         <!-- Section: Search is 0 data -->
@@ -155,6 +166,10 @@ function countModelTypes(data) {
                                 </template>
                             </TabList>
 
+                            
+                            <div v-else-if="isOnTyping" class="py-4 text-center text-gray-400 italic">
+                                {{ trans("Waiting to finish typing") }}..
+                            </div>
                             
                             <div v-else class="py-4 text-center text-gray-600">
                                 No result to show for <span class="font-bold">{{ searchValue }}</span>
