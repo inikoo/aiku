@@ -10,17 +10,19 @@ namespace App\Enums\UI\Fulfilment;
 
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
+use App\Enums\HasTabsWithQuantity;
+use App\Models\Fulfilment\Pallet;
 
 enum PalletTabsEnum: string
 {
     use EnumHelperTrait;
-    use HasTabs;
+    use HasTabsWithQuantity;
 
     case SHOWCASE     = 'showcase';
     case STORED_ITEMS = 'stored_items';
     case HISTORY      = 'history';
 
-    public function blueprint(): array
+    public function blueprint(Pallet $pallet): array
     {
         return match ($this) {
             PalletTabsEnum::SHOWCASE => [
@@ -28,7 +30,7 @@ enum PalletTabsEnum: string
                 'icon'  => 'fas fa-info-circle',
             ],
             PalletTabsEnum::STORED_ITEMS => [
-                'title' => __('stored items'),
+                'title' => __('stored items'). " ({$pallet->number_stored_items})",
                 'icon'  => 'fal fa-narwhal',
             ],
             PalletTabsEnum::HISTORY => [
