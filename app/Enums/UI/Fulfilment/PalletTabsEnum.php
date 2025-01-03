@@ -9,7 +9,6 @@
 namespace App\Enums\UI\Fulfilment;
 
 use App\Enums\EnumHelperTrait;
-use App\Enums\HasTabs;
 use App\Enums\HasTabsWithQuantity;
 use App\Models\Fulfilment\Pallet;
 

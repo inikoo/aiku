@@ -30,7 +30,10 @@ const props = defineProps<{
 
 
 const model = defineModel<BackgroundProperty>({
-    required: true
+    required: true,
+    default : {
+        type : 'color'
+    }
 })
 
 const onSaveWorkshopFromId: Function = inject('onSaveWorkshopFromId', (e?: number) => { console.log('onSaveWorkshopFromId not provided') })
@@ -48,11 +51,11 @@ const onSubmitSelectedImage = (images: ImageData[]) => {
 }
 
 onMounted(() => {
-    if (!model.value.type) {
+    if (!model.value?.type) {
         set(model.value, 'type', 'color')
         onSaveWorkshopFromId(side_editor_block_id, 'background type')
     }
-    if (!model.value.color) {
+    if (!model.value?.color) {
         set(model.value, 'color', 'var(--iris-color-primary)')
         onSaveWorkshopFromId(side_editor_block_id, 'background color')
     }
@@ -81,7 +84,6 @@ const onSubmitUpload = async (files: File[], clear: Function) => {
             }
         )
         
-        console.log('aaa', aaa.data.data)
         model.value.image = aaa.data.data[0]
         onSaveWorkshopFromId(side_editor_block_id, 'background image')
 
@@ -112,7 +114,7 @@ const onSubmitUpload = async (files: File[], clear: Function) => {
 </script>
 
 <template>
-    <div class="flex items-center justify-between gap-x-3 flex-wrap px-6 w-full relative">
+    <div v-if="model?.type" class="flex items-center justify-between gap-x-3 flex-wrap px-6 w-full relative">
         <div class="relative flex items-center gap-x-2 py-1" >
             <div class="group rounded-md relative shadow-lg border border-gray-300">
                 <div class="relative h-12 w-12 cursor-pointer rounded overflow-hidden">
@@ -125,7 +127,7 @@ const onSubmitUpload = async (files: File[], clear: Function) => {
                         v-tooltip="trans('Image background')"
                     />
                     
-                    <div v-if="model.type === 'image'" @click="() => isOpenGallery = true" class="hidden group-hover:flex absolute inset-0 bg-black/30 items-center justify-center cursor-pointer">
+                    <div v-if="model?.type === 'image'" @click="() => isOpenGallery = true" class="hidden group-hover:flex absolute inset-0 bg-black/30 items-center justify-center cursor-pointer">
                         <FontAwesomeIcon icon='fal fa-image' class='text-white' fixed-width aria-hidden='true' />
                     </div>
 
