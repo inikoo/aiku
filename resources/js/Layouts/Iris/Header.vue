@@ -25,7 +25,7 @@ const props = defineProps<{
     <!-- Section: Header-Topbar -->
     <component v-if="data?.topBar?.data.fieldValue"
         :is="getIrisComponent(data?.topBar.code)"
-        v-model="data.topBar.data.fieldValue"
+        :fieldValue="data.topBar.data.fieldValue"
         :loginMode="true"
         :previewMode="true"
         :uploadImageRoute="null"
@@ -35,7 +35,7 @@ const props = defineProps<{
     <!-- Section: Header-Menu -->
     <component
         :is="getIrisComponent(data?.header?.code)"
-        v-model="data.header.data.fieldValue"
+        :fieldValue="data.header.data.fieldValue"
         :loginMode="true"
         :previewMode="true"
         :colorThemed="colorThemed"

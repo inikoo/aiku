@@ -25,7 +25,6 @@ const props = defineProps<{
 defineOptions({ layout: LayoutIris })
 library.add(faCheck, faPlus, faMinus)
 
-
 </script>
 
 <template>
@@ -38,10 +37,11 @@ library.add(faCheck, faPlus, faMinus)
   </Head>
   <div class="bg-white">
     <template v-if="props.blocks?.web_blocks?.length">
-      <div v-for="(activityItem, activityItemIdx) in props.blocks.web_blocks" :key="'block' + activityItem.id"
-        class="w-full">
-        <component :is="getIrisComponent(activityItem.type)" :key="activityItemIdx"
-          v-model="activityItem.web_block.layout.data.fieldValue" />
+      <div v-for="(activityItem, activityItemIdx) in props.blocks.web_blocks" :key="'block' + activityItem.id" class="w-full">
+        <component 
+          :is="getIrisComponent(activityItem.type)" 
+          :key="activityItemIdx"
+          :fieldValue="activityItem.web_block.layout.data.fieldValue" />
       </div>
     </template>
 

@@ -25,7 +25,7 @@ enum FulfilmentRentalTabsEnum: string
     {
         return match ($this) {
             FulfilmentRentalTabsEnum::SHOWCASE => [
-                'title' => __('service'),
+                'title' => __('Rental'),
                 'icon'  => 'fas fa-info-circle',
             ],
             FulfilmentRentalTabsEnum::HISTORY => [

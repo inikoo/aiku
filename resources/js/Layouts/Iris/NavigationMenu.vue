@@ -19,6 +19,6 @@ const props = defineProps<{
 </script>
 
 <template>
-    <component :is="getIrisComponent(data.code)" :navigations="data.data.fieldValue.navigation"
+    <component v-if="data?.code" :is="getIrisComponent(data.code)" :navigations="data.data.fieldValue.navigation"
         :colorThemed="colorThemed" />
 </template>
