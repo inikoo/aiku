@@ -24,7 +24,6 @@ const props = defineProps<{
 
 defineOptions({ layout: LayoutIris })
 library.add(faCheck, faPlus, faMinus)
-console.log('test',props)
 
 </script>
 

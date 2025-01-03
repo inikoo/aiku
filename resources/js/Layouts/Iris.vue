@@ -90,7 +90,7 @@ const setFirstVisitToFalse = () => {
             </div>
         </Modal>
 
-        <div :class="[theme.layout === 'blog' ? 'container max-w-7xl mx-auto shadow-xl' : '']" :style="{ fontFamily: theme.fontFamily}">
+        <div :class="[(theme.layout === 'blog' || !theme.layout ) ? 'container max-w-7xl mx-auto shadow-xl' : '']" :style="{ fontFamily: theme.fontFamily}">
         <!--     <IrisLoginInformation /> -->
             <!-- <IrisHeader v-if="header.header" :data="header" :colorThemed="theme" :menu="navigation"/> -->
 
