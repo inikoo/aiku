@@ -85,6 +85,7 @@ const props = defineProps<{
     job_positions?: Table
     attachments?: {}
     attachmentRoutes?:object
+    showcase : object
 }>()
 
 let currentTab = ref(props.tabs.current);
