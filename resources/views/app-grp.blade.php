@@ -12,6 +12,12 @@
         
         <link rel="icon" type="image/png" href="{{ url('favicons/favicon.png') }}">
         <link rel="icon" href="{{ url('favicon.svg') }}" type="image/svg+xml">
+
+        @if (config('app.env', 'production') === 'staging')
+        <!-- == -->
+        <meta name="robots" content="noindex">
+        @endif
+
         @routes('grp')
         {{Vite::useHotFile('grp.hot')->useBuildDirectory('grp')->withEntryPoints(['resources/js/app-grp.js'])}}
         @inertiaHead

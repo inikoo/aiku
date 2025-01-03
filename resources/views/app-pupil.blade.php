@@ -17,6 +17,11 @@
         <link rel="icon" type="image/png" sizes="48x48" href="{{ url('favicons/favicon-48x48.png') }}">
         <link rel="apple-touch-icon" sizes="180x180" href="{{ url('favicons/favicon-180x180.png') }}">
 
+        @if (config('app.env', 'production') === 'staging')
+        <!-- == -->
+        <meta name="robots" content="noindex">
+        @endif
+
         <!-- Scripts -->
         @routes('shopify')
         {{Vite::useHotFile('pupil.hot')->useBuildDirectory('pupil')->withEntryPoints(['resources/js/app-pupil.js'])}}

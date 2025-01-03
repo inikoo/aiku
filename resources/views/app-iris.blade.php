@@ -17,8 +17,8 @@
         <link rel="apple-touch-icon" sizes="180x180" href="{{ url('favicons/iris-apple-favicon-180x180.png') }}">
 
         @if (config('app.env', 'production') === 'staging')
-            <!-- == -->
-            <meta name="robots" content="noindex">
+        <!-- == -->
+        <meta name="robots" content="noindex">
         @endif
 
         <!-- Scripts -->
