@@ -20,13 +20,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('domain:check-cloudflare-status')->hourly();
         $schedule->command('hydrate:fulfilment_customers_status')->daily();
 
-        $schedule->job(ResetYearIntervals::makeJob())->yearlyOn(1, 0, 0)->timezone('UTC');
-        $schedule->job(ResetMonthlyIntervals::makeJob())->monthlyOn(1, 0)->timezone('UTC');
-        $schedule->job(ResetQuarterlyIntervals::makeJob())->quarterlyOn(1, 0)->timezone('UTC');
-        $schedule->job(ResetWeeklyIntervals::makeJob())->weeklyOn(1, 0)->timezone('UTC');
+        $schedule->job(ResetYearIntervals::makeJob())->yearlyOn(1, 1, '00:00')->timezone('UTC');
+        $schedule->job(ResetMonthlyIntervals::makeJob())->monthlyOn(1, '00:00')->timezone('UTC');
+        $schedule->job(ResetQuarterlyIntervals::makeJob())->quarterlyOn(1, '00:00')->timezone('UTC');
+        $schedule->job(ResetWeeklyIntervals::makeJob())->weeklyOn(1, '00:00')->timezone('UTC');
         $schedule->job(ResetDailyIntervals::makeJob())->dailyAt('00:00')->timezone('UTC');
-
-
     }
 
 
