@@ -62,12 +62,7 @@ createInertiaApp(
                       replaysOnErrorSampleRate: 1.0,
                       integrations            : [
                         Sentry.browserSessionIntegration(),
-                        Sentry.browserTracingIntegration({
-                                                           // disable automatic span creation
-                                                           // https://github.com/getsentry/sentry-javascript/discussions/8528
-                                                           instrumentNavigation: false,
-                                                           instrumentPageLoad  : false
-                                                         }),
+                        Sentry.browserTracingIntegration(),
                         Sentry.browserProfilingIntegration(),
                         Sentry.replayIntegration()
                       ]
@@ -105,35 +100,5 @@ createInertiaApp(
     }
   });
 
-router.on("before", (route) => {
-  const client = Sentry.getClient();
 
-  const newName = route().current();
-
-  if (newName !== name) {
-    name = newName;
-
-    Sentry.startBrowserTracingNavigationSpan(
-      client,{
-        op: "navigation",
-        name,
-        attributes: {
-          [Sentry.SEMANTIC_ATTRIBUTE_SENTRY_SOURCE]: "route",
-        }
-      }
-    );
-
-  }
-
-});
-
-router.on('finish', () => {
-  name = route().current();
-  // always make sure we are using the correct route name
-  const span = Sentry.getActiveSpan();
-  const op = span && Sentry.spanToJSON(span).op;
-  if (op === 'pageload' || op === 'navigation') {
-    span.setName(name);
-  }
-});
 
