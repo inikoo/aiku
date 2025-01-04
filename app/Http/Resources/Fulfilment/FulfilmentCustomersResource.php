@@ -24,11 +24,19 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $slug
  * @property int $number_pallets
  * @property int $id
+ * @property mixed $sales_all
+ * @property mixed $sales_org_currency_all
+ * @property mixed $sales_grp_currency_all
  * @property int $number_pallets_status_storing
  * @property mixed $status
+ * @property mixed $location
+ * @property mixed $currency_code
+ *
+ *
  */
 class FulfilmentCustomersResource extends JsonResource
 {
+
     public function toArray($request): array
     {
         return [
@@ -42,7 +50,12 @@ class FulfilmentCustomersResource extends JsonResource
             'phone'                         => $this->phone,
             'status_label'                  => $this->status->labels()[$this->status->value],
             'status_icon'                   => $this->status->statusIcon()[$this->status->value],
-            'number_pallets_status_storing' => $this->number_pallets_status_storing
+            'number_pallets_status_storing' => $this->number_pallets_status_storing,
+            'sales_all'                     => $this->sales_all,
+            'sales_org_currency_all'        => $this->sales_org_currency_all,
+            'sales_grp_currency_all'        => $this->sales_grp_currency_all,
+            'currency_code'                 => $this->currency_code,
+            'location'                      => $this->location,
         ];
     }
 }

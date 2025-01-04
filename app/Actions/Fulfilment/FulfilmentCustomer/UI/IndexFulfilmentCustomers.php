@@ -72,7 +72,7 @@ class IndexFulfilmentCustomers extends OrgAction
         }
 
         return $queryBuilder
-            ->defaultSort('fulfilment_customers.slug')
+            ->defaultSort('-customers.created_at')
             ->select([
                 'reference',
                 'fulfilment_customers.status',
@@ -80,11 +80,19 @@ class IndexFulfilmentCustomers extends OrgAction
                 'customers.name',
                 'fulfilment_customers.slug',
                 'number_pallets',
-                'number_pallets_status_storing'
+                'number_pallets_status_storing',
+                'customer_stats.sales_all',
+                'customer_stats.sales_org_currency_all',
+                'customer_stats.sales_grp_currency_all',
+                'customers.location',
+                'currencies.code as currency_code',
             ])
             ->leftJoin('customers', 'customers.id', 'fulfilment_customers.customer_id')
             ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
-            ->allowedSorts(['reference', 'name', 'number_pallets', 'slug', 'number_pallets_status_storing','status'])
+            ->leftJoin('shops', 'customers.shop_id', 'shops.id')
+            ->leftJoin('currencies', 'shops.currency_id', 'currencies.id')
+            ->allowedSorts(['reference', 'name', 'number_pallets', 'slug', 'number_pallets_status_storing', 'status', 'sales_all', 'sales_org_currency_all', 'sales_grp_currency_all', 'customers.created_at'])
+
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -130,7 +138,8 @@ class IndexFulfilmentCustomers extends OrgAction
                 ->column(key: 'status', label: '', icon: 'fal fa-yin-yang', canBeHidden: false, sortable: true, type: 'avatar')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_pallets_status_storing', label: ['type' => 'text', 'data' => __('Pallets'), 'tooltip' => __('Number of pallets in warehouse')], canBeHidden: false, sortable: true, searchable: false);
+                ->column(key: 'number_pallets_status_storing', label: ['type' => 'text', 'data' => __('Pallets'), 'tooltip' => __('Number of pallets in warehouse')], canBeHidden: false, sortable: true)
+                ->column(key: 'sales_all', label: __('sales'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
@@ -156,7 +165,6 @@ class IndexFulfilmentCustomers extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
     {
-
         return Inertia::render(
             'Org/Fulfilment/FulfilmentCustomers',
             [
@@ -165,9 +173,9 @@ class IndexFulfilmentCustomers extends OrgAction
                 ),
                 'title'       => __('customers'),
                 'pageHead'    => [
-                    'title'     => __('customers'),
-                    'model'     => $this->fulfilment->shop->name,
-                    'icon'      => [
+                    'title'   => __('customers'),
+                    'model'   => $this->fulfilment->shop->name,
+                    'icon'    => [
                         'icon'  => ['fal', 'fa-user'],
                         'title' => __('customer')
                     ],
