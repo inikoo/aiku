@@ -63,12 +63,10 @@ trait WithHydrateCommand
 
         $query->chunk(1000, function (Collection $modelsData) use ($bar) {
             foreach ($modelsData as $modelId) {
-                $instance = (new $this->model())->find($modelId->id);
-                if ($instance) { // deleted instances will return null
-                    $this->handle($instance);
-                }
-
-
+                $instance = (new $this->model())->withTrashed()->find($modelId->id);
+                //  if ($instance) { // deleted instances will return null
+                $this->handle($instance);
+                //  }
                 $bar->advance();
             }
         });

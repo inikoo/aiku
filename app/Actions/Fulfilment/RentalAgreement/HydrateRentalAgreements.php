@@ -16,7 +16,7 @@ use Illuminate\Support\Collection;
 
 class HydrateRentalAgreements extends HydrateModel
 {
-    public string $commandSignature = 'hydrate:rental-agreements {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'hydrate:rental_agreements {organisations?*} {--s|slugs=}';
 
 
     public function handle(RentalAgreement $rentalAgreement): void
