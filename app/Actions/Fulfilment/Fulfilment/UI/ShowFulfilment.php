@@ -57,17 +57,7 @@ class ShowFulfilment extends OrgAction
 
 
                 [
-                    [
-                        'name'  => __('Products'),
-                        'icon'  => ['fal', 'fa-cube'],
-                        'route'  => [
-                            'name'       => 'grp.org.fulfilments.show.catalogue.index',
-                            'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
-                        ],
-                        'index' => [
-                            'number' => 0  // TODO
-                        ],
-                    ],
+
                     [
                         'name'  => __('Customers'),
                         'icon'  => ['fal', 'fa-user-tie'],
@@ -88,7 +78,7 @@ class ShowFulfilment extends OrgAction
                             'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                         ],
                         'index' => [
-                            'number' => 0  // TODO
+                            'number' => $fulfilment->stats->number_recurring_bills
                         ],
                     ],
                     [
