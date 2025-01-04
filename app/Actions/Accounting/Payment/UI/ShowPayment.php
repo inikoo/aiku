@@ -8,7 +8,8 @@
 
 namespace App\Actions\Accounting\Payment\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
+use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\UI\Accounting\PaymentTabsEnum;
 use App\Enums\UI\Catalogue\DepartmentTabsEnum;
 use App\Http\Resources\Accounting\PaymentsResource;
@@ -17,16 +18,18 @@ use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Catalogue\Shop;
 use App\Models\Ordering\Order;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
+use Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-/**
- * @property Payment $payment
- */
-class ShowPayment extends InertiaAction
+class ShowPayment extends OrgAction
 {
-    use HasUIPayment;
+    private Organisation|PaymentAccount|PaymentServiceProvider|Order|Group $parent;
+
+
     public function handle(Payment $payment): Payment
     {
         return $payment;
@@ -34,62 +37,50 @@ class ShowPayment extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('accounting.edit');
-        return $request->user()->hasPermissionTo("accounting.view");
+        if ($this->parent instanceof Group) {
+            return $request->user()->hasPermissionTo("group-overview");
+        }
+        $this->canEdit = $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
+
+        return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
     }
 
-    public function inOrganisation(Payment $payment, ActionRequest $request): Payment
+    public function inOrganisation(Organisation $organisation, Payment $payment, ActionRequest $request): Payment
     {
-        $this->initialisation($request)->withTab(PaymentTabsEnum::values());
+        $this->parent = $organisation;
+        $this->initialisation($organisation, $request)->withTab(PaymentTabsEnum::values());
+        return $this->handle($payment);
+    }
+
+    public function inPaymentAccount(Organisation $organisation, PaymentAccount $paymentAccount, Payment $payment, ActionRequest $request): Payment
+    {
+        $this->parent = $paymentAccount;
+        $this->initialisation($organisation, $request)->withTab(PaymentTabsEnum::values());
+        return $this->handle($payment);
+    }
+
+
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inPaymentAccountInPaymentServiceProvider(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, PaymentAccount $paymentAccount, Payment $payment, ActionRequest $request): Payment
+    {
+        $this->parent = $paymentAccount;
+        $this->initialisation($organisation, $request)->withTab(PaymentTabsEnum::values());
         return $this->handle($payment);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inPaymentAccount(PaymentAccount $paymentAccount, Payment $payment, ActionRequest $request): Payment
+    public function inPaymentServiceProvider(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, Payment $payment, ActionRequest $request): Payment
     {
-        $this->initialisation($request)->withTab(PaymentTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(PaymentTabsEnum::values());
+        $this->parent = $paymentServiceProvider;
         return $this->handle($payment);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inPaymentAccountInShop(Shop $shop, PaymentAccount $paymentAccount, Payment $payment, ActionRequest $request): Payment
+    public function inShop(Organisation $organisation, Shop $shop, Payment $payment, ActionRequest $request): Payment
     {
-        $this->initialisation($request)->withTab(PaymentTabsEnum::values());
-        return $this->handle($payment);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inPaymentAccountInPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, PaymentAccount $paymentAccount, Payment $payment, ActionRequest $request): Payment
-    {
-        $this->initialisation($request)->withTab(PaymentTabsEnum::values());
-        return $this->handle($payment);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, Payment $payment, ActionRequest $request): Payment
-    {
-        $this->initialisation($request)->withTab(PaymentTabsEnum::values());
-        return $this->handle($payment);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inOrderInShop(Shop $shop, Order $order, Payment $payment, ActionRequest $request): Payment
-    {
-        $this->initialisation($request)->withTab(PaymentTabsEnum::values());
-        return $this->handle($payment);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inOrder(Order $order, Payment $payment, ActionRequest $request): Payment
-    {
-        $this->initialisation($request)->withTab(PaymentTabsEnum::values());
-        return $this->handle($payment);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Shop $shop, Payment $payment, ActionRequest $request): Payment
-    {
-        $this->initialisation($request)->withTab(DepartmentTabsEnum::values());
+        $this->initialisationFromShop($shop, $request)->withTab(DepartmentTabsEnum::values());
 
         return $this->handle($payment);
     }
@@ -99,16 +90,16 @@ class ShowPayment extends InertiaAction
         return Inertia::render(
             'Org/Accounting/Payment',
             [
-                'title'                                 => $payment->id,
-                'breadcrumbs'                           => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
+                'title'                                 => $payment->reference,
+                'breadcrumbs'                           => $this->getBreadcrumbs($payment, $request->route()->getName(), $request->route()->originalParameters()),
                 'navigation'                            => [
                     'previous' => $this->getPrevious($payment, $request),
-                    'next'     => $this->getNext($payment, $request),
+                   'next'     => $this->getNext($payment, $request),
                 ],
                 'pageHead'    => [
                     'model'     => __('payment'),
                     'icon'      => 'fal fa-coins',
-                    'title'     => $payment->slug,
+                    'title'     => $payment->reference,
                     'edit'      => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
@@ -129,6 +120,55 @@ class ShowPayment extends InertiaAction
     public function jsonResponse(Payment $payment): PaymentsResource
     {
         return new PaymentsResource($payment);
+    }
+
+    public function getBreadcrumbs(Payment $payment, string $routeName, array $routeParameters, string $suffix = ''): array
+    {
+        $headCrumb = function (Payment $payment, array $routeParameters, string $suffix = null) {
+            return [
+                [
+
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => $routeParameters['index'],
+                            'label' => __('Payments')
+                        ],
+                        'model' => [
+                            'route' => $routeParameters['model'],
+                            'label' => $payment->reference ?? __('No reference'),
+                        ],
+
+                    ],
+                    'suffix'         => $suffix
+
+                ],
+            ];
+        };
+
+        return match ($routeName) {
+            'grp.org.accounting.payments.show' => array_merge(
+                ShowAccountingDashboard::make()->getBreadcrumbs(
+                    'grp.org.accounting.dashboard',
+                    Arr::only($routeParameters, ['organisation'])
+                ),
+                $headCrumb(
+                    $payment,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.accounting.payments.index',
+                            'parameters' => Arr::only($routeParameters, ['organisation'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.accounting.payments.show',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'payment'])
+                        ]
+                    ],
+                    $suffix
+                ),
+            ),
+            default => []
+        };
     }
 
     public function getPrevious(Payment $payment, ActionRequest $request): ?array
@@ -179,7 +219,8 @@ class ShowPayment extends InertiaAction
                 'route' => [
                     'name'      => $routeName,
                     'parameters' => [
-                        'payment'  => $payment->slug
+                        'organisation' => $payment->organisation->slug,
+                        'payment'  => $payment->id
                     ]
 
                 ]
@@ -190,7 +231,7 @@ class ShowPayment extends InertiaAction
                     'name'      => $routeName,
                     'parameters' => [
                         'paymentAccount' => $payment->paymentAccount->slug,
-                        'payment'       => $payment->slug
+                        'payment'       => $payment->id
                     ]
 
                 ]
@@ -201,7 +242,7 @@ class ShowPayment extends InertiaAction
                     'name'      => $routeName,
                     'parameters' => [
                         'paymentServiceProvider' => $payment->paymentAccount->paymentServiceProvider->slug,
-                        'payment'               => $payment->slug
+                        'payment'               => $payment->id
                     ]
 
                 ]
@@ -213,7 +254,7 @@ class ShowPayment extends InertiaAction
                     'parameters' => [
                         'paymentServiceProvider' => $payment->paymentAccount->paymentServiceProvider->slug,
                         'paymentAccount'        => $payment->paymentAccount->slug,
-                        'payment'               => $payment->slug
+                        'payment'               => $payment->id
                     ]
 
                 ]

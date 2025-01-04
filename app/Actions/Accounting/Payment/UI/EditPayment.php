@@ -19,7 +19,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditPayment extends InertiaAction
 {
-    use HasUIPayment;
     public function handle(Payment $payment): Payment
     {
         return $payment;
@@ -61,7 +60,7 @@ class EditPayment extends InertiaAction
             'EditModel',
             [
                 'title'       => __('payment'),
-                'breadcrumbs' => ShowPayment::make()->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
+                'breadcrumbs' => ShowPayment::make()->getBreadcrumbs($payment, $request->route()->getName(), $request->route()->originalParameters()),
                 'pageHead'    => [
                     'title'     => $payment->reference,
                     'actions'   => [
@@ -108,4 +107,16 @@ class EditPayment extends InertiaAction
             ]
         );
     }
+
+
+    public function getBreadcrumbs(Payment $payment, string $routeName, array $routeParameters): array
+    {
+        return ShowPayment::make()->getBreadcrumbs(
+            payment: $payment,
+            routeName: preg_replace('/edit$/', 'show', $routeName),
+            routeParameters: $routeParameters,
+            suffix: '('.__('Editing').')'
+        );
+    }
+
 }
