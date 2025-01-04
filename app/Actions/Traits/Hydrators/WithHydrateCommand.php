@@ -9,6 +9,7 @@
 namespace App\Actions\Traits\Hydrators;
 
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
@@ -37,6 +38,14 @@ trait WithHydrateCommand
         $tableName = (new $this->model())->getTable();
 
         $query = DB::table($tableName)->select('id')->orderBy('id');
+
+        if ($command->hasOption('shop') && $command->option('shop')) {
+
+            $shop=Shop::where('slug',$command->option('shop'))->first();
+            if($shop){
+                $query->where('shop_id', $shop->id);
+            }
+        }
 
         if ($command->hasOption('slug') && $command->option('slug')) {
             $query->where('slug', $command->option('slug'));
