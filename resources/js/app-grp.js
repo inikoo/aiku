@@ -2,7 +2,7 @@ import "./bootstrap";
 import "../css/app.css";
 
 import { createApp, h } from "vue";
-import { createInertiaApp } from "@inertiajs/vue3";
+import { createInertiaApp , router} from "@inertiajs/vue3";
 import { ZiggyVue } from "../../vendor/tightenco/ziggy/dist/vue.m";
 import { i18nVue } from "laravel-vue-i18n";
 import Notifications from "@kyvg/vue3-notification";
@@ -61,7 +61,11 @@ createInertiaApp(
                       replaysSessionSampleRate: 0.1,
                       replaysOnErrorSampleRate: 1.0,
                       integrations            : [
-                        Sentry.browserTracingIntegration(),
+                        new Sentry.BrowserTracing({
+                                                    // Helps to send page load and navigation OPs to Sentry for InertiaJS
+                                                    routingInstrumentation: inertiaRoutingInstrumentation,
+                                                    enableInp: true,
+                                                  }),
                         Sentry.browserProfilingIntegration(),
                         Sentry.replayIntegration()
                       ]
@@ -100,4 +104,57 @@ createInertiaApp(
   });
 
 
+// Uses https://inertiajs.com/events
+function inertiaRoutingInstrumentation(
+  customStartTransaction,
+  startTransactionOnPageLoad = true,
+  startTransactionOnLocationChange = true,
+) {
+  console.info('inertiaRoutingInstrumentation Started');
+
+  let activeTransaction;
+  let name;
+  if (startTransactionOnPageLoad) {
+    console.info('Start transaction on page load');
+    name = '/'+route().current();
+
+    activeTransaction = customStartTransaction({
+                                                 name,
+                                                 op: 'pageload',
+                                                 metadata: {
+                                                   source: 'route',
+                                                 },
+                                               });
+  }
+
+  if (startTransactionOnLocationChange) {
+    console.info('Start transaction on location change');
+    console.info(propsForSentry);
+    router.on('before', (_to, _from) => {
+      if (activeTransaction) {
+        activeTransaction.finish();
+      }
+
+      const newName = '/'+route().current();
+      console.info('Old name: '+name+'. New name: '+newName)
+
+      if (newName !== name) {
+        console.info('Old name is not equal to new name!');
+        activeTransaction = customStartTransaction({
+                                                     name: newName,
+                                                     op: 'navigation',
+                                                     metadata: {
+                                                       source: 'route',
+                                                     },
+                                                   });
+      }
+    });
+
+    router.on('finish', () => {
+      console.info('Router on finish. Route: '+'/'+route().current())
+      activeTransaction.setName('/'+route().current(), 'route');
+    });
+  }
+  console.info('inertiaRoutingInstrumentation Finished');
+}
 
