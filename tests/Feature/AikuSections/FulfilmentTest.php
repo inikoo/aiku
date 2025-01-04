@@ -2131,7 +2131,7 @@ test('hydrate fulfilment command', function () {
 });
 
 test('hydrate fulfilment customer command', function () {
-    $this->artisan('hydrate:fulfilment-customers '.$this->organisation->slug)->assertExitCode(0);
+    $this->artisan('hydrate:fulfilment_customers '.$this->organisation->slug)->assertExitCode(0);
 });
 
 test('hydrate pallet delivery command', function () {

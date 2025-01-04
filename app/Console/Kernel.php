@@ -18,7 +18,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('cloudflare:reload')->daily();
         $schedule->command('hydrate:top_sellers')->daily();
         $schedule->command('domain:check-cloudflare-status')->hourly();
-        $schedule->command('hydrate:fulfilment-customers-status')->daily();
+        $schedule->command('hydrate:fulfilment_customers_status')->daily();
 
         $schedule->job(ResetYearIntervals::makeJob())->yearlyOn(1, 0, 0)->timezone('UTC');
         $schedule->job(ResetMonthlyIntervals::makeJob())->monthlyOn(1, 0)->timezone('UTC');
