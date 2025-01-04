@@ -38,13 +38,31 @@ class ShopHydrateSales
     {
         $stats     = [];
         $queryBase = InvoiceTransaction::where('shop_id', $shop->id)->selectRaw('sum(net_amount) as  sum_aggregate  ');
-        $stats     = $this->getIntervalsData($stats, $queryBase, 'sales_', $intervals, $doPreviousIntervals);
+        $stats     = $this->getIntervalsData(
+            stats: $stats,
+            queryBase: $queryBase,
+            statField: 'sales_',
+            intervals: $intervals,
+            doPreviousPeriods: $doPreviousIntervals
+        );
 
         $queryBase = InvoiceTransaction::where('shop_id', $shop->id)->selectRaw('sum(grp_net_amount) as  sum_aggregate');
-        $stats     = $this->getIntervalsData($stats, $queryBase, 'sales_grp_currency_', $intervals, $doPreviousIntervals);
+        $stats     = $this->getIntervalsData(
+            stats: $stats,
+            queryBase: $queryBase,
+            statField:'sales_grp_currency_',
+            intervals: $intervals,
+            doPreviousPeriods: $doPreviousIntervals
+        );
 
         $queryBase = InvoiceTransaction::where('shop_id', $shop->id)->selectRaw('sum(org_net_amount) as  sum_aggregate');
-        $stats     = $this->getIntervalsData($stats, $queryBase, 'sales_org_currency_', $intervals, $doPreviousIntervals);
+        $stats     = $this->getIntervalsData(
+            stats: $stats,
+            queryBase: $queryBase,
+            statField: 'sales_org_currency_',
+            intervals: $intervals,
+            doPreviousPeriods: $doPreviousIntervals
+        );
 
         $shop->salesIntervals()->update($stats);
     }

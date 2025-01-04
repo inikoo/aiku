@@ -43,10 +43,22 @@ class OrganisationHydrateSales
         $stats = [];
 
         $queryBase = Invoice::where('organisation_id', $organisation->id)->selectRaw('sum(grp_net_amount) as  sum_aggregate ');
-        $stats     = $this->getIntervalsData($stats, $queryBase, 'sales_grp_currency_', $intervals, $doPreviousIntervals);
+        $stats     = $this->getIntervalsData(
+            stats: $stats,
+            queryBase: $queryBase,
+            statField:'sales_grp_currency_',
+            intervals: $intervals,
+            doPreviousPeriods: $doPreviousIntervals
+        );
 
         $queryBase = Invoice::where('organisation_id', $organisation->id)->selectRaw(' sum(org_net_amount) as  sum_aggregate  ');
-        $stats     = $this->getIntervalsData($stats, $queryBase, 'sales_org_currency_', $intervals, $doPreviousIntervals);
+        $stats     = $this->getIntervalsData(
+            stats: $stats,
+            queryBase: $queryBase,
+            statField:'sales_org_currency_',
+            intervals: $intervals,
+            doPreviousPeriods: $doPreviousIntervals
+        );
 
 
         $organisation->salesIntervals()->update($stats);

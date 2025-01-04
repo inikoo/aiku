@@ -38,7 +38,13 @@ class GroupHydrateSales
         $stats = [];
 
         $queryBase = Invoice::where('group_id', $group->id)->selectRaw('sum(grp_net_amount) as sum_aggregate');
-        $stats     = $this->getIntervalsData($stats, $queryBase, 'sales_grp_currency_', $intervals, $doPreviousIntervals);
+        $stats     = $this->getIntervalsData(
+            stats: $stats,
+            queryBase: $queryBase,
+            statField: 'sales_grp_currency_',
+            intervals: $intervals,
+            doPreviousPeriods: $doPreviousIntervals
+        );
 
 
         $group->salesIntervals()->update($stats);

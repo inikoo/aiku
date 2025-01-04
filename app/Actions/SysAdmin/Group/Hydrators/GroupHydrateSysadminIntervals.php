@@ -24,6 +24,7 @@ class GroupHydrateSysadminIntervals implements ShouldBeUnique
 
 
     private Group $group;
+
     public function __construct(Group $group)
     {
         $this->group = $group;
@@ -37,12 +38,15 @@ class GroupHydrateSysadminIntervals implements ShouldBeUnique
 
     public function handle(Group $group): void
     {
-
-        $stats = [];
+        $stats     = [];
         $queryBase = DB::table('user_requests')->where('group_id', $group->id)->selectRaw('count(*) as  sum_aggregate ');
-        $stats = array_merge(
+        $stats     = array_merge(
             $stats,
-            $this->getIntervalsData($stats, $queryBase, 'user_requests_'),
+            $this->getIntervalsData(
+                stats: $stats,
+                queryBase: $queryBase,
+                statField: 'user_requests_'
+            ),
             $this->getPreviousYearsIntervalStats($queryBase, 'user_requests_'),
             $this->getPreviousQuartersIntervalStats($queryBase, 'user_requests_')
         );
