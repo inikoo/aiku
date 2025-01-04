@@ -36,7 +36,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class FulfilmentCustomersResource extends JsonResource
 {
-
     public function toArray($request): array
     {
         return [

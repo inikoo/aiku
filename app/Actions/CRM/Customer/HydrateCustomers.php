@@ -17,8 +17,6 @@ use App\Actions\CRM\Customer\Hydrators\CustomerHydrateTopUps;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
 use App\Actions\CRM\Customer\Search\CustomerRecordSearch;
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
-use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletDeliveries;
-use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletReturns;
 use App\Actions\Traits\Hydrators\WithHydrateCommand;
 use App\Models\CRM\Customer;
 
@@ -44,7 +42,7 @@ class HydrateCustomers
         CustomerHydrateTopUps::run($customer);
         CustomerHydrateCreditTransactions::run($customer);
 
-        if($customer->fulfilmentCustomer){
+        if ($customer->fulfilmentCustomer) {
             HydrateFulfilmentCustomer::run($customer->fulfilmentCustomer);
         }
 

@@ -41,8 +41,8 @@ trait WithHydrateCommand
 
         if ($command->hasOption('shop') && $command->option('shop')) {
 
-            $shop=Shop::where('slug',$command->option('shop'))->first();
-            if($shop){
+            $shop = Shop::where('slug', $command->option('shop'))->first();
+            if ($shop) {
                 $query->where('shop_id', $shop->id);
             }
         }
