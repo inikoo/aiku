@@ -61,13 +61,15 @@ createInertiaApp(
                       replaysSessionSampleRate: 0.1,
                       replaysOnErrorSampleRate: 1.0,
                       integrations            : [
+                        Sentry.browserSessionIntegration(),
                         Sentry.browserTracingIntegration({
                                                            // disable automatic span creation
                                                            // https://github.com/getsentry/sentry-javascript/discussions/8528
                                                            instrumentNavigation: false,
                                                            instrumentPageLoad  : false
                                                          }),
-                        new Sentry.Replay()
+                        Sentry.browserProfilingIntegration(),
+                        Sentry.replayIntegration()
                       ]
                     });
       }
