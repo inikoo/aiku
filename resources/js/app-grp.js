@@ -61,7 +61,6 @@ createInertiaApp(
                       replaysSessionSampleRate: 0.1,
                       replaysOnErrorSampleRate: 1.0,
                       integrations            : [
-                        Sentry.browserSessionIntegration(),
                         Sentry.browserTracingIntegration(),
                         Sentry.browserProfilingIntegration(),
                         Sentry.replayIntegration()
