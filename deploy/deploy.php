@@ -26,6 +26,8 @@ task('deploy:set-release', function () {
     run("cd {{release_path}} && sed -i~ '/^RELEASE=/s/=.*/=\"{{release_semver}}\"/' .env   ");
 });
 
+
+
 set('keep_releases', 1000);
 
 set('shared_dirs', ['storage', 'private']);
