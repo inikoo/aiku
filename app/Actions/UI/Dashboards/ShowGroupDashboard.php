@@ -250,7 +250,6 @@ class ShowGroupDashboard extends OrgAction
         return $this->handle($group);
     }
 
-
     public function calculatePercentageIncrease($thisYear, $lastYear): ?float
     {
         if ($lastYear == 0) {
@@ -260,7 +259,7 @@ class ShowGroupDashboard extends OrgAction
         return (($thisYear - $lastYear) / $lastYear) * 100;
     }
 
-    protected function mapIntervals($intervalData, string $prefix, array $keys)
+    protected function mapIntervals($intervalData, string $prefix, array $keys): array
     {
         $result = [];
         foreach ($keys as $key) {
