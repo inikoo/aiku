@@ -15,6 +15,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 trait WithHydrateCommand
 {
@@ -40,7 +41,6 @@ trait WithHydrateCommand
         $query = DB::table($tableName)->select('id')->orderBy('id');
 
         if ($command->hasOption('shop') && $command->option('shop')) {
-
             $shop = Shop::where('slug', $command->option('shop'))->first();
             if ($shop) {
                 $query->where('shop_id', $shop->id);
@@ -63,10 +63,13 @@ trait WithHydrateCommand
 
         $query->chunk(1000, function (Collection $modelsData) use ($bar) {
             foreach ($modelsData as $modelId) {
-                $instance = (new $this->model())->withTrashed()->find($modelId->id);
-                //  if ($instance) { // deleted instances will return null
+                $model = (new $this->model());
+                if ($this->hasSoftDeletes($model)) {
+                    $instance = $model->withTrashed()->find($modelId->id);
+                } else {
+                    $instance = $model->find($modelId->id);
+                }
                 $this->handle($instance);
-                //  }
                 $bar->advance();
             }
         });
@@ -75,6 +78,11 @@ trait WithHydrateCommand
         $command->info("");
 
         return 0;
+    }
+
+    public function hasSoftDeletes($model): bool
+    {
+        return in_array(SoftDeletes::class, class_uses_recursive($model));
     }
 
 }
