@@ -58,6 +58,7 @@ createInertiaApp(
                       environment             : import.meta.env.VITE_APP_ENV,
                       release                 : import.meta.env.VITE_RELEASE,
                       debug                   : true,
+                      tracesSampleRate        : 1.0,
                       replaysSessionSampleRate: 0.1,
                       replaysOnErrorSampleRate: 1.0,
                       profilesSampleRate      : 1.0,
