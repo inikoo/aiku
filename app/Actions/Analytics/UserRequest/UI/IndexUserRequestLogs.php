@@ -120,7 +120,7 @@ class IndexUserRequestLogs extends GrpAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'grp.sysadmin.users.request.index',
+                            'name' => 'grp.sysadmin.analytics.request.index',
                         ],
                         'label' => __('User Requests'),
                         'icon'  => 'fal fa-bars',

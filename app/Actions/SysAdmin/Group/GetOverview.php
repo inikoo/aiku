@@ -63,7 +63,7 @@ class GetOverview extends OrgAction
                 [
                     'name'  => __('User Requests'),
                     'icon'  => 'fal fa-road',
-                    'route' => route('grp.sysadmin.users.request.index'),
+                    'route' => route('grp.sysadmin.analytics.request.index'),
                     'count' => $group->sysadminStats->number_user_requests ?? 0
                 ],
             ],
