@@ -5,13 +5,12 @@
   -->
 
 <script setup lang="ts">
-import { Link, router } from "@inertiajs/vue3";
+import { Link } from "@inertiajs/vue3";
 import { reactive, inject } from "vue";
 import MenuPopoverList from "@/Layouts/Grp/MenuPopoverList.vue";
 import TopBarSelectButton from "@/Layouts/Grp/TopBarSelectButton.vue";
-import { Menu, MenuItems, MenuItem } from "@headlessui/vue";
+import { Menu, MenuItems } from "@headlessui/vue";
 import { Disclosure } from "@headlessui/vue";
-import Button from "@/Components/Elements/Buttons/Button.vue";
 import { trans } from "laravel-vue-i18n";
 import Image from "@/Components/Image.vue";
 import { usePage } from "@inertiajs/vue3";
@@ -62,9 +61,8 @@ import {
   faSign,
   faClipboardListCheck,
   faClipboardList,
-  faPiggyBank, faTruckContainer, faNarwhal, faUsersClass, faAlbumCollection,faBooks, faUserTie, faCodeBranch,faSatelliteDish
+  faPiggyBank, faTruckContainer, faNarwhal, faUsersClass, faAlbumCollection, faBooks, faUserTie, faCodeBranch, faSatelliteDish, faAnalytics
 } from "@fal";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import MenuTopRight from "@/Layouts/Grp/MenuTopRight.vue";
 import TopBarDropdownScope from "@/Layouts/Grp/TopBarDropdownScope.vue";
@@ -75,7 +73,7 @@ import ScreenWarning from "@/Components/Utils/ScreenWarning.vue";
 library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork, faFolderTree, faFolder, faCube, faUserPlus,
   faBox, faBoxesAlt, faMoneyCheckAlt, faCashRegister, faCoins, faFileInvoiceDollar, faReceipt, faPersonDolly, faPeopleArrows, faStream,
   faConciergeBell, faGarage, faHamsa, faCodeMerge, faSortShapesDownAlt, faHatChef, faTags, faCommentDollar, faNewspaper, faMailBulk, faBell, faLaptopHouse, faHandHoldingBox,
-  faShippingFast, faChessClock, faBallot, faHouseDamage, faSign, faClipboardListCheck, faClipboardList, faPiggyBank, faTruckContainer, faNarwhal, faUsersClass, faAlbumCollection, faBooks, faUserTie, faCodeBranch,faSatelliteDish
+  faShippingFast, faChessClock, faBallot, faHouseDamage, faSign, faClipboardListCheck, faClipboardList, faPiggyBank, faTruckContainer, faNarwhal, faUsersClass, faAlbumCollection, faBooks, faUserTie, faCodeBranch, faSatelliteDish, faAnalytics
 );
 
 defineProps<{
@@ -159,17 +157,17 @@ console.log("environment:", usePage().props.environment);
           <div class="flex items-center gap-x-2 pl-2">
             <!-- Section: Dropdown -->
             <div
-                v-if="layoutStore.group
+              v-if="layoutStore.group
                     || (layoutStore.organisations.data?.length > 1)
                     || (layoutStore.organisations.data?.find(organisation => organisation.slug == layoutStore.currentParams.organisation) && ((route(layoutStore.currentRoute, layoutStore.currentParams)).includes('shops') || layoutStore.currentRoute.includes('grp.org.dashboard.')))
                     || (layoutStore.navigation.org?.[layoutStore.currentParams.organisation]?.warehouses_navigation && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('warehouse'))
                 "
-                class="flex border border-gray-300 rounded-md"
+              class="flex border border-gray-300 rounded-md"
             >
-                <!-- Dropdown: TopBars -->
-                <Menu v-if="layoutStore.group || (layoutStore.organisations.data.length > 1)" as="div" class="relative inline-block text-left">
-                    <TopBarSelectButton
-                        :icon="
+              <!-- Dropdown: TopBars -->
+              <Menu v-if="layoutStore.group || (layoutStore.organisations.data.length > 1)" as="div" class="relative inline-block text-left">
+                <TopBarSelectButton
+                  :icon="
                                         layoutStore.currentParams?.organisation
                                             ? layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
                                                 ? 'fal fa-building'
@@ -180,8 +178,8 @@ console.log("environment:", usePage().props.environment);
                                                         : 'fal fa-city'
                                             : 'fal fa-city'
                                     "
-                        :activeButton="!!(layoutStore.organisations.data?.find((item) => item.slug == layoutStore.currentParams?.organisation)) || !!layoutStore.agents.data?.find((item) => item.slug == layoutStore.currentParams?.organisation)"
-                        :label="
+                  :activeButton="!!(layoutStore.organisations.data?.find((item) => item.slug == layoutStore.currentParams?.organisation)) || !!layoutStore.agents.data?.find((item) => item.slug == layoutStore.currentParams?.organisation)"
+                  :label="
                                         layoutStore.currentParams?.organisation
                                             ? layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
                                                 ?? layoutStore.agents.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
@@ -263,20 +261,20 @@ console.log("environment:", usePage().props.environment);
                 />
 
                 <transition>
-                    <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y-0 divide-gray-400 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
-                        <MenuPopoverList
-                            v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_shops.length"
-                            icon="fal fa-store-alt"
-                            :navKey="'shop'"
-                            :closeMenu="closeMenu"
-                        />
-                        <MenuPopoverList
-                            v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_fulfilments.length"
-                            icon="fal fa-hand-holding-box"
-                            :navKey="'fulfilment'"
-                            :closeMenu="closeMenu"
-                        />
-                    </MenuItems>
+                  <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y-0 divide-gray-400 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                    <MenuPopoverList
+                      v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_shops.length"
+                      icon="fal fa-store-alt"
+                      :navKey="'shop'"
+                      :closeMenu="closeMenu"
+                    />
+                    <MenuPopoverList
+                      v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_fulfilments.length"
+                      icon="fal fa-hand-holding-box"
+                      :navKey="'fulfilment'"
+                      :closeMenu="closeMenu"
+                    />
+                  </MenuItems>
                 </transition>
               </Menu>
 
