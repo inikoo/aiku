@@ -2,7 +2,7 @@ import "./bootstrap";
 import "../css/app.css";
 
 import { createApp, h } from "vue";
-import { createInertiaApp , router} from "@inertiajs/vue3";
+import { createInertiaApp, router } from "@inertiajs/vue3";
 import { ZiggyVue } from "../../vendor/tightenco/ziggy/dist/vue.m";
 import { i18nVue } from "laravel-vue-i18n";
 import Notifications from "@kyvg/vue3-notification";
@@ -16,7 +16,6 @@ import PrimeVue from "primevue/config";
 import Aura from "@primevue/themes/aura";
 import { definePreset } from "@primevue/themes";
 import ConfirmationService from "primevue/confirmationservice";
-
 
 const appName = capitalize(
     window.document.getElementsByTagName("title")[0]?.innerText) ||
@@ -40,7 +39,6 @@ const MyPreset = definePreset(Aura, {
   }
 });
 
-
 createInertiaApp(
   {
     title  : (title) => `${title} - ${appName}`,
@@ -59,17 +57,20 @@ createInertiaApp(
                       dsn                     : import.meta.env.VITE_SENTRY_DSN,
                       environment             : import.meta.env.VITE_APP_ENV,
                       release                 : import.meta.env.VITE_RELEASE,
+                      debug                   : true,
                       replaysSessionSampleRate: 0.1,
                       replaysOnErrorSampleRate: 1.0,
+                      profilesSampleRate      : 1.0,
                       integrations            : [
                         new Sentry.BrowserTracing({
-                                                    // Helps to send page load and navigation OPs to Sentry for InertiaJS
                                                     routingInstrumentation: inertiaRoutingInstrumentation,
-                                                    enableInp: true,
+                                                    enableInp: true
                                                   }),
-                        Sentry.browserProfilingIntegration(),
                         Sentry.replayIntegration(),
                         Sentry.httpClientIntegration(),
+                        Sentry.browserTracingIntegration(),
+                        Sentry.browserProfilingIntegration()
+
                       ]
                     });
       }
@@ -85,8 +86,8 @@ createInertiaApp(
             preset : MyPreset,
             options: {
               darkModeSelector: ".my-app-dark"  // dark mode of Primevue
-                                                 // depends .my-add-dark in
-                                                 // <html>
+              // depends .my-add-dark in
+              // <html>
             }
           }
         }).
@@ -108,53 +109,55 @@ createInertiaApp(
 //https://github.com/getsentry/sentry-javascript/issues/11362
 function inertiaRoutingInstrumentation(
   customStartTransaction,
-  startTransactionOnPageLoad = true,
-  startTransactionOnLocationChange = true,
+  startTransactionOnPageLoad       = true,
+  startTransactionOnLocationChange = true
 ) {
-  console.info('inertiaRoutingInstrumentation Started');
+  console.info("inertiaRoutingInstrumentation Started");
 
   let activeTransaction;
   let name;
   if (startTransactionOnPageLoad) {
-    console.info('Start transaction on page load');
-    name = '/'+route().current();
+    console.info("Start transaction on page load");
+    name = "/" + route().current();
 
     activeTransaction = customStartTransaction({
                                                  name,
-                                                 op: 'pageload',
+                                                 op      : "pageload",
                                                  metadata: {
-                                                   source: 'route',
-                                                 },
+                                                   source: "route"
+                                                 }
                                                });
   }
 
   if (startTransactionOnLocationChange) {
-    console.info('Start transaction on location change');
-    router.on('before', (_to, _from) => {
+    console.info("Start transaction on location change");
+
+    router.on("before", (_to, _from) => {
       if (activeTransaction) {
         activeTransaction.finish();
       }
 
-      const newName = '/'+route().current();
-      console.info('Old name: '+name+'. New name: '+newName)
+      const newName = "/" + route().current();
+      console.info("Old name: " + name + ". New name: " + newName);
 
       if (newName !== name) {
-        console.info('Old name is not equal to new name!');
+        console.info("Old name is not equal to new name!");
         activeTransaction = customStartTransaction({
-                                                     name: newName,
-                                                     op: 'navigation',
+                                                     name    : newName,
+                                                     op      : "navigation",
                                                      metadata: {
-                                                       source: 'route',
-                                                     },
+                                                       source: "route"
+                                                     }
                                                    });
       }
     });
 
-    router.on('finish', () => {
-      console.info('Router on finish. Route: '+'/'+route().current())
-      activeTransaction.setName('/'+route().current(), 'route');
+    router.on("finish", () => {
+      console.info("Router on finish. Route: " + "/" + route().current());
+      activeTransaction.setName("/" + route().current(), "route");
     });
   }
-  console.info('inertiaRoutingInstrumentation Finished');
+  console.info("inertiaRoutingInstrumentation Finished");
 }
+
 

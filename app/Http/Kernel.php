@@ -8,6 +8,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\AddSentryBrowserProfilingHeader;
 use App\Http\Middleware\ApiBindGroupInstance;
 use App\Http\Middleware\HandlePupilInertiaRequests;
 use App\Http\Middleware\RetinaPreparingAccount;
@@ -64,6 +65,7 @@ class Kernel extends HttpKernel
         ValidatePostSize::class,
         TrimStrings::class,
         ConvertEmptyStringsToNull::class,
+        AddSentryBrowserProfilingHeader::class
     ];
 
     protected $middlewareGroups = [
