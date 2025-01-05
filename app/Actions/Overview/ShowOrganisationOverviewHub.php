@@ -1,14 +1,12 @@
 <?php
 
 /*
- * Author: Ganes <gustiganes@gmail.com>
- * Created on: 24-12-2024, Bali, Indonesia
- * Github: https://github.com/Ganes556
- * Copyright: 2024
- *
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 05 Jan 2025 22:44:31 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
+ */
 
-namespace App\Actions\UI\Overview;
+namespace App\Actions\Overview;
 
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
@@ -18,12 +16,12 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowOverviewHub extends OrgAction
+class ShowOrganisationOverviewHub extends OrgAction
 {
-    // public function authorize(ActionRequest $request): bool
-    // {
-    //     return $request->user()->hasPermissionTo('org-overview.'.$this->organisation->id);
-    // }
+     public function authorize(ActionRequest $request): bool
+     {
+         return $request->user()->hasPermissionTo('org-reports.'.$this->organisation->id);
+     }
 
     public function asController(Organisation $organisation, ActionRequest $request): ActionRequest
     {
@@ -52,7 +50,7 @@ class ShowOverviewHub extends OrgAction
                     ],
                     'title'     => __('overview'),
                 ],
-                'data' => GetOverview::run($this->organisation)
+                'data' => GetOrganisationOverview::run($this->organisation)
             ]
         );
     }

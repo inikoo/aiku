@@ -11,7 +11,7 @@ namespace App\Actions\CRM\Prospect\UI;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\Traits\WithProspectsSubNavigation;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Enums\UI\CRM\ProspectsTabsEnum;
@@ -358,7 +358,7 @@ class IndexProspects extends OrgAction
             ),
             'grp.overview.crm.prospects.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'       => 'grp.overview.crm.prospects.index',

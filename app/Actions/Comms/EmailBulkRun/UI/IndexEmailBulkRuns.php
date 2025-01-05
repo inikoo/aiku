@@ -10,13 +10,12 @@
 namespace App\Actions\Comms\EmailBulkRun\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Http\Resources\Mail\EmailBulkRunsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\EmailBulkRun;
 use App\Models\Comms\Outbox;
-use App\Models\Comms\PostRoom;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -188,7 +187,7 @@ class IndexEmailBulkRuns extends OrgAction
         return match ($routeName) {
             'grp.overview.comms-marketing.email-bulk-runs.index', =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs($routeParameters),
+                ShowGroupOverviewHub::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,

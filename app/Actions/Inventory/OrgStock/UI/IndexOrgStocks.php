@@ -12,11 +12,11 @@ use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
 use App\Actions\Inventory\HasInventoryAuthorisation;
 use App\Actions\Inventory\UI\ShowInventoryDashboard;
 use App\Actions\OrgAction;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\OrgAgent\WithOrgAgentSubNavigation;
 use App\Actions\Procurement\OrgPartner\UI\ShowOrgPartner;
 use App\Actions\Procurement\OrgPartner\WithOrgPartnerSubNavigation;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Http\Resources\Inventory\OrgStocksResource;
 use App\InertiaTable\InertiaTable;
@@ -558,7 +558,7 @@ class IndexOrgStocks extends OrgAction
             ),
             'grp.overview.inventory.org-stocks.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'       => $routeName,

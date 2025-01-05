@@ -9,9 +9,9 @@
 namespace App\Actions\Production\RawMaterial\UI;
 
 use App\Actions\Helpers\History\UI\IndexHistory;
-use App\Actions\Production\Production\UI\ShowCraftsDashboard;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
+use App\Actions\Production\Production\UI\ShowCraftsDashboard;
 use App\Enums\UI\Production\RawMaterialsTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Production\RawMaterialsResource;
@@ -257,7 +257,7 @@ class IndexRawMaterials extends OrgAction
         return match ($routeName) {
             'grp.overview.production.raw-materials.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(
+                ShowGroupOverviewHub::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 [

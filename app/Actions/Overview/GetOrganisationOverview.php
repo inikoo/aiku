@@ -1,14 +1,12 @@
 <?php
 
 /*
- * Author: Ganes <gustiganes@gmail.com>
- * Created on: 24-12-2024, Bali, Indonesia
- * Github: https://github.com/Ganes556
- * Copyright: 2024
- *
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 05 Jan 2025 22:44:26 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
+ */
 
-namespace App\Actions\UI\Overview;
+namespace App\Actions\Overview;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
@@ -17,7 +15,7 @@ use App\Http\Resources\SysAdmin\OverviewResource;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
-class GetOverview extends OrgAction
+class GetOrganisationOverview extends OrgAction
 {
     use WithActionUpdate;
     use WithNoStrictRules;

@@ -12,7 +12,7 @@ namespace App\Actions\Inventory\OrgStockMovement\UI;
 
 use App\Actions\Inventory\HasInventoryAuthorisation;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Enums\Inventory\OrgStockMovement\OrgStockMovementFlowEnum;
 use App\Http\Resources\Inventory\OrgStockFamiliesResource;
 use App\Http\Resources\Inventory\OrgStockMovementsResource;
@@ -224,7 +224,7 @@ class IndexOrgStockMovements extends OrgAction
         return match ($routeName) {
             'grp.overview.inventory.org-stock-movements.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'       => $routeName,

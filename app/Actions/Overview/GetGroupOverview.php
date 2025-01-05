@@ -1,14 +1,12 @@
 <?php
 
 /*
- * Author: Ganes <gustiganes@gmail.com>
- * Created on: 13-12-2024, Bali, Indonesia
- * Github: https://github.com/Ganes556
- * Copyright: 2024
- *
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 05 Jan 2025 22:55:44 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
+ */
 
-namespace App\Actions\SysAdmin\Group;
+namespace App\Actions\Overview;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
@@ -17,7 +15,7 @@ use App\Http\Resources\SysAdmin\OverviewResource;
 use App\Models\SysAdmin\Group;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
-class GetOverview extends OrgAction
+class GetGroupOverview extends OrgAction
 {
     use WithActionUpdate;
     use WithNoStrictRules;
@@ -50,7 +48,7 @@ class GetOverview extends OrgAction
                 ],
                 [
                     'name'  => __('Users'),
-                    'icon'  => 'fal fa-users',
+                    'icon'  => 'fal fa-user-circle',
                     'route' => route('grp.sysadmin.users.all.index'),
                     'count' => $group->sysadminStats->number_users ?? 0
                 ],

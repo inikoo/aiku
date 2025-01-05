@@ -13,16 +13,16 @@ use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\UI\Ordering\OrdersTabsEnum;
 use App\Http\Resources\Ordering\OrdersResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\CRM\Customer;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
+use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\ShopifyUser;
 use App\Models\Ordering\Order;
@@ -496,7 +496,7 @@ class IndexOrders extends OrgAction
             ),
             'grp.overview.ordering.orders.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(
+                ShowGroupOverviewHub::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 $headCrumb(

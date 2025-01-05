@@ -10,21 +10,21 @@ namespace App\Actions\Discounts\OfferCampaign\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Http\Resources\Catalogue\OfferCampaignsResource;
+use App\InertiaTable\InertiaTable;
+use App\Models\Catalogue\Shop;
+use App\Models\Discounts\OfferCampaign;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
-use App\Models\Catalogue\Shop;
-use App\Models\Discounts\OfferCampaign;
-use App\Models\SysAdmin\Group;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexOfferCampaigns extends OrgAction
 {
@@ -180,7 +180,7 @@ class IndexOfferCampaigns extends OrgAction
         return match ($routeName) {
             'grp.overview.offer.campaigns.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs($routeParameters),
+                ShowGroupOverviewHub::make()->getBreadcrumbs($routeParameters),
                 [
                     [
                         'type'   => 'simple',

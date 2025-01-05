@@ -8,10 +8,10 @@
  *
 */
 
+use App\Actions\Overview\ShowOrganisationOverviewHub;
 use App\Actions\SysAdmin\Organisation\UI\IndexHistoryInOrganisation;
-use App\Actions\UI\Overview\ShowOverviewHub;
 
-Route::get('/', ShowOverviewHub::class)->name('hub');
+Route::get('/', ShowOrganisationOverviewHub::class)->name('hub');
 
 Route::name('changelog.')->prefix('changelog')->group(function () {
     Route::get('/', IndexHistoryInOrganisation::class)->name('index');

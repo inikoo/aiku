@@ -2,20 +2,19 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 10 Apr 2024 14:15:22 Central Indonesia Time, Sanur , Indonesia
- * Copyright (c) 2024, Raul A Perusquia Flores
+ * Created: Sun, 05 Jan 2025 21:37:13 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\Group\UI;
+namespace App\Actions\Overview;
 
 use App\Actions\GrpAction;
-use App\Actions\SysAdmin\Group\GetOverview;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowOverviewHub extends GrpAction
+class ShowGroupOverviewHub extends GrpAction
 {
     public function authorize(ActionRequest $request): bool
     {
@@ -45,14 +44,14 @@ class ShowOverviewHub extends GrpAction
                 ],
                 'dashboard' => [
                     'setting' => [
-                        "currency_choosen" => 'usd' // | pounds | dollar
+                        "currency_chosen" => 'usd' // | pounds | dollar
                     ],
                     'columns' => [
                         [
                             'widgets' => [
                                 [
                                     'type' => 'overview_table',
-                                    'data' => GetOverview::run($this->group)
+                                    'data' => GetGroupOverview::run($this->group)
                                 ]
                             ]
                         ],
@@ -96,7 +95,7 @@ class ShowOverviewHub extends GrpAction
                                     'type' => 'card_currency',
                                 ],
                                 [
-                                    'label' => __('card adbandoment rate'),
+                                    'label' => __('card abandonment rate'),
                                     'value' => 45,
                                     'type' => 'card_percentage',
                                 ],

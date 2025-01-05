@@ -11,8 +11,8 @@
 namespace App\Actions\SysAdmin\Organisation\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Overview\ShowOrganisationOverviewHub;
 use App\Actions\SysAdmin\User\Traits\WithFormattedUserHistories;
-use App\Actions\UI\Overview\ShowOverviewHub;
 use App\Http\Resources\History\HistoryResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SysAdmin\Organisation;
@@ -132,7 +132,7 @@ class IndexHistoryInOrganisation extends OrgAction
         return match ($routeName) {
             'grp.org.overview.changelog.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(
+                ShowOrganisationOverviewHub::make()->getBreadcrumbs(
                     $routeName,
                     $routeParameters
                 ),

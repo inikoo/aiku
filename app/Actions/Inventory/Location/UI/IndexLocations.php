@@ -11,7 +11,7 @@ namespace App\Actions\Inventory\Location\UI;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Enums\UI\Inventory\WarehouseAreaTabsEnum;
 use App\Enums\UI\Inventory\WarehouseTabsEnum;
 use App\Http\Resources\Inventory\LocationsResource;
@@ -365,7 +365,7 @@ class IndexLocations extends OrgAction
         return match ($routeName) {
             'grp.overview.inventory.locations.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'       => $routeName,

@@ -9,8 +9,8 @@
 namespace App\Actions\SupplyChain\Agent\UI;
 
 use App\Actions\GrpAction;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Http\Resources\SupplyChain\AgentsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SupplyChain\Agent;
@@ -221,7 +221,7 @@ class IndexAgents extends GrpAction
             ),
             'grp.overview.procurement.agents.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name' => $routeName,

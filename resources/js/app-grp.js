@@ -17,6 +17,7 @@ import Aura from "@primevue/themes/aura";
 import { definePreset } from "@primevue/themes";
 import ConfirmationService from "primevue/confirmationservice";
 
+
 const appName = capitalize(
     window.document.getElementsByTagName("title")[0]?.innerText) ||
   "Aiku";
@@ -67,7 +68,8 @@ createInertiaApp(
                                                     enableInp: true,
                                                   }),
                         Sentry.browserProfilingIntegration(),
-                        Sentry.replayIntegration()
+                        Sentry.replayIntegration(),
+                        Sentry.httpClientIntegration(),
                       ]
                     });
       }
@@ -103,8 +105,7 @@ createInertiaApp(
     }
   });
 
-
-// Uses https://inertiajs.com/events
+//https://github.com/getsentry/sentry-javascript/issues/11362
 function inertiaRoutingInstrumentation(
   customStartTransaction,
   startTransactionOnPageLoad = true,

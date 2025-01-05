@@ -61,7 +61,7 @@ import {
   faSign,
   faClipboardListCheck,
   faClipboardList,
-  faPiggyBank, faTruckContainer, faNarwhal, faUsersClass, faAlbumCollection, faBooks, faUserTie, faCodeBranch, faSatelliteDish, faAnalytics
+  faPiggyBank, faTruckContainer, faNarwhal, faUsersClass, faAlbumCollection, faBooks, faUserTie, faCodeBranch, faSatelliteDish, faAnalytics,faUserCircle
 } from "@fal";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import MenuTopRight from "@/Layouts/Grp/MenuTopRight.vue";
@@ -73,7 +73,7 @@ import ScreenWarning from "@/Components/Utils/ScreenWarning.vue";
 library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork, faFolderTree, faFolder, faCube, faUserPlus,
   faBox, faBoxesAlt, faMoneyCheckAlt, faCashRegister, faCoins, faFileInvoiceDollar, faReceipt, faPersonDolly, faPeopleArrows, faStream,
   faConciergeBell, faGarage, faHamsa, faCodeMerge, faSortShapesDownAlt, faHatChef, faTags, faCommentDollar, faNewspaper, faMailBulk, faBell, faLaptopHouse, faHandHoldingBox,
-  faShippingFast, faChessClock, faBallot, faHouseDamage, faSign, faClipboardListCheck, faClipboardList, faPiggyBank, faTruckContainer, faNarwhal, faUsersClass, faAlbumCollection, faBooks, faUserTie, faCodeBranch, faSatelliteDish, faAnalytics
+  faShippingFast, faChessClock, faBallot, faHouseDamage, faSign, faClipboardListCheck, faClipboardList, faPiggyBank, faTruckContainer, faNarwhal, faUsersClass, faAlbumCollection, faBooks, faUserTie, faCodeBranch, faSatelliteDish, faAnalytics,faUserCircle
 );
 
 defineProps<{

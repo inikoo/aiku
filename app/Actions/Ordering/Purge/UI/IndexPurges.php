@@ -11,7 +11,7 @@ namespace App\Actions\Ordering\Purge\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Http\Resources\Ordering\PurgesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
@@ -221,7 +221,7 @@ class IndexPurges extends OrgAction
             ),
             'grp.overview.ordering.purges.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(
+                ShowGroupOverviewHub::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 $headCrumb(

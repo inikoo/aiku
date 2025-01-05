@@ -11,7 +11,7 @@ namespace App\Actions\Web\Website\UI;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Enums\Web\Website\WebsiteStateEnum;
@@ -315,7 +315,7 @@ class IndexWebsites extends OrgAction
 
             'grp.overview.web.websites.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'       => $routeName,

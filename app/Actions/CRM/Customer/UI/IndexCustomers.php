@@ -10,14 +10,14 @@ namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\Traits\WithCustomersSubNavigation;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\UI\CRM\CustomersTabsEnum;
 use App\Http\Resources\CRM\CustomersResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\CRM\Customer;
 use App\Models\Catalogue\Shop;
+use App\Models\CRM\Customer;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -379,7 +379,7 @@ class IndexCustomers extends OrgAction
             ),
             'grp.overview.crm.customers.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(
+                ShowGroupOverviewHub::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 $headCrumb(

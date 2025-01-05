@@ -100,7 +100,8 @@ library.add(
 	faPaperPlane,
 	faPhoneVolume,
 	faRaygun,
-	faScrollOld
+	faScrollOld,
+  faUserCircle
 )
 
 // Search functionality
