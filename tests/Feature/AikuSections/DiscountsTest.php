@@ -123,7 +123,7 @@ test('UI Index offer campaigns', function () {
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Org/Shop/B2b/Campaigns/Campaigns')
+            ->component('Org/Discounts/Campaigns')
             ->has('title')
             ->has('pageHead')
             ->has('data')
@@ -137,7 +137,7 @@ test('UI show offer campaigns', function () {
 
     $response->assertInertia(function (AssertableInertia $page) use ($offerCampaign) {
         $page
-            ->component('Org/Shop/B2b/Campaigns/Campaign')
+            ->component('Org/Discounts/Campaign')
             ->has('title')
             ->has(
                 'pageHead',
@@ -156,7 +156,7 @@ test('UI Index offers', function () {
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Org/Shop/B2b/Offers/Offers')
+            ->component('Org/Discounts/Offers')
             ->has('title')
             ->has('pageHead')
             ->has('data')

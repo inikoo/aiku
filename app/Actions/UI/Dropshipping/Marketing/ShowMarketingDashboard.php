@@ -10,7 +10,7 @@ namespace App\Actions\UI\Dropshipping\Marketing;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
-use App\Enums\UI\Dropshipping\MarketingTabsEnum;
+use App\Enums\UI\Marketing\MarketingDashboardTabsEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -27,7 +27,7 @@ class ShowMarketingDashboard extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): ActionRequest
     {
-        $this->initialisationFromShop($shop, $request)->withTab(MarketingTabsEnum::values());
+        $this->initialisationFromShop($shop, $request)->withTab(MarketingDashboardTabsEnum::values());
 
         return $request;
     }
@@ -36,7 +36,7 @@ class ShowMarketingDashboard extends OrgAction
     public function htmlResponse(ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Shop/Dropshipping/MarketingDashboard',
+            'Org/Marketing/MarketingDashboard',
             [
                 'breadcrumbs'  => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'        =>  __('Marketing Dashboard'),
@@ -53,7 +53,7 @@ class ShowMarketingDashboard extends OrgAction
                 ],
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => MarketingTabsEnum::navigation()
+                    'navigation' => MarketingDashboardTabsEnum::navigation()
                 ],
                 'dashboard_stats'   => [
                     [

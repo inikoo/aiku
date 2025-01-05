@@ -140,7 +140,7 @@ class IndexOfferCampaigns extends OrgAction
         $iconRight  = null;
 
         return Inertia::render(
-            'Org/Shop/B2b/Campaigns/Campaigns',
+            'Org/Discounts/Campaigns',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

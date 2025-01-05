@@ -2,16 +2,16 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 11 May 2024 20:45:45 British Summer Time, Sheffield, UK
- * Copyright (c) 2024, Raul A Perusquia Flores
+ * Created: Sun, 05 Jan 2025 14:31:39 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-namespace App\Enums\UI\Dropshipping;
+namespace App\Enums\UI\Discounts;
 
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
 
-enum MarketingTabsEnum: string
+enum DiscountsDashboardTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
@@ -21,7 +21,7 @@ enum MarketingTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-            MarketingTabsEnum::DASHBOARD => [
+            DiscountsDashboardTabsEnum::DASHBOARD => [
                 'title' => __('dashboard'),
                 'icon'  => 'fal fa-tachometer-alt-fast',
             ],
