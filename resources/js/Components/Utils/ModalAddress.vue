@@ -22,11 +22,11 @@ const props = defineProps<{
     keyPayloadEdit?: string
 }>()
 
-const emits = defineEmits<{
-    (e: 'setModal', value: boolean): void
-}>()
+// const emits = defineEmits<{
+//     (e: 'setModal', value: boolean): void
+// }>()
 // console.log('address list', props.addresses.address_list)
-const homeAddress = props.addresses.address_list.data.find(address => address.id === props.addresses.home_address_id)
+const homeAddress = props.addresses.address_list?.data.find(address => address.id === props.addresses.home_address_id)
 
 
 // Method: Create new address
@@ -60,7 +60,7 @@ const onSubmitNewAddress = async (address: Address) => {
                 })
             },
             onError: () => notify({
-                title: "Failed",
+                title: trans("Failed"),
                 text: trans("Failed to submit the address, try again"),
                 type: "error",
             })
@@ -146,7 +146,7 @@ const onPinnedAddress = (addressID: number) => {
                 isLoading.value = false
             },
             onError: () => notify({
-                title: "Failed",
+                title: trans("Failed"),
                 text: "Failed to pinned the address, try again.",
                 type: "error",
             })
@@ -241,7 +241,7 @@ const onDeleteAddress = (addressID: number) => {
                             :class="addresses.current_selected_address_id == selectedAddress?.id ? 'bg-green-50' : 'bg-gray-100'"
                         >
                             <div class="flex gap-x-1 items-center relative">
-                                <div v-if="[...addresses.address_list.data].find(xxx => xxx.id === selectedAddress?.id)?.label" class="font-semibold text-sm whitespace-nowrap">
+                                <div v-if="[...addresses.address_list?.data].find(xxx => xxx.id === selectedAddress?.id)?.label" class="font-semibold text-sm whitespace-nowrap">
                                     {{ [...addresses.address_list.data].find(xxx => xxx.id === selectedAddress?.id)?.label }}
                                 </div>
                                 <div v-else class="text-xs italic whitespace-nowrap text-gray-400">
@@ -291,7 +291,7 @@ const onDeleteAddress = (addressID: number) => {
                 
                 <!-- Section: Address list -->
                 <div v-else class="relative py-4 h-fit">
-                    <template v-if="addresses.address_list.data?.length">
+                    <template v-if="addresses.address_list?.data?.length">
                         <div class="grid gap-x-3 gap-y-4 h-fit transition-all"
                             :class="[isEditAddress ? '' : 'col-span-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4']">
 
