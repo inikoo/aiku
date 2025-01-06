@@ -15,24 +15,16 @@ const emits = defineEmits<{
 
 const layout = inject('layout', layoutStructure)
 
-defineProps({
-    label: {
-        type: String,
-        default: "Search on table...",
-        required: false,
-    },
+const props = withDefaults(defineProps<{
+    label?: string;
+    value?: string;
+    onChange: (value: string) => void;
+    isVisiting?: boolean;
+}>(), {
+    label: "Search on table...",
+    value: "",
+});
 
-    value: {
-        type: String,
-        default: "",
-        required: false,
-    },
-
-    onChange: {
-        type: Function,
-        required: true,
-    },
-})
 
 onMounted(() => {
     if (typeof window !== 'undefined') {
@@ -50,11 +42,12 @@ const isUserMac = navigator.platform.includes('Mac')  // To check the user's Ope
 </script>
 
 <template>
-    <div class="rounded-md group relative h-7 flex" :title="trans('Search on table')">
+    <div class="rounded-md group relative h-7 flex" v-tooltip="label">
         <input
             id="tableinput"
             placeholder="Type something.."
             :value="value"
+            :disabled="isVisiting"
             type="text"
             name="global"
             @input="onChange($event.target?.value)"

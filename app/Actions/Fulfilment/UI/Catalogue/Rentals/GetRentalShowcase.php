@@ -16,7 +16,7 @@ class GetRentalShowcase
 {
     use AsObject;
 
-    public function handle(Rental $rental): array
+    public function handle(Rental $rental)
     {
         $asset = $rental->asset;
         $data   = [

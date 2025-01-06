@@ -13,6 +13,7 @@ use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\UI\Catalogue\ShowFulfilmentCatalogueDashboard;
 use App\Actions\OrgAction;
+use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Enums\UI\Catalogue\ServiceTabsEnum;
 use App\Enums\UI\Fulfilment\FulfilmentServiceTabsEnum;
@@ -106,6 +107,7 @@ class ShowService extends OrgAction
                             'icon'  => ['fal', 'fa-concierge-bell'],
                             'title' => __('service')
                         ],
+                    'iconRight' => ServiceStateEnum::stateIcon()[$service->state->value],
                     'actions' => [
                         $this->canEdit ? [
                             'type'  => 'button',

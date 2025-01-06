@@ -12,7 +12,6 @@ use Illuminate\Http\Request;
 
 class AddSentryBrowserProfilingHeader
 {
-
     public function handle(Request $request, Closure $next)
     {
         $response = $next($request);

@@ -61,6 +61,18 @@ const props = defineProps<{
                     </div>
                 </div>
 
+                <!-- Contact website -->
+                <div v-if="props.data?.website" class="grid grid-flow-col justify-start items-center">
+                    <FontAwesomeIcon fixed-width icon="fal fa-male" class="mr-4 text-gray-400" aria-hidden="true" />
+                    {{ props.data?.website }}
+                    <div class="group cursor-pointer px-1.5 flex justify-center text-xl "
+                        @click="useCopyText(props.data?.website)">
+                        <FontAwesomeIcon icon="fal fa-copy"
+                            class="text-sm leading-none mr-1 opacity-20 group-hover:opacity-75 group-active:opacity-100"
+                            aria-hidden="true" />
+                    </div>
+                </div>
+
                 <!-- Email -->
                 <div v-if="data?.email && props.data?.email.length != 0"
                     class="grid grid-flow-col justify-start items-center">

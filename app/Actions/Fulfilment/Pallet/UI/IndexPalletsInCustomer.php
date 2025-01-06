@@ -107,6 +107,7 @@ class IndexPalletsInCustomer extends OrgAction
 
         $query->whereNotNull('pallets.slug');
 
+        $query->leftjoin('locations', 'pallets.location_id', '=', 'locations.id');
 
         $query->defaultSort('pallets.id')
             ->select(
@@ -121,6 +122,8 @@ class IndexPalletsInCustomer extends OrgAction
                 'pallets.type',
                 'pallets.received_at',
                 'pallets.location_id',
+                'locations.code as location_code',
+                'locations.slug as location_slug',
                 'pallets.fulfilment_customer_id',
                 'pallets.warehouse_id',
                 'pallets.pallet_delivery_id',
@@ -151,11 +154,26 @@ class IndexPalletsInCustomer extends OrgAction
                 );
             }
 
+            $count = 0;
+
+            if ($prefix == FulfilmentCustomerPalletsTabsEnum::STORING->value) {
+                $count = $fulfilmentCustomer->number_pallets_state_storing;
+            } elseif ($prefix == FulfilmentCustomerPalletsTabsEnum::INCOMING) {
+                $count = $fulfilmentCustomer->number_pallets_state_in_process;
+            } elseif ($prefix == FulfilmentCustomerPalletsTabsEnum::INCIDENT) {
+                $count = $fulfilmentCustomer->number_pallets_status_incident;
+            } elseif ($prefix == FulfilmentCustomerPalletsTabsEnum::RETURNED) {
+                $count = $fulfilmentCustomer->number_pallets_status_returned;
+            } elseif ($prefix == FulfilmentCustomerPalletsTabsEnum::ALL) {
+                $count = $fulfilmentCustomer->number_pallets;
+            }
+
+
 
             $emptyStateData = [
                 'icons'       => ['fal fa-pallet'],
                 'title'       => __('No pallets found'),
-                'count'       => $fulfilmentCustomer->number_pallets,
+                'count'       => $count,
                 'description' => __("This customer don't have any pallets")
             ];
 
@@ -181,6 +199,9 @@ class IndexPalletsInCustomer extends OrgAction
             }
 
             $table->column(key: 'contents', label: __('Contents'), canBeHidden: false, searchable: true);
+            if ($prefix == FulfilmentCustomerPalletsTabsEnum::STORING->value) {
+                $table->column(key: 'location_code', label: __('location'), canBeHidden: false, sortable: true, searchable: true);
+            }
 
 
             $table->defaultSort('reference');
@@ -242,7 +263,7 @@ class IndexPalletsInCustomer extends OrgAction
 
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => FulfilmentCustomerPalletsTabsEnum::navigation(),
+                    'navigation' => FulfilmentCustomerPalletsTabsEnum::navigation($this->fulfilmentCustomer),
                 ],
 
                 FulfilmentCustomerPalletsTabsEnum::STORING->value => $this->tab == FulfilmentCustomerPalletsTabsEnum::STORING->value ?
