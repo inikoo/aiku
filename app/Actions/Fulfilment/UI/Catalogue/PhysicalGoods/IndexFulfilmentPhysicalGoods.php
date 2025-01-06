@@ -216,7 +216,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                 ->column(key: 'state', label: '', canBeHidden: false, type: 'icon')
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
+                ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono', align: 'right')
                 ->column(key: 'workflow', label: __('workflow'))
                 ->defaultSort('code');
         };

@@ -163,7 +163,7 @@ class IndexInvoices extends OrgAction
                 ->withGlobalSearch()
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
 
-            $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true, align: 'right');
 
 
             if ($parent instanceof Fulfilment || $parent instanceof Shop) {

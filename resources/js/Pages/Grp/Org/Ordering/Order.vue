@@ -157,6 +157,10 @@ const props = defineProps<{
     attachments?: {}
     invoices?: {}
     attachmentRoutes?: {}
+    address_update_route: routeType
+    addresses: {
+        
+    }
 }>()
 
 
@@ -182,7 +186,7 @@ const component = computed(() => {
 
 const isLoadingButton = ref<string | boolean>(false)
 // const isLoadingData = ref<string | boolean>(false)
-// const isModalAddress = ref<boolean>(false)
+const isModalAddress = ref<boolean>(false)
 
 // Tabs: Products
 const formProducts = useForm({ historicAssetId: null, quantity_ordered: 1, })
@@ -553,8 +557,12 @@ const openModal = (action :any) => {
                 <dt class="flex-none">
                     <FontAwesomeIcon icon='fal fa-shipping-fast' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
-                <dd class="w-full text-gray-500 text-xs relative px-2.5 py-2 ring-1 ring-gray-300 rounded bg-gray-50"
-                    v-html="box_stats?.customer.addresses.delivery.formatted_address">
+                <dd class="w-full text-gray-500 text-xs relative px-2.5 py-2 ring-1 ring-gray-300 rounded bg-gray-50">
+                    <span v-html="box_stats?.customer.addresses.delivery.formatted_address"></span>
+                    <div @click="() => isModalAddress = true"
+                        class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                        <span>{{ trans('Edit') }}</span>
+                    </div>
                 </dd>
             </div>
         </BoxStatPallet>
@@ -638,13 +646,13 @@ const openModal = (action :any) => {
 
 	<ModalProductList v-model="isModaProductListOpen" :fetchRoute="routes.products_list" :action="currentAction" :current="currentTab"  v-model:currentTab="currentTab" :typeModel="'order'" />
 
-    <!-- <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
+    <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
         <ModalAddress
-            :addresses="box_stats?.customer.addresses"
-            :updateRoute="routes.updateOrderRoute"
+            :addresses="addresses"
+            :updateRoute="address_update_route"
             keyPayloadEdit="delivery_address"
         />
-    </Modal> -->
+    </Modal>
 
 
     <Modal :isOpen="isOpenModalPayment" @onClose="isOpenModalPayment = false" width="w-[600px]">
