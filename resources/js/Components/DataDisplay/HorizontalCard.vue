@@ -23,6 +23,25 @@ const chartData = ref({
   ],
 });
 
+// Watch for prop changes to update chart data
+watch(
+  () => [props.labels, props.data, props.backgroundColors],
+  () => {
+    chartData.value = {
+      labels: props.labels,
+      datasets: [
+        {
+          label: "Core Web Vitals",
+          data: props.data,
+          backgroundColor: props.backgroundColors,
+          barPercentage: 0.8,
+          categoryPercentage: 0.8,
+        },
+      ],
+    };
+  }
+);
+
 // Define chart options
 const chartOptions = ref({
   responsive: true,
