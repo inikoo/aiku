@@ -57,29 +57,8 @@ class EditEmployee extends OrgAction
     {
         $user = $employee->getUser();
 
-        //$jobPositionsOrganisationData=GetJobPositionsOrganisationData::run($employee,$this->organisation);
-        $jobPositionsOrganisationData = (object)$employee->jobPositions->map(function ($jobPosition) {
-            $scopes = collect($jobPosition->pivot->scopes)->mapWithKeys(function ($scopeIds, $scope) use ($jobPosition) {
-                return match ($scope) {
-                    'Warehouse' => [
-                        'warehouses' => $this->organisation->warehouses->whereIn('id', $scopeIds)->pluck('slug')->toArray()
-                    ],
-                    'Shop' => [
-                        'shops' => $this->organisation->shops->whereIn('id', $scopeIds)->pluck('slug')->toArray()
-                    ],
-                    'Fulfilment' => [
-                        'fulfilments' => $this->organisation->fulfilments->whereIn('id', $scopeIds)->pluck('slug')->toArray()
-                    ],
-                    default => []
-                };
-            });
-
-            return [$jobPosition->code => $scopes->toArray()];
-        })->reduce(function ($carry, $item) {
-            return array_merge_recursive($carry, $item);
-        }, []);
-
-        // $jobPositionsOrganisationData=GetJobPositionsGroupData($employee)
+        $jobPositionsOrganisationData = GetJobPositionsOrganisationData::run($employee, $this->organisation);
+        $jobPositionsGroupData = GetJobPositionsGroupData::run($employee, $this->group);
 
         $sections['properties'] = [
             'label'  => __('Properties'),
@@ -167,11 +146,9 @@ class EditEmployee extends OrgAction
                         'warehouses'  => WarehouseResource::collection($this->organisation->warehouses),
                     ],
                     'value'   => [
-                    //    'group'=> $jobPositionsData,
-                     //   'organisation' =>  $jobPositionsOrganisationData,
+                        'group' => $jobPositionsGroupData,
+                        'organisation' =>  $jobPositionsOrganisationData,
                     ],
-
-
                     'full'    => true
                 ],
 

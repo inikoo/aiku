@@ -38,8 +38,50 @@ class RentalRecordSearch
                 'shop_slug'         => $rental->shop->slug,
                 'fulfilment_id'     => $rental->shop->fulfilment->id,
                 'fulfilment_slug'   => $rental->shop->fulfilment->slug,
-                'sections'          => ['catalogue'],
+                'sections'          => ['fulfilment'],
                 'haystack_tier_1'   => $rental->name,
+                'result' => [
+                    'route' => [
+                        'name'       => 'grp.org.fulfilments.show.catalogue.rentals.show',
+                        'parameters' => [
+                            'organisation' => $rental->organisation->slug,
+                            'fulfilment'   => $rental->shop->fulfilment->slug,
+                            'rental'       => $rental->slug
+                        ]
+                    ],
+                    'icon'        => [
+                        'icon' => 'fal fa-garage',
+                    ],
+                    'code'        => [
+                        'label'   => $rental->code,
+                        'tooltip' => __('code')
+                    ],
+                    'description' => [
+                        'label' => $rental->name
+                    ],
+                    'container'   => [
+                        'label' => $rental->shop->name,
+                    ],
+
+                    'state_icon' => $rental->state->stateIcon()[$rental->state->value],
+
+                    'meta' => [
+                        [
+                            'key'       => 'price',
+                            'type'      => 'currency',
+                            'code'      => $rental->currency->code,
+                            'label'     => __('Price') . ': ',
+                            'amount'    => $rental->price,
+                            'tooltip'   => __('Price')
+                        ],
+                        ($rental->auto_assign_asset || $rental->auto_assign_asset_type) ?
+                        [
+                            'key'     => 'workflow',
+                            'label'   =>    __($rental->auto_assign_asset) . ': ' . __($rental->auto_assign_asset_type),
+                            'tooltip' => __('Workflow')
+                        ] : [],
+                    ],
+                ]
             ]
         );
     }

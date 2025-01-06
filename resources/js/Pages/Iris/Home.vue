@@ -5,6 +5,7 @@
   -->
 
 <script setup lang="ts">
+import { ref } from 'vue'
 // import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheck, faPlus, faMinus } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -25,6 +26,16 @@ const props = defineProps<{
 defineOptions({ layout: LayoutIris })
 library.add(faCheck, faPlus, faMinus)
 
+const isPreviewLoggedIn = ref(false)
+
+const showWebpage = (activityItem) => {
+    if (activityItem?.web_block?.layout && activityItem.show) {
+        if (isPreviewLoggedIn.value && activityItem.visibility.in) return true
+        else if (!isPreviewLoggedIn.value && activityItem.visibility.out) return true
+        else return false
+    } else return false
+}
+
 </script>
 
 <template>
@@ -41,7 +52,9 @@ library.add(faCheck, faPlus, faMinus)
         <component 
           :is="getIrisComponent(activityItem.type)" 
           :key="activityItemIdx"
-          :fieldValue="activityItem.web_block.layout.data.fieldValue" />
+          :fieldValue="activityItem.web_block.layout.data.fieldValue" 
+          v-show="showWebpage(activityItem)"
+        />
       </div>
     </template>
 
