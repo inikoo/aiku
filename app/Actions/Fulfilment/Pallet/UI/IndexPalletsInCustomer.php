@@ -155,7 +155,7 @@ class IndexPalletsInCustomer extends OrgAction
             }
 
             $count = 0;
-            
+
             if ($prefix == FulfilmentCustomerPalletsTabsEnum::STORING->value) {
                 $count = $fulfilmentCustomer->number_pallets_state_storing;
             } elseif ($prefix == FulfilmentCustomerPalletsTabsEnum::INCOMING) {

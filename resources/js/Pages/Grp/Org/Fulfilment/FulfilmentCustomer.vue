@@ -16,6 +16,7 @@ import TableRentalAgreementClauses from "@/Components/Tables/Grp/Org/Fulfilment/
 import { useTabChange } from "@/Composables/tab-change"
 import { computed, defineAsyncComponent, inject, onMounted, onUnmounted, ref } from "vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
+import TableHistoryNotes from '@/Components/Tables/Grp/Org/Fulfilment/TableHistoryNotes.vue'
 
 import FulfilmentCustomerShowcase from "@/Components/Showcases/Grp/FulfilmentCustomerShowcase.vue"
 
@@ -57,24 +58,26 @@ const props = defineProps<{
     }
     showcase?: {}
     agreed_prices?: {}
+    note:{},
+    history:{}
 }>()
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
+console.log(props)
 const component = computed(() => {
 
     const components: Component = {
         showcase: FulfilmentCustomerShowcase,
         agreed_prices: TableRentalAgreementClauses,
-        history : TableHistories
+        history : TableHistories,
+        note:TableHistoryNotes
     }
 
     return components[currentTab.value]
 
 })
-
-
 
 const isOpen = ref(false)
 const warehouseValue = ref(null)
@@ -86,7 +89,6 @@ const loadingCreatePalletDelivery = ref(false)
 
 
 const onButtonCreateDeliveryClick = (action: Action) => {
-    console.log('action', action)
     if (action.disabled) isModalOpen.value = true
     
     else {
