@@ -26,9 +26,9 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faLink, faLongArrowRight } from '@far'
 import { faWallet } from '@fal'
 import { faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard } from '@fal'
-import Modal from '@/Components/Utils/Modal.vue'
+// import Modal from '@/Components/Utils/Modal.vue'
 import { Address, AddressManagement } from '@/types/PureComponent/Address'
-import ModalAddress from '@/Components/Utils/ModalAddress.vue'
+// import ModalAddress from '@/Components/Utils/ModalAddress.vue'
 import CountUp from 'vue-countup-v3'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 library.add(faWallet, faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard, faLongArrowRight)
@@ -119,7 +119,7 @@ const optionRadio = [
 
 const isLoadingButtonRentalAgreement = ref(false)
 const isLoading = ref<string | boolean>(false)
-const isModalAddress = ref(false)
+// const isModalAddress = ref(false)
 </script>
 
 <template>
@@ -189,15 +189,14 @@ const isModalAddress = ref(false)
                                             <dt v-tooltip="'Address'" class="flex-none">
                                                 <FontAwesomeIcon icon='fal fa-map-marker-alt' class='text-gray-400' fixed-width aria-hidden='true' />
                                             </dt>
-                                            <dd class="w-full text-gray-500">
+                                            <dd class="w-full max-w-96 text-gray-500">
                                                 <div class="relative px-2.5 py-2 ring-1 ring-gray-300 rounded bg-gray-50">
                                                     <span class="" v-html="data.fulfilment_customer.customer?.address.formatted_address" />
 
-                                                    <div @click="() => isModalAddress = true"
+                                                    <!-- <div @click="() => isModalAddress = true"
                                                         class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
-                                                        <!-- <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='mr-1' fixed-width aria-hidden='true' /> -->
                                                         <span>{{ trans('Edit') }}</span>
-                                                    </div>
+                                                    </div> -->
                                                 </div>
                                             </dd>
                                         </div>
@@ -210,12 +209,12 @@ const isModalAddress = ref(false)
 
                 <!-- Box Group: Pallets -->
                 <CustomerShowcaseStats v-if="data?.rental_agreement?.stats" :stats="data.stats" />
-                <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
+                <!-- <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
                     <ModalAddress
                         :addresses="data.addresses"
                         :updateRoute="data.address_update_route"
                     />
-                </Modal>
+                </Modal> -->
             </div>
         </div>
 
