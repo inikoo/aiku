@@ -139,21 +139,21 @@ const options = {
 }
 
 const abcdef = computed(() => {
-	return props.groupStats.organisations
-		.filter((org) => org.type !== "agent")
-		.map((org) => {
-			return {
-				name: org.name,
-				code: org.code,
-				interval_percentages: org.interval_percentages,
-				sales: org.sales || 0,
-				currency:
-					selectedCurrency.value.code === "grp"
-						? props.groupStats.currency.code
-						: org.currency.code,
-			}
-		})
-})
+  return props.groupStats.organisations
+    .filter((org) => org.type !== "agent")
+    .map((org) => {
+      return {
+        name: org.name,
+        code: org.code,
+        interval_percentages: org.interval_percentages,
+        sales: org.sales || 0,
+        currency:
+          selectedCurrency.value.code === "grp"
+            ? props.groupStats.currency.code
+            : org.currency.code,
+      };
+    });
+});
 
 const currency = ref([
 	{ name: "Group", code: "grp", symbol: props.groupStats.currency.symbol },
@@ -171,9 +171,8 @@ const organisationSymbols = computed(() => {
 const selectedCurrency = ref(currency.value[0])
 const isOrganisation = ref(selectedCurrency.value.code === "org")
 const toggleCurrency = () => {
-	isOrganisation.value = !isOrganisation.value
-	selectedCurrency.value = isOrganisation.value ? currency.value[1] : currency.value[0]
-}
+  selectedCurrency.value = isOrganisation.value ? currency.value[1] : currency.value[0];
+};
 const isNegative = (value: number): boolean => value < 0
 
 const updateRouteAndUser = async (interval: string) => {
@@ -397,7 +396,7 @@ console.log( layout.user.id,'layoutt');
 									<Transition name="spin-to-down" mode="out-in">
 										<div
 											v-tooltip="
-												useLocaleStore().numberShort(
+												useLocaleStore().CurrencyShort(
 													data.currency,
 													data.interval_percentages?.invoices[
 														selectedDateOption
@@ -532,7 +531,7 @@ console.log( layout.user.id,'layoutt');
 													?.amount
 											">
 											{{
-												useLocaleStore().numberShort(
+												useLocaleStore().CurrencyShort(
 													data.currency,
 													data.interval_percentages?.sales[
 														selectedDateOption
@@ -660,7 +659,7 @@ console.log( layout.user.id,'layoutt');
 										)
 									"
 									:footer="
-										useLocaleStore().numberShort(
+										useLocaleStore().CurrencyShort(
 											groupStats.currency.code,
 											Number(groupStats.total[selectedDateOption].total_sales)
 										)

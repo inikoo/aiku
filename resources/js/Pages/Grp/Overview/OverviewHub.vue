@@ -101,7 +101,7 @@ library.add(
 	faPhoneVolume,
 	faRaygun,
 	faScrollOld,
-  faUserCircle
+	faUserCircle
 )
 
 // Search functionality
@@ -137,47 +137,61 @@ const columnClasses = computed(() => {
 
 	<!-- Dashboard Grid -->
 	<div class="grid grid-cols-12 gap-4 p-4">
-		<!-- Loop through columns -->
-		<template v-for="(column, colIndex) in props.dashboard.columns" :key="colIndex">
-			<div :class="columnClasses" class="space-y-4">
-				<!-- Loop through widgets in each column -->
+		<!-- Left Column -->
+		<div class="col-span-6 space-y-4">
+			<!-- Loop through columns for the table -->
+			<template v-for="(column, colIndex) in props.dashboard.columns" :key="colIndex">
 				<template v-for="(widget, widgetIndex) in column.widgets" :key="widgetIndex">
-					<!-- Render Overview Table -->
-					<div
-						v-if="widget.type === 'overview_table'"
-						class="col-span-12 bg-white rounded-lg shadow-md p-6">
-						<h3 class="text-gray-500 font-semibold text-lg mb-4">Table Overview</h3>
+					<div v-if="widget.type === 'overview_table'">
 						<SectionTable :data="widget.data.data" />
 					</div>
-
-					<!-- Render Single Cards -->
-					<InfoDashboardCard
-						v-else-if="
-							widget.type === 'card_currency' || widget.type === 'card_percentage'
-						"
-						:value="widget.value"
-						:description="widget.label"
-						:showRedBorder="widget.type === 'card_currency'"
-						:showIcon="widget.type === 'card_currency'"
-						class="col-span-3" />
-
-					<StoreStatsCard
-						v-if="widget.type === 'multi_card'"
-						:label="widget.label"
-						:data="widget.data"
-						:gridCols="2" />
-					
-					<ProgressDashboardCard
-						v-else-if="widget.type === 'card_progress_bar'"
-						:label="widget.label"
-						:value="widget.data?.value || 'N/A'"
-						:progressBar="
-							widget.data?.progress_bar || { value: 0, max: 100, color: 'blue' }
-						" />
-
 				</template>
-			</div>
-		</template>
+			</template>
+		</div>
+
+		<!-- Middle Column -->
+		<div class="col-span-3 space-y-4">
+			<!-- Loop through widgets for middle column -->
+			<template v-for="(column, colIndex) in props.dashboard.columns" :key="colIndex">
+				<template v-for="(widget, widgetIndex) in column.widgets" :key="widgetIndex">
+					<div v-if="widget.type === 'multi_card'">
+						<StoreStatsCard :label="widget.label" :data="widget.data" :gridCols="2" />
+					</div>
+				</template>
+			</template>
+		</div>
+
+		<!-- Right Column -->
+		<div class="col-span-3 space-y-4">
+			<!-- Loop through widgets for right column -->
+			<template v-for="(column, colIndex) in props.dashboard.columns" :key="colIndex">
+				<template v-for="(widget, widgetIndex) in column.widgets" :key="widgetIndex">
+					<div
+						v-if="widget.type === 'card_currency' || widget.type === 'card_percentage'">
+						<InfoDashboardCard
+							:value="widget.value"
+							:description="widget.label"
+							:showRedBorder="widget.type === 'card_currency'"
+							:showIcon="widget.type === 'card_currency'"
+							class="h-full" />
+					</div>
+
+					<!-- Progress Dashboard Card -->
+					<div v-if="widget.type === 'card_progress_bar'">
+						<ProgressDashboardCard
+							:label="widget.label"
+							:value="widget.data?.value || 'N/A'"
+							:progressBar="
+								widget.data?.progress_bar || {
+									value: 0,
+									max: 100,
+									color: 'blue',
+								}
+							" />
+					</div>
+				</template>
+			</template>
+		</div>
 	</div>
 </template>
 
