@@ -57,7 +57,8 @@ class EditEmployee extends OrgAction
     {
         $user = $employee->getUser();
 
-        $jobPositionsData = (object)$employee->jobPositions->map(function ($jobPosition) {
+        //$jobPositionsOrganisationData=GetJobPositionsOrganisationData::run($employee,$this->organisation);
+        $jobPositionsOrganisationData = (object)$employee->jobPositions->map(function ($jobPosition) {
             $scopes = collect($jobPosition->pivot->scopes)->mapWithKeys(function ($scopeIds, $scope) use ($jobPosition) {
                 return match ($scope) {
                     'Warehouse' => [
@@ -77,6 +78,8 @@ class EditEmployee extends OrgAction
         })->reduce(function ($carry, $item) {
             return array_merge_recursive($carry, $item);
         }, []);
+
+        // $jobPositionsOrganisationData=GetJobPositionsGroupData($employee)
 
         $sections['properties'] = [
             'label'  => __('Properties'),
@@ -163,7 +166,12 @@ class EditEmployee extends OrgAction
                         'fulfilments' => ShopResource::collection($this->organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
                         'warehouses'  => WarehouseResource::collection($this->organisation->warehouses),
                     ],
-                    'value'   => $jobPositionsData,  // Should return an object
+                    'value'   => [
+                    //    'group'=> $jobPositionsData,
+                     //   'organisation' =>  $jobPositionsOrganisationData,
+                    ],
+
+
                     'full'    => true
                 ],
 
