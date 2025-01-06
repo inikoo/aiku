@@ -15,10 +15,20 @@ class GetServiceShowcase
 {
     use AsObject;
 
-    public function handle(Service $service): array
+    public function handle(Service $service)
     {
         return [
-            []
+            'id'          => $service->id,
+            'name'        => $service->name,
+            'description' => $service->description,
+            'code'        => $service->code,
+            'price'       => (float) $service->price,
+            'currency'    => $service->currency,
+            'unit'        => $service->unit,
+            'units'       => (int) $service->units,
+            'status'      => $service->status,
+            'state'       => $service->state,
+            'created_at'  => $service->created_at,
         ];
     }
 }
