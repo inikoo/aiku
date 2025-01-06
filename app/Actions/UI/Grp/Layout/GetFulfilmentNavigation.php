@@ -254,7 +254,7 @@ class GetFulfilmentNavigation
                 'root'  => 'grp.org.fulfilments.show.crm.',
                 'route' => [
                     'name'       => 'grp.org.fulfilments.show.crm.customers.index',
-                    'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
+                    'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug, ['elements[status]'=>'active']]
                 ],
 
                 'topMenu' => [
@@ -266,7 +266,7 @@ class GetFulfilmentNavigation
                             'root'    => 'grp.org.fulfilments.show.crm.customers.',
                             'route'   => [
                                 'name'       => 'grp.org.fulfilments.show.crm.customers.index',
-                                'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
+                                'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug, ['elements[status]'=>'active']]
                             ],
                         ],
                         // Prospects for fulfilment is still not supported
