@@ -24,6 +24,11 @@ trait WithReorganisePositions
             return [];
         }
 
+        if (array_key_exists('group', $positionsWithSlugs)) {
+            $positionsWithSlugs = [
+                ['slug' => $positionsWithSlugs['group']]
+            ];
+        }
 
         $positions = [];
         foreach ($positionsWithSlugs as $positionData) {

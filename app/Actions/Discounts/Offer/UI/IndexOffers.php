@@ -145,7 +145,7 @@ class IndexOffers extends OrgAction
         $iconRight  = null;
 
         return Inertia::render(
-            'Org/Shop/B2b/Offers/Offers',
+            'Org/Discounts/Offers',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

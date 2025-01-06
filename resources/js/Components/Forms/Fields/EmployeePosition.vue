@@ -1,5 +1,5 @@
     <script setup lang="ts">
-import { inject, onMounted, reactive, ref } from 'vue'
+import { computed, inject, onMounted, reactive, ref } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faBullhorn,faCashRegister,faChessQueen,faCube,faStore, faInfoCircle, faCircle, faCrown, faBars, faAbacus, faCheckDouble, faQuestionCircle, faTimes, faCheckCircle as falCheckCircle } from '@fal'
 import { faBoxUsd,faHelmetBattle,faExclamationCircle, faCheckCircle as fasCheckCircle, faCrown as fasCrown } from '@fas'
@@ -150,53 +150,6 @@ const warehousesLength = optionsList.warehouses?.length
 const productionsLength = optionsList.productions?.length
 
 const optionsJob = reactive<optionsJob>({
-    group_admin: {
-        department: trans("group admin"),
-        key: 'group_admin',
-        level: 'group_admin',
-        icon: 'fas fa-helmet-battle',
-        subDepartment: [
-            {
-                slug: "group-admin",
-                label: trans("Group Administrator"),
-                number_employees: props.options.positions.data.find(position => position.slug == 'group_admin')?.number_employees || 0,
-            }
-        ],
-    },
-    system_admin: {
-        key: 'group_sysadmin',
-        department: trans("Group sysadmin"),
-        level: 'group_sysadmin',
-        icon: 'fas fa-computer-classic',
-        subDepartment: [
-            {
-                slug: "system-admin",
-                label: trans("System Administrator"),
-                number_employees: props.options.positions.data.find(position => position.slug == 'system_admin')?.number_employees || 0,
-            }
-        ],
-    },
-    group_procurement: {
-        key: 'group_procurement',
-        department: trans("Group Procurement"),
-        icon: "fal fa-box-usd",
-        level: 'group_procurement',
-        subDepartment: [
-            {
-                slug: "gp-sc",
-                grade: "manager",
-                label: trans("Supply Chain Manager"),
-                number_employees: props.options.positions.data.find(position => position.slug == 'gp-sc')?.number_employees || 0,
-            },
-            {
-                slug: "gp-g",
-                grade: "manager",
-                label: trans("Goods Manager"),
-                number_employees: props.options.positions.data.find(position => position.slug == 'gp-g')?.number_employees || 0,
-            }
-        ],
-        // value: null
-    },
     org_admin: {
         key: 'org_admin',
         department: trans("Org admin"),
@@ -607,10 +560,15 @@ onMounted(() => {
         isMounted.value = true
     }, 300)
 })
+
+const countPosition = computed(() => {
+    return Object.keys(newForm[props.fieldName] || {})?.length
+})
 </script>
 
 <template>
     <div class="relative">
+        <div class="bg-red-300">{{ countPosition }}ddddddd</div>
         <!-- authorised fulfilment: {{ fulfilmentsLength }} <br> authorised shop: {{ shopsLength }} <br> authorised warehouse: {{ warehousesLength }} <br> authorised production: {{ productionsLength }} -->
         <div class="relative flex flex-col text-xs divide-y-[1px]">
             <template v-if="isMounted">
@@ -622,6 +580,7 @@ onMounted(() => {
                                 <FontAwesomeIcon v-if="jobGroup.icon" :icon="jobGroup.icon" class='text-gray-400 fixed-width' aria-hidden='true' />
                                 {{ jobGroup.department }}
                             </div>
+                            
                             <!-- Section: Radio (the clickable area) -->
                             <div class="h-full col-span-2 flex-col transition-all duration-200 ease-in-out">
                                 <div class="flex items-center divide-x divide-slate-300">
@@ -766,7 +725,7 @@ onMounted(() => {
             </div>
 
             <div v-if="saveButton" class="flex justify-end p-1">
-                <Button v-tooltip="newForm.isDirty ? undefined : trans('Disabled') + ', ' + trans('nothing to save')" @click="() => onSubmitNewForm()" label="Save" :disabled="!newForm.isDirty" :loading="newForm.processing" icon="fad fa-save" />
+                <Button v-tooltip="newForm.isDirty ? undefined : trans('Disabled') + ', ' + trans('nothing to save')" full @click="() => onSubmitNewForm()" label="Save" :disabled="!newForm.isDirty" :loading="newForm.processing" icon="fad fa-save" />
             </div>
         </div>
 

@@ -40,6 +40,7 @@ use App\Models\Web\Webpage;
 use App\Models\Web\WebpageStats;
 use App\Models\Web\Website;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -120,9 +121,9 @@ test('create webpage', function (Website $website) {
 
     $snapshot = $webpage->unpublishedSnapshot;
 
-    expect($snapshot->layout)->toBeArray()
+    expect($snapshot->layout)->toBeObject()
         ->and($snapshot->stats)->toBeInstanceOf(SnapshotStats::class)
-        ->and(Arr::get($snapshot->layout, 'web_blocks'))->toBeArray()
+        ->and((object) Arr::get($snapshot->layout, 'web_blocks'))->toBeObject()
         ->and($snapshot->checksum)->toBeString()
         ->and($snapshot->state)->toBe(SnapshotStateEnum::UNPUBLISHED);
 
@@ -252,7 +253,7 @@ test('create fulfilment website', function () {
         ->and($homeWebpage->stats->number_snapshots)->toBe(1)
         ->and($homeWebpage->stats->number_deployments)->toBe(0)
         ->and($homeWebpage->unpublishedSnapshot)->toBeInstanceOf(Snapshot::class)
-        ->and($homeWebpage->unpublishedSnapshot->layout)->toBeArray();
+        ->and($homeWebpage->unpublishedSnapshot->layout)->toBeObject();
 
     return $website;
 });

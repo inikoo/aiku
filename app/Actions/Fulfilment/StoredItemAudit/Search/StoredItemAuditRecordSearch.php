@@ -20,7 +20,6 @@ class StoredItemAuditRecordSearch
     public function handle(StoredItemAudit $storedItemAudit): void
     {
 
-
         $storedItemAudit->universalSearch()->updateOrCreate(
             [],
             [
@@ -33,7 +32,36 @@ class StoredItemAuditRecordSearch
                 'fulfilment_slug'   => $storedItemAudit->fulfilment->slug,
                 'sections'          => ['fulfilment'],
                 'haystack_tier_1'   => $storedItemAudit->reference,
-
+                'result' => [
+                    'route'     => [
+                        'name'          => 'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.show',
+                        'parameters'    => [
+                            'organisation'       => $storedItemAudit->organisation->slug,
+                            'fulfilment'         => $storedItemAudit->fulfilment->slug,
+                            'fulfilmentCustomer' => $storedItemAudit->fulfilmentCustomer->slug,
+                            'storedItemAudit'    => $storedItemAudit->slug
+                        ]
+                    ],
+                    'icon'        => [
+                        'icon' => 'fal fa-pallet',
+                    ],
+                    'code'        => [
+                        'label'   => $storedItemAudit->reference,
+                        'tooltip' => __('Reference')
+                    ],
+                    'meta'          => [
+                        [
+                            'key'       => __("customer_reference"),
+                            'label'     => __("Pallet reference (customer's), notes") . ': ' . __($storedItemAudit->customer_reference),
+                            'tooltip'   => __("Pallet reference (customer's), notes")
+                        ],
+                        [
+                            'key'       => __("state"),
+                            'label'     => __("State") . ': ' . __($storedItemAudit->state->value),
+                            'tooltip'   => __("State")
+                        ],
+                    ],
+                ]
             ]
         );
 

@@ -8,6 +8,8 @@
 
 namespace App\Actions\SysAdmin\User\UI;
 
+use App\Actions\HumanResources\Employee\UI\GetJobPositionsGroupData;
+use App\Actions\HumanResources\Employee\UI\GetJobPositionsOrganisationData;
 use App\Actions\OrgAction;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\Catalogue\Shop;
@@ -94,12 +96,11 @@ class EditUser extends OrgAction
 
         $jobPositionsOrganisationsData = [];
         foreach ($this->group->organisations as $organisation) {
-            //$jobPositionsOrganisationData=GetJobPositionsOrganisationData::run($user,$this->organisation);
-            //$jobPositionsOrganisationsData[]=$jobPositionsOrganisationData;
+            $jobPositionsOrganisationData = GetJobPositionsOrganisationData::run($user, $organisation);
+            $jobPositionsOrganisationsData[] = $jobPositionsOrganisationData;
         }
-        // $jobPositionsOrganisationData=GetJobPositionsGroupData($employee)
 
-
+        $jobPositionsGroupData = GetJobPositionsGroupData::run($user, $this->group);
 
         $organisations = $user->group->organisations;
         $reviewData    = $organisations->mapWithKeys(function ($organisation) {
@@ -120,8 +121,6 @@ class EditUser extends OrgAction
 
         $organisationList = OrganisationsResource::collection($organisations);
 
-        //   dd($user);
-
         return Inertia::render("EditModel", [
             "title"       => __("user"),
             "breadcrumbs" => $this->getBreadcrumbs(
@@ -130,6 +129,8 @@ class EditUser extends OrgAction
             ),
             "pageHead"    => [
                 "title"   => $user->username,
+                "icon"    => 'fal fa-user-circle',
+                "model"   => __('user'),
                 "actions" => [
                     [
                         "type"  => "button",
@@ -203,8 +204,8 @@ class EditUser extends OrgAction
                                     ];
                                 })->toArray(),
                                 'value'   => [
-                                    //    'group'=> $jobPositionsData,
-                                    //   'organisations' =>  $jobPositionsOrganisationData,
+                                    'group' => $jobPositionsGroupData,
+                                    'organisations' =>  $jobPositionsOrganisationsData,
                                 ],
 
 //                                "value"             => $user->pseudoJobPositions->flatMap(function (JobPosition $jobPosition) {
