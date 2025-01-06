@@ -20,6 +20,7 @@ class GetRentalShowcase
     {
         $asset = $rental->asset;
         $data   = [
+            'rental'   => JsonResource::make($rental),
             'sales'    => JsonResource::make($asset->orderingStats),
             'currency' => $asset->currency,
             'total'    => collect([
