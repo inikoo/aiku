@@ -93,6 +93,7 @@ class IndexPayments extends OrgAction
                 'payments.reference',
                 'payments.status',
                 'payments.date',
+                'payments.amount',
                 'payment_accounts.slug as payment_accounts_slug',
                 'payment_service_providers.slug as payment_service_providers_slug',
                 'shops.name as shop_name',
@@ -128,6 +129,7 @@ class IndexPayments extends OrgAction
                 $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
                 $table->column(key: 'shop_name', label: __('shop'), canBeHidden: false, searchable: true);
             }
+            $table->column(key: 'amount', label: __('amount'), canBeHidden: false, sortable: true, searchable: true, type:'number');
             $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true, type:'number');
         };
     }
