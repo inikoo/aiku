@@ -154,11 +154,26 @@ class IndexPalletsInCustomer extends OrgAction
                 );
             }
 
+            $count = 0;
+            
+            if ($prefix == FulfilmentCustomerPalletsTabsEnum::STORING->value) {
+                $count = $fulfilmentCustomer->number_pallets_state_storing;
+            } elseif ($prefix == FulfilmentCustomerPalletsTabsEnum::INCOMING) {
+                $count = $fulfilmentCustomer->number_pallets_state_in_process;
+            } elseif ($prefix == FulfilmentCustomerPalletsTabsEnum::INCIDENT) {
+                $count = $fulfilmentCustomer->number_pallets_status_incident;
+            } elseif ($prefix == FulfilmentCustomerPalletsTabsEnum::RETURNED) {
+                $count = $fulfilmentCustomer->number_pallets_status_returned;
+            } elseif ($prefix == FulfilmentCustomerPalletsTabsEnum::ALL) {
+                $count = $fulfilmentCustomer->number_pallets;
+            }
+
+
 
             $emptyStateData = [
                 'icons'       => ['fal fa-pallet'],
                 'title'       => __('No pallets found'),
-                'count'       => $fulfilmentCustomer->number_pallets,
+                'count'       => $count,
                 'description' => __("This customer don't have any pallets")
             ];
 
