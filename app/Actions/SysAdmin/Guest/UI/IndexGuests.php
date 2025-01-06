@@ -9,6 +9,7 @@
 namespace App\Actions\SysAdmin\Guest\UI;
 
 use App\Actions\GrpAction;
+use App\Actions\SysAdmin\Guest\WithGuestsSubNavigations;
 use App\Actions\SysAdmin\UI\ShowSysAdminDashboard;
 use App\Actions\SysAdmin\WithSysAdminAuthorization;
 use App\Http\Resources\SysAdmin\GuestsResource;
@@ -27,14 +28,16 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexGuests extends GrpAction
 {
     use WithSysAdminAuthorization;
+    use WithGuestsSubNavigations;
 
+    private string $scope;
 
     protected function getElementGroups(): array
     {
         return [
             'status' => [
                 'label'    => __('Status'),
-                'elements' => ['active' => __('Active'), 'suspended' => __('Suspended')],
+                'elements' => ['active' => __('Active'), 'inactive' => __('Inactive')],
                 'engine'   => function ($query, $elements) {
                     $query->where('users.status', array_pop($elements) === 'active');
                 }
@@ -44,7 +47,7 @@ class IndexGuests extends GrpAction
     }
 
 
-    public function handle(Group $group, $prefix = null): LengthAwarePaginator
+    public function handle(Group $group, string $scope = 'active', $prefix = null): LengthAwarePaginator
     {
         $this->group  = $group;
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -68,13 +71,19 @@ class IndexGuests extends GrpAction
                 }
             )
             ->leftJoin('user_stats', 'user_stats.user_id', 'user_has_models.user_id');
-        foreach ($this->getElementGroups() as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
+        if ($scope == 'active') {
+            $queryBuilder->where('guests.status', true);
+        } elseif ($scope == 'inactive') {
+            $queryBuilder->where('guests.status', false);
+        } else {
+            foreach ($this->getElementGroups() as $key => $elementGroup) {
+                $queryBuilder->whereElementGroup(
+                    key: $key,
+                    allowedElements: array_keys($elementGroup['elements']),
+                    engine: $elementGroup['engine'],
+                    prefix: $prefix
+                );
+            }
         }
 
         return $queryBuilder
@@ -86,13 +95,22 @@ class IndexGuests extends GrpAction
             ->withQueryString();
     }
 
-    public function tableStructure(Group $group, $prefix = null): Closure
+    public function tableStructure(Group $group, string $scope = 'active', $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($prefix, $group) {
+        return function (InertiaTable $table) use ($prefix, $group, $scope) {
             if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
+            }
+            if ($scope == 'all') {
+                foreach ($this->getElementGroups() as $key => $elementGroup) {
+                    $table->elementGroup(
+                        key: $key,
+                        label: $elementGroup['label'],
+                        elements: $elementGroup['elements']
+                    );
+                }
             }
             $table
                 ->withGlobalSearch()
@@ -129,13 +147,34 @@ class IndexGuests extends GrpAction
 
     public function htmlResponse(LengthAwarePaginator $guests, ActionRequest $request): Response
     {
+        $subNavigation = $this->getGuestsNavigation($this->group, $request);
+        $title = __('Active guests');
+        $icon  = [
+            'icon'  => ['fal', 'fa-user-alien'],
+            'title' => __('active guests')
+        ];
+        if ($this->scope == 'inactive') {
+            $title = __('Inactive guests');
+            $icon  = [
+                'icon'  => ['fal', 'fa-user-slash'],
+                'title' => __('inactive guests')
+            ];
+        } elseif ($this->scope == 'all') {
+            $title = __('Guests');
+            $icon  = [
+                'icon'  => ['fal', 'fa-users'],
+                'title' => __('all guests')
+            ];
+        }
         return Inertia::render(
             'SysAdmin/Guests',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName()),
                 'title'       => __('guests'),
                 'pageHead'    => [
-                    'title'   => __('guests'),
+                    'title'         => $title,
+                    'icon'          => $icon,
+                    'subNavigation' => $subNavigation,
                     'actions' => [
                         $this->canEdit && $request->route()->getName() == 'grp.sysadmin.guests.index' ? [
                             'type'  => 'button',
@@ -152,36 +191,86 @@ class IndexGuests extends GrpAction
                 ],
                 'data'        => GuestsResource::collection($guests),
             ]
-        )->table($this->tableStructure($this->group));
+        )->table($this->tableStructure(group:$this->group, scope:$this->scope));
     }
 
+    public function inInactive(ActionRequest $request): LengthAwarePaginator
+    {
+        $group = group();
+        $this->scope = 'inactive';
+        $this->initialisation($group, $request);
+
+        return $this->handle($group, $this->scope);
+    }
+
+    public function inActive(ActionRequest $request): LengthAwarePaginator
+    {
+        $group = group();
+        $this->scope = 'active';
+        $this->initialisation($group, $request);
+
+        return $this->handle($group, $this->scope);
+    }
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation(app('group'), $request);
+        $group = group();
+        $this->scope = 'all';
+        $this->initialisation($group, $request);
 
-        return $this->handle($this->group);
+        return $this->handle($group, $this->scope);
     }
 
-    public function getBreadcrumbs($suffix = null): array
+    public function getBreadcrumbs(string $routeName): array
     {
-        return array_merge(
-            ShowSysAdminDashboard::make()->getBreadcrumbs(),
-            [
+        $headCrumb = function (array $routeParameters = []) {
+            return [
                 [
                     'type'   => 'simple',
                     'simple' => [
-                        'route' => [
-                            'name' => 'grp.sysadmin.guests.index',
-                        ],
-                        'label' => __('Guests'),
-                        'icon'  => 'fal fa-bars',
+                        'route' => $routeParameters,
+                        'label' => __('Users'),
+                        'icon'  => 'fal fa-bars'
                     ],
-                    'suffix' => $suffix
+                ],
+            ];
+        };
 
-                ]
-            ]
-        );
+        return match ($routeName) {
+            'grp.sysadmin.guests.index' =>
+            array_merge(
+                ShowSysAdminDashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name' => 'grp.sysadmin.users.index',
+                        null
+                    ]
+                ),
+            ),
+            'grp.sysadmin.guests.inactive.index' =>
+            array_merge(
+                ShowSysAdminDashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name' => 'grp.sysadmin.guests.inactive.index',
+                        null
+                    ]
+                ),
+            ),
+            'grp.sysadmin.guests.all.index' =>
+            array_merge(
+                ShowSysAdminDashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name' => 'grp.sysadmin.guests.all.index',
+                        null
+                    ]
+                ),
+            ),
+
+
+            default => []
+        };
     }
 
 

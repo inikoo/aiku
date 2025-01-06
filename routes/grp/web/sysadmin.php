@@ -49,7 +49,9 @@ Route::prefix('users')->as('users.')->group(function () {
 });
 
 Route::prefix('guests')->as('guests.')->group(function () {
-    Route::get('', IndexGuests::class)->name('index');
+    Route::get('active', [IndexGuests::class, 'inActive'])->name('index');
+    Route::get('inactive', [IndexGuests::class, 'inInactive'])->name('inactive.index');
+    Route::get('all', IndexGuests::class)->name('all.index');
     Route::get('create', CreateGuest::class)->name('create');
     Route::get('export', ExportGuests::class)->name('export');
 

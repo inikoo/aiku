@@ -24,8 +24,7 @@ class CreateSupplier extends GrpAction
 
     public function handle(Group|Agent $parent, ActionRequest $request): Response
     {
-        if($parent instanceof Agent)
-        {
+        if ($parent instanceof Agent) {
             $route = [
                 'name'  => 'grp.models.agent.supplier.store',
                 'parameters' => $parent->id
@@ -40,7 +39,8 @@ class CreateSupplier extends GrpAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->originalParameters()),
+                    $request->route()->originalParameters()
+                ),
                 'title'       => __('new supplier'),
                 'pageHead'    => [
                     'title'        => __('new supplier'),

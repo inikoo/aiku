@@ -26,7 +26,7 @@ enum PaymentStateEnum: string
     case CANCELLED  = 'cancelled';
     case ERROR      = 'error';
     case DECLINED   = 'declined';
-    
+
     public static function labels(): array
     {
         return [
@@ -41,8 +41,7 @@ enum PaymentStateEnum: string
 
     public static function count(Group|Organisation|PaymentAccount|Shop|OrgPaymentServiceProvider|Invoice|Order $parent): array
     {
-        if($parent instanceof Group || $parent instanceof Organisation ||$parent instanceof Shop)
-        {
+        if ($parent instanceof Group || $parent instanceof Organisation || $parent instanceof Shop) {
             $stats = $parent->accountingStats;
         } elseif ($parent instanceof OrgPaymentServiceProvider || $parent instanceof PaymentAccount) {
             $stats = $parent->stats;
@@ -57,5 +56,3 @@ enum PaymentStateEnum: string
         ];
     }
 }
-
-
