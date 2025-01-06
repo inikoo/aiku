@@ -21,6 +21,7 @@ use App\Actions\UI\Iris\ShowTnc;
 use App\Actions\UI\Iris\ShowWelcome;
 use App\Actions\UI\Iris\ShowSearchResult;
 use Illuminate\Support\Facades\Route;
+use App\Actions\CRM\WebUser\Retina\Login;
 use Inertia\Inertia;
 
 Route::get('/', ShowHome::class)->name('home');
@@ -38,6 +39,7 @@ Route::get('/login', function () {
         'Login'
     );
 })->name('login');
+Route::post('login', Login::class)->name('login.store');
 Route::get('/register', function () {
     return Inertia::render(
         'Register'
