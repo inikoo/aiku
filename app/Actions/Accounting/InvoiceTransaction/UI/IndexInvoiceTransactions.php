@@ -9,7 +9,7 @@
 namespace App\Actions\Accounting\InvoiceTransaction\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Http\Resources\Accounting\InvoiceTransactionsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Invoice;
@@ -170,7 +170,7 @@ class IndexInvoiceTransactions extends OrgAction
         return match ($routeName) {
             'grp.overview.ordering.transactions.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'       => $routeName,

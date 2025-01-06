@@ -10,16 +10,17 @@ namespace App\Actions\Accounting\PaymentAccount\UI;
 
 use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServiceProvider;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\PaymentAccountsResource;
 use App\Http\Resources\Catalogue\ShopResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\OrgPaymentServiceProvider;
+use App\Models\Accounting\PaymentAccount;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -28,7 +29,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexPaymentAccounts extends OrgAction
 {
@@ -302,7 +302,7 @@ class IndexPaymentAccounts extends OrgAction
             ),
             'grp.overview.accounting.payment-accounts.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name' => $routeName,

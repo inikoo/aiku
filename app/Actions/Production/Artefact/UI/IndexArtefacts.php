@@ -8,9 +8,9 @@
 
 namespace App\Actions\Production\Artefact\UI;
 
-use App\Actions\Production\Production\UI\ShowCraftsDashboard;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
+use App\Actions\Production\Production\UI\ShowCraftsDashboard;
 use App\Enums\UI\Production\ArtefactsTabsEnum;
 use App\Http\Resources\Production\ArtefactsResource;
 use App\InertiaTable\InertiaTable;
@@ -248,7 +248,7 @@ class IndexArtefacts extends OrgAction
         return match ($routeName) {
             'grp.overview.production.artefacts.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(
+                ShowGroupOverviewHub::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 [

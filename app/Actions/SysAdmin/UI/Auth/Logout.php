@@ -6,7 +6,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\UI\Grp;
+namespace App\Actions\SysAdmin\UI\Auth;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

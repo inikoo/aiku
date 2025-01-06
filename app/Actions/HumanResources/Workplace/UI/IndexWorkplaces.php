@@ -9,7 +9,7 @@
 namespace App\Actions\HumanResources\Workplace\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Http\Resources\HumanResources\WorkplaceInertiaResource;
 use App\Http\Resources\HumanResources\WorkplaceResource;
@@ -17,6 +17,7 @@ use App\InertiaTable\InertiaTable;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -24,7 +25,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexWorkplaces extends OrgAction
 {
@@ -207,7 +207,7 @@ class IndexWorkplaces extends OrgAction
             ),
             'grp.overview.hr.workplaces.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     $routeName,
                     $routeParameters

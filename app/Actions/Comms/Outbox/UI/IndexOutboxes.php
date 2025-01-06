@@ -12,7 +12,7 @@ use App\Actions\Comms\Traits\WithCommsSubNavigation;
 use App\Actions\Comms\UI\ShowCommsDashboard;
 use App\Actions\Fulfilment\Fulfilment\UI\EditFulfilment;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Http\Resources\Mail\OutboxesResource;
 use App\InertiaTable\InertiaTable;
@@ -268,7 +268,7 @@ class IndexOutboxes extends OrgAction
             ),
             'grp.overview.comms-marketing.outboxes.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs($routeParameters),
+                ShowGroupOverviewHub::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => 'grp.overview.comms-marketing.outboxes.index',

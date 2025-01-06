@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
-import Tabs from "@/Components/Navigation/Tabs.vue"
 
 import { useTabChange } from "@/Composables/tab-change"
 import { capitalize } from "@/Composables/capitalize"
-import { computed, defineAsyncComponent, inject, ref } from 'vue'
+import { computed, inject, ref } from 'vue'
 import type { Component } from 'vue'
 
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
@@ -13,13 +12,7 @@ import { Tabs as TSTabs } from '@/types/Tabs'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 import SimpleBox from '@/Components/DataDisplay/SimpleBox.vue'
 
-// import FileShowcase from '@/xxxxxxxxxxxx'
-import CountUp from 'vue-countup-v3'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import {  } from '@fas'
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { trans } from 'laravel-vue-i18n'
-library.add()
+
 
 const props = defineProps<{
     title: string,

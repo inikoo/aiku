@@ -11,7 +11,7 @@ namespace App\Actions\Inventory\WarehouseArea\UI;
 use App\Actions\Inventory\UI\ShowInventoryDashboard;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Enums\UI\Inventory\WarehouseTabsEnum;
 use App\Http\Resources\Inventory\WarehouseAreaResource;
 use App\InertiaTable\InertiaTable;
@@ -292,7 +292,7 @@ class IndexWarehouseAreas extends OrgAction
         return match ($routeName) {
             'grp.overview.inventory.warehouses-areas.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs($routeParameters),
+                ShowGroupOverviewHub::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,

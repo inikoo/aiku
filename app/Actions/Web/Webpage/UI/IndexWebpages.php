@@ -9,7 +9,7 @@
 namespace App\Actions\Web\Webpage\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Actions\Web\Webpage\WithWebpageSubNavigation;
@@ -432,7 +432,7 @@ class IndexWebpages extends OrgAction
             ),
             'grp.overview.web.webpages.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(
+                ShowGroupOverviewHub::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 $headCrumb(

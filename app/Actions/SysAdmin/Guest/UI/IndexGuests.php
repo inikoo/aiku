@@ -9,8 +9,8 @@
 namespace App\Actions\SysAdmin\Guest\UI;
 
 use App\Actions\GrpAction;
+use App\Actions\SysAdmin\UI\ShowSysAdminDashboard;
 use App\Actions\SysAdmin\WithSysAdminAuthorization;
-use App\Actions\UI\Grp\SysAdmin\ShowSysAdminDashboard;
 use App\Http\Resources\SysAdmin\GuestsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SysAdmin\Group;

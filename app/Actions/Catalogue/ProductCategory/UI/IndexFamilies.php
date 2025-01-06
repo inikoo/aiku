@@ -14,7 +14,7 @@ use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\Catalogue\WithDepartmentSubNavigation;
 use App\Actions\Catalogue\WithSubDepartmentSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
@@ -496,7 +496,7 @@ class IndexFamilies extends OrgAction
             ),
             'grp.overview.catalogue.families.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs($routeParameters),
+                ShowGroupOverviewHub::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,

@@ -7,10 +7,10 @@
  *  Version 4.0
  */
 
-use App\Actions\SysAdmin\UI\Grp\Login;
-use App\Actions\SysAdmin\UI\Grp\Logout;
-use App\Actions\SysAdmin\UI\Grp\ShowLogin;
-use App\Actions\SysAdmin\UI\Grp\ShowResetPassword;
+use App\Actions\SysAdmin\UI\Auth\Login;
+use App\Actions\SysAdmin\UI\Auth\Logout;
+use App\Actions\SysAdmin\UI\Auth\ShowLogin;
+use App\Actions\SysAdmin\UI\Auth\ShowResetPassword;
 use App\Actions\SysAdmin\User\PasswordResetLink;
 use App\Actions\SysAdmin\User\UI\ShowSetNewPassword;
 use App\Actions\SysAdmin\User\UpdateUserPassword;

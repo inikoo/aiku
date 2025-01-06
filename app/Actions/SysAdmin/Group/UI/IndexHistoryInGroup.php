@@ -11,6 +11,7 @@
 namespace App\Actions\SysAdmin\Group\UI;
 
 use App\Actions\GrpAction;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\SysAdmin\User\Traits\WithFormattedUserHistories;
 use App\Http\Resources\History\HistoryResource;
 use App\InertiaTable\InertiaTable;
@@ -18,13 +19,13 @@ use App\Models\SysAdmin\Group;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use OwenIt\Auditing\Models\Audit;
 use Spatie\QueryBuilder\AllowedFilter;
-use Inertia\Inertia;
-use Inertia\Response;
 
 class IndexHistoryInGroup extends GrpAction
 {
@@ -129,7 +130,7 @@ class IndexHistoryInGroup extends GrpAction
         return match ($routeName) {
             'grp.overview.sysadmin.changelog.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name' => $routeName,

@@ -409,14 +409,10 @@ console.log( layout.user.id,'layoutt');
 													selectedDateOption
 												]?.amount || 0
 											">
-											{{
-												useLocaleStore().numberShort(
-													data.currency,
-													data.interval_percentages?.invoices[
-														selectedDateOption
-													]?.amount || 0
-												)
-											}}
+                      {{ data.interval_percentages?.invoices[
+                      selectedDateOption
+                      ]?.amount || 0 }}
+
 										</div>
 									</Transition>
 								</div>
@@ -645,14 +641,13 @@ console.log( layout.user.id,'layoutt');
 
 								<Column
 									:footer="
-										useLocaleStore().numberShort(
-											groupStats.currency.code,
+
 											Number(
 												groupStats.total[
 													selectedDateOption
 												].total_invoices.toString()
 											)
-										)
+
 									"
 									footerStyle="text-align:right" />
 								<Column footer="" footerStyle="text-align:right" />

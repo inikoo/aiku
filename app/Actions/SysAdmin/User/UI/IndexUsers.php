@@ -9,10 +9,9 @@
 namespace App\Actions\SysAdmin\User\UI;
 
 use App\Actions\GrpAction;
+use App\Actions\SysAdmin\UI\ShowSysAdminDashboard;
 use App\Actions\SysAdmin\User\WithUsersSubNavigation;
 use App\Actions\SysAdmin\WithSysAdminAuthorization;
-use App\Actions\UI\Grp\SysAdmin\ShowSysAdminDashboard;
-use App\Enums\UI\SysAdmin\UsersTabsEnum;
 use App\Http\Resources\SysAdmin\UsersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SysAdmin\Group;
@@ -58,22 +57,31 @@ class IndexUsers extends GrpAction
             ];
     }
 
-    public function inSuspended(ActionRequest $request)
+    public function inSuspended(ActionRequest $request): LengthAwarePaginator
     {
         $group = group();
         $this->scope = 'suspended';
         $this->initialisation($group, $request);
 
-        return $this->handle($group, 'suspended');
+        return $this->handle($group, $this->scope);
     }
 
-    public function inAll(ActionRequest $request)
+    public function inActive(ActionRequest $request): LengthAwarePaginator
+    {
+        $group = group();
+        $this->scope = 'active';
+        $this->initialisation($group, $request);
+
+        return $this->handle($group, $this->scope);
+    }
+
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $group = group();
         $this->scope = 'all';
         $this->initialisation($group, $request);
 
-        return $this->handle($group, 'all');
+        return $this->handle($group, $this->scope);
     }
 
     public function handle(Group $group, $scope = 'active', $prefix = null): LengthAwarePaginator
@@ -157,20 +165,19 @@ class IndexUsers extends GrpAction
     public function htmlResponse(LengthAwarePaginator $users, ActionRequest $request): Response
     {
         $subNavigation = $this->getUsersNavigation($this->group, $request);
-        $title = __('Active');
-        $model = __('Users');
+        $title = __('Active users');
         $icon  = [
-            'icon'  => ['fal', 'fa-user'],
+            'icon'  => ['fal', 'fa-user-circle'],
             'title' => __('active users')
         ];
         if ($this->scope == 'suspended') {
-            $title = __('Suspended');
+            $title = __('Suspended users');
             $icon  = [
                 'icon'  => ['fal', 'fa-user-slash'],
                 'title' => __('suspended users')
             ];
         } elseif ($this->scope == 'all') {
-            $title = __('All');
+            $title = __('Users');
             $icon  = [
                 'icon'  => ['fal', 'fa-users'],
                 'title' => __('all users')
@@ -183,7 +190,6 @@ class IndexUsers extends GrpAction
                 'title'       => __('users'),
                 'pageHead' => [
                     'title'         => $title,
-                    'model'         => $model,
                     'icon'          => $icon,
                     'subNavigation' => $subNavigation,
                 ],
@@ -202,13 +208,7 @@ class IndexUsers extends GrpAction
         );
     }
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->scope = 'active';
-        $this->initialisation(app('group'), $request)->withTab(UsersTabsEnum::values());
 
-        return $this->handle(group: $this->group, prefix: 'users');
-    }
 
     public function getBreadcrumbs(string $routeName): array
     {

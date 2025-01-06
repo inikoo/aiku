@@ -2,23 +2,22 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 19 Feb 2024 20:34:57 Central Standard Time, Mexico City, Mexico
- * Copyright (c) 2024, Raul A Perusquia Flores
+ * Created: Sun, 05 Jan 2025 12:39:14 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\Grp\SysAdmin;
+namespace App\Actions\SysAdmin\UI;
 
+use App\Actions\OrgAction;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
-use App\Actions\UI\WithInertia;
+use App\Models\SysAdmin\Group;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowSysAdminDashboard
+class ShowSysAdminDashboard extends OrgAction
 {
-    use AsAction;
-    use WithInertia;
+
 
     public function authorize(ActionRequest $request): bool
     {
@@ -26,37 +25,43 @@ class ShowSysAdminDashboard
     }
 
 
-    public function asController(): bool
+    public function handle(Group $group): Group
     {
-        return true;
+        return $group;
+    }
+
+    public function asController(ActionRequest $request): Group
+    {
+        $group = group();
+        $this->initialisationFromGroup($group, $request);
+
+        return $this->handle($group);
     }
 
 
-    public function htmlResponse(): Response
+    public function htmlResponse(Group $group): Response
     {
-        $group = app('group');
-
         return Inertia::render(
             'SysAdmin/SysAdminDashboard',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('system administration'),
                 'pageHead'    => [
-                    'icon'      => [
+                    'icon'  => [
                         'icon'  => ['fal', 'fa-users-cog'],
                         'title' => __('system administration')
                     ],
                     'title' => __('system administration'),
                 ],
-                'stats' => [
+                'stats'       => [
                     [
-                        'name' => __('users'),
-                        'stat' => $group->sysadminStats->number_users_status_active,
+                        'name'  => __('users'),
+                        'stat'  => $group->sysadminStats->number_users_status_active,
                         'route' => ['name' => 'grp.sysadmin.users.index']
                     ],
                     [
-                        'name' => __('guests'),
-                        'stat' => $group->sysadminStats->number_guests_status_active,
+                        'name'  => __('guests'),
+                        'stat'  => $group->sysadminStats->number_guests_status_active,
                         'route' => ['name' => 'grp.sysadmin.guests.index']
                     ]
                 ]
@@ -64,8 +69,6 @@ class ShowSysAdminDashboard
             ]
         );
     }
-
-
 
     public function getBreadcrumbs(): array
     {
@@ -79,7 +82,7 @@ class ShowSysAdminDashboard
                             'route' => [
                                 'name' => 'grp.sysadmin.dashboard'
                             ],
-                            'label'  => __('System administration'),
+                            'label' => __('System administration'),
                         ]
                     ]
                 ]

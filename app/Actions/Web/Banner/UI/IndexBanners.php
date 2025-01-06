@@ -9,7 +9,7 @@
 namespace App\Actions\Web\Banner\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Enums\Web\Banner\BannerStateEnum;
 use App\Http\Resources\Web\BannersResource;
@@ -20,6 +20,7 @@ use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Banner;
 use App\Models\Web\Website;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -27,7 +28,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexBanners extends OrgAction
 {
@@ -255,7 +255,7 @@ class IndexBanners extends OrgAction
         return match ($routeName) {
             'grp.overview.web.banners.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(
+                ShowGroupOverviewHub::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 $headCrumb(

@@ -9,11 +9,12 @@
 namespace App\Actions\Accounting\PaymentServiceProvider\UI;
 
 use App\Actions\GrpAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Http\Resources\Accounting\PaymentServiceProvidersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\SysAdmin\Group;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -21,7 +22,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexPaymentServiceProviders extends GrpAction
 {
@@ -121,7 +121,7 @@ class IndexPaymentServiceProviders extends GrpAction
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
         return array_merge(
-            ShowOverviewHub::make()->getBreadcrumbs(),
+            ShowGroupOverviewHub::make()->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',

@@ -9,6 +9,8 @@
 namespace App\Actions;
 
 use App\Actions\Traits\WithOrganisationsArgument;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Models\Catalogue\Shop;
 use Illuminate\Console\Command;
 
 class HydrateModels extends HydrateModel
@@ -227,12 +229,27 @@ class HydrateModels extends HydrateModel
     protected function hydrateFulfilment(Command $command): void
     {
         $command->info('Fulfillment section 🚛');
+        $command->call('hydrate:fulfilments');
+        $command->call('hydrate:fulfilment_customers_status');
         $command->call('hydrate:recurring_bills');
         $command->call('hydrate:fulfilment_customers');
-        $command->call('hydrate:stored_items'); // not yet tested
-        $command->call('hydrate:stored_item_audits'); // not yet tested
+        $command->call('hydrate:rental_agreements');
+        $command->call('hydrate:pallet_deliveries');
+        $command->call('hydrate:recurring_bills');
         $command->call('hydrate:pallet_returns'); // not yet tested
-        $command->call('hydrate:pallet_deliveries'); // not yet tested
+
+        /** @var Shop $shop */
+        foreach (Shop::where('type', ShopTypeEnum::FULFILMENT)->get() as $shop) {
+
+            $command->call('hydrate:shops', [
+                '-s' => $shop->slug
+            ]);
+
+            $command->call('hydrate:customers', [
+                '-S' => $shop->slug
+            ]);
+        }
+
     }
 
     private function checkIfCanHydrate(array $keys, $command): bool

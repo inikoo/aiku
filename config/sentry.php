@@ -8,12 +8,12 @@
 
 return [
 
-    'dsn'         => env('SENTRY_LARAVEL_DSN', env('SENTRY_DSN')),
+    'dsn'         => env('SENTRY_DSN'),
 
     // capture release as git sha
-    'release' => env('SENTRY_RELEASE'),
+    'release' => env('RELEASE'),
     // When left empty or `null` the Laravel environment will be used
-    'environment' => env('SENTRY_ENVIRONMENT'),
+    'environment' => null,
 
     'breadcrumbs' => [
         // Capture Laravel logs in breadcrumbs

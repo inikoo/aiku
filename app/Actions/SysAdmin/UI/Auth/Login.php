@@ -6,7 +6,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\UI\Grp;
+namespace App\Actions\SysAdmin\UI\Auth;
 
 use App\Actions\SysAdmin\User\AuthoriseUserWithLegacyPassword;
 use App\Actions\SysAdmin\User\LogUserFailLogin;

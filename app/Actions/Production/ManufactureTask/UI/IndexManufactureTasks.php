@@ -8,9 +8,9 @@
 
 namespace App\Actions\Production\ManufactureTask\UI;
 
-use App\Actions\Production\Production\UI\ShowCraftsDashboard;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
+use App\Actions\Production\Production\UI\ShowCraftsDashboard;
 use App\Enums\UI\Production\ManufactureTasksTabsEnum;
 use App\Http\Resources\Production\ManufactureTasksResource;
 use App\InertiaTable\InertiaTable;
@@ -250,7 +250,7 @@ class IndexManufactureTasks extends OrgAction
         return match ($routeName) {
             'grp.overview.production.manufacture-tasks.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(
+                ShowGroupOverviewHub::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 [

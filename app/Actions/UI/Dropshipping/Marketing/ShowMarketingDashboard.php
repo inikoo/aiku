@@ -10,9 +10,8 @@ namespace App\Actions\UI\Dropshipping\Marketing;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
-use App\Enums\UI\Dropshipping\MarketingTabsEnum;
+use App\Enums\UI\Marketing\MarketingDashboardTabsEnum;
 use App\Models\Catalogue\Shop;
-use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -20,15 +19,15 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowMarketingDashboard extends OrgAction
 {
-    // public function authorize(ActionRequest $request): bool
-    // {
-    //     return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.view");
-    // }
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->hasPermissionTo("marketing.{$this->shop->id}.view");
+    }
 
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): ActionRequest
     {
-        $this->initialisationFromShop($shop, $request)->withTab(MarketingTabsEnum::values());
+        $this->initialisationFromShop($shop, $request)->withTab(MarketingDashboardTabsEnum::values());
 
         return $request;
     }
@@ -37,30 +36,29 @@ class ShowMarketingDashboard extends OrgAction
     public function htmlResponse(ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Shop/Dropshipping/MarketingDashboard',
+            'Org/Marketing/MarketingDashboard',
             [
                 'breadcrumbs'  => $this->getBreadcrumbs($request->route()->originalParameters()),
-                'title'        => __('marketing'),
+                'title'        =>  __('Marketing Dashboard'),
                 'pageHead'     => [
                     'icon'      => [
                         'icon'  => ['fal', 'fa-bullhorn'],
-                        'title' => __('marketing')
+                        'title' =>  __('Marketing Dashboard'),
                     ],
-                    'model'     => __('marketing'),
                     'iconRight' => [
                         'icon'  => ['fal', 'fa-chart-network'],
                         'title' => __('marketing')
                     ],
-                    'title' => __('dashboard'),
+                    'title' => __('Marketing Dashboard'),
                 ],
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => MarketingTabsEnum::navigation()
+                    'navigation' => MarketingDashboardTabsEnum::navigation()
                 ],
                 'dashboard_stats'   => [
                     [
                         'name' => __('Newsletters'),
-                        'value' => 0,  // TODO: Add the actual value
+                        'value' => $this->shop->commsStats->number_mailshots_type_newsletter,
                         'icon'  => ['fal', 'fa-newspaper'],
                         'route' => [
                             'name'       => 'grp.org.shops.show.marketing.newsletters.index',
@@ -69,7 +67,7 @@ class ShowMarketingDashboard extends OrgAction
                     ],
                     [
                         'name' => __('Mailshots'),
-                        'value' => 0,  // TODO: Add the actual value
+                        'value' => $this->shop->commsStats->number_mailshots_type_mailshot,
                         'icon'  => ['fal', 'fa-mail-bulk'],
                         'route' => [
                             'name'       => 'grp.org.shops.show.marketing.mailshots.index',

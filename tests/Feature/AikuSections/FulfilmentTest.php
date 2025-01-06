@@ -2131,15 +2131,15 @@ test('hydrate fulfilment command', function () {
 });
 
 test('hydrate fulfilment customer command', function () {
-    $this->artisan('hydrate:fulfilment-customers '.$this->organisation->slug)->assertExitCode(0);
+    $this->artisan('hydrate:fulfilment_customers '.$this->organisation->slug)->assertExitCode(0);
 });
 
 test('hydrate pallet delivery command', function () {
-    $this->artisan('hydrate:pallet-deliveries  '.$this->organisation->slug)->assertExitCode(0);
+    $this->artisan('hydrate:pallet_deliveries  '.$this->organisation->slug)->assertExitCode(0);
 });
 
 test('hydrate rental agreements command', function () {
-    $this->artisan('hydrate:rental-agreements  '.$this->organisation->slug)->assertExitCode(0);
+    $this->artisan('hydrate:rental_agreements  '.$this->organisation->slug)->assertExitCode(0);
 });
 
 test('recurring bill universal search', function () {
@@ -2525,7 +2525,7 @@ test('pay invoice (exceed)', function ($invoice) {
 })->depends('consolidate 3rd recurring bill');
 
 test('hydrate pallet return command', function () {
-    $this->artisan('hydrate:pallet-returns  '.$this->organisation->slug)->assertExitCode(0);
+    $this->artisan('hydrate:pallet_returns  '.$this->organisation->slug)->assertExitCode(0);
 });
 
 test('recurring bills search', function () {

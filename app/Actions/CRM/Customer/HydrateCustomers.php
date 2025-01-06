@@ -16,13 +16,14 @@ use App\Actions\CRM\Customer\Hydrators\CustomerHydrateOrders;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateTopUps;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
 use App\Actions\CRM\Customer\Search\CustomerRecordSearch;
+use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\Traits\Hydrators\WithHydrateCommand;
 use App\Models\CRM\Customer;
 
 class HydrateCustomers
 {
     use WithHydrateCommand;
-    public string $commandSignature = 'hydrate:customers {organisations?*} {--s|slug=}';
+    public string $commandSignature = 'hydrate:customers {organisations?*} {--S|shop= shop slug} {--s|slug=}';
 
     public function __construct()
     {
@@ -40,6 +41,11 @@ class HydrateCustomers
         CustomerHydrateDeliveryNotes::run($customer);
         CustomerHydrateTopUps::run($customer);
         CustomerHydrateCreditTransactions::run($customer);
+
+        if ($customer->fulfilmentCustomer) {
+            HydrateFulfilmentCustomer::run($customer->fulfilmentCustomer);
+        }
+
     }
 
 

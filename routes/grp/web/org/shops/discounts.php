@@ -9,13 +9,13 @@
 use App\Actions\Discounts\Offer\UI\IndexOffers;
 use App\Actions\Discounts\OfferCampaign\UI\IndexOfferCampaigns;
 use App\Actions\Discounts\OfferCampaign\UI\ShowOfferCampaign;
-use App\Actions\UI\Dropshipping\Offers\ShowOfferDashboard;
+use App\Actions\Discounts\UI\ShowDiscountsDashboard;
 use App\Stubs\UIDummies\CreateDummy;
 use App\Stubs\UIDummies\EditDummy;
 use App\Stubs\UIDummies\ShowDummy;
 use Illuminate\Support\Facades\Route;
 
-Route::get('', ShowOfferDashboard::class)->name('dashboard');
+Route::get('', ShowDiscountsDashboard::class)->name('dashboard');
 Route::name("campaigns.")->prefix('campaigns')
     ->group(function () {
         Route::get('', IndexOfferCampaigns::class)->name('index');

@@ -11,7 +11,7 @@ namespace App\Actions\Inventory\OrgStockFamily\UI;
 use App\Actions\Inventory\HasInventoryAuthorisation;
 use App\Actions\Inventory\UI\ShowInventoryDashboard;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Enums\Inventory\OrgStockFamily\OrgStockFamilyStateEnum;
 use App\Http\Resources\Inventory\OrgStockFamiliesResource;
 use App\InertiaTable\InertiaTable;
@@ -348,7 +348,7 @@ class IndexOrgStockFamilies extends OrgAction
         return match ($routeName) {
             'grp.overview.inventory.org-stock-families.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'       => $routeName,

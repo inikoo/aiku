@@ -560,7 +560,7 @@ test('get helpers select options data', function () {
 });
 
 test('update search', function () {
-    $this->artisan('search:reindex')->assertSuccessful();
+    $this->artisan('search')->assertSuccessful();
 });
 
 // test('update web block types', function (Group $group) {
@@ -584,7 +584,7 @@ test('should not show without authentication', function () {
 });
 
 test('reindex search', function () {
-    $this->artisan('search:reindex')->assertSuccessful();
+    $this->artisan('search')->assertSuccessful();
     //expect(UniversalSearch::count())->toBe(67);
 });
 

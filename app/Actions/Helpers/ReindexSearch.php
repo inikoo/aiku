@@ -10,13 +10,15 @@ namespace App\Actions\Helpers;
 
 use App\Actions\HydrateModel;
 use App\Actions\Traits\WithOrganisationsArgument;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Models\Catalogue\Shop;
 use Illuminate\Console\Command;
 
 class ReindexSearch extends HydrateModel
 {
     use WithOrganisationsArgument;
 
-    public string $commandSignature = 'search:reindex {--s|sections=*}';
+    public string $commandSignature = 'search {--s|sections=*}';
 
     public function asCommand(Command $command): int
     {
@@ -208,7 +210,6 @@ class ReindexSearch extends HydrateModel
         $command->call('search:locations');
         $command->call('search:org_stocks');
         $command->call('search:org_stock_families');
-
     }
 
     protected function reindexCrm(Command $command): void
@@ -221,12 +222,20 @@ class ReindexSearch extends HydrateModel
     protected function reindexFulfilment(Command $command): void
     {
         $command->info('Fulfillment section 🚛');
+        $command->call('search:rentals');
         $command->call('search:recurring_bills');
         $command->call('search:fulfilment_customers');
         $command->call('search:stored_items'); // not yet tested
         $command->call('search:stored_item_audits'); // not yet tested
         $command->call('search:pallet_returns'); // not yet tested
         $command->call('search:pallet_deliveries'); // not yet tested
+
+        /** @var Shop $shop */
+        foreach (Shop::where('type', ShopTypeEnum::FULFILMENT)->get() as $shop) {
+            $command->call('search:invoices', [
+                '-S' => $shop->slug
+            ]);
+        }
     }
 
     private function checkIfCanReindex(array $keys, $command): bool

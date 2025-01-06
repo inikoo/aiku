@@ -16,16 +16,16 @@ use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\InvoicesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Invoice;
+use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Group;
@@ -163,7 +163,7 @@ class IndexInvoices extends OrgAction
                 ->withGlobalSearch()
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
 
-            $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true, align: 'right');
 
 
             if ($parent instanceof Fulfilment || $parent instanceof Shop) {
@@ -444,7 +444,7 @@ class IndexInvoices extends OrgAction
 
             'grp.overview.ordering.invoices.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(
+                ShowGroupOverviewHub::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 $headCrumb(

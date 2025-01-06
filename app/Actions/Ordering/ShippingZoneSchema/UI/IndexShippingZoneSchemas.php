@@ -11,9 +11,8 @@ namespace App\Actions\Ordering\ShippingZoneSchema\UI;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Ordering\ShippingZoneSchema\WithShippingZoneSchemaSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
-use App\Enums\UI\Catalogue\ShippingTabsEnum;
 use App\Http\Resources\Catalogue\ProductsResource;
 use App\Http\Resources\Catalogue\ShippingZoneSchemasResource;
 use App\InertiaTable\InertiaTable;
@@ -256,7 +255,7 @@ class IndexShippingZoneSchemas extends OrgAction
             ),
             'grp.overview.billables.shipping.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs($routeParameters),
+                ShowGroupOverviewHub::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,

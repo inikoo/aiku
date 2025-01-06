@@ -10,7 +10,7 @@ namespace App\Actions\Billables\Charge\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Http\Resources\Catalogue\ChargesResource;
 use App\InertiaTable\InertiaTable;
@@ -243,7 +243,7 @@ class IndexCharges extends OrgAction
             ),
             'grp.overview.billables.charges.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs($routeParameters),
+                ShowGroupOverviewHub::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,

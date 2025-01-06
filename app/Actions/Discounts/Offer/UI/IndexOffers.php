@@ -10,22 +10,22 @@ namespace App\Actions\Discounts\Offer\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Http\Resources\Catalogue\OffersResource;
+use App\InertiaTable\InertiaTable;
+use App\Models\Catalogue\Shop;
+use App\Models\Discounts\Offer;
+use App\Models\Discounts\OfferCampaign;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
-use App\Models\Catalogue\Shop;
-use App\Models\Discounts\Offer;
-use App\Models\Discounts\OfferCampaign;
-use App\Models\SysAdmin\Group;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexOffers extends OrgAction
 {
@@ -189,7 +189,7 @@ class IndexOffers extends OrgAction
         return match ($routeName) {
             'grp.overview.offer.offers.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(
+                ShowGroupOverviewHub::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 $headCrumb(

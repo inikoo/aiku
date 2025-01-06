@@ -9,7 +9,7 @@
 namespace App\Actions\Comms\PostRoom\UI;
 
 use App\Actions\GrpAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Http\Resources\Mail\PostRoomResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Comms\PostRoom;
@@ -168,7 +168,7 @@ class IndexPostRooms extends GrpAction
         return match ($routeName) {
             'grp.overview.comms-marketing.post-rooms.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'       => $routeName,

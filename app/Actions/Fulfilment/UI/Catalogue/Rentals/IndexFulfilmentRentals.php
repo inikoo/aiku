@@ -10,7 +10,7 @@ namespace App\Actions\Fulfilment\UI\Catalogue\Rentals;
 
 use App\Actions\Fulfilment\UI\Catalogue\ShowFulfilmentCatalogueDashboard;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Enums\Billables\Rental\RentalStateEnum;
 use App\Enums\UI\Fulfilment\RentalsTabsEnum;
 use App\Http\Resources\Fulfilment\RentalsResource;
@@ -241,7 +241,7 @@ class IndexFulfilmentRentals extends OrgAction
             }
             $table
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'rental_price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
+                ->column(key: 'rental_price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono', align: 'right')
                 ->column(key: 'workflow', label: __('workflow'), canBeHidden: false, searchable: true, className: 'hello')
                 ->defaultSort('code');
         };
@@ -292,7 +292,7 @@ class IndexFulfilmentRentals extends OrgAction
             ),
             'grp.overview.billables.rentals.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'       => $routeName,

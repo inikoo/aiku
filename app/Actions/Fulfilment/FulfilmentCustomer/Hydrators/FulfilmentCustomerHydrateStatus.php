@@ -83,7 +83,7 @@ class FulfilmentCustomerHydrateStatus
         return FulfilmentCustomerStatusEnum::INACTIVE;
     }
 
-    public string $commandSignature = 'hydrate:fulfilment-customers-status';
+    public string $commandSignature = 'hydrate:fulfilment_customers_status';
 
     public function asCommand(): int
     {
