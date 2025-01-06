@@ -44,11 +44,11 @@ export const useLocaleStore = defineStore("locale", () => {
 	const currencyFormat = (currencyCode: string, amount: number) => {
 		return new Intl.NumberFormat(language.value.code, {
 			style: "currency",
-			currency: currencyCode,
-		}).format(amount)
+			currency: currencyCode || "usd",
+		}).format(amount || 0)
 	}
 
-	const numberShort = (currencyCode: string, number: number) => {
+	const CurrencyShort = (currencyCode: string, number: number) => {
 
 		let formattedNumber = new Intl.NumberFormat(language.value.code, {
 			notation: "compact",
@@ -64,6 +64,6 @@ export const useLocaleStore = defineStore("locale", () => {
 		return formattedNumber
 	}
 
-	return { language, languageOptions, number, currencyFormat, numberShort }
+	return { language, languageOptions, number, currencyFormat, CurrencyShort }
 })
 //make same class for all dashboard font size wight and all

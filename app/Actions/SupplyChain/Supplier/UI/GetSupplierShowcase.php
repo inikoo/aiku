@@ -22,6 +22,7 @@ class GetSupplierShowcase
             'contactCard' => [
                 'company'  => $supplier->company_name,
                 'contact'  => $supplier->contact_name,
+                'website'  => $supplier->contact_website,
                 'email'    => $supplier->email,
                 'phone'    => $supplier->phone,
                 // 'address'  => AddressResource::make($supplier->getAddress('supplier'))->getArray(), Todo: Need Fix

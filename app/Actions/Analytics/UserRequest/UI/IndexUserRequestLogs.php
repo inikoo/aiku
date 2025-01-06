@@ -12,6 +12,7 @@ use App\Actions\Analytics\UserRequest\Traits\WithFormattedRequestLogs;
 use App\Actions\Elasticsearch\BuildElasticsearchClient;
 use App\Actions\GrpAction;
 use App\Actions\SysAdmin\UI\ShowSysAdminDashboard;
+use App\Actions\SysAdmin\UI\WithAnalyticsSubNavigations;
 use App\Actions\SysAdmin\User\WithUsersSubNavigation;
 use App\Enums\Elasticsearch\ElasticsearchUserRequestTypeEnum;
 use App\Http\Resources\SysAdmin\UserRequestLogsResource;
@@ -32,6 +33,7 @@ class IndexUserRequestLogs extends GrpAction
     use AsObject;
     use WithFormattedRequestLogs;
     use WithUsersSubNavigation;
+    use WithAnalyticsSubNavigations; //TODO: For analytics dashboard
 
     public function handle($filter = ElasticsearchUserRequestTypeEnum::VISIT->value): LengthAwarePaginator|bool|array
     {

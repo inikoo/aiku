@@ -178,6 +178,7 @@ class IndexFulfilmentRentals extends OrgAction
                 ),
                 'pageHead'    => [
                     'icon'    => $icon,
+                    'model'   => __('Catalogue'),
                     'title'         => $pageHeadTitle,
                     'actions'       => $actions
                 ],

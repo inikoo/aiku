@@ -31,8 +31,8 @@ enum GuestTabsEnum: string
                 'align' => 'right',
             ],
             GuestTabsEnum::SHOWCASE => [
-                'title' => __('guest'),
-                'icon'  => 'fas fa-info-circle',
+                'title' => __('overview'),
+                'icon'  => 'fal fa-tachometer-alt-fast',
             ],
         };
     }

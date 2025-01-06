@@ -92,10 +92,9 @@ class UpdateUsersPseudoJobPositions extends GrpAction
 
     }
 
-    public function asController(User $user, Organisation $organisation, ActionRequest $request): User
+    public function asController(User $user, ActionRequest $request): User
     {
         $this->user         = $user;
-        $this->organisation = $organisation;
 
         $this->initialisation(app('group'), $request);
 
