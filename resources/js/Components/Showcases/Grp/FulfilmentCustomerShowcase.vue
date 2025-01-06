@@ -220,18 +220,18 @@ const isLoading = ref<string | boolean>(false)
 
         <!-- Section: -->
         <div class="w-full space-y-4">
-            <div class="bg-gradient-to-tr from-blue-500 to-sky-300 text-white flex flex-col justify-between px-4 py-5 sm:p-6 rounded-lg tabular-nums">
+            <div v-if="data.balance.current > 0" class="bg-indigo-50 border border-indigo-300 text-gray-700 flex flex-col justify-between px-4 py-5 sm:p-6 rounded-lg tabular-nums">
                 <div class="w-full flex justify-between items-center">
                     <div class="">
                         <div class="text-base capitalize">
-                            Current balance
+                            {{ trans("balance") }}
                         </div>
-                        <div class="text-xs text-white/60">
+                        <div class="text-xs text-gray-700/60">
                             {{ useFormatTime(new Date()) }}
                         </div>
                     </div>
 
-                    <div class="rounded-md text-white/70 flex items-center justify-center">
+                    <div class="rounded-md text-indigo-500/50 flex items-center justify-center">
                         <FontAwesomeIcon icon='fal fa-wallet' class='text-4xl' fixed-width aria-hidden='true' />
                     </div>
                 </div>
@@ -243,7 +243,7 @@ const isLoading = ref<string | boolean>(false)
                             :options="{
                                 formattingFn: (value: number) => locale.currencyFormat(data.currency_code, value)
                             }" />
-                        <div class="text-white/60 text-sm leading-4 font-normal">
+                        <div class="text-gray-700/60 text-sm leading-4 font-normal">
                             {{data.balance.credit_transactions}} credit transactions
                         </div>
                     </div>

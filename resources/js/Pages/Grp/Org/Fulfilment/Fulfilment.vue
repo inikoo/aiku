@@ -30,9 +30,12 @@ const props = defineProps<{
     title: string
     dashboard?: object
     pallets?: object
-
+    history?:object,
+    note:object
 
 }>()
+
+console.log(props)
 
 let currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
@@ -42,7 +45,8 @@ const component = computed(() => {
         dashboard: FulfilmentShowcase,
         pallets: TablePallets,
         details: ModelDetails,
-        history: TableHistories
+        history: TableHistories,
+        note:TableHistories
     }
 
     return components[currentTab.value]
@@ -53,7 +57,6 @@ const component = computed(() => {
 
 
 <template>
-
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
