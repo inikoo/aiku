@@ -51,20 +51,27 @@ class PalletRecordSearch
                             'pallet'             => $pallet->slug
                         ]
                     ],
-                    'container'     => [
-                        'label'   => $pallet->warehouse->name
+                    'icon'        => [
+                        'icon' => 'fal fa-pallet',
                     ],
-                    'title'         => $pallet->reference,
-                    'icon'          => $pallet->type->typeIcon()[$pallet->type->value],
+                    'code'        => [
+                        'label'   => $pallet->reference,
+                        'tooltip' => __('Reference')
+                    ],
+                    'description' => [
+                        'label' => $pallet->customer_reference
+                    ],
+                    'state_icon'          => $pallet->type->typeIcon()[$pallet->type->value],
                     'meta'          => [
                         [
-                            'key'   => 'status',
-                            'label' => $pallet->state->labels()[$pallet->state->value]
+                            'key'       => __("customer_reference"),
+                            'label'     => __("Pallet reference (customer's), notes") . ': ' . __($pallet->customer_reference),
+                            'tooltip'   => __("Pallet reference (customer's), notes")
                         ],
                         [
-                            'key'   => 'created_date',
-                            'type'  => 'date',
-                            'label' => $pallet->created_at
+                            'key'       => __("state"),
+                            'label'     => __("State") . ': ' . __($pallet->state->value),
+                            'tooltip'   => __("State")
                         ],
                     ],
                 ]
