@@ -9,6 +9,13 @@
 namespace App\Enums\Accounting\Payment;
 
 use App\Enums\EnumHelperTrait;
+use App\Models\Accounting\Invoice;
+use App\Models\Accounting\OrgPaymentServiceProvider;
+use App\Models\Accounting\PaymentAccount;
+use App\Models\Catalogue\Shop;
+use App\Models\Ordering\Order;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 
 enum PaymentStateEnum: string
 {
@@ -19,4 +26,36 @@ enum PaymentStateEnum: string
     case CANCELLED  = 'cancelled';
     case ERROR      = 'error';
     case DECLINED   = 'declined';
+    
+    public static function labels(): array
+    {
+        return [
+            'in_process'    => __('In Process'),
+            'approving'     => __('Approving'),
+            'completed'     => __('Completed'),
+            'cancelled'     => __('Cancelled'),
+            'error'         => __('Error'),
+            'declined'      => __('Declined'),
+        ];
+    }
+
+    public static function count(Group|Organisation|PaymentAccount|Shop|OrgPaymentServiceProvider|Invoice|Order $parent): array
+    {
+        if($parent instanceof Group || $parent instanceof Organisation ||$parent instanceof Shop)
+        {
+            $stats = $parent->accountingStats;
+        } elseif ($parent instanceof OrgPaymentServiceProvider || $parent instanceof PaymentAccount) {
+            $stats = $parent->stats;
+        }
+        return [
+            'in_process'                => $stats->number_payments_state_in_process,
+            'approving'                 => $stats->number_payments_state_approving,
+            'completed'                 => $stats->number_payments_state_completed,
+            'cancelled'                 => $stats->number_payments_state_cancelled,
+            'error'                     => $stats->number_payments_state_error,
+            'declined'                  => $stats->number_payments_state_declined,
+        ];
+    }
 }
+
+

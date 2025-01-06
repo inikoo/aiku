@@ -131,6 +131,31 @@ class ShowInvoice extends OrgAction
             ];
         }
 
+        $charges = [];
+        if ($invoice->charges_amount > 0) {
+            $charges[] = [
+                'label'       => __('Charges'),
+                // 'information'   => __('Shipping fee to your address using DHL service.'),
+                'price_total' => $invoice->charges_amount
+            ];
+        }
+
+        if ($invoice->shipping_amount > 0) {
+            $charges[] = [
+                'label'       => __('Shipping'),
+                // 'information'   => __('Tax is based on 10% of total order.'),
+                'price_total' => $invoice->shipping_amount
+            ];
+        }
+
+        if ($invoice->insurance_amount > 0) {
+            $charges[] =  [
+                'label'       => __('Insurance'),
+                // 'information'   => __('Tax is based on 10% of total order.'),
+                'price_total' => $invoice->insurance_amount
+            ];
+        }
+
         return Inertia::render(
             'Org/Accounting/Invoice',
             [
@@ -172,21 +197,7 @@ class ShowInvoice extends OrgAction
                         ],
                     ],
                     [
-                        [
-                            'label'       => __('Charges'),
-                            // 'information'   => __('Shipping fee to your address using DHL service.'),
-                            'price_total' => $invoice->charges_amount
-                        ],
-                        [
-                            'label'       => __('Shipping'),
-                            // 'information'   => __('Tax is based on 10% of total order.'),
-                            'price_total' => $invoice->shipping_amount
-                        ],
-                        [
-                            'label'       => __('Insurance'),
-                            // 'information'   => __('Tax is based on 10% of total order.'),
-                            'price_total' => $invoice->insurance_amount
-                        ],
+                        ...$charges,
                         [
                             'label'       => __('Tax'),
                             'price_total' => $invoice->tax_amount

@@ -178,6 +178,7 @@ class IndexFulfilmentRentals extends OrgAction
                 ),
                 'pageHead'    => [
                     'icon'    => $icon,
+                    'model'   => __('Catalogue'),
                     'title'         => $pageHeadTitle,
                     'actions'       => $actions
                 ],
@@ -241,7 +242,7 @@ class IndexFulfilmentRentals extends OrgAction
             }
             $table
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'rental_price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
+                ->column(key: 'rental_price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono', align: 'right')
                 ->column(key: 'workflow', label: __('workflow'), canBeHidden: false, searchable: true, className: 'hello')
                 ->defaultSort('code');
         };

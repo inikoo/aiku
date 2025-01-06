@@ -43,6 +43,13 @@ trait HasSupplyChainFields
                         'required' => true
                     ],
 
+                    'contact_website' => [
+                        'type'    => 'input',
+                        'label'   => __('contact website'),
+                        'value'   => '',
+                        'required' => false
+                    ],
+
                     'email' => [
                         'type'    => 'input',
                         'label'   => __('email'),

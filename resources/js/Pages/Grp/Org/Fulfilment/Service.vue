@@ -23,6 +23,7 @@
   
   import { capitalize } from "@/Composables/capitalize"
   import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
+import ServiceShowcase from '@/Components/Fulfilment/ServiceShowcase.vue'
   
   library.add(
       faFolder,
@@ -57,7 +58,7 @@
   
   const component = computed(() => {
       const components: {[key: string]: Component} = {
-          showcase: DummyTabComponent,
+          showcase: ServiceShowcase,
           history: ModelChangelog,
       }
   

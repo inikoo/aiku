@@ -44,8 +44,8 @@ export const useLocaleStore = defineStore("locale", () => {
 	const currencyFormat = (currencyCode: string, amount: number) => {
 		return new Intl.NumberFormat(language.value.code, {
 			style: "currency",
-			currency: currencyCode,
-		}).format(amount)
+			currency: currencyCode || "usd",
+		}).format(amount || 0)
 	}
 
 	const CurrencyShort = (currencyCode: string, number: number) => {

@@ -12,6 +12,7 @@ use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\Fulfilment\UI\Catalogue\ShowFulfilmentCatalogueDashboard;
 use App\Actions\OrgAction;
+use App\Enums\Billables\Rental\RentalStateEnum;
 use App\Enums\UI\Fulfilment\FulfilmentRentalTabsEnum;
 use App\Http\Resources\Fulfilment\RentalsResource;
 use App\Models\Billables\Rental;
@@ -82,6 +83,7 @@ class ShowRental extends OrgAction
 
     public function htmlResponse(Rental $rental, ActionRequest $request): Response
     {
+        // dd($rental);
         return Inertia::render(
             'Org/Fulfilment/Rental',
             [
@@ -96,6 +98,7 @@ class ShowRental extends OrgAction
                 ],
                 'pageHead'    => [
                     'title'   => $rental->code,
+                    'model'   => __('Rental'),
                     'icon'    =>
                         [
                             'icon'  => ['fal', 'fa-garage'],
@@ -110,7 +113,8 @@ class ShowRental extends OrgAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
-                    ]
+                    ],
+                    'iconRight' => RentalStateEnum::stateIcon()[$rental->state->value]
                 ],
                 'tabs' => [
                     'current'    => $this->tab,
