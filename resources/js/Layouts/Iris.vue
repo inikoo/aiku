@@ -49,7 +49,6 @@ const isFirstVisit = () => {
 };
 const firstVisit = ref(isFirstVisit());
 const setFirstVisitToFalse = () => {
-    console.log('firstVisit', firstVisit.value)
     const irisData = localStorage.getItem('iris');
     if (irisData) {
         console.log('izzz')

@@ -89,6 +89,7 @@ const emits = defineEmits<{
                 v-model="data.topBar.data.fieldValue"
                 :loginMode="loginMode"
                 :colorThemed="colorThemed"
+                :fieldValue="data.topBar.data.fieldValue"
                 @update:model-value="(e)=>emits('update:modelValue', e)"
             />
          </div>
@@ -102,6 +103,7 @@ const emits = defineEmits<{
             v-model="data.header.data.fieldValue"
             :loginMode="loginMode"
             :colorThemed="colorThemed"
+            :fieldValue="data.header.data.fieldValue"
             @update:model-value="(e)=>emits('update:modelValue', e)"
         />
 

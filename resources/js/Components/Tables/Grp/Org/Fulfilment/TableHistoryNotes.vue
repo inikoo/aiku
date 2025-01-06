@@ -15,12 +15,12 @@ import { trans } from "laravel-vue-i18n"
 import PureTextarea from '@/Components/Pure/PureTextarea.vue';
 import { layoutStructure } from '@/Composables/useLayoutStructure';
 import ToggleSwitch from 'primevue/toggleswitch';
+import { notify } from '@kyvg/vue3-notification';
 
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faCheck, faRobot, faStickyNote } from '@fal'
-import { useLocaleStore } from '@/Stores/locale'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { notify } from '@kyvg/vue3-notification';
+
 
 
 library.add(faRobot)
