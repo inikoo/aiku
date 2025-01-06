@@ -73,7 +73,7 @@ class IndexPayments extends OrgAction
         } else {
             abort(422);
         }
-        
+
         $queryBuilder->leftjoin('organisations', 'payments.organisation_id', '=', 'organisations.id');
         $queryBuilder->leftjoin('shops', 'payments.shop_id', '=', 'shops.id');
 

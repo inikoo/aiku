@@ -71,16 +71,11 @@ class IndexGuests extends GrpAction
                 }
             )
             ->leftJoin('user_stats', 'user_stats.user_id', 'user_has_models.user_id');
-        if($scope == 'active')
-        {
+        if ($scope == 'active') {
             $queryBuilder->where('guests.status', true);
-        } 
-        elseif ($scope == 'inactive') 
-        {
+        } elseif ($scope == 'inactive') {
             $queryBuilder->where('guests.status', false);
-        }
-        else 
-        {
+        } else {
             foreach ($this->getElementGroups() as $key => $elementGroup) {
                 $queryBuilder->whereElementGroup(
                     key: $key,
@@ -225,7 +220,7 @@ class IndexGuests extends GrpAction
 
         return $this->handle($group, $this->scope);
     }
-    
+
     public function getBreadcrumbs(string $routeName): array
     {
         $headCrumb = function (array $routeParameters = []) {
