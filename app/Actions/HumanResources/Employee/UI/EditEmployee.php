@@ -43,9 +43,9 @@ class EditEmployee extends OrgAction
 
     public function asController(Organisation $organisation, Employee $employee, ActionRequest $request): Employee
     {
+
         $this->organisation = $organisation;
         $this->initialisation($organisation, $request);
-
         return $this->handle($employee);
     }
 
@@ -58,7 +58,7 @@ class EditEmployee extends OrgAction
         $user = $employee->getUser();
 
         $jobPositionsOrganisationData = GetJobPositionsOrganisationData::run($employee, $this->organisation);
-        $jobPositionsGroupData = GetJobPositionsGroupData::run($employee, $this->group);
+        $jobPositionsGroupData = GetJobPositionsGroupData::run($employee, $this->organisation->group);
 
         $sections['properties'] = [
             'label'  => __('Properties'),
