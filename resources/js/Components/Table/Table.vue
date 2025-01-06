@@ -792,6 +792,10 @@ const isLoading = ref<string | boolean>(false)
                                 :tableName="props.name" />
                         </div>
 
+
+                        <slot name="add-on-button">
+                        </slot>
+
                         <!-- Button: Reset -->
                         <!--suppress HtmlUnknownAttribute -->
                         <!-- <slot name="searchReset" can-be-reset="canBeReset" @resetSearch="() => resetQuery()">
