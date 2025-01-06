@@ -11,18 +11,21 @@ import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faText,
 import draggable from "vuedraggable"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import Button from '@/Components/Elements/Buttons/Button.vue'
-import debounce from 'lodash/debounce'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import Modal from "@/Components/Utils/Modal.vue"
 import BlockList from '@/Components/CMS/Webpage/BlockList.vue'
 import VisibleCheckmark from '@/Components/CMS/Fields/VisibleCheckmark.vue';
 import SideEditor from '@/Components/Workshop/SideEditor/SideEditor.vue'
 import { getBlueprint } from '@/Composables/getBlueprintWorkshop'
+import ConfirmPopup from 'primevue/confirmpopup';
+import { useConfirm } from "primevue/useconfirm";
+
 
 import { Root, Daum } from '@/types/webBlockTypes'
 import { Root as RootWebpage } from '@/types/webpageTypes'
 import { Collapse } from 'vue-collapsed'
 import { trans } from 'laravel-vue-i18n'
+import { faExclamation, faExclamationTriangle } from '@fas'
 
 
 library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faText, faEye, faEyeSlash )
@@ -45,6 +48,8 @@ const emits = defineEmits<{
     (e: 'openBlockList', value: Boolean): void
     (e: 'setVisible', value: Object): void
 }>()
+
+const confirm = useConfirm();
 
 
 const sendNewBlock = async (block: Daum) => {
@@ -71,7 +76,6 @@ const sendDeleteBlock = async (block: Daum) => {
 const onSaveWorkshop = inject('onSaveWorkshop', () => { console.log('onSaveWorkshop not provided') })
 
 const onChangeOrderBlock = (e, d) => {
-    console.log('klkl', e, d)
     let payload = {}
     props.webpage.layout.web_blocks.map((item, index) => {
         payload[item.web_block.id] = { position: index }
@@ -96,6 +100,26 @@ const setShowBlock = (e : Event, value : Object) => {
     /* value.show = !value.show 
     onUpdatedBlock(value) */
 }
+
+const confirmDelete = (event: Event, data: Daum) => {
+    confirm.require({
+        target: event.currentTarget, 
+        message: 'Are you sure you want to delete?',
+        rejectProps: {
+            label: 'No',
+            severity: 'secondary',
+            outlined: true,
+        },
+        acceptProps: {
+            label: 'Yes',
+        },
+        accept: () => {
+            sendDeleteBlock(data);
+        },
+    });
+ /*    event.stopPropagation()
+    event.preventDefault() */
+};
 
 defineExpose({
     modelModalBlocklist
@@ -123,16 +147,18 @@ const openedBlockSideEditor = inject('openedBlockSideEditor', ref(null))
             >
                 <template #item="{ element, index }">
                     <div class="bg-slate-50 border border-gray-300 ">
-                        <div @click="() => openedBlockSideEditor === index ? openedBlockSideEditor = null : openedBlockSideEditor = index"
+                        <div 
                             class="group flex justify-between items-center gap-x-2 relative w-full cursor-pointer"
                             :class="openedBlockSideEditor === index ? 'bg-indigo-500 text-white' : 'hover:bg-gray-100'">
-                            <div class="h-10 flex items-center gap-x-2 py-2 px-3">
+                            <div 
+                                class="h-10 flex items-center gap-x-2 py-2 px-3 w-full" 
+                                @click="() => openedBlockSideEditor === index ? openedBlockSideEditor = null : openedBlockSideEditor = index"
+                            >
                                 <div class="flex items-center justify-center">
                                     <FontAwesomeIcon icon="fal fa-bars" class="handle text-sm cursor-grab pr-3 mr-2" />
                                 </div>
                                 <h3 class="lg:text-sm text-xs capitalize font-medium select-none">
                                     {{ element.name || element.type }}
-                                    <!-- ({{ element.id }}) -->
                                 </h3>
                                 <LoadingIcon v-if="isLoadingblock === element.id" class="" />
                             </div>
@@ -145,12 +171,12 @@ const openedBlockSideEditor = inject('openedBlockSideEditor', ref(null))
                                         <FontAwesomeIcon v-if="!element.show" v-tooltip="trans('Show this block')" icon="fal fa-eye-slash" class="text-base" fixed-width aria-hidden="true" />
                                         <FontAwesomeIcon v-else v-tooltip="trans('Hide this block')" icon="fal fa-eye" class="text-base" fixed-width aria-hidden="true" />
                                     </div>
-
+                                 
                                     <div
-                                        @click=" (e) => {
+                                        @click="(e) => {
                                             isLoadingDeleteBlock === element.id
                                             ? false
-                                            : (e.stopPropagation(), sendDeleteBlock(element))
+                                            : confirmDelete(e,element)
                                         }"
                                         v-tooltip="trans('Delete this block')" class="h-10 border-l border-gray-300 text-red-400 bg-gray-50 hover:bg-red-100 hover:text-red-600 py-2.5 flex items-center justify-center px-2">
                                         <LoadingIcon v-if="isLoadingDeleteBlock === element.id" class="text-gray-400" />
@@ -210,12 +236,14 @@ const openedBlockSideEditor = inject('openedBlockSideEditor', ref(null))
     <Modal :isOpen="modelModalBlocklist" @onClose="openModalBlockList">
         <BlockList :onPickBlock="onPickBlock" :webBlockTypes="webBlockTypes" scope="webpage" />
     </Modal>
+
+    <ConfirmPopup>
+        <template #icon>
+            <FontAwesomeIcon :icon="faExclamationTriangle" class="text-yellow-500" />
+        </template>
+    </ConfirmPopup>
 </template>
 
 
-<style lang="scss" scoped>
-// .container {
-//     max-height: 78vh;
-// }
-
+<style scss scoped>
 </style>

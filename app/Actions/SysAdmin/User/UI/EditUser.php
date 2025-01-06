@@ -129,6 +129,8 @@ class EditUser extends OrgAction
             ),
             "pageHead"    => [
                 "title"   => $user->username,
+                "icon"    => 'fal fa-user-circle',
+                "model"   => __('user'),
                 "actions" => [
                     [
                         "type"  => "button",

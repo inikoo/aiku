@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { Head, Link, useForm } from '@inertiajs/vue3'
+import { Head, Link, useForm, router } from '@inertiajs/vue3'
 import LoginPassword from '@/Components/Auth/LoginPassword.vue'
 import Checkbox from '@/Components/Checkbox.vue'
 import ValidationErrors from '@/Components/ValidationErrors.vue'
+import { useLayoutStore } from '@/Stores/layout'
+
 import { trans } from 'laravel-vue-i18n'
 import { onMounted, ref, nextTick } from 'vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
@@ -19,9 +21,19 @@ const isLoading = ref(false)
 
 const submit = () => {
     isLoading.value = true
-    form.post(route('retina.login.store'), {
-        onError: () => isLoading.value = false,
-        onFinish: () => form.reset('password'),
+    form.post(route('iris.login.store'), {
+        onError: (e) => {
+            console.log('plm',e)
+            isLoading.value = false
+        },
+        onFinish: () => {
+            console.log('dfdfdf')
+        },
+        onSuccess: () => {
+            form.reset('password')
+            console.log('length', useLayoutStore())
+            router.get(route('iris.home'))
+        }
     })
 }
 
@@ -36,71 +48,68 @@ onMounted(async () => {
 </script>
 
 <template>
+
     <Head title="Login" />
-        <div class="max-w-xl mx-auto flex min-h-full flex-1 flex-col justify-center py-12">
-            <div class="sm:mx-auto sm:w-full">
-                <h2 class="mt-6 text-center text-2xl font-bold leading-9 tracking-tight">
-                    Sign in to your account
-                </h2>
-            </div>
+    <div class="max-w-xl mx-auto flex min-h-full flex-1 flex-col justify-center py-12">
+        <div class="sm:mx-auto sm:w-full">
+            <h2 class="mt-6 text-center text-2xl font-bold leading-9 tracking-tight">
+                Sign in to your account
+            </h2>
+        </div>
 
-            <div class="mt-10 sm:mx-auto sm:w-full bg-white px-6 py-12 border border-gray-100 shadow sm:rounded-lg sm:px-12">
-                <form class="space-y-6" action="#" method="POST">
-                    <div>
-                        <label for="email" class="block text-sm font-medium leading-6">
-                            Email address
-                        </label>
-                        <div class="mt-2">
-                            <input id="email" name="email" type="email" autocomplete="email" required=""
-                                class="block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
-                        </div>
+        <div
+            class="mt-10 sm:mx-auto sm:w-full bg-white px-6 py-12 border border-gray-100 shadow sm:rounded-lg sm:px-12">
+            <form class="space-y-6" action="#" method="POST">
+                <div>
+                    <label for="email" class="block text-sm font-medium leading-6">
+                        Email address
+                    </label>
+                    <div class="mt-2">
+                        <input v-model="form.username" ref="inputUsername" id="username" name="username"
+                            :autofocus="true" autocomplete="username" required placeholder="johndoe"
+                            class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            @keydown.enter="submit" />
                     </div>
-
-                    <div>
-                        <label for="password" class="block text-sm font-medium leading-6">Password</label>
-                        <div class="mt-2">
-                            <input
-                                id="password"
-                                name="password"
-                                type="password"
-                                autocomplete="current-password"
-                                required=""
-                                class="block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <input id="remember-me" name="remember-me" type="checkbox"
-                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" />
-                            <label for="remember-me" class="select-none ml-3 block text-sm leading-6">Remember me</label>
-                        </div>
-
-                        <div class="text-sm leading-6">
-                            <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-500">Forgot
-                                password?</a>
-                        </div>
-                    </div>
-
-                    <div>
-                        <button type="submit"
-                            class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Sign
-                            in</button>
-                    </div>
-                </form>
+                </div>
 
                 <div>
-                    <div class="relative mt-10">
-                        <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                            <div class="w-full border-t border-gray-200" />
-                        </div>
-                        <div class="relative flex justify-center text-sm leading-6">
-                            <span class="bg-white text-gray-500 px-6">Don't have account?</span>
-                        </div>
+                    <label for="password" class="block text-sm font-medium leading-6">Password</label>
+                    <div class="mt-2">
+                        <LoginPassword :showProcessing="false" id="password" name="password" :form="form" fieldName="password" @keydown.enter="submit" placeholder="********"/>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <Checkbox name="remember-me" id="remember-me" v-model:checked="form.remember" />
+                        <label for="remember-me" class="select-none ml-3 block text-sm leading-6">Remember me</label>
                     </div>
 
-                    <div class="mt-2 gap-4">
-                        <!-- <a href="#"
+                    <div class="text-sm leading-6">
+                        <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-500">Forgot
+                            password?</a>
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" @click.prevent="submit"
+                        class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Sign
+                        in</button>
+                </div>
+            </form>
+
+            <div>
+                <div class="relative mt-10">
+                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                        <div class="w-full border-t border-gray-200" />
+                    </div>
+                    <div class="relative flex justify-center text-sm leading-6">
+                        <span class="bg-white text-gray-500 px-6">Don't have account?</span>
+                    </div>
+                </div>
+
+                <div class="mt-2 gap-4">
+                    <!-- <a href="#"
                             class="flex w-full items-center justify-center gap-3 rounded-md bg-white px-3 py-2 text-sm font-semibold shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:ring-transparent">
                             <svg class="h-5 w-5" aria-hidden="true" viewBox="0 0 24 24">
                                 <path
@@ -119,21 +128,21 @@ onMounted(async () => {
                             <span class="text-sm font-semibold leading-6">Google</span>
                         </a> -->
 
-                        <Link href="/register"
-                            class="flex w-full items-center justify-center gap-3 rounded-md bg-white text-gray-600 px-3 py-2 text-sm font-semibold shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:ring-transparent">
-                            Register
-                        </Link>
-                    </div>
+                    <Link href="/register"
+                        class="flex w-full items-center justify-center gap-3 rounded-md bg-white text-gray-600 px-3 py-2 text-sm font-semibold shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:ring-transparent">
+                    Register
+                    </Link>
                 </div>
             </div>
+        </div>
 
-            <!-- <p class="mt-10 text-center text-sm text-gray-500">
+        <!-- <p class="mt-10 text-center text-sm text-gray-500">
                 Not a member?
                 {{ ' ' }}
                 <a href="#" class="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Start a 14 day
                     free trial</a>
             </p> -->
-        </div>
+    </div>
 
     <ValidationErrors />
 </template>

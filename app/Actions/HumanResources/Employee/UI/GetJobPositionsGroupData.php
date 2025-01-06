@@ -18,9 +18,9 @@ class GetJobPositionsGroupData
 {
     use AsAction;
 
-    public function handle(Employee|User|Guest $employee, Group $group): object
+    public function handle(Employee|User|Guest $employee, Group $group): array
     {
-        return (object) $employee->jobPositions->map(function ($jobPosition) use ($group) {
+        return (array) $employee->jobPositions->map(function ($jobPosition) use ($group) {
             $scopes = collect($jobPosition->pivot->scopes)->mapWithKeys(function ($scopeIds, $scope) use ($jobPosition, $group) {
                 return match ($scope) {
                     'Warehouse' => [

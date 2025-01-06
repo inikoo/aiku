@@ -129,7 +129,7 @@ const isLoading = ref<string | boolean>(false)
         <div class="space-y-3">
             <!-- Section: Radio -->
             
-            <div class="space-y-3 relative">
+            <div class="space-y-3 relative w-full max-w-[500px]">
                 <!-- Section: Profile box -->
                 <!-- <Transition name="headlessui" mode="out-in"> -->
                     <div class="col-span-2 grid ">
