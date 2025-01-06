@@ -61,7 +61,7 @@ class ShowUser extends GrpAction
                     'model'   => __('user'),
                     'icon'    =>
                         [
-                            'icon'  => ['fal', 'fa-terminal'],
+                            'icon'  => ['fal', 'fa-user-circle'],
                             'title' => __('user')
                         ],
                     'subNavigation' => $this->getUserNavigation($user, $request),
