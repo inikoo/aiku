@@ -242,7 +242,7 @@ class IndexPalletsInCustomer extends OrgAction
 
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => FulfilmentCustomerPalletsTabsEnum::navigation(),
+                    'navigation' => FulfilmentCustomerPalletsTabsEnum::navigation($this->fulfilmentCustomer),
                 ],
 
                 FulfilmentCustomerPalletsTabsEnum::STORING->value => $this->tab == FulfilmentCustomerPalletsTabsEnum::STORING->value ?
