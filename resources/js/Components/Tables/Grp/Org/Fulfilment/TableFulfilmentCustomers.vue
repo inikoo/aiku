@@ -65,5 +65,8 @@ function customerRoute(customer: FulfilmentCustomer) {
       <template #cell(location)="{ item: customer }">
         <AddressLocation :data="customer['location']" />
       </template>
+      <template #cell(sales_all)="{ item: customer }">
+        <div class="text-gray-500">{{ useLocaleStore().currencyFormat( customer.currency_code, customer.sales_all)  }}</div>
+      </template>
     </Table>
 </template>
