@@ -286,7 +286,7 @@ function ShopDashboard(shop: any) {
 								<div class="flex justify-end relative">
 									<Transition name="spin-to-down" mode="out-in">
 										<div
-											v-tooltip="useLocaleStore().numberShort(data.currency,data.interval_percentages?.invoices[
+											v-tooltip="useLocaleStore().CurrencyShort(data.currency,data.interval_percentages?.invoices[
 														selectedDateOption
 													]?.amount || 0)"
 											:key="
@@ -295,7 +295,7 @@ function ShopDashboard(shop: any) {
 												]?.amount || 0
 											">
 											{{
-												useLocaleStore().numberShort(data.currency,data.interval_percentages?.invoices[
+												useLocaleStore().CurrencyShort(data.currency,data.interval_percentages?.invoices[
 														selectedDateOption
 													]?.amount || 0)
 											}}
@@ -419,7 +419,7 @@ function ShopDashboard(shop: any) {
 													?.amount
 											">
 											{{
-												useLocaleStore().numberShort(
+												useLocaleStore().CurrencyShort(
 													data.currency,
 													data.interval_percentages?.sales[
 														selectedDateOption
@@ -525,7 +525,7 @@ function ShopDashboard(shop: any) {
 
 								<Column
 									:footer="
-									useLocaleStore().numberShort(dashboard.currency.code,Number(dashboard.total[
+									useLocaleStore().CurrencyShort(dashboard.currency.code,Number(dashboard.total[
 											selectedDateOption
 										].total_invoices.toString())
 									)
@@ -534,7 +534,7 @@ function ShopDashboard(shop: any) {
 								<Column footer="" footerStyle="text-align:right" />
 								<Column
 									:footer="
-										useLocaleStore().numberShort(
+										useLocaleStore().CurrencyShort(
 											dashboard.currency.code,
 											Number(dashboard.total[selectedDateOption].total_sales)
 										)
