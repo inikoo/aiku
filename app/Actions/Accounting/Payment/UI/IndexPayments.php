@@ -13,6 +13,7 @@ use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
+use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Http\Resources\Accounting\PaymentsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Invoice;
@@ -72,19 +73,20 @@ class IndexPayments extends OrgAction
         } else {
             abort(422);
         }
-
-        /*
-        foreach ($this->elementGroups as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
-        }
-        */
+        
         $queryBuilder->leftjoin('organisations', 'payments.organisation_id', '=', 'organisations.id');
         $queryBuilder->leftjoin('shops', 'payments.shop_id', '=', 'shops.id');
+
+        if (!($parent instanceof Order || $parent instanceof Invoice)) {
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $queryBuilder->whereElementGroup(
+                    key: $key,
+                    allowedElements: array_keys($elementGroup['elements']),
+                    engine: $elementGroup['engine'],
+                    prefix: $prefix
+                );
+            }
+        }
 
         return $queryBuilder
             ->defaultSort('-date')
@@ -93,6 +95,7 @@ class IndexPayments extends OrgAction
                 'payments.reference',
                 'payments.status',
                 'payments.date',
+                'payments.amount',
                 'payment_accounts.slug as payment_accounts_slug',
                 'payment_service_providers.slug as payment_service_providers_slug',
                 'shops.name as shop_name',
@@ -110,6 +113,27 @@ class IndexPayments extends OrgAction
             ->withQueryString();
     }
 
+    protected function getElementGroups(Group|Organisation|PaymentAccount|Shop|OrgPaymentServiceProvider $parent): array
+    {
+
+        return [
+
+            'state' => [
+                'label'    => __('State'),
+                'elements' => array_merge_recursive(
+                    PaymentStateEnum::labels(),
+                    PaymentStateEnum::count($parent),
+                    PaymentStateEnum::shortLabels(),
+                ),
+
+                'engine' => function ($query, $elements) {
+                    $query->whereIn('payments.state', $elements);
+                }
+
+            ],
+        ];
+    }
+
     public function tableStructure(Group|Invoice|Organisation|OrgPaymentServiceProvider|PaymentAccount|Order $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
@@ -117,6 +141,16 @@ class IndexPayments extends OrgAction
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
+            }
+
+            if (!($parent instanceof Order || $parent instanceof Invoice)) {
+                foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                    $table->elementGroup(
+                        key: $key,
+                        label: $elementGroup['label'],
+                        elements: $elementGroup['elements']
+                    );
+                }
             }
             $table
                 ->withGlobalSearch()
@@ -128,6 +162,7 @@ class IndexPayments extends OrgAction
                 $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
                 $table->column(key: 'shop_name', label: __('shop'), canBeHidden: false, searchable: true);
             }
+            $table->column(key: 'amount', label: __('amount'), canBeHidden: false, sortable: true, searchable: true, type:'number');
             $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true, type:'number');
         };
     }
