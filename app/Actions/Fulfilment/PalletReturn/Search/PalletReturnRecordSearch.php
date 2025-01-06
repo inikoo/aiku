@@ -38,12 +38,12 @@ class PalletReturnRecordSearch
                     'palletReturn'           => $palletReturn->slug
                 ]
             ],
-            'description'     => [
-                'tooltip' => 'Warehouse',
+            'description' => [
                 'label'   => $palletReturn->warehouse->name
             ],
             'code'         => [
-                'label' => $palletReturn->reference
+                'label'   => $palletReturn->reference,
+                'tooltip' => __('Reference')
             ],
             'icon'          => [
                 'icon'  => 'fal fa-truck-couch',
