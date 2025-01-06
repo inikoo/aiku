@@ -35,6 +35,7 @@ class PaymentsResource extends JsonResource
             'reference'  => $this->reference,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'amount'     => $this->amount,
             'organisation_name' => $this->organisation_name,
             'organisation_slug' => $this->organisation_slug,
             'shop_name'         => $this->shop_name,
