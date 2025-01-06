@@ -30,9 +30,9 @@ trait WithGuestsSubNavigations
             ],
             [
                 "number"   => $group->sysadminStats->number_guests_status_inactive,
-                "label"    => __("Suspended"),
+                "label"    => __("Inactive"),
                 "route"     => [
-                    "name"       => "grp.sysadmin.guests.suspended.index",
+                    "name"       => "grp.sysadmin.guests.inactive.index",
                     "parameters" => [],
                 ],
                 "leftIcon" => [

@@ -37,7 +37,7 @@ class IndexGuests extends GrpAction
         return [
             'status' => [
                 'label'    => __('Status'),
-                'elements' => ['active' => __('Active'), 'suspended' => __('Suspended')],
+                'elements' => ['active' => __('Active'), 'inactive' => __('Inactive')],
                 'engine'   => function ($query, $elements) {
                     $query->where('users.status', array_pop($elements) === 'active');
                 }
@@ -75,7 +75,7 @@ class IndexGuests extends GrpAction
         {
             $queryBuilder->where('guests.status', true);
         } 
-        elseif ($scope == 'suspended') 
+        elseif ($scope == 'inactive') 
         {
             $queryBuilder->where('guests.status', false);
         }
@@ -158,11 +158,11 @@ class IndexGuests extends GrpAction
             'icon'  => ['fal', 'fa-user-alien'],
             'title' => __('active guests')
         ];
-        if ($this->scope == 'suspended') {
-            $title = __('Suspended guests');
+        if ($this->scope == 'inactive') {
+            $title = __('Inactive guests');
             $icon  = [
                 'icon'  => ['fal', 'fa-user-slash'],
-                'title' => __('suspended guests')
+                'title' => __('inactive guests')
             ];
         } elseif ($this->scope == 'all') {
             $title = __('Guests');
@@ -199,10 +199,10 @@ class IndexGuests extends GrpAction
         )->table($this->tableStructure(group:$this->group, scope:$this->scope));
     }
 
-    public function inSuspended(ActionRequest $request): LengthAwarePaginator
+    public function inInactive(ActionRequest $request): LengthAwarePaginator
     {
         $group = group();
-        $this->scope = 'suspended';
+        $this->scope = 'inactive';
         $this->initialisation($group, $request);
 
         return $this->handle($group, $this->scope);
@@ -252,12 +252,12 @@ class IndexGuests extends GrpAction
                     ]
                 ),
             ),
-            'grp.sysadmin.guests.suspended.index' =>
+            'grp.sysadmin.guests.inactive.index' =>
             array_merge(
                 ShowSysAdminDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name' => 'grp.sysadmin.guests.suspended.index',
+                        'name' => 'grp.sysadmin.guests.inactive.index',
                         null
                     ]
                 ),
