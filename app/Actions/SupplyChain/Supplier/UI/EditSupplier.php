@@ -293,7 +293,7 @@ class EditSupplier extends GrpAction
     public function getPrevious(Supplier $supplier, ActionRequest $request): ?array
     {
         $previous = Supplier::where('code', '<', $supplier->code)->when(true, function ($query) use ($supplier, $request) {
-            if ($request->route()->getName() == 'grp.org.procurement.marketplace.agents.show.suppliers.show') {
+            if ($request->route()->getName() == 'grp.supply-chain.agents.show.suppliers.edit') {
                 $query->where('suppliers.agent_id', $supplier->agent_id);
             }
         })->orderBy('code', 'desc')->first();
@@ -305,7 +305,7 @@ class EditSupplier extends GrpAction
     public function getNext(Supplier $supplier, ActionRequest $request): ?array
     {
         $next = Supplier::where('code', '>', $supplier->code)->when(true, function ($query) use ($supplier, $request) {
-            if ($request->route()->getName() == 'grp.supply-chain.agents.show.suppliers.show') {
+            if ($request->route()->getName() == 'grp.supply-chain.agents.show.suppliers.edit') {
                 $query->where('suppliers.agent_id', $supplier->agent_id);
             }
         })->orderBy('code')->first();
