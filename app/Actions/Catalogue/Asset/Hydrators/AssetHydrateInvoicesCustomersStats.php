@@ -16,7 +16,7 @@ use App\Models\Catalogue\Asset;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class AssetHydrateInvoicesStats
+class AssetHydrateInvoicesCustomersStats
 {
     use AsAction;
     use WithEnumStats;
