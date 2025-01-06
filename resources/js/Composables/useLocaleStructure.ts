@@ -25,6 +25,6 @@ export const aikuLocaleStructure = {
         return new Intl.NumberFormat('en').format(number)
     },
     currencyFormat: (currencyCode: string, amount: number) => {
-        return new Intl.NumberFormat('en', { style: 'currency', currency: currencyCode }).format(amount)
+        // return new Intl.NumberFormat('en', { style: 'currency', currency: currencyCode || 'usd' }).format(amount || 0)
     }
 }
