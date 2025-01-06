@@ -12,6 +12,7 @@ use App\Actions\Web\Webpage\PublishWebpage;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UpdateWebsite;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Web\Webpage;
@@ -35,6 +36,13 @@ class FetchAuroraWebsites extends FetchAuroraAction
         if ($websiteData = $organisationSource->fetchWebsite($organisationSourceId)) {
             if ($website = Website::where('source_id', $websiteData['website']['source_id'])
                 ->first()) {
+
+
+                if ($website->shop->type == ShopTypeEnum::FULFILMENT) {
+                    // Do no process fulfilment websites (Level 2)
+                    return $website;
+                }
+
                 $website = UpdateWebsite::make()->action(
                     website: $website,
                     modelData: $websiteData['website'],
