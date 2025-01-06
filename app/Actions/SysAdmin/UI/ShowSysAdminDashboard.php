@@ -17,6 +17,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowSysAdminDashboard extends OrgAction
 {
+
+
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->hasPermissionTo("sysadmin.view");
