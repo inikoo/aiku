@@ -61,5 +61,13 @@ class AssetHydrateSales
         $asset->salesIntervals->update($stats);
     }
 
+    public string $commandSignature = 'asset:hydrate-sales';
+
+    public function asCommand($command)
+    {
+        $asset = Asset::find(476);
+        $this->handle($asset);
+    }
+
 
 }

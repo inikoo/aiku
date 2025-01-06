@@ -106,7 +106,7 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
             'rumWebVitals' => $rumWebVitals,
             'zone' => $zone,
         ]);
-        dd($data);
+        // dd($data);
         // cache()->put($cacheKey, $data, $cacheTTL);
 
         return $data;
