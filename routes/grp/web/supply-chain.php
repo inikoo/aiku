@@ -36,6 +36,7 @@ Route::prefix("agents")->name("agents.")->group(
 
             Route::prefix('suppliers')->as('.suppliers')->group(function () {
                 Route::get('', [IndexSuppliers::class, 'inAgent'])->name('.index');
+                Route::get('create', [CreateSupplier::class])->name('.create');
 
                 Route::prefix('{supplier}')->group(function () {
                     Route::get('', [ShowSupplier::class, 'inAgent'])->name('.show');
@@ -73,7 +74,7 @@ Route::prefix("suppliers")->name("suppliers")->group(
 
         Route::prefix('{supplier}')->group(function () {
             Route::get('', ShowSupplier::class)->name('.show');
-            Route::get('edit', [EditSupplier::class, 'inSupplier'])->name('.edit');
+            Route::get('edit', EditSupplier::class)->name('.edit');
 
             Route::prefix('supplier-products')->as('.supplier_products')->group(function () {
                 Route::get('', [IndexSupplierProducts::class, 'inSupplier'])->name('.index');

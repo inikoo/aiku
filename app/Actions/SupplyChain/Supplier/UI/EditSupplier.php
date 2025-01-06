@@ -8,6 +8,7 @@
 
 namespace App\Actions\SupplyChain\Supplier\UI;
 
+use App\Actions\GrpAction;
 use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\Helpers\Country\UI\GetCountriesOptions;
 use App\Actions\Helpers\Currency\UI\GetCurrenciesOptions;
@@ -19,7 +20,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditSupplier extends InertiaAction
+class EditSupplier extends GrpAction
 {
     public function handle(Supplier $supplier): Supplier
     {
@@ -28,14 +29,13 @@ class EditSupplier extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
-
-        return $request->user()->hasPermissionTo("procurement.view");
+        return $request->user()->hasPermissionTo('supply-chain.edit');
     }
 
     public function asController(Supplier $supplier, ActionRequest $request): Supplier
     {
-        $this->initialisation($request);
+        $group = group();
+        $this->initialisation($group, $request);
         return $this->handle($supplier);
     }
 
@@ -43,7 +43,8 @@ class EditSupplier extends InertiaAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inAgent(Agent $agent, Supplier $supplier, ActionRequest $request): Supplier
     {
-        $this->initialisation($request);
+        $group = group();
+        $this->initialisation($group, $request);
         return $this->handle($supplier);
     }
 
@@ -54,6 +55,7 @@ class EditSupplier extends InertiaAction
             [
                 'title'       => __('edit supplier'),
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $supplier,
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
@@ -98,6 +100,11 @@ class EditSupplier extends InertiaAction
                                     'label' => __('contact name'),
                                     'value' => $supplier->contact_name
                                 ],
+                                'contact_website' => [
+                                    'type'  => 'input',
+                                    'label' => __('contact website'),
+                                    'value' => $supplier->contact_website
+                                ],
                                 'email'        => [
                                     'type'    => 'input',
                                     'label'   => __('email'),
@@ -114,7 +121,7 @@ class EditSupplier extends InertiaAction
                                 'address'      => [
                                     'type'    => 'address',
                                     'label'   => __('Address'),
-                                    'value'   => AddressResource::make($supplier->getAddress())->getArray(),
+                                    'value'   => AddressResource::make($supplier->getAddress('contact'))->getArray(),
                                     'options' => [
                                         'countriesAddressData' => GetAddressData::run()
 
@@ -263,7 +270,7 @@ class EditSupplier extends InertiaAction
                     'args' => [
                         'updateRoute' => [
                             'name'      => 'grp.models.supplier.update',
-                            'parameters' => $supplier->slug
+                            'parameters' => $supplier->id
 
                         ],
                     ]
@@ -273,9 +280,10 @@ class EditSupplier extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(Supplier $supplier, string $routeName, array $routeParameters): array
     {
         return ShowSupplier::make()->getBreadcrumbs(
+            supplier: $supplier,
             routeName: preg_replace('/edit$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '('.__('Editing').')'

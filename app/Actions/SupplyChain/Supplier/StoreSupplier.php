@@ -120,6 +120,7 @@ class StoreSupplier extends GrpAction
                 ),
             ],
             'contact_name' => ['nullable', 'string', 'max:255'],
+            'contact_website' => ['nullable', 'string', 'max:255'],
             'company_name' => ['nullable', 'string', 'max:255'],
             'email'        => ['nullable', 'email'],
             'phone'        => ['nullable', new Phone()],
