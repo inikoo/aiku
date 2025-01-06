@@ -25,7 +25,7 @@ import findKey from 'lodash-es/findKey'
 import forEach from 'lodash-es/forEach'
 import isEqual from 'lodash-es/isEqual'
 import map from 'lodash-es/map'
-import { kebabCase } from 'lodash'
+import { debounce, kebabCase } from 'lodash'
 import CountUp from 'vue-countup-v3'
 import { useFormatTime } from '@/Composables/useFormatTime'
 
@@ -326,26 +326,22 @@ function resetQuery() {
     queryBuilderData.value.page = 1;
 }
 
-const debounceTimeouts = {};
+
 
 function changeSearchInputValue(key, value) {
-    clearTimeout(debounceTimeouts[key]);
+    if (visitCancelToken.value && props.preventOverlappingRequests) {
+        visitCancelToken.value.cancel();
+    }
 
-    debounceTimeouts[key] = setTimeout(() => {
-        if (visitCancelToken.value && props.preventOverlappingRequests) {
-            visitCancelToken.value.cancel();
-        }
-
-        const intKey = findDataKey('searchInputs', key);
-        queryBuilderData.value.searchInputs[intKey].value = value;
-        queryBuilderData.value.cursor = null;
-        queryBuilderData.value.page = 1;
-    }, props.inputDebounceMs);
+    const intKey = findDataKey('searchInputs', key);
+    queryBuilderData.value.searchInputs[intKey].value = value;
+    queryBuilderData.value.cursor = null;
+    queryBuilderData.value.page = 1;
 }
 
-function changeGlobalSearchValue(value?: string) {
+const changeGlobalSearchValue = debounce((value?: string) => {
     changeSearchInputValue('global', value);
-}
+}, 1000)
 
 // function changeFilterValue(key, value) {
 //     const intKey = findDataKey('filters', key);
@@ -755,10 +751,15 @@ const isLoading = ref<string | boolean>(false)
                                 :label="queryBuilderProps.globalSearch ? queryBuilderProps.globalSearch.label : null"
                                 :value="queryBuilderProps.globalSearch ? queryBuilderProps.globalSearch.value : null"
                                 :on-change="changeGlobalSearchValue">
-                                <TableFilterSearch v-if="queryBuilderProps.globalSearch" class=""
-                                    @resetSearch="() => resetQuery()" :label="queryBuilderProps.globalSearch.label"
+                                <TableFilterSearch
+                                    v-if="queryBuilderProps.globalSearch"
+                                    class=""
+                                    @resetSearch="() => resetQuery()"
+                                    :label="queryBuilderProps.globalSearch.label"
                                     :value="queryBuilderProps.globalSearch.value"
-                                    :on-change="changeGlobalSearchValue" />
+                                    :on-change="changeGlobalSearchValue"
+                                    :isVisiting
+                                />
                             </slot>
                         </div>
                     </div>
