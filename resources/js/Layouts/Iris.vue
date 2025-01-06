@@ -8,10 +8,18 @@ import Footer from '@/Layouts/Iris/Footer.vue'
 import { useColorTheme } from '@/Composables/useStockList'
 import { usePage } from '@inertiajs/vue3'
 import ScreenWarning from '@/Components/Utils/ScreenWarning.vue'
-import { onMounted, provide } from 'vue'
+import { onMounted, provide, ref } from 'vue'
 import { initialiseIrisApp } from '@/Composables/initialiseIris'
 import { useIrisLayoutStore } from "@/Stores/irisLayout"
 import { irisStyleVariables } from '@/Composables/Workshop'
+import { trans } from 'laravel-vue-i18n'
+import Modal from '@/Components/Utils/Modal.vue'
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faExclamationTriangle } from '@fas'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import Button from '@/Components/Elements/Buttons/Button.vue'
+library.add(faExclamationTriangle)
 
 initialiseIrisApp()
 
@@ -30,14 +38,61 @@ console.log('inislds',usePage().props?.iris)
 onMounted(() => {
     irisStyleVariables(theme?.color)
 })
+
+const isFirstVisit = () => {
+    const irisData = localStorage.getItem('iris');
+    if (irisData) {
+        const parsedData = JSON.parse(irisData);
+        return parsedData.isFirstVisit;
+    }
+    return true;
+};
+const firstVisit = ref(isFirstVisit());
+const setFirstVisitToFalse = () => {
+    console.log('firstVisit', firstVisit.value)
+    const irisData = localStorage.getItem('iris');
+    if (irisData) {
+        console.log('izzz')
+        const parsedData = JSON.parse(irisData);
+        parsedData.isFirstVisit = false;
+        localStorage.setItem('iris', JSON.stringify(parsedData));
+    } else {
+        console.log('itttt')
+        localStorage.setItem('iris', JSON.stringify({ isFirstVisit: false }));
+    }
+    firstVisit.value = false
+};
+
 </script>
 
 <template>
     <div class="relative editor-class">
-        <ScreenWarning v-if="layout.app.environment === 'staging'" />
-        <div :class="[theme.layout === 'blog' ? 'container max-w-7xl mx-auto shadow-xl' : '']" :style="{ fontFamily: theme.fontFamily}">
+        <ScreenWarning v-if="layout.app.environment === 'staging'">
+            {{ trans("This environment is for testing and development purposes only. The data you enter will be deleted in the future.") }}
+        </ScreenWarning>
+
+        <Modal v-if="layout.app.environment === 'staging'" :isOpen="firstVisit" :diazxclogStyle="{background: '#fff', border: '0px solid #ff0000'}" width="w-fit">
+            <div class="px-6 py-28 sm:px-6 lg:px-32 text-red-600">
+                <div class="mx-auto max-w-2xl text-center">
+                    <h2 class="text-4xl font-bold tracking-tight text-balance sm:text-5xl">
+                        <FontAwesomeIcon icon='fas fa-exclamation-triangle' class='text-4xl' fixed-width aria-hidden='true' />
+                        Reminder
+                        <FontAwesomeIcon icon='fas fa-exclamation-triangle' class='text-4xl' fixed-width aria-hidden='true' />
+                    </h2>
+                    <p class="mx-auto mt-6 text-lg/8 text-pretty">Warning: You are currently in the staging environment.  Data can be delayed and overwritten at any time and may be deleted in the future.</p>
+
+                    <div class="mt-10 flex items-center justify-center gap-x-6">
+                        <Button @click="setFirstVisitToFalse" size="xl" label="Got it" type="red">
+                            
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        </Modal>
+
+        <div :class="[(theme.layout === 'blog' || !theme.layout ) ? 'container max-w-7xl mx-auto shadow-xl' : '']" :style="{ fontFamily: theme.fontFamily}">
         <!--     <IrisLoginInformation /> -->
-            <IrisHeader v-if="header.header" :data="header" :colorThemed="theme" :menu="navigation"/>
+            <!-- <IrisHeader v-if="header.header" :data="header" :colorThemed="theme" :menu="navigation"/> -->
 
             <!-- Main Content -->
             <main>

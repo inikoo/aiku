@@ -17,7 +17,7 @@ use Illuminate\Support\Collection;
 
 class HydratePalletReturn extends HydrateModel
 {
-    public string $commandSignature = 'hydrate:pallet-returns {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'hydrate:pallet_returns {organisations?*} {--s|slugs=}';
 
 
     public function handle(PalletReturn $palletReturn): void

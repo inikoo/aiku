@@ -44,8 +44,8 @@ enum JobPositionTabsEnum: string
                 'align' => 'right',
             ],
             JobPositionTabsEnum::SHOWCASE => [
-                'title' => __('responsibility'),
-                'icon'  => 'fas fa-info-circle',
+                'title' => __('showcase'),
+                'icon'  => 'fal fa-tachometer-alt-fast',
             ],
         };
     }

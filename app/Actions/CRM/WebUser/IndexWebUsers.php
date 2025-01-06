@@ -13,15 +13,15 @@ use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Http\Resources\CRM\WebUsersResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
@@ -323,7 +323,7 @@ class IndexWebUsers extends OrgAction
             ),
             'grp.overview.crm.web-users.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs($routeParameters),
+                ShowGroupOverviewHub::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,

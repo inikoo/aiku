@@ -11,7 +11,7 @@ namespace App\Actions\HumanResources\JobPosition\UI;
 use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use App\Actions\HumanResources\WithEmployeeSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Http\Resources\HumanResources\JobPositionsResource;
 use App\InertiaTable\InertiaTable;
@@ -19,6 +19,7 @@ use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -27,7 +28,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexJobPositions extends OrgAction
 {
@@ -249,7 +249,7 @@ class IndexJobPositions extends OrgAction
                 )
             ),
             'grp.overview.hr.responsibilities.index' => array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'       => $routeName,

@@ -8,21 +8,22 @@
 
 namespace App\Actions\Accounting\Payment\UI;
 
-use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
 use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServiceProvider;
+use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\PaymentsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Invoice;
+use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
-use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Catalogue\Shop;
 use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -31,7 +32,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexPayments extends OrgAction
 {
@@ -278,7 +278,7 @@ class IndexPayments extends OrgAction
             ),
             'grp.overview.accounting.payments.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name' => $routeName,

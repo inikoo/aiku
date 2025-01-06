@@ -12,7 +12,7 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\UI\Dispatch\ShowDispatchHub;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\UI\DeliveryNotes\DeliveryNotesTabsEnum;
@@ -374,7 +374,7 @@ class IndexDeliveryNotes extends OrgAction
             ),
             'grp.overview.ordering.delivery-notes.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name' => $routeName,

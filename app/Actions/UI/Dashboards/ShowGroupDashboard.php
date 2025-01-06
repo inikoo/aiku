@@ -166,7 +166,79 @@ class ShowGroupDashboard extends OrgAction
                         'labelShort' => __('All'),
                         'value'      => 'all'
                     ],
-                ]
+                ],
+                'dashboard_stats' => [
+                    'settings' => auth()->user()->settings,
+                    'columns' => [
+                        [
+                            'widgets' => [
+                                [
+                                    'type' => 'overview_table',
+                                    'data' => $sales
+                                ]
+                            ]
+                        ],
+                        [
+                            'widgets' => [
+                                [
+                                    'label' => __('the nutrition store'),
+                                    'data' => [
+                                        [
+                                            'label' => __('total orders today'),
+                                            'value' => 275,
+                                            'type' => 'card_currency_success'
+                                        ],
+                                        [
+                                            'label' => __('sales today'),
+                                            'value' => 2345,
+                                            'type' => 'card_currency'
+                                        ]
+                                    ],
+                                    'type' => 'multi_card',
+                                ],
+                                [
+                                    'label' => __('the yoga store'),
+                                    'data' => [
+                                        [
+                                            'label' => __('ad spend this week'),
+                                            'value' => 46,
+                                            'type' => 'card_percentage'
+                                        ],
+                                        [
+                                            'label' => __('sales today'),
+                                            'value' => 2345,
+                                            'type' => 'card_currency'
+                                        ]
+                                    ],
+                                    'type' => 'multi_card',
+                                ],
+                                [
+                                    'label' => __('ad spend this week'),
+                                    'value' => 2345,
+                                    'type' => 'card_currency',
+                                ],
+                                [
+                                    'label' => __('card adbandoment rate'),
+                                    'value' => 45,
+                                    'type' => 'card_percentage',
+                                ],
+                                [
+                                    'label' => __('the yoga store'),
+                                    'data' => [
+                                        'label' => __('Total newsletter subscribers'),
+                                        'value' => 55700,
+                                        'progress_bar' => [
+                                            'value' => 55,
+                                            'max' => 100,
+                                            'color' => 'success',
+                                        ],
+                                    ],
+                                    'type' => 'card_progress_bar',
+                                ],
+                            ],
+                        ]
+                    ]
+                ],
             ]
         );
     }
@@ -178,7 +250,6 @@ class ShowGroupDashboard extends OrgAction
         return $this->handle($group);
     }
 
-
     public function calculatePercentageIncrease($thisYear, $lastYear): ?float
     {
         if ($lastYear == 0) {
@@ -188,7 +259,7 @@ class ShowGroupDashboard extends OrgAction
         return (($thisYear - $lastYear) / $lastYear) * 100;
     }
 
-    protected function mapIntervals($intervalData, string $prefix, array $keys)
+    protected function mapIntervals($intervalData, string $prefix, array $keys): array
     {
         $result = [];
         foreach ($keys as $key) {

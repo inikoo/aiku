@@ -9,6 +9,7 @@
 namespace App\Actions\Procurement\PurchaseOrder\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\OrgAgent\WithOrgAgentSubNavigation;
 use App\Actions\Procurement\OrgPartner\UI\ShowOrgPartner;
@@ -16,7 +17,6 @@ use App\Actions\Procurement\OrgPartner\WithOrgPartnerSubNavigation;
 use App\Actions\Procurement\OrgSupplier\UI\ShowOrgSupplier;
 use App\Actions\Procurement\OrgSupplier\WithOrgSupplierSubNavigation;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Http\Resources\Procurement\PurchaseOrdersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Inventory\OrgStock;
@@ -371,7 +371,7 @@ class IndexPurchaseOrders extends OrgAction
             ),
             'grp.overview.procurement.purchase-orders.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

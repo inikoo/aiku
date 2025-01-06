@@ -39,7 +39,9 @@ import {
 } from "@fal"
 import SectionTable from "@/Components/Table/SectionTable.vue"
 import { faAngleDown, faAngleUp } from "@far"
-import DashboardCard from "@/Components/DataDisplay/DashboardCard.vue"
+import StoreStatsCard from "@/Components/DataDisplay/StoreStatsCard.vue"
+import InfoDashboardCard from "@/Components/DataDisplay/InfoDashboardCard.vue"
+import ProgressDashboardCard from "@/Components/DataDisplay/ProgressDashboardCard.vue"
 
 const props = defineProps<{
 	title: string
@@ -98,7 +100,8 @@ library.add(
 	faPaperPlane,
 	faPhoneVolume,
 	faRaygun,
-	faScrollOld
+	faScrollOld,
+  faUserCircle
 )
 
 // Search functionality
@@ -121,10 +124,10 @@ onUnmounted(() => {
 })
 
 const columnClasses = computed(() => {
-  const totalColumns = props.dashboard?.columns?.length || 1;
-  const columnSpan = Math.floor(12 / totalColumns);
-  return `col-span-${columnSpan}`;
-});
+	const totalColumns = props.dashboard?.columns?.length || 1
+	const columnSpan = Math.floor(12 / totalColumns)
+	return `col-span-${columnSpan}`
+})
 </script>
 
 <template>
@@ -133,30 +136,49 @@ const columnClasses = computed(() => {
 	<PageHeading :data="pageHead" />
 
 	<!-- Dashboard Grid -->
-	<div class="grid grid-cols-12 m-3 gap-4">
+	<div class="grid grid-cols-12 gap-4 p-4">
+		<!-- Loop through columns -->
 		<template v-for="(column, colIndex) in props.dashboard.columns" :key="colIndex">
-      <div :class="columnClasses" class="space-y-4">
-        <!-- Loop through widgets in each column -->
-        <template v-for="(widget, widgetIndex) in column.widgets" :key="widgetIndex">
-          <!-- Render Overview Table -->
-          <div v-if="widget.type === 'overview_table'">
-            <SectionTable :data="widget.data.data" />
-          </div>
+			<div :class="columnClasses" class="space-y-4">
+				<!-- Loop through widgets in each column -->
+				<template v-for="(widget, widgetIndex) in column.widgets" :key="widgetIndex">
+					<!-- Render Overview Table -->
+					<div
+						v-if="widget.type === 'overview_table'"
+						class="col-span-12 bg-white rounded-lg shadow-md p-6">
+						<h3 class="text-gray-500 font-semibold text-lg mb-4">Table Overview</h3>
+						<SectionTable :data="widget.data.data" />
+					</div>
 
-		  <DashboardCard
-            v-else-if="widget.type === 'card_currency' || widget.type === 'card_percentage'"
-            :value="widget.value"
-            :description="widget.label"
-            :showRedBorder="widget.type === 'card_currency'"
-            :showIcon="widget.type === 'card_currency'"
-          />
+					<!-- Render Single Cards -->
+					<InfoDashboardCard
+						v-else-if="
+							widget.type === 'card_currency' || widget.type === 'card_percentage'
+						"
+						:value="widget.value"
+						:description="widget.label"
+						:showRedBorder="widget.type === 'card_currency'"
+						:showIcon="widget.type === 'card_currency'"
+						class="col-span-3" />
 
-          <!-- Fallback for unknown widget types -->
-         
-        </template>
-      </div>
-    </template>
-  </div>
+					<StoreStatsCard
+						v-if="widget.type === 'multi_card'"
+						:label="widget.label"
+						:data="widget.data"
+						:gridCols="2" />
+					
+					<ProgressDashboardCard
+						v-else-if="widget.type === 'card_progress_bar'"
+						:label="widget.label"
+						:value="widget.data?.value || 'N/A'"
+						:progressBar="
+							widget.data?.progress_bar || { value: 0, max: 100, color: 'blue' }
+						" />
+
+				</template>
+			</div>
+		</template>
+	</div>
 </template>
 
 <style scoped>

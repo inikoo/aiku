@@ -175,7 +175,7 @@ class GetGroupNavigation
                     'subSections' => [
                         [
                             'label' => __('users'),
-                            'icon'  => ['fal', 'fa-terminal'],
+                            'icon'  => ['fal', 'fa-user-circle'],
                             'root'  => 'grp.sysadmin.users.',
                             'route' => [
                                 'name' => 'grp.sysadmin.users.index',
@@ -188,6 +188,15 @@ class GetGroupNavigation
                             'root'  => 'grp.sysadmin.guests.',
                             'route' => [
                                 'name' => 'grp.sysadmin.guests.index',
+
+                            ]
+                        ],
+                        [
+                            'label' => __('analytics'),
+                            'icon'  => ['fal', 'fa-analytics'],
+                            'root'  => 'grp.sysadmin.analytics.',
+                            'route' => [
+                                'name' => 'grp.sysadmin.analytics.dashboard',
 
                             ]
                         ],

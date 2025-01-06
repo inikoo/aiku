@@ -67,6 +67,18 @@ class FetchAuroraNoProductTransaction extends FetchAurora
             $gross                    = $this->auroraModelData->{'Transaction Gross Amount'};
             $net                      = $this->auroraModelData->{'Transaction Net Amount'};
             $this->parsedData['type'] = 'Charges';
+        } elseif ($this->auroraModelData->{'Transaction Type'} == 'Premium') {
+
+
+            $charge = $order->shop->charges()->where('type', ChargeTypeEnum::PREMIUM)->first();
+            if ($charge) {
+                $model  = $charge;
+            }
+
+
+            $gross                    = $this->auroraModelData->{'Transaction Gross Amount'};
+            $net                      = $this->auroraModelData->{'Transaction Net Amount'};
+            $this->parsedData['type'] = 'Charges';
         } elseif ($this->auroraModelData->{'Transaction Type'} == 'Refund') {
             return;
         } else {

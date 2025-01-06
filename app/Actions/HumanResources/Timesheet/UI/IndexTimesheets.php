@@ -11,7 +11,7 @@ namespace App\Actions\HumanResources\Timesheet\UI;
 use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use App\Actions\HumanResources\WithEmployeeSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\Helpers\Period\PeriodEnum;
 use App\Enums\UI\HumanResources\TimesheetsTabsEnum;
@@ -304,7 +304,7 @@ class IndexTimesheets extends OrgAction
                 )
             ),
             'grp.overview.hr.timesheets.index' => array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'       => 'grp.overview.hr.timesheets.index',

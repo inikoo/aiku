@@ -10,14 +10,11 @@ namespace App\Actions\Catalogue\Product\UI;
 
 use App\Actions\Fulfilment\UI\Catalogue\PhysicalGoods\IndexFulfilmentPhysicalGoods;
 use App\Actions\OrgAction;
-use App\Enums\Billables\Rental\RentalUnitEnum;
-use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Spatie\LaravelOptions\Options;
 
 class CreatePhysicalGoods extends OrgAction
 {
@@ -56,22 +53,24 @@ class CreatePhysicalGoods extends OrgAction
                                         'required'   => true
                                     ],
                                     'unit' => [
-                                        'type'     => 'select',
+                                        'type'     => 'input',
                                         'label'    => __('unit'),
                                         'required' => true,
-                                        'options'  => Options::forEnum(RentalUnitEnum::class)
                                     ],
-                                    'state' => [
-                                        'type'     => 'select',
-                                        'label'    => __('state'),
+                                    'is_main' => [
+                                        'type'     => 'toggle',
+                                        'label'    => __('main'),
+                                        'value'    => true,
                                         'required' => true,
-                                        'options'  => Options::forEnum(ProductStateEnum::class)
+                                    ],
+                                    'org_stocks' => [
+                                        'value' => []
                                     ]
                                 ]
                             ]
                         ],
                     'route' => [
-                        'name'       => 'grp.models.org.fulfilment.rentals.store',
+                        'name'       => 'grp.models.org.fulfilment.goods.store',
                         'parameters' => [
                             'organisation' => $fulfilment->organisation_id,
                             'fulfilment'   => $fulfilment->id,

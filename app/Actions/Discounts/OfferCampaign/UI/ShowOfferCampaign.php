@@ -47,7 +47,7 @@ class ShowOfferCampaign extends OrgAction
     public function htmlResponse(OfferCampaign $offerCampaign, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Shop/B2b/Campaigns/Campaign',
+            'Org/Discounts/Campaign',
             [
                 'title'                                              => __('Offer Campaign'),
                 'breadcrumbs'                                        => $this->getBreadcrumbs($offerCampaign, $request->route()->getName(), $request->route()->originalParameters()),

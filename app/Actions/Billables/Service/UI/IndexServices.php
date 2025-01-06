@@ -12,7 +12,7 @@ namespace App\Actions\Billables\Service\UI;
 
 use App\Actions\Billables\UI\ShowBillablesDashboard;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Enums\UI\Fulfilment\ServicesTabsEnum;
@@ -266,7 +266,7 @@ class IndexServices extends OrgAction
         return match ($routeName) {
             'grp.overview.billables.services.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(
+                ShowGroupOverviewHub::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 $headCrumb(

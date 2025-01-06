@@ -10,24 +10,24 @@ namespace App\Actions\Fulfilment\Pallet\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
+use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Inventory\Location;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
-use App\Models\Inventory\Location;
-use App\Models\SysAdmin\Group;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexPallets extends OrgAction
 {
@@ -262,7 +262,7 @@ class IndexPallets extends OrgAction
         return match ($routeName) {
             'grp.overview.fulfilment.pallets.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'       => $routeName,

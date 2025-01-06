@@ -11,7 +11,7 @@ namespace App\Actions\Catalogue\Collection\UI;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Http\Resources\Catalogue\CollectionResource;
@@ -378,7 +378,7 @@ class IndexCollection extends OrgAction
             ),
             'grp.overview.catalogue.collections.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs($routeParameters),
+                ShowGroupOverviewHub::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,

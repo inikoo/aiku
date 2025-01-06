@@ -9,10 +9,10 @@
 namespace App\Actions\SupplyChain\Supplier\UI;
 
 use App\Actions\GrpAction;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\SupplyChain\Agent\UI\ShowAgent;
 use App\Actions\SupplyChain\Agent\WithAgentSubNavigation;
 use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Http\Resources\SupplyChain\SuppliersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SupplyChain\Agent;
@@ -256,7 +256,7 @@ class IndexSuppliers extends GrpAction
                 ]
             ),
             'grp.overview.procurement.suppliers.index' => array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

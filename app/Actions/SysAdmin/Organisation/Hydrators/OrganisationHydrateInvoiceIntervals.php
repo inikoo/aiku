@@ -37,7 +37,6 @@ class OrganisationHydrateInvoiceIntervals
 
     public function handle(Organisation $organisation): void
     {
-
         if ($organisation->type != OrganisationTypeEnum::SHOP) {
             return;
         }
@@ -45,10 +44,18 @@ class OrganisationHydrateInvoiceIntervals
         $stats = [];
 
         $queryBase = Invoice::where('organisation_id', $organisation->id)->where('type', InvoiceTypeEnum::INVOICE)->selectRaw('count(*) as  sum_aggregate');
-        $stats = $this->getIntervalsData($stats, $queryBase, 'invoices_');
+        $stats     = $this->getIntervalsData(
+            stats: $stats,
+            queryBase: $queryBase,
+            statField: 'invoices_'
+        );
 
         $queryBase = Invoice::where('organisation_id', $organisation->id)->where('type', InvoiceTypeEnum::REFUND)->selectRaw(' count(*) as  sum_aggregate');
-        $stats = $this->getIntervalsData($stats, $queryBase, 'refunds_');
+        $stats     = $this->getIntervalsData(
+            stats: $stats,
+            queryBase: $queryBase,
+            statField: 'refunds_'
+        );
 
 
         $organisation->orderingIntervals()->update($stats);

@@ -19,8 +19,10 @@ class StoreUserRequest extends GrpAction
 {
     public function handle(User $user, array $modelData): UserRequest
     {
+        data_set($modelData, 'group_id', $user->group_id);
         $userRequest = $user->userRequests()->create($modelData);
         GroupHydrateUserRequests::dispatch($user->group)->delay($this->hydratorsDelay);
+
         return $userRequest;
     }
 
@@ -54,6 +56,7 @@ class StoreUserRequest extends GrpAction
         $this->hydratorsDelay = $hydratorsDelay;
 
         $this->initialisation($user->group, $modelData);
+
         return $this->handle($user, $this->validatedData);
     }
 }

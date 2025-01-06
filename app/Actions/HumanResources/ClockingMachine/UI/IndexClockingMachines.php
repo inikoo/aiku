@@ -11,22 +11,22 @@ namespace App\Actions\HumanResources\ClockingMachine\UI;
 use App\Actions\HumanResources\WithWorkplaceSubNavigation;
 use App\Actions\HumanResources\Workplace\UI\ShowWorkplace;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Http\Resources\HumanResources\ClockingMachinesResource;
+use App\InertiaTable\InertiaTable;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
-use App\Models\SysAdmin\Group;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexClockingMachines extends OrgAction
 {
@@ -255,7 +255,7 @@ class IndexClockingMachines extends OrgAction
             'grp.overview.hr.clocking-machines.index',
             =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb([
                     'name'       => $routeName,
                     'parameters' => $routeParameters

@@ -9,7 +9,7 @@
 namespace App\Actions\Comms\Mailshot\UI;
 
 use App\Actions\Comms\PostRoom\UI\ShowPostRoom;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\UI\Marketing\MarketingHub;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Outbox;
@@ -40,7 +40,7 @@ trait HasUIMailshots
             'grp.overview.comms-marketing.abandoned-cart-mailshots.index',
             'grp.overview.comms-marketing.newsletters.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(
+                ShowGroupOverviewHub::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 [

@@ -11,7 +11,7 @@
 namespace App\Actions\Comms\EmailAddress\UI;
 
 use App\Actions\GrpAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Http\Resources\Mail\EmailAddressResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Comms\EmailAddress;
@@ -159,7 +159,7 @@ class IndexEmailAddress extends GrpAction
 
         return match ($routeName) {
             default => array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'       => $routeName,

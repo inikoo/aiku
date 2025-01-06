@@ -56,7 +56,6 @@ class ShowJobPosition extends OrgAction
                 'pageHead'    => [
                     'title'     => $jobPosition->name,
                     'icon'      => ['fal', 'fa-clipboard-list-check'],
-                    'model'     => __('responsibility'),
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,

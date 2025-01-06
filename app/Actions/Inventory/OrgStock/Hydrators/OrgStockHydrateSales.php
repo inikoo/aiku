@@ -37,13 +37,25 @@ class OrgStockHydrateSales
         $stats = [];
 
         $queryBase = DeliveryNoteItem::where('org_stock_id', $orgStock->id)->selectRaw('sum(org_revenue_amount) as  sum_aggregate  ');
-        $stats = $this->getIntervalsData($stats, $queryBase, 'revenue_org_currency_');
+        $stats     = $this->getIntervalsData(
+            stats: $stats,
+            queryBase: $queryBase,
+            statField:'revenue_org_currency_'
+        );
 
         $queryBase = DeliveryNoteItem::where('org_stock_id', $orgStock->id)->selectRaw('sum(grp_revenue_amount) as  sum_aggregate  ');
-        $stats = $this->getIntervalsData($stats, $queryBase, 'revenue_grp_currency_');
+        $stats     = $this->getIntervalsData(
+            stats: $stats,
+            queryBase: $queryBase,
+            statField:'revenue_grp_currency_'
+        );
 
         $queryBase = DeliveryNoteItem::where('org_stock_id', $orgStock->id)->selectRaw('sum(quantity_dispatched) as  sum_aggregate  ');
-        $stats = $this->getIntervalsData($stats, $queryBase, 'dispatched_');
+        $stats     = $this->getIntervalsData(
+            stats: $stats,
+            queryBase: $queryBase,
+            statField:'dispatched_'
+        );
 
 
         $orgStock->intervals()->update($stats);

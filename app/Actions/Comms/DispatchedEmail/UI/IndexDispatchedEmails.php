@@ -10,7 +10,7 @@ namespace App\Actions\Comms\DispatchedEmail\UI;
 
 use App\Actions\Comms\PostRoom\UI\ShowPostRoom;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\UI\Marketing\MarketingHub;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\InertiaTable\InertiaTable;
@@ -229,7 +229,7 @@ class IndexDispatchedEmails extends OrgAction
             ),
             'grp.overview.comms-marketing.dispatched-emails.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'       => $routeName,

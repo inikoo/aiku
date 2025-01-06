@@ -10,10 +10,10 @@ use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Accounting\InvoiceTransaction\UI\IndexInvoiceTransactions;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Accounting\PaymentAccount\UI\IndexPaymentAccounts;
-use App\Actions\Catalogue\Collection\UI\IndexCollection;
 use App\Actions\Accounting\UI\IndexCustomerBalances;
 use App\Actions\Billables\Charge\UI\IndexCharges;
 use App\Actions\Billables\Service\UI\IndexServices;
+use App\Actions\Catalogue\Collection\UI\IndexCollection;
 use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
 use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
@@ -50,18 +50,18 @@ use App\Actions\Inventory\Warehouse\UI\IndexWarehouses;
 use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\Ordering\Purge\UI\IndexPurges;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\SupplyChain\Agent\UI\IndexAgents;
 use App\Actions\SupplyChain\Supplier\UI\IndexSuppliers;
 use App\Actions\SupplyChain\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\SysAdmin\Group\UI\IndexHistoryInGroup;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Actions\Web\Banner\UI\IndexBanners;
 use App\Actions\Web\Webpage\UI\IndexWebpages;
 use App\Actions\Web\Website\UI\IndexWebsites;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', ShowOverviewHub::class)->name('hub');
+Route::get('/', ShowGroupOverviewHub::class)->name('hub');
 
 Route::name('sysadmin.')->prefix('sysadmin')->group(function () {
     Route::get('/changelog', IndexHistoryInGroup::class)->name('changelog.index');

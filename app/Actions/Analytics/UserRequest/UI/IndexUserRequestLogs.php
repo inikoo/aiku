@@ -11,8 +11,8 @@ namespace App\Actions\Analytics\UserRequest\UI;
 use App\Actions\Analytics\UserRequest\Traits\WithFormattedRequestLogs;
 use App\Actions\Elasticsearch\BuildElasticsearchClient;
 use App\Actions\GrpAction;
+use App\Actions\SysAdmin\UI\ShowSysAdminDashboard;
 use App\Actions\SysAdmin\User\WithUsersSubNavigation;
-use App\Actions\UI\Grp\SysAdmin\ShowSysAdminDashboard;
 use App\Enums\Elasticsearch\ElasticsearchUserRequestTypeEnum;
 use App\Http\Resources\SysAdmin\UserRequestLogsResource;
 use App\InertiaTable\InertiaTable;
@@ -120,7 +120,7 @@ class IndexUserRequestLogs extends GrpAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'grp.sysadmin.users.request.index',
+                            'name' => 'grp.sysadmin.analytics.request.index',
                         ],
                         'label' => __('User Requests'),
                         'icon'  => 'fal fa-bars',

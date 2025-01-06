@@ -9,12 +9,12 @@
 namespace App\Actions\SupplyChain\SupplierProduct\UI;
 
 use App\Actions\GrpAction;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\SupplyChain\Agent\UI\ShowAgent;
 use App\Actions\SupplyChain\Agent\WithAgentSubNavigation;
 use App\Actions\SupplyChain\Supplier\UI\ShowSupplier;
 use App\Actions\SupplyChain\Supplier\WithSupplierSubNavigation;
 use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
-use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use App\Http\Resources\SupplyChain\SupplierProductsResource;
 use App\InertiaTable\InertiaTable;
@@ -292,7 +292,7 @@ class IndexSupplierProducts extends GrpAction
             ),
             'grp.overview.procurement.supplier-products.index' =>
             array_merge(
-                ShowOverviewHub::make()->getBreadcrumbs(),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name' => $routeName,

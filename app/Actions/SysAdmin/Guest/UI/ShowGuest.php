@@ -10,7 +10,7 @@ namespace App\Actions\SysAdmin\Guest\UI;
 
 use App\Actions\GrpAction;
 use App\Actions\Helpers\History\UI\IndexHistory;
-use App\Actions\UI\Grp\SysAdmin\ShowSysAdminDashboard;
+use App\Actions\SysAdmin\UI\ShowSysAdminDashboard;
 use App\Enums\UI\SysAdmin\GuestTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\SysAdmin\GuestResource;

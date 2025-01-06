@@ -47,7 +47,7 @@ class SendSesEmail
                 ]
             );
 
-            if ($dispatchedEmail->mailshotRecipient->recipient_type == 'Prospect') {
+            if ($dispatchedEmail->recipient_type == 'Prospect') {
                 UpdateProspectEmailSent::run($dispatchedEmail->recipient);
             }
 
@@ -71,12 +71,10 @@ class SendSesEmail
         $emailData = $this->getEmailData(
             $subject,
             $sender,
-            $dispatchedEmail->email->address,
+            $dispatchedEmail->emailAddress->email,
             $emailHtmlBody,
             $unsubscribeUrl
         );
-
-
 
 
         $numberAttempts = 12;
@@ -90,15 +88,13 @@ class SendSesEmail
                     $dispatchedEmail,
                     [
                         'state'               => DispatchedEmailStateEnum::SENT,
-                        'is_sent'             => true,
                         'sent_at'             => now(),
-                        'date'                => now(),
-                        'provider_message_id' => Arr::get($result, 'MessageId')
+                        'provider_dispatch_id' => Arr::get($result, 'MessageId')
                     ]
                 );
 
                 if ($dispatchedEmail->recipient) {
-                    if ($dispatchedEmail->mailshotRecipient->recipient_type == 'Prospect') {
+                    if ($dispatchedEmail->recipient_type == 'Prospect') {
                         UpdateProspectEmailSent::run($dispatchedEmail->recipient);
                     }
                 }
@@ -114,8 +110,6 @@ class SendSesEmail
                         $dispatchedEmail,
                         [
                             'state'       => DispatchedEmailStateEnum::ERROR,
-                            'is_error'    => true,
-                            'date'        => now(),
                             'data->error' =>
                                 [
                                     'code'    => $e->getAwsErrorCode(),
