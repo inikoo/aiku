@@ -390,6 +390,47 @@ class ShowOrder extends OrgAction
                     ]
                 ],
                 'timelines'   => $finalTimeline,
+                'address_update_route'  => [  // TODO by BE
+                    // 'method'     => 'patch',
+                    // 'name'       => 'grp.models.fulfilment-customer.address.update',
+                    // 'parameters' => [
+                    //     'fulfilmentCustomer' => $fulfilmentCustomer->id
+                    // ]
+                ],
+                'addresses'   => [  // TODO by BE
+                    // 'isCannotSelect'                => true,
+                    // 'address_list'                  => $addressCollection,
+                    // 'options'                       => [
+                    //     'countriesAddressData' => GetAddressData::run()
+                    // ],
+                    // 'pinned_address_id'              => $fulfilmentCustomer->customer->delivery_address_id,
+                    // 'home_address_id'                => $fulfilmentCustomer->customer->address_id,
+                    // 'current_selected_address_id'    => $fulfilmentCustomer->customer->delivery_address_id,
+                    // 'selected_delivery_addresses_id' => $palletReturnDeliveryAddressIds,
+                    // 'routes_list'                    => [
+                    //     'pinned_route'                   => [
+                    //         'method'     => 'patch',
+                    //         'name'       => 'grp.models.customer.delivery-address.update',
+                    //         'parameters' => [
+                    //             'customer' => $fulfilmentCustomer->customer_id
+                    //         ]
+                    //     ],
+                    //     'delete_route'  => [
+                    //         'method'     => 'delete',
+                    //         'name'       => 'grp.models.fulfilment-customer.delivery-address.delete',
+                    //         'parameters' => [
+                    //             'fulfilmentCustomer' => $fulfilmentCustomer->id
+                    //         ]
+                    //     ],
+                    //     'store_route' => [
+                    //         'method'      => 'post',
+                    //         'name'        => 'grp.models.fulfilment-customer.address.store',
+                    //         'parameters'  => [
+                    //             'fulfilmentCustomer' => $fulfilmentCustomer->id
+                    //         ]
+                    //     ]
+                    // ]
+                ],
 
                 'box_stats'      => [
                     'customer'      => array_merge(
