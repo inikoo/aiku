@@ -45,8 +45,9 @@ createInertiaApp(
     {
       title  : (title) => `${title} - ${appName}`,
         resolve: name => {
-            const pages = import.meta.glob('./Pages/Iris/**/*.vue', { eager: true })
-            let page = pages[`./Pages/Iris/${name}.vue`]
+            const irisPages = import.meta.glob('./Pages/Iris/**/*.vue', { eager: true })
+            const retinaPages = import.meta.glob('./Pages/Retina/**/*.vue', { eager: true }) // need improvement in the future
+            let page = irisPages[`./Pages/Iris/${name}.vue`] ? irisPages[`./Pages/Iris/${name}.vue`] : retinaPages[`./Pages/Retina/${name}.vue`] // need improvement in the future
             console.log('page', page)
             if(!page) console.error(`File './Pages/Iris/${name}.vue' is not exist`)
             page.default.layout = page.default.layout || IrisLayout
