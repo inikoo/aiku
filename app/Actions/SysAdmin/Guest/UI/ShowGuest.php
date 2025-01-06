@@ -56,6 +56,11 @@ class ShowGuest extends GrpAction
                 ],
                 'pageHead'    => [
                     'title'     => $guest->contact_name,
+                    'icon'    =>
+                        [
+                            'icon'  => ['fal', 'fa-user-alien'],
+                            'title' => __('guest')
+                        ],
                     'actions'   => [
                         $this->canEdit ? [
                             'type'  => 'button',
@@ -65,14 +70,6 @@ class ShowGuest extends GrpAction
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
-                        $this->canDelete ? [
-                            'type'  => 'button',
-                            'style' => 'delete',
-                            'route' => [
-                                'name'       => 'grp.sysadmin.guests.remove',
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ]
-                        ] : false
                     ]
                 ],
                 'tabs'        => [
