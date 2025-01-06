@@ -25,7 +25,8 @@ const props = defineProps<{
             shops: string[]
             warehouses: string[]
             fulfilments: string[]
-        }[]
+            group: string[]
+        }
     }
     fieldName: string
     options?: any
@@ -107,28 +108,36 @@ const groupPositionList = {
     }
 }
 const isRadioChecked = (subDepartmentSlug: string) => {
-    return Object.keys(props.form[props.fieldName]?.group || {}).includes(subDepartmentSlug)
+    return props.form[props.fieldName]?.group?.includes(subDepartmentSlug)
 }
-const onClickButtonGroup = (department: string, subDepartmentSlug: any) => {
+const onClickButtonGroup = (department: string, subDepartmentSlug: string) => {
     // ('mrk', 'mrk-c', ['shops', 'fulfilment'])
+    const index = props.form[props.fieldName].group.indexOf(department)
+    if (index !== -1) {
+        props.form[props.fieldName].group.splice(index, 1)
+    }
 
     // If click on the active subDepartment, then unselect it
-    if (props.form?.[props.fieldName]?.group?.[subDepartmentSlug]) {
-        delete props.form[props.fieldName].group[subDepartmentSlug]
-    } else {
-        for (const key in props.form[props.fieldName].group) {
-            // key == wah-m || mrk-c || hr-c
-            // Check if the 'wah-m' contain the substring 'wah'
-            if (key.includes(department)) {
-                // If the selected radio is not same group ('manager' group or 'clerk' group)
-                if (optionsJob[department].subDepartment.find(sub => sub.slug == key)?.grade != optionsJob[department].subDepartment.find(sub => sub.slug == subDepartmentSlug)?.grade) {
-                    // Delete mrk-c
-                    delete props.form[props.fieldName].group[key]
-                }
-            }
+    if (props.form?.[props.fieldName]?.group?.includes(subDepartmentSlug)) {
+        // delete props.form[props.fieldName].group[subDepartmentSlug]
+        const index = props.form[props.fieldName].group.indexOf(subDepartmentSlug)
+        if (index !== -1) {
+            props.form[props.fieldName].group.splice(index, 1)
         }
-
-        set(props.form, [props.fieldName, 'group', subDepartmentSlug], true)
+    } else {
+        // for (const key in props.form[props.fieldName].group) {
+        //     // key == wah-m || mrk-c || hr-c
+        //     // Check if the 'wah-m' contain the substring 'wah'
+        //     if (key.includes(department)) {
+        //         // If the selected radio is not same group ('manager' group or 'clerk' group)
+        //         if (optionsJob[department].subDepartment.find(sub => sub.slug == key)?.grade != optionsJob[department].subDepartment.find(sub => sub.slug == subDepartmentSlug)?.grade) {
+        //             // Delete mrk-c
+        //             delete props.form[props.fieldName].group[key]
+        //         }
+        //     }
+        // }
+        props.form[props.fieldName].group.push(subDepartmentSlug)
+        // set(props.form, [props.fieldName, 'group', subDepartmentSlug], true)
     }
 
     if(props.form?.errors?.[props.fieldName]) {
@@ -188,9 +197,7 @@ const selectedOrganisation = ref<typeof organisation[number] | null>(organisatio
                                             @click.prevent="onClickButtonGroup(departmentName, subDepartment.slug)"
                                             class="group h-full cursor-pointer flex items-center justify-start rounded-md py-3 px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
                                             :class="(isRadioChecked('org-admin') && subDepartment.slug != 'org-admin') || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') ? 'text-green-500' : ''"
-                                            :disabled="(
-                                                isRadioChecked('org-admin') && subDepartment.slug != 'org-admin')
-                                                || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin')
+                                            :disabled="(isRadioChecked('group-admin') && subDepartment.slug != 'group-admin')
                                                 ? true
                                                 : false"
                                         >
@@ -201,7 +208,7 @@ const selectedOrganisation = ref<typeof organisation[number] | null>(organisatio
                                                         <FontAwesomeIcon v-if="idxSubDepartment === 0" icon='fas fa-check-circle' class="" fixed-width aria-hidden='true' />
                                                         <FontAwesomeIcon v-else icon='fal fa-circle' class="" fixed-width aria-hidden='true' />
                                                     </template>
-                                                    <template v-else-if="Object.keys(form[fieldName].group || {}).includes(subDepartment.slug)">
+                                                    <template v-else-if="form[fieldName].group.includes(subDepartment.slug)">
                                                         <FontAwesomeIcon icon='fas fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
                                                     </template>
                                                     <FontAwesomeIcon v-else icon='fal fa-circle' fixed-width aria-hidden='true' class="text-gray-400 hover:text-gray-700" />
@@ -224,6 +231,8 @@ const selectedOrganisation = ref<typeof organisation[number] | null>(organisatio
             
             <Button @click="submitGroupPermissions" full label="Save group permissions" class="mt-4" :disabled="!form.isDirty || form.processing" :loading="form.processing" />
         </Fieldset>
+
+        {{ props.form[props.fieldName].group }}
 
         <!-- <div class="grid">
             <div class="flex justify-between px-2 border-b border-gray-300 py-2 mb-2">
