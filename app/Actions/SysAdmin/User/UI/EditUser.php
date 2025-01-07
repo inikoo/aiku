@@ -8,7 +8,7 @@
 
 namespace App\Actions\SysAdmin\User\UI;
 
-use App\Actions\HumanResources\Employee\UI\GetJobPositionsGroupData;
+use App\Actions\HumanResources\Employee\UI\GetPermissionGroupData;
 use App\Actions\HumanResources\Employee\UI\GetJobPositionsOrganisationData;
 use App\Actions\OrgAction;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
@@ -97,10 +97,10 @@ class EditUser extends OrgAction
         $jobPositionsOrganisationsData = [];
         foreach ($this->group->organisations as $organisation) {
             $jobPositionsOrganisationData = GetJobPositionsOrganisationData::run($user, $organisation);
-            $jobPositionsOrganisationsData[] = $jobPositionsOrganisationData;
+            $jobPositionsOrganisationsData[$organisation->slug] = $jobPositionsOrganisationData;
         }
 
-        $jobPositionsGroupData = GetJobPositionsGroupData::run($user, $this->group);
+        $permissionsGroupData = GetPermissionGroupData::run($user, $this->group);
 
         $organisations = $user->group->organisations;
         $reviewData    = $organisations->mapWithKeys(function ($organisation) {
@@ -186,7 +186,7 @@ class EditUser extends OrgAction
                                 'organisation_list' => $organisationList,
                                 'updateRoute'       => [
                                     'method'     => 'patch',
-                                    "name"       => "grp.models.user.pseudo-job-positions.update",
+                                    "name"       => "grp.models.user.permissions.update",
                                     'parameters' => [
                                         'user' => $user->id
                                     ]
@@ -204,7 +204,7 @@ class EditUser extends OrgAction
                                     ];
                                 })->toArray(),
                                 'value'   => [
-                                    'group' => $jobPositionsGroupData,
+                                    'group' => $permissionsGroupData,
                                     'organisations' =>  $jobPositionsOrganisationsData,
                                 ],
 

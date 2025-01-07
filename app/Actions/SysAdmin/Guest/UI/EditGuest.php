@@ -8,13 +8,22 @@
 
 namespace App\Actions\SysAdmin\Guest\UI;
 
+use App\Actions\GrpAction;
+use App\Actions\HumanResources\Employee\UI\GetJobPositionsOrganisationData;
+use App\Actions\HumanResources\Employee\UI\GetPermissionGroupData;
 use App\Actions\InertiaAction;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Http\Resources\Api\Dropshipping\ShopResource;
+use App\Http\Resources\HumanResources\JobPositionResource;
+use App\Http\Resources\Inventory\WarehouseResource;
+use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
 use App\Models\SysAdmin\Guest;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditGuest extends InertiaAction
+class EditGuest extends GrpAction
 {
     public function handle(Guest $guest): Guest
     {
@@ -29,7 +38,8 @@ class EditGuest extends InertiaAction
 
     public function asController(Guest $guest, ActionRequest $request): Guest
     {
-        $this->initialisation($request);
+        $group = group();
+        $this->initialisation($group, $request);
 
         return $this->handle($guest);
     }
@@ -38,7 +48,31 @@ class EditGuest extends InertiaAction
 
     public function htmlResponse(Guest $guest, ActionRequest $request): Response
     {
+        $user = $guest->getUser();
+        $organisations = $user->group->organisations;
+        $reviewData    = $organisations->mapWithKeys(function ($organisation) {
+            return [
+                $organisation->slug => [
+                    'number_job_positions' => $organisation->humanResourcesStats->number_job_positions,
+                    'job_positions'        => $organisation->jobPositions->mapWithKeys(function ($jobPosition) {
+                        return [
+                            $jobPosition->slug => [
+                                'job_position' => $jobPosition->name,
+                                'number_roles' => $jobPosition->stats->number_roles
+                            ]
+                        ];
+                    })
+                ]
+            ];
+        })->toArray();
+        $permissionsGroupData = GetPermissionGroupData::run($user, $this->group);
+        $jobPositionsOrganisationsData = [];
+        foreach ($this->group->organisations as $organisation) {
+            $jobPositionsOrganisationData = GetJobPositionsOrganisationData::run($user, $organisation);
+            $jobPositionsOrganisationsData[] = $jobPositionsOrganisationData;
+        }
 
+        $organisationList = OrganisationsResource::collection($organisations);
 
         return Inertia::render(
             'EditModel',
@@ -65,6 +99,8 @@ class EditGuest extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
+                            "label"   => __("Personal Information"),
+                            'icon'   => 'fal fa-id-card',
                             'title'  => __('personal information'),
                             'fields' => [
 
@@ -85,7 +121,92 @@ class EditGuest extends InertiaAction
                                 ],
 
                             ]
-                        ]
+                        ],
+                        [
+                            "label"   => __("Access"),
+                            'title'  => __('access'),
+                            'icon'   => 'fal fa-chess-clock',
+                            'fields' => [
+    
+                                'status' => [
+                                        'type'     => 'toggle',
+                                        'label'    => __('status'),
+                                        'value'    => $guest->status,
+                                        'required' => true,
+                                    ],
+                            ]
+                        ],
+                        [
+                            "label"   => __("Credentials"),
+                            'title'  => __('credentials'),
+                            'icon'   => 'fal fa-key',
+                            'fields' => [
+                                'username' => [
+                                    'type'  => 'input',
+                                    'label' => __('username'),
+                                    'value' => $user ? $user->username : ''
+                
+                                ],
+                                'password' => [
+                                    'type'  => 'password',
+                                    "placeholder" => "********",
+                                    'label' => __('password'),
+                
+                                ],
+                            ]
+                        ],
+                        "permissions_shop_organisation" => [
+                            "label"   => __(" Permissions"),
+                            "title"   => __("Permissions"),
+                            "icon"    => "fa-light fa-user-lock",
+                            "current" => false,
+                            "fields"  => [
+                                "permissions" => [
+                                    "full"              => true,
+                                    "noSaveButton"      => true,
+                                    "type"              => "permissions",
+                                    "review"            => $reviewData,
+                                    'organisation_list' => $organisationList,
+                                    'updateRoute'       => [
+                                        'method'     => 'patch',
+                                        "name"       => "grp.models.user.permissions.update",
+                                        'parameters' => [
+                                            'user' => $user->id
+                                        ]
+                                    ],
+    
+    
+                                    'options' => Organisation::get()->flatMap(function (Organisation $organisation) {
+                                        return [
+                                            $organisation->slug => [
+                                                'positions'   => JobPositionResource::collection($organisation->jobPositions),
+                                                'shops'       => ShopResource::collection($organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get()),
+                                                'fulfilments' => ShopResource::collection($organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
+                                                'warehouses'  => WarehouseResource::collection($organisation->warehouses),
+                                            ]
+                                        ];
+                                    })->toArray(),
+                                    'value'   => [
+                                        'group' => $permissionsGroupData,
+                                        'organisations' =>  $jobPositionsOrganisationsData,
+                                    ],
+    
+    //                                "value"             => $user->pseudoJobPositions->flatMap(function (JobPosition $jobPosition) {
+    //                                    return [
+    //                                        $jobPosition->organisation->slug => [
+    //                                            $jobPosition->code => match (array_key_first($jobPosition->pivot->scopes)) {
+    //                                                class_basename(Shop::class) => [
+    //                                                    'shops' => $jobPosition->organisation->shops->whereIn('id', Arr::get($jobPosition->pivot->scopes, class_basename(Shop::class)))->pluck('slug')
+    //                                                ],
+    //                                                default => null
+    //                                            }
+    //                                        ]
+    //                                    ];
+    //                                }),
+                                    "fullComponentArea" => true,
+                                ],
+                            ],
+                        ],
 
                     ],
                     'args' => [

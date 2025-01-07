@@ -39,7 +39,6 @@ class PalletDeliveryRecordSearch
                 ]
             ],
             'description'     => [
-                'tooltip' => 'Warehouse',
                 'label'   => $palletDelivery->warehouse->name
             ],
             'code'         => [
@@ -48,19 +47,16 @@ class PalletDeliveryRecordSearch
             'icon'          => [
                 'icon'  => 'fal fa-truck-couch',
             ],
+            'state_icon'          => $palletDelivery->state->stateIcon()[$palletDelivery->state->value],
             'meta'          => [
                 [
-                    'type'      => 'date',
-                    'label'     => $palletDelivery->created_at,
-                    'tooltip'   => __("Created date")
-                ],
-                [
-                    'label'     => $palletDelivery->state->labels()[$palletDelivery->state->value],
-                    'tooltip'   => __("State")
+                    'key'       => __("customer_name"),
+                    'label'     => __("Customer") . ': ' . __($palletDelivery->fulfilmentCustomer->customer->name),
+                    'tooltip'   => __("Customer")
                 ],
                 [
                     'type'      => 'number',
-                    'label'     => 'Pallets: ',
+                    'afterLabel'     => __('Pallets') . ': ',
                     'number'    => $palletDelivery->stats->number_pallets,
                     'tooltip'   => __("Pallet's count")
                 ],

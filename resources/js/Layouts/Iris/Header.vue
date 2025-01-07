@@ -26,6 +26,7 @@ const props = defineProps<{
     <component v-if="data?.topBar?.data.fieldValue"
         :is="getIrisComponent(data?.topBar.code)"
         :fieldValue="data.topBar.data.fieldValue"
+        v-model="data.topBar.data.fieldValue"
         :loginMode="true"
         :previewMode="true"
         :uploadImageRoute="null"

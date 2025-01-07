@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Ref, ref } from 'vue'
+import { computed, Ref, ref, watch } from 'vue'
 import { Collapse } from 'vue-collapsed'
 import CardPermissions from './Components/Permissions/Card.vue'
 import { get, set } from 'lodash'
@@ -48,7 +48,7 @@ console.log('mmmmm', props.options)
 const handleBox = (shopsSelected: string[], shopSlug: string) => {
     // console.log('ffff', shopsSelected)
     // if (shopsSelected.includes(shopSlug)) {
-        
+
     //     const indexShopSlug = shopsSelected.indexOf(shopSlug)
     //     if (indexShopSlug !== -1) {
     //         shopsSelected.splice(indexShopSlug, 1)
@@ -79,7 +79,7 @@ const groupPositionList = {
         icon: 'fas fa-computer-classic',
         subDepartment: [
             {
-                slug: "system-admin",
+                slug: "sysadmin",
                 label: trans("System Administrator"),
                 // number_employees: props.options.positions?.data?.find(position => position.slug == 'system_admin')?.number_employees || 0,
             }
@@ -92,13 +92,13 @@ const groupPositionList = {
         level: 'group_procurement',
         subDepartment: [
             {
-                slug: "gp-sc",
+                slug: "supply-chain",
                 grade: "manager",
                 label: trans("Supply Chain Manager"),
                 // number_employees: props.options.positions?.data?.find(position => position.slug == 'gp-sc')?.number_employees || 0,
             },
             {
-                slug: "gp-g",
+                slug: "goods",
                 grade: "manager",
                 label: trans("Goods Manager"),
                 // number_employees: props.options.positions?.data?.find(position => position.slug == 'gp-g')?.number_employees || 0,
@@ -170,11 +170,19 @@ const organisation = [
 ]
 const selectedOrganisation = ref<typeof organisation[number] | null>(organisation[0])
 
+const organisationPositionCounts = ref({})
+// watch(props.form, (newValue) => {
+//     console.log('vcxvcxvcxvcxvcxvcxvcx')
+//     organisationPositionCounts.value = {...newValue}.map((org) => {
+//         return {
+//             [org]: Object.keys(org).length
+//         }
+//     })
+// }, { deep: true })
 </script>
 
 <template>
     <div class="flex flex-col gap-y-6">
-
         <Fieldset legend="Group permissions">
             <div>
                 <template v-for="(jobGroup, departmentName, idxJobGroup) in groupPositionList" :key="departmentName + idxJobGroup">
@@ -184,12 +192,12 @@ const selectedOrganisation = ref<typeof organisation[number] | null>(organisatio
                             <FontAwesomeIcon v-if="jobGroup.icon" :icon="jobGroup.icon" class='text-gray-400 fixed-width' aria-hidden='true' />
                             {{ jobGroup.department }}
                         </div>
-                
+
                         <!-- Section: Radio (the clickable area) -->
                         <div class="h-full col-span-2 flex-col transition-all duration-200 ease-in-out">
                             <div class="flex items-center divide-x divide-slate-300">
                                 <!-- Button: Radio position -->
-                
+
                                 <div class="pl-2 flex items-center gap-x-4">
                                     <template v-for="subDepartment, idxSubDepartment in jobGroup.subDepartment">
                                         <!-- If subDepartment is have atleast 1 Fulfilment, or have atleast 1 Shop, or have atleast 1 Warehouse, or have atleast 1 Production, or is a simple sub department (i.e buyer, administrator, etc) -->
@@ -222,19 +230,17 @@ const selectedOrganisation = ref<typeof organisation[number] | null>(organisatio
                                         </button>
                                     </template>
                                 </div>
-                
+
                             </div>
                         </div>
                     </div>
                 </template>
             </div>
-            
+
             <Button @click="submitGroupPermissions" full label="Save group permissions" class="mt-4" :disabled="!form.isDirty || form.processing" :loading="form.processing" />
         </Fieldset>
 
-        {{ props.form[props.fieldName].group }}
-
-        <!-- <div class="grid">
+        <div class="grid">
             <div class="flex justify-between px-2 border-b border-gray-300 py-2 mb-2">
                 <div>
                     Organisations
@@ -243,30 +249,31 @@ const selectedOrganisation = ref<typeof organisation[number] | null>(organisatio
                     Access
                 </div>
             </div>
-            
-            <div v-for="(review, slugReview) in props.fieldData.organisation_list.data"
+
+            <div v-for="(organisation, idxOrganisation) in props.fieldData.organisation_list.data"
                 class="border-l-2 border-indigo-500 pl-2 flex flex-col mb-1 gap-y-1"
             >
                 <div
-                    @click="selectedOrganisation?.slug == review.slug ? selectedOrganisation = null : selectedOrganisation = review"
+                    @click="selectedOrganisation?.slug == organisation.slug ? selectedOrganisation = null : selectedOrganisation = organisation"
                     class="rounded cursor-pointer py-1 px-2 flex justify-between"
-                    :class="review.slug === selectedOrganisation?.slug ? 'bg-indigo-100 text-indigo-500' : 'hover:bg-gray-200/70 '"
+                    :class="organisation.slug === selectedOrganisation?.slug ? 'bg-indigo-100 text-indigo-500' : 'hover:bg-gray-200/70 '"
                 >
-                    <div class="">{{ review.name }}</div>
-                    <div v-tooltip="trans('Number job positions')" class="pl-3 pr-2">0/{{ review.number_job_positions }}</div>
+                    <div class="">{{ organisation.name }}</div>
+                    <div v-tooltip="trans('Number job positions')" class="pl-3 pr-2 tabular-nums"><transition name="spin-to-right"><span :key="organisationPositionCounts[organisation.slug]">{{ organisationPositionCounts[organisation.slug] }}</span></transition>/{{ organisation.number_job_positions }}</div>
                 </div>
-                
-                <Collapse as="section" :when="review.slug == selectedOrganisation?.slug">
-                    {{ form[fieldName] }}
-                    <div v-if="options?.[review.slug]" class="border border-gray-300 rounded-md mb-2">
+
+                <Collapse as="section" :when="organisation.slug == selectedOrganisation?.slug">
+                    <!-- {{ form[fieldName] }} -->
+                    <div v-if="options?.[organisation.slug]" class="border border-gray-300 rounded-md mb-2">
                         <EmployeePosition
-                            :key="'employeePosition' + review.slug "
+                            :key="'employeePosition' + organisation.slug "
                             :form="form[fieldName]"
                             :fieldData
-                            :fieldName="review.slug"
-                            :options="options?.[review.slug]"
+                            :fieldName="organisation.slug"
+                            :options="options?.[organisation.slug]"
                             saveButton
-                            :organisationId="review.id"
+                            :organisationId="organisation.id"
+                            @countPosition="(count: number) => set(organisationPositionCounts, organisation.slug, count)"
                         />
                     </div>
                     <div v-else class="text-center border border-gray-300 rounded-md mb-2">
@@ -274,7 +281,7 @@ const selectedOrganisation = ref<typeof organisation[number] | null>(organisatio
                     </div>
                 </Collapse>
             </div>
-        </div> -->
+        </div>
 
 
         <!-- <pre>{{ form }}</pre> -->
@@ -294,7 +301,7 @@ const selectedOrganisation = ref<typeof organisation[number] | null>(organisatio
         </div> -->
         <!-- {{ selectedOrganisation?.slug }} --- {{ form[fieldName][selectedOrganisation?.slug] }} -->
 
-        
+
 
     </div>
 </template>

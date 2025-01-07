@@ -1,12 +1,14 @@
 <?php
 
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 25 Jul 2024 01:39:21 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2024, Raul A Perusquia Flores
- */
+ * Author: Ganes <gustiganes@gmail.com>
+ * Created on: 07-01-2025, Bali, Indonesia
+ * Github: https://github.com/Ganes556
+ * Copyright: 2025
+ *
+*/
 
-namespace App\Actions\Fulfilment\Pallet\Search;
+namespace App\Actions\Retina\Storage\Pallet\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\Fulfilment\Pallet;
@@ -14,7 +16,7 @@ use Illuminate\Support\Collection;
 
 class ReindexPalletSearch extends HydrateModel
 {
-    public string $commandSignature = 'search:pallets {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:retina_pallets {organisations?*} {--s|slugs=}';
 
 
     public function handle(Pallet $pallet): void
