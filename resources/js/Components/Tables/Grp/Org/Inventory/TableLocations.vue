@@ -159,30 +159,28 @@ onUnmounted(() => {
             <div class="flex">
                 <div v-tooltip="location.allow_stocks ? 'Allow stock' : 'No stock'" class="px-1 py-0.5">
                     <FontAwesomeIcon icon='fal fa-box' fixed-width aria-hidden='true'
-                        :class="[location.allow_stocks ? location.has_stock_slots ? 'text-green-500' : 'text-green-500/50' : location.has_stock_slots ? 'text-red-500' : 'text-gray-400']"
+                        :class="[location.allow_stocks ? location.has_stock_slots ? 'text-green-500' : 'text-gray-400' : location.has_stock_slots ? 'text-red-500' : 'text-gray-400']"
                     />
                 </div>
                 <div v-tooltip="location.allow_dropshipping ? 'Allow dropshipping' : 'No dropshipping'" class="px-1 py-0.5">
                     <FontAwesomeIcon icon='fal fa-hand-holding-box' class='' fixed-width aria-hidden='true'
-                        :class="[location.allow_dropshipping ? location.has_dropshipping_slots ? 'text-green-500' : 'text-green-500/50' : location.has_dropshipping_slots ? 'text-red-500' : 'text-gray-400']"
+                        :class="[location.allow_dropshipping ? location.has_dropshipping_slots ? 'text-green-500' : 'text-gray-400' : location.has_dropshipping_slots ? 'text-red-500' : 'text-gray-400']"
                     />
                 </div>
                 <div v-tooltip="location.allow_fulfilment ? 'Allow fulfilment' : 'No fulfilment'" class="px-1 py-0.5">
                     <FontAwesomeIcon icon='fal fa-pallet' class='' fixed-width aria-hidden='true'
-                        :class="[location.allow_fulfilment ? location.has_fulfilment ? 'text-green-500' : 'text-green-500/50' : location.has_fulfilment ? 'text-red-500' : 'text-gray-400']"
+                        :class="[location.allow_fulfilment ? location.has_fulfilment ? 'text-green-500' : 'text-gray-400' : location.has_fulfilment ? 'text-red-500' : 'text-gray-400']"
                     />
                 </div>
             </div>
 
-            <!-- Stocks: {{ location.allow_stocks }} {{ location.has_stock_slots }}
-            Dropshipping: {{ location.allow_dropshipping }} : {{ location.has_dropshipping_slots }}
-            Fulfilment: {{ location.allow_fulfilment }} {{ location.has_fulfilment }} -->
+            <!-- <pre>Stocks: {{ location }}</pre> -->
 
         </template>
 
         <!-- Column: Locations -->
         <template #cell(tags)="{ item, proxyItem }">
-            <div class="min-w-[200px] relative p-0">
+            <div class="group min-w-[200px] relative p-0">
                 <div v-if="onEditLocation !== item.slug" class="flex gap-x-1 gap-y-1.5 items-center">
                     <template v-if="item.tags?.length">
                         <Tag v-for="tag in item.tags"
@@ -191,12 +189,9 @@ onUnmounted(() => {
                             size="sm"
                         />
                     </template>
-                    <div v-else class="italic text-gray-400">
-                        {{ trans("No tags") }}
-                    </div>
 
                     <!-- Icon: pencil -->
-                    <div class="flex items-center px-1 py-1" @click="() => onEditLocation = item.slug">
+                    <div class="opacity-0 group-hover:opacity-100 flex items-center px-1 py-1" @click="() => onEditLocation = item.slug">
                         <FontAwesomeIcon icon='fal fa-pencil' class='text-gray-400 text-lg cursor-pointer hover:text-gray-500' fixed-width aria-hidden='true' />
                     </div>
                 </div>

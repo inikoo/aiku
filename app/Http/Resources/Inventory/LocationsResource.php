@@ -23,10 +23,15 @@ class LocationsResource extends JsonResource
         /** @var Location $location */
         $location = $this;
 
+        // dd($location);
         return [
             'id'                     => $location->id,
             'slug'                   => $location->slug,
             'code'                   => $location->code,
+            'stock_value'            => $location->stock_value,
+            'stock_commercial_value' => $location->stock_commercial_value,
+            'max_weight'             => $location->max_weight,
+            'max_volume'             => $location->max_volume,
             'tags'                   => $location->tags()->pluck('slug')->toArray(),
             'allow_stocks'           => $location->allow_stocks,
             'allow_fulfilment'       => $location->allow_fulfilment,

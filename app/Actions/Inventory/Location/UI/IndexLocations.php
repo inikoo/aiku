@@ -141,6 +141,10 @@ class IndexLocations extends OrgAction
                     'locations.id',
                     'locations.code',
                     'locations.slug',
+                    'locations.stock_value',
+                    'locations.stock_commercial_value',
+                    'locations.max_weight',
+                    'locations.max_volume',
                     'locations.allow_stocks',
                     'locations.allow_fulfilment',
                     'locations.allow_dropshipping',
@@ -217,8 +221,11 @@ class IndexLocations extends OrgAction
                         default => null
                     }
                 )
+                ->column(key: 'scope', label: __('scope'), canBeHidden: false, type: 'icon')
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'scope', label: __('scope'), canBeHidden: false);
+                ->column(key: 'stock_value', label: __('Stock'), canBeHidden: false, type: 'icon')
+                ->column(key: 'max_weight', label: __('Weight'), canBeHidden: false, type: 'icon')
+                ->column(key: 'max_volume', label: __("CBM (Cubic's meter)"), canBeHidden: false, type: 'icon');
             if ($parent instanceof Group) {
                 $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true);
             }
