@@ -80,6 +80,7 @@ class UpdateGuest extends GrpAction
                 ),
 
             ],
+            'status'                   => ['sometimes'],
             'company_name'             => ['sometimes', 'nullable', 'string', 'max:255'],
             'contact_name'             => ['sometimes', 'required', 'string', 'max:255'],
             'email'                    => ['sometimes', 'nullable', 'email', 'max:255'],
