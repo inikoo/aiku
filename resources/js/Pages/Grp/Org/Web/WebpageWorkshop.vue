@@ -449,7 +449,7 @@ const isShowInWebpage = (activityItem) => {
 					<ProgressSpinner />
 				</div> -->
 
-				<div class="h-full w-full bg-white overflow-auto">
+				<div class="h-full w-full bg-white">
 					<!-- <iframe
 						ref="_iframe"
 						:src="iframeSrc"

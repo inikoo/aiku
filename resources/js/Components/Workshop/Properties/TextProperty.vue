@@ -46,7 +46,8 @@ const fontFamilies = [...useFontFamilyList];
                     <template #before-main-picker>
                         <div class="flex items-center gap-2">
                             <RadioButton size="small" v-model="model.color" inputId="bg-color-picker-1" name="bg-color-picker" value="var(--iris-color-primary)" />
-                            <label class="cursor-pointer" for="bg-color-picker-1">{{ trans("Primary color") }} <a :href="route('grp.org.shops.show.web.websites.workshop', {...route().params, tab: 'website_layout', section: 'theme_colors'})" as="a" target="_blank" class="text-xs text-blue-600">{{ trans("themes") }}</a></label>
+                            <label class="cursor-pointer" for="bg-color-picker-1">{{ trans("Primary color") }} 
+                                <a :href="route(route().params.shop ? 'grp.org.shops.show.web.websites.workshop' : 'grp.org.fulfilments.show.web.websites.workshop', {...route().params, tab: 'website_layout', section: 'theme_colors'})" as="a" target="_blank" class="text-xs text-blue-600">{{ trans("themes") }}</a></label>
                         </div>
                         
                         <div class="flex items-center gap-2">
