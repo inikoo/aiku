@@ -1,0 +1,32 @@
+{
+	"margin": {
+		"top": {
+			"value": 0
+		},
+		"left": {
+			"value": 0
+		},
+		"unit": "px",
+		"right": {
+			"value": 0
+		},
+		"bottom": {
+			"value": 0
+		}
+	},
+	"padding": {
+		"top": {
+			"value": 20
+		},
+		"left": {
+			"value": 20
+		},
+		"unit": "px",
+		"right": {
+			"value": 20
+		},
+		"bottom": {
+			"value": 20
+		}
+	}
+}
