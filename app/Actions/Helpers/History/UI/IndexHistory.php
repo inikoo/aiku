@@ -9,6 +9,7 @@
 namespace App\Actions\Helpers\History\UI;
 
 use App\Actions\SysAdmin\User\Traits\WithFormattedUserHistories;
+use App\Enums\Helpers\Audit\AuditEventEnum;
 use App\InertiaTable\InertiaTable;
 use App\Services\QueryBuilder;
 use Closure;
@@ -46,6 +47,7 @@ class IndexHistory
 
         $queryBuilder->orderBy('id', 'DESC');
         $queryBuilder->where('auditable_type', $this->model);
+        $queryBuilder->where('event', '!=', AuditEventEnum::CUSTOMER_NOTE->value);
         if (isset($model->id)) {
             $queryBuilder->where('auditable_id', $model->id);
         }

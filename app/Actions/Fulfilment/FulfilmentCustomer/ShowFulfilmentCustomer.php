@@ -21,6 +21,7 @@ use App\Actions\Traits\WithWebUserMeta;
 use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatusEnum;
 use App\Enums\UI\Fulfilment\FulfilmentCustomerTabsEnum;
 use App\Http\Resources\CRM\CustomersResource;
+use App\Http\Resources\Fulfilment\FulfilmentCustomerNoteResource;
 use App\Http\Resources\Fulfilment\RentalAgreementClausesResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\CRM\Customer;
@@ -163,7 +164,7 @@ class ShowFulfilmentCustomer extends OrgAction
                         [
                             'type'   => 'buttonGroup',
                             'button' => $additionalActions
-                        ]
+                        ],
                     ]
                 ],
 
@@ -188,9 +189,9 @@ class ShowFulfilmentCustomer extends OrgAction
                     fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))),
 
-                FulfilmentCustomerTabsEnum::NOTE->value => $this->tab == FulfilmentCustomerTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))),
+                FulfilmentCustomerTabsEnum::NOTE->value => $this->tab == FulfilmentCustomerTabsEnum::NOTE->value ?
+                    fn () => FulfilmentCustomerNoteResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))
+                    : Inertia::lazy(fn () => FulfilmentCustomerNoteResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))),
 
             ]
         )
