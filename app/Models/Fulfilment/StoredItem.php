@@ -11,6 +11,7 @@ namespace App\Models\Fulfilment;
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Models\Inventory\Warehouse;
 use App\Models\Traits\HasHistory;
+use App\Models\Traits\HasRetinaSearch;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InOrganisation;
 use Eloquent;
@@ -60,6 +61,7 @@ use Spatie\Sluggable\SlugOptions;
 class StoredItem extends Model implements Auditable
 {
     use HasUniversalSearch;
+    use HasRetinaSearch;
     use HasSlug;
     use HasHistory;
     use InOrganisation;
