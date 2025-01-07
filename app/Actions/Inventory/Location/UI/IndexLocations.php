@@ -151,6 +151,8 @@ class IndexLocations extends OrgAction
                     'locations.has_stock_slots',
                     'locations.has_fulfilment',
                     'locations.has_dropshipping_slots',
+                    'locations.max_weight',
+                    'locations.max_volume',
                     'warehouses.slug as warehouse_slug',
                     'warehouse_areas.slug as warehouse_area_slug',
                     'warehouse_area_id',
@@ -229,6 +231,9 @@ class IndexLocations extends OrgAction
             if ($parent instanceof Group) {
                 $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true);
             }
+            $table->column(key: 'max_weight', label: __('weight'), canBeHidden: false);
+            $table->column(key: 'max_volume', label: __('volume'), canBeHidden: false);
+            $table->column(key: '', label: __('stock value'), canBeHidden: false);
             $table->column(key: 'tags', label: __('tags'), canBeHidden: false)
                 ->defaultSort('code');
         };

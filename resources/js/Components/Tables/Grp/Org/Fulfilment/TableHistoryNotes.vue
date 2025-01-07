@@ -30,7 +30,6 @@ const props = defineProps<{
     state: string
     tab?: string
 }>()
-
 // const isActionLoading = ref<string | boolean>(false)
 const emits = defineEmits<{
     (e: 'renderTableKey'): void
@@ -45,10 +44,13 @@ const event = (event) => {
 }
 
 const addNotes = () => {
-    console.log({ user: layout.user.username, note: notes.value, permanent: permanent.value})
-    router.post(route('notes.store'),
-        { user: layout.value.user.username, note: notes.value, permanent: permanent.value },
-        {
+    // console.log({ user: layout.user.username, note: notes.value, permanent: permanent.value}, route(props.data.routeStore))
+    // TODO: need details value for text or html
+    router.post(route('grp.models.fulfilment_customer_note.store', [
+        route().params["fulfilmentCustomer"]
+    ]),
+        { details: JSON.stringify({ text: "description" }), note: notes.value, permanent: permanent.value },
+        {   
             onSuccess: () => {
                 console.log('Note added successfully!');
                 _op.value.hide()

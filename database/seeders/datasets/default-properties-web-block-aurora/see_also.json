@@ -1,0 +1,192 @@
+{
+	"slug": "footer-1",
+	"scope": "website",
+	"code": "footer-1",
+	"name": "footer 1",
+	"component": "footer",
+	"icon": ["fal", "folder"],
+	"blueprint": [],
+    "data": {
+        "fieldValue": {
+            "columns": {
+                "column_1": {
+                  "types": "links",
+                  "key": "1",
+                  "data": [
+                    {
+                      "id": 1,
+                      "data": [
+                        {
+                          "id": 2,
+                          "name": "<p><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Contact Us</span></p></span>"
+                        },
+                        {
+                          "id": 16,
+                          "name": "<p><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">FAQ</span></p></span>"
+                        }
+                      ],
+                      "name": "<span><p style='color: #ffffff; font-size: 16px'><strong>Help</strong></p></span>"
+                    },
+                    {
+                      "id": 5,
+                      "data": [
+                        {
+                          "id": 6,
+                          "name": "<p><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">About us</span></p></span>"
+                        },
+                        {
+                          "id": 7,
+                          "name": "<p><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Business Ethics</span></p></span>"
+                        }
+                      ],
+                      "name": "<span><p style='color: #ffffff; font-size: 16px'><strong>Information</strong></p></span>"
+                    }
+                  ],
+                  "name": "Column 1"
+                },
+                "column_2": {
+                  "types": "links",
+                  "key": "2",
+                  "data": [
+                    {
+                      "id": 17,
+                      "data": [
+                        {
+                          "id": 19,
+                          "name": "<p><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">First Order Bonus</span></p></span>"
+                        },
+                        {
+                          "id": 20,
+                          "name": "<p><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Buy Now, Pay Later</span></p></span>"
+                        }
+                      ],
+                      "name": "<span><p style='color: #ffffff; font-size: 16px'><strong>Promo</strong></p></span>"
+                    },
+                    {
+                      "id": 24,
+                      "data": [
+                        {
+                          "id": 28,
+                          "name": "<p><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Blog</span></p></span>"
+                        }
+                      ],
+                      "name": "<span><p style='color: #ffffff; font-size: 16px'><strong>Articles</strong></p></span>"
+                    },
+                    {
+                      "id": 29,
+                      "data": [
+                        {
+                          "id": 30,
+                          "name": "<p><span style=\"color: #ffffff\">Terms &amp; Conditions</span></p></span>"
+                        },
+                        {
+                          "id": 32,
+                          "name": "<p><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Cookies Policy</span></p></span>"
+                        }
+                      ],
+                      "name": "<span><p style='color: #ffffff; font-size: 16px'><strong>Legal</strong></p></span>"
+                    }
+                  ],
+                  "name": "Column 2"
+                },
+                "column_3": {
+                  "types": "links",
+                  "key": "3",
+                  "data": [
+                    {
+                      "id": 33,
+                      "data": [
+                        {
+                          "id": 34,
+                          "name": "<p><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Dropshipping</span></p></span>"
+                        }
+                      ],
+                      "name": "<span><p style='color: #ffffff; font-size: 16px'><strong>Services</strong></p></span>"
+                    }
+                  ],
+                  "name": "Column 3"
+                },
+                "column_4": {
+                  "types": "sideBar",
+                  "key": "4",
+                  "data": {
+                    "textBox1": "<p style='text-align: center; color: rgb(255,255,255)'>Pantai Lembeng 5 Street, Ketewel, Gianyar, Bali 80582</p>",
+                    "textBox2": "<p style='text-align: center; color: rgb(255,255,255)'>VAT:</p>",
+                    "textBox3": "<p>Business partnership? Contact us now</p>"
+                  },
+                  "name": "Column 4"
+                }
+              },
+            "container": {
+                "properties": {
+                      "text": {
+                        "fontFamily": "Inter, sans-serif"
+                      },
+                      "background": {
+                        "type": "color",
+                        "color": "rgba(20, 20, 20, 1)",
+                        "image": {
+                          "original": null
+                        }
+                      }
+                    }
+            },
+            "copyright": "Copyright © 2024 Company, All rights reserved.",
+            "socialMedia": [
+              {
+                "icon": "fab fa-facebook",
+                "link": "https://www.facebook.com/",
+                "type": "facebook"
+              },
+              {
+                "icon": "fab fa-instagram",
+                "link": "https://www.instagram.com/",
+                "type": "Instagram"
+              },
+              {
+                "icon": "fab fa-pinterest",
+                "link": "https://pinterest.com/",
+                "type": "Pinterest"
+              }
+            ],
+            "paymentData": {
+                "data": [
+                  {
+                    "name": "Pastpay",
+                    "image": "/art/payments/pastpay-white.png?v=2",
+                    "value": "Pastpay"
+                  },
+                  {
+                    "name": "Paypal",
+                    "image": "/art/payments/paypal-white.png?v=2",
+                    "value": "Paypal"
+                  },
+                  {
+                    "name": "Visa",
+                    "image": "/art/payments/visa-white.png?v=2",
+                    "value": "Visa"
+                  },
+                  {
+                    "name": "Mastercard",
+                    "image": "/art/payments/mastercard-white.png?v=2",
+                    "value": "Mastercard"
+                  }
+                ]
+              },
+            "whatsapp": {
+                "number": "+1 234 56789",
+                "caption": "Whatsapp",
+                "message": "Hello i want to order"
+            },
+            "phone": {
+                "numbers": ["+1 2345 6789"],
+                "caption": "Monday-Friday 8am-4pm CET"
+            },
+            "email": "example@mail.com",
+            "logo": {
+                "source": "/art/wowsbar-white.png",
+                "alt": "Company logo"
+            }
+        }
+    }
+}

@@ -39,7 +39,6 @@ const showWebpage = (activityItem) => {
 </script>
 
 <template>
-
   <Head>
     <title>{{ data.seotitle }}</title>
     <meta property="og:title" :content="data.seotitle " />

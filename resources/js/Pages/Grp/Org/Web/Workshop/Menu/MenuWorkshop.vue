@@ -58,8 +58,10 @@ const props = defineProps<{
 }>()
 
 
+console.log('menu',props)
 
-const Navigation = ref(props.data.menu)
+
+const Navigation = ref(props.data?.menu?.data?.fieldValue)
 const selectedNav = ref(0)
 const previewMode = ref(false)
 const isLoading = ref(false)
