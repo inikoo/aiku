@@ -30,9 +30,10 @@ class UpdateUserGroupPermissions extends OrgAction
     public function handle(User $user, array $modelData): User
     {
         $permissions = Arr::get($modelData, 'permissions', []);
-        $positions = $this->reorganisePositionsSlugsToIds($permissions);
 
-        $user->syncPermissions($positions);
+        $positions = $this->reorganiseGroupPositionsSlugsToIds($permissions);
+
+        $user->ad($positions);
 
         $user->refresh();
 
@@ -70,12 +71,11 @@ class UpdateUserGroupPermissions extends OrgAction
         $this->preparePositionsForValidation();
         //todo check if is a valid current model (gust|employee) in user_has_models  if is an active one reject
 
-
     }
 
     public function asController(User $user, ActionRequest $request): User
     {
-        $this->initialisation(app('group'), $request);
+        $this->initialisationFromGroup(app('group'), $request);
         return $this->handle($user, $this->validatedData);
     }
 

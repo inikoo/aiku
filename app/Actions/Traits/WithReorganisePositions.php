@@ -19,6 +19,22 @@ use Illuminate\Support\Arr;
 
 trait WithReorganisePositions
 {
+
+    public function reorganiseGroupPositionsSlugsToIds($positionsWithSlugs): array
+    {
+        $positions = [];
+            foreach ($positionsWithSlugs as $positionSlug) {
+
+                /** @var JobPosition  $jobPosition */
+                $jobPosition = JobPosition::where('slug', $positionSlug);
+
+                $positions [$jobPosition->id]= $jobPosition->id;
+            }
+
+            return $positions;
+
+    }
+
     public function reorganisePositionsSlugsToIds($positionsWithSlugs): array
     {
         $positions = [];
@@ -27,19 +43,6 @@ trait WithReorganisePositions
             return [];
         }
 
-        if (array_key_exists('group', $positionsWithSlugs)) {
-            $positionsWithSlugs = [
-                ['slug' => $positionsWithSlugs['group']]
-            ];
-            foreach ($positionsWithSlugs as $positionData) {
-
-                $permission = Permission::whereIn('name', $positionData['slug'])->pluck('id');
-
-                $positions = $permission->toArray();
-            }
-
-            return $positions;
-        }
 
         foreach ($positionsWithSlugs as $positionData) {
             $jobPosition = JobPosition::firstWhere('slug', $positionData['slug']);
