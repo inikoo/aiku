@@ -6,6 +6,7 @@ import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorV2.vue"
 import { getStyles } from "@/Composables/styles"
 import GalleryManagement from "@/Components/Utils/GalleryManagement/GalleryManagement.vue"
 import Modal from "@/Components/Utils/Modal.vue"
+import { notify } from "@kyvg/vue3-notification"
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faImage, faEdit } from "@far"
@@ -102,6 +103,33 @@ const onChangeImage = (image) => {
 	activeImageIndexModal.value = -1
 	props.modelValue = data
 	onSave()
+}
+
+
+const onUpload = async (files: File[], clear: Function) => {
+	try {
+		const formData = new FormData()
+		Array.from(files).forEach((file, index) => {
+			formData.append(`images[${index}]`, file)
+		})
+		const response = await axios.post(
+			route(props.webpageData?.images_upload_route.name, { modelHasWebBlocks: props.blockData.id }),
+			formData,
+			{
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			}
+		)
+		onChangeImage(response.data.data)
+	} catch (error) {
+		console.log(error)
+		notify({
+			title: "Failed",
+			text: "Error while uploading data",
+			type: "error",
+		})
+	}
 }
 
 onMounted(() => {
@@ -222,6 +250,8 @@ onBeforeUnmount(() => {
 					},
 			}"
 			:closePopup="() => (isModalGallery = false)"
-			@submitSelectedImages="onChangeImage" />
+			@submitSelectedImages="onChangeImage" 
+			:submitUpload="onUpload"
+			/>
 	</Modal>
 </template>
