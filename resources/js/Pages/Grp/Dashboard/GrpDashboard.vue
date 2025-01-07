@@ -32,7 +32,7 @@ import tippy from "tippy.js"
 import "tippy.js/dist/tippy.css"
 import DashboardCard from "@/Components/DataDisplay/InfoDashboardCard.vue"
 import shinyButton from "@/Components/ShinyButton.vue"
-import axios from 'axios'
+import axios from "axios"
 
 library.add(faTriangle, faChevronDown, faSeedling, faTimesCircle, faFolderOpen, faPlay)
 
@@ -101,9 +101,7 @@ const props = defineProps<{
 		value: string
 	}[]
 	dashboard_stats: {
-		settings: {
-			
-		}
+		settings: {}
 	}
 }>()
 
@@ -114,7 +112,7 @@ const layout = inject("layout", layoutStructure)
 const locale = inject("locale", aikuLocaleStructure)
 
 // Decriptor: Date interval
-const selectedDateOption = ref<string>(props.dashboard_stats.settings.selected_interval || 'ytd')
+const selectedDateOption = ref<string>(props.dashboard_stats.settings.selected_interval || "ytd")
 
 // const currencyValue = ref('group')
 
@@ -139,21 +137,21 @@ const options = {
 }
 
 const abcdef = computed(() => {
-  return props.groupStats.organisations
-    .filter((org) => org.type !== "agent")
-    .map((org) => {
-      return {
-        name: org.name,
-        code: org.code,
-        interval_percentages: org.interval_percentages,
-        sales: org.sales || 0,
-        currency:
-          selectedCurrency.value.code === "grp"
-            ? props.groupStats.currency.code
-            : org.currency.code,
-      };
-    });
-});
+	return props.groupStats.organisations
+		.filter((org) => org.type !== "agent")
+		.map((org) => {
+			return {
+				name: org.name,
+				code: org.code,
+				interval_percentages: org.interval_percentages,
+				sales: org.sales || 0,
+				currency:
+					selectedCurrency.value.code === "grp"
+						? props.groupStats.currency.code
+						: org.currency.code,
+			}
+		})
+})
 
 const currency = ref([
 	{ name: "Group", code: "grp", symbol: props.groupStats.currency.symbol },
@@ -162,38 +160,35 @@ const currency = ref([
 
 const organisationSymbols = computed(() => {
 	const symbols = props.groupStats.organisations
-		.filter((org) => org.type !== "agent") 
-		.map((org) => org.currency.symbol) 
+		.filter((org) => org.type !== "agent")
+		.map((org) => org.currency.symbol)
 		.filter(Boolean)
-	return [...new Set(symbols)].join(" / ") 
+	return [...new Set(symbols)].join(" / ")
 })
 
 const selectedCurrency = ref(currency.value[0])
 const isOrganisation = ref(selectedCurrency.value.code === "org")
 const toggleCurrency = () => {
-  selectedCurrency.value = isOrganisation.value ? currency.value[1] : currency.value[0];
-};
+	selectedCurrency.value = isOrganisation.value ? currency.value[1] : currency.value[0]
+}
 const isNegative = (value: number): boolean => value < 0
 
 const updateRouteAndUser = async (interval: string) => {
-    selectedDateOption.value = interval;
+	selectedDateOption.value = interval
 
-    try {
-        const response = await axios.patch(route('grp.models.user.update', layout.user.id), {
-          
-                settings: {
-                    selected_interval: interval,
-                },
-       
-        });
-        console.log('Update successful:', response.data); 
-    } catch (error) {
-        console.error('Error updating user:', error.response?.data || error.message);
-    }
-};
+	try {
+		const response = await axios.patch(route("grp.models.user.update", layout.user.id), {
+			settings: {
+				selected_interval: interval,
+			},
+		})
+		console.log("Update successful:", response.data)
+	} catch (error) {
+		console.error("Error updating user:", error.response?.data || error.message)
+	}
+}
 
-console.log( layout.user.id,'layoutt');
-
+console.log(layout.user.id, "layoutt")
 </script>
 
 <template>
@@ -209,7 +204,7 @@ console.log( layout.user.id,'layoutt');
 						<p
 							class="font-medium transition-opacity"
 							:class="{ 'opacity-60': isOrganisation }">
-							{{ props.groupStats.currency.symbol }} 
+							{{ props.groupStats.currency.symbol }}
 						</p>
 
 						<!-- PrimeVue Toggle Switch -->
@@ -395,23 +390,18 @@ console.log( layout.user.id,'layoutt');
 								<div class="flex justify-end relative">
 									<Transition name="spin-to-down" mode="out-in">
 										<div
-											v-tooltip="
-												useLocaleStore().CurrencyShort(
-													data.currency,
-													data.interval_percentages?.invoices[
-														selectedDateOption
-													]?.amount || 0
-												)
-											"
 											:key="
 												data.interval_percentages?.invoices[
 													selectedDateOption
 												]?.amount || 0
 											">
-                      {{ data.interval_percentages?.invoices[
-                      selectedDateOption
-                      ]?.amount || 0 }}
-
+											{{
+												locale.number(
+													data.interval_percentages?.invoices[
+														selectedDateOption
+													]?.amount || 0
+												)
+											}}
 										</div>
 									</Transition>
 								</div>
@@ -483,17 +473,19 @@ console.log( layout.user.id,'layoutt');
 															data.interval_percentages.invoices[
 																selectedDateOption
 															].percentage < 0
-																? 'fas fa-sort-down'
-																: 'fas fa-sort-up'
+																? 'fas fa-play'
+																: 'fas fa-play'
 														"
 														style="font-size: 20px; margin-top: 6px"
 														:class="
 															data.interval_percentages.invoices[
 																selectedDateOption
 															].percentage < 0
-																? 'text-red-500'
-																: 'text-green-500'
+																? 'text-red-500 rotate-90'
+																: 'text-green-500 rotate-[-90deg]'
 														" />
+											<div v-else style="width: 20px; height: 20px"></div>
+
 												</div>
 											</Transition>
 										</div>
@@ -640,13 +632,13 @@ console.log( layout.user.id,'layoutt');
 
 								<Column
 									:footer="
-
+										locale.number(
 											Number(
 												groupStats.total[
 													selectedDateOption
 												].total_invoices.toString()
 											)
-
+										)
 									"
 									footerStyle="text-align:right" />
 								<Column footer="" footerStyle="text-align:right" />

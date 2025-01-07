@@ -1,5 +1,5 @@
     <script setup lang="ts">
-import { computed, inject, onMounted, reactive, ref } from 'vue'
+import { computed, inject, onMounted, reactive, ref, watch } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faBullhorn,faCashRegister,faChessQueen,faCube,faStore, faInfoCircle, faCircle, faCrown, faBars, faAbacus, faCheckDouble, faQuestionCircle, faTimes, faCheckCircle as falCheckCircle } from '@fal'
 import { faBoxUsd,faHelmetBattle,faExclamationCircle, faCheckCircle as fasCheckCircle, faCrown as fasCrown } from '@fas'
@@ -69,8 +69,13 @@ interface optionsJob {
 const layout = inject('layout', layoutStructure)
 
 const props = defineProps<{
-    form?: any
-    fieldName: string
+    form: {
+        group: string[]
+        organisations: {
+            [key: string]: {}
+        }
+    }
+    fieldName: string  // organisation slug
     options: {
         positions: {
             data: {
@@ -109,7 +114,12 @@ const props = defineProps<{
     organisationId?: number
 }>()
 
-const newForm = props.saveButton ? useForm({[props.fieldName]: props.form[props.fieldName]} || {}) : reactive(props.form)
+const abcdef = {
+    [props.fieldName]: props.form.organisations[props.fieldName] || 'fffff'
+}
+console.log('pppp', props.form.organisations)
+const newForm = props.saveButton ? useForm(abcdef || {}) : reactive(props.form)
+console.log('bbbb', newForm)
 const onSubmitNewForm = () => {
     newForm
     .transform((data) => ({
@@ -561,14 +571,20 @@ onMounted(() => {
     }, 300)
 })
 
-const countPosition = computed(() => {
-    return Object.keys(newForm[props.fieldName] || {})?.length
-})
+const emits = defineEmits<{
+    (e: 'countPosition', value: number): void
+}>()
+watch(() => newForm, () => {
+    const xxx = Object.keys(newForm[props.fieldName]).length
+    // console.log('newForm', xxx)
+    emits('countPosition', xxx)
+}, { deep: true, immediate: true })
+
+
 </script>
 
 <template>
     <div class="relative">
-        <div class="bg-red-300">{{ countPosition }}ddddddd</div>
         <!-- authorised fulfilment: {{ fulfilmentsLength }} <br> authorised shop: {{ shopsLength }} <br> authorised warehouse: {{ warehousesLength }} <br> authorised production: {{ productionsLength }} -->
         <div class="relative flex flex-col text-xs divide-y-[1px]">
             <template v-if="isMounted">
@@ -643,7 +659,7 @@ const countPosition = computed(() => {
                                             <div class="flex flex-col gap-y-4 pt-4">
                                                 <template v-for="optionData, optionKey, optionIdx in optionsList" :key="optionKey + optionIdx">
                                                     <div v-if="jobGroup.subDepartment.some(subDep => subDep.optionsType?.includes(optionKey))" class="">
-                                                        <div class="text-white text-center bg-indigo-500 capitalize py-0.5">{{ optionKey }}</div>
+                                                        <div class="text-white text-center bg-gray-400 capitalize py-0.5">{{ optionKey }}</div>
                                                         <div class="flex flex-col gap-x-2 gap-y-0.5">
                                                             <!-- Section: Box radio -->
                                                             <div v-for="(shop, idxZXC) in optionData" class="grid grid-cols-4 items-center justify-start gap-x-6 min-h-6"
@@ -741,5 +757,6 @@ const countPosition = computed(() => {
 
     </div>
 
-    <pre>{{ newForm }}</pre>
+    Newform
+    <pre>{{ newForm[fieldName] }}</pre>
 </template>
