@@ -13,9 +13,12 @@ use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\SysAdmin\GuestResource;
 use App\Models\SysAdmin\Guest;
+use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use App\Rules\Phone;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateGuest extends GrpAction
@@ -29,6 +32,11 @@ class UpdateGuest extends GrpAction
 
     public function handle(Guest $guest, array $modelData): Guest
     {
+        $credentials = Arr::only($modelData, ['username', 'password']);
+
+        data_forget($modelData, 'username');
+        data_forget($modelData, 'password');
+        
         $guest = $this->update($guest, $modelData, [
             'data',
         ]);
@@ -39,6 +47,10 @@ class UpdateGuest extends GrpAction
                     UpdateUser::make()->action($user, ['status' => false]);
                 }
             }
+        }
+
+        if ($user = $guest->getUser()) {
+            UpdateUser::run($user, $credentials);
         }
 
         return $guest;
@@ -61,8 +73,7 @@ class UpdateGuest extends GrpAction
             $phoneValidation[] = new Phone();
         }
 
-
-        return [
+        $rules = [
             'code'                     => [
                 'sometimes',
                 'string',
@@ -88,6 +99,34 @@ class UpdateGuest extends GrpAction
             'identity_document_number' => ['sometimes', 'nullable', 'string'],
             'identity_document_type'   => ['sometimes', 'nullable', 'string'],
         ];
+
+        if ($user = $this->guest->getUser()) {
+            $rules['username']          = [
+                'sometimes',
+                'required',
+                'lowercase',
+                new AlphaDashDot(),
+
+                Rule::notIn(['export', 'create']),
+                new IUnique(
+                    table: 'users',
+                    extraConditions: [
+
+                        [
+                            'column'   => 'id',
+                            'operator' => '!=',
+                            'value'    => $user->id
+                        ],
+                    ]
+                ),
+
+
+            ];
+            $rules['password']          = ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()];
+        }
+
+
+        return $rules;
     }
 
 
