@@ -48,8 +48,7 @@ class UpdateGuest extends GrpAction
                 }
             }
         }
-
-        if ($user = $guest->getUser()) {
+        if (!empty($credentials) && $user = $guest->getUser()) {
             UpdateUser::run($user, $credentials);
         }
 
@@ -122,7 +121,11 @@ class UpdateGuest extends GrpAction
 
 
             ];
-            $rules['password']          = ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()];
+            $rules['password'] = [
+                'sometimes',
+                'required',
+                app()->isLocal() || app()->environment('testing') ? 'min:8' : Password::min(8)->uncompromised(),
+            ];
         }
 
 
