@@ -10,6 +10,7 @@ namespace App\Actions\SysAdmin\Guest\UI;
 
 use App\Actions\GrpAction;
 use App\Actions\Helpers\History\UI\IndexHistory;
+use App\Actions\SysAdmin\Guest\WithGuestSubNavigations;
 use App\Actions\SysAdmin\UI\ShowSysAdminDashboard;
 use App\Enums\UI\SysAdmin\GuestTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -21,6 +22,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowGuest extends GrpAction
 {
+    use WithGuestSubNavigations;
+
     public function asController(Guest $guest, ActionRequest $request): Guest
     {
         $this->initialisation(app('group'), $request)->withTab(GuestTabsEnum::values());
@@ -55,6 +58,7 @@ class ShowGuest extends GrpAction
                     'next'     => $this->getNext($guest, $request),
                 ],
                 'pageHead'    => [
+                    'subNavigation' => $this->getGuestNavigation($guest, $request),
                     'title'     => $guest->contact_name,
                     'icon'    =>
                         [
