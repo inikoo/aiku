@@ -344,6 +344,33 @@ test('update guest', function ($guest) {
     return $guest;
 })->depends('create guest from command');
 
+test('update guest credentials', function ($guest) {
+    app()->instance('group', $guest->group);
+    setPermissionsTeamId($guest->group->id);
+
+    $guest = UpdateGuest::make()->action($guest, ['username' => 'testuser']);
+    expect($guest->getUser()->username)->toBe('testuser')
+    ->and(Hash::check('hello1234', $guest->getUser()->password))->toBeTrue();
+
+    $guest = UpdateGuest::make()->action($guest, ['password' => 'testoooo']);
+    expect($guest->getUser()->username)->toBe('testuser')
+    ->and(Hash::check('testoooo', $guest->getUser()->password))->toBeTrue();
+
+    return $guest;
+})->depends('update guest');
+
+test('update guest status', function ($guest) {
+    app()->instance('group', $guest->group);
+    setPermissionsTeamId($guest->group->id);
+
+    $guest = UpdateGuest::make()->action($guest, ['status' => true]);
+    expect($guest->getUser()->username)->toBe('testuser')
+    ->and(Hash::check('testoooo', $guest->getUser()->password))->toBeTrue()
+    ->and($guest->status)->toBeTrue();
+
+    return $guest;
+})->depends('update guest credentials');
+
 test('fail to create guest with invalid usernames', function (Group $group) {
     app()->instance('group', $group);
     setPermissionsTeamId($group->id);
@@ -380,7 +407,7 @@ test('update user password', function (Guest $guest) {
 })->depends('update guest');
 
 test('update user username', function (User $user) {
-    expect($user->username)->toBe('pika');
+    expect($user->username)->toBe('testuser');
     $user = UpdateUser::make()->action($user, [
         'username' => 'new-username'
     ]);

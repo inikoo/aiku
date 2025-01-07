@@ -112,6 +112,12 @@ function onSave() {
 	emits("autoSave")
 }
 
+const DeleteImage = () => {
+	isOpenGalleryImages.value = false
+	const updatedModelValue = { ...props.modelValue, source: null }
+	emits("update:modelValue", updatedModelValue)
+}
+
 // Watch for specific changes in modelValue and auto-save
 watch(
   () => props.modelValue,
@@ -157,9 +163,11 @@ watch(
 						class="w-full object-cover h-full object-center group-hover:opacity-75">
 					</Image>
 
-					<div class="absolute top-0 right-0 m-2">
+					<div class="absolute top-0 right-0 m-2 flex gap-2">
 						<Button id="gallery" :style="`tertiary`" :icon="'fal fa-photo-video'" size="xs"
 							class="relative hover:text-gray-700" @click="isOpenGalleryImages = true" />
+						<Button id="gallery" :style="`red`" :icon="['far', 'fa-trash-alt']" size="xs"
+							class="relative hover:text-gray-700" @click="DeleteImage" />
 					</div>
 				</div>
 			</div>

@@ -10,7 +10,7 @@
 use App\Actions\Fulfilment\FulfilmentCustomer\IndexFulfilmentCustomerFromWebhook;
 use App\Actions\UI\Iris\Appointment\ShowPublicAppointment;
 use App\Actions\UI\Iris\ShowHome;
-use App\Actions\UI\Iris\ShowAbout;
+/* use App\Actions\UI\Iris\ShowAbout;
 use App\Actions\UI\Iris\ShowContact;
 use App\Actions\UI\Iris\ShowPickpack;
 use App\Actions\UI\Iris\ShowPricing;
@@ -19,13 +19,15 @@ use App\Actions\UI\Iris\ShowShipping;
 use App\Actions\UI\Iris\ShowStorage;
 use App\Actions\UI\Iris\ShowTnc;
 use App\Actions\UI\Iris\ShowWelcome;
-use App\Actions\UI\Iris\ShowSearchResult;
+use App\Actions\UI\Iris\ShowSearchResult; */
 use Illuminate\Support\Facades\Route;
 use App\Actions\CRM\WebUser\Retina\Login;
 use Inertia\Inertia;
 
 Route::get('/', ShowHome::class)->name('home');
-Route::get('/about', ShowAbout::class)->name('about');
+
+
+/* Route::get('/about', ShowAbout::class)->name('about');
 Route::get('/contact', ShowContact::class)->name('contact');
 Route::get('/pick_pack', ShowPickpack::class)->name('pickpack');
 Route::get('/pricing', ShowPricing::class)->name('pricing');
@@ -62,4 +64,4 @@ Route::prefix("crm")
 
 Route::prefix("unsubscribe")
     ->name("unsubscribe.")
-    ->group(__DIR__."/unsubscribe.php");
+    ->group(__DIR__."/unsubscribe.php"); */

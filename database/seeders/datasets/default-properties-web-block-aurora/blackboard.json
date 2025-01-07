@@ -1,0 +1,42 @@
+{
+	"margin": {
+		"top": {
+			"value": 0
+		},
+		"left": {
+			"value": 200
+		},
+		"unit": "px",
+		"right": {
+			"value": 200
+		},
+		"bottom": {
+			"value": 150
+		}
+	},
+	"padding": {
+		"top": {
+			"value": 20
+		},
+		"left": {
+			"value": 20
+		},
+		"unit": "px",
+		"right": {
+			"value": 20
+		},
+		"bottom": {
+			"value": 20
+		}
+	},
+	"dimension": {
+		"width": {
+			"unit": "%",
+			"value": "100"
+		},
+		"height": {
+			"unit": "px",
+			"value": 700
+		}
+	}
+}

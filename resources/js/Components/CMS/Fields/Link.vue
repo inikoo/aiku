@@ -144,6 +144,7 @@ onMounted(() => {
 				:value="localModel"
 				:closeOnSelect="true"
 				label="href" 
+				:onChange="(e)=>{ localModel.href = e.href}"
 				:urlRoute="getRoute()"
 				/>
 		</div>

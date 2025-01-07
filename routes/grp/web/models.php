@@ -57,6 +57,7 @@ use App\Actions\Fulfilment\Fulfilment\StoreFulfilmentFromUI;
 use App\Actions\Fulfilment\Fulfilment\UpdateFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\AddDeliveryAddressToFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
+use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomerNote;
 use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentTransaction\DeleteFulfilmentTransaction;
 use App\Actions\Fulfilment\FulfilmentTransaction\StoreFulfilmentTransaction;
@@ -505,9 +506,9 @@ Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function
     Route::post('website', [StoreWebsite::class, 'inFulfilment'])->name('website.store');
     Route::post('fulfilment-customer', StoreFulfilmentCustomer::class)->name('fulfilment_customer.store');
     Route::patch('website/{website:id}', [UpdateWebsite::class, 'inFulfilment'])->name('website.update')->withoutScopedBindings();
-
-
 });
+
+Route::post('fulfilment-customer-note/{fulfilmentCustomer}', StoreFulfilmentCustomerNote::class)->name('fulfilment_customer_note.store');
 
 
 
