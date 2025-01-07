@@ -1,12 +1,14 @@
 <?php
 
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 25 Jul 2024 01:39:21 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2024, Raul A Perusquia Flores
- */
+ * Author: Ganes <gustiganes@gmail.com>
+ * Created on: 07-01-2025, Bali, Indonesia
+ * Github: https://github.com/Ganes556
+ * Copyright: 2025
+ *
+*/
 
-namespace App\Actions\Fulfilment\Pallet\Search;
+namespace App\Actions\Retina\Storage\Pallet\Search;
 
 use App\Models\Billables\Rental;
 use App\Models\Fulfilment\Pallet;
@@ -16,41 +18,33 @@ class PalletRecordSearch
 {
     use AsAction;
 
-    public string $jobQueue = 'universal-search';
+    public string $jobQueue = 'retina-search';
 
     public function handle(Pallet $pallet): void
     {
         if ($pallet->trashed()) {
 
-            if ($pallet->universalSearch) {
-                $pallet->universalSearch()->delete();
+            if ($pallet->retinaSearch) {
+                $pallet->retinaSearch()->delete();
             }
             return;
         }
 
         $rental = Rental::find($pallet->rental_id) ?? null;
 
-        $pallet->universalSearch()->updateOrCreate(
+        $pallet->retinaSearch()->updateOrCreate(
             [],
             [
                 'group_id'            => $pallet->group_id,
                 'organisation_id'     => $pallet->organisation_id,
-                'organisation_slug'   => $pallet->organisation->slug,
-                'fulfilment_id'       => $pallet->fulfilment_id,
-                'fulfilment_slug'     => $pallet->fulfilment->slug,
-                'warehouse_id'        => $pallet->warehouse_id,
-                'warehouse_slug'      => $pallet->warehouse->slug,
-                'sections'            => ['fulfilment'],
-                'haystack_tier_1'     => trim($pallet->reference . ' ' . $rental->name . ' ' . $pallet->customer_reference),
+                'customer_id'         => $pallet->fulfilmentCustomer->customer_id,
+                'haystack_tier_1'     => trim($pallet->reference . ' ' . $rental->name),
                 'keyword'             => $pallet->slug,
                 'keyword_2'           => $pallet->reference,
                 'result'              => [
                     'route'     => [
-                        'name'          => 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
+                        'name'          => 'retina.storage.pallets.show',
                         'parameters'    => [
-                            'organisation'       => $pallet->organisation->slug,
-                            'fulfilment'         => $pallet->fulfilment->slug,
-                            'fulfilmentCustomer' => $pallet->fulfilmentCustomer->slug,
                             'pallet'             => $pallet->slug
                         ]
                     ],
@@ -87,17 +81,6 @@ class PalletRecordSearch
                 ]
             ]
         );
-
-        $pallet->retinaSearch()->updateOrCreate(
-            [],
-            [
-                'group_id'          => $pallet->group_id,
-                'organisation_id'   => $pallet->organisation_id,
-                'customer_id'       => $pallet->fulfilmentCustomer->customer_id,
-                'haystack_tier_1'   => $pallet->reference ?? $pallet->id,
-            ]
-        );
-
     }
 
 }

@@ -15,6 +15,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\TaxCategory;
 use App\Models\Traits\HasHistory;
+use App\Models\Traits\HasRetinaSearch;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InFulfilmentCustomer;
 use Illuminate\Database\Eloquent\Model;
@@ -86,6 +87,7 @@ class RecurringBill extends Model implements Auditable
 {
     use SoftDeletes;
     use HasUniversalSearch;
+    use HasRetinaSearch;
     use HasSlug;
     use InFulfilmentCustomer;
     use HasHistory;

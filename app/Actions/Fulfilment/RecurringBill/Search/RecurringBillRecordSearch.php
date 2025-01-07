@@ -44,18 +44,29 @@ class RecurringBillRecordSearch
             'icon'      => [
                 'icon' => 'fal fa-receipt',
             ],
-            'aaa'       => $recurringBill,
+            'code'     => [
+                'label'   => $recurringBill->reference,
+                'tooltip' => __('Reference')
+            ],
+            'state_icon'         => $recurringBill->status->labels()[$recurringBill->status->value],
             'meta'      => [
                 [
-                    'key'       => 'status',
-                    'tooltip'   => 'Status',
-                    'label'     => $recurringBill->status->labels()[$recurringBill->status->value]
+                    'type'      => 'number',
+                    'label'     => __('Net') . ': ',
+                    'number'    => $recurringBill->net_amount,
+                    'tooltip'   => __("Net")
                 ],
                 [
-                    'key'       => 'created_date',
+                    'key'       => 'start_date',
                     'type'      => 'date',
-                    'label'     => $recurringBill->created_at,
-                    'tooltip'   => __('Created date')
+                    'label'     => $recurringBill->start_date,
+                    'tooltip'   => __('Start date')
+                ],
+                [
+                    'key'       => 'end_date',
+                    'type'      => 'date',
+                    'label'     => $recurringBill->end_date,
+                    'tooltip'   => __('End date')
                 ],
                 [
                     'key'       => 'total',

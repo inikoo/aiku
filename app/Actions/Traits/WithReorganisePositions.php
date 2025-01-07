@@ -21,25 +21,26 @@ trait WithReorganisePositions
 {
     public function reorganisePositionsSlugsToIds($positionsWithSlugs): array
     {
+        $positions = [];
+
         if (count($positionsWithSlugs) == 0) {
             return [];
         }
 
         if (array_key_exists('group', $positionsWithSlugs)) {
             $positionsWithSlugs = [
-                ['slug' => $positionsWithSlugs['group'][0]]
+                ['slug' => $positionsWithSlugs['group']]
             ];
             foreach ($positionsWithSlugs as $positionData) {
 
-                $permission = Permission::firstWhere('name', $positionData['slug']);
+                $permission = Permission::whereIn('name', $positionData['slug'])->pluck('id');
 
-                $positions[] = $permission->id;
+                $positions = $permission->toArray();
             }
 
             return $positions;
         }
 
-        $positions = [];
         foreach ($positionsWithSlugs as $positionData) {
             $jobPosition = JobPosition::firstWhere('slug', $positionData['slug']);
 
