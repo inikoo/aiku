@@ -127,8 +127,11 @@ const onPublish = async (action: routeType, popover: Function) => {
             onStart: () => isLoading.value = true,
             onCancelToken: (cancelToken) => publishCancelToken.value = cancelToken,
             onFinish: () => {
-                isLoading.value = true
+                isLoading.value = false
                 publishCancelToken.value = null
+            },
+            onSuccess : () => {
+                comment.value  = ""
             },
             onError: (error) => {
                 notify({

@@ -37,6 +37,8 @@ interface ModelTopbar1 {
 
 const model = defineModel<ModelTopbar1>()
 
+console.log('test',model.value)
+
 const isLoggedIn = inject('isPreviewLoggedIn', false)
 const isDropshipping = ref(false)
 
@@ -66,7 +68,7 @@ const onClickLogin = () => {
         <div class="flex-shrink flex flex-col md:flex-row items-center justify-between w-full">
             <!-- Section: greeting -->
             <div
-                v-if="checkVisible(model?.greeting.visible || null, isLoggedIn) && textReplaceVariables(model?.greeting?.text, layout.iris_variables)"
+                v-if="checkVisible(model?.greeting?.visible || null, isLoggedIn) && textReplaceVariables(model?.greeting?.text, layout.iris_variables)"
                 class="flex items-center"
                 v-html="textReplaceVariables(model?.greeting?.text, layout.iris_variables)"
             />
