@@ -16,6 +16,7 @@ const props = defineProps<{
 	blockData: Object
 }>()
 
+
 const emits = defineEmits<{
 	(e: "autoSave"): void
 }>()
@@ -25,6 +26,8 @@ const activeTextIndex = ref(-1)
 const activeImageIndex = ref(-1)
 const activeImageIndexModal = ref(-1)
 const isModalGallery = ref(false)
+const _textRefs = ref([])
+const _imageRefs = ref([])
 
 function onDragImage({ top = 0, bottom = 0, left = 0, right = 0 }) {
 	props.modelValue.images[activeImageIndex.value].properties.position.top = `${top}px`
@@ -121,7 +124,7 @@ onBeforeUnmount(() => {
 				class="absolute"
 				:class="`text-${index}`"
 				@dblclick="activateMoveableText(index)"
-				ref="el => textRefs[index] = el"
+				:ref="el => _textRefs[index] = el"
 				:style="{
 					width: text?.properties?.width ? `${text?.properties?.width}` : 'auto',
 					height: text?.properties?.height ? `${text?.properties?.height}` : 'auto',
@@ -140,7 +143,7 @@ onBeforeUnmount(() => {
 			<Moveable
 				v-if="activeTextIndex === index"
 				class="moveable"
-				:target="[`.text-${index}`]"
+				:target="_textRefs[index]"
 				:draggable="true"
 				:scalable="true"
 				@drag="onDragText"
@@ -163,7 +166,7 @@ onBeforeUnmount(() => {
 					class="absolute"
 					:class="`image-${index}`"
 					@dblclick="activateMoveableImage(index)"
-					ref="el => imageRefs[index] = el"
+					:ref="el => _imageRefs[index] = el"
 					:style="{
 						width: image?.properties?.width ? `${image?.properties?.width}` : 'auto',
 						height: image?.properties?.height ? `${image?.properties?.height}` : 'auto',
@@ -174,7 +177,6 @@ onBeforeUnmount(() => {
 							? `${image?.properties?.position?.left}`
 							: 'auto',
 					}">
-					<!-- Tombol di pojok kiri atas -->
 					<button
 						@click="
 							() => {
@@ -192,7 +194,7 @@ onBeforeUnmount(() => {
 				<Moveable
 					v-if="activeImageIndex === index"
 					class="moveable"
-					:target="[`.image-${index}`]"
+					:target="_imageRefs[index]"
 					:draggable="true"
 					:scalable="true"
 					@drag="onDragImage"
@@ -215,7 +217,9 @@ onBeforeUnmount(() => {
 			:maxSelected="1"
 			:uploadRoute="{
 				...webpageData.images_upload_route,
-				parameters: id,
+				parameters: {
+						modelHasWebBlocks: blockData.id
+					},
 			}"
 			:closePopup="() => (isModalGallery = false)"
 			@submitSelectedImages="onChangeImage" />

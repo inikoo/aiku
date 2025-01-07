@@ -48,21 +48,22 @@ class PalletReturnRecordSearch
             'icon'          => [
                 'icon'  => 'fal fa-truck-couch',
             ],
+            'state_icon'         => $palletReturn->state->stateIcon()[$palletReturn->state->value],
             'meta'          => [
                 [
-                    'type'      => 'date',
-                    'label'     => $palletReturn->created_at,
-                    'tooltip'   => __("Created date")
+                    'key'      => "customer_reference",
+                    'label'     =>  $palletReturn->customer_reference,
+                    'tooltip'   => __("Return name")
                 ],
                 [
-                    'label'     => $palletReturn->state->labels()[$palletReturn->state->value],
-                    'tooltip'   => __("State")
+                    'label'     => $palletReturn->state->labels()[$palletReturn->type->value],
+                    'tooltip'   => __("Type")
                 ],
                 [
                     'type'      => 'number',
                     'label'     => __('Pallets') . ': ',
                     'number'    => $palletReturn->stats->number_pallets,
-                    'tooltip'   => __("Pallet's count")
+                    'tooltip'   => __("Pallets")
                 ],
             ],
         ];
