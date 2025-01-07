@@ -24,7 +24,12 @@ class IndexRetinalSearch extends InertiaAction
 
     public function handle(string $query, Customer $customer): Collection
     {
+        $query = trim($query);
+        $query = preg_replace('/(\+|\-|\=|&&|\|\||\>|\<|\!|\(|\)|\{|\}|\[|\]|\^|"|~|\*|\?|\:|\\\\|\/)/', '\\\\$1', $query);
+        $query = preg_replace('/\b(AND|OR|NOT)\b/', '\\\\$0', $query);
+
         $query = RetinaSearch::search($query)->where('customer_id', $customer->id);
+
         return $query->get();
     }
 
@@ -32,7 +37,7 @@ class IndexRetinalSearch extends InertiaAction
     {
         $searchResults = $this->handle(
             query: $request->input('q', ''),
-            customer: $request->user()->customer
+            customer: $request->user()->customer,
         );
 
         return RetinaSearchResource::collection($searchResults);
