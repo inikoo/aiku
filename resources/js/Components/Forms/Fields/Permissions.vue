@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Ref, ref } from 'vue'
+import { computed, Ref, ref, watch } from 'vue'
 import { Collapse } from 'vue-collapsed'
 import CardPermissions from './Components/Permissions/Card.vue'
 import { get, set } from 'lodash'
@@ -170,11 +170,19 @@ const organisation = [
 ]
 const selectedOrganisation = ref<typeof organisation[number] | null>(organisation[0])
 
+const organisationPositionCounts = ref({})
+// watch(props.form, (newValue) => {
+//     console.log('vcxvcxvcxvcxvcxvcxvcx')
+//     organisationPositionCounts.value = {...newValue}.map((org) => {
+//         return {
+//             [org]: Object.keys(org).length
+//         }
+//     })
+// }, { deep: true })
 </script>
 
 <template>
     <div class="flex flex-col gap-y-6">
-
         <Fieldset legend="Group permissions">
             <div>
                 <template v-for="(jobGroup, departmentName, idxJobGroup) in groupPositionList" :key="departmentName + idxJobGroup">
@@ -232,9 +240,7 @@ const selectedOrganisation = ref<typeof organisation[number] | null>(organisatio
             <Button @click="submitGroupPermissions" full label="Save group permissions" class="mt-4" :disabled="!form.isDirty || form.processing" :loading="form.processing" />
         </Fieldset>
 
-        {{ props.form[props.fieldName].group }}
-
-        <!-- <div class="grid">
+        <div class="grid">
             <div class="flex justify-between px-2 border-b border-gray-300 py-2 mb-2">
                 <div>
                     Organisations
@@ -244,29 +250,30 @@ const selectedOrganisation = ref<typeof organisation[number] | null>(organisatio
                 </div>
             </div>
 
-            <div v-for="(review, slugReview) in props.fieldData.organisation_list.data"
+            <div v-for="(organisation, idxOrganisation) in props.fieldData.organisation_list.data"
                 class="border-l-2 border-indigo-500 pl-2 flex flex-col mb-1 gap-y-1"
             >
                 <div
-                    @click="selectedOrganisation?.slug == review.slug ? selectedOrganisation = null : selectedOrganisation = review"
+                    @click="selectedOrganisation?.slug == organisation.slug ? selectedOrganisation = null : selectedOrganisation = organisation"
                     class="rounded cursor-pointer py-1 px-2 flex justify-between"
-                    :class="review.slug === selectedOrganisation?.slug ? 'bg-indigo-100 text-indigo-500' : 'hover:bg-gray-200/70 '"
+                    :class="organisation.slug === selectedOrganisation?.slug ? 'bg-indigo-100 text-indigo-500' : 'hover:bg-gray-200/70 '"
                 >
-                    <div class="">{{ review.name }}</div>
-                    <div v-tooltip="trans('Number job positions')" class="pl-3 pr-2">0/{{ review.number_job_positions }}</div>
+                    <div class="">{{ organisation.name }}</div>
+                    <div v-tooltip="trans('Number job positions')" class="pl-3 pr-2 tabular-nums"><transition name="spin-to-right"><span :key="organisationPositionCounts[organisation.slug]">{{ organisationPositionCounts[organisation.slug] }}</span></transition>/{{ organisation.number_job_positions }}</div>
                 </div>
 
-                <Collapse as="section" :when="review.slug == selectedOrganisation?.slug">
-                    {{ form[fieldName] }}
-                    <div v-if="options?.[review.slug]" class="border border-gray-300 rounded-md mb-2">
+                <Collapse as="section" :when="organisation.slug == selectedOrganisation?.slug">
+                    <!-- {{ form[fieldName] }} -->
+                    <div v-if="options?.[organisation.slug]" class="border border-gray-300 rounded-md mb-2">
                         <EmployeePosition
-                            :key="'employeePosition' + review.slug "
+                            :key="'employeePosition' + organisation.slug "
                             :form="form[fieldName]"
                             :fieldData
-                            :fieldName="review.slug"
-                            :options="options?.[review.slug]"
+                            :fieldName="organisation.slug"
+                            :options="options?.[organisation.slug]"
                             saveButton
-                            :organisationId="review.id"
+                            :organisationId="organisation.id"
+                            @countPosition="(count: number) => set(organisationPositionCounts, organisation.slug, count)"
                         />
                     </div>
                     <div v-else class="text-center border border-gray-300 rounded-md mb-2">
@@ -274,7 +281,7 @@ const selectedOrganisation = ref<typeof organisation[number] | null>(organisatio
                     </div>
                 </Collapse>
             </div>
-        </div> -->
+        </div>
 
 
         <!-- <pre>{{ form }}</pre> -->
