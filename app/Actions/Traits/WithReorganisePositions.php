@@ -14,12 +14,15 @@ use App\Models\HumanResources\JobPosition;
 use App\Models\Inventory\Warehouse;
 use App\Models\Production\Production;
 use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\Permission;
 use Illuminate\Support\Arr;
 
 trait WithReorganisePositions
 {
     public function reorganisePositionsSlugsToIds($positionsWithSlugs): array
     {
+        $positions = [];
+
         if (count($positionsWithSlugs) == 0) {
             return [];
         }
@@ -28,12 +31,18 @@ trait WithReorganisePositions
             $positionsWithSlugs = [
                 ['slug' => $positionsWithSlugs['group']]
             ];
+            foreach ($positionsWithSlugs as $positionData) {
+
+                $permission = Permission::whereIn('name', $positionData['slug'])->pluck('id');
+
+                $positions = $permission->toArray();
+            }
+
+            return $positions;
         }
 
-        $positions = [];
         foreach ($positionsWithSlugs as $positionData) {
             $jobPosition = JobPosition::firstWhere('slug', $positionData['slug']);
-
 
             $positions[$jobPosition->id] = $this->reorganiseScopes($positionData['scopes']);
         }
