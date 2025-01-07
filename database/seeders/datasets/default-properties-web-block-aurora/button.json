@@ -1,0 +1,171 @@
+{
+	"slug": "cta_aurora_1",
+	"code": "cta_aurora_1",
+	"name": "Aurora Call to action 1",
+	"scope": "webpage",
+	"icon": ["fal", "rectangle-wide"],
+	"blueprint": [],
+	"data": {
+		"fieldValue": {
+			"text": "<p><span style='color: #ffffff'>All currently trending Indian handcrafted gifts directly imported from Artisans</span></p>",
+            "title" : "<h1><span style='color: #ffffff'>Discover Made in India</span></h1>",
+			"button": {
+				"link": {
+					"type" : "internal",
+					"url": "https://ancientwisdom.biz/showroom",
+					"id": 9,
+					"workshop_route" : ""
+				},
+				"text": "Explore Here",
+				"container": {
+					"properties": {
+						"text": {
+							"color": "rgba(0, 0, 0, 1)",
+							"fontFamily": null
+						},
+						"background": {
+							"type": "color",
+							"color": "#ffffff",
+							"image": {
+								"original": null
+							}
+						},
+						"padding": {
+							"unit": "px",
+							"top": {
+								"value": 10
+							},
+							"left": {
+								"value": 10
+							},
+							"right": {
+								"value": 10
+							},
+							"bottom": {
+								"value": 10
+							}
+						},
+						"margin": {
+							"unit": "px",
+							"top": {
+								"value": 30
+							},
+							"left": {
+								"value": 0
+							},
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
+						},
+						"border": {
+							"color": "#000000",
+							"unit": "px",
+							"rounded": {
+								"unit": "px",
+								"topright": {
+									"value": 10
+								},
+								"topleft": {
+									"value": 10
+								},
+								"bottomright": {
+									"value": 10
+								},
+								"bottomleft": {
+									"value": 10
+								}
+							},
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
+						}
+					}
+				}
+			},
+			"container": {
+				"properties": {
+					"background": {
+						"type": "color",
+						"color": "#111827",
+						"image": {
+							"original": null
+						}
+					},
+					"padding": {
+						"unit": "px",
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					},
+					"margin": {
+						"unit": "px",
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					},
+					"border": {
+						"color": "#000000",
+						"unit": "px",
+						"rounded": {
+							"unit": "px",
+							"topright": {
+								"value": 0
+							},
+							"topleft": {
+								"value": 0
+							},
+							"bottomright": {
+								"value": 0
+							},
+							"bottomleft": {
+								"value": 0
+							}
+						},
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					}
+				}
+			}
+		}
+	}
+}

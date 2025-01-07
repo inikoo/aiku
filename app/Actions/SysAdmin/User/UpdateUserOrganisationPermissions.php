@@ -2,39 +2,30 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 30 Sept 2024 18:51:48 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2024, Raul A Perusquia Flores
+ * Created: Tue, 07 Jan 2025 16:31:17 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
 namespace App\Actions\SysAdmin\User;
 
-use App\Actions\GrpAction;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithPreparePositionsForValidation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithReorganisePositions;
-use App\Http\Resources\HumanResources\EmployeeResource;
-use App\Models\HumanResources\Employee;
+use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateUsersModelHasPermission extends GrpAction
+class UpdateUserOrganisationPermissions extends OrgAction
 {
     use WithActionUpdate;
     use WithPreparePositionsForValidation;
     use WithReorganisePositions;
 
-    protected bool $asAction = false;
 
-    private Employee $employee;
-
-    private User $user;
-
-
-    private Organisation $organisation;
-
-    public function handle(User $user, array $modelData): User
+    public function handle(User $user, Organisation $organisation, array $modelData): User
     {
         $permissions = Arr::get($modelData, 'permissions', []);
         $positions = $this->reorganisePositionsSlugsToIds($permissions);
@@ -60,19 +51,17 @@ class UpdateUsersModelHasPermission extends GrpAction
     {
         return [
             'permissions' => ['sometimes', 'array'],
-            'permissions.group' => ['sometimes', 'array']
         ];
     }
 
     public function action(User $user, Organisation $organisation, $modelData): User
     {
         $this->asAction     = true;
-        $this->user         = $user;
         $this->organisation = $organisation;
 
-        $this->initialisation($user->group, $modelData);
+        $this->initialisation($organisation, $modelData);
 
-        return $this->handle($user, $this->validatedData);
+        return $this->handle($user, $organisation, $this->validatedData);
     }
 
     public function prepareForValidation(ActionRequest $request): void
@@ -83,17 +72,16 @@ class UpdateUsersModelHasPermission extends GrpAction
 
     }
 
-    public function asController(User $user, ActionRequest $request): User
+    public function asController(User $user, Organisation $organisation, ActionRequest $request): User
     {
-        $this->user         = $user;
 
-        $this->initialisation(app('group'), $request);
+        $this->initialisation($organisation, $request);
 
-        return $this->handle($user, $this->validatedData);
+        return $this->handle($user, $organisation, $this->validatedData);
     }
 
-    public function jsonResponse(User $user): EmployeeResource
+    public function jsonResponse(User $user): UserResource
     {
-        return new EmployeeResource($user);
+        return new UserResource($user);
     }
 }

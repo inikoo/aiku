@@ -13,6 +13,7 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
+use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\Ordering\Purge\UI\ShowPurge;
 use App\Actions\Ordering\Transaction\UI\IndexNonProductItems;
@@ -316,6 +317,27 @@ class ShowOrder extends OrgAction
 
         }
 
+        $customerAddressId              = $order->customer->address->id;
+        $customerDeliveryAddressId      = $order->customer->deliveryAddress->id;
+        $orderDeliveryAddressIds = Order::where('customer_id', $order->customer_id)
+                                            ->pluck('delivery_address_id')
+                                            ->unique()
+                                            ->toArray();
+
+        $forbiddenAddressIds = array_merge(
+            $orderDeliveryAddressIds,
+            [$customerAddressId, $customerDeliveryAddressId]
+        );
+
+        $processedAddresses->each(function ($address) use ($forbiddenAddressIds) {
+            if (in_array($address->id, $forbiddenAddressIds, true)) {
+                $address->setAttribute('can_delete', false)
+                        ->setAttribute('can_edit', true);
+            }
+        });
+
+        $addressCollection = AddressResource::collection($processedAddresses);
+
         return Inertia::render(
             'Org/Ordering/Order',
             [
@@ -390,46 +412,46 @@ class ShowOrder extends OrgAction
                     ]
                 ],
                 'timelines'   => $finalTimeline,
-                'address_update_route'  => [  // TODO by BE
-                    // 'method'     => 'patch',
-                    // 'name'       => 'grp.models.fulfilment-customer.address.update',
-                    // 'parameters' => [
-                    //     'fulfilmentCustomer' => $fulfilmentCustomer->id
-                    // ]
+                'address_update_route'  => [ 
+                    'method'     => 'patch',
+                    'name'       => 'grp.models.customer.address.update',
+                    'parameters' => [
+                        'customer' => $order->customer_id
+                    ]
                 ],
-                'addresses'   => [  // TODO by BE
-                    // 'isCannotSelect'                => true,
-                    // 'address_list'                  => $addressCollection,
-                    // 'options'                       => [
-                    //     'countriesAddressData' => GetAddressData::run()
-                    // ],
-                    // 'pinned_address_id'              => $fulfilmentCustomer->customer->delivery_address_id,
-                    // 'home_address_id'                => $fulfilmentCustomer->customer->address_id,
-                    // 'current_selected_address_id'    => $fulfilmentCustomer->customer->delivery_address_id,
-                    // 'selected_delivery_addresses_id' => $palletReturnDeliveryAddressIds,
-                    // 'routes_list'                    => [
-                    //     'pinned_route'                   => [
-                    //         'method'     => 'patch',
-                    //         'name'       => 'grp.models.customer.delivery-address.update',
-                    //         'parameters' => [
-                    //             'customer' => $fulfilmentCustomer->customer_id
-                    //         ]
-                    //     ],
-                    //     'delete_route'  => [
-                    //         'method'     => 'delete',
-                    //         'name'       => 'grp.models.fulfilment-customer.delivery-address.delete',
-                    //         'parameters' => [
-                    //             'fulfilmentCustomer' => $fulfilmentCustomer->id
-                    //         ]
-                    //     ],
-                    //     'store_route' => [
-                    //         'method'      => 'post',
-                    //         'name'        => 'grp.models.fulfilment-customer.address.store',
-                    //         'parameters'  => [
-                    //             'fulfilmentCustomer' => $fulfilmentCustomer->id
-                    //         ]
-                    //     ]
-                    // ]
+                'addresses'   => [
+                    'isCannotSelect'                => true,
+                    'address_list'                  => $addressCollection,
+                    'options'                       => [
+                        'countriesAddressData' => GetAddressData::run()
+                    ],
+                    'pinned_address_id'              => $order->customer->delivery_address_id,
+                    'home_address_id'                => $order->customer->address_id,
+                    'current_selected_address_id'    => $order->customer->delivery_address_id,
+                    'selected_delivery_addresses_id' => $orderDeliveryAddressIds,
+                    'routes_list'                    => [
+                        'pinned_route'                   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.customer.delivery-address.update',
+                            'parameters' => [
+                                'customer' => $order->customer_id
+                            ]
+                        ],
+                        'delete_route'  => [
+                            'method'     => 'delete',
+                            'name'       => 'grp.models.customer.delivery-address.delete',
+                            'parameters' => [
+                                'customer' => $order->customer_id
+                            ]
+                        ],
+                        'store_route' => [
+                            'method'      => 'post',
+                            'name'        => 'grp.models.customer.address.store',
+                            'parameters'  => [
+                                'customer' => $order->customer_id
+                            ]
+                        ]
+                    ]
                 ],
 
                 'box_stats'      => [

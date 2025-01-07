@@ -12,6 +12,7 @@ namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
 use App\Actions\OrgAction;
 use App\Enums\Helpers\Audit\AuditEventEnum;
+use App\Enums\UI\Fulfilment\FulfilmentCustomerTabsEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Helpers\History;
 use Inertia\Inertia;
@@ -26,7 +27,10 @@ class StoreFulfilmentCustomerNote extends OrgAction
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): History
     {
         data_set($modelData, 'event', AuditEventEnum::CUSTOMER_NOTE->value);
-        data_set($modelData, 'new_values', ['note' => $modelData['note']]);
+        data_set($modelData, 'new_values', [
+            'note' => $modelData['note'],
+            'details' => json_decode($modelData['details'])
+        ]);
         data_set($modelData, 'group_id', $fulfilmentCustomer->group_id);
         data_set($modelData, 'organisation_id', $fulfilmentCustomer->organisation_id);
         data_set($modelData, 'shop_id', $fulfilmentCustomer->shop_id);
@@ -34,6 +38,7 @@ class StoreFulfilmentCustomerNote extends OrgAction
         data_set($modelData, 'auditable_type', class_basename($fulfilmentCustomer->customer));
         data_set($modelData, 'customer_id', $fulfilmentCustomer->customer_id);
         data_forget($modelData, 'note');
+        data_forget($modelData, 'details');
 
         return History::create($modelData);
     }
@@ -51,15 +56,17 @@ class StoreFulfilmentCustomerNote extends OrgAction
     {
         return [
             'note'                => ['required', 'string'],
+            'details'                => ['sometimes', 'string'],
         ];
     }
 
-    public function htmlResponse(FulfilmentCustomer $fulfilmentCustomer): Response
+    public function htmlResponse(History $history): Response
     {
         return Inertia::location(route('grp.org.fulfilments.show.crm.customers.show', [
-            'organisation'       => $fulfilmentCustomer->organisation->slug,
-            'fulfilment'         => $fulfilmentCustomer->fulfilment->slug,
-            'fulfilmentCustomer' => $fulfilmentCustomer->slug
+            'organisation'       => $this->fulfilmentCustomer->organisation->slug,
+            'fulfilment'         => $this->fulfilmentCustomer->fulfilment->slug,
+            'fulfilmentCustomer' => $this->fulfilmentCustomer->slug,
+            'tab'                => FulfilmentCustomerTabsEnum::NOTE->value,
         ]));
     }
 
@@ -68,6 +75,7 @@ class StoreFulfilmentCustomerNote extends OrgAction
      */
     public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): History
     {
+        $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
@@ -79,20 +87,20 @@ class StoreFulfilmentCustomerNote extends OrgAction
     public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): History
     {
         $this->asAction = true;
+        $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
-    public string $commandSignature = 'add:fulfilment-customer-note';
+    // public string $commandSignature = 'add:fulfilment-customer-note';
 
-    public function asCommand($command)
-    {
-        $c = FulfilmentCustomer::first();
-        $this->action($c, [
-            'note' => 'xxxxxx'
-        ]);
-    }
-
+    // public function asCommand($command)
+    // {
+    //     $c = FulfilmentCustomer::first();
+    //     $this->action($c, [
+    //         'note' => 'xxxxxx'
+    //     ]);
+    // }
 
 }
