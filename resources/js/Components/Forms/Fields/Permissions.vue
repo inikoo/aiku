@@ -183,64 +183,74 @@ const organisationPositionCounts = ref({})
 
 <template>
     <div class="flex flex-col gap-y-6">
-        <Fieldset legend="Group permissions">
-            <div>
-                <template v-for="(jobGroup, departmentName, idxJobGroup) in groupPositionList" :key="departmentName + idxJobGroup">
-                    <div class="grid grid-cols-3 gap-x-1.5 px-2 items-center even:bg-gray-100 transition-all duration-200 ease-in-out">
-                        <!-- Section: Department label -->
-                        <div class="flex items-center capitalize gap-x-1.5">
-                            <FontAwesomeIcon v-if="jobGroup.icon" :icon="jobGroup.icon" class='text-gray-400 fixed-width' aria-hidden='true' />
-                            {{ jobGroup.department }}
-                        </div>
-
-                        <!-- Section: Radio (the clickable area) -->
-                        <div class="h-full col-span-2 flex-col transition-all duration-200 ease-in-out">
-                            <div class="flex items-center divide-x divide-slate-300">
-                                <!-- Button: Radio position -->
-
-                                <div class="pl-2 flex items-center gap-x-4">
-                                    <template v-for="subDepartment, idxSubDepartment in jobGroup.subDepartment">
-                                        <!-- If subDepartment is have atleast 1 Fulfilment, or have atleast 1 Shop, or have atleast 1 Warehouse, or have atleast 1 Production, or is a simple sub department (i.e buyer, administrator, etc) -->
-                                        <button
-                                            @click.prevent="onClickButtonGroup(departmentName, subDepartment.slug)"
-                                            class="group h-full cursor-pointer flex items-center justify-start rounded-md py-3 px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
-                                            :class="(isRadioChecked('org-admin') && subDepartment.slug != 'org-admin') || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') ? 'text-green-500' : ''"
-                                            :disabled="(isRadioChecked('group-admin') && subDepartment.slug != 'group-admin')
-                                                ? true
-                                                : false"
-                                        >
-                                        <!-- {{ (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') }} -->
-                                            <div class="relative text-left">
-                                                <div class="absolute -left-1 -translate-x-full top-1/2 -translate-y-1/2">
-                                                    <template v-if="(isRadioChecked('org-admin') && subDepartment.slug != 'org-admin') || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') || (isRadioChecked('shop-admin') && jobGroup.scope === 'shop' && subDepartment.slug !== 'shop-admin')">
-                                                        <FontAwesomeIcon v-if="idxSubDepartment === 0" icon='fas fa-check-circle' class="" fixed-width aria-hidden='true' />
-                                                        <FontAwesomeIcon v-else icon='fal fa-circle' class="" fixed-width aria-hidden='true' />
-                                                    </template>
-                                                    <template v-else-if="form[fieldName].group.includes(subDepartment.slug)">
-                                                        <FontAwesomeIcon icon='fas fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
-                                                    </template>
-                                                    <FontAwesomeIcon v-else icon='fal fa-circle' fixed-width aria-hidden='true' class="text-gray-400 hover:text-gray-700" />
+        <div class="flex gap-x-2">
+            <Fieldset legend="Group permissions" class="w-full max-w-4xl">
+                <div>
+                    <template v-for="(jobGroup, departmentName, idxJobGroup) in groupPositionList" :key="departmentName + idxJobGroup">
+                        <div class="grid grid-cols-3 gap-x-1.5 px-2 items-center even:bg-gray-100 transition-all duration-200 ease-in-out">
+                            <!-- Section: Department label -->
+                            <div class="flex items-center capitalize gap-x-1.5">
+                                <FontAwesomeIcon v-if="jobGroup.icon" :icon="jobGroup.icon" class='text-gray-400 fixed-width' aria-hidden='true' />
+                                {{ jobGroup.department }}
+                            </div>
+                            <!-- Section: Radio (the clickable area) -->
+                            <div class="h-full col-span-2 flex-col transition-all duration-200 ease-in-out">
+                                <div class="flex items-center divide-x divide-slate-300">
+                                    <!-- Button: Radio position -->
+                                    <div class="pl-2 flex items-center gap-x-4">
+                                        <template v-for="subDepartment, idxSubDepartment in jobGroup.subDepartment">
+                                            <!-- If subDepartment is have atleast 1 Fulfilment, or have atleast 1 Shop, or have atleast 1 Warehouse, or have atleast 1 Production, or is a simple sub department (i.e buyer, administrator, etc) -->
+                                            <button
+                                                @click.prevent="onClickButtonGroup(departmentName, subDepartment.slug)"
+                                                class="group h-full cursor-pointer flex items-center justify-start rounded-md py-3 px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
+                                                :class="(isRadioChecked('org-admin') && subDepartment.slug != 'org-admin') || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') ? 'text-green-500' : ''"
+                                                :disabled="(isRadioChecked('group-admin') && subDepartment.slug != 'group-admin')
+                                                    ? true
+                                                    : false"
+                                            >
+                                            <!-- {{ (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') }} -->
+                                                <div class="relative text-left">
+                                                    <div class="absolute -left-1 -translate-x-full top-1/2 -translate-y-1/2">
+                                                        <template v-if="(isRadioChecked('org-admin') && subDepartment.slug != 'org-admin') || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') || (isRadioChecked('shop-admin') && jobGroup.scope === 'shop' && subDepartment.slug !== 'shop-admin')">
+                                                            <FontAwesomeIcon v-if="idxSubDepartment === 0" icon='fas fa-check-circle' class="" fixed-width aria-hidden='true' />
+                                                            <FontAwesomeIcon v-else icon='fal fa-circle' class="" fixed-width aria-hidden='true' />
+                                                        </template>
+                                                        <template v-else-if="form[fieldName].group.includes(subDepartment.slug)">
+                                                            <FontAwesomeIcon icon='fas fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
+                                                        </template>
+                                                        <FontAwesomeIcon v-else icon='fal fa-circle' fixed-width aria-hidden='true' class="text-gray-400 hover:text-gray-700" />
+                                                    </div>
+                                                    <span :class="[
+                                                        (isRadioChecked('org-admin') && subDepartment.slug != 'org-admin') || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') || (isRadioChecked('shop-admin') && jobGroup.scope === 'shop' && subDepartment.slug !== 'shop-admin') ? 'text-gray-400' : 'text-gray-600 group-hover:text-gray-700'
+                                                    ]">
+                                                        {{ subDepartment.label }}
+                                                    </span>
                                                 </div>
-                                                <span :class="[
-                                                    (isRadioChecked('org-admin') && subDepartment.slug != 'org-admin') || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') || (isRadioChecked('shop-admin') && jobGroup.scope === 'shop' && subDepartment.slug !== 'shop-admin') ? 'text-gray-400' : 'text-gray-600 group-hover:text-gray-700'
-                                                ]">
-                                                    {{ subDepartment.label }}
-                                                </span>
-                                            </div>
-                                        </button>
-                                    </template>
+                                            </button>
+                                        </template>
+                                    </div>
                                 </div>
-
                             </div>
                         </div>
-                    </div>
-                </template>
+                    </template>
+                </div>
+            </Fieldset>
+
+            <div class="mt-4">
+                <button @click="submitGroupPermissions" class="h-9 align-bottom text-center" :disabled="form.processing || !form.isDirty">
+                    <template v-if="form.isDirty">
+                        <FontAwesomeIcon v-if="form.processing" icon='fad fa-spinner-third' class='text-2xl animate-spin' fixed-width aria-hidden='true' />
+                        <FontAwesomeIcon v-else icon="fad fa-save" class="h-8" :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" aria-hidden="true" />
+                    </template>
+                    <FontAwesomeIcon v-else icon="fal fa-save" class="h-8 text-gray-300" aria-hidden="true" />
+                </button>
             </div>
 
-            <Button @click="submitGroupPermissions" full label="Save group permissions" class="mt-4" :disabled="!form.isDirty || form.processing" :loading="form.processing" />
-        </Fieldset>
+            <!-- <Button full label="Save group permissions" icon="fal fa-save" class="mt-4" :disabled="!form.isDirty || form.processing" :loading="form.processing" /> -->
+        </div>
 
-        <div class="grid">
+        <!-- Section: Organisations position -->
+        <div class="grid max-w-4xl">
             <div class="flex justify-between px-2 border-b border-gray-300 py-2 mb-2">
                 <div>
                     Organisations
@@ -251,7 +261,8 @@ const organisationPositionCounts = ref({})
             </div>
 
             <div v-for="(organisation, idxOrganisation) in props.fieldData.organisation_list.data"
-                class="border-l-2 border-indigo-500 pl-2 flex flex-col mb-1 gap-y-1"
+                class="border-l-[3px] pl-2 flex flex-col mb-1 gap-y-1"
+                :class="selectedOrganisation?.slug == organisation.slug ? 'border-indigo-500' : 'border-gray-300'"
             >
                 <div
                     @click="selectedOrganisation?.slug == organisation.slug ? selectedOrganisation = null : selectedOrganisation = organisation"
@@ -264,7 +275,7 @@ const organisationPositionCounts = ref({})
 
                 <Collapse as="section" :when="organisation.slug == selectedOrganisation?.slug">
                     <!-- {{ form[fieldName] }} -->
-                    <div v-if="options?.[organisation.slug]" class="border border-gray-300 rounded-md mb-2">
+                    <div v-if="options?.[organisation.slug]" class="rounded-md mb-2">
                         <EmployeePosition
                             :key="'employeePosition' + organisation.slug "
                             :form="form[fieldName]"
