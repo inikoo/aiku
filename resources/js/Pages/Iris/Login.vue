@@ -4,11 +4,15 @@ import LoginPassword from '@/Components/Auth/LoginPassword.vue'
 import Checkbox from '@/Components/Checkbox.vue'
 import ValidationErrors from '@/Components/ValidationErrors.vue'
 import { useLayoutStore } from '@/Stores/layout'
+import { getIrisComponent } from '@/Composables/getIrisComponents'
 
-import { trans } from 'laravel-vue-i18n'
 import { onMounted, ref, nextTick } from 'vue'
-import Button from '@/Components/Elements/Buttons/Button.vue'
-import LayoutRetinaAuth from '@/Layouts/RetinaAuth.vue'
+
+const props = defineProps<{
+  data: any,
+  header : any,
+  blocks: any,
+}>()
 
 // defineOptions({ layout: LayoutRetinaAuth })
 const form = useForm({
@@ -39,6 +43,7 @@ const submit = () => {
 
 const inputUsername = ref(null)
 
+
 onMounted(async () => {
     await nextTick()
     inputUsername.value?.focus()
@@ -48,7 +53,6 @@ onMounted(async () => {
 </script>
 
 <template>
-
     <Head title="Login" />
     <div class="max-w-xl mx-auto flex min-h-full flex-1 flex-col justify-center py-12">
         <div class="sm:mx-auto sm:w-full">

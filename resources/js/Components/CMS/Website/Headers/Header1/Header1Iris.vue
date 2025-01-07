@@ -3,7 +3,8 @@ import { ref } from 'vue'
 import MobileMenu from '@/Components/MobileMenu.vue'
 import Menu from 'primevue/menu'
 import { getStyles } from "@/Composables/styles";
-import { viewVisible } from "@/Composables/Workshop";
+import { checkVisible, textReplaceVariables } from '@/Composables/Workshop'
+import { inject } from 'vue'
 
 import { faPresentation, faCube, faText, faPaperclip } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -27,6 +28,7 @@ const props = defineProps<{
 }>()
 
 const selectedColor = props.colorThemed?.color
+const isLoggedIn = inject('isPreviewLoggedIn', false)
 
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string | number): void
@@ -78,11 +80,11 @@ const toggle = (event) => {
 
                 <!-- Gold Member Button -->
                 <div class="justify-self-end w-fit">
-                    <button :style="getStyles(fieldValue.button_1.properties)"
-                        class="flex items-center justify-center px-4 py-2 bg-gold-500 text-white rounded-md shadow-md hover:bg-gold-600 transition duration-300 w-fit"
-                        v-if="viewVisible(loginMode, fieldValue.button_1.visible)">
-                        <div v-html="fieldValue.button_1.text"></div>
-                    </button>
+                    <div v-if="checkVisible(fieldValue?.button_1?.visible || null, isLoggedIn)"
+                        :href="fieldValue?.button_1?.visible" class="space-x-1.5 cursor-pointer whitespace-nowrap" id=""
+                        :style="getStyles(fieldValue?.button_1?.container?.properties)">
+                        <span v-html="fieldValue?.button_1.text" />
+                    </div>
                 </div>
             </div>
         </div>
