@@ -350,12 +350,11 @@ const labels = ["LCP", "INP", "FID", "CLS"]
 const data = [80, 70, 90, 60]
 const backgroundColors = ["#22c55e", "#22c55e", "#22c55e", "#22c55e"]
 
-// Change colors based on thresholds
 const thresholdColors = data.map((value) => {
-	if (value >= 80) return "#22c55e"
-	else if (value >= 50) return "#facc15"
-	else return "#ef4444"
-})
+  if (value >= 80) return "#22c55e"; 
+  else if (value >= 50) return "#facc15"; 
+  else return "#ef4444";
+});
 
 onMounted(() => {
 	setChartDataAndOptions()
@@ -366,7 +365,7 @@ watch(value, handleSelectChange)
 <template>
 	<div class="min-h-screen bg-gray-100 p-6">
 		<!-- Layout -->
-		<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+		<div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
 			<!-- Sidebar -->
 			<div class="space-y-4">
 				<!-- Visits Card -->
