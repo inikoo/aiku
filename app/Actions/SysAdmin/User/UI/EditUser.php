@@ -97,7 +97,7 @@ class EditUser extends OrgAction
         $jobPositionsOrganisationsData = [];
         foreach ($this->group->organisations as $organisation) {
             $jobPositionsOrganisationData = GetJobPositionsOrganisationData::run($user, $organisation);
-            $jobPositionsOrganisationsData[] = $jobPositionsOrganisationData;
+            $jobPositionsOrganisationsData[$organisation->slug] = $jobPositionsOrganisationData;
         }
 
         $permissionsGroupData = GetPermissionGroupData::run($user, $this->group);
