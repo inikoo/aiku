@@ -16,7 +16,6 @@ const props = defineProps<{
 	blockData: Object
 }>()
 
-console.log(props)
 
 const emits = defineEmits<{
 	(e: "autoSave"): void
@@ -218,7 +217,9 @@ onBeforeUnmount(() => {
 			:maxSelected="1"
 			:uploadRoute="{
 				...webpageData.images_upload_route,
-				parameters: id,
+				parameters: {
+						modelHasWebBlocks: blockData.id
+					},
 			}"
 			:closePopup="() => (isModalGallery = false)"
 			@submitSelectedImages="onChangeImage" />
