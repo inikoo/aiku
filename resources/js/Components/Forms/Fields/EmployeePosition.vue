@@ -108,7 +108,8 @@ const props = defineProps<{
                 authorised_productions: number
             }
         }
-        updateRoute: routeType
+        updateOrganisationPermissionsRoute: routeType
+        
     }
     saveButton?: boolean
     organisationId?: number
@@ -117,17 +118,17 @@ const props = defineProps<{
 const abcdef = {
     [props.fieldName]: props.form.organisations[props.fieldName] || 'fffff'
 }
-console.log('pppp', props.form.organisations)
+// console.log('pppp', props.form.organisations)
 const newForm = props.saveButton ? useForm(abcdef || {}) : reactive(props.form)
-console.log('bbbb', newForm)
+// console.log('bbbb', newForm)
 const onSubmitNewForm = () => {
     newForm
     .transform((data) => ({
-        positions: data[props.fieldName]
+        permissions: data[props.fieldName]
     }))
     .submit(
-        props.fieldData.updateRoute.method || 'patch',
-        route(props.fieldData.updateRoute.name, {...props.fieldData.updateRoute.parameters, organisation: props.organisationId}),
+        props.fieldData.updateOrganisationPermissionsRoute.method || 'patch',
+        route(props.fieldData.updateOrganisationPermissionsRoute.name, {...props.fieldData.updateOrganisationPermissionsRoute.parameters, organisation: props.organisationId}),
         {
             preserveScroll: true,
             onSuccess: () => notify({

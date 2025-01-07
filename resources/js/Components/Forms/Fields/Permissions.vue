@@ -39,6 +39,8 @@ const props = defineProps<{
                 authorised_productions: number
             }
         }
+        updateGroupPermissionsRoute: routeType
+        updateOrganisationPermissionsRoute: routeType
     }
     updateRoute: routeType
 }>()
@@ -85,27 +87,36 @@ const groupPositionList = {
             }
         ],
     },
-    group_procurement: {
-        key: 'group_procurement',
-        department: trans("Group Procurement"),
+    group_supply_chain: {
+        key: 'group_supply_chain',
+        department: trans("Supply Chain"),
         icon: "fal fa-box-usd",
-        level: 'group_procurement',
+        level: 'group_supply_chain',
         subDepartment: [
             {
                 slug: "supply-chain",
                 grade: "manager",
-                label: trans("Supply Chain Manager"),
+                label: trans("Manager"),
                 // number_employees: props.options.positions?.data?.find(position => position.slug == 'gp-sc')?.number_employees || 0,
             },
+        ],
+        // value: null
+    },
+    group_goods: {
+        key: 'group_goods',
+        department: trans("Goods"),
+        icon: "fal fa-box-usd",
+        level: 'group_goods',
+        subDepartment: [
             {
                 slug: "goods",
                 grade: "manager",
-                label: trans("Goods Manager"),
+                label: trans("Manager"),
                 // number_employees: props.options.positions?.data?.find(position => position.slug == 'gp-g')?.number_employees || 0,
             }
         ],
         // value: null
-    }
+    },
 }
 const isRadioChecked = (subDepartmentSlug: string) => {
     return props.form[props.fieldName]?.group?.includes(subDepartmentSlug)
@@ -145,7 +156,11 @@ const onClickButtonGroup = (department: string, subDepartmentSlug: string) => {
     }
 }
 const submitGroupPermissions = () => {
-    props.form.post(route(props.updateRoute.name, props.updateRoute.parameters), { preserveScroll: true })
+    props.form
+    .transform((data) => ({
+        permissions: data[props.fieldName].group
+    }))
+    [props.fieldData.updateGroupPermissionsRoute.method](route(props.fieldData.updateGroupPermissionsRoute.name, props.fieldData.updateGroupPermissionsRoute.parameters), { preserveScroll: true })
 }
 
 
