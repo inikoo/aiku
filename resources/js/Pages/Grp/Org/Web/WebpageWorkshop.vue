@@ -47,7 +47,7 @@ const props = defineProps<{
 	webpage: RootWebpage
 	webBlockTypes: Root
 }>()
-
+console.log(props)
 provide('isInWorkshop', true)
 
 const layout = inject('layout', layoutStructure)
