@@ -68,6 +68,7 @@ class FetchAuroraUser extends FetchAurora
                 'user_model_status' => $status,
                 'created_at'        => $this->auroraModelData->{'User Created'},
                 'legacy_password'   => $legacyPassword,
+                'auth_type'         => 'aurora',
                 'language_id'       => $this->parseLanguageID($this->auroraModelData->{'User Preferred Locale'}),
                 'reset_password'    => false,
                 'password'          => Str::random(64),

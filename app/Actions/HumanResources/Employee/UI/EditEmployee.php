@@ -58,7 +58,7 @@ class EditEmployee extends OrgAction
         $user = $employee->getUser();
 
         $jobPositionsOrganisationData = GetJobPositionsOrganisationData::run($employee, $this->organisation);
-        $jobPositionsGroupData = GetJobPositionsGroupData::run($employee, $this->group);
+        $jobPositionsGroupData = GetPermissionGroupData::run($employee, $this->group);
 
         $sections['properties'] = [
             'label'  => __('Properties'),

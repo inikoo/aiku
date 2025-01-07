@@ -8,6 +8,7 @@
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
+use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Helpers\Address\HydrateAddress;
 use App\Actions\Helpers\Address\ParseCountryID;
 use App\Actions\Helpers\Avatars\GetDiceBearAvatar;
@@ -35,12 +36,13 @@ use App\Actions\SysAdmin\User\UpdateUserStatus;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Actions\SysAdmin\User\UserRemoveRoles;
 use App\Actions\SysAdmin\User\UserSyncRoles;
+use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
+use App\Models\Analytics\AikuScopedSection;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\Media;
-use App\Models\Helpers\UniversalSearch;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Admin;
@@ -75,6 +77,7 @@ beforeEach(function () {
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Grp')]
     );
+
 });
 
 test('create group', function () {
@@ -91,8 +94,6 @@ test('create group', function () {
     $group = StoreGroup::make()->action($modelData);
     expect($group)->toBeInstanceOf(Group::class)
         ->and($group->roles()->count())->toBe(5)
-        // ->and($group->webBlockTypeCategories()->count())->toBe(13)
-        // ->and($group->webBlockTypes()->count())->toBe(18)
         ->and($group->jobPositionCategories()->count())->toBe($jobPositions->count());
 
     return $group;
@@ -223,9 +224,6 @@ test('update organisation logo', function (Organisation $organisation) {
         ->and($organisation->image->name)->toBe('logo.jpg');
 })->depends('create organisation by command');
 
-// test('roles are seeded', function () {
-//     expect(Role::count())->toBe(19);
-// });
 
 test('create guest', function (Group $group, Organisation $organisation) {
     app()->instance('group', $group);
@@ -233,6 +231,7 @@ test('create guest', function (Group $group, Organisation $organisation) {
 
     $jobPosition1 = $group->jobPositions()->where('code', 'gp-sc')->first();
     $jobPosition2 = $group->jobPositions()->where('code', 'org-admin')->where('organisation_id', $organisation->id)->first();
+    $jobPosition3 = $group->jobPositions()->where('code', 'sys-admin')->first();
     $guestData    = Guest::factory()->definition();
     data_set($guestData, 'user.username', 'hello');
     data_set($guestData, 'user.password', 'secret-password');
@@ -253,7 +252,11 @@ test('create guest', function (Group $group, Organisation $organisation) {
                             $organisation->slug
                         ]
                     ]
-                ]
+                ],
+            $jobPosition3->slug => [
+                'slug'   => $jobPosition3->slug,
+                'scopes' => []
+            ],
         ]
     );
 
@@ -285,6 +288,12 @@ test('SetUserAuthorisedModels command', function (Guest $guest) {
     $this->artisan('user:set_authorised_models', [
         'user' => $guest->getUser()->slug,
     ])->assertSuccessful();
+
+    $user = $guest->getUser();
+    expect($user->authorisedOrganisations()->count())->toBe(1);
+
+
+
 })->depends('create guest');
 
 test('create guest from command', function (Group $group) {
@@ -461,30 +470,7 @@ test('can login', function (Guest $guest) {
     expect($user->stats->number_logins)->toBe(1);
 })->depends('create guest');
 
-test('can show hr dashboard', function (Guest $guest) {
-    $group = $guest->group;
-    app()->instance('group', $guest->group);
-    setPermissionsTeamId($group->id);
 
-    $guest = StoreGuest::make()->action(
-        $group,
-        Guest::factory()->definition()
-    );
-
-    actingAs($guest->getUser());
-
-    $response = get(route('grp.sysadmin.dashboard'));
-
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('SysAdmin/SysAdminDashboard')
-            ->has('breadcrumbs', 2)
-            ->where('stats.0.stat', 2)->where('stats.0.route.name', 'grp.sysadmin.users.index')
-            ->where('stats.1.stat', 2)->where('stats.1.route.name', 'grp.sysadmin.guests.index');
-    });
-
-    return $guest;
-})->depends('create guest');
 
 test('Hydrate group', function (Group $group) {
     HydrateGroup::run($group);
@@ -563,13 +549,6 @@ test('update search', function () {
     $this->artisan('search')->assertSuccessful();
 });
 
-// test('update web block types', function (Group $group) {
-//     $this->artisan('group:seed_web_block_types')->assertSuccessful();
-//     $group->refresh();
-//     expect($group->webBlockTypeCategories()->count())->toBe(13)
-//         ->and($group->webBlockTypes()->count())->toBe(18);
-// })->depends('create group');
-
 test('show log in', function () {
     $response = $this->get(route('grp.login.show'));
     $response->assertInertia(function (AssertableInertia $page) {
@@ -585,52 +564,51 @@ test('should not show without authentication', function () {
 
 test('reindex search', function () {
     $this->artisan('search')->assertSuccessful();
-    //expect(UniversalSearch::count())->toBe(67);
 });
 
-test('employee job position in another organisation', function () {
-    $group = Group::where('slug', 'test')->first();
-    $org1  = $group->organisations()->first();
-    $org2  = $group->organisations()->skip(1)->first();
-
-
-    $employee = StoreEmployee::make()->action(
-        $org1,
-        array_merge(
-            Employee::factory()->definition(),
-            [
-                'username' => 'username-123',
-                'password' => 'password-123',
-            ]
-        )
-    );
-    $user     = $employee->getUser();
-
-    $jobPosition1 = $org2->jobPositions()->where('code', 'hr-c')->first();
-
-    expect($group->number_organisations)->toBe(2)
-        ->and($employee)->toBeInstanceOf(Employee::class)
-        ->and($user)->toBeInstanceOf(User::class)
-        ->and($jobPosition1)->toBeInstanceOf(JobPosition::class);
-
-
-    $user = UpdateUsersPseudoJobPositions::make()->action(
-        $user,
-        $org2,
-        [
-            'positions' => [
-                [
-                    'slug'   => $jobPosition1->code,
-                    'scopes' => []
-                ]
-            ]
-        ]
-    );
-
-    /** @var Employee $employee */
-    $employee = $user->employees()->first();
-    expect($employee->otherOrganisationJobPositions()->count())->toBe(1);
-})->todo();
+//test('employee job position in another organisation', function () {
+//    $group = Group::where('slug', 'test')->first();
+//    $org1  = $group->organisations()->first();
+//    $org2  = $group->organisations()->skip(1)->first();
+//
+//
+//    $employee = StoreEmployee::make()->action(
+//        $org1,
+//        array_merge(
+//            Employee::factory()->definition(),
+//            [
+//                'username' => 'username-123',
+//                'password' => 'password-123',
+//            ]
+//        )
+//    );
+//    $user     = $employee->getUser();
+//
+//    $jobPosition1 = $org2->jobPositions()->where('code', 'hr-c')->first();
+//
+//    expect($group->number_organisations)->toBe(2)
+//        ->and($employee)->toBeInstanceOf(Employee::class)
+//        ->and($user)->toBeInstanceOf(User::class)
+//        ->and($jobPosition1)->toBeInstanceOf(JobPosition::class);
+//
+//
+//    $user = UpdateUsersPseudoJobPositions::make()->action(
+//        $user,
+//        $org2,
+//        [
+//            'positions' => [
+//                [
+//                    'slug'   => $jobPosition1->code,
+//                    'scopes' => []
+//                ]
+//            ]
+//        ]
+//    );
+//
+//    /** @var Employee $employee */
+//    $employee = $user->employees()->first();
+//    expect($employee->otherOrganisationJobPositions()->count())->toBe(1);
+//})->todo();
 
 test('users search', function () {
     $this->artisan('search:users')->assertExitCode(0);
@@ -638,4 +616,222 @@ test('users search', function () {
     $user = User::first();
     ReindexUserSearch::run($user);
     expect($user->universalSearch()->count())->toBe(1);
+});
+
+test('can show hr dashboard', function () {
+
+    actingAs(User::first());
+
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.sysadmin.dashboard'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('SysAdmin/SysAdminDashboard')
+            ->has('breadcrumbs', 2)
+            ->where('stats.0.stat', 1)->where('stats.0.route.name', 'grp.sysadmin.users.index')
+            ->where('stats.1.stat', 1)->where('stats.1.route.name', 'grp.sysadmin.guests.index');
+    });
+
+});
+
+
+test('UI show organisation setting', function () {
+    $organisation = Organisation::first();
+
+    $response = get(
+        route(
+            'grp.org.settings.edit',
+            [
+                $organisation->slug,
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) use ($organisation) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('breadcrumbs', 2)
+            ->has('formData.blueprint.0.fields', 2)
+            ->has('formData.blueprint.1.fields', 1)
+            ->has('formData.blueprint.2.fields', 4)
+            ->has('pageHead')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                    ->where('name', 'grp.models.org.update')
+                    ->where('parameters', [$organisation->id])
+            );
+    });
+})->todo();
+
+test('UI index organisation', function () {
+
+    actingAs(User::first());
+
+    $this->withoutExceptionHandling();
+    $response = get(
+        route(
+            'grp.organisations.index',
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Organisations/Organisations')
+            ->where('title', 'organisations')
+            ->has('breadcrumbs', 2)
+            ->has('data')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'organisations')
+                    ->etc()
+            );
+    });
+});
+
+test('UI edit organisation', function () {
+    actingAs(User::first());
+
+    $organisation = Organisation::first();
+
+    $this->withoutExceptionHandling();
+    $response = get(
+        route(
+            'grp.organisations.edit',
+            [$organisation->slug]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) use ($organisation) {
+        $page
+            ->component('EditModel')
+            ->where('title', 'organisation')
+            ->has('breadcrumbs', 3)
+            ->has('formData')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $organisation->name)
+                    ->etc()
+            );
+    });
+});
+
+test('UI organisation edit settings', function () {
+    actingAs(User::first());
+    $organisation = Organisation::first();
+
+    $response = get(
+        route(
+            'grp.org.settings.edit',
+            [$organisation->slug]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->where('title', 'Organisation settings')
+            ->has('breadcrumbs', 2)
+            ->has('formData')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'Organisation settings')
+                    ->etc()
+            );
+    });
+});
+
+test('UI get section route group sysadmin index', function () {
+    $organisation = Organisation::first();
+
+    $sectionScope = GetSectionRoute::make()->handle('grp.sysadmin.dashboard', []);
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::GROUP_SYSADMIN->value)
+        ->and($sectionScope->model_slug)->toBe($organisation->group->slug);
+});
+
+test('UI get section route group dashboard', function () {
+    $organisation = Organisation::first();
+
+    $sectionScope = GetSectionRoute::make()->handle('grp.dashboard', []);
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::GROUP_DASHBOARD->value)
+        ->and($sectionScope->model_slug)->toBe($organisation->group->slug);
+});
+
+test('UI get section route group goods dashboard', function () {
+    $organisation = Organisation::first();
+
+    $sectionScope = GetSectionRoute::make()->handle('grp.goods.dashboard', []);
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::GROUP_GOODS->value)
+        ->and($sectionScope->model_slug)->toBe($organisation->group->slug);
+});
+
+test('UI get section route group organisation dashboard', function () {
+    $organisation = Organisation::first();
+
+    $sectionScope = GetSectionRoute::make()->handle('grp.organisations.index', []);
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::GROUP_ORGANISATION->value)
+        ->and($sectionScope->model_slug)->toBe($organisation->group->slug);
+});
+
+test('UI get section route group profile dashboard', function () {
+    $organisation = Organisation::first();
+
+    $sectionScope = GetSectionRoute::make()->handle('grp.profile.showcase.show', []);
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::GROUP_PROFILE->value)
+        ->and($sectionScope->model_slug)->toBe($organisation->group->slug);
+});
+
+test('UI get section route org dashboard', function () {
+    $organisation = Organisation::first();
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.dashboard.show', [
+        'organisation' => $organisation->slug,
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::ORG_DASHBOARD->value)
+        ->and($sectionScope->model_slug)->toBe($organisation->slug);
+});
+
+test('UI get section route org setting edit', function () {
+    $organisation = Organisation::first();
+
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.settings.edit', [
+        'organisation' => $organisation->slug,
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::ORG_SETTINGS->value)
+        ->and($sectionScope->model_slug)->toBe($organisation->slug);
+});
+
+// other section org
+
+test('UI get section route org reports index', function () {
+    $organisation = Organisation::first();
+
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.reports.index', [
+        'organisation' => $organisation->slug,
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::ORG_REPORT->value)
+        ->and($sectionScope->model_slug)->toBe($organisation->slug);
+});
+
+test('UI get section route org shops index', function () {
+    $organisation = Organisation::first();
+
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.index', [
+        'organisation' => $organisation->slug,
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::ORG_SHOP->value)
+        ->and($sectionScope->model_slug)->toBe($organisation->slug);
 });

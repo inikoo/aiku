@@ -14,6 +14,7 @@ use App\Models\HumanResources\JobPosition;
 use App\Models\Inventory\Warehouse;
 use App\Models\Production\Production;
 use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\Permission;
 use Illuminate\Support\Arr;
 
 trait WithReorganisePositions
@@ -26,14 +27,21 @@ trait WithReorganisePositions
 
         if (array_key_exists('group', $positionsWithSlugs)) {
             $positionsWithSlugs = [
-                ['slug' => $positionsWithSlugs['group']]
+                ['slug' => $positionsWithSlugs['group'][0]]
             ];
+            foreach ($positionsWithSlugs as $positionData) {
+
+                $permission = Permission::firstWhere('name', $positionData['slug']);
+
+                $positions[] = $permission->id;
+            }
+
+            return $positions;
         }
 
         $positions = [];
         foreach ($positionsWithSlugs as $positionData) {
             $jobPosition = JobPosition::firstWhere('slug', $positionData['slug']);
-
 
             $positions[$jobPosition->id] = $this->reorganiseScopes($positionData['scopes']);
         }

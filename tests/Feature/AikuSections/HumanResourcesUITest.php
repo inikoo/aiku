@@ -256,7 +256,7 @@ test('UI create employee', function () {
 });
 
 test('UI show employee', function () {
-    $this->withoutExceptionHandling();
+
     $response = get(route('grp.org.hr.employees.show', [$this->organisation->slug, $this->employee->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -275,6 +275,7 @@ test('UI show employee', function () {
 });
 
 test('UI edit employee', function () {
+    $this->withoutExceptionHandling();
     $response = get(route('grp.org.hr.employees.edit', [$this->organisation->slug, $this->employee->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -293,8 +294,6 @@ test('UI edit employee', function () {
 });
 
 test('UI show job position', function () {
-    $this->withoutExceptionHandling();
-
 
     $response = $this->get(route('grp.org.hr.job_positions.show', [$this->organisation->slug, $this->jobPosition->slug]));
 

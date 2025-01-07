@@ -20,6 +20,7 @@ class SetLocale
     {
         /** @var \App\Models\SysAdmin\User $user */
         if ($user = auth()->user()) {
+            /** @var Language $language */
             $language = Language::find($user->language_id);
             $locale  = $language->code;
         } else {

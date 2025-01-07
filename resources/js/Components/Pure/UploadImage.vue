@@ -169,7 +169,7 @@ watch(
 	<!-- command temporary -->
 	<div class="mt-8">
 		<div class="flex justify-between mb-2 text-gray-500 text-xs font-semibold">
-			<div>Image URL</div>
+			<!-- <div>Image URL</div> -->
 			<div>100 x 250</div>
 		</div>
 		<!-- <IconField>

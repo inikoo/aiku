@@ -15,6 +15,7 @@ use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Web\Website;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraWebpage extends FetchAurora
@@ -68,15 +69,23 @@ class FetchAuroraWebpage extends FetchAurora
             return;
         }
 
-        $parsedData = $this->processAuroraWebpage($this->organisation, $this->auroraModelData);
+        $website = $this->parseWebsite($this->organisation->id.':'.$this->auroraModelData->{'Webpage Website Key'});
+
+        if ($website->shop->type == ShopTypeEnum::FULFILMENT) {
+            return;
+        }
+
+
+        $parsedData = $this->processAuroraWebpage($this->organisation, $website, $this->auroraModelData);
         if (!$parsedData) {
             return;
         }
 
 
 
-
         $website = $parsedData['website'];
+
+
 
 
         if ($website->shop->type == ShopTypeEnum::FULFILMENT and
@@ -106,9 +115,8 @@ class FetchAuroraWebpage extends FetchAurora
             ->where('Page Key', $id)->first();
     }
 
-    public function processAuroraWebpage(Organisation $organisation, $auroraModelData): array|null
+    public function processAuroraWebpage(Organisation $organisation, Website $website, $auroraModelData): array|null
     {
-        $website = $this->parseWebsite($organisation->id.':'.$auroraModelData->{'Webpage Website Key'});
 
         if ($website->state == WebsiteStateEnum::CLOSED) {
             $status = WebpageStateEnum::CLOSED;

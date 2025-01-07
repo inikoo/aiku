@@ -39,10 +39,10 @@ class FetchAuroraUsers extends FetchAuroraAction
                 if ($user = User::withTrashed()->where('source_id', $userData['user']['source_id'])->first()) {
                     try {
 
-                        if ($user->auth_type == UserAuthTypeEnum::DEFAULT) {
-                            data_forget($userData, 'user.password');
-                            data_forget($userData, 'user.auth_type');
-                        }
+                        //                        if ($user->auth_type == UserAuthTypeEnum::DEFAULT) {
+                        //                            data_forget($userData, 'user.auth_type');
+                        //                        }
+                        data_forget($userData, 'user.password');
 
                         $user = UpdateUser::make()->action(
                             user: $user,

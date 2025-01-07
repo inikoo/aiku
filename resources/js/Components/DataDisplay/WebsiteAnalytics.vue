@@ -16,6 +16,8 @@ import { useFormatTime } from "../../Composables/useFormatTime"
 import { router } from "@inertiajs/vue3"
 import SelectButton from "primevue/selectbutton"
 import MetricCard from "./MetricCard.vue"
+import OverviewCard from "./OverviewCard.vue"
+import HorizontalCard from "./HorizontalCard.vue"
 
 library.add(faArrowUp, faArrowDown, faHandSparkles, faEnvelope, faUser, faHdd, faCloudDownload)
 
@@ -288,9 +290,9 @@ const setChartDataAndOptions = () => {
 					label: "Total visits",
 					data: data,
 					borderColor: "#007bff",
-					backgroundColor: "transparent", 
+					backgroundColor: "transparent",
 					fill: false,
-					tension: 0, 
+					tension: 0,
 					borderWidth: 2,
 					pointRadius: 0,
 				},
@@ -344,6 +346,17 @@ const handleCardClick = (metricLabel: string) => {
 	selectedMetric.value = metricLabel
 }
 
+const labels = ["LCP", "INP", "FID", "CLS"]
+const data = [80, 70, 90, 60]
+const backgroundColors = ["#22c55e", "#22c55e", "#22c55e", "#22c55e"]
+
+// Change colors based on thresholds
+const thresholdColors = data.map((value) => {
+	if (value >= 80) return "#22c55e"
+	else if (value >= 50) return "#facc15"
+	else return "#ef4444"
+})
+
 onMounted(() => {
 	setChartDataAndOptions()
 })
@@ -355,79 +368,62 @@ watch(value, handleSelectChange)
 		<!-- Layout -->
 		<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
 			<!-- Sidebar -->
-			<div class="space-y-6">
+			<div class="space-y-4">
 				<!-- Visits Card -->
-				<div class="bg-white rounded-lg shadow-md p-4 flex flex-col items-start">
-					<div class="text-lg font-semibold text-gray-700">Visits</div>
-					<div class="text-3xl font-bold text-gray-900">230</div>
-					<div class="w-full mt-2">
-						<OverviewCard
-							v-for="metric in summaryMetrics"
-							:key="metric.id"
-							:label="metric.label"
-							:value="metric.value"
-							:icon="metric.icon" />
-					</div>
-				</div>
 
-				<!-- Page Views Card -->
-				<div class="bg-white rounded-lg shadow-md p-4 flex flex-col items-start">
-					<div class="text-lg font-semibold text-gray-700">Page Views</div>
-					<div class="text-3xl font-bold text-gray-900">310</div>
-					<div class="w-full mt-2">
-						<OverviewCard
-							v-for="metric in summaryMetrics"
-							:key="metric.id"
-							:label="metric.label"
-							:value="metric.value"
-							:icon="metric.icon" />
-					</div>
-				</div>
+				<OverviewCard
+					label="Visits"
+					:value="39"
+					:percentageChange="-72.34"
+					:chartData="{
+						labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+						datasets: [
+							{
+								label: 'Visits',
+								data: [10, 20, 15, 10, 5, 10, 5],
+								borderColor: '#3b82f6',
+								backgroundColor: 'rgba(59, 130, 246, 0.2)',
+								fill: true,
+							},
+						],
+					}" />
 
-				<!-- Page Load Time Card -->
-				<div class="bg-white rounded-lg shadow-md p-4 flex flex-col items-start">
-					<div class="text-lg font-semibold text-gray-700">Page Load Time</div>
-					<div class="text-3xl font-bold text-gray-900">1,781ms</div>
-					<div class="w-full mt-2">
-						<OverviewCard
-							v-for="metric in summaryMetrics"
-							:key="metric.id"
-							:label="metric.label"
-							:value="metric.value"
-							:icon="metric.icon" />
-					</div>
-				</div>
+				<OverviewCard
+					label="Page Views"
+					:value="310"
+					:percentageChange="-72.34"
+					:chartData="{
+						labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+						datasets: [
+							{
+								label: 'Visits',
+								data: [10, 20, 15, 10, 5, 10, 5],
+								borderColor: '#3b82f6',
+								backgroundColor: 'rgba(59, 130, 246, 0.2)',
+								fill: true,
+							},
+						],
+					}" />
+
+				<OverviewCard
+					label="Page Load Time"
+					value="1781ms"
+					:percentageChange="-72.34"
+					:chartData="{
+						labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+						datasets: [
+							{
+								label: 'Visits',
+								data: [10, 20, 15, 10, 5, 10, 5],
+								borderColor: '#3b82f6',
+								backgroundColor: 'rgba(59, 130, 246, 0.2)',
+								fill: true,
+							},
+						],
+					}" />
 
 				<!-- Core Web Vitals -->
-				<div class="bg-white rounded-lg shadow-md p-4">
-					<div class="text-lg font-semibold text-gray-700 mb-2">Core Web Vitals</div>
-					<div class="space-y-2">
-						<div class="flex items-center">
-							<span class="w-12 font-medium text-gray-600">LCP</span>
-							<div class="flex-1 h-4 bg-gray-200 rounded-lg overflow-hidden">
-								<div class="h-full bg-green-500" style="width: 85%"></div>
-							</div>
-						</div>
-						<div class="flex items-center">
-							<span class="w-12 font-medium text-gray-600">INP</span>
-							<div class="flex-1 h-4 bg-gray-200 rounded-lg overflow-hidden">
-								<div class="h-full bg-green-500" style="width: 70%"></div>
-							</div>
-						</div>
-						<div class="flex items-center">
-							<span class="w-12 font-medium text-gray-600">FID</span>
-							<div class="flex-1 h-4 bg-gray-200 rounded-lg overflow-hidden">
-								<div class="h-full bg-green-500" style="width: 90%"></div>
-							</div>
-						</div>
-						<div class="flex items-center">
-							<span class="w-12 font-medium text-gray-600">CLS</span>
-							<div class="flex-1 h-4 bg-gray-200 rounded-lg overflow-hidden">
-								<div class="h-full bg-yellow-400" style="width: 50%"></div>
-							</div>
-						</div>
-					</div>
-				</div>
+				<HorizontalCard :labels="labels" :data="data" :backgroundColors="thresholdColors" />
 			</div>
 
 			<!-- Main Content -->
