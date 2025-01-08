@@ -75,16 +75,18 @@ class CreateProduct extends OrgAction
                                         'required'   => true
                                     ],
                                     'unit' => [
-                                        'type'     => 'select',
+                                        'type'     => 'input',
                                         'label'    => __('unit'),
                                         'required' => true,
-                                        'options'  => Options::forEnum(RentalUnitEnum::class),
                                     ],
-                                    'state' => [
-                                        'type'     => 'select',
-                                        'label'    => __('state'),
+                                    'is_main' => [
+                                        'type'     => 'toggle',
+                                        'label'    => __('main'),
+                                        'value'    => true,
                                         'required' => true,
-                                        'options'  => Options::forEnum(ProductStateEnum::class)
+                                    ],
+                                    'org_stocks' => [
+                                        'value' => []
                                     ]
                                 ]
                             ]
