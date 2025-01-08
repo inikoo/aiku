@@ -109,12 +109,15 @@ const props = defineProps<{
             }
         }
         updateOrganisationPermissionsRoute: routeType
+        updateJobPositionsRoute: routeType
         
     }
     saveButton?: boolean
     organisationId?: number
 }>()
 
+console.log('cccc', props.form?.organisations?.[props.fieldName])
+console.log('vvv', props.form?.[props.fieldName])
 const abcdef = {
     [props.fieldName]: props.form?.organisations?.[props.fieldName] || props.form?.[props.fieldName] || 'fffff'
 }
@@ -122,13 +125,15 @@ const abcdef = {
 const newForm = props.saveButton ? useForm(abcdef || {}) : reactive(props.form)
 // console.log('bbbb', newForm)
 const onSubmitNewForm = () => {
+    console.log('nnn', props.fieldData.updateJobPositionsRoute.parameters)
+    console.log('vcvcv', route(props.fieldData.updateJobPositionsRoute.name, {...props.fieldData.updateJobPositionsRoute.parameters, organisation: props.organisationId}))
     newForm
     .transform((data) => ({
         permissions: data[props.fieldName]
     }))
     .submit(
-        props.fieldData.updateOrganisationPermissionsRoute.method || 'patch',
-        route(props.fieldData.updateOrganisationPermissionsRoute.name, {...props.fieldData.updateOrganisationPermissionsRoute.parameters, organisation: props.organisationId}),
+        props.fieldData.updateJobPositionsRoute.method || 'patch',
+        route(props.fieldData.updateJobPositionsRoute.name, {...props.fieldData.updateJobPositionsRoute.parameters, organisation: props.organisationId}),
         {
             preserveScroll: true,
             onSuccess: () => notify({
