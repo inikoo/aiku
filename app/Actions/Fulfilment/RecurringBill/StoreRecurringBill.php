@@ -28,7 +28,6 @@ class StoreRecurringBill extends OrgAction
 {
     public function handle(RentalAgreement $rentalAgreement, array $modelData, RecurringBill $previousRecurringBill = null): RecurringBill
     {
-
         if (!Arr::exists($modelData, 'tax_category_id')) {
             data_set(
                 $modelData,
@@ -63,8 +62,6 @@ class StoreRecurringBill extends OrgAction
             );
 
             data_set($modelData, 'end_date', $endDate);
-
-
         }
 
         data_set(
@@ -77,11 +74,16 @@ class StoreRecurringBill extends OrgAction
         );
 
 
-
         /** @var RecurringBill $recurringBill */
         $recurringBill = $rentalAgreement->recurringBills()->create($modelData);
         $recurringBill->stats()->create();
         $recurringBill->refresh();
+
+        $rentalAgreement->fulfilmentCustomer->update(
+            [
+                'current_recurring_bill_id' => $recurringBill->id
+            ]
+        );
 
         FindStoredPalletsAndAttachThemToNewRecurringBill::make()->action($recurringBill, $previousRecurringBill);
 
@@ -145,11 +147,9 @@ class StoreRecurringBill extends OrgAction
 
     public function getEndDate(Carbon $startDate, array $setting): Carbon
     {
-
-
         return match (Arr::get($setting, 'type')) {
             'weekly' => $this->getEndDateWeekly($startDate, $setting),
-            default  => $this->getEndDateMonthly($startDate, $setting),
+            default => $this->getEndDateMonthly($startDate, $setting),
         };
     }
 

@@ -32,6 +32,10 @@ class FetchAuroraFulfilmentCustomers extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Customer
     {
         $customer   = $this->parseCustomer($organisationSource->getOrganisation()->id.':'.$organisationSourceId);
+        if (!$customer) {
+            return null;
+        }
+
         $sourceData = explode(':', $customer->source_id);
 
         $palletsCount = DB::connection('aurora')
@@ -99,13 +103,18 @@ class FetchAuroraFulfilmentCustomers extends FetchAuroraAction
                 $startDate = Carbon::parse($startDate);
             }
 
+            $recurringBill = $customer->fulfilmentCustomer->currentRecurringBill;
 
-            $recurringBill = StoreRecurringBill::make()->action(
-                $customer->fulfilmentCustomer->rentalAgreement,
-                [
-                    'start_date' => $startDate,
-                ]
-            );
+            if (!$recurringBill) {
+                $recurringBill = StoreRecurringBill::make()->action(
+                    $customer->fulfilmentCustomer->rentalAgreement,
+                    [
+                        'start_date' => $startDate,
+                    ]
+                );
+            }
+
+
 
             foreach (
                 DB::connection('aurora')
@@ -122,14 +131,17 @@ class FetchAuroraFulfilmentCustomers extends FetchAuroraAction
                     $palletStartDate = Carbon::parse($palletData->{'Fulfilment Asset From'});
                 }
 
+                $recurringBillTransaction = $recurringBill->transactions()->where('item_type', 'Pallet')->where('item_id', $pallet->id)->first();
 
-                StoreRecurringBillTransaction::make()->action(
-                    $recurringBill,
-                    $pallet,
-                    [
-                        'start_date' => $palletStartDate,
-                    ]
-                );
+                if (!$recurringBillTransaction) {
+                    StoreRecurringBillTransaction::make()->action(
+                        $recurringBill,
+                        $pallet,
+                        [
+                            'start_date' => $palletStartDate,
+                        ]
+                    );
+                }
             }
         }
 
