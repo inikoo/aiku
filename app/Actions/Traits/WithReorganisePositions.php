@@ -42,12 +42,11 @@ trait WithReorganisePositions
         }
 
 
-        foreach ($positionsWithSlugs as $positionData) {
-            $jobPosition = JobPosition::firstWhere('slug', $positionData['slug']);
+        foreach ($positionsWithSlugs as $key => $positionData) {
+            $jobPosition = JobPosition::firstWhere('slug', $key);
 
-            $positions[$jobPosition->id] = $this->reorganiseScopes($positionData['scopes']);
+            $positions[$jobPosition->id] = $this->reorganiseScopes($positionData);
         }
-
 
         return $positions;
     }
