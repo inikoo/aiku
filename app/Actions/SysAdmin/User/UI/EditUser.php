@@ -8,19 +8,14 @@
 
 namespace App\Actions\SysAdmin\User\UI;
 
-use App\Actions\HumanResources\Employee\UI\GetPermissionGroupData;
-use App\Actions\HumanResources\Employee\UI\GetJobPositionsOrganisationData;
 use App\Actions\OrgAction;
-use App\Enums\SysAdmin\Authorisation\RolesEnum;
-use App\Models\Catalogue\Shop;
+use App\Actions\SysAdmin\User\GetUserOrganisationScopeJobPositionsData;
+use App\Actions\SysAdmin\User\GetUserGroupScopeJobPositionsData;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Http\Resources\Catalogue\ShopResource;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
-use App\Http\Resources\Catalogue\ShopResource;
-use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\Inventory\Warehouse;
-use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use Inertia\Inertia;
@@ -49,56 +44,18 @@ class EditUser extends OrgAction
 
     public function htmlResponse(User $user, ActionRequest $request): Response
     {
-        $orgTypeShop = [];
 
-        $roles       = collect(RolesEnum::cases());
-        $permissions = $roles->map(function ($role) {
-            return [
-                $role->label() => match ($role->scope()) {
-                    class_basename(Group::class) => Group::all()->map(function (Group $group) {
-                        return [
-                            $group->name => [
-                                'organisations' => $group->organisations->pluck('slug')
-                            ]
-                        ];
-                    }),
-                    class_basename(Organisation::class) => [
-                        'organisations' => Organisation::all()->pluck('slug')
-                    ],
-                    class_basename(Shop::class) => Organisation::all()->map(function (Organisation $organisation) {
-                        return [
-                            $organisation->name => [
-                                'shops' => $organisation->shops->pluck('slug')
-                            ]
-                        ];
-                    }),
-                    class_basename(Fulfilment::class) => Organisation::all()->map(function (Organisation $organisation) {
-                        return [
-                            $organisation->name => [
-                                'fulfilments' => $organisation->fulfilments->pluck('slug')
-                            ]
-                        ];
-                    }),
-                    class_basename(Warehouse::class) => Organisation::all()->map(function (Organisation $organisation) {
-                        return [
-                            $organisation->name => [
-                                'warehouses' => $organisation->warehouses->pluck('slug')
-                            ]
-                        ];
-                    }),
-                    default => []
-                }
-            ];
-        });
 
 
         $jobPositionsOrganisationsData = [];
         foreach ($this->group->organisations as $organisation) {
-            $jobPositionsOrganisationData                       = GetJobPositionsOrganisationData::run($user, $organisation);
+            $jobPositionsOrganisationData                       = GetUserOrganisationScopeJobPositionsData::run($user, $organisation);
             $jobPositionsOrganisationsData[$organisation->slug] = $jobPositionsOrganisationData;
         }
 
-        $permissionsGroupData = GetPermissionGroupData::run($user, $this->group);
+
+
+        $permissionsGroupData = GetUserGroupScopeJobPositionsData::run($user);
 
         $organisations = $user->group->organisations;
         $reviewData    = $organisations->mapWithKeys(function ($organisation) {
@@ -182,14 +139,14 @@ class EditUser extends OrgAction
                                 "type"              => "permissions",
                                 "review"            => $reviewData,
                                 'organisation_list' => $organisationList,
-                                'updateGroupPermissionsRoute'       => [
+                                'updatePseudoJobPositionsRoute'       => [
                                     'method'     => 'patch',
                                     "name"       => "grp.models.user.permissions.update",
                                     'parameters' => [
                                         'user' => $user->id
                                     ]
                                 ],
-                                'updateOrganisationPermissionsRoute'       => [
+                                'updateJobPositionsRoute'       => [
                                     'method'     => 'patch',
                                     "name"       => "grp.models.user.organisation.permissions.update",
                                     'parameters' => [

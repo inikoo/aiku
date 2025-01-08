@@ -9,8 +9,8 @@
 namespace App\Actions\SysAdmin\Guest\UI;
 
 use App\Actions\GrpAction;
-use App\Actions\HumanResources\Employee\UI\GetJobPositionsOrganisationData;
-use App\Actions\HumanResources\Employee\UI\GetPermissionGroupData;
+use App\Actions\SysAdmin\User\GetUserOrganisationScopeJobPositionsData;
+use App\Actions\SysAdmin\User\GetUserGroupScopeJobPositionsData;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Http\Resources\Api\Dropshipping\ShopResource;
 use App\Http\Resources\HumanResources\JobPositionResource;
@@ -64,10 +64,10 @@ class EditGuest extends GrpAction
                 ]
             ];
         })->toArray();
-        $permissionsGroupData = GetPermissionGroupData::run($user, $this->group);
+        $permissionsGroupData = GetUserGroupScopeJobPositionsData::run($user, $this->group);
         $jobPositionsOrganisationsData = [];
         foreach ($this->group->organisations as $organisation) {
-            $jobPositionsOrganisationData = GetJobPositionsOrganisationData::run($user, $organisation);
+            $jobPositionsOrganisationData = GetUserOrganisationScopeJobPositionsData::run($user, $organisation);
             $jobPositionsOrganisationsData[] = $jobPositionsOrganisationData;
         }
 
