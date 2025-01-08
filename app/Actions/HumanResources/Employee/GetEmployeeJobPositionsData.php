@@ -19,7 +19,7 @@ class GetEmployeeJobPositionsData
     {
 
 
-        return (array) $employee->jobPositions()->where('scope', 'Organisation')->get()->map(function ($jobPosition) {
+        return (array) $employee->jobPositions()->get()->map(function ($jobPosition) {
             return [$jobPosition->slug];
         })->reduce(function ($carry, $item) {
             return array_merge_recursive($carry, $item);

@@ -59,6 +59,7 @@ class EditEmployee extends OrgAction
         $jobPositionsOrganisationData = GetEmployeeJobPositionsData::run($employee);
         $jobPositionsGroupData = GetUserGroupScopeJobPositionsData::run($user);
 
+
         $sections['properties'] = [
             'label'  => __('Properties'),
             'icon'   => 'fal fa-sliders-h',
@@ -141,10 +142,11 @@ class EditEmployee extends OrgAction
                         'fulfilments' => ShopResource::collection($this->organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
                         'warehouses'  => WarehouseResource::collection($this->organisation->warehouses),
                     ],
-                    'value'   => [
-                        'group' => $jobPositionsGroupData,
-                        'organisation' =>  $jobPositionsOrganisationData,
-                    ],
+                    // 'value'   => [
+                    //     'group' => $jobPositionsGroupData,
+                    //     'organisation' =>  $jobPositionsOrganisationData,
+                    // ],
+                    'value' => $jobPositionsOrganisationData,
                     'full'    => true
                 ],
 
