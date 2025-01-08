@@ -49,47 +49,7 @@ class EditUser extends OrgAction
 
     public function htmlResponse(User $user, ActionRequest $request): Response
     {
-        $orgTypeShop = [];
 
-        $roles       = collect(RolesEnum::cases());
-        $permissions = $roles->map(function ($role) {
-            return [
-                $role->label() => match ($role->scope()) {
-                    class_basename(Group::class) => Group::all()->map(function (Group $group) {
-                        return [
-                            $group->name => [
-                                'organisations' => $group->organisations->pluck('slug')
-                            ]
-                        ];
-                    }),
-                    class_basename(Organisation::class) => [
-                        'organisations' => Organisation::all()->pluck('slug')
-                    ],
-                    class_basename(Shop::class) => Organisation::all()->map(function (Organisation $organisation) {
-                        return [
-                            $organisation->name => [
-                                'shops' => $organisation->shops->pluck('slug')
-                            ]
-                        ];
-                    }),
-                    class_basename(Fulfilment::class) => Organisation::all()->map(function (Organisation $organisation) {
-                        return [
-                            $organisation->name => [
-                                'fulfilments' => $organisation->fulfilments->pluck('slug')
-                            ]
-                        ];
-                    }),
-                    class_basename(Warehouse::class) => Organisation::all()->map(function (Organisation $organisation) {
-                        return [
-                            $organisation->name => [
-                                'warehouses' => $organisation->warehouses->pluck('slug')
-                            ]
-                        ];
-                    }),
-                    default => []
-                }
-            ];
-        });
 
 
 
