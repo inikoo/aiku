@@ -332,7 +332,7 @@ class GetGroupOverview extends OrgAction
                 [
                     'name'  => __('Pallet Deliveries'),
                     'icon'  => 'fal fa-pallet-alt',
-                    'route' => '',
+                    'route' => route('grp.overview.fulfilment.pallet-deliveries.index'),
                     'count' => $group->fulfilmentStats->number_pallet_deliveries ?? 0
                 ],
                 [

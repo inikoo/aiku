@@ -34,6 +34,7 @@ const openModal = ref(false)
 const loading = ref(false)
 
 function palletDeliveryRoute(palletDelivery: PalletDelivery) {
+
     switch (route().current()) {
         case 'grp.org.warehouses.show.incoming.pallet_deliveries.index':
             return route(
@@ -68,6 +69,14 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
                     route().params['fulfilmentCustomer'],
                     palletDelivery.slug
                 ])
+        case 'grp.overview.fulfilment.pallet-deliveries.index':
+            return route(
+                'grp.org.fulfilments.show.operations.pallet-deliveries.show',
+                [
+                    palletDelivery.organisation_slug,
+                    palletDelivery.fulfilment_slug,
+                    palletDelivery.slug
+                ])
         default:
             return route(
                 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show',
@@ -90,6 +99,8 @@ function customerRoute(palletDelivery: PalletDelivery) {
                     route().params['fulfilment'],
                     palletDelivery.customer_slug
                 ])
+                default:
+        return ''
     }
 }
 

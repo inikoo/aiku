@@ -14,6 +14,7 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 
 enum PalletDeliveryStateEnum: string
@@ -119,11 +120,13 @@ enum PalletDeliveryStateEnum: string
     }
 
     public static function count(
-        Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery $parent,
+        Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery|Group $parent,
         $forElements = false
     ): array {
         if ($parent instanceof FulfilmentCustomer) {
             $stats = $parent;
+        } elseif ($parent instanceof Group) {
+            $stats = $parent->fulfilmentStats;
         } else {
             $stats = $parent->stats;
         }
