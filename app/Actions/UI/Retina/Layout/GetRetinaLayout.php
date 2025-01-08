@@ -13,7 +13,7 @@ use App\Http\Resources\SysAdmin\Group\GroupResource;
 use App\Models\CRM\WebUser;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class GetLayout
+class GetRetinaLayout
 {
     use AsAction;
 

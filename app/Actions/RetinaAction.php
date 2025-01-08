@@ -11,6 +11,7 @@ namespace App\Actions;
 use App\Actions\Traits\WithTab;
 use App\Actions\UI\WithInertia;
 use App\Models\CRM\Customer;
+use App\Models\CRM\WebUser;
 use App\Models\Web\Website;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -26,6 +27,7 @@ class RetinaAction
 
     protected Website $website;
     protected Customer $customer;
+    protected WebUser $webUser;
 
 
     protected array $validatedData;
@@ -33,7 +35,8 @@ class RetinaAction
 
     public function initialisation(ActionRequest $request): static
     {
-        $this->customer      = $request->user()->customer;
+        $this->webUser       = $request->user();
+        $this->customer      = $this->webUser->customer;
         $this->website       = $request->get('website');
         $this->fillFromRequest($request);
         $this->validatedData = $this->validateAttributes();

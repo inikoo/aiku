@@ -37,7 +37,7 @@ class SendEmailRentalAgreementCreated extends Notification implements ShouldQueu
                     ->line("Here is your credentials to login to {$notifiable->shop->name}.")
                     ->line("Username: $notifiable->username")
                     ->line(!$this->password ? "Password: $this->password" : null)
-                    ->action('Login', $notifiable->shop->website->domain.'/app/login')
+                    ->action('RetinaLogin', $notifiable->shop->website->domain.'/app/login')
                     ->line("Thank you for using {$notifiable->shop->name}.");
     }
 

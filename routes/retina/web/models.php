@@ -38,10 +38,10 @@ use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItemsToReturn;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPalletAudit;
-use App\Actions\UI\Retina\Profile\UpdateProfile;
+use App\Actions\UI\Retina\Profile\UpdateRetinaProfile;
 use Illuminate\Support\Facades\Route;
 
-Route::patch('/profile', UpdateProfile::class)->name('profile.update');
+Route::patch('/profile', UpdateRetinaProfile::class)->name('profile.update');
 Route::patch('/settings', UpdateCustomerSettings::class)->name('settings.update');
 
 Route::name('fulfilment-transaction.')->prefix('fulfilment_transaction/{fulfilmentTransaction:id}')->group(function () {

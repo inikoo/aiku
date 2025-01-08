@@ -18,7 +18,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowStorageDashboard
+class ShowRetinaStorageDashboard
 {
     use AsAction;
 
@@ -26,7 +26,7 @@ class ShowStorageDashboard
     public function asController(ActionRequest $request): Response
     {
         return Inertia::render('Storage/RetinaStorageDashboard', [
-            'title'        => __('Storage'),
+            'title'        => __('Dashboard'),
             'storageData'  => $this->getDashboardData($request->user()->customer->fulfilmentCustomer),
             'customer'     => CustomersResource::make($request->user()->customer)->resolve()
         ]);

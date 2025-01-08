@@ -10,11 +10,11 @@
 use App\Actions\Fulfilment\FulfilmentCustomer\IndexFulfilmentCustomerFromWebhook;
 use App\Actions\UI\Iris\Appointment\ShowPublicAppointment;
 use Illuminate\Support\Facades\Route;
-use App\Actions\CRM\WebUser\Retina\Login;
+use App\Actions\CRM\WebUser\Retina\RetinaLogin;
 use Inertia\Inertia;
 
-Route::get('/login', function () {return Inertia::render('Login');})->name('login');
-Route::post('login', Login::class)->name('login.store');
+Route::get('/login', function () {return Inertia::render('RetinaLogin');})->name('login');
+Route::post('login', RetinaLogin::class)->name('login.store');
 
 Route::get('/register', function () {return Inertia::render('Register');})->name('register');
 

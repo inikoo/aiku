@@ -21,7 +21,7 @@ use App\Actions\UI\Iris\ShowTnc;
 use App\Actions\UI\Iris\ShowWelcome;
 use App\Actions\UI\Iris\ShowSearchResult; */
 use Illuminate\Support\Facades\Route;
-use App\Actions\CRM\WebUser\Retina\Login;
+use App\Actions\CRM\WebUser\Retina\RetinaLogin;
 use Inertia\Inertia;
 
 Route::prefix("")->group(function () {
@@ -56,10 +56,10 @@ Route::get('/tnc', ShowTnc::class)->name('tnc');
 Route::get('/welcome', ShowWelcome::class)->name('welcome');
 Route::get('/login', function () {
     return Inertia::render(
-        'Login'
+        'RetinaLogin'
     );
 })->name('login');
-Route::post('login', Login::class)->name('login.store');
+Route::post('login', RetinaLogin::class)->name('login.store');
 Route::get('/register', function () {
     return Inertia::render(
         'Register'

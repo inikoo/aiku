@@ -16,11 +16,12 @@ use App\Models\Web\Website;
 use App\Rules\IUnique;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateProfile extends GrpAction
+class UpdateRetinaProfile extends GrpAction
 {
     use WithActionUpdate;
 
@@ -29,6 +30,10 @@ class UpdateProfile extends GrpAction
 
     public function handle(WebUser $webUser, array $modelData): WebUser
     {
+
+        if (Arr::exists($modelData, 'password')) {
+            data_set($modelData, 'password', Hash::make($modelData['password']));
+        }
 
         if (Arr::has($modelData, 'image')) {
             /** @var UploadedFile $image */
@@ -56,7 +61,7 @@ class UpdateProfile extends GrpAction
                 },
                 $value
             );
-        };
+        }
 
         data_forget($modelData, 'app_theme');
 
@@ -69,7 +74,7 @@ class UpdateProfile extends GrpAction
     public function rules(): array
     {
         return [
-            'password'    => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+            'password'    => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? Password::min(4) : Password::min(8)->uncompromised()],
             'email'       => ['sometimes', 'required', 'email', new IUnique(
                 table: 'web_users',
                 extraConditions: [

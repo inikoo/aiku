@@ -9,7 +9,7 @@
 namespace App\Actions\UI\Retina;
 
 use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
-use App\Actions\UI\Retina\Layout\GetLayout;
+use App\Actions\UI\Retina\Layout\GetRetinaLayout;
 use App\Http\Resources\Helpers\LanguageResource;
 use App\Models\CRM\WebUser;
 use App\Models\Helpers\Language;
@@ -35,17 +35,17 @@ class GetFirstLoadProps
 
         return
             [
-            'localeData' =>
+                'localeData' =>
                 [
                     'language'        => LanguageResource::make($language)->getArray(),
                     'languageOptions' => GetLanguagesOptions::make()->translated(),
                 ],
 
-            'layout'   => GetLayout::run($request, $webUser),
-            'liveUsers' => [
+                'layout'   => GetRetinaLayout::run($request, $webUser),
+                'liveUsers' => [
                 'enabled'   => true,
             ],
-            'environment' => app()->environment(),
+                'environment' => app()->environment(),
         ];
     }
 }

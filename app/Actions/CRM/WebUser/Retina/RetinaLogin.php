@@ -21,7 +21,7 @@ use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 
-class Login
+class RetinaLogin
 {
     use AsController;
 

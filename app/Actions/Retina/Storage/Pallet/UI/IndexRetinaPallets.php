@@ -9,7 +9,7 @@
 namespace App\Actions\Retina\Storage\Pallet\UI;
 
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Storage\UI\ShowStorageDashboard;
+use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
@@ -32,7 +32,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexPallets extends RetinaAction
+class IndexRetinaPallets extends RetinaAction
 {
     private Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery|PalletReturn $parent;
 
@@ -210,7 +210,7 @@ class IndexPallets extends RetinaAction
         return match ($routeName) {
             'retina.storage.pallets.index' =>
             array_merge(
-                ShowStorageDashboard::make()->getBreadcrumbs(),
+                ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

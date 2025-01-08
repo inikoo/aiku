@@ -19,7 +19,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowProfile
+class ShowRetinaProfile
 {
     use AsAction;
     use WithInertia;

@@ -9,7 +9,7 @@
 namespace App\Actions\Retina\Storage\RecurringBill\UI;
 
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Billing\UI\ShowBillingDashboard;
+use App\Actions\UI\Retina\Billing\UI\ShowRetinaBillingDashboard;
 use App\Http\Resources\Fulfilment\RecurringBillsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -119,7 +119,7 @@ class IndexRecurringBills extends RetinaAction
         return match ($routeName) {
             'retina.billing.recurring.index' =>
             array_merge(
-                ShowBillingDashboard::make()->getBreadcrumbs(),
+                ShowRetinaBillingDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

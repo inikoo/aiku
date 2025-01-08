@@ -94,7 +94,7 @@ beforeEach(function () {
 test('show log in', function () {
     $response = $this->get(route('retina.login.show'));
     $response->assertInertia(function (AssertableInertia $page) {
-        $page->component('Auth/Login');
+        $page->component('Auth/RetinaLogin');
     });
 });
 

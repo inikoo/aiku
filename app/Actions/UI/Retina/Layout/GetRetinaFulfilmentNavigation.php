@@ -19,17 +19,17 @@ class GetRetinaFulfilmentNavigation
     {
         $groupNavigation = [];
 
-        $groupNavigation['dashboard'] = [
-            'label'   => __('Dashboard'),
-            'icon'    => ['fal', 'fa-tachometer-alt'],
-            'root'    => 'retina.dashboard.',
-            'route'   => [
-                'name' => 'retina.dashboard.show'
-            ],
-            'topMenu' => [
-
-            ]
-        ];
+//        $groupNavigation['dashboard'] = [
+//            'label'   => __('Dashboard'),
+//            'icon'    => ['fal', 'fa-tachometer-alt'],
+//            'root'    => 'retina.dashboard.',
+//            'route'   => [
+//                'name' => 'retina.dashboard.show'
+//            ],
+//            'topMenu' => [
+//
+//            ]
+//        ];
 
         $additionalSubsections = [];
 
@@ -47,8 +47,8 @@ class GetRetinaFulfilmentNavigation
         }
 
         $groupNavigation['storage'] = [
-            'label'   => __('Storage'),
-            'icon'    => ['fal', 'fa-pallet'],
+            'label'   => __('Dashboard'),
+            'icon'    => ['fal', 'fa-tachometer-alt'],
             'root'    => 'retina.storage.',
             'route'   => [
                 'name' => 'retina.storage.dashboard'
@@ -159,8 +159,8 @@ class GetRetinaFulfilmentNavigation
                     'subSections' => [
                         [
                             'label' => __('users'),
-                            'icon'  => ['fal', 'fa-terminal'],
-                            'root'  => 'retina.sysadmin.users.',
+                            'icon'  => ['fal', 'fa-user-circle'],
+                            'root'  => 'retina.sysadmin.web-users.',
                             'route' => [
                                 'name' => 'retina.sysadmin.web-users.index',
 
@@ -168,7 +168,7 @@ class GetRetinaFulfilmentNavigation
                         ],
 
                         [
-                            'label' => __('system settings'),
+                            'label' => __('account settings'),
                             'icon'  => ['fal', 'fa-cog'],
                             'root'  => 'retina.sysadmin.settings.',
                             'route' => [

@@ -14,7 +14,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowSysAdminDashboard extends RetinaAction
+class ShowRetinaSysAdminDashboard extends RetinaAction
 {
     public function authorize(ActionRequest $request): bool
     {
@@ -28,13 +28,16 @@ class ShowSysAdminDashboard extends RetinaAction
 
     public function htmlResponse(): Response
     {
+
+        $title = __('Account');
+
         return Inertia::render(
-            'SysAdmin/SysAdminDashboard',
+            'SysAdmin/RetinaSysAdminDashboard',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('system administration'),
+                'title'       => $title,
                 'pageHead'    => [
-                    'title' => __('system administration'),
+                    'title' => $title,
                 ],
                 'stats' => [
                     [
@@ -61,7 +64,7 @@ class ShowSysAdminDashboard extends RetinaAction
                             'route' => [
                                 'name' => 'retina.sysadmin.dashboard'
                             ],
-                            'label'  => __('system administration'),
+                            'label'  => __(' Account'),
                         ]
                     ]
                 ]
