@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue"
+import { ref, watch, IframeHTMLAttributes } from "vue"
 import draggable from "vuedraggable"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
@@ -58,10 +58,8 @@ const props = defineProps<{
 }>()
 
 
-console.log('menu',props)
 
-
-const Navigation = ref(props.data?.menu?.data?.fieldValue)
+const Navigation = ref(props.data?.menu)
 const selectedNav = ref(0)
 const previewMode = ref(false)
 const isLoading = ref(false)
@@ -69,11 +67,12 @@ const comment = ref("")
 const isModalOpen = ref(false)
 const isIframeLoading = ref(true)
 const iframeClass = ref("w-full h-full")
+const _iframe = ref<IframeHTMLAttributes | null>(null)
 const iframeSrc = ref(route("grp.websites.header.preview", [route().params["website"]]))
 
 console.log(Navigation.value)
 const addNavigation = () => {
-  Navigation.value.push({
+  Navigation.value.data.fieldValue.navigation.push({
     label: "New Navigation",
     id: uuidv4(),
     type: "single",
@@ -123,12 +122,17 @@ const onSelectBlock = (menu: Object) => {
   Navigation.value = menu
 }
 
+const sendToIframe = (data: any) => {
+    _iframe.value?.contentWindow.postMessage(data, '*')
+}
+
 const autoSave = async (data: object) => {
   try {
     const response = await axios.patch(
       route(props.autosaveRoute.name, props.autosaveRoute.parameters),
       { layout: data }
     )
+    sendToIframe({ key: 'reload', value: {} })
   } catch (error: any) {
     notify({
       title: "Something went wrong.",
@@ -172,7 +176,7 @@ watch(
     </template>
   </PageHeading>
 
-  <div v-if="Navigation.data" class="h-[85vh] grid grid-flow-row-dense grid-cols-4">
+  <div v-if="Navigation" class="h-[85vh] grid grid-flow-row-dense grid-cols-4">
     <div class="col-span-1 bg-slate-200 px-3 py-2 flex flex-col h-full">
       <div class="flex justify-between">
         <div class="font-bold text-sm">Navigations:</div>
@@ -236,8 +240,14 @@ watch(
           <div v-if="isIframeLoading" class="loading-overlay">
               <ProgressSpinner />
           </div>
-          <iframe :src="iframeSrc" :title="props.title" :class="[iframeClass, isIframeLoading ? 'hidden' : '']"
-            @error="handleIframeError" @load="isIframeLoading = false" />
+          <iframe 
+            :src="iframeSrc" 
+            :title="props.title" 
+            :class="[iframeClass, isIframeLoading ? 'hidden' : '']"
+            @error="handleIframeError" 
+            @load="isIframeLoading = false" 
+            ref="_iframe"
+          />
         </div>
 
       </div>
