@@ -37,8 +37,8 @@ class UpdateUsersPseudoJobPositions extends GrpAction
 
     public function handle(User $user, array $modelData): User
     {
-        $permissions = Arr::get($modelData, 'permissions', []);
-        $positions = $this->reorganisePositionsSlugsToIds($permissions);
+        $positions = Arr::get($modelData, 'positions', []);
+        $positions = $this->reorganisePositionsSlugsToIds($positions);
 
         //todo , this is attach no sync
         //https://github.com/inikoo/aiku/issues/941
@@ -62,8 +62,12 @@ class UpdateUsersPseudoJobPositions extends GrpAction
     public function rules(): array
     {
         return [
-            'permissions' => ['sometimes', 'array'],
-            'permissions.group' => ['sometimes', 'array']
+            'positions'                             => ['sometimes', 'array'],
+            'positions.*.slug'                      => ['sometimes', 'string'],
+            'positions.*.scopes'                    => ['sometimes', 'array'],
+            'positions.*.scopes.warehouses.slug.*'  => ['sometimes', Rule::exists('warehouses', 'slug')->where('organisation_id', $this->organisation->id)],
+            'positions.*.scopes.fulfilments.slug.*' => ['sometimes', Rule::exists('fulfilments', 'slug')->where('organisation_id', $this->organisation->id)],
+            'positions.*.scopes.shops.slug.*'       => ['sometimes', Rule::exists('shops', 'slug')->where('organisation_id', $this->organisation->id)],
         ];
     }
 
@@ -86,9 +90,10 @@ class UpdateUsersPseudoJobPositions extends GrpAction
 
     }
 
-    public function asController(User $user, ActionRequest $request): User
+    public function asController(User $user, Organisation $organisation, ActionRequest $request): User
     {
         $this->user         = $user;
+        $this->organisation = $organisation;
 
         $this->initialisation(app('group'), $request);
 

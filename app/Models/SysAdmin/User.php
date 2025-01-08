@@ -275,11 +275,4 @@ class User extends Authenticatable implements HasMedia, Auditable
         return $this->hasMany(UserTimeSeries::class);
     }
 
-    public function jobPositions(): BelongsToMany
-    {
-        return $this->belongsToMany(JobPosition::class, 'user_has_pseudo_job_positions')
-            ->using(UserHasPseudoJobPositions::class)->withTimestamps();
-    }
-
-
 }
