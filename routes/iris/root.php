@@ -24,7 +24,26 @@ use Illuminate\Support\Facades\Route;
 use App\Actions\CRM\WebUser\Retina\Login;
 use Inertia\Inertia;
 
-Route::get('/', ShowHome::class)->name('home');
+Route::prefix("")->group(function () {
+    Route::name("system.")
+        ->group(__DIR__."/system.php");
+
+    Route::get('/{path?}', ShowHome::class)->where("path", ".*")->name('home');
+});
+
+Route::prefix("crm")
+    ->name("crm.")
+    ->group(__DIR__."/crm.php");
+
+Route::prefix("disclosure")
+    ->name("disclosure.")
+    ->group(__DIR__."/disclosure.php");
+
+Route::prefix("unsubscribe")
+    ->name("unsubscribe.")
+    ->group(__DIR__."/unsubscribe.php");
+
+
 
 
 /* Route::get('/about', ShowAbout::class)->name('about');

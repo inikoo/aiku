@@ -56,7 +56,7 @@ class PalletReturnRecordSearch
                     'tooltip'   => __("Return name")
                 ],
                 [
-                    'label'     => $palletReturn->state->labels()[$palletReturn->type->value],
+                    'label'     => $palletReturn->type->labels()[$palletReturn->type->value],
                     'tooltip'   => __("Type")
                 ],
                 [
