@@ -150,7 +150,9 @@ class EditEmployee extends OrgAction
                     'organisation_list' => $organisationList,
                     'value'   => [
                         'group' => $jobPositionsGroupData,
-                        'organisation' =>  $jobPositionsOrganisationData,
+                        'organisations' =>  [
+                            $employee->organisation->slug => $jobPositionsOrganisationData,
+                        ],
                     ],
                     // 'value' => $jobPositionsOrganisationData,
                     'full'    => true
