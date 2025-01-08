@@ -121,10 +121,20 @@ class EditEmployee extends OrgAction
                     'value'       => $employee->job_title,
                     'required'    => true
                 ],
+
+
+            ]
+        ];
+
+
+        $sections['job_positions'] = [
+            'label'  => __('Job Positions (permissions)'),
+            'icon'   => 'fal fa-clipboard-list',
+            'fields' => [
                 'positions'     => [
                     'type'     => 'employeePosition',
                     'required' => true,
-                    'label'    => __('position'),
+                    'label'    => __('Job Positions (permissions)'),
                     'options' => [
                         'positions'   => JobPositionResource::collection($this->organisation->jobPositions),
                         'shops'       => ShopResource::collection($this->organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get()),
@@ -138,10 +148,8 @@ class EditEmployee extends OrgAction
                     'full'    => true
                 ],
 
-
             ]
         ];
-
 
         $sections['personal'] = [
             'label'  => __('Personal information'),
