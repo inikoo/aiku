@@ -215,7 +215,7 @@ test('show sysadmin dashboard', function () {
     actingAs($this->webUser, 'retina');
     $response = $this->get(route('retina.sysadmin.dashboard'));
     $response->assertInertia(function (AssertableInertia $page) {
-        $page->component('SysAdmin/SysAdminDashboard');
+        $page->component('SysAdmin/RetinaSysAdminDashboard');
     });
 });
 
