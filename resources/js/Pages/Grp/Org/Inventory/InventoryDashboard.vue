@@ -35,10 +35,22 @@ library.add(
 ChartJS.register(ArcElement, Tooltip, Legend, Colors)
 const locale = useLocaleStore()
 
-defineProps<{
+const props = defineProps<{
 	title: string
 	pageHead: PageHeadingTypes
 	flatTreeMaps: {}
+    dashboard: {
+		columns: Array<{
+			widgets: Array<{
+                label: string
+				type: string
+				data: {
+					stockValue: number
+					utilization: number
+				}
+			}>
+		}>
+	}
 	dashboardStats: {
 		[key: string]: {
 			label: string
@@ -56,6 +68,8 @@ defineProps<{
 		}
 	}
 }>()
+
+console.log(props.dashboard)
 
 // Pie: options
 const options = {
@@ -86,14 +100,16 @@ const options = {
 	<FlatTreeMap class="mx-4" v-for="(treeMap, idx) in flatTreeMaps" :key="idx" :nodes="treeMap" />
 	<dl class="px-4 mt-5 grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-3">
 	<div class="col-span-12">
-		<div class="flex flex-col md:flex-row gap-6">
-			
-				<StatProgressCard title="Warehouse A" :utilization="81" :stockValue="4.25" />
-				<StatProgressCard title="Warehouse B" :utilization="50" :stockValue="3.25" />
-				<StatProgressCard title="Warehouse C" :utilization="23" :stockValue="1.23" />
-
-			
-		</div>
+        <div v-for="(column, colIdx) in dashboard.columns" :key="colIdx" class="flex flex-col md:flex-row gap-6">
+            <StatProgressCard
+                v-for="(widget, key) in column.widgets"
+                :if="widget.type === 'stat_progress_card'"
+                :key="key"
+                :title="widget.label"
+                :utilization="widget.data.utilization"
+                :stockValue="widget.data.stockValue"
+            />
+        </div>
 	</div>
 		<div
 			v-for="stats in dashboardStats"
