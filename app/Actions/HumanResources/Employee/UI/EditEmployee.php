@@ -8,16 +8,15 @@
 
 namespace App\Actions\HumanResources\Employee\UI;
 
+use App\Actions\HumanResources\Employee\GetEmployeeJobPositionsData;
 use App\Actions\HumanResources\WithEmployeeSubNavigation;
 use App\Actions\OrgAction;
-use App\Enums\Catalogue\Shop\ShopStateEnum;
-use App\Enums\HumanResources\Employee\EmployeeStateEnum;
+use App\Actions\SysAdmin\User\GetUserGroupScopeJobPositionsData;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
-use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
-use App\Enums\Production\Production\ProductionStateEnum;
+use App\Enums\HumanResources\Employee\EmployeeStateEnum;
+use App\Http\Resources\Catalogue\ShopResource;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
-use App\Http\Resources\Catalogue\ShopResource;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Organisation;
 use Exception;
@@ -57,8 +56,9 @@ class EditEmployee extends OrgAction
     {
         $user = $employee->getUser();
 
-        $jobPositionsOrganisationData = GetJobPositionsOrganisationData::run($employee, $this->organisation);
-        $jobPositionsGroupData = GetPermissionGroupData::run($employee, $this->group);
+        $jobPositionsOrganisationData = GetEmployeeJobPositionsData::run($employee);
+        $jobPositionsGroupData = GetUserGroupScopeJobPositionsData::run($user);
+
 
         $sections['properties'] = [
             'label'  => __('Properties'),
@@ -122,40 +122,36 @@ class EditEmployee extends OrgAction
                     'value'       => $employee->job_title,
                     'required'    => true
                 ],
+
+
+            ]
+        ];
+
+
+        $sections['job_positions'] = [
+            'label'  => __('Job Positions (permissions)'),
+            'icon'   => 'fal fa-clipboard-list',
+            'fields' => [
                 'positions'     => [
                     'type'     => 'employeePosition',
                     'required' => true,
-                    'label'    => __('position'),
-                    // 'list_authorised'        => [
-                    //     'positions'         => [
-                    //         'authorised_shops'       =>
-                    //                             $this->organisation->shops()->where('state', '!=', ShopStateEnum::CLOSED)->count(),
-                    //         'authorised_fulfilments' =>
-                    //                             $this->organisation->shops()->where('type', ShopTypeEnum::FULFILMENT)->whereIn('state', [ShopStateEnum::IN_PROCESS, ShopStateEnum::OPEN, ShopStateEnum::CLOSING_DOWN])->count(),
-                    //         'authorised_warehouses' =>
-                    //                             $this->organisation->warehouses()->where('state', '!=', WarehouseStateEnum::CLOSED)->count(),
-                    //         'authorised_productions' =>
-                    //                             $this->organisation->productions()->where('state', '!=', ProductionStateEnum::CLOSED)->count(),
-                    //     ]
-                    // ],
-
+                    'label'    => __('Job Positions (permissions)'),
                     'options' => [
                         'positions'   => JobPositionResource::collection($this->organisation->jobPositions),
                         'shops'       => ShopResource::collection($this->organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get()),
                         'fulfilments' => ShopResource::collection($this->organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
                         'warehouses'  => WarehouseResource::collection($this->organisation->warehouses),
                     ],
-                    'value'   => [
-                        'group' => $jobPositionsGroupData,
-                        'organisation' =>  $jobPositionsOrganisationData,
-                    ],
+                    // 'value'   => [
+                    //     'group' => $jobPositionsGroupData,
+                    //     'organisation' =>  $jobPositionsOrganisationData,
+                    // ],
+                    'value' => $jobPositionsOrganisationData,
                     'full'    => true
                 ],
 
-
             ]
         ];
-
 
         $sections['personal'] = [
             'label'  => __('Personal information'),

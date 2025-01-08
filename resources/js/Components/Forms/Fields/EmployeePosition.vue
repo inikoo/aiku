@@ -116,7 +116,7 @@ const props = defineProps<{
 }>()
 
 const abcdef = {
-    [props.fieldName]: props.form.organisations[props.fieldName] || 'fffff'
+    [props.fieldName]: props.form?.organisations?.[props.fieldName] || props.form?.[props.fieldName] || 'fffff'
 }
 // console.log('pppp', props.form.organisations)
 const newForm = props.saveButton ? useForm(abcdef || {}) : reactive(props.form)

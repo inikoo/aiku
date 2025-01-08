@@ -412,7 +412,7 @@ class ShowOrder extends OrgAction
                     ]
                 ],
                 'timelines'   => $finalTimeline,
-                'address_update_route'  => [ 
+                'address_update_route'  => [
                     'method'     => 'patch',
                     'name'       => 'grp.models.customer.address.update',
                     'parameters' => [

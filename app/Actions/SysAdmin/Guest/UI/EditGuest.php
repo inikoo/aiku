@@ -9,9 +9,8 @@
 namespace App\Actions\SysAdmin\Guest\UI;
 
 use App\Actions\GrpAction;
-use App\Actions\HumanResources\Employee\UI\GetJobPositionsOrganisationData;
-use App\Actions\HumanResources\Employee\UI\GetPermissionGroupData;
-use App\Actions\InertiaAction;
+use App\Actions\SysAdmin\User\GetUserOrganisationScopeJobPositionsData;
+use App\Actions\SysAdmin\User\GetUserGroupScopeJobPositionsData;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Http\Resources\Api\Dropshipping\ShopResource;
 use App\Http\Resources\HumanResources\JobPositionResource;
@@ -65,10 +64,10 @@ class EditGuest extends GrpAction
                 ]
             ];
         })->toArray();
-        $permissionsGroupData = GetPermissionGroupData::run($user, $this->group);
+        $permissionsGroupData = GetUserGroupScopeJobPositionsData::run($user, $this->group);
         $jobPositionsOrganisationsData = [];
         foreach ($this->group->organisations as $organisation) {
-            $jobPositionsOrganisationData = GetJobPositionsOrganisationData::run($user, $organisation);
+            $jobPositionsOrganisationData = GetUserOrganisationScopeJobPositionsData::run($user, $organisation);
             $jobPositionsOrganisationsData[] = $jobPositionsOrganisationData;
         }
 
@@ -127,7 +126,7 @@ class EditGuest extends GrpAction
                             'title'  => __('access'),
                             'icon'   => 'fal fa-chess-clock',
                             'fields' => [
-    
+
                                 'status' => [
                                         'type'     => 'toggle',
                                         'label'    => __('status'),
@@ -145,13 +144,13 @@ class EditGuest extends GrpAction
                                     'type'  => 'input',
                                     'label' => __('username'),
                                     'value' => $user ? $user->username : ''
-                
+
                                 ],
                                 'password' => [
                                     'type'  => 'password',
                                     "placeholder" => "********",
                                     'label' => __('password'),
-                
+
                                 ],
                             ]
                         ],
@@ -174,8 +173,8 @@ class EditGuest extends GrpAction
                                             'user' => $user->id
                                         ]
                                     ],
-    
-    
+
+
                                     'options' => Organisation::get()->flatMap(function (Organisation $organisation) {
                                         return [
                                             $organisation->slug => [
@@ -190,7 +189,7 @@ class EditGuest extends GrpAction
                                         'group' => $permissionsGroupData,
                                         'organisations' =>  $jobPositionsOrganisationsData,
                                     ],
-    
+
     //                                "value"             => $user->pseudoJobPositions->flatMap(function (JobPosition $jobPosition) {
     //                                    return [
     //                                        $jobPosition->organisation->slug => [

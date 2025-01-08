@@ -36,7 +36,7 @@ class UpdateGuest extends GrpAction
 
         data_forget($modelData, 'username');
         data_forget($modelData, 'password');
-        
+
         $guest = $this->update($guest, $modelData, [
             'data',
         ]);
