@@ -141,6 +141,7 @@ class EditUser extends OrgAction
                                 "type"              => "permissions",
                                 "review"            => $reviewData,
                                 'organisation_list' => $organisationList,
+                                "current_organisation"  => $user->getOrganisation(),
                                 'updatePseudoJobPositionsRoute'       => [
                                     'method'     => 'patch',
                                     "name"       => "grp.models.user.permissions.update",

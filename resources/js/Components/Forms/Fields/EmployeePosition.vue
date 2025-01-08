@@ -116,8 +116,8 @@ const props = defineProps<{
     organisationId?: number
 }>()
 
-console.log('cccc', props.form?.organisations?.[props.fieldName])
-console.log('vvv', props.form?.[props.fieldName])
+// console.log('cccc', props.form?.organisations?.[props.fieldName])
+// console.log('vvv', props.form?.[props.fieldName])
 const abcdef = {
     [props.fieldName]: props.form?.organisations?.[props.fieldName] || props.form?.[props.fieldName] || 'fffff'
 }
@@ -125,8 +125,8 @@ const abcdef = {
 const newForm = props.saveButton ? useForm(abcdef || {}) : reactive(props.form)
 // console.log('bbbb', newForm)
 const onSubmitNewForm = () => {
-    console.log('nnn', props.fieldData.updateJobPositionsRoute.parameters)
-    console.log('vcvcv', route(props.fieldData.updateJobPositionsRoute.name, {...props.fieldData.updateJobPositionsRoute.parameters, organisation: props.organisationId}))
+    console.log('Employee submit route name:', props.fieldData.updateJobPositionsRoute.name)
+    console.log('Employee submit route:', route(props.fieldData.updateJobPositionsRoute.name, {...props.fieldData.updateJobPositionsRoute.parameters, organisation: props.organisationId}))
     newForm
     .transform((data) => ({
         permissions: data[props.fieldName]

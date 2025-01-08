@@ -8,12 +8,12 @@ import { trans } from 'laravel-vue-i18n'
 import Fieldset from 'primevue/fieldset'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faHelmetBattle } from '@fas'
+import { faHelmetBattle, faStar } from '@fas'
 import { faCircle } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { routeType } from '@/types/route'
 import Button from '@/Components/Elements/Buttons/Button.vue'
-library.add(faHelmetBattle, faCircle)
+library.add(faHelmetBattle, faStar, faCircle)
 
 const props = defineProps<{
     form: {
@@ -38,6 +38,10 @@ const props = defineProps<{
                 authorised_warehouses: number
                 authorised_productions: number
             }
+        }
+        current_organisation: {
+            slug: string
+            name: string
         }
         updatePseudoJobPositionsRoute: routeType
         updateOrganisationPermissionsRoute: routeType
@@ -164,7 +168,7 @@ const onClickButtonGroup = (department: string, subDepartmentSlug: string) => {
     }
 }
 const submitGroupPermissions = () => {
-    console.log('submitGroupPermissions', props.form[props.fieldName].group)
+    console.log('Submit Group:', route(props.fieldData.updatePseudoJobPositionsRoute.name, props.fieldData.updatePseudoJobPositionsRoute.parameters))
     props.form
     .transform((data) => ({
         permissions: data[props.fieldName].group
@@ -290,10 +294,10 @@ const organisationPositionCounts = ref({})
             >
                 <div
                     @click="selectedOrganisation?.slug == organisation.slug ? selectedOrganisation = null : selectedOrganisation = organisation"
-                    class="rounded cursor-pointer py-1 px-2 flex justify-between"
+                    class="rounded cursor-pointer py-1 px-2 flex justify-between items-center"
                     :class="organisation.slug === selectedOrganisation?.slug ? 'bg-indigo-100 text-indigo-500' : 'hover:bg-gray-200/70 '"
                 >
-                    <div class="">{{ organisation.name }}</div>
+                    <div class="">{{ organisation.name }} <FontAwesomeIcon v-if="fieldData.current_organisation?.slug === organisation.slug" v-tooltip="trans('Employee in this company')" icon='fas fa-star' class='opacity-50 text-xxs' fixed-width aria-hidden='true' /></div>
                     <div v-tooltip="trans('Number job positions')" class="pl-3 pr-2 tabular-nums"><transition name="spin-to-right"><span :key="organisationPositionCounts[organisation.slug]">{{ organisationPositionCounts[organisation.slug] }}</span></transition>/{{ organisation.number_job_positions }}</div>
                 </div>
 
