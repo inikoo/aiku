@@ -148,6 +148,21 @@ class EditEmployee extends OrgAction
                         'warehouses'  => WarehouseResource::collection($this->organisation->warehouses),
                     ],],
                     'organisation_list' => $organisationList,
+                    'updatePseudoJobPositionsRoute'       => [
+                        'method'     => 'patch',
+                        "name"       => "grp.models.user.permissions.update",
+                        'parameters' => [
+                            'user' => $user->id
+                        ]
+                    ],
+                    'updateJobPositionsRoute'       => [
+                        'method'     => 'patch',
+                        "name"       => "grp.models.user.organisation.permissions.update",
+                        'parameters' => [
+                            'user' => $user->id,
+                            'organisation' => null // fill in the organisation id in the frontend
+                        ]
+                    ],
                     'value'   => [
                         'group' => $jobPositionsGroupData,
                         'organisations' =>  [
