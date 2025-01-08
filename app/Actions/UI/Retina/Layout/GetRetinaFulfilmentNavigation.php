@@ -19,17 +19,17 @@ class GetRetinaFulfilmentNavigation
     {
         $groupNavigation = [];
 
-//        $groupNavigation['dashboard'] = [
-//            'label'   => __('Dashboard'),
-//            'icon'    => ['fal', 'fa-tachometer-alt'],
-//            'root'    => 'retina.dashboard.',
-//            'route'   => [
-//                'name' => 'retina.dashboard.show'
-//            ],
-//            'topMenu' => [
-//
-//            ]
-//        ];
+        //        $groupNavigation['dashboard'] = [
+        //            'label'   => __('Dashboard'),
+        //            'icon'    => ['fal', 'fa-tachometer-alt'],
+        //            'root'    => 'retina.dashboard.',
+        //            'route'   => [
+        //                'name' => 'retina.dashboard.show'
+        //            ],
+        //            'topMenu' => [
+        //
+        //            ]
+        //        ];
 
         $additionalSubsections = [];
 

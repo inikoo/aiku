@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Wed, 08 Jan 2025 21:36:47 Malaysia Time, Kuala Lumpur, Malaysia
@@ -7,29 +8,16 @@
 
 namespace App\Actions\UI\Retina\SysAdmin;
 
-use App\Actions\GrpAction;
-use App\Actions\HumanResources\Employee\UI\ShowEmployee;
-use App\Actions\HumanResources\WithEmployeeSubNavigation;
-use App\Actions\OrgAction;
 use App\Actions\RetinaAction;
-use App\Actions\SysAdmin\UI\ShowSysAdminDashboard;
-use App\Actions\SysAdmin\User\WithUsersSubNavigation;
-use App\Actions\SysAdmin\WithSysAdminAuthorization;
-use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
 use App\Http\Resources\CRM\WebUserResource;
 use App\Http\Resources\CRM\WebUsersResource;
-use App\Http\Resources\SysAdmin\UsersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\WebUser;
-use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Group;
-use App\Models\SysAdmin\Organisation;
-use App\Models\SysAdmin\User;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -37,7 +25,6 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexRetinaWebUsers extends RetinaAction
 {
-
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->is_root;
@@ -77,7 +64,7 @@ class IndexRetinaWebUsers extends RetinaAction
 
 
 
-    public function handle( $prefix = null): LengthAwarePaginator
+    public function handle($prefix = null): LengthAwarePaginator
     {
 
 
@@ -99,15 +86,15 @@ class IndexRetinaWebUsers extends RetinaAction
         $queryBuilder->where('customer_id', $this->customer->id);
 
 
-//        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-//            $queryBuilder->whereElementGroup(
-//                key: $key,
-//                allowedElements: array_keys($elementGroup['elements']),
-//                engine: $elementGroup['engine'],
-//                prefix: $prefix
-//            );
-//        }
-//
+        //        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+        //            $queryBuilder->whereElementGroup(
+        //                key: $key,
+        //                allowedElements: array_keys($elementGroup['elements']),
+        //                engine: $elementGroup['engine'],
+        //                prefix: $prefix
+        //            );
+        //        }
+        //
 
 
 
@@ -120,7 +107,7 @@ class IndexRetinaWebUsers extends RetinaAction
             ->withQueryString();
     }
 
-    public function tableStructure( ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix) {
             if ($prefix) {
@@ -129,7 +116,7 @@ class IndexRetinaWebUsers extends RetinaAction
                     ->pageName($prefix.'Page');
             }
 
-//                foreach ($this->getElementGroups($group) as $key => $elementGroup) {
+            //                foreach ($this->getElementGroups($group) as $key => $elementGroup) {
             //                    $table->elementGroup(
             //                        key: $key,
             //                        label: $elementGroup['label'],

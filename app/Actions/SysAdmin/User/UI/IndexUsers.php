@@ -8,7 +8,6 @@
 
 namespace App\Actions\SysAdmin\User\UI;
 
-use App\Actions\GrpAction;
 use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use App\Actions\HumanResources\WithEmployeeSubNavigation;
 use App\Actions\OrgAction;
@@ -25,7 +24,6 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -39,7 +37,7 @@ class IndexUsers extends OrgAction
 
     private string $scope;
     private Group|Employee $parent;
-    
+
     protected function getElementGroups(Group $group): array
     {
         return
@@ -106,8 +104,7 @@ class IndexUsers extends OrgAction
 
     public function handle(Group|Employee $parent, $scope = 'active', $prefix = null): LengthAwarePaginator
     {
-        if($parent instanceof Employee)
-        {
+        if ($parent instanceof Employee) {
             $this->group = $parent->group;
         } else {
             $this->group  = $parent;
@@ -132,20 +129,20 @@ class IndexUsers extends OrgAction
             $queryBuilder->where('user_has_models.model_id', $parent->id)
                 ->where('user_has_models.model_type', 'Employee');
         } else {
-                    if ($scope == 'active') {
-                        $queryBuilder->where('status', true);
-                    } elseif ($scope == 'suspended') {
-                        $queryBuilder->where('status', false);
-                    } elseif ($scope == 'all') {
-                        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-                            $queryBuilder->whereElementGroup(
-                                key: $key,
-                                allowedElements: array_keys($elementGroup['elements']),
-                                engine: $elementGroup['engine'],
-                                prefix: $prefix
-                            );
-                        }
-                    }
+            if ($scope == 'active') {
+                $queryBuilder->where('status', true);
+            } elseif ($scope == 'suspended') {
+                $queryBuilder->where('status', false);
+            } elseif ($scope == 'all') {
+                foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                    $queryBuilder->whereElementGroup(
+                        key: $key,
+                        allowedElements: array_keys($elementGroup['elements']),
+                        engine: $elementGroup['engine'],
+                        prefix: $prefix
+                    );
+                }
+            }
         }
 
         return $queryBuilder
@@ -194,7 +191,7 @@ class IndexUsers extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $users, ActionRequest $request): Response
     {
-        if ($this->parent instanceof Group){
+        if ($this->parent instanceof Group) {
             $subNavigation = $this->getUsersNavigation($this->group, $request);
             $title = __('Active users');
             $icon  = [
@@ -214,8 +211,7 @@ class IndexUsers extends OrgAction
                     'title' => __('all users')
                 ];
             }
-        } elseif ($this->parent instanceof Employee) 
-        {
+        } elseif ($this->parent instanceof Employee) {
             $subNavigation = $this->getEmployeeSubNavigation($this->parent, $request);
             $title = __('Users');
             $icon  = [

@@ -8,7 +8,6 @@
 
 use App\Actions\SysAdmin\User\UI\CreateUser;
 use App\Actions\SysAdmin\User\UI\EditUser;
-use App\Actions\SysAdmin\User\UI\IndexUsers;
 use App\Actions\SysAdmin\User\UI\ShowUser;
 use App\Actions\UI\Retina\SysAdmin\IndexRetinaWebUsers;
 use App\Actions\UI\Retina\SysAdmin\ShowSettings;
