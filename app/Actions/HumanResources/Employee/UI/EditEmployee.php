@@ -59,6 +59,7 @@ class EditEmployee extends OrgAction
         $jobPositionsOrganisationData = GetEmployeeJobPositionsData::run($employee);
         $jobPositionsGroupData = GetUserGroupScopeJobPositionsData::run($user);
 
+
         $sections['properties'] = [
             'label'  => __('Properties'),
             'icon'   => 'fal fa-sliders-h',
