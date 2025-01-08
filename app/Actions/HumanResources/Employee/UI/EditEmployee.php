@@ -148,6 +148,7 @@ class EditEmployee extends OrgAction
                         'fulfilments' => ShopResource::collection($this->organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
                         'warehouses'  => WarehouseResource::collection($this->organisation->warehouses),
                     ],],
+                    'is_in_organisation'    => true,  // To remove parameter
                     'organisation_list' => $organisationList,
                     'updatePseudoJobPositionsRoute'       => [
                         'method'     => 'patch',
