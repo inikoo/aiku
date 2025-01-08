@@ -39,7 +39,7 @@ const props = defineProps<{
                 authorised_productions: number
             }
         }
-        updateGroupPermissionsRoute: routeType
+        updatePseudoJobPositionsRoute: routeType
         updateOrganisationPermissionsRoute: routeType
     }
     updateRoute: routeType
@@ -118,6 +118,14 @@ const groupPositionList = {
         // value: null
     },
 }
+
+Object.keys(props.form[props.fieldName].organisations).forEach(key => {
+    console.log('key', key)
+    if (Array.isArray(props.form[props.fieldName].organisations[key]) && props.form[props.fieldName].organisations[key].length === 0) {
+        props.form[props.fieldName].organisations[key] = {}
+    }
+})
+
 const isRadioChecked = (subDepartmentSlug: string) => {
     return props.form[props.fieldName]?.group?.includes(subDepartmentSlug)
 }
@@ -156,11 +164,12 @@ const onClickButtonGroup = (department: string, subDepartmentSlug: string) => {
     }
 }
 const submitGroupPermissions = () => {
+    console.log('submitGroupPermissions', props.form[props.fieldName].group)
     props.form
     .transform((data) => ({
         permissions: data[props.fieldName].group
     }))
-    [props.fieldData.updateGroupPermissionsRoute.method](route(props.fieldData.updateGroupPermissionsRoute.name, props.fieldData.updateGroupPermissionsRoute.parameters), { preserveScroll: true })
+    [props.fieldData.updatePseudoJobPositionsRoute.method](route(props.fieldData.updatePseudoJobPositionsRoute.name, props.fieldData.updatePseudoJobPositionsRoute.parameters), { preserveScroll: true })
 }
 
 
