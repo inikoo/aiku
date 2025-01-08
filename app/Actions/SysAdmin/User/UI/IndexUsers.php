@@ -9,29 +9,37 @@
 namespace App\Actions\SysAdmin\User\UI;
 
 use App\Actions\GrpAction;
+use App\Actions\HumanResources\Employee\UI\ShowEmployee;
+use App\Actions\HumanResources\WithEmployeeSubNavigation;
+use App\Actions\OrgAction;
 use App\Actions\SysAdmin\UI\ShowSysAdminDashboard;
 use App\Actions\SysAdmin\User\WithUsersSubNavigation;
 use App\Actions\SysAdmin\WithSysAdminAuthorization;
 use App\Http\Resources\SysAdmin\UsersResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexUsers extends GrpAction
+class IndexUsers extends OrgAction
 {
     use WithSysAdminAuthorization;
     use WithUsersSubNavigation;
+    use WithEmployeeSubNavigation;
 
     private string $scope;
-
+    private Group|Employee $parent;
+    
     protected function getElementGroups(Group $group): array
     {
         return
@@ -60,8 +68,9 @@ class IndexUsers extends GrpAction
     public function inSuspended(ActionRequest $request): LengthAwarePaginator
     {
         $group = group();
+        $this->parent = $group;
         $this->scope = 'suspended';
-        $this->initialisation($group, $request);
+        $this->initialisationFromGroup($group, $request);
 
         return $this->handle($group, $this->scope);
     }
@@ -69,8 +78,9 @@ class IndexUsers extends GrpAction
     public function inActive(ActionRequest $request): LengthAwarePaginator
     {
         $group = group();
+        $this->parent = $group;
         $this->scope = 'active';
-        $this->initialisation($group, $request);
+        $this->initialisationFromGroup($group, $request);
 
         return $this->handle($group, $this->scope);
     }
@@ -78,18 +88,33 @@ class IndexUsers extends GrpAction
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $group = group();
+        $this->parent = $group;
         $this->scope = 'all';
-        $this->initialisation($group, $request);
+        $this->initialisationFromGroup($group, $request);
 
         return $this->handle($group, $this->scope);
     }
 
-    public function handle(Group $group, $scope = 'active', $prefix = null): LengthAwarePaginator
+    public function inEmployee(Organisation $organisation, Employee $employee, ActionRequest $request): LengthAwarePaginator
     {
-        $this->group  = $group;
+        $this->parent = $employee;
+        $this->scope = 'employee';
+        $this->initialisation($organisation, $request);
+
+        return $this->handle($employee, $this->scope);
+    }
+
+    public function handle(Group|Employee $parent, $scope = 'active', $prefix = null): LengthAwarePaginator
+    {
+        if($parent instanceof Employee)
+        {
+            $this->group = $parent->group;
+        } else {
+            $this->group  = $parent;
+        }
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('contact_name', $value)
+                $query->whereAnyWordStartWith('users.contact_name', $value)
                     ->orWhereStartWith('users.username', $value);
             });
         });
@@ -102,24 +127,30 @@ class IndexUsers extends GrpAction
 
         $queryBuilder = QueryBuilder::for(User::class);
 
-        if ($scope == 'active') {
-            $queryBuilder->where('status', true);
-        } elseif ($scope == 'suspended') {
-            $queryBuilder->where('status', false);
-        } elseif ($scope == 'all') {
-            foreach ($this->getElementGroups($group) as $key => $elementGroup) {
-                $queryBuilder->whereElementGroup(
-                    key: $key,
-                    allowedElements: array_keys($elementGroup['elements']),
-                    engine: $elementGroup['engine'],
-                    prefix: $prefix
-                );
-            }
+        if ($parent instanceof Employee) {
+            $queryBuilder->leftjoin('user_has_models', 'user_has_models.user_id', '=', 'users.id');
+            $queryBuilder->where('user_has_models.model_id', $parent->id)
+                ->where('user_has_models.model_type', 'Employee');
+        } else {
+                    if ($scope == 'active') {
+                        $queryBuilder->where('status', true);
+                    } elseif ($scope == 'suspended') {
+                        $queryBuilder->where('status', false);
+                    } elseif ($scope == 'all') {
+                        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                            $queryBuilder->whereElementGroup(
+                                key: $key,
+                                allowedElements: array_keys($elementGroup['elements']),
+                                engine: $elementGroup['engine'],
+                                prefix: $prefix
+                            );
+                        }
+                    }
         }
 
         return $queryBuilder
             ->defaultSort('username')
-            ->select(['username', 'email', 'contact_name', 'image_id', 'status'])
+            ->select(['users.username', 'users.email', 'users.contact_name', 'users.image_id', 'users.status'])
             ->allowedSorts(['username', 'email', 'contact_name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -152,7 +183,6 @@ class IndexUsers extends GrpAction
                 ->column(key: 'image', label: ['data' => ['fal', 'fa-user-circle'], 'type' => 'icon', 'tooltip' => __('avatar')], type: 'avatar')
                 ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'parent_type', label: __('type'), canBeHidden: false, sortable: true)
                 ->defaultSort('username');
         };
     }
@@ -164,29 +194,39 @@ class IndexUsers extends GrpAction
 
     public function htmlResponse(LengthAwarePaginator $users, ActionRequest $request): Response
     {
-        $subNavigation = $this->getUsersNavigation($this->group, $request);
-        $title = __('Active users');
-        $icon  = [
-            'icon'  => ['fal', 'fa-user-circle'],
-            'title' => __('active users')
-        ];
-        if ($this->scope == 'suspended') {
-            $title = __('Suspended users');
+        if ($this->parent instanceof Group){
+            $subNavigation = $this->getUsersNavigation($this->group, $request);
+            $title = __('Active users');
             $icon  = [
-                'icon'  => ['fal', 'fa-user-slash'],
-                'title' => __('suspended users')
+                'icon'  => ['fal', 'fa-user-circle'],
+                'title' => __('active users')
             ];
-        } elseif ($this->scope == 'all') {
+            if ($this->scope == 'suspended') {
+                $title = __('Suspended users');
+                $icon  = [
+                    'icon'  => ['fal', 'fa-user-slash'],
+                    'title' => __('suspended users')
+                ];
+            } elseif ($this->scope == 'all') {
+                $title = __('Users');
+                $icon  = [
+                    'icon'  => ['fal', 'fa-users'],
+                    'title' => __('all users')
+                ];
+            }
+        } elseif ($this->parent instanceof Employee) 
+        {
+            $subNavigation = $this->getEmployeeSubNavigation($this->parent, $request);
             $title = __('Users');
             $icon  = [
-                'icon'  => ['fal', 'fa-users'],
-                'title' => __('all users')
+                'icon'  => ['fal', 'fa-user-circle'],
+                'title' => __('users')
             ];
         }
         return Inertia::render(
             'SysAdmin/Users',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName()),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
                 'title'       => __('users'),
                 'pageHead' => [
                     'title'         => $title,
@@ -210,7 +250,7 @@ class IndexUsers extends GrpAction
 
 
 
-    public function getBreadcrumbs(string $routeName): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         $headCrumb = function (array $routeParameters = []) {
             return [
@@ -255,6 +295,15 @@ class IndexUsers extends GrpAction
                         null
                     ]
                 ),
+            ),
+            'grp.org.hr.employees.show.users.index' => array_merge(
+                ShowEmployee::make()->getBreadcrumbs($this->parent, $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.hr.employees.show.users.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
             ),
 
 

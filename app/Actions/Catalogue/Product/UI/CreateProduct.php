@@ -10,15 +10,12 @@ namespace App\Actions\Catalogue\Product\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
-use App\Enums\Billables\Rental\RentalUnitEnum;
-use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Spatie\LaravelOptions\Options;
 
 class CreateProduct extends OrgAction
 {
