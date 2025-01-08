@@ -21,7 +21,7 @@ class GetUserOrganisationScopeJobPositionsData
     {
         if ($user->getOrganisation()->pluck('id')->contains($organisation->id)) {
             // get job positions data from the employee
-            return GetEmployeeJobPositionsData::run($user->employees()->where('organisation_id', $organisation->id)->first());
+            return GetEmployeeJobPositionsData::run($user->employees()->where('employees.organisation_id', $organisation->id)->first());
         } else {
             return $user->pseudoJobPositions->map(function ($jobPosition) use ($organisation) {
                 $scopes = collect($jobPosition->pivot->scopes)->mapWithKeys(function ($scopeIds, $scope) use ($jobPosition, $organisation) {
