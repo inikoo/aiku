@@ -19,7 +19,6 @@ class GetEmployeeJobPositionsData
     {
 
 
-
         return (array) $employee->jobPositions()->where('scope', 'Organisation')->get()->map(function ($jobPosition) {
             return [$jobPosition->slug];
         })->reduce(function ($carry, $item) {
