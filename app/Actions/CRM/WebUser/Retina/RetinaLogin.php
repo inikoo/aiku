@@ -10,6 +10,7 @@ namespace App\Actions\CRM\WebUser\Retina;
 
 use App\Actions\CRM\WebUser\LogWebUserFailLogin;
 use App\Actions\CRM\WebUser\LogWebUserLogin;
+use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\CRM\WebUser;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Http\RedirectResponse;
@@ -82,8 +83,12 @@ class RetinaLogin
             app()->setLocale($language->code);
         }
 
+        $retinaHome = 'app/dashboard';
+        if($request->get('website')->type == WebsiteTypeEnum::FULFILMENT) {
+            $retinaHome = 'app/storage/dashboard';
+        }
 
-        return redirect()->intended('app/dashboard');
+        return redirect()->intended($retinaHome);
     }
 
     public function rules(): array
@@ -99,9 +104,7 @@ class RetinaLogin
      */
     public function asController(ActionRequest $request): RedirectResponse
     {
-        $this->handle($request);
-
-        return redirect()->intended('/app/dashboard');
+        return  $this->handle($request);
     }
 
 
