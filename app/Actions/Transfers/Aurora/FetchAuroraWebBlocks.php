@@ -38,6 +38,7 @@ use App\Transfers\AuroraOrganisationService;
 use App\Transfers\WowsbarOrganisationService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class FetchAuroraWebBlocks
 {
@@ -184,7 +185,7 @@ class FetchAuroraWebBlocks
                 $webBlockType = $group->webBlockTypes()->where("code", "images")->first();
                 $layout       = $this->processImagesData($webpage, $auroraBlock);
                 break;
-            case "text":
+            case "text": // -> need new web block type for text column/array of text, this can't store the array of text for images
                 $webBlockType = $group->webBlockTypes()->where("slug", "text")->first();
                 $layout       = $this->processTextData($webpage, $auroraBlock);
                 break;
@@ -296,17 +297,12 @@ class FetchAuroraWebBlocks
 
         data_set($layout, "blueprint", Arr::get($webBlockType, "blueprint"));
 
-        // fe: want to add dimension that already added in iframe.json
-        if ($auroraBlock['type'] == "iframe") {
-            data_set($layout, "data.fieldValue.container.properties.dimension", Arr::get($webBlockType, "data.fieldValue.container.properties.dimension"));
+        // set default properties for web block aurora
+        $isDefaultExist = Storage::disk('datasets')->exists('default-properties-web-block-aurora/' . $auroraBlock['type'] . '.json');
+        if ($isDefaultExist) {
+            $properties = Storage::disk('datasets')->json('default-properties-web-block-aurora/' . $auroraBlock['type'] . '.json');
+            data_set($layout, "data.fieldValue.container.properties", $properties);
         }
-
-
-        data_set($layout, "data.fieldValue.container.properties.padding.unit", "px");
-        data_set($layout, "data.fieldValue.container.properties.padding.left.value", 20);
-        data_set($layout, "data.fieldValue.container.properties.padding.right.value", 20);
-        data_set($layout, "data.fieldValue.container.properties.padding.bottom.value", 20);
-        data_set($layout, "data.fieldValue.container.properties.padding.top.value", 20);
 
         $webBlock = StoreWebBlock::make()->action(
             $webBlockType,

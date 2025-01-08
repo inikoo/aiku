@@ -19,12 +19,10 @@ use App\Http\Resources\Catalogue\ShopResource;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\HumanResources\JobPosition;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -96,8 +94,8 @@ class EditUser extends OrgAction
 
         $jobPositionsOrganisationsData = [];
         foreach ($this->group->organisations as $organisation) {
-            $jobPositionsOrganisationData = GetJobPositionsOrganisationData::run($user, $organisation);
-            $jobPositionsOrganisationsData[] = $jobPositionsOrganisationData;
+            $jobPositionsOrganisationData                       = GetJobPositionsOrganisationData::run($user, $organisation);
+            $jobPositionsOrganisationsData[$organisation->slug] = $jobPositionsOrganisationData;
         }
 
         $permissionsGroupData = GetPermissionGroupData::run($user, $this->group);
@@ -172,7 +170,7 @@ class EditUser extends OrgAction
                             ],
                         ],
                     ],
-                    "permissions_shop_organisation" => [
+                    "permissions" => [
                         "label"   => __(" Permissions"),
                         "title"   => __("Permissions"),
                         "icon"    => "fa-light fa-user-lock",
@@ -184,16 +182,24 @@ class EditUser extends OrgAction
                                 "type"              => "permissions",
                                 "review"            => $reviewData,
                                 'organisation_list' => $organisationList,
-                                'updateRoute'       => [
+                                'updateGroupPermissionsRoute'       => [
                                     'method'     => 'patch',
                                     "name"       => "grp.models.user.permissions.update",
                                     'parameters' => [
                                         'user' => $user->id
                                     ]
                                 ],
+                                'updateOrganisationPermissionsRoute'       => [
+                                    'method'     => 'patch',
+                                    "name"       => "grp.models.user.organisation.permissions.update",
+                                    'parameters' => [
+                                        'user' => $user->id,
+                                        'organisation' => null // fill in the organisation id in the frontend
+                                    ]
+                                ],
 
 
-                                'options' => Organisation::get()->flatMap(function (Organisation $organisation) {
+                                'options'           => Organisation::get()->flatMap(function (Organisation $organisation) {
                                     return [
                                         $organisation->slug => [
                                             'positions'   => JobPositionResource::collection($organisation->jobPositions),
@@ -203,23 +209,11 @@ class EditUser extends OrgAction
                                         ]
                                     ];
                                 })->toArray(),
-                                'value'   => [
-                                    'group' => $permissionsGroupData,
-                                    'organisations' =>  $jobPositionsOrganisationsData,
+                                'value'             => [
+                                    'group'         => $permissionsGroupData,
+                                    'organisations' => $jobPositionsOrganisationsData,
                                 ],
 
-//                                "value"             => $user->pseudoJobPositions->flatMap(function (JobPosition $jobPosition) {
-//                                    return [
-//                                        $jobPosition->organisation->slug => [
-//                                            $jobPosition->code => match (array_key_first($jobPosition->pivot->scopes)) {
-//                                                class_basename(Shop::class) => [
-//                                                    'shops' => $jobPosition->organisation->shops->whereIn('id', Arr::get($jobPosition->pivot->scopes, class_basename(Shop::class)))->pluck('slug')
-//                                                ],
-//                                                default => null
-//                                            }
-//                                        ]
-//                                    ];
-//                                }),
                                 "fullComponentArea" => true,
                             ],
                         ],

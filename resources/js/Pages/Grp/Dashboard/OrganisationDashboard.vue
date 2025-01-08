@@ -23,7 +23,7 @@ import { useTruncate } from "@/Composables/useTruncate"
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faChevronDown } from "@far"
-import { faTriangle } from "@fas"
+import { faPlay, faTriangle } from "@fas"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { Head } from "@inertiajs/vue3"
 import { trans } from "laravel-vue-i18n"
@@ -36,7 +36,7 @@ import { faSortDown, faSortUp } from "@fas"
 import Select from "primevue/select"
 import { Link } from "@inertiajs/vue3"
 
-library.add(faTriangle, faChevronDown, faSortDown, faSortUp)
+library.add(faTriangle, faChevronDown, faSortDown, faSortUp, faPlay)
 
 const props = defineProps<{
 	dashboard: any
@@ -286,16 +286,14 @@ function ShopDashboard(shop: any) {
 								<div class="flex justify-end relative">
 									<Transition name="spin-to-down" mode="out-in">
 										<div
-											v-tooltip="useLocaleStore().CurrencyShort(data.currency,data.interval_percentages?.invoices[
-														selectedDateOption
-													]?.amount || 0)"
+											
 											:key="
 												data.interval_percentages?.invoices[
 													selectedDateOption
 												]?.amount || 0
 											">
 											{{
-												useLocaleStore().CurrencyShort(data.currency,data.interval_percentages?.invoices[
+												locale.number(data.interval_percentages?.invoices[
 														selectedDateOption
 													]?.amount || 0)
 											}}
@@ -371,8 +369,8 @@ function ShopDashboard(shop: any) {
 															data.interval_percentages.invoices[
 																selectedDateOption
 															].percentage < 0
-																? 'fas fa-sort-down'
-																: 'fas fa-sort-up'
+																? 'fas fa-play'
+														: 'fas fa-play'
 														"
 														style="font-size: 20px; margin-top: 6px"
 														:class="
@@ -494,17 +492,18 @@ function ShopDashboard(shop: any) {
 													data.interval_percentages.sales[
 														selectedDateOption
 													].percentage < 0
-														? 'fas fa-sort-down'
-														: 'fas fa-sort-up'
+														? 'fas fa-play'
+														: 'fas fa-play'
 												"
 												style="font-size: 20px; margin-top: 6px"
 												:class="
 													data.interval_percentages.sales[
 														selectedDateOption
 													].percentage < 0
-														? 'text-red-500'
-														: 'text-green-500'
+														? 'text-red-500 rotate-90'
+														: 'text-green-500 rotate-[-90deg]'
 												" />
+												<div v-else style="width: 20px; height: 20px"></div>
 										</div>
 									</Transition>
 								</div>
@@ -525,7 +524,7 @@ function ShopDashboard(shop: any) {
 
 								<Column
 									:footer="
-									useLocaleStore().CurrencyShort(dashboard.currency.code,Number(dashboard.total[
+									locale.number(Number(dashboard.total[
 											selectedDateOption
 										].total_invoices.toString())
 									)

@@ -270,13 +270,25 @@ const setChartDataAndOptions = () => {
 	const timeseriesData =
 		props.data?.rumAnalyticsTimeseries?.data?.viewer?.accounts[0]?.series || []
 
-	// Prepare labels (timestamps) and data (visits) for the chart
-	const labels = timeseriesData.map((item) => {
-		const date = new Date(item.dimensions.ts)
-		return `${date.getHours().toString().padStart(2, "0")}:${date
-			.getMinutes()
-			.toString()
-			.padStart(2, "0")}`
+	const labels = timeseriesData.map((item, index) => {
+		const currentDate = new Date(item.dimensions.ts)
+		const previousDate = index > 0 ? new Date(timeseriesData[index - 1].dimensions.ts) : null
+
+		// If it's a new day, display the date (e.g., "Mon 06"), otherwise show the time (e.g., "18:00")
+		const isNewDay = !previousDate || currentDate.toDateString() !== previousDate.toDateString()
+
+		if (isNewDay) {
+			return currentDate.toLocaleDateString("en-US", {
+				weekday: "short", // "Mon"
+				day: "2-digit", // "06"
+			})
+		}
+
+		return currentDate.toLocaleTimeString("en-US", {
+			hour: "2-digit", // "18"
+			minute: "2-digit", // "00"
+			hour12: false, // Use 24-hour format
+		})
 	})
 
 	const data = timeseriesData.map((item) => item.sum.visits)
@@ -350,7 +362,6 @@ const labels = ["LCP", "INP", "FID", "CLS"]
 const data = [80, 70, 90, 60]
 const backgroundColors = ["#22c55e", "#22c55e", "#22c55e", "#22c55e"]
 
-// Change colors based on thresholds
 const thresholdColors = data.map((value) => {
 	if (value >= 80) return "#22c55e"
 	else if (value >= 50) return "#facc15"
@@ -366,7 +377,7 @@ watch(value, handleSelectChange)
 <template>
 	<div class="min-h-screen bg-gray-100 p-6">
 		<!-- Layout -->
-		<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+		<div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
 			<!-- Sidebar -->
 			<div class="space-y-4">
 				<!-- Visits Card -->

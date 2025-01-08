@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Ref, ref } from 'vue'
+import { computed, Ref, ref, watch } from 'vue'
 import { Collapse } from 'vue-collapsed'
 import CardPermissions from './Components/Permissions/Card.vue'
 import { get, set } from 'lodash'
@@ -39,6 +39,8 @@ const props = defineProps<{
                 authorised_productions: number
             }
         }
+        updateGroupPermissionsRoute: routeType
+        updateOrganisationPermissionsRoute: routeType
     }
     updateRoute: routeType
 }>()
@@ -85,27 +87,36 @@ const groupPositionList = {
             }
         ],
     },
-    group_procurement: {
-        key: 'group_procurement',
-        department: trans("Group Procurement"),
+    group_supply_chain: {
+        key: 'group_supply_chain',
+        department: trans("Supply Chain"),
         icon: "fal fa-box-usd",
-        level: 'group_procurement',
+        level: 'group_supply_chain',
         subDepartment: [
             {
                 slug: "supply-chain",
                 grade: "manager",
-                label: trans("Supply Chain Manager"),
+                label: trans("Manager"),
                 // number_employees: props.options.positions?.data?.find(position => position.slug == 'gp-sc')?.number_employees || 0,
             },
+        ],
+        // value: null
+    },
+    group_goods: {
+        key: 'group_goods',
+        department: trans("Goods"),
+        icon: "fal fa-box-usd",
+        level: 'group_goods',
+        subDepartment: [
             {
                 slug: "goods",
                 grade: "manager",
-                label: trans("Goods Manager"),
+                label: trans("Manager"),
                 // number_employees: props.options.positions?.data?.find(position => position.slug == 'gp-g')?.number_employees || 0,
             }
         ],
         // value: null
-    }
+    },
 }
 const isRadioChecked = (subDepartmentSlug: string) => {
     return props.form[props.fieldName]?.group?.includes(subDepartmentSlug)
@@ -145,7 +156,11 @@ const onClickButtonGroup = (department: string, subDepartmentSlug: string) => {
     }
 }
 const submitGroupPermissions = () => {
-    props.form.post(route(props.updateRoute.name, props.updateRoute.parameters), { preserveScroll: true })
+    props.form
+    .transform((data) => ({
+        permissions: data[props.fieldName].group
+    }))
+    [props.fieldData.updateGroupPermissionsRoute.method](route(props.fieldData.updateGroupPermissionsRoute.name, props.fieldData.updateGroupPermissionsRoute.parameters), { preserveScroll: true })
 }
 
 
@@ -170,71 +185,87 @@ const organisation = [
 ]
 const selectedOrganisation = ref<typeof organisation[number] | null>(organisation[0])
 
+const organisationPositionCounts = ref({})
+// watch(props.form, (newValue) => {
+//     console.log('vcxvcxvcxvcxvcxvcxvcx')
+//     organisationPositionCounts.value = {...newValue}.map((org) => {
+//         return {
+//             [org]: Object.keys(org).length
+//         }
+//     })
+// }, { deep: true })
 </script>
 
 <template>
     <div class="flex flex-col gap-y-6">
-
-        <Fieldset legend="Group permissions">
-            <div>
-                <template v-for="(jobGroup, departmentName, idxJobGroup) in groupPositionList" :key="departmentName + idxJobGroup">
-                    <div class="grid grid-cols-3 gap-x-1.5 px-2 items-center even:bg-gray-100 transition-all duration-200 ease-in-out">
-                        <!-- Section: Department label -->
-                        <div class="flex items-center capitalize gap-x-1.5">
-                            <FontAwesomeIcon v-if="jobGroup.icon" :icon="jobGroup.icon" class='text-gray-400 fixed-width' aria-hidden='true' />
-                            {{ jobGroup.department }}
-                        </div>
-
-                        <!-- Section: Radio (the clickable area) -->
-                        <div class="h-full col-span-2 flex-col transition-all duration-200 ease-in-out">
-                            <div class="flex items-center divide-x divide-slate-300">
-                                <!-- Button: Radio position -->
-
-                                <div class="pl-2 flex items-center gap-x-4">
-                                    <template v-for="subDepartment, idxSubDepartment in jobGroup.subDepartment">
-                                        <!-- If subDepartment is have atleast 1 Fulfilment, or have atleast 1 Shop, or have atleast 1 Warehouse, or have atleast 1 Production, or is a simple sub department (i.e buyer, administrator, etc) -->
-                                        <button
-                                            @click.prevent="onClickButtonGroup(departmentName, subDepartment.slug)"
-                                            class="group h-full cursor-pointer flex items-center justify-start rounded-md py-3 px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
-                                            :class="(isRadioChecked('org-admin') && subDepartment.slug != 'org-admin') || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') ? 'text-green-500' : ''"
-                                            :disabled="(isRadioChecked('group-admin') && subDepartment.slug != 'group-admin')
-                                                ? true
-                                                : false"
-                                        >
-                                        <!-- {{ (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') }} -->
-                                            <div class="relative text-left">
-                                                <div class="absolute -left-1 -translate-x-full top-1/2 -translate-y-1/2">
-                                                    <template v-if="(isRadioChecked('org-admin') && subDepartment.slug != 'org-admin') || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') || (isRadioChecked('shop-admin') && jobGroup.scope === 'shop' && subDepartment.slug !== 'shop-admin')">
-                                                        <FontAwesomeIcon v-if="idxSubDepartment === 0" icon='fas fa-check-circle' class="" fixed-width aria-hidden='true' />
-                                                        <FontAwesomeIcon v-else icon='fal fa-circle' class="" fixed-width aria-hidden='true' />
-                                                    </template>
-                                                    <template v-else-if="form[fieldName].group.includes(subDepartment.slug)">
-                                                        <FontAwesomeIcon icon='fas fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
-                                                    </template>
-                                                    <FontAwesomeIcon v-else icon='fal fa-circle' fixed-width aria-hidden='true' class="text-gray-400 hover:text-gray-700" />
+        <div class="flex gap-x-2">
+            <Fieldset legend="Group permissions" class="w-full max-w-4xl">
+                <div>
+                    <template v-for="(jobGroup, departmentName, idxJobGroup) in groupPositionList" :key="departmentName + idxJobGroup">
+                        <div class="grid grid-cols-3 gap-x-1.5 px-2 items-center even:bg-gray-100 transition-all duration-200 ease-in-out">
+                            <!-- Section: Department label -->
+                            <div class="flex items-center capitalize gap-x-1.5">
+                                <FontAwesomeIcon v-if="jobGroup.icon" :icon="jobGroup.icon" class='text-gray-400 fixed-width' aria-hidden='true' />
+                                {{ jobGroup.department }}
+                            </div>
+                            <!-- Section: Radio (the clickable area) -->
+                            <div class="h-full col-span-2 flex-col transition-all duration-200 ease-in-out">
+                                <div class="flex items-center divide-x divide-slate-300">
+                                    <!-- Button: Radio position -->
+                                    <div class="pl-2 flex items-center gap-x-4">
+                                        <template v-for="subDepartment, idxSubDepartment in jobGroup.subDepartment">
+                                            <!-- If subDepartment is have atleast 1 Fulfilment, or have atleast 1 Shop, or have atleast 1 Warehouse, or have atleast 1 Production, or is a simple sub department (i.e buyer, administrator, etc) -->
+                                            <button
+                                                @click.prevent="onClickButtonGroup(departmentName, subDepartment.slug)"
+                                                class="group h-full cursor-pointer flex items-center justify-start rounded-md py-3 px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
+                                                :class="(isRadioChecked('org-admin') && subDepartment.slug != 'org-admin') || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') ? 'text-green-500' : ''"
+                                                :disabled="(isRadioChecked('group-admin') && subDepartment.slug != 'group-admin')
+                                                    ? true
+                                                    : false"
+                                            >
+                                            <!-- {{ (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') }} -->
+                                                <div class="relative text-left">
+                                                    <div class="absolute -left-1 -translate-x-full top-1/2 -translate-y-1/2">
+                                                        <template v-if="(isRadioChecked('org-admin') && subDepartment.slug != 'org-admin') || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') || (isRadioChecked('shop-admin') && jobGroup.scope === 'shop' && subDepartment.slug !== 'shop-admin')">
+                                                            <FontAwesomeIcon v-if="idxSubDepartment === 0" icon='fas fa-check-circle' class="" fixed-width aria-hidden='true' />
+                                                            <FontAwesomeIcon v-else icon='fal fa-circle' class="" fixed-width aria-hidden='true' />
+                                                        </template>
+                                                        <template v-else-if="form[fieldName].group.includes(subDepartment.slug)">
+                                                            <FontAwesomeIcon icon='fas fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
+                                                        </template>
+                                                        <FontAwesomeIcon v-else icon='fal fa-circle' fixed-width aria-hidden='true' class="text-gray-400 hover:text-gray-700" />
+                                                    </div>
+                                                    <span :class="[
+                                                        (isRadioChecked('org-admin') && subDepartment.slug != 'org-admin') || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') || (isRadioChecked('shop-admin') && jobGroup.scope === 'shop' && subDepartment.slug !== 'shop-admin') ? 'text-gray-400' : 'text-gray-600 group-hover:text-gray-700'
+                                                    ]">
+                                                        {{ subDepartment.label }}
+                                                    </span>
                                                 </div>
-                                                <span :class="[
-                                                    (isRadioChecked('org-admin') && subDepartment.slug != 'org-admin') || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') || (isRadioChecked('shop-admin') && jobGroup.scope === 'shop' && subDepartment.slug !== 'shop-admin') ? 'text-gray-400' : 'text-gray-600 group-hover:text-gray-700'
-                                                ]">
-                                                    {{ subDepartment.label }}
-                                                </span>
-                                            </div>
-                                        </button>
-                                    </template>
+                                            </button>
+                                        </template>
+                                    </div>
                                 </div>
-
                             </div>
                         </div>
-                    </div>
-                </template>
+                    </template>
+                </div>
+            </Fieldset>
+
+            <div class="mt-4">
+                <button @click="submitGroupPermissions" class="h-9 align-bottom text-center" :disabled="form.processing || !form.isDirty">
+                    <template v-if="form.isDirty">
+                        <FontAwesomeIcon v-if="form.processing" icon='fad fa-spinner-third' class='text-2xl animate-spin' fixed-width aria-hidden='true' />
+                        <FontAwesomeIcon v-else icon="fad fa-save" class="h-8" :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" aria-hidden="true" />
+                    </template>
+                    <FontAwesomeIcon v-else icon="fal fa-save" class="h-8 text-gray-300" aria-hidden="true" />
+                </button>
             </div>
 
-            <Button @click="submitGroupPermissions" full label="Save group permissions" class="mt-4" :disabled="!form.isDirty || form.processing" :loading="form.processing" />
-        </Fieldset>
+            <!-- <Button full label="Save group permissions" icon="fal fa-save" class="mt-4" :disabled="!form.isDirty || form.processing" :loading="form.processing" /> -->
+        </div>
 
-        {{ props.form[props.fieldName].group }}
-
-        <!-- <div class="grid">
+        <!-- Section: Organisations position -->
+        <div class="grid max-w-4xl">
             <div class="flex justify-between px-2 border-b border-gray-300 py-2 mb-2">
                 <div>
                     Organisations
@@ -244,29 +275,31 @@ const selectedOrganisation = ref<typeof organisation[number] | null>(organisatio
                 </div>
             </div>
 
-            <div v-for="(review, slugReview) in props.fieldData.organisation_list.data"
-                class="border-l-2 border-indigo-500 pl-2 flex flex-col mb-1 gap-y-1"
+            <div v-for="(organisation, idxOrganisation) in props.fieldData.organisation_list.data"
+                class="border-l-[3px] pl-2 flex flex-col mb-1 gap-y-1"
+                :class="selectedOrganisation?.slug == organisation.slug ? 'border-indigo-500' : 'border-gray-300'"
             >
                 <div
-                    @click="selectedOrganisation?.slug == review.slug ? selectedOrganisation = null : selectedOrganisation = review"
+                    @click="selectedOrganisation?.slug == organisation.slug ? selectedOrganisation = null : selectedOrganisation = organisation"
                     class="rounded cursor-pointer py-1 px-2 flex justify-between"
-                    :class="review.slug === selectedOrganisation?.slug ? 'bg-indigo-100 text-indigo-500' : 'hover:bg-gray-200/70 '"
+                    :class="organisation.slug === selectedOrganisation?.slug ? 'bg-indigo-100 text-indigo-500' : 'hover:bg-gray-200/70 '"
                 >
-                    <div class="">{{ review.name }}</div>
-                    <div v-tooltip="trans('Number job positions')" class="pl-3 pr-2">0/{{ review.number_job_positions }}</div>
+                    <div class="">{{ organisation.name }}</div>
+                    <div v-tooltip="trans('Number job positions')" class="pl-3 pr-2 tabular-nums"><transition name="spin-to-right"><span :key="organisationPositionCounts[organisation.slug]">{{ organisationPositionCounts[organisation.slug] }}</span></transition>/{{ organisation.number_job_positions }}</div>
                 </div>
 
-                <Collapse as="section" :when="review.slug == selectedOrganisation?.slug">
-                    {{ form[fieldName] }}
-                    <div v-if="options?.[review.slug]" class="border border-gray-300 rounded-md mb-2">
+                <Collapse as="section" :when="organisation.slug == selectedOrganisation?.slug">
+                    <!-- {{ form[fieldName] }} -->
+                    <div v-if="options?.[organisation.slug]" class="rounded-md mb-2">
                         <EmployeePosition
-                            :key="'employeePosition' + review.slug "
+                            :key="'employeePosition' + organisation.slug "
                             :form="form[fieldName]"
                             :fieldData
-                            :fieldName="review.slug"
-                            :options="options?.[review.slug]"
+                            :fieldName="organisation.slug"
+                            :options="options?.[organisation.slug]"
                             saveButton
-                            :organisationId="review.id"
+                            :organisationId="organisation.id"
+                            @countPosition="(count: number) => set(organisationPositionCounts, organisation.slug, count)"
                         />
                     </div>
                     <div v-else class="text-center border border-gray-300 rounded-md mb-2">
@@ -274,7 +307,7 @@ const selectedOrganisation = ref<typeof organisation[number] | null>(organisatio
                     </div>
                 </Collapse>
             </div>
-        </div> -->
+        </div>
 
 
         <!-- <pre>{{ form }}</pre> -->

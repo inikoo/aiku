@@ -53,7 +53,9 @@ class IndexFulfilmentCustomerNote
         return $queryBuilder
             ->select(
                 'audits.created_at as datetime',
-                'audits.new_values->note as note'
+                'audits.new_values->note as note',
+                'audits.new_values->details->html as details_html',
+                'audits.new_values->details->text as details_text',
             )
             ->defaultSort('-audits.created_at')
             ->allowedSorts(['created_at'])
@@ -75,8 +77,9 @@ class IndexFulfilmentCustomerNote
             $table
                 ->withGlobalSearch()
                 ->withExportLinks($exportLinks)
-                ->column(key: 'note', label: __('Note'), canBeHidden: false, sortable: true)
                 ->column(key: 'datetime', label: __('Date'), canBeHidden: false, sortable: true)
+                ->column(key: 'note', label: __('Note'), canBeHidden: false, sortable: false)
+                ->column(key: 'details', label: __('Details'), canBeHidden: false, sortable: false)
                 ->defaultSort('-datetime');
         };
     }

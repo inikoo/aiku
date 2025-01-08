@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\Pallet\Search;
 
+use App\Models\Billables\Rental;
 use App\Models\Fulfilment\Pallet;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -27,6 +28,8 @@ class PalletRecordSearch
             return;
         }
 
+        $rental = Rental::find($pallet->rental_id) ?? null;
+
         $pallet->universalSearch()->updateOrCreate(
             [],
             [
@@ -38,7 +41,7 @@ class PalletRecordSearch
                 'warehouse_id'        => $pallet->warehouse_id,
                 'warehouse_slug'      => $pallet->warehouse->slug,
                 'sections'            => ['fulfilment'],
-                'haystack_tier_1'     => $pallet->reference ?? $pallet->id,
+                'haystack_tier_1'     => trim($pallet->reference . ' ' . $rental->name . ' ' . $pallet->customer_reference),
                 'keyword'             => $pallet->slug,
                 'keyword_2'           => $pallet->reference,
                 'result'              => [
@@ -59,7 +62,7 @@ class PalletRecordSearch
                         'tooltip' => __('Reference')
                     ],
                     'description' => [
-                        'label' => $pallet->customer_reference
+                        'label' => $rental->name
                     ],
                     'state_icon'          => $pallet->type->typeIcon()[$pallet->type->value],
                     'meta'          => [
@@ -70,8 +73,15 @@ class PalletRecordSearch
                         ],
                         [
                             'key'       => __("state"),
+                            'icon'      => $pallet->state->stateIcon()[$pallet->state->value],
                             'label'     => __("State") . ': ' . __($pallet->state->value),
                             'tooltip'   => __("State")
+                        ],
+                        [
+                            'key'       => __("status"),
+                            'icon'      => $pallet->status->statusIcon()[$pallet->status->value],
+                            'label'     => __("Status") . ': ' . __($pallet->status->value),
+                            'tooltip'   => __("Status")
                         ],
                     ],
                 ]
