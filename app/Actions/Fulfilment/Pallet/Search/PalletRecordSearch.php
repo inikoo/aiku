@@ -41,7 +41,7 @@ class PalletRecordSearch
                 'warehouse_id'        => $pallet->warehouse_id,
                 'warehouse_slug'      => $pallet->warehouse->slug,
                 'sections'            => ['fulfilment'],
-                'haystack_tier_1'     => trim($pallet->reference . ' ' . $rental->name . ' ' . $pallet->customer_reference),
+                'haystack_tier_1'     => trim($pallet->reference . ' ' . ($rental->name ?? '') . ' ' . $pallet->customer_reference),
                 'keyword'             => $pallet->slug,
                 'keyword_2'           => $pallet->reference,
                 'result'              => [
@@ -62,7 +62,7 @@ class PalletRecordSearch
                         'tooltip' => __('Reference')
                     ],
                     'description' => [
-                        'label' => $rental->name
+                        'label' => $rental->name ?? ''
                     ],
                     'state_icon'          => $pallet->type->typeIcon()[$pallet->type->value],
                     'meta'          => [
