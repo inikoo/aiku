@@ -134,7 +134,7 @@ class EditEmployee extends OrgAction
         $organisations = Organisation::where('id', $employee->organisation_id)->get();
         $organisationList = OrganisationsResource::collection($organisations);
 
-        if (!$user) {
+        if ($user) {
             $sections['job_positions'] = [
             'label'  => __('Job Positions (permissions)'),
             'icon'   => 'fal fa-clipboard-list',
