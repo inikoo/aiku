@@ -8,16 +8,16 @@
 
 namespace App\Actions\SysAdmin\User\UI;
 
-use App\Actions\HumanResources\Employee\UI\GetPermissionGroupData;
-use App\Actions\HumanResources\Employee\UI\GetJobPositionsOrganisationData;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\User\GetUserOrganisationScopeJobPositionsData;
+use App\Actions\SysAdmin\User\GetUserGroupScopeJobPositionsData;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
-use App\Models\Catalogue\Shop;
+use App\Http\Resources\Catalogue\ShopResource;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
-use App\Http\Resources\Catalogue\ShopResource;
-use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
+use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
@@ -92,13 +92,14 @@ class EditUser extends OrgAction
         });
 
 
+
         $jobPositionsOrganisationsData = [];
         foreach ($this->group->organisations as $organisation) {
-            $jobPositionsOrganisationData                       = GetJobPositionsOrganisationData::run($user, $organisation);
+            $jobPositionsOrganisationData                       = GetUserOrganisationScopeJobPositionsData::run($user, $organisation);
             $jobPositionsOrganisationsData[$organisation->slug] = $jobPositionsOrganisationData;
         }
 
-        $permissionsGroupData = GetPermissionGroupData::run($user, $this->group);
+        $permissionsGroupData = GetUserGroupScopeJobPositionsData::run($user);
 
         $organisations = $user->group->organisations;
         $reviewData    = $organisations->mapWithKeys(function ($organisation) {
@@ -182,14 +183,14 @@ class EditUser extends OrgAction
                                 "type"              => "permissions",
                                 "review"            => $reviewData,
                                 'organisation_list' => $organisationList,
-                                'updateGroupPermissionsRoute'       => [
+                                'updatePseudoJobPositionsRoute'       => [
                                     'method'     => 'patch',
                                     "name"       => "grp.models.user.permissions.update",
                                     'parameters' => [
                                         'user' => $user->id
                                     ]
                                 ],
-                                'updateOrganisationPermissionsRoute'       => [
+                                'updateJobPositionsRoute'       => [
                                     'method'     => 'patch',
                                     "name"       => "grp.models.user.organisation.permissions.update",
                                     'parameters' => [

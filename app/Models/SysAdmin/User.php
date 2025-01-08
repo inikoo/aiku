@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Collection;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\SlugOptions;
@@ -269,6 +270,34 @@ class User extends Authenticatable implements HasMedia, Auditable
         return $this->belongsToMany(JobPosition::class, 'user_has_pseudo_job_positions')->withTimestamps()
             ->using(UserHasPseudoJobPositions::class)->withPivot(['scopes']);
     }
+
+    /*
+     * Get all the job positions of the user from the employees (real job positions)
+     */
+    public function getJobPositions(): \Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection
+    {
+        return $this->employees->map(function ($employee) {
+            return $employee->jobPositions;
+        })->flatten();
+    }
+
+    /*
+     * Get all the organisations where user is an employee
+     */
+    public function getOrganisations(): Collection
+    {
+
+        return $this->employees->map(function ($employee) {
+            return $employee->organisation;
+        })->flatten();
+    }
+
+    public function getOrganisation(): ?Organisation
+    {
+        return $this->getOrganisations()->first();
+    }
+
+
 
     public function timeSeries(): HasMany
     {
