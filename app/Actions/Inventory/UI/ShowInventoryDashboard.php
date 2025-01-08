@@ -36,6 +36,7 @@ class ShowInventoryDashboard extends OrgAction
         $routeParameters = $request->route()->originalParameters();
 
 
+        // dd($this->getDashboardStats());
         return Inertia::render(
             'Org/Inventory/InventoryDashboard',
             [
@@ -82,9 +83,29 @@ class ShowInventoryDashboard extends OrgAction
                     ]
                 ],
                 // 'dashboardStats' => $this->getDashboardStats(),
+                'dashboard' => $this->getDashboard(),
 
             ]
         );
+    }
+
+    public function getDashboard(): array
+    {
+        $dashboard = [];
+        foreach ($this->organisation->warehouses as $warehouse) {
+            $dashboard['columns'][] = [
+                'widgets' => [
+                    [
+                        'type' => 'stat_progress_card',
+                        'title' => __($warehouse->name),
+                        'stockValue' => $warehouse->stats->stock_value,
+                        'utilization' => ($warehouse->stats->number_locations - $warehouse->stats->number_empty_locations) / $warehouse->stats->number_locations * 100,
+                    ]
+                ]
+            ];
+        }
+
+        return $dashboard;
     }
 
     public function getDashboardStats(): array
