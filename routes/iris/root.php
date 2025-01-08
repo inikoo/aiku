@@ -25,8 +25,7 @@ use App\Actions\CRM\WebUser\Retina\Login;
 use Inertia\Inertia;
 
 Route::prefix("")->group(function () {
-    Route::name("system.")
-        ->group(__DIR__."/system.php");
+    require __DIR__ . '/system.php';
 
     Route::get('/{path?}', ShowHome::class)->where("path", ".*")->name('home');
 });

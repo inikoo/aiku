@@ -35,6 +35,7 @@ use App\Actions\Discounts\Offer\UI\IndexOffers;
 use App\Actions\Discounts\OfferCampaign\UI\IndexOfferCampaigns;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
+use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\UI\Catalogue\Rentals\IndexFulfilmentRentals;
 use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
@@ -134,6 +135,7 @@ Route::name('inventory.')->prefix('inventory')->group(function () {
 Route::name('fulfilment.')->prefix('fulfilment')->group(function () {
     Route::get('/pallets', [IndexPallets::class, 'inGroup'])->name('pallets.index');
     Route::get('/stored-items', [IndexStoredItems::class, 'inGroup'])->name('stored-items.index');
+    Route::get('/pallet-deliveries', [IndexPalletDeliveries::class, 'inGroup'])->name('pallet-deliveries.index');
     // Route::get('/artefacts', [IndexArtefacts::class, 'inGroup'])->name('artefacts.index');
     // Route::get('/manufacture-tasks', [IndexManufactureTasks::class, 'inGroup'])->name('manufacture-tasks.index');
 });

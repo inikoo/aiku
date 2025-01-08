@@ -60,8 +60,6 @@ class EditEmployee extends OrgAction
         $jobPositionsOrganisationData = GetEmployeeJobPositionsData::run($employee);
         $jobPositionsGroupData = GetUserGroupScopeJobPositionsData::run($user);
 
-        $organisations = Organisation::where('id', $employee->organisation_id)->get();
-        $organisationList = OrganisationsResource::collection($organisations);
 
         $sections['properties'] = [
             'label'  => __('Properties'),
@@ -130,66 +128,71 @@ class EditEmployee extends OrgAction
             ]
         ];
 
+
+        $organisations = Organisation::where('id', $employee->organisation_id)->get();
+        $organisationList = OrganisationsResource::collection($organisations);
+
         if (!$user) {
             $sections['job_positions'] = [
-                'label'  => __('Job Positions (permissions)'),
-                'icon'   => 'fal fa-clipboard-list',
-                'fields' => [
-                    'positions'     => [
-                        'type'     => 'permissions',
-                        'required' => true,
-                        'label'    => __('Job Positions (permissions)'),
-                        'options' => [
-                            $employee->organisation->slug => [
-                            'positions'   => JobPositionResource::collection($this->organisation->jobPositions),
-                            'shops'       => ShopResource::collection($this->organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get()),
-                            'fulfilments' => ShopResource::collection($this->organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
-                            'warehouses'  => WarehouseResource::collection($this->organisation->warehouses),
-                        ],],
-                        'organisation_list' => $organisationList,
-                        'updatePseudoJobPositionsRoute'       => [
-                            'method'     => 'patch',
-                            'name'       => 'grp.models.employee.update',
-                            'parameters' => [
-                                'employee'  => $employee->id
-                            ]
-                        ],
-                        'updateJobPositionsRoute'       => [
-                            'method'     => 'patch',
-                            'name'       => 'grp.models.employee.update',
-                            'parameters' => [
-                                'employee'  => $employee->id
-                            ]
-                        ],
-                        'value'   => [
-                            'group' => $jobPositionsGroupData,
-                            'organisations' =>  [
-                                $employee->organisation->slug => $jobPositionsOrganisationData,
-                            ],
-                        ],
-                        // 'value' => $jobPositionsOrganisationData,
-                        'full'    => true
+            'label'  => __('Job Positions (permissions)'),
+            'icon'   => 'fal fa-clipboard-list',
+            'fields' => [
+                'positions'     => [
+                    'type'     => 'permissions',
+                    "noSaveButton"      => true,
+                    'required' => true,
+                    'label'    => __('Job Positions (permissions)'),
+                    'options' => [
+                        $employee->organisation->slug => [
+                        'positions'   => JobPositionResource::collection($this->organisation->jobPositions),
+                        'shops'       => ShopResource::collection($this->organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get()),
+                        'fulfilments' => ShopResource::collection($this->organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
+                        'warehouses'  => WarehouseResource::collection($this->organisation->warehouses),
+                    ],],
+                    'organisation_list' => $organisationList,
+                    'updatePseudoJobPositionsRoute'       => [
+                        'method'     => 'patch',
+                        'name'       => 'grp.models.employee.update',
+                        'parameters' => [
+                            'employee'  => $employee->id
+                        ]
                     ],
+                    'updateJobPositionsRoute'       => [
+                        'method'     => 'patch',
+                        'name'       => 'grp.models.employee.update',
+                        'parameters' => [
+                            'employee'  => $employee->id
+                        ]
+                    ],
+                    'value'   => [
+                        'group' => $jobPositionsGroupData,
+                        'organisations' =>  [
+                            $employee->organisation->slug => $jobPositionsOrganisationData,
+                        ],
+                    ],
+                    // 'value' => $jobPositionsOrganisationData,
+                    'full'    => true
+                ],
 
-                ]
+            ]
             ];
             $sections['credentials'] = [
-            'label'  => __('Credentials'),
-            'icon'   => 'fal fa-key',
-            'fields' => [
-                'username' => [
-                    'type'  => 'input',
-                    'label' => __('username'),
-                    'value' => $user ? $user->username : ''
+                'label'  => __('Credentials'),
+                'icon'   => 'fal fa-key',
+                'fields' => [
+                    'username' => [
+                        'type'  => 'input',
+                        'label' => __('username'),
+                        'value' => $user ? $user->username : ''
 
-                ],
-                'password' => [
-                    'type'  => 'password',
-                    'label' => __('password'),
+                    ],
+                    'password' => [
+                        'type'  => 'password',
+                        'label' => __('password'),
 
-                ],
-            ]
-        ];
+                    ],
+                ]
+            ];
         }
 
         $sections['personal'] = [

@@ -14,6 +14,7 @@ use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Catalogue\HasRentalAgreement;
 use App\Actions\OrgAction;
+use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
@@ -24,6 +25,7 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Inventory\Warehouse;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -42,7 +44,7 @@ class IndexPalletDeliveries extends OrgAction
     use WithFulfilmentCustomerSubNavigation;
 
 
-    private Fulfilment|Warehouse|FulfilmentCustomer $parent;
+    private Fulfilment|Warehouse|FulfilmentCustomer|Group $parent;
 
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
@@ -72,7 +74,17 @@ class IndexPalletDeliveries extends OrgAction
         return $this->handle($warehouse);
     }
 
-    protected function getElementGroups(Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn $parent): array
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $group = group();
+        $this->parent = $group;
+        $this->initialisationFromGroup($group, $request);
+
+        return $this->handle($group);
+    }
+
+    protected function getElementGroups(Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn|Group $parent): array
     {
         return [
             'state' => [
@@ -91,7 +103,7 @@ class IndexPalletDeliveries extends OrgAction
         ];
     }
 
-    public function handle(Fulfilment|Warehouse|FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Fulfilment|Warehouse|FulfilmentCustomer|Group $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -113,9 +125,15 @@ class IndexPalletDeliveries extends OrgAction
         } elseif ($parent instanceof Warehouse) {
             $queryBuilder->where('pallet_deliveries.warehouse_id', $parent->id);
             $queryBuilder->whereNotIn('pallet_deliveries.state', [PalletDeliveryStateEnum::IN_PROCESS, PalletDeliveryStateEnum::SUBMITTED]);
+        } elseif ($parent instanceof Group) {
+            $queryBuilder->where('pallet_deliveries.group_id', $parent->id);
         } else {
             $queryBuilder->where('pallet_deliveries.fulfilment_customer_id', $parent->id);
         }
+
+        $queryBuilder->leftJoin('organisations', 'pallet_deliveries.organisation_id', '=', 'pallet_deliveries.id')
+        ->leftJoin('fulfilments', 'pallet_deliveries.fulfilment_id', '=', 'fulfilments.id')
+        ->leftJoin('shops', 'fulfilments.shop_id', '=', 'shops.id');
 
         $queryBuilder->select(
             'pallet_deliveries.id',
@@ -124,7 +142,12 @@ class IndexPalletDeliveries extends OrgAction
             'pallet_delivery_stats.number_pallets',
             'pallet_deliveries.estimated_delivery_date',
             'pallet_deliveries.state',
-            'pallet_deliveries.slug'
+            'pallet_deliveries.slug',
+            'shops.name as shop_name',
+            'shops.slug as shop_slug',
+            'organisations.name as organisation_name',
+            'organisations.slug as organisation_slug',
+            'fulfilments.slug as fulfilment_slug',
         );
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
@@ -150,7 +173,7 @@ class IndexPalletDeliveries extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Fulfilment|Warehouse|FulfilmentCustomer $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Fulfilment|Warehouse|FulfilmentCustomer|Group $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
@@ -170,6 +193,10 @@ class IndexPalletDeliveries extends OrgAction
                         'Fulfilment' => [
                             'title'       => __('No deliveries found for this shop'),
                             'count'       => $parent->stats->number_pallet_deliveries
+                        ],
+                        'Group' => [
+                            'title'       => __('No deliveries found for this group'),
+                            'count'       => $parent->fulfilmentStats->number_pallet_deliveries
                         ],
                         'Warehouse' => [
                             'title'       => __('No pallet deliveries found for this warehouse'),
@@ -214,6 +241,10 @@ class IndexPalletDeliveries extends OrgAction
                 $table->column(key: 'customer_name', label: __('customer'), canBeHidden: false, sortable: true, searchable: true);
             }
             $table->column(key: 'customer_reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true);
+            if ($parent instanceof Group) {
+                $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
+                        ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+            }
             $table->column(key: 'number_pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'estimated_delivery_date', label: __('estimated delivery date'), canBeHidden: false, sortable: true, searchable: true);
             if ($parent instanceof Warehouse) {
@@ -270,7 +301,7 @@ class IndexPalletDeliveries extends OrgAction
                 ]
             ];
         }
-
+        // dd(PalletDeliveriesResource::collection($customers));
         return Inertia::render(
             'Org/Fulfilment/PalletDeliveries',
             [
@@ -358,6 +389,17 @@ class IndexPalletDeliveries extends OrgAction
                     [
                         'name'       => 'grp.org.warehouses.show.incoming.pallet_deliveries.index',
                         'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse'])
+                    ]
+                )
+            ),
+            'grp.overview.fulfilment.pallet-deliveries.index' => array_merge(
+                ShowGroupOverviewHub::make()->getBreadcrumbs(
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.overview.fulfilment.pallet-deliveries.index',
+                        'parameters' => $routeParameters
                     ]
                 )
             ),

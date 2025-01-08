@@ -31,16 +31,26 @@ class WarehouseHydrateLocations
 
     public function handle(Warehouse $warehouse): void
     {
-        $numberLocations            = $warehouse->locations()->count();
-        $numberOperationalLocations = $warehouse->locations()->where('status', 'operational')->count();
+        $locations = $warehouse->locations;
 
+        $numberLocations                    = $locations->count();
+        $numberOperationalLocations         = $locations->where('status', 'operational')->count();
+        $numberEmptyLocations               = $locations->where('is_empty', true)->count();
+        $numberNoStockSlotsLocations        = $locations->where('has_stock_slots', false)->count();
+        $numberAllowStocksLocations         = $locations->where('allow_stocks', true)->count();
+        $numberAllowFulfilmentLocations     = $locations->where('allow_fulfilment', true)->count();
+        $numberAllowDropshippingLocations   = $locations->where('allow_dropshipping', true)->count();
 
         $warehouse->stats()->update(
             [
                 'number_locations'                    => $numberLocations,
+                'number_empty_locations'              => $numberEmptyLocations,
                 'number_locations_status_operational' => $numberOperationalLocations,
-                'number_locations_status_broken'      => $numberLocations - $numberOperationalLocations
-
+                'number_locations_status_broken'      => $numberLocations - $numberOperationalLocations,
+                'number_locations_no_stock_slots'     => $numberNoStockSlotsLocations,
+                'number_locations_allow_stocks'       => $numberAllowStocksLocations,
+                'number_locations_allow_fulfilment'   => $numberAllowFulfilmentLocations,
+                'number_locations_allow_dropshipping' => $numberAllowDropshippingLocations
             ]
         );
     }
