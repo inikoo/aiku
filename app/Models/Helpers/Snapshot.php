@@ -19,7 +19,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Support\Arr;
 
 /**
  * App\Models\Helpers\Snapshot
@@ -132,9 +131,9 @@ class Snapshot extends Model
                 return $compiledLayout;
             case 'Website':
             case 'Webpage':
-                return Arr::get($this->layout, 'html');
+                return $this->layout->html;
             default:
-                return [];
+                return (object)[];
         }
     }
 }
