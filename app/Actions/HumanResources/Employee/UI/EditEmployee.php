@@ -57,6 +57,8 @@ class EditEmployee extends OrgAction
     {
         $user = $employee->getUser();
 
+
+
         $jobPositionsOrganisationData = GetEmployeeJobPositionsData::run($employee);
         $jobPositionsGroupData = GetUserGroupScopeJobPositionsData::run($user);
 
@@ -132,7 +134,8 @@ class EditEmployee extends OrgAction
         $organisations = Organisation::where('id', $employee->organisation_id)->get();
         $organisationList = OrganisationsResource::collection($organisations);
 
-        $sections['job_positions'] = [
+        if (!$user) {
+            $sections['job_positions'] = [
             'label'  => __('Job Positions (permissions)'),
             'icon'   => 'fal fa-clipboard-list',
             'fields' => [
@@ -151,9 +154,9 @@ class EditEmployee extends OrgAction
                     'organisation_list' => $organisationList,
                     'updatePseudoJobPositionsRoute'       => [
                         'method'     => 'patch',
-                        'name'       => 'grp.models.employee.update',
+                        'name'       => 'grp.models.user.permissions.update',
                         'parameters' => [
-                            'employee'  => $employee->id
+                            'user'  => $user?->id
                         ]
                     ],
                     'updateJobPositionsRoute'       => [
@@ -174,7 +177,25 @@ class EditEmployee extends OrgAction
                 ],
 
             ]
-        ];
+            ];
+            $sections['credentials'] = [
+                'label'  => __('Credentials'),
+                'icon'   => 'fal fa-key',
+                'fields' => [
+                    'username' => [
+                        'type'  => 'input',
+                        'label' => __('username'),
+                        'value' => $user ? $user->username : ''
+
+                    ],
+                    'password' => [
+                        'type'  => 'password',
+                        'label' => __('password'),
+
+                    ],
+                ]
+            ];
+        }
 
         $sections['personal'] = [
             'label'  => __('Personal information'),
@@ -197,24 +218,6 @@ class EditEmployee extends OrgAction
                     'type'  => 'input',
                     'label' => __('personal email'),
                     'value' => $employee->email
-                ],
-            ]
-        ];
-
-        $sections['credentials'] = [
-            'label'  => __('Credentials'),
-            'icon'   => 'fal fa-key',
-            'fields' => [
-                'username' => [
-                    'type'  => 'input',
-                    'label' => __('username'),
-                    'value' => $user ? $user->username : ''
-
-                ],
-                'password' => [
-                    'type'  => 'password',
-                    'label' => __('password'),
-
                 ],
             ]
         ];

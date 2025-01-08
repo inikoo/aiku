@@ -49,6 +49,7 @@ class UpdateEmployee extends OrgAction
         data_forget($modelData, 'positions');
         $positions = $this->reorganisePositionsSlugsToIds($positions);
 
+
         SyncEmployeeJobPositions::run($employee, $positions);
 
         $credentials = Arr::only($modelData, ['username', 'password', 'auth_type', 'user_model_status']);

@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      *
@@ -37,11 +36,11 @@ return new class extends Migration
         Schema::table('location_stats', function (Blueprint $table) {
             $table->dropColumn(['total_volume', 'total_weight']);
         });
-    
+
         Schema::table('warehouse_area_stats', function (Blueprint $table) {
             $table->dropColumn(['total_volume', 'total_weight']);
         });
-    
+
         Schema::table('warehouse_stats', function (Blueprint $table) {
             $table->dropColumn(['total_volume', 'total_weight']);
         });
