@@ -138,6 +138,7 @@ class EditEmployee extends OrgAction
             'fields' => [
                 'positions'     => [
                     'type'     => 'permissions',
+                    "noSaveButton"      => true,
                     'required' => true,
                     'label'    => __('Job Positions (permissions)'),
                     'options' => [
