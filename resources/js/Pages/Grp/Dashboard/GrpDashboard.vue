@@ -223,28 +223,20 @@ console.log(layout.user.id, "layoutt")
 				</div>
 
 				<div class="mt-4 block">
-					<nav class="isolate flex rounded border-b border-gray-300" aria-label="Tabs">
-						<div
-							v-for="(interval, idxInterval) in interval_options"
-							:key="idxInterval"
-							@click="updateRouteAndUser(interval.value)"
-							:class="[
-								interval.value === selectedDateOption
-									? ''
-									: 'text-gray-500 hover:text-gray-700',
-							]"
-							class="relative min-w-0 flex-1 overflow-hidden bg-white hover:bg-gray-100 py-0 text-center text-sm cursor-pointer select-none focus:z-10">
-							<span>{{ interval.value }}</span>
-							<span
-								aria-hidden="true"
-								:class="[
-									interval.value === selectedDateOption
-										? 'bg-indigo-500'
-										: 'bg-transparent',
-									'absolute inset-x-0 bottom-0 h-0.5',
-								]" />
-						</div>
-					</nav>
+					<nav class="flex border-b border-gray-300 rounded-lg">
+        <div
+            v-for="(interval, idxInterval) in interval_options"
+            :key="idxInterval"
+            @click="updateRouteAndUser(interval.value)"
+            :class="[
+                'flex-1 text-center py-2 cursor-pointer rounded-t-lg',
+                interval.value === selectedDateOption
+                    ? 'bg-indigo-500 text-white'
+                    : 'hover:bg-gray-200 text-gray-700'
+            ]">
+            {{ interval.value }}
+        </div>
+    </nav>
 				</div>
 
 				<div class="mt-6">
@@ -484,8 +476,9 @@ console.log(layout.user.id, "layoutt")
 																? 'text-red-500 rotate-90'
 																: 'text-green-500 rotate-[-90deg]'
 														" />
-											<div v-else style="width: 20px; height: 20px"></div>
-
+													<div
+														v-else
+														style="width: 20px; height: 20px"></div>
 												</div>
 											</Transition>
 										</div>
@@ -793,8 +786,8 @@ console.log(layout.user.id, "layoutt")
 			</div>
 		</div>
 		<div class="col-span-12">
-			<div class="flex flex-row flex-wrap gap-4">
-				<!-- Changed to flex-row for horizontal layout -->
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+				<!-- Responsive grid layout -->
 				<DashboardCard
 					v-for="(org, index) in props.groupStats.organisations.filter(
 						(org) => org.type !== 'agent'
@@ -819,7 +812,6 @@ console.log(layout.user.id, "layoutt")
 					" />
 			</div>
 		</div>
-
 		<!-- <pre>{{ groupStats }}</pre> -->
 	</div>
 </template>
@@ -831,5 +823,8 @@ console.log(layout.user.id, "layoutt")
 }
 .transition-opacity {
 	transition: opacity 0.3s ease-in-out;
+}
+.overflow-x-auto {
+	overflow-x: auto;
 }
 </style>

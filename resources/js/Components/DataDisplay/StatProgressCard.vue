@@ -28,9 +28,10 @@ defineProps({
 			<div class="mt-3">
 				<!-- ProgressBar with Blue Style -->
 				<ProgressBar
-				
+                    
+					:value="utilization"
 					:style="{ backgroundColor: '#E0E7FF', height: '10px' }"
-					:class="'bg-blue-500 h-full'" />
+					class="progress-bar" />
 				<div class="flex justify-between text-xs text-gray-400 mt-1">
 					<span>0%</span>
 					<span>100%</span>
@@ -53,3 +54,13 @@ defineProps({
 		</div>
 	</div>
 </template>
+
+<style scoped lang="scss">
+::v-deep(.p-progressbar-value) {
+    background-color: #2563EB !important; /* Custom blue color */
+}
+
+::v-deep(.p-progressbar) {
+    background-color: #E0E7FF; /* Track color */
+}
+</style>
