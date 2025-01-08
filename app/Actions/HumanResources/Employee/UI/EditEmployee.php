@@ -17,6 +17,7 @@ use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Http\Resources\Catalogue\ShopResource;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
+use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Organisation;
 use Exception;
@@ -128,24 +129,32 @@ class EditEmployee extends OrgAction
         ];
 
 
+        $organisations = Organisation::where('id', $employee->organisation_id)->get();
+        $organisationList = OrganisationsResource::collection($organisations);
+
         $sections['job_positions'] = [
             'label'  => __('Job Positions (permissions)'),
             'icon'   => 'fal fa-clipboard-list',
             'fields' => [
                 'positions'     => [
-                    'type'     => 'employeePosition',
+                    'type'     => 'permissions',
                     'required' => true,
                     'label'    => __('Job Positions (permissions)'),
                     'options' => [
+                        $employee->organisation->slug => [
                         'positions'   => JobPositionResource::collection($this->organisation->jobPositions),
                         'shops'       => ShopResource::collection($this->organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get()),
                         'fulfilments' => ShopResource::collection($this->organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
                         'warehouses'  => WarehouseResource::collection($this->organisation->warehouses),
-                    ],
+                    ],],
+                    'organisation_list' => $organisationList,
                     'value'   => [
                         'group' => $jobPositionsGroupData,
-                        'organisation' =>  $jobPositionsOrganisationData,
+                        'organisations' =>  [
+                            $employee->organisation->slug => $jobPositionsOrganisationData,
+                        ],
                     ],
+                    // 'value' => $jobPositionsOrganisationData,
                     'full'    => true
                 ],
 

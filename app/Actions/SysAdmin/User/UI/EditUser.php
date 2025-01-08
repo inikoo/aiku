@@ -56,11 +56,13 @@ class EditUser extends OrgAction
 
 
         $permissionsGroupData = GetUserGroupScopeJobPositionsData::run($user);
-
         $organisations = $user->group->organisations;
-        $reviewData    = $organisations->mapWithKeys(function ($organisation) {
+        $orgIds = $user->getOrganisations()->pluck('id')->toArray();
+
+        $reviewData    = $organisations->mapWithKeys(function ($organisation) use ($user, $orgIds) {
             return [
                 $organisation->slug => [
+                    'is_employee' => in_array($organisation->id, $orgIds),
                     'number_job_positions' => $organisation->humanResourcesStats->number_job_positions,
                     'job_positions'        => $organisation->jobPositions->mapWithKeys(function ($jobPosition) {
                         return [

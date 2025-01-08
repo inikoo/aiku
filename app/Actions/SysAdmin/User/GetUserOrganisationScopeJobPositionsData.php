@@ -24,7 +24,7 @@ class GetUserOrganisationScopeJobPositionsData
 
         if (in_array($organisation->id, $organisationsWhereUserIsEmployee)) {
             // get job positions data from the employee
-            $employee=$user->employees()->where('employees.organisation_id', $organisation->id)->first();
+            $employee = $user->employees()->where('employees.organisation_id', $organisation->id)->first();
 
             return GetEmployeeJobPositionsData::run($employee);
         } else {

@@ -15,12 +15,26 @@ class GetEmployeeJobPositionsData
 {
     use AsAction;
 
-    public function handle(Employee  $employee): array
+    public function handle(Employee $employee): array
     {
+        $organisation = $employee->organisation;
+        return $employee->jobPositions->map(function ($jobPosition) use ($organisation) {
+            $scopes = collect($jobPosition->pivot->scopes)->mapWithKeys(function ($scopeIds, $scope) use ($jobPosition, $organisation) {
+                return match ($scope) {
+                    'Warehouse' => [
+                        'warehouses' => $organisation->warehouses->whereIn('id', $scopeIds)->pluck('slug')->toArray()
+                    ],
+                    'Shop' => [
+                        'shops' => $organisation->shops->whereIn('id', $scopeIds)->pluck('slug')->toArray()
+                    ],
+                    'Fulfilment' => [
+                        'fulfilments' => $organisation->fulfilments->whereIn('id', $scopeIds)->pluck('slug')->toArray()
+                    ],
+                    default => []
+                };
+            });
 
-
-        return (array) $employee->jobPositions()->get()->map(function ($jobPosition) {
-            return [$jobPosition->slug];
+            return [$jobPosition->code => $scopes->toArray()];
         })->reduce(function ($carry, $item) {
             return array_merge_recursive($carry, $item);
         }, []);

@@ -116,6 +116,8 @@ class IndexWarehouseAreas extends OrgAction
                     'number_locations',
                     'warehouses.slug as warehouse_slug',
                     'warehouse_areas.slug',
+                    'warehouse_area_stats.stock_value as stock_value',
+                    'warehouse_area_stats.number_empty_locations as number_empty_locations',
                     'organisations.slug as organisation_slug',
                     'organisations.name as organisation_name'
                 ]
@@ -189,8 +191,9 @@ class IndexWarehouseAreas extends OrgAction
                         default => null
                     }
                 )
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'stock_value', label: __('stock value'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_empty_locations', label: __('empty locations'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_locations', label: __('locations'), canBeHidden: false, sortable: true)
                 ->defaultSort('code');
         };
