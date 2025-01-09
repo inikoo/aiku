@@ -55,11 +55,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\Accounting\OrgPaymentServiceProvider|null $orgPaymentServiceProvider
  * @property-read Organisation $organisation
+ * @property-read \App\Models\Accounting\PaymentAccountShop|null $pivot
+ * @property-read Collection<int, Shop> $paymentAccountShops
  * @property-read \App\Models\Accounting\PaymentServiceProvider $paymentServiceProvider
  * @property-read Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read Collection<int, SerialReference> $serialReferences
- * @property-read \App\Models\Accounting\PaymentAccountShop|null $pivot
- * @property-read Collection<int, Shop> $shops
  * @property-read \App\Models\Accounting\PaymentAccountStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Accounting\PaymentAccountFactory factory($count = null, $state = [])

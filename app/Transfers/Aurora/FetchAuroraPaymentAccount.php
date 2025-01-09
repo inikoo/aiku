@@ -124,7 +124,7 @@ class FetchAuroraPaymentAccount extends FetchAurora
                     'api_key' => $this->auroraModelData->{'Payment Account Password'},
                 ]
             ];
-        }elseif ($type == PaymentAccountTypeEnum::CASH_ON_DELIVERY) {
+        } elseif ($type == PaymentAccountTypeEnum::CASH_ON_DELIVERY) {
 
             $countryCodes = explode(',', $this->auroraModelData->{'Payment Account Settings'});
             $countries = [];
@@ -134,14 +134,14 @@ class FetchAuroraPaymentAccount extends FetchAurora
             $data = [
                 'countries' => $countries
             ];
-        }elseif ($type == PaymentAccountTypeEnum::BRAINTREE) {
+        } elseif ($type == PaymentAccountTypeEnum::BRAINTREE) {
             $data = [
                 'credentials' => [
                     'client_id' => $this->auroraModelData->{'Payment Account Login'},
                     'client_secret' => $this->auroraModelData->{'Payment Account Password'},
 
                 ],
-                'payment_methods'=>$this->auroraModelData->{'Payment Account Block'} == 'BTreePaypal' ? ['paypal'] : ['card','paypal']
+                'payment_methods' => $this->auroraModelData->{'Payment Account Block'} == 'BTreePaypal' ? ['paypal'] : ['card','paypal']
             ];
         }
 
