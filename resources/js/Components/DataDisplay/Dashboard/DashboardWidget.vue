@@ -1,7 +1,37 @@
+<script setup lang="ts">
+import { getComponentWidget } from '@/Composables/Listing/DashboardWidgetsList'
+
+const props = defineProps<{
+    widgetsData: {
+        column_count: number
+        components: {
+            type: string  // 'basic'
+            col_span?: number
+            row_span?: number
+            data: {}
+        }[]
+    }
+}>()
+
+</script>
+
 <template>
-	<div class="col-span-12">
+    <div class="grid grid-cols-2 w-full gap-3" :style="{
+        'grid-template-columns': `repeat(${widgetsData.column_count || 1}, minmax(0, 1fr))`
+    }">
+        <component
+            v-for="(component, index) in props.widgetsData.components"
+            :is="getComponentWidget(component.type)"
+            :widgetData="component.data"
+            :style="{
+                'grid-column': `span ${component.col_span || 1} / span ${component.col_span || 1}`,
+                'grid-row': `span ${component.row_span || 1} / span ${component.row_span || 1}`
+            }"
+        />
+    </div>
+
+	<!-- <div class="col-span-12">
 		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-			<!-- Responsive grid layout -->
 			<DashboardCard
 				v-for="(org, index) in props.groupStats.organisations.filter(
 					(org) => org.type !== 'agent'
@@ -21,9 +51,5 @@
 					isNegative(org.interval_percentages?.sales?.[selectedDateOption]?.amount || 0)
 				" />
 		</div>
-	</div>
+	</div> -->
 </template>
-
-<script setup lang="ts"></script>
-
-<style scoped></style>

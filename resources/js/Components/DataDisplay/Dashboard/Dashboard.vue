@@ -77,10 +77,12 @@ const props = defineProps<{
 			settings: {}
 		}
 	}
+
+	dashboard: {}
 }>()
 
 const currency = ref([
-	{ name: "Group", code: "grp", symbol: props.data.dashboard_stats.columns[0].widgets[0].data.currency.symbol },
+	{ name: "Group", code: "grp", symbol: props.data?.dashboard_stats?.columns?.[0]?.widgets?.[0]?.data?.currency?.symbol },
 	{ name: "Organisation", code: "org", symbol: null },
 ])
 
@@ -91,7 +93,7 @@ const toggleCurrency = () => {
 }
 
 const abcdef = computed(() => {
-	return props.data.dashboard_stats.columns[0].widgets[0].data.organisations
+	return props.data?.dashboard_stats?.columns?.[0]?.widgets?.[0]?.data?.organisations
 		.filter((org) => org.type !== "agent")
 		.map((org) => {
 			return {
@@ -111,9 +113,9 @@ console.log(abcdef.value,'haha');
 </script>
 <template>
 	<div>
-		<DashboardSettings />
-		<DashboardTable />
-		<DashboardWidget />
+		<!-- <DashboardSettings />
+		<DashboardTable /> -->
+		<DashboardWidget :widgetsData="dashboard.widgets" />
 	</div>
 </template>
 <style scoped></style>

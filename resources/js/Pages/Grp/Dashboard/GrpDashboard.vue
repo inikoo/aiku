@@ -169,6 +169,15 @@ const props = defineProps<{
 				}[]
 			}[]
 		}
+		widgets: {
+			column_count: number
+			components: {
+				type: string
+				col_span?: number
+				row_span?: number
+				data: {}
+			}
+		}
 		settings: {}
 	}
 }>()
@@ -206,7 +215,7 @@ const options = {
 }
 
 const abcdef = computed(() => {
-	return props.dashboard_stats.columns[0].widgets[0].data.organisations
+	return props.dashboard_stats.columns?.[0]?.widgets?.[0]?.data?.organisations
 		.filter((org) => org.type !== "agent")
 		.map((org) => {
 			return {
@@ -231,7 +240,7 @@ const tabs = ref([
 const activeTab = ref("all")
 
 const currency = ref([
-	{ name: "Group", code: "grp", symbol: props.dashboard_stats.columns[0].widgets[0].data.currency.symbol },
+	{ name: "Group", code: "grp", symbol: props.dashboard_stats?.columns?.[0]?.widgets?.[0]?.data?.currency?.symbol },
 	{ name: "Organisation", code: "org", symbol: null },
 ])
 
@@ -903,6 +912,10 @@ console.log(layout.user.id, "layoutt")
 			</div>
 		</div>
 		<!-- <pre>{{ groupStats }}</pre> -->
+
+		<div class="col-span-8">
+			<Dashboard  :dashboard="dashboard_stats" />
+		</div>
 	</div>
 </template>
 

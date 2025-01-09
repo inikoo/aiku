@@ -87,16 +87,67 @@ class ShowGroupDashboard extends OrgAction
                 'dashboard_stats' => [
                     'interval_options'  => $this->getIntervalOptions(),
                     'settings' => auth()->user()->settings,
-                    'columns' => [
-                        [
-                            'widgets' => [
-                                [
-                                    'type' => 'interval_table',
-                                    'data' => $sales
-                                ],
-                            ]
-                        ],
-                    ]
+                    'widgets' => [
+                        'column_count'    => 4,
+                        'components'    => [
+                            [
+                                'type' => 'basic',
+                                'col_span'  => 1,
+                                'row_span'  => 2,
+                                'data' => [
+                                    'value'         => 0,
+                                    'description'   => 'xxxxxxx',
+                                    'status'    => 'success',
+                                ]
+                            ],
+                            [
+                                'type' => 'basic',
+                                'col_span'  => 1,
+                                'row_span'  => 1,
+                                'data' => [
+                                    'value'         => 180000,
+                                    'description'   => 'ggggggg',
+                                    'status'    => 'danger',
+                                    'type'      => 'currency',
+                                    'currency_code' => 'GBP'
+                                ]
+                            ],
+                            [
+                                'type' => 'basic',
+                                'col_span'  => 1,
+                                'row_span'  => 1,
+                                'data' => [
+                                    'value'         => 662137,
+                                    'description'   => 'ggggggg',
+                                    // 'status'    => 'information',
+                                    'type'      => 'currency',
+                                    'currency_code' => 'GBP'
+                                ]
+                            ],
+                            [
+                                'type' => 'basic',
+                                'col_span'  => 1,
+                                'row_span'  => 1,
+                                'data' => [
+                                    'value'         => 99,
+                                    'type'      => 'number',
+                                    'description'   => 'Hell owrodl',
+                                    'status'    => 'warning',
+                                ]
+                            ],
+                            [
+                                'type' => 'basic',
+                                'col_span'  => 3,
+                                'row_span'  => 1,
+                                'data' => [
+                                    'value'         => 44400,
+                                    'description'   => '6666',
+                                    'status'    => 'information',
+                                    // 'status'    => 'success',
+                                ]
+                            ],
+                        ]
+                    ],
                 ],
             ]
         );
