@@ -30,7 +30,7 @@
       {
           label: 'Contact',
           key: 'contact',
-          value: props.data.customer?.contact_name
+          value: props.data.contact_name ?? '-'
       },
       {
           label: 'Username',

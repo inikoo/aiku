@@ -88,6 +88,7 @@ class StoreWebUser extends OrgAction
     public function rules(): array
     {
         $rules = [
+            'contact_name' => ['sometimes', 'nullable', 'max:255'],
             'type'      => ['sometimes', Rule::enum(WebUserTypeEnum::class)],
             'auth_type' => ['sometimes', Rule::enum(WebUserAuthTypeEnum::class)],
             'username'  => [

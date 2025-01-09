@@ -65,6 +65,11 @@ class CreateRetinaWebUser extends RetinaAction
                                             ]
                                         ]
                                     ],
+                                    'contact_name' => [
+                                        'type'  => 'input',
+                                        'label' => __('contact name'),
+                                        'value' => ''
+                                    ],
                                     'email' => [
                                         'type'  => 'input',
                                         'label' => __('email'),
