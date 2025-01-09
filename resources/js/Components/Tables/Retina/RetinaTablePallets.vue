@@ -81,7 +81,8 @@ function palletRoute(pallet: Pallet) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(reference)="{ item: pallet }">
-            <Link :href="palletRoute(pallet)" class="primaryLink">
+          
+            <Link :href="route('retina.storage.pallets.show',{ ...route().params, pallet : pallet.slug ? pallet.slug : pallet.id })" class="primaryLink">
                 {{ pallet.reference }}
             </Link>
         </template>
