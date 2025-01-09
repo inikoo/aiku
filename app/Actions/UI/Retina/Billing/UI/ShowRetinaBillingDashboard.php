@@ -9,15 +9,7 @@
 namespace App\Actions\UI\Retina\Billing\UI;
 
 use App\Actions\Overview\GetOrganisationOverview;
-use App\Actions\Retina\Billing\IndexUnpaidInvoices;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
-use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
-use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
-use App\Http\Resources\Accounting\InvoicesResource;
-use App\Http\Resources\CRM\CustomersResource;
-use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\CRM\Customer;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -63,7 +55,7 @@ class ShowRetinaBillingDashboard
                         ],
                         [
                             'widgets' => [
-                               $currentRecurringBill?
+                               $currentRecurringBill ?
                                 [
                                     'label' => __('Next bill'),
                                     'data' => [
@@ -79,7 +71,7 @@ class ShowRetinaBillingDashboard
                                         ]
                                     ],
                                     'type' => 'multi_card',
-                                ]:null,
+                                ] : null,
 
                                 [
                                     'label' => __('Unpaid Invoices'),

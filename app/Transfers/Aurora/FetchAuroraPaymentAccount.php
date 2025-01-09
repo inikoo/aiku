@@ -94,6 +94,35 @@ class FetchAuroraPaymentAccount extends FetchAurora
             }
         }
 
+        if ($type == PaymentAccountTypeEnum::BANK) {
+            $data = [
+                'bank' => [
+                    'recipient' => $this->auroraModelData->{'Payment Account Recipient Holder'},
+                    'name'      => $this->auroraModelData->{'Payment Account Recipient Bank Name'},
+                    'account'   => $this->auroraModelData->{'Payment Account Recipient Bank Account Number'},
+                    'sort_code'      => $this->auroraModelData->{'Payment Account Recipient Bank Code'},
+                    'iban'      => $this->auroraModelData->{'Payment Account Recipient Bank IBAN'},
+                    'swift'     => $this->auroraModelData->{'Payment Account Recipient Bank Swift'},
+                    'bic'       => '',
+                    'address'   => $this->auroraModelData->{'Payment Account Recipient Address'},
+                ]
+            ];
+
+        } elseif ($type == PaymentAccountTypeEnum::CHECKOUT) {
+            $data = [
+                'bank' => [
+                    'recipient' => $this->auroraModelData->{'Payment Account Recipient Holder'},
+                    'name'      => $this->auroraModelData->{'Payment Account Recipient Bank Name'},
+                    'account'   => $this->auroraModelData->{'Payment Account Recipient Bank Account Number'},
+                    'sort_code'      => $this->auroraModelData->{'Payment Account Recipient Bank Code'},
+                    'iban'      => $this->auroraModelData->{'Payment Account Recipient Bank IBAN'},
+                    'swift'     => $this->auroraModelData->{'Payment Account Recipient Bank Swift'},
+                    'bic'       => '',
+                    'address'   => $this->auroraModelData->{'Payment Account Recipient Address'},
+                ]
+            ];
+
+        }
 
         $this->parsedData['paymentAccount'] = [
             'code'      => $code,

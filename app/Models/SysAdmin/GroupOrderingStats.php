@@ -106,6 +106,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_purges_type_manual
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int $number_unpaid_invoices
+ * @property string $unpaid_invoices_amount_grp_currency
  * @property-read \App\Models\SysAdmin\Group $group
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupOrderingStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupOrderingStats newQuery()

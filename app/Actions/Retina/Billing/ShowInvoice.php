@@ -171,12 +171,12 @@ class ShowInvoice extends RetinaAction
 
 
                 InvoiceTabsEnum::ITEMS->value => $this->tab == InvoiceTabsEnum::ITEMS->value ?
-                    fn() => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))
-                    : Inertia::lazy(fn() => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))),
+                    fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))
+                    : Inertia::lazy(fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))),
 
                 InvoiceTabsEnum::PAYMENTS->value => $this->tab == InvoiceTabsEnum::PAYMENTS->value ?
-                    fn() => PaymentsResource::collection(IndexPayments::run($invoice))
-                    : Inertia::lazy(fn() => PaymentsResource::collection(IndexPayments::run($invoice))),
+                    fn () => PaymentsResource::collection(IndexPayments::run($invoice))
+                    : Inertia::lazy(fn () => PaymentsResource::collection(IndexPayments::run($invoice))),
 
 
             ]

@@ -28,7 +28,13 @@ class UpdatePaymentAccount extends OrgAction
 
     public function handle(PaymentAccount $paymentAccount, array $modelData): PaymentAccount
     {
-        $paymentAccount = $this->paymentAccountUpdateActions($paymentAccount->paymentServiceProvider->slug, $paymentAccount, $modelData);
+        if ($this->strict) {
+            $paymentAccount = $this->paymentAccountUpdateActions($paymentAccount->paymentServiceProvider->slug, $paymentAccount, $modelData);
+            $paymentAccount = $this->update($paymentAccount, Arr::only($modelData, ['code', 'name']), ['data']);
+        } else {
+            $paymentAccount = $this->update($paymentAccount, $modelData, ['data']);
+        }
+
         PaymentAccountRecordSearch::dispatch($paymentAccount);
         return $this->update($paymentAccount, Arr::only($modelData, ['code', 'name']), ['data']);
     }
@@ -66,7 +72,9 @@ class UpdatePaymentAccount extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['last_fetched_at'] = ['sometimes', 'date'];
+            $rules = $this->noStrictUpdateRules($rules);
+            $rules['data'] = ['sometimes', 'array'];
+
         }
         return $rules;
     }
