@@ -23,7 +23,7 @@ export const printBarcode = (barcodeId: string, value: string) => {
     const svgElement = document.getElementById(barcodeId);
     if (svgElement) {
         // Open a new window to print the barcode
-        const printWindow = window.open('', '_blank', 'width=600,height=400');
+        const printWindow = window.open('/print', '_blank', 'width=600,height=400');
         if (printWindow) {
             printWindow.document.write(`
                 <html>
