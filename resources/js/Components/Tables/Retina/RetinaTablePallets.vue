@@ -60,6 +60,16 @@ function palletRoute(pallet: Pallet) {
                     route().params['fulfilmentCustomer'],
                     pallet['slug']
                 ])
+        case 'retina.storage.pallets.index':
+            if(pallet.slug) {
+                return route(
+                    'retina.storage.pallets.show',
+                    [
+                        pallet.slug
+                    ])
+            } else {
+                return '#'
+            }
 
         default:
             return []
