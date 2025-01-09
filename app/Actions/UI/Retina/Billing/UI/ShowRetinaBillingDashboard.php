@@ -29,7 +29,7 @@ class ShowRetinaBillingDashboard
         $numberInvoices = $customer->stats->number_invoices;
 
         return Inertia::render(
-            'Billing/OverviewHub',
+            'Billing/RetinaBillingDashboard',
             [
                 'title'       => __('Billing'),
                 'pageHead'    => [

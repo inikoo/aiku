@@ -27,7 +27,7 @@ class GetDataTableRetinaBillingDashboard
         $data = [
             [
                 'name'  => __('Invoice'),
-                'icon'  => 'fal fa-invoice-dollar',
+                'icon'  => 'fal fa-file-invoice-dollar',
                 'route' => route('retina.billing.invoices.index'),
                 'count' => $customer->stats->number_invoices ?? 0
             ],
