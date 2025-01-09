@@ -9,28 +9,17 @@
 
 namespace App\Actions\Retina\Storage\Pallet\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
-use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
-use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\History\UI\IndexHistory;
-use App\Actions\OrgAction;
 use App\Actions\RetinaAction;
-use App\Actions\UI\Fulfilment\ShowFulfilmentDashboard;
 use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
 use App\Enums\UI\Fulfilment\PalletTabsEnum;
-use App\Http\Resources\Fulfilment\PalletResource;
 use App\Http\Resources\Fulfilment\RetinaPalletResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
-use App\Models\Fulfilment\PalletDelivery;
-use App\Models\Inventory\Location;
-use App\Models\Inventory\Warehouse;
-use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -221,7 +210,7 @@ class ShowRetinaPallet extends RetinaAction
                     ]
                 ]
             ],
-            
+
             default => null,
         };
     }

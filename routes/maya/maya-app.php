@@ -33,7 +33,7 @@ Route::name('maya.')->group(function () {
     Route::post('connect/credentials', ConnectMayaWithCredentials::class)->name('connect.credentials');
 
 
-   /*  Route::name('firebase-token.')->prefix('firebase-token')->middleware(['auth:sanctum', 'bind_group'])->group(function () {
-        Route::patch('', UpdateFcmTokenUser::class)->name('fcm.update');
-    }); */
+    /*  Route::name('firebase-token.')->prefix('firebase-token')->middleware(['auth:sanctum', 'bind_group'])->group(function () {
+         Route::patch('', UpdateFcmTokenUser::class)->name('fcm.update');
+     }); */
 });
