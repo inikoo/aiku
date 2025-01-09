@@ -159,7 +159,7 @@ class IndexRetinaWebUsers extends RetinaAction
                         [
                             'type'  => 'button',
                             'style' => 'create',
-                            'label' => __('website user'),
+                            'label' => __('user'),
                             'route' => [
                                 'name'       => preg_replace('/index$/', 'create', $request->route()->getName()),
                                 'parameters' => $request->route()->originalParameters()
