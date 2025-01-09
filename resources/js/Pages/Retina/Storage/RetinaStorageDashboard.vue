@@ -79,7 +79,7 @@ const options = {
             <!-- Section: Profile box -->
             <div class="h-fit bg-slate-50 border border-slate-200 text-retina-600 p-6 flex flex-col justify-between rounded-lg shadow overflow-hidden">
                 <div class="w-full">
-                    <h2 v-if="customer?.name" class="text-3xl font-bold">{{ customer?.name }}</h2>
+                    <h2 v-if="customer?.name" class="text-3xl font-bold">Hello {{ customer?.name }}</h2>
                     <h2 v-else class="text-3xl font-light italic brightness-75">{{ trans('No name') }}</h2>
                     <div class="text-lg">
                         {{ customer?.shop }}
@@ -90,18 +90,18 @@ const options = {
                 </div>
                 
                 <div class="mt-4 space-y-3 text-sm text-slate-500">
-                    <div class="border-l-2 border-slate-500 pl-4">
+                    <!-- <div class="border-l-2 border-slate-500 pl-4">
                         <h3 class="font-light">Phone</h3>
                         <address class="text-base font-medium not-italic text-gray-600">
                             <p>{{ customer?.phone || '-' }}</p>
                         </address>
-                    </div>
-                    <div class="border-l-2 border-slate-500 pl-4">
+                    </div> -->
+                    <!-- <div class="border-l-2 border-slate-500 pl-4">
                         <h3 class="font-light">Email</h3>
                         <address class="text-base font-medium not-italic text-gray-600">
                             <p>{{ customer?.email || '-' }}</p>
                         </address>
-                    </div>
+                    </div> -->
                     <div class="border-l-2 border-slate-500 pl-4">
                         <h3 class="font-light">Member since</h3>
                         <address class="text-base font-medium not-italic text-gray-600">

@@ -153,13 +153,13 @@ class IndexRetinaWebUsers extends RetinaAction
                     'title'         => $title,
                     'icon'          => [
                         'type' => 'icon',
-                        'icon' => 'fal fa-users'
+                        'icon' => 'fal fa-user-circle'
                     ],
                     'actions'       => [
                         [
                             'type'  => 'button',
                             'style' => 'create',
-                            'label' => __('website user'),
+                            'label' => __('user'),
                             'route' => [
                                 'name'       => preg_replace('/index$/', 'create', $request->route()->getName()),
                                 'parameters' => $request->route()->originalParameters()
