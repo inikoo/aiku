@@ -24,7 +24,56 @@ const props = defineProps<{
 
 
 function palletRoute(pallet: Pallet) {
-   
+    switch (route().current()) {
+        case 'grp.org.fulfilments.show.operations.pallets.current.index':
+            return route(
+                'grp.org.fulfilments.show.operations.pallets.current.show',
+                [
+                    route().params['organisation'],
+                    route().params['fulfilment'],
+                    pallet['slug']
+                ])
+        case 'grp.org.warehouses.show.inventory.pallets.current.index':
+            return route(
+                'grp.org.warehouses.show.inventory.pallets.current.show',
+                [
+                    route().params['organisation'],
+                    route().params['warehouse'],
+                    pallet['slug']
+                ])
+
+        case 'grp.org.warehouses.show.infrastructure.locations.show':
+            return route(
+                'grp.org.warehouses.show.infrastructure.locations.show.pallets.show',
+                [
+                    route().params['organisation'],
+                    route().params['warehouse'],
+                    route().params['location'],
+                    pallet['slug']
+                ])
+        case 'grp.org.fulfilments.show.crm.customers.show':
+            return route(
+                'grp.org.fulfilments.show.crm.customers.show.pallets.show',
+                [
+                    route().params['organisation'],
+                    route().params['fulfilment'],
+                    route().params['fulfilmentCustomer'],
+                    pallet['slug']
+                ])
+        case 'retina.storage.pallets.index':
+            if(pallet.slug) {
+                return route(
+                    'retina.storage.pallets.show',
+                    [
+                        pallet.slug
+                    ])
+            } else {
+                return '#'
+            }
+
+        default:
+            return []
+    }
 }
 
 </script>
