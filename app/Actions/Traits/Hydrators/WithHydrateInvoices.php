@@ -29,6 +29,9 @@ trait WithHydrateInvoices
             $stats['sales_all'] = $model->invoices()->sum('net_amount');
             $stats['sales_org_currency_all'] = $model->invoices()->sum('org_net_amount');
             $stats['sales_grp_currency_all'] = $model->invoices()->sum('grp_net_amount');
+            if ($model->is_fulfilment) {
+                $stats['number_unpaid_invoices'] = $model->invoices()->where('payment_amount', 0)->count();
+            }
         }
 
 
