@@ -8,8 +8,10 @@
 
 namespace App\Actions\UI\Retina\SysAdmin;
 
+use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Dashboard\ShowDashboard;
+use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -22,15 +24,19 @@ class ShowSettings extends RetinaAction
     }
 
 
-    public function asController(ActionRequest $request): void
+    public function asController(ActionRequest $request): Response
     {
         $this->initialisation($request);
+
+        return $this->handle($request);
     }
 
 
-    public function htmlResponse(): Response
+    public function handle(ActionRequest $request): Response
     {
 
+        $customer = $request->user()->customer;
+        $fulfilmentCustomer = $customer->fulfilmentCustomer;
 
         return Inertia::render(
             'EditModel',
@@ -41,11 +47,43 @@ class ShowSettings extends RetinaAction
                     'title' => __('settings'),
                 ],
                 "formData" => [
-                    "blueprint" => [
+                    "blueprint" =>
+                    [
+                        [
+                            'title'  => __('contact information'),
+                            'label'  => __('contact'),
+                            'icon'    => 'fa-light fa-address-book',
+                            'fields' => [
+                                    'contact_name' => [
+                                        'type'  => 'input',
+                                        'label' => __('contact name'),
+                                        'value' => $customer->contact_name
+                                    ],
+                                    'company_name' => [
+                                        'type'  => 'input',
+                                        'label' => __('company'),
+                                        'value' => $customer->company_name
+                                    ],
+                                    'phone'        => [
+                                        'type'  => 'phone',
+                                        'label' => __('Phone'),
+                                        'value' => $customer->phone
+                                    ],
+                                    'address' => [
+                                        'type'    => 'address',
+                                        'label'   => __('Address'),
+                                        'value'   => AddressFormFieldsResource::make($customer->address)->getArray(),
+                                        'options' => [
+                                            'countriesAddressData' => GetAddressData::run()
+                                        ]
+                                    ]
+                                ]
+                        ]
                     ],
                     "args"      => [
                         "updateRoute" => [
-                            "name"       => "models.settings.update"
+                            "name"       => "retina.models.fulfilment-customer.update",
+                            'parameters' => [$fulfilmentCustomer->id]
                         ],
                     ],
                 ],
