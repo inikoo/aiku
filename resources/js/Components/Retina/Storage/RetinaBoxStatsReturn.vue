@@ -169,7 +169,7 @@ console.log('fff', props.box_stats)
                             size="xs"
                             fixed-width aria-hidden='true' />
                     </dt>
-                    <dd class="text-xs">{{ box_stats.delivery_status.tooltip }}</dd>
+                    <dd class="text-xs">{{ box_stats?.delivery_status?.tooltip }}</dd>
                 </div>
             </div>
         </BoxStatPallet>
