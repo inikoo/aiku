@@ -24,46 +24,7 @@ const props = defineProps<{
 
 
 function palletRoute(pallet: Pallet) {
-    switch (route().current()) {
-        case 'grp.org.fulfilments.show.operations.pallets.current.index':
-            return route(
-                'grp.org.fulfilments.show.operations.pallets.current.show',
-                [
-                    route().params['organisation'],
-                    route().params['fulfilment'],
-                    pallet['slug']
-                ])
-        case 'grp.org.warehouses.show.inventory.pallets.current.index':
-            return route(
-                'grp.org.warehouses.show.inventory.pallets.current.show',
-                [
-                    route().params['organisation'],
-                    route().params['warehouse'],
-                    pallet['slug']
-                ])
-
-        case 'grp.org.warehouses.show.infrastructure.locations.show':
-            return route(
-                'grp.org.warehouses.show.infrastructure.locations.show.pallets.show',
-                [
-                    route().params['organisation'],
-                    route().params['warehouse'],
-                    route().params['location'],
-                    pallet['slug']
-                ])
-        case 'grp.org.fulfilments.show.crm.customers.show':
-            return route(
-                'grp.org.fulfilments.show.crm.customers.show.pallets.show',
-                [
-                    route().params['organisation'],
-                    route().params['fulfilment'],
-                    route().params['fulfilmentCustomer'],
-                    pallet['slug']
-                ])
-
-        default:
-            return []
-    }
+   
 }
 
 </script>
@@ -71,7 +32,8 @@ function palletRoute(pallet: Pallet) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(reference)="{ item: pallet }">
-            <Link :href="palletRoute(pallet)" class="primaryLink">
+          
+            <Link :href="route('retina.storage.pallets.show',{ ...route().params, pallet : pallet.slug ? pallet.slug : pallet.id })" class="primaryLink">
                 {{ pallet.reference }}
             </Link>
         </template>
