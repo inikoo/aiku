@@ -151,7 +151,7 @@ class GetRetinaFulfilmentNavigation
             $groupNavigation['sysadmin'] = [
                 'label'   => __('manage account'),
                 'icon'    => ['fal', 'fa-users-cog'],
-                'root'    => 'retina.sysadmin.dashboard',
+                'root'    => 'retina.sysadmin.',
                 'route'   => [
                     'name' => 'retina.sysadmin.dashboard'
                 ],
