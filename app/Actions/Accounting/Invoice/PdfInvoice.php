@@ -44,8 +44,6 @@ class PdfInvoice
                 ->header('Content-Type', 'application/pdf')
                 ->header('Content-Disposition', 'inline; filename="' . $filename . '.pdf"');
         } catch (\Exception $e) {
-
-            // Return an error response
             return response()->json(['error' => 'Failed to generate PDF'], 500);
         }
     }
