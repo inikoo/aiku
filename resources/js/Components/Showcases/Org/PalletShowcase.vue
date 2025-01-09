@@ -11,6 +11,8 @@ import Tag from '@/Components/Tag.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { faPencil, faPrint } from '@fal'
 import { printBarcode } from '@/Composables/printBarcode'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faEmptySet } from '@fas'
 
 const props = defineProps<{
     data: {
@@ -98,9 +100,10 @@ onMounted(() => {
     }
 })
 
-const printBarcodePallet = (id:string ,code : string) =>{
+const printBarcodePallet = (id: string, code: string) => {
     printBarcode(id,code)
-}
+};
+
 
 </script>
 
@@ -185,36 +188,56 @@ const printBarcodePallet = (id:string ,code : string) =>{
         <div class="flex flex-col items-center gap-6">
             <!-- Pallet Code -->
             <div class="relative w-full border rounded-lg p-4 hover:bg-black/30 shadow-sm bg-gray-50 group">
-                <div class="text-sm font-medium text-center mb-2">Pallet Code</div>
-                <div v-if="props.data.data.slug" class="relative">
-                    <div class="relative hover:bg-black/30 rounded-lg p-2">
-                        <svg id="palletBarcode" class="mx-auto group-hover:fill-black" ></svg>
+                <div class="text-sm font-medium text-center mb-2">Barcode</div>
+                <div  class="relative">
+                    <div v-if="props.data.data.slug" class="relative hover:bg-black/30 rounded-lg p-2">
+                        <svg id="palletBarcode" class="mx-auto group-hover:fill-black"></svg>
+                    </div>
+                    <div v-else
+                        class="text-sm italic text-gray-400 flex flex-col justify-center items-center space-y-2">
+                        <div>No customer reference barcode</div>
+                        <div>
+                            <FontAwesomeIcon :icon="faEmptySet" class="text-3xl" />
+                        </div>
                     </div>
                     <!-- Hover Buttons -->
                     <div
                         class="absolute inset-0 flex items-center gap-3 justify-center opacity-0 group-hover:opacity-100 group-hover:visible transition duration-300">
-                         <Link :href="route(!route().params.fulfilment ? 'grp.org.warehouses.show.inventory.pallets.current.edit' : 'grp.org.fulfilments.show.crm.customers.show.pallets.edit',{...route().params})"><Button :icon="faPencil" size="xs" /> </Link>
-                         <Button :icon="faPrint" size="xs" type="white"  @click="()=>printBarcodePallet('palletBarcode',props.data.data.slug)"/>
+                        <Link
+                            :href="route(!route().params.fulfilment ? 'grp.org.warehouses.show.inventory.pallets.current.edit' : 'grp.org.fulfilments.show.crm.customers.show.pallets.edit', { ...route().params })">
+                        <Button :icon="faPencil" size="xs" /> </Link>
+                        <Button v-if="props.data.data.slug" :icon="faPrint" size="xs" type="white"
+                            @click="() => printBarcodePallet('palletBarcode', props.data.data.slug)" />
                     </div>
                 </div>
-                <span v-else class="text-sm italic text-gray-400">No pallet barcode available</span>
             </div>
 
             <!-- Customer Reference -->
             <div class="relative w-full border hover:bg-black/30 rounded-lg p-4 shadow-sm bg-gray-50 group">
                 <div class="text-sm font-medium text-center mb-2">Customer Reference</div>
-                <div v-if="props.data.data.customer_reference" class="relative">
-                    <div class="relative hover:bg-black/30 rounded-lg p-2">
-                        <svg id="customerReferenceBarcode"  class="mx-auto group-hover:fill-black" ></svg>
+                <div class="relative">
+                    <div v-if="props.data.data.customer_reference" class="relative hover:bg-black/30 rounded-lg p-2">
+                        <svg id="customerReferenceBarcode" class="mx-auto group-hover:fill-black"></svg>
                     </div>
+                    <div v-else
+                        class="text-sm italic text-gray-400 flex flex-col justify-center items-center space-y-2">
+                        <div>No customer reference barcode available</div>
+                        <div>
+                            <FontAwesomeIcon :icon="faEmptySet" class="text-3xl" />
+                        </div>
+                    </div>
+
                     <!-- Hover Buttons -->
                     <div
                         class="absolute inset-0 flex items-center gap-3 justify-center opacity-0 group-hover:opacity-100 group-hover:visible transition duration-300">
-                        <Link :href="route(!route().params.fulfilment ? 'grp.org.warehouses.show.inventory.pallets.current.edit' : 'grp.org.fulfilments.show.crm.customers.show.pallets.edit' ,{...route().params})"><Button :icon="faPencil" size="xs"/></Link>
-                         <Button :icon="faPrint" size="xs" type="white" @click="()=>printBarcodePallet('customerReferenceBarcode',props.data.data.customer_reference)"/>
+                        <Link
+                            :href="route(!route().params.fulfilment ? 'grp.org.warehouses.show.inventory.pallets.current.edit' : 'grp.org.fulfilments.show.crm.customers.show.pallets.edit', { ...route().params })">
+                        <Button :icon="faPencil" size="xs" /></Link>
+                        <Button v-if="props.data.data.customer_reference" :icon="faPrint" size="xs" type="white"
+                            @click="() => printBarcodePallet('customerReferenceBarcode', props.data.data.customer_reference)" />
                     </div>
                 </div>
-                <span v-else class="text-sm italic text-gray-400">No customer reference barcode available</span>
+
             </div>
         </div>
     </div>
