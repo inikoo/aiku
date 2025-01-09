@@ -23,6 +23,7 @@ class WebUserResource extends JsonResource
         return [
             'slug'       => $webUser->slug,
             'username'   => $webUser->username,
+            'contact_name' => $webUser->contact_name,
             'status'     => $webUser->status,
             'email'      => $webUser->email,
             'is_root'    => $webUser->is_root,

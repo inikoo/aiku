@@ -66,11 +66,16 @@ class EditRetinaWebUser extends RetinaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'   => __('credentials'),
-                            'label'   => __('credentials'),
+                            'title'   => __('properties'),
+                            'label'   => __('properties'),
                             'icon'    => 'fa-light fa-key',
                             'current' => true,
                             'fields'  => [
+                                'contact_name' => [
+                                    'type'  => 'input',
+                                    'label' => __('contact name'),
+                                    'value' => $webUser->contact_name
+                                ],
                                 'email' => [
                                     'type'  => 'input',
                                     'label' => __('email'),
@@ -85,11 +90,6 @@ class EditRetinaWebUser extends RetinaAction
                                     'type'  => 'password',
                                     'label' => __('password'),
                                     'value' => ''
-                                ],
-                                'is_root' => [
-                                    'type'  => 'toggle',
-                                    'label' => __('Admin'),
-                                    'value' => $webUser->is_root
                                 ],
 
                             ]

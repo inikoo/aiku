@@ -32,7 +32,7 @@ const locale = inject('locale', aikuLocaleStructure)
                     fixed-width aria-hidden='true' />
             </div>
         </Transition>
-        <div v-tooltip="'Amount need to pay by customer'" class="text-sm w-fit">
+        <div v-tooltip="trans('Amount need to pay by customer')" class="text-sm w-fit">
             {{ locale.currencyFormat(currencyCode || 'usd', Number(totalAmount)) }}
             <span v-if="Number(paidAmount) > 0" class='text-gray-400'>. Paid</span>
         </div>

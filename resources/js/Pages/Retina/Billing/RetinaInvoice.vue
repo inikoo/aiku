@@ -30,10 +30,10 @@
   
   import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
   import { library } from '@fortawesome/fontawesome-svg-core'
-  import { faIdCardAlt, faMapMarkedAlt, faPhone, faChartLine, faCreditCard, faCube, faFolder, faPercent, faCalendarAlt, faDollarSign, faMapMarkerAlt, faPencil } from '@fal'
+  import { faIdCardAlt, faMapMarkedAlt, faPhone, faChartLine, faCreditCard, faCube, faFolder, faPercent, faCalendarAlt, faDollarSign, faMapMarkerAlt, faPencil, faBuilding, faMoneyBillAlt } from '@fal'
   import { faClock, faFileInvoice, faFilePdf } from '@fas'
   import { faCheck } from '@far'
-  library.add(faCheck, faIdCardAlt, faMapMarkedAlt, faPhone, faFolder, faCube, faChartLine, faCreditCard, faClock, faFileInvoice, faPercent, faCalendarAlt, faDollarSign, faFilePdf, faMapMarkerAlt, faPencil)
+  library.add(faCheck, faIdCardAlt, faMapMarkedAlt, faPhone, faFolder, faCube, faChartLine, faCreditCard, faClock, faFileInvoice, faPercent, faCalendarAlt, faBuilding, faDollarSign, faFilePdf, faMapMarkerAlt, faPencil, faMoneyBillAlt)
   
   const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
   
@@ -208,7 +208,7 @@
           <BoxStatPallet class=" py-2 px-3" icon="fal fa-user">
   
               <!-- Field: Registration Number -->
-              <Link as="a" v-if="box_stats?.customer.reference" :href="route(box_stats?.customer.route.name, box_stats?.customer.route.parameters)"
+              <!-- <Link as="a" v-if="box_stats?.customer.reference" :href="route(box_stats?.customer.route.name, box_stats?.customer.route.parameters)"
                   class="pl-1 flex items-center w-fit flex-none gap-x-2 cursor-pointer primaryLink">
                   <dt v-tooltip="'Company name'" class="flex-none">
                       <span class="sr-only">Registration number</span>
@@ -217,7 +217,7 @@
                   </dt>
                   <dd class="text-xs text-gray-500">#{{ box_stats?.customer.reference }}</dd>
               </Link>
-  
+   -->
               <!-- Field: Contact name -->
               <div v-if="box_stats?.customer.contact_name" class="pl-1 flex items-center w-full flex-none gap-x-2">
                   <dt v-tooltip="'Contact name'" class="flex-none">
@@ -297,13 +297,14 @@
   
                   <div class="relative flex items-start w-full flex-none gap-x-2">
                       <dt class="flex-none pt-1">
-                          <FontAwesomeIcon icon='fal fa-dollar-sign' fixed-width aria-hidden='true' class="text-gray-500" />
+                          <FontAwesomeIcon icon='fal fa-money-bill-alt' fixed-width aria-hidden='true' class="text-gray-500" />
                       </dt>
                       <NeedToPay
                           @click="() => Number(box_stats.information.pay_amount) > 0 ? (isOpenModalPayment = true, fetchPaymentMethod()) : false"
                           :totalAmount="Number(props.invoice.total_amount)"
                           :paidAmount="Number(box_stats.information.paid_amount)"
                           :payAmount="Number(box_stats.information.pay_amount)"
+                          :currencyCode="props.invoice.currency_code"
                           :class="[Number(box_stats.information.pay_amount) ? 'hover:bg-gray-100 cursor-pointer' : '']"
                       />
   

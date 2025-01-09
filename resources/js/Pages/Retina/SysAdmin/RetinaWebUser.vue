@@ -30,7 +30,7 @@
       {
           label: 'Contact',
           key: 'contact',
-          value: props.data.customer?.contact_name
+          value: props.data.contact_name ?? '-'
       },
       {
           label: 'Username',
@@ -57,11 +57,11 @@
           key: 'status',
           value: props.data.status
       },
-      {
-          label: 'Location',
-          key: 'location',
-          value: props.data.customer?.location
-      },
+    //   {
+    //       label: 'Location',
+    //       key: 'location',
+    //       value: props.data.customer?.location
+    //   },
   ]
   console.log(props)
   </script>
@@ -82,7 +82,6 @@
                       </div>
                       <div class="font-medium text-sm">
                           <Tag v-if="print.key === 'status'" :theme="print.value ? 3 : undefined" :label="print.value ? 'Active' : 'Inactive'" />
-                          <AddressLocation v-else-if="print.key === 'location'" :data="print.value" />
                           <span v-else>{{print.value}}</span>
                       </div>
                   </div>

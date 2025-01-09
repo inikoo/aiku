@@ -126,6 +126,7 @@ export interface FieldOrderSummary {
     quantity: number
     price_base?: number
     price_total: number | string
+    information_icon?: string
     information?: string
     currency: {
         code: string

@@ -47,15 +47,16 @@ function recurringBillRoute(recurringBill: RecurringBill) {
         <template #cell(reference)="{ item: recurringBill }">
             <Link :href="recurringBillRoute(recurringBill)" class="primaryLink">
                 {{ recurringBill['reference'] }}
+             <!--    <pre>{{  recurringBill }}</pre> -->
             </Link>
         </template>
 
-           <!-- Column: Net -->
-       <!--  <template #cell(net_amount)="{ item: bill }">
+        <!-- Column: Net -->
+        <template #cell(net_amount)="{ item: bill }">
             <div class="text-gray-500">
                 {{ useLocaleStore().currencyFormat(bill.currency_code, bill.net_amount) }}
             </div>
-        </template> -->
+        </template>
 
         <!-- Column: Start date -->
         <template #cell(start_date)="{ item }">

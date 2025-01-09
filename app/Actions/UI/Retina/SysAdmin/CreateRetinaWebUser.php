@@ -31,12 +31,12 @@ class CreateRetinaWebUser extends RetinaAction
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
-                'title'    => __('Create web user'),
+                'title'    => __('Create User'),
                 'pageHead' => [
-                    'title' => __('Create web user'),
+                    'title' => __('Create User'),
                     'icon'  => [
-                        'icon'  => 'fal fa-terminal',
-                        'title' => __('web user')
+                        'icon'  => 'fal fa-user-circle',
+                        'title' => __('user')
                     ],
                     'actions' => [
                         [
@@ -65,6 +65,11 @@ class CreateRetinaWebUser extends RetinaAction
                                             ]
                                         ]
                                     ],
+                                    'contact_name' => [
+                                        'type'  => 'input',
+                                        'label' => __('contact name'),
+                                        'value' => ''
+                                    ],
                                     'email' => [
                                         'type'  => 'input',
                                         'label' => __('email'),
@@ -79,11 +84,6 @@ class CreateRetinaWebUser extends RetinaAction
                                         'type'  => 'password',
                                         'label' => __('password'),
                                         'value' => ''
-                                    ],
-                                    'is_root' => [
-                                        'type'  => 'toggle',
-                                        'label' => __('Admin'),
-                                        'value' => false
                                     ],
 
                                 ]
