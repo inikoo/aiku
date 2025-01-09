@@ -29,7 +29,7 @@ class ShowRetinaBillingDashboard
         $numberInvoices = $customer->stats->number_invoices;
 
         return Inertia::render(
-            'Billing/RetinaBillingDashboard',
+            'Billing/OverviewHub',
             [
                 'title'       => __('Billing'),
                 'pageHead'    => [
@@ -70,12 +70,6 @@ class ShowRetinaBillingDashboard
                                     ],
                                     'type' => 'multi_card',
                                 ] : null,
-                                $numberUnpaidInvoices ?
-                                [
-                                    'label' => __('Unpaid Invoices'),
-                                    'value' => $customer->stats->number_unpaid_invoices,
-                                    'type' => 'card_number_attention',
-                                ] : null,
                                 $numberInvoices ?
                                 [
                                     'label' => __('Total Invoices'),
@@ -84,6 +78,16 @@ class ShowRetinaBillingDashboard
                                     'type' => 'card_number',
                                 ] : null,
                             ],
+                        ],
+                        [
+                            'widgets' => [
+                                $numberUnpaidInvoices ?
+                                [
+                                    'label' => __('Unpaid Invoices'),
+                                    'value' => $customer->stats->number_unpaid_invoices,
+                                    'type' => 'card_number_attention',
+                                ] : null,
+                            ]
                         ]
                     ]
                 ],
