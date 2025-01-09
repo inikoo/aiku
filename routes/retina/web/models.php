@@ -41,6 +41,7 @@ use App\Actions\Fulfilment\StoredItem\StoreStoredItemsToReturn;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPalletAudit;
 use App\Actions\UI\Retina\Profile\UpdateRetinaProfile;
+use App\Actions\UI\Retina\SysAdmin\UpdateRetinaFulfilmentCustomer;
 use Illuminate\Support\Facades\Route;
 
 Route::patch('/profile', UpdateRetinaProfile::class)->name('profile.update');
@@ -95,6 +96,7 @@ Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
 });
 
 Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
+    Route::patch('update', UpdateRetinaFulfilmentCustomer::class)->name('update');
     Route::post('delivery-address/store', [AddDeliveryAddressToFulfilmentCustomer::class, 'fromRetina'])->name('delivery-address.store');
 });
 
