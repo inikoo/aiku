@@ -449,7 +449,7 @@ const isShowInWebpage = (activityItem) => {
 					<ProgressSpinner />
 				</div> -->
 
-				<div class="h-full w-full bg-white">
+				<div class="h-full w-full bg-white overflow-auto">
 					<!-- <iframe
 						ref="_iframe"
 						:src="iframeSrc"
@@ -525,7 +525,7 @@ const isShowInWebpage = (activityItem) => {
 
 <style lang="scss" scoped>
 :deep(.component-iseditable) {
-    @apply hover:bg-black/30 border border-transparent hover:border-black/80 border-dashed cursor-pointer;
+    @apply border border-transparent  border-dashed cursor-pointer;
 }
 
 iframe {

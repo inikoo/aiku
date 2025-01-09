@@ -401,7 +401,7 @@ test('UI create product', function () {
         $page
             ->component('CreateModel')
             ->has('title')
-            ->has('formData.blueprint.0.fields', 5)
+            ->has('formData.blueprint.0.fields', 6)
             ->has('pageHead')
             ->has('formData')
             ->has('breadcrumbs', 5);

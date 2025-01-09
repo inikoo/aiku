@@ -88,7 +88,7 @@ const disableBeforeToday = (date: Date) => {
             <div class="flex items-center w-full flex-none gap-x-2">
                 <dt class="flex-none">
                     <span class="sr-only">{{ box_stats.delivery_state.tooltip }}</span>
-                    <FontAwesomeIcon :icon="['fal', 'calendar-day']" :class='box_stats.delivery_status.class'
+                    <FontAwesomeIcon :icon="['fal', 'calendar-day']" :class='box_stats?.delivery_status?.class'
                         fixed-width aria-hidden='true' />
                 </dt>
 

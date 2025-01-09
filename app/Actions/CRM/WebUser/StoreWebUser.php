@@ -74,6 +74,10 @@ class StoreWebUser extends OrgAction
             return true;
         }
 
+        if ($request->user() instanceof WebUser) {
+            return true;
+        }
+
         if ($this->parent instanceof FulfilmentCustomer) {
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
         }
@@ -177,6 +181,19 @@ class StoreWebUser extends OrgAction
     /**
      * @throws \Throwable
      */
+    public function inRetina(ActionRequest $request): Webuser
+    {
+        $customer = $request->user()->customer;
+        $this->parent   = $customer;
+        $this->customer = $customer;
+        $this->initialisationFromShop($customer->shop, $request);
+
+        return $this->handle($customer, $this->validatedData);
+    }
+
+    /**
+     * @throws \Throwable
+     */
     public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Webuser
     {
 
@@ -200,6 +217,10 @@ class StoreWebUser extends OrgAction
                 'organisation'       => $webUser->organisation->slug,
                 'fulfilment'         => $this->parent->fulfilment->slug,
                 'fulfilmentCustomer' => $this->parent->slug,
+                'webUser'            => $webUser->slug
+            ]));
+        } elseif (request()->user() instanceof WebUser) {
+            return Inertia::location(route('retina.sysadmin.web-users.show', [
                 'webUser'            => $webUser->slug
             ]));
         }

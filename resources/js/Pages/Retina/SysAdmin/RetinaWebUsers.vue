@@ -33,7 +33,7 @@ const props = defineProps<{
 
 const locale = useLocaleStore();
 
-function webUserRoute(webUser: RecurringBill) {
+function webUserRoute(webUser: {}) {
     switch (route().current()) {
         default:
             return route(
@@ -51,9 +51,9 @@ function webUserRoute(webUser: RecurringBill) {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
     <Table :resource="data" class="mt-5">
-        <template #cell(reference)="{ item: webUser }">
+        <template #cell(username)="{ item: webUser }">
             <Link :href="webUserRoute(webUser)" class="primaryLink py-0.5">
-            {{ webUser.reference }}
+            {{ webUser.username }}
             </Link>
         </template>
 

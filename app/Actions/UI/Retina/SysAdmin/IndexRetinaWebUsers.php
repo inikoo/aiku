@@ -100,7 +100,7 @@ class IndexRetinaWebUsers extends RetinaAction
 
         return $queryBuilder
             ->defaultSort('username')
-            ->select(['username', 'email', 'is_root'])
+            ->select(['slug','username', 'email', 'is_root'])
             ->allowedSorts(['status','username', 'email', 'contact_name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -129,8 +129,8 @@ class IndexRetinaWebUsers extends RetinaAction
                 ->withTitle(title: __('Users'))
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
-                ->column(key: 'status', label: ['data' => ['fal', 'fa-yin-yang'], 'type' => 'icon', 'tooltip' => __('status')], type: 'icon')
                 ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('username');
         };
     }
@@ -155,6 +155,17 @@ class IndexRetinaWebUsers extends RetinaAction
                         'type' => 'icon',
                         'icon' => 'fal fa-users'
                     ],
+                    'actions'       => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'create',
+                            'label' => __('website user'),
+                            'route' => [
+                                'name'       => preg_replace('/index$/', 'create', $request->route()->getName()),
+                                'parameters' => $request->route()->originalParameters()
+                            ]
+                        ]
+                    ]
                 ],
 
                 'labels' => [
@@ -172,7 +183,8 @@ class IndexRetinaWebUsers extends RetinaAction
     public function getBreadcrumbs(string $routeName): array
     {
         return match ($routeName) {
-            'retina.sysadmin.web-users.index' =>
+            'retina.sysadmin.web-users.index',
+            'retina.sysadmin.web-users.show' =>
             array_merge(
                 ShowRetinaSysAdminDashboard::make()->getBreadcrumbs(),
                 [
@@ -182,7 +194,7 @@ class IndexRetinaWebUsers extends RetinaAction
                             'route' => [
                                 'name'       => 'retina.sysadmin.web-users.index',
                             ],
-                            'label' => __('Users'),
+                            'label' => __('Web users'),
                             'icon'  => 'fal fa-bars',
                         ],
 
