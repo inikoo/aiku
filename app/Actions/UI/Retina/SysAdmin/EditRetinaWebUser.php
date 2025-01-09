@@ -71,6 +71,11 @@ class EditRetinaWebUser extends RetinaAction
                             'icon'    => 'fa-light fa-key',
                             'current' => true,
                             'fields'  => [
+                                'contact_name' => [
+                                    'type'  => 'input',
+                                    'label' => __('contact name'),
+                                    'value' => $webUser->contact_name
+                                ],
                                 'email' => [
                                     'type'  => 'input',
                                     'label' => __('email'),

@@ -29,7 +29,7 @@ class RecurringBillsResource extends JsonResource
             'net_amount'               => $this->net_amount,
             'start_date'               => $this->start_date,
             'end_date'                 => $this->end_date,
-            'currency_code'            => $this->currency_code,
+            'currency_code'            => $this->currency_code ?? ($this->currency ? $this->currency->code : null),
             'currency_symbol'          => $this->currency_symbol,
         ];
     }
