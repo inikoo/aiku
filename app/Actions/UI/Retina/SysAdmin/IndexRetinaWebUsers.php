@@ -129,7 +129,6 @@ class IndexRetinaWebUsers extends RetinaAction
                 ->withTitle(title: __('Users'))
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
-                ->column(key: 'status', label: ['data' => ['fal', 'fa-yin-yang'], 'type' => 'icon', 'tooltip' => __('status')], type: 'icon')
                 ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('username');
