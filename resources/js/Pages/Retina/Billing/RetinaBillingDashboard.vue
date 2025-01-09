@@ -7,41 +7,14 @@ import { capitalize } from "@/Composables/capitalize"
 import { inject, ref, computed, onMounted, onUnmounted } from "vue"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import {
-	faBoothCurtain,
-	faBoxes,
-	faBoxOpen,
-	faBrowser,
-	faCoin,
-	faDolly,
-	faEnvelope,
-	faEnvelopeOpenText,
-	faExchangeAlt,
-	faFilter,
-	faForklift,
-	faInboxOut,
-	faIndustryAlt,
-	faInventory,
-	faLocationArrow,
-	faMailBulk,
-	faRoad,
-	faTrashAlt,
-	faTruckLoading,
-	faUser,
-	faUserAlien,
-	faUserCircle,
-	faUserHeadset,
-	faUsers,
-	faWarehouseAlt,
-	faPaperPlane,
-	faScrollOld,
-	faPhoneVolume,
-	faRaygun,
+    faFileInvoiceDollar,
 } from "@fal"
 import SectionTable from "@/Components/Table/SectionTable.vue"
 import { faAngleDown, faAngleUp } from "@far"
 import StoreStatsCard from "@/Components/DataDisplay/StoreStatsCard.vue"
 import InfoDashboardCard from "@/Components/DataDisplay/InfoDashboardCard.vue"
 import ProgressDashboardCard from "@/Components/DataDisplay/ProgressDashboardCard.vue"
+import RetinaTable from "@/Components/Table/RetinaTableDashboard.vue"
 
 const props = defineProps<{
 	title: string
@@ -50,18 +23,16 @@ const props = defineProps<{
 		columns: Array<{
 			widgets: Array<{
 				type: string
-				data: {
-					data: Array<{
-						section: string
-						data: Array<{
-							name: string
-							icon: string
-							route: string
-							count: number
-						}>
-					}>
-				}
-			}>
+				label?: string
+				route?: string
+				value?: number
+				data?: Array<{
+					name: string
+					icon: string
+					route: string
+					count: number
+				}>
+			} | null>
 		}>
 	}
 }>()
@@ -69,39 +40,7 @@ const props = defineProps<{
 const locale = inject("locale", aikuLocaleStructure)
 
 library.add(
-	faExclamationCircle,
-	faInboxOut,
-	faUser,
-	faFilter,
-	faBoxes,
-	faAngleDown,
-	faAngleUp,
-	faBrowser,
-	faTrashAlt,
-	faCoin,
-	faBoothCurtain,
-	faRoad,
-	faUserAlien,
-	faEnvelopeOpenText,
-	faEnvelope,
-	faUserCircle,
-	faExchangeAlt,
-	faDolly,
-	faBoxOpen,
-	faTruckLoading,
-	faForklift,
-	faUsers,
-	faUserHeadset,
-	faWarehouseAlt,
-	faInventory,
-	faLocationArrow,
-	faIndustryAlt,
-	faMailBulk,
-	faPaperPlane,
-	faPhoneVolume,
-	faRaygun,
-	faScrollOld,
-	faUserCircle
+faFileInvoiceDollar
 )
 
 // Search functionality
@@ -124,12 +63,8 @@ onUnmounted(() => {
 })
 
 const columnClasses = computed(() => {
-	const totalColumns = props.dashboard_stats?.columns?.length || 1
-	const columnSpan = Math.floor(12 / totalColumns)
-	return `col-span-${columnSpan}`
+	return (colIndex: number) => (colIndex === 0 ? "col-span-6" : "col-span-3")
 })
-console.log(props.dashboard_stats.columns);
-
 </script>
 
 <template>
@@ -137,17 +72,40 @@ console.log(props.dashboard_stats.columns);
 	<Head :title="capitalize(title)" />
 	<PageHeading :data="pageHead" />
 
-	<!-- Dashboard Grid -->
 	<div class="grid grid-cols-12 gap-4 p-4">
-		<!-- Left Column -->
-		<div class="col-span-6 space-y-4">
-			<!-- Loop through columns for the table -->
-			<template v-for="(column, colIndex) in props.dashboard_stats.columns" :key="colIndex">
-				
-			</template>
-		</div>
+		<!-- Loop through each column -->
+		<template v-for="(column, colIndex) in props.dashboard_stats.columns" :key="colIndex">
+			<div :class="[columnClasses(colIndex), 'space-y-4']">
+				<!-- Loop through widgets in the column -->
+				<template v-for="(widget, widgetIndex) in column.widgets" :key="widgetIndex">
+					<div v-if="widget">
+						<!-- Unpaid Invoices Section -->
+						<div v-if="widget.type === 'unpaid_invoices'">
+							<RetinaTable :data="widget.data" />
+						</div>
 
-		
+						<!-- Card with Number -->
+						<div v-if="widget.type === 'card_number'">
+							<InfoDashboardCard
+								:value="widget.value"
+								:description="widget.label"
+								:showRedBorder="false"
+								:showIcon="false"
+                                :route="widget.route"
+								class="h-full" />
+						</div>
+
+						<!-- Progress Dashboard Card -->
+						<div v-if="widget.type === 'card_progress_bar'">
+							<ProgressDashboardCard
+								:label="widget.label"
+								:value="widget.value"
+								:progressBar="widget.data" />
+						</div>
+					</div>
+				</template>
+			</div>
+		</template>
 	</div>
 </template>
 
