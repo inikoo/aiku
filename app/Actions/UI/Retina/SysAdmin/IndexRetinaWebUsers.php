@@ -153,7 +153,7 @@ class IndexRetinaWebUsers extends RetinaAction
                     'title'         => $title,
                     'icon'          => [
                         'type' => 'icon',
-                        'icon' => 'fal fa-users'
+                        'icon' => 'fal fa-user-circle'
                     ],
                     'actions'       => [
                         [

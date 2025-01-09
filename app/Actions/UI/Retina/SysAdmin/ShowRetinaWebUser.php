@@ -38,14 +38,14 @@ class ShowRetinaWebUser extends RetinaAction
 
     public function htmlResponse(WebUser $webUser, ActionRequest $request): Response
     {
-        $model = __('web user');
+        $model = __('User');
         $iconRight  = [];
         $subNavigation = [];
 
         return Inertia::render(
             'SysAdmin/RetinaWebUser',
             [
-                'title'       => __('Web user'),
+                'title'       => __('User'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
@@ -54,7 +54,7 @@ class ShowRetinaWebUser extends RetinaAction
                     'model'         => $model,
                     'title'         => $webUser->username,
                     'subNavigation' => $subNavigation,
-                    'icon'              => 'fal fa-user',
+                    'icon'              => 'fal fa-user-circle',
                     'iconRight' => $iconRight,
                 // 'meta'          => [
                     //     [
@@ -95,7 +95,7 @@ class ShowRetinaWebUser extends RetinaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('Web users')
+                            'label' => __('Users')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
