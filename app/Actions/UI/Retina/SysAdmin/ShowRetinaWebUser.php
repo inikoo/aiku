@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 09-01-2025-09h-25m
@@ -8,19 +9,9 @@
 
 namespace App\Actions\UI\Retina\SysAdmin;
 
-use App\Actions\CRM\Customer\UI\ShowCustomer;
-use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
-use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
-use App\Actions\OrgAction;
 use App\Actions\RetinaAction;
 use App\Http\Resources\CRM\WebUserResource;
-use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Catalogue\Shop;
-use App\Models\SysAdmin\Organisation;
-use Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

@@ -17,11 +17,11 @@ import { useLocaleStore } from '@/Stores/locale'
 import { RecurringBill } from '@/types/recurring_bill'
 
 import { useFormatTime } from '@/Composables/useFormatTime'
-
+import Icon from '@/Components/Icon.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faReceipt } from '@fal'
+import { faReceipt,faRoad, faUserCircle, faUserSlash, faBlender, faTimes, faCheck, faYinYang } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faReceipt)
+library.add(faReceipt, faRoad, faUserCircle, faUserSlash, faBlender, faTimes, faCheck, faYinYang)
 
 
 const props = defineProps<{
@@ -51,6 +51,11 @@ function webUserRoute(webUser: {}) {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
     <Table :resource="data" class="mt-5">
+
+        <template #cell(status)="{ item: webUser }">
+            <Icon :data="webUser.status" class="px-1" />
+        </template>
+
         <template #cell(username)="{ item: webUser }">
             <Link :href="webUserRoute(webUser)" class="primaryLink py-0.5">
             {{ webUser.username }}
