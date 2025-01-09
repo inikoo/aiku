@@ -36,5 +36,5 @@ defineProps({
 			class="absolute bottom-0 right-0 transform translate-x-1/2 translate-y-1/2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md">
 			!
 		</div>
-	</div>
+	</div><!-- card_number_attention -->
 </template>
