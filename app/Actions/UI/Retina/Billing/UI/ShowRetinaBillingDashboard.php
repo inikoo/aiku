@@ -34,7 +34,7 @@ class ShowRetinaBillingDashboard
                 'title'       => __('Billing'),
                 'pageHead'    => [
                     'icon'      => [
-                        'icon'  => ['fal', 'fa-mountains'],
+                        'icon'  => ['fal', 'fa-file-invoice-dollar'],
                         'title' => __('Billing')
                     ],
                     'title'     => __('Billing'),
