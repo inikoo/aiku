@@ -54,6 +54,7 @@ class RetinaPalletResource extends JsonResource
                 'name'                 => $this->fulfilmentCustomer->customer->name,
                 'contact_name'         => $this->fulfilmentCustomer->customer->contact_name,
                 ],
+            'location'              => LocationResource::make($this->location),
             'state'                 => $this->state,
             'status'                => $this->status,
             'notes'                 => $this->notes ?? '',
