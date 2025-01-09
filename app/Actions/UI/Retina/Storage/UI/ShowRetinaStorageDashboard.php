@@ -27,6 +27,17 @@ class ShowRetinaStorageDashboard
     {
         return Inertia::render('Storage/RetinaStorageDashboard', [
             'title'        => __('Dashboard'),
+
+            'pageHead'    => [
+                'title'         => __('Dashboard'),
+                'icon'          => [
+                    'icon'  => ['fal', 'fa-tachometer-alt'],
+                    'title' => __('Dashboard')
+                ],
+
+            ],
+
+
             'storageData'  => $this->getDashboardData($request->user()->customer->fulfilmentCustomer),
             'customer'     => CustomersResource::make($request->user()->customer)->resolve()
         ]);
