@@ -47,6 +47,7 @@ function recurringBillRoute(recurringBill: RecurringBill) {
         <template #cell(reference)="{ item: recurringBill }">
             <Link :href="recurringBillRoute(recurringBill)" class="primaryLink">
                 {{ recurringBill['reference'] }}
+             <!--    <pre>{{  recurringBill }}</pre> -->
             </Link>
         </template>
 

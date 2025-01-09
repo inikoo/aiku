@@ -17,6 +17,7 @@ import { faCheckCircle, faInfoCircle, faExclamationTriangle, faExclamationCircle
 import { faSeedling, faShare, faSpellCheck, faCheck, faTimes, faSignOutAlt, faTruck, faCheckDouble, faCross } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { useFormatTime } from '@/Composables/useFormatTime'
+import PageHeading from "@/Components/Headings/PageHeading.vue"
 
 library.add(faCheckCircle, faInfoCircle, faExclamationTriangle, faSeedling, faShare, faSpellCheck, faCheck, faTimes, faSignOutAlt, faTruck, faCheckDouble, faCross)
 
@@ -26,6 +27,7 @@ const props = defineProps<{
     title: string
     customer: PalletCustomer
     unpaid_invoices: Object
+    pageHead : PageHeadingTypes
     transactionsData: {
         currency : {
             currency : {
@@ -57,8 +59,9 @@ const date = new Date()
 
 <template>
     <div class="px-4 py-5 md:px-6 lg:px-8 space-y-6">
-        <h1 class="text-2xl font-bold text-gray-800">{{ trans("Storage Dashboard") }}</h1>
-        <hr class="border-slate-300 rounded-full mb-5" />
+        <PageHeading :data="pageHead"></PageHeading>
+        <!-- <h1 class="text-2xl font-bold text-gray-800">{{ trans("Storage Dashboard") }}</h1>
+        <hr class="border-slate-300 rounded-full mb-5" /> -->
 
         <!-- Card Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
