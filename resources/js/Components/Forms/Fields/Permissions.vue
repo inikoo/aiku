@@ -351,6 +351,7 @@ const organisationPositionCounts = ref({})
                             :fieldName="organisation.slug"
                             :options="options?.[organisation.slug]"
                             saveButton
+                            :isGroupAdminSelected="isRadioChecked('group-admin')"
                             :organisationId="organisation.id"
                             @countPosition="(count: number) => set(organisationPositionCounts, organisation.slug, count)"
                         />
