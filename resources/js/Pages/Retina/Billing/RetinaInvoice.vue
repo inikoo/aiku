@@ -54,6 +54,7 @@
   import axios from 'axios'
   import { notify } from '@kyvg/vue3-notification'
   import NeedToPay from '@/Components/Utils/NeedToPay.vue'
+import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
   // const locale = useLocaleStore()
   const locale = inject('locale', aikuLocaleStructure)
   
@@ -109,7 +110,7 @@
           items: TableInvoiceTransactions,
           payments: TablePayments,
           details: ModelDetails,
-          history: ModelChangelog,
+          history: TableHistories,
       }
   
       return components[currentTab.value]
@@ -126,6 +127,7 @@
           const { data } = await axios.get(route(props.box_stats.information.routes.fetch_payment_accounts.name, props.box_stats.information.routes.fetch_payment_accounts.parameters))
           listPaymentMethod.value = data.data
       } catch (error) {
+        console.error(error)
           notify({
               title: trans('Something went wrong'),
               text: trans('Failed to fetch payment method list'),
