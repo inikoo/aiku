@@ -27,25 +27,36 @@ class PdfInvoice
      */
     public function handle(Invoice $invoice): Response
     {
-        $totalItemsNet = (int) $invoice->total_amount;
-        $totalShipping = (int) $invoice->order?->shipping_amount ?? 0;
+        try {
+            $totalItemsNet = (int) $invoice->total_amount;
+            $totalShipping = (int) $invoice->order?->shipping_amount ?? 0;
 
-        $totalNet = $totalItemsNet + $totalShipping;
+            $totalNet = $totalItemsNet + $totalShipping;
 
-        $filename = $invoice->slug . '-' . now()->format('Y-m-d');
-        $pdf      = PDF::loadView('invoices.templates.pdf.invoice', [
-            'invoice'       => $invoice,
-            'transactions'  => $invoice->invoiceTransactions,
-            'totalNet'      => $totalNet
-        ]);
+            $filename = $invoice->slug . '-' . now()->format('Y-m-d');
+            $pdf      = PDF::loadView('invoices.templates.pdf.invoice', [
+                'invoice'       => $invoice,
+                'transactions'  => $invoice->invoiceTransactions,
+                'totalNet'      => $totalNet
+            ]);
 
-        return $pdf->stream($filename . '.pdf');
+            return response($pdf->output(), 200)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'inline; filename="' . $filename . '.pdf"');
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to generate PDF'], 500);
+        }
     }
 
     /**
      * @throws \Mpdf\MpdfException
      */
     public function asController(Organisation $organisation, Invoice $invoice): Response
+    {
+        return $this->handle($invoice);
+    }
+
+    public function inRetina(Invoice $invoice): Response
     {
         return $this->handle($invoice);
     }
