@@ -69,8 +69,8 @@ class IndexRetinaWebUsers extends RetinaAction
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('users.contact_name', $value)
-                    ->orWhereStartWith('users.username', $value);
+                $query->whereAnyWordStartWith('web_users.contact_name', $value)
+                    ->orWhereStartWith('web_users.username', $value);
             });
         });
 
@@ -99,8 +99,8 @@ class IndexRetinaWebUsers extends RetinaAction
 
         return $queryBuilder
             ->defaultSort('username')
-            ->select(['slug','username', 'email', 'status', 'is_root'])
-            ->allowedSorts(['status','username', 'email', 'contact_name'])
+            ->select(['web_users.slug','web_users.username', 'web_users.email', 'web_users.status', 'web_users.is_root', 'web_user_stats.last_active_at as last_active'])
+            ->allowedSorts(['web_users.status','username', 'email', 'contact_name', 'last_active'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -131,6 +131,7 @@ class IndexRetinaWebUsers extends RetinaAction
                 ->column(key: 'status', label: ['data' => ['fal', 'fa-yin-yang'], 'type' => 'icon', 'tooltip' => __('status')], type: 'icon')
                 ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'last_active', label: __('last active'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('username');
         };
     }
