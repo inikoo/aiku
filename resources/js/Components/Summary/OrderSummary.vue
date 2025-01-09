@@ -25,7 +25,8 @@ const locale = inject('locale', aikuLocaleStructure)
                 <div v-for="fieldSummary in summaryGroup" class="grid grid-cols-7 gap-x-4 items-center justify-between">
                     <dt class="col-span-2 flex items-center">
                         <span>{{ fieldSummary.label }}</span>
-                        <FontAwesomeIcon v-if="fieldSummary.information" icon='fal fa-question-circle' v-tooltip="fieldSummary.information" class='ml-1 cursor-pointer text-gray-400 hover:text-gray-500' fixed-width aria-hidden='true' />
+                        <FontAwesomeIcon v-if="fieldSummary.information_icon" icon='fal fa-question-circle' v-tooltip="fieldSummary.information_icon" class='ml-1 cursor-pointer text-gray-400 hover:text-gray-500' fixed-width aria-hidden='true' />
+                        <span v-if="fieldSummary.information" class="ml-1 text-gray-400">{{ fieldSummary.information }}</span>
                     </dt>
                     <Transition name="spin-to-down">
                         <dd :key="fieldSummary.quantity" class="justify-self-end">{{ typeof fieldSummary.quantity === 'number' ? locale.number(fieldSummary.quantity) : null}}</dd>

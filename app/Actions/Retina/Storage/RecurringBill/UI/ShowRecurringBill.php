@@ -55,7 +55,7 @@ class ShowRecurringBill extends RetinaAction
                 'pageHead'    => [
                     'icon'          =>
                         [
-                            'icon'  => ['fa', 'fa-narwhal'],
+                            'icon'  => ['fa', 'fa-receipt'],
                             'title' => __('recurring bill')
                         ],
                     'model'        => __('Recurring Bill'),
