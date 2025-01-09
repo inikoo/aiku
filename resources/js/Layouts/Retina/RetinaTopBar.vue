@@ -75,7 +75,7 @@ console.log('environment', isStaging)
                         'color': layout.app.theme[2],
                         // 'border-bottom': `1px solid ${layout.app.theme[1]}3F`
                     }">
-                    <Link :href="layout.app?.url ?? '#'"
+                    <Link v-if="false" :href="layout.app?.url ?? '#'"
                         class="hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
                         :class="[
                             // layout.leftSidebar.show ? 'py-1 pl-4' : 'pl-3 w-full'
