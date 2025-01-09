@@ -81,13 +81,12 @@ class ShowPaymentAccount extends OrgAction
                     'next'     => $this->getNext($paymentAccount, $request),
                 ],
                 'pageHead'    => [
-                    'model'     => __('payment account'),
                     'icon'      =>
                         [
                             'icon'  => ['fal', 'fa-money-check-alt'],
                             'title' => __('payment account')
                         ],
-                    'title'  => $paymentAccount->slug,
+                    'title'  => $paymentAccount->name,
                     'create' => $this->canEdit
                     && (
                         $request->route()->getName() == 'grp.org.accounting.org-payment-service-providers.show.payment-accounts.show' or
@@ -99,30 +98,30 @@ class ShowPaymentAccount extends OrgAction
                         ],
                         'label' => __('payment')
                     ] : false,
-                    'meta'   => [
-                        [
-                            'name'     => trans_choice('payment | payments', $paymentAccount->stats->number_payments),
-                            'number'   => $paymentAccount->stats->number_payments,
-                            'route'     => match ($request->route()->getName()) {
-                                'grp.org.accounting.org-payment-service-providers.show.payment-accounts.show' => [
-                                    'name'       => 'grp.org.accounting.org-payment-service-providers.show.payment-accounts.show.payments.index',
-                                    'parameters' => [$paymentAccount->organisation->slug, $paymentAccount->orgPaymentServiceProvider->slug, $paymentAccount->slug]
-                                ],
-                                default => [
-                                    'name'       => 'grp.org.accounting.payment-accounts.show.payments.index',
-                                    'parameters' => [
-                                        $this->organisation,
-                                        $paymentAccount->slug
-                                    ]
-                                ]
-                            },
-                            'leftIcon' => [
-                                'icon'    => 'fal fa-coins',
-                                'tooltip' => __('payments')
-                            ]
-                        ],
-
-                    ],
+//                    'meta'   => [
+//                        [
+//                            'name'     => trans_choice('payment | payments', $paymentAccount->stats->number_payments),
+//                            'number'   => $paymentAccount->stats->number_payments,
+//                            'route'     => match ($request->route()->getName()) {
+//                                'grp.org.accounting.org-payment-service-providers.show.payment-accounts.show' => [
+//                                    'name'       => 'grp.org.accounting.org-payment-service-providers.show.payment-accounts.show.payments.index',
+//                                    'parameters' => [$paymentAccount->organisation->slug, $paymentAccount->orgPaymentServiceProvider->slug, $paymentAccount->slug]
+//                                ],
+//                                default => [
+//                                    'name'       => 'grp.org.accounting.payment-accounts.show.payments.index',
+//                                    'parameters' => [
+//                                        $this->organisation,
+//                                        $paymentAccount->slug
+//                                    ]
+//                                ]
+//                            },
+//                            'leftIcon' => [
+//                                'icon'    => 'fal fa-coins',
+//                                'tooltip' => __('payments')
+//                            ]
+//                        ],
+//
+//                    ],
                     'actions' => [
                         [
                             'type'    => 'button',
@@ -197,7 +196,7 @@ class ShowPaymentAccount extends OrgAction
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $paymentAccount->code,
+                            'label' => $paymentAccount->name,
                         ],
 
                     ],
