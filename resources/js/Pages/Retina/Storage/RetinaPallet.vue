@@ -14,7 +14,7 @@
   import type { Component } from "vue"
   import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
   import { useTabChange } from "@/Composables/tab-change"
-  import PalletShowcase from "@/Components/Showcases/Org/PalletShowcase.vue"
+    import RetinaPalletShowcase from './RetinaPalletShowcase.vue'
   import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
   import { Tabs as TSTabs } from '@/types/Tabs'
   
@@ -31,7 +31,7 @@
   const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
   const component = computed(() => {
       const components: Component = {
-          showcase: PalletShowcase,
+          showcase: RetinaPalletShowcase,
           stored_items: TableStoredItems,
           history: TableHistories
       }
