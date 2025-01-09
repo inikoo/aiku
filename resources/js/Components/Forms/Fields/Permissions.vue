@@ -6,6 +6,7 @@ import { get, set } from 'lodash'
 import EmployeePosition from '@/Components/Forms/Fields/EmployeePosition.vue'
 import { trans } from 'laravel-vue-i18n'
 import Fieldset from 'primevue/fieldset'
+import { router } from '@inertiajs/vue3'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faHelmetBattle, faStar } from '@fas'
@@ -13,6 +14,7 @@ import { faCircle } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { routeType } from '@/types/route'
 import Button from '@/Components/Elements/Buttons/Button.vue'
+import { notify } from '@kyvg/vue3-notification'
 library.add(faHelmetBattle, faStar, faCircle)
 
 const props = defineProps<{
@@ -174,6 +176,44 @@ const submitGroupPermissions = () => {
         permissions: data[props.fieldName].group
     }))
     [props.fieldData.updatePseudoJobPositionsRoute.method](route(props.fieldData.updatePseudoJobPositionsRoute.name, props.fieldData.updatePseudoJobPositionsRoute.parameters), { preserveScroll: true })
+//     .submit(
+//         props.fieldData.updatePseudoJobPositionsRoute.method || 'patch',
+// ,
+//         // {
+//         //     preserveScroll: true,
+//         //     onSuccess: () => notify({
+//         //         title: 'Success',
+//         //         text: trans('Successfully update the permissions'),
+//         //         type: 'success',
+//         //     }),
+//         //     onError: () => notify({
+//         //         title: 'Something went wrong',
+//         //         text: trans('Failed to update the permissions'),
+//         //         type: 'error',
+//         //     })
+//         // }
+//     )
+
+    // console.log('onStart')
+    // router[props.fieldData.updatePseudoJobPositionsRoute.method || 'patch'](
+    //     route(props.fieldData.updatePseudoJobPositionsRoute.name, props.fieldData.updatePseudoJobPositionsRoute.parameters),
+    //     {
+    //         permissions: props.form[props.fieldName].group
+    //     },
+    //     {
+    //         preserveScroll: true,
+    //         onStart: () => {
+    //             console.log('onStart')
+    //         },
+    //         onSuccess: () => notify({
+    //             title: 'Success',
+    //             text: 'cccc',
+    //             type: 'success',
+    //         }),
+    //     }
+    // )
+
+    // [props.fieldData.updatePseudoJobPositionsRoute.method]()
 }
 
 
@@ -265,13 +305,13 @@ const organisationPositionCounts = ref({})
             </Fieldset>
 
             <div class="mt-4">
-                <button @click="submitGroupPermissions" class="h-9 align-bottom text-center" :disabled="form.processing || !form.isDirty">
+                <div @click="submitGroupPermissions" class="h-9 align-bottom text-center cursor-pointer" :disabled="form.processing || !form.isDirty">
                     <template v-if="form.isDirty">
                         <FontAwesomeIcon v-if="form.processing" icon='fad fa-spinner-third' class='text-2xl animate-spin' fixed-width aria-hidden='true' />
                         <FontAwesomeIcon v-else icon="fad fa-save" class="h-8" :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" aria-hidden="true" />
                     </template>
                     <FontAwesomeIcon v-else icon="fal fa-save" class="h-8 text-gray-300" aria-hidden="true" />
-                </button>
+                </div>
             </div>
 
             <!-- <Button full label="Save group permissions" icon="fal fa-save" class="mt-4" :disabled="!form.isDirty || form.processing" :loading="form.processing" /> -->

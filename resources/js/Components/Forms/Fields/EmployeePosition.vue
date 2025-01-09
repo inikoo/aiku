@@ -137,12 +137,12 @@ const onSubmitNewForm = () => {
         {
             preserveScroll: true,
             onSuccess: () => notify({
-                title: 'Success',
+                title: trans('Success'),
                 text: trans('Successfully update the permissions'),
                 type: 'success',
             }),
             onError: () => notify({
-                title: 'Something went wrong',
+                title: trans('Something went wrong'),
                 text: trans('Failed to update the permissions'),
                 type: 'error',
             })
@@ -750,13 +750,13 @@ watch(() => newForm, () => {
             </div>
 
             <div v-if="saveButton" class="mt-2 mr-2">
-                <button @click="() => onSubmitNewForm()" class="h-9 align-bottom text-center" :disabled="newForm.processing || !newForm.isDirty">
+                <div @click="() => onSubmitNewForm()" class="h-9 align-bottom text-center cursor-pointer" :disabled="newForm.processing || !newForm.isDirty">
                     <template v-if="newForm.isDirty">
                         <FontAwesomeIcon v-if="newForm.processing" icon='fad fa-spinner-third' class='text-2xl animate-spin' fixed-width aria-hidden='true' />
                         <FontAwesomeIcon v-else icon="fad fa-save" class="h-8" :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" aria-hidden="true" />
                     </template>
                     <FontAwesomeIcon v-else icon="fal fa-save" class="h-8 text-gray-300" aria-hidden="true" />
-                </button>
+                </div>
             </div>
 
             <!-- <div class="flex justify-end p-1">
