@@ -8,7 +8,6 @@
 
 namespace App\Actions\UI\Retina\Billing\UI;
 
-use App\Actions\Overview\GetOrganisationOverview;
 use App\Models\CRM\Customer;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -26,41 +25,40 @@ class ShowRetinaBillingDashboard
         /** @var Customer $customer */
         $customer = $request->user()->customer;
         $currentRecurringBill = $customer->fulfilmentCustomer->currentRecurringBill;
+        $numberUnpaidInvoices = $customer->stats->number_unpaid_invoices;
+        $numberInvoices = $customer->stats->number_invoices;
 
         return Inertia::render(
             'Billing/OverviewHub',
             [
-                // 'breadcrumbs' => $this->getBreadcrumbs(
-                //     $routeName,
-                //     $routeParameters
-                // ),
-                'title'       => __('overview'),
+                'title'       => __('Billing'),
                 'pageHead'    => [
                     'icon'      => [
                         'icon'  => ['fal', 'fa-mountains'],
-                        'title' => __('overview')
+                        'title' => __('Billing')
                     ],
-                    'title'     => __('overview'),
+                    'title'     => __('Billing'),
                 ],
-                'dashboard' => [
+                'dashboard_stats' => [
                     'settings' => auth()->user()->settings,
                     'columns' => [
                         [
                             'widgets' => [
                                 [
-                                    'type' => 'overview_table',// unpaid_invoices
-                                    'data' => GetOrganisationOverview::run($customer->organisation)
+                                    'type' => 'unpaid_invoices',
+                                    'data' => GetDataTableRetinaBillingDashboard::run($customer)
                                 ]
                             ]
                         ],
                         [
                             'widgets' => [
-                               $currentRecurringBill ?
+                                $currentRecurringBill ?
                                 [
                                     'label' => __('Next bill'),
                                     'data' => [
                                         [
                                             'label' => __('current total'),
+                                            'route' => route('retina.billing.recurring.show', $currentRecurringBill->slug),
                                             'value' => $currentRecurringBill->total_amount,//<-- need to be currency
                                             'type' => 'card_currency_success'
                                         ],
@@ -72,18 +70,19 @@ class ShowRetinaBillingDashboard
                                     ],
                                     'type' => 'multi_card',
                                 ] : null,
-
+                                $numberUnpaidInvoices ?
                                 [
                                     'label' => __('Unpaid Invoices'),
-                                    'value' => 0,//$customer->stats->number_unpaid_invoices,
-                                    'type' => 'card_currency', // change to card_number_attention
-                                ],
+                                    'value' => $customer->stats->number_unpaid_invoices,
+                                    'type' => 'card_number_attention',
+                                ] : null,
+                                $numberInvoices ?
                                 [
                                     'label' => __('Total Invoices'),
+                                    'route' => route('retina.billing.invoices.index'),
                                     'value' => $customer->stats->number_invoices,
-                                    'type' => 'card_percentage',// change to card_number
-                                ],
-
+                                    'type' => 'card_number',
+                                ] : null,
                             ],
                         ]
                     ]

@@ -105,10 +105,9 @@ class StorePaymentAccount extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['created_at'] = ['sometimes', 'date'];
-            $rules['fetched_at'] = ['sometimes', 'date'];
-            $rules['deleted_at'] = ['sometimes', 'nullable', 'date'];
-            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
+            $rules = $this->noStrictStoreRules($rules);
+
+            $rules['data'] = ['sometimes', 'array'];
         }
         return $rules;
     }

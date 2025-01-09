@@ -35,9 +35,14 @@ class ShowRetinaSysAdminDashboard extends RetinaAction
             'SysAdmin/RetinaSysAdminDashboard',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => $title,
+                // 'title'       => $title,
                 'pageHead'    => [
-                    'title' => $title,
+                    'title'         => $title,
+                    'icon'          => [
+                        'icon'  => ['fal', 'fa-users-cog'],
+                        'title' => $title
+                    ],
+
                 ],
                 'stats' => [
                     [
