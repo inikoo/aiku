@@ -10,6 +10,7 @@ namespace App\Http\Resources\CRM;
 
 use App\Models\CRM\WebUser;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Carbon\Carbon;
 
 class WebUsersResource extends JsonResource
 {
@@ -35,7 +36,10 @@ class WebUsersResource extends JsonResource
             },
             'email'       => $webUser->email,
             'is_root'     => $webUser->is_root,
-            'created_at'  => $webUser->created_at
-        ];
+            'created_at'  => $webUser->created_at,
+            'last_active' => $webUser->last_active
+                                ? Carbon::parse($webUser->last_active)->diffForHumans()
+                                : ''
+            ];
     }
 }
