@@ -54,16 +54,16 @@ class ShowInvoice extends RetinaAction
         return Inertia::render(
             'Billing/RetinaInvoice',
             [
-                'title'                => __('invoice'),
-                'breadcrumbs'          => $this->getBreadcrumbs(
+                'title'       => __('invoice'),
+                'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'           => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($invoice, $request),
                     'next'     => $this->getNext($invoice, $request),
                 ],
-                'pageHead'             => [
+                'pageHead'    => [
                     'model' => __('invoice'),
                     'title' => $invoice->reference,
                     'icon'  => [
@@ -71,12 +71,12 @@ class ShowInvoice extends RetinaAction
                         'title' => $invoice->reference
                     ]
                 ],
-                'tabs'                 => [
+                'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => InvoiceTabsEnum::navigation()
                 ],
 
-                'order_summary'        => [
+                'order_summary' => [
                     [
                         [
                             'label'       => __('Services'),
@@ -94,23 +94,21 @@ class ShowInvoice extends RetinaAction
                     [
                         [
                             'label'       => __('Charges'),
-                            // 'information'   => __('Shipping fee to your address using DHL service.'),
                             'price_total' => $invoice->charges_amount
                         ],
                         [
                             'label'       => __('Shipping'),
-                            // 'information'   => __('Tax is based on 10% of total order.'),
                             'price_total' => $invoice->shipping_amount
                         ],
                         [
                             'label'       => __('Insurance'),
-                            // 'information'   => __('Tax is based on 10% of total order.'),
                             'price_total' => $invoice->insurance_amount
                         ],
                         [
-                            'label'       => __('Tax'),
-                            'information' => __('Tax is based on 10% of total order.'),
-                            'price_total' => $invoice->tax_amount
+                            'label'            => __('Tax'),
+                            'information_icon' => __('xxx.'),
+                            'information'      => 'vat',
+                            'price_total'      => $invoice->tax_amount
                         ],
 
                     ],
@@ -125,15 +123,15 @@ class ShowInvoice extends RetinaAction
                 'exportPdfRoute' => [
                     'name'       => 'retina.billing.invoices.download',
                     'parameters' => [
-                        'invoice'      => $invoice->slug
+                        'invoice' => $invoice->slug
                     ]
                 ],
                 'box_stats'      => [
-                    'customer' => [
-                        'route' => [
-                            'name' => 'retina.billing.invoices.show',
+                    'customer'    => [
+                        'route'        => [
+                            'name'       => 'retina.billing.invoices.show',
                             'parameters' => [
-                                'invoice'    => $invoice->slug,
+                                'invoice' => $invoice->slug,
                             ]
                         ],
                         'slug'         => $invoice->customer->slug,
@@ -145,27 +143,27 @@ class ShowInvoice extends RetinaAction
                         // 'address'      => AddressResource::collection($invoice->customer->addresses),
                     ],
                     'information' => [
-                        'recurring_bill'    => [
-                            'reference'     => $invoice->reference
+                        'recurring_bill' => [
+                            'reference' => $invoice->reference
                         ],
-                        'routes' => [
+                        'routes'         => [
                             'fetch_payment_accounts' => [
                                 'name'       => 'grp.json.shop.payment-accounts',
                                 'parameters' => [
                                     'shop' => $invoice->shop->slug
                                 ]
                             ],
-                            'submit_payment' => [
+                            'submit_payment'         => [
                                 'name'       => 'grp.models.invoice.payment.store',
                                 'parameters' => [
-                                    'invoice'    => $invoice->id,
-                                    'customer'   => $invoice->customer_id,
+                                    'invoice'  => $invoice->id,
+                                    'customer' => $invoice->customer_id,
                                 ]
                             ]
 
                         ],
-                        'paid_amount' => $invoice->payment_amount,
-                        'pay_amount'  => $roundedDiff
+                        'paid_amount'    => $invoice->payment_amount,
+                        'pay_amount'     => $roundedDiff
                     ]
                 ],
 
@@ -173,12 +171,12 @@ class ShowInvoice extends RetinaAction
 
 
                 InvoiceTabsEnum::ITEMS->value => $this->tab == InvoiceTabsEnum::ITEMS->value ?
-                    fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))
-                    : Inertia::lazy(fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))),
+                    fn() => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))
+                    : Inertia::lazy(fn() => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))),
 
                 InvoiceTabsEnum::PAYMENTS->value => $this->tab == InvoiceTabsEnum::PAYMENTS->value ?
-                    fn () => PaymentsResource::collection(IndexPayments::run($invoice))
-                    : Inertia::lazy(fn () => PaymentsResource::collection(IndexPayments::run($invoice))),
+                    fn() => PaymentsResource::collection(IndexPayments::run($invoice))
+                    : Inertia::lazy(fn() => PaymentsResource::collection(IndexPayments::run($invoice))),
 
 
             ]
