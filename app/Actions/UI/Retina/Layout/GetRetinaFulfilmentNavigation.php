@@ -138,7 +138,7 @@ class GetRetinaFulfilmentNavigation
                         [
                             'label' => __('invoice'),
                             'icon'  => ['fal', 'fa-cog'],
-                            'root'  => 'retina.billing.invoice.',
+                            'root'  => 'retina.billing.invoices.',
                             'route' => [
                                 'name' => 'retina.billing.invoices.index',
 
