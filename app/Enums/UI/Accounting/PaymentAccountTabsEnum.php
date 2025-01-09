@@ -20,7 +20,6 @@ enum PaymentAccountTabsEnum: string
     case STATS            = 'stats';
     case PAYMENTS         = 'payments';
     case HISTORY          = 'history';
-    case DATA             = 'data';
 
 
     public function blueprint(): array
@@ -34,12 +33,6 @@ enum PaymentAccountTabsEnum: string
                 'title' => __('payments'),
                 'icon'  => 'fal fa-coins',
             ],
-            PaymentAccountTabsEnum::DATA     => [
-                'title' => __('data'),
-                'icon'  => 'fal fa-database',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
             PaymentAccountTabsEnum::HISTORY     => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
@@ -47,8 +40,8 @@ enum PaymentAccountTabsEnum: string
                 'align' => 'right',
             ],
             PaymentAccountTabsEnum::SHOWCASE => [
-                'title' => __('payment account'),
-                'icon'  => 'fas fa-info-circle',
+                'title' => __('overview'),
+                'icon'  => 'fal fa-tachometer-alt',
             ],
         };
     }
