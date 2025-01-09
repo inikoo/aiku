@@ -55,4 +55,9 @@ class PdfInvoice
     {
         return $this->handle($invoice);
     }
+
+    public function inRetina(Invoice $invoice): Response
+    {
+        return $this->handle($invoice);
+    }
 }

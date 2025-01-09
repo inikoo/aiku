@@ -123,7 +123,7 @@ class ShowInvoice extends RetinaAction
                 ],
 
                 'exportPdfRoute' => [
-                    'name'       => 'retina.billing.invoices.show',
+                    'name'       => 'retina.billing.invoices.download',
                     'parameters' => [
                         'invoice'      => $invoice->slug
                     ]

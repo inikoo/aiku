@@ -6,6 +6,7 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
+use App\Actions\Accounting\Invoice\PdfInvoice;
 use App\Actions\Retina\Billing\IndexInvoices;
 use App\Actions\Retina\Billing\ShowInvoice;
 use App\Actions\Retina\Storage\RecurringBill\UI\IndexRecurringBills;
@@ -23,4 +24,5 @@ Route::prefix('recurring')->as('recurring.')->group(function () {
 Route::prefix('invoices')->as('invoices.')->group(function () {
     Route::get('/', [IndexInvoices::class, 'inRetina'])->name('index');
     Route::get('{invoice}', [ShowInvoice::class, 'inRetina'])->name('show');
+    Route::get('/{invoice}/export', [PdfInvoice::class, 'inRetina'])->name('download');
 });
