@@ -9,6 +9,8 @@
 namespace App\Actions\UI\Dashboards;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\WithDashboard;
+use App\Enums\DateIntervals\DateIntervalEnum;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -17,39 +19,26 @@ use Inertia\Response;
 
 class ShowGroupDashboard extends OrgAction
 {
+    use WithDashboard;
     public function handle(Group $group): Response
     {
-
 
         $sales   = [
             'sales'    => JsonResource::make($group->orderingStats),
             'currency' => $group->currency,
-            'total'    => collect([
-                'ytd' => 'sales_org_currency_ytd',
-                'qtd' => 'sales_org_currency_qtd',
-                'mtd' => 'sales_org_currency_mtd',
-                'wtd' => 'sales_org_currency_wtd',
-                'lm'  => 'sales_org_currency_lm',
-                'lw'  => 'sales_org_currency_lw',
-                'ld'  => 'sales_org_currency_ld',
-                'tdy' => 'sales_org_currency_tdy',
-                '1y'  => 'sales_org_currency_1y',
-                '1q'  => 'sales_org_currency_1q',
-                '1m'  => 'sales_org_currency_1m',
-                '1w'  => 'sales_org_currency_1w',
-            ])->mapWithKeys(function ($salesInterval, $key) use ($group) {
+            'total'    => collect(DateIntervalEnum::cases())->mapWithKeys(function ($interval) use ($group) {
                 return [
-                    $key => [
-                        'total_sales'    => $group->organisations->sum(fn ($organisations) => $organisations->salesIntervals->$salesInterval ?? 0),
-                        'total_invoices' => $group->organisations->sum(fn ($organisations) => $organisations->orderingIntervals->{"invoices_{$key}"} ?? 0),
-                        'total_refunds'  => $group->organisations->sum(fn ($organisations) => $organisations->orderingIntervals->{"refunds_{$key}"} ?? 0),
-                    ]
+                $interval->value => [
+                    'total_sales'    => $group->organisations->sum(fn ($organisations) => $organisations->salesIntervals?->{"sales_org_currency_" . $interval->value} ?? 0),
+                    'total_invoices' => $group->organisations->sum(fn ($organisations) => $organisations->orderingIntervals?->{"invoices_{$interval->value}"} ?? 0),
+                    'total_refunds'  => $group->organisations->sum(fn ($organisations) => $organisations->orderingIntervals?->{"refunds_{$interval->value}"} ?? 0),
+                ]
                 ];
             })->toArray() + [
                 'all' => [
-                    'total_sales'    => $group->salesIntervals->sales_grp_currency_all ?? 0,
-                    'total_invoices' => $group->orderingIntervals->invoices_all ?? 0,
-                    'total_refunds'  => $group->orderingIntervals->refunds_all ?? 0,
+                    'total_sales'    => $group->salesIntervals?->sales_grp_currency_all ?? 0,
+                    'total_invoices' => $group->orderingIntervals?->invoices_all ?? 0,
+                    'total_refunds'  => $group->orderingIntervals?->refunds_all ?? 0,
                 ],
             ],
             'organisations' => $group->organisations->map(function (Organisation $organisation) {
@@ -65,9 +54,7 @@ class ShowGroupDashboard extends OrgAction
                     $responseData['interval_percentages']['sales'] = $this->mapIntervals(
                         $organisation->salesIntervals,
                         'sales_org_currency',
-                        [
-                            'ytd', 'qtd', 'mtd', 'wtd', 'lm', 'lw', 'ld', 'tdy', '1y', '1q', '1m', '1w', 'all'
-                        ]
+                        DateIntervalEnum::values(),
                     );
                 }
 
@@ -75,9 +62,7 @@ class ShowGroupDashboard extends OrgAction
                     $responseData['interval_percentages']['invoices'] = $this->mapIntervals(
                         $organisation->orderingIntervals,
                         'invoices',
-                        [
-                            'ytd', 'qtd', 'mtd', 'wtd', 'lm', 'lw', 'ld', 'tdy', '1y', '1q', '1m', '1w', 'all'
-                        ]
+                        DateIntervalEnum::values(),
                     );
                 }
 
@@ -85,9 +70,7 @@ class ShowGroupDashboard extends OrgAction
                     $responseData['interval_percentages']['refunds'] = $this->mapIntervals(
                         $organisation->orderingIntervals,
                         'refunds',
-                        [
-                            'ytd', 'qtd', 'mtd', 'wtd', 'lm', 'lw', 'ld', 'tdy', '1y', '1q', '1m', '1w', 'all'
-                        ]
+                        DateIntervalEnum::values(),
                     );
                 }
 
@@ -100,143 +83,19 @@ class ShowGroupDashboard extends OrgAction
             [
                 'breadcrumbs'       => $this->getBreadcrumbs(__('Dashboard')),
                 'groupStats'        => $sales,
-                'interval_options'  => [
-                    [
-                        'label'      => __('Year to date'),
-                        'labelShort' => __('Ytd'),
-                        'value'      => 'ytd'
-                    ],
-                    [
-                        'label'      => __('Quarter to date'),
-                        'labelShort' => __('Qtd'),
-                        'value'      => 'qtd'
-                    ],
-                    [
-                        'label'      => __('Month to date'),
-                        'labelShort' => __('Mtd'),
-                        'value'      => 'mtd'
-                    ],
-                    [
-                        'label'      => __('Week to date'),
-                        'labelShort' => __('Wtd'),
-                        'value'      => 'wtd'
-                    ],
-                    [
-                        'label'      => __('Last month'),
-                        'labelShort' => __('lm'),
-                        'value'      => 'lm'
-                    ],
-                    [
-                        'label'      => __('Last week'),
-                        'labelShort' => __('lw'),
-                        'value'      => 'lw'
-                    ],
-                    [
-                        'label'      => __('Yesterday'),
-                        'labelShort' => __('ly'),
-                        'value'      => 'ld'
-                    ],
-                    [
-                        'label'      => __('Today'),
-                        'labelShort' => __('tdy'),
-                        'value'      => 'tdy'
-                    ],
-                    [
-                        'label'      => __('1 Year'),
-                        'labelShort' => __('1y'),
-                        'value'      => '1y'
-                    ],
-                    [
-                        'label'      => __('1 Quarter'),
-                        'labelShort' => __('1q'),
-                        'value'      => '1q'
-                    ],
-                    [
-                        'label'      => __('1 Month'),
-                        'labelShort' => __('1m'),
-                        'value'      => '1m'
-                    ],
-                    [
-                        'label'      => __('1 Week'),
-                        'labelShort' => __('1w'),
-                        'value'      => '1w'
-                    ],
-                    [
-                        'label'      => __('All'),
-                        'labelShort' => __('All'),
-                        'value'      => 'all'
-                    ],
-                ],
+                'interval_options'  => $this->getIntervalOptions(),
                 'dashboard_stats' => [
+                    'interval_options'  => $this->getIntervalOptions(),
                     'settings' => auth()->user()->settings,
                     'columns' => [
                         [
                             'widgets' => [
                                 [
-                                    'type' => 'overview_table',
+                                    'type' => 'interval_table',
                                     'data' => $sales
-                                ]
+                                ],
                             ]
                         ],
-                        [
-                            'widgets' => [
-                                [
-                                    'label' => __('the nutrition store'),
-                                    'data' => [
-                                        [
-                                            'label' => __('total orders today'),
-                                            'value' => 275,
-                                            'type' => 'card_currency_success'
-                                        ],
-                                        [
-                                            'label' => __('sales today'),
-                                            'value' => 2345,
-                                            'type' => 'card_currency'
-                                        ]
-                                    ],
-                                    'type' => 'multi_card',
-                                ],
-                                [
-                                    'label' => __('the yoga store'),
-                                    'data' => [
-                                        [
-                                            'label' => __('ad spend this week'),
-                                            'value' => 46,
-                                            'type' => 'card_percentage'
-                                        ],
-                                        [
-                                            'label' => __('sales today'),
-                                            'value' => 2345,
-                                            'type' => 'card_currency'
-                                        ]
-                                    ],
-                                    'type' => 'multi_card',
-                                ],
-                                [
-                                    'label' => __('ad spend this week'),
-                                    'value' => 2345,
-                                    'type' => 'card_currency',
-                                ],
-                                [
-                                    'label' => __('card adbandoment rate'),
-                                    'value' => 45,
-                                    'type' => 'card_percentage',
-                                ],
-                                [
-                                    'label' => __('the yoga store'),
-                                    'data' => [
-                                        'label' => __('Total newsletter subscribers'),
-                                        'value' => 55700,
-                                        'progress_bar' => [
-                                            'value' => 55,
-                                            'max' => 100,
-                                            'color' => 'success',
-                                        ],
-                                    ],
-                                    'type' => 'card_progress_bar',
-                                ],
-                            ],
-                        ]
                     ]
                 ],
             ]
