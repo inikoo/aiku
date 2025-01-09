@@ -106,8 +106,8 @@ class ShowInvoice extends RetinaAction
                         ],
                         [
                             'label'            => __('Tax'),
-                            'information_icon' => __('xxx.'),
-                            'information'      => 'vat',
+                            // 'information_icon' => __('xxx.'),
+                            'information'      => '(vat)',
                             'price_total'      => $invoice->tax_amount
                         ],
 

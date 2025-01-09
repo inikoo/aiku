@@ -110,10 +110,11 @@ const props = defineProps<{
         }
         updateOrganisationPermissionsRoute: routeType
         updateJobPositionsRoute: routeType
-        
+        is_in_organisation: boolean
     }
     saveButton?: boolean
     organisationId?: number
+    isGroupAdminSelected?: boolean
 }>()
 
 // console.log('cccc', props.form?.organisations?.[props.fieldName])
@@ -126,23 +127,23 @@ const newForm = props.saveButton ? useForm(abcdef || {}) : reactive(props.form)
 // console.log('bbbb', newForm)
 const onSubmitNewForm = () => {
     console.log('Employee submit route name:', props.fieldData.updateJobPositionsRoute.name)
-    console.log('Employee submit route:', route(props.fieldData.updateJobPositionsRoute.name, {...props.fieldData.updateJobPositionsRoute.parameters, organisation: props.organisationId}))
+    console.log('Employee submit route:', route(props.fieldData.updateJobPositionsRoute.name, {...props.fieldData.updateJobPositionsRoute.parameters, organisation: props.fieldData.is_in_organisation ? undefined : props.organisationId}))
     newForm
     .transform((data) => ({
         permissions: data[props.fieldName]
     }))
     .submit(
         props.fieldData.updateJobPositionsRoute.method || 'patch',
-        route(props.fieldData.updateJobPositionsRoute.name, {...props.fieldData.updateJobPositionsRoute.parameters, organisation: props.organisationId}),
+        route(props.fieldData.updateJobPositionsRoute.name, {...props.fieldData.updateJobPositionsRoute.parameters, organisation: props.fieldData.is_in_organisation ? undefined : props.organisationId}),
         {
             preserveScroll: true,
             onSuccess: () => notify({
-                title: 'Success',
+                title: trans('Success'),
                 text: trans('Successfully update the permissions'),
                 type: 'success',
             }),
             onError: () => notify({
-                title: 'Something went wrong',
+                title: trans('Something went wrong'),
                 text: trans('Failed to update the permissions'),
                 type: 'error',
             })
@@ -595,7 +596,7 @@ watch(() => newForm, () => {
         <div class="flex gap-x-2">
             <div class="w-full relative flex flex-col text-xs divide-y-[1px]">
                 <template v-if="isMounted">
-                    <template v-for="(jobGroup, departmentName, idxJobGroup) in optionsJob" :key="departmentName + idxJobGroup">
+                    <template v-for="(jobGroup, departmentName, idxJobGroup) in optionsJob" :key="`${departmentName}${idxJobGroup}`">
                         <Teleport v-if="!jobGroup.isHide" :to="'#scopeShop' + fieldName" :disabled="jobGroup.scope !== 'shop'">
                             <div v-if="jobGroup.scope !== 'shop' && (departmentName === 'prod'  && productionsLength > 0) || departmentName !== 'prod'" class="grid grid-cols-3 gap-x-1.5 px-2 items-center even:bg-gray-50 transition-all duration-200 ease-in-out">
                                 <!-- Section: Department label -->
@@ -616,8 +617,9 @@ watch(() => newForm, () => {
                                                     @click.prevent="handleClickSubDepartment(departmentName, subDepartment.slug, subDepartment.optionsType)"
                                                     class="group h-full cursor-pointer flex items-center justify-start rounded-md py-3 px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
                                                     :class="(isRadioChecked('org-admin') && subDepartment.slug != 'org-admin' && !isLevelGroupAdmin(jobGroup.level)) || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') ? 'text-green-500' : ''"
-                                                    :disabled="(
-                                                        isRadioChecked('org-admin') && subDepartment.slug != 'org-admin' && !isLevelGroupAdmin(jobGroup.level))
+                                                    :disabled="
+                                                        isGroupAdminSelected
+                                                        || (isRadioChecked('org-admin') && subDepartment.slug != 'org-admin' && !isLevelGroupAdmin(jobGroup.level))
                                                         || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin')
                                                         || (isRadioChecked('shop-admin') && jobGroup.scope === 'shop' && subDepartment.slug !== 'shop-admin')
                                                         ? true
@@ -627,7 +629,7 @@ watch(() => newForm, () => {
             
                                                     <div class="relative text-left">
                                                         <div class="absolute -left-1 -translate-x-full top-1/2 -translate-y-1/2">
-                                                            <template v-if="(isRadioChecked('org-admin') && subDepartment.slug != 'org-admin' && !isLevelGroupAdmin(jobGroup.level)) || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') || (isRadioChecked('shop-admin') && jobGroup.scope === 'shop' && subDepartment.slug !== 'shop-admin')">
+                                                            <template v-if="isGroupAdminSelected || (isRadioChecked('org-admin') && subDepartment.slug != 'org-admin' && !isLevelGroupAdmin(jobGroup.level)) || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') || (isRadioChecked('shop-admin') && jobGroup.scope === 'shop' && subDepartment.slug !== 'shop-admin')">
                                                                 <FontAwesomeIcon v-if="idxSubDepartment === 0" icon='fas fa-check-circle' class="" fixed-width aria-hidden='true' />
                                                                 <FontAwesomeIcon v-else icon='fal fa-circle' class="" fixed-width aria-hidden='true' />
                                                             </template>
@@ -688,7 +690,7 @@ watch(() => newForm, () => {
                                                                                 v-if="subDep.optionsType?.includes(optionKey)"
                                                                                 @click.prevent="onClickJobFinetune(departmentName, shop.slug, subDep.slug, optionKey)"
                                                                                 class="group h-full cursor-pointer flex items-center justify-center rounded-md px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
-                                                                                :disabled="isRadioChecked('org-admin') || isRadioChecked('group-admin') || (isRadioChecked('shop-admin') && jobGroup.scope === 'shop' && subDep.slug !== 'shop-admin')"
+                                                                                :disabled="isGroupAdminSelected || isRadioChecked('org-admin') || isRadioChecked('group-admin') || (isRadioChecked('shop-admin') && jobGroup.scope === 'shop' && subDep.slug !== 'shop-admin')"
                                                                                 v-tooltip="subDep.label"
                                                                             >
                                                                                 <div class="relative text-left">
@@ -750,13 +752,13 @@ watch(() => newForm, () => {
             </div>
 
             <div v-if="saveButton" class="mt-2 mr-2">
-                <button @click="() => onSubmitNewForm()" class="h-9 align-bottom text-center" :disabled="newForm.processing || !newForm.isDirty">
+                <div @click="() => onSubmitNewForm()" class="h-9 align-bottom text-center cursor-pointer" :disabled="newForm.processing || !newForm.isDirty">
                     <template v-if="newForm.isDirty">
                         <FontAwesomeIcon v-if="newForm.processing" icon='fad fa-spinner-third' class='text-2xl animate-spin' fixed-width aria-hidden='true' />
                         <FontAwesomeIcon v-else icon="fad fa-save" class="h-8" :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" aria-hidden="true" />
                     </template>
                     <FontAwesomeIcon v-else icon="fal fa-save" class="h-8 text-gray-300" aria-hidden="true" />
-                </button>
+                </div>
             </div>
 
             <!-- <div class="flex justify-end p-1">
