@@ -70,15 +70,14 @@ class ShowRetinaWebUser extends RetinaAction
                     //         'name' => $webUser->username
                     //     ]
                     // ],
-                    'actions'   => [
-                        $this->canEdit ? [
+                    'actions'   => [ [
                             'type'  => 'button',
                             'style' => 'edit',
                             'route' => [
                                 'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                                 'parameters' => $request->route()->originalParameters()
                             ]
-                        ] : false,
+                        ],
 
                     ],
 

@@ -51,6 +51,10 @@ class UpdateWebUser extends OrgAction
             return true;
         }
 
+        if ($request->user() instanceof WebUser) {
+            return true;
+        }
+
         if ($this->shop->type == ShopTypeEnum::FULFILMENT) {
             return $request->user()->hasPermissionTo("fulfilment.{$this->shop->fulfilment->id}.edit");
         } else {
@@ -103,6 +107,14 @@ class UpdateWebUser extends OrgAction
     }
 
     public function asController(WebUser $webUser, ActionRequest $request): WebUser
+    {
+        $this->webUser = $webUser;
+        $this->initialisationFromShop($webUser->shop, $request);
+
+        return $this->handle($webUser, $this->validatedData);
+    }
+
+    public function inRetina(WebUser $webUser, ActionRequest $request): WebUser
     {
         $this->webUser = $webUser;
         $this->initialisationFromShop($webUser->shop, $request);
