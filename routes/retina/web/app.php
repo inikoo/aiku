@@ -8,7 +8,7 @@
 
 Route::middleware(["retina-auth:retina", 'retina-prepare-account'])->group(function () {
     Route::get('/', function () {
-        return redirect('/app/dashboard');
+        return redirect('/app/storage/dashboard');
     })->name('home');
 
     Route::prefix("sysadmin")

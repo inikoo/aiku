@@ -137,6 +137,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SerialReference> $serialReferences
  * @property-read \App\Models\Fulfilment\StoredItemAudit|null $storedItemAudit
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\FulfilmentTransaction> $transactions
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FulfilmentCustomer newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FulfilmentCustomer newQuery()

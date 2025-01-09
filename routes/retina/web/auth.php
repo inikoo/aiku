@@ -7,10 +7,10 @@
  */
 
 
-use App\Actions\CRM\WebUser\Retina\Login;
+use App\Actions\CRM\WebUser\Retina\RetinaLogin;
 use App\Actions\CRM\WebUser\Retina\Logout;
 use App\Actions\CRM\WebUser\Retina\Register;
-use App\Actions\CRM\WebUser\Retina\UI\ShowLogin;
+use App\Actions\CRM\WebUser\Retina\UI\ShowRetinaLogin;
 use App\Actions\CRM\WebUser\Retina\UI\ShowPrepareAccount;
 use App\Actions\CRM\WebUser\Retina\UI\ShowRegister;
 use App\Actions\CRM\WebUser\Retina\UI\ShowResetWebUserPassword;
@@ -21,8 +21,8 @@ use App\Actions\UI\Retina\Auth\ShowPasswordResetLink;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest:retina')->group(function () {
-    Route::get('login', ShowLogin::class)->name('login.show');
-    Route::post('login', Login::class)->name('login.store');
+    Route::get('login', ShowRetinaLogin::class)->name('login.show');
+    Route::post('login', RetinaLogin::class)->name('login.store');
     Route::get('register', ShowRegister::class)->name('register');
     Route::post('register', Register::class)->name('register.store');
 

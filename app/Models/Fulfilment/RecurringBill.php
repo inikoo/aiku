@@ -71,6 +71,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletDelivery> $palletDeliveries
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletReturn> $palletReturns
  * @property-read \App\Models\Fulfilment\RentalAgreement $rentalAgreement
+ * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
  * @property-read \App\Models\Fulfilment\RecurringBillStats|null $stats
  * @property-read TaxCategory $taxCategory
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RecurringBillTransaction> $transactions

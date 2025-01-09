@@ -69,7 +69,6 @@ const props = defineProps<{
 	}
 }>()
 
-console.log(props.dashboard)
 
 // Pie: options
 const options = {
@@ -109,6 +108,9 @@ const options = {
                 :utilization="widget.data.utilization"
                 :stockValue="widget.data.stockValue"
             />
+        </div>
+        <div class="flex flex-col md:flex-row gap-6 mt-5">
+        <AccuracyDashboardWidget/>
         </div>
 	</div>
 		<div

@@ -34,6 +34,22 @@ trait WithEmployeeSubNavigation
 
         $subNavigation[] = [
             'route' => [
+                'name'      => 'grp.org.hr.employees.show.users.index',
+                'parameters' => $request->route()->originalParameters()
+
+            ],
+
+            'label'     => __('Users'),
+            'leftIcon'  => [
+                'icon'    => 'fal fa-user',
+                'tooltip' => __('Users'),
+            ],
+            'number' => $employee->users()->count()
+
+        ];
+
+        $subNavigation[] = [
+            'route' => [
                 'name'      => 'grp.org.hr.employees.show.positions.index',
                 'parameters' => $request->route()->originalParameters()
 

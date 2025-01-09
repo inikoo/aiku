@@ -57,6 +57,8 @@ class EditEmployee extends OrgAction
     {
         $user = $employee->getUser();
 
+
+
         $jobPositionsOrganisationData = GetEmployeeJobPositionsData::run($employee);
         $jobPositionsGroupData = GetUserGroupScopeJobPositionsData::run($user);
 
@@ -132,7 +134,7 @@ class EditEmployee extends OrgAction
         $organisations = Organisation::where('id', $employee->organisation_id)->get();
         $organisationList = OrganisationsResource::collection($organisations);
 
-        if (!$user) {
+        if ($user) {
             $sections['job_positions'] = [
             'label'  => __('Job Positions (permissions)'),
             'icon'   => 'fal fa-clipboard-list',
@@ -153,9 +155,9 @@ class EditEmployee extends OrgAction
                     'organisation_list' => $organisationList,
                     'updatePseudoJobPositionsRoute'       => [
                         'method'     => 'patch',
-                        'name'       => 'grp.models.employee.update',
+                        'name'       => 'grp.models.user.permissions.update',
                         'parameters' => [
-                            'employee'  => $employee->id
+                            'user'  => $user?->id
                         ]
                     ],
                     'updateJobPositionsRoute'       => [

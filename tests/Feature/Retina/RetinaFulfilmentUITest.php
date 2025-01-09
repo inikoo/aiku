@@ -94,7 +94,7 @@ beforeEach(function () {
 test('show log in', function () {
     $response = $this->get(route('retina.login.show'));
     $response->assertInertia(function (AssertableInertia $page) {
-        $page->component('Auth/Login');
+        $page->component('Auth/RetinaLogin');
     });
 });
 
@@ -215,7 +215,7 @@ test('show sysadmin dashboard', function () {
     actingAs($this->webUser, 'retina');
     $response = $this->get(route('retina.sysadmin.dashboard'));
     $response->assertInertia(function (AssertableInertia $page) {
-        $page->component('SysAdmin/SysAdminDashboard');
+        $page->component('SysAdmin/RetinaSysAdminDashboard');
     });
 });
 

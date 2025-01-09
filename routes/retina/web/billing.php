@@ -10,10 +10,10 @@ use App\Actions\Retina\Billing\IndexInvoices;
 use App\Actions\Retina\Billing\ShowInvoice;
 use App\Actions\Retina\Storage\RecurringBill\UI\IndexRecurringBills;
 use App\Actions\Retina\Storage\RecurringBill\UI\ShowRecurringBill;
-use App\Actions\UI\Retina\Billing\UI\ShowBillingDashboard;
+use App\Actions\UI\Retina\Billing\UI\ShowRetinaBillingDashboard;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/dashboard', ShowBillingDashboard::class)->name('dashboard');
+Route::get('/dashboard', ShowRetinaBillingDashboard::class)->name('dashboard');
 
 Route::prefix('recurring')->as('recurring.')->group(function () {
     Route::get('/', IndexRecurringBills::class)->name('index');

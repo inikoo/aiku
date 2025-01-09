@@ -10,7 +10,7 @@ namespace App\Actions\Retina\Storage\RecurringBill\UI;
 
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Billing\UI\ShowBillingDashboard;
+use App\Actions\UI\Retina\Billing\UI\ShowRetinaBillingDashboard;
 use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\RecurringBillResource;
@@ -131,7 +131,7 @@ class ShowRecurringBill extends RetinaAction
         )->table(IndexHistory::make()->tableStructure(prefix: RecurringBillTabsEnum::HISTORY->value));
         //            ->table(IndexFulfilmentServices::make()->tableStructure($recurringBill, prefix: RecurringBillTabsEnum::SERVICES->value))
         //            ->table(IndexFulfilmentPhysicalGoods::make()->tableStructure($recurringBill, prefix: RecurringBillTabsEnum::PHYSICAL_GOODS->value))
-        //            ->table(IndexPallets::make()->tableStructure($recurringBill, RecurringBillTabsEnum::PALLETS->value));
+        //            ->table(IndexRetinaPallets::make()->tableStructure($recurringBill, RecurringBillTabsEnum::PALLETS->value));
     }
 
 
@@ -167,7 +167,7 @@ class ShowRecurringBill extends RetinaAction
 
         return match ($routeName) {
             'retina.billing.recurring.show' => array_merge(
-                ShowBillingDashboard::make()->getBreadcrumbs(),
+                ShowRetinaBillingDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $recurringBill,
                     [

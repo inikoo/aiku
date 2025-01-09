@@ -85,6 +85,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_stored_items_state_discontinued
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $total_volume cbm
+ * @property string $total_weight kg
  * @property-read \App\Models\Inventory\WarehouseArea|null $warehouse
  * @method static Builder<static>|WarehouseAreaStats newModelQuery()
  * @method static Builder<static>|WarehouseAreaStats newQuery()

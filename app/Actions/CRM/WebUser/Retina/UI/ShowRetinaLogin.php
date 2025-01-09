@@ -13,14 +13,14 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 
-class ShowLogin
+class ShowRetinaLogin
 {
     use AsController;
 
 
     public function handle(ActionRequest $request): Response
     {
-        return Inertia::render('Auth/Login');
+        return Inertia::render('Auth/RetinaLogin');
     }
 
 }
