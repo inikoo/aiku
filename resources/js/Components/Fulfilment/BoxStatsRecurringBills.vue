@@ -20,7 +20,7 @@ import { faQuestionCircle, faIdCardAlt, faEnvelope, faPhone, faCalendarDay, faCo
 import { library } from '@fortawesome/fontawesome-svg-core'
 import OrderSummary from '@/Components/Summary/OrderSummary.vue'
 
-library.add(faQuestionCircle, faIdCardAlt, faEnvelope, faPhone, faCalendarDay, faConciergeBell)
+library.add(faQuestionCircle, faIdCardAlt, faEnvelope, faPhone, faCalendarDay, faConciergeBell, faBuilding)
 
 const locale = inject('locale', aikuLocaleStructure)
 const props = defineProps<{
