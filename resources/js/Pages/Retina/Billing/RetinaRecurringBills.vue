@@ -51,12 +51,12 @@ function recurringBillRoute(recurringBill: RecurringBill) {
             </Link>
         </template>
 
-           <!-- Column: Net -->
-       <!--  <template #cell(net_amount)="{ item: bill }">
+        <!-- Column: Net -->
+        <template #cell(net_amount)="{ item: bill }">
             <div class="text-gray-500">
                 {{ useLocaleStore().currencyFormat(bill.currency_code, bill.net_amount) }}
             </div>
-        </template> -->
+        </template>
 
         <!-- Column: Start date -->
         <template #cell(start_date)="{ item }">
