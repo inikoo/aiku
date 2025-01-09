@@ -19,6 +19,8 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import CountUp from 'vue-countup-v3'
 import { Head } from '@inertiajs/vue3'
+import { PageHeading as PageHeadingTypes } from "@/types/PageHeading"
+import PageHeading from "@/Components/Headings/PageHeading.vue"
 
 import '@/Composables/Icon/PalletStateEnum'
 
@@ -29,6 +31,7 @@ ChartJS.register(ArcElement, Tooltip, Legend, Colors)
 const props = defineProps<{
     title: string
     customer: PalletCustomer
+    pageHead : PageHeadingTypes
     storageData: {
         [key: string]: FulfilmentCustomerStats
     }
@@ -66,9 +69,11 @@ const options = {
 
 <template>
     <Head :title="title" />
+    <PageHeading :data="pageHead">
+	</PageHeading>
     <div class="px-4 py-5 md:px-6 lg:px-8 ">
-        <h1 class="text-2xl font-bold">Storage Dashboard</h1>
-        <hr class="border-slate-200 rounded-full mb-5 mt-2">
+        <!-- <h1 class="text-2xl font-bold">Storage Dashboard</h1>
+        <hr class="border-slate-200 rounded-full mb-5 mt-2"> -->
 
         <div class="grid md:grid-cols-2 gap-y-4 md:gap-y-0 gap-x-3">
             <!-- Section: Profile box -->

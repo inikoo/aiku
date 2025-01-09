@@ -8,6 +8,7 @@
 
 namespace App\Actions\UI\Retina\Billing\UI;
 
+use App\Actions\Overview\GetOrganisationOverview;
 use App\Actions\Retina\Billing\IndexUnpaidInvoices;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
@@ -29,13 +30,141 @@ class ShowRetinaBillingDashboard
 
     public function asController(ActionRequest $request): Response
     {
-        return Inertia::render('Billing/RetinaBillingDashboard', [
-            'title'    => __('Billing'),
-            'pieData'  => $this->getDashboardData($request->user()->customer->fulfilmentCustomer),
-            'transactionsData' => $this->getTransactionsData($request->user()->customer),
-            'customer' => CustomersResource::make($request->user()->customer)->resolve(),
-            'unpaid_invoices' => InvoicesResource::collection(IndexUnpaidInvoices::run($request->user()->customer->fulfilmentCustomer))
-        ]);
+
+        /** @var Customer $parent */
+        $parent = $request->user()->customer;
+        $currentRecurringBills = $parent->fulfilmentCustomer->recurringBills();
+
+        $totalCurrnBill = (clone $currentRecurringBills)->whereDate('start_date', '=', now()->toDateString())->sum('total_amount') + (clone $currentRecurringBills)->whereDate('end_date', '>=', now()->toDateString())->sum('total_amount');
+
+        // return Inertia::render('Billing/RetinaBillingDashboard', [
+        //     // 'title'    => __('Billing'),
+        //     'pageHead'    => [
+        //         'title'         => __('Billing Dashboard'),
+        //         'icon'          => [
+        //             'icon'  => ['fal', 'fa-file-invoice-dollar'],
+        //             'title' => __('Billing Dashboard')
+        //         ],
+
+        //     ],
+        //     'dashboard_stats' => [
+        //         'settings' => auth()->user()->settings,
+        //         'columns' => [
+        //             [
+        //                 'widgets' => [
+        //                     [
+        //                         'data' => [
+        //                             'unpaid_invoices' => InvoicesResource::collection(IndexUnpaidInvoices::run($request->user()->customer->fulfilmentCustomer))
+        //                         ]
+        //                     ]
+        //                 ],
+        //                 'widgets' => [
+        //                     [
+        //                         'label' => __('Total Invoices'),
+        //                         'data' => $parent->stats->number_invoices
+        //                     ],
+        //                     [
+        //                         'label' => __('Current recurring bill (amount plus close day)'),
+        //                         'data' =>  $totalCurrnBill
+        //                     ]
+        //                 ]
+        //             ],
+        //         ]
+        //     ],
+        //     'pieData'  => $this->getDashboardData($request->user()->customer->fulfilmentCustomer),
+        //     'transactionsData' => $this->getTransactionsData($request->user()->customer),
+        //     'customer' => CustomersResource::make($request->user()->customer)->resolve(),
+        //     'unpaid_invoices' => InvoicesResource::collection(IndexUnpaidInvoices::run($request->user()->customer->fulfilmentCustomer))
+        // ]);
+        return Inertia::render(
+            'Billing/OverviewHub',
+            [
+                // 'breadcrumbs' => $this->getBreadcrumbs(
+                //     $routeName,
+                //     $routeParameters
+                // ),
+                'title'       => __('overview'),
+                'pageHead'    => [
+                    'icon'      => [
+                        'icon'  => ['fal', 'fa-mountains'],
+                        'title' => __('overview')
+                    ],
+                    'title'     => __('overview'),
+                ],
+                'dashboard' => [
+                    'settings' => auth()->user()->settings,
+                    'columns' => [
+                        [
+                            'widgets' => [
+                                [
+                                    'type' => 'overview_table',
+                                    'data' => GetOrganisationOverview::run($parent->organisation)
+                                ]
+                            ]
+                        ],
+                        [
+                            'widgets' => [
+                                [
+                                    'label' => __('the nutrition store'),
+                                    'data' => [
+                                        [
+                                            'label' => __('total orders today'),
+                                            'value' => 275,
+                                            'type' => 'card_currency_success'
+                                        ],
+                                        [
+                                            'label' => __('sales today'),
+                                            'value' => 2345,
+                                            'type' => 'card_currency'
+                                        ]
+                                    ],
+                                    'type' => 'multi_card',
+                                ],
+                                [
+                                    'label' => __('the yoga store'),
+                                    'data' => [
+                                        [
+                                            'label' => __('ad spend this week'),
+                                            'value' => 46,
+                                            'type' => 'card_percentage'
+                                        ],
+                                        [
+                                            'label' => __('sales today'),
+                                            'value' => 2345,
+                                            'type' => 'card_currency'
+                                        ]
+                                    ],
+                                    'type' => 'multi_card',
+                                ],
+                                [
+                                    'label' => __('ad spend this week'),
+                                    'value' => 2345,
+                                    'type' => 'card_currency',
+                                ],
+                                [
+                                    'label' => __('card abandonment rate'),
+                                    'value' => 45,
+                                    'type' => 'card_percentage',
+                                ],
+                                [
+                                    'label' => __('the yoga store'),
+                                    'data' => [
+                                        'label' => __('Total newsletter subscribers'),
+                                        'value' => 55700,
+                                        'progress_bar' => [
+                                            'value' => 55,
+                                            'max' => 100,
+                                            'color' => 'success',
+                                        ],
+                                    ],
+                                    'type' => 'card_progress_bar',
+                                ],
+                            ],
+                        ]
+                    ]
+                ],
+            ]
+        );
     }
 
     public function getTransactionsData(Customer $parent): array

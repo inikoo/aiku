@@ -1,11 +1,11 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 09-01-2025-11h-54m
  * github: https://github.com/KirinZero0
  * copyright 2025
 */
-
 
 namespace App\Http\Resources\Fulfilment;
 

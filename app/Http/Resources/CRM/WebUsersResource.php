@@ -21,7 +21,18 @@ class WebUsersResource extends JsonResource
         return [
             'slug'        => $webUser->slug,
             'username'    => $webUser->username,
-            'status'      => $webUser->status,
+            'status'        => match ($webUser->status) {
+                true => [
+                    'tooltip' => __('active'),
+                    'icon'    => 'fal fa-check',
+                    'class'   => 'text-green-500'
+                ],
+                default => [
+                    'tooltip' => __('suspended'),
+                    'icon'    => 'fal fa-times',
+                    'class'   => 'text-red-500'
+                ]
+            },
             'email'       => $webUser->email,
             'is_root'     => $webUser->is_root,
             'created_at'  => $webUser->created_at
