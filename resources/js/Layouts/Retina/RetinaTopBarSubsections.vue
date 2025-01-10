@@ -33,7 +33,7 @@ const isLoading = ref<string | boolean>(false)
         <component v-if="subSection"
             :is="subSection.route?.name ? Link : 'div'"
             :href="subSection.route?.name ? route(subSection.route.name, subSection.route.parameters) : '#'"
-            class="group relative text-gray-700 group text-2xl font-bold flex justify-end items-center cursor-pointer py-3 gap-x-2 px-4 first:pl-2 md:px-4 lg:px-4"
+            class="group relative text-gray-700 group text-2xl font-bold flex justify-end items-center cursor-pointer py-3 gap-x-2 px-4 md:px-4 lg:px-4"
             :class="[]" :title="capitalize(subSection.tooltip ?? subSection.label ?? '')"
             
             @start="() => isLoading = 'subSection' + idxSubSec"
@@ -45,9 +45,9 @@ const isLoading = ref<string | boolean>(false)
                     : 'bottomNavigation'
             ]" />
             
-            <LoadingIcon v-if="isLoading === 'subSection' + idxSubSec" class="h-5 lg:h-3.5 w-auto " />
-            <FontAwesomeIcon v-else-if="subSection.icon" :icon="subSection.icon" fixed-width class="h-5 lg:h-3.5 w-auto group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out" aria-hidden="true" />
-            <FontAwesomeIcon v-else icon="fas fa-dot-circle" fixed-width class="h-5 lg:h-3.5" aria-hidden="true" />
+            <LoadingIcon v-if="isLoading === 'subSection' + idxSubSec" class="h-5 lg:h-5 w-auto " />
+            <FontAwesomeIcon v-else-if="subSection.icon" :icon="subSection.icon" fixed-width class="h-5 lg:h-5 w-auto group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out" aria-hidden="true" />
+            <FontAwesomeIcon v-else icon="fas fa-dot-circle" fixed-width class="h-5 lg:h-5" aria-hidden="true" />
             <span v-if="subSection.label" class="hidden lg:inline capitalize whitespace-nowrap">{{ subSection.label }}</span>
         </component>
     </template>
