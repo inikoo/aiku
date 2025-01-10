@@ -59,7 +59,8 @@ const props = defineProps<{
     showcase?: {}
     agreed_prices?: {}
     note:{},
-    history:{}
+    history:{},
+    attachments:{}
 }>()
 
 const currentTab = ref(props.tabs.current)
@@ -71,7 +72,9 @@ const component = computed(() => {
         showcase: FulfilmentCustomerShowcase,
         agreed_prices: TableRentalAgreementClauses,
         history : TableHistories,
-        note:TableHistoryNotes
+        note:TableHistoryNotes,
+        attachments : TableRentalAgreementClauses,
+        webhook:TableRentalAgreementClauses,
     }
 
     return components[currentTab.value]
