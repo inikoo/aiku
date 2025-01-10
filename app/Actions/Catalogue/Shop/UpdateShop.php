@@ -59,10 +59,12 @@ class UpdateShop extends OrgAction
             data_set(
                 $modelData,
                 match ($key) {
-                    'shopify_shop_name' => 'settings.shopify.shop_name',
-                    'shopify_api_key' => 'settings.shopify.api_key',
-                    'shopify_api_secret' => 'settings.shopify.api_secret',
-                    'shopify_access_token' => 'settings.shopify.access_token',
+                    'shopify_shop_name'     => 'settings.shopify.shop_name',
+                    'shopify_api_key'       => 'settings.shopify.api_key',
+                    'shopify_api_secret'    => 'settings.shopify.api_secret',
+                    'shopify_access_token'  => 'settings.shopify.access_token',
+                    'registration_number'   => 'data.registration_number',
+                    'vat_number'            => 'data.vat_number',
                     default => $key
                 },
                 $value
@@ -73,6 +75,8 @@ class UpdateShop extends OrgAction
         data_forget($modelData, 'shopify_api_key');
         data_forget($modelData, 'shopify_api_secret');
         data_forget($modelData, 'shopify_access_token');
+        data_forget($modelData, 'registration_number');
+        data_forget($modelData, 'vat_number');
 
         if (Arr::exists($modelData, 'collection_address')) {
             $collectionAddressData = Arr::get($modelData, 'collection_address');
@@ -164,6 +168,8 @@ class UpdateShop extends OrgAction
             'shopify_api_key'          => ['sometimes', 'string'],
             'shopify_api_secret'       => ['sometimes', 'string'],
             'shopify_access_token'     => ['sometimes', 'string'],
+            'registration_number'      => ['sometimes', 'string'],
+            'vat_number'               => ['sometimes', 'string'],
         ];
 
         if (!$this->strict) {

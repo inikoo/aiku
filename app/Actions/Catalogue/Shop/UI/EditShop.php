@@ -89,16 +89,6 @@ class EditShop extends OrgAction
                                     'value'        => $shop->name,
                                     'required'     => true,
                                 ],
-                                'type' => [
-                                    'type'         => 'select',
-                                    'label'        => __('type'),
-                                    'value'        => $shop->type,
-                                    'placeholder'  => __('Select an option'),
-                                    'options'      => Options::forEnum(ShopTypeEnum::class),
-                                    'required'     => true,
-                                    'mode'         => 'single',
-                                    'searchable'   => true
-                                ]
                             ]
                         ],
                         [
@@ -160,6 +150,16 @@ class EditShop extends OrgAction
                                     'type'  => 'phone',
                                     'label' => __('telephone'),
                                     'value' => $shop->phone,
+                                ],
+                                'registration_number'        => [
+                                    'type'  => 'input',
+                                    'label' => __('registration number'),
+                                    'value' => $shop->data['registration_number'] ?? '',
+                                ],
+                                'vat_number'        => [
+                                    'type'  => 'input',
+                                    'label' => __('VAT number'),
+                                    'value' => $shop->data['vat_number'] ?? '',
                                 ],
                             ]
                         ]
