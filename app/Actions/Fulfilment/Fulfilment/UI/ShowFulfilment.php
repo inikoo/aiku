@@ -85,7 +85,7 @@ class ShowFulfilment extends OrgAction
                         'name'  => __('Invoices'),
                         'icon'  => ['fal', 'fa-file-invoice-dollar'],
                         'route'  => [
-                           'name'        => 'grp.org.fulfilments.show.operations.invoices.index',
+                           'name'        => 'grp.org.fulfilments.show.operations.invoices.all_invoices.index',
                             'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                         ],
                         'index' => [
