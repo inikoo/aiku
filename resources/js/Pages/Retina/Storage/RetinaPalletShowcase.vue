@@ -142,7 +142,7 @@ onMounted(() => {
 
         <!-- Section: field data -->
         <dl class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-8 lg:gap-x-8">
-            <div class="col-span-2 " v-if="blueprint.note.value">
+            <div class="col-span-2" v-if="blueprint.note.value">
                 <dt class="font-medium">{{ blueprint.note.label }}</dt>
                 <dd class="mt-2 text-sm text-gray-500 text-justify">
                     <PureTextarea :modelValue="blueprint.note.value" :rows="5"
@@ -150,7 +150,7 @@ onMounted(() => {
                 </dd>
             </div>
 
-            <div :class="[blueprint.note.value && 'border-t border-gray-200', 'pt-4']">
+            <div :class="['border-t border-gray-200', 'pt-4']">
                 <dt class="font-medium">{{ blueprint.reference.label }}</dt>
                 <dd class="mt-2 text-sm text-gray-500 text-justify">{{ blueprint.reference.value }}</dd>
             </div>
@@ -175,7 +175,7 @@ onMounted(() => {
                 <dd class="mt-2 text-sm text-gray-500 text-justify">{{ blueprint.customer_reference.value }}</dd>
             </div> -->
 
-            <div class="border-gray-200 pt-4">
+            <div class="border-gray-200 pt-4 border-t">
                 <dt class="font-medium">{{ blueprint.location.label }}</dt>
                 <dd class="mt-2 text-sm text-gray-500 text-justify">
                     <Link v-if="blueprint.location.value.route?.name"
@@ -187,7 +187,7 @@ onMounted(() => {
                 </dd>
             </div>
 
-            <div class="border-t border-gray-200 pt-4">
+            <div class="border-t border-gray-200 pt-4 border-t">
                 <dt class="font-medium">Notes</dt>
                 <dd class="mt-2 text-sm text-gray-500 text-justify">
                     <div>{{ props?.data?.data?.notes }}</div>
