@@ -12,9 +12,12 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Catalogue\OutersResource;
+use App\Http\Resources\Catalogue\RentalAgreementResource;
 use App\Http\Resources\Catalogue\RentalsResource;
+use App\Http\Resources\Catalogue\RetinaRentalAgreementResource;
 use App\Http\Resources\Catalogue\ServicesResource;
 use App\Http\Resources\CRM\CustomersResource;
+use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -56,9 +59,10 @@ class ShowRetinaStorageDashboard
 
             ],
 
-
+            'currency'     => CurrencyResource::make($fulfilmentCustomer->fulfilment->shop->currency),
             'storageData'  => $this->getDashboardData($fulfilmentCustomer),
             'customer'     => CustomersResource::make($fulfilmentCustomer->customer)->resolve(),
+            'rental_agreements' => RetinaRentalAgreementResource::make($fulfilmentCustomer->rentalAgreement),
             'discounts'    => $clauses
         ]);
     }
