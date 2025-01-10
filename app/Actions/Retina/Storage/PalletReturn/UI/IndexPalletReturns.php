@@ -125,12 +125,13 @@ class IndexPalletReturns extends RetinaAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'    => __('pallet returns'),
+                'title'    => __('returns'),
                 'pageHead' => [
-                    'title'     => __('pallet returns'),
+                    'title'     => __('returns'),
                     // 'container' => $container,
-                    'iconRight' => [
-                        'icon'  => ['fal', 'fa-truck-couch'],
+                    'model'     => __('Storage'),
+                    'icon' => [
+                        'icon'  => ['fal', 'fa-truck-ramp'],
                         'title' => __('return')
                     ],
                     'actions'       => [

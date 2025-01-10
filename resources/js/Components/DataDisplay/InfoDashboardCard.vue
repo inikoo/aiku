@@ -37,6 +37,7 @@ const props = defineProps({
 		<Link v-if="props.route" :href="props.route">
 			<span class="text-4xl font-bold leading-tight primaryLink">{{ value }}</span>
 		</Link>
+			<span class="text-4xl font-bold leading-tight">{{ value }}</span>
 		<p class="text-gray-500 text-base mt-2">{{ description }}</p>
 		<!-- Conditional Red Exclamation Icon -->
 		<div
