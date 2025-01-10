@@ -12,9 +12,12 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Catalogue\OutersResource;
+use App\Http\Resources\Catalogue\RentalAgreementResource;
 use App\Http\Resources\Catalogue\RentalsResource;
+use App\Http\Resources\Catalogue\RetinaRentalAgreementResource;
 use App\Http\Resources\Catalogue\ServicesResource;
 use App\Http\Resources\CRM\CustomersResource;
+use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -35,14 +38,16 @@ class ShowRetinaStorageDashboard
             $price                                  = $clause->asset->price;
             $percentageOff                          = $clause->percentage_off;
             $discount                               = $percentageOff / 100;
-            $clauses[$clause->asset->type->value][] = [
+            $clauses[] = [
+                'name'           => $clause->asset->name,
                 'asset_id'       => $clause->asset_id,
+                'type'           => $clause->asset->type->value,
                 'agreed_price'   => $price - $price * $discount,
                 'price'          => $price,
                 'percentage_off' => $percentageOff
             ];
         }
-
+        dd($clauses);
         return Inertia::render('Storage/RetinaStorageDashboard', [
             'title'        => __('Dashboard'),
 
@@ -55,9 +60,10 @@ class ShowRetinaStorageDashboard
 
             ],
 
-
+            'currency'     => CurrencyResource::make($fulfilmentCustomer->fulfilment->shop->currency),
             'storageData'  => $this->getDashboardData($fulfilmentCustomer),
             'customer'     => CustomersResource::make($fulfilmentCustomer->customer)->resolve(),
+            'rental_agreements' => RetinaRentalAgreementResource::make($fulfilmentCustomer->rentalAgreement),
             'discounts'    => $clauses
         ]);
     }

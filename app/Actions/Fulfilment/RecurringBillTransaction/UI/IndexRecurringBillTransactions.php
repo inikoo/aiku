@@ -1,10 +1,10 @@
 <?php
+
 /*
- * author Arya Permana - Kirin
- * created on 10-01-2025-13h-25m
- * github: https://github.com/KirinZero0
- * copyright 2025
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 14 Jun 2024 22:48:17 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 namespace App\Actions\Fulfilment\RecurringBillTransaction\UI;
 
