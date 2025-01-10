@@ -58,14 +58,7 @@ class ShowRetinaStorageDashboard
 
             'storageData'  => $this->getDashboardData($fulfilmentCustomer),
             'customer'     => CustomersResource::make($fulfilmentCustomer->customer)->resolve(),
-            'rental_agreement' => [
-                'original' => [
-                    'rentals'        => RentalsResource::collection($fulfilmentCustomer->fulfilment->rentals),
-                    'services'       => ServicesResource::collection($fulfilmentCustomer->fulfilment->shop->services),
-                    'physical_goods' => OutersResource::collection($fulfilmentCustomer->fulfilment->shop->products),
-                ],
-                'discounted' => $clauses
-            ]
+            'discounts'    => $clauses
         ]);
     }
 
