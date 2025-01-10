@@ -904,6 +904,7 @@ console.log(layout.user.id, "layoutt")
 							org.interval_percentages?.sales?.[selectedDateOption]?.amount || 0
 						)
 					"
+					type="dashboard"
 					:showIcon="
 						isNegative(
 							org.interval_percentages?.sales?.[selectedDateOption]?.amount || 0
