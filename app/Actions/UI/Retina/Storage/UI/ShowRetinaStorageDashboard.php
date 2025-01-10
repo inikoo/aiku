@@ -36,6 +36,7 @@ class ShowRetinaStorageDashboard
             $percentageOff                          = $clause->percentage_off;
             $discount                               = $percentageOff / 100;
             $clauses[$clause->asset->type->value][] = [
+                'name'           => $clause->asset->name,
                 'asset_id'       => $clause->asset_id,
                 'agreed_price'   => $price - $price * $discount,
                 'price'          => $price,
