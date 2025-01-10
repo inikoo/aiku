@@ -285,7 +285,7 @@ console.log(layout.user.id, "layoutt")
 		<!-- Section: Date options -->
 		<div class="col-span-12 space-y-4">
 			<div class="relative mt-2">
-				<!-- Tabs in Card -->
+				<!-- Section Setting -->
 				<div>
 					<div class="">
 						<div class="flex justify-end items-center space-x-4">
@@ -327,7 +327,7 @@ console.log(layout.user.id, "layoutt")
 					</div>
 				</div>
 			</div>
-
+			<!-- Section Table -->
 			<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
 				<div class="mt-2">
 					<div class="">
@@ -884,6 +884,7 @@ console.log(layout.user.id, "layoutt")
                 </div> -->
 			</div>
 		</div>
+		<!-- Section Widget -->
 		<div class="col-span-12">
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 				<!-- Responsive grid layout -->

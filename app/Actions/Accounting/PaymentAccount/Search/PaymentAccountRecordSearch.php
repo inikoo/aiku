@@ -59,9 +59,9 @@ class PaymentAccountRecordSearch
                         'tooltip'   => __('Provider')
                     ],
                     array_merge(
-                        (count($paymentAccount->shops) > 0) ?
+                        (count($paymentAccount->paymentAccountShops) > 0) ?
                     [
-                        'label'     => $paymentAccount->shops[0]->name,
+                        'label'     => $paymentAccount->paymentAccountShops[0]->name,
                         'tooltip'   => __('Shop')
                     ]
                     : [],

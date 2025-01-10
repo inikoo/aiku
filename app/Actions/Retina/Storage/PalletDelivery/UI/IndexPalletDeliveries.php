@@ -106,8 +106,8 @@ class IndexPalletDeliveries extends RetinaAction
                 'pageHead' => [
                     'title'     => __('Deliveries'),
                     'model'     => __('Storage'),
-                    'iconRight' => [
-                        'icon'  => ['fal', 'fa-truck-couch'],
+                    'icon' => [
+                        'icon'  => ['fal', 'fa-truck'],
                         'title' => __('delivery')
                     ],
                     'actions' => [

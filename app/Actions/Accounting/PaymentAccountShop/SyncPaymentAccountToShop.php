@@ -1,12 +1,12 @@
 <?php
 
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Fri, 26 Aug 2022 02:04:48 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia F
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 09 Jan 2025 20:57:37 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Catalogue\Shop;
+namespace App\Actions\Accounting\PaymentAccountShop;
 
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydratePaymentAccounts;
 use App\Actions\OrgAction;
@@ -26,7 +26,7 @@ class SyncPaymentAccountToShop extends OrgAction
         $shop = Shop::find(Arr::get($modelData, 'shop_id'));
 
         if ($shop) {
-            $paymentAccount->shops()->syncWithPivotValues(
+            $paymentAccount->paymentAccountShops()->syncWithPivotValues(
                 $shop,
                 [
                     'currency_id' => $shop->currency_id
@@ -42,7 +42,7 @@ class SyncPaymentAccountToShop extends OrgAction
 
             ShopHydratePaymentAccounts::dispatch($shop);
         } else {
-            $paymentAccount->shops()->detach();
+            $paymentAccount->paymentAccountShops()->detach();
         }
     }
 

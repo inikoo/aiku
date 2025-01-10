@@ -14,6 +14,7 @@ use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProvid
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePaymentAccounts;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePaymentAccounts;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Accounting\OrgPaymentServiceProvider;
@@ -31,6 +32,7 @@ use Throwable;
 
 class StorePaymentAccount extends OrgAction
 {
+    use WithNoStrictRules;
     public OrgPaymentServiceProvider|PaymentServiceProvider $parent;
 
     /**
@@ -101,7 +103,6 @@ class StorePaymentAccount extends OrgAction
             ],
             'name'        => ['required', 'max:250', 'string'],
             'is_accounts' => ['sometimes', 'boolean'],
-            'source_id'   => ['sometimes', 'string'],
         ];
 
         if (!$this->strict) {

@@ -100,8 +100,8 @@ class IndexRecurringBills extends RetinaAction
                     $request->route()->originalParameters()
                 ),
                 'title'       => __('recurring bills'),
-                'model'       => __('Recurring Bill'),
                 'pageHead'    => [
+                    'model'       => __('Billing'),
                     'title'         => __('recurring bills'),
                     'icon'          => [
                         'icon'  => ['fal', 'fa-receipt'],

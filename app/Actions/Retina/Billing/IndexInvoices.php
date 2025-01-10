@@ -214,14 +214,19 @@ class IndexInvoices extends RetinaAction
 
         if ($this->parent instanceof FulfilmentCustomer) {
             $icon       = ['fal', 'fa-user'];
-            $title      = $this->parent->customer->name;
-            $iconRight  = [
-                'icon' => 'fal fa-file-invoice-dollar',
-            ];
-            $afterTitle = [
+            $title      = __('Invoices');
+            // $iconRight  = [
+            //     'icon' => 'fal fa-file-invoice-dollar',
+            // ];
+            // $afterTitle = [
 
-                'label' => __('invoices')
+            //     'label' => __('invoices')
+            // ];
+            $icon  = [
+                'icon'  => ['fal', 'fa-file-invoice-dollar'],
+                'title' => __('customer')
             ];
+            $model = __('Billing');
         } elseif ($this->parent instanceof Fulfilment) {
             $model = __('Operations');
         } elseif ($this->parent instanceof CustomerClient) {
