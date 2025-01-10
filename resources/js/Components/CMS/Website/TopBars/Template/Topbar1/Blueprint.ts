@@ -122,10 +122,10 @@ export default {
 					label :'Link',
 					props_data: {
 						defaultValue: {
-							"type" : "external",
-							"url": "",
-							"id": null,
-							"workshop_route" : ""
+							type : "external",
+							url: "",
+							id: null,
+							workshop_route : ""
 						},
 					},
 				},
