@@ -24,14 +24,16 @@ class GetDataTableRetinaBillingDashboard
 
     public function getData(Customer $customer): array
     {
-        $data = [
-            [
-                'name'  => __('Invoice'),
-                'icon'  => 'fal fa-file-invoice-dollar',
-                'route' => route('retina.billing.invoices.index'),
-                'count' => $customer->stats->number_invoices ?? 0
-            ],
-        ];
+        // get unpaid invoices
+        $invoices = $customer->invoices()->where('total_amount', '>', 0)->where('paid_at', null)->get();
+        $data = [];
+        foreach ($invoices as $invoice) {
+            $data[] = [
+                'reference'  => $invoice->reference,
+                'route' => route('retina.billing.invoices.show', $invoice->slug),
+                'total' => $invoice->total_amount,
+            ];
+        }
 
         return $data;
     }

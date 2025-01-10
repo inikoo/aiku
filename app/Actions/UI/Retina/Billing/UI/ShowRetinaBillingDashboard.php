@@ -24,7 +24,7 @@ class ShowRetinaBillingDashboard
 
         /** @var Customer $customer */
         $customer = $request->user()->customer;
-        $currentRecurringBill = $customer->fulfilmentCustomer->currentRecurringBill;
+        $currentRecurringBill = $customer->fulfilmentCustomer?->currentRecurringBill;
         $numberUnpaidInvoices = $customer->stats->number_unpaid_invoices;
         $numberInvoices = $customer->stats->number_invoices;
 
