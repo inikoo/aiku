@@ -21,12 +21,21 @@ const filteredData = computed(() => {
 		item.reference.toLowerCase().includes(searchQuery.value.toLowerCase())
 	)
 })
+
+const printLabelByType = (label?: string, data: {}) => {
+    switch (data.format) {
+        case 'currency':
+            return locale.currencyFormat(data.currency_code || 'usd', Number(label))
+        default:
+            return label
+    }
+}
 </script>
 
 <template>
 	<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
 		<!-- Search Header -->
-		<div class="flex items-center w-full mb-4">
+		<!-- <div class="flex items-center w-full mb-4">
 			<div
 				class="search-container transition-all duration-300 ease-in-out flex items-center w-full">
 				<IconField class="w-full">
@@ -43,16 +52,19 @@ const filteredData = computed(() => {
 						class="border border-gray-300 rounded appearance-none block w-full px-3 py-2 text-sm leading-none transition-all duration-300 placeholder:text-gray-400 placeholder:italic focus:border-gray-500 focus:ring-0 focus:outline-none" />
 				</IconField>
 			</div>
-		</div>
+		</div> -->
 
 		<!-- Table Content -->
 		<div>
 			<template v-if="filteredData.length">
-				<div class="grid grid-cols-12 gap-4">
+				<div class="font-bold">
+					Unpaid invoices ({{ filteredData.length }})
+				</div>
+				<div class="grid grid-cols-12 gap-1.5">
 					<div
 						v-for="item in filteredData"
 						:key="item.reference"
-						class="col-span-12 flex items-center border-b py-2">
+						class="col-span-12 flex items-center last:border-b py-1">
 						<!-- Icon -->
 						<div class="mr-4">
 							<FontAwesomeIcon :icon="item.icon" fixed-width class="text-gray-500" />
@@ -65,9 +77,11 @@ const filteredData = computed(() => {
 							</Link>
 						</div>
 
+						<!-- {{ item.currency_code }} == -->
 						<!-- total -->
 						<div class="text-right text-gray-700">
-							{{ locale.number(item.total) }}
+							<!-- {{ locale.number(item.total) }} -->
+							{{ printLabelByType(item.total, item) }}
 						</div>
 					</div>
 				</div>
