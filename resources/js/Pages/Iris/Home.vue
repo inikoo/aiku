@@ -27,7 +27,7 @@ defineOptions({ layout: LayoutIris })
 library.add(faCheck, faPlus, faMinus)
 
 const layout = inject('layout', {})
-const isPreviewLoggedIn = ref(false)
+const isPreviewLoggedIn = ref(layout.iris.is_logged_in)
 
 const showWebpage = (activityItem) => {
     if (activityItem?.web_block?.layout && activityItem.show) {
@@ -37,10 +37,11 @@ const showWebpage = (activityItem) => {
     } else return false
 }
 
+
+
 </script>
 
 <template>
-    <!-- <pre>{{ layout }}</pre> -->
     <Head>
     <title>{{ data.seotitle }}</title>
     <meta property="og:title" :content="data.seotitle " />
