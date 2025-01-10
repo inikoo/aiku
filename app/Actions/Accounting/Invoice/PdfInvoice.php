@@ -35,6 +35,7 @@ class PdfInvoice
 
             $filename = $invoice->slug . '-' . now()->format('Y-m-d');
             $pdf      = PDF::loadView('invoices.templates.pdf.invoice', [
+                'shop'          => $invoice->shop,
                 'invoice'       => $invoice,
                 'transactions'  => $invoice->invoiceTransactions,
                 'totalNet'      => $totalNet

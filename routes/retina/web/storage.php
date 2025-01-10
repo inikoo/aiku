@@ -11,6 +11,7 @@ use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Fulfilment\PalletReturn\ExportPalletReturnPallet;
 use App\Actions\Fulfilment\PalletReturn\ExportPalletReturnStoredItem;
 use App\Actions\Helpers\Upload\HistoryUploads;
+use App\Actions\Retina\Storage\Pallet\UI\EditRetinaPallet;
 use App\Actions\Retina\Storage\Pallet\UI\IndexRetinaPallets;
 use App\Actions\Retina\Storage\Pallet\UI\ShowRetinaPallet;
 use App\Actions\Retina\Storage\PalletDelivery\UI\IndexPalletDeliveries;
@@ -41,4 +42,5 @@ Route::prefix('pallet-returns')->as('pallet-returns.')->group(function () {
 
 Route::get('pallets', IndexRetinaPallets::class)->name('pallets.index');
 Route::get('pallets/{pallet}', ShowRetinaPallet::class)->name('pallets.show');
+Route::get('pallets/{pallet}/edit', EditRetinaPallet::class)->name('pallets.edit');
 Route::get('stored-items', IndexStoredItems::class)->name('stored-items.index');
