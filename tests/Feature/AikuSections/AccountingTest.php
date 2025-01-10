@@ -659,7 +659,7 @@ test('UI show payment account in organisation payment service provider', functio
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                    ->where('title', $paymentAccount->slug)
+                    ->where('title', $paymentAccount->name)
                     ->has('actions')
                     ->etc()
             )
@@ -681,7 +681,7 @@ test('UI show payment account in organisation payment service provider (stats ta
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                    ->where('title', $paymentAccount->slug)
+                    ->where('title', $paymentAccount->name)
                     ->has('actions')
                     ->etc()
             )
@@ -704,7 +704,7 @@ test('UI show payment account in organisation payment service provider (payments
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                    ->where('title', $paymentAccount->slug)
+                    ->where('title', $paymentAccount->name)
                     ->has('actions')
                     ->etc()
             )
@@ -726,7 +726,7 @@ test('UI show payment account in organisation payment service provider (history 
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                    ->where('title', $paymentAccount->slug)
+                    ->where('title', $paymentAccount->name)
                     ->has('actions')
                     ->etc()
             )

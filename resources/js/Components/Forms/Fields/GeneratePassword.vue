@@ -15,6 +15,7 @@ import { faExclamationCircle, faCheckCircle, faEye, faEyeSlash, } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faSync } from '@far'
 import { faCopy } from '@fal'
+import { formToJSON } from 'axios'
 
 library.add(faExclamationCircle, faCheckCircle, faEye, faEyeSlash, faCopy)
 
@@ -55,15 +56,15 @@ const generatePassword = () => {
 
             <div class="flex items-center gap-2 relative">
                 <!-- Password Field -->
-                 <div class="w-[90%]">
+                 <div class="w-full">
                     <Password ref="_password" :form="form" :fieldName="fieldName" :options="options" :fieldData="fieldData"
                     class="w-ful" />
                  </div>
                 
 
                 <!-- Copy Button Slot -->
-                <slot name="copyButton">
-                    <div class="group flex justify-center items-center absolute inset-y-0 right-0 gap-x-1">
+                <slot v-if="form[fieldName].length" name="copyButton">
+                    <div class="group flex justify-center items-center absolute inset-y-0 right-12 gap-x-1">
                         <Transition name="spin-to-down">
                             <!-- Check Icon (Recently Copied) -->
                             <FontAwesomeIcon v-if="isRecentlyCopied" icon="fal fa-check"

@@ -15,6 +15,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\CRM\WebUser;
+use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
@@ -68,7 +69,7 @@ class UpdateWebUser extends OrgAction
             'username'   => [
                 'sometimes',
                 'required',
-                $this->strict ? 'email' : 'string:500',
+                $this->strict ? new AlphaDashDot() : 'string',
                 new IUnique(
                     table: 'web_users',
                     extraConditions: [
