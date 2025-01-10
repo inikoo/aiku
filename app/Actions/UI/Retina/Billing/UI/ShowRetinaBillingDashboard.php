@@ -74,7 +74,7 @@ class ShowRetinaBillingDashboard
                                 [
                                     'label' => __('Total Invoices'),
                                     'route' => route('retina.billing.invoices.index'),
-                                    'value' => $customer->stats->number_invoices,
+                                    'value' => $numberInvoices,
                                     'type' => 'card_number',
                                 ] : null,
                             ],
@@ -84,7 +84,7 @@ class ShowRetinaBillingDashboard
                                 $numberUnpaidInvoices ?
                                 [
                                     'label' => __('Unpaid Invoices'),
-                                    'value' => $customer->stats->number_unpaid_invoices,
+                                    'value' => $numberUnpaidInvoices,
                                     'type' => 'card_number_attention',
                                 ] : null,
                             ]
