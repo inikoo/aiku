@@ -15,6 +15,7 @@ use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\RecurringBillResource;
 use App\Http\Resources\Fulfilment\RecurringBillTransactionsResource;
+use App\Http\Resources\History\HistoryResource;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\StoredItem;
 use Inertia\Inertia;
@@ -44,6 +45,8 @@ class ShowRecurringBill extends RetinaAction
         foreach ($recurringBill->transactions()->where('item_type', 'Pallet') as $transaction) {
             $palletPriceTotal += $transaction->item->rental->price;
         }
+
+        $showGrossAndDiscount = $recurringBill->gross_amount !== $recurringBill->net_amount;
         return Inertia::render(
             'Billing/RetinaRecurringBill',
             [
@@ -68,7 +71,10 @@ class ShowRecurringBill extends RetinaAction
                 'status_rb'        => $recurringBill->status,
                 'box_stats'        => [
                     'customer'      => FulfilmentCustomerResource::make($recurringBill->fulfilmentCustomer),
-                    'stats'         => $recurringBill->stats,
+                    'stats'         => [
+                        'number_pallets'         => $recurringBill->stats->number_transactions_type_pallets,
+                        'number_stored_items'    => $recurringBill->stats->number_transactions_type_stored_items,
+                    ],
                     'order_summary' => [
                         // [
                         //     [
@@ -82,33 +88,65 @@ class ShowRecurringBill extends RetinaAction
                         [
                             [
                                 'label'         => __('Pallets'),
-                                'quantity'      => $recurringBill->stats->number_transactions_type_pallets ?? 0,
                                 'price_base'    => __('Multiple'),
-                                'price_total'   => $palletPriceTotal ?? 0
+                                'price_total'   => $recurringBill->rental_amount
+                            ],
+                            [
+                                'label'       => __('Services'),
+                                'price_base'  => __('Multiple'),
+                                'price_total' => $recurringBill->services_amount
+                            ],
+                            [
+                                'label'       => __('Products'),
+                                'price_base'  => __('Multiple'),
+                                'price_total' => $recurringBill->goods_amount
                             ],
                             // [
                             //     'label'         => __('Stored Items'),
                             //     'quantity'      => $recurringBill->stats->number_transactions_type_stored_items ?? 0,
                             //     'price_base'    => __('Multiple'),
-                            //     'price_total'   => 'Free'
+                            //     'price_total'   => 1111111
                             // ],
                         ],
-                        [
+                        $showGrossAndDiscount ? [
                             [
-                                'label'         => __('Shipping'),
-                                'information'   => __('Shipping fee to your address using DHL service.'),
-                                'price_total'   => 1111
+                                'label'         => __('Gross'),
+                                'information'   => '',
+                                'price_total'   => $recurringBill->gross_amount
                             ],
                             [
-                                'label'         => __('Tax'),
-                                'information'   => __('Tax is based on 10% of total order.'),
-                                'price_total'   => 1111111
+                                'label'         => __('Discounts'),
+                                'information'   => '',
+                                'price_total'   => $recurringBill->discount_amount
+                            ],
+                        ] : [],
+                        $showGrossAndDiscount ? [
+                            [
+                                'label'         => __('Net'),
+                                'information'   => '',
+                                'price_total'   => $recurringBill->net_amount
+                            ],
+                            [
+                                'label'         => __('Tax').' '.$recurringBill->taxCategory->rate * 100 . '%',
+                                'information'   => '',
+                                'price_total'   => $recurringBill->tax_amount
+                            ],
+                        ] : [
+                            [
+                                'label'         => __('Net'),
+                                'information'   => '',
+                                'price_total'   => $recurringBill->net_amount
+                            ],
+                            [
+                                'label'         => __('Tax').' '.$recurringBill->taxCategory->rate * 100 . '%',
+                                'information'   => '',
+                                'price_total'   => $recurringBill->tax_amount
                             ],
                         ],
                         [
                             [
                                 'label'         => __('Total'),
-                                'price_total'   => 222222222
+                                'price_total'   => $recurringBill->total_amount
                             ],
                         ],
                     ],
@@ -121,14 +159,18 @@ class ShowRecurringBill extends RetinaAction
                 RecurringBillTabsEnum::TRANSACTIONS->value => $this->tab == RecurringBillTabsEnum::TRANSACTIONS->value ?
                 fn () => RecurringBillTransactionsResource::collection(IndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))
                 : Inertia::lazy(fn () => RecurringBillTransactionsResource::collection(IndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))),
+
+                // RecurringBillTabsEnum::HISTORY->value => $this->tab == RecurringBillTabsEnum::HISTORY->value ?
+                // fn () => HistoryResource::collection(IndexHistory::run($recurringBill))
+                // : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($recurringBill)))
             ]
-            // Todo @kirin please fix this below
         )->table(
             IndexRecurringBillTransactions::make()->tableStructure(
                 $recurringBill,
                 prefix: RecurringBillTabsEnum::TRANSACTIONS->value
             )
-        )->table(IndexHistory::make()->tableStructure(prefix: RecurringBillTabsEnum::HISTORY->value));
+        );
+        // ->table(IndexHistory::make()->tableStructure(prefix: RecurringBillTabsEnum::HISTORY->value));
         //            ->table(IndexFulfilmentServices::make()->tableStructure($recurringBill, prefix: RecurringBillTabsEnum::SERVICES->value))
         //            ->table(IndexFulfilmentPhysicalGoods::make()->tableStructure($recurringBill, prefix: RecurringBillTabsEnum::PHYSICAL_GOODS->value))
         //            ->table(IndexRetinaPallets::make()->tableStructure($recurringBill, RecurringBillTabsEnum::PALLETS->value));
