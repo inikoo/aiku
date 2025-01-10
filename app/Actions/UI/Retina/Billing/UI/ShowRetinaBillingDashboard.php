@@ -26,6 +26,7 @@ class ShowRetinaBillingDashboard
         $customer = $request->user()->customer;
         $currentRecurringBill = $customer->fulfilmentCustomer?->currentRecurringBill;
         $numberUnpaidInvoices = $customer->stats->number_unpaid_invoices;
+        $amountUnpaidInvoices = $customer->stats->unpaid_invoices_amount;
         $numberInvoices = $customer->stats->number_invoices;
 
         return Inertia::render(
@@ -46,7 +47,7 @@ class ShowRetinaBillingDashboard
                             'widgets' => [
                                 [
                                     'type' => 'unpaid_invoices',
-                                    'data' => GetDataTableRetinaBillingDashboard::run($customer)
+                                    'data' => GetDataTableRetinaBillingDashboard::run($customer),
                                 ]
                             ]
                         ],
@@ -83,8 +84,14 @@ class ShowRetinaBillingDashboard
                             'widgets' => [
                                 $numberUnpaidInvoices ?
                                 [
-                                    'label' => __('Unpaid Invoices'),
+                                    'label' => __('Total Unpaid Invoices'),
                                     'value' => $numberUnpaidInvoices,
+                                    'type' => 'card_number_attention',
+                                ] : null,
+                                $amountUnpaidInvoices ?
+                                [
+                                    'label' => __('Amount Unpaid Invoices'),
+                                    'value' => $amountUnpaidInvoices,
                                     'type' => 'card_number_attention',
                                 ] : null,
                             ]
