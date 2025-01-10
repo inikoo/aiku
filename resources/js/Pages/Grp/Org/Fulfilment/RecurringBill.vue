@@ -17,7 +17,6 @@ import BoxStatsRecurringBills from '@/Components/Fulfilment/BoxStatsRecurringBil
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { compareAsc } from 'date-fns'
 import { routeType } from '@/types/route'
-import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
 import TableUserRequestLogs from "@/Components/Tables/Grp/SysAdmin/TableUserRequestLogs.vue"
 
 // import TablePallets from '@/Components/Tables/Grp/Org/Fulfilment/TablePallets.vue'
