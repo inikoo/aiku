@@ -41,7 +41,12 @@ export const initialiseIrisApp = () => {
         }
 
         if (usePage().props.iris?.variables) {
+            // Will deprecated, use variables via props.iris instead
             layout.iris_variables = usePage().props.iris?.variables
+        }
+
+        if (usePage().props.iris) {
+            layout.iris = usePage().props.iris
         }
 
         // Set data of Locale (Language)
