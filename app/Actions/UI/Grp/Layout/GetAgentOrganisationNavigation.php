@@ -140,7 +140,7 @@ class GetAgentOrganisationNavigation
                             'icon'  => ['fal', 'fa-file-invoice-dollar'],
                             'root'  => 'grp.org.accounting.invoices.',
                             'route' => [
-                                'name'       => 'grp.org.accounting.invoices.index',
+                                'name'       => 'grp.org.accounting.invoices.all_invoices.index',
                                 'parameters' => [$organisation->slug],
 
                             ]

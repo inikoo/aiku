@@ -8,6 +8,7 @@
 
 namespace App\Actions\Accounting\Invoice\UI;
 
+use App\Actions\Accounting\Invoice\WithInvoicesSubNavigation;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
@@ -43,6 +44,7 @@ class IndexInvoices extends OrgAction
 {
     use WithFulfilmentCustomerSubNavigation;
     use WithCustomerSubNavigation;
+    use WithInvoicesSubNavigation;
 
     private Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|Shop $parent;
 
@@ -50,7 +52,7 @@ class IndexInvoices extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereWith('invoices.number', $value);
+                $query->whereWith('invoices.reference', $value);
             });
         });
 
@@ -60,6 +62,12 @@ class IndexInvoices extends OrgAction
 
 
         $queryBuilder = QueryBuilder::for(Invoice::class);
+
+        if ($this->bucket) {
+            if ($this->bucket === 'unpaid') {
+                $queryBuilder->where('invoices.total_amount', '>', 0)->where('invoices.paid_at', null);
+            }
+        }
 
         if ($parent instanceof Organisation) {
             $queryBuilder->where('invoices.organisation_id', $parent->id);
@@ -118,7 +126,7 @@ class IndexInvoices extends OrgAction
                 ->addSelect('customers.name as customer_name', 'fulfilment_customers.slug as customer_slug');
         }
 
-        return $queryBuilder->allowedSorts(['number', 'total_amount', 'net_amount', 'date', 'customer_name'])
+        return $queryBuilder->allowedSorts(['number', 'total_amount', 'net_amount', 'date', 'customer_name', 'reference'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -224,6 +232,8 @@ class IndexInvoices extends OrgAction
             }
         } elseif ($this->parent instanceof FulfilmentCustomer) {
             $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+        } elseif ($this->parent instanceof Fulfilment || $this->parent instanceof Organisation) {
+            $subNavigation = $this->getInvoicesNavigation($this->parent);
         }
 
 
@@ -309,9 +319,27 @@ class IndexInvoices extends OrgAction
         )->table($this->tableStructure($this->parent));
     }
 
-
-    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    public function unpaidOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
+        $this->bucket = 'unpaid';
+        $this->parent = $organisation;
+        $this->initialisation($organisation, $request);
+
+        return $this->handle($organisation);
+    }
+
+    public function unpaidFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'unpaid';
+        $this->parent = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilment);
+    }
+
+    public function allOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'all';
         $this->parent = $organisation;
         $this->initialisation($organisation, $request);
 
@@ -321,6 +349,7 @@ class IndexInvoices extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
+        $this->bucket = 'all';
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request);
 
@@ -328,8 +357,9 @@ class IndexInvoices extends OrgAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    public function allFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
+        $this->bucket = 'all';
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
@@ -338,6 +368,7 @@ class IndexInvoices extends OrgAction
 
     public function inGroup(ActionRequest $request): LengthAwarePaginator
     {
+        $this->bucket = 'all';
         $this->parent = group();
         $this->initialisationFromGroup(group(), $request);
 
@@ -375,7 +406,8 @@ class IndexInvoices extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        $headCrumb = function (array $routeParameters = []) {
+
+        $headCrumb = function (array $routeParameters = [], ?string $suffix = null) {
             return [
                 [
                     'type'   => 'simple',
@@ -385,7 +417,8 @@ class IndexInvoices extends OrgAction
                         'icon'  => 'fal fa-bars',
 
                     ],
-                ],
+                    'suffix' => $suffix
+                ]
             ];
         };
 
@@ -401,15 +434,49 @@ class IndexInvoices extends OrgAction
                 ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.shops.show.dashboard', $routeParameters),
                 $headCrumb()
             ),
-            'grp.org.accounting.invoices.index' =>
+            'grp.org.accounting.invoices.all_invoices.index' =>
             array_merge(
                 ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', $routeParameters),
-                $headCrumb()
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    trim('('.__('All').') ')
+                )
             ),
-            'grp.org.fulfilments.show.operations.invoices.index' =>
+            'grp.org.accounting.invoices.unpaid_invoices.index' =>
+            array_merge(
+                ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    trim('('.__('Unpaid').') ')
+                )
+            ),
+            'grp.org.fulfilments.show.operations.invoices.all_invoices.index' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs(routeParameters: $routeParameters),
-                $headCrumb()
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    trim('('.__('All').') ')
+                )
+            ),
+            'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.index' =>
+            array_merge(
+                ShowFulfilment::make()->getBreadcrumbs(routeParameters: $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    trim('('.__('Unpaid').') ')
+                )
             ),
             'grp.org.shops.show.crm.customers.show.invoices.index' =>
             array_merge(

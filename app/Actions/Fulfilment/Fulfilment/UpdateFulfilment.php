@@ -8,12 +8,16 @@
 
 namespace App\Actions\Fulfilment\Fulfilment;
 
+use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\Fulfilment;
+use App\Rules\IUnique;
+use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
+use Illuminate\Validation\Rules\File;
 
 class UpdateFulfilment extends OrgAction
 {
@@ -24,8 +28,6 @@ class UpdateFulfilment extends OrgAction
 
     public function handle(Fulfilment $fulfilment, array $modelData): Fulfilment
     {
-
-
         $settings       = $fulfilment->settings;
         $updateSettings = false;
 
@@ -47,9 +49,30 @@ class UpdateFulfilment extends OrgAction
             $modelData['settings'] = $settings;
         }
 
+        $shopData = Arr::only($modelData, [
+            'name',
+            'code',
+            'currency_id',
+            'country_id',
+            'language_id',
+            'contact_name',
+            'company_name',
+            'email',
+            'phone',
+            'address',
+            'registration_number',
+            'vat_number',
+            'image',
+        ]);
+    
+        $modelData = Arr::except($modelData, array_keys($shopData));
+
+        $fulfilment = $this->update($fulfilment, $modelData, ['settings']);
+
+        $shop = UpdateShop::make()->action($fulfilment->shop, $shopData);
 
 
-        return $this->update($fulfilment, $modelData, ['settings']);
+        return $fulfilment;
 
 
     }
@@ -80,6 +103,42 @@ class UpdateFulfilment extends OrgAction
             'monthly_cut_off.isWeekdays' => [
                 'sometimes',
                 'boolean',
+            ],
+            'name'                     => ['sometimes', 'required', 'string', 'max:255'],
+            'code'                     => [
+                'sometimes',
+                'required',
+                'max:8',
+                'alpha_dash',
+                new IUnique(
+                    table: 'shops',
+                    extraConditions: [
+
+                        ['column' => 'group_id', 'value' => $this->organisation->group_id],
+                        [
+                            'column'   => 'id',
+                            'operator' => '!=',
+                            'value'    => $this->shop->id
+                        ],
+                    ]
+                ),
+
+            ],
+            'currency_id'              => ['sometimes', 'required', 'exists:currencies,id'],
+            'country_id'               => ['sometimes', 'required', 'exists:countries,id'],
+            'language_id'              => ['sometimes', 'required', 'exists:languages,id'],
+            'contact_name'             => ['sometimes', 'nullable', 'string', 'max:255'],
+            'company_name'             => ['sometimes', 'nullable', 'string', 'max:255'],
+            'email'                    => ['sometimes', 'nullable', 'email'],
+            'phone'                    => ['sometimes', 'nullable'],
+            'address'                  => ['sometimes', 'required', new ValidAddress()],
+            'registration_number'      => ['sometimes', 'string'],
+            'vat_number'               => ['sometimes', 'string'],
+            'image'       => [
+                'sometimes',
+                'nullable',
+                File::image()
+                    ->max(12 * 1024)
             ]
         ];
     }

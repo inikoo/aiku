@@ -47,7 +47,7 @@ class ShowRetinaStorageDashboard
                 'percentage_off' => $percentageOff
             ];
         }
-        dd($clauses);
+        
         return Inertia::render('Storage/RetinaStorageDashboard', [
             'title'        => __('Dashboard'),
 
@@ -63,7 +63,7 @@ class ShowRetinaStorageDashboard
             'currency'     => CurrencyResource::make($fulfilmentCustomer->fulfilment->shop->currency),
             'storageData'  => $this->getDashboardData($fulfilmentCustomer),
             'customer'     => CustomersResource::make($fulfilmentCustomer->customer)->resolve(),
-            'rental_agreements' => RetinaRentalAgreementResource::make($fulfilmentCustomer->rentalAgreement),
+            'rental_agreement' => RetinaRentalAgreementResource::make($fulfilmentCustomer->rentalAgreement),
             'discounts'    => $clauses
         ]);
     }
