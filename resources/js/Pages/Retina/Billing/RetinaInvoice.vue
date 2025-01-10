@@ -121,7 +121,7 @@ import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
   // Section: Payment invoice
   const listPaymentMethod = ref([])
   const isLoadingFetch = ref(false)
-  const fetchPaymentMethod = async () => {
+/*   const fetchPaymentMethod = async () => {
       try {
           isLoadingFetch.value = true
           const { data } = await axios.get(route(props.box_stats.information.routes.fetch_payment_accounts.name, props.box_stats.information.routes.fetch_payment_accounts.parameters))
@@ -137,7 +137,7 @@ import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
       finally {
           isLoadingFetch.value = false
       }
-  }
+  } */
   
   const paymentData = ref({
       payment_method: null as number | null,
@@ -302,7 +302,7 @@ import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
                           <FontAwesomeIcon icon='fal fa-money-bill-alt' fixed-width aria-hidden='true' class="text-gray-500" />
                       </dt>
                       <NeedToPay
-                          @click="() => Number(box_stats.information.pay_amount) > 0 ? (isOpenModalPayment = true, fetchPaymentMethod()) : false"
+                        
                           :totalAmount="Number(props.invoice.total_amount)"
                           :paidAmount="Number(box_stats.information.paid_amount)"
                           :payAmount="Number(box_stats.information.pay_amount)"
@@ -325,7 +325,7 @@ import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
       <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
       <component :is="component" :data="props[currentTab]" :tab="currentTab" />
   
-      <Modal :isOpen="isOpenModalPayment" @onClose="isOpenModalPayment = false" width="w-[600px]">
+   <!--    <Modal :isOpen="isOpenModalPayment" @onClose="isOpenModalPayment = false" width="w-[600px]">
           <div class="isolate bg-white px-6 lg:px-8">
               <div class="mx-auto max-w-2xl text-center">
                   <h2 class="text-lg font-bold tracking-tight sm:text-2xl">{{ trans('Invoice Payment') }}</h2>
@@ -370,16 +370,6 @@ import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
                       </div>
                   </div>
   
-                  <!-- <div class="col-span-2">
-                      <label for="message" class="block text-sm font-medium leading-6">Note</label>
-                      <div class="mt-1">
-                          <PureTextarea
-                              v-model="paymentData.payment_reference"
-                              name="message"
-                              id="message" rows="4"
-                          />
-                      </div>
-                  </div> -->
               </div>
   
               <div class="mt-6 mb-4 relative">
@@ -389,5 +379,5 @@ import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
                   </Transition>
               </div>
           </div>
-      </Modal>
+      </Modal> -->
   </template>
