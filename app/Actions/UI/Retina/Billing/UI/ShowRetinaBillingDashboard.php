@@ -84,7 +84,7 @@ class ShowRetinaBillingDashboard
                             'widgets' => [
                                 $numberUnpaidInvoices ?
                                 [
-                                    'label' => __('Unpaid Invoices'),
+                                    'label' => __('Total Unpaid Invoices'),
                                     'value' => $numberUnpaidInvoices,
                                     'type' => 'card_number_attention',
                                 ] : null,
