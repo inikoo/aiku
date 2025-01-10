@@ -11,6 +11,9 @@ namespace App\Actions\UI\Retina\Storage\UI;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Http\Resources\Catalogue\OutersResource;
+use App\Http\Resources\Catalogue\RentalsResource;
+use App\Http\Resources\Catalogue\ServicesResource;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use Inertia\Inertia;
@@ -25,6 +28,21 @@ class ShowRetinaStorageDashboard
 
     public function asController(ActionRequest $request): Response
     {
+        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
+
+        $clauses = null;
+        foreach ($fulfilmentCustomer->rentalAgreementClauses as $clause) {
+            $price                                  = $clause->asset->price;
+            $percentageOff                          = $clause->percentage_off;
+            $discount                               = $percentageOff / 100;
+            $clauses[$clause->asset->type->value][] = [
+                'asset_id'       => $clause->asset_id,
+                'agreed_price'   => $price - $price * $discount,
+                'price'          => $price,
+                'percentage_off' => $percentageOff
+            ];
+        }
+
         return Inertia::render('Storage/RetinaStorageDashboard', [
             'title'        => __('Dashboard'),
 
@@ -38,8 +56,9 @@ class ShowRetinaStorageDashboard
             ],
 
 
-            'storageData'  => $this->getDashboardData($request->user()->customer->fulfilmentCustomer),
-            'customer'     => CustomersResource::make($request->user()->customer)->resolve()
+            'storageData'  => $this->getDashboardData($fulfilmentCustomer),
+            'customer'     => CustomersResource::make($fulfilmentCustomer->customer)->resolve(),
+            'discounts'    => $clauses
         ]);
     }
 
