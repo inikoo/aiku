@@ -8,7 +8,7 @@
 
 namespace App\Actions\Fulfilment\RecurringBillTransaction;
 
-use App\Actions\Fulfilment\RecurringBill\CalculateRecurringBillNet;
+use App\Actions\Fulfilment\RecurringBill\UpdateRecurringBillTotals;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\RentalAgreementClause\RentalAgreementCauseStateEnum;
 use App\Models\Fulfilment\RecurringBillTransaction;
@@ -42,7 +42,7 @@ class SetClausesInRecurringBillTransaction extends OrgAction
 
         $recurringBillTransaction->update($modelData);
 
-        CalculateRecurringBillNet::make()->action($recurringBillTransaction->recurringBill);
+        UpdateRecurringBillTotals::make()->action($recurringBillTransaction->recurringBill);
     }
 
     public function action(RecurringBillTransaction $recurringBillTransaction)

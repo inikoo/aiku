@@ -62,13 +62,8 @@ class ShowRecurringBill extends OrgAction
 
     public function htmlResponse(RecurringBill $recurringBill, ActionRequest $request): Response
     {
-        // dd($recurringBill->reference);
-        $palletPriceTotal = 0;
-        foreach ($recurringBill->transactions()->where('item_type', 'Pallet') as $transaction) {
-            $palletPriceTotal += $transaction->item->rental->price;
-        }
+
         $showGrossAndDiscount = $recurringBill->gross_amount !== $recurringBill->net_amount;
-        // dd(RecurringBillTransactionsResource::collection(IndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value)));
         return Inertia::render(
             'Org/Fulfilment/RecurringBill',
             [
@@ -89,17 +84,6 @@ class ShowRecurringBill extends OrgAction
                         ],
                     'model'              => __('Recurring Bill'),
                     'title'              => $recurringBill->slug,
-                    // 'actions'            => [
-                    //     [
-                    //         'type'  => 'button',
-                    //         'style' => 'edit',
-                    //         'label' => __('Edit'),
-                    //         'route' => [
-                    //             'name'       => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.edit',
-                    //             'parameters' => array_values($request->route()->originalParameters()),
-                    //         ]
-                    //     ],
-                    // ],
                 ],
                 'updateRoute'   => [
                     'name'       => 'grp.models.recurring-bill.update',
@@ -213,7 +197,6 @@ class ShowRecurringBill extends OrgAction
                 fn () => HistoryResource::collection(IndexHistory::run($recurringBill))
                 : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($recurringBill)))
             ]
-
         )->table(
             IndexRecurringBillTransactions::make()->tableStructure(
                 $recurringBill,
