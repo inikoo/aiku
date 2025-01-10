@@ -1,7 +1,7 @@
 export default {
 	blueprint: [
 		{
-			name: "Link",
+			label: "Link",
 			key: ["link"],
 			type: "text",
 			props_data: {
@@ -14,18 +14,22 @@ export default {
 			replaceForm: [
 				{
 					key: ["dimension"],
+					label:"Dimension",
 					type: "dimension",
 				},
 				{
 					key: ["padding"],
+					label:"Padding",
 					type: "padding",
 				},
 				{
 					key: [ "margin"],
+					label:"Margin",
 					type: "margin",
 				},
 				{
 					key: ["border"],
+					label:"Border",
 					type: "border",
 				},
 			],

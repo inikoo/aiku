@@ -4,7 +4,6 @@
 	"code": "overview_aurora",
 	"name": "Overview Aurora",
 	"icon": ["fal", "text"],
-	"blueprint": [],
 	"data": {
 		"fieldValue": {
 				"texts": {

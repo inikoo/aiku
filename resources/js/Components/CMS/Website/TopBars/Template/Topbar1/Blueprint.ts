@@ -73,11 +73,37 @@ export default {
 					label :'Visibility',
 					type: "VisibleLoggedIn",
 				},
+				// {
+				// 	key: [],
+				// 	label :'Button',
+				// 	type: "button",
+				// },
 				{
-					key: [],
-					label :'Button',
-					type: "button",
+					key: ["container",'properties','background'],
+					label :'Background',
+					type: "background",
 				},
+				{
+					key: ["container",'properties','text'],
+					label :'Text',
+					type: "textProperty",
+				},
+				{
+					key: ["container",'properties','border'],
+					label :'Border',
+					type: "border",
+				},
+				{
+					key: ["container",'properties','margin'],
+					label :'Margin',
+					type: "margin",
+				},
+				{
+					key: ["container",'properties','padding'],
+					label :'Padding',
+					type: "padding",
+				},
+
 			],
 		},
 		{

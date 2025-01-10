@@ -4,7 +4,6 @@
 	"code": "top-bar-3",
 	"name": "Topbar Awesome",
 	"component": "topbar",
-	"blueprint": [],
 	"data": {
 		"fieldValue": {
 			"key": "Topheader",

@@ -5,7 +5,6 @@
 	"name": "Product showcase A",
 	"icon": ["fal", "cube"],
 	"fixed": true,
-	"blueprint": [],
 	"data": {
 		"fieldValue": {
 			"value": {

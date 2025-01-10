@@ -9,7 +9,6 @@
 		"out": true
 	},
 	"icon": ["fal", "code"],
-	"blueprint": [],
 	"data": {
 		"fieldValue": {
 			"value": "hello world",

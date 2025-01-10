@@ -1,9 +1,9 @@
 {
 	"scope": "webpage",
-	"slug": "images",
-	"name": "Images",
-	"code": "images",
-	"icon": ["fal", "image"],
+	"slug": "text-column",
+	"code": "text-column",
+	"name": "text-column",
+	"icon": ["fal", "text"],
 	"data": {
 		"fieldValue": {
 			"value": {
