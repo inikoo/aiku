@@ -20,9 +20,10 @@ class LoggedWebUserResource extends JsonResource
     {
         /** @var WebUser $webUser */
         $webUser = $this;
-
+        // dd($webUser);
         return [
             'id'               => $webUser->id,
+            'contact_name'     => $webUser->contact_name,
             'username'         => $webUser->username,
             'email'            => $webUser->email,
             'customer_id'      => $webUser->customer_id,
