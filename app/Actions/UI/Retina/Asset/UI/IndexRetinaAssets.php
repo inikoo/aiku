@@ -36,8 +36,9 @@ class IndexRetinaAssets extends RetinaAction
                 continue;
             }
             $price = $asset->price;
-            $assets[$asset->type->value][] = [
+            $assets[] = [
                 'name'  => $asset->name,
+                'type'  => $asset->type,
                 'price' => $price,
             ];
         }

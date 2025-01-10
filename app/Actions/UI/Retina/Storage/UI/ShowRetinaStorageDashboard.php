@@ -38,15 +38,16 @@ class ShowRetinaStorageDashboard
             $price                                  = $clause->asset->price;
             $percentageOff                          = $clause->percentage_off;
             $discount                               = $percentageOff / 100;
-            $clauses[$clause->asset->type->value][] = [
+            $clauses[] = [
                 'name'           => $clause->asset->name,
                 'asset_id'       => $clause->asset_id,
+                'type'           => $clause->asset->type->value,
                 'agreed_price'   => $price - $price * $discount,
                 'price'          => $price,
                 'percentage_off' => $percentageOff
             ];
         }
-
+        dd($clauses);
         return Inertia::render('Storage/RetinaStorageDashboard', [
             'title'        => __('Dashboard'),
 
