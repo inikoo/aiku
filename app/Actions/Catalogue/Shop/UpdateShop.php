@@ -12,6 +12,7 @@ use App\Actions\Goods\MasterShop\Hydrators\MasterShopHydrateShops;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateUniversalSearch;
+use App\Actions\Helpers\Media\SaveModelImage;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateShops;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateShops;
 use App\Actions\Traits\Rules\WithNoStrictRules;
@@ -28,6 +29,7 @@ use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
+use Illuminate\Validation\Rules\File;
 
 class UpdateShop extends OrgAction
 {
@@ -53,6 +55,22 @@ class UpdateShop extends OrgAction
             $addressData = Arr::get($modelData, 'address');
             Arr::forget($modelData, 'address');
             $shop = $this->updateModelAddress($shop, $addressData);
+        }
+
+        if (Arr::has($modelData, 'image')) {
+            /** @var UploadedFile $image */
+            $image = Arr::get($modelData, 'image');
+            data_forget($modelData, 'image');
+            $imageData = [
+                'path'         => $image->getPathName(),
+                'originalName' => $image->getClientOriginalName(),
+                'extension'    => $image->getClientOriginalExtension(),
+            ];
+            $shop      = SaveModelImage::run(
+                model: $shop,
+                imageData: $imageData,
+                scope: 'avatar'
+            );
         }
 
         foreach ($modelData as $key => $value) {
@@ -170,6 +188,12 @@ class UpdateShop extends OrgAction
             'shopify_access_token'     => ['sometimes', 'string'],
             'registration_number'      => ['sometimes', 'string'],
             'vat_number'               => ['sometimes', 'string'],
+            'image'       => [
+                'sometimes',
+                'nullable',
+                File::image()
+                    ->max(12 * 1024)
+            ]
         ];
 
         if (!$this->strict) {
