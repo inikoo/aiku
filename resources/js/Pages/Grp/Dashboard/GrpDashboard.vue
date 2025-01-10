@@ -279,10 +279,10 @@ console.log(layout.user.id, "layoutt")
 	<div class="grid grid-cols-12 m-3 gap-4">
 		<!-- <pre>{{ props.groupStats.organisations }}</pre> -->
 		<!-- Section: Date options -->
-		<div class="col-span-12 space-y-4">
+		<!--<div class="col-span-12 space-y-4">
 			<div class="relative mt-2">
 				<!-- Tabs in Card -->
-				<div>
+				<!--<div>
 					<div class="">
 						<div class="flex justify-end items-center space-x-4">
 							<div class="flex items-center space-x-4">
@@ -304,7 +304,7 @@ console.log(layout.user.id, "layoutt")
 								</p>
 							</div>
 							<!--  -->
-						</div>
+						<!--  </div>
 						<nav
 							class="isolate flex rounded-full bg-white-50 border border-gray-200 p-1"
 							aria-label="Tabs">
@@ -323,9 +323,9 @@ console.log(layout.user.id, "layoutt")
 						</nav>
 					</div>
 				</div>
-			</div>
+			</div> -->
 
-			<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
+			<!--<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
 				<div class="mt-2">
 					<div class="">
 						<Tabs v-model:value="activeTab">
@@ -336,7 +336,7 @@ console.log(layout.user.id, "layoutt")
 							</TabList>
 						</Tabs>
 					</div>
-					<DataTable :value="abcdef" removableSort>
+					<!--<DataTable :value="abcdef" removableSort>
 						<Column sortable>
 							<template #header>
 								<div class="flex items-center justify-between">
@@ -355,7 +355,7 @@ console.log(layout.user.id, "layoutt")
 						</Column>
 
 						<!-- Refunds -->
-						<Column sortable headerClass="align-right" hidden>
+						<!--<Column sortable headerClass="align-right" hidden>
 							<template #header>
 								<div class="flex justify-end items-end">
 									<span class="font-bold">Refunds</span>
@@ -386,7 +386,7 @@ console.log(layout.user.id, "layoutt")
 						</Column>
 
 						<!-- Refunds: Diff 1y -->
-						<Column
+						<!--<Column
 							hidden
 							sortable
 							class="overflow-hidden transition-all"
@@ -406,7 +406,7 @@ console.log(layout.user.id, "layoutt")
 							<template #body="{ data }">
 								<div class="flex justify-end relative">
 									<!-- {{ `${data.interval_percentages?.refunds?.[selectedDateOption]?.difference}_${data.interval_percentages?.refunds?.[selectedDateOption]?.percentage}` }} -->
-									<Transition name="spin-to-down" mode="out-in">
+									<!--<Transition name="spin-to-down" mode="out-in">
 										<div
 											:key="`${data.interval_percentages?.refunds[selectedDateOption].difference}_${data.interval_percentages?.refunds[selectedDateOption].percentage}`"
 											style="
@@ -465,7 +465,7 @@ console.log(layout.user.id, "layoutt")
 						</Column>
 
 						<!-- Invoice -->
-						<Column
+						<!--<Column
 							sortable
 							class="overflow-hidden transition-all"
 							headerClass="align-right">
@@ -497,7 +497,7 @@ console.log(layout.user.id, "layoutt")
 						</Column>
 
 						<!-- Invoice: Diff 1y -->
-						<Column
+						<!--<Column
 							field="invoices_diff"
 							sortable
 							class="overflow-hidden transition-all"
@@ -519,7 +519,7 @@ console.log(layout.user.id, "layoutt")
 									<Transition name="spin-to-down" mode="out-in">
 										<div class="flex justify-end relative">
 											<!-- {{ `${data.interval_percentages?.invoices?.[selectedDateOption]?.difference}_${data.interval_percentages?.invoices?.[selectedDateOption]?.percentage}` }} -->
-											<Transition name="spin-to-down" mode="out-in">
+											<!--<Transition name="spin-to-down" mode="out-in">
 												<div
 													:key="`${data.interval_percentages?.invoices[selectedDateOption].difference}_${data.interval_percentages?.invoices[selectedDateOption].percentage}`"
 													style="
@@ -584,7 +584,7 @@ console.log(layout.user.id, "layoutt")
 						</Column>
 
 						<!-- Sales -->
-						<Column
+						<!--<Column
 							field="sales"
 							sortable
 							class="overflow-hidden transition-all"
@@ -626,7 +626,7 @@ console.log(layout.user.id, "layoutt")
 						</Column>
 
 						<!-- Sales: Diff 1y -->
-						<Column
+						<!--<Column
 							field="sales_diff"
 							sortable
 							class="overflow-hidden transition-all"
@@ -646,7 +646,7 @@ console.log(layout.user.id, "layoutt")
 							<template #body="{ data }">
 								<div class="flex justify-end relative">
 									<!-- {{ `${data.interval_percentages?.sales?.[selectedDateOption]?.difference}_${data.interval_percentages?.sales?.[selectedDateOption]?.percentage}` }} -->
-									<Transition name="spin-to-down" mode="out-in">
+									<!--<Transition name="spin-to-down" mode="out-in">
 										<div
 											:key="`${data.interval_percentages?.sales[selectedDateOption].difference}_${data.interval_percentages?.sales[selectedDateOption].percentage}`"
 											style="
@@ -705,8 +705,8 @@ console.log(layout.user.id, "layoutt")
 							</template>
 						</Column>
 
-						<!-- Total -->
-						<ColumnGroup type="footer">
+						 Total -->
+						<!-- <ColumnGroup type="footer">
 							<Row>
 								<Column footer="Total"> Total </Column>
 								<Column
@@ -748,13 +748,13 @@ console.log(layout.user.id, "layoutt")
 									footerStyle="text-align:right" />
 								<Column footer="" footerStyle="text-align:right" />
 							</Row>
-						</ColumnGroup>
-					</DataTable>
-				</div>
+						</ColumnGroup> 
+					</DataTable>-->
+					<!--</div>
 			</div>
 		</div>
-
-		<div
+-->
+		<!-- <div
 			v-if="
 				groupStats.organisations
 					.filter((org) => org.type !== 'agent')
@@ -766,8 +766,8 @@ console.log(layout.user.id, "layoutt")
 						return !!Number(i)
 					})
 			"
-			class="mt-10 w-1/2 flex flex-wrap gap-y-4 gap-x-4">
-			<div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
+			class="mt-10 w-1/2 flex flex-wrap gap-y-4 gap-x-4"> -->
+		<!-- 	<div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
 				<div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans("Refunds") }}</div>
 				<div class="w-24">
 					<Pie
@@ -791,17 +791,10 @@ console.log(layout.user.id, "layoutt")
 						}"
 						:options="options" />
 				</div>
-				<!-- <div class="flex flex-col justify-between ">
-                    <template v-for="org in groupStats.organisations">
-                        <div v-if="org.type !== 'agent'" class="space-x-2">
-                            <span class="text-lg">{{ org.code }}:</span>
-                            <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `sales_org_currency_all`], 0)) }}</span>
-                        </div>
-                    </template>
-                </div> -->
-			</div>
+				
+			</div> -->
 
-			<div
+			<!-- <div
 				v-if="
 					groupStats.organisations
 						.filter((org) => org.type !== 'agent')
@@ -831,17 +824,10 @@ console.log(layout.user.id, "layoutt")
 						}"
 						:options="options" />
 				</div>
-				<!-- <div class="flex flex-col justify-between ">
-                    <template v-for="org in groupStats.organisations">
-                        <div v-if="org.type !== 'agent'" class="space-x-2">
-                            <span class="text-lg">{{ org.code }}:</span>
-                            <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `sales_org_currency_all`], 0)) }}</span>
-                        </div>
-                    </template>
-                </div> -->
-			</div>
+				
+			</div> -->
 
-			<div
+		<!-- 	<div
 				v-if="
 					groupStats.organisations
 						.filter((org) => org.type !== 'agent')
@@ -871,19 +857,11 @@ console.log(layout.user.id, "layoutt")
 						}"
 						:options="options" />
 				</div>
-				<!-- <div class="flex flex-col justify-between ">
-                    <template v-for="org in groupStats.organisations">
-                        <div v-if="org.type !== 'agent'" class="space-x-2">
-                            <span class="text-lg">{{ org.code }}:</span>
-                            <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `sales_org_currency_all`], 0)) }}</span>
-                        </div>
-                    </template>
-                </div> -->
+				
 			</div>
-		</div>
-		<div class="col-span-12">
+		</div> -->
+	<!-- 	<div class="col-span-12">
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-				<!-- Responsive grid layout -->
 				<DashboardCard
 					v-for="(org, index) in props.groupStats.organisations.filter(
 						(org) => org.type !== 'agent'
@@ -908,10 +886,10 @@ console.log(layout.user.id, "layoutt")
 						)
 					" />
 			</div>
-		</div>
+		</div> -->
 		<!-- <pre>{{ groupStats }}</pre> -->
 
-		<div class="col-span-8">
+		<div class="col-span-12">
 			<Dashboard
 				:data="groupStats"
 				:dashboard="dashboard_stats"

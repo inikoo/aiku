@@ -16,8 +16,8 @@ const props = defineProps<{
 
 </script>
 <template>
-	<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
-		<div class="mt-2">
+	<div class="bg-white mb-2 text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
+		<div class="">
 		
 			<DataTable :value="tableData" removableSort>
 				<Column sortable>
