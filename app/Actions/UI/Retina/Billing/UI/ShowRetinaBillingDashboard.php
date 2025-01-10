@@ -24,7 +24,7 @@ class ShowRetinaBillingDashboard
 
         /** @var Customer $customer */
         $customer = $request->user()->customer;
-        $currentRecurringBill = $customer->fulfilmentCustomer->currentRecurringBill;
+        $currentRecurringBill = $customer->fulfilmentCustomer?->currentRecurringBill;
         $numberUnpaidInvoices = $customer->stats->number_unpaid_invoices;
         $numberInvoices = $customer->stats->number_invoices;
 
@@ -34,7 +34,7 @@ class ShowRetinaBillingDashboard
                 'title'       => __('Billing'),
                 'pageHead'    => [
                     'icon'      => [
-                        'icon'  => ['fal', 'fa-mountains'],
+                        'icon'  => ['fal', 'fa-file-invoice-dollar'],
                         'title' => __('Billing')
                     ],
                     'title'     => __('Billing'),
@@ -74,7 +74,7 @@ class ShowRetinaBillingDashboard
                                 [
                                     'label' => __('Total Invoices'),
                                     'route' => route('retina.billing.invoices.index'),
-                                    'value' => $customer->stats->number_invoices,
+                                    'value' => $numberInvoices,
                                     'type' => 'card_number',
                                 ] : null,
                             ],
@@ -84,7 +84,7 @@ class ShowRetinaBillingDashboard
                                 $numberUnpaidInvoices ?
                                 [
                                     'label' => __('Unpaid Invoices'),
-                                    'value' => $customer->stats->number_unpaid_invoices,
+                                    'value' => $numberUnpaidInvoices,
                                     'type' => 'card_number_attention',
                                 ] : null,
                             ]

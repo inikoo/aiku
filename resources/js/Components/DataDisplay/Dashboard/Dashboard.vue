@@ -80,7 +80,11 @@ const props = defineProps<{
 }>()
 
 const currency = ref([
-	{ name: "Group", code: "grp", symbol: props.data.dashboard_stats.columns[0].widgets[0].data.currency.symbol },
+	{
+		name: "Group",
+		code: "grp",
+		symbol: props.data.dashboard_stats.columns[0].widgets[0].data.currency.symbol,
+	},
 	{ name: "Organisation", code: "org", symbol: null },
 ])
 
@@ -106,12 +110,15 @@ const abcdef = computed(() => {
 			}
 		})
 })
-console.log(abcdef.value,'haha');
-
+console.log(abcdef.value, "haha")
 </script>
 <template>
 	<div>
-		<DashboardSettings />
+		<DashboardSettings
+			:groupCurrencySymbol="groupCurrencySymbol"
+			:intervalOptions="interval_options"
+			:selectedInterval="selectedDateOption"
+			@update-interval="updateInterval" />
 		<DashboardTable />
 		<DashboardWidget />
 	</div>

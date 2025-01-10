@@ -18,8 +18,8 @@ enum RecurringBillTabsEnum: string
 
     case TRANSACTIONS    = 'transactions';
 
-    case DATA    = 'data';
-    case HISTORY = 'history';
+    // case DATA    = 'data';
+    // case HISTORY = 'history';
 
     public function blueprint(): array
     {
@@ -28,18 +28,18 @@ enum RecurringBillTabsEnum: string
                 'title' => __('transactions'),
                 'icon'  => 'fal fa-ballot',
             ],
-            RecurringBillTabsEnum::DATA => [
-                'align' => 'right',
-                'type'  => 'icon',
-                'title' => __('data'),
-                'icon'  => 'fal fa-database',
-            ],
-            RecurringBillTabsEnum::HISTORY => [
-                'title' => __('history'),
-                'icon'  => 'fal fa-clock',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
+            // RecurringBillTabsEnum::DATA => [
+            //     'align' => 'right',
+            //     'type'  => 'icon',
+            //     'title' => __('data'),
+            //     'icon'  => 'fal fa-database',
+            // ],
+            // RecurringBillTabsEnum::HISTORY => [
+            //     'title' => __('history'),
+            //     'icon'  => 'fal fa-clock',
+            //     'type'  => 'icon',
+            //     'align' => 'right',
+            // ],
         };
     }
 }

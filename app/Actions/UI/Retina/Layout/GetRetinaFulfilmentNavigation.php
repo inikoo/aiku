@@ -36,7 +36,7 @@ class GetRetinaFulfilmentNavigation
         if ($webUser?->customer?->fulfilmentCustomer?->number_pallets_status_storing) {
             $additionalSubsections = [
                 [
-                    'label' => __('pallet return'),
+                    'label' => __('returns'),
                     'icon'  => ['fal', 'fa-truck-ramp'],
                     'root'  => 'retina.storage.pallet-returns.',
                     'route' => [
@@ -64,7 +64,7 @@ class GetRetinaFulfilmentNavigation
                         ]
                     ],
                     [
-                        'label' => __('pallet deliveries'),
+                        'label' => __('deliveries'),
                         'icon'  => ['fal', 'fa-truck'],
                         'root'  => 'retina.storage.pallet-deliveries.',
                         'route' => [
@@ -127,7 +127,7 @@ class GetRetinaFulfilmentNavigation
                     'subSections' => [
                         [
                             'label' => __('recurring bills'),
-                            'icon'  => ['fal', 'fa-terminal'],
+                            'icon'  => ['fal', 'fa-receipt'],
                             'root'  => 'retina.billing.recurring.',
                             'route' => [
                                 'name' => 'retina.billing.recurring.index',
@@ -136,8 +136,8 @@ class GetRetinaFulfilmentNavigation
                         ],
 
                         [
-                            'label' => __('invoice'),
-                            'icon'  => ['fal', 'fa-cog'],
+                            'label' => __('invoices'),
+                            'icon'  => ['fal', 'fa-file-invoice-dollar'],
                             'root'  => 'retina.billing.invoices.',
                             'route' => [
                                 'name' => 'retina.billing.invoices.index',
