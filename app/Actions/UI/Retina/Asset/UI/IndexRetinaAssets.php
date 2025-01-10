@@ -10,6 +10,7 @@ namespace App\Actions\UI\Retina\Asset\UI;
 
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
+use App\Http\Resources\Helpers\CurrencyResource;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -44,7 +45,7 @@ class IndexRetinaAssets extends RetinaAction
         }
 
         return Inertia::render(
-            'Devel/Dummy',
+            'Storage/RetinaStorageAssets',
             [
                 'title'                         => __('Assets'),
                 'breadcrumbs'                   => $this->getBreadcrumbs(
@@ -57,6 +58,7 @@ class IndexRetinaAssets extends RetinaAction
                     ],
                     'title'         => 'Assets',
                 ],
+                'currency'     => CurrencyResource::make($fulfilmentCustomer->fulfilment->shop->currency),
 
                 'assets' => $assets
             ]);
