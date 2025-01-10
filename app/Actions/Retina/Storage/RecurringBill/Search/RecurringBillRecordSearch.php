@@ -31,9 +31,8 @@ class RecurringBillRecordSearch
 
         $result = [
             'route'     => [
-                'name'             => 'retina.billing.recurring.show',
+                'name'             => 'retina.billing.next_recurring_bill',
                 'parameters'       => [
-                    'recurringBill'      => $recurringBill->slug,
                 ]
             ],
             'title'     => $recurringBill->reference,

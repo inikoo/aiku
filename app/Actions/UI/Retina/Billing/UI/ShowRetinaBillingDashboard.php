@@ -8,6 +8,7 @@
 
 namespace App\Actions\UI\Retina\Billing\UI;
 
+use App\Actions\UI\Retina\Dashboard\ShowDashboard;
 use App\Models\CRM\Customer;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -59,7 +60,7 @@ class ShowRetinaBillingDashboard
                                     'data' => [
                                         [
                                             'label' => __('current total'),
-                                            'route' => route('retina.billing.recurring.show', $currentRecurringBill->slug),
+                                            'route' => route('retina.billing.next_recurring_bill'),
                                             'value' => $currentRecurringBill->total_amount,//<-- need to be currency
                                             'type' => 'card_currency_success'
                                         ],
@@ -103,25 +104,22 @@ class ShowRetinaBillingDashboard
     }
 
 
-
-
-
-    public function getBreadcrumbs($label = null): array
+    public function getBreadcrumbs(): array
     {
-        return [
-            [
-
-                'type'   => 'simple',
-                'simple' => [
-                    'icon'  => 'fal fa-home',
-                    'label' => $label,
-                    'route' => [
-                        'name' => 'retina.dashboard.show'
+        return
+            array_merge(
+                ShowDashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'retina.billing.dashboard'
+                            ],
+                            'label'  => __(' Billing'),
+                        ]
                     ]
                 ]
-
-            ],
-
-        ];
+            );
     }
 }

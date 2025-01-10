@@ -30,7 +30,7 @@ function recurringBillRoute(recurringBill: RecurringBill) {
     switch (route().current()) {
         default:
             return route(
-                'retina.billing.recurring.show',
+                'retina.billing.next_recurring_bill',
                 [
                     recurringBill.slug
                 ])
