@@ -6,25 +6,25 @@ export default {
 			replaceForm: [
 				{
 					key: ["background"],
-					label :"background",
+					label :"Background",
 					type: "background",
 					
 				},
 				{
 					key: ["padding"],
-					label : "padding",
+					label : "Padding",
 					type: "padding",
 					
 				},
 				{
 					key: ["margin"],
-					label : "margin",
+					label : "Margin",
 					type: "margin",
 					
 				},
 				{
 					key: ["border"],
-					label : "border",
+					label : "Border",
 					type: "border",
 					
 				},
