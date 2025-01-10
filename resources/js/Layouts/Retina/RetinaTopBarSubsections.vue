@@ -33,7 +33,7 @@ const isLoading = ref<string | boolean>(false)
         <component v-if="subSection"
             :is="subSection.route?.name ? Link : 'div'"
             :href="subSection.route?.name ? route(subSection.route.name, subSection.route.parameters) : '#'"
-            class="group relative text-gray-700 group text-2xl font-bold flex justify-end items-center cursor-pointer py-3 gap-x-2 px-4 md:px-4 lg:px-4"
+            class="group relative text-gray-700 group text-2xl font-bold flex justify-end items-center cursor-pointer py-3 gap-x-2 px-4 first:pl-2 md:px-4 lg:px-4"
             :class="[]" :title="capitalize(subSection.tooltip ?? subSection.label ?? '')"
             
             @start="() => isLoading = 'subSection' + idxSubSec"
