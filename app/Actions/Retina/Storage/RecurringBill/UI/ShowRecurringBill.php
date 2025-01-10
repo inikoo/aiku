@@ -16,6 +16,7 @@ use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\RecurringBillResource;
 use App\Http\Resources\Fulfilment\RecurringBillTransactionsResource;
 use App\Http\Resources\History\HistoryResource;
+use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\StoredItem;
 use Inertia\Inertia;
@@ -41,6 +42,10 @@ class ShowRecurringBill extends RetinaAction
 
     public function htmlResponse(RecurringBill $recurringBill, ActionRequest $request): Response
     {
+
+        $navigation = RecurringBillTabsEnum::navigation();
+        unset($navigation[RecurringBillTabsEnum::HISTORY->value]);
+
         $palletPriceTotal = 0;
         foreach ($recurringBill->transactions()->where('item_type', 'Pallet') as $transaction) {
             $palletPriceTotal += $transaction->item->rental->price;
@@ -153,16 +158,13 @@ class ShowRecurringBill extends RetinaAction
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => RecurringBillTabsEnum::navigation(),
+                    'navigation' => $navigation,
                 ],
 
                 RecurringBillTabsEnum::TRANSACTIONS->value => $this->tab == RecurringBillTabsEnum::TRANSACTIONS->value ?
                 fn () => RecurringBillTransactionsResource::collection(IndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))
                 : Inertia::lazy(fn () => RecurringBillTransactionsResource::collection(IndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))),
 
-                // RecurringBillTabsEnum::HISTORY->value => $this->tab == RecurringBillTabsEnum::HISTORY->value ?
-                // fn () => HistoryResource::collection(IndexHistory::run($recurringBill))
-                // : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($recurringBill)))
             ]
         )->table(
             IndexRecurringBillTransactions::make()->tableStructure(
@@ -170,10 +172,6 @@ class ShowRecurringBill extends RetinaAction
                 prefix: RecurringBillTabsEnum::TRANSACTIONS->value
             )
         );
-        // ->table(IndexHistory::make()->tableStructure(prefix: RecurringBillTabsEnum::HISTORY->value));
-        //            ->table(IndexFulfilmentServices::make()->tableStructure($recurringBill, prefix: RecurringBillTabsEnum::SERVICES->value))
-        //            ->table(IndexFulfilmentPhysicalGoods::make()->tableStructure($recurringBill, prefix: RecurringBillTabsEnum::PHYSICAL_GOODS->value))
-        //            ->table(IndexRetinaPallets::make()->tableStructure($recurringBill, RecurringBillTabsEnum::PALLETS->value));
     }
 
 
