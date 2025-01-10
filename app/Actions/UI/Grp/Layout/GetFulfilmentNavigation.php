@@ -158,7 +158,7 @@ class GetFulfilmentNavigation
                             'icon'    => ['fal', 'fa-file-invoice-dollar'],
                             'root'    => 'grp.org.fulfilments.show.operations.invoices.',
                             'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.operations.invoices.index',
+                                'name'       => 'grp.org.fulfilments.show.operations.invoices.all_invoices.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                             ],
                         ],

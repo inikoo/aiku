@@ -72,6 +72,11 @@ Route::prefix('recurring_bills')->as('recurring_bills')->group(function () {
 });
 
 Route::prefix('invoices')->as('invoices')->group(function () {
-    Route::get('', [IndexInvoices::class, 'inFulfilment'])->name('.index');
-    Route::get('{invoice}', [ShowInvoice::class, 'inFulfilment'])->name('.show');
+    Route::get('', [IndexInvoices::class, 'allFulfilment'])->name('.index'); // need check in retina
+    Route::get('/all', [IndexInvoices::class, 'allFulfilment'])->name('.all_invoices.index');
+    Route::get('/unpaid', [IndexInvoices::class, 'unpaidFulfilment'])->name('.unpaid_invoices.index');
+
+    Route::get('/{invoice}', [ShowInvoice::class, 'inFulfilment'])->name('.show'); // need check in retina
+    Route::get('/all/{invoice}', [ShowInvoice::class, 'inFulfilment'])->name('.all_invoices.show');
+    Route::get('/unpaid/{invoice}', [ShowInvoice::class, 'inFulfilment'])->name('.unpaid_invoices.show');
 });
