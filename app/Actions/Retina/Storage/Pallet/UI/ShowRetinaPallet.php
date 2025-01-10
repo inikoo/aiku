@@ -71,7 +71,6 @@ class ShowRetinaPallet extends RetinaAction
                 'breadcrumbs'                   => $this->getBreadcrumbs(
                     $pallet,
                     request()->route()->getName(),
-                    request()->route()->originalParameters()
                 ),
                 'navigation'                            => [
                     'previous' => $this->getPrevious($pallet, $request),
@@ -96,16 +95,16 @@ class ShowRetinaPallet extends RetinaAction
                         //     ],
                         //     'disabled' => $this->pallet->status == PalletStatusEnum::RETURNED
                         // ],
-//                        [
-//                            'type'    => 'button',
-//                            'style'   => 'edit',
-//                            'tooltip' => __('edit pallet'),
-//                            'label'   => __('Edit'),
-//                            'route'   => [
-//                                'name'       => $routeName,
-//                                'parameters' => array_values(request()->route()->originalParameters())
-//                            ]
-//                        ],
+                        [
+                            'type'    => 'button',
+                            'style'   => 'edit',
+                            'tooltip' => __('edit pallet'),
+                            'label'   => __('Edit'),
+                            'route'   => [
+                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                                'parameters' => array_values(request()->route()->originalParameters())
+                            ]
+                        ],
                         // [
                         //     'type'    => 'button',
                         //     'style'   => 'delete',
