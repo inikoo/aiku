@@ -135,9 +135,9 @@ class IndexRecurringBills extends OrgAction
             if ($parent instanceof Fulfilment) {
                 $table->column(key: 'customer_name', label: __('customer'), canBeHidden: false, sortable: true, searchable: true);
             };
-            $table->column(key: 'net_amount', label: __('net'), canBeHidden: false, sortable: true, searchable: true)
-            ->column(key: 'start_date', label: __('start date'), canBeHidden: false, sortable: true, searchable: true)
-            ->column(key: 'end_date', label: __('end date'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'net_amount', label: __('net'), canBeHidden: false, sortable: true, searchable: true, type: 'currency')
+            ->column(key: 'start_date', label: __('start date'), canBeHidden: false, sortable: true, searchable: true, type: 'currency')
+            ->column(key: 'end_date', label: __('end date'), canBeHidden: false, sortable: true, searchable: true, type: 'currency');
         };
     }
 
