@@ -46,14 +46,6 @@ class GetRetinaFulfilmentNavigation
             'topMenu' => [
                 'subSections' => [
                     [
-                        'label' => __('assets'),
-                        'icon'  => ['fal', 'fa-ballot'],
-                        'root'  => 'retina.storage.assets.',
-                        'route' => [
-                            'name'       => 'retina.storage.assets.index'
-                        ]
-                    ],
-                    [
                         'label' => __('pallets'),
                         'icon'  => ['fal', 'fa-pallet'],
                         'root'  => 'retina.storage.pallets.',
@@ -70,6 +62,14 @@ class GetRetinaFulfilmentNavigation
                         ]
                     ],
                     ...$additionalSubsections,
+                    [
+                        'label' => __('assets'),
+                        'icon'  => ['fal', 'fa-ballot'],
+                        'root'  => 'retina.storage.assets.',
+                        'route' => [
+                            'name'       => 'retina.storage.assets.index'
+                        ]
+                    ],
                     // [
                     //     'label' => __('stored item return'),
                     //     'icon'  => ['fal', 'fa-truck-couch'],

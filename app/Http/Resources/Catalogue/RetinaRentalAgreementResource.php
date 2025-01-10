@@ -13,6 +13,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class RetinaRentalAgreementResource extends JsonResource
 {
+    
+    public static $wrap = null;
+    
     public function toArray($request): array
     {
         /** @var RentalAgreement $rentalAgreement */
