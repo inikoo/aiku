@@ -29,9 +29,30 @@ trait WithHydrateInvoices
             $stats['sales_all'] = $model->invoices()->sum('net_amount');
             $stats['sales_org_currency_all'] = $model->invoices()->sum('org_net_amount');
             $stats['sales_grp_currency_all'] = $model->invoices()->sum('grp_net_amount');
-            if ($model->is_fulfilment) {
-                $stats['number_unpaid_invoices'] = $model->invoices()->where('payment_amount', 0)->count();
-            }
+
+        }
+
+        // unpaid hydrate
+        $unpaidQuery = $model->invoices()->where('total_amount', '>', 0)->whereNull('paid_at');
+
+        if ($model instanceof Customer || $model instanceof Shop) {
+            $stats = array_merge($stats, [
+                'number_unpaid_invoices' => $unpaidQuery->count(),
+                'unpaid_invoices_amount' => $unpaidQuery->sum('total_amount'),
+                'unpaid_invoices_amount_org_currency' => $unpaidQuery->sum('org_net_amount'),
+                'unpaid_invoices_amount_grp_currency' => $unpaidQuery->sum('grp_net_amount'),
+            ]);
+        } elseif ($model instanceof Organisation) {
+            $stats = array_merge($stats, [
+                'number_unpaid_invoices' => $unpaidQuery->count(),
+                'unpaid_invoices_amount_org_currency' => $unpaidQuery->sum('org_net_amount'),
+                'unpaid_invoices_amount_grp_currency' => $unpaidQuery->sum('grp_net_amount'),
+            ]);
+        } elseif ($model instanceof Group) {
+            $stats = array_merge($stats, [
+                'number_unpaid_invoices' => $unpaidQuery->count(),
+                'unpaid_invoices_amount_grp_currency' => $unpaidQuery->sum('grp_net_amount'),
+            ]);
         }
 
 

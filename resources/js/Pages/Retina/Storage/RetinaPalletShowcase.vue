@@ -190,7 +190,7 @@ onMounted(() => {
             <div class="border-t border-gray-200 pt-4">
                 <dt class="font-medium">Notes</dt>
                 <dd class="mt-2 text-sm text-gray-500 text-justify">
-                    <div @click="() => setVisible('notes')">{{ props?.data?.data?.notes }}</div>
+                    <div>{{ props?.data?.data?.notes }}</div>
                 </dd>
             </div>
 
@@ -260,7 +260,7 @@ onMounted(() => {
                         <!-- Hover Buttons -->
                         <div
                             class="absolute inset-0 flex items-center gap-3 justify-center opacity-0 group-hover:opacity-100 group-hover:visible transition duration-300">
-                            <Button :icon="faPencil" size="xs" @click="() => setVisible('customer_reference')" />
+                           <!--  <Button :icon="faPencil" size="xs" @click="() => setVisible('customer_reference')" /> -->
                             <Button v-if="props.data.data.customer_reference" :icon="faPrint" size="xs" type="white"
                                 @click="() => printBarcodePallet('customerReferenceBarcode', props.data.data.customer_reference)" />
                         </div>

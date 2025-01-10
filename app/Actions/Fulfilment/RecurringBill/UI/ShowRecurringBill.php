@@ -17,6 +17,7 @@ use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\RecurringBillResource;
 use App\Http\Resources\Fulfilment\RecurringBillTransactionsResource;
+use App\Http\Resources\History\HistoryResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\RecurringBill;
@@ -207,17 +208,19 @@ class ShowRecurringBill extends OrgAction
                 RecurringBillTabsEnum::TRANSACTIONS->value => $this->tab == RecurringBillTabsEnum::TRANSACTIONS->value ?
                 fn () => RecurringBillTransactionsResource::collection(IndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))
                 : Inertia::lazy(fn () => RecurringBillTransactionsResource::collection(IndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))),
+
+                RecurringBillTabsEnum::HISTORY->value => $this->tab == RecurringBillTabsEnum::HISTORY->value ?
+                fn () => HistoryResource::collection(IndexHistory::run($recurringBill))
+                : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($recurringBill)))
             ]
-            // Todo @kirin please fix this below
+
         )->table(
             IndexRecurringBillTransactions::make()->tableStructure(
                 $recurringBill,
                 prefix: RecurringBillTabsEnum::TRANSACTIONS->value
             )
-        )->table(IndexHistory::make()->tableStructure(prefix: RecurringBillTabsEnum::HISTORY->value));
-        //            ->table(IndexFulfilmentServices::make()->tableStructure($recurringBill, prefix: RecurringBillTabsEnum::SERVICES->value))
-        //            ->table(IndexFulfilmentPhysicalGoods::make()->tableStructure($recurringBill, prefix: RecurringBillTabsEnum::PHYSICAL_GOODS->value))
-        //            ->table(IndexPallets::make()->tableStructure($recurringBill, RecurringBillTabsEnum::PALLETS->value));
+        )
+        ->table(IndexHistory::make()->tableStructure(prefix: RecurringBillTabsEnum::HISTORY->value));
     }
 
 
