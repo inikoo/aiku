@@ -46,6 +46,14 @@ class GetRetinaFulfilmentNavigation
             'topMenu' => [
                 'subSections' => [
                     [
+                        'label' => __('assets'),
+                        'icon'  => ['fal', 'fa-ballot'],
+                        'root'  => 'retina.storage.assets.',
+                        'route' => [
+                            'name'       => 'retina.storage.assets.index'
+                        ]
+                    ],
+                    [
                         'label' => __('pallets'),
                         'icon'  => ['fal', 'fa-pallet'],
                         'root'  => 'retina.storage.pallets.',
