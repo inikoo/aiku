@@ -57,8 +57,6 @@ const props = defineProps<{
   webBlockTypes: Object
 }>()
 
-
-
 const Navigation = ref(props.data?.menu)
 const selectedNav = ref(0)
 const previewMode = ref(false)
@@ -70,9 +68,8 @@ const iframeClass = ref("w-full h-full")
 const _iframe = ref<IframeHTMLAttributes | null>(null)
 const iframeSrc = ref(route("grp.websites.header.preview", [route().params["website"]]))
 
-console.log(Navigation.value)
 const addNavigation = () => {
-  Navigation.value.data.fieldValue.navigation.push({
+  Navigation?.value?.data?.fieldValue?.navigation.push({
     label: "New Navigation",
     id: uuidv4(),
     type: "single",
@@ -81,7 +78,7 @@ const addNavigation = () => {
 
 const deleteNavigation = (index: Number) => {
   selectedNav.value = null
-  Navigation.value?.data?.fieldValue.navigation.splice(index, 1)
+  Navigation.value?.data?.fieldValue?.navigation.splice(index, 1)
 }
 
 const onPublish = async (action: routeType, popover: Funcition) => {
@@ -176,14 +173,14 @@ watch(
     </template>
   </PageHeading>
 
-  <div v-if="Navigation" class="h-[85vh] grid grid-flow-row-dense grid-cols-4">
+  <div v-if="Navigation?.data?.fieldValue" class="h-[85vh] grid grid-flow-row-dense grid-cols-4">
     <div class="col-span-1 bg-slate-200 px-3 py-2 flex flex-col h-full">
       <div class="flex justify-between">
         <div class="font-bold text-sm">Navigations:</div>
         <Button type="create" label="Add Navigation" size="xs"
-          v-if="Navigation?.data?.fieldValue.navigation?.length < 8 " @click="addNavigation"></Button>
+          v-if="Navigation?.data?.fieldValue?.navigation?.length < 8 " @click="addNavigation"></Button>
       </div>
-      <draggable :list="Navigation.data.fieldValue.navigation" ghost-class="ghost" group="column" itemKey="id"
+      <draggable :list="Navigation?.data.fieldValue.navigation" ghost-class="ghost" group="column" itemKey="id"
         class="mt-2 space-y-1" :animation="200">
         <template #item="{ element, index }">
           <div @click="selectedNav = index" :class="[
