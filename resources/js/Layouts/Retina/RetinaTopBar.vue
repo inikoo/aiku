@@ -5,6 +5,7 @@ import { Disclosure } from "@headlessui/vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { trans } from "laravel-vue-i18n"
 import Image from "@/Components/Image.vue"
+import { layoutStructure } from "@/Composables/useLayoutStructure";
 
 import { faChevronDown } from "@far"
 import { faDotCircle } from "@fas"
@@ -36,6 +37,9 @@ const layout = inject('layout')
 //     fulfilmentSelect: trans("Select fulfilments")
 // }
 
+
+const layoutStore = inject("layout", layoutStructure);
+console.log(layout,layoutStore)
 const isStaging = layout.app.environment === 'staging'
 console.log('environment', isStaging)
 
@@ -67,22 +71,22 @@ console.log('environment', isStaging)
                 </button>
 
                 <!-- App Title: Image and Title -->
-                <div class="ml-3 w-0 md:w-44 mt-1 flex flex-1 items-center justify-center md:justify-start transition-all duration-300 ease-in-out"
+                <div class="ml-3 w-0  mt-1 flex flex-1 items-center justify-center md:justify-start transition-all duration-300 ease-in-out"
                     :class="[
-                        // layout.leftSidebar.show ? 'md:w-44 md:pr-4' : 'md:w-12'
+                        layout.leftSidebar.show ? 'md:w-44' : 'md:w-12'
                     ]" :style="{
                         // 'background-color': layout.app.theme[0],
                         'color': layout.app.theme[2],
                         // 'border-bottom': `1px solid ${layout.app.theme[1]}3F`
                     }">
-                    <Link v-if="false" :href="layout.app?.url ?? '#'"
+                    <Link  :href="layout.app?.url ?? '#'"
                         class="hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
                         :class="[
-                            // layout.leftSidebar.show ? 'py-1 pl-4' : 'pl-3 w-full'
+                             layout.leftSidebar.show ? 'py-1 pl-4' : 'pl-3 w-full'
                         ]">
-                        <!-- <Image :src="undefined" class="pl-2 aspect-square h-6" /> -->
+                         <img src="/art/logo-yellow.svg" class="aspect-square h-5" />
                         <Transition name="slide-to-left">
-                            <p v-if="layout.leftSidebar.show || true"
+                            <p v-if="layout.leftSidebar.show"
                                 class="capitalize text-lg bg-clip-text font-bold whitespace-nowrap leading-none lg:truncate py-1"
                                 :style="{ color: layout.app.theme[2] }">
                                 {{ layout.website?.label }}
