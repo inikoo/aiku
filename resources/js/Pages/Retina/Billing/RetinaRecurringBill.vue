@@ -10,6 +10,7 @@ import type { Component } from 'vue'
 import RecurringBillTransactions from '@/Pages/Grp/Org/Fulfilment/RecurringBillTransactions.vue'
 import BoxStatsRecurringBills from '@/Components/Fulfilment/BoxStatsRecurringBills.vue'
 import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
+import TableUserRequestLogs from "@/Components/Tables/Grp/SysAdmin/TableUserRequestLogs.vue"
 
 import StartEndDate from '@/Components/Utils/StartEndDate.vue'
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
@@ -29,7 +30,8 @@ const props = defineProps<{
         end_date: string
     }
     box_stats: BoxStats
-    history: {}
+    history: {},
+    
     
 }>()
 
@@ -41,6 +43,7 @@ const component = computed(() => {
     const components: Component = {
         transactions: RecurringBillTransactions,
         history: TableHistories,
+        request_logs: TableUserRequestLogs,
         // showcase: FileShowcase
     }
 
