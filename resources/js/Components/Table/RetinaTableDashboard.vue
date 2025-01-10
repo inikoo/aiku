@@ -10,7 +10,7 @@ import InputText from "primevue/inputtext"
 const locale = useLocaleStore()
 
 const props = defineProps<{
-	data: Array<{ name: string; icon: string; route: string; count: number }>
+	data: Array<{ reference: string; icon: string; route: string; total: number }>
 }>()
 
 const searchQuery = ref("")
@@ -18,7 +18,7 @@ const searchQuery = ref("")
 // Filtered data
 const filteredData = computed(() => {
 	return props.data.filter((item) =>
-		item.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+		item.reference.toLowerCase().includes(searchQuery.value.toLowerCase())
 	)
 })
 </script>
@@ -51,29 +51,29 @@ const filteredData = computed(() => {
 				<div class="grid grid-cols-12 gap-4">
 					<div
 						v-for="item in filteredData"
-						:key="item.name"
+						:key="item.reference"
 						class="col-span-12 flex items-center border-b py-2">
 						<!-- Icon -->
 						<div class="mr-4">
 							<FontAwesomeIcon :icon="item.icon" fixed-width class="text-gray-500" />
 						</div>
 
-						<!-- Name with Link -->
+						<!-- Reference with Link -->
 						<div class="flex-grow text-gray-800">
 							<Link :href="item.route">
-								<span class="primaryLink">{{ item.name }}</span>
+								<span class="primaryLink">{{ item.reference }}</span>
 							</Link>
 						</div>
 
-						<!-- Count -->
+						<!-- total -->
 						<div class="text-right text-gray-700">
-							{{ locale.number(item.count) }}
+							{{ locale.number(item.total) }}
 						</div>
 					</div>
 				</div>
 			</template>
 			<template v-else>
-				<div class="text-center text-gray-500 py-4">No Product found.</div>
+				<div class="text-center text-gray-500 py-4">All invoice already paid</div>
 			</template>
 		</div>
 	</div>
