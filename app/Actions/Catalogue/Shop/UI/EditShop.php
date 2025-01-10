@@ -8,11 +8,13 @@
 
 namespace App\Actions\Catalogue\Shop\UI;
 
+use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\Helpers\Country\UI\GetCountriesOptions;
 use App\Actions\Helpers\Currency\UI\GetCurrenciesOptions;
 use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Exception;
@@ -89,6 +91,11 @@ class EditShop extends OrgAction
                                     'value'        => $shop->name,
                                     'required'     => true,
                                 ],
+                                "image" => [
+                                    "type"  => "avatar",
+                                    "label" => __("Logo"),
+                                    "value" => $shop->imageSources(320, 320)
+                                ],
                             ]
                         ],
                         [
@@ -150,6 +157,14 @@ class EditShop extends OrgAction
                                     'type'  => 'phone',
                                     'label' => __('telephone'),
                                     'value' => $shop->phone,
+                                ],
+                                'address' => [
+                                    'type'    => 'address',
+                                    'label'   => __('Address'),
+                                    'value'   => AddressFormFieldsResource::make($shop->address)->getArray(),
+                                    'options' => [
+                                        'countriesAddressData' => GetAddressData::run()
+                                    ]
                                 ],
                                 'registration_number'        => [
                                     'type'  => 'input',

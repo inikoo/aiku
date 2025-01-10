@@ -11,16 +11,17 @@ namespace App\Actions\Fulfilment\RecurringBillTransaction\Hydrators;
 use App\Models\Fulfilment\RecurringBill;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Lorisleiva\Actions\Concerns\AsCommand;
+use Lorisleiva\Actions\Concerns\AsAction;
 
 class HydrateRecurringBillTransactionRentalQuantity
 {
-    use AsCommand;
+    use AsAction;
 
     public string $commandSignature = 'recurring-bill:update-quantity {recurringBill}';
 
-    public function handle(RecurringBill $recurringBill)
+    public function handle(RecurringBill $recurringBill): RecurringBill
     {
+        /** @var \App\Models\Fulfilment\RecurringBillTransaction $transactions */
         $transactions = $recurringBill->transactions()->where('item_type', 'Pallet')->get();
 
         $today       = Carbon::now()->startOfDay();
@@ -45,7 +46,7 @@ class HydrateRecurringBillTransactionRentalQuantity
                 'gross_amount' => $daysDifference * $assetPrice
             ]);
         }
-
+        $recurringBill->refresh();
         return $recurringBill;
     }
 

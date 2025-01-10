@@ -143,8 +143,8 @@ class GetFulfilmentNavigation
                             ],
                         ],
                         [
-                            'label'   => __('Recurring bills'),
-                            'tooltip' => __('Recurring bills'),
+                            'label'   => __('Next bills'),
+                            'tooltip' => __('Next bills'),
                             'icon'    => ['fal', 'fa-receipt'],
                             'root'    => 'grp.org.fulfilments.show.operations.recurring_bills.',
                             'route'   => [

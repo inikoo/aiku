@@ -78,7 +78,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import TiptapLinkCustomDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapCustomLinkDialog.vue"
 import TiptapLinkDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapLinkDialog.vue"
 import TiptapVideoDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapVideoDialog.vue"
-/* import TiptapTableDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapTableDialog.vue" */
+import TiptapTableDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapTableDialog.vue"
 import TiptapImageDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapImageDialog.vue"
 import { Plugin } from "prosemirror-state"
 import Variabel from "./Variables/Variables"
@@ -86,6 +86,7 @@ import CustomLink from "./CustomLink/CustomLink.vue"
 import { trans } from "laravel-vue-i18n"
 import { routeType } from "@/types/route"
 import { irisVariable } from "@/Composables/variableList"
+import { faTable } from "@fal"
 
 const props = withDefaults(defineProps<{
     modelValue: string | null,
@@ -93,7 +94,7 @@ const props = withDefaults(defineProps<{
     type?: string,
     editable?: boolean
     placeholder?: any | String
-    uploadImageRoute? : routeType
+    uploadImageRoute?: routeType
 }>(), {
     editable: true,
     type: 'Bubble',
@@ -101,7 +102,7 @@ const props = withDefaults(defineProps<{
     toogle: () => [
         'heading', 'fontSize', 'bold', 'italic', 'underline', 'bulletList', 'query', "fontFamily",
         'orderedList', 'blockquote', 'divider', 'alignLeft', 'alignRight', "customLink",
-        'alignCenter', 'undo', 'redo', 'highlight', 'color', 'clear', "image", "video"
+        'alignCenter', 'undo', 'redo', 'highlight', 'color', 'clear', "image", "video", "table"
     ]
 })
 
@@ -139,7 +140,7 @@ const editorInstance = useEditor({
             types: ['textStyle'],
         }),
         Link.configure({
-            openOnClick : false
+            openOnClick: false
         }),
         customLink.extend({
             addProseMirrorPlugins() {
@@ -225,10 +226,10 @@ const editorInstance = useEditor({
             types: ['textStyle'],
         }),
         Variabel.configure({
-          HTMLAttributes: {
-            class: 'mention',
-          },
-          suggestion,
+            HTMLAttributes: {
+                class: 'mention',
+            },
+            suggestion,
         }),
     ],
     onUpdate: ({ editor }) => {
@@ -251,7 +252,7 @@ function updateLinkCustom(value) {
             workshop: value.workshop,
             id: value.type === 'internal' ? value.id?.id : null,
             href: value.href,
-            target : value.target ? value.target : '_self'
+            target: value.target ? value.target : '_self'
         };
         editorInstance.value?.chain().focus().extendMarkRange("link").setCustomLink(attrs).run();
     }
@@ -282,7 +283,6 @@ function updateLink(value?: string) {
         .setLink({ href: value })
         .run()
 }
-
 
 
 function insertImage(url: string) {
@@ -378,7 +378,7 @@ const setVariabel = (value) => {
                             <FontAwesomeIcon :icon="faH3" class="h-5 w-5" />
                         </TiptapToolbarButton>
                     </TiptapToolbarGroup>
-                    
+
                     <!-- Section: Font size -->
                     <div class="my-1.5 inline-flex flex-row flex-wrap items-center space-x-1 px-2">
                         <div :class="[
@@ -437,7 +437,7 @@ const setVariabel = (value) => {
                             <FontAwesomeIcon :icon="faStrikethrough" class="h-5 w-5" />
                         </TiptapToolbarButton>
 
-                       <!--  <TiptapToolbarButton v-if="toogle.includes('color')" label="Text Color">
+                        <!--  <TiptapToolbarButton v-if="toogle.includes('color')" label="Text Color">
                             <ColorPicker
                                 v-model="editorInstance.getAttributes('textStyle').color"
                                 :baseZIndex="9999"
@@ -453,8 +453,7 @@ const setVariabel = (value) => {
                                     :value="editorInstance.getAttributes('textStyle').color" />
                                 <!-- Icon -->
                                 <div class="flex items-center justify-center w-full h-full rounded"
-                                :style="{ color: editorInstance.getAttributes('textStyle').color || 'gray'}"
-                                > 
+                                    :style="{ color: editorInstance.getAttributes('textStyle').color || 'gray' }">
                                     <FontAwesomeIcon :icon="faTint" />
                                 </div>
                             </div>
@@ -468,14 +467,13 @@ const setVariabel = (value) => {
                                     :value="editorInstance.getAttributes('highlight').color" />
                                 <!-- Icon -->
                                 <div class="flex items-center justify-center w-full h-full  rounded"
-                                :style="{ backgroundColor: editorInstance?.getAttributes('highlight').color}"
-                                > 
+                                    :style="{ backgroundColor: editorInstance?.getAttributes('highlight').color }">
                                     <FontAwesomeIcon :icon="faPaintBrushAlt" />
                                 </div>
                             </div>
                         </TiptapToolbarButton>
                     </TiptapToolbarGroup>
-                    
+
                     <TiptapToolbarGroup>
                         <TiptapToolbarButton v-if="toogle.includes('bulletList')" label="Bullet List"
                             :is-active="editorInstance?.isActive('bulletList')"
@@ -489,7 +487,7 @@ const setVariabel = (value) => {
                             <FontAwesomeIcon :icon="faListOl" class="h-5 w-5" />
                         </TiptapToolbarButton>
                     </TiptapToolbarGroup>
-                    
+
                     <TiptapToolbarGroup>
                         <TiptapToolbarButton v-if="toogle.includes('alignLeft')" label="Align Left"
                             :is-active="editorInstance?.isActive('textAlign', 'left')"
@@ -509,7 +507,7 @@ const setVariabel = (value) => {
                             <FontAwesomeIcon :icon="faAlignRight" class="h-5 w-5" />
                         </TiptapToolbarButton>
                     </TiptapToolbarGroup>
-                    
+
                     <TiptapToolbarGroup>
                         <TiptapToolbarButton v-if="toogle.includes('link')" label="Link" @click="openLinkDialog"
                             :is-active="editorInstance?.isActive('link')">
@@ -522,7 +520,7 @@ const setVariabel = (value) => {
                         </TiptapToolbarButton>
 
                         <TiptapToolbarButton v-if="toogle.includes('image')" label="Image"
-                            @click="()=>{showAddImageDialog = true, showDialog = true }">
+                            @click="() => { showAddImageDialog = true, showDialog = true }">
                             <FontAwesomeIcon :icon="faImage" class="h-5 w-5" />
                         </TiptapToolbarButton>
 
@@ -546,8 +544,7 @@ const setVariabel = (value) => {
 
                 <!-- 2nd row -->
                 <section id="tiptap-toolbar" class="py-1 px-2 flex items-center divide-x divide-gray-400 gap-2">
-                    <Select v-if="toogle.includes('query')"
-                        @change="(e) => setVariabel(e.value.value)"
+                    <Select v-if="toogle.includes('query')" @change="(e) => setVariabel(e.value.value)"
                         :options="irisVariable" optionLabel="label" size="small"
                         :placeholder="trans('Select a variable to put')" class="w-full md:w-56" />
 
@@ -573,8 +570,7 @@ const setVariabel = (value) => {
                                 </div>
                                 <div
                                     class="w-min h-32 overflow-y-auto text-black cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
-                                    <div v-for="font in useFontFamilyList"
-                                        :key="font.value"
+                                    <div v-for="font in useFontFamilyList" :key="font.value"
                                         class="px-4 py-2 text-left text-sm cursor-pointer hover:bg-gray-100"
                                         @click="editorInstance?.chain().focus().setFontFamily(font.value).run()">
                                         {{ font.label }}
@@ -583,6 +579,75 @@ const setVariabel = (value) => {
                             </div>
                         </div>
                     </div>
+
+                    <TiptapToolbarGroup v-if="toogle.includes('table')">
+                        <TiptapToolbarButton label="Table"
+                            @click="() => { showAddTableDialog = true, showDialog = true }">
+                            <FontAwesomeIcon :icon="faTable" class="h-5 w-5" />
+                        </TiptapToolbarButton>
+                    </TiptapToolbarGroup>
+
+                    <TiptapToolbarGroup v-if="editorInstance?.isActive('table')">
+                        <TiptapToolbarButton @click="editorInstance?.commands.deleteTable()" label="Remove table">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5"
+                                fill="currentColor">
+                                <path
+                                    d="M15.46,15.88L16.88,14.46L19,16.59L21.12,14.46L22.54,15.88L20.41,18L22.54,20.12L21.12,21.54L19,19.41L16.88,21.54L15.46,20.12L17.59,18L15.46,15.88M4,3H18A2,2 0 0,1 20,5V12.08C18.45,11.82 16.92,12.18 15.68,13H12V17H13.08C12.97,17.68 12.97,18.35 13.08,19H4A2,2 0 0,1 2,17V5A2,2 0 0,1 4,3M4,7V11H10V7H4M12,7V11H18V7H12M4,13V17H10V13H4Z" />
+                            </svg>
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton label="Add column before"
+                            @click="editorInstance?.commands.addColumnBefore()">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5"
+                                fill="currentColor">
+                                <path
+                                    d="M13,2A2,2 0 0,0 11,4V20A2,2 0 0,0 13,22H22V2H13M20,10V14H13V10H20M20,16V20H13V16H20M20,4V8H13V4H20M9,11H6V8H4V11H1V13H4V16H6V13H9V11Z" />
+                            </svg>
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton label="Add column after"
+                            @click="editorInstance?.commands.addColumnAfter()">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5"
+                                fill="currentColor">
+                                <path
+                                    d="M11,2A2,2 0 0,1 13,4V20A2,2 0 0,1 11,22H2V2H11M4,10V14H11V10H4M4,16V20H11V16H4M4,4V8H11V4H4M15,11H18V8H20V11H23V13H20V16H18V13H15V11Z" />
+                            </svg>
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton label="Remove column" @click="editorInstance?.commands.deleteColumn()">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5"
+                                fill="currentColor">
+                                <path
+                                    d="M4,2H11A2,2 0 0,1 13,4V20A2,2 0 0,1 11,22H4A2,2 0 0,1 2,20V4A2,2 0 0,1 4,2M4,10V14H11V10H4M4,16V20H11V16H4M4,4V8H11V4H4M17.59,12L15,9.41L16.41,8L19,10.59L21.59,8L23,9.41L20.41,12L23,14.59L21.59,16L19,13.41L16.41,16L15,14.59L17.59,12Z" />
+                            </svg>
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton label="Add row before" @click="editorInstance?.commands.addRowBefore()">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5"
+                                fill="currentColor">
+                                <path
+                                    d="M22,14A2,2 0 0,0 20,12H4A2,2 0 0,0 2,14V21H4V19H8V21H10V19H14V21H16V19H20V21H22V14M4,14H8V17H4V14M10,14H14V17H10V14M20,14V17H16V14H20M11,10H13V7H16V5H13V2H11V5H8V7H11V10Z" />
+                            </svg>
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton @click="editorInstance?.commands.addRowAfter()" label="Add row after">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5"
+                                fill="currentColor">
+                                <path
+                                    d="M22,10A2,2 0 0,1 20,12H4A2,2 0 0,1 2,10V3H4V5H8V3H10V5H14V3H16V5H20V3H22V10M4,10H8V7H4V10M10,10H14V7H10V10M20,10V7H16V10H20M11,14H13V17H16V19H13V22H11V19H8V17H11V14Z" />
+                            </svg>
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton label="Remove row" @click="editorInstance?.commands.deleteRow()">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5"
+                                fill="currentColor">
+                                <path
+                                    d="M9.41,13L12,15.59L14.59,13L16,14.41L13.41,17L16,19.59L14.59,21L12,18.41L9.41,21L8,19.59L10.59,17L8,14.41L9.41,13M22,9A2,2 0 0,1 20,11H4A2,2 0 0,1 2,9V6A2,2 0 0,1 4,4H20A2,2 0 0,1 22,6V9M4,9H8V6H4V9M10,9H14V6H10V9M16,9H20V6H16V9Z" />
+                            </svg>
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton label="Merge or split cell"
+                            @click="editorInstance?.commands.mergeOrSplit()">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5"
+                                fill="currentColor">
+                                <path
+                                    d="M5,10H3V4H11V6H5V10M19,18H13V20H21V14H19V18M5,18V14H3V20H11V18H5M21,4H13V6H19V10H21V4M8,13V15L11,12L8,9V11H3V13H8M16,11V9L13,12L16,15V13H21V11H16Z" />
+                            </svg>
+                        </TiptapToolbarButton>
+                    </TiptapToolbarGroup>
 
                 </section>
             </div>
@@ -594,15 +659,14 @@ const setVariabel = (value) => {
             </slot>
         </div>
 
+        <TiptapTableDialog v-if="showAddTableDialog" :show="showAddTableDialog"
+            @close="() => { showAddTableDialog = false, showDialog = false; }" @insert="insertTable" />
+
         <TiptapLinkCustomDialog v-if="showLinkDialogCustom" :show="showLinkDialogCustom" :attribut="currentLinkInDialog"
             @close="() => { showLinkDialogCustom = false; showDialog = false; }" @update="updateLinkCustom" />
-        <TiptapImageDialog 
-            v-if="showAddImageDialog" 
-            :show="showAddImageDialog" 
-            @close="()=>{showAddImageDialog = false, showDialog = false}"
-            @insert="insertImage" 
-            :uploadImageRoute="uploadImageRoute"
-        />
+        <TiptapImageDialog v-if="showAddImageDialog" :show="showAddImageDialog"
+            @close="() => { showAddImageDialog = false, showDialog = false }" @insert="insertImage"
+            :uploadImageRoute="uploadImageRoute" />
         <TiptapLinkDialog v-if="showLinkDialog" :show="showLinkDialog" :current-url="currentLinkInDialog"
             @close="() => { showLinkDialog = false; showDialog = false; }" @update="updateLink" />
         <TiptapVideoDialog v-if="showAddYoutubeDialog" :show="showAddYoutubeDialog" @insert="insertYoutubeVideo"
@@ -633,11 +697,10 @@ const setVariabel = (value) => {
 
 
 <style scoped>
-
-
 :deep(.tippy-box) {
     min-width: 10px !important;
-    max-width: max-content !important
+    max-width: max-content !important;
+    background-color: transparent
 }
 
 :deep(.font-inter) {
@@ -765,7 +828,7 @@ const setVariabel = (value) => {
     box-decoration-break: clone;
     color: #6A00F5;
     padding: 0.1rem 0.3rem;
-  }
+}
 
 /* 
 :deep(.ProseMirror > p > br:first-child:last-child) {
