@@ -22,7 +22,7 @@ import { routeType } from '@/types/route'
 // import type { Timeline } from '@/types/Timeline'
 import { useDaysLeftFromToday } from '@/Composables/useFormatTime'
 import { BoxStats } from '@/types/Pallet'
-
+import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faWaveSine } from '@far'
@@ -46,6 +46,7 @@ const props = defineProps<{
     }
     box_stats: BoxStats
     consolidateRoute: routeType
+    history: {}
 
 
 }>()
@@ -56,6 +57,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const component = computed(() => {
     const components: Component = {
         transactions: RecurringBillTransactions,
+        history: TableHistories,
         // pallets: TablePallets
     }
 
