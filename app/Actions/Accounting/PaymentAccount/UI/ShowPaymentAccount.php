@@ -10,6 +10,7 @@ namespace App\Actions\Accounting\PaymentAccount\UI;
 
 use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServiceProvider;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
+use App\Actions\Accounting\PaymentAccount\WithPaymentAccountSubNavigation;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
@@ -30,6 +31,8 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowPaymentAccount extends OrgAction
 {
+    use WithPaymentAccountSubNavigation;
+
     public function handle(PaymentAccount $paymentAccount): PaymentAccount
     {
         return $paymentAccount;
@@ -81,6 +84,7 @@ class ShowPaymentAccount extends OrgAction
                     'next'     => $this->getNext($paymentAccount, $request),
                 ],
                 'pageHead'    => [
+                    'subNavigation' => $this->getPaymentAccountNavigation($paymentAccount),
                     'icon'      =>
                         [
                             'icon'  => ['fal', 'fa-money-check-alt'],
@@ -141,40 +145,42 @@ class ShowPaymentAccount extends OrgAction
 
                 ],
 
-                PaymentAccountTabsEnum::PAYMENTS->value => $this->tab == PaymentAccountTabsEnum::PAYMENTS->value
-                    ?
-                    fn () => PaymentsResource::collection(
-                        IndexPayments::run(
-                            parent: $this->paymentAccount,
-                            prefix: 'payments'
-                        )
-                    )
-                    : Inertia::lazy(fn () => PaymentsResource::collection(
-                        IndexPayments::run(
-                            parent: $this->paymentAccount,
-                            prefix: 'payments'
-                        )
-                    )),
+                // PaymentAccountTabsEnum::PAYMENTS->value => $this->tab == PaymentAccountTabsEnum::PAYMENTS->value
+                //     ?
+                //     fn () => PaymentsResource::collection(
+                //         IndexPayments::run(
+                //             parent: $this->paymentAccount,
+                //             prefix: 'payments'
+                //         )
+                //     )
+                //     : Inertia::lazy(fn () => PaymentsResource::collection(
+                //         IndexPayments::run(
+                //             parent: $this->paymentAccount,
+                //             prefix: 'payments'
+                //         )
+                //     )),
                 PaymentAccountTabsEnum::HISTORY->value  => $this->tab == PaymentAccountTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($paymentAccount))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($paymentAccount)))
 
             ]
-        )->table(
-            IndexPayments::make()->tableStructure(
-                parent: $paymentAccount,
-                modelOperations: [
-                    'createLink' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'grp.org.accounting.payment-accounts.show.payments.create',
-                            'parameters' => array_values([$paymentAccount->slug])
-                        ],
-                        'label' => __('products')
-                    ] : false
-                ],
-                prefix: 'payments'
-            )
-        )->table(IndexHistory::make()->tableStructure(prefix: PaymentAccountTabsEnum::HISTORY->value));
+        )
+        // ->table(
+        //     IndexPayments::make()->tableStructure(
+        //         parent: $paymentAccount,
+        //         modelOperations: [
+        //             'createLink' => $this->canEdit ? [
+        //                 'route' => [
+        //                     'name'       => 'grp.org.accounting.payment-accounts.show.payments.create',
+        //                     'parameters' => array_values([$paymentAccount->slug])
+        //                 ],
+        //                 'label' => __('products')
+        //             ] : false
+        //         ],
+        //         prefix: 'payments'
+        //     )
+        // )
+        ->table(IndexHistory::make()->tableStructure(prefix: PaymentAccountTabsEnum::HISTORY->value));
     }
 
 
