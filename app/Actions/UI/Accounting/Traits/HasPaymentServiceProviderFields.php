@@ -78,12 +78,12 @@ trait HasPaymentServiceProviderFields
                 ],
             ],
             'cond' => [
-                'country_id' => [
-                    'type'     => 'select',
+                'countries' => [
+                    'type'     => 'multi_select',
                     'label'    => __('country'),
                     'required' => true,
                     'options'  => Options::forModels(Country::class),
-                    'value'    => Arr::get($data, 'country_id')
+                    'value'    => Arr::get($data, 'countries')
                 ],
                 'extra_charge' => [
                     'type'     => 'input',

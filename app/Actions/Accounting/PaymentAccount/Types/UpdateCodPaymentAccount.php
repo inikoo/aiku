@@ -44,8 +44,8 @@ class UpdateCodPaymentAccount extends OrgAction
     public function rules(): array
     {
         return [
-            'country_id'           => ['sometimes', 'string', 'exists:countries,id'],
-            'extra_charge'         => ['sometimes', 'string']
+            'countries'           => ['sometimes', 'array', 'exists:countries,id'],
+            'extra_charge'         => ['required', 'numeric', 'between:0,100']
         ];
     }
 

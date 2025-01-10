@@ -22,14 +22,14 @@ trait HasPaymentAccountUpdateActions
     public function paymentAccountUpdateActions($provider, PaymentAccount $paymentAccount, array $modelData): PaymentAccount
     {
         return match ($provider) {
-            'cash'      => UpdateCashPaymentAccount::make()->action($paymentAccount, $modelData),
-            'checkout'  => UpdateCheckoutPaymentAccount::make()->action($paymentAccount, $modelData),
-            'paypal'    => UpdatePaypalPaymentAccount::make()->action($paymentAccount, $modelData),
-            'bank'      => UpdateBankPaymentAccount::make()->action($paymentAccount, $modelData),
-            'cond'      => UpdateCodPaymentAccount::make()->action($paymentAccount, $modelData),
-            'pastpay'   => UpdatePastpayPaymentAccount::make()->action($paymentAccount, $modelData),
-            'braintree' => UpdateBraintreePaymentAccount::make()->action($paymentAccount, $modelData),
-            default     => $paymentAccount
+            'cash' => UpdateCashPaymentAccount::make()->action($paymentAccount, $modelData),
+            'checkout' => UpdateCheckoutPaymentAccount::make()->action($paymentAccount, $modelData),
+            'paypal' => UpdatePaypalPaymentAccount::make()->action($paymentAccount, $modelData),
+            'bank' => UpdateBankPaymentAccount::make()->action($paymentAccount, $modelData),
+            'cond' => UpdateCodPaymentAccount::make()->action($paymentAccount, $modelData),
+            'pastpay' => UpdatePastpayPaymentAccount::make()->action($paymentAccount, $modelData),
+            'btree' => UpdateBraintreePaymentAccount::make()->action($paymentAccount, $modelData),
+            default => $paymentAccount
         };
     }
 }

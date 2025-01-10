@@ -10,33 +10,38 @@ namespace App\Actions\Accounting\PaymentAccount;
 
 use App\Actions\Accounting\PaymentAccount\Search\PaymentAccountRecordSearch;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\UI\Accounting\Traits\HasPaymentAccountUpdateActions;
+use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Http\Resources\Accounting\PaymentAccountsResource;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdatePaymentAccount extends OrgAction
 {
     use WithActionUpdate;
     use HasPaymentAccountUpdateActions;
+    use WithNoStrictRules;
 
     private PaymentAccount $paymentAccount;
 
     public function handle(PaymentAccount $paymentAccount, array $modelData): PaymentAccount
     {
         if ($this->strict) {
-            $paymentAccount = $this->paymentAccountUpdateActions($paymentAccount->paymentServiceProvider->slug, $paymentAccount, $modelData);
+            $paymentAccount = $this->paymentAccountUpdateActions($paymentAccount->paymentServiceProvider->code, $paymentAccount, $modelData);
             $paymentAccount = $this->update($paymentAccount, Arr::only($modelData, ['code', 'name']), ['data']);
         } else {
             $paymentAccount = $this->update($paymentAccount, $modelData, ['data']);
         }
 
         PaymentAccountRecordSearch::dispatch($paymentAccount);
-        return $this->update($paymentAccount, Arr::only($modelData, ['code', 'name']), ['data']);
+
+        return $paymentAccount;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -72,10 +77,11 @@ class UpdatePaymentAccount extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules = $this->noStrictUpdateRules($rules);
+            $rules         = $this->noStrictUpdateRules($rules);
             $rules['data'] = ['sometimes', 'array'];
-
+            $rules['type'] = ['sometimes', 'required', Rule::enum(PaymentAccountTypeEnum::class)];
         }
+
         return $rules;
     }
 
@@ -96,7 +102,6 @@ class UpdatePaymentAccount extends OrgAction
 
     public function asController(Organisation $organisation, PaymentAccount $paymentAccount, ActionRequest $request): PaymentAccount
     {
-
         $this->paymentAccount = $paymentAccount;
         $this->initialisation($paymentAccount->organisation, $request);
 
