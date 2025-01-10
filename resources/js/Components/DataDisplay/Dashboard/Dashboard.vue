@@ -6,94 +6,30 @@ import { inject, ref, computed } from "vue"
 
 const props = defineProps<{
 	data: {
-		interval_options: {
-			label: string
-			labelShort: string
-			value: string
-		}[]
-		dashboard_stats: {
-			columns?: {
-				widgets?: {
-					data: {
-						currency: {
-							code: string
-							symbol: string
-						}
-						total: {
-							[key: string]: {
-								total_invoices: number
-								total_refunds: number
-								total_sales: string
-							}
-						}
-						organisations: {
-							name: string
-							type: string
-							code: string
-							currency: {
-								code: string
-								symbol: string
-							}
-							invoices: {
-								number_invoices: number
-							}
-							sales: {
-								number_sales: number
-							}
-							refunds: {
-								number_refunds: number
-							}
-
-							// number_invoices_type_refund?: number
-							// number_invoices?: number
-							// number_invoices_type_invoice?: number
-							interval_percentages?: {
-								sales?: {
-									[key: string]: {
-										amount: string
-										percentage: number
-										difference: number
-									}
-								}
-								invoices?: {
-									[key: string]: {
-										amount: string
-										percentage: number
-										difference: number
-									}
-								}
-								refunds?: {
-									[key: string]: {
-										amount: string
-										percentage: number
-										difference: number
-									}
-								}
-							}
-						}[]
-					}[]
-				}[]
-			}[]
-			settings: {}
-		}
+		organisations: {}[]
 	}
-
 	dashboard: {}
+	interval_options: {}
 }>()
 
+const layout = inject("layout")
+const locale = inject("locale")
+
+const selectedDateOption = ref(props.dashboard.settings.selected_interval || "ytd")
+
 const currency = ref([
-	{ name: "Group", code: "grp", symbol: props.data?.dashboard_stats?.columns?.[0]?.widgets?.[0]?.data?.currency?.symbol },
+	{ name: "Group", code: "grp", symbol: props.data.currency.symbol },
 	{ name: "Organisation", code: "org", symbol: null },
 ])
 
 const selectedCurrency = ref(currency.value[0])
 const isOrganisation = ref(selectedCurrency.value.code === "org")
+
 const toggleCurrency = () => {
 	selectedCurrency.value = isOrganisation.value ? currency.value[1] : currency.value[0]
 }
-
-const abcdef = computed(() => {
-	return props.data?.dashboard_stats?.columns?.[0]?.widgets?.[0]?.data?.organisations
+const tableDatas = computed(() => {
+	return props.data?.organisations
 		.filter((org) => org.type !== "agent")
 		.map((org) => {
 			return {
@@ -103,18 +39,34 @@ const abcdef = computed(() => {
 				sales: org.sales || 0,
 				currency:
 					selectedCurrency.value.code === "grp"
-						? props.data.dashboard_stats.columns[0].widgets[0].data.currency.code
+						? props.data.currency.code
 						: org.currency.code,
 			}
 		})
 })
-console.log(abcdef.value,'haha');
 
+const updateRouteAndUser = async (interval) => {
+	selectedDateOption.value = interval
+	try {
+		const response = await axios.patch(route("grp.models.user.update", layout.user.id), {
+			settings: { selected_interval: interval },
+		})
+		console.log("Update successful:", response.data)
+	} catch (error) {
+		console.error("Error updating user:", error.response?.data || error.message)
+	}
+}
 </script>
 <template>
 	<div>
-		<!-- <DashboardSettings />
-		<DashboardTable /> -->
+		<DashboardSettings :dashboard="props.data" :intervalOptions="interval_options"
+		:selectedDateOption="selectedDateOption" :isOrganisation="isOrganisation"
+		@toggle-currency="toggleCurrency" @update-interval="updateRouteAndUser"" />
+		<DashboardTable
+			:tableData="tableDatas"
+			:groupStats="data"
+			:locale="locale"
+			:selectedDateOption="selectedDateOption" />
 		<DashboardWidget :widgetsData="dashboard.widgets" />
 	</div>
 </template>

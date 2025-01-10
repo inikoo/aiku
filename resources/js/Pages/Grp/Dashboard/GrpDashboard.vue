@@ -231,16 +231,12 @@ const abcdef = computed(() => {
 		})
 })
 
-const tabs = ref([
-	{ title: "All Organisations", content: "Tab 1 Content", value: "all" },
-	{ title: "High Performers", content: "Tab 1 Content", value: "high" },
-	{ title: "Low Performers", content: "Tab 1 Content", value: "low" },
-])
-
-const activeTab = ref("all")
-
 const currency = ref([
-	{ name: "Group", code: "grp", symbol: props.dashboard_stats?.columns?.[0]?.widgets?.[0]?.data?.currency?.symbol },
+	{
+		name: "Group",
+		code: "grp",
+		symbol: props.dashboard_stats?.columns?.[0]?.widgets?.[0]?.data?.currency?.symbol,
+	},
 	{ name: "Organisation", code: "org", symbol: null },
 ])
 
@@ -307,6 +303,7 @@ console.log(layout.user.id, "layoutt")
 									{{ organisationSymbols }}
 								</p>
 							</div>
+							<!--  -->
 						</div>
 						<nav
 							class="isolate flex rounded-full bg-white-50 border border-gray-200 p-1"
@@ -915,7 +912,10 @@ console.log(layout.user.id, "layoutt")
 		<!-- <pre>{{ groupStats }}</pre> -->
 
 		<div class="col-span-8">
-			<Dashboard  :dashboard="dashboard_stats" />
+			<Dashboard
+				:data="groupStats"
+				:dashboard="dashboard_stats"
+				:interval_options="interval_options" />
 		</div>
 	</div>
 </template>
