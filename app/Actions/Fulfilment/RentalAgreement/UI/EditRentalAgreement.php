@@ -47,22 +47,8 @@ class EditRentalAgreement extends OrgAction
         }
 
 
-        /** @var WebUser $webUser */
-        $webUser             = $rentalAgreement->fulfilmentCustomer->customer->webUsers()->first();
-        $createWebUserFields = [
-            'email' => [
-                'type'        => 'input',
-                'label'       => __('email'),
-                'required'    => true,
-                'value'       => $webUser->email
-            ],
-            'username' => [
-                'type'        => 'input',
-                'label'       => __('username'),
-                'required'    => true,
-                'value'       => $webUser->username
-            ],
-        ];
+
+
 
         $stateOptions = [];
         if ($rentalAgreement->state !== RentalAgreementStateEnum::ACTIVE) {
@@ -132,7 +118,7 @@ class EditRentalAgreement extends OrgAction
                                         'value'       => $rentalAgreement->pallets_limit
                                     ],
                                     ...$stateOptions,
-                                    ...$createWebUserFields,
+
                                     'clauses'       => [
                                         'type'           => 'rental',
                                         'label'          => __('Clauses'),
