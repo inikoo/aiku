@@ -85,24 +85,21 @@
     <table width="100%" style="font-size: 9pt;">
         <tr>
             <td style="width:250px;padding-left:10px;">
-                AW-AromaticsAW
+                {{$shop->organisation->name}}
                 <div style="font-size:7pt">
-                    Aromatics Ltd
+                    {{$shop->name}}
                 </div>
                 <div style="font-size:7pt">
-                    Unit 15
+                    {{$shop->address->address_line_1}}
                 </div>
                 <div style="font-size:7pt">
-                    Parkwood Business Park
+                {{$shop->address->address_line_2}}
                 </div>
                 <div style="font-size:7pt">
-                    Parkwood Road
+                {{$shop->address->locality}} {{$shop->address->postal_code}}
                 </div>
                 <div style="font-size:7pt">
-                    Sheffield S3 8AL
-                </div>
-                <div style="font-size:7pt">
-                    www.aw-aromatics.com
+                    www.{{$shop->website->domain}}
                 </div>
             </td>
 
@@ -283,7 +280,7 @@
         <td style="text-align:right">Date</td>
         <td style="text-align:left">Status</td>
         <td style="text-align:left">Reference</td>
-        <td style=";text-align:right">Amount</td>
+        <td style="text-align:right">Amount</td>
     </tr>
 
     <tbody>
@@ -326,7 +323,7 @@
         <tr>
         <tr>
             <td width="33%" style="color:#000;text-align: left;">
-                <small>AW Aromatics Limited<br> VAT Number:
+                <small>{{$shop->name}}<br> VAT Number:
                     <b>GB356317102</b>
                     <br>
                     Registration Number: 1279117</small>
@@ -335,8 +332,8 @@
                 Page 1 of 1
             </td>
             <td width="34%" style="text-align: right;">
-                <small>00441144384914<br>
-                    sales@aw-aromatics.com
+                <small>{{$shop->phone}}<br>
+                    {{$shop->email}}
                 </small>
             </td>
         </tr>
