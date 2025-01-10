@@ -28,10 +28,13 @@ class GetDataTableRetinaBillingDashboard
         $invoices = $customer->invoices()->where('total_amount', '>', 0)->where('paid_at', null)->get();
         $data = [];
         foreach ($invoices as $invoice) {
+            // dd($invoice->currency);
             $data[] = [
                 'reference'  => $invoice->reference,
                 'route' => route('retina.billing.invoices.show', $invoice->slug),
                 'total' => $invoice->total_amount,
+                'format'    => 'currency',
+                'currency_code' => $invoice->currency->code,
             ];
         }
 
