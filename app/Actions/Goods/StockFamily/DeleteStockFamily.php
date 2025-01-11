@@ -8,25 +8,51 @@
 
 namespace App\Actions\Goods\StockFamily;
 
-use App\Actions\GrpAction;
+use App\Actions\Goods\Stock\UpdateStock;
+use App\Actions\Inventory\OrgStockFamily\DeleteOrgStockFamily;
+use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStockFamilies;
 use App\Models\Goods\StockFamily;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
+use Throwable;
 
-class DeleteStockFamily extends GrpAction
+class DeleteStockFamily extends OrgAction
 {
     use AsController;
     use WithAttributes;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(StockFamily $stockFamily): StockFamily
     {
-        $stockFamily->stats()->delete();
-        $stockFamily->stocks()->delete();
-        $stockFamily->delete();
-        $stockFamily->delete();
+        DB::transaction(function () use ($stockFamily) {
+            $stockFamily->stats()->delete();
+            $stockFamily->intervals()->delete();
+            $stockFamily->timeSeries()->delete();
+
+            DB::table('org_stock_movements')->where('stock_family_id', $stockFamily->id)->update(['stock_family_id' => null]);
+            DB::table('delivery_note_items')->where('stock_family_id', $stockFamily->id)->update(['stock_family_id' => null]);
+            DB::table('org_stock_families')->where('stock_family_id', $stockFamily->id)->update(['stock_family_id' => null]);
+
+            foreach ($stockFamily->orgStockFamilies as $orgStockFamily) {
+                DeleteOrgStockFamily::make()->action($orgStockFamily);
+            }
+
+            foreach ($stockFamily->stocks as $stock) {
+                UpdateStock::make()->action($stock, ['stock_family_id' => null]);
+            }
+
+            $stockFamily->forceDelete();
+
+        });
+
+        GroupHydrateStockFamilies::dispatch($this->group);
+
 
         return $stockFamily;
     }
@@ -36,25 +62,62 @@ class DeleteStockFamily extends GrpAction
         if ($this->asAction) {
             return true;
         }
-        return $request->user()->hasPermissionTo("inventory.stocks.edit");
+
+        return $request->user()->hasPermissionTo("goods.{$this->group->id}.edit");
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(StockFamily $stockFamily, ActionRequest $request): StockFamily
     {
-        $request->validate();
+        $this->initialisationFromGroup($stockFamily->group, $request);
 
         return $this->handle($stockFamily);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function action(StockFamily $stockFamily): StockFamily
     {
         $this->asAction = true;
+        $this->initialisationFromGroup($stockFamily->group, []);
+
         return $this->handle($stockFamily);
     }
 
-    public function htmlResponse(): RedirectResponse
+    public function getCommandSignature(): string
     {
-        return Redirect::route('grp.org.warehouses.show.inventory.org_stock_families.index');
+        return 'delete:stock_family {id}';
     }
+
+    public function asCommand(Command $command): int
+    {
+
+        $stockFamily = StockFamily::withTrashed()->where('id', $command->argument('id'))->first();
+
+        if (!$stockFamily) {
+            $command->error("Stock Family not found");
+
+            return 1;
+        }
+
+        $stockFamilyCode = $stockFamily->code;
+        $this->asAction = true;
+        $this->initialisationFromGroup($stockFamily->group, []);
+        try {
+            $this->handle($stockFamily);
+        } catch (Throwable $exception) {
+            $command->error("Error deleting Stock Family ".$exception->getMessage());
+
+            return 1;
+        }
+
+        $command->info("Stock Family $stockFamilyCode deleted");
+
+        return 0;
+    }
+
 
 }
