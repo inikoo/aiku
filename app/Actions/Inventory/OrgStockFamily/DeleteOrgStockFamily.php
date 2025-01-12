@@ -35,7 +35,7 @@ class DeleteOrgStockFamily extends OrgAction
             $orgStockFamily->timeSeries()->forceDelete();
 
 
-            DB::table('audit')->where('auditable_type', 'OrgStockFamily')->where('auditable_id', $stockFamily->id)->delete();
+            DB::table('audits')->where('auditable_type', 'OrgStockFamily')->where('auditable_id', $orgStockFamily->id)->delete();
 
 
             DB::table('org_stock_movements')->where('org_stock_family_id', $orgStockFamily->id)->update(['org_stock_family_id' => null]);
