@@ -40,9 +40,7 @@ return new class () extends Migration {
             $table->softDeletes();
         });
 
-        Schema::table('invoices', function (Blueprint $table) {
-            $table->foreign('recurring_bill_id')->references('id')->on('recurring_bills');
-        });
+
     }
 
 

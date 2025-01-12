@@ -19,12 +19,6 @@ return new class () extends Migration {
             $table->unsignedBigInteger('model_id');
             $table->string('model_type');
             $table->timestampsTz();
-
-            $table->foreign('recurring_bill_id')
-            ->references('id')
-            ->on('recurring_bills')
-            ->onDelete('cascade');
-
             $table->index(['model_id', 'model_type']);
             $table->unique(['recurring_bill_id','model_type','model_id']);
         });
