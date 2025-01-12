@@ -11,11 +11,7 @@ namespace App\Actions\UI\Retina\Storage\UI;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
-use App\Http\Resources\Catalogue\OutersResource;
-use App\Http\Resources\Catalogue\RentalAgreementResource;
-use App\Http\Resources\Catalogue\RentalsResource;
 use App\Http\Resources\Catalogue\RetinaRentalAgreementResource;
-use App\Http\Resources\Catalogue\ServicesResource;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -47,7 +43,7 @@ class ShowRetinaStorageDashboard
                 'percentage_off' => $percentageOff
             ];
         }
-        
+
         return Inertia::render('Storage/RetinaStorageDashboard', [
             'title'        => __('Dashboard'),
 

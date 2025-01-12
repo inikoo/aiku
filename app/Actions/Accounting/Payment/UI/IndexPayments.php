@@ -37,9 +37,8 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPayments extends OrgAction
 {
-    private Group|Organisation|PaymentAccount|Shop|OrgPaymentServiceProvider|Invoice $parent;
-
     use WithPaymentAccountSubNavigation;
+    private Group|Organisation|PaymentAccount|Shop|OrgPaymentServiceProvider|Invoice $parent;
 
     public function handle(Group|Organisation|PaymentAccount|Shop|OrgPaymentServiceProvider|Invoice|Order $parent, $prefix = null): LengthAwarePaginator
     {
@@ -241,8 +240,7 @@ class IndexPayments extends OrgAction
         $routeParameters = $request->route()->originalParameters();
         $subNavigation   = null;
 
-        if($this->parent instanceof PaymentAccount) 
-        {
+        if ($this->parent instanceof PaymentAccount) {
             $subNavigation = $this->getPaymentAccountNavigation($this->parent);
         }
 

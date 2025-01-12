@@ -8,15 +8,12 @@
 
 namespace App\Actions\Retina\Storage\RecurringBill\UI;
 
-use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Billing\UI\ShowRetinaBillingDashboard;
 use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\RecurringBillResource;
 use App\Http\Resources\Fulfilment\RecurringBillTransactionsResource;
-use App\Http\Resources\History\HistoryResource;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\StoredItem;
 use Inertia\Inertia;
@@ -162,8 +159,8 @@ class ShowRetinaCurrentRecurringBill extends RetinaAction
                 ],
 
                 RecurringBillTabsEnum::TRANSACTIONS->value => $this->tab == RecurringBillTabsEnum::TRANSACTIONS->value ?
-                    fn() => RecurringBillTransactionsResource::collection(IndexRetinaRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))
-                    : Inertia::lazy(fn() => RecurringBillTransactionsResource::collection(IndexRetinaRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))),
+                    fn () => RecurringBillTransactionsResource::collection(IndexRetinaRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))
+                    : Inertia::lazy(fn () => RecurringBillTransactionsResource::collection(IndexRetinaRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))),
 
             ]
         )->table(

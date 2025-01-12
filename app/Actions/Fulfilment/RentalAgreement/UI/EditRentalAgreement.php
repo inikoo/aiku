@@ -15,7 +15,6 @@ use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Http\Resources\Catalogue\OutersResource;
 use App\Http\Resources\Catalogue\RentalsResource;
 use App\Http\Resources\Catalogue\ServicesResource;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\RentalAgreement;
