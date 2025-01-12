@@ -30,18 +30,20 @@ class FetchAuroraStockFamilies extends FetchAuroraAction
         }
 
 
-        if ($baseStockFamily = StockFamily::withTrashed()->where('source_slug', $stockFamilyData['stock_family']['source_slug'])->first()) {
-            if ($stockFamily = StockFamily::where('source_id', $stockFamilyData['stock_family']['source_id'])->first()) {
+        if ($stockFamily = StockFamily::where('source_id', $stockFamilyData['stock_family']['source_id'])->first()) {
+            return UpdateStockFamily::make()->action(
+                stockFamily: $stockFamily,
+                modelData: $stockFamilyData['stock_family'],
+                hydratorsDelay: 60,
+                strict: false,
+                audit: false
+            );
+        }
 
-                $stockFamily = UpdateStockFamily::make()->action(
-                    stockFamily: $stockFamily,
-                    modelData: $stockFamilyData['stock_family'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                    audit: false
-                );
-            }
-        } else {
+
+        $baseStockFamily = StockFamily::withTrashed()->where('source_slug', $stockFamilyData['stock_family']['source_slug'])->first();
+
+        if (!$baseStockFamily) {
 
             $stockFamily = StoreStockFamily::make()->action(
                 group: $organisationSource->getOrganisation()->group,
