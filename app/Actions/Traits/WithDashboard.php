@@ -128,7 +128,7 @@ trait WithDashboard
 
 
             return $responseData;
-        });
+        })->toArray();
 
         $dashboard['table']['total'] = [
             'total_sales'    => $subModelData->sum(fn ($data) => $data->salesIntervals?->{"sales_org_currency_" . $selectedInterval} ?? 0),
