@@ -151,6 +151,7 @@ const onSaved = async () => {
                 {{ disabledSelect.edit ? trans("Edit customer's SKUs") : trans("Set up customer's SKUs") }}
             </div>
 		<label class="block text-sm font-medium text-gray-700">{{ trans("Reference") }}</label>
+		
 		<div class="mt-1">
 			<SelectQuery ref="_selectQuery"
 				:filterOptions="filterOptionsStoredItems"
@@ -177,12 +178,29 @@ const onSaved = async () => {
 						}}
 					</div>
 				</template>
+				
+				<template #afterlist="{ search, options }: { search: string, options: any[] }">
+					<!-- {{ options }} -->
+					<div v-if="search && options?.length" class="border-t border-gray-300">
+						<!-- {{ [...options.options.map(options => options.reference)] }} === -->
+						<div v-if="!options?.some(option => option.reference === search)" class="bg-indigo-100 hover:bg-indigo-200 px-2 py-3" @click="() => createStoredItems({ id: search, reference: search }, [])">
+							<font-awesome-icon :icon="['fas', 'plus']" class="mr-3" />
+							{{ `${trans(`Create stored Items`)}: ` }} <Tag :label="search" no-hover-color /> <br>
+						</div>
+					</div>
+				</template>
+				
+				<template #option="{option, isSelected, isPointed, search, label}">
+					<div v-html="option[label]?.replace(search, `<span style='background: #eded02'>${search}</span>`)"></div>
+				</template>
+				
 				<template #noresults="{ search }: { search: string }">
 					<div class="px-2 py-3" @click="() => createStoredItems({ id: search, reference: search }, [])">
 						<font-awesome-icon :icon="['fas', 'plus']" class="mr-3" />
 						{{ `${trans(`Create stored Items`)} : ${search}` }}
 					</div>
 				</template>
+
 				<template v-if="!disabledSelect.edit" #caret="{ handleCaretClick, isOpen }">
 					<div class="px-2">
 						<font-awesome-icon v-if="!disabledSelect.disabled" :icon="['fas', 'chevron-down']"
@@ -191,6 +209,7 @@ const onSaved = async () => {
 							@click="deleteStoredItems(false)" />
 					</div>
 				</template>
+				
 				<template #singlelabel="{ value }">
 					<div class="flex justify-start w-full px-2 gap-3">
 						{{ value["reference"] }}
@@ -231,13 +250,9 @@ const onSaved = async () => {
 		</div>
 	</div>
 
-	<div v-if="!messageMode" class="grid grid-cols-2 gap-3">
-		<div class="col-span-1 relative">
-			<Button full type="tertiary" label="Cancel" @click="onCancel"></Button>
-		</div>
-		<div class="col-span-1">
-			<Button full @click="onSaved" type="save" :loading="props.form.processing"></Button>
-		</div>
+	<div v-if="!messageMode" class="flex gap-3">
+		<Button type="tertiary" label="Cancel" @click="onCancel"></Button>
+		<Button full @click="onSaved" type="save" :loading="props.form.processing" :disabled="!(props.form.id || props.form.oldData?.id)"></Button>		
 	</div>
 
 	<div v-else class="grid grid-cols-2 gap-3">

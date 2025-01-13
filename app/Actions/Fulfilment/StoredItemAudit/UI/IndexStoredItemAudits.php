@@ -12,6 +12,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Http\Resources\Fulfilment\StoredItemAuditsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -30,8 +31,11 @@ class IndexStoredItemAudits extends OrgAction
     use HasFulfilmentAssetsAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
 
+    private FulfilmentCustomer|Fulfilment $parent;
+
     public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($fulfilment);
@@ -40,6 +44,7 @@ class IndexStoredItemAudits extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($fulfilmentCustomer);
@@ -79,27 +84,27 @@ class IndexStoredItemAudits extends OrgAction
 
     }
 
-    public function htmlResponse(StoredItemAudit $storedItemAudit, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $storedItemAudits, ActionRequest $request): Response
     {
         return Inertia::render(
             'Org/Fulfilment/StoredItemAudits',
             [
-                'title'       => __('stored item audit'),
-                'breadcrumbs' => $this->getBreadcrumbs($storedItemAudit),
+                'title'       => __('stored item audits'),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
                 'pageHead'    => [
                     'icon'    =>
                         [
                             'icon'  => ['fal', 'fa-narwhal'],
                             'title' => __('stored item audit')
                         ],
-                    'model'   => 'stored item',
-                    'title'   => $storedItemAudit->slug,
+                    'model'   => __('stored item'),
+                    'title'   => __('stored item audits')
 
                 ],
-                'tabs'        => [
-                    'current'    => $this->tab,
-                    'navigation' => [],
-                ],
+                'data'        => StoredItemAuditsResource::collection($storedItemAudits)
 
 
             ]
@@ -107,33 +112,37 @@ class IndexStoredItemAudits extends OrgAction
     }
 
 
-
-    public function getBreadcrumbs(StoredItemAudit $storedItemAudit, $suffix = null): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
     {
-        return array_merge(
-            ShowFulfilmentCustomer::make()->getBreadcrumbs(request()->route()->originalParameters()),
-            [
+        $headCrumb = function (array $routeParameters, ?string $suffix) {
+            return [
                 [
-                    'type'           => 'modelWithIndex',
-                    'modelWithIndex' => [
-                        'index' => [
-                            'route' => [
-                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
-                                'parameters' => array_values(request()->route()->originalParameters())
-                            ],
-                            'label' => __("customer's sKUs")
-                        ],
-                        'model' => [
-                            'route' => [
-                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.show',
-                                'parameters' => array_values(request()->route()->originalParameters())
-                            ],
-                            'label' => $storedItemAudit->slug,
-                        ],
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __('Stored Item Audits'),
+                        'icon'  => 'fal fa-bars'
                     ],
-                    'suffix'         => $suffix,
-                ],
-            ]
-        );
+                    'suffix' => $suffix
+                ]
+            ];
+        };
+
+
+        return match ($routeName) {
+            'grp.org.fulfilments.show.crm.customers.show.stored-items.index' =>
+            array_merge(
+                ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
+            ),
+
+            default => []
+        };
     }
 }

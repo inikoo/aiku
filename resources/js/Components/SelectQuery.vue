@@ -228,6 +228,11 @@ defineExpose({
             </slot>
         </template>
         
+        <template #option="{option, isSelected, isPointed, search}">
+            <slot name="option" :search="q" :option :isSelected :isPointed :label="props.label">
+            </slot>
+        </template>
+        
         <template #nooptions>
             <slot name="nooptions" :search="q" >
                 <div class="px-2 py-2" >
@@ -236,8 +241,8 @@ defineExpose({
             </slot>
         </template>
         
-        <template #afterlist>
-            <slot name="afterlist" :search="q" >
+        <template #afterlist="{ options }">
+            <slot name="afterlist" :search="q" :options >
             </slot>
         </template>
 
