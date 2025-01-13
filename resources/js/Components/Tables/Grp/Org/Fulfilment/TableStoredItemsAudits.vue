@@ -35,6 +35,57 @@ const props = defineProps<{
     tab?: string
 }>()
 
+function palletRoute(pallet: Pallet) {
+    switch (route().current()) {
+        case "grp.overview.fulfilment.pallets.index":
+            return route(
+                "grp.org.fulfilments.show.operations.pallets.current.show",
+                [
+                    pallet.organisation_slug,
+                    pallet.fulfilment_slug,
+                    pallet.slug
+                ])
+        case "grp.org.fulfilments.show.operations.pallets.current.index":
+            return route(
+                "grp.org.fulfilments.show.operations.pallets.current.show",
+                [
+                    route().params["organisation"],
+                    route().params["fulfilment"],
+                    pallet.slug
+                ])
+
+        case "grp.org.fulfilments.show.operations.returned_pallets.index":
+            return route(
+                "grp.org.fulfilments.show.operations.returned_pallets.index",
+                [
+                    route().params["organisation"],
+                    route().params["fulfilment"],
+                    pallet.slug
+                ])
+
+        case "grp.org.fulfilments.show.crm.customers.show":
+            return route(
+                "grp.org.fulfilments.show.crm.customers.show.pallets.show",
+                [
+                    route().params["organisation"],
+                    route().params["fulfilment"],
+                    route().params["fulfilmentCustomer"],
+                    pallet.slug
+                ])
+        case "grp.org.fulfilments.show.crm.customers.show.stored-item-audits.show":
+            return route(
+                "grp.org.fulfilments.show.crm.customers.show.pallets.show",
+                [
+                    route().params["organisation"],
+                    route().params["fulfilment"],
+                    route().params["fulfilmentCustomer"],
+                    pallet.slug
+                ])
+
+        default:
+            return []
+    }
+}
 </script>
 
 <template>
