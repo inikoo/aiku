@@ -1,16 +1,25 @@
+<script setup lang="ts">
+import DataTable from "primevue/datatable"
+import Column from "primevue/column"
+import Row from "primevue/row"
+import ColumnGroup from "primevue/columngroup"
+import { ref, computed } from "vue"
+import { useLocaleStore } from "@/Stores/locale"
+
+const props = defineProps<{
+	tableData: {}
+	groupStats: Object
+	locale: any
+	selectedDateOption: String
+}>()
+
+
+</script>
 <template>
-	<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
-		<div class="mt-2">
-			<div class="">
-				<Tabs v-model:value="activeTab">
-					<TabList>
-						<Tab v-for="tab in tabs" :key="tab.title" :value="tab.value">{{
-							tab.title
-						}}</Tab>
-					</TabList>
-				</Tabs>
-			</div>
-			<DataTable :value="abcdef" removableSort>
+	<div class="bg-white mb-2 text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
+		<div class="">
+		
+			<DataTable :value="tableData" removableSort>
 				<Column sortable>
 					<template #header>
 						<div class="flex items-center justify-between">
@@ -393,7 +402,4 @@
 		</div>
 	</div>
 </template>
-
-<script setup lang="ts"></script>
-
 <style scoped></style>

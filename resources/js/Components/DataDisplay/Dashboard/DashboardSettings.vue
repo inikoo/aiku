@@ -13,6 +13,11 @@ const props = defineProps<{
 	settings: {
 		selected_interval: string
 	}
+
+	dashboard: any
+	selectedDateOption: string
+	isOrganisation: boolean
+	organisationSymbols: string
 }>()
 
 
@@ -40,26 +45,20 @@ const updateInterval = (interval_code: string) => {
 <template>
 	<div class="relative mt-2 asdzxc">
 		<!-- Section Setting -->
-		<!-- <div class="flex justify-end items-center space-x-4">
-			<div class="flex items-center space-x-4">
-				<p
-					class="font-medium transition-opacity"
-					:class="{ 'opacity-60': isOrganisation }">
-					{{ props.groupStats.currency.symbol }}
-				</p>
+		<div class="flex justify-end items-center space-x-4">
+			<p class="font-medium" :class="{ 'opacity-60': isOrganisation }">
+				{{ dashboard.currency.symbol }}
+			</p>
 
-				<ToggleSwitch
-					v-model="isOrganisation"
-					class="mx-2"
-					@change="toggleCurrency" />
+			<ToggleSwitch
+				:modelValue="isOrganisation"
+				class="mx-2"
+				@change="$emit('toggle-currency')" />
 
-				<p
-					class="font-medium transition-opacity"
-					:class="{ 'opacity-60': !isOrganisation }">
-					{{ organisationSymbols }}
-				</p>
-			</div>
-		</div> -->
+			<p class="font-medium" :class="{ 'opacity-60': !isOrganisation }">
+				{{ organisationSymbols }}
+			</p>
+		</div>
 
 		<nav class="isolate flex rounded-full bg-white-50 border border-gray-200 p-1"
 			aria-label="Tabs">
@@ -79,6 +78,3 @@ const updateInterval = (interval_code: string) => {
 		</nav>
 	</div>
 </template>
-
-<style>
-</style>
