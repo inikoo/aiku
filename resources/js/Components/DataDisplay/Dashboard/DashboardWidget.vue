@@ -8,6 +8,7 @@ const props = defineProps<{
             type: string  // 'basic'
             col_span?: number
             row_span?: number
+            visual?:{}
             data: {}
         }[]
     }
@@ -23,6 +24,7 @@ const props = defineProps<{
             v-for="(component, index) in props.widgetsData.components"
             :is="getComponentWidget(component.type)"
             :widgetData="component.data"
+            :visual="component.visual"
             :style="{
                 'grid-column': `span ${component.col_span || 1} / span ${component.col_span || 1}`,
                 'grid-row': `span ${component.row_span || 1} / span ${component.row_span || 1}`
