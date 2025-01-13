@@ -123,7 +123,7 @@ class ShowGroupDashboard extends OrgAction
             'interval_options'  => $this->getIntervalOptions(),
             'settings' => [
                 'db_settings'   => auth()->user()->settings,
-                'key_currency'  => 'grp',  // 'org'
+                'key_currency'  =>  'grp',  // 'org'
                 'options_currency'  => [
                     [
                         'value' => 'grp',
@@ -143,12 +143,15 @@ class ShowGroupDashboard extends OrgAction
         ];
 
         $dashboard['table'] = $organisations->map(function (Organisation $organisation) use ($selectedInterval, $group, &$dashboard, $userSettings) {
+            $keyCurrency = $dashboard['settings']['key_currency'];
+            $selectedCurrency = Arr::get($userSettings, 'selected_currency_in_' . $keyCurrency, 'grp');
+            $currencyCode = $selectedCurrency === 'grp' ? $group->currency->code : $organisation->currency->code;
             $responseData = [
                 'name'      => $organisation->name,
                 'slug'      => $organisation->slug,
                 'code'      => $organisation->code,
                 'type'      => $organisation->type,
-                'currency'  => $organisation->currency,
+                'currency_code'  => $currencyCode,
             ];
             if ($organisation->salesIntervals !== null) {
                 $responseData['interval_percentages']['sales'] = $this->getIntervalPercentage(
@@ -156,7 +159,6 @@ class ShowGroupDashboard extends OrgAction
                     'sales_org_currency',
                     $selectedInterval,
                 );
-
                 $amount = $responseData['interval_percentages']['sales']['amount'];
                 $dashboard['widgets']['components'][] = [
                     'type' => 'basic',
@@ -171,7 +173,7 @@ class ShowGroupDashboard extends OrgAction
                         'description'   => __('Sales For ') . $responseData['name'],
                         'status'    => $amount < 0 ? 'danger' : '',
                         'type'      => 'currency',
-                        'currency_code' => $userSettings['selected_currency_in_grp'] === 'grp' ? $group->currency->code : $organisation->currency->code
+                        'currency_code' => $currencyCode
                     ]
                 ];
             }
