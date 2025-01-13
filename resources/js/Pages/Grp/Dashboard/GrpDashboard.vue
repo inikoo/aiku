@@ -244,13 +244,6 @@ const currency = ref([
 	{ name: "Organisation", code: "org", symbol: null },
 ])
 
-const organisationSymbols = computed(() => {
-	const symbols = props.groupStats.organisations
-		.filter((org) => org.type !== "agent")
-		.map((org) => org.currency.symbol)
-		.filter(Boolean)
-	return [...new Set(symbols)].join(" / ")
-})
 
 const selectedCurrency = ref(currency.value[0])
 const isOrganisation = ref(selectedCurrency.value.code === "org")
@@ -259,20 +252,20 @@ const toggleCurrency = () => {
 }
 const isNegative = (value: number): boolean => value < 0
 
-const updateRouteAndUser = async (interval: string) => {
-	selectedDateOption.value = interval
+// const updateRouteAndUser = async (interval: string) => {
+// 	selectedDateOption.value = interval
 
-	try {
-		const response = await axios.patch(route("grp.models.user.update", layout.user.id), {
-			settings: {
-				selected_interval: interval,
-			},
-		})
-		console.log("Update successful:", response.data)
-	} catch (error) {
-		console.error("Error updating user:", error.response?.data || error.message)
-	}
-}
+// 	try {
+// 		const response = await axios.patch(route("grp.models.user.update", layout.user.id), {
+// 			settings: {
+// 				selected_interval: interval,
+// 			},
+// 		})
+// 		console.log("Update successful:", response.data)
+// 	} catch (error) {
+// 		console.error("Error updating user:", error.response?.data || error.message)
+// 	}
+// }
 
 console.log(layout.user.id, "layoutt")
 </script>
@@ -284,49 +277,8 @@ console.log(layout.user.id, "layoutt")
 		<!-- <pre>{{ props.groupStats.organisations }}</pre> -->
 		<!-- Section: Date options -->
 		<div class="col-span-12 space-y-4">
-			<div class="relative mt-2">
-				<!-- Section Setting -->
-				<div>
-					<div class="">
-						<div class="flex justify-end items-center space-x-4">
-							<div class="flex items-center space-x-4">
-								<p
-									class="font-medium transition-opacity"
-									:class="{ 'opacity-60': isOrganisation }">
-									{{ props.groupStats.currency.symbol }}
-								</p>
-
-								<ToggleSwitch
-									v-model="isOrganisation"
-									class="mx-2"
-									@change="toggleCurrency" />
-
-								<p
-									class="font-medium transition-opacity"
-									:class="{ 'opacity-60': !isOrganisation }">
-									{{ organisationSymbols }}
-								</p>
-							</div>
-						</div>
-						<nav
-							class="isolate flex rounded-full bg-white-50 border border-gray-200 p-1"
-							aria-label="Tabs">
-							<div
-								v-for="(interval, idxInterval) in interval_options"
-								:key="idxInterval"
-								@click="updateRouteAndUser(interval.value)"
-								:class="[
-									interval.value === selectedDateOption
-										? 'bg-indigo-500 text-white font-medium'
-										: 'text-gray-500 hover:text-gray-700 hover:bg-gray-100',
-								]"
-								class="relative flex-1 rounded-full py-2 px-4 text-center text-sm cursor-pointer select-none transition duration-200">
-								<span>{{ interval.value }}</span>
-							</div>
-						</nav>
-					</div>
-				</div>
-			</div>
+			
+			
 			<!-- Section Table -->
 			<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
 				<div class="mt-2">
@@ -899,7 +851,6 @@ console.log(layout.user.id, "layoutt")
 							org.interval_percentages?.sales?.[selectedDateOption]?.amount || 0
 						)
 					"
-					type="dashboard"
 					:description="`Sales for ${org.name}`"
 					:showRedBorder="
 						isNegative(
@@ -917,7 +868,10 @@ console.log(layout.user.id, "layoutt")
 		<!-- <pre>{{ groupStats }}</pre> -->
 
 		<div class="col-span-8">
-			<Dashboard  :dashboard="dashboard_stats" />
+			<Dashboard 
+				:dashboard="dashboard_stats"
+				:intervalOptions="interval_options"
+			/>
 		</div>
 	</div>
 </template>
