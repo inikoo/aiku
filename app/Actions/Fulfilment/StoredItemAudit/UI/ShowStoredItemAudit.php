@@ -14,6 +14,7 @@ use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInAudit;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditResource;
@@ -55,8 +56,27 @@ class ShowStoredItemAudit extends OrgAction
         $afterTitle = null;
         $iconRight  = null;
 
+        $actions = [];
+        if ($storedItemAudit->state === StoredItemAuditStateEnum::IN_PROCESS) {
+            $actions = [
+                [
+                    'type'  => 'button',
+                    'style' => 'primary',
+                    'label' => __('Complete Audit'),
+                    'route' => [
+                        'method' => 'patch',
+                        'name'       => 'grp.models.fulfilment-customer.stored_item_audits.complete',
+                        'parameters' => [
+                            'fulfilmentCustomer' => $storedItemAudit->fulfilment_customer_id,
+                            'storedItemAudit' => $storedItemAudit->id
+                        ],
+                    ]
+                ]
+            ];
+        }
+
         return Inertia::render(
-            'Org/Fulfilment/StoredItemAudits',
+            'Org/Fulfilment/StoredItemAudit',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
@@ -68,7 +88,7 @@ class ShowStoredItemAudit extends OrgAction
                     'afterTitle' => $afterTitle,
                     'iconRight'  => $iconRight,
                     'icon'       => $icon,
-
+                    'actions' => $actions,
                     'subNavigation' => $subNavigation,
                 ],
 

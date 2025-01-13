@@ -22,6 +22,7 @@ import { faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, f
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 import { routeType } from "@/types/route"
+import pallet from "@/Pages/Grp/Org/Fulfilment/Pallet.vue";
 
 library.add(faTrashAlt, faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp, faStickyNote, faCheckCircle)
 

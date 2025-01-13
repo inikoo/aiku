@@ -169,8 +169,10 @@ class IndexPalletsInAudit extends OrgAction
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'customer_reference', label: __("Pallet reference (customer's), notes"), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'current_stored_items', label: __("Current customer's sKUs"), canBeHidden: false);
+
             $table->column(key: 'stored_items', label: __("customer's sKUs"), canBeHidden: false);
-            $table->column(key: 'audited_at', label: __('edited'), canBeHidden: false);
+            $table->column(key: 'audits', label: __('Audit'), canBeHidden: false);
 
 
             $table->defaultSort('reference');

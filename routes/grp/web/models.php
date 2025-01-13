@@ -114,6 +114,7 @@ use App\Actions\Fulfilment\StoredItem\SyncStoredItemPallet;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPalletAudit;
 use App\Actions\Fulfilment\StoredItem\UpdateStoredItem;
+use App\Actions\Fulfilment\StoredItemAudit\CompleteStoredItemAudit;
 use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
 use App\Actions\Fulfilment\StoredItemAudit\UpdateStoredItemAudit;
 use App\Actions\Goods\Stock\StoreStock;
@@ -464,6 +465,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     Route::prefix('stored-item-audits')->name('stored_item_audits.')->group(function () {
         Route::post('/', StoreStoredItemAudit::class)->name('store');
         Route::patch('/{storedItemAudit:id}', UpdateStoredItemAudit::class)->name('update')->withoutScopedBindings();
+        Route::patch('/{storedItemAudit:id}/complete', CompleteStoredItemAudit::class)->name('complete')->withoutScopedBindings();
     });
 });
 
