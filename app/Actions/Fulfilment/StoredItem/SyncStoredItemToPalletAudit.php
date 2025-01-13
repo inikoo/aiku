@@ -10,7 +10,6 @@ namespace App\Actions\Fulfilment\StoredItem;
 
 use App\Actions\OrgAction;
 use App\Http\Resources\Fulfilment\PalletResource;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
@@ -29,34 +28,34 @@ class SyncStoredItemToPalletAudit extends OrgAction
 
     public function handle(Pallet $pallet, array $modelData): void
     {
-        SyncStoredItemToPallet::run($pallet, $modelData);
-        $originalQty = $pallet->storedItems()->count();
+        //SyncStoredItemToPallet::run($pallet, $modelData);
 
 
-        // TODO Maybe some error with this and need to fixed
-        /*foreach (Arr::get($modelData, 'stored_item_ids', []) as $key => $storedItem) {
+        foreach (Arr::get($modelData, 'stored_item_ids', []) as $storedItemId => $auditData) {
+
+            $originalQty = $pallet->storedItems()->where(
+                'stored_item_id',
+                $storedItemId
+            )->count();
+
+
             $pallet->storedItemAuditDeltas()->updateOrCreate([
-                'stored_item_id'    => $key,
+                'stored_item_id'    => $storedItemId,
                 'organisation_id'   => $pallet->organisation_id,
             ], [
                 'group_id'          => $pallet->group_id,
                 'organisation_id'   => $pallet->organisation_id,
-                'stored_item_id'    => $key,
+                'stored_item_id'    => $storedItemId,
                 'original_quantity' => $originalQty,
-                'audited_quantity'  => $storedItem['quantity'] + $originalQty,
+                'audited_quantity'  => $auditData['quantity'] + $originalQty,
                 'audited_at'        => now()
             ]);
-        }*/
+        }
     }
 
     public function authorize(ActionRequest $request): bool
     {
         if ($this->asAction) {
-            return true;
-        }
-
-        if ($request->user() instanceof WebUser) {
-            // TODO: Raul please do the permission for the web user
             return true;
         }
 
