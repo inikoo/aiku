@@ -11,10 +11,13 @@ namespace App\Actions\Fulfilment\Fulfilment;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Traits\WithGetRecurringBillEndDate;
+use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Illuminate\Validation\Rules\File;
@@ -22,7 +25,7 @@ use Illuminate\Validation\Rules\File;
 class UpdateFulfilment extends OrgAction
 {
     use WithActionUpdate;
-
+    use WithGetRecurringBillEndDate;
 
     protected Fulfilment $fulfilment;
 
@@ -31,10 +34,13 @@ class UpdateFulfilment extends OrgAction
         $settings       = $fulfilment->settings;
         $updateSettings = false;
 
+        $endDate = null;
+
         if (Arr::exists($modelData, 'weekly_cut_off_day')) {
             $settings['rental_agreement_cut_off']['weekly']['day'] = $modelData['weekly_cut_off_day'];
             $updateSettings                                        = true;
             data_forget($modelData, 'weekly_cut_off_day');
+            $this->getEndDateWeekly(now(), $settings['rental_agreement_cut_off']['weekly']);
         }
 
         if (Arr::exists($modelData, 'monthly_cut_off')) {
@@ -69,8 +75,26 @@ class UpdateFulfilment extends OrgAction
 
         $fulfilment = $this->update($fulfilment, $modelData, ['settings']);
 
-        $shop = UpdateShop::make()->action($fulfilment->shop, $shopData);
+        if (Arr::get($modelData, 'update_all', true)) {
 
+            $recurringBills = $fulfilment->recurringBills->where('status', RecurringBillStatusEnum::CURRENT);
+
+            foreach ($recurringBills as $recurringBill) {
+                $startDate = Carbon::parse($recurringBill->start_date);
+                $rentalAgreement = $recurringBill->rentalAgreement;
+                $endDate = $this->getEndDate(
+                    $startDate->copy(),
+                    Arr::get(
+                        $settings,
+                        'rental_agreement_cut_off.'.$rentalAgreement->billing_cycle->value
+                    )
+                );
+                $recurringBill->end_date = $endDate;
+                $recurringBill->save();
+            }
+        }
+
+        $shop = UpdateShop::make()->action($fulfilment->shop, $shopData);
 
         return $fulfilment;
 
@@ -101,6 +125,10 @@ class UpdateFulfilment extends OrgAction
                 'max:31'
             ],
             'monthly_cut_off.isWeekdays' => [
+                'sometimes',
+                'boolean',
+            ],
+            'update_all' => [
                 'sometimes',
                 'boolean',
             ],
