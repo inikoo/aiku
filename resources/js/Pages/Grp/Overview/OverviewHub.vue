@@ -173,6 +173,7 @@ const columnClasses = computed(() => {
 							:description="widget.label"
 							:showRedBorder="widget.type === 'card_currency'"
 							:showIcon="widget.type === 'card_currency'"
+							type="dashboard"
 							class="h-full" />
 					</div>
 

@@ -129,7 +129,7 @@ class EditRentalAgreement extends OrgAction
                                                 'parameters' => [
                                                     'organisation' => $this->organisation->slug,
                                                     'fulfilment'   => $this->fulfilment->slug,
-                                                    'section'      => '0'
+                                                    'section'      => '3'
 
                                                 ]
                                             ]
