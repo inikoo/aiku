@@ -1,17 +1,19 @@
 <?php
-
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 25 May 2023 21:14:38 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
- */
+ * author Arya Permana - Kirin
+ * created on 13-01-2025-16h-18m
+ * github: https://github.com/KirinZero0
+ * copyright 2025
+*/
 
-namespace App\Actions\Fulfilment\StoredItemAudit\UI;
+namespace App\Actions\Retina\Storage\StoredItemsAudit\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
+use App\Actions\RetinaAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
 use App\Http\Resources\Fulfilment\StoredItemAuditsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
@@ -27,31 +29,18 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexStoredItemAudits extends OrgAction
+class IndexRetinaStoredItemsAudits extends RetinaAction
 {
     use HasFulfilmentAssetsAuthorisation;
-    use WithFulfilmentCustomerSubNavigation;
 
-    private FulfilmentCustomer|Fulfilment $parent;
-
-    public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent = $fulfilment;
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisation($request);
 
-        return $this->handle($fulfilment);
+        return $this->handle($this->customer->fulfilmentCustomer);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $fulfilmentCustomer;
-        $this->initialisationFromFulfilment($fulfilment, $request);
-
-        return $this->handle($fulfilmentCustomer);
-    }
-
-    public function handle(FulfilmentCustomer|Fulfilment $parent, $prefix = null): LengthAwarePaginator
+    public function handle(FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
     {
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -66,13 +55,8 @@ class IndexStoredItemAudits extends OrgAction
         }
 
         $query = QueryBuilder::for(StoredItemAudit::class);
+        $query->where('fulfilment_customer_id', $parent->id);
 
-
-        if ($parent instanceof FulfilmentCustomer) {
-            $query->where('fulfilment_customer_id', $parent->id);
-        } else {
-            $query->where('fulfilment_id', $parent->id);
-        }
 
 
         $query->defaultSort('stored_item_audits.date');
@@ -88,7 +72,7 @@ class IndexStoredItemAudits extends OrgAction
     public function htmlResponse(LengthAwarePaginator $storedItemAudits, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Fulfilment/StoredItemAudits',
+            'Storage/RetinaStoredItemsAudits',
             [
                 'title'       => __('stored item audits'),
                 'breadcrumbs' => $this->getBreadcrumbs(
@@ -113,12 +97,11 @@ class IndexStoredItemAudits extends OrgAction
     }
 
     public function tableStructure(
-        FulfilmentCustomer|Fulfilment $parent,
         ?array $modelOperations = null,
         $prefix = null,
         $canEdit = false
     ): Closure {
-        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix, $canEdit) {
             if ($prefix) {
                 $table->name($prefix)->pageName($prefix.'Page');
             }
@@ -128,13 +111,6 @@ class IndexStoredItemAudits extends OrgAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
-                    match (class_basename($parent)) {
-                        'Group' => [
-                            'title' => __("No post rooms found"),
-                            'count' => $parent->commsStats->number_org_post_rooms,
-                        ],
-                        default => null
-                    }
                 );
 
             $table
@@ -144,37 +120,23 @@ class IndexStoredItemAudits extends OrgAction
     }
 
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
+    public function getBreadcrumbs(): array
     {
-        $headCrumb = function (array $routeParameters, ?string $suffix) {
-            return [
+        return array_merge(
+            ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+            [
                 [
                     'type'   => 'simple',
                     'simple' => [
-                        'route' => $routeParameters,
-                        'label' => __('Stored Item Audits'),
-                        'icon'  => 'fal fa-bars'
+                        'route' => [
+                            'name' => 'retina.storage.stored-items-audits.index'
+                        ],
+                        'label' => __("SKUs Audits"),
+                        'icon'  => 'fal fa-bars',
                     ],
-                    'suffix' => $suffix
+
                 ]
-            ];
-        };
-
-
-        return match ($routeName) {
-            'grp.org.fulfilments.show.crm.customers.show.stored-items.index' =>
-            array_merge(
-                ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
-                $headCrumb(
-                    [
-                        'name'       => $routeName,
-                        'parameters' => $routeParameters
-                    ],
-                    $suffix
-                )
-            ),
-
-            default => []
-        };
+            ]
+        );
     }
 }

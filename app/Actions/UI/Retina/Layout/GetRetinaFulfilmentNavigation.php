@@ -78,6 +78,14 @@ class GetRetinaFulfilmentNavigation
                             'name'       => 'retina.storage.stored-items.index'
                         ]
                     ],
+                    [
+                        'label' => __('stored items audits'),
+                        'icon'  => ['fal', 'fa-narwhal'],
+                        'root'  => 'retina.storage.stored-items-audits.',
+                        'route' => [
+                            'name'       => 'retina.storage.stored-items-audits.index'
+                        ]
+                    ],
                 ]
             ]
         ];

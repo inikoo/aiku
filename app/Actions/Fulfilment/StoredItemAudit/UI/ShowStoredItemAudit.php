@@ -76,7 +76,7 @@ class ShowStoredItemAudit extends OrgAction
         }
 
         return Inertia::render(
-            'Org/Fulfilment/StoredItemAudits',
+            'Org/Fulfilment/StoredItemAudit',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
@@ -109,7 +109,7 @@ class ShowStoredItemAudit extends OrgAction
                     ],
                 ],
 
-                'route' => [
+                'route_list' => [
                     'update' => [
                         'name'       => 'grp.models.fulfilment-customer.stored_item_audits.update',
                         'parameters' => [
