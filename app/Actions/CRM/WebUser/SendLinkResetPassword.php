@@ -8,8 +8,8 @@
 
 namespace App\Actions\CRM\WebUser;
 
+use App\Actions\Comms\Email\SendResetPasswordEmail;
 use App\Models\CRM\WebUser;
-use App\Notifications\ResetPasswordNotification;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -25,7 +25,9 @@ class SendLinkResetPassword
             'email' => $webUser->email
         ]);
 
-        $webUser->notify(new ResetPasswordNotification($url));
+        SendResetPasswordEmail::run($webUser->customer, [
+            'url' => $url
+        ]);
     }
 
     // to delete
