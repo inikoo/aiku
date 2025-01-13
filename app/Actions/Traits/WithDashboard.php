@@ -76,7 +76,7 @@ trait WithDashboard
         $dashboard['table'] = $subModelData->map(function (Organisation|Shop $subModel) use ($selectedInterval, $model, &$dashboard, $userSettings) {
             $keyCurrency = $dashboard['settings']['key_currency'];
             $selectedCurrency = Arr::get($userSettings, 'selected_currency_in_' . $keyCurrency, 'grp');
-            $currencyCode = $selectedCurrency === 'grp' ? $model->currency->code : $subModel->currency->code;
+            $currencyCode = $selectedCurrency === $keyCurrency ? $model->currency->code : $subModel->currency->code;
             $responseData = [
                 'name'      => $subModel->name,
                 'slug'      => $subModel->slug,
