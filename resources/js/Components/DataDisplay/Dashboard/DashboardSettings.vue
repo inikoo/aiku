@@ -103,7 +103,7 @@ const updateCurrency = (currency_scope: string) => {
 				:key="idxInterval"
 				@click="updateInterval(interval.value)"
 				:class="[
-					interval.value === settings.selected_interval
+					interval.value === settings.db_settings.selected_interval
 						? 'bg-indigo-500 text-white font-medium'
 						: 'text-gray-500 hover:text-gray-700 hover:bg-gray-100',
 				]"
