@@ -65,9 +65,9 @@ class EditStoredItem extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('stored items'),
+                'title'       => __("customer's sKUs"),
                 'pageHead'    => [
-                    'title'     => __('stored items'),
+                    'title'     => __("customer's sKUs"),
                     'actions'   => [
                         [
                             'type'  => 'button',

@@ -70,14 +70,14 @@ class GetRetinaFulfilmentNavigation
                             'name'       => 'retina.storage.assets.index'
                         ]
                     ],
-                    // [
-                    //     'label' => __('stored item return'),
-                    //     'icon'  => ['fal', 'fa-truck-couch'],
-                    //     'root'  => 'retina.storage.stored-item-returns.',
-                    //     'route' => [
-                    //         'name'       => 'retina.storage.stored-item-returns.index'
-                    //     ]
-                    // ],
+                    [
+                        'label' => __('stored items'),
+                        'icon'  => ['fal', 'fa-truck-couch'],
+                        'root'  => 'retina.storage.stored-items.',
+                        'route' => [
+                            'name'       => 'retina.storage.stored-items.index'
+                        ]
+                    ],
                 ]
             ]
         ];

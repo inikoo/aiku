@@ -148,7 +148,7 @@ class GetFulfilmentNavigation
                             'icon'    => ['fal', 'fa-receipt'],
                             'root'    => 'grp.org.fulfilments.show.operations.recurring_bills.',
                             'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.operations.recurring_bills.index',
+                                'name'       => 'grp.org.fulfilments.show.operations.recurring_bills.current.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                             ],
                         ],

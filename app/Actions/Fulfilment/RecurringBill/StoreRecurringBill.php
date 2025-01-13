@@ -16,6 +16,7 @@ use App\Actions\Helpers\TaxCategory\GetTaxCategory;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRecurringBills;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateRecurringBills;
+use App\Actions\Traits\WithGetRecurringBillEndDate;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\RentalAgreement;
@@ -26,6 +27,8 @@ use Illuminate\Support\Carbon;
 
 class StoreRecurringBill extends OrgAction
 {
+    use WithGetRecurringBillEndDate;
+
     public function handle(RentalAgreement $rentalAgreement, array $modelData, RecurringBill $previousRecurringBill = null): RecurringBill
     {
         if (!Arr::exists($modelData, 'tax_category_id')) {
@@ -144,53 +147,4 @@ class StoreRecurringBill extends OrgAction
 
         return 0;
     }
-
-    public function getEndDate(Carbon $startDate, array $setting): Carbon
-    {
-        return match (Arr::get($setting, 'type')) {
-            'weekly' => $this->getEndDateWeekly($startDate, $setting),
-            default => $this->getEndDateMonthly($startDate, $setting),
-        };
-    }
-
-    public function getEndDateMonthly(Carbon $startDate, array $setting): Carbon
-    {
-        $endDayOfMonth = $setting['day'];
-
-        $endDate = $startDate->copy()->day($endDayOfMonth);
-
-        if ($endDate->lt($startDate)) {
-            $endDate->addMonth();
-        }
-
-        if ($endDate->diffInDays($startDate) < 4) {
-            $endDate->addMonth();
-        }
-
-        return $endDate;
-    }
-
-    public function getEndDateWeekly(Carbon $startDate, array $setting): Carbon
-    {
-        $daysOfWeek = [
-            'Sunday'    => Carbon::SUNDAY,
-            'Monday'    => Carbon::MONDAY,
-            'Tuesday'   => Carbon::TUESDAY,
-            'Wednesday' => Carbon::WEDNESDAY,
-            'Thursday'  => Carbon::THURSDAY,
-            'Friday'    => Carbon::FRIDAY,
-            'Saturday'  => Carbon::SATURDAY,
-        ];
-
-        $endDayOfWeek = $daysOfWeek[$setting['day']];
-
-        $endDate = $startDate->copy()->next($endDayOfWeek);
-
-        if ($endDate->diffInDays($startDate) < 4) {
-            $endDate = $endDate->addWeek();
-        }
-
-        return $endDate;
-    }
-
 }

@@ -134,7 +134,7 @@ class ShowRecurringBill extends OrgAction
                                 'price_total' => $recurringBill->goods_amount
                             ],
                             // [
-                            //     'label'         => __('Stored Items'),
+                            //     'label'         => __("Customer'S SKUs"),
                             //     'quantity'      => $recurringBill->stats->number_transactions_type_stored_items ?? 0,
                             //     'price_base'    => __('Multiple'),
                             //     'price_total'   => 1111111
