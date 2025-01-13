@@ -28,7 +28,6 @@ const props = defineProps<{
 	dashboard: any
 	selectedDateOption: string
 	isOrganisation: boolean
-	organisationSymbols: string
 }>()
 
 
@@ -73,7 +72,6 @@ const updateCurrency = (currency_scope: string) => {
 
 <template>
 	<div class="relative mt-2 asdzxc">
-		<pre>{{ settings.db_settings }}</pre>
 
 		<!-- Section: Currency -->
 		<div class="flex justify-end items-center space-x-4">

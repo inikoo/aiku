@@ -854,7 +854,6 @@ console.log(layout.user.id, "layoutt")
 		<div class="col-span-8">
 			<Dashboard 
 				:dashboard="dashboard_stats"
-				:intervalOptions="interval_options"
 			/>
 		</div>
 	</div>

@@ -5,95 +5,19 @@ import DashboardWidget from "./DashboardWidget.vue"
 import { inject, ref, computed, provide } from "vue"
 
 const props = defineProps<{
-	data: {
-		currency: { symbol: string; code: string }
-		organisations: Array<{
-			name: string
-			code: string
-			type: string
-			sales: number
-			interval_percentages?: any
-			currency: { code: string; symbol: string }
-		}>
-		interval_options: {
-			label: string
-			labelShort: string
-			value: string
-		}[]
-		dashboard_stats: {
-			columns?: {
-				widgets?: {
-					data: {
-						currency: {
-							code: string
-							symbol: string
-						}
-						total: {
-							[key: string]: {
-								total_invoices: number
-								total_refunds: number
-								total_sales: string
-							}
-						}
-						organisations: {
-							name: string
-							type: string
-							code: string
-							currency: {
-								code: string
-								symbol: string
-							}
-							invoices: {
-								number_invoices: number
-							}
-							sales: {
-								number_sales: number
-							}
-							refunds: {
-								number_refunds: number
-							}
 
-							// number_invoices_type_refund?: number
-							// number_invoices?: number
-							// number_invoices_type_invoice?: number
-							interval_percentages?: {
-								sales?: {
-									[key: string]: {
-										amount: string
-										percentage: number
-										difference: number
-									}
-								}
-								invoices?: {
-									[key: string]: {
-										amount: string
-										percentage: number
-										difference: number
-									}
-								}
-								refunds?: {
-									[key: string]: {
-										amount: string
-										percentage: number
-										difference: number
-									}
-								}
-							}
-						}[]
-					}[]
-				}[]
-			}[]
-			settings: {
-				selected_interval?: string  // 'ytd' | 'mtd' | 'wtd'
-			}
-		}
+	dashboard: {
+		settings:{}[]
+		interval_options: Array<{ label: string; value: string }>
+		table:{}[]
+		total:{}[]
+		widgets:{}[]
 	}
-	dashboard: any
-	intervalOptions: Array<{ label: string; value: string }>
 }>()
 
 const layout = inject("layout")
 const locale = inject("locale")
+console.log(props,'propssasas');
 
 const selectedDateOption = ref(props.dashboard.settings.selected_interval || "ytd")
 
@@ -110,14 +34,14 @@ const selectedCurrency = computed(() => {
 
 // Compute table data dynamically
 const tableDatas = computed(() => {
-	return props.data?.organisations
+	return props.dashboard.table
 		.filter((org) => org.type !== "agent")
 		.map((org) => ({
 			name: org.name,
 			code: org.code,
 			interval_percentages: org.interval_percentages,
 			sales: org.sales || 0,
-			currency: isOrganisation.value ? org.currency.code : props.data?.currency.code,
+			currency: org.currency_code ,
 		}))
 })
 
@@ -138,11 +62,7 @@ const toggleCurrency = () => {
 // }
 
 const organisationSymbols = computed(() => {
-	const symbols = props.data?.organisations
-		.filter((org) => org.type !== "agent")
-		.map((org) => org.currency.symbol)
-		.filter(Boolean)
-	return [...new Set(symbols)].join(" / ")
+	
 })
 </script>
 
@@ -156,17 +76,16 @@ const organisationSymbols = computed(() => {
 			:isOrganisation="isOrganisation"
 			:organisationSymbols="organisationSymbols"
 			@toggle-currency="toggleCurrency"
-			:groupCurrencySymbol="groupCurrencySymbol"
-			:intervalOptions
+			:intervalOptions="props.dashboard?.interval_options"
 			:settings="props.dashboard?.settings"
 		/>
 		
-		<!-- <DashboardTable
+		<DashboardTable
 			:tableData="tableDatas"
-			:groupStats="data"
 			:locale="locale"
-			:selectedDateOption="selectedDateOption"
-		/> -->
+			:totalAmount="props.dashboard.total"
+			:selectedDateOption="props.dashboard.settings.selected_interval"
+		/>
 
 		<DashboardWidget :widgetsData="dashboard.widgets" />
 	</div>
