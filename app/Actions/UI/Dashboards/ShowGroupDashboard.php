@@ -23,15 +23,11 @@ class ShowGroupDashboard extends OrgAction
     {
 
         $userSettings = auth()->user()->settings;
-        $selectedInterval = Arr::get($userSettings, 'selected_interval', 'all');
-
-        $data = $this->getDataDashboard($group, $selectedInterval);
 
         return Inertia::render(
             'Dashboard/GrpDashboard',
             [
                 'breadcrumbs'       => $this->getBreadcrumbs(__('Dashboard')),
-                'groupStats'        => $data,
                 'interval_options'  => $this->getIntervalOptions(),
                 'dashboard_stats' => $this->getDashboard($group, $userSettings),
                 // 'dashboard_stats' => [
@@ -117,9 +113,6 @@ class ShowGroupDashboard extends OrgAction
     public function getDashboard(Group $group, array $userSettings): array
     {
         $selectedInterval = Arr::get($userSettings, 'selected_interval', 'all');
-
-        // $data = $this->getDataDashboard($group, $selectedInterval);
-
         $organisations = $group->organisations()->where('type', '!=', 'agent')->get();
         $orgCurrencies = [];
         foreach ($group->organisations as $organisation) {
@@ -150,7 +143,7 @@ class ShowGroupDashboard extends OrgAction
             ]
         ];
 
-        $dashboard['table'] = $organisations->map(function (Organisation $organisation) use ($selectedInterval, $group, &$dashboard) {
+        $dashboard['table'] = $organisations->map(function (Organisation $organisation) use ($selectedInterval, $group, &$dashboard, $userSettings) {
             $responseData = [
                 'name'      => $organisation->name,
                 'slug'      => $organisation->slug,
@@ -179,7 +172,7 @@ class ShowGroupDashboard extends OrgAction
                         'description'   => __('Sales For ') . $responseData['name'],
                         'status'    => $amount < 0 ? 'danger' : '',
                         'type'      => 'currency',
-                        'currency_code' => $organisation->currency->code
+                        'currency_code' => $userSettings['selected_currency_in_grp'] === 'grp' ? $group->currency->code : $organisation->currency->code
                     ]
                 ];
             }
@@ -206,54 +199,6 @@ class ShowGroupDashboard extends OrgAction
 
         return $dashboard;
 
-    }
-
-    public function getDataDashboard(Group $group, $selectedInterval): array
-    {
-        return [
-            'currency' => $group->currency,
-            'total'    => [
-            $selectedInterval => [
-                'total_sales'    => $group->organisations->sum(fn ($organisations) => $organisations->salesIntervals?->{"sales_org_currency_" . $selectedInterval} ?? 0),
-                'total_invoices' => $group->organisations->sum(fn ($organisations) => $organisations->orderingIntervals?->{"invoices_{$selectedInterval}"} ?? 0),
-                'total_refunds'  => $group->organisations->sum(fn ($organisations) => $organisations->orderingIntervals?->{"refunds_{$selectedInterval}"} ?? 0),
-            ],
-            ],
-            'organisations' => $group->organisations()->where('type', '!=', 'agent')->get()->map(function (Organisation $organisation) use ($selectedInterval) {
-                $responseData = [
-                    'name'      => $organisation->name,
-                    'slug'      => $organisation->slug,
-                    'code'      => $organisation->code,
-                    'type'      => $organisation->type,
-                    'currency'  => $organisation->currency,
-                ];
-                if ($organisation->salesIntervals !== null) {
-                    $responseData['interval_percentages']['sales'] = $this->getIntervalPercentage(
-                        $organisation->salesIntervals,
-                        'sales_org_currency',
-                        $selectedInterval,
-                    );
-                }
-
-                if ($organisation->orderingIntervals !== null) {
-                    $responseData['interval_percentages']['invoices'] = $this->getIntervalPercentage(
-                        $organisation->orderingIntervals,
-                        'invoices',
-                        $selectedInterval,
-                    );
-                }
-
-                if ($organisation->orderingIntervals !== null) {
-                    $responseData['interval_percentages']['refunds'] = $this->getIntervalPercentage(
-                        $organisation->orderingIntervals,
-                        'refunds',
-                        $selectedInterval,
-                    );
-                }
-
-                return $responseData;
-            }),
-        ];
     }
 
     public function calculatePercentageIncrease($thisYear, $lastYear): ?float

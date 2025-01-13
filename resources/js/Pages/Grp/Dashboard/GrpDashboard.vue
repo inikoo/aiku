@@ -182,8 +182,8 @@ const props = defineProps<{
 	}
 }>()
 
-console.log("groupStats total: ", props.groupStats.total)
-console.log("groupStats Organisations: ", props.groupStats)
+// console.log("groupStats total: ", props.groupStats.total)
+// console.log("groupStats Organisations: ", props.groupStats)
 console.log("interval_options: ", props.interval_options)
 const layout = inject("layout", layoutStructure)
 const locale = inject("locale", aikuLocaleStructure)
@@ -823,7 +823,7 @@ console.log(layout.user.id, "layoutt")
 		<!-- Section Widget -->
 		<div class="col-span-12">
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-				<DashboardCard
+				<!-- <DashboardCard
 					v-for="(org, index) in props.groupStats.organisations.filter(
 						(org) => org.type !== 'agent'
 					)"
@@ -846,8 +846,9 @@ console.log(layout.user.id, "layoutt")
 							org.interval_percentages?.sales?.[selectedDateOption]?.amount || 0
 						)
 					" />
+                -->
 			</div>
-		</div> -->
+		</div>
 		<!-- <pre>{{ groupStats }}</pre> -->
 
 		<div class="col-span-8">
