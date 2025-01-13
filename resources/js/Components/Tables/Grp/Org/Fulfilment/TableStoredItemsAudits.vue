@@ -23,6 +23,9 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 import { routeType } from "@/types/route"
 import pallet from "@/Pages/Grp/Org/Fulfilment/Pallet.vue";
+import DataTable from "primevue/datatable"
+import Column from "primevue/column"
+import Tag from "@/Components/Tag.vue"
 
 library.add(faTrashAlt, faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp, faStickyNote, faCheckCircle)
 
@@ -88,8 +91,11 @@ function palletRoute(pallet: Pallet) {
 
         <!-- Column: Icon (status and state) -->
         <template #cell(state)="{ item: pallet }">
-            <Icon :data="pallet['status_icon']" />
-            <Icon :data="pallet['state_icon']" />
+            <div class="flex gap-x-1 gap-y-1.5">
+                <Icon :data="pallet.type_icon" class="px-1" />
+                <Icon :data="pallet['status_icon']" />
+                <Icon :data="pallet['state_icon']" />
+            </div>
         </template>
 
 
@@ -101,19 +107,51 @@ function palletRoute(pallet: Pallet) {
 
         <!-- Column: Stored Items -->
         <template #cell(stored_items)="{ item: pallet }">
-          <table>
+          <!-- <table>
             <td>caca</td><td>2</td><td>  Checked (e.g. correct stock)   </td><td> + (add e.g. found item)   </td><td> -  (e.g. lost item)  </td>
             <td>popo</td><td>3</td><td>  Checked (e.g. correct stock)   </td><td> + (add e.g. found item)   </td><td> -  (e.g. lost item)  </td>
-          </table>
-            <!--  <pre>{{pallet   }}</pre> -->
+          </table> -->
+          <!-- <pre>{{ pallet }}</pre> -->
+             <!-- <pre>{{pallet   }}</pre> -->
 
+            <DataTable v-if="pallet.stored_items?.length" :value="pallet.stored_items">
+                <Column field="reference" header="Reference">
+                    <template #body="{ data }">
+                        <Tag :label="data.reference" no-hover-color string-to-color />
+                    </template>
+                </Column>
+
+                <Column field="quantity" header="Quantity" sortable>
+
+                </Column>
+
+                <Column field="quantity" header="Checked (e.g. correct stock)">
+
+                </Column>
+
+                <Column field="quantity" header="+ (add e.g. found item)">
+
+                </Column>
+
+                <Column field="quantity" header="-  (e.g. lost item)">
+
+                </Column>
+            </DataTable>
+
+            <div v-else class="text-gray-400">
+                -
+            </div>
         </template>
 
         <!-- Column: edited -->
         <template #cell(audits)="{ item }">
 
-          <StoredItemProperty :pallet="item" :storedItemsRoute="storedItemsRoute" :editable="true"
-                              :saveRoute="item.auditRoute" />
+            <StoredItemProperty
+                :pallet="item"
+                :storedItemsRoute="storedItemsRoute"
+                :editable="true"
+                :saveRoute="item.auditRoute"
+            />
 
             <div v-if="item.audited_at" class="flex items-center justify-center">
                 <font-awesome-icon :icon="['fas', 'check-circle']" class="text-lg text-green-500 mr-2"
@@ -140,9 +178,8 @@ function palletRoute(pallet: Pallet) {
         </template>
 
         <!-- Column: Icon (type) -->
-        <template #cell(type_icon)="{ item: pallet }">
-            <Icon :data="pallet.type_icon" class="px-1" />
-        </template>
+        <!-- <template #cell(type_icon)="{ item: pallet }">
+        </template> -->
 
 
     </Table>
