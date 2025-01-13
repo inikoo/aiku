@@ -9,6 +9,7 @@ import { inject } from 'vue'
 import DataTable from "primevue/datatable"
 import Column from "primevue/column"
 import Row from "primevue/row"
+import { data } from '../../../Components/CMS/Website/Product/ProductTemplates/Product2/Descriptor';
 
 const props = defineProps<{
     title: string
@@ -17,7 +18,9 @@ const props = defineProps<{
 
     }[]
     currency: {
-        code: string
+        data: {
+            code: string
+        }
     }
 }>()
 
@@ -51,7 +54,7 @@ const locale = inject('locale', {})
 
                     <template #body="{ data }">
                         <div class="flex justify-end relative">
-                            <span class="">{{ locale.currencyFormat(currency.code, data.price) }}</span>
+                            <span class="">{{ locale.currencyFormat(currency.data.code, data.price) }}</span>
                             <!-- <span class="ml-1 font mr-1">{{ locale.currencyFormat(currency.code, data.agreed_price) }}</span> -->
                             <Tag :label="data.percentage_off + '%'" :theme="3" noHoverColor />
                         </div>
