@@ -17,32 +17,13 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 const props = defineProps<{
   pageHead: object
   title: string
-  tabs: {
-    current: string
-    navigation: {}
-  }
-  recurring_bills?: {}
-  history?: {}
+  data: {}
 }>()
-
-let currentTab = ref(props.tabs.current)
-const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
-
-const component = computed(() => {
-
-  const components = {
-    recurring_bills: TableRecurringBills,
-    history: TableHistories
-  }
-  return components[currentTab.value]
-
-});
 
 </script>
 <template>
   <Head :title="capitalize(title)"/>
   <PageHeading :data="pageHead"></PageHeading>
-  <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
-  <component :is="component" :tab="currentTab" :data="props[currentTab]"></component>
+  <TableRecurringBills :data="data" />
 </template>
 

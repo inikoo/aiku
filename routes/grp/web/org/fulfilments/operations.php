@@ -67,6 +67,8 @@ Route::get('returns/{palletReturn}', ShowPalletReturn::class)->name('pallet-retu
 
 Route::prefix('recurring_bills')->as('recurring_bills')->group(function () {
     Route::get('', IndexRecurringBills::class)->name('.index');
+    Route::get('current', [IndexRecurringBills::class, 'current'])->name('.current.index');
+    Route::get('former', [IndexRecurringBills::class, 'former'])->name('.former.index');
     Route::get('{recurringBill}', ShowRecurringBill::class)->name('.show');
     Route::get('{recurringBill}/edit', EditRecurringBill::class)->name('.edit');
 });
