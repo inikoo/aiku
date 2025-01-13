@@ -2,130 +2,205 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 25 May 2023 21:14:38 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Fri, 26 Jan 2024 18:40:36 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Fulfilment\StoredItemAudit\UI;
 
+use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInAudit;
+use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
+use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
+use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItemAudit;
-use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use App\Models\Inventory\Location;
+use App\Models\Inventory\Warehouse;
 
 class ShowStoredItemAudit extends OrgAction
 {
-    public function authorize(ActionRequest $request): bool
+    use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentCustomerSubNavigation;
+
+    private Fulfilment|Location $parent;
+
+    private bool $selectStoredPallets = false;
+
+    public function handle(Fulfilment|FulfilmentCustomer|Warehouse $parent): StoredItemAudit
     {
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        if (! $parent->storedItemAudit) {
+            StoreStoredItemAudit::make()->action($parent, []);
+        }
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view")
-            );
-    }
+        $parent->refresh();
 
-    public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, StoredItemAudit $storedItemAudit, ActionRequest $request): StoredItemAudit
-    {
-        $this->initialisationFromFulfilment($fulfilment, $request);
-
-        return $this->handle($storedItemAudit);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, StoredItemAudit $storedItemAudit, ActionRequest $request): StoredItemAudit
-    {
-        $this->initialisationFromFulfilment($fulfilment, $request);
-
-        return $this->handle($storedItemAudit);
-    }
-
-    public function handle(StoredItemAudit $storedItemAudit): StoredItemAudit
-    {
-        return $storedItemAudit;
-    }
-
-    public function htmlResponse(StoredItemAudit $storedItemAudit, ActionRequest $request): Response
-    {
-        return Inertia::render(
-            'Org/Fulfilment/StoredItemAudit',
-            [
-                'title'       => __('stored item audit'),
-                'breadcrumbs' => $this->getBreadcrumbs($storedItemAudit),
-                'pageHead'    => [
-                    'icon'          =>
-                        [
-                            'icon'  => ['fal', 'fa-narwhal'],
-                            'title' => __('stored item audit')
-                        ],
-                    'model'  => 'stored item',
-                    'title'  => $storedItemAudit->slug,
-                    'actions' => [
-
-
-                        [
-                            'type'    => 'button',
-                            'style'   => 'secondary',
-                            'icon'    => 'fal fa-pencil',
-                            'tooltip' => __('Edit stored item audit'),
-                            'label'   => __('stored items'),
-                            'route'   => [
-                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ]
-                        ],
-                    ],
-                ],
-                'tabs'        => [
-                    'current'    => $this->tab,
-                    'navigation' => [],
-                ],
-
-
-                'showcase' => new StoredItemAuditResource($storedItemAudit),
-            ]
-        );
+        return $parent->storedItemAudit;
     }
 
     public function jsonResponse(StoredItemAudit $storedItemAudit): StoredItemAuditResource
     {
-        return new StoredItemAuditResource($storedItemAudit);
+        return StoredItemAuditResource::make($storedItemAudit);
     }
 
-    public function getBreadcrumbs(StoredItemAudit $storedItemAudit, $suffix = null): array
+    public function htmlResponse(StoredItemAudit $storedItemAudit, ActionRequest $request): Response
     {
-        return array_merge(
-            ShowFulfilmentCustomer::make()->getBreadcrumbs(request()->route()->originalParameters()),
+        $subNavigation = [];
+
+        $title      = __("Customer's SKUs audit");
+        $icon       = ['fal', 'fa-pallet'];
+        $afterTitle = null;
+        $iconRight  = null;
+
+        return Inertia::render(
+            'Org/Fulfilment/StoredItemAudits',
             [
-                [
-                    'type'           => 'modelWithIndex',
-                    'modelWithIndex' => [
-                        'index' => [
-                            'route' => [
-                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
-                                'parameters' => array_values(request()->route()->originalParameters())
-                            ],
-                            'label' => __('stored items')
-                        ],
-                        'model' => [
-                            'route' => [
-                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.show',
-                                'parameters' => array_values(request()->route()->originalParameters())
-                            ],
-                            'label' => $storedItemAudit->slug,
-                        ],
-                    ],
-                    'suffix' => $suffix,
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
+                'title'       => __("Customer's skus audits"),
+                'pageHead'    => [
+                    'title'      => $title,
+                    'afterTitle' => $afterTitle,
+                    'iconRight'  => $iconRight,
+                    'icon'       => $icon,
+
+                    'subNavigation' => $subNavigation,
                 ],
+
+                'notes_data'             => [
+                    [
+                        'label'           => __('Public'),
+                        'note'            => $storedItemAudit->public_notes ?? '',
+                        'editable'        => true,
+                        'bgColor'         => 'pink',
+                        'field'           => 'public_notes'
+                    ],
+                    [
+                        'label'           => __('Private'),
+                        'note'            => $storedItemAudit->internal_notes ?? '',
+                        'editable'        => true,
+                        'bgColor'         => 'purple',
+                        'field'           => 'internal_notes'
+                    ],
+                ],
+
+                'route' => [
+                    'update' => [
+                        'name'       => 'grp.models.fulfilment-customer.stored_item_audits.update',
+                        'parameters' => [
+                            'fulfilmentCustomer' => $storedItemAudit->fulfilment_customer_id,
+                            'storedItemAudit'    => $storedItemAudit->id
+                        ]
+                    ]
+                ],
+
+                'storedItemsRoute' => [
+                    'index' => [
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
+                        'parameters' => [
+                            'organisation'       => $storedItemAudit->organisation->slug,
+                            'fulfilment'         => $storedItemAudit->fulfilment->slug,
+                            'fulfilmentCustomer' => $storedItemAudit->fulfilmentCustomer->slug,
+                            'palletDelivery'     => $storedItemAudit->reference
+                        ]
+                    ],
+                    'store' => [
+                        'name'       => 'grp.models.fulfilment-customer.stored-items.store',
+                        'parameters' => [
+                            'fulfilmentCustomer' => $storedItemAudit->fulfilmentCustomer->id
+                        ]
+                    ],
+                    'delete' => [
+                        'name' => 'grp.models.stored-items.delete'
+                    ]
+                ],
+
+                'data'                => StoredItemAuditResource::make($storedItemAudit),
+                'pallets'             => PalletsResource::collection(IndexPalletsInAudit::run($storedItemAudit->fulfilmentCustomer, 'pallets')),
+                'fulfilment_customer' => FulfilmentCustomerResource::make($storedItemAudit->fulfilmentCustomer)->getArray()
             ]
+        )->table(
+            IndexPalletsInAudit::make()->tableStructure(
+                $storedItemAudit->fulfilmentCustomer,
+                prefix: 'pallets'
+            )
         );
+    }
+
+    public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, ActionRequest $request): StoredItemAudit
+    {
+        $this->parent = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilment);
+    }
+
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): StoredItemAudit
+    {
+        $this->parent = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilmentCustomer);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+
+        $headCrumb = function (array $routeParameters) {
+            return [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __("Customer's skus audits"),
+                        'icon'  => 'fal fa-bars',
+                    ],
+
+                ]
+            ];
+        };
+
+
+        return match ($routeName) {
+            'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.index' =>
+            array_merge(
+                ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            default => array_merge(
+                ShowFulfilment::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.fulfilments.show.operations.pallets.current.index',
+                        'parameters' => [
+                            'organisation' => $routeParameters['organisation'],
+                            'fulfilment'   => $routeParameters['fulfilment'],
+                        ]
+                    ],
+                )
+            ),
+        };
+
+
+
     }
 }

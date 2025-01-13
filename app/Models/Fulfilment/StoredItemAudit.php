@@ -41,6 +41,18 @@ use Spatie\Sluggable\SlugOptions;
  * @property array<array-key, mixed>|null $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $date
+ * @property string $net_amount
+ * @property string|null $grp_net_amount
+ * @property string|null $org_net_amount
+ * @property int|null $tax_category_id
+ * @property string|null $tax_amount
+ * @property string|null $total_amount
+ * @property int $number_pallets
+ * @property int $number_stored_items
+ * @property int $number_added_stored_items
+ * @property int $number_edited_stored_items
+ * @property int $number_removed_stored_items
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItemAuditDelta> $deltas
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment

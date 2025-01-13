@@ -14,7 +14,6 @@ use App\Actions\Fulfilment\RecurringBill\WithRecurringBillsSubNavigation;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
-use App\Enums\UI\Fulfilment\RecurringBillsTabsEnum;
 use App\Http\Resources\Fulfilment\RecurringBillsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;

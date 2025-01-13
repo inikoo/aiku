@@ -110,7 +110,7 @@ class ShowFulfilment extends OrgAction
                         ],
                     ],
                     [
-                        'name'  => __('Stored Items'),
+                        'name'  => __("Customer'S SKUs"),
                         'icon'  => ['fal', 'fa-narwhal'],
                         'route'  => [
                             'name'       => 'grp.org.fulfilments.show.operations.pallets.current.index',

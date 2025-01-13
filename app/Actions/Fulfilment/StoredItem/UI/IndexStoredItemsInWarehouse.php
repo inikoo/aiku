@@ -104,7 +104,7 @@ class IndexStoredItemsInWarehouse extends OrgAction
         $subNavigation = [];
 
         $icon       = ['fal', 'fa-narwhal'];
-        $title      = __('stored items');
+        $title      = __("customer's sKUs");
         $afterTitle = null;
         $iconRight  = null;
 
@@ -114,7 +114,7 @@ class IndexStoredItemsInWarehouse extends OrgAction
             'Org/Fulfilment/StoredItems',
             [
                 'breadcrumbs'                                              => $this->getBreadcrumbs($request->route()->originalParameters()),
-                'title'                                                    => __('stored items'),
+                'title'                                                    => __("customer's sKUs"),
                 'pageHead'                                                 => [
                     'title'         => $title,
                     'model'         => __('Inventory'),
@@ -128,7 +128,7 @@ class IndexStoredItemsInWarehouse extends OrgAction
                                 'name'       => 'grp.org.hr.employees.create',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
-                            'label' => __('stored items')
+                            'label' => __("customer's sKUs")
                         ]
                     ],
                 ],
@@ -178,7 +178,7 @@ class IndexStoredItemsInWarehouse extends OrgAction
                                 'warehouse'    => $routeParameters['warehouse'],
                             ]
                         ],
-                        'label' => __('Stored items'),
+                        'label' => __("Customer's sKUs"),
                         'icon'  => 'fal fa-bars',
                     ],
 

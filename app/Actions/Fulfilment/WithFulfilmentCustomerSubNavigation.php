@@ -75,10 +75,10 @@ trait WithFulfilmentCustomerSubNavigation
                         'parameters' => $request->route()->originalParameters()
                     ],
 
-                    'label'     => __('Stored Items'),
+                    'label'     => __("Customer'S SKUs"),
                     'leftIcon'  => [
                         'icon'    => 'fal fa-narwhal',
-                        'tooltip' => __('Stored Items'),
+                        'tooltip' => __("Customer'S SKUs"),
                     ],
                     'number' => $fulfilmentCustomer->number_stored_items
 
