@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 10-01-2025-15h-08m
@@ -13,9 +14,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class RetinaRentalAgreementResource extends JsonResource
 {
-    
     public static $wrap = null;
-    
+
     public function toArray($request): array
     {
         /** @var RentalAgreement $rentalAgreement */

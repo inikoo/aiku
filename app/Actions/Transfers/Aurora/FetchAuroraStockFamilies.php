@@ -22,42 +22,51 @@ class FetchAuroraStockFamilies extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?StockFamily
     {
-        if ($stockFamilyData = $organisationSource->fetchStockFamily($organisationSourceId)) {
-            if ($baseStockFamily = StockFamily::withTrashed()->where('source_slug', $stockFamilyData['stock_family']['source_slug'])->first()) {
-                if ($stockFamily = StockFamily::where('source_id', $stockFamilyData['stock_family']['source_id'])
-                    ->first()) {
-                    $stockFamily = UpdateStockFamily::make()->action(
-                        stockFamily: $stockFamily,
-                        modelData: $stockFamilyData['stock_family'],
-                        hydratorsDelay: 60,
-                        strict: false,
-                        audit: false
-                    );
-                }
-            } else {
-                $stockFamily = StoreStockFamily::make()->action(
-                    group: $organisationSource->getOrganisation()->group,
-                    modelData: $stockFamilyData['stock_family'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                    audit: false
-                );
-            }
+        $stockFamilyData = $organisationSource->fetchStockFamily($organisationSourceId);
 
-            $organisation = $organisationSource->getOrganisation();
 
-            $effectiveStockFamily = $stockFamily ?? $baseStockFamily;
-
-            if (!$effectiveStockFamily->orgStockFamilies()->where('organisation_id', $organisation->id)->first()) {
-                StoreOrgStockFamily::run($organisation, $effectiveStockFamily, [
-                    'source_id' => $stockFamilyData['stock_family']['source_id'],
-                ]);
-            }
-
-            return $effectiveStockFamily;
+        if (!$stockFamilyData) {
+            return null;
         }
 
-        return null;
+
+        if ($stockFamily = StockFamily::where('source_id', $stockFamilyData['stock_family']['source_id'])->first()) {
+            return UpdateStockFamily::make()->action(
+                stockFamily: $stockFamily,
+                modelData: $stockFamilyData['stock_family'],
+                hydratorsDelay: 60,
+                strict: false,
+                audit: false
+            );
+        }
+
+
+        $baseStockFamily = StockFamily::withTrashed()->where('source_slug', $stockFamilyData['stock_family']['source_slug'])->first();
+
+        if (!$baseStockFamily) {
+
+            $stockFamily = StoreStockFamily::make()->action(
+                group: $organisationSource->getOrganisation()->group,
+                modelData: $stockFamilyData['stock_family'],
+                hydratorsDelay: 60,
+                strict: false,
+                audit: false
+            );
+        }
+
+        $organisation = $organisationSource->getOrganisation();
+
+        $effectiveStockFamily = $stockFamily ?? $baseStockFamily;
+
+
+
+        if (!$effectiveStockFamily->orgStockFamilies()->where('organisation_id', $organisation->id)->first()) {
+            StoreOrgStockFamily::run($organisation, $effectiveStockFamily, [
+                'source_id' => $stockFamilyData['stock_family']['source_id'],
+            ]);
+        }
+
+        return $effectiveStockFamily;
     }
 
 

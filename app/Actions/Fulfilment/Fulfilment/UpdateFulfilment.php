@@ -64,7 +64,7 @@ class UpdateFulfilment extends OrgAction
             'vat_number',
             'image',
         ]);
-    
+
         $modelData = Arr::except($modelData, array_keys($shopData));
 
         $fulfilment = $this->update($fulfilment, $modelData, ['settings']);

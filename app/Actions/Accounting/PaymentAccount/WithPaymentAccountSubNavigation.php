@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 10-01-2025-09h-06m
@@ -9,8 +10,6 @@
 namespace App\Actions\Accounting\PaymentAccount;
 
 use App\Models\Accounting\PaymentAccount;
-use App\Models\Catalogue\Shop;
-use App\Models\Web\Website;
 
 trait WithPaymentAccountSubNavigation
 {

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 10-01-2025-14h-11m
@@ -61,7 +62,8 @@ class IndexRetinaAssets extends RetinaAction
                 'currency'     => CurrencyResource::make($fulfilmentCustomer->fulfilment->shop->currency),
 
                 'assets' => $assets
-            ]);
+            ]
+        );
     }
 
     public function getBreadcrumbs(string $routeName): array

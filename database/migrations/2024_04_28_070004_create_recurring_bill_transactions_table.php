@@ -22,7 +22,6 @@ return new class () extends Migration {
             $table->increments('id');
             $table = $this->groupOrgRelationship($table);
             $table->unsignedInteger('recurring_bill_id')->index();
-            $table->foreign('recurring_bill_id')->references('id')->on('recurring_bills');
             $table->unsignedInteger('fulfilment_id')->index();
             $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
             $table->unsignedInteger('fulfilment_customer_id')->index();
@@ -46,17 +45,12 @@ return new class () extends Migration {
             $table->string('source_id')->nullable()->index();
         });
 
-        Schema::table('invoice_transactions', function (Blueprint $table) {
-            $table->foreign('recurring_bill_transaction_id')->references('id')->on('recurring_bill_transactions');
-        });
+
     }
 
 
     public function down(): void
     {
-        Schema::table('invoice_transactions', function (Blueprint $table) {
-            $table->dropForeign('recurring_bill_transaction_id_foreign');
-        });
 
         Schema::dropIfExists('recurring_bill_transactions');
     }

@@ -19,20 +19,20 @@ enum FulfilmentCustomerTabsEnum: string
     case SHOWCASE      = 'showcase';
     case AGREED_PRICES = 'agreed_prices';
     case HISTORY       = 'history';
-/*     case ATTACHMENTS   = 'attachments';
-    case WEBHOOK       = 'webhook'; */
+    /*     case ATTACHMENTS   = 'attachments';
+        case WEBHOOK       = 'webhook'; */
     case NOTE          = 'note';
 
 
     public function blueprint(): array
     {
         return match ($this) {
-           /*  FulfilmentCustomerTabsEnum::ATTACHMENTS => [
-                'align' => 'right',
-                'title' => __('attachments'),
-                'icon'  => 'fal fa-paperclip',
-                'type'  => 'icon'
-            ], */
+            /*  FulfilmentCustomerTabsEnum::ATTACHMENTS => [
+                 'align' => 'right',
+                 'title' => __('attachments'),
+                 'icon'  => 'fal fa-paperclip',
+                 'type'  => 'icon'
+             ], */
             FulfilmentCustomerTabsEnum::HISTORY => [
                 'align' => 'right',
                 'type'  => 'icon',

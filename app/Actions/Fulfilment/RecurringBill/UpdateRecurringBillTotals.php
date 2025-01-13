@@ -23,7 +23,7 @@ class UpdateRecurringBillTotals extends OrgAction
         $taxRate      = $recurringBill->taxCategory->rate;
 
 
-        $recurringBill=HydrateRecurringBillTransactionRentalQuantity::run($recurringBill);
+        $recurringBill = HydrateRecurringBillTransactionRentalQuantity::run($recurringBill);
 
 
         $rentalNet    = $transactions->where('item_type', 'Pallet')->sum('net_amount');
