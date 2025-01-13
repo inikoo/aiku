@@ -140,4 +140,40 @@ trait WithDashboard
 
     }
 
+    public function calculatePercentageIncrease($thisYear, $lastYear): ?float
+    {
+        if ($lastYear == 0) {
+            return $thisYear > 0 ? null : 0;
+        }
+
+        return (($thisYear - $lastYear) / $lastYear) * 100;
+    }
+
+    protected function getIntervalPercentage($intervalData, string $prefix, $key): array
+    {
+        $result = [];
+
+        if ($key == 'all') {
+            $result = [
+                'amount' => $intervalData->{$prefix . '_all'} ?? null,
+            ];
+            return $result;
+        }
+
+        $result = [
+            'amount'     => $intervalData->{$prefix . '_' . $key} ?? null,
+            'percentage' => isset($intervalData->{$prefix . '_' . $key}, $intervalData->{$prefix . '_' . $key . '_ly'})
+                ? $this->calculatePercentageIncrease(
+                    $intervalData->{$prefix . '_' . $key},
+                    $intervalData->{$prefix . '_' . $key . '_ly'}
+                )
+                : null,
+            'difference' => isset($intervalData->{$prefix . '_' . $key}, $intervalData->{$prefix . '_' . $key . '_ly'})
+                ? $intervalData->{$prefix . '_' . $key} - $intervalData->{$prefix . '_' . $key . '_ly'}
+                : null,
+        ];
+
+        return $result;
+    }
+
 }
