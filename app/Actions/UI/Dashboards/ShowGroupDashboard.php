@@ -121,9 +121,28 @@ class ShowGroupDashboard extends OrgAction
         // $data = $this->getDataDashboard($group, $selectedInterval);
 
         $organisations = $group->organisations()->where('type', '!=', 'agent')->get();
+        $orgCurrencies = [];
+        foreach ($group->organisations as $organisation) {
+            $orgCurrencies[] = $organisation->currency->symbol;
+        }
+        $orgCurrenciesSymbol = implode('/', array_unique($orgCurrencies));
+
         $dashboard = [
             'interval_options'  => $this->getIntervalOptions(),
-            'settings' => $userSettings,
+            'settings' => [
+                'db_settings'   => auth()->user()->settings,
+                'key_currency'  => 'grp',  // 'org'
+                'options_currency'  => [
+                    [
+                        'value' => 'grp',
+                        'label' => $group->currency->symbol,
+                    ],
+                    [
+                        'value' => 'org',
+                        'label' => $orgCurrenciesSymbol,
+                    ]
+                ]
+            ],
             'table' => [],
             'widgets' => [
                 'column_count'    => $organisations->count(),
