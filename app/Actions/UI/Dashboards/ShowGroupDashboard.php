@@ -78,6 +78,14 @@ class ShowGroupDashboard extends OrgAction
             }),
         ];
 
+        // 
+        $orgCurrencies = [];
+        foreach ($group->organisations as $organisation) {
+            $orgCurrencies[] = $organisation->currency->symbol;
+        }
+        $orgCurrenciesSymbol = implode('/', array_unique($orgCurrencies));
+
+
         return Inertia::render(
             'Dashboard/GrpDashboard',
             [
@@ -86,7 +94,20 @@ class ShowGroupDashboard extends OrgAction
                 'interval_options'  => $this->getIntervalOptions(),
                 'dashboard_stats' => [
                     'interval_options'  => $this->getIntervalOptions(),
-                    'settings' => auth()->user()->settings,
+                    'settings' => [
+                        'db_settings'   => auth()->user()->settings,
+                        'key_currency'  => 'grp',  // 'org'
+                        'options_currency'  => [
+                            [
+                                'value' => 'grp',
+                                'label' => $group->currency->symbol,
+                            ],
+                            [
+                                'value' => 'org',
+                                'label' => $orgCurrenciesSymbol,
+                            ]
+                        ]
+                    ],
                     'widgets' => [
                         'column_count'    => 4,
                         'components'    => [

@@ -3,6 +3,8 @@ import { inject, ref } from "vue"
 import { router } from "@inertiajs/vue3"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
+import ToggleSwitch from "primevue/toggleswitch"
+import { get } from "lodash"
 
 const props = defineProps<{
 	groupCurrencySymbol: string
@@ -11,7 +13,16 @@ const props = defineProps<{
 		value: string
 	}[]
 	settings: {
-		selected_interval: string
+		db_settings: {
+			selected_interval?: string
+			selected_currency_in_grp?: string
+			selected_currency_in_org?: string
+		}
+		key_currency?: string
+		options_currency: {
+			value: string
+			label: string
+		}[]
 	}
 
 	dashboard: any
@@ -40,26 +51,51 @@ const updateInterval = (interval_code: string) => {
 		preserveScroll: true,
 	})
 }
+
+// Section: Currency
+const isLoadingCurrency = ref<boolean>(false)
+const updateCurrency = (currency_scope: string) => {
+	router.patch(route("grp.models.user.update", layout.user?.id), {
+		settings: {
+			[`selected_currency_in_${props.settings?.key_currency || 'grp'}`]: currency_scope,
+		},
+	}, {
+		onStart: () => {
+			isLoadingCurrency.value = true
+		},
+		onFinish: () => {
+			isLoadingCurrency.value = false
+		},
+		preserveScroll: true,
+	})
+}
 </script>
 
 <template>
 	<div class="relative mt-2 asdzxc">
-		<!-- Section Setting -->
+		<pre>{{ settings.db_settings }}</pre>
+
+		<!-- Section: Currency -->
 		<div class="flex justify-end items-center space-x-4">
-			<p class="font-medium" :class="{ 'opacity-60': isOrganisation }">
-				{{ dashboard?.currency?.symbol }}
+			<p class="font-medium" :class="[settings.options_currency[0].value == get(settings, ['db_settings', `selected_currency_in_${settings.key_currency}`], '') ? '' : 'opacity-50']">
+				{{ settings.options_currency[0].label }}
 			</p>
 
 			<ToggleSwitch
-				:modelValue="isOrganisation"
+				:modelValue="get(settings, ['db_settings', `selected_currency_in_${settings.key_currency}`], '')"
+				@update:modelValue="(e: string) => updateCurrency(e)"
 				class="mx-2"
-				@change="$emit('toggle-currency')" />
+				:disabled="isLoadingCurrency"
+				:trueValue="settings.options_currency[1].value"
+				:falseValue="settings.options_currency[0].value"
+			/>
 
-			<p class="font-medium" :class="{ 'opacity-60': !isOrganisation }">
-				{{ organisationSymbols }}
+			<p class="font-medium" :class="[settings.options_currency[1].value == get(settings, ['db_settings', `selected_currency_in_${settings.key_currency}`], '') ? '' : 'opacity-50']">
+				{{ settings.options_currency[1].label }}
 			</p>
 		</div>
 
+		<!-- Section: Interval -->
 		<nav class="isolate flex rounded-full bg-white-50 border border-gray-200 p-1"
 			aria-label="Tabs">
 			<div
