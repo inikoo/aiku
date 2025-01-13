@@ -5,7 +5,6 @@
   -->
 
 <script setup lang="ts">
-import { Link } from "@inertiajs/vue3"
 import Table from "@/Components/Table/Table.vue"
 import Icon from "@/Components/Icon.vue"
 import StoredItemProperty from '@/Components/StoredItemsProperty.vue'
@@ -14,7 +13,7 @@ import { Pallet } from "@/types/Pallet"
 import { useFormatTime } from '@/Composables/useFormatTime'
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import Popover from '@/Components/Popover.vue'
-
+import { Link } from "@inertiajs/vue3"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faTrashAlt } from "@far"
 import { faCheckCircle } from "@fas"
@@ -32,10 +31,27 @@ const props = defineProps<{
     tab?: string
 }>()
 
+function storedItemAuditRoute(storedItemAudit: {}) {
+    switch (route().current()) {
+        case "grp.org.fulfilments.show.crm.customers.show.stored-item-audits.index":
+            return route(
+                "grp.org.fulfilments.show.crm.customers.show.stored-item-audits.show",
+                [route().params["organisation"], route().params["fulfilment"], route().params["fulfilmentCustomer"], storedItemAudit.slug])
+        default:
+            return ''
+    }
+}
 </script>
+
+
 
 <template>
     <!-- <pre>{{ props.data.data[0] }}</pre> -->
     <Table :resource="data" :name="tab" class="mt-5">
+        <template #cell(reference)="{ item: storedItemAudit }">
+            <Link :href="storedItemAuditRoute(storedItemAudit)" class="primaryLink">
+                {{ storedItemAudit.reference }}
+            </Link>
+        </template>
     </Table>
 </template>
