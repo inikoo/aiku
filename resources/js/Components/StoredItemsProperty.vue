@@ -105,7 +105,7 @@ const sendToServer = async (data : {}) => {
             <Button v-if="editable" icon="fal fa-plus" @click="setFormOnCreate" :type="'dashed'" :size="'xs'"/>
         </div>
 
-        <Modal :isOpen="isModalOpen" @onClose="isModalOpen = true" width="w-[600px]">
+        <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-[600px]">
             <div class="space-y-4">
                 <CreateStoredItems
                     :storedItemsRoute="storedItemsRoute"
