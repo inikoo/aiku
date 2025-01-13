@@ -68,12 +68,9 @@ class IndexStoredItems extends RetinaAction
                         'description'   => __("No items stored in any pallets")
                     ]
                 )
-                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'customer_name', label: __('Customer Name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'location', label: __('Location'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'state', label: __('State'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'status', label: __('Status'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'notes', label: __('Notes'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'location', label: __('Location'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('slug');
         };
     }
@@ -93,7 +90,7 @@ class IndexStoredItems extends RetinaAction
     public function htmlResponse(LengthAwarePaginator $storedItems, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Fulfilment/StoredItems',
+            'Storage/RetinaStoredItems',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('stored items'),
@@ -132,7 +129,7 @@ class IndexStoredItems extends RetinaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'grp.fulfilment.stored-items.index'
+                            'name' => 'retina.storage.stored-items.index'
                         ],
                         'label' => __('stored items'),
                         'icon'  => 'fal fa-bars',
