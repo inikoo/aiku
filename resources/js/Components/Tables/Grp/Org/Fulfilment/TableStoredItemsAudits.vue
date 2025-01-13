@@ -31,36 +31,9 @@ library.add(faTrashAlt, faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDou
 
 
 const props = defineProps<{
-    data: {
-        data: {}[]
-        links: Links
-        meta: Meta
-    },
-    storedItemsRoute: {
-        store: routeType
-        index: routeType
-        delete: routeType
-    },
+    data: {},
     tab?: string
 }>()
-
-function palletRoute(pallet: Pallet) {
-    switch (route().current()) {
-        case "grp.org.fulfilments.show.crm.customers.show.stored-item-audits.index":
-            return route(
-                "grp.org.fulfilments.show.crm.customers.show.pallets.show",
-                [
-                    route().params["organisation"],
-                    route().params["fulfilment"],
-                    route().params["fulfilmentCustomer"],
-                    pallet.slug
-                ])
-
-        default:
-            return []
-    }
-}
-
 
 </script>
 
