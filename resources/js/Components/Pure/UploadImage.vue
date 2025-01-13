@@ -26,6 +26,7 @@ const props = withDefaults(
 	defineProps<{
 		modelValue: any
 		uploadRoutes: routeType
+		description?: string 
 	}>(),
 	{}
 )
@@ -178,7 +179,7 @@ watch(
 	<div class="mt-8">
 		<div class="flex justify-between mb-2 text-gray-500 text-xs font-semibold">
 			<!-- <div>Image URL</div> -->
-			<div>100 x 250</div>
+			<div v-if="props.description" >{{ props.description }}</div>
 		</div>
 		<!-- <IconField>
 			<InputIcon>

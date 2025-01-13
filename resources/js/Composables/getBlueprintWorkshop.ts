@@ -22,6 +22,7 @@ import TextBlueprint from '@/Components/CMS/Webpage/Text/Blueprint'
 import ScriptBlueprint from '@/Components/CMS/Webpage/Script/Blueprint'
 import WowsbarBannerBlueprint from '@/Components/CMS/Webpage/WowsbarBanner/Blueprint'
 import SeeAlsoBlueprint from '@/Components/CMS/Webpage/SeeAlso/Blueprint'
+import TextColumn from '@/Components/CMS/Webpage/TextColumn/Blueprint'
 
 export const getBlueprint = (componentName: string) => {
     const components: Component = {
@@ -36,11 +37,13 @@ export const getBlueprint = (componentName: string) => {
         'cta1': CTABlueprint.blueprint,
         'cta2': CTA2Blueprint.blueprint,
         'cta3': CTA3Blueprint.blueprint,
+        'text-column' : TextColumn.blueprint,
    /*      "department": .blueprint,
         'family': FamilyPageOffer.blueprint, */
         "iframe": IframeBlueprint.blueprint,
         'images': ImageBlueprint.blueprint,
         "overview_aurora": OverviewBlueprint.blueprint,
+
 /*         'product': ProductPage.blueprint,
         'products': .blueprint, */
         "script": ScriptBlueprint.blueprint,

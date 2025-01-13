@@ -16,8 +16,8 @@ const toggleVisibility = (key: 'in' | 'out') => {
 </script>
 
 <template>
-    <div class="border-b pb-3 border-gray-300 mb-5 px-2 grid">
-        <div class="my-2 text-gray-500 font-semibold text-lg">{{ trans('Visibility') }}</div>
+    <div class=" pb-3 border-gray-300 mb-5 px-2 grid">
+        <div  class="w-full my-2 text-start py-1 font-semibold select-none text-sm border-b border-gray-300 pb-1 mb-3">{{ trans('Visibility') }}</div>
         <!-- <div class="border-l-2 border-gray-300 h-6 mx-4"></div> Vertical Line -->
         <div class="flex gap-x-8">
             <div class="flex items-center">

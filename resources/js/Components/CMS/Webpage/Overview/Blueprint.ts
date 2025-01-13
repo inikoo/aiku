@@ -1,6 +1,22 @@
 export default {
 	blueprint: [
 		{
+			name: "Texts",
+			key: ["texts","values"],
+			type: "overview-property",
+			props_data: {
+				type : 'text'
+			},
+		},
+		{
+			name: "Images",
+			key: ["images"],
+			type: "overview-property",
+			props_data: {
+				type : 'image'
+			},
+		},
+		{
 			name: "Properties",
 			key: ["container", "properties"],
 			replaceForm: [

@@ -8,6 +8,8 @@ import { getFormValue } from '@/Composables/SideEditorHelper'
 import { set as setLodash, get, cloneDeep } from 'lodash'
 
 import { routeType } from '@/types/route'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faCaretDown, faCaretLeft, faCaretRight, faCaretUp } from '@fas'
 
 const props = defineProps<{
     blueprint: {
@@ -82,6 +84,12 @@ onMounted(() => {
 <template>
     <div v-for="(field, index) of blueprint.filter((item) => item.type != 'hidden')">
         <Accordion class="w-full" v-model="openPanel">
+            <template #collapseicon>
+                <FontAwesomeIcon :icon="faCaretDown" class="text-white"></FontAwesomeIcon>
+            </template>
+            <template #expandicon>
+                <FontAwesomeIcon :icon="faCaretLeft" class="text-black"></FontAwesomeIcon>
+            </template>
             <ParentFieldSideEditor 
                 :blueprint="field" 
                 :uploadImageRoute="uploadImageRoute" 
