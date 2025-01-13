@@ -22,14 +22,15 @@ console.log('sd',route().current())
 const emit = defineEmits(["close", "update"]);
 
 function getRoute() {
-	if (route().current().includes('fulfilments')) {
+    console.log(route().current())
+	if (route().current().includes('fulfilments') || route().params['fulfilment']) {
 		return route('grp.org.fulfilments.show.web.webpages.index', {
 			organisation: route().params['organisation'],
 			fulfilment: route().params['fulfilment'],
 			website: route().params['website'],
 		})
 
-	} else if (route().current().includes('shop')) {
+	} else if (route().current().includes('shop') || route().params['shop']) {
 		return route('grp.org.shops.show.web.webpages.index', {
 			organisation: route().params['organisation'],
 			shop: route().params['shop'],
