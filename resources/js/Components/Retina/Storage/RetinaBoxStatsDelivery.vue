@@ -155,7 +155,7 @@ const disableBeforeToday = (date: Date) => {
         <BoxStatPallet class="sm:col-span-2 border-t sm:border-t-0 border-gray-300">
             <section aria-labelledby="summary-heading" class="rounded-lg px-4 py-4 sm:px-6 lg:mt-0">
 
-                <OrderSummary :order_summary="box_stats.order_summary" />
+                <OrderSummary :order_summary="box_stats.order_summary" :currency_code="box_stats?.order_summary?.currency?.data?.code"/>
 
                 <!-- <div class="mt-6">
                     <button type="submit"
