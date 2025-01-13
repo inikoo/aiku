@@ -29,7 +29,7 @@ class IndexStoredItemAudits extends OrgAction
 {
     use HasFulfilmentAssetsAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
-    
+
     private FulfilmentCustomer|Fulfilment $parent;
 
     public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
