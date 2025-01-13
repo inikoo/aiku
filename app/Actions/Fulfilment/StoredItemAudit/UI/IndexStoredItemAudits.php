@@ -20,6 +20,7 @@ use App\Models\Fulfilment\StoredItemAudit;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
+use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -108,7 +109,38 @@ class IndexStoredItemAudits extends OrgAction
 
 
             ]
-        );
+        )->table($this->tableStructure($this->parent));
+    }
+
+    public function tableStructure(
+        FulfilmentCustomer|Fulfilment $parent,
+        ?array $modelOperations = null,
+        $prefix = null,
+        $canEdit = false
+    ): Closure {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
+            if ($prefix) {
+                $table->name($prefix)->pageName($prefix.'Page');
+            }
+
+
+            $table
+                ->withGlobalSearch()
+                ->withModelOperations($modelOperations)
+                ->withEmptyState(
+                    match (class_basename($parent)) {
+                        'Group' => [
+                            'title' => __("No post rooms found"),
+                            'count' => $parent->commsStats->number_org_post_rooms,
+                        ],
+                        default => null
+                    }
+                );
+
+            $table
+                ->column(key: 'state', label: __('State'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'reference', label: __('Reference'), canBeHidden: false, sortable: true, searchable: true);
+        };
     }
 
 

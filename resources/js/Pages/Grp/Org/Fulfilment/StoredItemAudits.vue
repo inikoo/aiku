@@ -11,7 +11,7 @@
   import BoxNote from "@/Components/Pallet/BoxNote.vue"
   import BoxAuditStoredItems from '@/Components/Box/BoxAuditStoredItems.vue'
 
-  import { PageHeading as PageHeadingTypes } from "@/types/PageHeading"
+  import { PageHeading as TSPageHeading } from '@/types/PageHeading'
   import { library } from "@fortawesome/fontawesome-svg-core"
   import TableStoredItemsAudits from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemsAudits.vue"
 
@@ -22,22 +22,9 @@
   library.add( faStickyNote, )
 
   const props = defineProps<{
-      data: {
-        data : PalletDelivery
-      }
-      storedItemsRoute: {
-        store: routeType
-        index: routeType
-        delete: routeType
-      }
-      title: string
-      pageHead: PageHeadingTypes
-      notes_data : any
-      pallets : any
-      fulfilment_customer : any
-      route : {
-        update : routeType
-      }
+    title: string
+    pageHead: TSPageHeading
+    data: {}
   }>()
   console.log(props)
   </script>
@@ -46,10 +33,10 @@
 
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
-    <div class="grid grid-cols-2 h-fit lg:max-h-64 w-full lg:justify-center border-b border-gray-300">
+    <!-- <div class="grid grid-cols-2 h-fit lg:max-h-64 w-full lg:justify-center border-b border-gray-300">
         <BoxNote v-for="(note, index) in notes_data" :key="index + note.label" :noteData="note" :updateRoute="route.update" />
     </div>
-    <BoxAuditStoredItems :auditData="data.data" :boxStats="fulfilment_customer" />
-    <TableStoredItemsAudits :data="pallets" tab="pallets" :storedItemsRoute="storedItemsRoute" />
+    <BoxAuditStoredItems :auditData="data.data" :boxStats="fulfilment_customer" /> -->
+    <TableStoredItemsAudits :data="data" />
 
 </template>
