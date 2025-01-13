@@ -88,7 +88,7 @@ trait WithDashboard
                 $dashboard['widgets']['column_count']++;
                 $responseData['interval_percentages']['sales'] = $this->getIntervalPercentage(
                     $subModel->salesIntervals,
-                    'sales_org_currency',
+                    'sales_'.$selectedCurrency.'_currency',
                     $selectedInterval,
                 );
                 $amount = $responseData['interval_percentages']['sales']['amount'];
@@ -130,7 +130,7 @@ trait WithDashboard
             return $responseData;
         })->toArray();
 
-        $dashboard['table']['total'] = [
+        $dashboard['total'] = [
             'total_sales'    => $subModelData->sum(fn ($data) => $data->salesIntervals?->{"sales_org_currency_" . $selectedInterval} ?? 0),
             'total_invoices' => $subModelData->sum(fn ($data) => $data->orderingIntervals?->{"invoices_{$selectedInterval}"} ?? 0),
             'total_refunds'  => $subModelData->sum(fn ($data) => $data->orderingIntervals?->{"refunds_{$selectedInterval}"} ?? 0),
