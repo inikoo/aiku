@@ -23,7 +23,6 @@ class ShowGroupDashboard extends OrgAction
     {
 
         $userSettings = auth()->user()->settings;
-
         return Inertia::render(
             'Dashboard/GrpDashboard',
             [
@@ -196,6 +195,12 @@ class ShowGroupDashboard extends OrgAction
 
             return $responseData;
         });
+
+        $dashboard['table']['total'] = [
+            'total_sales'    => $group->organisations->sum(fn ($organisations) => $organisations->salesIntervals?->{"sales_org_currency_" . $selectedInterval} ?? 0),
+            'total_invoices' => $group->organisations->sum(fn ($organisations) => $organisations->orderingIntervals?->{"invoices_{$selectedInterval}"} ?? 0),
+            'total_refunds'  => $group->organisations->sum(fn ($organisations) => $organisations->orderingIntervals?->{"refunds_{$selectedInterval}"} ?? 0),
+        ];
 
         return $dashboard;
 
