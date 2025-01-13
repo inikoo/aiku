@@ -9,7 +9,7 @@ import Table from "@/Components/Table/Table.vue"
 import { inject } from 'vue'
 import Tag from '@/Components/Tag.vue'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-
+import { Link, router } from "@inertiajs/vue3"
 library.add(faTag)
 
 const props = defineProps<{
@@ -37,13 +37,17 @@ const props = defineProps<{
 }>()
 
 const locale = inject('locale', aikuLocaleStructure)
-
 </script>
 
 <template>
     <!-- <pre>{{ data.data[0] }}</pre> -->
 
     <Table :resource="data" :name="tab" class="mt-5" :is-check-box="false">
+        <template #cell(item_name)="{ item }">
+            <Link :href="route(item.route.name, item.route.parameters)" class="primaryLink">
+                {{ item['item_name'] }}
+            </Link>
+        </template>
         <template #cell(asset_price)="{ item }">
             {{ locale.currencyFormat(item.currency_code, item.asset_price || 0) }}/{{ item.unit_label }}
             <Tag v-if="item['discount'] > 0" :theme="17">
