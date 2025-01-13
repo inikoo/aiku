@@ -9,17 +9,14 @@
 use App\Actions\Accounting\Invoice\PdfInvoice;
 use App\Actions\Retina\Billing\IndexInvoices;
 use App\Actions\Retina\Billing\ShowInvoice;
-use App\Actions\Retina\Storage\RecurringBill\UI\IndexRecurringBills;
-use App\Actions\Retina\Storage\RecurringBill\UI\ShowRecurringBill;
+use App\Actions\Retina\Storage\RecurringBill\UI\ShowRetinaCurrentRecurringBill;
 use App\Actions\UI\Retina\Billing\UI\ShowRetinaBillingDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/dashboard', ShowRetinaBillingDashboard::class)->name('dashboard');
 
-Route::prefix('recurring')->as('recurring.')->group(function () {
-    Route::get('/', IndexRecurringBills::class)->name('index');
-    Route::get('{recurringBill}', ShowRecurringBill::class)->name('show');
-});
+Route::get('next-bill', ShowRetinaCurrentRecurringBill::class)->name('next_recurring_bill');
+
 
 Route::prefix('invoices')->as('invoices.')->group(function () {
     Route::get('/', [IndexInvoices::class, 'inRetina'])->name('index');

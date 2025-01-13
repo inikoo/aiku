@@ -19,17 +19,7 @@ class GetRetinaFulfilmentNavigation
     {
         $groupNavigation = [];
 
-        //        $groupNavigation['dashboard'] = [
-        //            'label'   => __('Dashboard'),
-        //            'icon'    => ['fal', 'fa-tachometer-alt'],
-        //            'root'    => 'retina.dashboard.',
-        //            'route'   => [
-        //                'name' => 'retina.dashboard.show'
-        //            ],
-        //            'topMenu' => [
-        //
-        //            ]
-        //        ];
+
 
         $additionalSubsections = [];
 
@@ -72,6 +62,14 @@ class GetRetinaFulfilmentNavigation
                         ]
                     ],
                     ...$additionalSubsections,
+                    [
+                        'label' => __('assets'),
+                        'icon'  => ['fal', 'fa-ballot'],
+                        'root'  => 'retina.storage.assets.',
+                        'route' => [
+                            'name'       => 'retina.storage.assets.index'
+                        ]
+                    ],
                     // [
                     //     'label' => __('stored item return'),
                     //     'icon'  => ['fal', 'fa-truck-couch'],
@@ -126,11 +124,11 @@ class GetRetinaFulfilmentNavigation
                 'topMenu' => [
                     'subSections' => [
                         [
-                            'label' => __('recurring bills'),
+                            'label' => __('next bill'),
                             'icon'  => ['fal', 'fa-receipt'],
-                            'root'  => 'retina.billing.recurring.',
+                            'root'  => 'retina.billing.next_recurring_bill',
                             'route' => [
-                                'name' => 'retina.billing.recurring.index',
+                                'name' => 'retina.billing.next_recurring_bill',
 
                             ]
                         ],

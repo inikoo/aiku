@@ -4,7 +4,6 @@
 	"code": "header-1",
 	"name": "Header 1",
 	"component": "header",
-	"blueprint": [],
 	"data": {
 		"fieldValue": {
 			"container": {

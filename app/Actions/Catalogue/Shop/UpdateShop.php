@@ -12,6 +12,7 @@ use App\Actions\Goods\MasterShop\Hydrators\MasterShopHydrateShops;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateUniversalSearch;
+use App\Actions\Helpers\Media\SaveModelImage;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateShops;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateShops;
 use App\Actions\Traits\Rules\WithNoStrictRules;
@@ -28,6 +29,7 @@ use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
+use Illuminate\Validation\Rules\File;
 
 class UpdateShop extends OrgAction
 {
@@ -55,14 +57,32 @@ class UpdateShop extends OrgAction
             $shop = $this->updateModelAddress($shop, $addressData);
         }
 
+        if (Arr::has($modelData, 'image')) {
+            /** @var UploadedFile $image */
+            $image = Arr::get($modelData, 'image');
+            data_forget($modelData, 'image');
+            $imageData = [
+                'path'         => $image->getPathName(),
+                'originalName' => $image->getClientOriginalName(),
+                'extension'    => $image->getClientOriginalExtension(),
+            ];
+            $shop      = SaveModelImage::run(
+                model: $shop,
+                imageData: $imageData,
+                scope: 'avatar'
+            );
+        }
+
         foreach ($modelData as $key => $value) {
             data_set(
                 $modelData,
                 match ($key) {
-                    'shopify_shop_name' => 'settings.shopify.shop_name',
-                    'shopify_api_key' => 'settings.shopify.api_key',
-                    'shopify_api_secret' => 'settings.shopify.api_secret',
-                    'shopify_access_token' => 'settings.shopify.access_token',
+                    'shopify_shop_name'     => 'settings.shopify.shop_name',
+                    'shopify_api_key'       => 'settings.shopify.api_key',
+                    'shopify_api_secret'    => 'settings.shopify.api_secret',
+                    'shopify_access_token'  => 'settings.shopify.access_token',
+                    'registration_number'   => 'data.registration_number',
+                    'vat_number'            => 'data.vat_number',
                     default => $key
                 },
                 $value
@@ -73,6 +93,8 @@ class UpdateShop extends OrgAction
         data_forget($modelData, 'shopify_api_key');
         data_forget($modelData, 'shopify_api_secret');
         data_forget($modelData, 'shopify_access_token');
+        data_forget($modelData, 'registration_number');
+        data_forget($modelData, 'vat_number');
 
         if (Arr::exists($modelData, 'collection_address')) {
             $collectionAddressData = Arr::get($modelData, 'collection_address');
@@ -164,6 +186,14 @@ class UpdateShop extends OrgAction
             'shopify_api_key'          => ['sometimes', 'string'],
             'shopify_api_secret'       => ['sometimes', 'string'],
             'shopify_access_token'     => ['sometimes', 'string'],
+            'registration_number'      => ['sometimes', 'string'],
+            'vat_number'               => ['sometimes', 'string'],
+            'image'       => [
+                'sometimes',
+                'nullable',
+                File::image()
+                    ->max(12 * 1024)
+            ]
         ];
 
         if (!$this->strict) {

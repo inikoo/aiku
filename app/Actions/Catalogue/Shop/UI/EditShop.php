@@ -8,11 +8,12 @@
 
 namespace App\Actions\Catalogue\Shop\UI;
 
+use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\Helpers\Country\UI\GetCountriesOptions;
 use App\Actions\Helpers\Currency\UI\GetCurrenciesOptions;
 use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
 use App\Actions\OrgAction;
-use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Exception;
@@ -20,7 +21,6 @@ use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Spatie\LaravelOptions\Options;
 
 class EditShop extends OrgAction
 {
@@ -89,16 +89,11 @@ class EditShop extends OrgAction
                                     'value'        => $shop->name,
                                     'required'     => true,
                                 ],
-                                'type' => [
-                                    'type'         => 'select',
-                                    'label'        => __('type'),
-                                    'value'        => $shop->type,
-                                    'placeholder'  => __('Select an option'),
-                                    'options'      => Options::forEnum(ShopTypeEnum::class),
-                                    'required'     => true,
-                                    'mode'         => 'single',
-                                    'searchable'   => true
-                                ]
+                                "image" => [
+                                    "type"  => "avatar",
+                                    "label" => __("Logo"),
+                                    "value" => $shop->imageSources(320, 320)
+                                ],
                             ]
                         ],
                         [
@@ -160,6 +155,24 @@ class EditShop extends OrgAction
                                     'type'  => 'phone',
                                     'label' => __('telephone'),
                                     'value' => $shop->phone,
+                                ],
+                                'address' => [
+                                    'type'    => 'address',
+                                    'label'   => __('Address'),
+                                    'value'   => AddressFormFieldsResource::make($shop->address)->getArray(),
+                                    'options' => [
+                                        'countriesAddressData' => GetAddressData::run()
+                                    ]
+                                ],
+                                'registration_number'        => [
+                                    'type'  => 'input',
+                                    'label' => __('registration number'),
+                                    'value' => $shop->data['registration_number'] ?? '',
+                                ],
+                                'vat_number'        => [
+                                    'type'  => 'input',
+                                    'label' => __('VAT number'),
+                                    'value' => $shop->data['vat_number'] ?? '',
                                 ],
                             ]
                         ]

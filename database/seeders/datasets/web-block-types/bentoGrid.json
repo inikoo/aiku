@@ -4,7 +4,6 @@
 	"code": "bento-grid-1",
 	"name": "Three column bento grid",
 	"icon": ["fal", "rectangle-wide"],
-	"blueprint": [],
 	"data": {
 		"fieldValue": {
 				"title": "<h3 style=\"text-align: center\"><span style=\"color: #a200ff\"><strong>Dep</strong></span><span style=\"color: #9900ff\"><strong>loy faster</strong></span></h3><h1 style=\"text-align: center\"><strong>Everything you need to deploy your app.</strong></h1>",

@@ -4,6 +4,7 @@ import { defineAsyncComponent } from 'vue'
 
 import Input from '@/Components/Forms/Fields/Input.vue'
 import Select from '@/Components/Forms/Fields/Select.vue'
+import SelectBillingCycle from '@/Components/Forms/Fields/SelectBillingCycle.vue'
 import Phone from '@/Components/Forms/Fields/Phone.vue'
 import Date from '@/Components/Forms/Fields/Date.vue'
 import DateRadio from '@/Components/Forms/Fields/DateRadio.vue'
@@ -65,6 +66,7 @@ export const componentsList: {[key: string]: Component} = {
     'rental': Agreement,
     'webRegistrations': WebRegistrations,
     'mailshotRecipient' : MailshotRecipient,
+    'select_billing_cycle': SelectBillingCycle,
 
     'action': Action,
     'theme': Theme,

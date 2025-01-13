@@ -26,10 +26,10 @@ const props = defineProps<{
         :style="getStyles(modelValue?.container?.properties)">
         <div
             class="w-full flex flex-col md:flex-row gap-4 md:gap-8 pt-2 pb-4 md:pb-6 mb-4 md:mb-10 border-0 border-b border-solid border-gray-700">
-            <div class="flex-1 flex items-center justify-center md:justify-start ">
-                    <img v-if="modelValue?.logo?.source && !isObject(modelValue.logo?.source)" :src="modelValue.logo.source"
+            <div v-if="modelValue?.logo" class="flex-1 flex items-center justify-center md:justify-start ">
+                <img v-if="modelValue?.logo?.source && !isObject(modelValue.logo?.source)" :src="modelValue.logo.source"
                     :alt="modelValue.logo.alt" class="h-auto max-h-20 w-auto min-w-16" />
-                <img v-else :src="modelValue?.logo?.source?.original" :alt="modelValue.logo.alt"
+                <img v-if="modelValue?.logo?.source?.original"  :src="modelValue?.logo?.source?.original" :alt="modelValue.logo.alt"
                     class="h-auto max-h-20 w-auto min-w-16">
             </div>
 

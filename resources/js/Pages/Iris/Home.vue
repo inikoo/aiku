@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { inject, ref } from 'vue'
 // import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheck, faPlus, faMinus } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -26,7 +26,8 @@ const props = defineProps<{
 defineOptions({ layout: LayoutIris })
 library.add(faCheck, faPlus, faMinus)
 
-const isPreviewLoggedIn = ref(false)
+const layout = inject('layout', {})
+const isPreviewLoggedIn = ref(layout.iris.is_logged_in)
 
 const showWebpage = (activityItem) => {
     if (activityItem?.web_block?.layout && activityItem.show) {
@@ -36,10 +37,12 @@ const showWebpage = (activityItem) => {
     } else return false
 }
 
+
+
 </script>
 
 <template>
-  <Head>
+    <Head>
     <title>{{ data.seotitle }}</title>
     <meta property="og:title" :content="data.seotitle " />
     <meta name="description" :content="data.seodescription">

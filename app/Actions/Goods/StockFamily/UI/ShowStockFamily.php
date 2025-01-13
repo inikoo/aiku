@@ -32,7 +32,6 @@ class ShowStockFamily extends GrpAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit   = $request->user()->hasPermissionTo("goods.{$this->group->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("goods.{$this->group->id}.edit");
 
         return $request->user()->hasPermissionTo("goods.{$this->group->id}.view");
     }
@@ -72,14 +71,6 @@ class ShowStockFamily extends GrpAction
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
-                        $this->canDelete ? [
-                            'type'  => 'button',
-                            'style' => 'delete',
-                            'route' => [
-                                'name'       => 'grp.goods.stock-families.remove',
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ]
-                        ] : false
                     ],
                     /*
                     'meta'    => [

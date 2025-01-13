@@ -10,6 +10,7 @@ namespace App\Actions\Accounting\Payment\UI;
 
 use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServiceProvider;
 use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
+use App\Actions\Accounting\PaymentAccount\WithPaymentAccountSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
@@ -36,6 +37,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPayments extends OrgAction
 {
+    use WithPaymentAccountSubNavigation;
     private Group|Organisation|PaymentAccount|Shop|OrgPaymentServiceProvider|Invoice $parent;
 
     public function handle(Group|Organisation|PaymentAccount|Shop|OrgPaymentServiceProvider|Invoice|Order $parent, $prefix = null): LengthAwarePaginator
@@ -236,6 +238,11 @@ class IndexPayments extends OrgAction
     {
         $routeName       = $request->route()->getName();
         $routeParameters = $request->route()->originalParameters();
+        $subNavigation   = null;
+
+        if ($this->parent instanceof PaymentAccount) {
+            $subNavigation = $this->getPaymentAccountNavigation($this->parent);
+        }
 
         return Inertia::render(
             'Org/Accounting/Payments',
@@ -246,6 +253,7 @@ class IndexPayments extends OrgAction
                 ),
                 'title'       => __('payments '),
                 'pageHead'    => [
+                    'subNavigation' => $subNavigation,
                     'icon'      => ['fal', 'fa-coins'],
                     'title'     => __('payments'),
                     'container' => match ($routeName) {

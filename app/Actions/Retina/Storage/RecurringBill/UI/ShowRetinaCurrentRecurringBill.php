@@ -8,15 +8,12 @@
 
 namespace App\Actions\Retina\Storage\RecurringBill\UI;
 
-use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Billing\UI\ShowRetinaBillingDashboard;
 use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\RecurringBillResource;
 use App\Http\Resources\Fulfilment\RecurringBillTransactionsResource;
-use App\Http\Resources\History\HistoryResource;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\StoredItem;
 use Inertia\Inertia;
@@ -26,13 +23,14 @@ use Lorisleiva\Actions\ActionRequest;
 /**
  * @property StoredItem $storedItem
  */
-class ShowRecurringBill extends RetinaAction
+class ShowRetinaCurrentRecurringBill extends RetinaAction
 {
     public function asController(RecurringBill $recurringBill, ActionRequest $request): RecurringBill
     {
         $this->initialisation($request)->withTab(RecurringBillTabsEnum::values());
+        $currentRecurringBill = $this->customer->fulfilmentCustomer->currentRecurringBill;
 
-        return $this->handle($recurringBill);
+        return $this->handle($currentRecurringBill);
     }
 
     public function handle(RecurringBill $recurringBill): RecurringBill
@@ -42,7 +40,6 @@ class ShowRecurringBill extends RetinaAction
 
     public function htmlResponse(RecurringBill $recurringBill, ActionRequest $request): Response
     {
-
         $navigation = RecurringBillTabsEnum::navigation();
         unset($navigation[RecurringBillTabsEnum::HISTORY->value]);
 
@@ -52,33 +49,31 @@ class ShowRecurringBill extends RetinaAction
         }
 
         $showGrossAndDiscount = $recurringBill->gross_amount !== $recurringBill->net_amount;
+
         return Inertia::render(
             'Billing/RetinaRecurringBill',
             [
                 'title'       => __('recurring bill'),
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                    $request->route()->originalParameters()
-                ),
+                'breadcrumbs' => $this->getBreadcrumbs(),
                 'pageHead'    => [
-                    'icon'          =>
+                    'icon'  =>
                         [
                             'icon'  => ['fa', 'fa-receipt'],
                             'title' => __('recurring bill')
                         ],
-                    'model'        => __('Recurring Bill'),
-                    'title'        => $recurringBill->slug
+                    'model' => __(' Bill'),
+                    'title' => $recurringBill->slug
                 ],
-                'timeline_rb'   => [
+                'timeline_rb' => [
                     'start_date' => $recurringBill->start_date,
                     'end_date'   => $recurringBill->end_date
                 ],
-                'status_rb'        => $recurringBill->status,
-                'box_stats'        => [
+                'status_rb'   => $recurringBill->status,
+                'box_stats'   => [
                     'customer'      => FulfilmentCustomerResource::make($recurringBill->fulfilmentCustomer),
                     'stats'         => [
-                        'number_pallets'         => $recurringBill->stats->number_transactions_type_pallets,
-                        'number_stored_items'    => $recurringBill->stats->number_transactions_type_stored_items,
+                        'number_pallets'      => $recurringBill->stats->number_transactions_type_pallets,
+                        'number_stored_items' => $recurringBill->stats->number_transactions_type_stored_items,
                     ],
                     'order_summary' => [
                         // [
@@ -92,9 +87,9 @@ class ShowRecurringBill extends RetinaAction
                         // ],
                         [
                             [
-                                'label'         => __('Pallets'),
-                                'price_base'    => __('Multiple'),
-                                'price_total'   => $recurringBill->rental_amount
+                                'label'       => __('Pallets'),
+                                'price_base'  => __('Multiple'),
+                                'price_total' => $recurringBill->rental_amount
                             ],
                             [
                                 'label'       => __('Services'),
@@ -115,43 +110,45 @@ class ShowRecurringBill extends RetinaAction
                         ],
                         $showGrossAndDiscount ? [
                             [
-                                'label'         => __('Gross'),
-                                'information'   => '',
-                                'price_total'   => $recurringBill->gross_amount
+                                'label'       => __('Gross'),
+                                'information' => '',
+                                'price_total' => $recurringBill->gross_amount
                             ],
                             [
-                                'label'         => __('Discounts'),
-                                'information'   => '',
-                                'price_total'   => $recurringBill->discount_amount
+                                'label'       => __('Discounts'),
+                                'information' => '',
+                                'price_total' => $recurringBill->discount_amount
                             ],
                         ] : [],
-                        $showGrossAndDiscount ? [
+                        $showGrossAndDiscount
+                            ? [
                             [
-                                'label'         => __('Net'),
-                                'information'   => '',
-                                'price_total'   => $recurringBill->net_amount
+                                'label'       => __('Net'),
+                                'information' => '',
+                                'price_total' => $recurringBill->net_amount
                             ],
                             [
-                                'label'         => __('Tax').' '.$recurringBill->taxCategory->rate * 100 . '%',
-                                'information'   => '',
-                                'price_total'   => $recurringBill->tax_amount
+                                'label'       => __('Tax').' '.$recurringBill->taxCategory->rate * 100 .'%',
+                                'information' => '',
+                                'price_total' => $recurringBill->tax_amount
                             ],
-                        ] : [
+                        ]
+                            : [
                             [
-                                'label'         => __('Net'),
-                                'information'   => '',
-                                'price_total'   => $recurringBill->net_amount
+                                'label'       => __('Net'),
+                                'information' => '',
+                                'price_total' => $recurringBill->net_amount
                             ],
                             [
-                                'label'         => __('Tax').' '.$recurringBill->taxCategory->rate * 100 . '%',
-                                'information'   => '',
-                                'price_total'   => $recurringBill->tax_amount
+                                'label'       => __('Tax').' '.$recurringBill->taxCategory->rate * 100 .'%',
+                                'information' => '',
+                                'price_total' => $recurringBill->tax_amount
                             ],
                         ],
                         [
                             [
-                                'label'         => __('Total'),
-                                'price_total'   => $recurringBill->total_amount
+                                'label'       => __('Total'),
+                                'price_total' => $recurringBill->total_amount
                             ],
                         ],
                     ],
@@ -162,12 +159,12 @@ class ShowRecurringBill extends RetinaAction
                 ],
 
                 RecurringBillTabsEnum::TRANSACTIONS->value => $this->tab == RecurringBillTabsEnum::TRANSACTIONS->value ?
-                fn () => RecurringBillTransactionsResource::collection(IndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))
-                : Inertia::lazy(fn () => RecurringBillTransactionsResource::collection(IndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))),
+                    fn () => RecurringBillTransactionsResource::collection(IndexRetinaRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))
+                    : Inertia::lazy(fn () => RecurringBillTransactionsResource::collection(IndexRetinaRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))),
 
             ]
         )->table(
-            IndexRecurringBillTransactions::make()->tableStructure(
+            IndexRetinaRecurringBillTransactions::make()->tableStructure(
                 $recurringBill,
                 prefix: RecurringBillTabsEnum::TRANSACTIONS->value
             )
@@ -180,51 +177,22 @@ class ShowRecurringBill extends RetinaAction
         return new RecurringBillResource($recurringBill);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = ''): array
+    public function getBreadcrumbs(): array
     {
-        $headCrumb = function (RecurringBill $recurringBill, array $routeParameters, string $suffix) {
-            return [
-                [
-                    'type'           => 'modelWithIndex',
-                    'modelWithIndex' => [
-                        'index' => [
-                            'route' => $routeParameters['index'],
-                            'label' => __('Recurring bills')
-                        ],
-                        'model' => [
-                            'route' => $routeParameters['model'],
-                            'label' => $recurringBill->slug,
-                        ],
+        return array_merge(
+            ShowRetinaBillingDashboard::make()->getBreadcrumbs(),
+            [
 
-                    ],
-                    'suffix' => $suffix
-                ],
-            ];
-        };
+                'type'   => 'simple',
+                'simple' => [
+                    'icon'  => 'fal fa-receipt',
+                    'label' => __('next bill'),
+                    'route' => [
+                        'name' => 'retina.billing.next_recurring_bill'
+                    ]
+                ]
 
-        $recurringBill = RecurringBill::where('slug', $routeParameters['recurringBill'])->first();
-
-
-        return match ($routeName) {
-            'retina.billing.recurring.show' => array_merge(
-                ShowRetinaBillingDashboard::make()->getBreadcrumbs(),
-                $headCrumb(
-                    $recurringBill,
-                    [
-                        'index' => [
-                            'name'       => 'retina.billing.recurring.index',
-                            'parameters' => []
-                        ],
-                        'model' => [
-                            'name'       => 'retina.billing.recurring.show',
-                            'parameters' => [$recurringBill->slug]
-                        ]
-                    ],
-                    $suffix
-                ),
-            ),
-
-            default => []
-        };
+            ],
+        );
     }
 }

@@ -899,6 +899,7 @@ console.log(layout.user.id, "layoutt")
 							org.interval_percentages?.sales?.[selectedDateOption]?.amount || 0
 						)
 					"
+					type="dashboard"
 					:description="`Sales for ${org.name}`"
 					:showRedBorder="
 						isNegative(

@@ -126,7 +126,7 @@ class ShowAccountingDashboard extends OrgAction
                                     'name'  => __('invoices'),
                                     'icon'  => ['fal', 'fa-file-invoice-dollar'],
                                     'route'  => [
-                                        'name'       => 'grp.org.accounting.shops.show.invoices.index',
+                                        'name'       => 'grp.org.accounting.shops.show.invoices.all_invoices.index',
                                         'parameters' => $parameters
                                     ],
                                     'index' => [
@@ -179,7 +179,7 @@ class ShowAccountingDashboard extends OrgAction
                                     'name'  => __('invoices'),
                                     'icon'  => ['fal', 'fa-file-invoice-dollar'],
                                     'route'  => [
-                                        'name'       => 'grp.org.accounting.invoices.index',
+                                        'name'       => 'grp.org.accounting.invoices.all_invoices.index',
                                         'parameters' => $parameters
                                     ],
                                     'index' => [

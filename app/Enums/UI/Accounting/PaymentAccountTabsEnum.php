@@ -18,7 +18,7 @@ enum PaymentAccountTabsEnum: string
 
     case SHOWCASE         = 'showcase';
     case STATS            = 'stats';
-    case PAYMENTS         = 'payments';
+    // case PAYMENTS         = 'payments';
     case HISTORY          = 'history';
 
 
@@ -29,10 +29,10 @@ enum PaymentAccountTabsEnum: string
                 'title' => __('stats'),
                 'icon'  => 'fal fa-chart-line',
             ],
-            PaymentAccountTabsEnum::PAYMENTS     => [
-                'title' => __('payments'),
-                'icon'  => 'fal fa-coins',
-            ],
+            // PaymentAccountTabsEnum::PAYMENTS     => [
+            //     'title' => __('payments'),
+            //     'icon'  => 'fal fa-coins',
+            // ],
             PaymentAccountTabsEnum::HISTORY     => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',

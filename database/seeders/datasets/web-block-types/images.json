@@ -4,7 +4,6 @@
 	"name": "Images",
 	"code": "images",
 	"icon": ["fal", "image"],
-	"blueprint": [],
 	"data": {
 		"fieldValue": {
 			"value": {

@@ -4,7 +4,6 @@
 	"code": "top-bar-1",
 	"name": "Topbar Simple",
 	"component": "topbar",
-	"blueprint": [],
 	"data": {
 		"fieldValue": {
 			"key": "Topheader",

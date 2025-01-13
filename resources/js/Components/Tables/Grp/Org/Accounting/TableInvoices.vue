@@ -42,6 +42,22 @@ function invoiceRoute(invoice: Invoice) {
             return route(
                 'grp.org.accounting.invoices.show',
                 [invoice.organisation_slug, invoice.slug])
+        case 'grp.org.accounting.invoices.unpaid_invoices.index':
+            return route(
+                'grp.org.accounting.invoices.unpaid_invoices.show',
+                [route().params['organisation'], invoice.slug])
+        case 'grp.org.accounting.invoices.all_invoices.index':
+            return route(
+                'grp.org.accounting.invoices.all_invoices.show',
+                [route().params['organisation'], invoice.slug])
+        case 'grp.org.fulfilments.show.operations.invoices.all_invoices.index':
+            return route(
+                'grp.org.fulfilments.show.operations.invoices.all_invoices.show',
+                [route().params['organisation'], route().params['fulfilment'], invoice.slug])
+                case 'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.index':
+            return route(
+                'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.show',
+                [route().params['organisation'], route().params['fulfilment'], invoice.slug])
         default:
             return route(
                 'grp.org.accounting.invoices.show',

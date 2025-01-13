@@ -5,7 +5,6 @@
 	"name": "footer 1",
 	"component": "footer",
 	"icon": ["fal", "folder"],
-	"blueprint": [],
     "data": {
         "fieldValue": {
             "columns": {

@@ -8,30 +8,23 @@
 
 namespace App\Actions\Fulfilment\RecurringBill;
 
+use App\Actions\Fulfilment\RecurringBillTransaction\Hydrators\HydrateRecurringBillTransactionRentalQuantity;
 use App\Actions\OrgAction;
 use App\Models\Fulfilment\RecurringBill;
 
-class CalculateRecurringBillNet extends OrgAction
+class UpdateRecurringBillTotals extends OrgAction
 {
-    public function handle(RecurringBill $recurringBill)
+    public function handle(RecurringBill $recurringBill): RecurringBill
     {
         $recurringBill->load('transactions', 'palletDeliveries', 'palletReturns', 'taxCategory');
 
         $transactions = $recurringBill->transactions;
-        $deliveries   = $recurringBill->palletDeliveries;
-        $returns      = $recurringBill->palletReturns;
+
         $taxRate      = $recurringBill->taxCategory->rate;
 
-        $deliveryGross    = 0;
-        $returnGross      = 0;
 
-        if ($deliveries->isNotEmpty()) {
-            $deliveryGross    = $deliveries->sum('gross_amount');
-        }
+        $recurringBill = HydrateRecurringBillTransactionRentalQuantity::run($recurringBill);
 
-        if ($returns->isNotEmpty()) {
-            $returnGross    = $returns->sum('gross_amount');
-        }
 
         $rentalNet    = $transactions->where('item_type', 'Pallet')->sum('net_amount');
         $rentalGross  = $transactions->where('item_type', 'Pallet')->sum('gross_amount');
@@ -55,9 +48,11 @@ class CalculateRecurringBillNet extends OrgAction
         data_set($modelData, 'gross_amount', $grossAmount);
 
         $recurringBill->update($modelData);
+
+        return $recurringBill;
     }
 
-    public function action(RecurringBill $recurringBill)
+    public function action(RecurringBill $recurringBill): RecurringBill
     {
         $this->asAction = true;
         $this->initialisationFromFulfilment($recurringBill->fulfilment, []);

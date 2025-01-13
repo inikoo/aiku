@@ -16,7 +16,6 @@ return new class () extends Migration {
         Schema::create('recurring_bill_stats', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('recurring_bill_id')->index();
-            $table->foreign('recurring_bill_id')->references('id')->on('recurring_bills');
             $table->unsignedSmallInteger('number_transactions')->default(0);
             $table->unsignedSmallInteger('number_transactions_type_pallets')->default(0);
             $table->unsignedSmallInteger('number_transactions_type_stored_items')->default(0);

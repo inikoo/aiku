@@ -15,7 +15,6 @@ use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Http\Resources\Catalogue\OutersResource;
 use App\Http\Resources\Catalogue\RentalsResource;
 use App\Http\Resources\Catalogue\ServicesResource;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\RentalAgreement;
@@ -28,6 +27,15 @@ use Spatie\LaravelOptions\Options;
 
 class EditRentalAgreement extends OrgAction
 {
+    private function getOrdinal($number)
+    {
+        $suffixes = ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th'];
+        if ((($number % 100) >= 11) && (($number % 100) <= 13)) {
+            return $number . 'th';
+        }
+        return $number . $suffixes[$number % 10];
+    }
+
     /**
      * @throws Exception
      */
@@ -47,22 +55,8 @@ class EditRentalAgreement extends OrgAction
         }
 
 
-        /** @var WebUser $webUser */
-        $webUser             = $rentalAgreement->fulfilmentCustomer->customer->webUsers()->first();
-        $createWebUserFields = [
-            'email' => [
-                'type'        => 'input',
-                'label'       => __('email'),
-                'required'    => true,
-                'value'       => $webUser->email
-            ],
-            'username' => [
-                'type'        => 'input',
-                'label'       => __('username'),
-                'required'    => true,
-                'value'       => $webUser->username
-            ],
-        ];
+
+
 
         $stateOptions = [];
         if ($rentalAgreement->state !== RentalAgreementStateEnum::ACTIVE) {
@@ -88,6 +82,10 @@ class EditRentalAgreement extends OrgAction
                 ],
             ];
         }
+
+        $billing_weekdays_only_text =  $this->fulfilment->settings['rental_agreement_cut_off']['monthly']['workdays']
+            ? ' (' . __('Weekdays only') . ')'
+            : null;
 
 
         return Inertia::render(
@@ -118,9 +116,24 @@ class EditRentalAgreement extends OrgAction
                                 'title'  => '',
                                 'fields' => [
                                     'billing_cycle' => [
-                                        'type'     => 'select',
+                                        'type'     => 'select_billing_cycle',
                                         'label'    => __('billing cycle'),
                                         'required' => true,
+                                        'additional_description' => [
+                                            'description' => [
+                                                RentalAgreementBillingCycleEnum::MONTHLY->value => __('Billing cycle is on') . ' ' . $this->getOrdinal($this->fulfilment->settings['rental_agreement_cut_off']['monthly']['day']) . ' ' . __('of each month') . $billing_weekdays_only_text . ('.'),
+                                                RentalAgreementBillingCycleEnum::WEEKLY->value => __('Billing cycle is on') . ' ' .  $this->fulfilment->settings['rental_agreement_cut_off']['weekly']['day'] . ' ' . __('of each week') . ('.'),
+                                            ],
+                                            'route' => [
+                                                'name'       => 'grp.org.fulfilments.show.settings.edit',
+                                                'parameters' => [
+                                                    'organisation' => $this->organisation->slug,
+                                                    'fulfilment'   => $this->fulfilment->slug,
+                                                    'section'      => '3'
+
+                                                ]
+                                            ]
+                                        ],
                                         'options'  => Options::forEnum(RentalAgreementBillingCycleEnum::class),
                                         'value'    => $rentalAgreement->billing_cycle
                                     ],
@@ -132,7 +145,7 @@ class EditRentalAgreement extends OrgAction
                                         'value'       => $rentalAgreement->pallets_limit
                                     ],
                                     ...$stateOptions,
-                                    ...$createWebUserFields,
+
                                     'clauses'       => [
                                         'type'           => 'rental',
                                         'label'          => __('Clauses'),

@@ -112,7 +112,21 @@ class ShowFulfilmentDashboard extends OrgAction
                             'label' => __('Former Recurring Bills'),
                             'count' => $fulfilment->stats->number_recurring_bills_status_former
                         ],
-                    ]
+                    ],
+                    'ordering' => [
+                        'total_invoices'     => [
+                            'label' => __('Total Invoices'),
+                            'count' => $fulfilment->shop->orderingStats->number_invoices
+                        ],
+                        'total_unpaid_invoices' => [
+                            'label' => __('Total Unpaid Invoices'),
+                            'count' => $fulfilment->shop->orderingStats->number_unpaid_invoices
+                        ],
+                        'amount_unpaid_invoices' => [
+                            'label' => __('Amount Unpaid Invoices'),
+                            'count' => $fulfilment->shop->orderingStats->unpaid_invoices_amount_org_currency
+                        ],
+                    ],
                 ]
 
 

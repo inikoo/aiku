@@ -7,21 +7,25 @@ export default {
 				{
 					key: ["dimension"],
 					type: "dimension",
+					label : "Dimension",
 					props_data: {},
 				},
 				{
 					key: ["padding"],
 					type: "padding",
+					label : "Padding",
 					props_data: {},
 				},
 				{
 					key: ["margin"],
 					type: "margin",
+					label : "Margin",
 					props_data: {},
 				},
 				{
 					key: ["border"],
 					type: "border",
+					label : "Border",
 					props_data: {},
 				},
 			],

@@ -814,7 +814,7 @@ test('UI show list payments', function () {
 });
 
 test('UI show list invoices', function () {
-    $response = get(route('grp.org.accounting.invoices.index', $this->organisation->slug));
+    $response = get(route('grp.org.accounting.invoices.all_invoices.index', $this->organisation->slug));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
