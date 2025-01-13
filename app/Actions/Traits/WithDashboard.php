@@ -85,10 +85,14 @@ trait WithDashboard
                 'currency_code'  => $currencyCode,
             ];
             if ($subModel->salesIntervals !== null) {
+                $salesCurrency = 'sales_'.$selectedCurrency.'_currency';
+                if ($selectedCurrency === 'shop') {
+                    $salesCurrency = 'sales';
+                }
                 $dashboard['widgets']['column_count']++;
                 $responseData['interval_percentages']['sales'] = $this->getIntervalPercentage(
                     $subModel->salesIntervals,
-                    'sales_'.$selectedCurrency.'_currency',
+                    $salesCurrency,
                     $selectedInterval,
                 );
                 $amount = $responseData['interval_percentages']['sales']['amount'];
