@@ -23,6 +23,8 @@ import Topbar2 from '@/Components/CMS/Website/TopBars/Template/Topbar2/Topbar2.v
 import Topbar3 from '@/Components/CMS/Website/TopBars/Template/Topbar3/Topbar3.vue'
 import Header1 from '@/Components/CMS/Website/Headers/Header1/Header1Workshop.vue'
 import Menu1 from '@/Components/CMS/Website/Menus/Menu1Workshop.vue'
+import TextColumn from '@/Components/CMS/Webpage/TextColumn/TextColumnWorkshop.vue'
+
 import NotFoundComponents from '@/Components/CMS/Webpage/NotFoundComponent.vue'
 
 
@@ -51,6 +53,7 @@ export const getComponent = (componentName: string) => {
         'top-bar-3': Topbar3,
         'header-1': Header1,
         'menu-1': Menu1,
+        'text-column' : TextColumn
     }
     return components[componentName] ?? NotFoundComponents
 }

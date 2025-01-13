@@ -7,7 +7,9 @@
 	"data": {
 		"fieldValue": {
 			"value": {
-				"images":[],
+				"text":[
+					"Text 1"
+				],
 				"layout_type": null
 			},
 			"container": {
