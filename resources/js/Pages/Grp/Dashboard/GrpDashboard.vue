@@ -701,7 +701,8 @@ console.log(layout.user.id, "layoutt")
 							</Row>
 						</ColumnGroup> 
 					</DataTable>-->
-					<!--</div>
+				</div>
+				<!--
 			</div>
 		</div>
 -->
@@ -818,6 +819,7 @@ console.log(layout.user.id, "layoutt")
                 </div> -->
 			</div>
 		</div>
+		
 		<!-- Section Widget -->
 		<div class="col-span-12">
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

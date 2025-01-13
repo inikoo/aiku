@@ -89,7 +89,7 @@ const props = defineProps<{
 		}
 	}
 	dashboard: any
-	interval_options: Array<{ label: string; value: string }>
+	intervalOptions: Array<{ label: string; value: string }>
 }>()
 
 const layout = inject("layout")
@@ -98,7 +98,7 @@ const locale = inject("locale")
 const selectedDateOption = ref(props.dashboard.settings.selected_interval || "ytd")
 
 const currency = ref([
-	{ name: "Group", code: "grp", symbol: props.data.currency.symbol },
+	{ name: "Group", code: "grp", symbol: props.data?.currency?.symbol },
 	{ name: "Organisation", code: "org", symbol: null },
 ])
 
@@ -110,14 +110,14 @@ const selectedCurrency = computed(() => {
 
 // Compute table data dynamically
 const tableDatas = computed(() => {
-	return props.data.organisations
+	return props.data?.organisations
 		.filter((org) => org.type !== "agent")
 		.map((org) => ({
 			name: org.name,
 			code: org.code,
 			interval_percentages: org.interval_percentages,
 			sales: org.sales || 0,
-			currency: isOrganisation.value ? org.currency.code : props.data.currency.code,
+			currency: isOrganisation.value ? org.currency.code : props.data?.currency.code,
 		}))
 })
 
@@ -125,20 +125,20 @@ const toggleCurrency = () => {
 	isOrganisation.value = !isOrganisation.value
 }
 
-const updateRouteAndUser = async (interval) => {
-	selectedDateOption.value = interval
-	try {
-		const response = await axios.patch(route("grp.models.user.update", layout.user.id), {
-			settings: { selected_interval: interval },
-		})
-		console.log("Update successful:", response.data)
-	} catch (error) {
-		console.error("Error updating user:", error.response?.data || error.message)
-	}
-}
+// const updateRouteAndUser = async (interval) => {
+// 	selectedDateOption.value = interval
+// 	try {
+// 		const response = await axios.patch(route("grp.models.user.update", layout.user.id), {
+// 			settings: { selected_interval: interval },
+// 		})
+// 		console.log("Update successful:", response.data)
+// 	} catch (error) {
+// 		console.error("Error updating user:", error.response?.data || error.message)
+// 	}
+// }
 
 const organisationSymbols = computed(() => {
-	const symbols = props.data.organisations
+	const symbols = props.data?.organisations
 		.filter((org) => org.type !== "agent")
 		.map((org) => org.currency.symbol)
 		.filter(Boolean)
@@ -152,21 +152,22 @@ const organisationSymbols = computed(() => {
 	<div>
 		<DashboardSettings
 			:dashboard="data"
-			:intervalOptions="interval_options"
 			:selectedDateOption="selectedDateOption"
 			:isOrganisation="isOrganisation"
 			:organisationSymbols="organisationSymbols"
 			@toggle-currency="toggleCurrency"
-			@update-interval="updateRouteAndUser"
 			:groupCurrencySymbol="groupCurrencySymbol"
 			:intervalOptions
 			:settings="props.dashboard?.settings"
 		/>
-		<DashboardTable
+		
+		<!-- <DashboardTable
 			:tableData="tableDatas"
 			:groupStats="data"
 			:locale="locale"
-			:selectedDateOption="selectedDateOption" />
+			:selectedDateOption="selectedDateOption"
+		/> -->
+
 		<DashboardWidget :widgetsData="dashboard.widgets" />
 	</div>
 </template>

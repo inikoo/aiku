@@ -47,7 +47,7 @@ const updateInterval = (interval_code: string) => {
 		<!-- Section Setting -->
 		<div class="flex justify-end items-center space-x-4">
 			<p class="font-medium" :class="{ 'opacity-60': isOrganisation }">
-				{{ dashboard.currency.symbol }}
+				{{ dashboard?.currency?.symbol }}
 			</p>
 
 			<ToggleSwitch
