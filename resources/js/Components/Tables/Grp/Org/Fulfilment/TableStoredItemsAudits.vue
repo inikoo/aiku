@@ -22,6 +22,7 @@ import { faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, f
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 import { routeType } from "@/types/route"
+import pallet from "@/Pages/Grp/Org/Fulfilment/Pallet.vue";
 
 library.add(faTrashAlt, faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp, faStickyNote, faCheckCircle)
 
@@ -100,14 +101,20 @@ function palletRoute(pallet: Pallet) {
 
         <!-- Column: Stored Items -->
         <template #cell(stored_items)="{ item: pallet }">
+          <table>
+            <td>caca</td><td>2</td><td>  Checked (e.g. correct stock)   </td><td> + (add e.g. found item)   </td><td> -  (e.g. lost item)  </td>
+            <td>popo</td><td>3</td><td>  Checked (e.g. correct stock)   </td><td> + (add e.g. found item)   </td><td> -  (e.g. lost item)  </td>
+          </table>
             <!--  <pre>{{pallet   }}</pre> -->
-            <StoredItemProperty :pallet="pallet" :storedItemsRoute="storedItemsRoute" :editable="true"
-                :saveRoute="pallet.auditRoute" />
+
         </template>
 
         <!-- Column: edited -->
-        <template #cell(audited_at)="{ item }">
-     
+        <template #cell(audits)="{ item }">
+
+          <StoredItemProperty :pallet="item" :storedItemsRoute="storedItemsRoute" :editable="true"
+                              :saveRoute="item.auditRoute" />
+
             <div v-if="item.audited_at" class="flex items-center justify-center">
                 <font-awesome-icon :icon="['fas', 'check-circle']" class="text-lg text-green-500 mr-2"
                     v-tooltip="`Audited at: ${useFormatTime(item.audited_at)}`" />

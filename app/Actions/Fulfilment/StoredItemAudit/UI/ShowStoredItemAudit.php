@@ -76,7 +76,7 @@ class ShowStoredItemAudit extends OrgAction
         }
 
         return Inertia::render(
-            'Org/Fulfilment/StoredItemAudits',
+            'Org/Fulfilment/StoredItemAudit',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
