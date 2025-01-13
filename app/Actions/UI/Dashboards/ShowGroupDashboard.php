@@ -27,8 +27,7 @@ class ShowGroupDashboard extends OrgAction
             'Dashboard/GrpDashboard',
             [
                 'breadcrumbs'       => $this->getBreadcrumbs(__('Dashboard')),
-                'interval_options'  => $this->getIntervalOptions(),
-                'dashboard_stats' => $this->getDashboard($group, $userSettings),
+                'dashboard_stats' => $this->getDashboardInterval($group, $userSettings),
                 // 'dashboard_stats' => [
                 //     'interval_options'  => $this->getIntervalOptions(),
                 //     'settings' => $userSettings,
@@ -112,7 +111,7 @@ class ShowGroupDashboard extends OrgAction
     public function getDashboard(Group $group, array $userSettings): array
     {
         $selectedInterval = Arr::get($userSettings, 'selected_interval', 'all');
-        $organisations = $group->organisations()->where('type', '!=', 'agent')->get();
+        $organisations = $group->organisations;
         $orgCurrencies = [];
         foreach ($group->organisations as $organisation) {
             $orgCurrencies[] = $organisation->currency->symbol;
@@ -137,7 +136,7 @@ class ShowGroupDashboard extends OrgAction
             ],
             'table' => [],
             'widgets' => [
-                'column_count'    => $organisations->count(),
+                'column_count'    => 0,
                 'components' => []
             ]
         ];
@@ -154,6 +153,7 @@ class ShowGroupDashboard extends OrgAction
                 'currency_code'  => $currencyCode,
             ];
             if ($organisation->salesIntervals !== null) {
+                $dashboard['widgets']['column_count']++;
                 $responseData['interval_percentages']['sales'] = $this->getIntervalPercentage(
                     $organisation->salesIntervals,
                     'sales_org_currency',
@@ -199,9 +199,9 @@ class ShowGroupDashboard extends OrgAction
         });
 
         $dashboard['table']['total'] = [
-            'total_sales'    => $group->organisations->sum(fn ($organisations) => $organisations->salesIntervals?->{"sales_org_currency_" . $selectedInterval} ?? 0),
-            'total_invoices' => $group->organisations->sum(fn ($organisations) => $organisations->orderingIntervals?->{"invoices_{$selectedInterval}"} ?? 0),
-            'total_refunds'  => $group->organisations->sum(fn ($organisations) => $organisations->orderingIntervals?->{"refunds_{$selectedInterval}"} ?? 0),
+            'total_sales'    => $organisations->sum(fn ($organisations) => $organisations->salesIntervals?->{"sales_org_currency_" . $selectedInterval} ?? 0),
+            'total_invoices' => $organisations->sum(fn ($organisations) => $organisations->orderingIntervals?->{"invoices_{$selectedInterval}"} ?? 0),
+            'total_refunds'  => $organisations->sum(fn ($organisations) => $organisations->orderingIntervals?->{"refunds_{$selectedInterval}"} ?? 0),
         ];
 
         return $dashboard;
