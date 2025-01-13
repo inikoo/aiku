@@ -330,7 +330,7 @@ class ShowPalletReturn extends OrgAction
 
         if ($palletReturn->type == PalletReturnTypeEnum::STORED_ITEM) {
             $afterTitle = [
-                'label' => '('.__('Stored items').')'
+                'label' => '('.__("Customer's sKUs").')'
                 ];
         } else {
             $afterTitle = [

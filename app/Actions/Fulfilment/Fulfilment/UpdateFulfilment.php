@@ -34,8 +34,6 @@ class UpdateFulfilment extends OrgAction
         $settings       = $fulfilment->settings;
         $updateSettings = false;
 
-        $endDate = null;
-
         if (Arr::exists($modelData, 'weekly_cut_off_day')) {
             $settings['rental_agreement_cut_off']['weekly']['day'] = $modelData['weekly_cut_off_day'];
             $updateSettings                                        = true;
@@ -44,6 +42,7 @@ class UpdateFulfilment extends OrgAction
         }
 
         if (Arr::exists($modelData, 'monthly_cut_off')) {
+            // need to handle 'last_day' string
             $settings['rental_agreement_cut_off']['monthly']['day']      = $modelData['monthly_cut_off']['date'];
             $settings['rental_agreement_cut_off']['monthly']['is_weekdays'] = $modelData['monthly_cut_off']['isWeekdays'] ?? false;
             $updateSettings                                              = true;
@@ -120,9 +119,15 @@ class UpdateFulfilment extends OrgAction
             ],
             'monthly_cut_off.date' => [
                 'sometimes',
-                'integer',
-                'min:1',
-                'max:31'
+                function ($attribute, $value, $fail) {
+                    if (is_int($value) && $value >= 1 && $value <= 31) {
+                        return true;
+                    } elseif ($value === 'last_day') {
+                        return true;
+                    } else {
+                        $fail($attribute . ' is invalid.');
+                    }
+                },
             ],
             'monthly_cut_off.isWeekdays' => [
                 'sometimes',

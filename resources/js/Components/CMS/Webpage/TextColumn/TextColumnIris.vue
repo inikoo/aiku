@@ -2,31 +2,30 @@
 import { faCube, faStar, faImage } from "@fas"
 import { faPencil } from "@far"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue"
-import Image from "@/Components/Image.vue"
-import { ref, toRaw, inject } from "vue"
-import Button from "@/Components/Elements/Buttons/Button.vue"
-import GalleryManagement from "@/Components/Utils/GalleryManagement/GalleryManagement.vue"
-import Modal from "@/Components/Utils/Modal.vue"
-import { notify } from "@kyvg/vue3-notification"
-import axios from "axios"
-import { trans } from "laravel-vue-i18n";
-import { set } from "lodash";
-import { routeType } from "@/types/route"
-import EditorV2 from "@/Components/Forms/Fields/BubleTextEditor/EditorV2.vue"
 
 library.add(faCube, faStar, faImage, faPencil)
 
 const props = defineProps<{
-    modelValue: any
-    webpageData?: any
-    blockData: Object
-    // uploadRoutes: routeType
+    fieldValue: {
+		value: {
+			images: {
+				source: string
+				link_data: {
+					url: string
+				}
+			}[]
+			layout_type: string
+		}
+	}
+	webpageData?: any
+	web_block?: Object
+	id?: Number
+	type?: String
+	isEditable?: Boolean
 }>()
 
 const emits = defineEmits<{
-    (e: "update:modelValue", value: any): void
+    (e: "update:fieldValue", value: any): void
     (e: "autoSave"): void
 }>()
 
@@ -75,11 +74,13 @@ const getImageSlots = (layoutType: string) => {
 
 <template>
     <div class="flex flex-wrap">
-        <div v-for="index in getImageSlots(modelValue?.value?.layout_type)"
-            :key="`${index}-${modelValue?.value?.images?.[index - 1]?.source?.avif}`"
+        <div v-for="index in getImageSlots(fieldValue?.value?.layout_type)"
+            :key="`${index}-${fieldValue?.value?.images?.[index - 1]}`"
             class="group relative p-2 hover:bg-white/40"
-            :class="getColumnWidthClass(modelValue?.value?.layout_type, index - 1)">
-            <div v-html="modelValue[index]"></div>
+            :class="getColumnWidthClass(fieldValue?.value?.layout_type, index - 1)">
+            <div
+                v-html="fieldValue.value.text[index-1]"
+            />
         </div>
     </div>
 

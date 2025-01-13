@@ -138,7 +138,7 @@ class IndexStoredItems extends OrgAction
         $subNavigation = [];
 
         $icon      = ['fal', 'fa-narwhal'];
-        $title     = __('stored items');
+        $title     = __("customer's sKUs");
         $afterTitle = null;
         $iconRight = null;
 
@@ -151,7 +151,7 @@ class IndexStoredItems extends OrgAction
             ];
             $afterTitle = [
 
-                'label'     => __('stored items')
+                'label'     => __("customer's sKUs")
             ];
         }
         return Inertia::render(
@@ -161,7 +161,7 @@ class IndexStoredItems extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters(),
                 ),
-                'title'       => __('stored items'),
+                'title'       => __("customer's sKUs"),
                 'pageHead'    => [
                     'title'         => $title,
                     'afterTitle'    => $afterTitle,
@@ -174,7 +174,7 @@ class IndexStoredItems extends OrgAction
                                 'name'       => 'grp.org.hr.employees.create',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
-                            'label' => __('stored items')
+                            'label' => __("customer's sKUs")
                         ]
                     ],
                 ],
@@ -236,7 +236,7 @@ class IndexStoredItems extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('stored items'),
+                        'label' => __("customer's sKUs"),
                         'icon'  => 'fal fa-bars',
                     ],
 
@@ -265,7 +265,7 @@ class IndexStoredItems extends OrgAction
                                 'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('stored items'),
+                            'label' => __("customer's sKUs"),
                             'icon'  => 'fal fa-bars',
                         ],
 

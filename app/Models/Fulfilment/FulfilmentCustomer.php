@@ -238,9 +238,10 @@ class FulfilmentCustomer extends Model
         return $this->belongsTo(RecurringBill::class, 'current_recurring_bill_id');
     }
 
-    public function storedItemAudit(): HasOne
+    public function storedItemAudits(): HasMany
     {
-        return $this->hasOne(StoredItemAudit::class);
+        return $this->hasMany(StoredItemAudit::class);
     }
+
 
 }

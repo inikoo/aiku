@@ -20,7 +20,9 @@ import InputText from 'primevue/inputtext'
 import OverviewForm from '@/Components/CMS/Fields/OverviewForm.vue'
 import ArrayPhone from '@/Components/CMS/Fields/ArrayPhone.vue'
 import NotFoundComponents from '@/Components/CMS/Webpage/NotFoundComponent.vue'
+import Overview from '@/Components/CMS/Fields/Overview.vue'
 import TextProperty from '@/Components/Workshop/Properties/TextProperty.vue'
+
 
 import { set } from 'lodash'
 
@@ -35,6 +37,7 @@ export const getComponent = (componentName: string) => {
         'socialMedia': socialMedia,
         "VisibleLoggedIn": ButtonVisibleLoggedIn,
        /*  "properties": PanelProperties, */
+       "overview-property" : Overview,
         
         "background": Background,
         "border": Border,

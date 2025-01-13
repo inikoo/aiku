@@ -96,7 +96,7 @@ class ShowFulfilmentDashboard extends OrgAction
                         ],
                     ],
                     'stored_items' => [
-                        'label' => __('Stored items'),
+                        'label' => __("Customer's sKUs"),
                         'count' => $fulfilment->stats->number_stored_items
                     ],
                     'recurring_bills' => [

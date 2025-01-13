@@ -148,7 +148,7 @@ const onSaved = async () => {
 <template>
 	<div v-if="!messageMode">
 		<div class="text-center font-semibold text-2xl mb-4">
-                {{ disabledSelect.edit ? trans('edit stored item') : trans('Add stored item') }}
+                {{ disabledSelect.edit ? trans("Edit customer's SKUs") : trans("Set up customer's SKUs") }}
             </div>
 		<label class="block text-sm font-medium text-gray-700">{{ trans("Reference") }}</label>
 		
