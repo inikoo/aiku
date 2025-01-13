@@ -11,7 +11,6 @@ namespace App\Actions\Fulfilment\StoredItemAudit\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInAudit;
-use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
@@ -37,15 +36,9 @@ class ShowStoredItemAudit extends OrgAction
 
     private bool $selectStoredPallets = false;
 
-    public function handle(Fulfilment|FulfilmentCustomer|Warehouse $parent): StoredItemAudit
+    public function handle(StoredItemAudit $storedItemAudit): StoredItemAudit
     {
-        if (! $parent->storedItemAudit) {
-            StoreStoredItemAudit::make()->action($parent, []);
-        }
-
-        $parent->refresh();
-
-        return $parent->storedItemAudit;
+        return $storedItemAudit;
     }
 
     public function jsonResponse(StoredItemAudit $storedItemAudit): StoredItemAuditResource
@@ -79,20 +72,20 @@ class ShowStoredItemAudit extends OrgAction
                     'subNavigation' => $subNavigation,
                 ],
 
-                'notes_data'             => [
+                'notes_data' => [
                     [
-                        'label'           => __('Public'),
-                        'note'            => $storedItemAudit->public_notes ?? '',
-                        'editable'        => true,
-                        'bgColor'         => 'pink',
-                        'field'           => 'public_notes'
+                        'label'    => __('Public'),
+                        'note'     => $storedItemAudit->public_notes ?? '',
+                        'editable' => true,
+                        'bgColor'  => 'pink',
+                        'field'    => 'public_notes'
                     ],
                     [
-                        'label'           => __('Private'),
-                        'note'            => $storedItemAudit->internal_notes ?? '',
-                        'editable'        => true,
-                        'bgColor'         => 'purple',
-                        'field'           => 'internal_notes'
+                        'label'    => __('Private'),
+                        'note'     => $storedItemAudit->internal_notes ?? '',
+                        'editable' => true,
+                        'bgColor'  => 'purple',
+                        'field'    => 'internal_notes'
                     ],
                 ],
 
@@ -107,7 +100,7 @@ class ShowStoredItemAudit extends OrgAction
                 ],
 
                 'storedItemsRoute' => [
-                    'index' => [
+                    'index'  => [
                         'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
                         'parameters' => [
                             'organisation'       => $storedItemAudit->organisation->slug,
@@ -116,7 +109,7 @@ class ShowStoredItemAudit extends OrgAction
                             'palletDelivery'     => $storedItemAudit->reference
                         ]
                     ],
-                    'store' => [
+                    'store'  => [
                         'name'       => 'grp.models.fulfilment-customer.stored-items.store',
                         'parameters' => [
                             'fulfilmentCustomer' => $storedItemAudit->fulfilmentCustomer->id
@@ -139,27 +132,26 @@ class ShowStoredItemAudit extends OrgAction
         );
     }
 
-    public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, ActionRequest $request): StoredItemAudit
+    public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, StoredItemAudit $storedItemAudit, ActionRequest $request): StoredItemAudit
     {
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilment);
+        return $this->handle($storedItemAudit);
     }
 
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): StoredItemAudit
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, StoredItemAudit $storedItemAudit, ActionRequest $request): StoredItemAudit
     {
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilmentCustomer);
+        return $this->handle($storedItemAudit);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-
         $headCrumb = function (array $routeParameters) {
             return [
                 [
@@ -199,8 +191,5 @@ class ShowStoredItemAudit extends OrgAction
                 )
             ),
         };
-
-
-
     }
 }
