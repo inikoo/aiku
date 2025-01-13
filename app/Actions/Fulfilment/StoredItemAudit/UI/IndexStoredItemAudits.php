@@ -29,9 +29,12 @@ class IndexStoredItemAudits extends OrgAction
 {
     use HasFulfilmentAssetsAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
+    
+    private FulfilmentCustomer|Fulfilment $parent;
 
     public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($fulfilment);
@@ -40,6 +43,7 @@ class IndexStoredItemAudits extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($fulfilmentCustomer);
@@ -79,7 +83,7 @@ class IndexStoredItemAudits extends OrgAction
 
     }
 
-    public function htmlResponse(StoredItemAudit $storedItemAudit, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $storedItemAudit, ActionRequest $request): Response
     {
         return Inertia::render(
             'Org/Fulfilment/StoredItemAudits',
