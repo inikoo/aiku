@@ -100,7 +100,7 @@ class ShowStoredItem extends OrgAction
                             'style'   => 'secondary',
                             'icon'    => 'fal fa-pencil',
                             'tooltip' => __('Edit stored items'),
-                            'label'   => __('stored items'),
+                            'label'   => __("customer's sKUs"),
                             'route'   => [
                                 'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                                 'parameters' => array_values($request->route()->originalParameters())
@@ -187,7 +187,7 @@ class ShowStoredItem extends OrgAction
                                 'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
-                            'label' => __('stored items')
+                            'label' => __("customer's sKUs")
                         ],
                         'model' => [
                             'route' => [

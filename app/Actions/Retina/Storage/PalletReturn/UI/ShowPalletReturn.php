@@ -72,7 +72,7 @@ class ShowPalletReturn extends RetinaAction
 
         if ($palletReturn->type == PalletReturnTypeEnum::STORED_ITEM) {
             $afterTitle = [
-                'label' => '('.__('Stored items').')'
+                'label' => '('.__("Customer's sKUs").')'
                 ];
         } else {
             $afterTitle = [
@@ -172,7 +172,7 @@ class ShowPalletReturn extends RetinaAction
                                     'type'    => 'button',
                                     'style'   => 'secondary',
                                     'icon'    => 'fal fa-plus',
-                                    'label'   => __('add Stored Item'),
+                                    'label'   => __('add SKU'),
                                     'route'   => [
                                         'name'       => 'retina.models.pallet-return.stored_item.store',
                                         'parameters' => [
