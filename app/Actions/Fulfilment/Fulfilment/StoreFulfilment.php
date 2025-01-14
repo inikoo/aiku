@@ -42,7 +42,7 @@ class StoreFulfilment extends OrgAction
                 RentalAgreementBillingCycleEnum::MONTHLY->value => [
                     'type'    => RentalAgreementBillingCycleEnum::MONTHLY->value,
                     'day'     => 20,
-                    'workdays' => false
+                    'is_weekdays' => true
                 ]
             ]
 

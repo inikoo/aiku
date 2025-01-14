@@ -40,6 +40,9 @@ const locale = inject('locale', aikuLocaleStructure)
 const layout = inject('layout', {})
 
 
+const emits = defineEmits<{
+    (e: 'setPanelActive', value: string | number): void
+}>()
 
 
 
@@ -56,8 +59,9 @@ const layout = inject('layout', {})
                 id="profile_button"
                 :href="model?.profile?.link.href"
                 :target="model?.profile?.link.target"
-                class="space-x-1.5"
+                class="space-x-1.5 hover-dashed"
                 :style="getStyles(model?.profile.container.properties)"
+                @click="()=> emits('setPanelActive', 'profile')"
             >
                 <!-- <i class="far fa-user fa-flip-horizontal  " title="Profile" aria-hidden="true"></i> -->
                 <FontAwesomeIcon icon='fal fa-user' class='' v-tooltip="trans('Profile')" fixed-width
@@ -68,8 +72,9 @@ const layout = inject('layout', {})
             <!-- Section: Logout -->
             <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
                 :href="model?.logout?.link"
-                class="space-x-1.5"
+                class="space-x-1.5 hover-dashed"
                 :style="getStyles(model?.logout.container.properties)"
+                @click="()=> emits('setPanelActive', 'logout')"
             >
                 <!-- <i class="far fa-flip-horizontal fa-sign-out" title="Log out" aria-hidden="true"></i> -->
                 <FontAwesomeIcon icon='fal fa-sign-out' v-tooltip="trans('Log out')" class='' fixed-width
@@ -78,34 +83,40 @@ const layout = inject('layout', {})
             </a>
 
             <!-- Login -->
-            <a v-if="checkVisible(model?.login.visible || null, isLoggedIn)" 
-                :href="model?.login?.link.href"
-                :target="model?.login?.link.target"
-                class="space-x-1.5 cursor-pointer"
-                id=""
-                :style="getStyles(model?.login.container.properties)"
-                
-            >
-                <FontAwesomeIcon icon='fal fa-sign-in' class='' fixed-width aria-hidden='true' />
-                <span v-html="textReplaceVariables(model?.login?.text, layout.iris_variables)" />
-            </a>
+            <span class="hover-dashed">
+                <a v-if="checkVisible(model?.login.visible || null, isLoggedIn)" 
+                    :href="model?.login?.link.href"
+                    :target="model?.login?.link.target"
+                    class="space-x-1.5 cursor-pointer"
+                    id=""
+                      @click="()=> emits('setPanelActive', 'login')"
+                    :style="getStyles(model?.login.container.properties)"
+                    
+                >
+                    <FontAwesomeIcon icon='fal fa-sign-in' class='' fixed-width aria-hidden='true' />
+                    <span v-html="textReplaceVariables(model?.login?.text, layout.iris_variables)" />
+                </a>
+            </span>
             
             <!-- Register -->
-            <a v-if="checkVisible(model?.register.visible || null, isLoggedIn)" 
-                :href="model?.register?.link.href"
-                :target="model?.register?.link.target"
-                class="space-x-1.5 cursor-pointer"
-                id=""
-                :style="getStyles(model?.register.container.properties)"
-                
-            >
-                <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
-                <span v-html="textReplaceVariables(model?.register?.text, layout.iris_variables)" />
-            </a>
+             <span class="hover-dashed">
+                <a v-if="checkVisible(model?.register.visible || null, isLoggedIn)" 
+                    :href="model?.register?.link.href"
+                    :target="model?.register?.link.target"
+                    class="space-x-1.5 cursor-pointer "
+                    id=""
+                    :style="getStyles(model?.register.container.properties)"
+                            @click="()=> emits('setPanelActive', 'register')"
+                >
+                    <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
+                    <span v-html="textReplaceVariables(model?.register?.text, layout.iris_variables)" />
+                </a>
+             </span>
+           
         </div>
 
         <!-- Section: Main title -->
-        <div v-if="checkVisible(model?.main_title.visible || null, isLoggedIn)" class="text-center flex items-center" v-html="model.main_title.text">
+        <div @click="()=> emits('setPanelActive', 'title')" v-if="checkVisible(model?.main_title.visible || null, isLoggedIn)" class="text-center flex items-center hover-dashed" v-html="model.main_title.text">
         </div>
 
         <div class="action_buttons" style="display: flex; justify-content: flex-end; column-gap: 5px; grid-column: span 5 / span 5">
@@ -115,8 +126,9 @@ const layout = inject('layout', {})
                 id="favorites_button"
                 :href="model?.favourite?.link.href"
                 :target="model?.favourite?.link.target"
-                class="mx-0 space-x-1.5"
+                class="mx-0 space-x-1.5 hover-dashed"
                 :style="getStyles(model?.favourite.container.properties)"
+                @click="()=> emits('setPanelActive', 'favourites')"
             >
                 <FontAwesomeIcon icon='fal fa-heart' class='' fixed-width aria-hidden='true' />
                 <span v-html="textReplaceVariables(model?.favourite?.text, layout.iris_variables)"></span>
@@ -127,8 +139,9 @@ const layout = inject('layout', {})
                 id="header_order_totals"
                 :href="model?.cart?.link.href"
                 :target="model?.cart?.link.target"
-                class="space-x-1.5"
+                class="space-x-1.5 hover-dashed"
                 :style="getStyles(model?.cart.container.properties)"
+                @click="()=> emits('setPanelActive', 'cart')"
             >
                 <FontAwesomeIcon icon='fal fa-shopping-cart' class='text-base px-[5px]' v-tooltip="trans('Cart')"
                     fixed-width aria-hidden='true' />

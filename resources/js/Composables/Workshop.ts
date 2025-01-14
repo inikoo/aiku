@@ -8,7 +8,7 @@
 
 // Check if the user is logged in
 export const checkVisible = (visible: string | null, isLoggedIn: boolean) => {
-    if (!visible) return true
+    if (!visible) return false
 
     if (visible === 'all') {
         return true

@@ -33,7 +33,7 @@ const props = defineProps<{
         data: {}
         theme: {
             color: string[]
-            layout: string  // 'fullscreen' | 'blog'
+            layout: string
         }
     }
     footer: {
@@ -42,9 +42,11 @@ const props = defineProps<{
     navigation: {
         menu: {}
     }
+    layout : {
+
+    }
 }>()
 
-const debouncedSendUpdateBlock = debounce((block) => updateData(block), 5000, { leading: false, trailing: true })
 const data = ref(cloneDeep(props.webpage))
 const isPreviewLoggedIn = ref(false)
 const isPreviewMode = ref(false)
@@ -66,7 +68,6 @@ const showWebpage = (activityItem) => {
 }
 
 const updateData = (newVal) => {
-
     sendMessageToParent('autosave', newVal)
 }
 
@@ -100,18 +101,10 @@ provide('isPreviewMode', isPreviewMode)
 
 
 <template>
-    <!-- <pre>{{ props }}</pre> -->
     <div class="editor-class">
         <!-- Tools: login view, edit-preview -->
         <div v-if="isInWorkshop" class="bg-gray-200 shadow-xl px-8 py-4 flex justify-center items-center gap-x-2">
-            <ButtonPreviewLogin
-                v-model="isPreviewLoggedIn"
-            />
-
-            <!-- <div class="h-6 w-px bg-gray-400 mx-2"></div>
-            <ButtonPreviewEdit
-                v-model="isPreviewMode"
-            /> -->
+            <ButtonPreviewLogin v-model="isPreviewLoggedIn" />
         </div>
 
         <div class="shadow-xl" :class="layout.colorThemed.layout == 'fullscreen' ? 'w-full' : 'container max-w-7xl mx-auto '">
@@ -127,19 +120,10 @@ provide('isPreviewMode', isPreviewMode)
             </div>
 
             <!-- Webpage -->
-            <div v-if="data" class="relative editor-class">
+            <!--  <div v-if="data" class="relative editor-class">
                 <div v-if="data?.layout?.web_blocks?.length">
                     <TransitionGroup tag="div" name="list" class="relative">
                         <section v-for="(activityItem, activityItemIdx) in data?.layout?.web_blocks" :key="activityItem.id" class="w-full">
-                            <!-- <component
-                                v-if="showWebpage(activityItem)"
-                                :key="activityItemIdx"
-                                class="w-full"
-                                :is="isPreviewMode ? getIrisComponent(activityItem?.type) : getComponent(activityItem?.type)"
-                                :webpageData="webpage" :blockData="activityItem"
-                                v-model="activityItem.web_block.layout.data.fieldValue"
-                                :fieldValue="activityItem.web_block?.layout?.data?.fieldValue"
-                                @autoSave="() => debouncedSendUpdateBlock(activityItem)" /> -->
                             <component
                                 v-show="showWebpage(activityItem)"
                                 class="w-full"
@@ -147,7 +131,6 @@ provide('isPreviewMode', isPreviewMode)
                                 :webpageData="webpage" :blockData="activityItem"
                                 :fieldValue="activityItem.web_block?.layout?.data?.fieldValue"
                             />
-                            <!-- {{ activityItem.type }} -->
                         </section>
                     </TransitionGroup>
                 </div>
@@ -158,7 +141,7 @@ provide('isPreviewMode', isPreviewMode)
                         description: trans('Pick block from list')
                     }" />
                 </div>
-            </div>
+            </div> -->
 
             <!-- Footer -->
             <component
@@ -256,6 +239,16 @@ provide('isPreviewMode', isPreviewMode)
 
 .editor-class p:empty::after {
     content: "\00A0";
+}
+
+.hover-dashed {
+    transition: border 0.3s ease;
+    border: 2px solid transparent; /* Default tanpa border */
+}
+
+.hover-dashed:hover {
+    border: 2px dashed #999; /* Border dashed saat hover */
+    padding: 3px
 }
 
 
