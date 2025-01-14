@@ -30,6 +30,7 @@ const props = defineProps<{
 	}
 	form: {}
 	stored_items: {}[]
+    title?: string
 }>()
 
 const loadingAddStoredItem = ref(false)
@@ -137,7 +138,7 @@ const onSaved = async () => {
 
 	const finalData = {}
 	newData.forEach((d) => {
-		finalData[d.id] = { quantity: d.quantity }
+		finalData[d.id] = { quantity: Math.floor(d.quantity) }
 	})
 
 	emits("onSave", finalData)
@@ -148,8 +149,8 @@ const onSaved = async () => {
 <template>
 	<div v-if="!messageMode">
 		<div class="text-center font-semibold text-2xl mb-4">
-                {{ disabledSelect.edit ? trans("Edit customer's SKUs") : trans("Set up customer's SKUs") }}
-            </div>
+			{{ title ? title : disabledSelect.edit ? trans("Edit customer's SKUs") : trans("Set up customer's SKUs") }}
+		</div>
 		<label class="block text-sm font-medium text-gray-700">{{ trans("Reference") }}</label>
 		
 		<div class="mt-1">

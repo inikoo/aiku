@@ -54,11 +54,11 @@ class EditStoredItemDeltasResource extends JsonResource
             'location_code' => $this->location_code,
             'location_id'   => $this->location_id,
 
-            'current_stored_items' => $pallet->getEditStoredItemDeltasQuery()->get()->map(fn($item) => [
+            'stored_items' => $pallet->getEditStoredItemDeltasQuery()->get()->map(fn($item) => [
                 'id'               => $item->stored_item_id,
                 'reference'        => $item->stored_item_reference,
-                'quantity'         => $item->quantity,
-                'audited_quantity' => $item->audited_quantity,
+                'quantity'         => (int) $item->quantity,
+                'audited_quantity' => (int) $item->audited_quantity,
                 'audit_notes'      => $item->audit_notes,
                 'type'             => 'current_item'
             ]),
@@ -67,7 +67,7 @@ class EditStoredItemDeltasResource extends JsonResource
                 'id'               => $item->stored_item_id,
                 'reference'        => $item->stored_item_reference,
                 'quantity'         => 0,
-                'audited_quantity' => $item->audited_quantity,
+                'audited_quantity' => (int) $item->audited_quantity,
                 'audit_notes'      => $item->audit_notes,
                 'type'             => 'new_item'
             ]),

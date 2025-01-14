@@ -22,6 +22,7 @@ const props = defineProps<{
 		delete: routeType
 	}
     editable?: boolean
+    title?: string
 }>()
 
 const emits = defineEmits<{
@@ -51,6 +52,7 @@ const onDelete = (data : { id : ''}) => {
 }
 
 const sendToServer = async (data : {}) => {
+    console.log('-=-=-=-=', props.saveRoute.name, props.saveRoute.parameters)
     router.post(route(props.saveRoute.name, props.saveRoute.parameters), { stored_item_ids: data }, {
         onError: (e) => {
             form.errors = {
@@ -114,6 +116,7 @@ const sendToServer = async (data : {}) => {
                     @onSave="sendToServer"
                     :stored_items="pallet.stored_items"
                     @closeModal="isModalOpen = false"
+                    :title
                 />
             </div>
         </Modal>

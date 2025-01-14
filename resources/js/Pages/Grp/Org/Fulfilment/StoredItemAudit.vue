@@ -24,6 +24,7 @@ import { routeType } from "@/types/route"
 
 import { faStickyNote, faPlus, faMinus } from '@fal'
 import { faCheckCircle } from '@fad'
+import { faStar } from '@fas'
 import Table from '@/Components/Table/Table.vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -33,7 +34,8 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import { trans } from 'laravel-vue-i18n'
 import { reactive, ref } from 'vue'
 import { get, set } from 'lodash'
-library.add(faStickyNote, faPlus, faMinus, faCheckCircle)
+// import QuantityInput from '@/Components/Utils/QuantityInput.vue'
+library.add(faStickyNote, faPlus, faMinus, faCheckCircle, faStar)
 
 const props = defineProps<{
     data: {
@@ -109,7 +111,7 @@ function palletRoute(pallet: Pallet) {
 
 
 const isLoading = ref(false)
-const onClickQuantity = (routex: routeType, store_item_id: number, qty: number) => {
+const onCheck = (routex: routeType, store_item_id: number, qty: number) => {
     router.post(route(routex.name, routex.parameters), {
         stored_item_ids	: {
             [store_item_id]: {
@@ -188,52 +190,13 @@ const storedItemsQuantity = reactive<StoredItemsQuantity>({
 
         <!-- Column: Customer SKUS -->
         <template #cell(stored_items)="{ proxyItem, item }">
-            <!-- <div class="mb-2 -mx-4 mt-10 ring-1 ring-gray-300 sm:mx-0 sm:rounded-sm">
-                <table class="min-w-full divide-y divide-gray-300">
-                    <thead>
-                        <tr>
-                            <th scope="col" class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold sm:pl-6">
-                                SKU
-                            </th>
 
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">
-                                Currenty qty.
-                            </th>
-
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">
-                                Check status
-                            </th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <tr v-for="(stored, idxStored) in proxyItem.current_stored_items" :key="stored.id">
-                            <td :class="['border-t border-gray-200', 'relative py-4 pr-3 pl-4 text-sm sm:pl-6']">
-                                {{ stored.reference }}
-                            </td>
-                            
-                            <td :class="['border-t border-gray-200', 'px-3 py-3.5 text-sm text-gray-500']">
-                                {{ stored.quantity }}
-                            </td>
-
-                            <td :class="['border-t border-gray-200', 'px-3 py-3.5 text-sm text-gray-500']">
-                                <div class="grid grid-cols-3 justify-center items-center">
-                                    <Button @click="() => stored.quantity = stored.quantity + 1"
-                                        icon="fal fa-plus" :loading="isLoading" type="tertiary" size="xs" />
-                                    <div :key="stored.quantity" class="text-center tabular-nums">{{ stored.quantity }}</div>
-                                    <Button @click="() => stored.quantity-1"
-                                        icon="fal fa-minus" :loading="isLoading" type="tertiary" size="xs" />
-                                </div>
-                            </td>
-
-                        </tr>
-                    </tbody>
-                </table>
-            </div> -->
-
-            <pre>{{ proxyItem.current_stored_items }}</pre>
-            <DataTable v-if="proxyItem.current_stored_items?.length" :value="proxyItem.current_stored_items">
+            <pre>{{ proxyItem.stored_items }}</pre>
+            <DataTable v-if="proxyItem.stored_items?.length" :value="[...proxyItem.stored_items, ...proxyItem.new_stored_items]">
                 <Column field="reference" :header="trans('SKU')">
+                    <template #body="{ data }">
+                        {{ data.reference }} <FontAwesomeIcon v-if="data.type === 'new_item'" v-tooltip="trans('New stored item')" icon='fas fa-star' class='text-indigo-500' fixed-width aria-hidden='true' />
+                    </template>
                 </Column>
 
                 <Column field="quantity" header="Current qty">
@@ -244,23 +207,37 @@ const storedItemsQuantity = reactive<StoredItemsQuantity>({
 
                 <Column field="quantity" header="" class="w-36">
                     <template #body="{ data }">
+
+                        <!-- <QuantityInput
+                            v-model="data.audited_quantity"
+                            :quantity_from="data.quantity"
+                            :datxa="{
+                                id: 4,
+                                quantity_ordered: 5,
+                                inputTriggered: true
+                            }"
+                        /> -->
+
                         <div class="grid lg:grid-cols-3 gap-y-1 gap-x-1">
-                            <Button @click="() => set(storedItemsQuantity, `${item.rowIndex}.${data.id}`, get(storedItemsQuantity, `${item.rowIndex}.${data.id}`, data.quantity) - 1)" icon="fal fa-minus" :loading="isLoading" type="tertiary" size="xs" class="justify-self-center" />
+                            <Button @click="() => set(data, `audited_quantity`, get(data, `audited_quantity`, data.quantity) - 1)" icon="fal fa-minus" :loading="isLoading" type="tertiary" size="xs" class="justify-self-center" />
                                 <div class="text-center tabular-nums">
                                 <Transition name="spin-to-right">
-                                    <span :key="get(storedItemsQuantity, `${item.rowIndex}.${data.id}`, data.quantity)" class="text-lg" :class="get(storedItemsQuantity, `${item.rowIndex}.${data.id}`, data.quantity) > data.quantity ? 'text-green-500' : get(storedItemsQuantity, `${item.rowIndex}.${data.id}`, data.quantity) === data.quantity ? 'text-gray-500' : 'text-red-500'">
-                                        {{ get(storedItemsQuantity, `${item.rowIndex}.${data.id}`, data.quantity) }}
+                                    <span :key="data.audited_quantity" class="text-lg" :class="data.audited_quantity > data.quantity ? 'text-green-500' : data.audited_quantity === data.quantity ? 'text-gray-500' : 'text-red-500'">
+                                        {{ data.audited_quantity }}
                                     </span>
                                 </Transition>
                             </div>
-                            <Button @click="() => set(storedItemsQuantity, `${item.rowIndex}.${data.id}`, get(storedItemsQuantity, `${item.rowIndex}.${data.id}`, data.quantity) + 1)" icon="fal fa-plus" :loading="isLoading" type="tertiary" size="xs" class="justify-self-center" />
+                            <Button @click="() => set(data, `audited_quantity`, get(data, `audited_quantity`, data.quantity) + 1)" icon="fal fa-plus" :loading="isLoading" type="tertiary" size="xs" class="justify-self-center" />
                         </div>
-                        </template>
+                    </template>
                 </Column>
 
                 <Column field="quantity" header="Checked" class="text-right">
                     <template #body="{ data }">
-                        <div @click="onClickQuantity(proxyItem.auditRoute, data.id, data.quantity)" class="mx-auto cursor-pointer w-fit py-0.5 px-3 text-gray-500 hover:text-green-500">
+                        <div v-if="data.type === 'new_item'">
+                            
+                        </div>
+                        <div v-else @click="onCheck(proxyItem.auditRoute, data.id, data.quantity)" class="mx-auto cursor-pointer w-fit py-0.5 px-3 text-gray-500 hover:text-green-500">
                             <FontAwesomeIcon icon='fad fa-check-circle'
                                 class='' fixed-width aria-hidden='true' />
                         </div>
@@ -278,6 +255,9 @@ const storedItemsQuantity = reactive<StoredItemsQuantity>({
             </div>
 
             <pre>{{ proxyItem.new_stored_items }}</pre>
+            
+            
+            <!-- <pre>{{ proxyItem.new_stored_items }}</pre>
             <DataTable v-if="proxyItem.new_stored_items?.length" :value="proxyItem.new_stored_items">
                 <Column field="reference" :header="trans('SKU')">
                 </Column>
@@ -301,27 +281,22 @@ const storedItemsQuantity = reactive<StoredItemsQuantity>({
                             </div>
                             <Button @click="() => set(storedItemsQuantity, `${item.rowIndex}.${data.id}`, get(storedItemsQuantity, `${item.rowIndex}.${data.id}`, data.quantity) + 1)" icon="fal fa-plus" :loading="isLoading" type="tertiary" size="xs" class="justify-self-center" />
                         </div>
-                        </template>
+                    </template>
                 </Column>
 
                 <Column field="quantity" header="Checked" class="text-right">
                     <template #body="{ data }">
-                        <div @click="onClickQuantity(proxyItem.auditRoute, data.id, data.quantity)" class="mx-auto cursor-pointer w-fit py-0.5 px-3 text-gray-500 hover:text-green-500">
+                        <div @click="onCheck(proxyItem.auditRoute, data.id, data.quantity)" class="mx-auto cursor-pointer w-fit py-0.5 px-3 text-gray-500 hover:text-green-500">
                             <FontAwesomeIcon icon='fad fa-check-circle'
                                 class='' fixed-width aria-hidden='true' />
                         </div>
                     </template>
                 </Column>
-
-                <!-- <Column field="quantity" header="">
-                    <template #body="{ data }">
-                    </template>
-                </Column> -->
             </DataTable>
 
             <div v-else class="text-gray-400">
                 
-            </div>
+            </div> -->
             
             <StoredItemsProperty
                 :pallet="item"
@@ -329,16 +304,12 @@ const storedItemsQuantity = reactive<StoredItemsQuantity>({
                 :editable="true"
                 :saveRoute="item.auditRoute"
                 class="mt-2"
+                title="Add stored item"
             >
                 <template #default="{ openModal }">
                     <Button @click="openModal" type="dashed" icon="fal fa-plus" full label="Add stored item" />
                 </template>
             </StoredItemsProperty>
-
-            <!-- {{ proxyItem.auditRoute.name }}
-            {{ proxyItem.auditRoute.parameters }} -->
-            <!-- {{ route(proxyItem.auditRoute.name, proxyItem.auditRoute.parameters) }} -->
-            <!-- aaaaaa{{ route }}dddddd -->
         </template>
 
         <!-- Column: edited -->
@@ -374,6 +345,6 @@ const storedItemsQuantity = reactive<StoredItemsQuantity>({
 
 
     </Table>
-    <!-- {{ storedItemsQuantity }} -->
+    {{ storedItemsQuantity }}
 
 </template>
