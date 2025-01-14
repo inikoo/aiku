@@ -67,6 +67,7 @@ class EditStoredItemDeltasResource extends JsonResource
             ]),
 
 
+
             'auditRoute' => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet.stored-items.audit',
