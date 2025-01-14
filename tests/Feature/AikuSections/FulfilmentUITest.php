@@ -255,7 +255,7 @@ test('UI edit fulfilment', function () {
         $page
             ->component('EditModel')
             ->has('title')
-            ->has('formData.blueprint.0.fields', 2)
+            ->has('formData.blueprint.0.fields', 3)
             ->has('pageHead')
             ->has(
                 'formData.args.updateRoute',
@@ -430,6 +430,60 @@ test('UI edit fulfilment customer', function () {
                         ->where('parameters', [$this->customer->fulfilmentCustomer->id])
             )
             ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI index fulfilment invoices all', function () {
+    $fulfilment = $this->shop->fulfilment;
+    $response  = get(
+        route(
+            'grp.org.fulfilments.show.operations.invoices.all_invoices.index',
+            [
+                $this->organisation->slug,
+                $fulfilment->slug
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Accounting/Invoices')
+            ->has('data')
+            ->has('pageHead')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Invoices')
+                        ->has('subNavigation')
+                        ->etc()
+            );
+    });
+});
+
+test('UI index fulfilment invoices unpaid', function () {
+    $fulfilment = $this->shop->fulfilment;
+    $response  = get(
+        route(
+            'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.index',
+            [
+                $this->organisation->slug,
+                $fulfilment->slug
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Accounting/Invoices')
+            ->has('data')
+            ->has('pageHead')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Invoices')
+                        ->has('subNavigation')
+                        ->etc()
+            );
     });
 });
 
