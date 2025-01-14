@@ -18,6 +18,7 @@ enum StoredItemAuditDeltaTypeEnum: string
     case SUBTRACTION = 'subtraction';
     case CHECK        = 'check';
     case SET_UP       = 'set_up';
+    case NO_CHANGE       = 'no_change';
 
     public static function labels(): array
     {
@@ -26,6 +27,7 @@ enum StoredItemAuditDeltaTypeEnum: string
             'subtraction'    => __('Subtraction'),
             'check'    => __('Addition'),
             'set_up'    => __('Set Up'),
+            'no_change'    => __('No Change'),
         ];
     }
 
@@ -64,6 +66,16 @@ enum StoredItemAuditDeltaTypeEnum: string
             ],
             'set_up' => [
                 'tooltip' => __('Set Up'),
+                'icon'    => 'fal fa-check',
+                'class'   => 'text-indigo-400',
+                'color'   => 'indigo',
+                'app'     => [
+                    'name' => 'check',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'no_change' => [
+                'tooltip' => __('No Change'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-indigo-400',
                 'color'   => 'indigo',
