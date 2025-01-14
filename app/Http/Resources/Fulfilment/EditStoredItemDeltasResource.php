@@ -32,7 +32,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $fulfilment_customer_name
  * @property mixed $fulfilment_customer_slug
  */
-class PalletsInAuditResource extends JsonResource
+class EditStoredItemDeltasResource extends JsonResource
 {
     public function toArray($request): array
     {
@@ -41,20 +41,14 @@ class PalletsInAuditResource extends JsonResource
             'slug'                             => $this->slug,
             'reference'                        => $this->reference,
             'customer_reference'               => (string)$this->customer_reference,
-            'notes'                            => (string)$this->notes,
-            'state'                            => $this->state,
-            'type_icon'                        => $this->type->typeIcon()[$this->type->value],
-            'type'                             => $this->type,
-            'state_label'                      => $this->state->labels()[$this->state->value],
-            'state_icon'                       => $this->state->stateIcon()[$this->state->value],
-            'status'                           => $this->status,
-            'status_label'                     => $this->status->labels()[$this->status->value],
-            'status_icon'                      => $this->status->statusIcon()[$this->status->value],
+
+
             'location_slug'                    => $this->location_slug,
             'location_code'                    => $this->location_code,
             'location_id'                      => $this->location_id,
             'audited_at'                       => $this->audited_at,
-            'current_stored_items'                     => $this->storedItems->map(fn (StoredItem $storedItem) => [
+
+            'stored_items'                     => $this->storedItems->map(fn (StoredItem $storedItem) => [
                 'id'             => $storedItem->id,
                 'reference'      => $storedItem->reference,
                 'notes'          => $storedItem->notes,
@@ -62,6 +56,8 @@ class PalletsInAuditResource extends JsonResource
                 'state_icon'     => $storedItem->state->stateIcon()[$storedItem->state->value],
                 'quantity'       => (int)$storedItem->pivot->quantity,
             ]),
+
+
 
             'auditRoute' => match (request()->routeIs('retina.*')) {
                 true => [
