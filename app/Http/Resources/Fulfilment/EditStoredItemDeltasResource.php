@@ -9,8 +9,6 @@
 namespace App\Http\Resources\Fulfilment;
 
 use App\Models\Fulfilment\Pallet;
-use App\Models\Fulfilment\StoredItem;
-use App\Models\Fulfilment\StoredItemAuditDelta;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -38,37 +36,41 @@ class EditStoredItemDeltasResource extends JsonResource
 {
     public function toArray($request): array
     {
-
         /** @var Pallet $pallet */
         $pallet = $this->resource;
 
 
         return [
-            'id'                               => $this->id,
-            'slug'                             => $this->slug,
-            'reference'                        => $this->reference,
-            'customer_reference'               => (string)$this->customer_reference,
+            'id'                 => $this->id,
+            'slug'               => $this->slug,
+            'reference'          => $this->reference,
+            'customer_reference' => (string)$this->customer_reference,
 
 
-            'location_slug'                    => $this->location_slug,
-            'location_code'                    => $this->location_code,
-            'location_id'                      => $this->location_id,
+            'location_slug' => $this->location_slug,
+            'location_code' => $this->location_code,
+            'location_id'   => $this->location_id,
 
-            'current_stored_items'                     => $pallet->storedItems->map(fn (StoredItem $storedItem) => [
-                'id'             => $storedItem->id,
-                'reference'      => $storedItem->reference,
-                'quantity'       => (int)$storedItem->pivot->quantity,
+            'current_stored_items' => $pallet->getEditStoredItemDeltasQuery()->get()->map(fn ($item) => [
+                'id'               => $item->stored_item_id,
+                'reference'        => $item->stored_item_reference,
+                'quantity'         => $item->quantity,
+                'audited_quantity' => $item->audited_quantity,
+                'audit_notes'      => $item->audit_notes,
+                'type'             => 'current_item'
             ]),
 
-            'new_stored_items'                     => $pallet->getAuditDeltasQuery()->get()->map(fn ($item) => [
-                'id'             => $item->stored_item_id,
-                'reference'      => $item->stored_item_reference,
-                'quantity'       =>$item->audited_quantity,
+            'new_stored_items' => $pallet->getEditNewStoredItemDeltasQuery()->get()->map(fn ($item) => [
+                'id'               => $item->stored_item_id,
+                'reference'        => $item->stored_item_reference,
+                'quantity'         => 0,
+                'audited_quantity' => $item->audited_quantity,
+                'audit_notes'      => $item->audit_notes,
+                'type'             => 'new_item'
             ]),
 
 
-
-            'auditRoute' => match (request()->routeIs('retina.*')) {
+            'auditRoute'           => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet.stored-items.audit',
                     'parameters' => [$this->id]
@@ -78,7 +80,7 @@ class EditStoredItemDeltasResource extends JsonResource
                     'parameters' => [$this->id]
                 ]
             },
-            'resetAuditRoute' => [
+            'resetAuditRoute'      => [
                 'name'       => 'grp.models.pallet.stored-items.audit.reset',
                 'parameters' => [$this->id]
             ],
