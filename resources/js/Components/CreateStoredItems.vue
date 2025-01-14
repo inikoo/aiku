@@ -100,7 +100,7 @@ const deleteStoredItems = async (closeModal : boolean) => {
 const filterOptionsStoredItems = (e) => {
 	if (!props.form.id) {
 		return e.filter((item) =>
-			!props.stored_items.map((storedItem) => storedItem.id).includes(item.id)
+			!props.stored_items?.map((storedItem) => storedItem.id)?.includes(item.id)
 		);
 	}
 	return e;

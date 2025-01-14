@@ -207,7 +207,7 @@ const storedItemsQuantity = reactive<StoredItemsQuantity>({
                     </thead>
 
                     <tbody>
-                        <tr v-for="(stored, idxStored) in proxyItem.stored_items" :key="stored.id">
+                        <tr v-for="(stored, idxStored) in proxyItem.current_stored_items" :key="stored.id">
                             <td :class="['border-t border-gray-200', 'relative py-4 pr-3 pl-4 text-sm sm:pl-6']">
                                 {{ stored.reference }}
                             </td>
@@ -231,7 +231,7 @@ const storedItemsQuantity = reactive<StoredItemsQuantity>({
                 </table>
             </div> -->
 
-            <DataTable v-if="proxyItem.stored_items?.length" :value="proxyItem.stored_items">
+            <DataTable v-if="proxyItem.current_stored_items?.length" :value="proxyItem.current_stored_items">
                 <Column field="reference" :header="trans('SKU')">
                 </Column>
 

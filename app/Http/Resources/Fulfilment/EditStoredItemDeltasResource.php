@@ -48,7 +48,7 @@ class EditStoredItemDeltasResource extends JsonResource
             'location_id'                      => $this->location_id,
             'audited_at'                       => $this->audited_at,
 
-            'stored_items'                     => $this->storedItems->map(fn (StoredItem $storedItem) => [
+            'current_stored_items'                     => $this->storedItems->map(fn (StoredItem $storedItem) => [
                 'id'             => $storedItem->id,
                 'reference'      => $storedItem->reference,
                 'notes'          => $storedItem->notes,
