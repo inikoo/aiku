@@ -255,7 +255,7 @@ test('UI edit fulfilment', function () {
         $page
             ->component('EditModel')
             ->has('title')
-            ->has('formData.blueprint.0.fields', 2)
+            ->has('formData.blueprint.0.fields', 3)
             ->has('pageHead')
             ->has(
                 'formData.args.updateRoute',
