@@ -76,7 +76,7 @@ class SyncStoredItemToPalletAudit extends OrgAction
                     'original_quantity' => $originalQty,
                     'audited_quantity'  => $auditData['quantity'],
                     'audited_at'        => now(),
-                    'type'              => $type,
+                    'audit_type'              => $type,
                     'state'             => StoredItemAuditDeltaStateEnum::IN_PROCESS
                 ]);
             }
@@ -95,7 +95,6 @@ class SyncStoredItemToPalletAudit extends OrgAction
     public function rules(): array
     {
         return [
-            'stored_item_audit_id'       => ['required', 'integer'],
             'stored_item_ids'            => ['sometimes', 'array'],
             'stored_item_ids.*.quantity' => ['required', 'integer', 'min:1'],
         ];
