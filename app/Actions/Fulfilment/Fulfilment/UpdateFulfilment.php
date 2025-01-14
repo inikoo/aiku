@@ -17,7 +17,6 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Illuminate\Validation\Rules\File;
@@ -47,7 +46,6 @@ class UpdateFulfilment extends OrgAction
             $settings['rental_agreement_cut_off']['monthly']['is_weekdays'] = $modelData['monthly_cut_off']['isWeekdays'] ?? false;
             $updateSettings                                              = true;
             data_forget($modelData, 'monthly_cut_off');
-            // data_forget($modelData, 'monthly_only_weekdays');
         }
 
         if ($updateSettings) {
@@ -77,12 +75,12 @@ class UpdateFulfilment extends OrgAction
         if (Arr::get($modelData, 'update_all', false)) {
 
             $recurringBills = $fulfilment->recurringBills->where('status', RecurringBillStatusEnum::CURRENT);
+            $currentDate = now();
 
             foreach ($recurringBills as $recurringBill) {
-                $startDate = Carbon::parse($recurringBill->start_date);
                 $rentalAgreement = $recurringBill->rentalAgreement;
                 $endDate = $this->getEndDate(
-                    $startDate->copy(),
+                    $currentDate->copy(),
                     Arr::get(
                         $settings,
                         'rental_agreement_cut_off.'.$rentalAgreement->billing_cycle->value
@@ -193,5 +191,18 @@ class UpdateFulfilment extends OrgAction
         $this->initialisationFromFulfilment($fulfilment, $modelData);
 
         return $this->handle($fulfilment, $this->validatedData);
+    }
+
+    public string $commandSignature = 'fulfilment-shop:update';
+
+    public function asCommand($command): void
+    {
+        $fulfilment = Fulfilment::find(1);
+
+        $currentDate = now();
+
+        dd($fulfilment->settings);
+        // $this->getEndDate()
+
     }
 }

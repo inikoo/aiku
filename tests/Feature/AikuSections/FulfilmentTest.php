@@ -113,6 +113,7 @@ use function Pest\Laravel\actingAs;
 
 beforeAll(function () {
     loadDB();
+    // uses(App\Actions\Traits\WithGetRecurringBillEndDate::class)->in('Unit','Feature');
 });
 
 
@@ -208,6 +209,21 @@ test('update fulfilment settings (monthly cut off day)', function (Fulfilment $f
 
     return $fulfilment;
 })->depends('create fulfilment shop');
+
+test('get end date recurring bill', function () {
+    // WithGetRecurringBillEndDate::make()->f;
+    // dd($this->getEndDate(Carbon::now(), ['type' => 'monthly', 'day' => 12]));
+    // $startDate = Carbon::now();
+    // $endDate = $this->getEndDate(
+    //     $startDate,
+    //     10
+    // );
+
+    // expect($endDate)->toBeInstanceOf(Carbon::class)
+    //     ->and($endDate->diffInDays($startDate))->toBe(10);
+
+    // return $endDate;
+});
 
 test('create services in fulfilment shop', function (Fulfilment $fulfilment) {
     $service1 = StoreService::make()->action(

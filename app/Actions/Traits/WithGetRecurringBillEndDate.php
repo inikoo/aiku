@@ -45,15 +45,17 @@ trait WithGetRecurringBillEndDate
             $endDate = $startDate->copy()->day($endDayOfMonth);
         }
 
-        $isWeekDays = $setting['is_weekdays'] ?? false;
+        $isWeekDays = $setting['is_weekdays'];
 
         if ($isWeekDays) {
-            while ($endDate->isWeekday()) {
-                $endDate->addDay();
-            }
-        } else {
-            while ($endDate->isWeekend()) {
-                $endDate->addDay();
+            if ($isWeekDays == true) {
+                while ($endDate->isWeekday()) {
+                    $endDate->addDay();
+                }
+            } else {
+                while ($endDate->isWeekend()) {
+                    $endDate->addDay();
+                }
             }
         }
 
