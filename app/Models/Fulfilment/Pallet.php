@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -94,7 +95,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Rental|null $rental
  * @property-read \App\Models\Fulfilment\RentalAgreementClause|null $rentalAgreementClause
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItemAuditDelta> $storedItemAuditDeltas
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Warehouse $warehouse
@@ -209,11 +209,33 @@ class Pallet extends Model implements Auditable
         return $this->belongsToMany(StoredItem::class, 'pallet_stored_items')->withPivot('quantity');
     }
 
-    public function storedItemAuditDeltas(): BelongsToMany
+    public function getEditStoredItemDeltasQuery(): Builder
     {
-        return $this->belongsToMany(StoredItemAuditDelta::class, 'stored_item_audit_deltas')
-            ->withPivot('original_quantity', 'audited_quantity', 'state', 'audit_type', 'reason');
+
+        $query = DB::table('pallet_stored_items')
+            ->join('stored_items', 'stored_items.id', '=', 'pallet_stored_items.stored_item_id')
+            ->join('stored_item_audit_deltas', 'stored_item_audit_deltas.stored_item_id', '=', 'pallet_stored_items.stored_item_id')
+            ->select('stored_items.reference  as stored_item_reference', 'stored_items.id  as stored_item_id', 'stored_item_audit_deltas.notes as audit_notes', 'pallet_stored_items.quantity', 'stored_item_audit_deltas.audited_quantity', 'stored_item_audit_deltas.state', 'stored_item_audit_deltas.audit_type')
+            ->where('pallet_stored_items.pallet_id', $this->id);
+
+
+        return $query;
     }
+
+
+    public function getEditNewStoredItemDeltasQuery(): Builder
+    {
+
+        $query = DB::table('stored_item_audit_deltas')
+            ->join('stored_items', 'stored_item_audit_deltas.stored_item_id', '=', 'stored_items.id')
+            ->select('stored_items.reference  as stored_item_reference', 'stored_items.id  as stored_item_id', 'stored_item_audit_deltas.notes as audit_notes', 'stored_item_audit_deltas.audited_quantity', 'stored_item_audit_deltas.state', 'stored_item_audit_deltas.audit_type')
+            ->where('stored_item_audit_deltas.pallet_id', $this->id);
+
+
+        return $query;
+    }
+
+
 
     public function palletDelivery(): BelongsTo
     {
