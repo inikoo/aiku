@@ -17,7 +17,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 trait WithGetRecurringBillEndDate
 {
-    use AsAction;
+    // use AsAction;
 
     public function getEndDate(Carbon $startDate, array $setting): Carbon
     {
@@ -45,7 +45,7 @@ trait WithGetRecurringBillEndDate
             $endDate = $startDate->copy()->day($endDayOfMonth);
         }
 
-        $isWeekDays = $setting['is_weekdays'];
+        $isWeekDays = $setting['is_weekdays'] ?? null;
 
         if ($isWeekDays) {
             if ($isWeekDays == true) {
@@ -57,14 +57,6 @@ trait WithGetRecurringBillEndDate
                     $endDate->addDay();
                 }
             }
-        }
-
-        if ($endDate->lt($startDate)) {
-            $endDate->addMonth();
-        }
-
-        if ($endDate->diffInDays($startDate) < 4) {
-            $endDate->addMonth();
         }
 
         return $endDate;

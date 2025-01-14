@@ -56,7 +56,6 @@ use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
-use App\Actions\Fulfilment\RecurringBill\GetRecurringBillEndDate;
 use App\Actions\Fulfilment\RecurringBill\Search\ReindexRecurringBillSearch;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
@@ -107,17 +106,15 @@ use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
 use App\Models\Web\Website;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use App\Actions\Traits\WithGetRecurringBillEndDate;
 
 use function Pest\Laravel\actingAs;
 
 beforeAll(function () {
     loadDB();
-    // uses(App\Actions\Traits\WithGetRecurringBillEndDate::class)->in('Unit','Feature');
 });
-
 
 beforeEach(function () {
     $this->organisation = createOrganisation();
@@ -212,21 +209,40 @@ test('update fulfilment settings (monthly cut off day)', function (Fulfilment $f
     return $fulfilment;
 })->depends('create fulfilment shop');
 
-test('get end date recurring bill', function (Fulfilment $fulfilment) {
+test('get end date recurring bill (monthly)', function () {
+    $func = new class () {
+        use WithGetRecurringBillEndDate;
+    };
 
-    Carbon::setTestNow('2025-10-20');
-    $endDate = GetRecurringBillEndDate::make()->getEndDate(Carbon::now(), 
-        Arr::get(
-        $fulfilment->settings,
-        'rental_agreement_cut_off.monthly'
-    ));
+    $crrYear = date('Y');
+    // fase 1
+    $startDate = Carbon::create($crrYear, 10, 20);
+    $endDate = $func->getEndDate(
+        $startDate,
+        [
+            'type' => 'monthly',
+            'day' => 9,
+        ]
+    );
 
     expect($endDate)->toBeInstanceOf(Carbon::class)
-        ->toEqual(Carbon::create(2025, 11, 9));
+        ->toEqual(Carbon::create($crrYear, 11, 9));
 
-    Carbon::setTestNow();
+    // fase 2
+    $startDate = Carbon::create($crrYear, 10, 7);
+    $endDate = $func->getEndDate(
+        $startDate,
+        [
+            'type' => 'monthly',
+            'day' => 9,
+        ]
+    );
+
+    expect($endDate)->toBeInstanceOf(Carbon::class)
+        ->toEqual(Carbon::create($crrYear, 10, 9));
+
     return $endDate;
-})->depends('update fulfilment settings (monthly cut off day)');
+});
 
 test('create services in fulfilment shop', function (Fulfilment $fulfilment) {
     $service1 = StoreService::make()->action(
