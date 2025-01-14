@@ -42,6 +42,7 @@ class EditStoredItemDeltasResource extends JsonResource
         /** @var Pallet $pallet */
         $pallet = $this->resource;
 
+
         return [
             'id'                               => $this->id,
             'slug'                             => $this->slug,
@@ -60,12 +61,11 @@ class EditStoredItemDeltasResource extends JsonResource
                 'quantity'       => (int)$storedItem->pivot->quantity,
             ]),
 
-//            'new_stored_items'                     => $pallet->storedItemAuditDeltas->map(fn (StoredItemAuditDelta $storedItemAuditDelta) => [
-//                'id'             => $storedItemAuditDelta->storedItem->id,
-//                'reference'             => $storedItemAuditDelta->storedItem->reference,
-//                'quantity'       => (int)$storedItemAuditDelta->pivot->audited_quantity,
-//            ]),
-
+            'new_stored_items'                     => $pallet->getAuditDeltas()->map(fn ($item) => [
+                'id'             => $item->stored_item_id,
+                'reference'      => $item->stored_item_reference,
+                'quantity'       =>$item->audited_quantity,
+            ]),
 
 
             'auditRoute' => match (request()->routeIs('retina.*')) {

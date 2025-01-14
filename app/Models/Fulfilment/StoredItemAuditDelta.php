@@ -40,6 +40,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class StoredItemAuditDelta extends Model
 {
+
+    protected $table = 'stored_item_audit_deltas';
+
     protected $guarded = [];
 
     protected $casts = [
