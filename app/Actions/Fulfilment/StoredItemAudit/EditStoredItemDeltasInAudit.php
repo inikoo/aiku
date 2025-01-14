@@ -95,7 +95,7 @@ class EditStoredItemDeltasInAudit extends OrgAction
 
 
         $query->defaultSort('pallets.id')
-            ->selectRaw("$storedItemAudit->id. as stored_item_audit_id")
+
             ->select(
                 
                 'pallets.id',
@@ -112,8 +112,7 @@ class EditStoredItemDeltasInAudit extends OrgAction
                 'pallets.warehouse_id',
                 'pallets.pallet_delivery_id',
                 'pallets.pallet_return_id',
-            // 'stored_item_audit_deltas.audited_at'
-            );
+            )->selectRaw("$storedItemAudit->id. as stored_item_audit_id");
 
 
         return $query->allowedSorts(['customer_reference', 'reference', 'fulfilment_customer_name'])
