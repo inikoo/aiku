@@ -16,6 +16,32 @@ trait WithFetchTextWebBlock
 {
     use AsAction;
 
+
+    public function getTemplateTextColumn($auroraBlock): string|null
+    {
+        $template = $auroraBlock["template"];
+        if (is_int($template)) {
+            return (string)($template % 4);
+        }
+        return null;
+    }
+
+    public function processTextColumnData($auroraBlock, string $template): array|null
+    {
+        $layout = null;
+        $text = $auroraBlock["text_blocks"];
+        if (count($text) > 0) {
+            $texts = [];
+            foreach ($text as $value) {
+                $texts[] = $value['text'] ?? '';
+            }
+            data_set($layout, "data.fieldValue.value.text", $texts);
+            data_set($layout, "data.fieldValue.value.template", $template);
+        }
+
+        return $layout;
+    }
+
     public function processTextData(Webpage $webpage, $auroraBlock): array|null
     {
         $layout = null;

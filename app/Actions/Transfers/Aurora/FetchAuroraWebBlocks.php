@@ -187,7 +187,12 @@ class FetchAuroraWebBlocks
                 break;
             case "text": // -> need new web block type for text column/array of text, this can't store the array of text for images
                 $webBlockType = $group->webBlockTypes()->where("slug", "text")->first();
-                $layout       = $this->processTextData($webpage, $auroraBlock);
+                if ($template = $this->getTemplateTextColumn($auroraBlock)) {
+                    $webBlockType = $group->webBlockTypes()->where("slug", "text-column")->first();
+                    $layout       = $this->processTextColumnData($webpage, $auroraBlock, $template);
+                } else {
+                    $layout       = $this->processTextData($webpage, $auroraBlock);
+                }
                 break;
             case "telephone":
                 $webBlockType = $group->webBlockTypes()->where("slug", "text")->first();
