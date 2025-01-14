@@ -109,7 +109,7 @@ class IndexRetinaStoredItemsAudits extends RetinaAction
                 );
 
             $table
-                ->column(key: 'state', label: __('State'), canBeHidden: false, sortable: true, searchable: true)
+            ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
                 ->column(key: 'reference', label: __('Reference'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
