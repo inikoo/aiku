@@ -8,6 +8,8 @@
 
 namespace App\Models\Fulfilment;
 
+use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
+use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaTypeEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -43,6 +45,8 @@ class StoredItemAuditDelta extends Model
     protected $guarded = [];
 
     protected $casts = [
+        'audit_type' => StoredItemAuditDeltaTypeEnum::class,
+        'state' => StoredItemAuditDeltaStateEnum::class,
         'audited_at' => 'datetime',
         'data'       => 'array'
     ];
