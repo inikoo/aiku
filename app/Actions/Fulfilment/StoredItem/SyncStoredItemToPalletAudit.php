@@ -9,10 +9,13 @@
 namespace App\Actions\Fulfilment\StoredItem;
 
 use App\Actions\OrgAction;
+use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
+use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaTypeEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\StoredItemAuditDelta;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -28,27 +31,38 @@ class SyncStoredItemToPalletAudit extends OrgAction
 
     public function handle(Pallet $pallet, array $modelData): void
     {
+        //  dd($modelData);
         //SyncStoredItemToPallet::run($pallet, $modelData);
 
 
         foreach (Arr::get($modelData, 'stored_item_ids', []) as $storedItemId => $auditData) {
-
             $originalQty = $pallet->storedItems()->where(
                 'stored_item_id',
                 $storedItemId
             )->count();
 
 
+            if ($originalQty > $auditData['quantity']) {
+                $type = StoredItemAuditDeltaTypeEnum::SUBTRACTION;
+            } elseif ($originalQty < $auditData['quantity']) {
+                $type = StoredItemAuditDeltaTypeEnum::ADDITION;
+            } else {
+                $type = StoredItemAuditDeltaTypeEnum::NO_CHANGE;
+            }
+
+
             $pallet->storedItemAuditDeltas()->updateOrCreate([
-                'stored_item_id'    => $storedItemId,
-                'organisation_id'   => $pallet->organisation_id,
+                'stored_item_id'  => $storedItemId,
+                'organisation_id' => $pallet->organisation_id,
             ], [
                 'group_id'          => $pallet->group_id,
                 'organisation_id'   => $pallet->organisation_id,
                 'stored_item_id'    => $storedItemId,
                 'original_quantity' => $originalQty,
-                'audited_quantity'  => $auditData['quantity'] + $originalQty,
-                'audited_at'        => now()
+                'audited_quantity'  => $auditData['quantity'],
+                'audited_at'        => now(),
+                'type'              => $type,
+                'state'             => StoredItemAuditDeltaStateEnum::IN_PROCESS
             ]);
         }
     }
