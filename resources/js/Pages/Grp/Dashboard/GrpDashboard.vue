@@ -214,22 +214,6 @@ const options = {
 	},
 }
 
-const abcdef = computed(() => {
-	return props.dashboard_stats.columns?.[0]?.widgets?.[0]?.data?.organisations
-		.filter((org) => org.type !== "agent")
-		.map((org) => {
-			return {
-				name: org.name,
-				code: org.code,
-				interval_percentages: org.interval_percentages,
-				sales: org.sales || 0,
-				currency:
-					selectedCurrency.value.code === "grp"
-						? props.groupStats.currency.code
-						: org.currency.code,
-			}
-		})
-})
 
 const currency = ref([
 	{
