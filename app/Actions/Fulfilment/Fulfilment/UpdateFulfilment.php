@@ -90,7 +90,7 @@ class UpdateFulfilment extends OrgAction
             }
         }
 
-        $shop = UpdateShop::make()->action($fulfilment->shop, $shopData);
+        UpdateShop::make()->action($fulfilment->shop, $shopData);
 
         return $fulfilment;
     }
@@ -122,6 +122,7 @@ class UpdateFulfilment extends OrgAction
                     } else {
                         $fail($attribute.' is invalid.');
                     }
+                    return false;
                 },
             ],
             'monthly_cut_off.isWeekdays' => [
