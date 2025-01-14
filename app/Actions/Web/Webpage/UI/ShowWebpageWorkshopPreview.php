@@ -21,6 +21,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\Actions\Web\Website\GetWebsiteWorkshopMenu;
+use App\Actions\Web\Website\GetWebsiteWorkshopLayout;
 
 class ShowWebpageWorkshopPreview extends OrgAction
 {
@@ -50,18 +51,19 @@ class ShowWebpageWorkshopPreview extends OrgAction
     }
 
     public function htmlResponse(Webpage $webpage, ActionRequest $request): Response
-    {
-        /** @var Website $website */
-        $website   = $webpage->website;
+{
+    /** @var Website $website */
+    $website = $webpage->website;
 
-        return Inertia::render(
-            'Web/PreviewWorkshop',
-            [
-                'webpage'       => WebpageResource::make($webpage)->getArray(),
-                'header' => GetWebsiteWorkshopHeader::run($website),
-                'footer' => GetWebsiteWorkshopFooter::run($website),
-                'navigation' => GetWebsiteWorkshopMenu::run($website)
-            ]
-        );
-    }
+    return Inertia::render(
+        'Web/PreviewWorkshop',
+        [
+            'webpage' => WebpageResource::make($webpage)->getArray(),
+            'header' => GetWebsiteWorkshopHeader::run($website),
+            'footer' => GetWebsiteWorkshopFooter::run($website),
+            'navigation' => GetWebsiteWorkshopMenu::run($website),
+            'layout' => Arr::get($website->published_layout, 'theme'),
+        ]
+    );
+}
 }

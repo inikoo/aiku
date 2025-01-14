@@ -179,13 +179,10 @@ const autoSave = async (data: {}) => {
         }
     )
 }
-
 const debouncedSendUpdate = debounce((data) => autoSave(data), 1000, { leading: false, trailing: true })
-
 const openFullScreenPreview = () => {
     window.open(iframeSrc+ '?isInWorkshop=true', '_blank')
 }
-
 const handleIframeError = () => {
     console.error('Failed to load iframe content.');
 }
@@ -209,7 +206,7 @@ const isModalOpen = ref(false)
 const sendToIframe = (data: any) => {
     _iframe.value?.contentWindow.postMessage(data, '*')
 }
-
+const panelActive = ref()
 onMounted(() => {
     if (!get(props.data, 'theme.color', false)) {
         set(props.data, 'theme.color', [...useColorTheme[0]])
@@ -219,14 +216,18 @@ onMounted(() => {
     window.addEventListener('message', (event) => {
         if (event.origin !== window.location.origin) return;
         const { data } = event;
-        if (event.data === 'openModalBlockList') {
+        if (event.data.key === 'openModalBlockList') {
             isModalOpen.value = true
-        } else if (data.key === 'autosave') {
+        } if (data.key === 'panelOpen') {
+            panelActive.value = event.data.value
+        }else if (data.key === 'autosave') {
             if (saveCancelToken.value) saveCancelToken.value()
             usedTemplates.value = data.value
         }
     })
 })
+
+
 
 </script>
 
@@ -246,7 +247,6 @@ onMounted(() => {
             />
         </template>
     </PageHeading>
-    
     <div class="h-[84vh] flex">
         <div v-if="usedTemplates" class="col-span-2 bg-[#F9F9F9] flex flex-col h-full border-r border-gray-300">
             <!-- Section: Side editor -->
@@ -276,8 +276,7 @@ onMounted(() => {
                         </div>
                     </div>
 
-                    <!-- <pre>{{ usedTemplates?.[selectedTab.key].blueprint }}</pre> -->
-                    <!-- <pre>{{ getBlueprint(usedTemplates[selectedTab.key].code) }}</pre> -->
+
                     <div class="">
                         <SideEditor
                             v-if="usedTemplates?.[selectedTab.key]?.data?.fieldValue"
@@ -285,6 +284,7 @@ onMounted(() => {
                             v-model="usedTemplates[selectedTab.key].data.fieldValue"
                             :blueprint="getBlueprint(usedTemplates[selectedTab.key].code)"
                             :uploadImageRoute="uploadImageRoute"
+                            :panel-open="panelActive"
                         />
                     </div>
                 </div>

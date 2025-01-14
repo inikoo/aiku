@@ -18,10 +18,11 @@ const props = defineProps({
         required: true,
     },
     type : {
-        type: String
+        type: String,
+        default : 'text'
     }
 });
-console.log(props)
+
 // Emit changes to modelValue
 const emit = defineEmits(["update:modelValue"]);
 

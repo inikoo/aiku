@@ -8,11 +8,7 @@
 
 namespace App\Actions\Retina\Storage\StoredItemsAudit\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
-use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInAudit;
-use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
-use App\Actions\OrgAction;
 use App\Actions\RetinaAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Actions\UI\Retina\Billing\UI\ShowRetinaBillingDashboard;
@@ -27,8 +23,6 @@ use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\Models\Inventory\Location;
-use App\Models\Inventory\Warehouse;
 
 class ShowRetinaStoredItemAudit extends RetinaAction
 {

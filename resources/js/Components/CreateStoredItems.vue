@@ -16,7 +16,7 @@ import { ref } from 'vue'
 import Tag from '@/Components/Tag.vue'
 
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faPlus, faChevronDown, faTimes, faMinus, faSparkles } from "@fas"
+import { faPlus, faChevronDown, faTimes, faMinus, faSparkles, faRampLoading } from "@fas"
 import { faTrashAlt, faExclamationTriangle } from "@far"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
@@ -211,7 +211,7 @@ const onSaved = async () => {
 				</template>
 				
 				<template #singlelabel="{ value }">
-					<div class="flex justify-start w-full px-2 gap-3">
+					<div v-if="!loadingAddStoredItem" class="flex justify-start w-full px-2 gap-3">
 						{{ value["reference"] }}
 						<Tag label="New" :theme="4" v-if="newStoredItem" >
 							<template #label>
@@ -219,6 +219,9 @@ const onSaved = async () => {
 								New
 							</template>
 						</Tag>
+					</div>
+					<div v-else>
+						<FontAwesomeIcon :icon="faRampLoading" />
 					</div>
 				</template>
 			</SelectQuery>

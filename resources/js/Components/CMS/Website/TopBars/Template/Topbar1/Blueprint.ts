@@ -40,7 +40,7 @@ export default {
 				},
 			],
 		},
-		{
+		/* {
 			name: "Greeting",
             key : ["greeting"],
 			icon: {
@@ -59,7 +59,7 @@ export default {
 					type: "editorhtml",
 				},
 			],
-		},
+		}, */
 		{
 			name: "Login",
             key:['login'],
@@ -79,6 +79,19 @@ export default {
 				// 	type: "button",
 				// },
 				{
+					key: ["link"],
+					label :'Link',
+					type: "link",
+					props_data : {
+						defaultValue : {
+							type : "external",
+							url: "/app",
+							id: null,
+							workshop_route : ""
+						}
+					}
+				},
+				{
 					key: ["container",'properties','background'],
 					label :'Background',
 					type: "background",
@@ -87,6 +100,11 @@ export default {
 					key: ["container",'properties','text'],
 					label :'Text',
 					type: "textProperty",
+				},
+				{
+					key: ['text'],
+					label :'Button Text',
+					type: "text",
 				},
 				{
 					key: ["container",'properties','border'],
