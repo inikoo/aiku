@@ -31,25 +31,34 @@ class SyncStoredItemToPalletAudit extends OrgAction
 
     public function handle(Pallet $pallet, array $modelData): void
     {
-        //  dd($modelData);
 
 
 
         foreach (Arr::get($modelData, 'stored_item_ids', []) as $storedItemId => $auditData) {
-            $originalQty = $pallet->storedItems()->where(
+
+            $storedItemExist = $pallet->storedItems()->where(
                 'stored_item_id',
                 $storedItemId
-            )->count();
-
-
-            if ($originalQty > $auditData['quantity']) {
-                $type = StoredItemAuditDeltaTypeEnum::SUBTRACTION;
-            } elseif ($originalQty < $auditData['quantity']) {
-                $type = StoredItemAuditDeltaTypeEnum::ADDITION;
-            } else {
-                $type = StoredItemAuditDeltaTypeEnum::NO_CHANGE;
+            )->exists();
+            $originalQty=0;
+            if($storedItemExist) {
+                $originalQty = $pallet->storedItems()->where(
+                    'stored_item_id',
+                    $storedItemId
+                )->count();
             }
 
+            if($storedItemExist) {
+                if ($originalQty > $auditData['quantity']) {
+                    $type = StoredItemAuditDeltaTypeEnum::SUBTRACTION;
+                } elseif ($originalQty < $auditData['quantity']) {
+                    $type = StoredItemAuditDeltaTypeEnum::ADDITION;
+                } else {
+                    $type = StoredItemAuditDeltaTypeEnum::NO_CHANGE;
+                }
+            }else{
+                $type = StoredItemAuditDeltaTypeEnum::SET_UP;
+            }
 
             $pallet->storedItemAuditDeltas()->updateOrCreate([
                 'stored_item_id'  => $storedItemId,
