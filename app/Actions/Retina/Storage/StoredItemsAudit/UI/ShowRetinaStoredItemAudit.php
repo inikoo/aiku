@@ -10,10 +10,9 @@
 namespace App\Actions\Retina\Storage\StoredItemsAudit\UI;
 
 use App\Actions\Fulfilment\StoredItemAudit\EditStoredItemDeltasInAudit;
-use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInAudit;
 use App\Actions\RetinaAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
-use App\Actions\UI\Retina\Billing\UI\ShowRetinaBillingDashboard;
+use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
@@ -101,6 +100,27 @@ class ShowRetinaStoredItemAudit extends RetinaAction
                     ],
                 ],
 
+                'route_list' => [
+                    'update' => [
+                        'name'       => '',
+                        'parameters' => []
+                    ]
+                ],
+
+                'storedItemsRoute' => [
+                    'index'  => [
+                        'name'       => '',
+                        'parameters' => []
+                    ],
+                    'store'  => [
+                        'name'       => '',
+                        'parameters' => []
+                    ],
+                    'delete' => [
+                        'name' => ''
+                    ]
+                ],
+
 
 
                 'data'                => StoredItemAuditResource::make($storedItemAudit),
@@ -122,22 +142,50 @@ class ShowRetinaStoredItemAudit extends RetinaAction
         return $this->handle($storedItemAudit);
     }
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = ''): array
     {
-        return array_merge(
-            ShowRetinaBillingDashboard::make()->getBreadcrumbs(),
-            [
+        $headCrumb = function (StoredItemAudit $storedItemAudit, array $routeParameters, string $suffix) {
+            return [
+                [
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => $routeParameters['index'],
+                            'label' => __('SKUs Audit')
+                        ],
+                        'model' => [
+                            'route' => $routeParameters['model'],
+                            'label' => $storedItemAudit->slug,
+                        ],
 
-                'type'   => 'simple',
-                'simple' => [
-                    'icon'  => 'fal fa-receipt',
-                    'label' => __('stored items audits'),
-                    'route' => [
-                        'name' => 'retina.billing.next_recurring_bill'
-                    ]
-                ]
+                    ],
+                    'suffix' => $suffix
+                ],
+            ];
+        };
 
-            ],
-        );
+        $storedItemAudit = StoredItemAudit::where('slug', $routeParameters['storedItemAudit'])->first();
+
+        return match ($routeName) {
+            'retina.storage.stored-items-audits.show' => array_merge(
+                ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    $storedItemAudit,
+                    [
+                        'index' => [
+                            'name'       => 'retina.storage.stored-items-audits.index',
+                            'parameters' => []
+                        ],
+                        'model' => [
+                            'name'       => 'retina.storage.stored-items-audits.show',
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+
+            default => []
+        };
     }
 }

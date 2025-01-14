@@ -215,11 +215,13 @@ test('update fulfilment settings (monthly cut off day)', function (Fulfilment $f
 test('get end date recurring bill', function (Fulfilment $fulfilment) {
 
     Carbon::setTestNow('2025-10-20');
-    $endDate = GetRecurringBillEndDate::make()->getEndDate(Carbon::now(), 
+    $endDate = GetRecurringBillEndDate::make()->getEndDate(
+        Carbon::now(),
         Arr::get(
-        $fulfilment->settings,
-        'rental_agreement_cut_off.monthly'
-    ));
+            $fulfilment->settings,
+            'rental_agreement_cut_off.monthly'
+        )
+    );
 
     expect($endDate)->toBeInstanceOf(Carbon::class)
         ->toEqual(Carbon::create(2025, 11, 9));
