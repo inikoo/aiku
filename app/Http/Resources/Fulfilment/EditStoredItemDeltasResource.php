@@ -53,7 +53,6 @@ class EditStoredItemDeltasResource extends JsonResource
             'location_slug'                    => $this->location_slug,
             'location_code'                    => $this->location_code,
             'location_id'                      => $this->location_id,
-            'audited_at'                       => $this->audited_at,
 
             'current_stored_items'                     => $pallet->storedItems->map(fn (StoredItem $storedItem) => [
                 'id'             => $storedItem->id,
