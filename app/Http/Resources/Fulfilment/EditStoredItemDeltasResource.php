@@ -31,6 +31,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $pallet_return_id
  * @property mixed $fulfilment_customer_name
  * @property mixed $fulfilment_customer_slug
+ * @property int $stored_item_audit_id
  */
 class EditStoredItemDeltasResource extends JsonResource
 {
@@ -41,10 +42,11 @@ class EditStoredItemDeltasResource extends JsonResource
 
 
         return [
-            'id'                 => $this->id,
-            'slug'               => $this->slug,
-            'reference'          => $this->reference,
-            'customer_reference' => (string)$this->customer_reference,
+            'stored_item_audit_id' => $this->stored_item_audit_id,
+            'id'                   => $this->id,
+            'slug'                 => $this->slug,
+            'reference'            => $this->reference,
+            'customer_reference'   => (string)$this->customer_reference,
 
 
             'location_slug' => $this->location_slug,
@@ -77,7 +79,11 @@ class EditStoredItemDeltasResource extends JsonResource
                 ],
                 default => [
                     'name'       => 'grp.models.pallet.stored-items.audit',
-                    'parameters' => [$this->id]
+                    'parameters' => [
+                        $this->id,
+                        $this->stored_item_audit_id
+
+                    ]
                 ]
             },
             'resetAuditRoute'      => [

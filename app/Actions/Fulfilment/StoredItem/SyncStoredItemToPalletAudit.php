@@ -15,6 +15,7 @@ use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\StoredItemAudit;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -28,18 +29,14 @@ class SyncStoredItemToPalletAudit extends OrgAction
     protected FulfilmentCustomer $fulfilmentCustomer;
     protected Fulfilment $fulfilment;
 
-    public function handle(Pallet $pallet, array $modelData): void
+    public function handle(Pallet $pallet, StoredItemAudit $storedItemAudit, array $modelData): void
     {
-
-
-
         foreach (Arr::get($modelData, 'stored_item_ids', []) as $storedItemId => $auditData) {
-
             $storedItemExist = $pallet->storedItems()->where(
                 'stored_item_id',
                 $storedItemId
             )->exists();
-            $originalQty = 0;
+            $originalQty     = 0;
             if ($storedItemExist) {
                 $originalQty = $pallet->storedItems()->where(
                     'stored_item_id',
@@ -87,6 +84,7 @@ class SyncStoredItemToPalletAudit extends OrgAction
     public function rules(): array
     {
         return [
+            'stored_item_audit_id'       => ['required', 'integer'],
             'stored_item_ids'            => ['sometimes', 'array'],
             'stored_item_ids.*.quantity' => ['required', 'integer', 'min:1'],
         ];
@@ -101,14 +99,14 @@ class SyncStoredItemToPalletAudit extends OrgAction
         ];
     }
 
-    public function asController(Pallet $pallet, ActionRequest $request): void
+    public function asController(Pallet $pallet, StoredItemAudit $storedItemAudit, ActionRequest $request): void
     {
         $this->fulfilmentCustomer = $pallet->fulfilmentCustomer;
         $this->fulfilment         = $pallet->fulfilment;
 
         $this->initialisation($pallet->organisation, $request);
 
-        $this->handle($pallet, $this->validatedData);
+        $this->handle($pallet, $storedItemAudit, $this->validatedData);
     }
 
     public function action(Pallet $pallet, $modelData): void
