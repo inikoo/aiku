@@ -15,7 +15,6 @@ use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
-use App\Models\Fulfilment\StoredItemAuditDelta;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -40,15 +39,15 @@ class SyncStoredItemToPalletAudit extends OrgAction
                 'stored_item_id',
                 $storedItemId
             )->exists();
-            $originalQty=0;
-            if($storedItemExist) {
+            $originalQty = 0;
+            if ($storedItemExist) {
                 $originalQty = $pallet->storedItems()->where(
                     'stored_item_id',
                     $storedItemId
                 )->count();
             }
 
-            if($storedItemExist) {
+            if ($storedItemExist) {
                 if ($originalQty > $auditData['quantity']) {
                     $type = StoredItemAuditDeltaTypeEnum::SUBTRACTION;
                 } elseif ($originalQty < $auditData['quantity']) {
@@ -56,7 +55,7 @@ class SyncStoredItemToPalletAudit extends OrgAction
                 } else {
                     $type = StoredItemAuditDeltaTypeEnum::NO_CHANGE;
                 }
-            }else{
+            } else {
                 $type = StoredItemAuditDeltaTypeEnum::SET_UP;
             }
 

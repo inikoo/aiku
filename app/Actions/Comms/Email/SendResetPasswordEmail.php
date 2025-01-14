@@ -44,15 +44,13 @@ class SendResetPasswordEmail extends OrgAction
 
         $emailHtmlBody = $outbox->emailOngoingRun->email->liveSnapshot->compiled_layout;
 
-        $this->sendEmailWithMergeTags(
+        return $this->sendEmailWithMergeTags(
             $dispatchedEmail,
             $outbox->emailOngoingRun->sender(),
-            $outbox->emailOngoingRun->subject,
+            $outbox->name,
             $emailHtmlBody,
             '',
         );
-
-        return $dispatchedEmail;
     }
 
     public function authorize(ActionRequest $request): bool
