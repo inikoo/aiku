@@ -35,7 +35,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class EditStoredItemDeltasResource extends JsonResource
 {
-
     public function toArray($request): array
     {
         /** @var Pallet $pallet */
@@ -54,7 +53,7 @@ class EditStoredItemDeltasResource extends JsonResource
             'location_code' => $this->location_code,
             'location_id'   => $this->location_id,
 
-            'current_stored_items' => $pallet->getEditStoredItemDeltasQuery()->get()->map(fn($item) => [
+            'current_stored_items' => $pallet->getEditStoredItemDeltasQuery()->get()->map(fn ($item) => [
                 'id'               => $item->stored_item_id,
                 'reference'        => $item->stored_item_reference,
                 'quantity'         => $item->quantity,
@@ -63,7 +62,7 @@ class EditStoredItemDeltasResource extends JsonResource
                 'type'             => 'current_item'
             ]),
 
-            'new_stored_items' => $pallet->getEditNewStoredItemDeltasQuery()->get()->map(fn($item) => [
+            'new_stored_items' => $pallet->getEditNewStoredItemDeltasQuery()->get()->map(fn ($item) => [
                 'id'               => $item->stored_item_id,
                 'reference'        => $item->stored_item_reference,
                 'quantity'         => 0,
