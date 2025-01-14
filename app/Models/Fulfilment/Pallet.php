@@ -211,7 +211,7 @@ class Pallet extends Model implements Auditable
     }
 
 
-    public function getAuditDeltas(): \Illuminate\Support\Collection
+    public function getAuditDeltasQuery(): Builder
     {
 
         return DB::table('stored_item_audit_deltas')
@@ -219,30 +219,12 @@ class Pallet extends Model implements Auditable
             ->join('pallets', 'stored_item_audit_deltas.pallet_id', '=', 'pallets.id')
             ->join('stored_items', 'stored_item_audit_deltas.stored_item_id', '=', 'stored_items.id')
             ->select('stored_items.reference  as stored_item_reference','stored_items.id  as stored_item_id', 'stored_item_audit_deltas.audited_quantity', 'stored_item_audit_deltas.state', 'stored_item_audit_deltas.audit_type', 'stored_item_audit_deltas.reason')
-            ->where('pallets.id', $this->id)
-            ->get();
+            ->where('pallets.id', $this->id);
+
 
     }
 
 
-//    public function storedItemAuditDeltas(): BelongsToMany
-//    {
-//        return $this->belongsToMany(
-//            StoredItemAuditDelta::class,
-//            'stored_item_audit_deltas',
-//            'pallet_id',
-//            'stored_item_audit_id',
-//            'id',
-//            'id',
-//            'stored_item_audit_id'
-//
-//
-//
-//
-//
-//        );
-//       //     ->withPivot('original_quantity', 'audited_quantity', 'state', 'audit_type', 'reason');
-//    }
 
     public function palletDelivery(): BelongsTo
     {

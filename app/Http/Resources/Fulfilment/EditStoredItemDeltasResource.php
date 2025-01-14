@@ -61,7 +61,7 @@ class EditStoredItemDeltasResource extends JsonResource
                 'quantity'       => (int)$storedItem->pivot->quantity,
             ]),
 
-            'new_stored_items'                     => $pallet->getAuditDeltas()->map(fn ($item) => [
+            'new_stored_items'                     => $pallet->getAuditDeltasQuery()->get()->map(fn ($item) => [
                 'id'             => $item->stored_item_id,
                 'reference'      => $item->stored_item_reference,
                 'quantity'       =>$item->audited_quantity,
