@@ -32,7 +32,7 @@ class SyncStoredItemToPalletAudit extends OrgAction
     public function handle(Pallet $pallet, array $modelData): void
     {
         //  dd($modelData);
-        //SyncStoredItemToPallet::run($pallet, $modelData);
+
 
 
         foreach (Arr::get($modelData, 'stored_item_ids', []) as $storedItemId => $auditData) {
