@@ -30,6 +30,8 @@ class SendResetPasswordEmail extends OrgAction
 
         $html = $passwordOutbox->emailOngoingRun->email->liveSnapshot->compiled_layout;
 
+        //
+
         return $html;
     }
 

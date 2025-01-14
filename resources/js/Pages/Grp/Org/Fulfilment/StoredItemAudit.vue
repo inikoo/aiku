@@ -22,14 +22,17 @@ import Tag from "@/Components/Tag.vue"
 import { Pallet, PalletDelivery } from '@/types/Pallet'
 import { routeType } from "@/types/route"
 
-import { faStickyNote, } from '@fal'
+import { faStickyNote, faPlus, faMinus } from '@fal'
+import { faCheckCircle } from '@fad'
 import Table from '@/Components/Table/Table.vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import Icon from '@/Components/Icon.vue'
 import StoredItemsProperty from '@/Components/StoredItemsProperty.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
-library.add(faStickyNote,)
+import { trans } from 'laravel-vue-i18n'
+import { ref } from 'vue'
+library.add(faStickyNote, faPlus, faMinus, faCheckCircle)
 
 const props = defineProps<{
     data: {
@@ -45,7 +48,7 @@ const props = defineProps<{
     notes_data: any
     pallets: any
     fulfilment_customer: any
-    route: {
+    route_list: {
         update: routeType
     }
 }>()
@@ -102,6 +105,25 @@ function palletRoute(pallet: Pallet) {
             return []
     }
 }
+
+
+const isLoading = ref(false)
+const onClickQuantity = (routex: routeType, store_item_id: number, qty: number) => {
+    router.post(route(routex.name, routex.parameters), {
+        stored_item_ids	: {
+            [store_item_id]: {
+                quantity: qty
+            }
+        }
+    }, {
+        onStart: () => {
+            isLoading.value = true
+        },
+        onFinish: () => {
+            isLoading.value = false
+        }
+    })
+}
 </script>
 
 <template>
@@ -154,49 +176,54 @@ function palletRoute(pallet: Pallet) {
         </template>
 
 
-        <!-- Column: Stored Items -->
-        <template #cell(stored_items)="{ item: pallet }">
-            <!-- <table>
-            <td>caca</td><td>2</td><td>  Checked (e.g. correct stock)   </td><td> + (add e.g. found item)   </td><td> -  (e.g. lost item)  </td>
-            <td>popo</td><td>3</td><td>  Checked (e.g. correct stock)   </td><td> + (add e.g. found item)   </td><td> -  (e.g. lost item)  </td>
-          </table> -->
-            <!-- <pre>{{ pallet }}</pre> -->
-            <!-- <pre>{{pallet   }}</pre> -->
+        <!-- Column: Customer SKUS -->
+        <template #cell(stored_items)="{ proxyItem }">
+            <DataTable v-if="proxyItem.stored_items?.length" :value="proxyItem.stored_items">
+                <Column field="reference" :header="trans('SKU')">
+                </Column>
 
-            <DataTable v-if="pallet.stored_items?.length" :value="pallet.stored_items">
-                <Column field="reference" header="Reference">
+                <Column field="quantity" header="Current qty">
+
+                </Column>
+
+                <Column field="quantity" header="">
                     <template #body="{ data }">
-                        <Tag :label="data.reference" no-hover-color string-to-color />
+                        <FontAwesomeIcon icon='fad fa-check-circle' class='cursor-pointer text-gray-500 hover:text-green-500' fixed-width aria-hidden='true' />
                     </template>
                 </Column>
 
-                <Column field="quantity" header="Quantity" sortable>
-
+                <Column field="quantity" header="">
+                    <template #body="{ data }">
+                        <Button @click="() => onClickQuantity(proxyItem.auditRoute, data.id, data.quantity+1)" icon="fal fa-plus" :loading="isLoading" type="tertiary" size="xs" />
+                    </template>
                 </Column>
 
-                <Column field="quantity" header="Checked (e.g. correct stock)">
-
-                </Column>
-
-                <Column field="quantity" header="+ (add e.g. found item)">
-
-                </Column>
-
-                <Column field="quantity" header="-  (e.g. lost item)">
-
+                <Column field="quantity" header="">
+                    <template #body="{ data }">
+                        <Button @click="() => onClickQuantity(proxyItem.auditRoute, data.id, data.quantity-1)" icon="fal fa-minus" :loading="isLoading" type="tertiary" size="xs" />
+                    </template>
                 </Column>
             </DataTable>
 
             <div v-else class="text-gray-400">
                 -
             </div>
+            
+            <!-- {{ proxyItem.auditRoute.name }}
+            {{ proxyItem.auditRoute.parameters }} -->
+            <!-- {{ route(proxyItem.auditRoute.name, proxyItem.auditRoute.parameters) }} -->
+            <!-- aaaaaa{{ route }}dddddd -->
         </template>
 
         <!-- Column: edited -->
         <template #cell(audits)="{ item }">
 
-            <StoredItemsProperty :pallet="item" :storedItemsRoute="storedItemsRoute" :editable="true"
-                :saveRoute="item.auditRoute" />
+            <StoredItemsProperty
+                :pallet="item"
+                :storedItemsRoute="storedItemsRoute"
+                :editable="true"
+                :saveRoute="item.auditRoute"
+            />
 
             <div v-if="item.audited_at" class="flex items-center justify-center">
                 <font-awesome-icon :icon="['fas', 'check-circle']" class="text-lg text-green-500 mr-2"

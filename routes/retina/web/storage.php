@@ -19,6 +19,7 @@ use App\Actions\Retina\Storage\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Retina\Storage\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Retina\Storage\PalletReturn\UI\ShowPalletReturn;
 use App\Actions\Retina\Storage\StoredItems\UI\IndexStoredItems;
+use App\Actions\Retina\Storage\StoredItemsAudit\UI\IndexRetinaStoredItemsAudits;
 use App\Actions\UI\Retina\Asset\UI\IndexRetinaAssets;
 use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
 
@@ -45,5 +46,6 @@ Route::get('pallets', IndexRetinaPallets::class)->name('pallets.index');
 Route::get('pallets/{pallet}', ShowRetinaPallet::class)->name('pallets.show');
 Route::get('pallets/{pallet}/edit', EditRetinaPallet::class)->name('pallets.edit');
 Route::get('stored-items', IndexStoredItems::class)->name('stored-items.index');
+Route::get('stored-items-audits', IndexRetinaStoredItemsAudits::class)->name('stored-items-audits.index');
 
 Route::get('assets', IndexRetinaAssets::class)->name('assets.index');
