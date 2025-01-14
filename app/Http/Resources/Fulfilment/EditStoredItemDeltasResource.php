@@ -8,7 +8,9 @@
 
 namespace App\Http\Resources\Fulfilment;
 
+use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\StoredItem;
+use App\Models\Fulfilment\StoredItemAuditDelta;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -36,6 +38,10 @@ class EditStoredItemDeltasResource extends JsonResource
 {
     public function toArray($request): array
     {
+
+        /** @var Pallet $pallet */
+        $pallet = $this->resource;
+
         return [
             'id'                               => $this->id,
             'slug'                             => $this->slug,
@@ -48,14 +54,17 @@ class EditStoredItemDeltasResource extends JsonResource
             'location_id'                      => $this->location_id,
             'audited_at'                       => $this->audited_at,
 
-            'current_stored_items'                     => $this->storedItems->map(fn (StoredItem $storedItem) => [
+            'current_stored_items'                     => $pallet->storedItems->map(fn (StoredItem $storedItem) => [
                 'id'             => $storedItem->id,
                 'reference'      => $storedItem->reference,
-                'notes'          => $storedItem->notes,
-                'state'          => $storedItem->state,
-                'state_icon'     => $storedItem->state->stateIcon()[$storedItem->state->value],
                 'quantity'       => (int)$storedItem->pivot->quantity,
             ]),
+
+//            'new_stored_items'                     => $pallet->storedItemAuditDeltas->map(fn (StoredItemAuditDelta $storedItemAuditDelta) => [
+//                'id'             => $storedItemAuditDelta->storedItem->id,
+//                'reference'             => $storedItemAuditDelta->storedItem->reference,
+//                'quantity'       => (int)$storedItemAuditDelta->pivot->audited_quantity,
+//            ]),
 
 
 
