@@ -14,17 +14,21 @@ import Tab from "primevue/tab"
 const props = defineProps<{
 	tableData: {}
 	locale: any
-	totalAmount: any
+	totalAmount: {
+		total_invoices: number
+		total_sales: number
+		total_refunds: number
+	}
 	selectedDateOption: String
 }>()
 
 const tabs = ref([
-  { title: "Home", value: "home" },
-  { title: "Profile", value: "profile" },
-  { title: "Settings", value: "settings" },
-]);
+	{ title: "Home", value: "home" },
+	{ title: "Profile", value: "profile" },
+	{ title: "Settings", value: "settings" },
+])
 
-const activeTab = ref(tabs.value[0].value); 
+const activeTab = ref(tabs.value[0].value)
 </script>
 <template>
 	<div class="bg-white mb-2 text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
@@ -342,41 +346,33 @@ const activeTab = ref(tabs.value[0].value);
 				<!-- Total -->
 				<ColumnGroup type="footer">
 					<Row>
-						<!-- 		<Column footer="Total"> Total </Column>
+						<Column footer="Total"> Total </Column>
 						<Column
 							hidden
-							:footer="totalAmount.total.total_refunds.toString()"
+							:footer="totalAmount.total_refunds.toString()"
 							footerStyle="text-align:right" />
-						<Column hid\den footer="" footerStyle="text-align:right" />
+						<Column hidden footer="" footerStyle="text-align:right" />
 
 						<Column
-							:footer="
-								locale.number(
-									Number(
-										totalAmount.total[
-											selectedDateOption
-										].total_invoices.toString()
-									)
-								)
-							"
+							:footer="locale.number(Number(totalAmount.total_invoices.toString()))"
 							footerStyle="text-align:right" />
-						<Column footer="" footerStyle="text-align:right" /> -->
+						<Column footer="" footerStyle="text-align:right" />
 
-						<!-- 		<Column
+						<Column
 							v-tooltip="
 								useLocaleStore().currencyFormat(
-									totalAmount.currency.code,
-									Number(totalAmount.total[selectedDateOption].total_sales)
+									'usd',
+									Number(totalAmount.total_sales)
 								)
 							"
 							:footer="
 								useLocaleStore().CurrencyShort(
-									totalAmount.currency.code,
-									Number(totalAmount.total[selectedDateOption].total_sales)
+									'usd',
+									Number(totalAmount.total_sales)
 								)
 							"
 							footerStyle="text-align:right" />
-						<Column footer="" footerStyle="text-align:right" /> -->
+						<Column footer="" footerStyle="text-align:right" />
 					</Row>
 				</ColumnGroup>
 			</DataTable>

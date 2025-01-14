@@ -821,8 +821,8 @@ console.log(layout.user.id, "layoutt")
 	<!-- 	</div> -->
 		
 		<!-- Section Widget -->
-		<div class="col-span-12">
-			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+	<!-- 	<div class="col-span-12">
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"> -->
 				<!-- <DashboardCard
 					v-for="(org, index) in props.groupStats.organisations.filter(
 						(org) => org.type !== 'agent'
@@ -847,8 +847,8 @@ console.log(layout.user.id, "layoutt")
 						)
 					" />
                 -->
-			</div>
-		</div>
+		<!-- 	</div>
+		</div> -->
 		<!-- <pre>{{ groupStats }}</pre> -->
 
 		<div class="col-span-12">

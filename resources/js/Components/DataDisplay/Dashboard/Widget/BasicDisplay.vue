@@ -241,4 +241,5 @@ const chartData = [10, 20, 15, 25, 20, 18, 22, 10]
 ::v-deep(.p-progressbar) {
 	background-color: #e0e7ff;
 }
+
 </style>
