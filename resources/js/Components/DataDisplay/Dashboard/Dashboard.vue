@@ -5,7 +5,6 @@ import DashboardWidget from "./DashboardWidget.vue"
 import { inject, ref, computed, provide } from "vue"
 
 const props = defineProps<{
-
 	dashboard: {
 		settings:{}[]
 		interval_options: Array<{ label: string; value: string }>

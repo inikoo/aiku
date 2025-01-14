@@ -7,6 +7,9 @@ import { ref, computed } from "vue"
 import { useLocaleStore } from "@/Stores/locale"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import Tabs from "primevue/tabs"
+import TabList from "primevue/tablist"
+import Tab from "primevue/tab"
 
 const props = defineProps<{
 	tableData: {}
@@ -15,12 +18,24 @@ const props = defineProps<{
 	selectedDateOption: String
 }>()
 
+const tabs = ref([
+  { title: "Home", value: "home" },
+  { title: "Profile", value: "profile" },
+  { title: "Settings", value: "settings" },
+]);
 
+const activeTab = ref(tabs.value[0].value); 
 </script>
 <template>
 	<div class="bg-white mb-2 text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
-		<div class="">
-		
+		<div class="mt-2">
+			<Tabs v-model:value="activeTab">
+				<TabList>
+					<Tab v-for="tab in tabs" :key="tab.title" :value="tab.value">{{
+						tab.title
+					}}</Tab>
+				</TabList>
+			</Tabs>
 			<DataTable :value="tableData" removableSort>
 				<Column sortable>
 					<template #header>
@@ -49,11 +64,7 @@ const props = defineProps<{
 					<template #body="{ data }">
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
-								<div
-									:key="
-										data.interval_percentages?.refunds
-											?.amount || 0
-									">
+								<div :key="data.interval_percentages?.refunds?.amount || 0">
 									<span>
 										{{
 											locale.number(
@@ -101,28 +112,26 @@ const props = defineProps<{
 										{{
 											data.interval_percentages?.refunds?.percentage
 												? `${
-														data.interval_percentages?.refunds?.percentage > 0
+														data.interval_percentages?.refunds
+															?.percentage > 0
 															? "+"
 															: ""
-												  }${data.interval_percentages?.refunds?.percentage.toFixed(2)}%`
+												  }${data.interval_percentages?.refunds?.percentage.toFixed(
+														2
+												  )}%`
 												: `0.0%`
 										}}
 									</span>
 									<FontAwesomeIcon
-										v-if="
-											data.interval_percentages?.refunds
-												?.percentage
-										"
+										v-if="data.interval_percentages?.refunds?.percentage"
 										:icon="
-											data.interval_percentages.refunds
-												.percentage < 0
+											data.interval_percentages.refunds.percentage < 0
 												? 'fas fa-sort-down'
 												: 'fas fa-sort-up'
 										"
 										style="font-size: 20px; margin-top: 6px"
 										:class="
-											data.interval_percentages.refunds
-												.percentage < 0
+											data.interval_percentages.refunds.percentage < 0
 												? 'text-red-500'
 												: 'text-green-500'
 										" />
@@ -142,15 +151,10 @@ const props = defineProps<{
 					<template #body="{ data }">
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
-								<div
-									:key="
-										data.interval_percentages?.invoices
-											?.amount || 0
-									">
+								<div :key="data.interval_percentages?.invoices?.amount || 0">
 									{{
 										locale.number(
-											data.interval_percentages?.invoices
-												?.amount || 0
+											data.interval_percentages?.invoices?.amount || 0
 										)
 									}}
 								</div>
@@ -200,10 +204,13 @@ const props = defineProps<{
 												{{
 													data.interval_percentages?.invoices?.percentage
 														? `${
-																data.interval_percentages.invoices?.percentage > 0
+																data.interval_percentages.invoices
+																	?.percentage > 0
 																	? "+"
 																	: ""
-														  }${data.interval_percentages.invoices?.percentage.toFixed(2)}%`
+														  }${data.interval_percentages.invoices?.percentage.toFixed(
+																2
+														  )}%`
 														: `0.0%`
 												}}
 											</span>
@@ -212,13 +219,15 @@ const props = defineProps<{
 													data.interval_percentages?.invoices?.percentage
 												"
 												:icon="
-													data.interval_percentages.invoices?.percentage < 0
+													data.interval_percentages.invoices?.percentage <
+													0
 														? 'fas fa-play'
 														: 'fas fa-play'
 												"
 												style="font-size: 20px; margin-top: 6px"
 												:class="
-													data.interval_percentages.invoices?.percentage < 0
+													data.interval_percentages.invoices?.percentage <
+													0
 														? 'text-red-500 rotate-90'
 														: 'text-green-500 rotate-[-90deg]'
 												" />
@@ -247,21 +256,17 @@ const props = defineProps<{
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div
-								v-tooltip="
+									v-tooltip="
 										useLocaleStore().currencyFormat(
 											data.currency,
-											data.interval_percentages?.sales
-												?.amount || 0
+											data.interval_percentages?.sales?.amount || 0
 										)
 									"
-									:key="
-										data.interval_percentages?.sales?.amount
-									">
+									:key="data.interval_percentages?.sales?.amount">
 									{{
 										useLocaleStore().CurrencyShort(
 											data.currency,
-											data.interval_percentages?.sales
-												?.amount || 0
+											data.interval_percentages?.sales?.amount || 0
 										)
 									}}
 								</div>
@@ -302,31 +307,28 @@ const props = defineProps<{
 									">
 									<span style="font-size: 16px; font-weight: 500; line-height: 1">
 										{{
-											data.interval_percentages?.sales
-												?.percentage
+											data.interval_percentages?.sales?.percentage
 												? `${
-														data.interval_percentages.sales.percentage > 0
+														data.interval_percentages.sales.percentage >
+														0
 															? "+"
 															: ""
-												  }${data.interval_percentages?.sales?.percentage.toFixed(2)}%`
+												  }${data.interval_percentages?.sales?.percentage.toFixed(
+														2
+												  )}%`
 												: `0.0%`
 										}}
 									</span>
 									<FontAwesomeIcon
-										v-if="
-											data.interval_percentages?.sales
-												?.percentage
-										"
+										v-if="data.interval_percentages?.sales?.percentage"
 										:icon="
-											data.interval_percentages.sales
-												?.percentage < 0
+											data.interval_percentages.sales?.percentage < 0
 												? 'fas fa-play'
 												: 'fas fa-play'
 										"
 										style="font-size: 20px; margin-top: 6px"
 										:class="
-											data.interval_percentages.sales
-												?.percentage < 0
+											data.interval_percentages.sales?.percentage < 0
 												? 'text-red-500 rotate-90'
 												: 'text-green-500 rotate-[-90deg]'
 										" />
@@ -340,7 +342,7 @@ const props = defineProps<{
 				<!-- Total -->
 				<ColumnGroup type="footer">
 					<Row>
-				<!-- 		<Column footer="Total"> Total </Column>
+						<!-- 		<Column footer="Total"> Total </Column>
 						<Column
 							hidden
 							:footer="totalAmount.total.total_refunds.toString()"
@@ -360,7 +362,7 @@ const props = defineProps<{
 							footerStyle="text-align:right" />
 						<Column footer="" footerStyle="text-align:right" /> -->
 
-				<!-- 		<Column
+						<!-- 		<Column
 							v-tooltip="
 								useLocaleStore().currencyFormat(
 									totalAmount.currency.code,

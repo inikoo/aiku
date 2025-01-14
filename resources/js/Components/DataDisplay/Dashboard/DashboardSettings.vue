@@ -71,10 +71,10 @@ const updateCurrency = (currency_scope: string) => {
 </script>
 
 <template>
-	<div class="relative mt-2 asdzxc">
+	<div class="relative bg-gradient-to-r mb-2 from-white to-gray-50 p-6 rounded-xl shadow-md space-y-6 border border-gray-200">
 
 		<!-- Section: Currency -->
-		<div class="flex justify-end items-center space-x-4">
+		<div class="flex flex-wrap justify-end items-center space-x-2 lg:space-x-4">
 			<p class="font-medium" :class="[settings.options_currency[0].value == get(settings, ['db_settings', `selected_currency_in_${settings.key_currency}`], '') ? '' : 'opacity-50']">
 				{{ settings.options_currency[0].label }}
 			</p>

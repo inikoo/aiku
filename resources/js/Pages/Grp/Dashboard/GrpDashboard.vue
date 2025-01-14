@@ -272,13 +272,13 @@ console.log(layout.user.id, "layoutt")
 	<div class="grid grid-cols-12 m-3 gap-4">
 		<!-- <pre>{{ props.groupStats.organisations }}</pre> -->
 		<!-- Section: Date options -->
-		<div class="col-span-12 space-y-4">
+	<!-- 	<div class="col-span-12 space-y-4">
 			
-			
+		 -->	
 			<!-- Section Table -->
-			<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
-				<div class="mt-2">
-					<div class="">
+		<!-- 	<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200"> -->
+				<!-- <div class="mt-2"> -->
+					<!-- <div class="">
 						<Tabs v-model:value="activeTab">
 							<TabList>
 								<Tab v-for="tab in tabs" :key="tab.title" :value="tab.value">{{
@@ -286,7 +286,7 @@ console.log(layout.user.id, "layoutt")
 								}}</Tab>
 							</TabList>
 						</Tabs>
-					</div>
+					</div> -->
 					<!--<DataTable :value="abcdef" removableSort>
 						<Column sortable>
 							<template #header>
@@ -701,7 +701,7 @@ console.log(layout.user.id, "layoutt")
 							</Row>
 						</ColumnGroup> 
 					</DataTable>-->
-				</div>
+				<!-- </div> -->
 				<!--
 			</div>
 		</div>
@@ -817,8 +817,8 @@ console.log(layout.user.id, "layoutt")
                         </div>
                     </template>
                 </div> -->
-			</div>
-		</div>
+			<!-- </div> -->
+	<!-- 	</div> -->
 		
 		<!-- Section Widget -->
 		<div class="col-span-12">
@@ -851,7 +851,7 @@ console.log(layout.user.id, "layoutt")
 		</div>
 		<!-- <pre>{{ groupStats }}</pre> -->
 
-		<div class="col-span-8">
+		<div class="col-span-12">
 			<Dashboard 
 				:dashboard="dashboard_stats"
 			/>
