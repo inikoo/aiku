@@ -15,6 +15,7 @@ use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\StoredItemAudit;
 use App\Models\Fulfilment\StoredItemAuditDelta;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
@@ -29,26 +30,22 @@ class SyncStoredItemToPalletAudit extends OrgAction
     protected FulfilmentCustomer $fulfilmentCustomer;
     protected Fulfilment $fulfilment;
 
-    public function handle(Pallet $pallet, array $modelData): void
+    public function handle(Pallet $pallet,  StoredItemAudit $storedItemAudit,array $modelData): void
     {
-
-
-
         foreach (Arr::get($modelData, 'stored_item_ids', []) as $storedItemId => $auditData) {
-
             $storedItemExist = $pallet->storedItems()->where(
                 'stored_item_id',
                 $storedItemId
             )->exists();
-            $originalQty=0;
-            if($storedItemExist) {
+            $originalQty     = 0;
+            if ($storedItemExist) {
                 $originalQty = $pallet->storedItems()->where(
                     'stored_item_id',
                     $storedItemId
                 )->count();
             }
 
-            if($storedItemExist) {
+            if ($storedItemExist) {
                 if ($originalQty > $auditData['quantity']) {
                     $type = StoredItemAuditDeltaTypeEnum::SUBTRACTION;
                 } elseif ($originalQty < $auditData['quantity']) {
@@ -56,7 +53,7 @@ class SyncStoredItemToPalletAudit extends OrgAction
                 } else {
                     $type = StoredItemAuditDeltaTypeEnum::NO_CHANGE;
                 }
-            }else{
+            } else {
                 $type = StoredItemAuditDeltaTypeEnum::SET_UP;
             }
 
@@ -88,6 +85,7 @@ class SyncStoredItemToPalletAudit extends OrgAction
     public function rules(): array
     {
         return [
+            'stored_item_audit_id'       => ['required', 'integer'],
             'stored_item_ids'            => ['sometimes', 'array'],
             'stored_item_ids.*.quantity' => ['required', 'integer', 'min:1'],
         ];
@@ -102,14 +100,14 @@ class SyncStoredItemToPalletAudit extends OrgAction
         ];
     }
 
-    public function asController(Pallet $pallet, ActionRequest $request): void
+    public function asController(Pallet $pallet, StoredItemAudit $storedItemAudit, ActionRequest $request): void
     {
         $this->fulfilmentCustomer = $pallet->fulfilmentCustomer;
         $this->fulfilment         = $pallet->fulfilment;
 
         $this->initialisation($pallet->organisation, $request);
 
-        $this->handle($pallet, $this->validatedData);
+        $this->handle($pallet, $storedItemAudit,$this->validatedData);
     }
 
     public function action(Pallet $pallet, $modelData): void

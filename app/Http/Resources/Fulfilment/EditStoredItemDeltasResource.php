@@ -31,9 +31,11 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $pallet_return_id
  * @property mixed $fulfilment_customer_name
  * @property mixed $fulfilment_customer_slug
+ * @property int $stored_item_audit_id
  */
 class EditStoredItemDeltasResource extends JsonResource
 {
+
     public function toArray($request): array
     {
         /** @var Pallet $pallet */
@@ -41,17 +43,18 @@ class EditStoredItemDeltasResource extends JsonResource
 
 
         return [
-            'id'                 => $this->id,
-            'slug'               => $this->slug,
-            'reference'          => $this->reference,
-            'customer_reference' => (string)$this->customer_reference,
+            'stored_item_audit_id' => $this->stored_item_audit_id,
+            'id'                   => $this->id,
+            'slug'                 => $this->slug,
+            'reference'            => $this->reference,
+            'customer_reference'   => (string)$this->customer_reference,
 
 
             'location_slug' => $this->location_slug,
             'location_code' => $this->location_code,
             'location_id'   => $this->location_id,
 
-            'current_stored_items' => $pallet->getEditStoredItemDeltasQuery()->get()->map(fn ($item) => [
+            'current_stored_items' => $pallet->getEditStoredItemDeltasQuery()->get()->map(fn($item) => [
                 'id'               => $item->stored_item_id,
                 'reference'        => $item->stored_item_reference,
                 'quantity'         => $item->quantity,
@@ -60,7 +63,7 @@ class EditStoredItemDeltasResource extends JsonResource
                 'type'             => 'current_item'
             ]),
 
-            'new_stored_items' => $pallet->getEditNewStoredItemDeltasQuery()->get()->map(fn ($item) => [
+            'new_stored_items' => $pallet->getEditNewStoredItemDeltasQuery()->get()->map(fn($item) => [
                 'id'               => $item->stored_item_id,
                 'reference'        => $item->stored_item_reference,
                 'quantity'         => 0,
@@ -77,7 +80,11 @@ class EditStoredItemDeltasResource extends JsonResource
                 ],
                 default => [
                     'name'       => 'grp.models.pallet.stored-items.audit',
-                    'parameters' => [$this->id]
+                    'parameters' => [
+                        $this->id,
+                        $this->stored_item_audit_id
+
+                    ]
                 ]
             },
             'resetAuditRoute'      => [

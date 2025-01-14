@@ -16,6 +16,7 @@ use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\StoredItemAudit;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -56,9 +57,10 @@ class EditStoredItemDeltasInAudit extends OrgAction
     //        return $elements;
     //    }
 
-    public function handle(FulfilmentCustomer $fulfilmentCustomer, $prefix = null): LengthAwarePaginator
+    public function handle(StoredItemAudit $storedItemAudit, $prefix = null): LengthAwarePaginator
     {
-        $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
+        $fulfilmentCustomer = $storedItemAudit->fulfilmentCustomer;
+        $globalSearch       = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('pallets.customer_reference', $value)
                     ->orWhereWith('pallets.reference', $value);
@@ -93,7 +95,9 @@ class EditStoredItemDeltasInAudit extends OrgAction
 
 
         $query->defaultSort('pallets.id')
+            ->selectRaw("$storedItemAudit->id. as stored_item_audit_id")
             ->select(
+                
                 'pallets.id',
                 'pallets.slug',
                 'pallets.reference',
@@ -108,7 +112,7 @@ class EditStoredItemDeltasInAudit extends OrgAction
                 'pallets.warehouse_id',
                 'pallets.pallet_delivery_id',
                 'pallets.pallet_return_id',
-                // 'stored_item_audit_deltas.audited_at'
+            // 'stored_item_audit_deltas.audited_at'
             );
 
 
@@ -159,7 +163,6 @@ class EditStoredItemDeltasInAudit extends OrgAction
             $table->defaultSort('reference');
         };
     }
-
 
 
 }
