@@ -16,7 +16,6 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\StoredItemAudit;
-use App\Models\Fulfilment\StoredItemAuditDelta;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -30,7 +29,7 @@ class SyncStoredItemToPalletAudit extends OrgAction
     protected FulfilmentCustomer $fulfilmentCustomer;
     protected Fulfilment $fulfilment;
 
-    public function handle(Pallet $pallet,  StoredItemAudit $storedItemAudit,array $modelData): void
+    public function handle(Pallet $pallet, StoredItemAudit $storedItemAudit, array $modelData): void
     {
         foreach (Arr::get($modelData, 'stored_item_ids', []) as $storedItemId => $auditData) {
             $storedItemExist = $pallet->storedItems()->where(
@@ -57,19 +56,28 @@ class SyncStoredItemToPalletAudit extends OrgAction
                 $type = StoredItemAuditDeltaTypeEnum::SET_UP;
             }
 
-            $pallet->storedItemAuditDeltas()->updateOrCreate([
-                'stored_item_id'  => $storedItemId,
-                'organisation_id' => $pallet->organisation_id,
-            ], [
-                'group_id'          => $pallet->group_id,
-                'organisation_id'   => $pallet->organisation_id,
-                'stored_item_id'    => $storedItemId,
-                'original_quantity' => $originalQty,
-                'audited_quantity'  => $auditData['quantity'],
-                'audited_at'        => now(),
-                'type'              => $type,
-                'state'             => StoredItemAuditDeltaStateEnum::IN_PROCESS
-            ]);
+
+            $storedItemAuditDelta = $storedItemAudit->deltas()->where('pallet_id', $pallet->id)->where('stored_item_id', $storedItemId)->first();
+            if ($storedItemAuditDelta) {
+                $storedItemAuditDelta->update([
+                    'audited_quantity' => $auditData['quantity'],
+                    'audited_at'       => now(),
+                    'type'             => $type,
+                    'state'            => StoredItemAuditDeltaStateEnum::IN_PROCESS
+                ]);
+            } else {
+                $storedItemAudit->deltas()->create([
+                    'group_id'          => $pallet->group_id,
+                    'organisation_id'   => $pallet->organisation_id,
+                    'pallet_id'         => $pallet->id,
+                    'stored_item_id'    => $storedItemId,
+                    'original_quantity' => $originalQty,
+                    'audited_quantity'  => $auditData['quantity'],
+                    'audited_at'        => now(),
+                    'type'              => $type,
+                    'state'             => StoredItemAuditDeltaStateEnum::IN_PROCESS
+                ]);
+            }
         }
     }
 
@@ -107,10 +115,10 @@ class SyncStoredItemToPalletAudit extends OrgAction
 
         $this->initialisation($pallet->organisation, $request);
 
-        $this->handle($pallet, $storedItemAudit,$this->validatedData);
+        $this->handle($pallet, $storedItemAudit, $this->validatedData);
     }
 
-    public function action(Pallet $pallet, $modelData): void
+    public function action(Pallet $pallet, StoredItemAudit $storedItemAudit, $modelData): void
     {
         $this->asAction           = true;
         $this->fulfilmentCustomer = $pallet->fulfilmentCustomer;
@@ -118,7 +126,7 @@ class SyncStoredItemToPalletAudit extends OrgAction
 
         $this->initialisation($pallet->organisation, $modelData);
 
-        $this->handle($pallet, $this->validatedData);
+        $this->handle($pallet, $storedItemAudit, $this->validatedData);
     }
 
     public function jsonResponse(Pallet $pallet): PalletResource
