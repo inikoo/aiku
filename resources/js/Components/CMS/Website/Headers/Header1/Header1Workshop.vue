@@ -29,6 +29,7 @@ const selectedColor = props.colorThemed?.color
 
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string | number): void
+    (e: 'setPanelActive', value: string | number): void
 }>()
 
 const _menu = ref();
@@ -60,11 +61,11 @@ const toggle = (event) => {
         <div class="flex flex-col justify-between items-center py-4 px-6 hidden lg:block">
             <div class="w-full grid grid-cols-3 items-center gap-6">
                 <!-- Logo -->
-                <div :style="getStyles(modelValue.logo.properties)">
+                <div :style="getStyles(modelValue.logo.properties)" @click="()=> emits('setPanelActive', 'logo')">
                     <img v-if="!modelValue.logo.source" :src="modelValue?.logo?.url" :alt="modelValue?.logo?.alt"
-                        :style="{ width: `${modelValue.logo.width}%` }" />
+                        :style="{ width: `${modelValue.logo.width}%` }" class="hover-dashed"/>
                     <Image v-else :alt="modelValue?.logo?.alt" :src="modelValue?.logo?.source"
-                        :style="{ width: `${modelValue.logo.width}%` }"></Image>
+                        :style="{ width: `${modelValue.logo.width}%` }" class="hover-dashed"></Image>
                 </div>
 
                 <!-- Search Bar -->
@@ -76,7 +77,7 @@ const toggle = (event) => {
                 </div>
 
                 <!-- Gold Member Button -->
-                <div class="justify-self-end w-fit">
+                <div class="justify-self-end w-fit hover-dashed">
                    <!--  <button :style="getStyles(modelValue.button_1.container)"
                         class="flex items-center justify-center px-4 py-2 bg-gold-500 text-white rounded-md shadow-md hover:bg-gold-600 transition duration-300 w-fit"
                         v-if="viewVisible(loginMode, modelValue.button_1.visible)">
@@ -88,6 +89,7 @@ const toggle = (event) => {
                         :href="modelValue?.button_1?.visible"
                         class="space-x-1.5 cursor-pointer whitespace-nowrap"
                         id=""
+                        @click="()=> emits('setPanelActive', 'button-1')"
                         :style="getStyles(modelValue?.button_1?.container?.properties)"
                     >
                         <span v-html="modelValue?.button_1.text" />

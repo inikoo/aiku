@@ -26,12 +26,14 @@ trait WithFetchOverviewWebBlock
             if (!isset($text["text"])) {
                 continue;
             }
-            $this->replaceAnchor($webpage, $text["text"], $layout); // should use WithFetchText
+            $layout = $this->replaceAnchor($webpage, $text["text"], $layout); // should use WithFetchText
+            $text = Arr::get($layout, 'text') ?? $text['text'];
             $this->setProperties($property, $text);
             $textsArray[] = [
                 'properties' => $property,
-                'text' => $text["text"]
+                'text' => $text,
             ];
+            data_forget($layout, 'text');
         }
 
         data_set($layout, "data.fieldValue.texts.values", $textsArray);

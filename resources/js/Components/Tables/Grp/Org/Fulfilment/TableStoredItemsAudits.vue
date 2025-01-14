@@ -40,6 +40,10 @@ function storedItemAuditRoute(storedItemAudit: {}) {
             return route(
                 "grp.org.fulfilments.show.crm.customers.show.stored-item-audits.show",
                 [route().params["organisation"], route().params["fulfilment"], route().params["fulfilmentCustomer"], storedItemAudit.slug])
+        case "retina.storage.stored-items-audits.index":
+            return route(
+                "retina.storage.stored-items-audits.show",
+                [storedItemAudit.slug])
         default:
             return ''
     }

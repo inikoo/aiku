@@ -1,5 +1,6 @@
 <script setup lang='ts'>
 import { trans } from 'laravel-vue-i18n'
+import { defineExpose, ref } from 'vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faHeart, faShoppingCart, faSignOut, faUser, faSignIn, faUserPlus } from '@fal'
@@ -8,6 +9,8 @@ import { inject } from 'vue'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 import { getStyles } from '@/Composables/styles'
 import { checkVisible, textReplaceVariables } from '@/Composables/Workshop'
+import { iframeToParent } from '@/Composables/Workshop'
+import { sendMessageToParent } from '@/Composables/Workshop'
 
 library.add(faHeart, faShoppingCart, faSignOut, faUser, faSignIn, faUserPlus)
 
@@ -31,8 +34,12 @@ interface ModelTopbar1 {
     }
 }
 
-const model = defineModel<ModelTopbar1>()
+const emits = defineEmits<{
+    (e: 'setPanelActive', value: string | number): void
+}>()
 
+const model = defineModel<ModelTopbar1>()
+const active = ref()
 
 const isLoggedIn = inject('isPreviewLoggedIn', false)
 
@@ -49,13 +56,14 @@ const layout = inject('layout', {})
         class="py-1 px-4 flex flex-col md:flex-row md:justify-between gap-x-4"
         :style="getStyles(model?.container.properties)"
     >
-        <div class="flex-shrink flex flex-col md:flex-row items-center justify-between w-full">
+        <div class="flex-shrink flex flex-col md:flex-row items-center justify-between w-full hover-dashed"  @click="()=> emits('setPanelActive', 'title')">
             <!-- Section: greeting -->
-            <div
+           <!--  <div
                 v-if="checkVisible(model?.greeting?.visible || null, isLoggedIn) && textReplaceVariables(model?.greeting?.text, layout.iris_variables)"
                 class="flex items-center"
                 v-html="textReplaceVariables(model?.greeting?.text, layout.iris_variables)"
-            />
+               
+            /> -->
 
             <!-- Section: Main title -->
             <div
@@ -73,8 +81,9 @@ const layout = inject('layout', {})
                 id="profile_button"
                  :href="model?.profile?.link.href"
                 :target="model?.profile?.link.target"
-                class="space-x-1.5 whitespace-nowrap"
+                class="space-x-1.5 whitespace-nowrap hover-dashed"
                 :style="getStyles(model?.profile.container?.properties)"
+                 @click="()=> emits('setPanelActive', 'profile')"
             >
                 <FontAwesomeIcon icon='fal fa-user' class='' v-tooltip="trans('Profile')" fixed-width aria-hidden='true' />
                 <span v-html="textReplaceVariables(model?.profile?.text, layout.iris_variables)" />
@@ -85,8 +94,9 @@ const layout = inject('layout', {})
                 id="favorites_button"
                 :href="model?.favourite?.link.href"
                 :target="model?.favourite?.link.target"
-                class="space-x-1.5 whitespace-nowrap"
+                class="space-x-1.5 whitespace-nowrap hover-dashed"
                 :style="getStyles(model?.favourite.container?.properties)"
+                @click="()=> emits('setPanelActive', 'favourite')"
             >
                 <FontAwesomeIcon icon='fal fa-heart' class='' fixed-width aria-hidden='true' />
                 <span v-html="textReplaceVariables(model?.favourite?.text, layout.iris_variables)" />
@@ -95,49 +105,62 @@ const layout = inject('layout', {})
             <!-- Section: Cart -->
             <a v-if="checkVisible(model?.cart?.visible || null, isLoggedIn)"
                 id="header_order_totals"
-                  :href="model?.cart?.link.href"
+                :href="model?.cart?.link.href"
                 :target="model?.cart?.link.target"
-                class="space-x-1.5 flex items-center whitespace-nowrap"
+                class="space-x-1.5 flex items-center whitespace-nowrap hover-dashed"
                 :style="getStyles(model?.cart.container?.properties)"
+                @click="()=> emits('setPanelActive', 'cart')"
             >
                 <FontAwesomeIcon icon='fal fa-shopping-cart' class='text-base px-[5px]' v-tooltip="trans('Basket')" fixed-width aria-hidden='true' />
                 <span v-html="textReplaceVariables(model?.cart?.text, layout.iris_variables)" />
             </a>
             
             <!-- Section: Login -->
-            <a v-if="checkVisible(model?.login?.visible || null, isLoggedIn)"
-                 :href="model?.login?.link.href"
-                :target="model?.login?.link.target"
-                class="space-x-1.5 cursor-pointer whitespace-nowrap"
-                id=""
-                :style="getStyles(model?.login?.container?.properties)"
-            >
-                <FontAwesomeIcon icon='fal fa-sign-in' class='' fixed-width aria-hidden='true' />
-                <span v-html="textReplaceVariables(model?.login?.text, layout.iris_variables)" />
-            </a>
+             <span class="hover-dashed">
+                <a v-if="checkVisible(model?.login?.visible || null, isLoggedIn)"
+                    :href="model?.login?.link.href"
+                    :target="model?.login?.link.target"
+                    class="space-x-1.5 cursor-pointer whitespace-nowrap"
+                    id=""
+                    :style="getStyles(model?.login?.container?.properties)"
+                     @click="()=> emits('setPanelActive', 'login')"
+                >
+                    <FontAwesomeIcon icon='fal fa-sign-in' class='' fixed-width aria-hidden='true' />
+                    <span v-html="textReplaceVariables(model?.login?.text, layout.iris_variables)" />
+                </a>
+             </span>
+            
 
             <!-- Section: Register -->
-            <a v-if="checkVisible(model?.register?.visible || null, isLoggedIn)"
-                 :href="model?.register?.link.href"
-                :target="model?.register?.link.target"
-                class="space-x-1.5 cursor-pointer whitespace-nowrap"
-                :style="getStyles(model?.register.container?.properties)"
-            >
-                <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
-                <span v-html="textReplaceVariables(model?.register.text, layout.iris_variables)" />
-            </a>
+            <span class="hover-dashed">
+                <a v-if="checkVisible(model?.register?.visible || null, isLoggedIn)"
+                    :href="model?.register?.link.href"
+                    :target="model?.register?.link.target"
+                    class="space-x-1.5 cursor-pointer whitespace-nowrap hover-dashed"
+                    :style="getStyles(model?.register.container?.properties)"
+                    @click="()=> emits('setPanelActive', 'register')"
+                >
+                    <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
+                    <span v-html="textReplaceVariables(model?.register.text, layout.iris_variables)" />
+                </a>
+            </span>
 
             <!-- Section: Logout -->
             <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
                 :href="model?.logout?.link"
-                class="space-x-1.5 whitespace-nowrap"
+                class="space-x-1.5 whitespace-nowrap hover-dashed"
                 :style="getStyles(model?.logout.container?.properties)"
+                @click="()=> emits('setPanelActive', 'logout')"
             >
                 <FontAwesomeIcon icon='fal fa-sign-out' v-tooltip="trans('Log out')" class='' fixed-width aria-hidden='true' />
                 <span v-html="textReplaceVariables(model?.logout?.text, layout.iris_variables)" />
             </a>
         </div>
     </div>
-
-  
 </template>
+
+<style>
+
+
+
+</style>

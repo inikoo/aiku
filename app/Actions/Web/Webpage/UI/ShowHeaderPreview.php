@@ -17,6 +17,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Illuminate\Support\Arr;
 
 class ShowHeaderPreview extends OrgAction
 {
@@ -34,7 +35,8 @@ class ShowHeaderPreview extends OrgAction
             [
                /*  'footer' => GetWebsiteWorkshopFooter::run($website), */
                 'header' => GetWebsiteWorkshopHeader::run($website),
-                'navigation' => GetWebsiteWorkshopMenu::run($website)
+                'navigation' => GetWebsiteWorkshopMenu::run($website),
+                'layout' => Arr::get($website->published_layout, 'theme'),
             ]
         );
     }

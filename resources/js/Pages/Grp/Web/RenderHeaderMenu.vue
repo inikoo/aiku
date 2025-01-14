@@ -2,6 +2,7 @@
 import NavigationMenu from './MenuRender.vue'
 import { getComponent } from '@/Composables/getWorkshopComponents'
 import { getIrisComponent } from '@/Composables/getIrisComponents'
+import { sendMessageToParent } from '@/Composables/Workshop';
 
 const props = defineProps<{
     data: {
@@ -91,6 +92,7 @@ const emits = defineEmits<{
                 :colorThemed="colorThemed"
                 :fieldValue="data.topBar.data.fieldValue"
                 @update:model-value="(e)=>emits('update:modelValue', e)"
+                @setPanelActive="(data : string)=>sendMessageToParent('panelOpen',data)"
             />
          </div>
         
@@ -104,7 +106,8 @@ const emits = defineEmits<{
             :loginMode="loginMode"
             :colorThemed="colorThemed"
             :fieldValue="data.header.data.fieldValue"
-            @update:model-value="(e)=>emits('update:modelValue', e)"
+             @update:model-value="(e)=>emits('update:modelValue', e)"
+             @setPanelActive="(data : string)=>sendMessageToParent('panelOpen',data)"
         />
 
 
