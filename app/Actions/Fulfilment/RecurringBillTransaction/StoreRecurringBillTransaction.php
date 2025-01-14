@@ -26,8 +26,6 @@ class StoreRecurringBillTransaction extends OrgAction
         data_set($modelData, 'fulfilment_id', $recurringBill->fulfilment_id);
         data_set($modelData, 'fulfilment_customer_id', $recurringBill->fulfilment_customer_id);
         data_set($modelData, 'tax_category_id', $recurringBill->tax_category_id);
-
-
         data_set($modelData, 'item_id', $item->id);
 
         if ($item instanceof FulfilmentTransaction) {
@@ -38,16 +36,17 @@ class StoreRecurringBillTransaction extends OrgAction
             }
             $assetId         = $item->asset->id;
             $historicAssetId = $item->asset->current_historic_asset_id;
-            $grossAmount     = $item->gross_amount;
-            $netAmount       = $item->net_amount;
             $totalQuantity   = $item->quantity;
+
+            // todo add unit cost to the transaction
+            $unitCost = $item->gross_amount / $item->quantity;
+
         } else {
             $type            = class_basename($item);
             $assetId         = $item->rental->asset_id;
             $historicAssetId = $item->rental->asset->current_historic_asset_id;
 
             $totalQuantity = 0;
-            $grossAmount   = $item->rental->price;
 
             if ($item instanceof StoredItem) {
                 foreach ($item->pallets as $pallet) {
@@ -57,26 +56,32 @@ class StoreRecurringBillTransaction extends OrgAction
                 $totalQuantity = 1;
             }
 
-            $netAmount = $grossAmount * $totalQuantity;
+            $unitCost    = $item->rental->price;
+
         }
 
         data_set($modelData, 'item_type', $type);
         data_set($modelData, 'asset_id', $assetId);
         data_set($modelData, 'historic_asset_id', $historicAssetId);
         data_set($modelData, 'quantity', $totalQuantity);
-        data_set($modelData, 'gross_amount', $grossAmount);
-        data_set($modelData, 'net_amount', $netAmount);
+        data_set($modelData, 'unit_cost', $unitCost);
+
 
         /** @var RecurringBillTransaction $recurringBillTransaction */
         $recurringBillTransaction = $recurringBill->transactions()->create($modelData);
-        $recurringBillTransaction->refresh();
+
 
         if ($item instanceof Pallet) {
             $item->update(['current_recurring_bill_id' => $recurringBill->id]);
         }
+        $recurringBillTransaction = CalculateRecurringBillTransactionDiscountPercentage::make()->action($recurringBillTransaction, $this->hydratorsDelay);
+        $recurringBillTransaction = CalculateRecurringBillTransactionTemporalQuantity::make()->action($recurringBillTransaction);
+        $recurringBillTransaction = CalculateRecurringBillTransactionAmounts::make()->action($recurringBillTransaction);
+        $recurringBillTransaction = CalculateRecurringBillTransactionCurrencyExchangeRates::make()->action($recurringBillTransaction);
 
-        SetClausesInRecurringBillTransaction::run($recurringBillTransaction);
-        RecurringBillHydrateTransactions::dispatch($recurringBill)->delay(now()->addSeconds(2));
+
+
+        RecurringBillHydrateTransactions::dispatch($recurringBill)->delay($this->hydratorsDelay);
 
 
         return $recurringBillTransaction;
@@ -89,10 +94,10 @@ class StoreRecurringBillTransaction extends OrgAction
         ];
     }
 
-    public function action(RecurringBill $recurringBill, Pallet|StoredItem|FulfilmentTransaction $item, array $modelData): RecurringBillTransaction
+    public function action(RecurringBill $recurringBill, Pallet|StoredItem|FulfilmentTransaction $item, array $modelData, int $hydratorsDelay = 0): RecurringBillTransaction
     {
         $this->asAction = true;
-
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($recurringBill->fulfilment->shop, $modelData);
         return $this->handle($recurringBill, $item, $this->validatedData);
     }

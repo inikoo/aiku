@@ -26,8 +26,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $user_id User who audited the stock
  * @property string|null $original_quantity
  * @property string $audited_quantity
- * @property string|null $state
- * @property string|null $audit_type
+ * @property StoredItemAuditDeltaStateEnum|null $state
+ * @property StoredItemAuditDeltaTypeEnum|null $audit_type
  * @property string|null $notes
  * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at

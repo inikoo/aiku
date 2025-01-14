@@ -8,6 +8,8 @@
 
 namespace App\Actions\Transfers\Aurora;
 
+use App\Actions\Fulfilment\RecurringBill\CalculateRecurringBillRentalAmount;
+use App\Actions\Fulfilment\RecurringBill\CalculateRecurringBillTotals;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
@@ -17,21 +19,25 @@ use App\Models\CRM\Customer;
 use App\Transfers\Aurora\WithAuroraAttachments;
 use App\Transfers\Aurora\WithAuroraParsers;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraFulfilmentCustomers extends FetchAuroraAction
 {
     use WithAuroraAttachments;
     use WithAuroraParsers;
 
+    public bool $saveRecurringBills = true;
+
     public string $commandSignature = 'fetch:fulfilment_customers {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Customer
     {
-        $customer   = $this->parseCustomer($organisationSource->getOrganisation()->id.':'.$organisationSourceId);
+        $customer = $this->parseCustomer($organisationSource->getOrganisation()->id.':'.$organisationSourceId);
         if (!$customer) {
             return null;
         }
@@ -67,11 +73,16 @@ class FetchAuroraFulfilmentCustomers extends FetchAuroraAction
             }
 
 
-
-            StoreRentalAgreement::make()->action(
-                $customer->fulfilmentCustomer,
-                $rentalAgreementData
-            );
+            if (!$customer->fulfilmentCustomer->rentalAgreement) {
+                try {
+                    StoreRentalAgreement::make()->action(
+                        $customer->fulfilmentCustomer,
+                        $rentalAgreementData
+                    );
+                } catch (Exception|Throwable $e) {
+                    print_r($e->getMessage());
+                }
+            }
         }
 
         $storingPalletsCount = DB::connection('aurora')
@@ -105,14 +116,19 @@ class FetchAuroraFulfilmentCustomers extends FetchAuroraAction
 
             $recurringBill = $customer->fulfilmentCustomer->currentRecurringBill;
 
+            $customer->refresh();
+            $rentalAgreement = $customer->fulfilmentCustomer->rentalAgreement;
             if (!$recurringBill) {
+
                 $recurringBill = StoreRecurringBill::make()->action(
-                    $customer->fulfilmentCustomer->rentalAgreement,
-                    [
+                    rentalAgreement: $rentalAgreement,
+                    modelData:[
                         'start_date' => $startDate,
-                    ]
+                    ],
+                    hydratorsDelay: 120
                 );
             }
+
 
 
 
@@ -131,18 +147,33 @@ class FetchAuroraFulfilmentCustomers extends FetchAuroraAction
                     $palletStartDate = Carbon::parse($palletData->{'Fulfilment Asset From'});
                 }
 
-                $recurringBillTransaction = $recurringBill->transactions()->where('item_type', 'Pallet')->where('item_id', $pallet->id)->first();
+                //print $palletStartDate->toDateTimeString()."\n";
 
-                if (!$recurringBillTransaction) {
-                    StoreRecurringBillTransaction::make()->action(
-                        $recurringBill,
-                        $pallet,
-                        [
-                            'start_date' => $palletStartDate,
-                        ]
-                    );
+                if ($this->saveRecurringBills) {
+                    $recurringBillTransaction = $recurringBill->transactions()->where('item_type', 'Pallet')->where('item_id', $pallet->id)->first();
+
+                    if (!$recurringBillTransaction) {
+                        StoreRecurringBillTransaction::make()->action(
+                            recurringBill: $recurringBill,
+                            item:$pallet,
+                            modelData:[
+                                'start_date' => $palletStartDate,
+                            ],
+                            hydratorsDelay: 120
+                        );
+                    }
                 }
             }
+
+            CalculateRecurringBillRentalAmount::make()->action(
+                recurringBill:$recurringBill,
+                hydratorsDelay: 60
+            );
+
+            CalculateRecurringBillTotals::make()->action(
+                recurringBill:$recurringBill,
+                hydratorsDelay: 60
+            );
         }
 
         return $customer;

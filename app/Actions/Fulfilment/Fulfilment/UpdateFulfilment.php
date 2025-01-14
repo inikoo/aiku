@@ -42,9 +42,9 @@ class UpdateFulfilment extends OrgAction
 
         if (Arr::exists($modelData, 'monthly_cut_off')) {
             // need to handle 'last_day' string
-            $settings['rental_agreement_cut_off']['monthly']['day']      = $modelData['monthly_cut_off']['date'];
+            $settings['rental_agreement_cut_off']['monthly']['day']         = $modelData['monthly_cut_off']['date'];
             $settings['rental_agreement_cut_off']['monthly']['is_weekdays'] = $modelData['monthly_cut_off']['isWeekdays'] ?? false;
-            $updateSettings                                              = true;
+            $updateSettings                                                 = true;
             data_forget($modelData, 'monthly_cut_off');
         }
 
@@ -73,13 +73,12 @@ class UpdateFulfilment extends OrgAction
         $fulfilment = $this->update($fulfilment, $modelData, ['settings']);
 
         if (Arr::get($modelData, 'update_all', false)) {
-
             $recurringBills = $fulfilment->recurringBills->where('status', RecurringBillStatusEnum::CURRENT);
-            $currentDate = now();
+            $currentDate    = now();
 
             foreach ($recurringBills as $recurringBill) {
-                $rentalAgreement = $recurringBill->rentalAgreement;
-                $endDate = $this->getEndDate(
+                $rentalAgreement         = $recurringBill->rentalAgreement;
+                $endDate                 = $this->getEndDate(
                     $currentDate->copy(),
                     Arr::get(
                         $settings,
@@ -94,8 +93,6 @@ class UpdateFulfilment extends OrgAction
         $shop = UpdateShop::make()->action($fulfilment->shop, $shopData);
 
         return $fulfilment;
-
-
     }
 
     public function authorize(ActionRequest $request): bool
@@ -110,12 +107,12 @@ class UpdateFulfilment extends OrgAction
     public function rules(): array
     {
         return [
-            'weekly_cut_off_day'     => ['sometimes','string', Rule::in(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']) ],
-            'monthly_cut_off'        => [
+            'weekly_cut_off_day'         => ['sometimes', 'string', Rule::in(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])],
+            'monthly_cut_off'            => [
                 'sometimes',
                 'array'
             ],
-            'monthly_cut_off.date' => [
+            'monthly_cut_off.date'       => [
                 'sometimes',
                 function ($attribute, $value, $fail) {
                     if (is_int($value) && $value >= 1 && $value <= 31) {
@@ -123,7 +120,7 @@ class UpdateFulfilment extends OrgAction
                     } elseif ($value === 'last_day') {
                         return true;
                     } else {
-                        $fail($attribute . ' is invalid.');
+                        $fail($attribute.' is invalid.');
                     }
                 },
             ],
@@ -131,12 +128,12 @@ class UpdateFulfilment extends OrgAction
                 'sometimes',
                 'boolean',
             ],
-            'update_all' => [
+            'update_all'                 => [
                 'sometimes',
                 'boolean',
             ],
-            'name'                     => ['sometimes', 'required', 'string', 'max:255'],
-            'code'                     => [
+            'name'                       => ['sometimes', 'required', 'string', 'max:255'],
+            'code'                       => [
                 'sometimes',
                 'required',
                 'max:8',
@@ -155,17 +152,17 @@ class UpdateFulfilment extends OrgAction
                 ),
 
             ],
-            'currency_id'              => ['sometimes', 'required', 'exists:currencies,id'],
-            'country_id'               => ['sometimes', 'required', 'exists:countries,id'],
-            'language_id'              => ['sometimes', 'required', 'exists:languages,id'],
-            'contact_name'             => ['sometimes', 'nullable', 'string', 'max:255'],
-            'company_name'             => ['sometimes', 'nullable', 'string', 'max:255'],
-            'email'                    => ['sometimes', 'nullable', 'email'],
-            'phone'                    => ['sometimes', 'nullable'],
-            'address'                  => ['sometimes', 'required', new ValidAddress()],
-            'registration_number'      => ['sometimes', 'string'],
-            'vat_number'               => ['sometimes', 'string'],
-            'image'       => [
+            'currency_id'                => ['sometimes', 'required', 'exists:currencies,id'],
+            'country_id'                 => ['sometimes', 'required', 'exists:countries,id'],
+            'language_id'                => ['sometimes', 'required', 'exists:languages,id'],
+            'contact_name'               => ['sometimes', 'nullable', 'string', 'max:255'],
+            'company_name'               => ['sometimes', 'nullable', 'string', 'max:255'],
+            'email'                      => ['sometimes', 'nullable', 'email'],
+            'phone'                      => ['sometimes', 'nullable'],
+            'address'                    => ['sometimes', 'required', new ValidAddress()],
+            'registration_number'        => ['sometimes', 'string'],
+            'vat_number'                 => ['sometimes', 'string'],
+            'image'                      => [
                 'sometimes',
                 'nullable',
                 File::image()
@@ -174,12 +171,19 @@ class UpdateFulfilment extends OrgAction
         ];
     }
 
+    public function prepareForValidation(): void
+    {
+        if ($this->has('monthly_cut_off.isWeekdays')) {
+            $this->set('monthly_cut_off.isWeekdays', (bool)$this->get('monthly_cut_off.isWeekdays'));
+        }
+    }
+
     public function asController(Fulfilment $fulfilment, ActionRequest $request): Fulfilment
     {
-
         $this->fulfilment = $fulfilment;
-
         $this->initialisationFromFulfilment($fulfilment, $request);
+
+
         return $this->handle($fulfilment, $this->validatedData);
     }
 
@@ -193,16 +197,5 @@ class UpdateFulfilment extends OrgAction
         return $this->handle($fulfilment, $this->validatedData);
     }
 
-    public string $commandSignature = 'fulfilment-shop:update';
 
-    public function asCommand($command): void
-    {
-        $fulfilment = Fulfilment::find(1);
-
-        $currentDate = now();
-
-        dd($fulfilment->settings);
-        // $this->getEndDate()
-
-    }
 }

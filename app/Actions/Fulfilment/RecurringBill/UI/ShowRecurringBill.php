@@ -33,6 +33,9 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowRecurringBill extends OrgAction
 {
+    private Fulfilment|FulfilmentCustomer $parent;
+    private string $bucket;
+
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
@@ -55,6 +58,27 @@ class ShowRecurringBill extends OrgAction
         return $this->handle($recurringBill);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function current(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, RecurringBill $recurringBill, ActionRequest $request): RecurringBill
+    {
+        $this->parent = $fulfilment;
+        $this->bucket = 'current';
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($recurringBill);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function former(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, RecurringBill $recurringBill, ActionRequest $request): RecurringBill
+    {
+        $this->parent = $fulfilment;
+        $this->bucket = 'former';
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($recurringBill);
+    }
+
+
     public function handle(RecurringBill $recurringBill): RecurringBill
     {
         return $recurringBill;
@@ -62,50 +86,50 @@ class ShowRecurringBill extends OrgAction
 
     public function htmlResponse(RecurringBill $recurringBill, ActionRequest $request): Response
     {
-
         $showGrossAndDiscount = $recurringBill->gross_amount !== $recurringBill->net_amount;
+
         return Inertia::render(
             'Org/Fulfilment/RecurringBill',
             [
-                'title'       => __('recurring bill'),
-                'breadcrumbs' => $this->getBreadcrumbs(
+                'title'            => __('recurring bill'),
+                'breadcrumbs'      => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation' => [
+                'navigation'       => [
                     'previous' => $this->getPrevious($recurringBill, $request),
                     'next'     => $this->getNext($recurringBill, $request),
                 ],
-                'pageHead'    => [
-                    'icon'          =>
+                'pageHead'         => [
+                    'icon'  =>
                         [
                             'icon'  => 'fal fa-receipt',
                             'title' => __('recurring bill')
                         ],
-                    'model'              => __('Recurring Bill'),
-                    'title'              => $recurringBill->slug,
+                    'model' => __('Recurring Bill'),
+                    'title' => $recurringBill->slug,
                 ],
-                'updateRoute'   => [
+                'updateRoute'      => [
                     'name'       => 'grp.models.recurring-bill.update',
                     'parameters' => [$recurringBill->id]
                 ],
-                'timeline_rb'   => [
+                'timeline_rb'      => [
                     'start_date' => $recurringBill->start_date,
                     'end_date'   => $recurringBill->end_date
                 ],
-                'consolidateRoute'  => [
-                    'name'          => 'grp.models.recurring-bill.consolidate',
-                    'parameters'    => [
+                'consolidateRoute' => [
+                    'name'       => 'grp.models.recurring-bill.consolidate',
+                    'parameters' => [
                         'recurringBill' => $recurringBill->id
                     ],
-                    'method'        => 'patch'
+                    'method'     => 'patch'
                 ],
                 'status_rb'        => $recurringBill->status,
                 'box_stats'        => [
                     'customer'      => FulfilmentCustomerResource::make($recurringBill->fulfilmentCustomer),
                     'stats'         => [
-                        'number_pallets'         => $recurringBill->stats->number_transactions_type_pallets,
-                        'number_stored_items'    => $recurringBill->stats->number_transactions_type_stored_items,
+                        'number_pallets'      => $recurringBill->stats->number_transactions_type_pallets,
+                        'number_stored_items' => $recurringBill->stats->number_transactions_type_stored_items,
                     ],
                     'order_summary' => [
                         // [
@@ -119,9 +143,9 @@ class ShowRecurringBill extends OrgAction
                         // ],
                         [
                             [
-                                'label'         => __('Pallets'),
-                                'price_base'    => __('Multiple'),
-                                'price_total'   => $recurringBill->rental_amount
+                                'label'       => __('Pallets'),
+                                'price_base'  => __('Multiple'),
+                                'price_total' => $recurringBill->rental_amount
                             ],
                             [
                                 'label'       => __('Services'),
@@ -142,60 +166,62 @@ class ShowRecurringBill extends OrgAction
                         ],
                         $showGrossAndDiscount ? [
                             [
-                                'label'         => __('Gross'),
-                                'information'   => '',
-                                'price_total'   => $recurringBill->gross_amount
+                                'label'       => __('Gross'),
+                                'information' => '',
+                                'price_total' => $recurringBill->gross_amount
                             ],
                             [
-                                'label'         => __('Discounts'),
-                                'information'   => '',
-                                'price_total'   => $recurringBill->discount_amount
+                                'label'       => __('Discounts'),
+                                'information' => '',
+                                'price_total' => $recurringBill->discount_amount
                             ],
                         ] : [],
-                        $showGrossAndDiscount ? [
+                        $showGrossAndDiscount
+                            ? [
                             [
-                                'label'         => __('Net'),
-                                'information'   => '',
-                                'price_total'   => $recurringBill->net_amount
+                                'label'       => __('Net'),
+                                'information' => '',
+                                'price_total' => $recurringBill->net_amount
                             ],
                             [
-                                'label'         => __('Tax').' '.$recurringBill->taxCategory->rate * 100 . '%',
-                                'information'   => '',
-                                'price_total'   => $recurringBill->tax_amount
+                                'label'       => __('Tax').' '.$recurringBill->taxCategory->rate * 100 .'%',
+                                'information' => '',
+                                'price_total' => $recurringBill->tax_amount
                             ],
-                        ] : [
+                        ]
+                            : [
                             [
-                                'label'         => __('Net'),
-                                'information'   => '',
-                                'price_total'   => $recurringBill->net_amount
+                                'label'       => __('Net'),
+                                'information' => '',
+                                'price_total' => $recurringBill->net_amount
                             ],
                             [
-                                'label'         => __('Tax').' '.$recurringBill->taxCategory->rate * 100 . '%',
-                                'information'   => '',
-                                'price_total'   => $recurringBill->tax_amount
+                                'label'       => __('Tax').' '.$recurringBill->taxCategory->rate * 100 .'%',
+                                'information' => '',
+                                'price_total' => $recurringBill->tax_amount
                             ],
                         ],
                         [
                             [
-                                'label'         => __('Total'),
-                                'price_total'   => $recurringBill->total_amount
+                                'label'       => __('Total'),
+                                'price_total' => $recurringBill->total_amount
                             ],
                         ],
                     ],
                 ],
 
-                'tabs'        => [
+                'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => RecurringBillTabsEnum::navigation(),
                 ],
 
                 RecurringBillTabsEnum::TRANSACTIONS->value => $this->tab == RecurringBillTabsEnum::TRANSACTIONS->value ?
-                fn () => RecurringBillTransactionsResource::collection(IndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))
-                : Inertia::lazy(fn () => RecurringBillTransactionsResource::collection(IndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))),
+                    fn () => RecurringBillTransactionsResource::collection(IndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))
+                    : Inertia::lazy(fn () => RecurringBillTransactionsResource::collection(IndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))),
 
                 RecurringBillTabsEnum::HISTORY->value => $this->tab == RecurringBillTabsEnum::HISTORY->value ?
-                fn () => HistoryResource::collection(IndexHistory::run($recurringBill))
-                : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($recurringBill)))
+                    fn () => HistoryResource::collection(IndexHistory::run($recurringBill))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($recurringBill)))
             ]
         )->table(
             IndexRecurringBillTransactions::make()->tableStructure(
@@ -203,7 +229,7 @@ class ShowRecurringBill extends OrgAction
                 prefix: RecurringBillTabsEnum::TRANSACTIONS->value
             )
         )
-        ->table(IndexHistory::make()->tableStructure(prefix: RecurringBillTabsEnum::HISTORY->value));
+            ->table(IndexHistory::make()->tableStructure(prefix: RecurringBillTabsEnum::HISTORY->value));
     }
 
 
@@ -249,14 +275,16 @@ class ShowRecurringBill extends OrgAction
                     ]
                 ]
             ],
-            'grp.org.fulfilments.show.operations.recurring_bills.show' => [
+            'grp.org.fulfilments.show.operations.recurring_bills.show',
+            'grp.org.fulfilments.show.operations.recurring_bills.current.show',
+            'grp.org.fulfilments.show.operations.recurring_bills.former.show' => [
                 'label' => $recurringBill->slug,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation'       => $recurringBill->organisation->slug,
-                        'fulfilment'         => $this->fulfilment->slug,
-                        'recurringBill'      => $recurringBill->slug
+                        'organisation'  => $recurringBill->organisation->slug,
+                        'fulfilment'    => $this->fulfilment->slug,
+                        'recurringBill' => $recurringBill->slug
                     ]
                 ]
             ]
@@ -280,7 +308,7 @@ class ShowRecurringBill extends OrgAction
                         ],
 
                     ],
-                    'suffix' => $suffix
+                    'suffix'         => $suffix
                 ],
             ];
         };

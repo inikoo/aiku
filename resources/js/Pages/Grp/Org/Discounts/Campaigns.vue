@@ -13,7 +13,7 @@ import { capitalize } from "@/Composables/capitalize"
 import { PageHeading as PageHeadingTS } from '@/types/PageHeading'
 import { Table as TableTS} from '@/types/Table'
 
-const props = defineProps<{
+defineProps<{
     data: TableTS
     title: string
     pageHead: PageHeadingTS

@@ -69,8 +69,14 @@ Route::prefix('recurring_bills')->as('recurring_bills')->group(function () {
     Route::get('', IndexRecurringBills::class)->name('.index');
     Route::get('current', [IndexRecurringBills::class, 'current'])->name('.current.index');
     Route::get('former', [IndexRecurringBills::class, 'former'])->name('.former.index');
+
     Route::get('{recurringBill}', ShowRecurringBill::class)->name('.show');
     Route::get('{recurringBill}/edit', EditRecurringBill::class)->name('.edit');
+
+    Route::get('current/{recurringBill}', [ShowRecurringBill::class, 'current'])->name('.current.show');
+    Route::get('former/{recurringBill}', [ShowRecurringBill::class, 'former'])->name('.former.show');
+
+
 });
 
 Route::prefix('invoices')->as('invoices')->group(function () {

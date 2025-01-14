@@ -19,7 +19,7 @@ trait WithRecurringBillsSubNavigation
         return [
             [
                 "number"   => $parent->stats->number_recurring_bills_status_current,
-                "label"    => __("Current"),
+                "label"    => __("Next Bills"),
                 "route"     => [
                     "name"       => "grp.org.fulfilments.show.operations.recurring_bills.current.index",
                     "parameters" => [

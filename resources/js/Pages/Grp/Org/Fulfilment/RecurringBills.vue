@@ -9,13 +9,10 @@ import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import TableRecurringBills from "@/Components/Tables/Grp/Org/Fulfilment/TableRecurringBills.vue";
 import {capitalize} from "@/Composables/capitalize"
-import {computed, ref} from "vue";
-import {useTabChange} from "@/Composables/tab-change";
-import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
-import Tabs from "@/Components/Navigation/Tabs.vue";
+import { PageHeading as PageHeadingTS } from '@/types/PageHeading'
 
-const props = defineProps<{
-  pageHead: object
+defineProps<{
+  pageHead: PageHeadingTS
   title: string
   data: {}
 }>()

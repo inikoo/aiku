@@ -20,8 +20,6 @@ use App\Actions\Traits\WithGetRecurringBillEndDate;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\RentalAgreement;
-use Exception;
-use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 
@@ -77,6 +75,7 @@ class StoreRecurringBill extends OrgAction
         );
 
 
+
         /** @var RecurringBill $recurringBill */
         $recurringBill = $rentalAgreement->recurringBills()->create($modelData);
         $recurringBill->stats()->create();
@@ -88,14 +87,14 @@ class StoreRecurringBill extends OrgAction
             ]
         );
 
-        FindStoredPalletsAndAttachThemToNewRecurringBill::make()->action($recurringBill, $previousRecurringBill);
+        if ($this->strict) {
+            FindStoredPalletsAndAttachThemToNewRecurringBill::make()->action($recurringBill, $previousRecurringBill);
+        }
 
-
-        GroupHydrateRecurringBills::dispatch($recurringBill->group);
-        OrganisationHydrateRecurringBills::dispatch($recurringBill->organisation);
-        FulfilmentHydrateRecurringBills::dispatch($recurringBill->fulfilment);
-        FulfilmentCustomerHydrateRecurringBills::dispatch($recurringBill->fulfilmentCustomer);
-
+        GroupHydrateRecurringBills::dispatch($recurringBill->group)->delay($this->hydratorsDelay);
+        OrganisationHydrateRecurringBills::dispatch($recurringBill->organisation)->delay($this->hydratorsDelay);
+        FulfilmentHydrateRecurringBills::dispatch($recurringBill->fulfilment)->delay($this->hydratorsDelay);
+        FulfilmentCustomerHydrateRecurringBills::dispatch($recurringBill->fulfilmentCustomer)->delay($this->hydratorsDelay);
         RecurringBillRecordSearch::dispatch($recurringBill);
 
         return $recurringBill;
@@ -109,42 +108,15 @@ class StoreRecurringBill extends OrgAction
         ];
     }
 
-    public function action(RentalAgreement $rentalAgreement, array $modelData, RecurringBill $previousRecurringBill = null): RecurringBill
+    public function action(RentalAgreement $rentalAgreement, array $modelData, RecurringBill $previousRecurringBill = null, int $hydratorsDelay = 0, bool $strict = false): RecurringBill
     {
+        $this->strict = $strict;
         $this->asAction = true;
-
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($rentalAgreement->fulfilment->shop, $modelData);
 
         return $this->handle($rentalAgreement, $this->validatedData, $previousRecurringBill);
     }
 
-    public string $commandSignature = 'recurring-bill:create {rental-agreement}';
 
-    public function asCommand(Command $command): int
-    {
-        $this->asAction = true;
-
-        try {
-            /** @var RentalAgreement $rentalAgreement */
-            $rentalAgreement = RentalAgreement::where('slug', $command->argument('rental-agreement'))->firstOrFail();
-        } catch (Exception $e) {
-            $command->error($e->getMessage());
-
-            return 1;
-        }
-
-        try {
-            $this->initialisationFromFulfilment($rentalAgreement->fulfilment, []);
-        } catch (Exception $e) {
-            $command->error($e->getMessage());
-
-            return 1;
-        }
-
-        $proforma = $this->handle($rentalAgreement, modelData: $this->validatedData);
-
-        $command->info("Recurring bill $proforma->slug created successfully 🎉");
-
-        return 0;
-    }
 }

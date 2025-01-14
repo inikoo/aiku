@@ -8,11 +8,13 @@
 
 namespace App\Actions\Fulfilment\RecurringBill;
 
-use App\Actions\Fulfilment\RecurringBillTransaction\Hydrators\HydrateRecurringBillTransactionRentalQuantity;
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateRecurringBills;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRecurringBills;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateRecurringBills;
 use App\Models\Fulfilment\RecurringBill;
 
-class UpdateRecurringBillTotals extends OrgAction
+class CalculateRecurringBillTotals extends OrgAction
 {
     public function handle(RecurringBill $recurringBill): RecurringBill
     {
@@ -21,9 +23,6 @@ class UpdateRecurringBillTotals extends OrgAction
         $transactions = $recurringBill->transactions;
 
         $taxRate      = $recurringBill->taxCategory->rate;
-
-
-        $recurringBill = HydrateRecurringBillTransactionRentalQuantity::run($recurringBill);
 
 
         $rentalNet    = $transactions->where('item_type', 'Pallet')->sum('net_amount');
@@ -49,12 +48,18 @@ class UpdateRecurringBillTotals extends OrgAction
 
         $recurringBill->update($modelData);
 
+        GroupHydrateRecurringBills::dispatch($recurringBill->group)->delay($this->hydratorsDelay);
+        OrganisationHydrateRecurringBills::dispatch($recurringBill->organisation)->delay($this->hydratorsDelay);
+        FulfilmentCustomerHydrateRecurringBills::dispatch($recurringBill->fulfilmentCustomer)->delay($this->hydratorsDelay);
+
+
         return $recurringBill;
     }
 
-    public function action(RecurringBill $recurringBill): RecurringBill
+    public function action(RecurringBill $recurringBill, int $hydratorsDelay = 0): RecurringBill
     {
         $this->asAction = true;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromFulfilment($recurringBill->fulfilment, []);
         return $this->handle($recurringBill);
     }
