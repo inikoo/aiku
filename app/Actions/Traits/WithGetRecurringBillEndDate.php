@@ -10,6 +10,7 @@
 
 namespace App\Actions\Traits;
 
+use Carbon\CarbonInterface;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -29,9 +30,23 @@ trait WithGetRecurringBillEndDate
     public function getEndDateMonthly(Carbon $startDate, array $setting): Carbon
     {
         $endDayOfMonth = $setting['day'];
+        if ($endDayOfMonth == 'last_day') {
+            return Carbon::now()->endOfMonth();
+        }
+
+
+        if ($startDate->day > $endDayOfMonth) {
+            // todo test this in a Unit Test
+            // if today is  20th/10 and cut of day is 9 this must be 9th/11
+            // if today is  7th/10 and cut of day is 9 this must be 9th/10
+
+            $endDate = $startDate->copy()->addMonth()->day($endDayOfMonth);
+        } else {
+            $endDate = $startDate->copy()->day($endDayOfMonth);
+        }
+
         $isWeekDays = $setting['is_weekdays'] ?? false;
 
-        $endDate = $startDate->copy()->day($endDayOfMonth);
         if ($isWeekDays) {
             while ($endDate->isWeekday()) {
                 $endDate->addDay();
@@ -56,13 +71,13 @@ trait WithGetRecurringBillEndDate
     public function getEndDateWeekly(Carbon $startDate, array $setting): Carbon
     {
         $daysOfWeek = [
-            'Sunday'    => Carbon::SUNDAY,
-            'Monday'    => Carbon::MONDAY,
-            'Tuesday'   => Carbon::TUESDAY,
-            'Wednesday' => Carbon::WEDNESDAY,
-            'Thursday'  => Carbon::THURSDAY,
-            'Friday'    => Carbon::FRIDAY,
-            'Saturday'  => Carbon::SATURDAY,
+            'Sunday'    => CarbonInterface::SUNDAY,
+            'Monday'    => CarbonInterface::MONDAY,
+            'Tuesday'   => CarbonInterface::TUESDAY,
+            'Wednesday' => CarbonInterface::WEDNESDAY,
+            'Thursday'  => CarbonInterface::THURSDAY,
+            'Friday'    => CarbonInterface::FRIDAY,
+            'Saturday'  => CarbonInterface::SATURDAY,
         ];
 
         $endDayOfWeek = $daysOfWeek[$setting['day']];

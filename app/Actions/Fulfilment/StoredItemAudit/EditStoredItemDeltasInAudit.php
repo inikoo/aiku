@@ -2,11 +2,11 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 26 Jan 2024 18:40:36 Malaysia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2024, Raul A Perusquia Flores
+ * Created: Tue, 14 Jan 2025 12:52:25 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\Pallet\UI;
+namespace App\Actions\Fulfilment\StoredItemAudit;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
@@ -15,22 +15,22 @@ use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\UI\Fulfilment\FulfilmentCustomerPalletsTabsEnum;
-use App\Http\Resources\Fulfilment\PalletsResource;
+use App\Http\Resources\Fulfilment\PalletsInAuditResource;
+use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
-class IndexPalletsInAudit extends OrgAction
+class EditStoredItemDeltasInAudit extends OrgAction
 {
     use HasFulfilmentAssetsAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
@@ -181,7 +181,7 @@ class IndexPalletsInAudit extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $pallets): AnonymousResourceCollection
     {
-        return PalletsResource::collection($pallets);
+        return PalletsInAuditResource::collection($pallets);
     }
 
 
@@ -203,7 +203,7 @@ class IndexPalletsInAudit extends OrgAction
 
 
         return Inertia::render(
-            'Org/Fulfilment/PalletsInCustomer',
+            'Org/Fulfilment/PalletsInAudit',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()

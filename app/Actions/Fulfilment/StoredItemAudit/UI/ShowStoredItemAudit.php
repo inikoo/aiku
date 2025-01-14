@@ -10,7 +10,7 @@ namespace App\Actions\Fulfilment\StoredItemAudit\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
-use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInAudit;
+use App\Actions\Fulfilment\StoredItemAudit\EditStoredItemDeltasInAudit;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
@@ -21,12 +21,12 @@ use App\Http\Resources\Fulfilment\StoredItemAuditResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItemAudit;
+use App\Models\Inventory\Location;
+use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\Models\Inventory\Location;
-use App\Models\Inventory\Warehouse;
 
 class ShowStoredItemAudit extends OrgAction
 {
@@ -141,13 +141,13 @@ class ShowStoredItemAudit extends OrgAction
                 ],
 
                 'data'                => StoredItemAuditResource::make($storedItemAudit),
-                'pallets'             => PalletsResource::collection(IndexPalletsInAudit::run($storedItemAudit->fulfilmentCustomer, 'pallets')),
+                'edit_stored_item_deltas'             => PalletsResource::collection(EditStoredItemDeltasInAudit::run($storedItemAudit->fulfilmentCustomer, 'pallets')),
                 'fulfilment_customer' => FulfilmentCustomerResource::make($storedItemAudit->fulfilmentCustomer)->getArray()
             ]
         )->table(
-            IndexPalletsInAudit::make()->tableStructure(
+            EditStoredItemDeltasInAudit::make()->tableStructure(
                 $storedItemAudit->fulfilmentCustomer,
-                prefix: 'pallets'
+                prefix: 'edit_stored_item_deltas'
             )
         );
     }

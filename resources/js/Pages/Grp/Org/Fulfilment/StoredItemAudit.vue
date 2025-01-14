@@ -46,7 +46,7 @@ const props = defineProps<{
     title: string
     pageHead: PageHeadingTypes
     notes_data: any
-    pallets: any
+    edit_stored_item_deltas: any
     fulfilment_customer: any
     route_list: {
         update: routeType
@@ -135,9 +135,9 @@ const onClickQuantity = (routex: routeType, store_item_id: number, qty: number) 
             :updateRoute="route.update" />
     </div>
     <BoxAuditStoredItems :auditData="data.data" :boxStats="fulfilment_customer" />
-    <!-- <TableStoredItemsAudits :data="pallets" tab="pallets" :storedItemsRoute="storedItemsRoute" /> -->
+    <!-- <TableStoredItemsAudits :data="edit_stored_item_deltas" tab="edit_stored_item_deltas" :storedItemsRoute="storedItemsRoute" /> -->
 
-    <Table :resource="pallets" name="pallets" class="mt-5">
+    <Table :resource="edit_stored_item_deltas" name="edit_stored_item_deltas" class="mt-5">
         <!-- Column: Reference -->
         <template #cell(reference)="{ item: pallet }">
             <component :is="pallet.slug ? Link : 'div'" :href="pallet.slug ? palletRoute(pallet) : undefined"

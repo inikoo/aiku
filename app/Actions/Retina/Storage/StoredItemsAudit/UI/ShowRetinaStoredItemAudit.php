@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 13-01-2025-16h-41m
@@ -8,11 +9,7 @@
 
 namespace App\Actions\Retina\Storage\StoredItemsAudit\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
-use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
-use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInAudit;
-use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
-use App\Actions\OrgAction;
+use App\Actions\Fulfilment\StoredItemAudit\EditStoredItemDeltasInAudit;
 use App\Actions\RetinaAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Actions\UI\Retina\Billing\UI\ShowRetinaBillingDashboard;
@@ -20,15 +17,10 @@ use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditResource;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItemAudit;
-use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\Models\Inventory\Location;
-use App\Models\Inventory\Warehouse;
 
 class ShowRetinaStoredItemAudit extends RetinaAction
 {
@@ -108,43 +100,14 @@ class ShowRetinaStoredItemAudit extends RetinaAction
                     ],
                 ],
 
-                // 'route' => [
-                //     'update' => [
-                //         'name'       => 'grp.models.fulfilment-customer.stored_item_audits.update',
-                //         'parameters' => [
-                //             'fulfilmentCustomer' => $storedItemAudit->fulfilment_customer_id,
-                //             'storedItemAudit'    => $storedItemAudit->id
-                //         ]
-                //     ]
-                // ],
 
-                // 'storedItemsRoute' => [
-                //     'index'  => [
-                //         'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
-                //         'parameters' => [
-                //             'organisation'       => $storedItemAudit->organisation->slug,
-                //             'fulfilment'         => $storedItemAudit->fulfilment->slug,
-                //             'fulfilmentCustomer' => $storedItemAudit->fulfilmentCustomer->slug,
-                //             'palletDelivery'     => $storedItemAudit->reference
-                //         ]
-                //     ],
-                //     'store'  => [
-                //         'name'       => 'grp.models.fulfilment-customer.stored-items.store',
-                //         'parameters' => [
-                //             'fulfilmentCustomer' => $storedItemAudit->fulfilmentCustomer->id
-                //         ]
-                //     ],
-                //     'delete' => [
-                //         'name' => 'grp.models.stored-items.delete'
-                //     ]
-                // ],
 
                 'data'                => StoredItemAuditResource::make($storedItemAudit),
-                'pallets'             => PalletsResource::collection(IndexPalletsInAudit::run($storedItemAudit->fulfilmentCustomer, 'pallets')),
+                'pallets'             => PalletsResource::collection(EditStoredItemDeltasInAudit::run($storedItemAudit->fulfilmentCustomer, 'pallets')),
                 'fulfilment_customer' => FulfilmentCustomerResource::make($storedItemAudit->fulfilmentCustomer)->getArray()
             ]
         )->table(
-            IndexPalletsInAudit::make()->tableStructure(
+            EditStoredItemDeltasInAudit::make()->tableStructure(
                 $storedItemAudit->fulfilmentCustomer,
                 prefix: 'pallets'
             )
