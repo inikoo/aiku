@@ -62,7 +62,7 @@ class ShowWebpageWorkshopPreview extends OrgAction
             'header' => GetWebsiteWorkshopHeader::run($website),
             'footer' => GetWebsiteWorkshopFooter::run($website),
             'navigation' => GetWebsiteWorkshopMenu::run($website),
-            'layout' => Arr::get($website->published_layout, 'theme'),
+          /*   'layout' => Arr::get($website->published_layout, 'theme'), */
         ]
     );
 }

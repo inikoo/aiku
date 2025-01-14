@@ -92,7 +92,7 @@ const emits = defineEmits<{
                 :colorThemed="colorThemed"
                 :fieldValue="data.topBar.data.fieldValue"
                 @update:model-value="(e)=>emits('update:modelValue', e)"
-                @setPanelActive="(data : string)=>sendMessageToParent('panelOpen',data)"
+                @setPanelActive="(data : string)=>sendMessageToParent('TopbarPanelOpen',data)"
             />
          </div>
         
@@ -107,7 +107,7 @@ const emits = defineEmits<{
             :colorThemed="colorThemed"
             :fieldValue="data.header.data.fieldValue"
              @update:model-value="(e)=>emits('update:modelValue', e)"
-             @setPanelActive="(data : string)=>sendMessageToParent('panelOpen',data)"
+             @setPanelActive="(data : string)=>sendMessageToParent('HeaderPanelOpen',data)"
         />
 
 

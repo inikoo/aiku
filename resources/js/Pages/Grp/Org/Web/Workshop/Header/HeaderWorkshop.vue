@@ -218,8 +218,12 @@ onMounted(() => {
         const { data } = event;
         if (event.data.key === 'openModalBlockList') {
             isModalOpen.value = true
-        } if (data.key === 'panelOpen') {
+        } if (data.key === 'TopbarPanelOpen') {
             panelActive.value = event.data.value
+            selectedTab.value = tabs[0]
+        }if (data.key === 'HeaderPanelOpen') {
+            panelActive.value = event.data.value
+            selectedTab.value = tabs[1]
         }else if (data.key === 'autosave') {
             if (saveCancelToken.value) saveCancelToken.value()
             usedTemplates.value = data.value

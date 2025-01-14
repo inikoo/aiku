@@ -6,6 +6,12 @@ import { set } from 'lodash'
 
 const model = defineModel<typeof localModel>()
 
+
+const emits = defineEmits<{
+    (e: 'update:modelValue', value: string | number): void
+}>()
+
+
 const onSaveWorkshopFromId: Function = inject('onSaveWorkshopFromId', (e?: number) => { console.log('onSaveWorkshopFromId not provided') })
 const side_editor_block_id = inject('side_editor_block_id', () => { console.log('side_editor_block_id not provided') })  // Get the block id that use this property
 
@@ -17,22 +23,28 @@ const localModel = {
 
 // Sync with the prop value initially
 onMounted(() => {
-    if (!model.value?.height && model.value?.height !== localModel.height) {
-        set(model.value, 'height', localModel.height)
-        onSaveWorkshopFromId(side_editor_block_id, 'dimension value.height')
+    if (!model.value?.height && (model.value?.height !== localModel.height)) {
+        console.log('masuk')
+       /*  set(model.value, 'height', localModel.height) */
+        model.value = { ...model.value, ...localModel.height}
+        emits('update:modelValue', model.value)
+       /*  onSaveWorkshopFromId(side_editor_block_id, 'dimension value.height') */
     }
 
-    if (!model.value?.width && model.value?.width !== localModel.width) {
-        set(model.value, 'width', localModel.width)
-        onSaveWorkshopFromId(side_editor_block_id, 'dimension value.width')
+    if (!model.value?.width && (model.value?.width !== localModel.width)) {
+        model.value = { ...model.value, ...localModel.width}
+        emits('update:modelValue', model.value)
+     /*    onSaveWorkshopFromId(side_editor_block_id, 'dimension value.width') */
     }
 })
+
+console.log("dimension",model.value)
 
 </script>
 
 <template>
     <div>
-        <DimensionProperty v-model="model" />
+        <DimensionProperty v-model="model" @update:model-value="e => console.log('sdsdsd')"/>
     </div>
 </template>
 

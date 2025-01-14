@@ -9,6 +9,7 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { getStyles } from '@/Composables/styles';
 import { iframeToParent } from "@/Composables/Workshop"
 import { isObject } from 'lodash';
+import { sendMessageToParent } from '@/Composables/Workshop';
 
 import { FieldValue } from '@/types/Website/Website/footer1'
 
@@ -145,16 +146,17 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
 <template>
     <div id="app" class="-mx-2 md:mx-0 pb-24 pt-4 md:pt-8 md:px-16 text-white" :style="getStyles(modelValue?.container?.properties)">
         <div
-            class="w-full flex flex-col md:flex-row gap-4 md:gap-8 pt-2 pb-4 md:pb-6 mb-4 md:mb-10 border-0 border-b border-solid border-gray-700">
-            <div class="flex-1 flex items-center justify-center md:justify-start ">
-                <img v-if="modelValue?.logo?.source" :src="modelValue.logo.source"
+            class="w-full flex flex-col md:flex-row gap-4 md:gap-8 pt-2 pb-4 md:pb-6 mb-4 md:mb-10 border-0 border-b border-gray-700">
+            <div v-if="modelValue?.logo" class="flex-1 flex items-center justify-center md:justify-start border-solid "  @click="()=>sendMessageToParent('panelOpen','logo')">
+                <img v-if="modelValue?.logo?.source && !isObject(modelValue.logo?.source)" :src="modelValue.logo.source"
                     :alt="modelValue.logo.alt" class="h-auto max-h-20 w-auto min-w-16" />
-                <img v-if="modelValue?.logo?.source?.original" :src="modelValue?.logo?.source?.original" :alt="modelValue.logo.alt"
-                    class="tw-h-auto tw-max-h-20 tw-w-auto tw-min-w-16">
+                <img v-if="modelValue?.logo?.source?.original"  :src="modelValue?.logo?.source?.original" :alt="modelValue.logo.alt"
+                    class="h-auto max-h-20 w-auto min-w-16">
             </div>
 
             <div v-if="modelValue?.email"
-                class="relative group flex-1 flex justify-center md:justify-start items-center">
+                @click="()=>sendMessageToParent('panelOpen','email')"
+                class="relative group flex-1 flex justify-center md:justify-start items-center hover-dashed">
                 <a style="font-size: 17px">{{ modelValue?.email }}</a>
                 <div @click="() => iframeToParent({ openFieldWorkshop: 'email' })"
                     class="p-1 absolute -left-2 -top-2 text-yellow-500 cursor-pointer group-hover:top-1 opacity-0 group-hover:opacity-100 transition-all">
@@ -163,26 +165,27 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
             </div>
 
             <div v-if="modelValue?.whatsapp?.number"
-                class="relative group flex-1 flex gap-x-1.5 justify-center md:justify-start items-center">
+                @click="()=>sendMessageToParent('panelOpen','whatsapp')"
+                class="relative group flex-1 flex gap-x-1.5 justify-center md:justify-start items-center hover-dashed">
                 <a class="flex gap-x-2 items-center">
                     <FontAwesomeIcon class="text-[#00EE52]" icon="fab fa-whatsapp" style="font-size: 22px" />
                     <span style="font-size: 17px">{{ modelValue?.whatsapp?.number }}</span>
                 </a>
 
-                <div @click="() => iframeToParent({ openFieldWorkshop: 'whatsapp' })"
+                <div
                     class="p-1 absolute -left-2 -top-2 text-yellow-500 cursor-pointer group-hover:top-0 opacity-0 group-hover:opacity-100 transition-all">
                     <FontAwesomeIcon icon='fas fa-arrow-square-left' class='' fixed-width aria-hidden='true' />
                 </div>
             </div>
 
-            <div class="group relative flex-1 flex flex-col items-center md:items-end justify-center">
-                <a v-for="phone of modelValue.phone.numbers" style="font-size: 17px">
+            <div class="group relative flex-1 flex flex-col items-center md:items-end justify-center hover-dashed" @click="()=>sendMessageToParent('panelOpen','phone')">
+                <a v-for="phone of modelValue.phone.numbers" style="font-size: 17px" >
                     {{ phone }}
                 </a>
 
                 <span class="" style="font-size: 15px">{{ modelValue.phone.caption }}</span>
 
-                <div @click="() => iframeToParent({ openFieldWorkshop: 'phone' })"
+                <div
                     class="p-1 absolute -left-0 -top-2 text-yellow-500 cursor-pointer group-hover:-top-4 opacity-0 group-hover:opacity-100 transition-all">
                     <FontAwesomeIcon icon='fas fa-arrow-square-left' class='' fixed-width aria-hidden='true' />
                 </div>
@@ -207,7 +210,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                             class="handle text-white cursor-grab pr-3 mr-2" />
                                         <div class="w-full">
                                             <Editor
-                                                :class="'hover:bg-white/30 border border-transparent hover:border-white/80 border-dashed cursor-text'"
+                                                :class="'model border border-transparent hover-dashed border-dashed cursor-text'"
                                                 :key="editorKey" v-model="item.name" :editable="editable"
                                                 
                                                 @update:model-value="(e) => { item.name = e, emits('update:modelValue', modelValue) }" />
@@ -231,7 +234,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                                         class="handle-sub text-sm text-white cursor-grab pr-3 mr-2" />
                                                     <div class="w-full">
                                                         <Editor
-                                                            :class="'hover:bg-white/30 border border-transparent hover:border-white/80 border-dashed cursor-text'"
+                                                            :class="'model border border-transparent hover-dashed border-dashed cursor-text'"
                                                             :key="editorKey" v-model="sub.name" :editable="editable"
                                                             @update:model-value="(e) => { sub.name = e, emits('update:modelValue', modelValue) }"
                                                         />
@@ -303,7 +306,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                             class="handle text-white cursor-grab pr-3 mr-2" />
                                         <div class="w-full">
                                             <Editor :key="editorKey"
-                                                :class="'hover:bg-white/30 border border-transparent hover:border-white/80 border-dashed cursor-text'"
+                                                :class="'model border border-transparent hover-dashed border-dashed cursor-text'"
                                                 v-model="item.name" :editable="editable" class=""
                                                 
                                                 @update:model-value="(e) => { item.name = e, emits('update:modelValue', modelValue) }" />
@@ -327,7 +330,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                                         class="handle-sub text-sm text-white cursor-grab pr-3 mr-2" />
                                                     <div class="w-full">
                                                         <Editor
-                                                            :class="'hover:bg-white/30 border border-transparent hover:border-white/80 border-dashed cursor-text'"
+                                                            :class="'model border border-transparent hover-dashed border-dashed cursor-text'"
                                                             :key="editorKey" v-model="sub.name" :editable="editable"
                                                             @update:model-value="(e) => { sub.name = e, emits('update:modelValue', modelValue) }"
                                                              />
@@ -399,7 +402,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                             class="handle text-white cursor-grab pr-3 mr-2" />
                                         <div class="w-full">
                                             <Editor
-                                                :class="'hover:bg-white/30 border border-transparent hover:border-white/80 border-dashed cursor-text'"
+                                                :class="'model border border-transparent hover-dashed border-dashed cursor-text'"
                                                 :key="editorKey" v-model="item.name" :editable="editable"
                                                 
                                                 @update:model-value="(e) => { item.name = e, emits('update:modelValue', modelValue) }" />
@@ -423,7 +426,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                                         class="handle-sub text-sm text-white cursor-grab pr-3 mr-2" />
                                                     <div class="w-full">
                                                         <Editor
-                                                            :class="'hover:bg-white/30 border border-transparent hover:border-white/80 border-dashed cursor-text'"
+                                                            :class="'model border border-transparent hover-dashed border-dashed cursor-text'"
                                                             :key="editorKey" v-model="sub.name" :editable="editable"
                                                             @update:model-value="(e) => { sub.name = e, emits('update:modelValue', modelValue) }"
                                                              />
@@ -484,7 +487,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                     <div>
                         <address class="mt-10 md:mt-0 mb-4">
                             <Editor
-                                :class="'hover:bg-white/30 border border-transparent hover:border-white/80 border-dashed cursor-text'"
+                                :class="'model border border-transparent hover-dashed border-dashed cursor-text'"
                                 :key="editorKey" v-model="modelValue.columns.column_4.data.textBox1"
                                 :editable="editable"
                                 @update:model-value="(e) => { modelValue.columns.column_4.data.textBox1 = e, emits('update:modelValue', modelValue) }" />
@@ -492,7 +495,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
 
                         <div class="mt-10 md:mt-0 mb-4 w-full">
                             <Editor
-                                :class="'hover:bg-white/30 border border-transparent hover:border-white/80 border-dashed cursor-text'"
+                                :class="'model border border-transparent hover-dashed border-dashed cursor-text'"
                                 :key="editorKey" v-model="modelValue.columns.column_4.data.textBox2"
                                 :editable="editable"
                                 @update:model-value="(e) => { modelValue.columns.column_4.data.textBox2 = e, emits('update:modelValue', modelValue) }" />
@@ -500,12 +503,12 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
 
                         <div class="w-full">
                             <Editor
-                                :class="'hover:bg-white/30 border border-transparent hover:border-white/80 border-dashed cursor-text'"
+                                :class="'model border border-transparent hover-dashed border-dashed cursor-text'"
                                 :key="editorKey" v-model="modelValue.paymentData.label" :editable="editable"
                                 @update:model-value="(e) => { modelValue.paymentData.label = e, emits('update:modelValue', modelValue) }" />
                         </div>
 
-                        <div class="group relative flex flex-col items-center gap-y-6 mt-8">
+                        <div class="group relative flex flex-col items-center gap-y-6 mt-8 hover-dashed"  @click="()=>sendMessageToParent('panelOpen','payments')">
                             <div v-for="payment of modelValue.paymentData.data" :key="payment.key">
                                 <img :src="payment.image" :alt="payment.alt"
                                     class="h-auto max-h-7 md:max-h-8 max-w-full w-fit">
@@ -547,7 +550,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
 
             <div id="footer_copyright" class="text-[14px] md:text-[12px] text-center">
                 <Editor
-                    :class="'hover:bg-white/30 border border-transparent hover:border-white/80 border-dashed cursor-text'"
+                    :class="'model border border-transparent hover-dashed border-dashed cursor-text'"
                     :key="editorKey" v-model="modelValue.copyright" :editable="editable"
                     @update:model-value="(e) => { modelValue.copyright = e, emits('update:modelValue', props.modelValue) }" />
             </div>

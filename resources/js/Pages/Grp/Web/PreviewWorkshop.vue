@@ -120,7 +120,7 @@ provide('isPreviewMode', isPreviewMode)
             </div>
 
             <!-- Webpage -->
-            <!--  <div v-if="data" class="relative editor-class">
+             <div v-if="data" class="relative editor-class">
                 <div v-if="data?.layout?.web_blocks?.length">
                     <TransitionGroup tag="div" name="list" class="relative">
                         <section v-for="(activityItem, activityItemIdx) in data?.layout?.web_blocks" :key="activityItem.id" class="w-full">
@@ -141,7 +141,7 @@ provide('isPreviewMode', isPreviewMode)
                         description: trans('Pick block from list')
                     }" />
                 </div>
-            </div> -->
+            </div>
 
             <!-- Footer -->
             <component
@@ -248,7 +248,6 @@ provide('isPreviewMode', isPreviewMode)
 
 .hover-dashed:hover {
     border: 2px dashed #999; /* Border dashed saat hover */
-    padding: 3px
 }
 
 

@@ -31,28 +31,50 @@ const layouts = ref<Layout[]>([
 	{ name: "Layout 21 (2/3, 1/3)", layout_type: "21", flex: ["w-2/3", "w-1/3"], images: 2 }, // Flex layout
 	{ name: "Layout 13 (1/4, 3/4)", layout_type: "13", flex: ["w-1/4", "w-3/4"], images: 2 }, // Flex layout
 	{ name: "Layout 31 (3/4, 1/4)", layout_type: "31", flex: ["w-3/4", "w-1/4"], images: 2 }, // Flex layout
-	{
-		name: "Layout One Large, Two Small",
-		layout_type: "211",
-		flex: ["w-1/2", "w-1/4", "w-1/4"],
-		images: 3,
-	},
+	{ name: "Layout One Large, Two Small", layout_type: "211", flex: ["w-1/2", "w-1/4", "w-1/4"], images: 3,},
 ])
 
 /* const selectLayout = (layoutType: string) => {
 	modelValue.value =
 		layouts.value.find((layout) => layout.layout_type === layoutType) || null
 } */
-
+const selectedLayout = ref<Layout | null>(layouts.value.find((layout) => layout.layout_type === model.value) || null)
 const onSubmitNote = async (layoutType: string) => {
 	set(model, "value", layoutType)
+	selectedLayout.value = layouts.value.find((layout) => layout.layout_type === layoutType) || null
 	isModalOpen.value = false
 }
+
+
+
 </script>
 
 <template>
-	<div class="w-full flex justify-center">
+	<!-- <div class="w-full flex justify-center">
+		{{ model }}
 		<Button  @click="isModalOpen = true" label="Change Layout" icon="fas fa-th-large" />
+	</div> -->
+
+	<div class="w-full flex justify-center">
+		<button @click="isModalOpen = true" class="flex w-full items-center justify-center p-4 border rounded-md">
+			<div v-if="selectedLayout" class="w-full">
+				<!-- Render Grid Layout -->
+				<div v-if="selectedLayout.grid" :class="'grid gap-2 ' + selectedLayout.grid" class="h-14">
+					<div v-for="i in selectedLayout.images" :key="i"
+						class="bg-gray-200 h-15 w-6 w-full border border-dashed rounded">
+					</div>
+				</div>
+
+				<!-- Render Flex Layout -->
+				<div v-else class="flex gap-2 h-12">
+					<div v-for="(flexClass, index) in selectedLayout.flex" :key="index" :class="flexClass"
+						class="p-2 bg-gray-200 h-15  text-center border border-dashed rounded-lgd">
+					</div>
+				</div>
+			</div>
+			<!-- Default Text if No Layout is Selected -->
+			<div v-else>Change Layout</div>
+		</Button>
 	</div>
 
 	<Modal :isOpen="isModalOpen" @onClose="() => (isModalOpen = false)">
@@ -69,16 +91,16 @@ const onSubmitNote = async (layoutType: string) => {
 							<div v-if="layout.grid" :class="'grid gap-2 ' + layout.grid">
 								<div v-for="i in layout.images" :key="i"
 									class="p-2 bg-gray-200 h-20 text-center border border-dashed rounded-lg">
-									<font-awesome-icon :icon="['fas', 'image']"
-										class="mx-auto h-12 w-12 text-gray-400" />
+									<!-- <font-awesome-icon :icon="['fas', 'image']"
+										class="mx-auto h-12 w-12 text-gray-400" /> -->
 								</div>
 							</div>
 
 							<div v-else class="flex gap-2">
 								<div v-for="(flexClass, index) in layout.flex" :key="index" :class="flexClass"
 									class="p-2 bg-gray-200 h-20 text-center border border-dashed rounded-lg">
-									<font-awesome-icon :icon="['fas', 'image']"
-										class="mx-auto h-12 w-12 text-gray-400" />
+									<!-- <font-awesome-icon :icon="['fas', 'image']"
+										class="mx-auto h-12 w-12 text-gray-400" /> -->
 								</div>
 							</div>
 						</div>

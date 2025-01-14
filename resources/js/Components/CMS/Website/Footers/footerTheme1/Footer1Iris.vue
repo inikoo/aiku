@@ -22,8 +22,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div id="app" class="-mx-2 md:mx-0 pb-24 pt-4 md:pt-8 md:px-16 text-white"
-        :style="getStyles(modelValue?.container?.properties)">
+    <div id="app" class="-mx-2 md:mx-0 pb-24 pt-4 md:pt-8 md:px-16 text-white" :style="getStyles(modelValue?.container?.properties)">
         <div
             class="w-full flex flex-col md:flex-row gap-4 md:gap-8 pt-2 pb-4 md:pb-6 mb-4 md:mb-10 border-0 border-b border-solid border-gray-700">
             <div v-if="modelValue?.logo" class="flex-1 flex items-center justify-center md:justify-start ">

@@ -14,6 +14,7 @@ import axios from "axios"
 import { trans } from "laravel-vue-i18n";
 import { set } from "lodash";
 import { routeType } from "@/types/route"
+import { getStyles } from "@/Composables/styles"
 
 library.add(faCube, faStar, faImage, faPencil)
 
@@ -184,10 +185,12 @@ const getImageSlots = (layoutType: string) => {
 			return 1
 	}
 }
+
+console.log(props.modelValue)
 </script>
 
 <template>
-	<div class="flex flex-wrap">
+	<div :style="getStyles(modelValue.container.properties)" class="flex flex-wrap">
 		<div
 			v-for="index in getImageSlots(modelValue?.value?.layout_type)"
 			:key="`${index}-${modelValue?.value?.images?.[index - 1]?.source?.avif}`"
@@ -197,10 +200,12 @@ const getImageSlots = (layoutType: string) => {
 				:href="getHref(index - 1)"
 				target="_blank"
 				rel="noopener noreferrer"
-				class="w-full"
+				class="transition-shadow aspect-h-1 aspect-w-1 w-full"
 				@click="(e) => isInWorkshop ? e.preventDefault() : null">
+				<pre>{{ modelValue?.value?.images?.[index - 1]?.properties }}</pre>
 				<Image
 					:src="modelValue?.value?.images?.[index - 1]?.source"
+					class="w-full object-cover object-center group-hover:opacity-75"
 				/>
 			</a>
 

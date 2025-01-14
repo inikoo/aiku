@@ -16,9 +16,9 @@ import Script from '@/Components/CMS/Webpage/Script/ScriptIris.vue'
 import CtaAurora1 from "@/Components/CMS/Webpage/CTAAurora1/CtaAurora1Iris.vue"
 import Overview2 from "@/Components/CMS/Webpage/Overview2/Overview2Iris.vue"
 import Footer1 from '@/Components/CMS/Website/Footers/footerTheme1/Footer1Iris.vue'
-import Topbar1 from '@/Components/CMS/Website/TopBars/Template/Topbar1/Topbar1.vue'
-import Topbar2 from '@/Components/CMS/Website/TopBars/Template/Topbar2/Topbar2.vue'
-import Topbar3 from '@/Components/CMS/Website/TopBars/Template/Topbar3/Topbar3.vue'
+import Topbar1 from '@/Components/CMS/Website/TopBars/Template/Topbar1/Topbar1Iris.vue'
+import Topbar2 from '@/Components/CMS/Website/TopBars/Template/Topbar2/Topbar2Iris.vue'
+import Topbar3 from '@/Components/CMS/Website/TopBars/Template/Topbar3/Topbar3Iris.vue'
 import Header1 from '@/Components/CMS/Website/Headers/Header1/Header1Iris.vue'
 import Menu1 from '@/Components/CMS/Website/Menus/Menu1Workshop.vue'
 import TextColumn from '@/Components/CMS/Webpage/TextColumn/TextColumnIris.vue'

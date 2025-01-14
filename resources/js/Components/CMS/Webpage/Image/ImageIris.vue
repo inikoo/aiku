@@ -3,6 +3,7 @@ import { faCube, faStar, faImage } from "@fas"
 import { faPencil } from "@far"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import Image from "@/Components/Image.vue"
+import { getStyles } from "@/Composables/styles"
 import { ref } from "vue"
 
 library.add(faCube, faStar, faImage, faPencil)
@@ -79,7 +80,7 @@ const getImageSlots = (layoutType: string) => {
 </script>
 
 <template>
-	<div v-if="fieldValue?.value?.images" class="flex flex-wrap">
+	<div v-if="fieldValue?.value?.images" class="flex flex-wrap" :style="getStyles(fieldValue.container.properties)">
 		<div
 			v-for="index in getImageSlots(fieldValue?.value?.layout_type)"
 			:key="index"

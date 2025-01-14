@@ -22,6 +22,7 @@ import ArrayPhone from '@/Components/CMS/Fields/ArrayPhone.vue'
 import NotFoundComponents from '@/Components/CMS/Webpage/NotFoundComponent.vue'
 import Overview from '@/Components/CMS/Fields/Overview.vue'
 import TextProperty from '@/Components/Workshop/Properties/TextProperty.vue'
+import ImagesArray from '@/Components/CMS/Fields/ImagesArray.vue'
 
 
 import { set } from 'lodash'
@@ -51,7 +52,8 @@ export const getComponent = (componentName: string) => {
         "layout_type": SelectLayout,
         "script": Script,
         "arrayPhone":ArrayPhone,
-        "textProperty": TextProperty
+        "textProperty": TextProperty,
+        "images-property" : ImagesArray
     }
     
     return components[componentName] ?? NotFoundComponents
