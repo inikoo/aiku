@@ -8,6 +8,7 @@
 
 namespace App\Actions\Comms\Email;
 
+use App\Actions\Comms\Mailshot\SendMailshotTest;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
@@ -23,16 +24,16 @@ class SendResetPasswordEmail extends OrgAction
 
     private Email $email;
 
-    public function handle(Customer $customer, array $modelData): Email|string
+    public function handle(Customer $customer, array $modelData)
     {
         /** @var Outbox $passwordOutbox */
         $passwordOutbox = $customer->shop->outboxes()->where('code', 'password_reminder')->first();
 
-        $html = $passwordOutbox->emailOngoingRun->email->liveSnapshot->compiled_layout;
-
-        //
-
-        return $html;
+        return SendMailshotTest::run($passwordOutbox, [
+            'emails' => [
+                $customer->email
+            ]
+        ]);
     }
 
     public function authorize(ActionRequest $request): bool
