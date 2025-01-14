@@ -156,6 +156,7 @@ class EditFulfilment extends OrgAction
                         ],
                         [
                             'title'  => __('recurring bill settings'),
+                            'icon'   => 'fa-light fa-flag-checkered',
                             'label'  => __('cut off day'),
                             'fields' => [
                                 'monthly_cut_off' => [
