@@ -250,6 +250,7 @@ test('UI create fulfilment', function () {
 });
 
 test('UI edit fulfilment', function () {
+    $this->withoutExceptionHandling();
     $response = get(route('grp.org.fulfilments.show.settings.edit', [$this->organisation->slug, $this->fulfilment->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
