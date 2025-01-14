@@ -209,6 +209,12 @@ class Pallet extends Model implements Auditable
         return $this->belongsToMany(StoredItem::class, 'pallet_stored_items')->withPivot('quantity');
     }
 
+    public function storedItemAuditDeltas(): BelongsToMany
+    {
+        return $this->belongsToMany(StoredItemAuditDelta::class, 'stored_item_audit_deltas')
+            ->withPivot('original_quantity', 'audited_quantity', 'state', 'audit_type', 'reason');
+    }
+
     public function palletDelivery(): BelongsTo
     {
         return $this->belongsTo(PalletDelivery::class);
@@ -224,10 +230,6 @@ class Pallet extends Model implements Auditable
         return $this->belongsTo(RecurringBill::class, 'current_recurring_bill_id');
     }
 
-    public function storedItemAuditDeltas(): HasMany
-    {
-        return $this->hasMany(StoredItemAuditDelta::class);
-    }
 
     public function rentalAgreementClause(): BelongsTo
     {

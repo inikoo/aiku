@@ -31,30 +31,30 @@ class EditStoredItemDeltasInAudit extends OrgAction
 
     private FulfilmentCustomer $parent;
 
-    protected function getElementGroups(FulfilmentCustomer $fulfilmentCustomer, string $prefix): array
-    {
-        $elements = [];
-
-        if ($prefix == 'all') {
-            $elements = [
-                'status' => [
-                    'label'    => __('Status'),
-                    'elements' => array_merge_recursive(
-                        PalletStatusEnum::labels($fulfilmentCustomer),
-                        PalletStatusEnum::count($fulfilmentCustomer)
-                    ),
-
-                    'engine' => function ($query, $elements) {
-                        $query->whereIn('pallets.status', $elements);
-                    }
-                ],
-
-
-            ];
-        }
-
-        return $elements;
-    }
+    //    protected function getElementGroups(FulfilmentCustomer $fulfilmentCustomer, string $prefix): array
+    //    {
+    //        $elements = [];
+    //
+    //        if ($prefix == 'all') {
+    //            $elements = [
+    //                'status' => [
+    //                    'label'    => __('Status'),
+    //                    'elements' => array_merge_recursive(
+    //                        PalletStatusEnum::labels($fulfilmentCustomer),
+    //                        PalletStatusEnum::count($fulfilmentCustomer)
+    //                    ),
+    //
+    //                    'engine' => function ($query, $elements) {
+    //                        $query->whereIn('pallets.status', $elements);
+    //                    }
+    //                ],
+    //
+    //
+    //            ];
+    //        }
+    //
+    //        return $elements;
+    //    }
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, $prefix = null): LengthAwarePaginator
     {
@@ -77,19 +77,19 @@ class EditStoredItemDeltasInAudit extends OrgAction
         $query->where('pallets.status', PalletStatusEnum::STORING);
         $query->where('pallets.state', PalletStateEnum::STORING);
 
-        $query->leftJoin('stored_item_audit_deltas', 'pallets.id', '=', 'stored_item_audit_deltas.pallet_id');
+        // $query->leftJoin('stored_item_audit_deltas', 'pallets.id', '=', 'stored_item_audit_deltas.pallet_id');
 
-        foreach ($this->getElementGroups($fulfilmentCustomer, $prefix) as $key => $elementGroup) {
-            $query->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
-        }
+        //        foreach ($this->getElementGroups($fulfilmentCustomer, $prefix) as $key => $elementGroup) {
+        //            $query->whereElementGroup(
+        //                key: $key,
+        //                allowedElements: array_keys($elementGroup['elements']),
+        //                engine: $elementGroup['engine'],
+        //                prefix: $prefix
+        //            );
+        //        }
 
 
-        $query->whereNotNull('pallets.slug');
+        // $query->whereNotNull('pallets.slug');
 
 
         $query->defaultSort('pallets.id')
@@ -108,7 +108,7 @@ class EditStoredItemDeltasInAudit extends OrgAction
                 'pallets.warehouse_id',
                 'pallets.pallet_delivery_id',
                 'pallets.pallet_return_id',
-                'stored_item_audit_deltas.audited_at'
+                // 'stored_item_audit_deltas.audited_at'
             );
 
 
@@ -127,13 +127,13 @@ class EditStoredItemDeltasInAudit extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            foreach ($this->getElementGroups($fulfilmentCustomer, $prefix) as $key => $elementGroup) {
-                $table->elementGroup(
-                    key: $key,
-                    label: $elementGroup['label'],
-                    elements: $elementGroup['elements']
-                );
-            }
+            //            foreach ($this->getElementGroups($fulfilmentCustomer, $prefix) as $key => $elementGroup) {
+            //                $table->elementGroup(
+            //                    key: $key,
+            //                    label: $elementGroup['label'],
+            //                    elements: $elementGroup['elements']
+            //                );
+            //            }
 
 
             $emptyStateData = [
