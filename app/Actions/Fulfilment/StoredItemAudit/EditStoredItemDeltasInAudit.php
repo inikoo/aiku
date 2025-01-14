@@ -107,7 +107,6 @@ class EditStoredItemDeltasInAudit extends OrgAction
                 'pallets.slug',
                 'pallets.reference',
                 'pallets.customer_reference',
-                'pallets.notes',
                 'pallets.state',
                 'pallets.status',
                 'pallets.rental_id',
@@ -167,8 +166,8 @@ class EditStoredItemDeltasInAudit extends OrgAction
             $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
 
 
-            $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'customer_reference', label: __("Pallet reference"), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'reference', label: __('pallet reference'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'customer_reference', label: __("Pallet customer's reference"), canBeHidden: false, sortable: true, searchable: true);
 
             $table->column(key: 'stored_items', label: __("customer's sKUs"), canBeHidden: false);
             $table->column(key: 'audits', label: __('Audit'), canBeHidden: false);
