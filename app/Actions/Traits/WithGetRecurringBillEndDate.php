@@ -13,12 +13,9 @@ namespace App\Actions\Traits;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 trait WithGetRecurringBillEndDate
 {
-    // use AsAction;
-
     public function getEndDate(Carbon $startDate, array $setting): Carbon
     {
         return match (Arr::get($setting, 'type')) {
@@ -36,10 +33,6 @@ trait WithGetRecurringBillEndDate
 
 
         if ($startDate->day > $endDayOfMonth) {
-            // todo test this in a Unit Test
-            // if today is  20th/10 and cut of day is 9 this must be 9th/11
-            // if today is  7th/10 and cut of day is 9 this must be 9th/10
-
             $endDate = $startDate->copy()->addMonth()->day($endDayOfMonth);
         } else {
             $endDate = $startDate->copy()->day($endDayOfMonth);
