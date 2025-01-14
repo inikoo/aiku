@@ -17,6 +17,7 @@ const model = defineModel()
 // const emit = defineEmits(['update:modelValue']);
 // Options for the SelectButton
 const options = ref([
+    { label: 'Hidden', value: null },
     { label: 'Always', value: 'all' },
     { label: 'On logged in', value: 'login' },
     { label: 'On logged out', value: 'logout' },

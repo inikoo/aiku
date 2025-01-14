@@ -6,6 +6,7 @@ import AccordionHeader from 'primevue/accordionheader'
 import AccordionContent from 'primevue/accordioncontent'
 import ChildFieldSideEditor from '@/Components/Workshop/SideEditor/ChildFieldSideEditor.vue'
 import { trans } from 'laravel-vue-i18n'
+import { kebabCase } from 'lodash'
 
 import { getFormValue ,setFormValue, getComponent } from '@/Composables/SideEditorHelper'
 import { get } from 'lodash'
@@ -42,7 +43,7 @@ const onPropertyUpdate = (fieldKeys: string | string[], newVal: any) => {
 </script>
 
 <template>
-    <AccordionPanel v-if="blueprint.name" :key="index" :value="index">
+    <AccordionPanel v-if="blueprint.name" :key="blueprint.name" :value="kebabCase(blueprint.name)">
         <AccordionHeader>
             <div>
                 <Icon v-if="blueprint?.icon" :data="blueprint.icon" />
