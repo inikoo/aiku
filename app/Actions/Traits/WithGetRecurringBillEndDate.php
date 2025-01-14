@@ -78,10 +78,6 @@ trait WithGetRecurringBillEndDate
 
         $endDate = $startDate->copy()->next($endDayOfWeek);
 
-        if ($endDate->diffInDays($startDate) < 4) {
-            $endDate = $endDate->addWeek();
-        }
-
         return $endDate;
     }
 }
