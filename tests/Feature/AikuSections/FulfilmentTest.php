@@ -198,13 +198,13 @@ test('update fulfilment settings (monthly cut off day)', function (Fulfilment $f
         [
             'monthly_cut_off' => [
                 'date'       => 12,
-                'isWeekdays' => true
+                'isWeekdays' => false
             ]
         ]
     );
 
     expect($fulfilment->settings['rental_agreement_cut_off']['monthly']['day'])->toBe(12)
-        ->and($fulfilment->settings['rental_agreement_cut_off']['monthly']['workdays'])->toBeTrue();
+        ->and($fulfilment->settings['rental_agreement_cut_off']['monthly']['is_weekdays'])->toBeFalse();
 
     return $fulfilment;
 })->depends('create fulfilment shop');
@@ -2408,7 +2408,7 @@ test('pay invoice (full)', function ($invoice) {
     $paymentAccount     = $invoice->shop->paymentAccounts()->first();
     $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
     $payment            = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
-        'amount' => 382,
+        'amount' => 402,
         'status' => PaymentStatusEnum::SUCCESS->value,
         'state'  => PaymentStateEnum::COMPLETED->value
     ]);
@@ -2465,7 +2465,7 @@ test('pay invoice (other half)', function ($invoice) {
     $paymentAccount     = $invoice->shop->paymentAccounts()->first();
     $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
     $payment            = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
-        'amount' => 70,
+        'amount' => 100,
         'status' => PaymentStatusEnum::SUCCESS->value,
         'state'  => PaymentStateEnum::COMPLETED->value
     ]);
@@ -2518,8 +2518,8 @@ test('pay invoice (exceed)', function ($invoice) {
         ->and($payment->status)->toBe(PaymentStatusEnum::SUCCESS)
         ->and($payment->state)->toBe(PaymentStateEnum::COMPLETED)
         ->and($customer->creditTransactions)->not->toBeNull()
-        ->and($customer->balance)->toBe("60.00")
-        ->and($customer->creditTransactions->first()->amount)->toBe("60.00");
+        ->and($customer->balance)->toBe("30.00")
+        ->and($customer->creditTransactions->first()->amount)->toBe("30.00");
 
     return $fulfilmentCustomer;
 })->depends('consolidate 3rd recurring bill');

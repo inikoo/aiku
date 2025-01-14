@@ -156,6 +156,7 @@ class EditFulfilment extends OrgAction
                         ],
                         [
                             'title'  => __('recurring bill settings'),
+                            'icon'   => 'fa-light fa-flag-checkered',
                             'label'  => __('cut off day'),
                             'fields' => [
                                 'monthly_cut_off' => [
@@ -168,7 +169,7 @@ class EditFulfilment extends OrgAction
                                     ],
                                     'value' => [
                                         'date'          => $fulfilment->settings['rental_agreement_cut_off']['monthly']['day'],
-                                        'isWeekdays'    => $fulfilment->settings['rental_agreement_cut_off']['monthly']['workdays'],
+                                        'isWeekdays'    => $fulfilment->settings['rental_agreement_cut_off']['monthly']['is_weekdays'],
                                     ]
                                 ],
                                 'weekly_cut_off_day' => [

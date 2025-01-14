@@ -24,11 +24,11 @@ const props = defineProps<{
 console.log('ini',props)
 
 onMounted(() => {
-    JsBarcode('#palletDeliveryBarcode', route().v().params.palletDelivery, {
+    JsBarcode('#palletDeliveryBarcode', route().v().params.storedItemAudit, {
         lineColor: "rgb(41 37 36)",
         width: 2,
         height: 50,
-        displayValue: false
+        displayValue: true
     })
 })
 </script>
@@ -96,11 +96,11 @@ onMounted(() => {
 
         <!-- Box: Status -->
         <BoxStatPallet class="py-1 sm:py-2 px-3" :label="capitalize(auditData.reference)" icon="fal fa-truck-couch">
-            <div class="mb-4 h-full w-full py-1 px-2 flex flex-col bg-gray-100 ring-1 ring-gray-300 rounded items-center">
+            <div class="mb-4 h-full w-full py-1 px-2 flex flex-col border-b border-gray-300 items-center">
                 <svg id="palletDeliveryBarcode" class="w-full h-full" />
-                <div class="text-xxs text-gray-500">
+                <!-- <div class="text-xxs text-gray-500">
                     pad-{{ auditData.reference }}
-                </div>
+                </div> -->
             </div>
 
             <div class="flex items-center w-full flex-none gap-x-2 mb-2">
