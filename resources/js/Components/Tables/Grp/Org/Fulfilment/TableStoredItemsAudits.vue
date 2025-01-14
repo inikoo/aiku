@@ -17,7 +17,7 @@ import { Link } from "@inertiajs/vue3"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faTrashAlt } from "@far"
 import { faCheckCircle } from "@fas"
-import { faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp, faStickyNote, } from "@fal"
+import { faSeedling, faCheck, faSignOutAlt, faSpellCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp, faStickyNote, } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 import { routeType } from "@/types/route"
@@ -26,7 +26,7 @@ import DataTable from "primevue/datatable"
 import Column from "primevue/column"
 import Tag from "@/Components/Tag.vue"
 
-library.add(faTrashAlt, faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp, faStickyNote, faCheckCircle)
+library.add(faSeedling, faTrashAlt, faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp, faStickyNote, faCheckCircle)
 
 
 const props = defineProps<{
@@ -55,6 +55,9 @@ function storedItemAuditRoute(storedItemAudit: {}) {
 <template>
     <!-- <pre>{{ props.data.data[0] }}</pre> -->
     <Table :resource="data" :name="tab" class="mt-5">
+        <template #cell(state)="{ item: storedItemAudit }">
+            <Icon :data="storedItemAudit['state_icon']" class="px-1" />
+        </template>
         <template #cell(reference)="{ item: storedItemAudit }">
             <Link :href="storedItemAuditRoute(storedItemAudit)" class="primaryLink">
                 {{ storedItemAudit.reference }}

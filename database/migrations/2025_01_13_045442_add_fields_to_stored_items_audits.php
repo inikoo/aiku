@@ -14,7 +14,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('stored_item_audits', function (Blueprint $table) {
-            $table->dateTimeTz('date')->index();
+            $table->dateTimeTz('date')->nullable()->index();
             $table->decimal('net_amount', 16)->default(0);
             $table->decimal('grp_net_amount', 16)->nullable();
             $table->decimal('org_net_amount', 16)->nullable();

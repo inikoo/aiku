@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from "vue"
+import { ref, computed, watch } from "vue"
 import InputNumber from "primevue/inputnumber"
 import InputGroup from "primevue/inputgroup"
 import InputGroupAddon from "primevue/inputgroupaddon"
@@ -15,18 +15,18 @@ const props = defineProps({
 		required: true,
 	},
 })
+console.log(props.data.quantity_ordered, "propsss")
 
 const emits = defineEmits(["update", "submit", "undo"])
-
+const originalQuantityOrdered = ref(props.data.quantity_ordered)
 const data = computed(() => props.data)
-const loading = ref(false) // Loading state
+const loading = ref(false)
 
-// Simulate API call with a loading state
 const onSubmit = async (type) => {
-	if (loading.value) return // Prevent multiple clicks
+	if (loading.value) return
 	loading.value = true
 	try {
-		await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulated API call
+		await new Promise((resolve) => setTimeout(resolve, 1000))
 		emits("submit", { type, data: props.data })
 	} finally {
 		loading.value = false
@@ -35,10 +35,13 @@ const onSubmit = async (type) => {
 
 const triggerInput = () => {
 	props.data.inputTriggered = true
-	emitUpdate()
+	emits("update", props.data)
 }
 const onUndo = () => {
+	props.data.quantity_ordered = originalQuantityOrdered.value
+	props.data.inputTriggered = false
 	emits("undo", props.data.id)
+	emits("update", props.data)
 }
 
 const onValueChange = () => {
@@ -49,71 +52,76 @@ const onManualInputChange = (value) => {
 	props.data.quantity_ordered = value
 	emits("update", props.data)
 }
+
+watch(
+	() => props.data.quantity_ordered,
+	(newVal, oldVal) => {
+		if (!props.data.inputTriggered) {
+			originalQuantityOrdered.value = newVal
+		}
+	}
+)
 </script>
 
 <template>
-   <div>
-	<div v-if="!data.inputTriggered" class="custom-input-number">
-        <InputNumber
-            v-model="data.quantity_ordered"
-            inputClass="w-14 text-center"
-            showButtons
-            buttonLayout="horizontal"
-            :min="0"
-            :incrementButtonClass="loading ? 'p-disabled' : ''"
-            :decrementButtonClass="loading ? 'p-disabled' : ''"
-            @change="onValueChange"
-			@blur="triggerInput">
-            
-            <!-- Increment Button -->
-            <template #incrementicon>
-                <div
-                    class="flex items-center justify-center w-full h-full"
-                    @click="!loading && onSubmit('increment')"
-                    :class="{ 'cursor-not-allowed': loading }">
-                    <template v-if="loading">
-                        <!-- Full-Button Spinner -->
-                        <svg
-                            class="loading-circle"
-                            viewBox="0 0 50 50"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <circle
-                                class="circle-path"
-                                cx="25"
-                                cy="25"
-                                r="20"
-                                fill="none"
-                                stroke-width="4" />
-                        </svg>
-                    </template>
-                    <template v-else>
-                        <!-- Plus Icon -->
-                        <FontAwesomeIcon
-                            size="sm"
-                            icon="fas fa-plus"
-                            class="text-black"
-                            fixed-width />
-                    </template>
-                </div>
-            </template>
+	<div>
+		<div v-if="!data.inputTriggered" class="custom-input-number">
+			<InputNumber
+				v-model="data.quantity_ordered"
+				inputClass="w-14 text-center"
+				showButtons
+				buttonLayout="horizontal"
+				:min="0"
+				:incrementButtonClass="loading ? 'p-disabled' : ''"
+				:decrementButtonClass="loading ? 'p-disabled' : ''"
+				@change="onValueChange"
+				@blur="triggerInput">
+				<!-- Increment Button -->
+				<template #incrementicon>
+					<div
+						class="flex items-center justify-center w-full h-full"
+						@click="!loading && onSubmit('increment')"
+						:class="{ 'cursor-not-allowed': loading }">
+						<template v-if="loading">
+							<svg
+								class="loading-circle"
+								viewBox="0 0 50 50"
+								xmlns="http://www.w3.org/2000/svg">
+								<circle
+									class="circle-path"
+									cx="25"
+									cy="25"
+									r="20"
+									fill="none"
+									stroke-width="4" />
+							</svg>
+						</template>
+						<template v-else>
+							<FontAwesomeIcon
+								size="sm"
+								icon="fas fa-plus"
+								class="text-black"
+								fixed-width />
+						</template>
+					</div>
+				</template>
 
-            <!-- Decrement Button -->
-            <template #decrementicon>
-                <div
-                    class="flex items-center justify-center w-full h-full"
-                    @click="onSubmit('decrement')"
-                    :class="{ 'cursor-not-allowed': loading }">
-                    <FontAwesomeIcon
-                        size="sm"
-                        icon="fas fa-minus"
-                        class="text-black"
-                        fixed-width />
-                </div>
-            </template>
-        </InputNumber>
-		
-    </div>
-	<div v-else class="custom-input-number">
+				<!-- Decrement Button -->
+				<template #decrementicon>
+					<div
+						class="flex items-center justify-center w-full h-full"
+						@click="onSubmit('decrement')"
+						:class="{ 'cursor-not-allowed': loading }">
+						<FontAwesomeIcon
+							size="sm"
+							icon="fas fa-minus"
+							class="text-black"
+							fixed-width />
+					</div>
+				</template>
+			</InputNumber>
+		</div>
+		<div v-else class="custom-input-number">
 			<InputGroup>
 				<InputGroupAddon @click="onUndo">
 					<FontAwesomeIcon
@@ -141,7 +149,6 @@ const onManualInputChange = (value) => {
 		</div>
 	</div>
 </template>
-
 
 <style scoped>
 .custom-input-number :deep(.p-inputnumber) {

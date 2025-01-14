@@ -11,6 +11,7 @@ namespace App\Actions\Fulfilment\StoredItemAudit;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
+use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
 use App\Http\Resources\Fulfilment\StoredItemAuditsResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItemAudit;
@@ -25,6 +26,24 @@ class CompleteStoredItemAudit extends OrgAction
 
     public function handle(StoredItemAudit $storedItemAudit, array $modelData): StoredItemAudit
     {
+
+        foreach ($storedItemAudit->deltas as $storedItemAuditDelta) {
+         $pallet = $storedItemAuditDelta->pallet;
+
+            $storedItemAuditDelta->update(
+                [
+                    'state' => StoredItemAuditDeltaStateEnum::COMPLETED
+                ]
+            );
+
+
+            AttachStoredItemToPallet::run($pallet, $storedItemAuditDelta->storedItem, $storedItemAuditDelta->quantity);
+        }
+
+
+
+
+
         $modelData['state'] = StoredItemAuditStateEnum::COMPLETED;
 
         return $this->update($storedItemAudit, $modelData, ['data']);

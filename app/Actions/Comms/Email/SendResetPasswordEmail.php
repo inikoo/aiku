@@ -8,10 +8,13 @@
 
 namespace App\Actions\Comms\Email;
 
-use App\Actions\Comms\Mailshot\SendMailshotTest;
+use App\Actions\Comms\DispatchedEmail\StoreDispatchedEmail;
+use App\Actions\Comms\Traits\WithSendBulkEmails;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Comms\DispatchedEmail\DispatchedEmailProviderEnum;
+use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Models\Comms\Email;
 use App\Models\Comms\Outbox;
 use App\Models\CRM\Customer;
@@ -21,19 +24,35 @@ class SendResetPasswordEmail extends OrgAction
 {
     use WithActionUpdate;
     use WithNoStrictRules;
+    use WithSendBulkEmails;
 
     private Email $email;
 
     public function handle(Customer $customer, array $modelData)
     {
-        /** @var Outbox $passwordOutbox */
-        $passwordOutbox = $customer->shop->outboxes()->where('code', 'password_reminder')->first();
+        /** @var Outbox $outbox */
+        $outbox = $customer->shop->outboxes()->where('code', 'password_reminder')->first();
 
-        return SendMailshotTest::run($passwordOutbox, [
-            'emails' => [
-                $customer->email
-            ]
+        $recipient = $customer;
+        $dispatchedEmail = StoreDispatchedEmail::run($outbox->emailOngoingRun, $recipient, [
+            'is_test' => false,
+            'outbox_id' => Outbox::where('type', OutboxTypeEnum::TEST)->pluck('id')->first(),
+            'email_address' => $recipient->email,
+            'provider' => DispatchedEmailProviderEnum::SES
         ]);
+        $dispatchedEmail->refresh();
+
+        $emailHtmlBody = $outbox->emailOngoingRun->email->liveSnapshot->compiled_layout;
+
+        $this->sendEmailWithMergeTags(
+            $dispatchedEmail,
+            $outbox->emailOngoingRun->sender(),
+            $outbox->emailOngoingRun->subject,
+            $emailHtmlBody,
+            '',
+        );
+
+        return $dispatchedEmail;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -64,7 +83,7 @@ class SendResetPasswordEmail extends OrgAction
         if (!$audit) {
             Email::disableAuditing();
         }
-        $this->asAction       = true;
+        $this->asAction = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($customer->organisation, $modelData);
 
