@@ -56,7 +56,6 @@ use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
-use App\Actions\Fulfilment\RecurringBill\GetRecurringBillEndDate;
 use App\Actions\Fulfilment\RecurringBill\Search\ReindexRecurringBillSearch;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
@@ -107,22 +106,24 @@ use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
 use App\Models\Web\Website;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use App\Actions\Traits\WithGetRecurringBillEndDate;
 
 use function Pest\Laravel\actingAs;
 
 beforeAll(function () {
     loadDB();
-    // uses(App\Actions\Traits\WithGetRecurringBillEndDate::class)->in('Unit','Feature');
 });
-
 
 beforeEach(function () {
     $this->organisation = createOrganisation();
     $this->adminGuest   = createAdminGuest($this->organisation->group);
     $this->warehouse    = createWarehouse();
+    $this->getRecurringBillEndDate = new class () {
+        use WithGetRecurringBillEndDate;
+    };
+
     $location           = $this->warehouse->locations()->first();
     if (!$location) {
         StoreLocation::run(
@@ -212,23 +213,67 @@ test('update fulfilment settings (monthly cut off day)', function (Fulfilment $f
     return $fulfilment;
 })->depends('create fulfilment shop');
 
-test('get end date recurring bill', function (Fulfilment $fulfilment) {
+test('get end date recurring bill (monthly)', function () {
 
-    Carbon::setTestNow('2025-10-20');
-    $endDate = GetRecurringBillEndDate::make()->getEndDate(
-        Carbon::now(),
-        Arr::get(
-            $fulfilment->settings,
-            'rental_agreement_cut_off.monthly'
-        )
+    // fase 1
+    $startDate = Carbon::create(2025, 10, 20);
+    $endDate = $this->getRecurringBillEndDate->getEndDate(
+        $startDate,
+        [
+            'type' => 'monthly',
+            'day' => 9,
+        ]
     );
 
     expect($endDate)->toBeInstanceOf(Carbon::class)
         ->toEqual(Carbon::create(2025, 11, 9));
 
-    Carbon::setTestNow();
+    // fase 2
+    $startDate = Carbon::create(2025, 10, 7);
+    $endDate = $this->getRecurringBillEndDate->getEndDate(
+        $startDate,
+        [
+            'type' => 'monthly',
+            'day' => 9,
+        ]
+    );
+
+    expect($endDate)->toBeInstanceOf(Carbon::class)
+        ->toEqual(Carbon::create(2025, 10, 9));
+
     return $endDate;
-})->depends('update fulfilment settings (monthly cut off day)');
+});
+
+test('get end date recurring bill (weekly)', function () {
+
+    // fase 1
+    $startDate = Carbon::create(2025, 10, 20); // 20 is monday
+    $endDate = $this->getRecurringBillEndDate->getEndDate(
+        $startDate,
+        [
+            'type' => 'weekly',
+            'day' => 'Monday',
+        ]
+    );
+
+    expect($endDate)->toBeInstanceOf(Carbon::class)
+        ->toEqual(Carbon::create(2025, 10, 27));
+
+    // fase 2
+    $startDate = Carbon::create(2025, 11, 21); // 21 is friday
+    $endDate = $this->getRecurringBillEndDate->getEndDate(
+        $startDate,
+        [
+            'type' => 'weekly',
+            'day' => 'Tuesday',
+        ]
+    );
+
+    expect($endDate)->toBeInstanceOf(Carbon::class)
+        ->toEqual(Carbon::create(2025, 11, 25));
+
+    return $endDate;
+});
 
 test('create services in fulfilment shop', function (Fulfilment $fulfilment) {
     $service1 = StoreService::make()->action(
