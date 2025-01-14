@@ -14,7 +14,7 @@ enum StoredItemAuditDeltaTypeEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS   = 'addition';
+    case ADDITION   = 'addition';
     case SUBTRACTION = 'subtraction';
     case CHECK        = 'check';
     case SET_UP       = 'set_up';
