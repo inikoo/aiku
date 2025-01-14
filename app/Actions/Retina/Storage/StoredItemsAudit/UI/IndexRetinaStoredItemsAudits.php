@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 13-01-2025-16h-18m
@@ -8,19 +9,13 @@
 
 namespace App\Actions\Retina\Storage\StoredItemsAudit\UI;
 
-use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
-use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
-use App\Actions\OrgAction;
 use App\Actions\RetinaAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
 use App\Http\Resources\Fulfilment\StoredItemAuditsResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItemAudit;
-use App\Models\Inventory\Warehouse;
-use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -114,7 +109,7 @@ class IndexRetinaStoredItemsAudits extends RetinaAction
                 );
 
             $table
-                ->column(key: 'state', label: __('State'), canBeHidden: false, sortable: true, searchable: true)
+            ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
                 ->column(key: 'reference', label: __('Reference'), canBeHidden: false, sortable: true, searchable: true);
         };
     }

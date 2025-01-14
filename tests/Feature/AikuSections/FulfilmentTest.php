@@ -108,6 +108,7 @@ use App\Models\Web\Website;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use App\Actions\Traits\WithGetRecurringBillEndDate;
 
 use function Pest\Laravel\actingAs;
 
@@ -115,11 +116,14 @@ beforeAll(function () {
     loadDB();
 });
 
-
 beforeEach(function () {
     $this->organisation = createOrganisation();
     $this->adminGuest   = createAdminGuest($this->organisation->group);
     $this->warehouse    = createWarehouse();
+    $this->getRecurringBillEndDate = new class () {
+        use WithGetRecurringBillEndDate;
+    };
+
     $location           = $this->warehouse->locations()->first();
     if (!$location) {
         StoreLocation::run(
@@ -197,17 +201,79 @@ test('update fulfilment settings (monthly cut off day)', function (Fulfilment $f
         $fulfilment,
         [
             'monthly_cut_off' => [
-                'date'       => 12,
+                'date'       => 9,
                 'isWeekdays' => false
             ]
         ]
     );
 
-    expect($fulfilment->settings['rental_agreement_cut_off']['monthly']['day'])->toBe(12)
+    expect($fulfilment->settings['rental_agreement_cut_off']['monthly']['day'])->toBe(9)
         ->and($fulfilment->settings['rental_agreement_cut_off']['monthly']['is_weekdays'])->toBeFalse();
 
     return $fulfilment;
 })->depends('create fulfilment shop');
+
+test('get end date recurring bill (monthly)', function () {
+
+    // fase 1
+    $startDate = Carbon::create(2025, 10, 20);
+    $endDate = $this->getRecurringBillEndDate->getEndDate(
+        $startDate,
+        [
+            'type' => 'monthly',
+            'day' => 9,
+        ]
+    );
+
+    expect($endDate)->toBeInstanceOf(Carbon::class)
+        ->toEqual(Carbon::create(2025, 11, 9));
+
+    // fase 2
+    $startDate = Carbon::create(2025, 10, 7);
+    $endDate = $this->getRecurringBillEndDate->getEndDate(
+        $startDate,
+        [
+            'type' => 'monthly',
+            'day' => 9,
+        ]
+    );
+
+    expect($endDate)->toBeInstanceOf(Carbon::class)
+        ->toEqual(Carbon::create(2025, 10, 9));
+
+    return $endDate;
+});
+
+test('get end date recurring bill (weekly)', function () {
+
+    // fase 1
+    $startDate = Carbon::create(2025, 10, 20); // 20 is monday
+    $endDate = $this->getRecurringBillEndDate->getEndDate(
+        $startDate,
+        [
+            'type' => 'weekly',
+            'day' => 'Monday',
+        ]
+    );
+
+    expect($endDate)->toBeInstanceOf(Carbon::class)
+        ->toEqual(Carbon::create(2025, 10, 27));
+
+    // fase 2
+    $startDate = Carbon::create(2025, 11, 21); // 21 is friday
+    $endDate = $this->getRecurringBillEndDate->getEndDate(
+        $startDate,
+        [
+            'type' => 'weekly',
+            'day' => 'Tuesday',
+        ]
+    );
+
+    expect($endDate)->toBeInstanceOf(Carbon::class)
+        ->toEqual(Carbon::create(2025, 11, 25));
+
+    return $endDate;
+});
 
 test('create services in fulfilment shop', function (Fulfilment $fulfilment) {
     $service1 = StoreService::make()->action(

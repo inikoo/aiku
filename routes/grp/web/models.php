@@ -398,7 +398,7 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
     Route::patch('pallet-return-item', SyncPalletReturnItem::class)->name('pallet-return-item.sync');
 
     Route::post('stored-items', SyncStoredItemToPallet::class)->name('stored-items.update');
-    Route::post('stored-items/audit', SyncStoredItemToPalletAudit::class)->name('stored-items.audit');
+    Route::post('stored-items/audit/{storedItemAudit:id}', SyncStoredItemToPalletAudit::class)->name('stored-items.audit')->withoutScopedBindings();
     Route::delete('stored-items/reset', ResetAuditStoredItemToPallet::class)->name('stored-items.audit.reset');
     Route::patch('book-in', BookInPallet::class)->name('book_in');
     Route::patch('not-received', SetPalletAsNotReceived::class)->name('not-received');

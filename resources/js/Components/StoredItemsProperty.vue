@@ -22,6 +22,7 @@ const props = defineProps<{
 		delete: routeType
 	}
     editable?: boolean
+    title?: string
 }>()
 
 const emits = defineEmits<{
@@ -51,6 +52,7 @@ const onDelete = (data : { id : ''}) => {
 }
 
 const sendToServer = async (data : {}) => {
+    console.log('-=-=-=-=', props.saveRoute.name, props.saveRoute.parameters)
     router.post(route(props.saveRoute.name, props.saveRoute.parameters), { stored_item_ids: data }, {
         onError: (e) => {
             form.errors = {
@@ -81,29 +83,30 @@ const sendToServer = async (data : {}) => {
 
 <template>
     <div class="flex">
-        <div class="flex gap-x-1.5 gap-y-1.5 flex-wrap">
-            <template v-if="pallet?.stored_items?.length">
-                <div v-for="item of pallet.stored_items" class="cursor-pointer">
-                    <Tag @onClose="(event) => { event.stopPropagation(), onDelete(item) }" :theme="item.id"
-                        :label="`${item.reference}`"
-                        :closeButton="editable ? true : false" :stringToColor="true"
-                        @click="() => editable ? setFormOnEdit(item) : null"
-                    >
-                        <template #label>
-                            <div class="whitespace-nowrap text-xs">
-                                {{ item.reference }} (<span class="font-light">{{ item.quantity }}</span>)
-                            </div>
-                        </template>
-                    </Tag>
+        <slot :openModal="setFormOnCreate">
+            <div class="flex gap-x-1.5 gap-y-1.5 flex-wrap">
+                <template v-if="pallet?.stored_items?.length">
+                    <div v-for="item of pallet.stored_items" class="cursor-pointer">
+                        <Tag @onClose="(event) => { event.stopPropagation(), onDelete(item) }" :theme="item.id"
+                            :label="`${item.reference}`"
+                            :closeButton="editable ? true : false" :stringToColor="true"
+                            @click="() => editable ? setFormOnEdit(item) : null"
+                        >
+                            <template #label>
+                                <div class="whitespace-nowrap text-xs">
+                                    {{ item.reference }} (<span class="font-light">{{ item.quantity }}</span>)
+                                </div>
+                            </template>
+                        </Tag>
+                    </div>
+                </template>
+                
+                        <div v-else-if="!editable" class="pl-2.5 text-gray-400">
+                    -
                 </div>
-            </template>
-            
-			<div v-else-if="!editable" class="pl-2.5 text-gray-400">
-                -  
+                <Button v-if="editable" icon="fal fa-plus" @click="setFormOnCreate" :type="'dashed'" :size="'xs'"/>
             </div>
-
-            <Button v-if="editable" icon="fal fa-plus" @click="setFormOnCreate" :type="'dashed'" :size="'xs'"/>
-        </div>
+        </slot>
 
         <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-[600px]">
             <div class="space-y-4">
@@ -113,6 +116,7 @@ const sendToServer = async (data : {}) => {
                     @onSave="sendToServer"
                     :stored_items="pallet.stored_items"
                     @closeModal="isModalOpen = false"
+                    :title
                 />
             </div>
         </Modal>

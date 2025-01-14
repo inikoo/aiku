@@ -9,10 +9,13 @@
 namespace App\Actions\Fulfilment\StoredItem;
 
 use App\Actions\OrgAction;
+use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
+use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaTypeEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\StoredItemAudit;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -26,30 +29,57 @@ class SyncStoredItemToPalletAudit extends OrgAction
     protected FulfilmentCustomer $fulfilmentCustomer;
     protected Fulfilment $fulfilment;
 
-    public function handle(Pallet $pallet, array $modelData): void
+    public function handle(Pallet $pallet, StoredItemAudit $storedItemAudit, array $modelData): void
     {
-        //SyncStoredItemToPallet::run($pallet, $modelData);
-dd($modelData);
-
         foreach (Arr::get($modelData, 'stored_item_ids', []) as $storedItemId => $auditData) {
-
-            $originalQty = $pallet->storedItems()->where(
+            $storedItemExist = $pallet->storedItems()->where(
                 'stored_item_id',
                 $storedItemId
-            )->count();
+            )->exists();
+            $originalQty     = 0;
+            if ($storedItemExist) {
+                $originalQty = $pallet->storedItems()->where(
+                    'stored_item_id',
+                    $storedItemId
+                )->count();
+            }
+
+            if ($storedItemExist) {
+                if ($originalQty > $auditData['quantity']) {
+                    $type = StoredItemAuditDeltaTypeEnum::SUBTRACTION;
+                } elseif ($originalQty < $auditData['quantity']) {
+                    $type = StoredItemAuditDeltaTypeEnum::ADDITION;
+                } else {
+                    $type = StoredItemAuditDeltaTypeEnum::NO_CHANGE;
+                }
+            } else {
+                $type = StoredItemAuditDeltaTypeEnum::SET_UP;
+            }
 
 
-            $pallet->storedItemAuditDeltas()->updateOrCreate([
-                'stored_item_id'    => $storedItemId,
-                'organisation_id'   => $pallet->organisation_id,
-            ], [
-                'group_id'          => $pallet->group_id,
-                'organisation_id'   => $pallet->organisation_id,
-                'stored_item_id'    => $storedItemId,
-                'original_quantity' => $originalQty,
-                'audited_quantity'  => $auditData['quantity'] + $originalQty,
-                'audited_at'        => now()
-            ]);
+            $storedItemAuditDelta = $storedItemAudit->deltas()->where('pallet_id', $pallet->id)->where('stored_item_id', $storedItemId)->first();
+            if ($storedItemAuditDelta) {
+                //UpdateStoredItemAuditDelta
+                $storedItemAuditDelta->update([
+                    'audited_quantity' => $auditData['quantity'],
+                    'audited_at'       => now(),
+                    'type'             => $type,
+                    'state'            => StoredItemAuditDeltaStateEnum::IN_PROCESS
+                ]);
+            } else {
+                //StoreStoredItemAuditDelta
+                $storedItemAudit->deltas()->create([
+                    'group_id'          => $pallet->group_id,
+                    'organisation_id'   => $pallet->organisation_id,
+                    'pallet_id'         => $pallet->id,
+                    'stored_item_id'    => $storedItemId,
+                    'original_quantity' => $originalQty,
+                    'audited_quantity'  => $auditData['quantity'],
+                    'audited_at'        => now(),
+                    'audit_type'              => $type,
+                    'state'             => StoredItemAuditDeltaStateEnum::IN_PROCESS
+                ]);
+            }
         }
     }
 
@@ -79,17 +109,17 @@ dd($modelData);
         ];
     }
 
-    public function asController(Pallet $pallet, ActionRequest $request): void
+    public function asController(Pallet $pallet, StoredItemAudit $storedItemAudit, ActionRequest $request): void
     {
         $this->fulfilmentCustomer = $pallet->fulfilmentCustomer;
         $this->fulfilment         = $pallet->fulfilment;
 
         $this->initialisation($pallet->organisation, $request);
 
-        $this->handle($pallet, $this->validatedData);
+        $this->handle($pallet, $storedItemAudit, $this->validatedData);
     }
 
-    public function action(Pallet $pallet, $modelData): void
+    public function action(Pallet $pallet, StoredItemAudit $storedItemAudit, $modelData): void
     {
         $this->asAction           = true;
         $this->fulfilmentCustomer = $pallet->fulfilmentCustomer;
@@ -97,7 +127,7 @@ dd($modelData);
 
         $this->initialisation($pallet->organisation, $modelData);
 
-        $this->handle($pallet, $this->validatedData);
+        $this->handle($pallet, $storedItemAudit, $this->validatedData);
     }
 
     public function jsonResponse(Pallet $pallet): PalletResource

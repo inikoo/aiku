@@ -45,7 +45,7 @@ const props = defineProps<{
     notes_data: any
     pallets: any
     fulfilment_customer: any
-    route: {
+    route_list: {
         update: routeType
     }
 }>()
@@ -110,9 +110,9 @@ function palletRoute(pallet: Pallet) {
     <PageHeading :data="pageHead" />
     <div class="grid grid-cols-2 h-fit lg:max-h-64 w-full lg:justify-center border-b border-gray-300">
         <BoxNote v-for="(note, index) in notes_data" :key="index + note.label" :noteData="note"
-            :updateRoute="route.update" />
+            :updateRoute="route_list.update" />
     </div>
-    <BoxAuditStoredItems :auditData="data.data" :boxStats="fulfilment_customer" />
+    <!-- <BoxAuditStoredItems :auditData="data.data" :boxStats="fulfilment_customer" /> -->
     <!-- <TableStoredItemsAudits :data="pallets" tab="pallets" :storedItemsRoute="storedItemsRoute" /> -->
 
     <Table :resource="pallets" name="pallets" class="mt-5">

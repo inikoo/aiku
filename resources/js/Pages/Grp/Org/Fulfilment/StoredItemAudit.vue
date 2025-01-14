@@ -24,6 +24,7 @@ import { routeType } from "@/types/route"
 
 import { faStickyNote, faPlus, faMinus } from '@fal'
 import { faCheckCircle } from '@fad'
+import { faStar } from '@fas'
 import Table from '@/Components/Table/Table.vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -31,8 +32,10 @@ import Icon from '@/Components/Icon.vue'
 import StoredItemsProperty from '@/Components/StoredItemsProperty.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { trans } from 'laravel-vue-i18n'
-import { ref } from 'vue'
-library.add(faStickyNote, faPlus, faMinus, faCheckCircle)
+import { reactive, ref } from 'vue'
+import { get, set } from 'lodash'
+// import QuantityInput from '@/Components/Utils/QuantityInput.vue'
+library.add(faStickyNote, faPlus, faMinus, faCheckCircle, faStar)
 
 const props = defineProps<{
     data: {
@@ -46,7 +49,7 @@ const props = defineProps<{
     title: string
     pageHead: PageHeadingTypes
     notes_data: any
-    pallets: any
+    edit_stored_item_deltas: any
     fulfilment_customer: any
     route_list: {
         update: routeType
@@ -108,7 +111,7 @@ function palletRoute(pallet: Pallet) {
 
 
 const isLoading = ref(false)
-const onClickQuantity = (routex: routeType, store_item_id: number, qty: number) => {
+const onCheck = (routex: routeType, store_item_id: number, qty: number) => {
     router.post(route(routex.name, routex.parameters), {
         stored_item_ids	: {
             [store_item_id]: {
@@ -124,6 +127,15 @@ const onClickQuantity = (routex: routeType, store_item_id: number, qty: number) 
         }
     })
 }
+
+// Helper to give color on change qty stored items
+interface StoredItemsQuantity {
+    [key: string]: {  // row index of Table
+        [key: string]: number  // stored item id
+    }
+}
+const storedItemsQuantity = reactive<StoredItemsQuantity>({
+})
 </script>
 
 <template>
@@ -135,9 +147,9 @@ const onClickQuantity = (routex: routeType, store_item_id: number, qty: number) 
             :updateRoute="route.update" />
     </div>
     <BoxAuditStoredItems :auditData="data.data" :boxStats="fulfilment_customer" />
-    <!-- <TableStoredItemsAudits :data="pallets" tab="pallets" :storedItemsRoute="storedItemsRoute" /> -->
+    <!-- <TableStoredItemsAudits :data="edit_stored_item_deltas" tab="edit_stored_item_deltas" :storedItemsRoute="storedItemsRoute" /> -->
 
-    <Table :resource="pallets" name="pallets" class="mt-5">
+    <Table :resource="edit_stored_item_deltas" name="edit_stored_item_deltas" class="mt-5">
         <!-- Column: Reference -->
         <template #cell(reference)="{ item: pallet }">
             <component :is="pallet.slug ? Link : 'div'" :href="pallet.slug ? palletRoute(pallet) : undefined"
@@ -177,55 +189,136 @@ const onClickQuantity = (routex: routeType, store_item_id: number, qty: number) 
 
 
         <!-- Column: Customer SKUS -->
-        <template #cell(stored_items)="{ proxyItem }">
-            <DataTable v-if="proxyItem.stored_items?.length" :value="proxyItem.stored_items">
+        <template #cell(stored_items)="{ proxyItem, item }">
+
+            <pre>{{ proxyItem.stored_items }}</pre>
+            <DataTable v-if="proxyItem.stored_items?.length || proxyItem.new_stored_items?.length" :value="[...proxyItem.stored_items, ...proxyItem.new_stored_items]">
+                <Column field="reference" :header="trans('SKU')">
+                    <template #body="{ data }">
+                        {{ data.reference }} <FontAwesomeIcon v-if="data.type === 'new_item'" v-tooltip="trans('New stored item')" icon='fas fa-star' class='text-indigo-500' fixed-width aria-hidden='true' />
+                    </template>
+                </Column>
+
+                <Column field="quantity" header="Current qty">
+                    <template #body="{ data }">
+                        {{ data.quantity }}
+                    </template>
+                </Column>
+
+                <Column field="quantity" header="" class="w-36">
+                    <template #body="{ data }">
+
+                        <!-- <QuantityInput
+                            v-model="data.audited_quantity"
+                            :quantity_from="data.quantity"
+                            :datxa="{
+                                id: 4,
+                                quantity_ordered: 5,
+                                inputTriggered: true
+                            }"
+                        /> -->
+
+                        <div class="grid lg:grid-cols-3 gap-y-1 gap-x-1">
+                            <Button @click="() => set(data, `audited_quantity`, get(data, `audited_quantity`, data.quantity) - 1)" icon="fal fa-minus" :loading="isLoading" type="tertiary" size="xs" class="justify-self-center" />
+                                <div class="text-center tabular-nums">
+                                <Transition name="spin-to-right">
+                                    <span :key="data.audited_quantity" class="text-lg" :class="data.audited_quantity > data.quantity ? 'text-green-500' : data.audited_quantity === data.quantity ? 'text-gray-500' : 'text-red-500'">
+                                        {{ data.audited_quantity }}
+                                    </span>
+                                </Transition>
+                            </div>
+                            <Button @click="() => set(data, `audited_quantity`, get(data, `audited_quantity`, data.quantity) + 1)" icon="fal fa-plus" :loading="isLoading" type="tertiary" size="xs" class="justify-self-center" />
+                        </div>
+                    </template>
+                </Column>
+
+                <Column field="quantity" header="Checked" class="text-right">
+                    <template #body="{ data }">
+                        <div v-if="data.type === 'new_item'">
+                            
+                        </div>
+                        <div v-else @click="onCheck(proxyItem.auditRoute, data.id, data.quantity)" class="mx-auto cursor-pointer w-fit py-0.5 px-3 text-gray-500 hover:text-green-500">
+                            <FontAwesomeIcon icon='fad fa-check-circle'
+                                class='' fixed-width aria-hidden='true' />
+                        </div>
+                    </template>
+                </Column>
+
+                <!-- <Column field="quantity" header="">
+                    <template #body="{ data }">
+                    </template>
+                </Column> -->
+            </DataTable>
+
+            <div v-else class="text-gray-400">
+                
+            </div>
+
+            <pre>{{ proxyItem.new_stored_items }}</pre>
+            
+            
+            <!-- <pre>{{ proxyItem.new_stored_items }}</pre>
+            <DataTable v-if="proxyItem.new_stored_items?.length" :value="proxyItem.new_stored_items">
                 <Column field="reference" :header="trans('SKU')">
                 </Column>
 
                 <Column field="quantity" header="Current qty">
-
-                </Column>
-
-                <Column field="quantity" header="">
                     <template #body="{ data }">
-                        <FontAwesomeIcon icon='fad fa-check-circle' class='cursor-pointer text-gray-500 hover:text-green-500' fixed-width aria-hidden='true' />
+                        {{ data.quantity }}
                     </template>
                 </Column>
 
-                <Column field="quantity" header="">
+                <Column field="quantity" header="" class="w-36">
                     <template #body="{ data }">
-                        <Button @click="() => onClickQuantity(proxyItem.auditRoute, data.id, data.quantity+1)" icon="fal fa-plus" :loading="isLoading" type="tertiary" size="xs" />
+                        <div class="grid lg:grid-cols-3 gap-y-1 gap-x-1">
+                            <Button @click="() => set(storedItemsQuantity, `${item.rowIndex}.${data.id}`, get(storedItemsQuantity, `${item.rowIndex}.${data.id}`, data.quantity) - 1)" icon="fal fa-minus" :loading="isLoading" type="tertiary" size="xs" class="justify-self-center" />
+                                <div class="text-center tabular-nums">
+                                <Transition name="spin-to-right">
+                                    <span :key="get(storedItemsQuantity, `${item.rowIndex}.${data.id}`, data.quantity)" class="text-lg" :class="get(storedItemsQuantity, `${item.rowIndex}.${data.id}`, data.quantity) > data.quantity ? 'text-green-500' : get(storedItemsQuantity, `${item.rowIndex}.${data.id}`, data.quantity) === data.quantity ? 'text-gray-500' : 'text-red-500'">
+                                        {{ get(storedItemsQuantity, `${item.rowIndex}.${data.id}`, data.quantity) }}
+                                    </span>
+                                </Transition>
+                            </div>
+                            <Button @click="() => set(storedItemsQuantity, `${item.rowIndex}.${data.id}`, get(storedItemsQuantity, `${item.rowIndex}.${data.id}`, data.quantity) + 1)" icon="fal fa-plus" :loading="isLoading" type="tertiary" size="xs" class="justify-self-center" />
+                        </div>
                     </template>
                 </Column>
 
-                <Column field="quantity" header="">
+                <Column field="quantity" header="Checked" class="text-right">
                     <template #body="{ data }">
-                        <Button @click="() => onClickQuantity(proxyItem.auditRoute, data.id, data.quantity-1)" icon="fal fa-minus" :loading="isLoading" type="tertiary" size="xs" />
+                        <div @click="onCheck(proxyItem.auditRoute, data.id, data.quantity)" class="mx-auto cursor-pointer w-fit py-0.5 px-3 text-gray-500 hover:text-green-500">
+                            <FontAwesomeIcon icon='fad fa-check-circle'
+                                class='' fixed-width aria-hidden='true' />
+                        </div>
                     </template>
                 </Column>
             </DataTable>
 
             <div v-else class="text-gray-400">
-                -
-            </div>
+                
+            </div> -->
             
-            <!-- {{ proxyItem.auditRoute.name }}
-            {{ proxyItem.auditRoute.parameters }} -->
-            <!-- {{ route(proxyItem.auditRoute.name, proxyItem.auditRoute.parameters) }} -->
-            <!-- aaaaaa{{ route }}dddddd -->
-        </template>
-
-        <!-- Column: edited -->
-        <template #cell(audits)="{ item }">
-
             <StoredItemsProperty
                 :pallet="item"
                 :storedItemsRoute="storedItemsRoute"
                 :editable="true"
                 :saveRoute="item.auditRoute"
-            />
+                class="mt-2"
+                title="Add stored item"
+            >
+                <template #default="{ openModal }">
+                    <Button @click="openModal" type="dashed" icon="fal fa-plus" full label="Add stored item" />
+                </template>
+            </StoredItemsProperty>
+        </template>
 
-            <div v-if="item.audited_at" class="flex items-center justify-center">
+        <!-- Column: edited -->
+        <template #cell(audits)="{ item }">
+
+            <!-- <StoredItemsProperty :pallet="item" :storedItemsRoute="storedItemsRoute" :editable="true"
+                :saveRoute="item.auditRoute" /> -->
+
+            <!-- <div v-if="item.audited_at" class="flex items-center justify-center">
                 <font-awesome-icon :icon="['fas', 'check-circle']" class="text-lg text-green-500 mr-2"
                     v-tooltip="`Audited at: ${useFormatTime(item.audited_at)}`" />
 
@@ -247,10 +340,11 @@ const onClickQuantity = (routex: routeType, store_item_id: number, qty: number) 
                 </Popover>
 
 
-            </div>
+            </div> -->
         </template>
 
 
     </Table>
+    {{ storedItemsQuantity }}
 
 </template>

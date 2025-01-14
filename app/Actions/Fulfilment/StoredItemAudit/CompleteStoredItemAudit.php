@@ -8,9 +8,14 @@
 
 namespace App\Actions\Fulfilment\StoredItemAudit;
 
+use App\Actions\Fulfilment\StoredItem\AttachStoredItemToPallet;
+use App\Actions\Fulfilment\StoredItem\DetachStoredItemToPallet;
+use App\Actions\Fulfilment\StoredItem\UpdateStoredItemToPallet;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
+use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
+use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaTypeEnum;
 use App\Http\Resources\Fulfilment\StoredItemAuditsResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItemAudit;
@@ -25,6 +30,24 @@ class CompleteStoredItemAudit extends OrgAction
 
     public function handle(StoredItemAudit $storedItemAudit, array $modelData): StoredItemAudit
     {
+        foreach ($storedItemAudit->deltas as $storedItemAuditDelta) {
+            $pallet = $storedItemAuditDelta->pallet;
+
+            $storedItemAuditDelta->update(
+                [
+                    'state' => StoredItemAuditDeltaStateEnum::COMPLETED
+                ]
+            );
+
+            if ($storedItemAuditDelta->audit_type === StoredItemAuditDeltaTypeEnum::SET_UP) {
+                AttachStoredItemToPallet::run($pallet, $storedItemAuditDelta->storedItem, $storedItemAuditDelta->quantity);
+            } elseif ($pallet->storedItems()->where('stored_item_id', $storedItemAuditDelta->stored_item_id)->first()->quantity) {
+                DetachStoredItemToPallet::run($pallet, $storedItemAuditDelta->storedItem);
+            } else {
+                UpdateStoredItemToPallet::run($pallet, $storedItemAuditDelta->storedItem, $storedItemAuditDelta->quantity);
+            }
+        }
+
         $modelData['state'] = StoredItemAuditStateEnum::COMPLETED;
 
         return $this->update($storedItemAudit, $modelData, ['data']);
