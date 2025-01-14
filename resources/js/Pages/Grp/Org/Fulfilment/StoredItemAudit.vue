@@ -192,7 +192,7 @@ const storedItemsQuantity = reactive<StoredItemsQuantity>({
         <template #cell(stored_items)="{ proxyItem, item }">
 
             <pre>{{ proxyItem.stored_items }}</pre>
-            <DataTable v-if="proxyItem.stored_items?.length" :value="[...proxyItem.stored_items, ...proxyItem.new_stored_items]">
+            <DataTable v-if="proxyItem.stored_items?.length || proxyItem.new_stored_items?.length" :value="[...proxyItem.stored_items, ...proxyItem.new_stored_items]">
                 <Column field="reference" :header="trans('SKU')">
                     <template #body="{ data }">
                         {{ data.reference }} <FontAwesomeIcon v-if="data.type === 'new_item'" v-tooltip="trans('New stored item')" icon='fas fa-star' class='text-indigo-500' fixed-width aria-hidden='true' />
