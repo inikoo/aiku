@@ -112,7 +112,13 @@ trait WithDashboard
         if ($selectedCurrency === 'shop') {
             $salesCurrency = 'sales';
         }
-        $dashboard['table'] = $subModelData->map(function (Organisation|Shop $subModel) use ($selectedInterval, $model, &$dashboard, $selectedCurrency, $salesCurrency) {
+
+        $total = [
+            'total_sales'    => 0,
+            'total_invoices' => 0,
+            'total_refunds'  => 0,
+        ];
+        $dashboard['table'] = $subModelData->map(function (Organisation|Shop $subModel) use ($selectedInterval, $model, &$dashboard, $selectedCurrency, $salesCurrency, &$total) {
             $keyCurrency = $dashboard['settings']['key_currency'];
             $currencyCode = $selectedCurrency === $keyCurrency ? $model->currency->code : $subModel->currency->code;
             $responseData = [
@@ -128,20 +134,20 @@ trait WithDashboard
                     $salesCurrency,
                     $selectedInterval,
                 );
-                $amount = $responseData['interval_percentages']['sales']['amount'];
-                $dashboard['widgets']['components'][] = $this->getWidget(
-                    route: [
-                        'name' => 'grp.org.dashboard.show',
-                        'params' => [$model->slug]
-                    ],
-                    data: [
-                        'value'         => $amount,
-                        'description'   => __('Sales For ') . $responseData['name'],
-                        'status'        => $amount < 0 ? 'danger' : '',
-                        'type'          => 'currency',
-                        'currency_code' => $currencyCode
-                    ]
-                );
+                $total['total_sales'] += $responseData['interval_percentages']['sales']['amount'];
+                // $dashboard['widgets']['components'][] = $this->getWidget(
+                //     route: [
+                //         'name' => 'grp.org.dashboard.show',
+                //         'params' => [$model->slug]
+                //     ],
+                //     data: [
+                //         'value'         => $amount,
+                //         'description'   => __('Sales For ') . $responseData['name'],
+                //         'status'        => $amount < 0 ? 'danger' : '',
+                //         'type'          => 'currency',
+                //         'currency_code' => $currencyCode
+                //     ],
+                // );
             }
 
             if ($subModel->orderingIntervals !== null) {
@@ -150,6 +156,7 @@ trait WithDashboard
                     'invoices',
                     $selectedInterval,
                 );
+                $total['total_invoices'] += $responseData['interval_percentages']['invoices']['amount'];
             }
 
             if ($subModel->orderingIntervals !== null) {
@@ -158,20 +165,24 @@ trait WithDashboard
                     'refunds',
                     $selectedInterval,
                 );
+                $total['total_refunds'] = $responseData['interval_percentages']['invoices']['amount'];
             }
-
-
             return $responseData;
         })->toArray();
 
-        $dashboard['total'] = [
-            'total_sales'    => $subModelData->sum(fn ($data) => $data->salesIntervals?->{$salesCurrency. '_' . $selectedInterval} ?? 0),
-            'total_invoices' => $subModelData->sum(fn ($data) => $data->orderingIntervals?->{"invoices_{$selectedInterval}"} ?? 0),
-            'total_refunds'  => $subModelData->sum(fn ($data) => $data->orderingIntervals?->{"refunds_{$selectedInterval}"} ?? 0),
+        $dashboard['total'] = $total;
+
+        $dashboard['widgets']['components'] = [
+            $this->getWidget(
+                visual: [
+                    'type' => 'number',
+                    'value' => $total['total_sales'],
+                    'label' => __('Total Sales')
+                ]
+            ),
         ];
 
         return $dashboard;
-
     }
 
     public function calculatePercentageIncrease($thisYear, $lastYear): ?float
