@@ -40,10 +40,10 @@ class SendSesEmail
                 $dispatchedEmail,
                 [
                     'state'               => DispatchedEmailStateEnum::SENT,
-                    'is_sent'             => true,
+                    // 'is_sent'             => true,
                     'sent_at'             => now(),
-                    'date'                => now(),
-                    'provider_message_id' => 'devel-'.Str::uuid()
+                    // 'date'                => now(),
+                    'provider_dispatch_id' => 'devel-'.Str::uuid()
                 ]
             );
 
@@ -57,9 +57,9 @@ class SendSesEmail
                 $dispatchedEmail,
                 [
                     'state'        => DispatchedEmailStateEnum::DELIVERED,
-                    'date'         => now(),
-                    'delivered_at' => now(),
-                    'is_delivered' => true
+                    // 'date'         => now(),
+                    // 'delivered_at' => now(),
+                    // 'is_delivered' => true
                 ]
             );
 

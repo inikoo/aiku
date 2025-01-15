@@ -324,9 +324,9 @@
         <tr>
             <td width="33%" style="color:#000;text-align: left;">
                 <small>{{$shop->name}}<br> VAT Number:
-                    <b>GB356317102</b>
+                    <b>{{$shop->data['vat_number']}}</b>
                     <br>
-                    Registration Number: 1279117</small>
+                    Registration Number: {{$shop->data['registration_number']}}</small>
             </td>
             <td width="33%" style="color:#000;text-align: center">
                 Page 1 of 1

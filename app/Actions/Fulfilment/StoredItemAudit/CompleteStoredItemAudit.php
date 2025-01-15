@@ -40,11 +40,11 @@ class CompleteStoredItemAudit extends OrgAction
             );
 
             if ($storedItemAuditDelta->audit_type === StoredItemAuditDeltaTypeEnum::SET_UP) {
-                AttachStoredItemToPallet::run($pallet, $storedItemAuditDelta->storedItem, $storedItemAuditDelta->quantity);
+                AttachStoredItemToPallet::run($pallet, $storedItemAuditDelta->storedItem, $storedItemAuditDelta->audited_quantity);
             } elseif ($storedItemAuditDelta->audited_quantity == 0) {
                 DetachStoredItemToPallet::run($pallet, $storedItemAuditDelta->storedItem);
             } else {
-                UpdateStoredItemToPallet::run($pallet, $storedItemAuditDelta->storedItem, $storedItemAuditDelta->quantity);
+                UpdateStoredItemToPallet::run($pallet, $storedItemAuditDelta->storedItem, $storedItemAuditDelta->audited_quantity);
             }
         }
 

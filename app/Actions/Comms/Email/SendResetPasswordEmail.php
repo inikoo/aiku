@@ -50,6 +50,7 @@ class SendResetPasswordEmail extends OrgAction
             $outbox->name,
             $emailHtmlBody,
             '',
+            passwordToken: $modelData['url']
         );
     }
 

@@ -43,6 +43,7 @@ import PureColorPicker from '@/Components/CMS/Fields/ColorPicker.vue'
 import ColorPicker from 'primevue/colorpicker';
 import suggestion from './Variables/suggestion'
 import Dialog from 'primevue/dialog';
+import Placeholder from "@tiptap/extension-placeholder"
 
 import {
     faUndo,
@@ -136,6 +137,9 @@ const editorInstance = useEditor({
         Document,
         Text,
         History,
+        Placeholder.configure({
+            placeholder: props.placeholder || "Start typing...", // Fallback to default placeholder
+        }),
         FontFamily.configure({
             types: ['textStyle'],
         }),

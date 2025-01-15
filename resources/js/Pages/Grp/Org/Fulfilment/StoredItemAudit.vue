@@ -230,7 +230,7 @@ const onChangeNumber = debounce((routeUpdate: routeType, row: number, stored_ite
             <DataTable v-if="proxyItem.stored_items?.length || proxyItem.new_stored_items?.length" :value="[...proxyItem.stored_items, ...proxyItem.new_stored_items]">
                 <Column field="reference" :header="trans('SKU')">
                     <template #body="{ data }">
-                        {{ data.reference }} <FontAwesomeIcon v-if="data.type === 'new_item'" v-tooltip="trans('New stored item')" icon='fas fa-star' size="xs" class='text-indigo-500' fixed-width aria-hidden='true' />
+                        <div class="whitespace-nowrap">{{ data.reference }} <FontAwesomeIcon v-if="data.type === 'new_item'" v-tooltip="trans('New stored item')" icon='fas fa-star' size="xs" class='text-indigo-500' fixed-width aria-hidden='true' /></div>
                     </template>
                 </Column>
 
@@ -378,19 +378,23 @@ const onChangeNumber = debounce((routeUpdate: routeType, row: number, stored_ite
                 
             </div> -->
             
-            <StoredItemsProperty
-                :pallet="item"
-                :storedItemsRoute="storedItemsRoute"
-                :editable="true"
-                :saveRoute="item.auditRoute"
-                class="mt-2"
-                title="Add stored item"
-            >
-                <template #default="{ openModal }">
-                    <Button @click="openModal" type="dashed" icon="fal fa-plus" full label="Add stored item" />
-                </template>
-            </StoredItemsProperty>
+
         </template>
+
+      <template #cell(actions)="{ item }">
+        <StoredItemsProperty
+          :pallet="item"
+          :storedItemsRoute="storedItemsRoute"
+          :editable="true"
+          :saveRoute="item.auditRoute"
+          class="mt-2"
+          title="Add stored item"
+        >
+          <template #default="{ openModal }">
+            <Button @click="openModal" type="dashed" icon="fas fa-plus" fuxll :label="trans('Customer\'s SKU')" />
+          </template>
+        </StoredItemsProperty>
+      </template>
 
         <!-- Column: edited -->
         <template #cell(audits)="{ item }">

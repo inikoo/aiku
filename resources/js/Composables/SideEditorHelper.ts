@@ -26,6 +26,7 @@ import ImagesArray from '@/Components/CMS/Fields/ImagesArray.vue'
 
 
 import { set } from 'lodash'
+import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
 
 // Field list of SideEditor
 export const getComponent = (componentName: string) => {
@@ -45,6 +46,7 @@ export const getComponent = (componentName: string) => {
         "padding": Padding,
         "margin": Margin,
         "dimension": Dimension,
+        "select" : PureMultiselect,
 
         "button": ButtonProperties,
         "link": Link,
