@@ -226,7 +226,6 @@ const onChangeNumber = debounce((routeUpdate: routeType, row: number, stored_ite
         <!-- Column: Customer SKUS -->
         <template #cell(stored_items)="{ proxyItem, item }">
 
-            
             <DataTable v-if="proxyItem.stored_items?.length || proxyItem.new_stored_items?.length" :value="[...proxyItem.stored_items, ...proxyItem.new_stored_items]">
                 <Column field="reference" :header="trans('SKU')">
                     <template #body="{ data }">

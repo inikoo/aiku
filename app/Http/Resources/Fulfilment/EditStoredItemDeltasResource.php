@@ -40,7 +40,6 @@ class EditStoredItemDeltasResource extends JsonResource
         /** @var Pallet $pallet */
         $pallet = $this->resource;
 
-
         return [
             'stored_item_audit_id' => $this->stored_item_audit_id,
             'id'                   => $this->id,
@@ -53,65 +52,61 @@ class EditStoredItemDeltasResource extends JsonResource
             'location_code' => $this->location_code,
             'location_id'   => $this->location_id,
 
-            'stored_items' => $pallet->getEditStoredItemDeltasQuery()->get()->map(fn ($item) => [
-                'id'               => $item->stored_item_id,
-                'reference'        => $item->stored_item_reference,
-                'quantity'         => (int) $item->quantity,
-                'audited_quantity' => (int) $item->audited_quantity,
-                'audit_notes'      => $item->audit_notes,
-                'type'             => 'current_item',
-                'update_routes'    => [
-                    'name' => 'grp.models.stored_item_audit-delta.update',
-                    'parameters' => [
-                        'storedItemAuditDelta' => $item->audit_id
-                    ]
-                ],
-            ]),
 
-            'new_stored_items' => $pallet->getEditNewStoredItemDeltasQuery()->get()->map(fn ($item) => [
-                'id'               => $item->stored_item_id,
-                'reference'        => $item->stored_item_reference,
-                'quantity'         => 0,
-                'audited_quantity' => (int) $item->audited_quantity,
-                'update_routes'    => [
-                    'name' => 'grp.models.stored_item_audit-delta.update',
-                    'parameters' => [
-                        'storedItemAuditDelta' => $item->audit_id
-                    ]
-                ],
-                'audit_notes'      => $item->audit_notes,
-                'type'             => 'new_item'
-            ]),
+            'stored_items' => $pallet->getEditStoredItemDeltasQuery($this->id, $this->stored_item_audit_id)
+                ->where('pallet_stored_items.pallet_id', $this->id)
+                ->get()->map(fn ($item) => [
+                    'pallet_id'        => $item->pallet_id,
+                    'id'               => $item->stored_item_id,
+                    'reference'        => $item->stored_item_reference,
+                    'quantity'         => (int)$item->quantity,
+                    'audited_quantity' => (int)$item->audited_quantity,
+                    'audit_notes'      => $item->audit_notes,
+                    'type'             => 'current_item',
+                    'update_routes'    => [
+                        'name'       => 'grp.models.stored_item_audit_delta.update',
+                        'parameters' => [
+                            'storedItemAuditDelta' => $item->audit_id
+                        ]
+                    ],
+                ]),
+
+            'new_stored_items' => $pallet->getEditNewStoredItemDeltasQuery()
+                ->where('stored_item_audit_deltas.pallet_id', $this->id)
+                ->where('stored_item_audit_deltas.stored_item_audit_id', $this->stored_item_audit_id)
+                ->get()->map(fn ($item) => [
+                    'id'               => $item->stored_item_id,
+                    'reference'        => $item->stored_item_reference,
+                    'quantity'         => 0,
+                    'audited_quantity' => (int)$item->audited_quantity,
+                    'update_routes'    => [
+                        'name'       => 'grp.models.stored_item_audit_delta.update',
+                        'parameters' => [
+                            'storedItemAuditDelta' => $item->audit_id
+                        ]
+                    ],
+                    'audit_notes'      => $item->audit_notes,
+                    'type'             => 'new_item'
+                ]),
 
 
-            'auditRoute'           => match (request()->routeIs('retina.*')) {
-                true => [
-                    'name'       => 'retina.models.pallet.stored-items.audit',
-                    'parameters' => [$this->id]
-                ],
-                default => [
-                    'name'       => 'grp.models.pallet.stored-items.audit',
-                    'parameters' => [
-                        $this->id,
-                        $this->stored_item_audit_id
+            // thi swill be removed
+            'auditRoute'           => [
+                'name'       => 'grp.models.pallet.stored-items.audit',
+                'parameters' => [
+                    $this->id,
+                    $this->stored_item_audit_id
 
-                    ]
                 ]
-            },
+            ],
             'resetAuditRoute'      => [
                 'name'       => 'grp.models.pallet.stored-items.audit.reset',
                 'parameters' => [$this->id]
             ],
-            'storeStoredItemRoute' => match (request()->routeIs('retina.*')) {
-                true => [
-                    'name'       => 'retina.models.pallet.stored-items.update',
-                    'parameters' => [$this->id]
-                ],
-                default => [
-                    'name'       => 'grp.models.pallet.stored-items.update',
-                    'parameters' => [$this->id]
-                ]
-            },
+            'storeStoredItemRoute' => [
+                'name'       => 'grp.models.pallet.stored-items.update',
+                'parameters' => [$this->id]
+            ],
         ];
     }
 }

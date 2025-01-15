@@ -120,7 +120,7 @@ class Pallet extends Model implements Auditable
     use HasHistory;
 
     protected $guarded = [];
-    protected $casts   = [
+    protected $casts = [
         'data'                    => 'array',
         'incident_report'         => 'object',
         'state'                   => PalletStateEnum::class,
@@ -184,7 +184,6 @@ class Pallet extends Model implements Auditable
     }
 
 
-
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);
@@ -215,24 +214,47 @@ class Pallet extends Model implements Auditable
         return $this->belongsToMany(StoredItemAuditDelta::class, 'stored_item_audit_deltas')->withPivot('audited_quantity', 'state', 'audit_type', 'notes')->withTimestamps();
     }
 
-    public function getEditStoredItemDeltasQuery(): Builder
+    public function getEditStoredItemDeltasQuery(int $palletID, int $storedItemAuditId): Builder
     {
         return DB::table('pallet_stored_items')
-            ->join('stored_items', 'stored_items.id', '=', 'pallet_stored_items.stored_item_id')
-            ->join('stored_item_audit_deltas', 'stored_item_audit_deltas.stored_item_id', '=', 'pallet_stored_items.stored_item_id')
-            ->select('stored_items.reference  as stored_item_reference', 'stored_items.id  as stored_item_id', 'stored_item_audit_deltas.notes as audit_notes', 'pallet_stored_items.quantity', 'stored_item_audit_deltas.audited_quantity', 'stored_item_audit_deltas.state', 'stored_item_audit_deltas.audit_type', 'stored_item_audit_deltas.id as audit_id')
-            ->where('pallet_stored_items.pallet_id', $this->id);
+            ->leftJoin('stored_items', 'stored_items.id', '=', 'pallet_stored_items.stored_item_id')
+
+
+            ->leftJoin('stored_item_audit_deltas', function ($join) use ($palletID, $storedItemAuditId) {
+                $join->on('pallet_stored_items.stored_item_id', '=', 'stored_item_audit_deltas.stored_item_id')
+                    ->where('stored_item_audit_deltas.stored_item_audit_id', '=', $storedItemAuditId)
+                  ->where('stored_item_audit_deltas.pallet_id', '=', $palletID);
+            })
+
+            ->select(
+                'stored_items.reference  as stored_item_reference',
+                'stored_items.id  as stored_item_id',
+                'stored_item_audit_deltas.notes as audit_notes',
+                'pallet_stored_items.quantity',
+                'stored_item_audit_deltas.audited_quantity',
+                'stored_item_audit_deltas.state',
+                'stored_item_audit_deltas.audit_type',
+                'stored_item_audit_deltas.id as audit_id',
+                'pallet_stored_items.pallet_id as pallet_id'
+            );
     }
 
 
     public function getEditNewStoredItemDeltasQuery(): Builder
     {
         return DB::table('stored_item_audit_deltas')
-            ->join('stored_items', 'stored_item_audit_deltas.stored_item_id', '=', 'stored_items.id')
-            ->select('stored_items.reference  as stored_item_reference', 'stored_items.id  as stored_item_id', 'stored_item_audit_deltas.notes as audit_notes', 'stored_item_audit_deltas.audited_quantity', 'stored_item_audit_deltas.state', 'stored_item_audit_deltas.audit_type', 'stored_item_audit_deltas.id as audit_id')
-            ->where('stored_item_audit_deltas.pallet_id', $this->id);
+            ->where('stored_item_audit_deltas.is_stored_item_new_in_pallet', true)
+            ->leftJoin('stored_items', 'stored_item_audit_deltas.stored_item_id', '=', 'stored_items.id')
+            ->select(
+                'stored_items.reference  as stored_item_reference',
+                'stored_items.id  as stored_item_id',
+                'stored_item_audit_deltas.notes as audit_notes',
+                'stored_item_audit_deltas.audited_quantity',
+                'stored_item_audit_deltas.state',
+                'stored_item_audit_deltas.audit_type',
+                'stored_item_audit_deltas.id as audit_id'
+            );
     }
-
 
 
     public function palletDelivery(): BelongsTo

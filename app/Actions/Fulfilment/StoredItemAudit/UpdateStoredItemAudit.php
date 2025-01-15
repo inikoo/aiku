@@ -10,29 +10,18 @@ namespace App\Actions\Fulfilment\StoredItemAudit;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Http\Resources\Fulfilment\StoredItemAuditsResource;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItemAudit;
-use App\Rules\AlphaDashDotSpaceSlashParenthesisPlus;
-use App\Rules\IUnique;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateStoredItemAudit extends OrgAction
 {
     use WithActionUpdate;
 
-    private FulfilmentCustomer $fulfilmentCustomer;
-    private StoredItemAudit $storedItemAudit;
 
     public function handle(StoredItemAudit $storedItemAudit, array $modelData): StoredItemAudit
     {
-        $storedItemAudit = $this->update($storedItemAudit, $modelData, ['data']);
-
-        // Hydrators
-
-        return $storedItemAudit;
+        return $this->update($storedItemAudit, $modelData, ['data']);
     }
 
 
@@ -44,32 +33,14 @@ class UpdateStoredItemAudit extends OrgAction
     public function rules(): array
     {
         return [
-            'reference' => [
-                'sometimes',
-                'required',
-                'max:128',
-                new AlphaDashDotSpaceSlashParenthesisPlus(),
-                new IUnique(
-                    table: 'stored_item_audits',
-                    extraConditions: [
-                        [
-                            'column' => 'fulfilment_customer_id',
-                            'value'  => $this->fulfilmentCustomer->id,
-                        ],
-                        ['column' => 'id', 'value' => $this->storedItemAudit->id, 'operator' => '!=']
+            'public_notes'   => ['nullable', 'string', 'max:5000'],
+            'internal_notes' => ['nullable', 'string', 'max:5000'],
 
-                    ]
-                )
-
-            ],
-            'state'     => ['sometimes', 'required', Rule::enum(StoredItemAuditStateEnum::class)],
         ];
     }
 
-    public function asController(FulfilmentCustomer $fulfilmentCustomer, StoredItemAudit $storedItemAudit, ActionRequest $request): StoredItemAudit
+    public function asController(StoredItemAudit $storedItemAudit, ActionRequest $request): StoredItemAudit
     {
-        $this->fulfilmentCustomer = $storedItemAudit->fulfilmentCustomer;
-        $this->storedItemAudit    = $storedItemAudit;
         $this->initialisationFromFulfilment($storedItemAudit->fulfilment, $request);
 
         return $this->handle($storedItemAudit, $this->validatedData);
