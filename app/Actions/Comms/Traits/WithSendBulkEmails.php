@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 
 trait WithSendBulkEmails
 {
-    public function sendEmailWithMergeTags(DispatchedEmail $dispatchedEmail, string $sender, string $subject, string $emailHtmlBody, string $unsubscribeUrl)
+    public function sendEmailWithMergeTags(DispatchedEmail $dispatchedEmail, string $sender, string $subject, string $emailHtmlBody, string $unsubscribeUrl, string $passwordToken = null)
     {
         $html = $emailHtmlBody;
 
@@ -22,14 +22,14 @@ trait WithSendBulkEmails
 
         if (preg_match_all("/{{(.*?)}}/", $html, $matches)) {
             foreach ($matches[1] as $i => $placeholder) {
-                $placeholder = $this->replaceMergeTags($placeholder, $dispatchedEmail, $unsubscribeUrl);
+                $placeholder = $this->replaceMergeTags($placeholder, $dispatchedEmail, $unsubscribeUrl, $passwordToken);
                 $html        = str_replace($matches[0][$i], sprintf('%s', $placeholder), $html);
             }
         }
 
         if (preg_match_all("/\[(.*?)]/", $html, $matches)) {
             foreach ($matches[1] as $i => $placeholder) {
-                $placeholder = $this->replaceMergeTags($placeholder, $dispatchedEmail, $unsubscribeUrl);
+                $placeholder = $this->replaceMergeTags($placeholder, $dispatchedEmail, $unsubscribeUrl, $passwordToken);
                 $html        = str_replace($matches[0][$i], sprintf('%s', $placeholder), $html);
             }
         }
@@ -43,12 +43,13 @@ trait WithSendBulkEmails
         );
     }
 
-    private function replaceMergeTags($placeholder, $dispatchedEmail, $unsubscribeUrl): string
+    private function replaceMergeTags($placeholder, $dispatchedEmail, $unsubscribeUrl = null, $passwordToken = null): string
     {
         $placeholder = Str::kebab(trim($placeholder));
 
         return match ($placeholder) {
             'customer-name' => $dispatchedEmail->recipient->name,
+            'reset-password-url' => $passwordToken,
             'unsubscribe' => sprintf(
                 "<a ses:no-track href=\"$unsubscribeUrl\">%s</a>",
                 __('Unsubscribe')
