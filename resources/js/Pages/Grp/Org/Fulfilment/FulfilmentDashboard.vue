@@ -7,7 +7,7 @@ import { faTruckCouch } from "@fal"
 import { capitalize } from "@/Composables/capitalize"
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from "chart.js"
 import { ref, computed } from "vue"
-import InfoDashboardCard from "@/Components/DataDisplay/InfoDashboardCard.vue"
+import Dashboard from "@/Components/DataDisplay/Dashboard/Dashboard.vue"
 
 library.add(faTruckCouch)
 ChartJS.register(ArcElement, Tooltip, Legend, Colors)
@@ -17,7 +17,7 @@ const props = defineProps<{
 	title: string
 	pageHead: any // Adjust to your actual type
 	flatTreeMaps: {}
-	stats: {
+	dashboard_stats: {
 		customers: {
 			active: { label: string; count: number }
 			inactive: { label: string; count: number }
@@ -103,29 +103,12 @@ const palletCards = computed(() => {
 	<Head :title="capitalize(title)" />
 	<PageHeading :data="pageHead" />
 
-	<div class="px-6 py-4 space-y-8">
-		<section>
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-				<InfoDashboardCard
-					v-for="(card, index) in customerCards"
-					:key="index"
-					:value="card.value"
-					:description="card.description"
-					:showRedBorder="card.showRedBorder"
-					:showIcon="card.showIcon" />
-			</div>
-		</section>
-
-		<section>
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-				<InfoDashboardCard
-					v-for="(card, index) in palletCards"
-					:key="index"
-					:value="card.value"
-					:description="card.description"
-					:showRedBorder="card.showRedBorder"
-					:showIcon="card.showIcon" />
-			</div>
-		</section>
+	<div class="grid grid-cols-12 m-3 gap-4">
+		<div class="col-span-12">
+			<Dashboard
+				:dashboard="dashboard_stats"
+			/>
+		</div>
+		
 	</div>
 </template>
