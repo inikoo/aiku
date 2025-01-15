@@ -61,11 +61,14 @@ class ShowFulfilmentDashboard extends OrgAction
                         'column_count'    => 4,
                         'components' => [
                             $this->getWidget(
-                                colSpan: 2,
                                 data: [
                                     'value'         => $fulfilment->stats->number_customers_status_active,
                                     'description'   => __('Active Customers'),
                                     'type'          => 'number',
+                                ],
+                                visual: [
+                                    'type'   => 'percantage',
+                                    'value'  => 2000
                                 ]
                             ),
 
@@ -78,11 +81,21 @@ class ShowFulfilmentDashboard extends OrgAction
                             ),
 
                             $this->getWidget(
+                                colSpan: 2,
                                 data: [
                                     'value'         => $fulfilment->stats->number_pallet_deliveries,
                                     'description'   => __('Deliveries'),
                                     'type'          => 'number',
-                                ]
+                                ],
+                                visual: [
+                                    'type' => 'MeterGroup',
+                                    'data' => [
+                                        ['label' => 'Apps', 'color' => '#34d399', 'value' => 16],
+                                        ['label' => 'Messages', 'color' => '#fbbf24', 'value' => 8],
+                                        ['label' => 'Media', 'color' => '#60a5fa', 'value' => 24],
+                                        ['label' => 'System', 'color' => '#c084fc', 'value' => 10],
+                                    ],
+                                ], // TODO: Add the correct data
                             ),
 
                             $this->getWidget(

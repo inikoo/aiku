@@ -3,9 +3,9 @@ import CountUp from "vue-countup-v3"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faCheck, faExclamation, faInfo, faPlay } from "@fas"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { inject } from "vue"
+import { inject, ref } from "vue"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
-import ProgressBar from "primevue/progressbar"
+import MeterGroup from 'primevue/metergroup';
 import { values } from "lodash"
 import ChartDashboardDynamic from "../../ChartDashboardDynamic.vue"
 import Chart from 'primevue/chart'
@@ -23,11 +23,7 @@ const props = withDefaults(
 			type?: "number" | "currency"
 			currency_code?: string
 		}
-		visual?: {
-			type: string
-			label: any
-			value: any
-		}
+		visual?: any
 	}>(),
 	{
 		widgetData: () => {
@@ -103,7 +99,12 @@ const widgets = {
 		},
 	],
 }
-
+/* const value = ref([
+    { label: 'Apps', color: '#34d399', value: 16 },
+    { label: 'Messages', color: '#fbbf24', value: 8 },
+    { label: 'Media', color: '#60a5fa', value: 24 },
+    { label: 'System', color: '#c084fc', value: 10 }
+]); */
 // const getTypeVisualComponent = (type: string) => {
 // 	switch (type) {
 // 		case "chart":
@@ -169,6 +170,7 @@ const printLabelByType = (label?: string) => {
 	}
 }
 
+
 // const chartLabels = ["1", "2", "3", "4", "5", "6", "7", "8"]
 // const chartData = [10, 20, 15, 25, 20, 18, 22, 10]
 // const dummyChartData = {
@@ -204,15 +206,11 @@ const printLabelByType = (label?: string) => {
 		<p class="text-base text-gray-500">{{ widgetData.description }}</p>
 
 		<!-- Visual Progress Bar -->
-		<div v-if="visual?.type === 'progress'" class="mt-3">
-			<div class="flex justify-between items-center text-sm text-black">
-				<span class="font-semibold">{{ visual?.label }}</span>
-				<span class="font-normal">{{ visual?.value }}m</span>
-			</div>
-			<ProgressBar
-				:value="visual?.value"
-				:style="{ backgroundColor: '#E0E7FF', height: '10px' }"
-				class="progress-bar" />
+		<div v-if="visual?.type === 'MeterGroup'" class="mt-3">
+			<MeterGroup
+				:value="visual.data"
+				labelPosition="start"
+				/>
 		</div>
 
 		<!-- Visual Percentage -->
@@ -284,16 +282,6 @@ const printLabelByType = (label?: string) => {
 	</div>
 </template>
 <style scoped lang="scss">
-::v-deep(.p-progressbar-value) {
-	background-color: #2563eb !important;
-}
 
-::v-deep(.p-progressbar-label) {
-	display: none !important;
-}
-
-::v-deep(.p-progressbar) {
-	background-color: #e0e7ff;
-}
 
 </style>
