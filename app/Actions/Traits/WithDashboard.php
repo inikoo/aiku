@@ -29,6 +29,40 @@ trait WithDashboard
         })->toArray();
     }
 
+    /**
+     * data = [
+     *      'value' => number,
+     *      'description' => 'string',
+     *      'status' => (string) 'danger' | 'success' | 'information,
+     *      'type' => 'currency',
+     *      'currency_code' => 'string'
+     * ]
+     *
+     * route = [
+     *      'name' => 'string',
+     *      'params' => array
+     * ]
+     *
+     * visual = [
+     *      'type' => 'percentage' | 'progress' | 'number',
+     *      'value' => number,
+     *      'label' => 'string',
+     * ]
+     *
+     */
+
+    public function getWidget($type = 'basic', $colSpan = 1, $rowSpan = 1, array $route = [], array $data = [], array $visual = []): array
+    {
+        return [
+            'type' => $type,
+            'col_span'  => $colSpan,
+            'row_span'  => $rowSpan,
+            'route' => $route,
+            'visual' => $visual,
+            'data' => $data
+        ];
+    }
+
     public function getDashboardInterval(Group|Organisation $model, array $userSettings): array
     {
 
@@ -68,7 +102,7 @@ trait WithDashboard
             ],
             'table' => [],
             'widgets' => [
-                'column_count'    => 0,
+                'column_count'    => 4,
                 'components' => []
             ]
         ];
@@ -89,29 +123,25 @@ trait WithDashboard
                 'currency_code'  => $currencyCode,
             ];
             if ($subModel->salesIntervals !== null) {
-                $dashboard['widgets']['column_count']++;
                 $responseData['interval_percentages']['sales'] = $this->getIntervalPercentage(
                     $subModel->salesIntervals,
                     $salesCurrency,
                     $selectedInterval,
                 );
                 $amount = $responseData['interval_percentages']['sales']['amount'];
-                $dashboard['widgets']['components'][] = [
-                    'type' => 'basic',
-                    'col_span'  => 1,
-                    'row_span'  => 1,
-                    'route' => [
+                $dashboard['widgets']['components'][] = $this->getWidget(
+                    route: [
                         'name' => 'grp.org.dashboard.show',
                         'params' => [$model->slug]
                     ],
-                    'data' => [
-                        'value'         =>  $amount,
+                    data: [
+                        'value'         => $amount,
                         'description'   => __('Sales For ') . $responseData['name'],
-                        'status'    => $amount < 0 ? 'danger' : '',
-                        'type'      => 'currency',
+                        'status'        => $amount < 0 ? 'danger' : '',
+                        'type'          => 'currency',
                         'currency_code' => $currencyCode
                     ]
-                ];
+                );
             }
 
             if ($subModel->orderingIntervals !== null) {

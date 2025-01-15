@@ -9,6 +9,7 @@
 namespace App\Actions\Fulfilment\Fulfilment\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\WithDashboard;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -17,6 +18,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowFulfilmentDashboard extends OrgAction
 {
+    use WithDashboard;
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->hasPermissionTo("fulfilment-shop.{$this->organisation->id}.view");
@@ -54,79 +56,142 @@ class ShowFulfilmentDashboard extends OrgAction
                     ],
                     'title' => __('fulfilment central command'),
                 ],
-                'stats' => [
-                    'customers' => [
-                        'active' => [
-                            'label' => __('Active Customers'),
-                            'count' => $fulfilment->stats->number_customers_status_active
-                        ],
-                        'inactive' => [
-                            'label' => __('Inactive Customers'),
-                            'count' => $fulfilment->stats->number_customers_status_inactive
+                'dashboard_stats' => [
+                    'widgets' => [
+                        'column_count'    => 4,
+                        'components' => [
+                            $this->getWidget(
+                                colSpan: 2,
+                                data: [
+                                    'value'         => $fulfilment->stats->number_customers_status_active,
+                                    'description'   => __('Active Customers'),
+                                    'type'          => 'number',
+                                ]
+                            ),
+
+                            $this->getWidget(
+                                data: [
+                                    'value'         => $fulfilment->stats->number_customers_status_inactive,
+                                    'description'   => __('Inactive Customers'),
+                                    'type'          => 'number',
+                                ]
+                            ),
+
+                            $this->getWidget(
+                                data: [
+                                    'value'         => $fulfilment->stats->number_pallet_deliveries,
+                                    'description'   => __('Deliveries'),
+                                    'type'          => 'number',
+                                ]
+                            ),
+
+                            $this->getWidget(
+                                data: [
+                                    'value'         => $fulfilment->stats->number_pallet_returns,
+                                    'description'   => __('Returns'),
+                                    'type'          => 'number',
+                                ]
+                            ),
+
+                            $this->getWidget(
+                                data: [
+                                    'value'         => $fulfilment->stats->number_pallets,
+                                    'description'   => __('Pallets'),
+                                    'type'          => 'number',
+                                ]
+                            ),
+
+                            $this->getWidget(
+                                data: [
+                                    'value'         => $fulfilment->stats->number_pallets_with_stored_items,
+                                    'description'   => __('Pallets with items'),
+                                    'type'          => 'number',
+                                ]
+                            ),
+
+                            $this->getWidget(
+                                data: [
+                                    'value'         => $fulfilment->stats->number_pallets_type_pallet,
+                                    'description'   => __('Pallets type pallet'),
+                                    'type'          => 'number',
+                                ]
+                            ),
+
+                            $this->getWidget(
+                                data: [
+                                    'value'         => $fulfilment->stats->number_pallets_type_box,
+                                    'description'   => __('Pallets type box'),
+                                    'type'          => 'number',
+                                ]
+                            ),
+
+                            $this->getWidget(
+                                data: [
+                                    'value'         => $fulfilment->stats->number_pallets_type_oversize,
+                                    'description'   => __('Pallets type oversize'),
+                                    'type'          => 'number',
+                                ]
+                            ),
+
+                            $this->getWidget(
+                                data: [
+                                    'value'         => $fulfilment->stats->number_stored_items,
+                                    'description'   => __('Stored items'),
+                                    'type'          => 'number',
+                                ]
+                            ),
+
+                            $this->getWidget(
+                                data: [
+                                    'value'         => $fulfilment->stats->number_recurring_bills,
+                                    'description'   => __('Recurring Bills'),
+                                    'type'          => 'number',
+                                ]
+                            ),
+
+                            $this->getWidget(
+                                data: [
+                                    'value'         => $fulfilment->stats->number_recurring_bills_status_current,
+                                    'description'   => __('Current Recurring Bills'),
+                                    'type'          => 'number',
+                                ]
+                            ),
+
+                            $this->getWidget(
+                                data: [
+                                    'value'         => $fulfilment->stats->number_recurring_bills_status_former,
+                                    'description'   => __('Former Recurring Bills'),
+                                    'type'          => 'number',
+                                ]
+                            ),
+
+                            $this->getWidget(
+                                data: [
+                                    'value'         => $fulfilment->shop->orderingStats->number_invoices,
+                                    'description'   => __('Total Invoices'),
+                                    'type'          => 'number',
+                                ]
+                            ),
+
+                            $this->getWidget(
+                                data: [
+                                    'value'         => $fulfilment->shop->orderingStats->number_unpaid_invoices,
+                                    'description'   => __('Total Unpaid Invoices'),
+                                    'type'          => 'number',
+                                ]
+                            ),
+
+                            $this->getWidget(
+                                data: [
+                                    'value'         => $fulfilment->shop->orderingStats->unpaid_invoices_amount,
+                                    'description'   => __('Amount Unpaid Invoices'),
+                                    'type'          => 'currency',
+                                    'status'        => $fulfilment->shop->orderingStats->unpaid_invoices_amount < 0 ? 'danger' : '',
+                                    'currency_code' => $fulfilment->shop->currency->code,
+                                ]
+                            ),
                         ]
-                        ],
-                    'pallet_deliveries' => [
-                        'label' => __('Deliveries'),
-                        'count' => $fulfilment->stats->number_pallet_deliveries
-                    ],
-                    'pallet_returns' => [
-                        'label' => __('Returns'),
-                        'count' => $fulfilment->stats->number_pallet_returns
-                    ],
-                    'pallets' => [
-                        'all'   => [
-                            'label' => __('Pallets'),
-                            'count' => $fulfilment->stats->number_pallets
-                        ],
-                        'pallets_with_stored_items' => [
-                            'label' => __('Pallets with items'),
-                            'count' => $fulfilment->stats->number_pallets_with_stored_items
-                        ],
-                        'pallets_type_pallet' => [
-                            'label' => __('Pallets type pallet'),
-                            'count' => $fulfilment->stats->number_pallets_type_pallet
-                        ],
-                        'pallets_type_box' => [
-                            'label' => __('Pallets type box'),
-                            'count' => $fulfilment->stats->number_pallets_type_box
-                        ],
-                        'pallets_type_oversize' => [
-                            'label' => __('Pallets type oversize'),
-                            'count' => $fulfilment->stats->number_pallets_type_oversize
-                        ],
-                    ],
-                    'stored_items' => [
-                        'label' => __('Stored items'),
-                        'count' => $fulfilment->stats->number_stored_items
-                    ],
-                    'recurring_bills' => [
-                        'all'     => [
-                            'label' => __('Recurring Bills'),
-                            'count' => $fulfilment->stats->number_recurring_bills
-                        ],
-                        'current' => [
-                            'label' => __('Current Recurring Bills'),
-                            'count' => $fulfilment->stats->number_recurring_bills_status_current
-                        ],
-                        'former' => [
-                            'label' => __('Former Recurring Bills'),
-                            'count' => $fulfilment->stats->number_recurring_bills_status_former
-                        ],
-                    ],
-                    'ordering' => [
-                        'total_invoices'     => [
-                            'label' => __('Total Invoices'),
-                            'count' => $fulfilment->shop->orderingStats->number_invoices
-                        ],
-                        'total_unpaid_invoices' => [
-                            'label' => __('Total Unpaid Invoices'),
-                            'count' => $fulfilment->shop->orderingStats->number_unpaid_invoices
-                        ],
-                        'amount_unpaid_invoices' => [
-                            'label' => __('Amount Unpaid Invoices'),
-                            'count' => $fulfilment->shop->orderingStats->unpaid_invoices_amount_org_currency
-                        ],
-                    ],
+                    ]
                 ]
 
 
