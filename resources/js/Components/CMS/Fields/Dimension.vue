@@ -24,7 +24,6 @@ const localModel = {
 // Sync with the prop value initially
 onMounted(() => {
     if (!model.value?.height && (model.value?.height !== localModel.height)) {
-        console.log('masuk')
        /*  set(model.value, 'height', localModel.height) */
         model.value = { ...model.value, ...localModel.height}
         emits('update:modelValue', model.value)
@@ -38,13 +37,12 @@ onMounted(() => {
     }
 })
 
-console.log("dimension",model.value)
 
 </script>
 
 <template>
     <div>
-        <DimensionProperty v-model="model" @update:model-value="e => console.log('sdsdsd')"/>
+        <DimensionProperty v-model="model"/>
     </div>
 </template>
 

@@ -63,6 +63,7 @@ class ShowStoredItemAudit extends OrgAction
                     'type'  => 'button',
                     'style' => 'primary',
                     'label' => __('Complete Audit'),
+                    'disabled' => false,  // TODO: disabled true if no stored items in the table
                     'route' => [
                         'method' => 'patch',
                         'name'       => 'grp.models.fulfilment-customer.stored_item_audits.complete',

@@ -251,7 +251,6 @@ class IndexPalletsInCustomer extends OrgAction
             } else {
                 $actions[] = [
                     'type'    => 'button',
-                    'style'   => 'secondary',
                     'tooltip' => __("Start customer's SKUs audit"),
                     'label'   => __("Start customer's SKUs audit"),
                     'route'   => [

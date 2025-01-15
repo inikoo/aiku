@@ -422,6 +422,10 @@ Route::patch('{storedItem:id}/stored-items/pallets', SyncStoredItemPallet::class
 Route::patch('{storedItem:id}/stored-items', MoveStoredItem::class)->name('stored-items.move');
 Route::delete('{storedItem:id}/stored-items', DeleteStoredItem::class)->name('stored-items.delete');
 
+Route::prefix('stored_item_audit-delta')->name('stored_item_audit-delta.')->group(function () {
+    Route::patch('{storedItemAuditDelta:id}', UpdateStoredItemAuditDelta::class)->name('update')->withoutScopedBindings();
+});
+
 Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
     Route::patch('', UpdateFulfilmentCustomer::class)->name('update')->withoutScopedBindings();
 
@@ -467,10 +471,6 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
         Route::post('/', StoreStoredItemAudit::class)->name('store');
         Route::patch('{storedItemAudit:id}', UpdateStoredItemAudit::class)->name('update')->withoutScopedBindings();
         Route::patch('/{storedItemAudit:id}/complete', CompleteStoredItemAudit::class)->name('complete')->withoutScopedBindings();
-    });
-
-    Route::prefix('stored_item_audit-delta')->name('stored_item_audit-delta.')->group(function () {
-        Route::patch('{storedItemAuditDelta:id}', UpdateStoredItemAuditDelta::class)->name('update')->withoutScopedBindings();
     });
 });
 

@@ -1166,7 +1166,7 @@ test('set pallet delivery as booked in', function (PalletDelivery $palletDeliver
     $palletDelivery->refresh();
 
     $fulfilmentCustomer->refresh();
-    
+
     expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKED_IN)
         ->and($palletDelivery->booked_in_at)->toBeInstanceOf(Carbon::class)
         ->and($palletDelivery->stats->number_pallets)->toBe(3)
