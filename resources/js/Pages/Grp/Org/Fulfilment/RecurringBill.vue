@@ -48,7 +48,7 @@ const props = defineProps<{
     box_stats: BoxStats
     consolidateRoute: routeType
     history: {}
-
+    currency:{}
 
 }>()
 
@@ -127,7 +127,7 @@ const isLoading = ref(false)
         
     </div>
 
-    <BoxStatsRecurringBills :boxStats="box_stats" />
+    <BoxStatsRecurringBills :boxStats="box_stats" :currency="currency" />
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />
