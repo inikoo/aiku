@@ -35,6 +35,8 @@ class UpdateStoredItemAuditDelta extends OrgAction
     public function rules(): array
     {
         return [
+            'is_new_stored_item' => ['sometimes', 'bool'],
+            'is_stored_item_new_in_pallet' => ['sometimes', 'bool'],
             'audited_at' => ['sometimes', 'date'],
             'audit_type'          => ['sometimes', Rule::enum(StoredItemAuditDeltaTypeEnum::class)],
             'state'          => ['sometimes', Rule::enum(StoredItemAuditDeltaStateEnum::class)],

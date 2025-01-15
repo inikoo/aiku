@@ -34,7 +34,9 @@ class StoreStoredItemAuditDelta extends OrgAction
             'audit_type'          => ['required', Rule::enum(StoredItemAuditDeltaTypeEnum::class)],
             'state'          => ['required', Rule::enum(StoredItemAuditDeltaStateEnum::class)],
             'audited_quantity' => ['required', 'integer', 'min:0'],
-            'original_quantity' => ['required', 'integer', 'min:0']
+            'original_quantity' => ['required', 'integer', 'min:0'],
+            'is_new_stored_item' => ['required', 'bool'],
+            'is_stored_item_new_in_pallet' => ['required', 'bool']
         ];
     }
 
