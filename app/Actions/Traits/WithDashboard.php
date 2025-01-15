@@ -18,7 +18,6 @@ use Illuminate\Support\Arr;
 
 trait WithDashboard
 {
-    protected string $currencyCode = 'usd';
     public function getIntervalOptions(): array
     {
         return collect(DateIntervalEnum::cases())->map(function ($interval) {
@@ -31,25 +30,27 @@ trait WithDashboard
     }
 
     /**
-     * data = [
-     *      'value' => number,
-     *      'description' => 'string',
-     *      'status' => (string) 'danger' | 'success' | 'information,
-     *      'type' => 'currency',
-     *      'currency_code' => 'string'
-     * ]
-     *
-     * route = [
-     *      'name' => 'string',
+     * @param string $type = 'basic'
+     * @param int $colSpan = 1
+     * @param int $rowSpan = 1
+     * @param array $route [
+     *      'name' => string,
      *      'params' => array
      * ]
-     *
-     * visual = [
-     *      'type' => 'percentage' | 'progress' | 'number',
-     *      'value' => number,
-     *      'label' => 'string',
+     * @param array $data [
+     *      'value' => float|int,
+     *      'description' => string,
+     *      'status' => 'danger'|'success'|'information',
+     *      'type' => 'currency',
+     *      'currency_code' => string
+     * ]
+     * @param array $visual [
+     *      'type' => 'percentage'|'progress'|'number',
+     *      'value' => float|int,
+     *      'label' => string,
      * ]
      *
+     * @return array
      */
 
     public function getWidget($type = 'basic', $colSpan = 1, $rowSpan = 1, array $route = [], array $data = [], array $visual = []): array
@@ -115,14 +116,14 @@ trait WithDashboard
         }
 
         $total = [
-            'total_sales'    => 0,
-            'total_invoices' => 0,
-            'total_refunds'  => 0,
+            'total_sales'    => $model->salesIntervals?->{"sales_{$keyCurrency}_currency_{$selectedInterval}"} ?? 0,
+            'total_invoices' => $model->orderingIntervals?->{"invoices_{$selectedInterval}"} ?? 0,
+            'total_refunds'  => $model->orderingIntervals?->{"refunds_{$selectedInterval}"} ?? 0,
         ];
-        $dashboard['table'] = $subModelData->map(function (Organisation|Shop $subModel) use ($selectedInterval, $model, &$dashboard, $selectedCurrency, $salesCurrency, &$total) {
+
+        $dashboard['table'] = $subModelData->map(function (Organisation|Shop $subModel) use ($selectedInterval, $model, &$dashboard, $selectedCurrency, $salesCurrency) {
             $keyCurrency = $dashboard['settings']['key_currency'];
             $currencyCode = $selectedCurrency === $keyCurrency ? $model->currency->code : $subModel->currency->code;
-            $this->currencyCode = $currencyCode;
             $responseData = [
                 'name'      => $subModel->name,
                 'slug'      => $subModel->slug,
@@ -136,20 +137,7 @@ trait WithDashboard
                     $salesCurrency,
                     $selectedInterval,
                 );
-                $total['total_sales'] += $responseData['interval_percentages']['sales']['amount'];
-                // $dashboard['widgets']['components'][] = $this->getWidget(
-                //     route: [
-                //         'name' => 'grp.org.dashboard.show',
-                //         'params' => [$model->slug]
-                //     ],
-                //     data: [
-                //         'value'         => $amount,
-                //         'description'   => __('Sales For ') . $responseData['name'],
-                //         'status'        => $amount < 0 ? 'danger' : '',
-                //         'type'          => 'currency',
-                //         'currency_code' => $currencyCode
-                //     ],
-                // );
+
             }
 
             if ($subModel->orderingIntervals !== null) {
@@ -158,7 +146,6 @@ trait WithDashboard
                     'invoices',
                     $selectedInterval,
                 );
-                $total['total_invoices'] += $responseData['interval_percentages']['invoices']['amount'];
             }
 
             if ($subModel->orderingIntervals !== null) {
@@ -167,7 +154,6 @@ trait WithDashboard
                     'refunds',
                     $selectedInterval,
                 );
-                $total['total_refunds'] = $responseData['interval_percentages']['invoices']['amount'];
             }
             return $responseData;
         })->toArray();
@@ -178,7 +164,7 @@ trait WithDashboard
             data: [
                 // 'status' => 'success',
                 'value' => $total['total_sales'],
-                'currency_code' => $this->currencyCode,
+                'currency_code' => $model->currency->code,
                 'type' => 'currency',
                 'description'   => __('Total sales')
             ],
@@ -200,8 +186,8 @@ trait WithDashboard
             data: [
                 // 'status' => 'danger',
                 'value' => $total['total_invoices'],
-                'currency_code' => $this->currencyCode,
-                'type' => 'currency',
+                'currency_code' => $model->currency->code,
+                'type' => '',
                 'description'   => __('Total invoices')
             ],
             visual: [
