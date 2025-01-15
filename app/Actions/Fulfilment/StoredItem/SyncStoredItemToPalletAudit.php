@@ -34,7 +34,7 @@ class SyncStoredItemToPalletAudit extends OrgAction
 
     public function handle(Pallet $pallet, StoredItemAudit $storedItemAudit, array $modelData): void
     {
-        dd($storedItemAudit);
+
         foreach (Arr::get($modelData, 'stored_item_ids', []) as $storedItemId => $auditData) {
 
             $isNewInPallet=true;
