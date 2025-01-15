@@ -26,6 +26,14 @@ class GetMailshotMergeTags
                 'name'  => __('Name'),
                 'value' => '[ name ]'
             ],
+            [
+                'name'  => __('Email'),
+                'value' => '[ email ]'
+            ],
+            [
+                'name'  => __('Password Reset Token'),
+                'value' => '[ password_reset_token ]'
+            ],
         ];
     }
 
