@@ -63,7 +63,7 @@ class SyncStoredItemToPalletAudit extends OrgAction
                 UpdateStoredItemAuditDelta::make()->action($storedItemAuditDelta, [
                     'audited_quantity' => $auditData['quantity'],
                     'audited_at'       => now(),
-                    'type'             => $type,
+                    'audit_type'             => $type,
                     'state'            => StoredItemAuditDeltaStateEnum::IN_PROCESS
                 ]);
             } else {

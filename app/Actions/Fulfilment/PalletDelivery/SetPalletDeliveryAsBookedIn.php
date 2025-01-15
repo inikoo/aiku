@@ -53,14 +53,14 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
         $recurringBill = $palletDelivery->fulfilmentCustomer->currentRecurringBill;
         if (!$recurringBill) {
             $recurringBill = StoreRecurringBill::make()->action(
-                rentalAgreement: $palletDelivery->fulfilmentCustomer->rentalAgreement, 
+                rentalAgreement: $palletDelivery->fulfilmentCustomer->rentalAgreement,
                 modelData: [
                 'start_date' => now(),
                 'end_date'   => now()->addMonth(),
                 'status'     => 'active'
                 ],
                 strict: true
-                );
+            );
             $palletDelivery->fulfilmentCustomer->update(['current_recurring_bill_id' => $recurringBill->id]);
             foreach ($palletDelivery->transactions as $transaction) {
                 StoreRecurringBillTransaction::make()->action(

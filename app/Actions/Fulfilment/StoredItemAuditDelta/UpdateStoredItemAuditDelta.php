@@ -10,7 +10,10 @@ namespace App\Actions\Fulfilment\StoredItemAuditDelta;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
+use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaTypeEnum;
 use App\Models\Fulfilment\StoredItemAuditDelta;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateStoredItemAuditDelta extends OrgAction
@@ -32,8 +35,10 @@ class UpdateStoredItemAuditDelta extends OrgAction
     public function rules(): array
     {
         return [
-
-            'audited_quantity' => ['sometimes', 'numeric']
+            'audited_at' => ['sometimes', 'date'],
+            'audit_type'          => ['sometimes', Rule::enum(StoredItemAuditDeltaTypeEnum::class)],
+            'state'          => ['sometimes', Rule::enum(StoredItemAuditDeltaStateEnum::class)],
+            'audited_quantity' => ['sometimes', 'integer', 'min:0']
         ];
     }
 
