@@ -89,24 +89,24 @@ class EditStoredItemDeltasResource extends JsonResource
                     'type'             => 'new_item'
                 ]),
 
-
-            // thi swill be removed
-            'auditRoute'           => [
-                'name'       => 'grp.models.pallet.stored-items.audit',
-                'parameters' => [
-                    $this->id,
-                    $this->stored_item_audit_id
-
-                ]
-            ],
-            'resetAuditRoute'      => [
-                'name'       => 'grp.models.pallet.stored-items.audit.reset',
-                'parameters' => [$this->id]
-            ],
-            'storeStoredItemRoute' => [
-                'name'       => 'grp.models.pallet.stored-items.update',
-                'parameters' => [$this->id]
-            ],
+// use routes in
+//
+//            'auditRoute'           => [
+//                'name'       => 'grp.models.pallet.stored-items.audit',
+//                'parameters' => [
+//                    $this->id,
+//                    $this->stored_item_audit_id
+//
+//                ]
+//            ],
+//            'resetAuditRoute'      => [
+//                'name'       => 'grp.models.pallet.stored-items.audit.reset',
+//                'parameters' => [$this->id]
+//            ],
+//            'storeStoredItemRoute' => [
+//                'name'       => 'grp.models.pallet.stored-items.update',
+//                'parameters' => [$this->id]
+//            ],
         ];
     }
 }
