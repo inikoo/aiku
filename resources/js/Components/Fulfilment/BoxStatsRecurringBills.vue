@@ -25,9 +25,9 @@ library.add(faQuestionCircle, faIdCardAlt, faEnvelope, faPhone, faCalendarDay, f
 const locale = inject('locale', aikuLocaleStructure)
 const props = defineProps<{
     boxStats: BoxStats
-    currency: object
+    currency?: object
 }>()
-console.log(props,'dasd');
+
 
 </script>
 
@@ -130,7 +130,7 @@ console.log(props,'dasd');
             <section aria-labelledby="summary-heading" class="rounded-lg px-4 py-4 sm:px-6 lg:mt-0">
                 <!-- <h2 id="summary-heading" class="text-lg font-medium">Order summary</h2> -->
 
-                <OrderSummary :order_summary="boxStats.order_summary" :currency_code="props.currency.data.code" />
+                <OrderSummary :order_summary="boxStats.order_summary" :currency_code="props.currency?.data?.code" />
 
                 <!-- <div class="mt-6">
                     <button type="submit"

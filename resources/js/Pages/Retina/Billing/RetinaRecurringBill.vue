@@ -18,6 +18,7 @@ import { Tabs as TSTabs } from '@/types/Tabs'
 import { BoxStats } from '@/types/Pallet'
 
 // import FileShowcase from '@/xxxxxxxxxxxx'
+import { Currency } from '@/types/LayoutRules';
 
 const props = defineProps<{
     title: string,
@@ -31,8 +32,8 @@ const props = defineProps<{
     }
     box_stats: BoxStats
     history: {},
-    
-    
+    currency:{}
+
 }>()
 
 const currentTab = ref(props.tabs.current)
@@ -72,7 +73,7 @@ const component = computed(() => {
         </div>
     </div>
 
-    <BoxStatsRecurringBills :boxStats="box_stats" />
+    <BoxStatsRecurringBills :boxStats="box_stats" :currency="currency" />
 
     <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />
