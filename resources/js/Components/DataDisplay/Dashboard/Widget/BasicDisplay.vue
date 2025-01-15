@@ -209,12 +209,10 @@ const printLabelByType = (label?: string) => {
 		<!-- Visual Progress Bar -->
 		<div v-if="visual?.type === 'MeterGroup'" class="mt-3">
 			<ProgressDashboardCard
-			label="Deliveries"
-			value="382/500"
 			:progressBar="{
-				value: 382,
-				max: 500,
-				color: 'bg-blue-500'
+				value: visual.value,
+				max: visual.max,
+				color:visual.color
 			}"
 		/>
 		</div>

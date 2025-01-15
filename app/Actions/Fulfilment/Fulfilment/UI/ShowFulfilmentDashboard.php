@@ -61,6 +61,7 @@ class ShowFulfilmentDashboard extends OrgAction
                         'column_count'    => 4,
                         'components' => [
                             $this->getWidget(
+                                rowSpan: 2,
                                 data: [
                                     'value'         => $fulfilment->stats->number_customers_status_active,
                                     'description'   => __('Active Customers'),
@@ -89,17 +90,10 @@ class ShowFulfilmentDashboard extends OrgAction
                                 ],
                                 visual: [
                                     'type' => 'MeterGroup',
-                                    'start' => 0,
-                                    'end' => 100,
-                                    'data' => [
-                                        ['label' => 'Apps', 'color' => '#34d399', 'value' => 16],
-                                        ['label' => 'Websites', 'color' => '#3b82f6', 'value' => 8],
-                                        ['label' => 'Services', 'color' => '#fbbf24', 'value' => 4],
-                                        ['label' => 'Other', 'color' => '#ef4444', 'value' => 2],
-                                        
-                                      
-                                    ],
-                                ], // TODO: Add the correct data
+                                    'value' => 382,
+                                    'max' => 500,
+                                    'color'=> 'bg-blue-500',
+                                ], 
                             ),
 
                             $this->getWidget(
