@@ -59,7 +59,13 @@ class EditStoredItemDeltasResource extends JsonResource
                 'quantity'         => (int) $item->quantity,
                 'audited_quantity' => (int) $item->audited_quantity,
                 'audit_notes'      => $item->audit_notes,
-                'type'             => 'current_item'
+                'type'             => 'current_item',
+                'update_routes'    => [
+                    'name' => 'grp.models.stored_item_audit-delta.update',
+                    'parameters' => [
+                        'storedItemAuditDelta' => $item->audit_id
+                    ]
+                ],
             ]),
 
             'new_stored_items' => $pallet->getEditNewStoredItemDeltasQuery()->get()->map(fn ($item) => [

@@ -220,7 +220,7 @@ class Pallet extends Model implements Auditable
         return DB::table('pallet_stored_items')
             ->join('stored_items', 'stored_items.id', '=', 'pallet_stored_items.stored_item_id')
             ->join('stored_item_audit_deltas', 'stored_item_audit_deltas.stored_item_id', '=', 'pallet_stored_items.stored_item_id')
-            ->select('stored_items.reference  as stored_item_reference', 'stored_items.id  as stored_item_id', 'stored_item_audit_deltas.notes as audit_notes', 'pallet_stored_items.quantity', 'stored_item_audit_deltas.audited_quantity', 'stored_item_audit_deltas.state', 'stored_item_audit_deltas.audit_type')
+            ->select('stored_items.reference  as stored_item_reference', 'stored_items.id  as stored_item_id', 'stored_item_audit_deltas.notes as audit_notes', 'pallet_stored_items.quantity', 'stored_item_audit_deltas.audited_quantity', 'stored_item_audit_deltas.state', 'stored_item_audit_deltas.audit_type', 'stored_item_audit_deltas.id as audit_id')
             ->where('pallet_stored_items.pallet_id', $this->id);
     }
 
