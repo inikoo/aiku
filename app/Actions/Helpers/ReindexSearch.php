@@ -223,7 +223,6 @@ class ReindexSearch extends HydrateModel
     {
         $command->info('Fulfillment section 🚛');
         $command->call('search:rentals');
-        $command->call('search:recurring_bills');
         $command->call('search:fulfilment_customers');
         $command->call('search:stored_items'); // not yet tested
         $command->call('search:stored_item_audits'); // not yet tested

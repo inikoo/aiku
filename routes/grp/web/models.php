@@ -117,6 +117,7 @@ use App\Actions\Fulfilment\StoredItem\UpdateStoredItem;
 use App\Actions\Fulfilment\StoredItemAudit\CompleteStoredItemAudit;
 use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
 use App\Actions\Fulfilment\StoredItemAudit\UpdateStoredItemAudit;
+use App\Actions\Fulfilment\StoredItemAuditDelta\UpdateStoredItemAuditDelta;
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\Stock\UpdateStock;
 use App\Actions\Goods\StockFamily\StoreStockFamily;
@@ -464,8 +465,12 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
 
     Route::prefix('stored-item-audits')->name('stored_item_audits.')->group(function () {
         Route::post('/', StoreStoredItemAudit::class)->name('store');
-        Route::patch('/{storedItemAudit:id}', UpdateStoredItemAudit::class)->name('update')->withoutScopedBindings();
+        Route::patch('{storedItemAudit:id}', UpdateStoredItemAudit::class)->name('update')->withoutScopedBindings();
         Route::patch('/{storedItemAudit:id}/complete', CompleteStoredItemAudit::class)->name('complete')->withoutScopedBindings();
+    });
+
+    Route::prefix('stored_item_audit-delta')->name('stored_item_audit-delta.')->group(function () {
+        Route::patch('{storedItemAuditDelta:id}', UpdateStoredItemAuditDelta::class)->name('update')->withoutScopedBindings();
     });
 });
 

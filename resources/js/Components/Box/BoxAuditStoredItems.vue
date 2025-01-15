@@ -10,10 +10,10 @@ import { Link, router } from '@inertiajs/vue3'
 
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faQuestionCircle, faEnvelope, faIdCardAlt } from '@fal'
+import { faQuestionCircle, faEnvelope, faPhone, faIdCardAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 
-library.add(faQuestionCircle, faIdCardAlt, faEnvelope)
+library.add(faQuestionCircle, faIdCardAlt, faEnvelope, faPhone)
 
 const props = defineProps<{
     auditData: PalletDelivery
@@ -46,7 +46,7 @@ onMounted(() => {
                 <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
                     aria-hidden='true' />
             </dt>
-            <dd class="text-xs text-gray-500">{{ boxStats.customer.reference }}</dd>
+            <dd class="text-base text-gray-500">{{ boxStats.customer.reference }}</dd>
             </Link>
 
             <!-- Field: Contact name -->
@@ -57,7 +57,7 @@ onMounted(() => {
                     <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ boxStats.customer.contact_name }}</dd>
+                <dd class="text-base text-gray-500">{{ boxStats.customer.contact_name }}</dd>
             </div>
 
 
@@ -69,7 +69,7 @@ onMounted(() => {
                     <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ boxStats.customer.company_name }}</dd>
+                <dd class="text-base text-gray-500">{{ boxStats.customer.company_name }}</dd>
             </div>
 
             <!-- Field: Email -->
@@ -79,7 +79,7 @@ onMounted(() => {
                     <FontAwesomeIcon icon='fal fa-envelope' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500 white w-full truncate">{{ boxStats?.customer.email }}</dd>
+                <dd class="text-base text-gray-500 white w-full truncate">{{ boxStats?.customer.email }}</dd>
             </div>
 
             <!-- Field: Phone -->
@@ -89,7 +89,7 @@ onMounted(() => {
                     <FontAwesomeIcon icon='fal fa-phone' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ boxStats?.customer.phone }}</dd>
+                <dd class="text-base text-gray-500">{{ boxStats?.customer.phone }}</dd>
             </div>
         </BoxStatPallet>
 
@@ -97,7 +97,7 @@ onMounted(() => {
         <!-- Box: Status -->
         <BoxStatPallet class="py-1 sm:py-2 px-3" :label="capitalize(auditData.reference)" icon="fal fa-truck-couch">
             <div class="mb-4 h-full w-full py-1 px-2 flex flex-col border-b border-gray-300 items-center">
-                <svg id="palletDeliveryBarcode" class="w-full h-full" />
+                <svg id="palletDeliveryBarcode" class="w-full h-full" ></svg>
                 <!-- <div class="text-xxs text-gray-500">
                     pad-{{ auditData.reference }}
                 </div> -->
@@ -109,7 +109,7 @@ onMounted(() => {
                     <FontAwesomeIcon :icon='auditData.state_icon.icon' :class='auditData.state_icon.class'
                         fixed-width aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500" :class='auditData.state_icon.class'>{{
+                <dd class="text-base text-gray-500" :class='auditData.state_icon.class'>{{
                     auditData.state_icon.tooltip }}</dd>
             </div>
             
