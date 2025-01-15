@@ -8,6 +8,8 @@ export const getStyles = (properties: any) => {
         height: (properties?.dimension?.height?.value || 0) + properties?.dimension?.height?.unit,
         width: (properties?.dimension?.width?.value || 0) + properties?.dimension?.width?.unit,
         color: properties?.text?.color || null,
+        objectFit : properties?.object_fit|| null,
+        objectPosition : properties?.object_position || null,
         fontFamily: properties?.text?.fontFamily || null,
         paddingTop: properties?.padding?.top?.value != null && properties?.padding?.unit ? 
             (properties.padding.top.value + properties.padding.unit) : null,

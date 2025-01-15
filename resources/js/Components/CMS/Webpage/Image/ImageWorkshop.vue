@@ -190,7 +190,7 @@ console.log(props.modelValue)
 </script>
 
 <template>
-	<div :style="getStyles(modelValue.container.properties)" class="flex flex-wrap">
+	<div :style="getStyles(modelValue.container.properties)" class="flex flex-wrap overflow-hidden">
 		<div
 			v-for="index in getImageSlots(modelValue?.value?.layout_type)"
 			:key="`${index}-${modelValue?.value?.images?.[index - 1]?.source?.avif}`"
@@ -200,12 +200,14 @@ console.log(props.modelValue)
 				:href="getHref(index - 1)"
 				target="_blank"
 				rel="noopener noreferrer"
-				class="transition-shadow aspect-h-1 aspect-w-1 w-full"
-				@click="(e) => isInWorkshop ? e.preventDefault() : null">
-				<pre>{{ modelValue?.value?.images?.[index - 1]?.properties }}</pre>
+				class="transition-shadow aspect-h-1 aspect-w-1 w-full overflow-hidden"
+				@click="(e) => isInWorkshop ? e.preventDefault() : null"
+				>
+		
 				<Image
+					:style="getStyles(modelValue?.value?.images?.[index - 1]?.properties)"
 					:src="modelValue?.value?.images?.[index - 1]?.source"
-					class="w-full object-cover object-center group-hover:opacity-75"
+					class="w-full group-hover:opacity-75"
 				/>
 			</a>
 
