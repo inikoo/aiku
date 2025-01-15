@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\RecurringBillTransaction;
 
+use App\Actions\Fulfilment\RecurringBill\CalculateRecurringBillTotals;
 use App\Actions\Fulfilment\RecurringBill\Hydrators\RecurringBillHydrateTransactions;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
@@ -79,7 +80,7 @@ class StoreRecurringBillTransaction extends OrgAction
         $recurringBillTransaction = CalculateRecurringBillTransactionAmounts::make()->action($recurringBillTransaction);
         $recurringBillTransaction = CalculateRecurringBillTransactionCurrencyExchangeRates::make()->action($recurringBillTransaction);
 
-
+        CalculateRecurringBillTotals::dispatch($recurringBill);
 
         RecurringBillHydrateTransactions::dispatch($recurringBill)->delay($this->hydratorsDelay);
 

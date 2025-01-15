@@ -18,7 +18,7 @@ return new class () extends Migration {
             $table->dropColumn('org_exchange');
             $table->dropColumn('source_id');
 
-            $table->decimal('unit_cost', 16, 3);
+            $table->decimal('unit_cost', 16, 3)->default(0);
             $table->decimal('discount_percentage')->default(0);
             $table->decimal('temporal_quantity', 16, 3)->default(1);
 
