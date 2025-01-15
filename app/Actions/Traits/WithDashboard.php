@@ -73,9 +73,13 @@ trait WithDashboard
             ]
         ];
 
-        $dashboard['table'] = $subModelData->map(function (Organisation|Shop $subModel) use ($selectedInterval, $model, &$dashboard, $userSettings) {
+        $selectedCurrency = Arr::get($userSettings, 'selected_currency_in_' . $keyCurrency, 'grp');
+        $salesCurrency = 'sales_'.$selectedCurrency.'_currency';
+        if ($selectedCurrency === 'shop') {
+            $salesCurrency = 'sales';
+        }
+        $dashboard['table'] = $subModelData->map(function (Organisation|Shop $subModel) use ($selectedInterval, $model, &$dashboard, $selectedCurrency, $salesCurrency) {
             $keyCurrency = $dashboard['settings']['key_currency'];
-            $selectedCurrency = Arr::get($userSettings, 'selected_currency_in_' . $keyCurrency, 'grp');
             $currencyCode = $selectedCurrency === $keyCurrency ? $model->currency->code : $subModel->currency->code;
             $responseData = [
                 'name'      => $subModel->name,
@@ -85,10 +89,6 @@ trait WithDashboard
                 'currency_code'  => $currencyCode,
             ];
             if ($subModel->salesIntervals !== null) {
-                $salesCurrency = 'sales_'.$selectedCurrency.'_currency';
-                if ($selectedCurrency === 'shop') {
-                    $salesCurrency = 'sales';
-                }
                 $dashboard['widgets']['column_count']++;
                 $responseData['interval_percentages']['sales'] = $this->getIntervalPercentage(
                     $subModel->salesIntervals,
@@ -135,7 +135,7 @@ trait WithDashboard
         })->toArray();
 
         $dashboard['total'] = [
-            'total_sales'    => $subModelData->sum(fn ($data) => $data->salesIntervals?->{"sales_org_currency_" . $selectedInterval} ?? 0),
+            'total_sales'    => $subModelData->sum(fn ($data) => $data->salesIntervals?->{$salesCurrency. '_' . $selectedInterval} ?? 0),
             'total_invoices' => $subModelData->sum(fn ($data) => $data->orderingIntervals?->{"invoices_{$selectedInterval}"} ?? 0),
             'total_refunds'  => $subModelData->sum(fn ($data) => $data->orderingIntervals?->{"refunds_{$selectedInterval}"} ?? 0),
         ];
