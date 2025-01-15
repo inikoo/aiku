@@ -17,7 +17,7 @@ import { debounce } from "lodash"
 import { useForm } from "@inertiajs/vue3"
 import { faCloud, faCompressWide, faExpandArrowsAlt, faSearch, faSpinner } from "@fal"
 import { faMinus, faPlus, faSave, faUndo } from "@fas"
-import QuantityInput from "./ QuantityInput.vue"
+import QuantityInput from "./QuantityInput.vue"
 import { notify } from "@kyvg/vue3-notification"
 import { trans } from "laravel-vue-i18n"
 
