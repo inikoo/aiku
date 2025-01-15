@@ -22,15 +22,14 @@ class GetNotExistImages
     {
         $media = Media::all();
 
-        $empties = '';
+        $empties = "";
         foreach ($media as $m) {
             if (!File::exists($m->getPath())) {
-                $strempty = 'id: '.$m->id. ' file_name:' . $m->file_name .' path: '.$m->getPath() . '\n';
+                $strempty = 'id: '.$m->id. ' file_name: ' . $m->file_name .' path: '.$m->getPath() . "\n";
                 $empties .= $strempty;
-                print $strempty;
+                print 'id: '.$m->id. ' file_name:' . $m->file_name. "\n";
             }
         }
-
         if (!empty($empties)) {
             $filePath = storage_path('logs/list_images_not_exists.log');
             File::append($filePath, $empties);
