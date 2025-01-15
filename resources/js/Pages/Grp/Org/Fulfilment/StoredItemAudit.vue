@@ -378,19 +378,23 @@ const onChangeNumber = debounce((routeUpdate: routeType, row: number, stored_ite
                 
             </div> -->
             
-            <StoredItemsProperty
-                :pallet="item"
-                :storedItemsRoute="storedItemsRoute"
-                :editable="true"
-                :saveRoute="item.auditRoute"
-                class="mt-2"
-                title="Add stored item"
-            >
-                <template #default="{ openModal }">
-                    <Button @click="openModal" type="dashed" icon="fal fa-plus" fuxll label="Add stored item" />
-                </template>
-            </StoredItemsProperty>
+
         </template>
+
+      <template #cell(actions)="{ item }">
+        <StoredItemsProperty
+          :pallet="item"
+          :storedItemsRoute="storedItemsRoute"
+          :editable="true"
+          :saveRoute="item.auditRoute"
+          class="mt-2"
+          title="Add stored item"
+        >
+          <template #default="{ openModal }">
+            <Button @click="openModal" type="dashed" icon="fas fa-plus" fuxll :label="trans('Customer\'s SKU')" />
+          </template>
+        </StoredItemsProperty>
+      </template>
 
         <!-- Column: edited -->
         <template #cell(audits)="{ item }">

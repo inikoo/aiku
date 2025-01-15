@@ -116,6 +116,7 @@ class EditStoredItemDeltasInAudit extends OrgAction
             $table->column(key: 'reference', label: __('pallet reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'customer_reference', label: __("Pallet customer's reference"), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'stored_items', label: __("Customer's SKUs"), canBeHidden: false);
+            $table->column(key: 'actions', label: '', canBeHidden: false);
 
             $table->defaultSort('reference');
         };
