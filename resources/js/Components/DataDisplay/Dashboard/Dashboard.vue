@@ -46,14 +46,14 @@ const toggleCurrency = () => {
 	<div>
 		
 		<DashboardSettings
-		v-if="props.dashboard.settings"
+		v-if="props.dashboard?.settings"
 			@toggle-currency="toggleCurrency"
 			:intervalOptions="props.dashboard?.interval_options"
 			:settings="props.dashboard?.settings"
 		/>
 		
 		<DashboardTable
-			v-if="props.dashboard.table"
+			v-if="props.dashboard?.table"
 			:tableData="tableDatas"
 			:locale="locale"
 			:totalAmount="props.dashboard.total"
@@ -61,7 +61,7 @@ const toggleCurrency = () => {
 		/>
 
 		<DashboardWidget 
-		v-if="props.dashboard.widgets"
+		v-if="props.dashboard?.widgets"
 		:widgetsData="dashboard.widgets" />
 	</div>
 </template>
