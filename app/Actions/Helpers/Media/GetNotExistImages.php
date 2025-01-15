@@ -33,6 +33,7 @@ class GetNotExistImages
         if (!empty($empties)) {
             $filePath = storage_path('logs/list_images_not_exists.log');
             File::append($filePath, $empties);
+            dd('List of images that do not exist has been saved in ' . $filePath);
         }
     }
 
