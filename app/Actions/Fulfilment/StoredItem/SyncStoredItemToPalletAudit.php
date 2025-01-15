@@ -34,6 +34,9 @@ class SyncStoredItemToPalletAudit extends OrgAction
     public function handle(Pallet $pallet, StoredItemAudit $storedItemAudit, array $modelData): void
     {
         foreach (Arr::get($modelData, 'stored_item_ids', []) as $storedItemId => $auditData) {
+
+            $isNewInPallet=true;
+            $isNewStoredItem=false;
             $storedItemExist = $pallet->storedItems()->where(
                 'stored_item_id',
                 $storedItemId
@@ -44,7 +47,11 @@ class SyncStoredItemToPalletAudit extends OrgAction
                     'stored_item_id',
                     $storedItemId
                 )->count();
+                $isNewInPallet=false;
             }
+
+            //$isNewStoredItem  <-- check the stored item if state==in_processs this valuee will be true
+
 
             if ($storedItemExist) {
                 if ($originalQty > $auditData['quantity']) {
@@ -74,7 +81,9 @@ class SyncStoredItemToPalletAudit extends OrgAction
                     'audited_quantity'  => $auditData['quantity'],
                     'audited_at'        => now(),
                     'audit_type'              => $type,
-                    'state'             => StoredItemAuditDeltaStateEnum::IN_PROCESS
+                    'state'             => StoredItemAuditDeltaStateEnum::IN_PROCESS,
+                    'is_new_stored_item'=>$isNewStoredItem,
+                    'is_stored_item_new_in_pallet'=>$isNewInPallet
                 ]);
             }
         }
