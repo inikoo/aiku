@@ -68,9 +68,8 @@ class EditStoredItemDeltasResource extends JsonResource
                 'quantity'         => 0,
                 'audited_quantity' => (int) $item->audited_quantity,
                 'update_routes'    => [
-                    'name' => 'grp.models.fulfilment-customer.stored_item_audit-delta.update',
+                    'name' => 'grp.models.stored_item_audit-delta.update',
                     'parameters' => [
-                        'fulfilmentCustomer' => $pallet->fulfilment_customer_id,
                         'storedItemAuditDelta' => $item->audit_id
                     ]
                 ],

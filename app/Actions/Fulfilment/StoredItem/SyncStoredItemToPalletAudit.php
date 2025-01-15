@@ -60,16 +60,14 @@ class SyncStoredItemToPalletAudit extends OrgAction
 
             $storedItemAuditDelta = $storedItemAudit->deltas()->where('pallet_id', $pallet->id)->where('stored_item_id', $storedItemId)->first();
             if ($storedItemAuditDelta) {
-                UpdateStoredItemAuditDelta::run($storedItemAuditDelta, [
+                UpdateStoredItemAuditDelta::make()->action($storedItemAuditDelta, [
                     'audited_quantity' => $auditData['quantity'],
                     'audited_at'       => now(),
-                    'type'             => $type,
+                    'audit_type'             => $type,
                     'state'            => StoredItemAuditDeltaStateEnum::IN_PROCESS
                 ]);
             } else {
-                StoreStoredItemAuditDelta::run($storedItemAudit, [
-                    'group_id'          => $pallet->group_id,
-                    'organisation_id'   => $pallet->organisation_id,
+                StoreStoredItemAuditDelta::make()->action($storedItemAudit, [
                     'pallet_id'         => $pallet->id,
                     'stored_item_id'    => $storedItemId,
                     'original_quantity' => $originalQty,

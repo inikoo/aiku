@@ -19,6 +19,16 @@
 							"original": null
 						}
 					},
+					"dimension": {
+						"height": {
+							"value": "335",
+							"unit": "px"
+						},
+						"width": {
+							"value": "100",
+							"unit": "%"
+						}
+					},
 					"padding": {
 						"unit": "px",
 						"top": {

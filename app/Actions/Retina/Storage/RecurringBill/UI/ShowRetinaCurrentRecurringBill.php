@@ -14,6 +14,7 @@ use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\RecurringBillResource;
 use App\Http\Resources\Fulfilment\RecurringBillTransactionsResource;
+use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\StoredItem;
 use Inertia\Inertia;
@@ -69,6 +70,7 @@ class ShowRetinaCurrentRecurringBill extends RetinaAction
                     'end_date'   => $recurringBill->end_date
                 ],
                 'status_rb'   => $recurringBill->status,
+                'currency'                => CurrencyResource::make($recurringBill->currency),
                 'box_stats'   => [
                     'customer'      => FulfilmentCustomerResource::make($recurringBill->fulfilmentCustomer),
                     'stats'         => [

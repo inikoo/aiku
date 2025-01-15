@@ -17,6 +17,7 @@ use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\RecurringBillResource;
 use App\Http\Resources\Fulfilment\RecurringBillTransactionsResource;
+use App\Http\Resources\Helpers\CurrencyResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -109,6 +110,7 @@ class ShowRecurringBill extends OrgAction
                     'model' => __('Recurring Bill'),
                     'title' => $recurringBill->slug,
                 ],
+                'currency'                => CurrencyResource::make($recurringBill->currency),
                 'updateRoute'      => [
                     'name'       => 'grp.models.recurring-bill.update',
                     'parameters' => [$recurringBill->id]

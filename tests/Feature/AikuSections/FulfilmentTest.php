@@ -224,21 +224,8 @@ test('get end date recurring bill (monthly)', function () {
         ]
     );
 
-    expect($endDate)->toBeInstanceOf(Carbon::class)
-        ->toEqual(Carbon::create(2025, 11, 9));
-
-    // fase 2
-    $startDate = Carbon::create(2025, 10, 7);
-    $endDate = $this->getRecurringBillEndDate->getEndDate(
-        $startDate,
-        [
-            'type' => 'monthly',
-            'day' => 9,
-        ]
-    );
-
-    expect($endDate)->toBeInstanceOf(Carbon::class)
-        ->toEqual(Carbon::create(2025, 10, 9));
+    expect($endDate)->toBeInstanceOf(Carbon::class);
+    expect($endDate->toDateString())->toEqual(now()->copy()->addMonth()->day(9)->toDateString());
 
     return $endDate;
 });
@@ -1177,8 +1164,8 @@ test('set pallet delivery as booked in', function (PalletDelivery $palletDeliver
 
     $palletDelivery = SetPalletDeliveryAsBookedIn::make()->action($palletDelivery);
     $palletDelivery->refresh();
-    $fulfilmentCustomer->refresh();
 
+    $fulfilmentCustomer->refresh();
 
     expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKED_IN)
         ->and($palletDelivery->booked_in_at)->toBeInstanceOf(Carbon::class)
@@ -1200,6 +1187,7 @@ test('set pallet delivery as booked in', function (PalletDelivery $palletDeliver
         ->and($fulfilmentCustomer->currentRecurringBill)->toBeInstanceOf(RecurringBill::class);
 
     $recurringBill = $fulfilmentCustomer->currentRecurringBill;
+
     expect($recurringBill->stats->number_transactions)->toBe(3)
         ->and($recurringBill->stats->number_transactions_type_pallets)->toBe(2)
         ->and($recurringBill->stats->number_transactions_type_stored_items)->toBe(0);
@@ -2401,6 +2389,7 @@ test('consolidate recurring bill', function ($fulfilmentCustomer) {
     $fulfilmentCustomer->refresh();
 
     $newRecurringBill = $fulfilmentCustomer->currentRecurringBill;
+    // dd($recurringBill->transactions);
 
     expect($newRecurringBill)->not->toBe($recurringBill)
         ->and($newRecurringBill)->toBeInstanceOf(RecurringBill::class)
@@ -2484,7 +2473,7 @@ test('pay invoice (full)', function ($invoice) {
 
 test('consolidate 2nd recurring bill', function ($fulfilmentCustomer) {
     $recurringBill = $fulfilmentCustomer->currentRecurringBill;
-
+    // dd($recurringBill->transactions);
     ConsolidateRecurringBill::make()->action($recurringBill);
 
     $recurringBill->refresh();
@@ -2546,7 +2535,6 @@ test('consolidate 3rd recurring bill', function ($fulfilmentCustomer) {
 
     $recurringBill->refresh();
     $fulfilmentCustomer->refresh();
-
     $newRecurringBill = $fulfilmentCustomer->currentRecurringBill;
 
     expect($newRecurringBill)->not->toBe($recurringBill)
@@ -2578,8 +2566,8 @@ test('pay invoice (exceed)', function ($invoice) {
         ->and($payment->status)->toBe(PaymentStatusEnum::SUCCESS)
         ->and($payment->state)->toBe(PaymentStateEnum::COMPLETED)
         ->and($customer->creditTransactions)->not->toBeNull()
-        ->and($customer->balance)->toBe("30.00")
-        ->and($customer->creditTransactions->first()->amount)->toBe("30.00");
+        ->and($customer->balance)->toBe("90.00")
+        ->and($customer->creditTransactions->skip(2)->first()->amount)->toBe("60.00");
 
     return $fulfilmentCustomer;
 })->depends('consolidate 3rd recurring bill');

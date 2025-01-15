@@ -56,12 +56,13 @@ class EditStoredItemDeltasInAudit extends OrgAction
         $query->where('pallets.status', PalletStatusEnum::STORING);
         $query->where('pallets.state', PalletStateEnum::STORING);
 
-
+        $query->leftJoin('locations', 'pallets.location_id', '=', 'locations.id');
 
         $query->defaultSort('pallets.id')
 
             ->select(
                 'pallets.id',
+                'pallets.slug',
                 'pallets.slug',
                 'pallets.reference',
                 'pallets.customer_reference',
@@ -75,6 +76,7 @@ class EditStoredItemDeltasInAudit extends OrgAction
                 'pallets.warehouse_id',
                 'pallets.pallet_delivery_id',
                 'pallets.pallet_return_id',
+                'locations.code as location_code',
             )->selectRaw("$storedItemAudit->id. as stored_item_audit_id");
 
 
@@ -109,6 +111,7 @@ class EditStoredItemDeltasInAudit extends OrgAction
                 ->withModelOperations($modelOperations);
 
 
+            $table->column(key: 'location_code', label: __('location'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
             $table->column(key: 'reference', label: __('pallet reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'customer_reference', label: __("Pallet customer's reference"), canBeHidden: false, sortable: true, searchable: true);
