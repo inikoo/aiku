@@ -361,13 +361,13 @@ const activeTab = ref(tabs.value[0].value)
 						<Column
 							v-tooltip="
 								useLocaleStore().currencyFormat(
-									'usd',
+									'GBP',
 									Number(totalAmount.total_sales)
 								)
 							"
 							:footer="
 								useLocaleStore().CurrencyShort(
-									'usd',
+									'GBP',
 									Number(totalAmount.total_sales)
 								)
 							"

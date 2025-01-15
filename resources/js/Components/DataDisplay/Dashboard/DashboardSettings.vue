@@ -7,7 +7,6 @@ import ToggleSwitch from "primevue/toggleswitch"
 import { get } from "lodash"
 
 const props = defineProps<{
-	groupCurrencySymbol: string
 	intervalOptions: {
 		label: string
 		value: string
@@ -24,10 +23,6 @@ const props = defineProps<{
 			label: string
 		}[]
 	}
-
-	dashboard: any
-	selectedDateOption: string
-	isOrganisation: boolean
 }>()
 
 
