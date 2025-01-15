@@ -18,6 +18,7 @@ use Illuminate\Support\Arr;
 
 trait WithDashboard
 {
+    protected string $currencyCode = 'usd';
     public function getIntervalOptions(): array
     {
         return collect(DateIntervalEnum::cases())->map(function ($interval) {
@@ -121,6 +122,7 @@ trait WithDashboard
         $dashboard['table'] = $subModelData->map(function (Organisation|Shop $subModel) use ($selectedInterval, $model, &$dashboard, $selectedCurrency, $salesCurrency, &$total) {
             $keyCurrency = $dashboard['settings']['key_currency'];
             $currencyCode = $selectedCurrency === $keyCurrency ? $model->currency->code : $subModel->currency->code;
+            $this->currencyCode = $currencyCode;
             $responseData = [
                 'name'      => $subModel->name,
                 'slug'      => $subModel->slug,
@@ -172,15 +174,49 @@ trait WithDashboard
 
         $dashboard['total'] = $total;
 
-        $dashboard['widgets']['components'] = [
-            $this->getWidget(
-                visual: [
-                    'type' => 'number',
-                    'value' => $total['total_sales'],
-                    'label' => __('Total Sales')
-                ]
-            ),
-        ];
+        $dashboard['widgets']['components'][] = $this->getWidget(
+            data: [
+                // 'status' => 'success',
+                'value' => $total['total_sales'],
+                'currency_code' => $this->currencyCode,
+                'type' => 'currency',
+                'description'   => __('Total sales')
+            ],
+            visual: [
+                'type' => 'doughnut',
+                'value' => [
+                    'labels'  => ['AWA', 'ES', 'Aroma'],
+                    'datasets'    => [
+                        [
+                            'data'    => [600, 297000, 27145],
+                        ]
+                    ]
+                ],
+                // 'label' => __('Total Sales')
+            ]
+        );
+
+        $dashboard['widgets']['components'][] = $this->getWidget(
+            data: [
+                // 'status' => 'danger',
+                'value' => $total['total_invoices'],
+                'currency_code' => $this->currencyCode,
+                'type' => 'currency',
+                'description'   => __('Total invoices')
+            ],
+            visual: [
+                'type' => 'bar',
+                'value' => [
+                    'labels'  => ['AWA', 'ES', 'Aroma'],
+                    'datasets'    => [
+                        [
+                            'data'    => [125, 403, 78],
+                        ]
+                    ]
+                ],
+                // 'label' => __('Total Invoice')
+            ]
+        );
 
         return $dashboard;
     }

@@ -8,6 +8,7 @@ import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import ProgressBar from "primevue/progressbar"
 import { values } from "lodash"
 import ChartDashboardDynamic from "../../ChartDashboardDynamic.vue"
+import Chart from 'primevue/chart'
 
 library.add(faCheck, faExclamation, faInfo, faPlay)
 
@@ -103,6 +104,19 @@ const widgets = {
 	],
 }
 
+// const getTypeVisualComponent = (type: string) => {
+// 	switch (type) {
+// 		case "chart":
+// 			return Chart
+// 		// case "percentage":
+// 		// 	return FontAwesomeIcon
+// 		// case "chart":
+// 		// 	return ChartDashboardDynamic
+// 		default:
+// 			return null
+// 	}
+// }
+
 const locale = inject("locale", aikuLocaleStructure)
 
 const getStatusColor = (status: string) => {
@@ -155,8 +169,18 @@ const printLabelByType = (label?: string) => {
 	}
 }
 
-const chartLabels = ["1", "2", "3", "4", "5", "6", "7", "8"]
-const chartData = [10, 20, 15, 25, 20, 18, 22, 10]
+// const chartLabels = ["1", "2", "3", "4", "5", "6", "7", "8"]
+// const chartData = [10, 20, 15, 25, 20, 18, 22, 10]
+// const dummyChartData = {
+// 	labels: ['A', 'B', 'C'],
+// 	datasets: [
+// 		{
+// 			data: [540, 325, 702],
+// 			// backgroundColor: [documentStyle.getPropertyValue('--p-cyan-500'), documentStyle.getPropertyValue('--p-orange-500'), documentStyle.getPropertyValue('--p-gray-500')],
+// 			// hoverBackgroundColor: [documentStyle.getPropertyValue('--p-cyan-400'), documentStyle.getPropertyValue('--p-orange-400'), documentStyle.getPropertyValue('--p-gray-400')]
+// 		}
+// 	]
+// }
 </script>
 
 <template>
@@ -177,7 +201,7 @@ const chartData = [10, 20, 15, 25, 20, 18, 22, 10]
 				{{ printLabelByType(widgetData.value) }}
 			</span>
 		</p>
-		<p class="text-base mt-2">{{ widgetData.description }}</p>
+		<p class="text-base text-gray-500">{{ widgetData.description }}</p>
 
 		<!-- Visual Progress Bar -->
 		<div v-if="visual?.type === 'progress'" class="mt-3">
@@ -212,9 +236,39 @@ const chartData = [10, 20, 15, 25, 20, 18, 22, 10]
 				" />
 		</div>
 
-		<div v-if="visual?.type === 'chart'">
+		<Chart
+			v-else-if="visual?.type == 'pie'"
+			type="pie"
+			:labels="'visual?.label'"
+			:data="visual.value"
+		/>
+
+		<Chart
+			v-else-if="visual?.type == 'bar'"
+			type="bar"
+			:labels="'visual?.label'"
+			:data="visual.value"
+		/>
+		
+		<Chart
+			v-else-if="visual?.type == 'line'"
+			type="line"
+			:labels="'visual?.label'"
+			:data="visual.value"
+		/>
+
+		<Chart
+			v-else-if="visual?.type == 'doughnut'"
+			type="doughnut"
+			:labels="'visual?.label'"
+			:data="visual.value"
+		/>
+
+		<!-- <div v-if="visual?.type === 'chart'">
 			<ChartDashboardDynamic :labels="visual?.label" :dataset="visual.value" lineColor="#00D8FF" />
-		</div>
+		</div> -->
+
+		
 
 		<!-- Conditional Red Exclamation Icon -->
 		<div

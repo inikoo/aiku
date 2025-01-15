@@ -11,6 +11,9 @@ import Tabs from "primevue/tabs"
 import TabList from "primevue/tablist"
 import Tab from "primevue/tab"
 
+import { useTabChange } from "@/Composables/tab-change"
+
+
 const props = defineProps<{
 	tableData: {}
 	locale: any
@@ -22,24 +25,28 @@ const props = defineProps<{
 	selectedDateOption: String
 }>()
 
+
 const tabs = ref([
 	{ title: "Home", value: "home" },
 	{ title: "Profile", value: "profile" },
 	{ title: "Settings", value: "settings" },
 ])
 
-const activeTab = ref(tabs.value[0].value)
+const activeTab = ref(tabs.value[1].value)
 </script>
+
 <template>
 	<div class="bg-white mb-2 text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
 		<div class="mt-2">
-			<Tabs v-model:value="activeTab">
+			{{ activeTab }}
+			<Tabs :value="activeTab">
 				<TabList>
 					<Tab v-for="tab in tabs" :key="tab.title" :value="tab.value">{{
 						tab.title
 					}}</Tab>
 				</TabList>
 			</Tabs>
+			
 			<DataTable :value="tableData" removableSort>
 				<Column sortable>
 					<template #header>
