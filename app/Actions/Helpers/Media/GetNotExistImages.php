@@ -22,12 +22,20 @@ class GetNotExistImages
     {
         $media = Media::all();
 
+        $extensions = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'];
         $empties = "";
         foreach ($media as $m) {
+            // check if file images
+            $filename = $m->file_name;
+            $fileExtension = pathinfo($filename, PATHINFO_EXTENSION);
+            if (!in_array(strtolower($fileExtension), $extensions)) {
+                continue;
+            }
+
             if (!File::exists($m->getPath())) {
-                $strempty = 'id: '.$m->id. ' file_name: ' . $m->file_name .' path: '.$m->getPath() . "\n";
+                $strempty = 'id: '.$m->id. ' file_name: ' . $filename .' path: '.$m->getPath() . "\n";
                 $empties .= $strempty;
-                print 'id: '.$m->id. ' file_name:' . $m->file_name. "\n";
+                print 'id: '.$m->id. ' file_name:' . $filename. "\n";
             }
         }
         if (!empty($empties)) {
