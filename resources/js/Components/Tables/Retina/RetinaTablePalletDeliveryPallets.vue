@@ -143,7 +143,7 @@ const typePallet = [
 		<template #cell(stored_items)="{ item }">
             <StoredItemsProperty
                 :pallet="item"
-				:saveRoute="item.auditRoute"
+				:saveRoute="item.storeStoredItemRoute"
 				:storedItemsRoute="storedItemsRoute"
                 :state="props.state"
 				:editable="props.state == 'in_process'"
