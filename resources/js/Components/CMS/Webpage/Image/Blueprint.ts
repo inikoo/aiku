@@ -10,6 +10,12 @@ export default {
             type: "background",
           },
           {
+            key: ["dimension"],
+            type: "dimension",
+            label : "Dimension",
+            props_data: {},
+          },
+          {
             key: ["padding"],
             label:"Padding",
             type: "padding",
@@ -35,11 +41,11 @@ export default {
             label:"Layout",
             type: "layout_type",
           },
-          /* {
+          {
             label: "Images",
             key: ["images"],
             type: "images-property",
-          } */
+          }
         ],
       },
      

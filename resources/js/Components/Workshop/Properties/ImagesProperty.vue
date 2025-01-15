@@ -3,10 +3,8 @@ import { faBorderTop, faBorderLeft, faBorderBottom, faBorderRight, faBorderOuter
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faLink, faUnlink } from "@fal";
 import { faExclamation, faCaretDown, faCaretLeft } from "@fas";
-
-import { ref, watch } from "vue";
-import PureInputNumber from "@/Components/Pure/PureInputNumber.vue";
 import SideEditor from "../SideEditor/SideEditor.vue";
+import { watch } from "vue";
 
 library.add(faExclamation, faBorderTop, faBorderLeft, faBorderBottom, faBorderRight, faBorderOuter, faLink, faUnlink, faCaretDown, faCaretLeft);
 
@@ -15,8 +13,8 @@ const emit = defineEmits(['update:modelValue']);
 const model = defineModel()
 
 const blueprint = [
-    {
-        key: ["dimension"],
+    /* {
+        key: ['image',"dimension"],
         label: "Dimension",
         type: "dimension",
         props_data: {
@@ -33,7 +31,7 @@ const blueprint = [
         }
     },
     {
-        key: ["padding"],
+        key: ['cover',"padding"],
         label: "Padding",
         type: "padding",
         props_data: {
@@ -113,8 +111,84 @@ const blueprint = [
                 }
             }
         }
+    }, */
+    {
+        key: ["object_fit"],
+        label: "Object Image",
+        type: "select",
+        props_data: {
+            placeholder : 'Object',
+            options : [
+                {
+                    label : 'contain',
+                    value :  'contain' 
+                },
+                {
+                    label : 'cover',
+                    value :  'cover' 
+                },
+                {
+                    label : 'none',
+                    value :  'none' 
+                },
+                {
+                    label : 'scale-down',
+                    value :  'scale-down' 
+                },
+            ]
+        }
+    },
+    {
+        key: ["object_position"],
+        label: "Object Position",
+        type: "select",
+        props_data: {
+            placeholder : 'Object',
+            options : [
+                {
+                    label : 'Bottom',
+                    value :  'bottom' 
+                },
+                {
+                    label : 'Center',
+                    value :  'center' 
+                },
+                {
+                    label : 'Left',
+                    value :  'left' 
+                },
+                {
+                    label : 'Right',
+                    value :  'right' 
+                },
+                {
+                    label : 'Top',
+                    value :  'top' 
+                },
+                {
+                    label : 'Left Bottom',
+                    value :  'left bottom' 
+                },
+                {
+                    label : 'Left Top',
+                    value :  'left top' 
+                },
+                {
+                    label : 'Right Bottom',
+                    value :  'right bottom' 
+                },
+                {
+                    label : 'Right Top',
+                    value :  'right top' 
+                },
+            ]
+        }
     },
 ]
+
+watch((model),(newValue)=>{
+    console.log(newValue)
+})
 
 </script>
 
@@ -123,7 +197,7 @@ const blueprint = [
         <SideEditor 
             :blueprint="blueprint" 
             v-model="model" 
-            @input="(e) => (console.log('imagesProperty', e))" />
+            @update:model-value="(e) => (console.log('imagesProperty', e))" />
     </div>
 </template>
 
