@@ -108,7 +108,7 @@ const sendToServer = async (data : {}) => {
             </div>
         </slot>
 
-        <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-[600px]">
+        <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-[400px]">
             <div class="space-y-4">
                 <CreateStoredItems
                     :storedItemsRoute="storedItemsRoute"
