@@ -8,6 +8,8 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
+use App\Actions\Fulfilment\StoredItemAuditDelta\StoreStoredItemAuditDelta;
+use App\Actions\Fulfilment\StoredItemAuditDelta\UpdateStoredItemAuditDelta;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
 use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaTypeEnum;
@@ -56,19 +58,16 @@ class SyncStoredItemToPalletAudit extends OrgAction
                 $type = StoredItemAuditDeltaTypeEnum::SET_UP;
             }
 
-
             $storedItemAuditDelta = $storedItemAudit->deltas()->where('pallet_id', $pallet->id)->where('stored_item_id', $storedItemId)->first();
             if ($storedItemAuditDelta) {
-                //UpdateStoredItemAuditDelta
-                $storedItemAuditDelta->update([
+                UpdateStoredItemAuditDelta::run($storedItemAuditDelta, [
                     'audited_quantity' => $auditData['quantity'],
                     'audited_at'       => now(),
                     'type'             => $type,
                     'state'            => StoredItemAuditDeltaStateEnum::IN_PROCESS
                 ]);
             } else {
-                //StoreStoredItemAuditDelta
-                $storedItemAudit->deltas()->create([
+                StoreStoredItemAuditDelta::run($storedItemAudit, [
                     'group_id'          => $pallet->group_id,
                     'organisation_id'   => $pallet->organisation_id,
                     'pallet_id'         => $pallet->id,

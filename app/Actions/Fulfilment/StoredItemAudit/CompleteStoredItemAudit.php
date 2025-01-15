@@ -41,7 +41,7 @@ class CompleteStoredItemAudit extends OrgAction
 
             if ($storedItemAuditDelta->audit_type === StoredItemAuditDeltaTypeEnum::SET_UP) {
                 AttachStoredItemToPallet::run($pallet, $storedItemAuditDelta->storedItem, $storedItemAuditDelta->quantity);
-            } elseif ($pallet->storedItems()->where('stored_item_id', $storedItemAuditDelta->stored_item_id)->first()->quantity) {
+            } elseif ($storedItemAuditDelta->audited_quantity == 0) {
                 DetachStoredItemToPallet::run($pallet, $storedItemAuditDelta->storedItem);
             } else {
                 UpdateStoredItemToPallet::run($pallet, $storedItemAuditDelta->storedItem, $storedItemAuditDelta->quantity);

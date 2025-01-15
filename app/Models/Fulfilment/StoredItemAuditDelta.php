@@ -10,6 +10,8 @@ namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
 use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaTypeEnum;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -59,6 +61,16 @@ class StoredItemAuditDelta extends Model
     protected $attributes = [
         'data' => '{}'
     ];
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
+    }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
 
     public function storedItemAudit(): BelongsTo
     {

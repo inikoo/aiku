@@ -8,7 +8,13 @@
 
 namespace App\Actions\Fulfilment\StoredItemAuditDelta;
 
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateStoredItemAudits;
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItemAudits;
+use App\Actions\Fulfilment\StoredItemAudit\Search\StoredItemAuditRecordSearch;
+use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateStoredItemAudits;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStoredItemAudits;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateStoredItemAudits;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItemAudit;
@@ -28,11 +34,18 @@ class UpdateStoredItemAuditDelta extends OrgAction
      */
     private StoredItemAuditDelta $storedItemAuditDelta;
 
-    public function handle(StoredItemAuditDelta $storedItemAuditDelta, array $modelData): StoredItemAudit
+    public function handle(StoredItemAuditDelta $storedItemAuditDelta, array $modelData): StoredItemAuditDelta
     {
+        /** @var StoredItemAuditDelta $storedItemAuditDelta */
         $storedItemAuditDelta = $this->update($storedItemAuditDelta, $modelData, ['data']);
 
-        // Hydrators
+        GroupHydrateStoredItemAudits::dispatch($storedItemAuditDelta->group);
+        OrganisationHydrateStoredItemAudits::dispatch($storedItemAuditDelta->organisation);
+        WarehouseHydrateStoredItemAudits::dispatch($storedItemAuditDelta->storedItemAudit->warehouse);
+        FulfilmentHydrateStoredItemAudits::dispatch($storedItemAuditDelta->storedItemAudit->fulfilment);
+        FulfilmentCustomerHydrateStoredItemAudits::dispatch($storedItemAuditDelta->storedItemAudit->fulfilmentCustomer);
+
+        StoredItemAuditRecordSearch::dispatch($storedItemAuditDelta->storedItemAudit);
 
         return $storedItemAuditDelta;
     }
@@ -66,7 +79,7 @@ class UpdateStoredItemAuditDelta extends OrgAction
         ];
     }
 
-    public function asController(FulfilmentCustomer $fulfilmentCustomer, StoredItemAuditDelta $storedItemAuditDelta, ActionRequest $request): StoredItemAudit
+    public function asController(FulfilmentCustomer $fulfilmentCustomer, StoredItemAuditDelta $storedItemAuditDelta, ActionRequest $request): StoredItemAuditDelta
     {
         $this->fulfilmentCustomer      = $storedItemAuditDelta->storedItem->fulfilmentCustomer;
         $this->storedItemAuditDelta    = $storedItemAuditDelta;
