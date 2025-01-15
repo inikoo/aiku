@@ -14,6 +14,7 @@ use App\Actions\OrgAction;
 use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
 use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaTypeEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
+use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
@@ -33,6 +34,7 @@ class SyncStoredItemToPalletAudit extends OrgAction
 
     public function handle(Pallet $pallet, StoredItemAudit $storedItemAudit, array $modelData): void
     {
+        dd($storedItemAudit);
         foreach (Arr::get($modelData, 'stored_item_ids', []) as $storedItemId => $auditData) {
             $storedItemExist = $pallet->storedItems()->where(
                 'stored_item_id',
@@ -83,6 +85,10 @@ class SyncStoredItemToPalletAudit extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->asAction) {
+            return true;
+        }
+
+        if ($request->user() instanceof WebUser) {
             return true;
         }
 
