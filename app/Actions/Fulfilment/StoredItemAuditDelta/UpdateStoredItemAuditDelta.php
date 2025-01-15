@@ -75,7 +75,8 @@ class UpdateStoredItemAuditDelta extends OrgAction
                     ]
                 )
 
-            ]
+            ],
+            'audited_quantity' => ['sometimes', 'numeric']
         ];
     }
 
