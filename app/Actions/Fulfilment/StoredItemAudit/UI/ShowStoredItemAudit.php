@@ -21,6 +21,7 @@ use App\Http\Resources\Fulfilment\StoredItemAuditResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItemAudit;
+use App\Models\Fulfilment\StoredItemAuditDelta;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -56,6 +57,10 @@ class ShowStoredItemAudit extends OrgAction
         $afterTitle = null;
         $iconRight  = null;
 
+        $disabled = $storedItemAudit->deltas->every(function (StoredItemAuditDelta $delta) {
+            return $delta->storedItem === null;
+        });
+
         $actions = [];
         if ($storedItemAudit->state === StoredItemAuditStateEnum::IN_PROCESS) {
             $actions = [
@@ -63,7 +68,7 @@ class ShowStoredItemAudit extends OrgAction
                     'type'  => 'button',
                     'style' => 'primary',
                     'label' => __('Complete Audit'),
-                    'disabled' => false,  // TODO: disabled true if no stored items in the table
+                    'disabled' => $disabled,
                     'route' => [
                         'method' => 'patch',
                         'name'       => 'grp.models.fulfilment-customer.stored_item_audits.complete',
