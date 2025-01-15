@@ -10,7 +10,6 @@ namespace App\Actions\Fulfilment\RecurringBill;
 
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateRecurringBills;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateRecurringBills;
-use App\Actions\Fulfilment\RecurringBill\Search\RecurringBillRecordSearch;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Helpers\TaxCategory\GetTaxCategory;
 use App\Actions\OrgAction;
@@ -95,8 +94,6 @@ class StoreRecurringBill extends OrgAction
         OrganisationHydrateRecurringBills::dispatch($recurringBill->organisation)->delay($this->hydratorsDelay);
         FulfilmentHydrateRecurringBills::dispatch($recurringBill->fulfilment)->delay($this->hydratorsDelay);
         FulfilmentCustomerHydrateRecurringBills::dispatch($recurringBill->fulfilmentCustomer)->delay($this->hydratorsDelay);
-        RecurringBillRecordSearch::dispatch($recurringBill);
-
         return $recurringBill;
     }
 

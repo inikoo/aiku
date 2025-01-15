@@ -56,7 +56,6 @@ use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
-use App\Actions\Fulfilment\RecurringBill\Search\ReindexRecurringBillSearch;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
@@ -2208,11 +2207,6 @@ test('hydrate rental agreements command', function () {
     $this->artisan('hydrate:rental_agreements  '.$this->organisation->slug)->assertExitCode(0);
 });
 
-test('recurring bill universal search', function () {
-    $recurringBill = RecurringBill::first();
-    ReindexRecurringBillSearch::run($recurringBill);
-    $this->artisan('search:recurring_bills  '.$this->organisation->slug)->assertExitCode(0);
-});
 
 test('create sixth pallet delivery (consolidation test)', function ($fulfilmentCustomer) {
     SendPalletDeliveryNotification::shouldRun()
@@ -2592,14 +2586,6 @@ test('pay invoice (exceed)', function ($invoice) {
 
 test('hydrate pallet return command', function () {
     $this->artisan('hydrate:pallet_returns  '.$this->organisation->slug)->assertExitCode(0);
-});
-
-test('recurring bills search', function () {
-    $this->artisan('search:recurring_bills')->assertExitCode(0);
-
-    $recurringBills = RecurringBill::first();
-    ReindexRecurringBillSearch::run($recurringBills);
-    expect($recurringBills->universalSearch()->count())->toBe(1);
 });
 
 test('fulfilment customers search', function () {
