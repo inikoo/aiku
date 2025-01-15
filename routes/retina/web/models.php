@@ -81,7 +81,7 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
 
 Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
     Route::post('stored-items', SyncStoredItemToPallet::class)->name('stored-items.update');
-    Route::post('stored-items/audit', SyncStoredItemToPalletAudit::class)->name('stored-items.audit');
+    Route::post('stored-items/audit/{storedItemAudit:id}', SyncStoredItemToPalletAudit::class)->name('stored-items.audit');
     Route::delete('stored-items/reset', ResetAuditStoredItemToPallet::class)->name('stored-items.audit.reset');
 
     Route::delete('', [DeletePallet::class, 'fromRetina'])->name('delete');
