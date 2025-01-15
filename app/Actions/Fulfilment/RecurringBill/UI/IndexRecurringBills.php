@@ -55,6 +55,7 @@ class IndexRecurringBills extends OrgAction
         return $this->handle(parent: $fulfilment, bucket: $this->bucket);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function current(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $fulfilment;
@@ -64,6 +65,7 @@ class IndexRecurringBills extends OrgAction
         return $this->handle(parent: $fulfilment, bucket: $this->bucket);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function former(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $fulfilment;
@@ -100,12 +102,12 @@ class IndexRecurringBills extends OrgAction
 
         if ($parent instanceof FulfilmentCustomer) {
             $queryBuilder->where('recurring_bills.fulfilment_customer_id', $parent->id);
-        } elseif ($parent instanceof Fulfilment && $bucket == 'current') {
+        } elseif ($bucket == 'current') {
             $queryBuilder->where('recurring_bills.fulfilment_id', $parent->id)
-                            ->where('recurring_bills.status', RecurringBillStatusEnum::CURRENT);
-        } elseif ($parent instanceof Fulfilment && $bucket == 'former') {
+                ->where('recurring_bills.status', RecurringBillStatusEnum::CURRENT);
+        } elseif ($bucket == 'former') {
             $queryBuilder->where('recurring_bills.fulfilment_id', $parent->id)
-                            ->where('recurring_bills.status', RecurringBillStatusEnum::FORMER);
+                ->where('recurring_bills.status', RecurringBillStatusEnum::FORMER);
         } else {
             $queryBuilder->where('recurring_bills.fulfilment_id', $parent->id);
         }
@@ -146,7 +148,7 @@ class IndexRecurringBills extends OrgAction
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->withEmptyState(
-                    match(class_basename($parent)) {
+                    match (class_basename($parent)) {
                         'Fulfilment' => [
                             'title'       => __("You don't have any recurring bill yet").' 😭',
                             'description' => __("Dont worry soon you will be pretty busy"),
@@ -154,18 +156,18 @@ class IndexRecurringBills extends OrgAction
 
                         ],
                         'FulfilmentCustomer' => [
-                            'title'       => __("This customer don't have any recurring bill yet").' 😭',
-                            'count'       => $parent->number_recurring_bills
+                            'title' => __("This customer don't have any recurring bill yet").' 😭',
+                            'count' => $parent->number_recurring_bills
                         ]
                     }
                 );
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             if ($parent instanceof Fulfilment) {
                 $table->column(key: 'customer_name', label: __('customer'), canBeHidden: false, sortable: true, searchable: true);
-            };
+            }
             $table->column(key: 'net_amount', label: __('net'), canBeHidden: false, sortable: true, searchable: true, type: 'currency')
-            ->column(key: 'start_date', label: __('start date'), canBeHidden: false, sortable: true, searchable: true, type: 'currency')
-            ->column(key: 'end_date', label: __('end date'), canBeHidden: false, sortable: true, searchable: true, type: 'currency');
+                ->column(key: 'start_date', label: __('start date'), canBeHidden: false, sortable: true, searchable: true, type: 'currency')
+                ->column(key: 'end_date', label: __('end date'), canBeHidden: false, sortable: true, searchable: true, type: 'currency');
         };
     }
 
@@ -178,26 +180,29 @@ class IndexRecurringBills extends OrgAction
     {
         $subNavigation = [];
 
-        $icon      = ['fal', 'fa-receipt'];
-        $title     = __('recurring bills');
+        $icon       = ['fal', 'fa-receipt'];
+        $title      = __('recurring bills');
         $afterTitle = null;
-        $iconRight = null;
-        $model     = null;
+        $iconRight  = null;
 
-        if ($this->parent instanceof  FulfilmentCustomer) {
+        if ($this->parent instanceof FulfilmentCustomer) {
             $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
-            $icon         = ['fal', 'fa-user'];
-            $title        = $this->parent->customer->name;
-            $iconRight    = [
+            $icon          = ['fal', 'fa-user'];
+            $title         = $this->parent->customer->name;
+            $iconRight     = [
                 'icon' => 'fal fa-receipt',
             ];
-            $afterTitle = [
+            $afterTitle    = [
 
-                'label'     => __('recurring bills')
+                'label' => __('recurring bills')
             ];
         } elseif ($this->parent instanceof Fulfilment) {
             $subNavigation = $this->getRecurringBillsNavigation($this->parent, $request);
-            $model = __('Operations');
+            if ($this->bucket == 'current') {
+                $title = __('Next bills');
+            } elseif ($this->bucket == 'former') {
+                $title = __('Former bills');
+            }
         }
 
         return Inertia::render(
@@ -207,10 +212,9 @@ class IndexRecurringBills extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('recurring bills'),
+                'title'       => $title,
                 'pageHead'    => [
                     'title'         => $title,
-                    'model'         => $model,
                     'afterTitle'    => $afterTitle,
                     'iconRight'     => $iconRight,
                     'icon'          => $icon,
@@ -241,7 +245,6 @@ class IndexRecurringBills extends OrgAction
         };
 
         return match ($routeName) {
-
             'grp.org.fulfilments.show.operations.recurring_bills.index' => array_merge(
                 ShowFulfilment::make()->getBreadcrumbs(
                     $routeParameters
@@ -283,7 +286,7 @@ class IndexRecurringBills extends OrgAction
                 $headCrumb(
                     [
                         'name'       => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.index',
-                        'parameters' => Arr::only($routeParameters, ['organisation','fulfilment','fulfilmentCustomer'])
+                        'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])
                     ]
                 )
             ),

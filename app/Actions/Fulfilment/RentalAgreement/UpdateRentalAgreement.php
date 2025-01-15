@@ -12,7 +12,7 @@ use App\Actions\CRM\WebUser\UpdateWebUser;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStatus;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryFulfilmentTransactionClause;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturnFulfilmentTransactionClause;
-use App\Actions\Fulfilment\RecurringBillTransaction\SetClausesInRecurringBillTransaction;
+use App\Actions\Fulfilment\RecurringBillTransaction\CalculateRecurringBillTransactionDiscountPercentage;
 use App\Actions\Fulfilment\RentalAgreement\Hydrators\RentalAgreementHydrateClauses;
 use App\Actions\Fulfilment\RentalAgreementClause\RemoveRentalAgreementClause;
 use App\Actions\Fulfilment\RentalAgreementClause\StoreRentalAgreementClause;
@@ -160,7 +160,7 @@ class UpdateRentalAgreement extends OrgAction
                 UpdatePalletReturnFulfilmentTransactionClause::run($return);
             }
             foreach ($rentalAgreement->fulfilmentCustomer->currentRecurringBill->transactions as $transaction) {
-                SetClausesInRecurringBillTransaction::make()->action($transaction);
+                CalculateRecurringBillTransactionDiscountPercentage::make()->action($transaction);
             }
         }
 

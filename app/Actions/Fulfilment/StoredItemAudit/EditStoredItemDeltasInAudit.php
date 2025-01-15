@@ -32,30 +32,7 @@ class EditStoredItemDeltasInAudit extends OrgAction
 
     private FulfilmentCustomer $parent;
 
-    //    protected function getElementGroups(FulfilmentCustomer $fulfilmentCustomer, string $prefix): array
-    //    {
-    //        $elements = [];
-    //
-    //        if ($prefix == 'all') {
-    //            $elements = [
-    //                'status' => [
-    //                    'label'    => __('Status'),
-    //                    'elements' => array_merge_recursive(
-    //                        PalletStatusEnum::labels($fulfilmentCustomer),
-    //                        PalletStatusEnum::count($fulfilmentCustomer)
-    //                    ),
-    //
-    //                    'engine' => function ($query, $elements) {
-    //                        $query->whereIn('pallets.status', $elements);
-    //                    }
-    //                ],
-    //
-    //
-    //            ];
-    //        }
-    //
-    //        return $elements;
-    //    }
+
 
     public function handle(StoredItemAudit $storedItemAudit, $prefix = null): LengthAwarePaginator
     {
@@ -79,25 +56,11 @@ class EditStoredItemDeltasInAudit extends OrgAction
         $query->where('pallets.status', PalletStatusEnum::STORING);
         $query->where('pallets.state', PalletStateEnum::STORING);
 
-        // $query->leftJoin('stored_item_audit_deltas', 'pallets.id', '=', 'stored_item_audit_deltas.pallet_id');
-
-        //        foreach ($this->getElementGroups($fulfilmentCustomer, $prefix) as $key => $elementGroup) {
-        //            $query->whereElementGroup(
-        //                key: $key,
-        //                allowedElements: array_keys($elementGroup['elements']),
-        //                engine: $elementGroup['engine'],
-        //                prefix: $prefix
-        //            );
-        //        }
-
-
-        // $query->whereNotNull('pallets.slug');
 
 
         $query->defaultSort('pallets.id')
 
             ->select(
-                
                 'pallets.id',
                 'pallets.slug',
                 'pallets.reference',
@@ -129,14 +92,6 @@ class EditStoredItemDeltasInAudit extends OrgAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
-
-            //            foreach ($this->getElementGroups($fulfilmentCustomer, $prefix) as $key => $elementGroup) {
-            //                $table->elementGroup(
-            //                    key: $key,
-            //                    label: $elementGroup['label'],
-            //                    elements: $elementGroup['elements']
-            //                );
-            //            }
 
 
             $emptyStateData = [

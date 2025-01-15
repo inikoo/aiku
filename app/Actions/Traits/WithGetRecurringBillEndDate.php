@@ -26,32 +26,19 @@ trait WithGetRecurringBillEndDate
 
     public function getEndDateMonthly(Carbon $startDate, array $setting): Carbon
     {
+        // Note do no change this code. I already test it
         $endDayOfMonth = $setting['day'];
         if ($endDayOfMonth == 'last_day') {
             return Carbon::now()->endOfMonth();
         }
-
-
-        if ($startDate->day > $endDayOfMonth) {
-            $endDate = $startDate->copy()->addMonth()->day($endDayOfMonth);
-        } else {
-            $endDate = $startDate->copy()->day($endDayOfMonth);
+        $endDate = now()->day($endDayOfMonth);
+        if (now()->gte($endDate)) {
+            $endDate = $endDate->addMonth();
         }
 
-        $isWeekDays = $setting['is_weekdays'] ?? null;
-
-        if ($isWeekDays) {
-            if ($isWeekDays == true) {
-                while ($endDate->isWeekday()) {
-                    $endDate->addDay();
-                }
-            } else {
-                while ($endDate->isWeekend()) {
-                    $endDate->addDay();
-                }
-            }
+        if (Arr::get($setting, 'is_weekdays') and $endDate->isWeekend()) {
+            $endDate =  $endDate->nextWeekday();
         }
-
         return $endDate;
     }
 
