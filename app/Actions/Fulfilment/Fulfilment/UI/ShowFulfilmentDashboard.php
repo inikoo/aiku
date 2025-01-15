@@ -89,11 +89,15 @@ class ShowFulfilmentDashboard extends OrgAction
                                 ],
                                 visual: [
                                     'type' => 'MeterGroup',
+                                    'start' => 0,
+                                    'end' => 100,
                                     'data' => [
                                         ['label' => 'Apps', 'color' => '#34d399', 'value' => 16],
-                                        ['label' => 'Messages', 'color' => '#fbbf24', 'value' => 8],
-                                        ['label' => 'Media', 'color' => '#60a5fa', 'value' => 24],
-                                        ['label' => 'System', 'color' => '#c084fc', 'value' => 10],
+                                        ['label' => 'Websites', 'color' => '#3b82f6', 'value' => 8],
+                                        ['label' => 'Services', 'color' => '#fbbf24', 'value' => 4],
+                                        ['label' => 'Other', 'color' => '#ef4444', 'value' => 2],
+                                        
+                                      
                                     ],
                                 ], // TODO: Add the correct data
                             ),

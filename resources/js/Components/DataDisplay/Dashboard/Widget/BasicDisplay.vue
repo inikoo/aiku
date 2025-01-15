@@ -9,6 +9,7 @@ import MeterGroup from 'primevue/metergroup';
 import { values } from "lodash"
 import ChartDashboardDynamic from "../../ChartDashboardDynamic.vue"
 import Chart from 'primevue/chart'
+import ProgressDashboardCard from "../../ProgressDashboardCard.vue"
 
 library.add(faCheck, faExclamation, faInfo, faPlay)
 
@@ -207,10 +208,15 @@ const printLabelByType = (label?: string) => {
 
 		<!-- Visual Progress Bar -->
 		<div v-if="visual?.type === 'MeterGroup'" class="mt-3">
-			<MeterGroup
-				:value="visual.data"
-				labelPosition="start"
-				/>
+			<ProgressDashboardCard
+			label="Deliveries"
+			value="382/500"
+			:progressBar="{
+				value: 382,
+				max: 500,
+				color: 'bg-blue-500'
+			}"
+		/>
 		</div>
 
 		<!-- Visual Percentage -->
