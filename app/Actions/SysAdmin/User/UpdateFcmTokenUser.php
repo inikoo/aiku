@@ -45,13 +45,13 @@ class UpdateFcmTokenUser extends GrpAction
 
     }
 
-    public function rules(): array
+   /*  public function rules(): array
     {
         return [
             'firebase_token' => ['required', 'string']
         ];
     }
-
+ */
 
     public function asController(ActionRequest $request): User
     {

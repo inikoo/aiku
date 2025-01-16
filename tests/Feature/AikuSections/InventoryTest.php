@@ -184,8 +184,8 @@ test('create location in warehouse', function ($warehouse) {
         ->and($this->organisation->group->inventoryStats->number_locations_status_operational)->toBe(1)
         ->and($this->organisation->group->inventoryStats->number_locations_status_broken)->toBe(0)
         ->and($warehouse->stats->number_locations)->toBe(1)
-        ->and($warehouse->stats->number_locations_status_operational)->toBe(0)
-        ->and($warehouse->stats->number_locations_status_broken)->toBe(1);
+        ->and($warehouse->stats->number_locations_status_operational)->toBe(1)
+        ->and($warehouse->stats->number_locations_status_broken)->toBe(0);
 
     return $location;
 })->depends('create warehouse');
@@ -202,8 +202,8 @@ test('create other location in warehouse', function ($warehouse) {
 
     $warehouse->refresh();
     expect($warehouse->stats->number_locations)->toBe(2)
-        ->and($warehouse->stats->number_locations_status_operational)->toBe(0)
-        ->and($warehouse->stats->number_locations_status_broken)->toBe(2);
+        ->and($warehouse->stats->number_locations_status_operational)->toBe(2)
+        ->and($warehouse->stats->number_locations_status_broken)->toBe(0);
 })->depends('create warehouse');
 
 test('create location in warehouse area', function ($warehouseArea) {
@@ -216,8 +216,8 @@ test('create location in warehouse area', function ($warehouseArea) {
         ->and($this->organisation->inventoryStats->number_locations_status_operational)->toBe(3)
         ->and($this->organisation->inventoryStats->number_locations_status_broken)->toBe(0)
         ->and($warehouse->stats->number_locations)->toBe(3)
-        ->and($warehouse->stats->number_locations_status_operational)->toBe(0)
-        ->and($warehouse->stats->number_locations_status_broken)->toBe(3)
+        ->and($warehouse->stats->number_locations_status_operational)->toBe(3)
+        ->and($warehouse->stats->number_locations_status_broken)->toBe(0)
         ->and($warehouseArea->stats->number_locations)->toBe(1)
         ->and($warehouseArea->stats->number_locations_status_operational)->toBe(1)
         ->and($warehouseArea->stats->number_locations_status_broken)->toBe(0);
