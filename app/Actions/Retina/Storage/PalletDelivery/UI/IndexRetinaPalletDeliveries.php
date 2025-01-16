@@ -10,7 +10,7 @@ namespace App\Actions\Retina\Storage\PalletDelivery\UI;
 
 use App\Actions\Catalogue\HasRentalAgreement;
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
+use App\Actions\UI\Retina\Storage\UI\RetinaShowRetinaStorageDashboard;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -24,7 +24,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexPalletDeliveries extends RetinaAction
+class IndexRetinaPalletDeliveries extends RetinaAction
 {
     use HasRentalAgreement;
 
@@ -135,7 +135,7 @@ class IndexPalletDeliveries extends RetinaAction
         return match ($routeName) {
             'retina.fulfilment.storage.pallet-deliveries.index' =>
             array_merge(
-                ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+                RetinaShowRetinaStorageDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

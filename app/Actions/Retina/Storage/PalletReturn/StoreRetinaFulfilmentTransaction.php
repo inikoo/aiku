@@ -22,7 +22,7 @@ use App\Models\SysAdmin\Organisation;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class RetinaStoreFulfilmentTransaction extends RetinaAction
+class StoreRetinaFulfilmentTransaction extends RetinaAction
 {
     use WithActionUpdate;
 

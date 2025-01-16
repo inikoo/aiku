@@ -16,18 +16,12 @@ use App\Http\Resources\Accounting\InvoiceResource;
 use App\Http\Resources\Accounting\InvoiceTransactionsResource;
 use App\Http\Resources\Accounting\PaymentsResource;
 use App\Models\Accounting\Invoice;
-use App\Models\Catalogue\Shop;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class RetinaShowInvoice extends RetinaAction
+class ShowRetinaInvoice extends RetinaAction
 {
-    private Organisation|Fulfilment|FulfilmentCustomer|Shop $parent;
-
     public function handle(Invoice $invoice): Invoice
     {
         return $invoice;
@@ -35,14 +29,15 @@ class RetinaShowInvoice extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return true;
+        if ($this->customer->id == $request->route()->parameter('invoice')->customer_id) {
+            return true;
+        }
+        return false;
     }
 
     public function asController(Invoice $invoice, ActionRequest $request): Invoice
     {
-        $this->parent = $request->user()->customer->fulfilmentCustomer;
         $this->initialisation($request)->withTab(InvoiceTabsEnum::values());
-
         return $this->handle($invoice);
     }
 
@@ -73,7 +68,6 @@ class RetinaShowInvoice extends RetinaAction
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => InvoiceTabsEnum::navigation()
                 ],
 
                 'order_summary' => [
@@ -106,7 +100,6 @@ class RetinaShowInvoice extends RetinaAction
                         ],
                         [
                             'label'            => __('Tax'),
-                            // 'information_icon' => __('xxx.'),
                             'information'      => '(vat)',
                             'price_total'      => $invoice->tax_amount
                         ],
@@ -143,24 +136,8 @@ class RetinaShowInvoice extends RetinaAction
                         // 'address'      => AddressResource::collection($invoice->customer->addresses),
                     ],
                     'information' => [
-                        'recurring_bill' => [
-                            'reference' => $invoice->reference
-                        ],
-                        'routes'         => [
-                            'fetch_payment_accounts' => [
-                                'name'       => 'grp.json.shop.payment-accounts',
-                                'parameters' => [
-                                    'shop' => $invoice->shop->slug
-                                ]
-                            ],
-                            'submit_payment'         => [
-                                'name'       => 'grp.models.invoice.payment.store',
-                                'parameters' => [
-                                    'invoice'  => $invoice->id,
-                                    'customer' => $invoice->customer_id,
-                                ]
-                            ]
 
+                        'routes'         => [
                         ],
                         'paid_amount'    => $invoice->payment_amount,
                         'pay_amount'     => $roundedDiff
@@ -184,11 +161,6 @@ class RetinaShowInvoice extends RetinaAction
             ->table(IndexInvoiceTransactions::make()->tableStructure($invoice, InvoiceTabsEnum::ITEMS->value));
     }
 
-
-    public function jsonResponse(Invoice $invoice): InvoiceResource
-    {
-        return new InvoiceResource($invoice);
-    }
 
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array

@@ -12,7 +12,7 @@ namespace App\Actions\Retina\Storage\Pallet\UI;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
+use App\Actions\UI\Retina\Storage\UI\RetinaShowRetinaStorageDashboard;
 use App\Enums\UI\Fulfilment\PalletTabsEnum;
 use App\Http\Resources\Fulfilment\RetinaPalletResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
@@ -148,7 +148,7 @@ class ShowRetinaPallet extends RetinaAction
     public function getBreadcrumbs(Pallet $pallet, string $routeName, $suffix = null): array
     {
         return array_merge(
-            ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+            RetinaShowRetinaStorageDashboard::make()->getBreadcrumbs(),
             [
                 [
                     'type'           => 'modelWithIndex',

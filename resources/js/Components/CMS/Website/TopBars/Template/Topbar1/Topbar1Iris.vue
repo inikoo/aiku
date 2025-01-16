@@ -53,14 +53,6 @@ const layout = inject('layout', {})
         :style="getStyles(model?.container.properties)"
     >
         <div class="flex-shrink flex flex-col md:flex-row items-center justify-between w-full "  >
-            <!-- Section: greeting -->
-           <!--  <div
-                v-if="checkVisible(model?.greeting?.visible || null, isLoggedIn) && textReplaceVariables(model?.greeting?.text, layout.iris_variables)"
-                class="flex items-center"
-                v-html="textReplaceVariables(model?.greeting?.text, layout.iris_variables)"
-               
-            /> -->
-
             <!-- Section: Main title -->
             <div
                 v-if="checkVisible(model?.main_title?.visible || null, isLoggedIn) && textReplaceVariables(model?.main_title?.text, layout.iris_variables)"

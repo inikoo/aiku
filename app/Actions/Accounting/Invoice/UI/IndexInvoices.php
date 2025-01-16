@@ -19,6 +19,7 @@ use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
+use App\Enums\Accounting\Invoice\InvoicePayStatusEnum;
 use App\Http\Resources\Accounting\InvoicesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Invoice;
@@ -65,7 +66,8 @@ class IndexInvoices extends OrgAction
 
         if ($this->bucket) {
             if ($this->bucket === 'unpaid') {
-                $queryBuilder->where('invoices.total_amount', '>', 0)->where('invoices.paid_at', null);
+                $queryBuilder->where('invoices.total_amount', '>', 0)
+                    ->where('invoices.pay_status', InvoicePayStatusEnum::UNPAID);
             }
         }
 
@@ -97,6 +99,7 @@ class IndexInvoices extends OrgAction
                 'invoices.reference',
                 'invoices.total_amount',
                 'invoices.net_amount',
+                'invoices.pay_status',
                 'invoices.date',
                 'invoices.type',
                 'invoices.created_at',
@@ -126,7 +129,7 @@ class IndexInvoices extends OrgAction
                 ->addSelect('customers.name as customer_name', 'fulfilment_customers.slug as customer_slug');
         }
 
-        return $queryBuilder->allowedSorts(['number', 'total_amount', 'net_amount', 'date', 'customer_name', 'reference'])
+        return $queryBuilder->allowedSorts(['number','pay_status', 'total_amount', 'net_amount', 'date', 'customer_name', 'reference'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -167,6 +170,7 @@ class IndexInvoices extends OrgAction
 
             $table->column(key: 'type', label: '', canBeHidden: false, searchable: true, type: 'icon')
                 ->defaultSort('reference');
+            $table->column(key: 'pay_status', label: '', canBeHidden: false, searchable: true, sortable: true, type: 'icon');
             $table
                 ->withGlobalSearch()
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);

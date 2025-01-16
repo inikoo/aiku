@@ -23,7 +23,7 @@ use App\Models\Fulfilment\PalletReturn;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 
-class RetinaDetachPalletFromReturn extends RetinaAction
+class DetachRetinaPalletFromReturn extends RetinaAction
 {
     use WithActionUpdate;
 

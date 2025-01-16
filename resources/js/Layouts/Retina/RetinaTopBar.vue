@@ -9,14 +9,14 @@ import { layoutStructure } from "@/Composables/useLayoutStructure";
 
 import { faChevronDown } from "@far"
 import { faDotCircle } from "@fas"
-import { faTerminal, faCog, faAbacus, faFolder, faFax,faUserCircle } from "@fal"
+import { faTerminal, faCog, faAbacus, faFolder, faFax,faUserCircle, faBarcode, faBallotCheck, faUsdCircle } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 
 import MenuTopRight from "@/Layouts/Retina/MenuTopRight.vue"
 import { inject } from "vue"
 import ScreenWarning from "@/Components/Utils/ScreenWarning.vue"
 
-library.add(faChevronDown, faDotCircle, faTerminal, faCog, faAbacus, faFolder, faFax,faUserCircle)
+library.add(faChevronDown, faDotCircle, faTerminal, faCog, faAbacus, faFolder, faFax,faUserCircle, faBarcode, faBallotCheck, faUsdCircle)
 
 const props = defineProps<{
     sidebarOpen: boolean

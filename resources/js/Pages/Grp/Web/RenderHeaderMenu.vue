@@ -67,9 +67,7 @@ const props = defineProps<{
         key: string,
         data: object,
     }
-    colorThemed: {
-        color: string[]
-    }
+   
     loginMode:Boolean
     previewMode:Boolean
 }>()
@@ -81,15 +79,13 @@ const emits = defineEmits<{
 </script>
 
 <template>
-    <div>
         <!-- Section: TopBars -->
          <div class="hidden lg:block">
             <component
                 v-if="data?.topBar?.data?.fieldValue"
-                :is="previewMode ? getIrisComponent(data?.topBar.code) : getComponent(data?.topBar.code)"
+                :is="getComponent(data?.topBar.code)"
                 v-model="data.topBar.data.fieldValue"
                 :loginMode="loginMode"
-                :colorThemed="colorThemed"
                 :fieldValue="data.topBar.data.fieldValue"
                 @update:model-value="(e)=>emits('update:modelValue', e)"
                 @setPanelActive="(data : string)=>sendMessageToParent('TopbarPanelOpen',data)"
@@ -101,10 +97,9 @@ const emits = defineEmits<{
         <!-- Section: Header -->
         <component
             v-if="data?.header?.code"
-            :is="previewMode ? getIrisComponent(data?.header?.code) : getComponent(data?.header?.code)"
+            :is="getComponent(data?.header?.code)"
             v-model="data.header.data.fieldValue"
             :loginMode="loginMode"
-            :colorThemed="colorThemed"
             :fieldValue="data.header.data.fieldValue"
              @update:model-value="(e)=>emits('update:modelValue', e)"
              @setPanelActive="(data : string)=>sendMessageToParent('HeaderPanelOpen',data)"
@@ -118,5 +113,4 @@ const emits = defineEmits<{
             :colorThemed="colorThemed" 
             class="hidden md:block" 
         />
-    </div>
 </template>

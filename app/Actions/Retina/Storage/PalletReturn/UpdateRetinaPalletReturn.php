@@ -23,7 +23,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class RetinaUpdatePalletReturn extends RetinaAction
+class UpdateRetinaPalletReturn extends RetinaAction
 {
     use AsAction;
     use WithAttributes;

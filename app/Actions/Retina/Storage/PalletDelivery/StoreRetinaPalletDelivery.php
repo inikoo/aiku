@@ -32,7 +32,7 @@ use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
 
-class RetinaStorePalletDelivery extends RetinaAction
+class StoreRetinaPalletDelivery extends RetinaAction
 {
     use HasRentalAgreement;
     use WithDeliverableStoreProcessing;

@@ -9,7 +9,7 @@
 namespace App\Actions\Retina\Storage\PalletReturn\UI;
 
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
+use App\Actions\UI\Retina\Storage\UI\RetinaShowRetinaStorageDashboard;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
@@ -194,7 +194,7 @@ class IndexPalletReturns extends RetinaAction
         return match ($routeName) {
 
             'retina.fulfilment.storage.pallet-returns.index', 'retina.fulfilment.storage.pallet-returns.show' => array_merge(
-                ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+                RetinaShowRetinaStorageDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'       => 'retina.fulfilment.storage.pallet-returns.index',
