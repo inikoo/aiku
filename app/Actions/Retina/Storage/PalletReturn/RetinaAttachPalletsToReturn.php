@@ -6,6 +6,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+namespace App\Actions\Retina\Storage\PalletReturn;
 
 use App\Actions\Fulfilment\PalletReturn\AutoAssignServicesToPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;

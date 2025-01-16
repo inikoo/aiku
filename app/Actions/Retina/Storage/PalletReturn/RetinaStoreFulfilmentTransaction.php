@@ -6,6 +6,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+namespace App\Actions\Retina\Storage\PalletReturn;
 
 use App\Actions\Fulfilment\FulfilmentTransaction\SetClausesInFulfilmentTransaction;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateTransactions;

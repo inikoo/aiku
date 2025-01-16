@@ -6,6 +6,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+namespace App\Actions\Retina\Storage\PalletReturn;
 
 use App\Actions\Helpers\Upload\ImportUpload;
 use App\Actions\Helpers\Upload\StoreUpload;
