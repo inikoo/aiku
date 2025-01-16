@@ -8,6 +8,7 @@ import CreateStoredItems from "./CreateStoredItems.vue"
 import Tag from '@/Components/Tag.vue'
 import { get } from "lodash"
 import { routeType } from "@/types/route"
+import { trans } from "laravel-vue-i18n"
 
 
 const props = defineProps<{
@@ -51,16 +52,16 @@ const onDelete = (data : { id : ''}) => {
     sendToServer(finalData)
 }
 
-const sendToServer = async (data : {}) => {
-    console.log('-=-=-=-=', props.saveRoute.name, props.saveRoute.parameters)
-    router.post(route(props.saveRoute.name, props.saveRoute.parameters), { stored_item_ids: data }, {
+const sendToServer = async (data : {}, replaceData?: boolean) => {
+    // console.log('-=-=-=-=', props.saveRoute.name, props.saveRoute.parameters)
+    router.post(route(props.saveRoute.name, props.saveRoute.parameters), replaceData ? data : { stored_item_ids: data }, {
         onError: (e) => {
             form.errors = {
                 id: get(e, [`stored_item_ids`])
             }
             notify({
-                title: "Failed to add new stored items",
-                text: "failed to update the stored items",
+                title: trans("Something went wrong"),
+                text: trans("Failed to update the stored items"),
                 type: "error"
             })
         },
@@ -109,16 +110,18 @@ const sendToServer = async (data : {}) => {
         </slot>
 
         <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-[400px]">
-            <div class="space-y-4">
-                <CreateStoredItems
-                    :storedItemsRoute="storedItemsRoute"
-                    :form="form"
-                    @onSave="sendToServer"
-                    :stored_items="pallet.stored_items"
-                    @closeModal="isModalOpen = false"
-                    :title
-                />
-            </div>
+            <slot name="modal" :form :sendToServer="sendToServer" :closeModal="() => isModalOpen = false" >
+                <div class="space-y-4">
+                    <CreateStoredItems
+                        :storedItemsRoute="storedItemsRoute"
+                        :form="form"
+                        @onSave="sendToServer"
+                        :stored_items="pallet.stored_items"
+                        @closeModal="isModalOpen = false"
+                        :title
+                    />
+                </div>
+            </slot>
         </Modal>
     </div>
 </template>

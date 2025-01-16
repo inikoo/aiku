@@ -69,7 +69,7 @@ class IndexRetinaAssets extends RetinaAction
     public function getBreadcrumbs(string $routeName): array
     {
         return match ($routeName) {
-            'retina.storage.assets.index' =>
+            'retina.fulfilment.storage.assets.index' =>
             array_merge(
                 ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
                 [
@@ -77,7 +77,7 @@ class IndexRetinaAssets extends RetinaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'retina.storage.assets.index',
+                                'name'       => 'retina.fulfilment.storage.assets.index',
                             ],
                             'label' => __('assets'),
                             'icon'  => 'fal fa-bars',

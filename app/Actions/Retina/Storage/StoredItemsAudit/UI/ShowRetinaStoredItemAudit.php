@@ -25,10 +25,10 @@ class ShowRetinaStoredItemAudit extends RetinaAction
     public function authorize(ActionRequest $request): bool
     {
 
-        if ($this->customer->fulfilmentCustomer->id != $request->route()->parameter('storedItemAudit')->fulfilment_customer_id) {
-            return false;
+        if ($this->customer->fulfilmentCustomer->id == $request->route()->parameter('storedItemAudit')->fulfilment_customer_id) {
+            return true;
         }
-        return true;
+        return false;
     }
 
 
@@ -145,17 +145,17 @@ class ShowRetinaStoredItemAudit extends RetinaAction
         $storedItemAudit = StoredItemAudit::where('slug', $routeParameters['storedItemAudit'])->first();
 
         return match ($routeName) {
-            'retina.storage.stored-items-audits.show' => array_merge(
+            'retina.fulfilment.storage.stored-items-audits.show' => array_merge(
                 ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $storedItemAudit,
                     [
                         'index' => [
-                            'name'       => 'retina.storage.stored-items-audits.index',
+                            'name'       => 'retina.fulfilment.storage.stored-items-audits.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'retina.storage.stored-items-audits.show',
+                            'name'       => 'retina.fulfilment.storage.stored-items-audits.show',
                             'parameters' => $routeParameters
                         ]
                     ],

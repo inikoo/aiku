@@ -129,7 +129,7 @@ class IndexStoredItems extends RetinaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'retina.storage.stored-items.index'
+                            'name' => 'retina.fulfilment.storage.stored-items.index'
                         ],
                         'label' => __("customer's sKUs"),
                         'icon'  => 'fal fa-bars',

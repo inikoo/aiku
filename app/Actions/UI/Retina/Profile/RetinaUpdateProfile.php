@@ -21,7 +21,7 @@ use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateRetinaProfile extends GrpAction
+class RetinaUpdateProfile extends GrpAction
 {
     use WithActionUpdate;
 
@@ -113,6 +113,16 @@ class UpdateRetinaProfile extends GrpAction
         $this->webUser = $webUser;
         $this->website = $webUser->website;
         $this->initialisation($webUser->group, $request);
+
+        return $this->handle($webUser, $this->validatedData);
+    }
+
+    public function action(WebUser $webUser, array $modelData): WebUser
+    {
+        /** @var WebUser $webUser */
+        $this->webUser = $webUser;
+        $this->website = $webUser->website;
+        $this->initialisation($webUser->group, $modelData);
 
         return $this->handle($webUser, $this->validatedData);
     }

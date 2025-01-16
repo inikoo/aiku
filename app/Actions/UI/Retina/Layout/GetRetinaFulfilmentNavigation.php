@@ -28,62 +28,69 @@ class GetRetinaFulfilmentNavigation
                 [
                     'label' => __('returns'),
                     'icon'  => ['fal', 'fa-truck-ramp'],
-                    'root'  => 'retina.storage.pallet-returns.',
+                    'root'  => 'retina.fulfilment.storage.pallet-returns.',
                     'route' => [
-                        'name'       => 'retina.storage.pallet-returns.index'
+                        'name'       => 'retina.fulfilment.storage.pallet-returns.index'
                     ]
                 ]
             ];
         }
 
+        if ($webUser->customer->fulfilmentCustomer->items_storage) {
+            $additionalSubsections[] = [
+                'label' => __('SKUs'),
+                'icon'  => ['fal', 'fa-barcode'],
+                'root'  => 'retina.fulfilment.storage.stored-items.',
+                'route' => [
+                    'name'       => 'retina.fulfilment.storage.stored-items.index'
+                ]
+            ];
+
+            $additionalSubsections[] = [
+                'label' => __('SKU audits'),
+                'icon'  => ['fal', 'fa-ballot-check'],
+                'root'  => 'retina.fulfilment.storage.stored-items-audits.',
+                'route' => [
+                    'name'       => 'retina.fulfilment.storage.stored-items-audits.index'
+                ]
+            ];
+        }
+
+
         $groupNavigation['storage'] = [
             'label'   => __('Dashboard'),
             'icon'    => ['fal', 'fa-tachometer-alt'],
-            'root'    => 'retina.storage.',
+            'root'    => 'retina.fulfilment.storage.',
             'route'   => [
-                'name' => 'retina.storage.dashboard'
+                'name' => 'retina.fulfilment.storage.dashboard'
             ],
             'topMenu' => [
                 'subSections' => [
                     [
                         'label' => __('pallets'),
                         'icon'  => ['fal', 'fa-pallet'],
-                        'root'  => 'retina.storage.pallets.',
+                        'root'  => 'retina.fulfilment.storage.pallets.',
                         'route' => [
-                            'name'       => 'retina.storage.pallets.index'
+                            'name'       => 'retina.fulfilment.storage.pallets.index'
                         ]
                     ],
                     [
                         'label' => __('deliveries'),
                         'icon'  => ['fal', 'fa-truck'],
-                        'root'  => 'retina.storage.pallet-deliveries.',
+                        'root'  => 'retina.fulfilment.storage.pallet-deliveries.',
                         'route' => [
-                            'name'       => 'retina.storage.pallet-deliveries.index'
+                            'name'       => 'retina.fulfilment.storage.pallet-deliveries.index'
                         ]
                     ],
                     ...$additionalSubsections,
+
+
                     [
-                        'label' => __('assets'),
-                        'icon'  => ['fal', 'fa-ballot'],
-                        'root'  => 'retina.storage.assets.',
+                        'label' => __('Pricing'),
+                        'icon'  => ['fal', 'fa-usd-circle'],
+                        'root'  => 'retina.fulfilment.storage.assets.',
                         'route' => [
-                            'name'       => 'retina.storage.assets.index'
-                        ]
-                    ],
-                    [
-                        'label' => __('stored items'),
-                        'icon'  => ['fal', 'fa-truck-couch'],
-                        'root'  => 'retina.storage.stored-items.',
-                        'route' => [
-                            'name'       => 'retina.storage.stored-items.index'
-                        ]
-                    ],
-                    [
-                        'label' => __('stored items audits'),
-                        'icon'  => ['fal', 'fa-narwhal'],
-                        'root'  => 'retina.storage.stored-items-audits.',
-                        'route' => [
-                            'name'       => 'retina.storage.stored-items-audits.index'
+                            'name'       => 'retina.fulfilment.storage.assets.index'
                         ]
                     ],
                 ]
@@ -120,39 +127,42 @@ class GetRetinaFulfilmentNavigation
             ]
         ];*/
 
+        $groupNavigation['billing'] = [
+            'label'   => __('billing'),
+            'icon'    => ['fal', 'fa-file-invoice-dollar'],
+            'root'    => 'retina.fulfilment.billing.',
+            'route'   => [
+                'name' => 'retina.fulfilment.billing.dashboard'
+            ],
+            'topMenu' => [
+                'subSections' => [
+                    [
+                        'label' => __('next bill'),
+                        'icon'  => ['fal', 'fa-receipt'],
+                        'root'  => 'retina.fulfilment.billing.next_recurring_bill',
+                        'route' => [
+                            'name' => 'retina.fulfilment.billing.next_recurring_bill',
+
+                        ]
+                    ],
+
+                    [
+                        'label' => __('invoices'),
+                        'icon'  => ['fal', 'fa-file-invoice-dollar'],
+                        'root'  => 'retina.fulfilment.billing.invoices.',
+                        'route' => [
+                            'name' => 'retina.fulfilment.billing.invoices.index',
+
+                        ]
+                    ],
+                ]
+            ]
+        ];
+
+
         if ($webUser->is_root) {
 
-            $groupNavigation['billing'] = [
-                'label'   => __('billing'),
-                'icon'    => ['fal', 'fa-file-invoice-dollar'],
-                'root'    => 'retina.billing.',
-                'route'   => [
-                    'name' => 'retina.billing.dashboard'
-                ],
-                'topMenu' => [
-                    'subSections' => [
-                        [
-                            'label' => __('next bill'),
-                            'icon'  => ['fal', 'fa-receipt'],
-                            'root'  => 'retina.billing.next_recurring_bill',
-                            'route' => [
-                                'name' => 'retina.billing.next_recurring_bill',
 
-                            ]
-                        ],
-
-                        [
-                            'label' => __('invoices'),
-                            'icon'  => ['fal', 'fa-file-invoice-dollar'],
-                            'root'  => 'retina.billing.invoices.',
-                            'route' => [
-                                'name' => 'retina.billing.invoices.index',
-
-                            ]
-                        ],
-                    ]
-                ]
-            ];
 
             $groupNavigation['sysadmin'] = [
                 'label'   => __('manage account'),

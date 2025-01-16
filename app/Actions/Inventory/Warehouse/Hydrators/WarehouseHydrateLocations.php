@@ -8,6 +8,7 @@
 
 namespace App\Actions\Inventory\Warehouse\Hydrators;
 
+use App\Enums\Inventory\Location\LocationStatusEnum;
 use App\Models\Inventory\Warehouse;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -34,7 +35,7 @@ class WarehouseHydrateLocations
         $locations = $warehouse->locations;
 
         $numberLocations                    = $locations->count();
-        $numberOperationalLocations         = $locations->where('status', 'operational')->count();
+        $numberOperationalLocations         = $locations->where('status', LocationStatusEnum::OPERATIONAL)->count();
         $numberEmptyLocations               = $locations->where('is_empty', true)->count();
         $numberNoStockSlotsLocations        = $locations->where('has_stock_slots', false)->count();
         $numberAllowStocksLocations         = $locations->where('allow_stocks', true)->count();

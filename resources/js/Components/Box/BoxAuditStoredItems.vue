@@ -41,12 +41,12 @@ onMounted(() => {
             <Link as="a" v-if="boxStats?.customer?.reference"
                 :href="route('grp.org.fulfilments.show.crm.customers.show', [route().params.organisation, boxStats.fulfilment.slug, boxStats.slug])"
                 class="flex items-center w-fit flex-none gap-x-2 cursor-pointer secondaryLink">
-            <dt v-tooltip="'Company name'" class="flex-none">
-                <span class="sr-only">Reference</span>
-                <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
-                    aria-hidden='true' />
-            </dt>
-            <dd class="text-base text-gray-500">{{ boxStats.customer.reference }}</dd>
+                <dt v-tooltip="'Company name'" class="flex-none">
+                    <span class="sr-only">Reference</span>
+                    <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
+                        aria-hidden='true' />
+                </dt>
+                <dd class="text-base text-gray-500">{{ boxStats.customer.reference }}</dd>
             </Link>
 
             <!-- Field: Contact name -->
@@ -112,18 +112,16 @@ onMounted(() => {
                 <dd class="text-base text-gray-500" :class='auditData.state_icon.class'>{{
                     auditData.state_icon.tooltip }}</dd>
             </div>
-            
-
 
             <!-- Stats: count Pallets -->
-            <div class="border-t border-gray-300 mt-2 pt-2 space-y-0.5">
+            <!-- <div class="border-t border-gray-300 mt-2 pt-2 space-y-0.5">
                 <div v-tooltip="trans('Count of pallets')" class="w-fit flex items-center gap-x-3">
                     <dt class="flex-none">
                         <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
                     </dt>
                     <dd class="text-gray-500 text-base font-medium tabular-nums">{{ boxStats.number_pallets }} <span class="text-gray-400 font-normal">{{ boxStats.number_pallets > 1 ? trans('Pallets') : trans('Pallet') }}</span></dd>
                 </div>
-            </div>
+            </div> -->
         </BoxStatPallet>
 
 

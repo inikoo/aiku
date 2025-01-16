@@ -30,7 +30,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexInvoices extends RetinaAction
+class RetinaIndexInvoices extends RetinaAction
 {
     private Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|Shop $parent;
 
@@ -286,7 +286,7 @@ class IndexInvoices extends RetinaAction
         )->table($this->tableStructure($this->parent));
     }
 
-    public function inRetina(ActionRequest $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $request->user()->customer->fulfilmentCustomer;
         $this->initialisation($request);

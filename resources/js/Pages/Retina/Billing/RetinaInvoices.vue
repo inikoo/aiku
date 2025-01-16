@@ -32,7 +32,7 @@ function invoiceRoute(invoice: RecurringBill) {
     switch (route().current()) {
         default:
             return route(
-                'retina.billing.invoices.show',
+                'retina.fulfilment.billing.invoices.show',
                 [
                 invoice.slug
                 ])

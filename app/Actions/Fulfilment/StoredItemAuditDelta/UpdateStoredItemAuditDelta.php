@@ -68,7 +68,7 @@ class UpdateStoredItemAuditDelta extends OrgAction
             'state'                        => ['sometimes', Rule::enum(StoredItemAuditDeltaStateEnum::class)],
             'audited_quantity'             => ['sometimes', 'integer', 'min:0'],
             'original_quantity'            => ['sometimes', 'integer', 'min:0'],
-            'user_id'                      => ['required', Rule::exists('users', 'id')->where('group_id', $this->organisation->group_id)],
+            'user_id'                      => ['sometimes', 'required', Rule::exists('users', 'id')->where('group_id', $this->organisation->group_id)],
         ];
     }
 

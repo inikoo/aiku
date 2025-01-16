@@ -208,7 +208,7 @@ class IndexRetinaPallets extends RetinaAction
     public function getBreadcrumbs(string $routeName): array
     {
         return match ($routeName) {
-            'retina.storage.pallets.index' =>
+            'retina.fulfilment.storage.pallets.index' =>
             array_merge(
                 ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
                 [
@@ -216,7 +216,7 @@ class IndexRetinaPallets extends RetinaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'retina.storage.pallets.index',
+                                'name'       => 'retina.fulfilment.storage.pallets.index',
                             ],
                             'label' => __('pallets'),
                             'icon'  => 'fal fa-bars',
