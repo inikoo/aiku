@@ -73,7 +73,7 @@ const filteredData = computed(() => {
 				</IconField>
 			</div>
 		</div>
-
+as
 		<div>
 			<template v-if="filteredData.length">
 				<div v-for="section in filteredData" :key="section.section" class="mb-6">
