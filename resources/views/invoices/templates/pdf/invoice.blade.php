@@ -103,7 +103,7 @@
                 </div>
             </td>
 
-            <td style="text-align: right;">Invoice Number<br/>
+            <td style="text-align: right;">{{ __('Invoice Number') }}<br/>
                 <b>{{ $invoice->reference }}</b>
             </td>
 
@@ -120,16 +120,16 @@
     <tr>
         <td>
             <h1>
-                Invoice {{ $invoice->reference }}
+                {{ __('Invoice') }} {{ $invoice->reference }}
             </h1>
         </td>
         <td style="text-align: right">
             <div>
-                Invoice Date: <b>{{ $invoice->created_at->format('j F Y') }}</b>
+                {{ __('Invoice Date') }}: <b>{{ $invoice->created_at->format('j F Y') }}</b>
             </div>
 
             <div style="text-align: right">
-                Tax liability date: <b>{{ $invoice->tax_liability_at->format('j F Y') }}</b>
+                {{ __('Tax liability date') }}: <b>{{ $invoice->tax_liability_at->format('j F Y') }}</b>
             </div>
 
         </td>
@@ -140,18 +140,18 @@
         <td width="50%" style="vertical-align:bottom;border: 0mm solid #888888;">
             <div>
                 <div>
-                    Payment State: <b>{{ $invoice->order?->payment }}</b>
+                    {{ __('Payment State') }}: <b>{{ $invoice->order?->payment }}</b>
                 </div>
                 <div>
-                    Customer: <b>{{ $invoice->customer['name'] }}</b>
+                    {{ __('Customer') }}: <b>{{ $invoice->customer['name'] }}</b>
                     ({{ $invoice->customer['reference'] }})
                 </div>
                 <div class=" {if !$customer->get('Customer Main Plain Mobile')}hide{/if}">
-                    <span class="address_label">Mobile:</span> <span class="address_value">{{ $invoice->customer['phone'] }}</span>
+                    <span class="address_label">{{ __('Mobile') }}:</span> <span class="address_value">{{ $invoice->customer['phone'] }}</span>
                 </div>
 
                 <div class=" {if !$customer->get('Customer Main Plain Telephone')}hide{/if}">
-                    <span class="address_label">Phone:</span> <span class="address_value">{{ $invoice->customer['phone'] }}</span>
+                    <span class="address_label">{{ __('Phone') }}:</span> <span class="address_value">{{ $invoice->customer['phone'] }}</span>
                 </div>
             </div>
         </td>
@@ -173,7 +173,7 @@
 <table width="100%" style="font-family: sans-serif;" cellpadding="10">
     <tr>
         <td width="45%" style="border: 0.1mm solid #888888;"><span
-                style="font-size: 7pt; color: #555555; font-family: sans-serif;">Billing address:</span>
+                style="font-size: 7pt; color: #555555; font-family: sans-serif;">{{ __('Billing address') }}:</span>
             <div>
                 {{ $invoice->billingAddress->address_line_1 }}
             </div>
@@ -186,7 +186,7 @@
         </td>
         <td width="10%">&nbsp;</td>
         <td width="45%" style="border: 0.1mm solid #888888;">
-            <span style="font-size: 7pt; color: #555555; font-family: sans-serif;">Delivery address:</span>
+            <span style="font-size: 7pt; color: #555555; font-family: sans-serif;">{{ __('Delivery address') }}:</span>
             <div>
                 {{ $invoice->address->address_line_1 }}
             </div>
@@ -204,15 +204,15 @@
 <table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse;" cellpadding="8">
     <thead>
     <tr>
-        <td style="width:14%;text-align:left">Code</td>
+        <td style="width:14%;text-align:left">{{ __('Code') }}</td>
 
-        <td style="text-align:left" colspan="2">Description</td>
+        <td style="text-align:left" colspan="2">{{ __('Description') }}</td>
 {{--        <td style="text-align:left;width:20% ">Discount</td>--}}
-        <td style="text-align:left;width:20% ">Price</td>
+        <td style="text-align:left;width:20% ">{{ __('Price') }}</td>
 
-        <td style="text-align:left">Qty</td>
+        <td style="text-align:left">{{ __('Qty') }}</td>
 
-        <td style="width:10%;text-align:right">Amount</td>
+        <td style="width:10%;text-align:right">{{ __('Amount') }}</td>
     </tr>
     </thead>
     <tbody>
@@ -237,13 +237,13 @@
     <tbody class="totals">
     <tr>
         <td style="border:none" colspan="4"></td>
-        <td>Items Net</td>
+        <td>{{ __('Items Net') }}</td>
         <td>{{ $invoice->currency->symbol . $invoice->net_amount }}</td>
     </tr>
 
     <tr>
         <td style="border:none" colspan="4"></td>
-        <td>Shipping</td>
+        <td>{{ __('Shipping') }}</td>
         <td>{{ $invoice->currency->symbol . $invoice->shipping_amount }}</td>
     </tr>
 
@@ -255,13 +255,13 @@
 
     <tr>
         <td style="border:none" colspan="4"></td>
-        <td class="totals">TAX <br> <small></small></td>
+        <td class="totals">{{ __('TAX') }} <br> <small></small></td>
         <td class="totals">{{ $invoice->currency->symbol . $invoice->tax_amount }}</td>
     </tr>
 
     <tr class="total">
         <td style="border:none" colspan="4"></td>
-        <td><b>Total</b></td>
+        <td><b>{{ __('Total') }}</b></td>
         <td>{{ $invoice->currency->symbol . $invoice->total_amount }}</td>
     </tr>
     </tbody>
@@ -272,15 +272,15 @@
 
 <table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse;" cellpadding="8">
     <tr class="title">
-        <td colspan="5">Payments</td>
+        <td colspan="5">{{ __('Payments') }}</td>
     </tr>
 
     <tr class="title">
-        <td style="width:40%;text-align:left">Method</td>
-        <td style="text-align:right">Date</td>
-        <td style="text-align:left">Status</td>
-        <td style="text-align:left">Reference</td>
-        <td style="text-align:right">Amount</td>
+        <td style="width:40%;text-align:left">{{ __('Method') }}</td>
+        <td style="text-align:right">{{ __('Date') }}</td>
+        <td style="text-align:left">{{ __('Status') }}</td>
+        <td style="text-align:left">{{ __('Reference') }}</td>
+        <td style="text-align:right">{{ __('Amount') }}</td>
     </tr>
 
     <tbody>
@@ -326,7 +326,7 @@
                 </small>
             </td>
             <td width="33%" style="color:#000;text-align: center">
-                Page 1 of 1
+                {{ __('Page') }} 1 {{ __('of') }} 1
             </td>
             <td width="34%" style="text-align: right;">
                 <small>{{$shop->phone}}<br>
