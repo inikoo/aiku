@@ -61,15 +61,12 @@ class ShowFulfilmentDashboard extends OrgAction
                         'column_count'    => 4,
                         'components' => [
                             $this->getWidget(
+                                type: 'overview',
                                 rowSpan: 2,
                                 data: [
-                                    'value'         => $fulfilment->stats->number_customers_status_active,
-                                    'description'   => __('Active Customers'),
-                                    'type'          => 'number',
-                                ],
-                                visual: [
-                                    'type'   => 'percantage',
-                                    'value'  => 2000
+                                    'value' => 10289, // Example value
+                                    'description' => __('Active Customers'),
+                                    'type' => 'number',
                                 ]
                             ),
 

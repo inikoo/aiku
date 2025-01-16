@@ -238,6 +238,7 @@ const printLabelByType = (label?: string) => {
 				" />
 		</div>
 
+		<div v-if="visual?.type === ''"></div>
 		<Chart
 			v-else-if="visual?.type == 'pie'"
 			type="pie"
@@ -255,7 +256,7 @@ const printLabelByType = (label?: string) => {
 		<Chart
 			v-else-if="visual?.type == 'line'"
 			type="line"
-			:labels="'visual?.label'"
+			:labels="'visual?.value'"
 			:data="visual.value"
 		/>
 

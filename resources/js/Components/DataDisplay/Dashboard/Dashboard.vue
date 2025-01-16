@@ -81,8 +81,8 @@ const toggleCurrency = () => {
 		/>
 
 		<DashboardWidget 
-		v-if="props.dashboard?.widgets"
-		:widgetsData="dashboard.widgets" />
+			v-if="props.dashboard?.widgets"
+			:widgetsData="dashboard.widgets"/>
 	</div>
 </template>
 

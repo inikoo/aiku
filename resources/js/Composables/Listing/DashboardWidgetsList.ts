@@ -9,10 +9,11 @@ import type { Component } from 'vue'
 import { defineAsyncComponent } from 'vue'
 
 const BasicDisplay = defineAsyncComponent(() => import('@/Components/DataDisplay/Dashboard/Widget/BasicDisplay.vue'))
-
+const OverviewDisplay = defineAsyncComponent(() => import('@/Components/DataDisplay/Dashboard/Widget/OverviewDisplay.vue'))
 
 export const widgetList: {[key: string]: Component} = {
     'basic': BasicDisplay,
+    'overview': OverviewDisplay,
 }
 
 export const getComponentWidget = (componentName: string) => {
