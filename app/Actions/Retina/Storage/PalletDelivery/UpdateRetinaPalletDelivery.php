@@ -24,7 +24,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Symfony\Component\HttpFoundation\Response;
 
-class RetinaUpdatePalletDelivery extends RetinaAction
+class UpdateRetinaPalletDelivery extends RetinaAction
 {
     use AsAction;
     use WithAttributes;
@@ -39,7 +39,7 @@ class RetinaUpdatePalletDelivery extends RetinaAction
         $palletDelivery = $this->update($palletDelivery, $modelData);
 
         if ($palletDelivery->wasChanged('state')) {
-            RetinaUpdatePalletDeliveryTimeline::run($palletDelivery, [
+            UpdateRetinaPalletDeliveryTimeline::run($palletDelivery, [
                 'state' => $palletDelivery->state
             ]);
         }

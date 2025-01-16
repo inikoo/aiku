@@ -18,7 +18,7 @@ use App\Models\Fulfilment\PalletReturn;
 use App\Models\Helpers\Upload;
 use Lorisleiva\Actions\ActionRequest;
 
-class RetinaImportPalletReturnItem extends RetinaAction
+class ImportRetinaPalletReturnItem extends RetinaAction
 {
     use WithImportModel;
 

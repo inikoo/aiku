@@ -14,7 +14,7 @@ use App\Actions\Fulfilment\PalletReturn\UI\IndexServiceInPalletReturn;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemsInReturn;
 use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
+use App\Actions\UI\Retina\Storage\UI\RetinaShowRetinaStorageDashboard;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
@@ -574,7 +574,7 @@ class ShowPalletReturn extends RetinaAction
 
         return match ($routeName) {
             'retina.fulfilment.storage.pallet-returns.show' => array_merge(
-                ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+                RetinaShowRetinaStorageDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $palletReturn,
                     [

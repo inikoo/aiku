@@ -9,7 +9,7 @@
 namespace App\Actions\Retina\Storage\Pallet\UI;
 
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
+use App\Actions\UI\Retina\Storage\UI\RetinaShowRetinaStorageDashboard;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
@@ -210,7 +210,7 @@ class IndexRetinaPallets extends RetinaAction
         return match ($routeName) {
             'retina.fulfilment.storage.pallets.index' =>
             array_merge(
-                ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+                RetinaShowRetinaStorageDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

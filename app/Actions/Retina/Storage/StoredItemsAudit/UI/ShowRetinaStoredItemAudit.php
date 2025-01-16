@@ -11,7 +11,7 @@ namespace App\Actions\Retina\Storage\StoredItemsAudit\UI;
 
 use App\Actions\Fulfilment\StoredItemAudit\EditStoredItemDeltasInAudit;
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
+use App\Actions\UI\Retina\Storage\UI\RetinaShowRetinaStorageDashboard;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditResource;
@@ -146,7 +146,7 @@ class ShowRetinaStoredItemAudit extends RetinaAction
 
         return match ($routeName) {
             'retina.fulfilment.storage.stored-items-audits.show' => array_merge(
-                ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+                RetinaShowRetinaStorageDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $storedItemAudit,
                     [
