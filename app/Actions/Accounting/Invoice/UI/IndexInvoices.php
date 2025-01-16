@@ -63,11 +63,12 @@ class IndexInvoices extends OrgAction
 
 
         $queryBuilder = QueryBuilder::for(Invoice::class);
-
+        
         if ($this->bucket) {
-            if ($this->bucket === 'unpaid') {
-                $queryBuilder->where('invoices.total_amount', '>', 0)
-                    ->where('invoices.pay_status', InvoicePayStatusEnum::UNPAID);
+            if ($this->bucket == 'unpaid') {
+                $queryBuilder->where('invoices.pay_status', InvoicePayStatusEnum::UNPAID);
+            } elseif ($this->bucket == 'paid') {
+                $queryBuilder->where('invoices.pay_status', InvoicePayStatusEnum::PAID);
             }
         }
 
@@ -341,6 +342,15 @@ class IndexInvoices extends OrgAction
         return $this->handle($fulfilment);
     }
 
+    public function paidFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'paid';
+        $this->parent = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilment);
+    }
+
     public function allOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'all';
@@ -460,6 +470,17 @@ class IndexInvoices extends OrgAction
                     trim('('.__('Unpaid').') ')
                 )
             ),
+            'grp.org.accounting.invoices.paid_invoices.index' =>
+            array_merge(
+                ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    trim('('.__('Paid').') ')
+                )
+            ),
             'grp.org.fulfilments.show.operations.invoices.all_invoices.index' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs(routeParameters: $routeParameters),
@@ -469,6 +490,17 @@ class IndexInvoices extends OrgAction
                         'parameters' => $routeParameters
                     ],
                     trim('('.__('All').') ')
+                )
+            ),
+            'grp.org.fulfilments.show.operations.invoices.paid_invoices.index' =>
+            array_merge(
+                ShowFulfilment::make()->getBreadcrumbs(routeParameters: $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    trim('('.__('Paid').') ')
                 )
             ),
             'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.index' =>
