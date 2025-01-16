@@ -61,11 +61,15 @@ class ShowFulfilmentDashboard extends OrgAction
                         'column_count'    => 4,
                         'components' => [
                             $this->getWidget(
-                                colSpan: 2,
+                                rowSpan: 2,
                                 data: [
                                     'value'         => $fulfilment->stats->number_customers_status_active,
                                     'description'   => __('Active Customers'),
                                     'type'          => 'number',
+                                ],
+                                visual: [
+                                    'type'   => 'percantage',
+                                    'value'  => 2000
                                 ]
                             ),
 
@@ -78,11 +82,18 @@ class ShowFulfilmentDashboard extends OrgAction
                             ),
 
                             $this->getWidget(
+                                colSpan: 2,
                                 data: [
                                     'value'         => $fulfilment->stats->number_pallet_deliveries,
                                     'description'   => __('Deliveries'),
                                     'type'          => 'number',
-                                ]
+                                ],
+                                visual: [
+                                    'type' => 'MeterGroup',
+                                    'value' => 382,
+                                    'max' => 500,
+                                    'color'=> 'bg-blue-500',
+                                ], 
                             ),
 
                             $this->getWidget(
