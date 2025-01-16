@@ -8,7 +8,6 @@
 
 namespace App\Actions\Fulfilment\StoredItemAudit\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\StoredItemAudit\EditStoredItemDeltasInAudit;
 use App\Actions\Fulfilment\StoredItemAuditDelta\UI\IndexStoredItemAuditDeltas;
@@ -223,7 +222,7 @@ class ShowStoredItemAudit extends OrgAction
 
     public function getBreadcrumbs(StoredItemAudit $storedItemAudit, string $routeName, array $routeParameters, $suffix = ''): array
     {
-        $headCrumb = function ( array $routeParameters, string $suffix) use ($storedItemAudit) {
+        $headCrumb = function (array $routeParameters, string $suffix) use ($storedItemAudit) {
             return [
                 [
                     'type'           => 'modelWithIndex',
