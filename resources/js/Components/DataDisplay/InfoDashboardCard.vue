@@ -25,10 +25,10 @@ const props = defineProps({
 		type: String,
 		required: true,
 	},
-  type: {
-    type: String,
-    required: true,
-  }
+	type: {
+		type: String,
+		required: true,
+	},
 })
 </script>
 
@@ -41,7 +41,7 @@ const props = defineProps({
 		<Link v-if="props.route" :href="props.route">
 			<span class="text-4xl font-bold leading-tight primaryLink">{{ value }}</span>
 		</Link>
-    <span v-if="type == 'dashboard'" class="text-4xl font-bold leading-tight">{{ value }}</span>
+		<span v-if="type == 'dashboard'" class="text-4xl font-bold leading-tight">{{ value }}</span>
 		<p class="text-gray-500 text-base mt-2">{{ description }}</p>
 		<!-- Conditional Red Exclamation Icon -->
 		<div

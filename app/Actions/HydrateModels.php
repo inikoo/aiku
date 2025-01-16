@@ -176,6 +176,7 @@ class HydrateModels extends HydrateModel
         $command->call('hydrate:payments');
         $command->call('hydrate:payment_accounts');
         $command->call('hydrate:org_payment_service_provider');
+        $command->call('hydrate:invoices');
 
 
         // $command->call('hydrate:topups'); -> error on record search

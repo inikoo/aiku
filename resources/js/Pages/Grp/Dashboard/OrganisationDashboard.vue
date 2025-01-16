@@ -35,6 +35,7 @@ import ToggleSwitch from "primevue/toggleswitch"
 import { faSortDown, faSortUp } from "@fas"
 import Select from "primevue/select"
 import { Link } from "@inertiajs/vue3"
+import Dashboard from "@/Components/DataDisplay/Dashboard/Dashboard.vue"
 
 library.add(faTriangle, faChevronDown, faSortDown, faSortUp, faPlay)
 
@@ -45,6 +46,7 @@ const props = defineProps<{
 		labelShort: string
 		value: string
 	}[]
+	dashboard_stats:{}
 }>()
 
 console.log(props.dashboard, "hehe")
@@ -55,11 +57,10 @@ const checked = ref(true)
 const datas = computed(() => {
 	return props.dashboard.shops
 		.filter((org) => {
-			// Filter based on checkbox state
 			if (checked.value) {
-				return org.state !== "closed" // Exclude closed shops when checked is true
-			}
-			return true // Include all shops when checked is false
+                return org.state !== "closed"; // Exclude closed shops when checked is true
+            }
+            return true;
 		})
 		.map((org) => ({
 			name: org.name,
@@ -93,12 +94,9 @@ function ShopDashboard(shop: any) {
 	<Head :title="trans('Dashboard')" />
 	<div class="grid grid-cols-12 m-3 gap-4">
 		<!-- <pre>{{ props.groupStats.organisations }}</pre> -->
-		<div class="col-span-12 space-y-4">
-			<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
-				<div class="flex justify-between items-center">
+			<!-- 	<div class="flex justify-between items-center">
 					<ToggleSwitch v-model="checked" />
 
-					<!-- Right Side Group-Organisation Toggle -->
 					<div class="flex items-center space-x-4">
 						<p
 							class="font-medium transition-opacity"
@@ -117,8 +115,8 @@ function ShopDashboard(shop: any) {
 							Shop
 						</p>
 					</div>
-				</div>
-
+				</div> -->
+<!-- 
 				<div class="mt-4 block">
 					<nav class="isolate flex rounded border-b border-gray-300" aria-label="Tabs">
 						<div
@@ -142,11 +140,11 @@ function ShopDashboard(shop: any) {
 								]" />
 						</div>
 					</nav>
-				</div>
+				</div> -->
 
-				<div class="mt-6">
-					<DataTable :value="datas" removableSort tableStyle="min-width: 50rem">
-						<Column
+				<!-- <div class="mt-6">
+					<DataTable :value="datas" removableSort tableStyle="min-width: 50rem"> -->
+						<!-- <Column
 							field="name"
 							sortable
 							class="overflow-hidden transition-all"
@@ -162,10 +160,10 @@ function ShopDashboard(shop: any) {
 									</Transition>
 								</div>
 							</template>
-						</Column>
+						</Column> -->
 
 						<!-- Refunds -->
-						<Column sortable hidden headerClass="align-right">
+					<!-- 	<Column sortable hidden headerClass="align-right">
 							<template #header>
 								<div class="flex justify-end items-end">
 									<span class="font-bold">Refunds</span>
@@ -191,10 +189,10 @@ function ShopDashboard(shop: any) {
 									</Transition>
 								</div>
 							</template>
-						</Column>
+						</Column> -->
 
 						<!-- Refunds: Diff 1y -->
-						<Column
+						<!-- <Column
 							hidden
 							sortable
 							class="overflow-hidden transition-all"
@@ -213,7 +211,6 @@ function ShopDashboard(shop: any) {
 							</template>
 							<template #body="{ data }">
 								<div class="flex justify-end relative">
-									<!-- {{ `${data.interval_percentages?.refunds?.[selectedDateOption]?.difference}_${data.interval_percentages?.refunds?.[selectedDateOption]?.percentage}` }} -->
 									<Transition name="spin-to-down" mode="out-in">
 										<div
 											:key="`${data.interval_percentages?.refunds[selectedDateOption].difference}_${data.interval_percentages?.refunds[selectedDateOption].percentage}`"
@@ -270,10 +267,10 @@ function ShopDashboard(shop: any) {
 									</Transition>
 								</div>
 							</template>
-						</Column>
+						</Column> -->
 
 						<!-- Invoice -->
-						<Column
+					<!-- 	<Column
 							sortable
 							class="overflow-hidden transition-all"
 							headerClass="align-right">
@@ -301,10 +298,10 @@ function ShopDashboard(shop: any) {
 									</Transition>
 								</div>
 							</template>
-						</Column>
+						</Column> -->
 
 						<!-- Invoice: Diff 1y -->
-						<Column
+						<!-- <Column
 							field="invoices_diff"
 							sortable
 							class="overflow-hidden transition-all"
@@ -325,7 +322,7 @@ function ShopDashboard(shop: any) {
 								<div class="flex justify-end relative">
 									<Transition name="spin-to-down" mode="out-in">
 										<div class="flex justify-end relative">
-											<!-- {{ `${data.interval_percentages?.invoices?.[selectedDateOption]?.difference}_${data.interval_percentages?.invoices?.[selectedDateOption]?.percentage}` }} -->
+										
 											<Transition name="spin-to-down" mode="out-in">
 												<div
 										
@@ -386,10 +383,10 @@ function ShopDashboard(shop: any) {
 									</Transition>
 								</div>
 							</template>
-						</Column>
+						</Column> -->
 
 						<!-- Sales -->
-						<Column
+						<!-- <Column
 							field="sales"
 							sortable
 							class="overflow-hidden transition-all"
@@ -428,10 +425,10 @@ function ShopDashboard(shop: any) {
 									</Transition>
 								</div>
 							</template>
-						</Column>
+						</Column> -->
 
 						<!-- Sales: Diff 1y -->
-						<Column
+						<!-- <Column
 							field="sales_diff"
 							sortable
 							class="overflow-hidden transition-all"
@@ -450,7 +447,7 @@ function ShopDashboard(shop: any) {
 							</template>
 							<template #body="{ data }">
 								<div class="flex justify-end relative">
-									<!-- {{ `${data.interval_percentages?.sales?.[selectedDateOption]?.difference}_${data.interval_percentages?.sales?.[selectedDateOption]?.percentage}` }} -->
+									
 									<Transition name="spin-to-down" mode="out-in">
 										<div
 											:key="`${data.interval_percentages?.sales[selectedDateOption].difference}_${data.interval_percentages?.sales[selectedDateOption].percentage}`"
@@ -508,10 +505,10 @@ function ShopDashboard(shop: any) {
 									</Transition>
 								</div>
 							</template>
-						</Column>
+						</Column> -->
 
 						<!-- Total -->
-						<ColumnGroup type="footer">
+						<!-- <ColumnGroup type="footer">
 							<Row>
 								<Column footer="Total"> Total </Column>
 								<Column
@@ -541,11 +538,16 @@ function ShopDashboard(shop: any) {
 									footerStyle="text-align:right" />
 								<Column footer="" footerStyle="text-align:right" />
 							</Row>
-						</ColumnGroup>
-					</DataTable>
+						</ColumnGroup> -->
+					<!-- </DataTable>
+				</div> -->
+				<div class="col-span-12">
+					<Dashboard 
+						:dashboard="dashboard_stats"
+						:checked="checked"
+						tableType="org"/>	
 				</div>
-			</div>
-		</div>
+		
 		<!-- <pre>{{ groupStats }}</pre> -->
 	</div>
 </template>
