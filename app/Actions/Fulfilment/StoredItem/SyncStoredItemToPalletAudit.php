@@ -13,13 +13,13 @@ use App\Actions\Fulfilment\StoredItemAuditDelta\UpdateStoredItemAuditDelta;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
 use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaTypeEnum;
-use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\StoredItemAudit;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -35,8 +35,7 @@ class SyncStoredItemToPalletAudit extends OrgAction
     public function handle(Pallet $pallet, StoredItemAudit $storedItemAudit, array $modelData): void
     {
         foreach (Arr::get($modelData, 'stored_item_ids', []) as $storedItemId => $auditData) {
-
-            $isNewInPallet = true;
+            $isNewInPallet   = true;
             $isNewStoredItem = false;
             $storedItemExist = $pallet->storedItems()->where(
                 'stored_item_id',
@@ -44,10 +43,7 @@ class SyncStoredItemToPalletAudit extends OrgAction
             )->exists();
             $originalQty     = 0;
             if ($storedItemExist) {
-                $originalQty = $pallet->storedItems()->where(
-                    'stored_item_id',
-                    $storedItemId
-                )->count();
+                $originalQty   = $pallet->storedItems()->where('stored_item_id', $storedItemId)->count();
                 $isNewInPallet = false;
             }
 
@@ -69,21 +65,20 @@ class SyncStoredItemToPalletAudit extends OrgAction
             $storedItemAuditDelta = $storedItemAudit->deltas()->where('pallet_id', $pallet->id)->where('stored_item_id', $storedItemId)->first();
             if ($storedItemAuditDelta) {
                 UpdateStoredItemAuditDelta::make()->action($storedItemAuditDelta, [
-                    'audited_quantity' => $auditData['quantity'],
-                    'audited_at'       => now(),
-                    'audit_type'             => $type,
-                    'state'            => StoredItemAuditDeltaStateEnum::IN_PROCESS
+                    'original_quantity' => $originalQty,
+                    'audited_quantity'  => $auditData['quantity'],
+                    'audit_type'        => $type,
+                    'state'             => StoredItemAuditDeltaStateEnum::IN_PROCESS
                 ]);
             } else {
                 StoreStoredItemAuditDelta::make()->action($storedItemAudit, [
-                    'pallet_id'         => $pallet->id,
-                    'stored_item_id'    => $storedItemId,
-                    'original_quantity' => $originalQty,
-                    'audited_quantity'  => $auditData['quantity'],
-                    'audited_at'        => now(),
-                    'audit_type'              => $type,
-                    'state'             => StoredItemAuditDeltaStateEnum::IN_PROCESS,
-                    'is_new_stored_item' => $isNewStoredItem,
+                    'pallet_id'                    => $pallet->id,
+                    'stored_item_id'               => $storedItemId,
+                    'original_quantity'            => $originalQty,
+                    'audited_quantity'             => $auditData['quantity'],
+                    'audit_type'                   => $type,
+                    'state'                        => StoredItemAuditDeltaStateEnum::IN_PROCESS,
+                    'is_new_stored_item'           => $isNewStoredItem,
                     'is_stored_item_new_in_pallet' => $isNewInPallet
                 ]);
             }
@@ -108,6 +103,8 @@ class SyncStoredItemToPalletAudit extends OrgAction
         return [
             'stored_item_ids'            => ['sometimes', 'array'],
             'stored_item_ids.*.quantity' => ['required', 'integer', 'min:1'],
+            'user_id'                      => ['required', Rule::exists('users', 'id')->where('group_id', $this->organisation->group_id)],
+
         ];
     }
 
@@ -120,6 +117,13 @@ class SyncStoredItemToPalletAudit extends OrgAction
         ];
     }
 
+    public function prepareForValidation(ActionRequest $request): void
+    {
+        if (!$this->asAction) {
+            $this->set('user_id', $request->user()->id);
+        }
+    }
+
     public function asController(Pallet $pallet, StoredItemAudit $storedItemAudit, ActionRequest $request): void
     {
         $this->fulfilmentCustomer = $pallet->fulfilmentCustomer;
@@ -130,19 +134,17 @@ class SyncStoredItemToPalletAudit extends OrgAction
         $this->handle($pallet, $storedItemAudit, $this->validatedData);
     }
 
-    public function action(Pallet $pallet, StoredItemAudit $storedItemAudit, $modelData): void
-    {
-        $this->asAction           = true;
-        $this->fulfilmentCustomer = $pallet->fulfilmentCustomer;
-        $this->fulfilment         = $pallet->fulfilment;
+    //Uncomment this if needed for testing
+    //    public function action(Pallet $pallet, StoredItemAudit $storedItemAudit, $modelData): void
+    //    {
+    //        $this->asAction           = true;
+    //        $this->fulfilmentCustomer = $pallet->fulfilmentCustomer;
+    //        $this->fulfilment         = $pallet->fulfilment;
+    //
+    //        $this->initialisation($pallet->organisation, $modelData);
+    //
+    //        $this->handle($pallet, $storedItemAudit, $this->validatedData);
+    //    }
 
-        $this->initialisation($pallet->organisation, $modelData);
 
-        $this->handle($pallet, $storedItemAudit, $this->validatedData);
-    }
-
-    public function jsonResponse(Pallet $pallet): PalletResource
-    {
-        return new PalletResource($pallet);
-    }
 }

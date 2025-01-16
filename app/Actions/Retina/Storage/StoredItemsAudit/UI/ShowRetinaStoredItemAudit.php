@@ -11,9 +11,7 @@ namespace App\Actions\Retina\Storage\StoredItemsAudit\UI;
 
 use App\Actions\Fulfilment\StoredItemAudit\EditStoredItemDeltasInAudit;
 use App\Actions\RetinaAction;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
-use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditResource;
@@ -24,47 +22,33 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowRetinaStoredItemAudit extends RetinaAction
 {
-    use HasFulfilmentAssetsAuthorisation;
+    public function authorize(ActionRequest $request): bool
+    {
 
-    private bool $selectStoredPallets = false;
+        if ($this->customer->fulfilmentCustomer->id != $request->route()->parameter('storedItemAudit')->fulfilment_customer_id) {
+            return false;
+        }
+        return true;
+    }
+
 
     public function handle(StoredItemAudit $storedItemAudit): StoredItemAudit
     {
         return $storedItemAudit;
     }
 
-    public function jsonResponse(StoredItemAudit $storedItemAudit): StoredItemAuditResource
-    {
-        return StoredItemAuditResource::make($storedItemAudit);
-    }
 
     public function htmlResponse(StoredItemAudit $storedItemAudit, ActionRequest $request): Response
     {
         $subNavigation = [];
 
-        $title      = __("Customer's SKUs audit");
+        $title      = __("'SKUs audit");
         $icon       = ['fal', 'fa-pallet'];
         $afterTitle = null;
         $iconRight  = null;
 
         $actions = [];
-        if ($storedItemAudit->state === StoredItemAuditStateEnum::IN_PROCESS) {
-            $actions = [
-                [
-                    'type'  => 'button',
-                    'style' => 'primary',
-                    'label' => __('Complete Audit'),
-                    'route' => [
-                        'method' => 'patch',
-                        'name'       => 'grp.models.fulfilment-customer.stored_item_audits.complete',
-                        'parameters' => [
-                            'fulfilmentCustomer' => $storedItemAudit->fulfilment_customer_id,
-                            'storedItemAudit' => $storedItemAudit->id
-                        ],
-                    ]
-                ]
-            ];
-        }
+
 
         return Inertia::render(
             'Storage/RetinaStoredItemsAudit',
@@ -73,7 +57,7 @@ class ShowRetinaStoredItemAudit extends RetinaAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __("Customer's skus audits"),
+                'title'       => __("SKUs audit"),
                 'pageHead'    => [
                     'title'      => $title,
                     'afterTitle' => $afterTitle,
@@ -90,13 +74,6 @@ class ShowRetinaStoredItemAudit extends RetinaAction
                         'editable' => true,
                         'bgColor'  => 'pink',
                         'field'    => 'public_notes'
-                    ],
-                    [
-                        'label'    => __('Private'),
-                        'note'     => $storedItemAudit->internal_notes ?? '',
-                        'editable' => true,
-                        'bgColor'  => 'purple',
-                        'field'    => 'internal_notes'
                     ],
                 ],
 
@@ -128,7 +105,8 @@ class ShowRetinaStoredItemAudit extends RetinaAction
                 'fulfilment_customer' => FulfilmentCustomerResource::make($storedItemAudit->fulfilmentCustomer)->getArray()
             ]
         )->table(
-            EditStoredItemDeltasInAudit::make()->tableStructure(
+            //todo create this
+            IndexRetinaStoredItemDeltas::make()->tableStructure(
                 $storedItemAudit->fulfilmentCustomer,
                 prefix: 'pallets'
             )

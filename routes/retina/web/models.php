@@ -35,11 +35,9 @@ use App\Actions\Fulfilment\PalletReturn\DetachPalletFromReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
-use App\Actions\Fulfilment\StoredItem\ResetAuditStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItemsToReturn;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
-use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPalletAudit;
 use App\Actions\UI\Retina\Profile\UpdateRetinaProfile;
 use App\Actions\UI\Retina\SysAdmin\UpdateRetinaFulfilmentCustomer;
 use Illuminate\Support\Facades\Route;
@@ -81,9 +79,6 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
 
 Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
     Route::post('stored-items', SyncStoredItemToPallet::class)->name('stored-items.update');
-    Route::post('stored-items/audit/{storedItemAudit:id}', SyncStoredItemToPalletAudit::class)->name('stored-items.audit');
-    Route::delete('stored-items/reset', ResetAuditStoredItemToPallet::class)->name('stored-items.audit.reset');
-
     Route::delete('', [DeletePallet::class, 'fromRetina'])->name('delete');
     Route::patch('', [UpdatePallet::class, 'fromRetina'])->name('update');
 });

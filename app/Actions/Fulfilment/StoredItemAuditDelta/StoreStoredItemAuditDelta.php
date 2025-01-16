@@ -21,6 +21,7 @@ class StoreStoredItemAuditDelta extends OrgAction
     {
         data_set($modelData, 'group_id', $storedItemAudit->group_id);
         data_set($modelData, 'organisation_id', $storedItemAudit->organisation_id);
+        data_set($modelData, 'audited_at', now());
 
         return $storedItemAudit->deltas()->create($modelData);
     }
@@ -28,14 +29,13 @@ class StoreStoredItemAuditDelta extends OrgAction
     public function rules(): array
     {
         return [
-            'pallet_id' => ['required', 'integer', 'exists:pallets,id'],
-            'stored_item_id' => ['required', 'integer', 'exists:stored_items,id'],
-            'audited_at' => ['required', 'date'],
-            'audit_type'          => ['required', Rule::enum(StoredItemAuditDeltaTypeEnum::class)],
-            'state'          => ['required', Rule::enum(StoredItemAuditDeltaStateEnum::class)],
-            'audited_quantity' => ['required', 'integer', 'min:0'],
-            'original_quantity' => ['required', 'integer', 'min:0'],
-            'is_new_stored_item' => ['required', 'bool'],
+            'pallet_id'                    => ['required', 'integer', 'exists:pallets,id'],
+            'stored_item_id'               => ['required', 'integer', 'exists:stored_items,id'],
+            'audit_type'                   => ['required', Rule::enum(StoredItemAuditDeltaTypeEnum::class)],
+            'state'                        => ['required', Rule::enum(StoredItemAuditDeltaStateEnum::class)],
+            'audited_quantity'             => ['required', 'integer', 'min:0'],
+            'original_quantity'            => ['required', 'integer', 'min:0'],
+            'is_new_stored_item'           => ['required', 'bool'],
             'is_stored_item_new_in_pallet' => ['required', 'bool']
         ];
     }
