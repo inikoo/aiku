@@ -52,9 +52,9 @@ const onDelete = (data : { id : ''}) => {
     sendToServer(finalData)
 }
 
-const sendToServer = async (data : {}) => {
-    console.log('-=-=-=-=', props.saveRoute.name, props.saveRoute.parameters)
-    router.post(route(props.saveRoute.name, props.saveRoute.parameters), { stored_item_ids: data }, {
+const sendToServer = async (data : {}, replaceData?: boolean) => {
+    // console.log('-=-=-=-=', props.saveRoute.name, props.saveRoute.parameters)
+    router.post(route(props.saveRoute.name, props.saveRoute.parameters), replaceData ? data : { stored_item_ids: data }, {
         onError: (e) => {
             form.errors = {
                 id: get(e, [`stored_item_ids`])
@@ -110,16 +110,18 @@ const sendToServer = async (data : {}) => {
         </slot>
 
         <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-[400px]">
-            <div class="space-y-4">
-                <CreateStoredItems
-                    :storedItemsRoute="storedItemsRoute"
-                    :form="form"
-                    @onSave="sendToServer"
-                    :stored_items="pallet.stored_items"
-                    @closeModal="isModalOpen = false"
-                    :title
-                />
-            </div>
+            <slot name="modal" :form :sendToServer="sendToServer" :closeModal="() => isModalOpen = false" >
+                <div class="space-y-4">
+                    <CreateStoredItems
+                        :storedItemsRoute="storedItemsRoute"
+                        :form="form"
+                        @onSave="sendToServer"
+                        :stored_items="pallet.stored_items"
+                        @closeModal="isModalOpen = false"
+                        :title
+                    />
+                </div>
+            </slot>
         </Modal>
     </div>
 </template>

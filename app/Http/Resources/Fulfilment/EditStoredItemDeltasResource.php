@@ -79,6 +79,7 @@ class EditStoredItemDeltasResource extends JsonResource
                     'reference'        => $item->stored_item_reference,
                     'quantity'         => 0,
                     'audited_quantity' => (int)$item->audited_quantity,
+                    'storedItemAuditDelta' => $item->audit_id,
                     'update_routes'    => [
                         'name'       => 'grp.models.stored_item_audit_delta.update',
                         'parameters' => [

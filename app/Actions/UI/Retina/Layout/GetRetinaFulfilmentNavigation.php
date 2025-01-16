@@ -36,6 +36,27 @@ class GetRetinaFulfilmentNavigation
             ];
         }
 
+        if($webUser->customer->fulfilmentCustomer->items_storage){
+            $additionalSubsections[] = [
+                'label' => __('SKUs'),
+                'icon'  => ['fal', 'fa-barcode'],
+                'root'  => 'retina.fulfilment.storage.stored-items.',
+                'route' => [
+                    'name'       => 'retina.fulfilment.storage.stored-items.index'
+                ]
+            ];
+
+            $additionalSubsections[] = [
+                'label' => __('SKU audits'),
+                'icon'  => ['fal', 'fa-ballot-check'],
+                'root'  => 'retina.fulfilment.storage.stored-items-audits.',
+                'route' => [
+                    'name'       => 'retina.fulfilment.storage.stored-items-audits.index'
+                ]
+            ];
+        }
+
+
         $groupNavigation['storage'] = [
             'label'   => __('Dashboard'),
             'icon'    => ['fal', 'fa-tachometer-alt'],
@@ -62,28 +83,14 @@ class GetRetinaFulfilmentNavigation
                         ]
                     ],
                     ...$additionalSubsections,
+
+
                     [
-                        'label' => __('assets'),
-                        'icon'  => ['fal', 'fa-ballot'],
+                        'label' => __('Pricing'),
+                        'icon'  => ['fal', 'fa-usd-circle'],
                         'root'  => 'retina.fulfilment.storage.assets.',
                         'route' => [
                             'name'       => 'retina.fulfilment.storage.assets.index'
-                        ]
-                    ],
-                    [
-                        'label' => __('stored items'),
-                        'icon'  => ['fal', 'fa-truck-couch'],
-                        'root'  => 'retina.fulfilment.storage.stored-items.',
-                        'route' => [
-                            'name'       => 'retina.fulfilment.storage.stored-items.index'
-                        ]
-                    ],
-                    [
-                        'label' => __('stored items audits'),
-                        'icon'  => ['fal', 'fa-narwhal'],
-                        'root'  => 'retina.fulfilment.storage.stored-items-audits.',
-                        'route' => [
-                            'name'       => 'retina.fulfilment.storage.stored-items-audits.index'
                         ]
                     ],
                 ]
