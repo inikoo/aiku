@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Thu, 16 Jan 2025 13:12:05 Malaysia Time, Kuala Lumpur, Malaysia
@@ -31,9 +32,9 @@ enum InvoicePayStatusEnum: string
         return [
             'unpaid' => [
                 'tooltip' => __('Unpaid'),
-                'icon'    => 'fal fa-file-invoice-dollar',
+                'icon'    => 'fal fa-money-check-alt',
                 'class'   => '',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'color'   => 'red',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'
@@ -43,7 +44,7 @@ enum InvoicePayStatusEnum: string
                 'tooltip' => __('Paid'),
                 'icon'    => 'fal fa-hand-holding-usd',
                 'class'   => '',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'color'   => 'green',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'
@@ -52,8 +53,8 @@ enum InvoicePayStatusEnum: string
             'unknown' => [
                 'tooltip' => __('Unknown'),
                 'icon'    => 'fal fa-question',
-                'class'   => '',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'class'   => '',
+                'color'   => 'gray',
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'

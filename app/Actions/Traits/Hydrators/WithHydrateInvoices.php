@@ -8,6 +8,7 @@
 
 namespace App\Actions\Traits\Hydrators;
 
+use App\Enums\Accounting\Invoice\InvoicePayStatusEnum;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
@@ -33,7 +34,7 @@ trait WithHydrateInvoices
         }
 
         // unpaid hydrate
-        $unpaidQuery = $model->invoices()->where('total_amount', '>', 0)->whereNull('paid_at');
+        $unpaidQuery = $model->invoices()->where('pay_status', InvoicePayStatusEnum::UNPAID);
 
         if ($model instanceof Customer || $model instanceof Shop) {
             $stats = array_merge($stats, [
