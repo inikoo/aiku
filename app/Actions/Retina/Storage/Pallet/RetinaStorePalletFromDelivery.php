@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 16-01-2025-13h-25m
@@ -13,7 +14,6 @@ use App\Actions\Fulfilment\Pallet\SyncPalletStoredItem;
 use App\Actions\Fulfilment\PalletDelivery\AutoAssignServicesToPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePallets;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
-use App\Actions\OrgAction;
 use App\Actions\RetinaAction;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
@@ -22,13 +22,11 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Inventory\Warehouse;
-use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsCommand;
 
 class RetinaStorePalletFromDelivery extends RetinaAction
 {
