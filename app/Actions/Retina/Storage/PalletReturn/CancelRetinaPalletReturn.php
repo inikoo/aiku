@@ -25,7 +25,7 @@ use App\Models\Fulfilment\PalletReturn;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\ActionRequest;
 
-class RetinaCancelPalletReturn extends RetinaAction
+class CancelRetinaPalletReturn extends RetinaAction
 {
     use WithActionUpdate;
 

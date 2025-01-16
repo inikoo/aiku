@@ -22,7 +22,7 @@ import Tag from "@/Components/Tag.vue"
 import { Pallet, PalletDelivery } from '@/types/Pallet'
 import { routeType } from "@/types/route"
 
-import { faStickyNote, faPlus, faMinus } from '@fal'
+import { faStickyNote, faPlus, faMinus, faCheckCircle as falCheckCircle, faUndo, faArrowToLeft } from '@fal'
 import { faCheckCircle } from '@fad'
 import { faStar } from '@fas'
 import Table from '@/Components/Table/Table.vue'
@@ -39,7 +39,7 @@ import { notify } from '@kyvg/vue3-notification'
 import CreateStoredItems from '@/Components/CreateStoredItems.vue'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 // import QuantityInput from '@/Components/Utils/QuantityInput.vue'
-library.add(faStickyNote, faPlus, faMinus, faCheckCircle, faStar)
+library.add(faStickyNote, faPlus, faMinus, falCheckCircle, faUndo, faArrowToLeft, faCheckCircle, faStar)
 
 const props = defineProps<{
     data: {
@@ -165,8 +165,8 @@ const storedItemsQuantity = reactive<StoredItemsQuantity>({
 
 // Section: update quantity stored item
 const isLoadingQuantity = reactive<StoredItemsQuantity>({})
-const onChangeQuantity = debounce((row: number, idStoredItemAuditDelta: number, quantity: number) => {
-
+const onChangeQuantity = (row: number, idStoredItemAuditDelta: number, quantity: number) => {
+    console.log('lolo', props.route_list?.stored_item_audit_delta?.update?.name)
     if (!props.route_list?.stored_item_audit_delta?.update?.name) {
         return
     }
@@ -194,7 +194,13 @@ const onChangeQuantity = debounce((row: number, idStoredItemAuditDelta: number, 
             }
         }
     )
-}, 500)
+}
+const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: number, quantity: number) => onChangeQuantity(row, idStoredItemAuditDelta, quantity), 500)
+
+const currentStateX = ref(false)
+const statesBoxEdit = reactive<StoredItemsQuantity>({
+
+})
 </script>
 
 <template>
@@ -268,89 +274,120 @@ const onChangeQuantity = debounce((row: number, idStoredItemAuditDelta: number, 
         <template #cell(stored_items)="{ proxyItem, item }">
 
             <DataTable v-if="proxyItem.stored_items?.length || proxyItem.new_stored_items?.length" :value="[...proxyItem.stored_items, ...proxyItem.new_stored_items]">
-                <Column field="reference" :header="trans('SKU')">
+                <Column field="reference" :header="trans('SKU')" class="">
                     <template #body="{ data }">
                         <div class="whitespace-nowrap">{{ data.reference }} <FontAwesomeIcon v-if="data.type === 'new_item'" v-tooltip="trans('New added Customer\'s SKU')" icon='fas fa-star' size="xs" class='text-indigo-500' fixed-width aria-hidden='true' /></div>
                     </template>
                 </Column>
 
-                <Column field="quantity" header="Current qty">
+                <Column field="quantity" header="Current qty" class="">
                     <template #body="{ data }">
                         <div class="text-right">{{ data.quantity || '' }}</div>
                     </template>
                 </Column>
 
-                <Column field="quantity" header="" class="w-36">
+                <Column field="quantity" header="Actions" class="">
                     <template #body="{ data }">
-
-                        <!-- <QuantityInput
-                            v-model="data.audited_quantity"
-                            :quantity_from="data.quantity"
-                            :datxa="{
-                                id: 4,
-                                quantity_ordered: 5,
-                                inputTriggered: true
-                            }"
-                        /> -->
-
-                        <!-- <InputNumber v-model="value3" inputId="horizontal-buttons" showButtons buttonLayout="horizontal" :step="0.25" mode="currency" currency="EUR" fluid>
-                            <template #incrementicon>
-                                <FontAwesomeIcon icon='fal fa-plus' class='' fixed-width aria-hidden='true' />
-                            </template>
-                            <template #decrementicon>
-                                <FontAwesomeIcon icon='fal fa-minus' class='' fixed-width aria-hidden='true' />
-                            </template>
-                        </InputNumber> -->
-                        <!-- <pre>{{ data.update_routes }}</pre> -->
-                        <div class="relative flex flex-nowrap justify-center gap-y-1 gap-x-1">
-                            <div v-if="get(isLoadingQuantity, [item.rowIndex, data.storedItemAuditDelta], false)" class="z-10 opacity-60 absolute w-full h-full top-0 left-0">
+                        
+                        <div class="relative">
+                            <div v-if="get(isLoadingQuantity, [item.rowIndex, data.storedItemAuditDelta], false) || get(isLoadingUnselect, [item.rowIndex, data.storedItemAuditDelta], false)" class="z-10 opacity-60 absolute w-full h-full top-0 left-0">
                                 <div class="skeleton h-full w-full"></div>
                             </div>
+                            
+                            <div class="flex gap-x-2.5 items-center w-64">
+                                <div class="flex justify-center border border-gray-300 rounded gap-y-1">
+                                    <!-- Button: Check -->
+                                    <Button
+                                        v-if="data.type !== 'new_item'"
+                                        @click="() => onChangeQuantity(item.rowIndex, data.storedItemAuditDelta, data.quantity)"
+                                        type="tertiary"
+                                        icon="fal fa-check-circle"
+                                        class="border-none rounded-none"
+                                        
+                                    />
 
-                            <div
-                                @click="() => (set(data, `audited_quantity`, get(data, `audited_quantity`, data.quantity) - 1), onChangeQuantity(item.rowIndex, data.storedItemAuditDelta, get(data, `audited_quantity`, data.quantity)))"
-                                icon="fal fa-minus"
-                                type="tertiary"
-                                size="xs"
-                                class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-0.5 py-0.5 text-xs justify-self-center"
-                            >
-                                <FontAwesomeIcon icon='fal fa-minus' class='' fixed-width aria-hidden='true' />
-                            </div>
+                                    <!-- Section: - and + -->
+                                    <div
+                                        class="transition-all relative inline-flex items-center justify-center hover:bg-gray-200 text-gray-400 hover:text-gray-600 "
+                                        :class="get(statesBoxEdit, `${item.rowIndex}.${data.id}`, false) ? 'w-28' : 'w-14'"
+                                    >
+                                        <transition >
+                                            <div v-if="get(statesBoxEdit, `${item.rowIndex}.${data.id}`, false)" class="relative flex flex-nowrap items-center justify-center gap-y-1 gap-x-1">
+                                                <div
+                                                    @click="() => (set(data, `audited_quantity`, get(data, `audited_quantity`, data.quantity) - 1), debounceChangeQuantity(item.rowIndex, data.storedItemAuditDelta, get(data, `audited_quantity`, data.quantity)))"
+                                                    icon="fal fa-minus"
+                                                    type="tertiary"
+                                                    size="xs"
+                                                    class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-1 py-1.5 text-xs justify-self-center"
+                                                >
+                                                    <FontAwesomeIcon icon='fal fa-minus' class='' fixed-width aria-hidden='true' />
+                                                </div>
 
-                            <div class="text-center tabular-nums">
-                                <!-- <Transition name="spin-to-right">
-                                    <span :key="data.audited_quantity" class="text-lg" :class="data.audited_quantity > data.quantity ? 'text-green-500' : data.audited_quantity === data.quantity ? 'text-gray-500' : 'text-red-500'">
-                                        {{ data.audited_quantity }}
-                                    </span>
-                                </Transition> -->
-                                <InputNumber
-                                    v-model="data.audited_quantity"
-                                    @update:modelValue="(e) => onChangeQuantity(item.rowIndex, data.storedItemAuditDelta, e)"
-                                    buttonLayout="horizontal"
-                                    :min="0"
-                                    style="width: 100%"
-                                    :inputStyle="{
-                                        padding: '0px',
-                                        width: '50px',
-                                        color: data.audited_quantity > data.quantity ? '#00d200' : data.audited_quantity === data.quantity ? 'gray' : 'red'
-                                    }"
+                                                <div class="text-center tabular-nums">
+                                                    <!-- <Transition name="spin-to-right">
+                                                        <span :key="data.audited_quantity" class="text-lg" :class="data.audited_quantity > data.quantity ? 'text-green-500' : data.audited_quantity === data.quantity ? 'text-gray-500' : 'text-red-500'">
+                                                            {{ data.audited_quantity }}
+                                                        </span>
+                                                    </Transition> -->
+                                                    <InputNumber
+                                                        v-model="data.audited_quantity"
+                                                        @update:modelValue="(e) => debounceChangeQuantity(item.rowIndex, data.storedItemAuditDelta, e)"
+                                                        buttonLayout="horizontal"
+                                                        :min="0"
+                                                        style="width: 100%"
+                                                        :inputStyle="{
+                                                            padding: '0px',
+                                                            width: '50px',
+                                                            color: data.audited_quantity > data.quantity ? '#00d200' : data.audited_quantity === data.quantity ? 'gray' : 'red'
+                                                        }"
+                                                    />
+                                                </div>
+                                                
+                                                <div
+                                                    @click="() => (set(data, `audited_quantity`, get(data, `audited_quantity`, data.quantity) + 1), debounceChangeQuantity(item.rowIndex, data.storedItemAuditDelta, get(data, `audited_quantity`, data.quantity)))"
+                                                    icon="fal fa-minus"
+                                                    type="tertiary"
+                                                    size="xs"
+                                                    class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-1 py-1.5 text-xs justify-self-center"
+                                                >
+                                                    <FontAwesomeIcon icon='fal fa-plus' class='' fixed-width aria-hidden='true' />
+                                                </div>
+                                            </div>
+
+                                            <div v-else
+                                                @click="set(statesBoxEdit, `${item.rowIndex}.${data.id}`, true)"
+                                                class="w-fit flex justify-center items-center h-full cursor-pointer px-2 gap-x-1"
+                                            >
+                                                <span class="text-gray-600">{{ data.audited_quantity }}</span>
+                                                <FontAwesomeIcon v-tooltip="trans('Edit')" icon='fal fa-pencil' class='' fixed-width aria-hidden='true' />
+                                            </div>
+                                        </transition>
+                                    </div>
+
+                                    <!-- Button: Reset -->
+                                    <Button
+                                        @click="() => onUnselectNewStoredItem(item.rowIndex, data.storedItemAuditDelta)"
+                                        type="tertiary"
+                                        icon="fal fa-undo"
+                                        class="border-none rounded-none"
+                                    />
+                                </div>
+
+                                <FontAwesomeIcon
+                                    v-tooltip="trans('Close')"
+                                    @click="() => set(statesBoxEdit, `${item.rowIndex}.${data.id}`, false)"
+                                    icon='fal fa-arrow-to-left'
+                                    class='py-1 px-1 transition-all cursor-pointer text-gray-400 hover:text-gray-700'
+                                    :class="get(statesBoxEdit, `${item.rowIndex}.${data.id}`, false) ? '' : 'hidden'"
+                                    fixed-width
+                                    aria-hidden='true'
                                 />
-                            </div>
-
-                            <div
-                                @click="() => (set(data, `audited_quantity`, get(data, `audited_quantity`, data.quantity) + 1), onChangeQuantity(item.rowIndex, data.storedItemAuditDelta, get(data, `audited_quantity`, data.quantity)))"
-                                icon="fal fa-minus"
-                                type="tertiary"
-                                size="xs"
-                                class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-0.5 py-0.5 text-xs justify-self-center"
-                            >
-                                <FontAwesomeIcon icon='fal fa-plus' class='' fixed-width aria-hidden='true' />
                             </div>
                         </div>
                     </template>
                 </Column>
 
-                <Column field="quantity" header="Checked" class="text-right">
+                <!-- <Column field="quantity" header="Checked" class="text-right"> -->
                     <template #body="{ data }">
                         <template v-if="data.type === 'new_item'">
                             <div v-if="get(isLoadingUnselect, [item.rowIndex, data.storedItemAuditDelta], false)" class="text-center text-red-500">
@@ -365,7 +402,7 @@ const onChangeQuantity = debounce((row: number, idStoredItemAuditDelta: number, 
                                 class='' fixed-width aria-hidden='true' />
                         </div>
                     </template>
-                </Column>
+                <!-- </Column> -->
 
                 <!-- <Column field="quantity" header="">
                     <template #body="{ data }">
@@ -376,51 +413,6 @@ const onChangeQuantity = debounce((row: number, idStoredItemAuditDelta: number, 
             <div v-else class="text-gray-400">
                 
             </div>
-
-            <!-- <pre>{{ proxyItem.new_stored_items }}</pre> -->
-            
-            
-            <!-- <pre>{{ proxyItem.new_stored_items }}</pre>
-            <DataTable v-if="proxyItem.new_stored_items?.length" :value="proxyItem.new_stored_items">
-                <Column field="reference" :header="trans('SKU')">
-                </Column>
-
-                <Column field="quantity" header="Current qty">
-                    <template #body="{ data }">
-                        {{ data.quantity }}
-                    </template>
-                </Column>
-
-                <Column field="quantity" header="" class="w-36">
-                    <template #body="{ data }">
-                        <div class="grid lg:grid-cols-3 gap-y-1 gap-x-1">
-                            <Button @click="() => set(storedItemsQuantity, `${item.rowIndex}.${data.id}`, get(storedItemsQuantity, `${item.rowIndex}.${data.id}`, data.quantity) - 1)" icon="fal fa-minus" :loading="isLoading" type="tertiary" size="xs" class="justify-self-center" />
-                                <div class="text-center tabular-nums">
-                                <Transition name="spin-to-right">
-                                    <span :key="get(storedItemsQuantity, `${item.rowIndex}.${data.id}`, data.quantity)" class="text-lg" :class="get(storedItemsQuantity, `${item.rowIndex}.${data.id}`, data.quantity) > data.quantity ? 'text-green-500' : get(storedItemsQuantity, `${item.rowIndex}.${data.id}`, data.quantity) === data.quantity ? 'text-gray-500' : 'text-red-500'">
-                                        {{ get(storedItemsQuantity, `${item.rowIndex}.${data.id}`, data.quantity) }}
-                                    </span>
-                                </Transition>
-                            </div>
-                            <Button @click="() => set(storedItemsQuantity, `${item.rowIndex}.${data.id}`, get(storedItemsQuantity, `${item.rowIndex}.${data.id}`, data.quantity) + 1)" icon="fal fa-plus" :loading="isLoading" type="tertiary" size="xs" class="justify-self-center" />
-                        </div>
-                    </template>
-                </Column>
-
-                <Column field="quantity" header="Checked" class="text-right">
-                    <template #body="{ data }">
-                        <div @click="onCheck(proxyItem.auditRoute, data.id, data.quantity)" class="mx-auto cursor-pointer w-fit py-0.5 px-3 text-gray-500 hover:text-green-500">
-                            <FontAwesomeIcon icon='fad fa-check-circle'
-                                class='' fixed-width aria-hidden='true' />
-                        </div>
-                    </template>
-                </Column>
-            </DataTable>
-
-            <div v-else class="text-gray-400">
-                
-            </div> -->
-            
 
         </template>
 

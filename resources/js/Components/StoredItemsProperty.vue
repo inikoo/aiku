@@ -109,7 +109,7 @@ const sendToServer = async (data : {}, replaceData?: boolean) => {
             </div>
         </slot>
 
-        <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-[400px]">
+        <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-[500px]">
             <slot name="modal" :form :sendToServer="sendToServer" :closeModal="() => isModalOpen = false" >
                 <div class="space-y-4">
                     <CreateStoredItems

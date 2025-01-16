@@ -91,6 +91,7 @@ const columnClasses = computed(() => {
 								:description="widget.label"
 								:showRedBorder="false"
 								:showIcon="false"
+                                type="retina"
                                 :route="widget.route"
 								class="h-full" />
 						</div>

@@ -36,6 +36,9 @@ class FulfilmentHydrateRecurringBills
     {
         $stats = [
             'number_recurring_bills' => $fulfilment->recurringBills()->count(),
+            'current_recurring_bills_amount' => $fulfilment->recurringBills->sum('net_amount'),
+            'current_recurring_bills_amount_org_currency' => $fulfilment->recurringBills->sum('org_net_amount'),
+            'current_recurring_bills_amount_grp_currency' => $fulfilment->recurringBills->sum('grp_net_amount'),
         ];
 
 
@@ -54,6 +57,5 @@ class FulfilmentHydrateRecurringBills
 
         $fulfilment->stats()->update($stats);
     }
-
 
 }

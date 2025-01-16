@@ -37,6 +37,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $location_id
  * @property bool $is_new_stored_item Stored item just created
  * @property bool $is_stored_item_new_in_pallet Existing Stored item was associated to the pallet
+ * @property-read Group $group
+ * @property-read Organisation $organisation
  * @property-read \App\Models\Fulfilment\Pallet $pallet
  * @property-read \App\Models\Fulfilment\StoredItem $storedItem
  * @property-read \App\Models\Fulfilment\StoredItemAudit|null $storedItemAudit

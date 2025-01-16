@@ -6,18 +6,16 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\PalletReturn;
+namespace App\Actions\Retina\Storage\PalletReturn;
 
-use App\Actions\OrgAction;
+use App\Actions\RetinaAction;
 use App\Actions\Traits\WithExportData;
-use App\Exports\StoredItem\PalletReturnPalletExport;
-use App\Models\Fulfilment\Fulfilment;
+use App\Exports\Pallets\PalletReturnPalletExport;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
-class ExportPalletReturnPallet extends OrgAction
+class ExportRetinaPalletReturnPallet extends RetinaAction
 {
     use WithExportData;
 
@@ -31,10 +29,7 @@ class ExportPalletReturnPallet extends OrgAction
         return $this->export(new PalletReturnPalletExport($fulfilmentCustomer), 'pallet-return-pallets', $type);
     }
 
-    /**
-     * @throws \Throwable
-     */
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): BinaryFileResponse
+    public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): BinaryFileResponse
     {
         $this->setRawAttributes($request->all());
         $this->validateAttributes();

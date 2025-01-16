@@ -139,8 +139,8 @@ class UpdateUser extends GrpAction
         return new UsersResource($user);
     }
 
-    public function htmlResponse(User $user): RedirectResponse
-    {
-        return Redirect::route('grp.sysadmin.users.edit', $user->slug);
-    }
+    // public function htmlResponse(User $user): RedirectResponse
+    // {
+    //     return Redirect::route('grp.sysadmin.users.edit', $user->slug);
+    // }
 }

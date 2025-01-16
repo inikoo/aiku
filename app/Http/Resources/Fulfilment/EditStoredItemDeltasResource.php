@@ -56,16 +56,17 @@ class EditStoredItemDeltasResource extends JsonResource
             'stored_items' => $pallet->getEditStoredItemDeltasQuery($this->id, $this->stored_item_audit_id)
                 ->where('pallet_stored_items.pallet_id', $this->id)
                 ->get()->map(fn ($item) => [
-                    'pallet_id'        => $item->pallet_id,
-                    'id'               => $item->stored_item_id,
-                    'reference'        => $item->stored_item_reference,
-                    'quantity'         => (int)$item->quantity,
-                    'audited_quantity' => (int)$item->audited_quantity,
-                    'audit_notes'      => $item->audit_notes,
-                    'type'             => 'current_item',
-                    'update_routes'    => [
-                        'name'       => 'grp.models.stored_item_audit_delta.update',
-                        'parameters' => [
+                    'pallet_id'             => $item->pallet_id,
+                    'id'                    => $item->stored_item_id,
+                    'reference'             => $item->stored_item_reference,
+                    'quantity'              => (int)$item->quantity,
+                    'audited_quantity'      => (int)$item->audited_quantity,
+                    'audit_notes'           => $item->audit_notes,
+                    'storedItemAuditDelta'  => $item->audit_id,  // TODO: Currently null
+                    'type'                  => 'current_item',
+                    'update_routes'         => [
+                        'name'          => 'grp.models.stored_item_audit_delta.update',
+                        'parameters'    => [
                             'storedItemAuditDelta' => $item->audit_id
                         ]
                     ],
@@ -75,19 +76,19 @@ class EditStoredItemDeltasResource extends JsonResource
                 ->where('stored_item_audit_deltas.pallet_id', $this->id)
                 ->where('stored_item_audit_deltas.stored_item_audit_id', $this->stored_item_audit_id)
                 ->get()->map(fn ($item) => [
-                    'id'               => $item->stored_item_id,
-                    'reference'        => $item->stored_item_reference,
-                    'quantity'         => 0,
-                    'audited_quantity' => (int)$item->audited_quantity,
-                    'storedItemAuditDelta' => $item->audit_id,
-                    'update_routes'    => [
-                        'name'       => 'grp.models.stored_item_audit_delta.update',
-                        'parameters' => [
+                    'id'                    => $item->stored_item_id,
+                    'reference'             => $item->stored_item_reference,
+                    'quantity'              => 0,
+                    'audited_quantity'      => (int)$item->audited_quantity,
+                    'storedItemAuditDelta'  => $item->audit_id,
+                    'update_routes'         => [
+                        'name'          => 'grp.models.stored_item_audit_delta.update',
+                        'parameters'    => [
                             'storedItemAuditDelta' => $item->audit_id
                         ]
                     ],
-                    'audit_notes'      => $item->audit_notes,
-                    'type'             => 'new_item'
+                    'audit_notes'           => $item->audit_notes,
+                    'type'                  => 'new_item'
                 ]),
 
 // use routes in
