@@ -1,9 +1,9 @@
 <?php
 
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Fri, 23 Feb 2024 09:01:56 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2024, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 16 Jan 2025 12:21:47 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
 use App\Actions\Fulfilment\Pallet\DownloadPalletsTemplate;
@@ -23,6 +23,9 @@ use App\Actions\Retina\Storage\StoredItemsAudit\UI\IndexRetinaStoredItemsAudits;
 use App\Actions\Retina\Storage\StoredItemsAudit\UI\ShowRetinaStoredItemAudit;
 use App\Actions\UI\Retina\Asset\UI\IndexRetinaAssets;
 use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
+
+Route::redirect('/', 'dashboard');
+
 
 Route::get('/dashboard', ShowRetinaStorageDashboard::class)->name('dashboard');
 
@@ -51,3 +54,4 @@ Route::get('stored-items-audits', IndexRetinaStoredItemsAudits::class)->name('st
 Route::get('stored-items-audits/{storedItemAudit}', ShowRetinaStoredItemAudit::class)->name('stored-items-audits.show');
 
 Route::get('assets', IndexRetinaAssets::class)->name('assets.index');
+

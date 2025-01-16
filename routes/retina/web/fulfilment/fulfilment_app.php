@@ -6,10 +6,15 @@
  * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-Route::prefix("billing")
-    ->name("billing.")
-    ->group(__DIR__."/billing.php");
+
+use Illuminate\Support\Facades\Route;
+
+Route::redirect('/', 'storage/dashboard');
 
 Route::prefix("storage")
     ->name("storage.")
     ->group(__DIR__."/storage.php");
+
+Route::prefix("billing")
+    ->name("billing.")
+    ->group(__DIR__."/billing.php");
