@@ -169,12 +169,21 @@ const props = defineProps<{
 				}[]
 			}[]
 		}
+		widgets: {
+			column_count: number
+			components: {
+				type: string
+				col_span?: number
+				row_span?: number
+				data: {}
+			}
+		}
 		settings: {}
 	}
 }>()
 
-console.log("groupStats total: ", props.groupStats.total)
-console.log("groupStats Organisations: ", props.groupStats)
+// console.log("groupStats total: ", props.groupStats.total)
+// console.log("groupStats Organisations: ", props.groupStats)
 console.log("interval_options: ", props.interval_options)
 const layout = inject("layout", layoutStructure)
 const locale = inject("locale", aikuLocaleStructure)
@@ -205,43 +214,16 @@ const options = {
 	},
 }
 
-const abcdef = computed(() => {
-	return props.dashboard_stats.columns[0].widgets[0].data.organisations
-		.filter((org) => org.type !== "agent")
-		.map((org) => {
-			return {
-				name: org.name,
-				code: org.code,
-				interval_percentages: org.interval_percentages,
-				sales: org.sales || 0,
-				currency:
-					selectedCurrency.value.code === "grp"
-						? props.groupStats.currency.code
-						: org.currency.code,
-			}
-		})
-})
-
-const tabs = ref([
-	{ title: "All Organisations", content: "Tab 1 Content", value: "all" },
-	{ title: "High Performers", content: "Tab 1 Content", value: "high" },
-	{ title: "Low Performers", content: "Tab 1 Content", value: "low" },
-])
-
-const activeTab = ref("all")
 
 const currency = ref([
-	{ name: "Group", code: "grp", symbol: props.dashboard_stats.columns[0].widgets[0].data.currency.symbol },
+	{
+		name: "Group",
+		code: "grp",
+		symbol: props.dashboard_stats?.columns?.[0]?.widgets?.[0]?.data?.currency?.symbol,
+	},
 	{ name: "Organisation", code: "org", symbol: null },
 ])
 
-const organisationSymbols = computed(() => {
-	const symbols = props.groupStats.organisations
-		.filter((org) => org.type !== "agent")
-		.map((org) => org.currency.symbol)
-		.filter(Boolean)
-	return [...new Set(symbols)].join(" / ")
-})
 
 const selectedCurrency = ref(currency.value[0])
 const isOrganisation = ref(selectedCurrency.value.code === "org")
@@ -250,20 +232,20 @@ const toggleCurrency = () => {
 }
 const isNegative = (value: number): boolean => value < 0
 
-const updateRouteAndUser = async (interval: string) => {
-	selectedDateOption.value = interval
+// const updateRouteAndUser = async (interval: string) => {
+// 	selectedDateOption.value = interval
 
-	try {
-		const response = await axios.patch(route("grp.models.user.update", layout.user.id), {
-			settings: {
-				selected_interval: interval,
-			},
-		})
-		console.log("Update successful:", response.data)
-	} catch (error) {
-		console.error("Error updating user:", error.response?.data || error.message)
-	}
-}
+// 	try {
+// 		const response = await axios.patch(route("grp.models.user.update", layout.user.id), {
+// 			settings: {
+// 				selected_interval: interval,
+// 			},
+// 		})
+// 		console.log("Update successful:", response.data)
+// 	} catch (error) {
+// 		console.error("Error updating user:", error.response?.data || error.message)
+// 	}
+// }
 
 console.log(layout.user.id, "layoutt")
 </script>
@@ -274,54 +256,13 @@ console.log(layout.user.id, "layoutt")
 	<div class="grid grid-cols-12 m-3 gap-4">
 		<!-- <pre>{{ props.groupStats.organisations }}</pre> -->
 		<!-- Section: Date options -->
-		<div class="col-span-12 space-y-4">
-			<div class="relative mt-2">
-				<!-- Section Setting -->
-				<div>
-					<div class="">
-						<div class="flex justify-end items-center space-x-4">
-							<div class="flex items-center space-x-4">
-								<p
-									class="font-medium transition-opacity"
-									:class="{ 'opacity-60': isOrganisation }">
-									{{ props.groupStats.currency.symbol }}
-								</p>
-
-								<ToggleSwitch
-									v-model="isOrganisation"
-									class="mx-2"
-									@change="toggleCurrency" />
-
-								<p
-									class="font-medium transition-opacity"
-									:class="{ 'opacity-60': !isOrganisation }">
-									{{ organisationSymbols }}
-								</p>
-							</div>
-						</div>
-						<nav
-							class="isolate flex rounded-full bg-white-50 border border-gray-200 p-1"
-							aria-label="Tabs">
-							<div
-								v-for="(interval, idxInterval) in interval_options"
-								:key="idxInterval"
-								@click="updateRouteAndUser(interval.value)"
-								:class="[
-									interval.value === selectedDateOption
-										? 'bg-indigo-500 text-white font-medium'
-										: 'text-gray-500 hover:text-gray-700 hover:bg-gray-100',
-								]"
-								class="relative flex-1 rounded-full py-2 px-4 text-center text-sm cursor-pointer select-none transition duration-200">
-								<span>{{ interval.value }}</span>
-							</div>
-						</nav>
-					</div>
-				</div>
-			</div>
+	<!-- 	<div class="col-span-12 space-y-4">
+			
+		 -->	
 			<!-- Section Table -->
-			<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
-				<div class="mt-2">
-					<div class="">
+		<!-- 	<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200"> -->
+				<!-- <div class="mt-2"> -->
+					<!-- <div class="">
 						<Tabs v-model:value="activeTab">
 							<TabList>
 								<Tab v-for="tab in tabs" :key="tab.title" :value="tab.value">{{
@@ -329,8 +270,8 @@ console.log(layout.user.id, "layoutt")
 								}}</Tab>
 							</TabList>
 						</Tabs>
-					</div>
-					<DataTable :value="abcdef" removableSort>
+					</div> -->
+					<!--<DataTable :value="abcdef" removableSort>
 						<Column sortable>
 							<template #header>
 								<div class="flex items-center justify-between">
@@ -349,7 +290,7 @@ console.log(layout.user.id, "layoutt")
 						</Column>
 
 						<!-- Refunds -->
-						<Column sortable headerClass="align-right" hidden>
+						<!--<Column sortable headerClass="align-right" hidden>
 							<template #header>
 								<div class="flex justify-end items-end">
 									<span class="font-bold">Refunds</span>
@@ -380,7 +321,7 @@ console.log(layout.user.id, "layoutt")
 						</Column>
 
 						<!-- Refunds: Diff 1y -->
-						<Column
+						<!--<Column
 							hidden
 							sortable
 							class="overflow-hidden transition-all"
@@ -400,7 +341,7 @@ console.log(layout.user.id, "layoutt")
 							<template #body="{ data }">
 								<div class="flex justify-end relative">
 									<!-- {{ `${data.interval_percentages?.refunds?.[selectedDateOption]?.difference}_${data.interval_percentages?.refunds?.[selectedDateOption]?.percentage}` }} -->
-									<Transition name="spin-to-down" mode="out-in">
+									<!--<Transition name="spin-to-down" mode="out-in">
 										<div
 											:key="`${data.interval_percentages?.refunds[selectedDateOption].difference}_${data.interval_percentages?.refunds[selectedDateOption].percentage}`"
 											style="
@@ -459,7 +400,7 @@ console.log(layout.user.id, "layoutt")
 						</Column>
 
 						<!-- Invoice -->
-						<Column
+						<!--<Column
 							sortable
 							class="overflow-hidden transition-all"
 							headerClass="align-right">
@@ -491,7 +432,7 @@ console.log(layout.user.id, "layoutt")
 						</Column>
 
 						<!-- Invoice: Diff 1y -->
-						<Column
+						<!--<Column
 							field="invoices_diff"
 							sortable
 							class="overflow-hidden transition-all"
@@ -513,7 +454,7 @@ console.log(layout.user.id, "layoutt")
 									<Transition name="spin-to-down" mode="out-in">
 										<div class="flex justify-end relative">
 											<!-- {{ `${data.interval_percentages?.invoices?.[selectedDateOption]?.difference}_${data.interval_percentages?.invoices?.[selectedDateOption]?.percentage}` }} -->
-											<Transition name="spin-to-down" mode="out-in">
+											<!--<Transition name="spin-to-down" mode="out-in">
 												<div
 													:key="`${data.interval_percentages?.invoices[selectedDateOption].difference}_${data.interval_percentages?.invoices[selectedDateOption].percentage}`"
 													style="
@@ -578,7 +519,7 @@ console.log(layout.user.id, "layoutt")
 						</Column>
 
 						<!-- Sales -->
-						<Column
+						<!--<Column
 							field="sales"
 							sortable
 							class="overflow-hidden transition-all"
@@ -620,7 +561,7 @@ console.log(layout.user.id, "layoutt")
 						</Column>
 
 						<!-- Sales: Diff 1y -->
-						<Column
+						<!--<Column
 							field="sales_diff"
 							sortable
 							class="overflow-hidden transition-all"
@@ -640,7 +581,7 @@ console.log(layout.user.id, "layoutt")
 							<template #body="{ data }">
 								<div class="flex justify-end relative">
 									<!-- {{ `${data.interval_percentages?.sales?.[selectedDateOption]?.difference}_${data.interval_percentages?.sales?.[selectedDateOption]?.percentage}` }} -->
-									<Transition name="spin-to-down" mode="out-in">
+									<!--<Transition name="spin-to-down" mode="out-in">
 										<div
 											:key="`${data.interval_percentages?.sales[selectedDateOption].difference}_${data.interval_percentages?.sales[selectedDateOption].percentage}`"
 											style="
@@ -699,8 +640,8 @@ console.log(layout.user.id, "layoutt")
 							</template>
 						</Column>
 
-						<!-- Total -->
-						<ColumnGroup type="footer">
+						 Total -->
+						<!-- <ColumnGroup type="footer">
 							<Row>
 								<Column footer="Total"> Total </Column>
 								<Column
@@ -742,13 +683,14 @@ console.log(layout.user.id, "layoutt")
 									footerStyle="text-align:right" />
 								<Column footer="" footerStyle="text-align:right" />
 							</Row>
-						</ColumnGroup>
-					</DataTable>
-				</div>
+						</ColumnGroup> 
+					</DataTable>-->
+				<!-- </div> -->
+				<!--
 			</div>
 		</div>
-
-		<div
+-->
+		<!-- <div
 			v-if="
 				groupStats.organisations
 					.filter((org) => org.type !== 'agent')
@@ -760,8 +702,8 @@ console.log(layout.user.id, "layoutt")
 						return !!Number(i)
 					})
 			"
-			class="mt-10 w-1/2 flex flex-wrap gap-y-4 gap-x-4">
-			<div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
+			class="mt-10 w-1/2 flex flex-wrap gap-y-4 gap-x-4"> -->
+		<!-- 	<div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
 				<div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans("Refunds") }}</div>
 				<div class="w-24">
 					<Pie
@@ -785,17 +727,10 @@ console.log(layout.user.id, "layoutt")
 						}"
 						:options="options" />
 				</div>
-				<!-- <div class="flex flex-col justify-between ">
-                    <template v-for="org in groupStats.organisations">
-                        <div v-if="org.type !== 'agent'" class="space-x-2">
-                            <span class="text-lg">{{ org.code }}:</span>
-                            <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `sales_org_currency_all`], 0)) }}</span>
-                        </div>
-                    </template>
-                </div> -->
-			</div>
+				
+			</div> -->
 
-			<div
+			<!-- <div
 				v-if="
 					groupStats.organisations
 						.filter((org) => org.type !== 'agent')
@@ -825,17 +760,10 @@ console.log(layout.user.id, "layoutt")
 						}"
 						:options="options" />
 				</div>
-				<!-- <div class="flex flex-col justify-between ">
-                    <template v-for="org in groupStats.organisations">
-                        <div v-if="org.type !== 'agent'" class="space-x-2">
-                            <span class="text-lg">{{ org.code }}:</span>
-                            <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `sales_org_currency_all`], 0)) }}</span>
-                        </div>
-                    </template>
-                </div> -->
-			</div>
+				
+			</div> -->
 
-			<div
+		<!-- 	<div
 				v-if="
 					groupStats.organisations
 						.filter((org) => org.type !== 'agent')
@@ -873,13 +801,13 @@ console.log(layout.user.id, "layoutt")
                         </div>
                     </template>
                 </div> -->
-			</div>
-		</div>
+			<!-- </div> -->
+	<!-- 	</div> -->
+		
 		<!-- Section Widget -->
-		<div class="col-span-12">
-			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-				<!-- Responsive grid layout -->
-				<DashboardCard
+	<!-- 	<div class="col-span-12">
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"> -->
+				<!-- <DashboardCard
 					v-for="(org, index) in props.groupStats.organisations.filter(
 						(org) => org.type !== 'agent'
 					)"
@@ -890,21 +818,28 @@ console.log(layout.user.id, "layoutt")
 							org.interval_percentages?.sales?.[selectedDateOption]?.amount || 0
 						)
 					"
-					type="dashboard"
 					:description="`Sales for ${org.name}`"
 					:showRedBorder="
 						isNegative(
 							org.interval_percentages?.sales?.[selectedDateOption]?.amount || 0
 						)
 					"
+					type="dashboard"
 					:showIcon="
 						isNegative(
 							org.interval_percentages?.sales?.[selectedDateOption]?.amount || 0
 						)
 					" />
-			</div>
-		</div>
+                -->
+		<!-- 	</div>
+		</div> -->
 		<!-- <pre>{{ groupStats }}</pre> -->
+
+		<div class="col-span-12">
+			<Dashboard 
+				:dashboard="dashboard_stats"
+			/>
+		</div>
 	</div>
 </template>
 

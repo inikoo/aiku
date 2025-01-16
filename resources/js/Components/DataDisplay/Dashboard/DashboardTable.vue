@@ -1,23 +1,76 @@
+<script setup lang="ts">
+import DataTable from "primevue/datatable"
+import Column from "primevue/column"
+import Row from "primevue/row"
+import ColumnGroup from "primevue/columngroup"
+import { ref, computed } from "vue"
+import { useLocaleStore } from "@/Stores/locale"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import Tabs from "primevue/tabs"
+import TabList from "primevue/tablist"
+import Tab from "primevue/tab"
+import { Link } from "@inertiajs/vue3"
+import { useTabChange } from "@/Composables/tab-change"
+
+
+const props = defineProps<{
+	tableData: {}
+	locale: any
+	totalAmount: {
+		total_invoices: number
+		total_sales: number
+		total_refunds: number
+	}
+	selectedDateOption: String
+	tableType?: string
+}>()
+
+
+const tabs = ref([
+	{ title: "Home", value: "home" },
+	{ title: "Profile", value: "profile" },
+	{ title: "Settings", value: "settings" },
+])
+
+function ShopDashboard(shop: any) {
+	return route(shop?.route?.name, shop?.route?.parameters)
+}
+const activeTab = ref(tabs.value[1].value)
+</script>
+
 <template>
-	<div class="bg-white text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
+	<div class="bg-white mb-2 text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
 		<div class="mt-2">
-			<div class="">
-				<Tabs v-model:value="activeTab">
-					<TabList>
-						<Tab v-for="tab in tabs" :key="tab.title" :value="tab.value">{{
-							tab.title
-						}}</Tab>
-					</TabList>
-				</Tabs>
-			</div>
-			<DataTable :value="abcdef" removableSort>
+			{{ activeTab }}
+			<Tabs :value="activeTab">
+				<TabList>
+					<Tab v-for="tab in tabs" :key="tab.title" :value="tab.value">{{
+						tab.title
+					}}</Tab>
+				</TabList>
+			</Tabs>
+			
+			<DataTable :value="tableData" removableSort>
 				<Column sortable>
 					<template #header>
 						<div class="flex items-center justify-between">
 							<span class="font-bold">Code</span>
 						</div>
 					</template>
-					<template #body="{ data }">
+
+					<template #body="{ data }" v-if="tableType == 'org'">
+						<div class="relative">
+							<Transition name="spin-to-down" mode="out-in">
+								<div :key="data.name">
+									<Link :href="ShopDashboard(data)" class="primaryLink">
+										{{ data.name }}
+									</Link>
+								</div>
+							</Transition>
+						</div>
+					</template>
+					<template #body="{ data }" v-else>
 						<div class="relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div :key="data.code">
@@ -38,17 +91,11 @@
 					<template #body="{ data }">
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
-								<div
-									:key="
-										data.interval_percentages?.refunds[selectedDateOption]
-											?.amount || 0
-									">
+								<div :key="data.interval_percentages?.refunds?.amount || 0">
 									<span>
 										{{
 											locale.number(
-												data.interval_percentages?.refunds[
-													selectedDateOption
-												]?.amount || 0
+												data.interval_percentages?.refunds?.amount || 0
 											)
 										}}
 									</span>
@@ -81,7 +128,7 @@
 							<!-- {{ `${data.interval_percentages?.refunds?.[selectedDateOption]?.difference}_${data.interval_percentages?.refunds?.[selectedDateOption]?.percentage}` }} -->
 							<Transition name="spin-to-down" mode="out-in">
 								<div
-									:key="`${data.interval_percentages?.refunds[selectedDateOption].difference}_${data.interval_percentages?.refunds[selectedDateOption].percentage}`"
+									:key="`${data.interval_percentages?.refunds?.difference}_${data.interval_percentages?.refunds?.percentage}`"
 									style="
 										display: flex;
 										align-items: center;
@@ -90,35 +137,28 @@
 									">
 									<span style="font-size: 16px; font-weight: 500; line-height: 1">
 										{{
-											data.interval_percentages?.refunds[selectedDateOption]
-												?.percentage
+											data.interval_percentages?.refunds?.percentage
 												? `${
-														data.interval_percentages.refunds[
-															selectedDateOption
-														].percentage > 0
+														data.interval_percentages?.refunds
+															?.percentage > 0
 															? "+"
 															: ""
-												  }${data.interval_percentages.refunds[
-														selectedDateOption
-												  ].percentage.toFixed(2)}%`
+												  }${data.interval_percentages?.refunds?.percentage.toFixed(
+														2
+												  )}%`
 												: `0.0%`
 										}}
 									</span>
 									<FontAwesomeIcon
-										v-if="
-											data.interval_percentages?.refunds[selectedDateOption]
-												?.percentage
-										"
+										v-if="data.interval_percentages?.refunds?.percentage"
 										:icon="
-											data.interval_percentages.refunds[selectedDateOption]
-												.percentage < 0
+											data.interval_percentages.refunds.percentage < 0
 												? 'fas fa-sort-down'
 												: 'fas fa-sort-up'
 										"
 										style="font-size: 20px; margin-top: 6px"
 										:class="
-											data.interval_percentages.refunds[selectedDateOption]
-												.percentage < 0
+											data.interval_percentages.refunds.percentage < 0
 												? 'text-red-500'
 												: 'text-green-500'
 										" />
@@ -138,15 +178,10 @@
 					<template #body="{ data }">
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
-								<div
-									:key="
-										data.interval_percentages?.invoices[selectedDateOption]
-											?.amount || 0
-									">
+								<div :key="data.interval_percentages?.invoices?.amount || 0">
 									{{
 										locale.number(
-											data.interval_percentages?.invoices[selectedDateOption]
-												?.amount || 0
+											data.interval_percentages?.invoices?.amount || 0
 										)
 									}}
 								</div>
@@ -177,10 +212,10 @@
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div class="flex justify-end relative">
-									<!-- {{ `${data.interval_percentages?.invoices?.[selectedDateOption]?.difference}_${data.interval_percentages?.invoices?.[selectedDateOption]?.percentage}` }} -->
+									<!-- {{ `${data.interval_percentages?.invoices?.?.difference}_${data.interval_percentages?.invoices?.?.percentage}` }} -->
 									<Transition name="spin-to-down" mode="out-in">
 										<div
-											:key="`${data.interval_percentages?.invoices[selectedDateOption].difference}_${data.interval_percentages?.invoices[selectedDateOption].percentage}`"
+											:key="`${data.interval_percentages?.invoices?.difference}_${data.interval_percentages?.invoices?.percentage}`"
 											style="
 												display: flex;
 												align-items: center;
@@ -194,39 +229,32 @@
 													line-height: 1;
 												">
 												{{
-													data.interval_percentages?.invoices[
-														selectedDateOption
-													]?.percentage
+													data.interval_percentages?.invoices?.percentage
 														? `${
-																data.interval_percentages.invoices[
-																	selectedDateOption
-																].percentage > 0
+																data.interval_percentages.invoices
+																	?.percentage > 0
 																	? "+"
 																	: ""
-														  }${data.interval_percentages.invoices[
-																selectedDateOption
-														  ].percentage.toFixed(2)}%`
+														  }${data.interval_percentages.invoices?.percentage.toFixed(
+																2
+														  )}%`
 														: `0.0%`
 												}}
 											</span>
 											<FontAwesomeIcon
 												v-if="
-													data.interval_percentages?.invoices[
-														selectedDateOption
-													]?.percentage
+													data.interval_percentages?.invoices?.percentage
 												"
 												:icon="
-													data.interval_percentages.invoices[
-														selectedDateOption
-													].percentage < 0
+													data.interval_percentages.invoices?.percentage <
+													0
 														? 'fas fa-play'
 														: 'fas fa-play'
 												"
 												style="font-size: 20px; margin-top: 6px"
 												:class="
-													data.interval_percentages.invoices[
-														selectedDateOption
-													].percentage < 0
+													data.interval_percentages.invoices?.percentage <
+													0
 														? 'text-red-500 rotate-90'
 														: 'text-green-500 rotate-[-90deg]'
 												" />
@@ -258,18 +286,14 @@
 									v-tooltip="
 										useLocaleStore().currencyFormat(
 											data.currency,
-											data.interval_percentages?.sales[selectedDateOption]
-												?.amount || 0
+											data.interval_percentages?.sales?.amount || 0
 										)
 									"
-									:key="
-										data.interval_percentages?.sales[selectedDateOption]?.amount
-									">
+									:key="data.interval_percentages?.sales?.amount">
 									{{
 										useLocaleStore().CurrencyShort(
 											data.currency,
-											data.interval_percentages?.sales[selectedDateOption]
-												?.amount || 0
+											data.interval_percentages?.sales?.amount || 0
 										)
 									}}
 								</div>
@@ -298,10 +322,10 @@
 					</template>
 					<template #body="{ data }">
 						<div class="flex justify-end relative">
-							<!-- {{ `${data.interval_percentages?.sales?.[selectedDateOption]?.difference}_${data.interval_percentages?.sales?.[selectedDateOption]?.percentage}` }} -->
+							<!-- {{ `${data.interval_percentages?.sales?.?.difference}_${data.interval_percentages?.sales?.?.percentage}` }} -->
 							<Transition name="spin-to-down" mode="out-in">
 								<div
-									:key="`${data.interval_percentages?.sales[selectedDateOption].difference}_${data.interval_percentages?.sales[selectedDateOption].percentage}`"
+									:key="`${data.interval_percentages?.sales?.difference}_${data.interval_percentages?.sales?.percentage}`"
 									style="
 										display: flex;
 										align-items: center;
@@ -310,35 +334,28 @@
 									">
 									<span style="font-size: 16px; font-weight: 500; line-height: 1">
 										{{
-											data.interval_percentages?.sales[selectedDateOption]
-												?.percentage
+											data.interval_percentages?.sales?.percentage
 												? `${
-														data.interval_percentages.sales[
-															selectedDateOption
-														].percentage > 0
+														data.interval_percentages.sales.percentage >
+														0
 															? "+"
 															: ""
-												  }${data.interval_percentages.sales[
-														selectedDateOption
-												  ].percentage.toFixed(2)}%`
+												  }${data.interval_percentages?.sales?.percentage.toFixed(
+														2
+												  )}%`
 												: `0.0%`
 										}}
 									</span>
 									<FontAwesomeIcon
-										v-if="
-											data.interval_percentages?.sales[selectedDateOption]
-												?.percentage
-										"
+										v-if="data.interval_percentages?.sales?.percentage"
 										:icon="
-											data.interval_percentages.sales[selectedDateOption]
-												.percentage < 0
+											data.interval_percentages.sales?.percentage < 0
 												? 'fas fa-play'
 												: 'fas fa-play'
 										"
 										style="font-size: 20px; margin-top: 6px"
 										:class="
-											data.interval_percentages.sales[selectedDateOption]
-												.percentage < 0
+											data.interval_percentages.sales?.percentage < 0
 												? 'text-red-500 rotate-90'
 												: 'text-green-500 rotate-[-90deg]'
 										" />
@@ -355,34 +372,26 @@
 						<Column footer="Total"> Total </Column>
 						<Column
 							hidden
-							:footer="groupStats.total[selectedDateOption].total_refunds.toString()"
+							:footer="totalAmount.total_refunds.toString()"
 							footerStyle="text-align:right" />
 						<Column hidden footer="" footerStyle="text-align:right" />
 
 						<Column
-							:footer="
-								locale.number(
-									Number(
-										groupStats.total[
-											selectedDateOption
-										].total_invoices.toString()
-									)
-								)
-							"
+							:footer="locale.number(Number(totalAmount.total_invoices.toString()))"
 							footerStyle="text-align:right" />
 						<Column footer="" footerStyle="text-align:right" />
 
 						<Column
 							v-tooltip="
 								useLocaleStore().currencyFormat(
-									groupStats.currency.code,
-									Number(groupStats.total[selectedDateOption].total_sales)
+									'GBP',
+									Number(totalAmount.total_sales)
 								)
 							"
 							:footer="
 								useLocaleStore().CurrencyShort(
-									groupStats.currency.code,
-									Number(groupStats.total[selectedDateOption].total_sales)
+									'GBP',
+									Number(totalAmount.total_sales)
 								)
 							"
 							footerStyle="text-align:right" />
@@ -393,7 +402,4 @@
 		</div>
 	</div>
 </template>
-
-<script setup lang="ts"></script>
-
 <style scoped></style>
