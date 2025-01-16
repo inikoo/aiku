@@ -18,7 +18,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
-class IndexRetinaRecurringBillTransactions extends OrgAction
+class RetinaIndexRecurringBillTransactions extends OrgAction
 {
     public function handle(RecurringBill $recurringBill, $prefix = null): LengthAwarePaginator
     {
