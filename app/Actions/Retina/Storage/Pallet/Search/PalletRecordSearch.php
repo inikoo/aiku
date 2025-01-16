@@ -43,7 +43,7 @@ class PalletRecordSearch
                 'keyword_2'           => $pallet->reference,
                 'result'              => [
                     'route'     => [
-                        'name'          => 'retina.storage.pallets.show',
+                        'name'          => 'retina.fulfilment.storage.pallets.show',
                         'parameters'    => [
                             'pallet'             => $pallet->slug
                         ]

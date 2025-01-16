@@ -121,7 +121,7 @@ class ShowInvoice extends RetinaAction
                 ],
 
                 'exportPdfRoute' => [
-                    'name'       => 'retina.billing.invoices.download',
+                    'name'       => 'retina.fulfilment.billing.invoices.download',
                     'parameters' => [
                         'invoice' => $invoice->slug
                     ]
@@ -129,7 +129,7 @@ class ShowInvoice extends RetinaAction
                 'box_stats'      => [
                     'customer'    => [
                         'route'        => [
-                            'name'       => 'retina.billing.invoices.show',
+                            'name'       => 'retina.fulfilment.billing.invoices.show',
                             'parameters' => [
                                 'invoice' => $invoice->slug,
                             ]
@@ -221,7 +221,7 @@ class ShowInvoice extends RetinaAction
         }
 
         return match ($routeName) {
-            'retina.billing.invoices.show' => [
+            'retina.fulfilment.billing.invoices.show' => [
                 'label' => $invoice->reference,
                 'route' => [
                     'name'       => $routeName,

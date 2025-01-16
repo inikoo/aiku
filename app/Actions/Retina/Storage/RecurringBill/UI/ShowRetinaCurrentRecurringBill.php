@@ -190,7 +190,7 @@ class ShowRetinaCurrentRecurringBill extends RetinaAction
                     'icon'  => 'fal fa-receipt',
                     'label' => __('next bill'),
                     'route' => [
-                        'name' => 'retina.billing.next_recurring_bill'
+                        'name' => 'retina.fulfilment.billing.next_recurring_bill'
                     ]
                 ]
 

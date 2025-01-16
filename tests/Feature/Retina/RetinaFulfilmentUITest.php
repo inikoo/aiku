@@ -126,7 +126,7 @@ test('show profile', function () {
 
 test('index pallets', function () {
     actingAs($this->webUser, 'retina');
-    $response = $this->get(route('retina.storage.pallets.index'));
+    $response = $this->get(route('retina.fulfilment.storage.pallets.index'));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Storage/RetinaPallets')
@@ -140,7 +140,7 @@ test('index pallets', function () {
 test('index pallet deliveries', function () {
     actingAs($this->webUser, 'retina');
     $this->withoutExceptionHandling();
-    $response = $this->get(route('retina.storage.pallet-deliveries.index'));
+    $response = $this->get(route('retina.fulfilment.storage.pallet-deliveries.index'));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Storage/RetinaPalletDeliveries')
@@ -154,7 +154,7 @@ test('index pallet deliveries', function () {
 test('show pallet delivery (pallet tab)', function () {
     // $this->withoutExceptionHandling();
     actingAs($this->webUser, 'retina');
-    $response = $this->get(route('retina.storage.pallet-deliveries.show', [$this->palletDelivery->slug]));
+    $response = $this->get(route('retina.fulfilment.storage.pallet-deliveries.show', [$this->palletDelivery->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Storage/RetinaPalletDelivery')
@@ -222,7 +222,7 @@ test('show sysadmin dashboard', function () {
 test('index pallet returns', function () {
     actingAs($this->webUser, 'retina');
     $this->withoutExceptionHandling();
-    $response = $this->get(route('retina.storage.pallet-returns.index'));
+    $response = $this->get(route('retina.fulfilment.storage.pallet-returns.index'));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Storage/RetinaPalletReturns')
@@ -236,7 +236,7 @@ test('index pallet returns', function () {
 test('show pallet return (pallet tab)', function () {
     // $this->withoutExceptionHandling();
     actingAs($this->webUser, 'retina');
-    $response = $this->get(route('retina.storage.pallet-returns.show', [$this->palletReturn->slug]));
+    $response = $this->get(route('retina.fulfilment.storage.pallet-returns.show', [$this->palletReturn->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Storage/RetinaPalletReturn')

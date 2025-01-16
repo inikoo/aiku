@@ -182,7 +182,7 @@ class RetinaStorePalletReturn extends RetinaAction
 
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response
     {
-        return Inertia::location(route('retina.storage.pallet-returns.show', [
+        return Inertia::location(route('retina.fulfilment.storage.pallet-returns.show', [
             'palletReturn' => $palletReturn->slug
         ]));
     }

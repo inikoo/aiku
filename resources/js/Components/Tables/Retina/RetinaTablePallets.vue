@@ -60,10 +60,10 @@ function palletRoute(pallet: Pallet) {
                     route().params['fulfilmentCustomer'],
                     pallet['slug']
                 ])
-        case 'retina.storage.pallets.index':
+        case 'retina.fulfilment.storage.pallets.index':
             if(pallet.slug) {
                 return route(
-                    'retina.storage.pallets.show',
+                    'retina.fulfilment.storage.pallets.show',
                     [
                         pallet.slug
                     ])
@@ -82,7 +82,7 @@ function palletRoute(pallet: Pallet) {
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(reference)="{ item: pallet }">
           
-            <Link :href="route('retina.storage.pallets.show',{ ...route().params, pallet : pallet.slug ? pallet.slug : pallet.id })" class="primaryLink">
+            <Link :href="route('retina.fulfilment.storage.pallets.show',{ ...route().params, pallet : pallet.slug ? pallet.slug : pallet.id })" class="primaryLink">
                 {{ pallet.reference }}
             </Link>
         </template>

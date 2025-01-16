@@ -155,14 +155,14 @@ class ShowRetinaPallet extends RetinaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name'       => 'retina.storage.pallets.index',
+                                'name'       => 'retina.fulfilment.storage.pallets.index',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
                             'label' => __('Pallets')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'retina.storage.pallets.show',
+                                'name'       => 'retina.fulfilment.storage.pallets.show',
                                 'parameters' => [
                                     'pallet' => $pallet->slug
                                 ]
@@ -200,7 +200,7 @@ class ShowRetinaPallet extends RetinaAction
         }
 
         return match ($routeName) {
-            'retina.storage.pallets.show' => [
+            'retina.fulfilment.storage.pallets.show' => [
                 'label' => $pallet->slug,
                 'route' => [
                     'name'      => $routeName,

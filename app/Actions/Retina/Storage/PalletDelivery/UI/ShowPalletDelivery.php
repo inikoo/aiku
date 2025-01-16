@@ -243,13 +243,13 @@ class ShowPalletDelivery extends RetinaAction
                             ]
                         ],
                         'history' => [
-                            'name'       => 'retina.storage.pallet-deliveries.pallets.uploads.history',
+                            'name'       => 'retina.fulfilment.storage.pallet-deliveries.pallets.uploads.history',
                             'parameters' => [
                                 'palletDelivery'     => $palletDelivery->slug
                             ]
                         ],
                         'download' => [
-                            'name'       => 'retina.storage.pallet-deliveries.pallets.uploads.templates',
+                            'name'       => 'retina.fulfilment.storage.pallet-deliveries.pallets.uploads.templates',
                             'parameters' => [
                                 'palletDelivery'     => $palletDelivery->slug
                             ]
@@ -267,7 +267,7 @@ class ShowPalletDelivery extends RetinaAction
 
                 'storedItemsRoute' => [
                     'index' => [
-                        'name'       => 'retina.storage.stored-items.index',
+                        'name'       => 'retina.fulfilment.storage.stored-items.index',
                         'parameters' => []
                     ],
                     'store' => [
@@ -503,17 +503,17 @@ class ShowPalletDelivery extends RetinaAction
                     $suffix
                 ),
             ),
-            'retina.storage.pallet-deliveries.show' => array_merge(
+            'retina.fulfilment.storage.pallet-deliveries.show' => array_merge(
                 ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $palletDelivery,
                     [
                         'index' => [
-                            'name'       => 'retina.storage.pallet-deliveries.index',
+                            'name'       => 'retina.fulfilment.storage.pallet-deliveries.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'retina.storage.pallet-deliveries.show',
+                            'name'       => 'retina.fulfilment.storage.pallet-deliveries.show',
                             'parameters' => [$palletDelivery->slug]
                         ]
                     ],
@@ -547,7 +547,7 @@ class ShowPalletDelivery extends RetinaAction
 
 
         return match ($routeName) {
-            'retina.storage.pallet-deliveries.show' => [
+            'retina.fulfilment.storage.pallet-deliveries.show' => [
                 'label' => $palletDelivery->reference,
                 'route' => [
                     'name'       => $routeName,

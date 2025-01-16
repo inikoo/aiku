@@ -15,14 +15,14 @@ Route::middleware(["retina-auth:retina", 'retina-prepare-account'])->group(funct
         ->name("sysadmin.")
         ->group(__DIR__."/sysadmin.php");
 
-    Route::prefix("billing")
-        ->name("billing.")
-        ->group(__DIR__."/billing.php");
 
 
-    Route::prefix("storage")
-        ->name("storage.")
-        ->group(__DIR__."/storage.php");
+
+    Route::name("fulfilment.")
+        ->group(__DIR__."/fulfilment/fulfilment_app.php");
+
+
+
 
     Route::prefix("dropshipping")
         ->name("dropshipping.")
