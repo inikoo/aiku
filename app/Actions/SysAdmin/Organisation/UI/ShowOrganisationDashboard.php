@@ -162,7 +162,7 @@ class ShowOrganisationDashboard extends OrgAction
         $selectedCurrency = Arr::get($userSettings, 'selected_currency_in_org', 'org');
 
         $total = [
-            'total_sales'    => $organisation->salesIntervals?->{"sales_org_currency_{$selectedInterval}"},
+            'total_sales'    => $organisation->shops->sum(fn ($shop) => $shop->salesIntervals->{"sales_$selectedInterval"} ?? 0),
             'total_invoices' => 0,
             'total_refunds'  => 0,
         ];
@@ -183,6 +183,20 @@ class ShowOrganisationDashboard extends OrgAction
                 'currency_code'  => $currencyCode,
                 'state'     => $shop->state,
                 'route'     => $shop->type == ShopTypeEnum::FULFILMENT
+                ? [
+                    'name'       => 'grp.org.fulfilments.show.dashboard',
+                    'parameters' => [
+                        'organisation' => $organisation->slug,
+                        'fulfilment'   => $shop->slug
+                    ]
+                ]
+                : [
+                    'name'       => 'grp.org.shops.show.dashboard',
+                    'parameters' => [
+                        'organisation' => $organisation->slug,
+                        'shop'         => $shop->slug
+                    ]
+                ]
             ];
 
             if ($shop->salesIntervals !== null) {
