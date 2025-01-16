@@ -117,9 +117,9 @@ trait WithDashboard
         }
 
         $total = [
-            'total_sales'    => $model->salesIntervals?->{"sales_{$keyCurrency}_currency_{$selectedInterval}"} ?? 0,
-            'total_invoices' => $model->orderingIntervals?->{"invoices_{$selectedInterval}"} ?? 0,
-            'total_refunds'  => $model->orderingIntervals?->{"refunds_{$selectedInterval}"} ?? 0,
+            'total_sales'    => $model->salesIntervals?->{"sales_{$keyCurrency}_currency_{$selectedInterval}"},
+            'total_invoices' => 0,
+            'total_refunds'  => 0,
         ];
 
         $visualData = [
@@ -127,7 +127,7 @@ trait WithDashboard
             'invoices' => [],
         ];
 
-        $dashboard['table'] = $subModelData->map(function (Organisation|Shop $subModel) use ($selectedInterval, $model, &$dashboard, $selectedCurrency, $salesCurrency, &$visualData) {
+        $dashboard['table'] = $subModelData->map(function (Organisation|Shop $subModel) use ($selectedInterval, $model, &$dashboard, $selectedCurrency, $salesCurrency, &$visualData, &$total) {
             $keyCurrency = $dashboard['settings']['key_currency'];
             $currencyCode = $selectedCurrency === $keyCurrency ? $model->currency->code : $subModel->currency->code;
             $responseData = [
@@ -160,6 +160,8 @@ trait WithDashboard
                     'refunds',
                     $selectedInterval,
                 );
+                $total['total_invoices'] += $responseData['interval_percentages']['invoices']['amount'];
+                $total['total_refunds'] += $responseData['interval_percentages']['refunds']['amount'];
                 $visualData['invoices_data']['labels'][] = $subModel->code;
                 $visualData['invoices_data']['currency_codes'][] = $currencyCode;
                 $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
