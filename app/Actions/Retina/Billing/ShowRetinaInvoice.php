@@ -68,6 +68,7 @@ class ShowRetinaInvoice extends RetinaAction
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
+                    'navigation' => InvoiceTabsEnum::navigation()
                 ],
 
                 'order_summary' => [

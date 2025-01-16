@@ -290,7 +290,7 @@
             {{ $payment->paymentAccount['name'] }}
         </td>
         <td style="text-align:right">
-            {{ $payment->updated_at->format('Y-m-d H:i') }}
+            {{ $payment->updated_at->format('F j, Y H:i a') }}
         </td>
         <td style="text-align:left">{{ $payment->state }}</td>
         <td style="text-align:left">{{ $payment->reference }}</td>
