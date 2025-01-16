@@ -1,12 +1,12 @@
 <?php
+
 /*
- * Author: Raul Perusquia <raul@inikoo.com>  
+ * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Thu, 16 Jan 2025 15:13:59 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Accounting\Invoice;
-
 
 use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydratePayments;
 use App\Actions\Traits\Hydrators\WithHydrateCommand;
