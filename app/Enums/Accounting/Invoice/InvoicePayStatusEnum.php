@@ -33,7 +33,7 @@ enum InvoicePayStatusEnum: string
             'unpaid' => [
                 'tooltip' => __('Unpaid'),
                 'icon'    => 'fal fa-money-check-alt',
-                'class'   => '',  // Color for normal icon (Aiku)
+                'class'   => 'text-red-500',  // Color for normal icon (Aiku)
                 'color'   => 'red',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
@@ -43,8 +43,8 @@ enum InvoicePayStatusEnum: string
             'paid'   => [
                 'tooltip' => __('Paid'),
                 'icon'    => 'fal fa-hand-holding-usd',
-                'class'   => '',  // Color for normal icon (Aiku)
-                'color'   => 'green',  // Color for box (Retina)
+                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'color'   => 'lime',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'
@@ -53,7 +53,7 @@ enum InvoicePayStatusEnum: string
             'unknown' => [
                 'tooltip' => __('Unknown'),
                 'icon'    => 'fal fa-question',
-                'class'   => '',
+                'class'   => 'text-gray-500',
                 'color'   => 'gray',
                 'app'     => [
                     'name' => 'seedling',
