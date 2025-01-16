@@ -9,11 +9,13 @@
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\StoredItemAudit\UI\IndexStoredItemAudits;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Enums\UI\Fulfilment\StoredItemsInWarehouseTabsEnum;
 use App\Http\Resources\Fulfilment\ReturnStoredItemsResource;
+use App\Http\Resources\Fulfilment\StoredItemAuditsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
@@ -135,6 +137,7 @@ class IndexStoredItems extends OrgAction
     public function htmlResponse(LengthAwarePaginator $storedItems, ActionRequest $request): Response
     {
         // dd($this->parent);
+        // dd(StoredItemAuditsResource::collection(IndexStoredItemAudits::run($this->parent)));
         $subNavigation = [];
 
         $icon      = ['fal', 'fa-narwhal'];
@@ -190,8 +193,13 @@ class IndexStoredItems extends OrgAction
                     fn () => ReturnStoredItemsResource::collection(IndexPalletStoredItems::run($this->parent))
                     : Inertia::lazy(fn () => ReturnStoredItemsResource::collection(IndexPalletStoredItems::run($this->parent))),
 
+                StoredItemsInWarehouseTabsEnum::STORED_ITEM_AUDITS->value => $this->tab == StoredItemsInWarehouseTabsEnum::STORED_ITEM_AUDITS->value ?
+                    fn () => StoredItemAuditsResource::collection(IndexStoredItemAudits::run($this->parent))
+                    : Inertia::lazy(fn () => StoredItemAuditsResource::collection(IndexStoredItemAudits::run($this->parent))),
+
             ]
         )->table($this->tableStructure($this->parent, prefix: StoredItemsInWarehouseTabsEnum::STORED_ITEMS->value))
+        ->table(IndexStoredItemAudits::make()->tableStructure(parent: $this->parent, prefix: StoredItemsInWarehouseTabsEnum::STORED_ITEM_AUDITS->value))
         ->table(
             IndexPalletStoredItems::make()->tableStructure(
                 $this->parent,

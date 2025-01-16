@@ -28,7 +28,7 @@ use App\Models\Fulfilment\PalletReturn;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\ActionRequest;
 
-class RetinaSubmitPalletReturn extends RetinaAction
+class SubmitRetinaPalletReturn extends RetinaAction
 {
     use WithActionUpdate;
 

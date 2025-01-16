@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsCommand;
 
-class RetinaAttachPalletsToReturn extends RetinaAction
+class AttachRetinaPalletsToReturn extends RetinaAction
 {
     use AsCommand;
 
