@@ -120,39 +120,42 @@ class GetRetinaFulfilmentNavigation
             ]
         ];*/
 
+        $groupNavigation['billing'] = [
+            'label'   => __('billing'),
+            'icon'    => ['fal', 'fa-file-invoice-dollar'],
+            'root'    => 'retina.fulfilment.billing.',
+            'route'   => [
+                'name' => 'retina.fulfilment.billing.dashboard'
+            ],
+            'topMenu' => [
+                'subSections' => [
+                    [
+                        'label' => __('next bill'),
+                        'icon'  => ['fal', 'fa-receipt'],
+                        'root'  => 'retina.fulfilment.billing.next_recurring_bill',
+                        'route' => [
+                            'name' => 'retina.fulfilment.billing.next_recurring_bill',
+
+                        ]
+                    ],
+
+                    [
+                        'label' => __('invoices'),
+                        'icon'  => ['fal', 'fa-file-invoice-dollar'],
+                        'root'  => 'retina.fulfilment.billing.invoices.',
+                        'route' => [
+                            'name' => 'retina.fulfilment.billing.invoices.index',
+
+                        ]
+                    ],
+                ]
+            ]
+        ];
+
+
         if ($webUser->is_root) {
 
-            $groupNavigation['billing'] = [
-                'label'   => __('billing'),
-                'icon'    => ['fal', 'fa-file-invoice-dollar'],
-                'root'    => 'retina.fulfilment.billing.',
-                'route'   => [
-                    'name' => 'retina.fulfilment.billing.dashboard'
-                ],
-                'topMenu' => [
-                    'subSections' => [
-                        [
-                            'label' => __('next bill'),
-                            'icon'  => ['fal', 'fa-receipt'],
-                            'root'  => 'retina.fulfilment.billing.next_recurring_bill',
-                            'route' => [
-                                'name' => 'retina.fulfilment.billing.next_recurring_bill',
 
-                            ]
-                        ],
-
-                        [
-                            'label' => __('invoices'),
-                            'icon'  => ['fal', 'fa-file-invoice-dollar'],
-                            'root'  => 'retina.fulfilment.billing.invoices.',
-                            'route' => [
-                                'name' => 'retina.fulfilment.billing.invoices.index',
-
-                            ]
-                        ],
-                    ]
-                ]
-            ];
 
             $groupNavigation['sysadmin'] = [
                 'label'   => __('manage account'),
