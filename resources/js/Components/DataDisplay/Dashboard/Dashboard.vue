@@ -12,27 +12,43 @@ const props = defineProps<{
 		total:{}[]
 		widgets:{}[]
 	}
+	checked?: boolean
+	tableType?: string
 }>()
 
 const layout = inject("layout")
 const locale = inject("locale")
-console.log(props,'propssasas');
+const checked = ref(props.checked || false);
 
+const onToggleChecked = (value: boolean) => {
+    checked.value = value; 
+};
 
 const isOrganisation = ref(false)
 
-
-// Compute table data dynamically
 const tableDatas = computed(() => {
-	return props.dashboard.table
-		.filter((org) => org.type !== "agent")
+	if (props.tableType == "org") {
+		return props.dashboard.table
+		
 		.map((org) => ({
 			name: org.name,
 			code: org.code,
 			interval_percentages: org.interval_percentages,
 			sales: org.sales || 0,
-			currency: org.currency_code ,
+			route: org.route,
+			currency: org.currency_code,
 		}))
+	}else{
+		return props.dashboard.table
+			.filter((org) => org.type !== "agent")
+			.map((org) => ({
+				name: org.name,
+				code: org.code,
+				interval_percentages: org.interval_percentages,
+				sales: org.sales || 0,
+				currency: org.currency_code ,
+			}))
+	}
 })
 
 const toggleCurrency = () => {
@@ -46,9 +62,12 @@ const toggleCurrency = () => {
 	<div>
 		
 		<DashboardSettings
-		v-if="props.dashboard?.settings"
+			v-if="props.dashboard?.settings"
 			@toggle-currency="toggleCurrency"
+			@update-checked="onToggleChecked"
 			:intervalOptions="props.dashboard?.interval_options"
+			:checked="checked"
+			:tableType="tableType"
 			:settings="props.dashboard?.settings"
 		/>
 		
@@ -56,6 +75,7 @@ const toggleCurrency = () => {
 			v-if="props.dashboard?.table"
 			:tableData="tableDatas"
 			:locale="locale"
+			:tableType="props.tableType"
 			:totalAmount="props.dashboard.total"
 			:selectedDateOption="props.dashboard.settings.selected_interval"
 		/>

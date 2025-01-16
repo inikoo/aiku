@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Tabs from "primevue/tabs"
 import TabList from "primevue/tablist"
 import Tab from "primevue/tab"
-
+import { Link } from "@inertiajs/vue3"
 import { useTabChange } from "@/Composables/tab-change"
 
 
@@ -23,6 +23,7 @@ const props = defineProps<{
 		total_refunds: number
 	}
 	selectedDateOption: String
+	tableType?: string
 }>()
 
 
@@ -32,6 +33,9 @@ const tabs = ref([
 	{ title: "Settings", value: "settings" },
 ])
 
+function ShopDashboard(shop: any) {
+	return route(shop?.route?.name, shop?.route?.parameters)
+}
 const activeTab = ref(tabs.value[1].value)
 </script>
 
@@ -54,7 +58,19 @@ const activeTab = ref(tabs.value[1].value)
 							<span class="font-bold">Code</span>
 						</div>
 					</template>
-					<template #body="{ data }">
+
+					<template #body="{ data }" v-if="tableType == 'org'">
+						<div class="relative">
+							<Transition name="spin-to-down" mode="out-in">
+								<div :key="data.name">
+									<Link :href="ShopDashboard(data)" class="primaryLink">
+										{{ data.name }}
+									</Link>
+								</div>
+							</Transition>
+						</div>
+					</template>
+					<template #body="{ data }" v-else>
 						<div class="relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div :key="data.code">

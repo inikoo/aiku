@@ -23,6 +23,8 @@ const props = defineProps<{
 			label: string
 		}[]
 	}
+	checked?: boolean
+	tableType?: string
 }>()
 
 
