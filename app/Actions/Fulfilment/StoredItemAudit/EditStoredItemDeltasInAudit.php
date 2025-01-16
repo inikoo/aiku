@@ -57,6 +57,7 @@ class EditStoredItemDeltasInAudit extends OrgAction
         $query->where('pallets.state', PalletStateEnum::STORING);
 
         $query->leftJoin('locations', 'pallets.location_id', '=', 'locations.id');
+        $query->leftJoin('warehouses', 'pallets.warehouse_id', '=', 'warehouses.id');
 
         $query->defaultSort('pallets.id')
 
@@ -77,6 +78,8 @@ class EditStoredItemDeltasInAudit extends OrgAction
                 'pallets.pallet_delivery_id',
                 'pallets.pallet_return_id',
                 'locations.code as location_code',
+                'locations.slug as location_slug',
+                'warehouses.slug as warehouse_slug',
             )->selectRaw("$storedItemAudit->id. as stored_item_audit_id");
 
 
@@ -114,7 +117,7 @@ class EditStoredItemDeltasInAudit extends OrgAction
             $table->column(key: 'location_code', label: __('location'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
             $table->column(key: 'reference', label: __('pallet reference'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'customer_reference', label: __("Pallet customer's reference"), canBeHidden: false, sortable: true, searchable: true);
+            // $table->column(key: 'customer_reference', label: __("Pallet customer's reference"), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'stored_items', label: __("Customer's SKUs"), canBeHidden: false);
             $table->column(key: 'actions', label: '', canBeHidden: false);
 

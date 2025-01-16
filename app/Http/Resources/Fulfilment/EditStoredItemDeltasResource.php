@@ -47,11 +47,11 @@ class EditStoredItemDeltasResource extends JsonResource
             'reference'            => $this->reference,
             'customer_reference'   => (string)$this->customer_reference,
 
-
             'location_slug' => $this->location_slug,
             'location_code' => $this->location_code,
             'location_id'   => $this->location_id,
 
+            'warehouse_slug' => $this->warehouse_slug,
 
             'stored_items' => $pallet->getEditStoredItemDeltasQuery($this->id, $this->stored_item_audit_id)
                 ->where('pallet_stored_items.pallet_id', $this->id)

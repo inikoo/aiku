@@ -40,26 +40,6 @@ export default {
 				},
 			],
 		},
-		/* {
-			name: "Greeting",
-            key : ["greeting"],
-			icon: {
-				icon: "fal fa-text",
-				tooltip: "Text",
-			},
-			replaceForm: [
-				{
-					key: ["visible"],
-					label :'Visibility',
-					type: "VisibleLoggedIn",
-				},
-				{
-					key: ["text"],
-					label :'Text',
-					type: "editorhtml",
-				},
-			],
-		}, */
 		{
 			name: "Login",
             key:['login'],
@@ -73,11 +53,6 @@ export default {
 					label :'Visibility',
 					type: "VisibleLoggedIn",
 				},
-				// {
-				// 	key: [],
-				// 	label :'Button',
-				// 	type: "button",
-				// },
 				{
 					key: ["link"],
 					label :'Link',

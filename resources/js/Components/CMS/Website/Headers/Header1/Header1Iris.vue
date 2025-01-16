@@ -22,35 +22,11 @@ const props = defineProps<{
         chip_text: string
     }
     loginMode: boolean
-    colorThemed?: {
-        color: Array
-    }
 }>()
 
-const selectedColor = props.colorThemed?.color
 const isLoggedIn = inject('isPreviewLoggedIn', false)
 
-const emits = defineEmits<{
-    (e: 'update:modelValue', value: string | number): void
-}>()
-
 const _menu = ref();
-const items = ref([
-    {
-        label: 'Register',
-        icon: faUserCircle
-    },
-    {
-        label: 'Login',
-        icon: faSignInAlt
-    },
-    {
-        label: 'Log out',
-        icon: faSignOutAlt
-    }
-]
-);
-
 const toggle = (event) => {
     _menu.value.toggle(event)
 };
@@ -90,15 +66,12 @@ const toggle = (event) => {
         </div>
 
         <!-- Mobile view (hidden on desktop) -->
-        <div class="block md:hidden p-3" :style="{ backgroundColor: selectedColor[0] }">
+        <div class="block md:hidden p-3">
             <div class="flex justify-between items-center">
                 <MobileMenu :header="modelValue" :menu="modelValue" />
 
                 <!-- Logo for Mobile -->
-                <img v-if="!fieldValue.logo"
-                    src="https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png"
-                    alt="Ancient Wisdom Logo" class="h-10 mx-2">
-
+                <img v-if="!fieldValue.logo" src="https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png" alt="Ancient Wisdom Logo" class="h-10 mx-2">
                 <Image v-else :src="fieldValue?.logo?.source" class="h-10 mx-2"></Image>
 
                 <!-- Profile Icon with Dropdown Menu -->

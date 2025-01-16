@@ -15,6 +15,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Illuminate\Support\Arr;
 
 class ShowFooterPreview extends OrgAction
 {
@@ -31,12 +32,6 @@ class ShowFooterPreview extends OrgAction
             'Web/PreviewWorkshop',
             [
                 'footer' => GetWebsiteWorkshopFooter::run($website),
-               /*  'autosaveRoute' => [
-                    'name' => 'grp.models.website.autosave.footer',
-                    'parameters' => [
-                        'website' => $website->id
-                    ],
-                ] */
             ]
         );
     }
