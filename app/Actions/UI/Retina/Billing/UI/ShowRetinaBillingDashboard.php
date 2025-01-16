@@ -15,7 +15,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowRetinaRetinaBillingDashboard
+class ShowRetinaBillingDashboard
 {
     use AsAction;
 

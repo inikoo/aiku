@@ -9,7 +9,7 @@
 namespace App\Actions\Retina\Storage\RecurringBill\UI;
 
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Billing\UI\ShowRetinaRetinaBillingDashboard;
+use App\Actions\UI\Retina\Billing\UI\ShowRetinaBillingDashboard;
 use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\RecurringBillResource;
@@ -182,7 +182,7 @@ class ShowRetinaCurrentRecurringBill extends RetinaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            ShowRetinaRetinaBillingDashboard::make()->getBreadcrumbs(),
+            ShowRetinaBillingDashboard::make()->getBreadcrumbs(),
             [
 
                 'type'   => 'simple',
