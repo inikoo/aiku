@@ -6,12 +6,12 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\PalletReturn;
 
+use App\Actions\Fulfilment\PalletReturn\AutoAssignServicesToPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateTransactions;
 use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
-use App\Actions\OrgAction;
+use App\Actions\RetinaAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
@@ -22,7 +22,7 @@ use App\Models\Fulfilment\PalletReturn;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 
-class DetachPalletFromReturn extends OrgAction
+class RetinaDetachPalletFromReturn extends RetinaAction
 {
     use WithActionUpdate;
 
@@ -49,29 +49,14 @@ class DetachPalletFromReturn extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->asAction) {
-            return true;
-        }
-
-        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
+        return true;
     }
 
     public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, Pallet $pallet, ActionRequest $request): bool
     {
-        $this->pallet = $pallet;
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+        $this->initialisation($request);
 
         return $this->handle($palletReturn, $pallet);
-    }
-
-    public function action(Pallet $pallet, array $modelData, int $hydratorsDelay = 0): bool
-    {
-        $this->pallet         = $pallet;
-        $this->asAction       = true;
-        $this->hydratorsDelay = $hydratorsDelay;
-        $this->initialisationFromFulfilment($pallet->fulfilment, $modelData);
-
-        return $this->handle($pallet->palletReturn, $pallet);
     }
 
     public function jsonResponse(Pallet $pallet): PalletResource

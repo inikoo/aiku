@@ -81,10 +81,6 @@ class SubmitPalletReturn extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($request->user() instanceof WebUser) {
-            return true;
-        }
-
         if ($this->asAction) {
             return true;
         }
@@ -111,15 +107,5 @@ class SubmitPalletReturn extends OrgAction
         $this->sendNotifications = $sendNotification;
         $this->initialisationFromFulfilment($palletReturn->fulfilment, []);
         return $this->handle($palletReturn, []);
-    }
-
-    public function fromRetina(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
-    {
-        /** @var FulfilmentCustomer $fulfilmentCustomer */
-        $fulfilmentCustomer      = $request->user()->customer->fulfilmentCustomer;
-        $this->fulfilment        = $fulfilmentCustomer->fulfilment;
-        $this->sendNotifications = true;
-        $this->initialisation($request->get('website')->organisation, $request);
-        return $this->handle($palletReturn, $this->validatedData);
     }
 }

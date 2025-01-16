@@ -6,14 +6,13 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletReturns;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletReturns;
 use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\Search\PalletReturnRecordSearch;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletReturns;
-use App\Actions\OrgAction;
+use App\Actions\RetinaAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletReturns;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletReturns;
 use App\Actions\Traits\WithActionUpdate;
@@ -21,13 +20,11 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
-use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\ActionRequest;
 
-class CancelPalletReturn extends OrgAction
+class RetinaCancelPalletReturn extends RetinaAction
 {
     use WithActionUpdate;
 
@@ -57,11 +54,7 @@ class CancelPalletReturn extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->asAction) {
-            return true;
-        }
-
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return true;
     }
 
     public function jsonResponse(PalletReturn $palletReturn): JsonResource
@@ -69,18 +62,9 @@ class CancelPalletReturn extends OrgAction
         return new PalletReturnResource($palletReturn);
     }
 
-    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, ActionRequest $request): PalletReturn
+    public function asController(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
-
-        return $this->handle($palletReturn, $this->validatedData);
-    }
-
-    public function action(FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn): PalletReturn
-    {
-        $this->asAction = true;
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, []);
-
+        $this->initialisation($request);
         return $this->handle($palletReturn, $this->validatedData);
     }
 }

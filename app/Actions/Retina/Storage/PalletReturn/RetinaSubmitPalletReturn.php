@@ -6,41 +6,59 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletReturns;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletReturns;
+use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\Search\PalletReturnRecordSearch;
+use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletReturns;
-use App\Actions\OrgAction;
+use App\Actions\RetinaAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletReturns;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletReturns;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
-use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\PalletReturn;
-use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\ActionRequest;
 
-class CancelPalletReturn extends OrgAction
+class RetinaSubmitPalletReturn extends RetinaAction
 {
     use WithActionUpdate;
 
 
+    private bool $sendNotifications = false;
+
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $modelData[PalletReturnStateEnum::CANCEL->value.'_at']    = now();
-        $modelData['state']                                       = PalletReturnStateEnum::CANCEL;
+        $modelData[PalletReturnStateEnum::SUBMITTED->value.'_at'] = now();
 
-        $palletReturn->pallets()->update([
-            'status' => PalletStatusEnum::STORING,
-            'state'  => PalletStateEnum::STORING
-        ]);
+        if (!request()->user() instanceof WebUser) {
+            $modelData[PalletReturnStateEnum::CONFIRMED->value.'_at'] = now();
+            $modelData['state']                                       = PalletReturnStateEnum::CONFIRMED;
+        } else {
+            $modelData['state'] = PalletReturnStateEnum::SUBMITTED;
+        }
+
+        foreach ($palletReturn->pallets as $pallet) {
+            UpdatePallet::run($pallet, [
+                'reference' => GetSerialReference::run(
+                    container: $palletReturn->fulfilmentCustomer,
+                    modelType: SerialReferenceModelEnum::PALLET
+                ),
+                'state'  => $modelData['state']->value,
+                'status' => PalletStatusEnum::RECEIVING
+            ]);
+
+            $palletReturn->pallets()->syncWithoutDetaching([$pallet->id => [
+                'state' => $modelData['state']
+            ]]);
+        }
 
         $palletReturn = $this->update($palletReturn, $modelData);
 
@@ -50,18 +68,17 @@ class CancelPalletReturn extends OrgAction
         FulfilmentCustomerHydratePalletReturns::dispatch($palletReturn->fulfilmentCustomer);
         FulfilmentHydratePalletReturns::dispatch($palletReturn->fulfilment);
 
-        SendPalletReturnNotification::run($palletReturn);
+
+        if ($this->sendNotifications) {
+            SendPalletReturnNotification::run($palletReturn);
+        }
         PalletReturnRecordSearch::dispatch($palletReturn);
         return $palletReturn;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->asAction) {
-            return true;
-        }
-
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return true;
     }
 
     public function jsonResponse(PalletReturn $palletReturn): JsonResource
@@ -69,17 +86,10 @@ class CancelPalletReturn extends OrgAction
         return new PalletReturnResource($palletReturn);
     }
 
-    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, ActionRequest $request): PalletReturn
+    public function asController(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
-
-        return $this->handle($palletReturn, $this->validatedData);
-    }
-
-    public function action(FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn): PalletReturn
-    {
-        $this->asAction = true;
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, []);
+        $this->sendNotifications = true;
+        $this->initialisation($request);
 
         return $this->handle($palletReturn, $this->validatedData);
     }
