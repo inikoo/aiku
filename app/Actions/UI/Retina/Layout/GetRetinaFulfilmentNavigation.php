@@ -36,7 +36,7 @@ class GetRetinaFulfilmentNavigation
             ];
         }
 
-        if($webUser->customer->fulfilmentCustomer->items_storage){
+        if ($webUser->customer->fulfilmentCustomer->items_storage) {
             $additionalSubsections[] = [
                 'label' => __('SKUs'),
                 'icon'  => ['fal', 'fa-barcode'],

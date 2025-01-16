@@ -36,16 +36,16 @@ const props = defineProps<{
     pageHead: TSPageHeading
     title: string
     data: {
-        footer: Object
+        data: Object
     }
     autosaveRoute: routeType
     webBlockTypes: Object
     uploadImageRoute: routeType
 }>()
-
+console.log(props)
 const previewMode = ref(false)
 const isModalOpen = ref(false)
-const usedTemplates = ref(isArray(props.data.footer) ? null : props.data.footer)
+const usedTemplates = ref(isArray(props.data.data) ? null : props.data.data)
 const isLoading = ref(false)
 const comment = ref('')
 const iframeClass = ref('w-full h-full')

@@ -21,6 +21,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\Actions\Web\Website\GetWebsiteWorkshopMenu;
+use Illuminate\Support\Arr;
 
 class ShowWebpageWorkshopPreview extends OrgAction
 {
@@ -61,7 +62,7 @@ class ShowWebpageWorkshopPreview extends OrgAction
                 'header' => GetWebsiteWorkshopHeader::run($website),
                 'footer' => GetWebsiteWorkshopFooter::run($website),
                 'navigation' => GetWebsiteWorkshopMenu::run($website),
-               /*  'layout' => Arr::get($website->published_layout, 'theme'), */
+                'layout' => Arr::get($website->published_layout, 'theme'),
             ]
         );
     }
