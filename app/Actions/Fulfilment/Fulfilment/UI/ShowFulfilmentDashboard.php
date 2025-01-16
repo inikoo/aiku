@@ -80,14 +80,20 @@ class ShowFulfilmentDashboard extends OrgAction
                                     'type'  => 'MeterGroup',
                                     'value' => $fulfilment->shop->orderingStats->number_invoices-$fulfilment->shop->orderingStats->number_unpaid_invoices,
                                     'max'   => $fulfilment->shop->orderingStats->number_invoices,
-                                    'color' => 'bg-red-500', // if less than let say 80% red, 80-95 , more than 95% green
-                                    'route'         => [
-                                        'name'       => 'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.index',
-                                        'parameters' => [
-                                            $fulfilment->organisation->slug,
-                                            $fulfilment->slug
+                                    'color' => 'bg-blue-500',
+                                    'right_label'=>[
+                                        'label'=>__('Unpaid').' '.$fulfilment->shop->orderingStats->number_unpaid_invoices,
+                                        'route'         => [
+                                            'name'       => 'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.index',
+                                            'parameters' => [
+                                                $fulfilment->organisation->slug,
+                                                $fulfilment->slug
+                                            ]
                                         ]
                                     ]
+
+
+
                                 ],
                             ),
 

@@ -14,6 +14,11 @@ import path from "node:path"
 
 export default defineConfig(
     {
+        server: {
+            watch: {
+                ignored: ["**/storage/media/**"], 
+            },
+        },
         plugins: [
             laravel({
                         hotFile       : "public/iris.hot",
