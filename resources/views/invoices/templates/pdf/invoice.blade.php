@@ -249,13 +249,13 @@
 
     <tr class="total_net">
         <td style="border:none" colspan="4"></td>
-        <td>Total Net</td>
+        <td>{{__('Total Net')}}</td>
         <td>{{ $invoice->currency->symbol . $invoice->net_amount + $invoice->shipping_amount }}</td>
     </tr>
 
     <tr>
         <td style="border:none" colspan="4"></td>
-        <td class="totals">TAX <br> <small>GB-SR VAT 20%</small></td>
+        <td class="totals">TAX <br> <small></small></td>
         <td class="totals">{{ $invoice->currency->symbol . $invoice->tax_amount }}</td>
     </tr>
 
@@ -302,19 +302,11 @@
 <br>
 <br>
 
-<!--<div style="text-align: center; font-style: italic;">
-    The exporter of products covered by this document GB356317102000 declares that, unless otherwise clearly
-    indicated, these products are of UK preferential origin. Such products are covered by the The EU-UK Trade and
-    Cooperation Agreement and MUST be regarded with a preferential 0% tariff code.
-</div>
-
-<br>
-
+@if(Arr::exists($shop->data,'invoice_footer'))
 <div style="text-align: center; font-style: italic;">
-    EORI: GB356317102000 XI EORI: XI356317102000 Thank you for your order. Bank Details:
-    Beneficiary: AW Aromatics Ltd Bank: HSBC UK Bank PLC Address: Carmel House, 49 - 63 Fargate,S1 2HD, Sheffield UK
-    Account Number: 70861278 Bank Code: 404157 Swift: HBUKGB4B IBAN: GB15HBUK40415770861278
-</div>-->
+    {{Arr::get($shop->data,'invoice_footer')}}
+</div>
+@endif
 
 <htmlpagefooter name="myfooter">
     <div
@@ -323,10 +315,15 @@
         <tr>
         <tr>
             <td width="33%" style="color:#000;text-align: left;">
-                <small>{{$shop->name}}<br> VAT Number:
-                    <b>{{$shop->data['vat_number']}}</b>
-                    <br>
-                    Registration Number: {{$shop->data['registration_number']}}</small>
+                <small>
+                    {{$shop->name}}<br>
+                    @if(Arr::exists($shop->data,'vat_number'))
+                     {{__('VAT Number')}}:<b>{{Arr::get($shop->data,'vat_number')}}</b><br>
+                    @endif
+                    @if(Arr::exists($shop->data,'registration_number'))
+                    {{__('Registration Number')}}: {{Arr::get($shop->data,'registration_number')}}
+                    @endif
+                </small>
             </td>
             <td width="33%" style="color:#000;text-align: center">
                 Page 1 of 1
