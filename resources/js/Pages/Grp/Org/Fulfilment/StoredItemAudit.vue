@@ -36,6 +36,8 @@ import { reactive, ref } from 'vue'
 import { debounce, get, set } from 'lodash'
 import InputNumber from 'primevue/inputnumber'
 import { notify } from '@kyvg/vue3-notification'
+import CreateStoredItems from '@/Components/CreateStoredItems.vue'
+import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 // import QuantityInput from '@/Components/Utils/QuantityInput.vue'
 library.add(faStickyNote, faPlus, faMinus, faCheckCircle, faStar)
 
@@ -119,20 +121,37 @@ function palletRoute(pallet: Pallet) {
 
 const isLoading = ref(false)
 const onCheck = (routex: routeType, store_item_id: number, qty: number) => {
-    router.post(route(routex.name, routex.parameters), {
-        stored_item_ids	: {
-            [store_item_id]: {
-                quantity: qty
+    // router.post(route(routex.name, routex.parameters), {
+    //     stored_item_ids	: {
+    //         [store_item_id]: {
+    //             quantity: qty
+    //         }
+    //     }
+    // }, {
+    //     onStart: () => {
+    //         isLoading.value = true
+    //     },
+    //     onFinish: () => {
+    //         isLoading.value = false
+    //     }
+    // })
+}
+
+// Unselect Audit Deltas
+const isLoadingUnselect = reactive<StoredItemsQuantity>({})
+const onUnselectNewStoredItem = (row: number, store_item_audit_deltas_id: number) => {
+    props.route_list.stored_item_audit_delta.delete
+    router.delete(
+        route(props.route_list.stored_item_audit_delta.delete.name, store_item_audit_deltas_id),
+        {
+            onStart: () => {
+                set(isLoadingUnselect, `${row}.${store_item_audit_deltas_id}`, true)
+            },
+            onFinish: () => {
+                set(isLoadingUnselect, `${row}.${store_item_audit_deltas_id}`, false)
             }
         }
-    }, {
-        onStart: () => {
-            isLoading.value = true
-        },
-        onFinish: () => {
-            isLoading.value = false
-        }
-    })
+    )
 }
 
 // Helper to give color on change qty stored items
@@ -146,13 +165,13 @@ const storedItemsQuantity = reactive<StoredItemsQuantity>({
 
 // Section: update quantity stored item
 const isLoadingQuantity = reactive<StoredItemsQuantity>({})
-const onChangeQuantity = debounce((row: number, stored_item_id: number, quantity: number) => {
+const onChangeQuantity = debounce((row: number, idStoredItemAuditDelta: number, quantity: number) => {
 
     if (!props.route_list?.stored_item_audit_delta?.update?.name) {
         return
     }
     router.patch(
-        route(props.route_list?.stored_item_audit_delta?.update.name, props.route_list?.stored_item_audit_delta?.update.parameters),
+        route(props.route_list?.stored_item_audit_delta?.update.name, idStoredItemAuditDelta),
         {
             audited_quantity: quantity
         },
@@ -160,7 +179,7 @@ const onChangeQuantity = debounce((row: number, stored_item_id: number, quantity
             preserveScroll: true,
             preserveState: true,
             onStart: () => {
-                set(isLoadingQuantity, `${row}.${stored_item_id}`, true)
+                set(isLoadingQuantity, `${row}.${idStoredItemAuditDelta}`, true)
             },
             onError: (e) => {
                     console.error(e)
@@ -171,7 +190,7 @@ const onChangeQuantity = debounce((row: number, stored_item_id: number, quantity
                     })
             },
             onFinish: () => {
-                set(isLoadingQuantity, `${row}.${stored_item_id}`, false)
+                set(isLoadingQuantity, `${row}.${idStoredItemAuditDelta}`, false)
             }
         }
     )
@@ -247,7 +266,7 @@ const onChangeQuantity = debounce((row: number, stored_item_id: number, quantity
 
                 <Column field="quantity" header="Current qty">
                     <template #body="{ data }">
-                        <div class="text-right">{{ data.quantity }}</div>
+                        <div class="text-right">{{ data.quantity || '' }}</div>
                     </template>
                 </Column>
 
@@ -274,14 +293,13 @@ const onChangeQuantity = debounce((row: number, stored_item_id: number, quantity
                         </InputNumber> -->
                         <!-- <pre>{{ data.update_routes }}</pre> -->
                         <div class="relative flex flex-nowrap justify-center gap-y-1 gap-x-1">
-                            <div v-if="get(isLoadingQuantity, [item.rowIndex, data.id], false)" class="z-10 opacity-60 absolute w-full h-full top-0 left-0">
+                            <div v-if="get(isLoadingQuantity, [item.rowIndex, data.storedItemAuditDelta], false)" class="z-10 opacity-60 absolute w-full h-full top-0 left-0">
                                 <div class="skeleton h-full w-full"></div>
                             </div>
 
                             <div
-                                @click="() => (set(data, `audited_quantity`, get(data, `audited_quantity`, data.quantity) - 1), onChangeQuantity(item.rowIndex, data.id, get(data, `audited_quantity`, data.quantity)))"
+                                @click="() => (set(data, `audited_quantity`, get(data, `audited_quantity`, data.quantity) - 1), onChangeQuantity(item.rowIndex, data.storedItemAuditDelta, get(data, `audited_quantity`, data.quantity)))"
                                 icon="fal fa-minus"
-                                :loading="isLoading"
                                 type="tertiary"
                                 size="xs"
                                 class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-0.5 py-0.5 text-xs justify-self-center"
@@ -297,7 +315,7 @@ const onChangeQuantity = debounce((row: number, stored_item_id: number, quantity
                                 </Transition> -->
                                 <InputNumber
                                     v-model="data.audited_quantity"
-                                    @update:modelValue="(e) => onChangeQuantity(item.rowIndex, data.id, e)"
+                                    @update:modelValue="(e) => onChangeQuantity(item.rowIndex, data.storedItemAuditDelta, e)"
                                     buttonLayout="horizontal"
                                     :min="0"
                                     style="width: 100%"
@@ -310,9 +328,8 @@ const onChangeQuantity = debounce((row: number, stored_item_id: number, quantity
                             </div>
 
                             <div
-                                @click="() => (set(data, `audited_quantity`, get(data, `audited_quantity`, data.quantity) + 1), onChangeQuantity(item.rowIndex, data.id, get(data, `audited_quantity`, data.quantity)))"
+                                @click="() => (set(data, `audited_quantity`, get(data, `audited_quantity`, data.quantity) + 1), onChangeQuantity(item.rowIndex, data.storedItemAuditDelta, get(data, `audited_quantity`, data.quantity)))"
                                 icon="fal fa-minus"
-                                :loading="isLoading"
                                 type="tertiary"
                                 size="xs"
                                 class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-0.5 py-0.5 text-xs justify-self-center"
@@ -325,9 +342,14 @@ const onChangeQuantity = debounce((row: number, stored_item_id: number, quantity
 
                 <Column field="quantity" header="Checked" class="text-right">
                     <template #body="{ data }">
-                        <div v-if="data.type === 'new_item'">
-                            
-                        </div>
+                        <template v-if="data.type === 'new_item'">
+                            <div v-if="get(isLoadingUnselect, [item.rowIndex, data.storedItemAuditDelta], false)" class="text-center text-red-500">
+                                <LoadingIcon class="" />
+                            </div>
+                            <div v-else @click="() => onUnselectNewStoredItem(item.rowIndex, data.storedItemAuditDelta)" class="text-red-500 hover:underline cursor-pointer">
+                                {{ trans("Unselect") }}
+                            </div>
+                        </template>
                         <div v-else @click="onCheck(proxyItem.auditRoute, data.id, data.quantity)" class="mx-auto cursor-pointer w-fit py-0.5 px-3 text-gray-500 hover:text-green-500">
                             <FontAwesomeIcon icon='fad fa-check-circle'
                                 class='' fixed-width aria-hidden='true' />
@@ -399,10 +421,28 @@ const onChangeQuantity = debounce((row: number, stored_item_id: number, quantity
                 :editable="true"
                 :saveRoute="route_list.stored_item_audit_delta.store"
                 class="mt-2"
-                title="Add stored item"
             >
                 <template #default="{ openModal }">
                     <Button @click="openModal" type="dashed" icon="fas fa-plus" fuxll :label="trans('Customer\'s SKU')" />
+                </template>
+
+                <template #modal="{form, sendToServer, closeModal}">
+                    <!-- <pre>{{ item.id }}</pre> -->
+                    <CreateStoredItems
+                        :storedItemsRoute="storedItemsRoute"
+                        :form="form"
+                        @onSave="() => sendToServer(
+                            {
+                                pallet_id: item.id,
+                                stored_item_id: form.id, 
+                                audited_quantity: form.quantity,
+                            },
+                            true
+                        )"
+                        :stored_items="item.stored_items"
+                        @closeModal="closeModal"
+                        title="Add Customer's SKU"
+                    />
                 </template>
             </StoredItemsProperty>
         </template>
