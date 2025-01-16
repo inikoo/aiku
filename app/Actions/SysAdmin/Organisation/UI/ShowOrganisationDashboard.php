@@ -130,11 +130,11 @@ class ShowOrganisationDashboard extends OrgAction
     {
         $selectedInterval = Arr::get($userSettings, 'selected_interval', 'all');
         $shops = $organisation->shops;
-        $orgCurrencies = [];
+        $shopCurrencies = [];
         foreach ($shops as $shop) {
-            $orgCurrencies[] = $shop->currency->symbol;
+            $shopCurrencies[] = $shop->currency->symbol;
         }
-        $orgCurrenciesSymbol = implode('/', array_unique($orgCurrencies));
+        $shopCurrenciesSymbol = implode('/', array_unique($shopCurrencies));
 
         $dashboard = [
             'interval_options'  => $this->getIntervalOptions(),
@@ -148,7 +148,7 @@ class ShowOrganisationDashboard extends OrgAction
                     ],
                     [
                         'value' => 'shop',
-                        'label' => $orgCurrenciesSymbol,
+                        'label' => $shopCurrenciesSymbol,
                     ]
                 ]
             ],
@@ -160,9 +160,8 @@ class ShowOrganisationDashboard extends OrgAction
         ];
 
         $selectedCurrency = Arr::get($userSettings, 'selected_currency_in_org', 'org');
-
         $total = [
-            'total_sales'    => $organisation->shops->sum(fn ($shop) => $shop->salesIntervals->{"sales_$selectedInterval"} ?? 0),
+            'total_sales'    => $organisation->shops->sum(fn ($shop) => $shop->salesIntervals->{"sales_org_currency_$selectedInterval"} ?? 0),
             'total_invoices' => 0,
             'total_refunds'  => 0,
         ];
@@ -175,6 +174,10 @@ class ShowOrganisationDashboard extends OrgAction
         $dashboard['table'] = $shops->map(function (Shop $shop) use ($selectedInterval, $organisation, &$dashboard, $selectedCurrency, &$visualData, &$total) {
             $keyCurrency = $dashboard['settings']['key_currency'];
             $currencyCode = $selectedCurrency === $keyCurrency ? $organisation->currency->code : $shop->currency->code;
+            $salesCurrency = 'sales_'.$selectedCurrency.'_currency';
+            if ($selectedCurrency === 'shop') {
+                $salesCurrency = 'sales';
+            }
             $responseData = [
                 'name'      => $shop->name,
                 'slug'      => $shop->slug,
@@ -202,7 +205,7 @@ class ShowOrganisationDashboard extends OrgAction
             if ($shop->salesIntervals !== null) {
                 $responseData['interval_percentages']['sales'] = $this->getIntervalPercentage(
                     $shop->salesIntervals,
-                    'sales_shop_currency',
+                    $salesCurrency,
                     $selectedInterval,
                 );
                 $visualData['sales_data']['labels'][] = $shop->code;
