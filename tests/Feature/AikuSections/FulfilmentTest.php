@@ -2581,3 +2581,7 @@ test('fulfilment customers search', function () {
     ReindexFulfilmentCustomerSearch::run($fulfilmentCustomers);
     expect($fulfilmentCustomers->universalSearch()->count())->toBe(1);
 });
+
+test('update current recurring bills', function () {
+    $this->artisan('current_recurring_bills:update_temporal_aggregates')->assertExitCode(0);
+});
