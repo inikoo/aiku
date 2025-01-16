@@ -116,4 +116,14 @@ class RetinaUpdateProfile extends GrpAction
 
         return $this->handle($webUser, $this->validatedData);
     }
+
+    public function action(WebUser $webUser, array $modelData): WebUser
+    {
+        /** @var WebUser $webUser */
+        $this->webUser = $webUser;
+        $this->website = $webUser->website;
+        $this->initialisation($webUser->group, $modelData);
+
+        return $this->handle($webUser, $this->validatedData);
+    }
 }
