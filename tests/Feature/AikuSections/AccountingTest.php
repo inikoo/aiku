@@ -949,7 +949,7 @@ test('payment accounts search', function () {
 });
 
 test('top up search', function () {
-    $this->artisan('search:to pups')->assertExitCode(0);
+    $this->artisan('search:top_ups')->assertExitCode(0);
     $topUp = TopUp::first();
     ReindexTopUpSearch::run($topUp);
     expect($topUp->universalSearch()->count())->toBe(1);

@@ -29,12 +29,9 @@ class TopUpRecordSearch
                 'shop_slug'         => $topUp->shop->slug,
                 'customer_id'       => $topUp->customer_id,
                 'customer_slug'     => $topUp->customer->slug,
-                'payment_id'        => $topUp->payment_id,
-                'payment_slug'      => $topUp->payment->slug,
                 'sections'          => ['accounting'],
-                'haystack_tier_1'   => $topUp->slug,
+                'haystack_tier_1'   => $topUp->reference,
                 'keyword'           => $topUp->reference,
-                'keyword_2'         => $topUp->slug
             ]
         );
     }
