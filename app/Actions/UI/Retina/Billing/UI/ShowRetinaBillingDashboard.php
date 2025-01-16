@@ -60,7 +60,7 @@ class ShowRetinaBillingDashboard
                                     'data' => [
                                         [
                                             'label' => __('current total'),
-                                            'route' => route('retina.billing.next_recurring_bill'),
+                                            'route' => route('retina.fulfilment.billing.next_recurring_bill'),
                                             'value' => $currentRecurringBill->total_amount,//<-- need to be currency
                                             'type' => 'card_currency_success'
                                         ],
@@ -75,7 +75,7 @@ class ShowRetinaBillingDashboard
                                 $numberInvoices ?
                                 [
                                     'label' => __('Total Invoices'),
-                                    'route' => route('retina.billing.invoices.index'),
+                                    'route' => route('retina.fulfilment.billing.invoices.index'),
                                     'value' => $numberInvoices,
                                     'type' => 'card_number',
                                 ] : null,
@@ -114,7 +114,7 @@ class ShowRetinaBillingDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'retina.billing.dashboard'
+                                'name' => 'retina.fulfilment.billing.dashboard'
                             ],
                             'label'  => __(' Billing'),
                         ]

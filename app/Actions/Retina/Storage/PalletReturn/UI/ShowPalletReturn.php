@@ -120,9 +120,9 @@ class ShowPalletReturn extends RetinaAction
         $showGrossAndDiscount = $palletReturn->gross_amount !== $palletReturn->net_amount;
 
         if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
-            $downloadRoute = 'retina.storage.pallet-returns.pallets.uploads.templates';
+            $downloadRoute = 'retina.fulfilment.storage.pallet-returns.pallets.uploads.templates';
         } else {
-            $downloadRoute = 'retina.storage.pallet-returns.stored-items.uploads.templates';
+            $downloadRoute = 'retina.fulfilment.storage.pallet-returns.stored-items.uploads.templates';
         };
         return Inertia::render(
             'Storage/RetinaPalletReturn',
@@ -309,7 +309,7 @@ class ShowPalletReturn extends RetinaAction
                             ]
                         ],
                         'history' => [
-                            'name'       => 'retina.storage.pallet-returns.uploads.history',
+                            'name'       => 'retina.fulfilment.storage.pallet-returns.uploads.history',
                             'parameters' => [
                                 'palletReturn'     => $palletReturn->slug
                             ]
@@ -573,17 +573,17 @@ class ShowPalletReturn extends RetinaAction
         $palletReturn = PalletReturn::where('slug', $routeParameters['palletReturn'])->first();
 
         return match ($routeName) {
-            'retina.storage.pallet-returns.show' => array_merge(
+            'retina.fulfilment.storage.pallet-returns.show' => array_merge(
                 ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $palletReturn,
                     [
                         'index' => [
-                            'name'       => 'retina.storage.pallet-returns.index',
+                            'name'       => 'retina.fulfilment.storage.pallet-returns.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'retina.storage.pallet-returns.show',
+                            'name'       => 'retina.fulfilment.storage.pallet-returns.show',
                             'parameters' => $routeParameters
                         ]
                     ],

@@ -145,17 +145,17 @@ class ShowRetinaStoredItemAudit extends RetinaAction
         $storedItemAudit = StoredItemAudit::where('slug', $routeParameters['storedItemAudit'])->first();
 
         return match ($routeName) {
-            'retina.storage.stored-items-audits.show' => array_merge(
+            'retina.fulfilment.storage.stored-items-audits.show' => array_merge(
                 ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $storedItemAudit,
                     [
                         'index' => [
-                            'name'       => 'retina.storage.stored-items-audits.index',
+                            'name'       => 'retina.fulfilment.storage.stored-items-audits.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'retina.storage.stored-items-audits.show',
+                            'name'       => 'retina.fulfilment.storage.stored-items-audits.show',
                             'parameters' => $routeParameters
                         ]
                     ],

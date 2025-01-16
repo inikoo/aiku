@@ -1,9 +1,9 @@
 <?php
 
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Tue, 07 Mar 2023 11:12:51 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 16 Jan 2025 12:37:25 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
 use App\Actions\Accounting\Invoice\PdfInvoice;
@@ -12,6 +12,8 @@ use App\Actions\Retina\Billing\ShowInvoice;
 use App\Actions\Retina\Storage\RecurringBill\UI\ShowRetinaCurrentRecurringBill;
 use App\Actions\UI\Retina\Billing\UI\ShowRetinaBillingDashboard;
 use Illuminate\Support\Facades\Route;
+
+Route::redirect('/', 'dashboard');
 
 Route::get('/dashboard', ShowRetinaBillingDashboard::class)->name('dashboard');
 

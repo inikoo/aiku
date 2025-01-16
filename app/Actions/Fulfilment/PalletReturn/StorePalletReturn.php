@@ -184,7 +184,7 @@ class StorePalletReturn extends OrgAction
                 'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
                 'palletReturn'       => $palletReturn->slug
             ])),
-            default => Inertia::location(route('retina.storage.pallet-returns.show', [
+            default => Inertia::location(route('retina.fulfilment.storage.pallet-returns.show', [
                 'palletReturn' => $palletReturn->slug
             ]))
         };

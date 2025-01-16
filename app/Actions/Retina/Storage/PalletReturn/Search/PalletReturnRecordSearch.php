@@ -32,7 +32,7 @@ class PalletReturnRecordSearch
 
         $result = [
             'route'     => [
-                'name'          => 'retina.storage.pallet-returns.show	',
+                'name'          => 'retina.fulfilment.storage.pallet-returns.show	',
                 'parameters'    => [
                     'palletReturn'           => $palletReturn->slug
                 ]
