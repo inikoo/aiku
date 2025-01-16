@@ -65,7 +65,8 @@ trait WithDashboard
         ];
     }
 
-    public function getDashboardInterval(Group|Organisation $model, array $userSettings): array
+    // Template for DashboardInterval
+    public function getDashboardInterval($model, array $userSettings): array
     {
 
         $subModel = null;
@@ -104,7 +105,7 @@ trait WithDashboard
             ],
             'table' => [],
             'widgets' => [
-                'column_count'    => 4,
+                'column_count'    => 2,
                 'components' => []
             ]
         ];
@@ -121,7 +122,12 @@ trait WithDashboard
             'total_refunds'  => $model->orderingIntervals?->{"refunds_{$selectedInterval}"} ?? 0,
         ];
 
-        $dashboard['table'] = $subModelData->map(function (Organisation|Shop $subModel) use ($selectedInterval, $model, &$dashboard, $selectedCurrency, $salesCurrency) {
+        $visualData = [
+            'sales' => [],
+            'invoices' => [],
+        ];
+
+        $dashboard['table'] = $subModelData->map(function (Organisation|Shop $subModel) use ($selectedInterval, $model, &$dashboard, $selectedCurrency, $salesCurrency, &$visualData) {
             $keyCurrency = $dashboard['settings']['key_currency'];
             $currencyCode = $selectedCurrency === $keyCurrency ? $model->currency->code : $subModel->currency->code;
             $responseData = [
@@ -131,13 +137,16 @@ trait WithDashboard
                 'type'      => $subModel->type,
                 'currency_code'  => $currencyCode,
             ];
+
             if ($subModel->salesIntervals !== null) {
                 $responseData['interval_percentages']['sales'] = $this->getIntervalPercentage(
                     $subModel->salesIntervals,
                     $salesCurrency,
                     $selectedInterval,
                 );
-
+                $visualData['sales_data']['labels'][] = $subModel->code;
+                $visualData['sales_data']['currency_codes'][] = $currencyCode;
+                $visualData['sales_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['sales']['amount'];
             }
 
             if ($subModel->orderingIntervals !== null) {
@@ -146,14 +155,14 @@ trait WithDashboard
                     'invoices',
                     $selectedInterval,
                 );
-            }
-
-            if ($subModel->orderingIntervals !== null) {
                 $responseData['interval_percentages']['refunds'] = $this->getIntervalPercentage(
                     $subModel->orderingIntervals,
                     'refunds',
                     $selectedInterval,
                 );
+                $visualData['invoices_data']['labels'][] = $subModel->code;
+                $visualData['invoices_data']['currency_codes'][] = $currencyCode;
+                $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
             }
             return $responseData;
         })->toArray();
@@ -162,7 +171,7 @@ trait WithDashboard
 
         $dashboard['widgets']['components'][] = $this->getWidget(
             data: [
-                // 'status' => 'success',
+                'status' => $total['total_sales'] < 0 ? 'danger' : '',
                 'value' => $total['total_sales'],
                 'currency_code' => $model->currency->code,
                 'type' => 'currency',
@@ -171,36 +180,26 @@ trait WithDashboard
             visual: [
                 'type' => 'doughnut',
                 'value' => [
-                    'labels'  => ['AWA', 'ES', 'Aroma'],
-                    'datasets'    => [
-                        [
-                            'data'    => [600, 297000, 27145],
-                        ]
-                    ]
+                    'labels'  => $visualData['sales_data']['labels'],
+                    'currency_codes' => $visualData['sales_data']['currency_codes'],
+                    'datasets'    => $visualData['sales_data']['datasets']
                 ],
-                // 'label' => __('Total Sales')
             ]
         );
 
         $dashboard['widgets']['components'][] = $this->getWidget(
             data: [
-                // 'status' => 'danger',
                 'value' => $total['total_invoices'],
-                'currency_code' => $model->currency->code,
-                'type' => '',
+                'type' => 'number',
                 'description'   => __('Total invoices')
             ],
             visual: [
                 'type' => 'bar',
                 'value' => [
-                    'labels'  => ['AWA', 'ES', 'Aroma'],
-                    'datasets'    => [
-                        [
-                            'data'    => [125, 403, 78],
-                        ]
-                    ]
+                    'labels'  => $visualData['invoices_data']['labels'],
+                    'currency_codes' => $visualData['invoices_data']['currency_codes'],
+                    'datasets'    => $visualData['invoices_data']['datasets']
                 ],
-                // 'label' => __('Total Invoice')
             ]
         );
 
