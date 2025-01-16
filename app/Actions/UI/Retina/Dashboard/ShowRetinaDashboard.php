@@ -13,7 +13,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowDashboard
+class ShowRetinaDashboard
 {
     use AsAction;
 

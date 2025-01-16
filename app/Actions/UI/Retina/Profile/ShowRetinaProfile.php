@@ -9,7 +9,7 @@
 namespace App\Actions\UI\Retina\Profile;
 
 use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
-use App\Actions\UI\Retina\Dashboard\ShowDashboard;
+use App\Actions\UI\Retina\Dashboard\ShowRetinaDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\CRM\WebUserResource;
 use App\Models\CRM\WebUser;
@@ -119,7 +119,7 @@ class ShowRetinaProfile
 
     public function getBreadcrumbs(): array
     {
-        return array_merge(ShowDashboard::make()->getBreadcrumbs(), [
+        return array_merge(ShowRetinaDashboard::make()->getBreadcrumbs(), [
             [
                 "type"   => "simple",
                 "simple" => [

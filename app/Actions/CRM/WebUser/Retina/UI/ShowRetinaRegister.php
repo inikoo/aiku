@@ -10,15 +10,17 @@ namespace App\Actions\CRM\WebUser\Retina\UI;
 
 use Inertia\Inertia;
 use Inertia\Response;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 
-class ShowResetWebUserPassword
+class ShowRetinaRegister
 {
     use AsController;
 
-    public function handle(): Response
+
+    public function handle(ActionRequest $request): Response
     {
-        return Inertia::render('Auth/SetNewPassword');
+        return Inertia::render('Auth/Register');
     }
 
 }

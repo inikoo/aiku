@@ -10,17 +10,15 @@ namespace App\Actions\CRM\WebUser\Retina\UI;
 
 use Inertia\Inertia;
 use Inertia\Response;
-use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 
-class ShowResetPassword
+class ShowRetinaResetWebUserPassword
 {
     use AsController;
 
-
-    public function handle(ActionRequest $request): Response
+    public function handle(): Response
     {
-        return Inertia::render('Auth/ForgotPassword');
+        return Inertia::render('Auth/SetNewPassword');
     }
 
 }

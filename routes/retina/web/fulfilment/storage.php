@@ -22,12 +22,12 @@ use App\Actions\Retina\Storage\StoredItems\UI\IndexStoredItems;
 use App\Actions\Retina\Storage\StoredItemsAudit\UI\IndexRetinaStoredItemsAudits;
 use App\Actions\Retina\Storage\StoredItemsAudit\UI\ShowRetinaStoredItemAudit;
 use App\Actions\UI\Retina\Asset\UI\IndexRetinaAssets;
-use App\Actions\UI\Retina\Storage\UI\RetinaShowRetinaStorageDashboard;
+use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
 
 Route::redirect('/', 'dashboard');
 
 
-Route::get('/dashboard', RetinaShowRetinaStorageDashboard::class)->name('dashboard');
+Route::get('/dashboard', ShowRetinaStorageDashboard::class)->name('dashboard');
 
 Route::prefix('pallet-deliveries')->as('pallet-deliveries.')->group(function () {
     Route::get('', IndexRetinaPalletDeliveries::class)->name('index');

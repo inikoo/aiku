@@ -10,7 +10,7 @@
 namespace App\Actions\UI\Retina\Asset\UI;
 
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Storage\UI\RetinaShowRetinaStorageDashboard;
+use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
 use App\Http\Resources\Helpers\CurrencyResource;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -71,7 +71,7 @@ class IndexRetinaAssets extends RetinaAction
         return match ($routeName) {
             'retina.fulfilment.storage.assets.index' =>
             array_merge(
-                RetinaShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+                ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',
