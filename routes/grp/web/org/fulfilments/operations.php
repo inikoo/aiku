@@ -83,6 +83,7 @@ Route::prefix('invoices')->as('invoices')->group(function () {
     Route::get('', [IndexInvoices::class, 'allFulfilment'])->name('.index'); // need check in retina
     Route::get('/all', [IndexInvoices::class, 'allFulfilment'])->name('.all_invoices.index');
     Route::get('/unpaid', [IndexInvoices::class, 'unpaidFulfilment'])->name('.unpaid_invoices.index');
+    Route::get('/paid', [IndexInvoices::class, 'paidFulfilment'])->name('.paid_invoices.index');
 
     Route::get('/{invoice}', [ShowInvoice::class, 'inFulfilment'])->name('.show'); // need check in retina
     Route::get('/all/{invoice}', [ShowInvoice::class, 'inFulfilment'])->name('.all_invoices.show');
