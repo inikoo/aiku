@@ -21,7 +21,6 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\SysAdmin\Organisation;
@@ -58,10 +57,6 @@ class CancelPalletReturn extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($request->user() instanceof WebUser) {
-            return true;
-        }
-
         if ($this->asAction) {
             return true;
         }
@@ -86,16 +81,6 @@ class CancelPalletReturn extends OrgAction
         $this->asAction = true;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, []);
 
-        return $this->handle($palletReturn, $this->validatedData);
-    }
-
-    public function fromRetina(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
-    {
-        /** @var FulfilmentCustomer $fulfilmentCustomer */
-        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
-        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
-
-        $this->initialisation($request->get('website')->organisation, $request);
         return $this->handle($palletReturn, $this->validatedData);
     }
 }

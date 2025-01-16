@@ -9,7 +9,7 @@
 namespace App\Actions\Retina\Storage\StoredItems\UI;
 
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
+use App\Actions\UI\Retina\Storage\UI\RetinaShowRetinaStorageDashboard;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -68,12 +68,9 @@ class IndexStoredItems extends RetinaAction
                         'description'   => __("No items stored in any pallets")
                     ]
                 )
-                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'customer_name', label: __('Customer Name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'location', label: __('Location'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'state', label: __('State'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'status', label: __('Status'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'notes', label: __('Notes'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'location', label: __('Location'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('slug');
         };
     }
@@ -93,19 +90,19 @@ class IndexStoredItems extends RetinaAction
     public function htmlResponse(LengthAwarePaginator $storedItems, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Fulfilment/StoredItems',
+            'Storage/RetinaStoredItems',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('stored items'),
+                'title'       => __("customer's sKUs"),
                 'pageHead'    => [
-                    'title'   => __('stored items'),
+                    'title'   => __("customer's sKUs"),
                     'actions' => [
                         'buttons' => [
                             'route' => [
                                 'name'       => 'grp.org.hr.employees.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
-                            'label' => __('stored items')
+                            'label' => __("customer's sKUs")
                         ]
                     ],
                 ],
@@ -126,15 +123,15 @@ class IndexStoredItems extends RetinaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+            RetinaShowRetinaStorageDashboard::make()->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'grp.fulfilment.stored-items.index'
+                            'name' => 'retina.fulfilment.storage.stored-items.index'
                         ],
-                        'label' => __('stored items'),
+                        'label' => __("customer's sKUs"),
                         'icon'  => 'fal fa-bars',
                     ],
 

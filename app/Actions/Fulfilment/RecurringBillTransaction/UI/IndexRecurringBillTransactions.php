@@ -33,6 +33,9 @@ class IndexRecurringBillTransactions extends OrgAction
 
         $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
         $queryBuilder->leftjoin('rental_agreement_clauses', 'recurring_bill_transactions.rental_agreement_clause_id', '=', 'rental_agreement_clauses.id');
+        $queryBuilder->leftjoin('fulfilment_customers', 'recurring_bill_transactions.fulfilment_customer_id', '=', 'fulfilment_customers.id');
+        $queryBuilder->leftjoin('fulfilments', 'recurring_bill_transactions.fulfilment_id', '=', 'fulfilments.id');
+        $queryBuilder->leftjoin('organisations', 'recurring_bill_transactions.organisation_id', '=', 'organisations.id');
 
         $queryBuilder
             ->defaultSort('recurring_bill_transactions.id')
@@ -42,6 +45,7 @@ class IndexRecurringBillTransactions extends OrgAction
                 'recurring_bill_transactions.net_amount',
                 'recurring_bill_transactions.gross_amount',
                 'recurring_bill_transactions.item_type',
+                'recurring_bill_transactions.item_id',
                 'assets.type as asset_type',
                 'recurring_bill_transactions.historic_asset_id',
                 'assets.slug as asset_slug',
@@ -50,6 +54,11 @@ class IndexRecurringBillTransactions extends OrgAction
                 'historic_assets.price as asset_price',
                 'historic_assets.unit as asset_unit',
                 'historic_assets.units as asset_units',
+
+                'fulfilment_customers.slug as fulfilment_customer_slug',
+                'fulfilments.slug as fulfilment_slug',
+                'organisations.slug as organisation_slug',
+
 
                 'recurring_bill_transactions.quantity',
                 'currencies.code as currency_code',
@@ -84,6 +93,7 @@ class IndexRecurringBillTransactions extends OrgAction
 
             $table
                 ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'item_name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'asset_code', label: __('rental code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'asset_name', label: __('rental name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'asset_price', label: __('base price'), canBeHidden: false, sortable: true, searchable: true)

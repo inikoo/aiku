@@ -1,6 +1,11 @@
 export default {
 	blueprint: [
 		{
+			name: "Image",
+			key: ["image"],
+			type: "upload_image",
+		},
+		{
 			name: "Properties",
 			key: ["container", "properties"],
 			replaceForm: [
@@ -26,20 +31,6 @@ export default {
 					key: ["border"],
 					label : "Border", 
 					type: "border",
-					props_data: {},
-				},
-			],
-		},
-		{
-			name: "Image",
-			key: ["image"],
-			replaceForm: [
-				{
-					key: ["visible"],
-					type: ["VisibleLoggedIn"],
-				},
-				{
-					type: "upload_image",
 					props_data: {},
 				},
 			],

@@ -41,12 +41,4 @@ class ExportPalletReturnStoredItem extends OrgAction
 
         return $this->handle($fulfilmentCustomer, $request->all());
     }
-
-    public function fromRetina(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): BinaryFileResponse
-    {
-        $this->setRawAttributes($request->all());
-        $this->validateAttributes();
-
-        return $this->handle($fulfilmentCustomer, $request->all());
-    }
 }

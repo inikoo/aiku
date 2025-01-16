@@ -146,20 +146,21 @@ class PalletsResource extends JsonResource
                 'name'       => 'grp.models.pallet.damaged',
                 'parameters' => [$this->id]
             ],
-            'auditRoute' => match (request()->routeIs('retina.*')) {
-                true => [
-                    'name'       => 'retina.models.pallet.stored-items.audit',
-                    'parameters' => [$this->id]
-                ],
-                default => [
-                    'name'       => 'grp.models.pallet.stored-items.audit',
-                    'parameters' => [$this->id]
-                ]
-            },
-            'resetAuditRoute' => [
-                'name'       => 'grp.models.pallet.stored-items.audit.reset',
-                'parameters' => [$this->id]
-            ],
+            // delete this if not needed
+//            'auditRoute' => match (request()->routeIs('retina.*')) {
+//                true => [
+//                    'name'       => 'retina.models.pallet.stored-items.audit',
+//                    'parameters' => [$this->id]
+//                ],
+//                default => [
+//                    'name'       => 'grp.models.pallet.stored-items.audit',
+//                    'parameters' => [$this->id]
+//                ]
+//            },
+//            'resetAuditRoute' => [
+//                'name'       => 'grp.models.pallet.stored-items.audit.reset',
+//                'parameters' => [$this->id]
+//            ],
             'storeStoredItemRoute' => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet.stored-items.update',

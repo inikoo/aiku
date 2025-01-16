@@ -14,6 +14,7 @@ use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\RecurringBillResource;
 use App\Http\Resources\Fulfilment\RecurringBillTransactionsResource;
+use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\StoredItem;
 use Inertia\Inertia;
@@ -69,6 +70,7 @@ class ShowRetinaCurrentRecurringBill extends RetinaAction
                     'end_date'   => $recurringBill->end_date
                 ],
                 'status_rb'   => $recurringBill->status,
+                'currency'                => CurrencyResource::make($recurringBill->currency),
                 'box_stats'   => [
                     'customer'      => FulfilmentCustomerResource::make($recurringBill->fulfilmentCustomer),
                     'stats'         => [
@@ -102,7 +104,7 @@ class ShowRetinaCurrentRecurringBill extends RetinaAction
                                 'price_total' => $recurringBill->goods_amount
                             ],
                             // [
-                            //     'label'         => __('Stored Items'),
+                            //     'label'         => __("Customer'S SKUs"),
                             //     'quantity'      => $recurringBill->stats->number_transactions_type_stored_items ?? 0,
                             //     'price_base'    => __('Multiple'),
                             //     'price_total'   => 1111111
@@ -159,12 +161,12 @@ class ShowRetinaCurrentRecurringBill extends RetinaAction
                 ],
 
                 RecurringBillTabsEnum::TRANSACTIONS->value => $this->tab == RecurringBillTabsEnum::TRANSACTIONS->value ?
-                    fn () => RecurringBillTransactionsResource::collection(IndexRetinaRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))
-                    : Inertia::lazy(fn () => RecurringBillTransactionsResource::collection(IndexRetinaRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))),
+                    fn () => RecurringBillTransactionsResource::collection(RetinaIndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))
+                    : Inertia::lazy(fn () => RecurringBillTransactionsResource::collection(RetinaIndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))),
 
             ]
         )->table(
-            IndexRetinaRecurringBillTransactions::make()->tableStructure(
+            RetinaIndexRecurringBillTransactions::make()->tableStructure(
                 $recurringBill,
                 prefix: RecurringBillTabsEnum::TRANSACTIONS->value
             )
@@ -188,7 +190,7 @@ class ShowRetinaCurrentRecurringBill extends RetinaAction
                     'icon'  => 'fal fa-receipt',
                     'label' => __('next bill'),
                     'route' => [
-                        'name' => 'retina.billing.next_recurring_bill'
+                        'name' => 'retina.fulfilment.billing.next_recurring_bill'
                     ]
                 ]
 

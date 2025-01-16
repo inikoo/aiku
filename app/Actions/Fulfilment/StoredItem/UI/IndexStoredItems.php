@@ -9,11 +9,13 @@
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\StoredItemAudit\UI\IndexStoredItemAudits;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Enums\UI\Fulfilment\StoredItemsInWarehouseTabsEnum;
 use App\Http\Resources\Fulfilment\ReturnStoredItemsResource;
+use App\Http\Resources\Fulfilment\StoredItemAuditsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
@@ -135,10 +137,11 @@ class IndexStoredItems extends OrgAction
     public function htmlResponse(LengthAwarePaginator $storedItems, ActionRequest $request): Response
     {
         // dd($this->parent);
+        // dd(StoredItemAuditsResource::collection(IndexStoredItemAudits::run($this->parent)));
         $subNavigation = [];
 
         $icon      = ['fal', 'fa-narwhal'];
-        $title     = __('stored items');
+        $title     = __("customer's sKUs");
         $afterTitle = null;
         $iconRight = null;
 
@@ -151,7 +154,7 @@ class IndexStoredItems extends OrgAction
             ];
             $afterTitle = [
 
-                'label'     => __('stored items')
+                'label'     => __("customer's sKUs")
             ];
         }
         return Inertia::render(
@@ -161,7 +164,7 @@ class IndexStoredItems extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters(),
                 ),
-                'title'       => __('stored items'),
+                'title'       => __("customer's sKUs"),
                 'pageHead'    => [
                     'title'         => $title,
                     'afterTitle'    => $afterTitle,
@@ -174,7 +177,7 @@ class IndexStoredItems extends OrgAction
                                 'name'       => 'grp.org.hr.employees.create',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
-                            'label' => __('stored items')
+                            'label' => __("customer's sKUs")
                         ]
                     ],
                 ],
@@ -190,8 +193,13 @@ class IndexStoredItems extends OrgAction
                     fn () => ReturnStoredItemsResource::collection(IndexPalletStoredItems::run($this->parent))
                     : Inertia::lazy(fn () => ReturnStoredItemsResource::collection(IndexPalletStoredItems::run($this->parent))),
 
+                StoredItemsInWarehouseTabsEnum::STORED_ITEM_AUDITS->value => $this->tab == StoredItemsInWarehouseTabsEnum::STORED_ITEM_AUDITS->value ?
+                    fn () => StoredItemAuditsResource::collection(IndexStoredItemAudits::run($this->parent))
+                    : Inertia::lazy(fn () => StoredItemAuditsResource::collection(IndexStoredItemAudits::run($this->parent))),
+
             ]
         )->table($this->tableStructure($this->parent, prefix: StoredItemsInWarehouseTabsEnum::STORED_ITEMS->value))
+        ->table(IndexStoredItemAudits::make()->tableStructure(parent: $this->parent, prefix: StoredItemsInWarehouseTabsEnum::STORED_ITEM_AUDITS->value))
         ->table(
             IndexPalletStoredItems::make()->tableStructure(
                 $this->parent,
@@ -236,7 +244,7 @@ class IndexStoredItems extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('stored items'),
+                        'label' => __("customer's sKUs"),
                         'icon'  => 'fal fa-bars',
                     ],
 
@@ -265,7 +273,7 @@ class IndexStoredItems extends OrgAction
                                 'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('stored items'),
+                            'label' => __("customer's sKUs"),
                             'icon'  => 'fal fa-bars',
                         ],
 

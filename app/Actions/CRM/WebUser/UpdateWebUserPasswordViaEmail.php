@@ -27,7 +27,7 @@ class UpdateWebUserPasswordViaEmail
     public function handle(WebUser $user, array $modelData): WebUser
     {
         data_set($modelData, 'reset_password', false);
-        return $this->update($user, $modelData, 'settings');
+        return $this->update($user, $modelData);
     }
 
 

@@ -9,7 +9,7 @@
 namespace App\Actions\Retina\Storage\StoredItems\UI;
 
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
+use App\Actions\UI\Retina\Storage\UI\RetinaShowRetinaStorageDashboard;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\PalletDelivery;
@@ -90,16 +90,16 @@ class IndexStoredItemsInPalletDelivery extends RetinaAction
             'Fulfilment/StoredItems',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('stored items'),
+                'title'       => __("customer's sKUs"),
                 'pageHead'    => [
-                    'title'   => __('stored items'),
+                    'title'   => __("customer's sKUs"),
                     'actions' => [
                         'buttons' => [
                             'route' => [
                                 'name'       => 'grp.org.hr.employees.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
-                            'label' => __('stored items')
+                            'label' => __("customer's sKUs")
                         ]
                     ],
                 ],
@@ -120,7 +120,7 @@ class IndexStoredItemsInPalletDelivery extends RetinaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+            RetinaShowRetinaStorageDashboard::make()->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',
@@ -128,7 +128,7 @@ class IndexStoredItemsInPalletDelivery extends RetinaAction
                         'route' => [
                             'name' => 'grp.fulfilment.stored-items.index'
                         ],
-                        'label' => __('stored items'),
+                        'label' => __("customer's sKUs"),
                         'icon'  => 'fal fa-bars',
                     ],
 

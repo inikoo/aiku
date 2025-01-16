@@ -33,7 +33,7 @@ const props = defineProps<{
         data: {}
         theme: {
             color: string[]
-            layout: string  // 'fullscreen' | 'blog'
+            layout: string
         }
     }
     footer: {
@@ -42,20 +42,21 @@ const props = defineProps<{
     navigation: {
         menu: {}
     }
+    layout : {
+
+    }
 }>()
 
-const debouncedSendUpdateBlock = debounce((block) => updateData(block), 5000, { leading: false, trailing: true })
-const data = ref(cloneDeep(props.webpage))
 const isPreviewLoggedIn = ref(false)
 const isPreviewMode = ref(false)
 const isInWorkshop = route().params.isInWorkshop || false
-const layout = reactive({
+/* const layout = reactive({
     header: { ...props.header?.data },
     footer: { ...props.footer?.footer },
     navigation: { ...props.navigation },
-    colorThemed: props.header?.theme ? props.header.theme : { color: [...useColorTheme[0]] }
-});
-
+    layout: { ...props.layout},
+}); */
+/* const data = ref(cloneDeep(props.webpage)) */
 
 const showWebpage = (activityItem) => {
     if (activityItem?.web_block?.layout && activityItem.show) {
@@ -66,15 +67,11 @@ const showWebpage = (activityItem) => {
 }
 
 const updateData = (newVal) => {
-
     sendMessageToParent('autosave', newVal)
 }
 
 onMounted(() => {
-    if (!get(layout, 'colorThemed.color', false)) {
-        set(layout, 'colorThemed.color', [...useColorTheme[0]])
-    }
-    irisStyleVariables(layout.colorThemed?.color)
+    /* irisStyleVariables(layout.colorThemed?.color) */
 
     window.addEventListener('message', (event) => {
         if (event.data.key === 'isPreviewLoggedIn') isPreviewLoggedIn.value = event.data.value
@@ -100,46 +97,29 @@ provide('isPreviewMode', isPreviewMode)
 
 
 <template>
-    <!-- <pre>{{ props }}</pre> -->
     <div class="editor-class">
         <!-- Tools: login view, edit-preview -->
         <div v-if="isInWorkshop" class="bg-gray-200 shadow-xl px-8 py-4 flex justify-center items-center gap-x-2">
-            <ButtonPreviewLogin
-                v-model="isPreviewLoggedIn"
-            />
-
-            <!-- <div class="h-6 w-px bg-gray-400 mx-2"></div>
-            <ButtonPreviewEdit
-                v-model="isPreviewMode"
-            /> -->
+            <ButtonPreviewLogin v-model="isPreviewLoggedIn" />
         </div>
 
-        <div class="shadow-xl" :class="layout.colorThemed.layout == 'fullscreen' ? 'w-full' : 'container max-w-7xl mx-auto '">
+        <div class="shadow-xl" :class="layout?.layout == 'fullscreen' ? 'w-full' : 'container max-w-7xl mx-auto'">
             <!-- Header -->
-            <div class="relative">
+            <div>
                 <RenderHeaderMenu
                     v-if="header?.data"
-                    :data="layout.header"
-                    :menu="layout?.navigation"
-                    :colorThemed="layout?.colorThemed"
-                    :previewMode="route().current() == 'grp.websites.preview' ? true : isPreviewMode"
-                    :loginMode="isPreviewLoggedIn" @update:model-value="() => {updateData(layout.header)}" />
+                    :data="header.data"
+                    :menu="navigation"
+                    :loginMode="isPreviewLoggedIn"
+                    @update:model-value="updateData(header.data)" 
+                />
             </div>
 
             <!-- Webpage -->
-            <div v-if="data" class="relative editor-class">
-                <div v-if="data?.layout?.web_blocks?.length">
+             <div v-if="webpage">
+                <div v-if="webpage?.layout?.web_blocks?.length">
                     <TransitionGroup tag="div" name="list" class="relative">
-                        <section v-for="(activityItem, activityItemIdx) in data?.layout?.web_blocks" :key="activityItem.id" class="w-full">
-                            <!-- <component
-                                v-if="showWebpage(activityItem)"
-                                :key="activityItemIdx"
-                                class="w-full"
-                                :is="isPreviewMode ? getIrisComponent(activityItem?.type) : getComponent(activityItem?.type)"
-                                :webpageData="webpage" :blockData="activityItem"
-                                v-model="activityItem.web_block.layout.data.fieldValue"
-                                :fieldValue="activityItem.web_block?.layout?.data?.fieldValue"
-                                @autoSave="() => debouncedSendUpdateBlock(activityItem)" /> -->
+                        <section v-for="(activityItem, activityItemIdx) in webpage?.layout?.web_blocks" :key="activityItem.id" class="w-full">
                             <component
                                 v-show="showWebpage(activityItem)"
                                 class="w-full"
@@ -147,11 +127,9 @@ provide('isPreviewMode', isPreviewMode)
                                 :webpageData="webpage" :blockData="activityItem"
                                 :fieldValue="activityItem.web_block?.layout?.data?.fieldValue"
                             />
-                            <!-- {{ activityItem.type }} -->
                         </section>
                     </TransitionGroup>
                 </div>
-
                 <div v-else class="py-8">
                     <EmptyState :data="{
                         title: trans('Pick First Block For Your Website'),
@@ -160,13 +138,12 @@ provide('isPreviewMode', isPreviewMode)
                 </div>
             </div>
 
-            <!-- Footer -->
-            <component
-                v-if="footer?.footer?.data"
-                :is="isPreviewMode || route().current() == 'grp.websites.preview' ? getIrisComponent(layout.footer.code) : getComponent(layout.footer.code)"
-                v-model="layout.footer.data.fieldValue"
-                :colorThemed="layout.colorThemed"
-                @update:model-value="() => {updateData(layout.footer)}"
+            <!-- Footer --> 
+             <component
+                v-if="footer?.data"
+                :is="isPreviewMode || route().current() == 'grp.websites.preview' ? getIrisComponent(footer.data.code) : getComponent(footer.data.code)"
+                v-model="footer.data.data.fieldValue"
+                @update:model-value="updateData(footer.data)"
             />
         </div>
     </div>
@@ -256,6 +233,15 @@ provide('isPreviewMode', isPreviewMode)
 
 .editor-class p:empty::after {
     content: "\00A0";
+}
+
+.hover-dashed {
+    transition: border 0.3s ease;
+    border: 1px solid transparent; /* Default tanpa border */
+}
+
+.hover-dashed:hover {
+    border: 1px dashed #999; 
 }
 
 

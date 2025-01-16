@@ -9,7 +9,7 @@
 namespace App\Actions\Retina\Storage\Pallet\UI;
 
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
+use App\Actions\UI\Retina\Storage\UI\RetinaShowRetinaStorageDashboard;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
@@ -208,15 +208,15 @@ class IndexRetinaPallets extends RetinaAction
     public function getBreadcrumbs(string $routeName): array
     {
         return match ($routeName) {
-            'retina.storage.pallets.index' =>
+            'retina.fulfilment.storage.pallets.index' =>
             array_merge(
-                ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+                RetinaShowRetinaStorageDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'retina.storage.pallets.index',
+                                'name'       => 'retina.fulfilment.storage.pallets.index',
                             ],
                             'label' => __('pallets'),
                             'icon'  => 'fal fa-bars',

@@ -41,6 +41,20 @@ use Spatie\Sluggable\SlugOptions;
  * @property array<array-key, mixed>|null $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $date
+ * @property string $net_amount
+ * @property string|null $grp_net_amount
+ * @property string|null $org_net_amount
+ * @property int|null $tax_category_id
+ * @property string|null $tax_amount
+ * @property string|null $total_amount
+ * @property int $number_audited_pallets
+ * @property int $number_audited_stored_items
+ * @property int $number_audited_stored_items_with_additions Number of stored items with stock additions (found stock)
+ * @property int $number_audited_stored_items_with_with_subtractions Number of stored items with stock subtractions (lost stock)
+ * @property int $number_audited_stored_items_with_with_stock_checked Number of stored items with stock checked (stock was correct)
+ * @property int $number_associated_stored_items Number of stored items associated to the pallet during the audit
+ * @property int $number_created_stored_items Number of stored items created and associated to the pallet during the audit
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItemAuditDelta> $deltas
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment

@@ -63,7 +63,7 @@ const generatePassword = () => {
                 
 
                 <!-- Copy Button Slot -->
-                <slot v-if="form[fieldName].length" name="copyButton">
+                <slot v-if="form[fieldName]?.length" name="copyButton">
                     <div class="group flex justify-center items-center absolute inset-y-0 right-12 gap-x-1">
                         <Transition name="spin-to-down">
                             <!-- Check Icon (Recently Copied) -->

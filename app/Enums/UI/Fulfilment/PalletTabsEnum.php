@@ -29,7 +29,7 @@ enum PalletTabsEnum: string
                 'icon'  => 'fas fa-info-circle',
             ],
             PalletTabsEnum::STORED_ITEMS => [
-                'title' => __('stored items'). " ({$pallet->number_stored_items})",
+                'title' => __("customer's sKUs"). " ({$pallet->number_stored_items})",
                 'icon'  => 'fal fa-narwhal',
             ],
             PalletTabsEnum::HISTORY => [

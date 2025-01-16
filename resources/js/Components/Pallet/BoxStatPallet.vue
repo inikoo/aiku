@@ -39,7 +39,7 @@ const props = defineProps<{
             :style="{width: percentage + '%'}"
         />
 
-        <div class="flex flex-col justify-center w-full flex-none gap-x-4">
+        <div class="flex flex-col justify-center w-full flex-none gap-x-4 gap-y-1">
             <slot>
                 <div v-if="icon || label" class="flex gap-x-3">
                     <dt v-if="icon" class="flex-none">

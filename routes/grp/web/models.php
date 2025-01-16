@@ -55,17 +55,14 @@ use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
 use App\Actions\Dropshipping\Portfolio\StorePortfolio;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilmentFromUI;
 use App\Actions\Fulfilment\Fulfilment\UpdateFulfilment;
-use App\Actions\Fulfilment\FulfilmentCustomer\AddDeliveryAddressToFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomerNote;
-use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentTransaction\DeleteFulfilmentTransaction;
 use App\Actions\Fulfilment\FulfilmentTransaction\StoreFulfilmentTransaction;
 use App\Actions\Fulfilment\FulfilmentTransaction\UpdateFulfilmentTransaction;
 use App\Actions\Fulfilment\Pallet\AttachPalletsToReturn;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\DeletePallet;
-use App\Actions\Fulfilment\Pallet\DeletePalletInDelivery;
 use App\Actions\Fulfilment\Pallet\ImportPallet;
 use App\Actions\Fulfilment\Pallet\ImportPalletReturnItem;
 use App\Actions\Fulfilment\Pallet\SetPalletAsDamaged;
@@ -84,28 +81,17 @@ use App\Actions\Fulfilment\PalletDelivery\Pdf\PdfPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
 use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
-use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitAndConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
-use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryTimeline;
-use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\DetachPalletFromReturn;
-use App\Actions\Fulfilment\PalletReturn\DispatchedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
-use App\Actions\Fulfilment\PalletReturn\SubmitAndConfirmPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Fulfilment\PalletReturnItem\NotPickedPalletFromReturn;
 use App\Actions\Fulfilment\PalletReturnItem\SyncPalletReturnItem;
 use App\Actions\Fulfilment\PalletReturnItem\UndoPickingPalletFromReturn;
 use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\UpdateRecurringBilling;
-use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
 use App\Actions\Fulfilment\StoredItem\DeleteStoredItem;
-use App\Actions\Fulfilment\StoredItem\DeleteStoredItemFromReturn;
 use App\Actions\Fulfilment\StoredItem\MoveStoredItem;
 use App\Actions\Fulfilment\StoredItem\ResetAuditStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
@@ -114,8 +100,6 @@ use App\Actions\Fulfilment\StoredItem\SyncStoredItemPallet;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPalletAudit;
 use App\Actions\Fulfilment\StoredItem\UpdateStoredItem;
-use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
-use App\Actions\Fulfilment\StoredItemAudit\UpdateStoredItemAudit;
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\Stock\UpdateStock;
 use App\Actions\Goods\StockFamily\StoreStockFamily;
@@ -397,7 +381,7 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
     Route::patch('pallet-return-item', SyncPalletReturnItem::class)->name('pallet-return-item.sync');
 
     Route::post('stored-items', SyncStoredItemToPallet::class)->name('stored-items.update');
-    Route::post('stored-items/audit', SyncStoredItemToPalletAudit::class)->name('stored-items.audit');
+    Route::post('stored-items/audit/{storedItemAudit:id}', SyncStoredItemToPalletAudit::class)->name('stored-items.audit')->withoutScopedBindings();
     Route::delete('stored-items/reset', ResetAuditStoredItemToPallet::class)->name('stored-items.audit.reset');
     Route::patch('book-in', BookInPallet::class)->name('book_in');
     Route::patch('not-received', SetPalletAsNotReceived::class)->name('not-received');
@@ -420,52 +404,8 @@ Route::patch('{storedItem:id}/stored-items/pallets', SyncStoredItemPallet::class
 Route::patch('{storedItem:id}/stored-items', MoveStoredItem::class)->name('stored-items.move');
 Route::delete('{storedItem:id}/stored-items', DeleteStoredItem::class)->name('stored-items.delete');
 
-Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
-    Route::patch('', UpdateFulfilmentCustomer::class)->name('update')->withoutScopedBindings();
-
-    Route::post('stored-items', StoreStoredItem::class)->name('stored-items.store');
-    Route::patch('', UpdateFulfilmentCustomer::class)->name('update');
-    Route::post('pallet-delivery', StorePalletDelivery::class)->name('pallet-delivery.store');
-    Route::delete('pallet-delivery/{palletDelivery:id}/pallet/{pallet:id}', DeletePalletInDelivery::class)->name('pallet-delivery.pallet.delete');
-    Route::get('pallet-delivery/{palletDelivery:id}/export', PdfPalletDelivery::class)->name('pallet-delivery.export');
-    Route::patch('pallet-delivery/{palletDelivery:id}/timeline', UpdatePalletDeliveryTimeline::class)->name('pallet-delivery.timeline.update');
-    Route::post('pallet-return', StorePalletReturn::class)->name('pallet-return.store');
-    Route::post('pallet-return-stored-items', [StorePalletReturn::class,'withStoredItems'])->name('pallet-return-stored-items.store');
-
-    Route::post('', [StoreWebUser::class, 'inFulfilmentCustomer'])->name('web-user.store');
 
 
-
-    Route::post('address', AddDeliveryAddressToFulfilmentCustomer::class)->name('address.store');
-    Route::delete('address/{address:id}/delete', DeleteCustomerDeliveryAddress::class)->name('delivery-address.delete')->withoutScopedBindings();
-    Route::patch('address/update', [UpdateCustomerAddress::class, 'fromFulfilmentCustomer'])->name('address.update');
-
-    Route::prefix('pallet-return/{palletReturn:id}')->name('pallet-return.')->group(function () {
-        Route::prefix('pallet/{pallet:id}')->group(function () {
-            Route::delete('', DetachPalletFromReturn::class)->name('pallet.delete');
-        });
-
-        Route::prefix('stored-item/{palletReturnItem:id}')->group(function () {
-            Route::delete('', DeleteStoredItemFromReturn::class)->name('stored-item.delete')->withoutScopedBindings();
-        });
-
-        Route::post('submit-and-confirm', SubmitAndConfirmPalletReturn::class)->name('submit_and_confirm');
-        Route::post('delivery', PickingPalletReturn::class)->name('picking');
-        Route::post('confirm', ConfirmPalletReturn::class)->name('confirm');
-        Route::post('received', PickedPalletReturn::class)->name('picked');
-        Route::post('dispatched', DispatchedPalletReturn::class)->name('dispatched');
-    });
-
-
-    Route::prefix('rental-agreements')->name('rental-agreements.')->group(function () {
-        Route::post('/', StoreRentalAgreement::class)->name('store');
-    });
-
-    Route::prefix('stored-item-audits')->name('stored_item_audits.')->group(function () {
-        Route::post('/', StoreStoredItemAudit::class)->name('store');
-        Route::patch('/{storedItemAudit:id}', UpdateStoredItemAudit::class)->name('update')->withoutScopedBindings();
-    });
-});
 
 Route::prefix('rental-agreement/{rentalAgreement:id}')->group(function () {
     Route::patch('', UpdateRentalAgreement::class)->name('rental-agreement.update');
@@ -672,6 +612,11 @@ require __DIR__."/models/hr/hr.php";
 require __DIR__."/models/website/webpages.php";
 require __DIR__."/models/supply_chain/agent.php";
 require __DIR__."/models/sys_admin/user.php";
+
+
+require __DIR__."/models/fulfilment/fulfilment_customer.php";
+require __DIR__."/models/fulfilment/stored_item_audit.php";
+require __DIR__."/models/fulfilment/stored_item_audit_delta.php";
 
 
 /*

@@ -30,8 +30,15 @@ function recurringBillRoute(bill) {
 				route().params["fulfilmentCustomer"],
 				bill.slug,
 			])
-		case "grp.org.fulfilments.show.operations.recurring_bills.index":
-			return route("grp.org.fulfilments.show.operations.recurring_bills.show", [
+    case "grp.org.fulfilments.show.operations.recurring_bills.current.index":
+      return route("grp.org.fulfilments.show.operations.recurring_bills.current.show", [
+        route().params["organisation"],
+        route().params["fulfilment"],
+        bill.slug,
+      ])
+
+		case "grp.org.fulfilments.show.operations.recurring_bills.former.index":
+			return route("grp.org.fulfilments.show.operations.recurring_bills.former.show", [
 				route().params["organisation"],
 				route().params["fulfilment"],
 				bill.slug,
@@ -43,18 +50,11 @@ function recurringBillRoute(bill) {
 }
 
 function fulfilmentCustomerRoute(bill) {
-	console.log(route().current())
-	switch (route().current()) {
-		case "grp.org.fulfilments.show.operations.recurring_bills.index":
-			return route("grp.org.fulfilments.show.crm.customers.show", [
-				route().params["organisation"],
-				route().params["fulfilment"],
-				bill.fulfilment_customer_slug,
-			])
-
-		default:
-			return []
-	}
+  return route("grp.org.fulfilments.show.crm.customers.show", [
+    route().params["organisation"],
+    route().params["fulfilment"],
+    bill.fulfilment_customer_slug,
+  ])
 }
 </script>
 

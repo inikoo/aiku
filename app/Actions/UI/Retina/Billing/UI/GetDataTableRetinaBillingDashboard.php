@@ -31,7 +31,7 @@ class GetDataTableRetinaBillingDashboard
             // dd($invoice->currency);
             $data[] = [
                 'reference'  => $invoice->reference,
-                'route' => route('retina.billing.invoices.show', $invoice->slug),
+                'route' => route('retina.fulfilment.billing.invoices.show', $invoice->slug),
                 'total' => $invoice->total_amount,
                 'format'    => 'currency',
                 'currency_code' => $invoice->currency->code,

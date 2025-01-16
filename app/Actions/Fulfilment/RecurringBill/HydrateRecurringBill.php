@@ -20,7 +20,7 @@ class HydrateRecurringBill extends HydrateModel
     public function handle(RecurringBill $recurringBill): void
     {
         RecurringBillHydrateTransactions::run($recurringBill);
-        UpdateRecurringBillTotals::run($recurringBill);
+        CalculateRecurringBillTotals::run($recurringBill);
     }
 
     protected function getModel(string $slug): RecurringBill

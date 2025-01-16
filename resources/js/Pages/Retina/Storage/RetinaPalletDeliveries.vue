@@ -36,7 +36,7 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
     switch (route().current()) {
         default:
             return route(
-                'retina.storage.pallet-deliveries.show',
+                'retina.fulfilment.storage.pallet-deliveries.show',
                 [
                     palletDelivery.slug
                 ])

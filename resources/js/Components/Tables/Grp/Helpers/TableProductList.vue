@@ -20,7 +20,7 @@ import { faMinus, faPlus, faSave, faUndo } from "@fas";
 
 import { notify } from "@kyvg/vue3-notification";
 import { trans } from "laravel-vue-i18n";
-import QuantityInput from "@/Components/Utils/ QuantityInput.vue";
+import QuantityInput from "@/Components/Utils/QuantityInput.vue"
 
 library.add(
   faSearch,

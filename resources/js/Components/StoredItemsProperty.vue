@@ -8,6 +8,7 @@ import CreateStoredItems from "./CreateStoredItems.vue"
 import Tag from '@/Components/Tag.vue'
 import { get } from "lodash"
 import { routeType } from "@/types/route"
+import { trans } from "laravel-vue-i18n"
 
 
 const props = defineProps<{
@@ -22,6 +23,7 @@ const props = defineProps<{
 		delete: routeType
 	}
     editable?: boolean
+    title?: string
 }>()
 
 const emits = defineEmits<{
@@ -50,15 +52,16 @@ const onDelete = (data : { id : ''}) => {
     sendToServer(finalData)
 }
 
-const sendToServer = async (data : {}) => {
-    router.post(route(props.saveRoute.name, props.saveRoute.parameters), { stored_item_ids: data }, {
+const sendToServer = async (data : {}, replaceData?: boolean) => {
+    // console.log('-=-=-=-=', props.saveRoute.name, props.saveRoute.parameters)
+    router.post(route(props.saveRoute.name, props.saveRoute.parameters), replaceData ? data : { stored_item_ids: data }, {
         onError: (e) => {
             form.errors = {
                 id: get(e, [`stored_item_ids`])
             }
             notify({
-                title: "Failed to add new stored items",
-                text: "failed to update the stored items",
+                title: trans("Something went wrong"),
+                text: trans("Failed to update the stored items"),
                 type: "error"
             })
         },
@@ -81,40 +84,44 @@ const sendToServer = async (data : {}) => {
 
 <template>
     <div class="flex">
-        <div class="flex gap-x-1.5 gap-y-1.5 flex-wrap">
-            <template v-if="pallet?.stored_items?.length">
-                <div v-for="item of pallet.stored_items" class="cursor-pointer">
-                    <Tag @onClose="(event) => { event.stopPropagation(), onDelete(item) }" :theme="item.id"
-                        :label="`${item.reference}`"
-                        :closeButton="editable ? true : false" :stringToColor="true"
-                        @click="() => editable ? setFormOnEdit(item) : null"
-                    >
-                        <template #label>
-                            <div class="whitespace-nowrap text-xs">
-                                {{ item.reference }} (<span class="font-light">{{ item.quantity }}</span>)
-                            </div>
-                        </template>
-                    </Tag>
+        <slot :openModal="setFormOnCreate">
+            <div class="flex gap-x-1.5 gap-y-1.5 flex-wrap">
+                <template v-if="pallet?.stored_items?.length">
+                    <div v-for="item of pallet.stored_items" class="cursor-pointer">
+                        <Tag @onClose="(event) => { event.stopPropagation(), onDelete(item) }" :theme="item.id"
+                            :label="`${item.reference}`"
+                            :closeButton="editable ? true : false" :stringToColor="true"
+                            @click="() => editable ? setFormOnEdit(item) : null"
+                        >
+                            <template #label>
+                                <div class="whitespace-nowrap text-xs">
+                                    {{ item.reference }} (<span class="font-light">{{ item.quantity }}</span>)
+                                </div>
+                            </template>
+                        </Tag>
+                    </div>
+                </template>
+                
+                        <div v-else-if="!editable" class="pl-2.5 text-gray-400">
+                    -
                 </div>
-            </template>
-            
-			<div v-else-if="!editable" class="pl-2.5 text-gray-400">
-                -  
+                <Button v-if="editable" icon="fal fa-plus" @click="setFormOnCreate" :type="'dashed'" :size="'xs'"/>
             </div>
+        </slot>
 
-            <Button v-if="editable" icon="fal fa-plus" @click="setFormOnCreate" :type="'dashed'" :size="'xs'"/>
-        </div>
-
-        <Modal :isOpen="isModalOpen" @onClose="isModalOpen = true" width="w-[600px]">
-            <div class="space-y-4">
-                <CreateStoredItems
-                    :storedItemsRoute="storedItemsRoute"
-                    :form="form"
-                    @onSave="sendToServer"
-                    :stored_items="pallet.stored_items"
-                    @closeModal="isModalOpen = false"
-                />
-            </div>
+        <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-[400px]">
+            <slot name="modal" :form :sendToServer="sendToServer" :closeModal="() => isModalOpen = false" >
+                <div class="space-y-4">
+                    <CreateStoredItems
+                        :storedItemsRoute="storedItemsRoute"
+                        :form="form"
+                        @onSave="sendToServer"
+                        :stored_items="pallet.stored_items"
+                        @closeModal="isModalOpen = false"
+                        :title
+                    />
+                </div>
+            </slot>
         </Modal>
     </div>
 </template>

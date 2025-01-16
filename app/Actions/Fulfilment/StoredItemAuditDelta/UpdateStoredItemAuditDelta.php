@@ -10,31 +10,47 @@ namespace App\Actions\Fulfilment\StoredItemAuditDelta;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\StoredItemAudit;
+use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
+use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaTypeEnum;
 use App\Models\Fulfilment\StoredItemAuditDelta;
-use App\Rules\AlphaDashDotSpaceSlashParenthesisPlus;
-use App\Rules\IUnique;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateStoredItemAuditDelta extends OrgAction
 {
     use WithActionUpdate;
 
-    private FulfilmentCustomer $fulfilmentCustomer;
-    private StoredItemAudit $storedItemAudit;
-    /**
-     * @var \App\Models\Fulfilment\StoredItemAuditDelta
-     */
-    private StoredItemAuditDelta $storedItemAuditDelta;
 
-    public function handle(StoredItemAuditDelta $storedItemAuditDelta, array $modelData): StoredItemAudit
+    public function handle(StoredItemAuditDelta $storedItemAuditDelta, array $modelData): StoredItemAuditDelta
     {
-        $storedItemAuditDelta = $this->update($storedItemAuditDelta, $modelData, ['data']);
+        data_set($modelData, 'audited_at', now());
 
-        // Hydrators
+        if (!$this->asAction) {
+            $palletStoredItem = DB::table('pallet_stored_items')
+                ->where('pallet_id', $storedItemAuditDelta->pallet_id)
+                ->where('stored_item_id', $storedItemAuditDelta->stored_item_id)->first();
 
-        return $storedItemAuditDelta;
+            if ($palletStoredItem) {
+                $originalQuantity = $palletStoredItem->quantity;
+
+                if ($originalQuantity > $modelData['audited_quantity']) {
+                    $type = StoredItemAuditDeltaTypeEnum::SUBTRACTION;
+                } elseif ($originalQuantity < $modelData['audited_quantity']) {
+                    $type = StoredItemAuditDeltaTypeEnum::ADDITION;
+                } else {
+                    $type = StoredItemAuditDeltaTypeEnum::NO_CHANGE;
+                }
+            } else {
+                $originalQuantity = 0;
+                $type             = StoredItemAuditDeltaTypeEnum::SET_UP;
+            }
+            data_set($modelData, 'original_quantity', $originalQuantity);
+            data_set($modelData, 'audit_type', $type);
+        }
+
+
+        return $this->update($storedItemAuditDelta, $modelData, ['data']);
     }
 
     public function authorize(ActionRequest $request): bool
@@ -42,36 +58,41 @@ class UpdateStoredItemAuditDelta extends OrgAction
         return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
+
     public function rules(): array
     {
         return [
-            'reference' => [
-                'sometimes',
-                'required',
-                'max:128',
-                new AlphaDashDotSpaceSlashParenthesisPlus(),
-                new IUnique(
-                    table: 'stored_item_audits',
-                    extraConditions: [
-                        [
-                            'column' => 'fulfilment_customer_id',
-                            'value'  => $this->fulfilmentCustomer->id,
-                        ],
-                        ['column' => 'id', 'value' => $this->storedItemAudit->id, 'operator' => '!=']
-
-                    ]
-                )
-
-            ]
+            'is_new_stored_item'           => ['sometimes', 'bool'],
+            'is_stored_item_new_in_pallet' => ['sometimes', 'bool'],
+            'audit_type'                   => ['sometimes', Rule::enum(StoredItemAuditDeltaTypeEnum::class)],
+            'state'                        => ['sometimes', Rule::enum(StoredItemAuditDeltaStateEnum::class)],
+            'audited_quantity'             => ['sometimes', 'integer', 'min:0'],
+            'original_quantity'            => ['sometimes', 'integer', 'min:0'],
+            'user_id'                      => ['sometimes', 'required', Rule::exists('users', 'id')->where('group_id', $this->organisation->group_id)],
         ];
     }
 
-    public function asController(FulfilmentCustomer $fulfilmentCustomer, StoredItemAuditDelta $storedItemAuditDelta, ActionRequest $request): StoredItemAudit
+    public function prepareForValidation(ActionRequest $request): void
     {
-        $this->fulfilmentCustomer      = $storedItemAuditDelta->storedItem->fulfilmentCustomer;
-        $this->storedItemAuditDelta    = $storedItemAuditDelta;
+        if (!$this->asAction) {
+            $this->set('user_id', $request->user()->id);
+        }
+    }
+
+    public function asController(StoredItemAuditDelta $storedItemAuditDelta, ActionRequest $request): StoredItemAuditDelta
+    {
         $this->initialisationFromFulfilment($storedItemAuditDelta->storedItem->fulfilment, $request);
 
         return $this->handle($storedItemAuditDelta, $this->validatedData);
     }
+
+
+    public function action(StoredItemAuditDelta $storedItemAuditDelta, $modelData): StoredItemAuditDelta
+    {
+        $this->asAction = true;
+        $this->initialisationFromFulfilment($storedItemAuditDelta->storedItem->fulfilment, $modelData);
+
+        return $this->handle($storedItemAuditDelta, $this->validatedData);
+    }
+
 }

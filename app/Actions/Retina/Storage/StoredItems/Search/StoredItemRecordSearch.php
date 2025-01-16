@@ -32,7 +32,7 @@ class StoredItemRecordSearch
                 'keyword_2'         => trim($storedItem->reference),
                 'result'            => [
                     'route'     => [
-                        'name'          => 'retina.storage.stored-items.show',
+                        'name'          => 'retina.fulfilment.storage.stored-items.show',
                         'parameters'    => [
                             'storedItem' => $storedItem->slug
                         ]

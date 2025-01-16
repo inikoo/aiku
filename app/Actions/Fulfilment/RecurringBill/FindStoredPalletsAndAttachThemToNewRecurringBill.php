@@ -18,12 +18,12 @@ class FindStoredPalletsAndAttachThemToNewRecurringBill extends OrgAction
 {
     public function handle(RecurringBill $recurringBill, RecurringBill $previousRecurringBill = null): RecurringBill
     {
+        //todo this is probably wrong, do same as the fetch
         $palletsInStoringState = $recurringBill->fulfilmentCustomer->pallets->where('state', PalletStateEnum::STORING);
         foreach ($palletsInStoringState as $pallet) {
             if (!$pallet->storing_at) {
                 UpdatePallet::make()->action($pallet, [
                     'storing_at'  => now(),
-                    'notes'       => $pallet->notes == '' ? '' : ' ' . 'Warning: Storing At date added because it was missing'
                 ]);
             }
             $startDate = $pallet->storing_at;

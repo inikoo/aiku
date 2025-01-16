@@ -42,6 +42,9 @@ class StoreStoredItemAudit extends OrgAction
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): StoredItemAudit
     {
+
+        data_set($modelData, 'date', now());
+
         $modelData = $this->processData(
             $modelData,
             $fulfilmentCustomer,
@@ -49,7 +52,7 @@ class StoreStoredItemAudit extends OrgAction
         );
 
         /** @var StoredItemAudit $storedItemAudit */
-        $storedItemAudit = $fulfilmentCustomer->storedItemAudit()->create($modelData);
+        $storedItemAudit = $fulfilmentCustomer->storedItemAudits()->create($modelData);
         $storedItemAudit->refresh();
 
         GroupHydrateStoredItemAudits::dispatch($storedItemAudit->group);

@@ -14,7 +14,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Models\CRM\Customer;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Helpers\Address;
@@ -87,46 +86,18 @@ class UpdatePalletReturn extends OrgAction
             return true;
         }
 
-        if ($request->user() instanceof WebUser) {
-            return true;
-        }
-
         return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
     public function rules(): array
     {
-        $rules = [];
-
-        if (!request()->user() instanceof WebUser) {
-            $rules = [
-                'reference'      => ['sometimes', 'string', 'max:255'],
-                'public_notes'   => ['sometimes', 'nullable', 'string', 'max:4000'],
-                'internal_notes' => ['sometimes', 'nullable', 'string', 'max:4000'],
-            ];
-        }
-
         return [
 
             'customer_notes'      => ['sometimes', 'nullable', 'string', 'max:5000'],
             'address'             => ['sometimes'],
-            'delivery_address_id' => ['sometimes', Rule::exists('addresses', 'id')],
-            ...$rules
+            'delivery_address_id' => ['sometimes', Rule::exists('addresses', 'id')]
         ];
     }
-
-
-    public function fromRetina(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
-    {
-        /** @var FulfilmentCustomer $fulfilmentCustomer */
-        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
-        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
-
-        $this->initialisation($request->get('website')->organisation, $request);
-
-        return $this->handle($palletReturn, $this->validatedData);
-    }
-
 
     public function asController(Organisation $organisation, PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
@@ -154,7 +125,7 @@ class UpdatePalletReturn extends OrgAction
     //             'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
     //             'palletReturn'           => $palletReturn->slug
     //         ])),
-    //         default => Inertia::location(route('retina.storage.pallet-returns.show', [
+    //         default => Inertia::location(route('retina.fulfilment.storage.pallet-returns.show', [
     //             'palletReturn'         => $palletReturn->slug
     //         ]))
     //     };

@@ -24,7 +24,7 @@ const openGallery = ref(false)
 </script>
 
 <template> 
-	<div class="relative overflow-hidden rounded-lg lg:h-96" :style="getStyles(properties)">
+	<div class="relative overflow-hidden rounded-lg lg:h-96" :style="getStyles(fieldValue.container.properties)">
 		<div class="absolute inset-0">
 			<img :src="fieldValue.container.properties.background.image.source ? fieldValue.container.properties.background.image.source.original : fieldValue.image" alt="" class="h-full w-full object-cover object-center" />
 		</div>

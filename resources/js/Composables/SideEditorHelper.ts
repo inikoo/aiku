@@ -20,9 +20,13 @@ import InputText from 'primevue/inputtext'
 import OverviewForm from '@/Components/CMS/Fields/OverviewForm.vue'
 import ArrayPhone from '@/Components/CMS/Fields/ArrayPhone.vue'
 import NotFoundComponents from '@/Components/CMS/Webpage/NotFoundComponent.vue'
+import Overview from '@/Components/CMS/Fields/Overview.vue'
 import TextProperty from '@/Components/Workshop/Properties/TextProperty.vue'
+import ImagesArray from '@/Components/CMS/Fields/ImagesArray.vue'
+
 
 import { set } from 'lodash'
+import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
 
 // Field list of SideEditor
 export const getComponent = (componentName: string) => {
@@ -35,12 +39,14 @@ export const getComponent = (componentName: string) => {
         'socialMedia': socialMedia,
         "VisibleLoggedIn": ButtonVisibleLoggedIn,
        /*  "properties": PanelProperties, */
+       "overview-property" : Overview,
         
         "background": Background,
         "border": Border,
         "padding": Padding,
         "margin": Margin,
         "dimension": Dimension,
+        "select" : PureMultiselect,
 
         "button": ButtonProperties,
         "link": Link,
@@ -48,7 +54,8 @@ export const getComponent = (componentName: string) => {
         "layout_type": SelectLayout,
         "script": Script,
         "arrayPhone":ArrayPhone,
-        "textProperty": TextProperty
+        "textProperty": TextProperty,
+        "images-property" : ImagesArray
     }
     
     return components[componentName] ?? NotFoundComponents

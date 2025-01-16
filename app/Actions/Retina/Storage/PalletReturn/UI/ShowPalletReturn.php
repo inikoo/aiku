@@ -14,7 +14,7 @@ use App\Actions\Fulfilment\PalletReturn\UI\IndexServiceInPalletReturn;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemsInReturn;
 use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
+use App\Actions\UI\Retina\Storage\UI\RetinaShowRetinaStorageDashboard;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
@@ -72,7 +72,7 @@ class ShowPalletReturn extends RetinaAction
 
         if ($palletReturn->type == PalletReturnTypeEnum::STORED_ITEM) {
             $afterTitle = [
-                'label' => '('.__('Stored items').')'
+                'label' => '('.__("Customer's sKUs").')'
                 ];
         } else {
             $afterTitle = [
@@ -120,9 +120,9 @@ class ShowPalletReturn extends RetinaAction
         $showGrossAndDiscount = $palletReturn->gross_amount !== $palletReturn->net_amount;
 
         if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
-            $downloadRoute = 'retina.storage.pallet-returns.pallets.uploads.templates';
+            $downloadRoute = 'retina.fulfilment.storage.pallet-returns.pallets.uploads.templates';
         } else {
-            $downloadRoute = 'retina.storage.pallet-returns.stored-items.uploads.templates';
+            $downloadRoute = 'retina.fulfilment.storage.pallet-returns.stored-items.uploads.templates';
         };
         return Inertia::render(
             'Storage/RetinaPalletReturn',
@@ -172,7 +172,7 @@ class ShowPalletReturn extends RetinaAction
                                     'type'    => 'button',
                                     'style'   => 'secondary',
                                     'icon'    => 'fal fa-plus',
-                                    'label'   => __('add Stored Item'),
+                                    'label'   => __('add SKU'),
                                     'route'   => [
                                         'name'       => 'retina.models.pallet-return.stored_item.store',
                                         'parameters' => [
@@ -309,7 +309,7 @@ class ShowPalletReturn extends RetinaAction
                             ]
                         ],
                         'history' => [
-                            'name'       => 'retina.storage.pallet-returns.uploads.history',
+                            'name'       => 'retina.fulfilment.storage.pallet-returns.uploads.history',
                             'parameters' => [
                                 'palletReturn'     => $palletReturn->slug
                             ]
@@ -573,17 +573,17 @@ class ShowPalletReturn extends RetinaAction
         $palletReturn = PalletReturn::where('slug', $routeParameters['palletReturn'])->first();
 
         return match ($routeName) {
-            'retina.storage.pallet-returns.show' => array_merge(
-                ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+            'retina.fulfilment.storage.pallet-returns.show' => array_merge(
+                RetinaShowRetinaStorageDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $palletReturn,
                     [
                         'index' => [
-                            'name'       => 'retina.storage.pallet-returns.index',
+                            'name'       => 'retina.fulfilment.storage.pallet-returns.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'retina.storage.pallet-returns.show',
+                            'name'       => 'retina.fulfilment.storage.pallet-returns.show',
                             'parameters' => $routeParameters
                         ]
                     ],

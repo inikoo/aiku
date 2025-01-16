@@ -8,7 +8,6 @@
 
 namespace App\Actions\Fulfilment\RecurringBill;
 
-use App\Actions\Fulfilment\RecurringBill\Search\RecurringBillRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\RecurringBill;
@@ -23,9 +22,6 @@ class UpdateRecurringBilling extends OrgAction
     public function handle(RecurringBill $recurringBill, array $modelData): RecurringBill
     {
         $recurringBill = $this->update($recurringBill, $modelData, ['data']);
-
-
-        RecurringBillRecordSearch::dispatch($recurringBill);
         return $recurringBill;
     }
 

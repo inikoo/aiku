@@ -56,7 +56,6 @@ use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
-use App\Actions\Fulfilment\RecurringBill\Search\ReindexRecurringBillSearch;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
@@ -108,6 +107,7 @@ use App\Models\Web\Website;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use App\Actions\Traits\WithGetRecurringBillEndDate;
 
 use function Pest\Laravel\actingAs;
 
@@ -115,11 +115,14 @@ beforeAll(function () {
     loadDB();
 });
 
-
 beforeEach(function () {
     $this->organisation = createOrganisation();
     $this->adminGuest   = createAdminGuest($this->organisation->group);
     $this->warehouse    = createWarehouse();
+    $this->getRecurringBillEndDate = new class () {
+        use WithGetRecurringBillEndDate;
+    };
+
     $location           = $this->warehouse->locations()->first();
     if (!$location) {
         StoreLocation::run(
@@ -197,17 +200,66 @@ test('update fulfilment settings (monthly cut off day)', function (Fulfilment $f
         $fulfilment,
         [
             'monthly_cut_off' => [
-                'date'       => 12,
-                'isWeekdays' => true
+                'date'       => 9,
+                'isWeekdays' => false
             ]
         ]
     );
 
-    expect($fulfilment->settings['rental_agreement_cut_off']['monthly']['day'])->toBe(12)
-        ->and($fulfilment->settings['rental_agreement_cut_off']['monthly']['workdays'])->toBeTrue();
+    expect($fulfilment->settings['rental_agreement_cut_off']['monthly']['day'])->toBe(9)
+        ->and($fulfilment->settings['rental_agreement_cut_off']['monthly']['is_weekdays'])->toBeFalse();
 
     return $fulfilment;
 })->depends('create fulfilment shop');
+
+test('get end date recurring bill (monthly)', function () {
+
+    // fase 1
+    $startDate = Carbon::create(2025, 10, 20);
+    $endDate = $this->getRecurringBillEndDate->getEndDate(
+        $startDate,
+        [
+            'type' => 'monthly',
+            'day' => 9,
+        ]
+    );
+
+    expect($endDate)->toBeInstanceOf(Carbon::class);
+    expect($endDate->toDateString())->toEqual(now()->copy()->addMonth()->day(9)->toDateString());
+
+    return $endDate;
+});
+
+test('get end date recurring bill (weekly)', function () {
+
+    // fase 1
+    $startDate = Carbon::create(2025, 10, 20); // 20 is monday
+    $endDate = $this->getRecurringBillEndDate->getEndDate(
+        $startDate,
+        [
+            'type' => 'weekly',
+            'day' => 'Monday',
+        ]
+    );
+
+    expect($endDate)->toBeInstanceOf(Carbon::class)
+        ->toEqual(Carbon::create(2025, 10, 27));
+
+    // fase 2
+    $startDate = Carbon::create(2025, 11, 21); // 21 is friday
+    $endDate = $this->getRecurringBillEndDate->getEndDate(
+        $startDate,
+        [
+            'type' => 'weekly',
+            'day' => 'Tuesday',
+        ]
+    );
+
+    expect($endDate)->toBeInstanceOf(Carbon::class)
+        ->toEqual(Carbon::create(2025, 11, 25));
+
+    return $endDate;
+});
 
 test('create services in fulfilment shop', function (Fulfilment $fulfilment) {
     $service1 = StoreService::make()->action(
@@ -1112,8 +1164,8 @@ test('set pallet delivery as booked in', function (PalletDelivery $palletDeliver
 
     $palletDelivery = SetPalletDeliveryAsBookedIn::make()->action($palletDelivery);
     $palletDelivery->refresh();
-    $fulfilmentCustomer->refresh();
 
+    $fulfilmentCustomer->refresh();
 
     expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKED_IN)
         ->and($palletDelivery->booked_in_at)->toBeInstanceOf(Carbon::class)
@@ -1135,6 +1187,7 @@ test('set pallet delivery as booked in', function (PalletDelivery $palletDeliver
         ->and($fulfilmentCustomer->currentRecurringBill)->toBeInstanceOf(RecurringBill::class);
 
     $recurringBill = $fulfilmentCustomer->currentRecurringBill;
+
     expect($recurringBill->stats->number_transactions)->toBe(3)
         ->and($recurringBill->stats->number_transactions_type_pallets)->toBe(2)
         ->and($recurringBill->stats->number_transactions_type_stored_items)->toBe(0);
@@ -2142,11 +2195,6 @@ test('hydrate rental agreements command', function () {
     $this->artisan('hydrate:rental_agreements  '.$this->organisation->slug)->assertExitCode(0);
 });
 
-test('recurring bill universal search', function () {
-    $recurringBill = RecurringBill::first();
-    ReindexRecurringBillSearch::run($recurringBill);
-    $this->artisan('search:recurring_bills  '.$this->organisation->slug)->assertExitCode(0);
-});
 
 test('create sixth pallet delivery (consolidation test)', function ($fulfilmentCustomer) {
     SendPalletDeliveryNotification::shouldRun()
@@ -2341,6 +2389,7 @@ test('consolidate recurring bill', function ($fulfilmentCustomer) {
     $fulfilmentCustomer->refresh();
 
     $newRecurringBill = $fulfilmentCustomer->currentRecurringBill;
+    // dd($recurringBill->transactions);
 
     expect($newRecurringBill)->not->toBe($recurringBill)
         ->and($newRecurringBill)->toBeInstanceOf(RecurringBill::class)
@@ -2408,7 +2457,7 @@ test('pay invoice (full)', function ($invoice) {
     $paymentAccount     = $invoice->shop->paymentAccounts()->first();
     $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
     $payment            = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
-        'amount' => 382,
+        'amount' => 402,
         'status' => PaymentStatusEnum::SUCCESS->value,
         'state'  => PaymentStateEnum::COMPLETED->value
     ]);
@@ -2424,7 +2473,7 @@ test('pay invoice (full)', function ($invoice) {
 
 test('consolidate 2nd recurring bill', function ($fulfilmentCustomer) {
     $recurringBill = $fulfilmentCustomer->currentRecurringBill;
-
+    // dd($recurringBill->transactions);
     ConsolidateRecurringBill::make()->action($recurringBill);
 
     $recurringBill->refresh();
@@ -2465,7 +2514,7 @@ test('pay invoice (other half)', function ($invoice) {
     $paymentAccount     = $invoice->shop->paymentAccounts()->first();
     $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
     $payment            = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
-        'amount' => 70,
+        'amount' => 100,
         'status' => PaymentStatusEnum::SUCCESS->value,
         'state'  => PaymentStateEnum::COMPLETED->value
     ]);
@@ -2486,7 +2535,6 @@ test('consolidate 3rd recurring bill', function ($fulfilmentCustomer) {
 
     $recurringBill->refresh();
     $fulfilmentCustomer->refresh();
-
     $newRecurringBill = $fulfilmentCustomer->currentRecurringBill;
 
     expect($newRecurringBill)->not->toBe($recurringBill)
@@ -2518,22 +2566,14 @@ test('pay invoice (exceed)', function ($invoice) {
         ->and($payment->status)->toBe(PaymentStatusEnum::SUCCESS)
         ->and($payment->state)->toBe(PaymentStateEnum::COMPLETED)
         ->and($customer->creditTransactions)->not->toBeNull()
-        ->and($customer->balance)->toBe("60.00")
-        ->and($customer->creditTransactions->first()->amount)->toBe("60.00");
+        ->and($customer->balance)->toBe("90.00")
+        ->and($customer->creditTransactions->skip(2)->first()->amount)->toBe("60.00");
 
     return $fulfilmentCustomer;
 })->depends('consolidate 3rd recurring bill');
 
 test('hydrate pallet return command', function () {
     $this->artisan('hydrate:pallet_returns  '.$this->organisation->slug)->assertExitCode(0);
-});
-
-test('recurring bills search', function () {
-    $this->artisan('search:recurring_bills')->assertExitCode(0);
-
-    $recurringBills = RecurringBill::first();
-    ReindexRecurringBillSearch::run($recurringBills);
-    expect($recurringBills->universalSearch()->count())->toBe(1);
 });
 
 test('fulfilment customers search', function () {

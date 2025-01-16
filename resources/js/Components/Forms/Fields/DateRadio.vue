@@ -38,12 +38,14 @@ const onSelectOption = (value: number) => {
                 <div class="relative cursor-pointer underline">
                     <div class="flex gap-x-1">
                         <span class="relative">
-                            <Transition name="spin-to-down"><div :key="form[fieldName].date" class="">{{ useOrdinalSuffix(form[fieldName].date) }}</div></Transition>
+                            <Transition name="spin-to-down">
+                                <div :key="form[fieldName].date" class="">{{ typeof form[fieldName].date === 'number' ? useOrdinalSuffix(form[fieldName].date) : form[fieldName].date.replace('_', ' ') }}</div>
+                            </Transition>
                         </span>
                         on each month
-                        <span class="relative">
+                        <!-- <span class="relative">
                             <Transition name="spin-to-down"><div v-if="form[fieldName].isWeekdays" class="text-gray-500">(weekdays only)</div></Transition>
-                        </span>
+                        </span> -->
                     </div>
                 </div>
             </template>
@@ -60,19 +62,29 @@ const onSelectOption = (value: number) => {
                         >
                             {{ option }}
                         </div>
+
+                        <div @click="() => onSelectOption('last_day')"
+                            class="col-span-3 px-3 py-2 flex items-center justify-center rounded border border-gray-300 cursor-pointer select-none"
+                            :class="form[fieldName].date == 'last_day'  ? 'bg-indigo-600 text-white' : 'bg-white hover:bg-gray-100'"
+                        >
+                            Last day of month
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex items-center">
-                <!-- {{ form[fieldName].isWeekdays }} -->
+                <!-- <div class="flex items-center">
                     <label for="weekday_checkbox" class="cursor-pointer pr-3 select-none">Only on weekday</label>
                     <PureCheckbox v-model="form[fieldName].isWeekdays" @update:modelValue="() => props.form.errors[props.fieldName] = false" id="weekday_checkbox" />
-                </div>
+                </div> -->
             </template>
         </Popover>
     </div>
+    
+    <p v-if="form.errors[`${fieldName}.date`]" class="mt-2 text-sm text-red-600" :id="`${fieldName}-error`">
+        {{ form.errors[`${fieldName}.date`] }}
+    </p>
 
-    <p v-if="get(form, ['errors', `${fieldName}`])" class="mt-2 text-sm text-red-600" :id="`${fieldName}-error`">
-        {{ form.errors[fieldName] }}
+    <p v-if="form.errors[`${fieldName}.isWeekdays`]" class="mt-2 text-sm text-red-600" :id="`${fieldName}-error`">
+        {{ form.errors[`${fieldName}.isWeekdays`] }}
     </p>
 </template>

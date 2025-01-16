@@ -44,9 +44,9 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
                     route().params['fulfilment'],
                     palletReturn.slug
                 ]);
-        case 'retina.storage.pallet-returns.index':
+        case 'retina.fulfilment.storage.pallet-returns.index':
             return route(
-                'retina.storage.pallet-returns.show',
+                'retina.fulfilment.storage.pallet-returns.show',
                 [
                     palletReturn.slug
                 ]);

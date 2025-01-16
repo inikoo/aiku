@@ -8,6 +8,10 @@
 
 namespace App\Models\Fulfilment;
 
+use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
+use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaTypeEnum;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -24,12 +28,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $user_id User who audited the stock
  * @property string|null $original_quantity
  * @property string $audited_quantity
- * @property string|null $state
- * @property string|null $audit_type
- * @property string|null $reason
+ * @property StoredItemAuditDeltaStateEnum|null $state
+ * @property StoredItemAuditDeltaTypeEnum|null $audit_type
+ * @property string|null $notes
  * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $location_id
+ * @property bool $is_new_stored_item Stored item just created
+ * @property bool $is_stored_item_new_in_pallet Existing Stored item was associated to the pallet
  * @property-read \App\Models\Fulfilment\Pallet $pallet
  * @property-read \App\Models\Fulfilment\StoredItem $storedItem
  * @property-read \App\Models\Fulfilment\StoredItemAudit|null $storedItemAudit
@@ -40,9 +47,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class StoredItemAuditDelta extends Model
 {
+    protected $table = 'stored_item_audit_deltas';
+
     protected $guarded = [];
 
     protected $casts = [
+        'audit_type' => StoredItemAuditDeltaTypeEnum::class,
+        'state' => StoredItemAuditDeltaStateEnum::class,
         'audited_at' => 'datetime',
         'data'       => 'array'
     ];
@@ -50,6 +61,16 @@ class StoredItemAuditDelta extends Model
     protected $attributes = [
         'data' => '{}'
     ];
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
+    }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
 
     public function storedItemAudit(): BelongsTo
     {

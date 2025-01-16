@@ -13,6 +13,7 @@ use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
+use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Enums\UI\Fulfilment\FulfilmentCustomerPalletsTabsEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -37,6 +38,7 @@ class IndexPalletsInCustomer extends OrgAction
 
     private bool $selectStoredPallets = false;
 
+    private FulfilmentCustomer $fulfilmentCustomer;
     private FulfilmentCustomer $parent;
 
     protected function getElementGroups(FulfilmentCustomer $fulfilmentCustomer, string $prefix): array
@@ -194,8 +196,8 @@ class IndexPalletsInCustomer extends OrgAction
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'customer_reference', label: __("Pallet reference (customer's), notes"), canBeHidden: false, sortable: true, searchable: true);
 
-            if ($this->parent->items_storage) {
-                $table->column(key: 'stored_items', label: __('stored items'), canBeHidden: false, searchable: false);
+            if ($this->fulfilmentCustomer->items_storage) {
+                $table->column(key: 'stored_items', label: __("customer's sKUs"), canBeHidden: false);
             }
 
             $table->column(key: 'contents', label: __('Contents'), canBeHidden: false, searchable: true);
@@ -219,10 +221,10 @@ class IndexPalletsInCustomer extends OrgAction
     {
 
 
-        $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+        $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->fulfilmentCustomer, $request);
 
         $icon       = ['fal', 'fa-user'];
-        $title      = $this->parent->customer->name;
+        $title      = $this->fulfilmentCustomer->customer->name;
         $iconRight  = [
             'icon' => 'fal fa-pallet',
         ];
@@ -230,6 +232,39 @@ class IndexPalletsInCustomer extends OrgAction
 
             'label' => __('pallets')
         ];
+
+        $actions = [];
+        if ($this->fulfilmentCustomer->items_storage) {
+            $openStoredItemAudit = $this->fulfilmentCustomer->storedItemAudits()->where('state', StoredItemAuditStateEnum::IN_PROCESS)->first();
+
+            if ($openStoredItemAudit) {
+                $actions[] = [
+                    'type'    => 'button',
+                    'style'   => 'secondary',
+                    'tooltip' => __("Continue customer's SKUs audit"),
+                    'label'   => __("Continue customer's SKUs audit"),
+                    'route'   => [
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.show',
+                        'parameters' => array_merge($request->route()->originalParameters(), ['storedItemAudit' => $openStoredItemAudit->slug])
+                    ]
+                ];
+            } else {
+                $actions[] = [
+                    'type'    => 'button',
+                    'tooltip' => __("Start customer's SKUs audit"),
+                    'label'   => __("Start customer's SKUs audit"),
+                    'route'   => [
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.create',
+                        'parameters' => $request->route()->originalParameters()
+                    ]
+                ];
+            }
+
+
+
+
+
+        }
 
 
         return Inertia::render(
@@ -247,18 +282,7 @@ class IndexPalletsInCustomer extends OrgAction
 
                     'subNavigation' => $subNavigation,
 
-                    'actions'       => [
-                        $this->parent->items_storage ? [
-                            'type'    => 'button',
-                            'style'   => 'secondary',
-                            'tooltip' => __('Audits'),
-                            'label'   => __('Audits'),
-                            'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.index',
-                                'parameters' => $request->route()->originalParameters()
-                            ]
-                        ] : false,
-                    ],
+                    'actions'       => $actions
                 ],
 
                 'tabs' => [
@@ -291,11 +315,11 @@ class IndexPalletsInCustomer extends OrgAction
 
             ]
         )
-            ->table($this->tableStructure($this->parent, FulfilmentCustomerPalletsTabsEnum::STORING->value))
-            ->table($this->tableStructure($this->parent, FulfilmentCustomerPalletsTabsEnum::INCOMING->value))
-            ->table($this->tableStructure($this->parent, FulfilmentCustomerPalletsTabsEnum::RETURNED->value))
-            ->table($this->tableStructure($this->parent, FulfilmentCustomerPalletsTabsEnum::INCIDENT->value))
-            ->table($this->tableStructure($this->parent, FulfilmentCustomerPalletsTabsEnum::ALL->value))
+            ->table($this->tableStructure($this->fulfilmentCustomer, FulfilmentCustomerPalletsTabsEnum::STORING->value))
+            ->table($this->tableStructure($this->fulfilmentCustomer, FulfilmentCustomerPalletsTabsEnum::INCOMING->value))
+            ->table($this->tableStructure($this->fulfilmentCustomer, FulfilmentCustomerPalletsTabsEnum::RETURNED->value))
+            ->table($this->tableStructure($this->fulfilmentCustomer, FulfilmentCustomerPalletsTabsEnum::INCIDENT->value))
+            ->table($this->tableStructure($this->fulfilmentCustomer, FulfilmentCustomerPalletsTabsEnum::ALL->value))
 
         ;
     }
@@ -303,7 +327,8 @@ class IndexPalletsInCustomer extends OrgAction
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent = $fulfilmentCustomer;
+        $this->fulfilmentCustomer = $fulfilmentCustomer;
+        $this->parent = $fulfilmentCustomer;// This is needed fot authorisation checks
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(FulfilmentCustomerPalletsTabsEnum::values());
 
         return $this->handle($fulfilmentCustomer, $request->get('tab', FulfilmentCustomerPalletsTabsEnum::STORING->value));

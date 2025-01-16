@@ -17,11 +17,21 @@ import { debounce } from "lodash"
 import { useForm } from "@inertiajs/vue3"
 import { faCloud, faCompressWide, faExpandArrowsAlt, faSearch, faSpinner } from "@fal"
 import { faMinus, faPlus, faSave, faUndo } from "@fas"
-import QuantityInput from "./ QuantityInput.vue"
+import QuantityInput from "./QuantityInput.vue"
 import { notify } from "@kyvg/vue3-notification"
 import { trans } from "laravel-vue-i18n"
 
-library.add(faSearch, faPlus, faMinus, faSpinner, faCloud, faUndo, faExpandArrowsAlt, faSave, faCompressWide)
+library.add(
+	faSearch,
+	faPlus,
+	faMinus,
+	faSpinner,
+	faCloud,
+	faUndo,
+	faExpandArrowsAlt,
+	faSave,
+	faCompressWide
+)
 
 const props = defineProps<{
 	fetchRoute: routeType
@@ -35,7 +45,6 @@ const emits = defineEmits<{
 	(e: "optionsList", value: any[]): void
 	(e: "update:currentTab", value: string): void
 	(e: "update:tab", value: string): void
-
 }>()
 
 const model = defineModel()
@@ -64,8 +73,6 @@ const handleAction = (event: { type: string; value?: number }, slotProps: any) =
 
 // Method: click Tab
 const onClickProduct = async (tabSlug: string) => {
-	
-	
 	emits("update:currentTab", tabSlug)
 	closeModal()
 }
@@ -119,7 +126,7 @@ const getUrlFetch = (additionalParams: {}) => {
 const fetchProductList = async (url?: string) => {
 	isLoading.value = "fetchProduct"
 	const urlToFetch = url || route(props.fetchRoute.name, props.fetchRoute.parameters)
-	
+
 	try {
 		const response = await axios.get(urlToFetch)
 		const data = response.data
@@ -130,7 +137,7 @@ const fetchProductList = async (url?: string) => {
 			resetProducts()
 			products.value = data.data
 		}
-		
+
 		optionsMeta.value = data.meta
 		optionsLinks.value = data.links
 
@@ -143,7 +150,7 @@ const fetchProductList = async (url?: string) => {
 		data.data.forEach((product: any) => {
 			if (product.purchase_order_id) {
 				addedProductIds.value.add(product.purchase_order_id)
-			}else if (product.order_id){
+			} else if (product.order_id) {
 				addedOrderIds.value.add(product.order_id)
 			}
 		})
@@ -156,17 +163,17 @@ const fetchProductList = async (url?: string) => {
 	}
 }
 
-const isSearchLoading = ref(false);
+const isSearchLoading = ref(false)
 
 const debouncedFetch = debounce(async (query: string) => {
-  isSearchLoading.value = true;
-  try {
-    const url = getUrlFetch({ "filter[global]": query.trim() || undefined });
-    await fetchProductList(url);
-  } finally {
-    isSearchLoading.value = false;
-  }
-}, 300);
+	isSearchLoading.value = true
+	try {
+		const url = getUrlFetch({ "filter[global]": query.trim() || undefined })
+		await fetchProductList(url)
+	} finally {
+		isSearchLoading.value = false
+	}
+}, 300)
 
 const onSearchQuery = (query: string) => {
 	debouncedFetch(query)
@@ -177,107 +184,109 @@ const formProducts = useForm({
 })
 
 const onSubmitAddProducts = async (data: any, slotProps: any) => {
-    const productId = slotProps.data.purchase_order_id;
-    const orderId = slotProps.data.order_id;
+	const productId = slotProps.data.purchase_order_id
+	const orderId = slotProps.data.order_id
 
-    try {
-        if (slotProps.data.quantity_ordered > 0) {
-            // Handle update or add
-            if (addedProductIds.value && addedProductIds.value.has(productId) || addedOrderIds.value && addedOrderIds.value.has(orderId)  ) {
-                // Update product
-                if (slotProps.data.purchase_order_id || slotProps.data.order_id) {
-                    await formProducts
-                        .transform(() => ({
-                            quantity_ordered: slotProps.data.quantity_ordered,
-                        }))
-                        .patch(
-                            route(slotProps?.data?.updateRoute?.name || "#", {
-                                ...slotProps.data.updateRoute?.parameters,
-                            })
-                        );
-                }
-            } else if (props.typeModel === 'purchase_order' ){
-                // Add product ,
-                await formProducts
-                    .transform(() => ({
-                        quantity_ordered: slotProps.data.quantity_ordered,
-                    }))
-                    .post(
-                        route(data.route?.name || "#", {
-                            ...data.route?.parameters,
-                            historicSupplierProduct: slotProps.data.historic_id,
-                            orgStock: slotProps.data.org_stock_id,
-                        })
-                    );
-
-                // Refresh list and update addedProductIds
-                await fetchProductList();
-                addedProductIds.value.add(productId);
-                iconStates.value[productId] = {
-                    increment: "fal fa-cloud",
-                    decrement: "fal fa-undo",
-                };
-            }else if (props.typeModel === 'order'){
+	try {
+		if (slotProps.data.quantity_ordered > 0) {
+			if (
+				(addedProductIds.value && addedProductIds.value.has(productId)) ||
+				(addedOrderIds.value && addedOrderIds.value.has(orderId))
+			) {
+				// Update product
+				if (slotProps.data.purchase_order_id || slotProps.data.order_id) {
+					await formProducts
+						.transform(() => ({
+							quantity_ordered: slotProps.data.quantity_ordered,
+						}))
+						.patch(
+							route(slotProps?.data?.updateRoute?.name || "#", {
+								...slotProps.data.updateRoute?.parameters,
+							})
+						)
+				}
+			} else if (props.typeModel === "purchase_order") {
+				// Add product ,
 				await formProducts
-                    .transform(() => ({
-                        quantity_ordered: slotProps.data.quantity_ordered,
-                    }))
-                    .post(
-                        route(data.route?.name || "#", {
-                            ...data.route?.parameters,
-                            historicAsset : slotProps.data.historic_id,
-                        })
-                    );
+					.transform(() => ({
+						quantity_ordered: slotProps.data.quantity_ordered,
+					}))
+					.post(
+						route(data.route?.name || "#", {
+							...data.route?.parameters,
+							historicSupplierProduct: slotProps.data.historic_id,
+							orgStock: slotProps.data.org_stock_id,
+						})
+					)
 
-                // Refresh list and update addedProductIds
-                await fetchProductList();
-                addedProductIds.value.add(productId);
-                iconStates.value[productId] = {
-                    increment: "fal fa-cloud",
-                    decrement: "fal fa-undo",
-                };
+				// Refresh list and update addedProductIds
+				await fetchProductList()
+				addedProductIds.value.add(productId)
+				iconStates.value[productId] = {
+					increment: "fal fa-cloud",
+					decrement: "fal fa-undo",
+				}
+			} else if (props.typeModel === "order") {
+				await formProducts
+					.transform(() => ({
+						quantity_ordered: slotProps.data.quantity_ordered,
+					}))
+					.post(
+						route(data.route?.name || "#", {
+							...data.route?.parameters,
+							historicAsset: slotProps.data.historic_id,
+						})
+					)
+
+				// Refresh list and update addedProductIds
+				await fetchProductList()
+				addedProductIds.value.add(productId)
+				iconStates.value[productId] = {
+					increment: "fal fa-cloud",
+					decrement: "fal fa-undo",
+				}
 			}
-            notify({
-                title: trans('Success!'),
-                text: trans('Product successfully added or updated.'),
-                type: 'success',
-            });
-        } else if (slotProps.data.quantity_ordered === 0) {
-            // Handle delete
-            if (addedProductIds.value && addedProductIds.value.has(productId)) {
-                await formProducts.delete(
-                    route(slotProps?.data?.deleteRoute?.name || "#", {
-                        ...slotProps.data.deleteRoute?.parameters,
-                    })
-                );
+			notify({
+				title: trans("Success!"),
+				text: trans("Product successfully added or updated."),
+				type: "success",
+			})
+		} else if (slotProps.data.quantity_ordered === 0) {
+			// Handle delete
+			if (addedProductIds.value && addedProductIds.value.has(productId)) {
+				await formProducts.delete(
+					route(slotProps?.data?.deleteRoute?.name || "#", {
+						...slotProps.data.deleteRoute?.parameters,
+					})
+				)
 
-                // Remove product ID from the addedProductIds set
-                addedProductIds.value.delete(productId);
+				// Remove product ID from the addedProductIds set
+				addedProductIds.value.delete(productId)
 
-                // Refresh list to reflect changes
-                await fetchProductList();
+				// Refresh list to reflect changes
+				await fetchProductList()
 
-                // Notify success
-                notify({
-                    title: trans('Success!'),
-                    text: trans('Product successfully deleted.'),
-                    type: 'success',
-                });
-            }
-        }
-    } catch (error) {
-        console.error("Error adding/updating/deleting product:", error);
+				// Notify success
+				notify({
+					title: trans("Success!"),
+					text: trans("Product successfully deleted."),
+					type: "success",
+				})
+			}
+		}
+	} catch (error) {
+		console.error("Error adding/updating/deleting product:", error)
 
-        // Notify error
-        notify({
-            title: trans('Something went wrong'),
-            text: trans('An error occurred while processing the product.'),
-            type: 'error',
-        });
-    }
-};
+		// Notify error
+		notify({
+			title: trans("Something went wrong"),
+			text: trans("An error occurred while processing the product."),
+			type: "error",
+		})
+	}
+}
 
-console.log(products,'sdas');
+console.log(products, "sdas")
 
 const onFetchNext = async () => {
 	if (optionsLinks.value?.next && !isLoading.value) {
@@ -286,12 +295,12 @@ const onFetchNext = async () => {
 }
 
 const onKeyDown = (slotProps: any) => {
-	console.log(slotProps, "we ap ni")
-	if (!slotProps.data.inputTriggered) {
+	console.log(slotProps.data.inputTriggered, "we ap ni")
+	if (slotProps.data.inputTriggered) {
 		slotProps.data.inputTriggered = true
 		iconStates.value[slotProps.data.id] = {
-			increment: "fal fa-cloud",
-			decrement: "fal fa-undo",
+			increment: "fal fa-plus",
+			decrement: "fal fa-minus",
 		}
 	}
 }
@@ -301,8 +310,8 @@ const onValueChange = (slotProps: any) => {
 }
 
 watch(searchQuery, (newValue) => {
-  debouncedFetch(newValue);
-});
+	debouncedFetch(newValue)
+})
 
 onMounted(() => {
 	const tableBody = document.querySelector(".p-datatable-scrollable-body")
@@ -376,7 +385,6 @@ onUnmounted(() => {
 											<FontAwesomeIcon
 												icon="fal fa-spinner"
 												class="text-2xl animate-spin mb-2" />
-											
 										</div>
 									</template>
 

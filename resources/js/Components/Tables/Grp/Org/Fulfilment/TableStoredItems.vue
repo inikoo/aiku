@@ -16,6 +16,7 @@ const props = defineProps<{
     tab?: string
     state:any
     key:any 
+    tableKey?: string
 }>()
 console.log('test')
 const isLoading = ref<string | boolean>(false)
@@ -43,7 +44,8 @@ function storedItemRoute(storedItem) {
 <template>
     <Table :resource="data" :name="'stored_items'" class="mt-5">
         <template #cell(reference)="{ item: value }">
-            <Link v-if="route().current() != 'retina.storage.pallet-returns.show'" :href="storedItemRoute(value)"
+            {{ tableKey }}
+            <Link v-if="route().current() != 'retina.fulfilment.storage.pallet-returns.show'" :href="storedItemRoute(value)"
                 class="primaryLink">
             {{ value.reference }}
             </Link>

@@ -162,7 +162,7 @@ class AttachPalletsToReturn extends OrgAction
                 'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
                 'palletReturn'           => $palletReturn->slug
             ]),
-            default => Redirect::route('retina.storage.pallet-returns.show', [
+            default => Redirect::route('retina.fulfilment.storage.pallet-returns.show', [
                 'palletReturn'     => $palletReturn->slug
             ])
         };

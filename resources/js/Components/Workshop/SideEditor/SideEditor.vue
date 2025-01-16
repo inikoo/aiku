@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, provide, ref } from 'vue'
+import { onMounted, provide, ref, watch } from 'vue'
 
 import Accordion from 'primevue/accordion'
 import ParentFieldSideEditor from '@/Components/Workshop/SideEditor/ParentFieldSideEditor.vue'
@@ -8,8 +8,10 @@ import { getFormValue } from '@/Composables/SideEditorHelper'
 import { set as setLodash, get, cloneDeep } from 'lodash'
 
 import { routeType } from '@/types/route'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faCaretDown, faCaretLeft, faCaretRight, faCaretUp } from '@fas'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     blueprint: {
         name?: string
         key?: string | string[]
@@ -30,10 +32,13 @@ const props = defineProps<{
     block?: {
         id: number
     }
-}>()
+    panelOpen?: number|null
+}>(), {
+    panelOpen: null,
+})
+
 
 const modelValue = defineModel()
-const openPanel = ref(0)
 
 provide('side_editor_block_id', props.block?.id)
 
@@ -81,11 +86,17 @@ onMounted(() => {
 
 <template>
     <div v-for="(field, index) of blueprint.filter((item) => item.type != 'hidden')">
-        <Accordion class="w-full" v-model="openPanel">
+        <Accordion class="w-full" :value="panelOpen">
+            <template #collapseicon>
+                <FontAwesomeIcon :icon="faCaretDown" class="text-white"></FontAwesomeIcon>
+            </template>
+            <template #expandicon>
+                <FontAwesomeIcon :icon="faCaretLeft" class="text-black"></FontAwesomeIcon>
+            </template>
             <ParentFieldSideEditor 
                 :blueprint="field" 
                 :uploadImageRoute="uploadImageRoute" 
-                v-model="modelValue"
+                 v-model="modelValue"
                 :key="field.key"
                 :index="index" 
             />

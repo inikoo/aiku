@@ -10,7 +10,7 @@
 namespace App\Actions\UI\Retina\Asset\UI;
 
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
+use App\Actions\UI\Retina\Storage\UI\RetinaShowRetinaStorageDashboard;
 use App\Http\Resources\Helpers\CurrencyResource;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -69,15 +69,15 @@ class IndexRetinaAssets extends RetinaAction
     public function getBreadcrumbs(string $routeName): array
     {
         return match ($routeName) {
-            'retina.storage.assets.index' =>
+            'retina.fulfilment.storage.assets.index' =>
             array_merge(
-                ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+                RetinaShowRetinaStorageDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'retina.storage.assets.index',
+                                'name'       => 'retina.fulfilment.storage.assets.index',
                             ],
                             'label' => __('assets'),
                             'icon'  => 'fal fa-bars',

@@ -16,6 +16,7 @@ use App\Actions\OrgAction;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -46,7 +47,7 @@ class EditFulfilment extends OrgAction
                     $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
-                    'title'    => $fulfilment->shop->name,
+                    'title' => $fulfilment->shop->name,
                 ],
 
                 'formData' => [
@@ -55,17 +56,17 @@ class EditFulfilment extends OrgAction
                             'label'  => __('Detail'),
                             'icon'   => 'fa-light fa-id-card',
                             'fields' => [
-                                'code' => [
-                                    'type'         => 'input',
-                                    'label'        => __('code'),
-                                    'value'        => $fulfilment->shop->code,
-                                    'required'     => true,
+                                'code'  => [
+                                    'type'     => 'input',
+                                    'label'    => __('code'),
+                                    'value'    => $fulfilment->shop->code,
+                                    'required' => true,
                                 ],
-                                'name' => [
-                                    'type'         => 'input',
-                                    'label'        => __('name'),
-                                    'value'        => $fulfilment->shop->name,
-                                    'required'     => true,
+                                'name'  => [
+                                    'type'     => 'input',
+                                    'label'    => __('name'),
+                                    'value'    => $fulfilment->shop->name,
+                                    'required' => true,
                                 ],
                                 "image" => [
                                     "type"  => "avatar",
@@ -79,49 +80,49 @@ class EditFulfilment extends OrgAction
                             'icon'   => 'fa-light fa-fingerprint',
                             'fields' => [
                                 'country_id'  => [
-                                    'type'          => 'select',
-                                    'label'         => __('country'),
-                                    'placeholder'   => __('Select your country'),
-                                    'value'         => $fulfilment->shop->country_id,
-                                    'options'       => GetCountriesOptions::run(),
-                                    'searchable'    => true
+                                    'type'        => 'select',
+                                    'label'       => __('country'),
+                                    'placeholder' => __('Select your country'),
+                                    'value'       => $fulfilment->shop->country_id,
+                                    'options'     => GetCountriesOptions::run(),
+                                    'searchable'  => true
                                 ],
                                 'currency_id' => [
-                                    'type'          => 'select',
-                                    'label'         => __('currency'),
-                                    'placeholder'   => __('Select your currency'),
-                                    'required'      => true,
-                                    'value'         => $fulfilment->shop->currency_id,
-                                    'options'       => GetCurrenciesOptions::run(),
-                                    'searchable'    => true
+                                    'type'        => 'select',
+                                    'label'       => __('currency'),
+                                    'placeholder' => __('Select your currency'),
+                                    'required'    => true,
+                                    'value'       => $fulfilment->shop->currency_id,
+                                    'options'     => GetCurrenciesOptions::run(),
+                                    'searchable'  => true
                                 ],
                                 'language_id' => [
-                                    'type'          => 'select',
-                                    'label'         => __('language'),
-                                    'placeholder'   => __('Select your language'),
-                                    'required'      => true,
-                                    'value'         => $fulfilment->shop->language_id,
-                                    'options'       => GetLanguagesOptions::make()->all(),
-                                    'searchable'    => true
+                                    'type'        => 'select',
+                                    'label'       => __('language'),
+                                    'placeholder' => __('Select your language'),
+                                    'required'    => true,
+                                    'value'       => $fulfilment->shop->language_id,
+                                    'options'     => GetLanguagesOptions::make()->all(),
+                                    'searchable'  => true
                                 ]
                             ],
 
                         ],
-                                                [
+                        [
                             'label'  => __('contact/details'),
                             'icon'   => 'fa-light fa-user',
                             'fields' => [
-                                'contact_name' => [
+                                'contact_name'        => [
                                     'type'  => 'input',
                                     'label' => __('contact name'),
                                     'value' => $fulfilment->shop->contact_name,
                                 ],
-                                'company_name' => [
+                                'company_name'        => [
                                     'type'  => 'input',
                                     'label' => __('company name'),
                                     'value' => $fulfilment->shop->company_name,
                                 ],
-                                'email'        => [
+                                'email'               => [
                                     'type'    => 'input',
                                     'label'   => __('email'),
                                     'value'   => $fulfilment->shop->email,
@@ -129,12 +130,12 @@ class EditFulfilment extends OrgAction
                                         'inputType' => 'email'
                                     ]
                                 ],
-                                'phone'        => [
+                                'phone'               => [
                                     'type'  => 'phone',
                                     'label' => __('telephone'),
                                     'value' => $fulfilment->shop->phone,
                                 ],
-                                'address' => [
+                                'address'             => [
                                     'type'    => 'address',
                                     'label'   => __('Address'),
                                     'value'   => AddressFormFieldsResource::make($fulfilment->shop->address)->getArray(),
@@ -142,12 +143,12 @@ class EditFulfilment extends OrgAction
                                         'countriesAddressData' => GetAddressData::run()
                                     ]
                                 ],
-                                'registration_number'        => [
+                                'registration_number' => [
                                     'type'  => 'input',
                                     'label' => __('registration number'),
                                     'value' => $fulfilment->shop->data['registration_number'] ?? '',
                                 ],
-                                'vat_number'        => [
+                                'vat_number'          => [
                                     'type'  => 'input',
                                     'label' => __('VAT number'),
                                     'value' => $fulfilment->shop->data['vat_number'] ?? '',
@@ -156,20 +157,45 @@ class EditFulfilment extends OrgAction
                         ],
                         [
                             'title'  => __('recurring bill settings'),
+                            'icon'   => 'fa-light fa-flag-checkered',
                             'label'  => __('cut off day'),
                             'fields' => [
-                                'monthly_cut_off' => [
-                                    'type'      => 'date_radio',
-                                    'label'     => __('monthly cut off day'),
-                                    'options'   => [
-                                        1, 2, 3, 4, 5, 6, 7, 8 ,9, 10,
-                                        11, 12, 13, 14, 15, 16, 17, 18 ,19, 20,
-                                        21, 22, 23, 24, 25, 26, 27, 28 ,29, 30,
-                                        31
+                                'monthly_cut_off'    => [
+                                    'type'    => 'date_radio',
+                                    'label'   => __('monthly cut off day'),
+                                    'options' => [
+                                        1,
+                                        2,
+                                        3,
+                                        4,
+                                        5,
+                                        6,
+                                        7,
+                                        8,
+                                        9,
+                                        10,
+                                        11,
+                                        12,
+                                        13,
+                                        14,
+                                        15,
+                                        16,
+                                        17,
+                                        18,
+                                        19,
+                                        20,
+                                        21,
+                                        22,
+                                        23,
+                                        24,
+                                        25,
+                                        26,
+                                        27,
+                                        28
                                     ],
-                                    'value' => [
-                                        'date'          => $fulfilment->settings['rental_agreement_cut_off']['monthly']['day'],
-                                        'isWeekdays'    => $fulfilment->settings['rental_agreement_cut_off']['monthly']['workdays'],
+                                    'value'   => [
+                                        'date'       => Arr::get($fulfilment->settings, 'rental_agreement_cut_off.monthly.day'),
+                                        'isWeekdays' => Arr::get($fulfilment->settings, 'rental_agreement_cut_off.monthly.is_weekdays'),
                                     ]
                                 ],
                                 'weekly_cut_off_day' => [
@@ -207,7 +233,6 @@ class EditFulfilment extends OrgAction
 
                                     ],
                                     'valueProp' => 'value',
-                                    'required'  => true,
                                     'label'     => __('weekly cut off day'),
                                     'value'     => $fulfilment->settings['rental_agreement_cut_off']['weekly']['day']
                                 ]
@@ -232,21 +257,21 @@ class EditFulfilment extends OrgAction
     {
         return match ($routeName) {
             'grp.org.fulfilments.show.settings.edit' =>
-               array_merge(
-                   ShowFulfilment::make()->getBreadcrumbs($routeParameters),
-                   [
-                        [
-                            'type'   => 'simple',
-                            'simple' => [
-                                'route' => [
-                                    'name'       => 'grp.org.fulfilments.show.settings.edit',
-                                    'parameters' => $routeParameters
-                                ],
-                                'label' => __('Settings')
-                            ]
+            array_merge(
+                ShowFulfilment::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.fulfilments.show.settings.edit',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('Settings')
                         ]
                     ]
-               ),
+                ]
+            ),
             default => []
         };
     }

@@ -135,7 +135,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Fulfilment\RentalAgreement|null $rentalAgreement
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RentalAgreementClause> $rentalAgreementClauses
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SerialReference> $serialReferences
- * @property-read \App\Models\Fulfilment\StoredItemAudit|null $storedItemAudit
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItemAudit> $storedItemAudits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\FulfilmentTransaction> $transactions
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
@@ -238,9 +238,10 @@ class FulfilmentCustomer extends Model
         return $this->belongsTo(RecurringBill::class, 'current_recurring_bill_id');
     }
 
-    public function storedItemAudit(): HasOne
+    public function storedItemAudits(): HasMany
     {
-        return $this->hasOne(StoredItemAudit::class);
+        return $this->hasMany(StoredItemAudit::class);
     }
+
 
 }

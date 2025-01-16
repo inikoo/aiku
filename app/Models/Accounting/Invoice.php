@@ -8,6 +8,7 @@
 
 namespace App\Models\Accounting;
 
+use App\Enums\Accounting\Invoice\InvoicePayStatusEnum;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
@@ -125,6 +126,7 @@ class Invoice extends Model implements Auditable
 
     protected $casts = [
         'type'             => InvoiceTypeEnum::class,
+        'pay_status'       => InvoicePayStatusEnum::class,
         'data'             => 'array',
         'payment_data'     => 'array',
         'paid_at'          => 'datetime',

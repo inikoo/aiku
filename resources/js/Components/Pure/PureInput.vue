@@ -32,6 +32,7 @@ const props = withDefaults(defineProps<{
     isLoading?: boolean
     align?: string  // 'right' 
     isError?: boolean
+    defaultValue?:string
     prefix?: {
         label?: string
         icon?: string
@@ -74,6 +75,9 @@ const _inputRef = ref<HTMLInputElement | null>(null)
 onMounted(() => {
     if(props.autofocus) {
         _inputRef.value?.focus()
+    }
+    if(props.defaultValue && !props.modelValue){
+        emits('update:modelValue', props.defaultValue)
     }
 })
 

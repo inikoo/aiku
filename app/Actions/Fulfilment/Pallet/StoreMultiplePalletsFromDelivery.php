@@ -115,7 +115,7 @@ class StoreMultiplePalletsFromDelivery extends OrgAction
         $routeName = request()->route()->getName();
 
         return match ($routeName) {
-            'retina.models.pallet-delivery.multiple-pallets.store' => Redirect::route('retina.storage.pallet-deliveries.show', [
+            'retina.models.pallet-delivery.multiple-pallets.store' => Redirect::route('retina.fulfilment.storage.pallet-deliveries.show', [
                 'palletDelivery' => $this->parent->slug
             ]),
             default => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show', [

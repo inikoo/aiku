@@ -41,26 +41,6 @@ export default {
 			],
 		},
 		{
-			name: "Greeting",
-            key : ["greeting"],
-			icon: {
-				icon: "fal fa-text",
-				tooltip: "Text",
-			},
-			replaceForm: [
-				{
-					key: ["visible"],
-					label :'Visibility',
-					type: "VisibleLoggedIn",
-				},
-				{
-					key: ["text"],
-					label :'Text',
-					type: "editorhtml",
-				},
-			],
-		},
-		{
 			name: "Login",
             key:['login'],
 			icon: {
@@ -73,11 +53,19 @@ export default {
 					label :'Visibility',
 					type: "VisibleLoggedIn",
 				},
-				// {
-				// 	key: [],
-				// 	label :'Button',
-				// 	type: "button",
-				// },
+				{
+					key: ["link"],
+					label :'Link',
+					type: "link",
+					props_data : {
+						defaultValue : {
+							type : "external",
+							url: "/app",
+							id: null,
+							workshop_route : ""
+						}
+					}
+				},
 				{
 					key: ["container",'properties','background'],
 					label :'Background',
@@ -87,6 +75,11 @@ export default {
 					key: ["container",'properties','text'],
 					label :'Text',
 					type: "textProperty",
+				},
+				{
+					key: ['text'],
+					label :'Button Text',
+					type: "text",
 				},
 				{
 					key: ["container",'properties','border'],

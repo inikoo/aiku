@@ -36,15 +36,16 @@ const props = defineProps<{
     pageHead: TSPageHeading
     title: string
     data: {
-        footer: Object
+        data: Object
     }
     autosaveRoute: routeType
     webBlockTypes: Object
+    uploadImageRoute: routeType
 }>()
-
+console.log(props)
 const previewMode = ref(false)
 const isModalOpen = ref(false)
-const usedTemplates = ref(isArray(props.data.footer) ? null : props.data.footer)
+const usedTemplates = ref(isArray(props.data.data) ? null : props.data.data)
 const isLoading = ref(false)
 const comment = ref('')
 const iframeClass = ref('w-full h-full')
@@ -145,6 +146,7 @@ const sendToIframe = (data: any) => {
     _iframe.value?.contentWindow.postMessage(data, '*')
 }
 
+const panelOpen = ref()
 const handleIframeMessage = (event: MessageEvent) => {
     if (event.origin !== window.location.origin) return;
     const { data } = event;
@@ -152,11 +154,13 @@ const handleIframeMessage = (event: MessageEvent) => {
     if (data.key === 'autosave') {
         if (saveCancelToken.value) saveCancelToken.value()
         usedTemplates.value = data.value
+    } if (data.key === 'panelOpen') {
+        panelOpen.value = data.value
     }
 };
 
 const openFullScreenPreview = () => {
-    window.open(iframeSrc+ '?isInWorkshop=true', '_blank')
+    window.open(iframeSrc + '?isInWorkshop=true', '_blank')
 }
 
 onMounted(() => {
@@ -177,7 +181,12 @@ onMounted(() => {
     <div class="h-[84vh] grid grid-flow-row-dense grid-cols-4">
         <div v-if="usedTemplates" class="col-span-1 bg-[#F9F9F9] flex flex-col h-full border-r border-gray-300">
             <div class="h-full">
-                <SideEditor v-model="usedTemplates.data.fieldValue" :blueprint="getBlueprint(usedTemplates.code)" />
+                <SideEditor 
+                    v-model="usedTemplates.data.fieldValue" 
+                    :blueprint="getBlueprint(usedTemplates.code)" 
+                    :panel-open="panelOpen" 
+                    :uploadImageRoute="uploadImageRoute"
+                />
             </div>
         </div>
 
