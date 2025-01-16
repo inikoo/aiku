@@ -13,7 +13,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrat
 use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\Search\PalletReturnRecordSearch;
 use App\Actions\Fulfilment\WithDeliverableStoreProcessing;
-use App\Actions\Fulfilment\WithTaxCategoryTraits;
+use App\Actions\Helpers\TaxCategory\GetTaxCategory;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletReturns;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletReturns;
@@ -36,7 +36,6 @@ class StorePalletReturn extends OrgAction
 {
     use WithDeliverableStoreProcessing;
     use WithModelAddressActions;
-    use WithTaxCategoryTraits;
 
     public Customer $customer;
 
@@ -47,7 +46,18 @@ class StorePalletReturn extends OrgAction
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletReturn
     {
         if (!Arr::exists($modelData, 'tax_category_id')) {
-            $this->processTaxCategory($modelData, $fulfilmentCustomer, $this->organisation);
+
+            data_set(
+                $modelData,
+                'tax_category_id',
+                GetTaxCategory::run(
+                    country: $this->organisation->country,
+                    taxNumber: $fulfilmentCustomer->customer->taxNumber,
+                    billingAddress: $fulfilmentCustomer->customer->address,
+                    deliveryAddress: $fulfilmentCustomer->customer->address,
+                )->id
+            );
+
         }
 
         data_set($modelData, 'currency_id', $fulfilmentCustomer->fulfilment->shop->currency_id, overwrite: false);
