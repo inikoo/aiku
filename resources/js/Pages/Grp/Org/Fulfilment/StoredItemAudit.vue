@@ -22,9 +22,9 @@ import Tag from "@/Components/Tag.vue"
 import { Pallet, PalletDelivery } from '@/types/Pallet'
 import { routeType } from "@/types/route"
 
-import { faStickyNote, faPlus, faMinus, faCheckCircle as falCheckCircle, faUndo, faArrowToLeft } from '@fal'
+import { faStickyNote, faCheckCircle as falCheckCircle, faUndo, faArrowToLeft, faTrashAlt } from '@fal'
 import { faCheckCircle } from '@fad'
-import { faStar } from '@fas'
+import { faPlus, faMinus, faStar } from '@fas'
 import Table from '@/Components/Table/Table.vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -39,7 +39,7 @@ import { notify } from '@kyvg/vue3-notification'
 import CreateStoredItems from '@/Components/CreateStoredItems.vue'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 // import QuantityInput from '@/Components/Utils/QuantityInput.vue'
-library.add(faStickyNote, faPlus, faMinus, falCheckCircle, faUndo, faArrowToLeft, faCheckCircle, faStar)
+library.add(faStickyNote, faPlus, faMinus, falCheckCircle, faUndo, faArrowToLeft, faTrashAlt, faCheckCircle, faStar)
 
 const props = defineProps<{
     data: {
@@ -221,7 +221,7 @@ const statesBoxEdit = reactive<StoredItemsQuantity>({
     <BoxAuditStoredItems :auditData="data.data" :boxStats="fulfilment_customer" />
     <!-- <TableStoredItemsAudits :data="edit_stored_item_deltas" tab="edit_stored_item_deltas" :storedItemsRoute="storedItemsRoute" /> -->
 
-    <Table :resource="edit_stored_item_deltas" name="edit_stored_item_deltas" class="mt-5">
+    <Table v-if="edit_stored_item_deltas" :resource="edit_stored_item_deltas" name="edit_stored_item_deltas" class="mt-5">
         <!-- Column: Reference -->
         <template #cell(reference)="{ item: pallet }">
             <component :is="pallet.slug ? Link : 'div'" :href="pallet.slug ? palletRoute(pallet) : undefined"
@@ -276,7 +276,9 @@ const statesBoxEdit = reactive<StoredItemsQuantity>({
             <DataTable v-if="proxyItem.stored_items?.length || proxyItem.new_stored_items?.length" :value="[...proxyItem.stored_items, ...proxyItem.new_stored_items]">
                 <Column field="reference" :header="trans('SKU')" class="">
                     <template #body="{ data }">
-                        <div class="whitespace-nowrap">{{ data.reference }} <FontAwesomeIcon v-if="data.type === 'new_item'" v-tooltip="trans('New added Customer\'s SKU')" icon='fas fa-star' size="xs" class='text-indigo-500' fixed-width aria-hidden='true' /></div>
+                        <div class="whitespace-nowrap">{{ data.reference }}
+                            <!-- <FontAwesomeIcon v-if="data.type === 'new_item'" v-tooltip="trans('New added Customer\'s SKU')" icon='fas fa-star' size="xs" class='text-indigo-500' fixed-width aria-hidden='true' /> -->
+                        </div>
                     </template>
                 </Column>
 
@@ -308,19 +310,18 @@ const statesBoxEdit = reactive<StoredItemsQuantity>({
 
                                     <!-- Section: - and + -->
                                     <div
-                                        class="transition-all relative inline-flex items-center justify-center hover:bg-gray-200 text-gray-400 hover:text-gray-600 "
+                                        class="transition-all relative inline-flex items-center justify-center "
                                         :class="get(statesBoxEdit, `${item.rowIndex}.${data.id}`, false) ? 'w-28' : 'w-14'"
                                     >
                                         <transition >
                                             <div v-if="get(statesBoxEdit, `${item.rowIndex}.${data.id}`, false)" class="relative flex flex-nowrap items-center justify-center gap-y-1 gap-x-1">
                                                 <div
                                                     @click="() => (set(data, `audited_quantity`, get(data, `audited_quantity`, data.quantity) - 1), debounceChangeQuantity(item.rowIndex, data.storedItemAuditDelta, get(data, `audited_quantity`, data.quantity)))"
-                                                    icon="fal fa-minus"
                                                     type="tertiary"
                                                     size="xs"
                                                     class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-1 py-1.5 text-xs justify-self-center"
                                                 >
-                                                    <FontAwesomeIcon icon='fal fa-minus' class='' fixed-width aria-hidden='true' />
+                                                    <FontAwesomeIcon icon='fas fa-minus' class='' fixed-width aria-hidden='true' />
                                                 </div>
 
                                                 <div class="text-center tabular-nums">
@@ -345,18 +346,17 @@ const statesBoxEdit = reactive<StoredItemsQuantity>({
                                                 
                                                 <div
                                                     @click="() => (set(data, `audited_quantity`, get(data, `audited_quantity`, data.quantity) + 1), debounceChangeQuantity(item.rowIndex, data.storedItemAuditDelta, get(data, `audited_quantity`, data.quantity)))"
-                                                    icon="fal fa-minus"
                                                     type="tertiary"
                                                     size="xs"
                                                     class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-1 py-1.5 text-xs justify-self-center"
                                                 >
-                                                    <FontAwesomeIcon icon='fal fa-plus' class='' fixed-width aria-hidden='true' />
+                                                    <FontAwesomeIcon icon='fas fa-plus' class='' fixed-width aria-hidden='true' />
                                                 </div>
                                             </div>
 
                                             <div v-else
                                                 @click="set(statesBoxEdit, `${item.rowIndex}.${data.id}`, true)"
-                                                class="w-fit flex justify-center items-center h-full cursor-pointer px-2 gap-x-1"
+                                                class="hover:bg-gray-200 text-gray-400 hover:text-gray-600 w-fit flex justify-center items-center h-full cursor-pointer px-2 gap-x-1"
                                             >
                                                 <span class="text-gray-600">{{ data.audited_quantity }}</span>
                                                 <FontAwesomeIcon v-tooltip="trans('Edit')" icon='fal fa-pencil' class='' fixed-width aria-hidden='true' />
@@ -366,10 +366,12 @@ const statesBoxEdit = reactive<StoredItemsQuantity>({
 
                                     <!-- Button: Reset -->
                                     <Button
-                                        @click="() => onUnselectNewStoredItem(item.rowIndex, data.storedItemAuditDelta)"
+                                        @click="() => data.type === 'new_item' ? onUnselectNewStoredItem(item.rowIndex, data.storedItemAuditDelta) : null"
                                         type="tertiary"
-                                        icon="fal fa-undo"
+                                        :icon="data.type === 'new_item' ? 'fal fa-trash-alt' : 'fal fa-undo'"
                                         class="border-none rounded-none"
+                                        :loading="!!get(isLoadingUnselect, [item.rowIndex, data.storedItemAuditDelta], false)"
+                                        :class="data.type === 'new_item' ? 'text-red-500' : ''"
                                     />
                                 </div>
 
