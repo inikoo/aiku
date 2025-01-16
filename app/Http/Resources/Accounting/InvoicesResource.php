@@ -48,6 +48,7 @@ class InvoicesResource extends JsonResource
                 'label'      => $this->type->labels()[$this->type->value],
                 'icon'       => $this->type->typeIcon()[$this->type->value],
             ],
+            'pay_status' => $this->pay_status->typeIcon()[$this->pay_status->value],
             'tax_liability_at' => $this->tax_liability_at,
             'paid_at'          => $this->paid_at,
             'created_at'       => $this->created_at,
