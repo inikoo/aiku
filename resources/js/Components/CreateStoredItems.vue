@@ -177,7 +177,7 @@ const onSaved = async () => {
 					<template #nooptions="{ search }: { search: string }">
 						<div class="px-2 py-3" @click="() => createStoredItems({ id: search, reference: search }, [])">
 							<font-awesome-icon v-if="search !== '' || search" :icon="['fas', 'plus']" class="mr-3" />
-							{{ search !== "" || search ? `${trans(`Create stored Items`)} : ${search}` : trans("No Result")
+							{{ search !== "" || search ? `${trans(`Create Customer's SKU`)} : ${search}` : trans("No Result")
 							}}
 						</div>
 					</template>
@@ -188,7 +188,7 @@ const onSaved = async () => {
 							<!-- {{ [...options.options.map(options => options.reference)] }} === -->
 							<div v-if="!options?.some(option => option.reference === search)" class="bg-indigo-100 hover:bg-indigo-200 px-2 py-3" @click="() => createStoredItems({ id: search, reference: search }, [])">
 								<font-awesome-icon :icon="['fas', 'plus']" class="mr-3" />
-								{{ `${trans(`Create stored Items`)}: ` }} <Tag :label="search" no-hover-color /> <br>
+								{{ `${trans(`Create Customer's SKU`)}: ` }} <Tag :label="search" no-hover-color /> <br>
 							</div>
 						</div>
 					</template>
@@ -200,7 +200,7 @@ const onSaved = async () => {
 					<template #noresults="{ search }: { search: string }">
 						<div class="px-2 py-3" @click="() => createStoredItems({ id: search, reference: search }, [])">
 							<font-awesome-icon :icon="['fas', 'plus']" class="mr-3" />
-							{{ `${trans(`Create stored Items`)} : ${search}` }}
+							{{ `${trans(`Create Customer's SKU`)} : ${search}` }}
 						</div>
 					</template>
 					<template v-if="!disabledSelect.edit" #caret="{ handleCaretClick, isOpen }">
