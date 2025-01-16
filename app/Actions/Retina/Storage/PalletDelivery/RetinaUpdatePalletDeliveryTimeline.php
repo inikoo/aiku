@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 16-01-2025-13h-42m
@@ -8,7 +9,6 @@
 
 namespace App\Actions\Retina\Storage\PalletDelivery;
 
-use App\Actions\OrgAction;
 use App\Actions\RetinaAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 16-01-2025-13h-34m
@@ -8,8 +9,6 @@
 
 namespace App\Actions\Retina\Storage\Pallet;
 
-use App\Actions\InertiaAction;
-use App\Actions\OrgAction;
 use App\Actions\RetinaAction;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Models\CRM\WebUser;

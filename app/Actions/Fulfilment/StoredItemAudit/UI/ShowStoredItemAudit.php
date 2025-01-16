@@ -11,12 +11,14 @@ namespace App\Actions\Fulfilment\StoredItemAudit\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\StoredItemAudit\EditStoredItemDeltasInAudit;
+use App\Actions\Fulfilment\StoredItemAuditDelta\UI\IndexStoredItemAuditDeltas;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Http\Resources\Fulfilment\EditStoredItemDeltasResource;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
+use App\Http\Resources\Fulfilment\StoredItemAuditDeltasResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -62,8 +64,8 @@ class ShowStoredItemAudit extends OrgAction
         });
 
         $actions = [];
-        $editDeltas=null;
-        $deltas=null;
+        $editDeltas = null;
+        $deltas = null;
         if ($storedItemAudit->state === StoredItemAuditStateEnum::IN_PROCESS) {
             $actions = [
                 [
@@ -80,16 +82,16 @@ class ShowStoredItemAudit extends OrgAction
                     ]
                 ]
             ];
-            $editDeltas=EditStoredItemDeltasResource::collection(EditStoredItemDeltasInAudit::run($storedItemAudit, 'edit_stored_item_deltas'));
-        }else{
+            $editDeltas = EditStoredItemDeltasResource::collection(EditStoredItemDeltasInAudit::run($storedItemAudit, 'edit_stored_item_deltas'));
+        } else {
             // todo
-            $deltas=StoredItemAuditDeltasResource::collection(IndexStoredItemAuditDeltas::run($storedItemAudit, 'stored_item_deltas'));
+            $deltas = StoredItemAuditDeltasResource::collection(IndexStoredItemAuditDeltas::run($storedItemAudit, 'stored_item_deltas'));
         }
 
 
 
 
-        $render= Inertia::render(
+        $render = Inertia::render(
             'Org/Fulfilment/StoredItemAudit',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
@@ -180,19 +182,17 @@ class ShowStoredItemAudit extends OrgAction
         );
 
 
-        if($storedItemAudit->state === StoredItemAuditStateEnum::IN_PROCESS) {
+        if ($storedItemAudit->state === StoredItemAuditStateEnum::IN_PROCESS) {
             $render->table(
                 EditStoredItemDeltasInAudit::make()->tableStructure(
                     $storedItemAudit->fulfilmentCustomer,
                     prefix: 'edit_stored_item_deltas'
                 )
             );
-        }else{
+        } else {
             $render->table(
                 IndexStoredItemAuditDeltas::make()->tableStructure(
-                    $storedItemAudit->fulfilmentCustomer,
-                    prefix: 'edit_stored_item_deltas',
-                    disabled: true
+                    prefix: 'stored_item_deltas',
                 )
             );
         }
