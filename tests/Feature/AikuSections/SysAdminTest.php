@@ -18,7 +18,6 @@ use App\Actions\Helpers\Currency\UI\GetCurrenciesOptions;
 use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
 use App\Actions\Helpers\Media\HydrateMedia;
 use App\Actions\Helpers\TimeZone\UI\GetTimeZonesOptions;
-use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\SysAdmin\Admin\StoreAdmin;
 use App\Actions\SysAdmin\Group\HydrateGroup;
 use App\Actions\SysAdmin\Group\StoreGroup;
@@ -30,7 +29,6 @@ use App\Actions\SysAdmin\Organisation\HydrateOrganisations;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Actions\SysAdmin\Organisation\UpdateOrganisation;
 use App\Actions\SysAdmin\User\Search\ReindexUserSearch;
-use App\Actions\SysAdmin\User\UpdateUsersPseudoJobPositions;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\SysAdmin\User\UpdateUserStatus;
 use App\Actions\SysAdmin\User\UserAddRoles;
@@ -43,8 +41,6 @@ use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\Media;
-use App\Models\HumanResources\Employee;
-use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Admin;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
@@ -348,13 +344,13 @@ test('update guest credentials', function ($guest) {
     app()->instance('group', $guest->group);
     setPermissionsTeamId($guest->group->id);
 
-    $guest = UpdateGuest::make()->action($guest, ['username' => 'testuser']);
-    expect($guest->getUser()->username)->toBe('testuser')
+    $guest = UpdateGuest::make()->action($guest, ['username' => 'test_user']);
+    expect($guest->getUser()->username)->toBe('test_user')
     ->and(Hash::check('hello1234', $guest->getUser()->password))->toBeTrue();
 
-    $guest = UpdateGuest::make()->action($guest, ['password' => 'testoooo']);
-    expect($guest->getUser()->username)->toBe('testuser')
-    ->and(Hash::check('testoooo', $guest->getUser()->password))->toBeTrue();
+    $guest = UpdateGuest::make()->action($guest, ['password' => 'test_user_two']);
+    expect($guest->getUser()->username)->toBe('test_user')
+    ->and(Hash::check('test_user_two', $guest->getUser()->password))->toBeTrue();
 
     return $guest;
 })->depends('update guest');
@@ -364,8 +360,8 @@ test('update guest status', function ($guest) {
     setPermissionsTeamId($guest->group->id);
 
     $guest = UpdateGuest::make()->action($guest, ['status' => true]);
-    expect($guest->getUser()->username)->toBe('testuser')
-    ->and(Hash::check('testoooo', $guest->getUser()->password))->toBeTrue()
+    expect($guest->getUser()->username)->toBe('test_user')
+    ->and(Hash::check('test_user_two', $guest->getUser()->password))->toBeTrue()
     ->and($guest->status)->toBeTrue();
 
     return $guest;
@@ -407,7 +403,7 @@ test('update user password', function (Guest $guest) {
 })->depends('update guest');
 
 test('update user username', function (User $user) {
-    expect($user->username)->toBe('testuser');
+    expect($user->username)->toBe('test_user');
     $user = UpdateUser::make()->action($user, [
         'username' => 'new-username'
     ]);
