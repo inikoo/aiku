@@ -131,7 +131,7 @@ class ShowGroupDashboard extends OrgAction
             data: [
                 'status' => $total['total_sales'] < 0 ? 'danger' : '',
                 'value' => $total['total_sales'],
-                'currency_code' => $organisation->currency->code,
+                'currency_code' => $group->currency->code,
                 'type' => 'currency',
                 'description'   => __('Total sales')
             ],
