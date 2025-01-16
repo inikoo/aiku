@@ -15,12 +15,14 @@ enum InvoicePayStatusEnum: string
 
     case UNPAID = 'unpaid';
     case PAID = 'paid';
+    case UNKNOWN = 'unknown'; // If invoice is older than 3 years and has No Payments
 
     public static function labels(): array
     {
         return [
             'unpaid' => __('Unpaid'),
             'paid'   => __('Paid'),
+            'unknown' => __('Unknown'),
         ];
     }
 
@@ -46,7 +48,17 @@ enum InvoicePayStatusEnum: string
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'
                 ]
-            ]
+            ],
+            'unknown' => [
+                'tooltip' => __('Unknown'),
+                'icon'    => 'fal fa-question',
+                'class'   => '',  // Color for normal icon (Aiku)
+                'color'   => 'lime',  // Color for box (Retina)
+                'app'     => [
+                    'name' => 'seedling',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
         ];
     }
 }

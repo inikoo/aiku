@@ -6,22 +6,22 @@
  * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-use App\Actions\Accounting\Invoice\PdfInvoice;
-use App\Actions\Retina\Billing\IndexInvoices;
-use App\Actions\Retina\Billing\ShowInvoice;
-use App\Actions\Retina\Storage\RecurringBill\UI\ShowRetinaCurrentRecurringBill;
-use App\Actions\UI\Retina\Billing\UI\ShowRetinaBillingDashboard;
+use App\Actions\Retina\Accounting\RetinaPdfInvoice;
+use App\Actions\Retina\Billing\RetinaIndexInvoices;
+use App\Actions\Retina\Billing\RetinaShowInvoice;
+use App\Actions\Retina\Storage\RecurringBill\UI\RetinaShowCurrentRecurringBill;
+use App\Actions\UI\Retina\Billing\UI\RetinaShowRetinaBillingDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', 'dashboard');
 
-Route::get('/dashboard', ShowRetinaBillingDashboard::class)->name('dashboard');
+Route::get('/dashboard', RetinaShowRetinaBillingDashboard::class)->name('dashboard');
 
-Route::get('next-bill', ShowRetinaCurrentRecurringBill::class)->name('next_recurring_bill');
+Route::get('next-bill', RetinaShowCurrentRecurringBill::class)->name('next_recurring_bill');
 
 
 Route::prefix('invoices')->as('invoices.')->group(function () {
-    Route::get('/', [IndexInvoices::class, 'inRetina'])->name('index');
-    Route::get('{invoice}', [ShowInvoice::class, 'inRetina'])->name('show');
-    Route::get('/{invoice}/export', [PdfInvoice::class, 'inRetina'])->name('download');
+    Route::get('/', RetinaIndexInvoices::class)->name('index');
+    Route::get('{invoice}', RetinaShowInvoice::class)->name('show');
+    Route::get('/{invoice}/export', RetinaPdfInvoice::class)->name('download');
 });
