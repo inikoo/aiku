@@ -33,20 +33,18 @@ class RetinaAction
     protected array $validatedData;
 
 
-    public function initialisation(ActionRequest|array $request): static
+    public function initialisation(ActionRequest $request): static
     {
         $this->webUser       = $request->user();
         $this->customer      = $this->webUser->customer;
         $this->website       = $request->get('website');
-        if (is_array($request)) {
-            $this->setRawAttributes($request);
-        } else {
-            $this->fillFromRequest($request);
-        }
+        $this->fillFromRequest($request);
+
         $this->validatedData = $this->validateAttributes();
 
         return $this;
     }
+
 
 
 }
