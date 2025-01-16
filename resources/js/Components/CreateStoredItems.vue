@@ -235,7 +235,7 @@ const onSaved = async () => {
 
 
 		<!-- Quantity: Input number -->
-		<div class="mt-2 grid grid-cols-3 gap-x-4">
+		<div class="mt-4 grid grid-cols-3 gap-x-4">
 			<label class="mt-1 block text-sm font-medium text-gray-700">{{ trans("Quantity") }}</label>
 			<!-- 
 			<div class=" mt-1 flex items-center gap-2">
@@ -295,7 +295,7 @@ const onSaved = async () => {
 		</div>
 	</div>
 
-	<div v-if="!messageMode" class="flex gap-3">
+	<div v-if="!messageMode" class="flex gap-3 mt-5">
 		<Button type="tertiary" label="Cancel" @click="onCancel"></Button>
 		<Button full @click="onSaved" type="save" :loading="props.form.processing" :disabled="!(props.form.id || props.form.oldData?.id)"></Button>		
 	</div>
