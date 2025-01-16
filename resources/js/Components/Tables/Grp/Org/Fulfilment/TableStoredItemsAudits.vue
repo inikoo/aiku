@@ -36,7 +36,7 @@ const props = defineProps<{
 
 function storedItemAuditRoute(storedItemAudit: {}) {
     switch (route().current()) {
-        case "grp.org.fulfilments.show.crm.customers.show.stored-item-audits.index":
+        case "grp.org.fulfilments.show.crm.customers.show.stored-items.index":
             return route(
                 "grp.org.fulfilments.show.crm.customers.show.stored-item-audits.show",
                 [route().params["organisation"], route().params["fulfilment"], route().params["fulfilmentCustomer"], storedItemAudit.slug])
@@ -55,6 +55,7 @@ function storedItemAuditRoute(storedItemAudit: {}) {
 <template>
     <!-- <pre>{{ props.data.data[0] }}</pre> -->
     <Table :resource="data" :name="tab" class="mt-5">
+        {{ data }}
         <template #cell(state)="{ item: storedItemAudit }">
             <Icon :data="storedItemAudit['state_icon']" class="px-1" />
         </template>

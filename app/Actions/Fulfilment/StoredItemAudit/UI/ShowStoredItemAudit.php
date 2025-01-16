@@ -95,6 +95,7 @@ class ShowStoredItemAudit extends OrgAction
             'Org/Fulfilment/StoredItemAudit',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $storedItemAudit,
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
@@ -220,46 +221,49 @@ class ShowStoredItemAudit extends OrgAction
         return $this->handle($storedItemAudit);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(StoredItemAudit $storedItemAudit, string $routeName, array $routeParameters, $suffix = ''): array
     {
-        $headCrumb = function (array $routeParameters) {
+        $headCrumb = function ( array $routeParameters, string $suffix) use ($storedItemAudit) {
             return [
                 [
-                    'type'   => 'simple',
-                    'simple' => [
-                        'route' => $routeParameters,
-                        'label' => __("Customer's skus audits"),
-                        'icon'  => 'fal fa-bars',
-                    ],
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => $routeParameters['index'],
+                            'label' => __('Customer skus audits')
+                        ],
+                        'model' => [
+                            'route' => $routeParameters['model'],
+                            'label' => $storedItemAudit->slug,
+                        ],
 
-                ]
+                    ],
+                    'suffix'         => $suffix
+                ],
             ];
         };
 
 
+
         return match ($routeName) {
-            'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.index' =>
+            'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.show' =>
             array_merge(
                 ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
-                        'name'       => $routeName,
-                        'parameters' => $routeParameters
-                    ]
-                )
-            ),
-            default => array_merge(
-                ShowFulfilment::make()->getBreadcrumbs($routeParameters),
-                $headCrumb(
-                    [
-                        'name'       => 'grp.org.fulfilments.show.operations.pallets.current.index',
-                        'parameters' => [
-                            'organisation' => $routeParameters['organisation'],
-                            'fulfilment'   => $routeParameters['fulfilment'],
+                        'index' => [
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
+                            'parameters' => $routeParameters
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.show',
+                            'parameters' => $routeParameters
                         ]
                     ],
+                    $suffix
                 )
             ),
+            default => []
         };
     }
 }

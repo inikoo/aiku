@@ -17,6 +17,7 @@ import { computed, ref } from 'vue'
 import { useTabChange } from '@/Composables/tab-change'
 import Tabs from '@/Components/Navigation/Tabs.vue'
 import Table from '@/Components/Table/Table.vue'
+import TableStoredItemsAudits from '@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemsAudits.vue'
 library.add(faNarwhal)
 
 const props = defineProps<{
@@ -29,6 +30,7 @@ const props = defineProps<{
     }
     stored_items : {}
     pallet_stored_items : {}
+    stored_item_audits : {}
 }>()
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
@@ -39,7 +41,8 @@ const component = computed(() => {
 
     const components = {
         stored_items:TableStoredItems,
-        pallet_stored_items: Table
+        pallet_stored_items: Table,
+        stored_item_audits: TableStoredItemsAudits
     };
     return components[currentTab.value];
 
