@@ -290,7 +290,7 @@ const statesBoxEdit = reactive<StoredItemsQuantity>({
                     <template #body="{ data }">
                         
                         <div class="relative">
-                            <div v-if="get(isLoadingQuantity, [item.rowIndex, data.storedItemAuditDelta], false)" class="z-10 opacity-60 absolute w-full h-full top-0 left-0">
+                            <div v-if="get(isLoadingQuantity, [item.rowIndex, data.storedItemAuditDelta], false) || get(isLoadingUnselect, [item.rowIndex, data.storedItemAuditDelta], false)" class="z-10 opacity-60 absolute w-full h-full top-0 left-0">
                                 <div class="skeleton h-full w-full"></div>
                             </div>
                             
@@ -366,10 +366,9 @@ const statesBoxEdit = reactive<StoredItemsQuantity>({
 
                                     <!-- Button: Reset -->
                                     <Button
-                                        @click="() => onChangeQuantity(item.rowIndex, data.storedItemAuditDelta, data.quantity || 0)"
+                                        @click="() => onUnselectNewStoredItem(item.rowIndex, data.storedItemAuditDelta)"
                                         type="tertiary"
                                         icon="fal fa-undo"
-                                        :disabled="data.audited_quantity === data.quantity"
                                         class="border-none rounded-none"
                                     />
                                 </div>
