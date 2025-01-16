@@ -8,59 +8,60 @@
 
 use App\Actions\CRM\Customer\DeleteCustomerDeliveryAddress;
 use App\Actions\CRM\Customer\UpdateCustomerDeliveryAddress;
-use App\Actions\CRM\Customer\UpdateCustomerSettings;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\CRM\WebUser\UpdateWebUser;
 use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
 use App\Actions\Dropshipping\Shopify\Product\HandleApiDeleteProductFromShopify;
 use App\Actions\Dropshipping\Shopify\Product\StoreProductShopify;
 use App\Actions\Fulfilment\FulfilmentCustomer\AddDeliveryAddressToFulfilmentCustomer;
-use App\Actions\Fulfilment\FulfilmentTransaction\DeleteFulfilmentTransaction;
 use App\Actions\Fulfilment\FulfilmentTransaction\StoreFulfilmentTransaction;
-use App\Actions\Fulfilment\FulfilmentTransaction\UpdateFulfilmentTransaction;
 use App\Actions\Fulfilment\Pallet\DeletePallet;
 use App\Actions\Fulfilment\Pallet\ImportPallet;
 use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
-use App\Actions\Fulfilment\Pallet\AttachPalletsToReturn;
-use App\Actions\Fulfilment\Pallet\ImportPalletReturnItem;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletDelivery\Pdf\PdfPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryTimeline;
-use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\DetachPalletFromReturn;
-use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
-use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
-use App\Actions\Fulfilment\StoredItem\StoreStoredItemsToReturn;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
-use App\Actions\UI\Retina\Profile\UpdateRetinaProfile;
+use App\Actions\Retina\CRM\RetinaUpdateCustomerSettings;
+use App\Actions\Retina\Fulfilment\RetinaDeleteFulfilmentTransaction;
+use App\Actions\Retina\Fulfilment\RetinaUpdateFulfilmentTransaction;
+use App\Actions\Retina\Storage\PalletReturn\RetinaAttachPalletsToReturn;
+use App\Actions\Retina\Storage\PalletReturn\RetinaCancelPalletReturn;
+use App\Actions\Retina\Storage\PalletReturn\RetinaDetachPalletFromReturn;
+use App\Actions\Retina\Storage\PalletReturn\RetinaImportPalletReturnItem;
+use App\Actions\Retina\Storage\PalletReturn\RetinaStoreFulfilmentTransaction;
+use App\Actions\Retina\Storage\PalletReturn\RetinaStorePalletReturn;
+use App\Actions\Retina\Storage\PalletReturn\RetinaStoreStoredItemsToReturn;
+use App\Actions\Retina\Storage\PalletReturn\RetinaSubmitPalletReturn;
+use App\Actions\Retina\Storage\PalletReturn\RetinaUpdatePalletReturn;
+use App\Actions\UI\Retina\Profile\RetinaUpdateProfile;
 use App\Actions\UI\Retina\SysAdmin\UpdateRetinaFulfilmentCustomer;
 use Illuminate\Support\Facades\Route;
 
-Route::patch('/profile', UpdateRetinaProfile::class)->name('profile.update');
-Route::patch('/settings', UpdateCustomerSettings::class)->name('settings.update');
+Route::patch('/profile', RetinaUpdateProfile::class)->name('profile.update');
+Route::patch('/settings', RetinaUpdateCustomerSettings::class)->name('settings.update');
 
 Route::name('fulfilment-transaction.')->prefix('fulfilment_transaction/{fulfilmentTransaction:id}')->group(function () {
-    Route::patch('', [UpdateFulfilmentTransaction::class,'fromRetina'])->name('update');
-    Route::delete('', [DeleteFulfilmentTransaction::class,'fromRetina'])->name('delete');
+    Route::patch('', RetinaUpdateFulfilmentTransaction::class)->name('update');
+    Route::delete('', RetinaDeleteFulfilmentTransaction::class)->name('delete');
 });
 
-Route::post('pallet-return', [StorePalletReturn::class, 'fromRetina'])->name('pallet-return.store');
-Route::post('pallet-return/stored-items', [StorePalletReturn::class, 'fromRetinaWithStoredItems'])->name('pallet-return-stored-items.store');
+Route::post('pallet-return', RetinaStorePalletReturn::class)->name('pallet-return.store');
+Route::post('pallet-return/stored-items', [RetinaStorePalletReturn::class, 'fromRetinaWithStoredItems'])->name('pallet-return-stored-items.store');
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
-    Route::post('stored-item-upload', [ImportPalletReturnItem::class, 'fromRetina'])->name('stored-item.upload');
-    Route::post('stored-item', [StoreStoredItemsToReturn::class, 'fromRetina'])->name('stored_item.store');
-    Route::post('pallet', [AttachPalletsToReturn::class, 'fromRetina'])->name('pallet.store');
-    Route::patch('update', [UpdatePalletReturn::class, 'fromRetina'])->name('update');
-    Route::post('submit', [SubmitPalletReturn::class, 'fromRetina'])->name('submit');
-    Route::post('cancel', [CancelPalletReturn::class, 'fromRetina'])->name('cancel');
-    Route::delete('pallet/{pallet:id}', [DetachPalletFromReturn::class, 'fromRetina'])->name('pallet.delete')->withoutScopedBindings();
-    Route::post('transaction', [StoreFulfilmentTransaction::class,'fromRetinaInPalletReturn'])->name('transaction.store');
+    Route::post('stored-item-upload', RetinaImportPalletReturnItem::class)->name('stored-item.upload');
+    Route::post('stored-item', RetinaStoreStoredItemsToReturn::class)->name('stored_item.store');
+    Route::post('pallet', RetinaAttachPalletsToReturn::class)->name('pallet.store');
+    Route::patch('update', RetinaUpdatePalletReturn::class)->name('update');
+    Route::post('submit', RetinaSubmitPalletReturn::class)->name('submit');
+    Route::post('cancel', RetinaCancelPalletReturn::class)->name('cancel');
+    Route::delete('pallet/{pallet:id}', RetinaDetachPalletFromReturn::class)->name('pallet.delete')->withoutScopedBindings();
+    Route::post('transaction', [RetinaStoreFulfilmentTransaction::class, 'fromRetinaInPalletReturn'])->name('transaction.store');
 });
 
 

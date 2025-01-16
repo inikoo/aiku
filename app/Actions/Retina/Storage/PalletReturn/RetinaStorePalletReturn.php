@@ -6,7 +6,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\PalletReturn;
+namespace App\Actions\Retina\Storage\PalletReturn;
 
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletReturns;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletReturns;
@@ -15,13 +15,15 @@ use App\Actions\Fulfilment\PalletReturn\Search\PalletReturnRecordSearch;
 use App\Actions\Fulfilment\WithDeliverableStoreProcessing;
 use App\Actions\Fulfilment\WithTaxCategoryTraits;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletReturns;
-use App\Actions\OrgAction;
+use App\Actions\RetinaAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletReturns;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletReturns;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\CRM\Customer;
+use App\Models\CRM\WebUser;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Inventory\Warehouse;
@@ -32,7 +34,7 @@ use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
 
-class StorePalletReturn extends OrgAction
+class RetinaStorePalletReturn extends RetinaAction
 {
     use WithDeliverableStoreProcessing;
     use WithModelAddressActions;
@@ -43,6 +45,8 @@ class StorePalletReturn extends OrgAction
     private bool $action = false;
 
     private bool $withStoredItems = false;
+    private Fulfilment $fulfilment;
+    private Organisation $organisation;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletReturn
     {
@@ -89,9 +93,12 @@ class StorePalletReturn extends OrgAction
             return true;
         }
 
+        if ($request->user() instanceof WebUser) {
+            return true;
+        }
+
         return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
-
 
     public function prepareForValidation(ActionRequest $request): void
     {
@@ -108,8 +115,18 @@ class StorePalletReturn extends OrgAction
         }
     }
 
+
     public function rules(): array
     {
+        $rules = [];
+
+        if (!request()->user() instanceof WebUser) {
+            $rules = [
+                'public_notes'   => ['sometimes', 'nullable', 'string', 'max:4000'],
+                'internal_notes' => ['sometimes', 'nullable', 'string', 'max:4000'],
+            ];
+        }
+
         return [
             'type'           => ['sometimes', 'required', Rule::enum(PalletReturnTypeEnum::class)],
             'warehouse_id'   => [
@@ -118,42 +135,32 @@ class StorePalletReturn extends OrgAction
                 Rule::exists('warehouses', 'id')
                     ->where('organisation_id', $this->organisation->id),
             ],
-            'customer_notes' => ['sometimes', 'nullable', 'string']
+            'customer_notes' => ['sometimes', 'nullable', 'string'],
+            ...$rules
         ];
     }
 
+
     public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): PalletReturn
     {
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
+        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
+        $this->organisation   = $organisation;
+
+        $this->initialisation($request);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function withStoredItems(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): PalletReturn
+    public function fromRetinaWithStoredItems(ActionRequest $request): PalletReturn
     {
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
         $this->withStoredItems = true;
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+        $fulfilmentCustomer    = $request->user()->customer->fulfilmentCustomer;
+        $this->fulfilment      = $fulfilmentCustomer->fulfilment;
 
-        return $this->handle($fulfilmentCustomer, $this->validatedData);
-    }
-
-    public function action(FulfilmentCustomer $fulfilmentCustomer, $modelData): PalletReturn
-    {
-        $this->action = true;
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
-        $this->setRawAttributes($modelData);
-
-        return $this->handle($fulfilmentCustomer, $this->validatedData);
-    }
-
-    public function actionWithStoredItems(FulfilmentCustomer $fulfilmentCustomer, $modelData): PalletReturn
-    {
-        $this->action          = true;
-        $this->withStoredItems = true;
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
-        $this->setRawAttributes($modelData);
+        $this->initialisation($request);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
@@ -175,20 +182,8 @@ class StorePalletReturn extends OrgAction
 
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response
     {
-        $routeName = $request->route()->getName();
-
-        return match ($routeName) {
-            'grp.models.fulfilment-customer.pallet-return.store', 'grp.models.fulfilment-customer.pallet-return-stored-items.store' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.show', [
-                'organisation'       => $palletReturn->organisation->slug,
-                'fulfilment'         => $palletReturn->fulfilment->slug,
-                'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
-                'palletReturn'       => $palletReturn->slug
-            ])),
-            default => Inertia::location(route('retina.storage.pallet-returns.show', [
-                'palletReturn' => $palletReturn->slug
-            ]))
-        };
+        return Inertia::location(route('retina.storage.pallet-returns.show', [
+            'palletReturn' => $palletReturn->slug
+        ]));
     }
-
-
 }
