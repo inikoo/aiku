@@ -54,4 +54,3 @@ Route::get('stored-items-audits', IndexRetinaStoredItemsAudits::class)->name('st
 Route::get('stored-items-audits/{storedItemAudit}', ShowRetinaStoredItemAudit::class)->name('stored-items-audits.show');
 
 Route::get('assets', IndexRetinaAssets::class)->name('assets.index');
-

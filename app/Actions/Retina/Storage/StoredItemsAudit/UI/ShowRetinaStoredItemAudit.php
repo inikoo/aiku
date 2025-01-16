@@ -25,10 +25,10 @@ class ShowRetinaStoredItemAudit extends RetinaAction
     public function authorize(ActionRequest $request): bool
     {
 
-        if ($this->customer->fulfilmentCustomer->id != $request->route()->parameter('storedItemAudit')->fulfilment_customer_id) {
-            return false;
+        if ($this->customer->fulfilmentCustomer->id == $request->route()->parameter('storedItemAudit')->fulfilment_customer_id) {
+            return true;
         }
-        return true;
+        return false;
     }
 
 
