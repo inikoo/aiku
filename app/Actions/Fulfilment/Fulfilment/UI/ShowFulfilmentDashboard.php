@@ -61,12 +61,13 @@ class ShowFulfilmentDashboard extends OrgAction
                         'column_count'    => 4,
                         'components' => [
                             $this->getWidget(
-                                type: 'overview',
-                                rowSpan: 2,
+                                colSpan: 2,
                                 data: [
-                                    'value' => 10289, // Example value
-                                    'description' => __('Active Customers'),
-                                    'type' => 'number',
+                                    'value'         => $fulfilment->stats->current_recurring_bills_amount,
+                                    'description'   => __('Amount Bills'),
+                                    'type'          => 'currency',
+                                    'status'        => $fulfilment->stats->current_recurring_bills_amount < 0 ? 'danger' : '',
+                                    'currency_code' => $fulfilment->shop->currency->code,
                                 ]
                             ),
 
@@ -75,6 +76,23 @@ class ShowFulfilmentDashboard extends OrgAction
                                     'value'         => $fulfilment->stats->number_customers_status_inactive,
                                     'description'   => __('Inactive Customers'),
                                     'type'          => 'number',
+                                ]
+                            ),
+                            $this->getWidget(
+                                data: [
+                                    'value'         => $fulfilment->shop->orderingStats->number_unpaid_invoices,
+                                    'description'   => __('Total Unpaid Invoices'),
+                                    'type'          => 'number',
+                                ]
+                            ),
+
+                            $this->getWidget(
+                                data: [
+                                    'value'         => $fulfilment->shop->orderingStats->unpaid_invoices_amount,
+                                    'description'   => __('Amount Unpaid Invoices'),
+                                    'type'          => 'currency',
+                                    'status'        => $fulfilment->shop->orderingStats->unpaid_invoices_amount < 0 ? 'danger' : '',
+                                    'currency_code' => $fulfilment->shop->currency->code,
                                 ]
                             ),
 
@@ -89,8 +107,8 @@ class ShowFulfilmentDashboard extends OrgAction
                                     'type' => 'MeterGroup',
                                     'value' => 382,
                                     'max' => 500,
-                                    'color'=> 'bg-blue-500',
-                                ], 
+                                    'color' => 'bg-blue-500',
+                                ],
                             ),
 
                             $this->getWidget(
@@ -178,24 +196,6 @@ class ShowFulfilmentDashboard extends OrgAction
                                     'value'         => $fulfilment->shop->orderingStats->number_invoices,
                                     'description'   => __('Total Invoices'),
                                     'type'          => 'number',
-                                ]
-                            ),
-
-                            $this->getWidget(
-                                data: [
-                                    'value'         => $fulfilment->shop->orderingStats->number_unpaid_invoices,
-                                    'description'   => __('Total Unpaid Invoices'),
-                                    'type'          => 'number',
-                                ]
-                            ),
-
-                            $this->getWidget(
-                                data: [
-                                    'value'         => $fulfilment->shop->orderingStats->unpaid_invoices_amount,
-                                    'description'   => __('Amount Unpaid Invoices'),
-                                    'type'          => 'currency',
-                                    'status'        => $fulfilment->shop->orderingStats->unpaid_invoices_amount < 0 ? 'danger' : '',
-                                    'currency_code' => $fulfilment->shop->currency->code,
                                 ]
                             ),
                         ]
