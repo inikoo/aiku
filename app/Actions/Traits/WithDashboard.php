@@ -10,6 +10,7 @@
 
 namespace App\Actions\Traits;
 
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\DateIntervals\DateIntervalEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Group;
@@ -136,6 +137,8 @@ trait WithDashboard
                 'code'      => $subModel->code,
                 'type'      => $subModel->type,
                 'currency_code'  => $currencyCode,
+                'state'     => $subModel->state,
+                'route'     => $subModel->type == ShopTypeEnum::FULFILMENT
             ];
 
             if ($subModel->salesIntervals !== null) {
