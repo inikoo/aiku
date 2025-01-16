@@ -17,28 +17,28 @@
                       "data": [
                         {
                           "id": 2,
-                          "name": "<p><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Contact Us</span></p></span>"
+                          "name": "<p><span style='font-size: 14px; color: rgb(255, 255, 255)'>Contact Us</span></p>"
                         },
                         {
                           "id": 16,
-                          "name": "<p><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">FAQ</span></p></span>"
+                          "name": "<p><span style='font-size: 14px; color: rgb(255, 255, 255)'>FAQ</span></p>"
                         }
                       ],
-                      "name": "<span><p style='color: #ffffff; font-size: 16px'><strong>Help</strong></p></span>"
+                       "name": "<p><span style='font-size: 16px'>Help</span></p>"
                     },
                     {
                       "id": 5,
                       "data": [
                         {
                           "id": 6,
-                          "name": "<p><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">About us</span></p></span>"
+                          "name": "<p><span style='font-size: 14px; color: rgb(255, 255, 255)'>About us</span></p>"
                         },
                         {
                           "id": 7,
-                          "name": "<p><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Business Ethics</span></p></span>"
+                          "name": "<p><span style='font-size: 14px; color: rgb(255, 255, 255)'>Business Ethics</span></p>"
                         }
                       ],
-                      "name": "<span><p style='color: #ffffff; font-size: 16px'><strong>Information</strong></p></span>"
+                       "name": "<p><span style='font-size: 16px'>Information</span></p>"
                     }
                   ],
                   "name": "Column 1"
@@ -48,42 +48,28 @@
                   "key": "2",
                   "data": [
                     {
-                      "id": 17,
-                      "data": [
-                        {
-                          "id": 19,
-                          "name": "<p><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">First Order Bonus</span></p></span>"
-                        },
-                        {
-                          "id": 20,
-                          "name": "<p><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Buy Now, Pay Later</span></p></span>"
-                        }
-                      ],
-                      "name": "<span><p style='color: #ffffff; font-size: 16px'><strong>Promo</strong></p></span>"
-                    },
-                    {
                       "id": 24,
                       "data": [
                         {
                           "id": 28,
-                          "name": "<p><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Blog</span></p></span>"
+                          "name": "<p><span style='font-size: 14px; color: rgb(255, 255, 255)'>Contact Us</span></p>"
                         }
                       ],
-                      "name": "<span><p style='color: #ffffff; font-size: 16px'><strong>Articles</strong></p></span>"
+                      "name": "<p><span style='font-size: 16px'>Promo</span></p>"
                     },
                     {
                       "id": 29,
                       "data": [
                         {
                           "id": 30,
-                          "name": "<p><span style=\"color: #ffffff\">Terms &amp; Conditions</span></p></span>"
+                          "name": "<p><span style='font-size: 14px; color: rgb(255, 255, 255)'>Terms &amp; Conditions</span></p>"
                         },
                         {
                           "id": 32,
-                          "name": "<p><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Cookies Policy</span></p></span>"
+                          "name": "<p><span style='font-size: 14px; color: rgb(255, 255, 255)'>Cookies Policy</span></p>"
                         }
                       ],
-                      "name": "<span><p style='color: #ffffff; font-size: 16px'><strong>Legal</strong></p></span>"
+                       "name": "<p><span style='font-size: 16px'>Legal</span></p>"
                     }
                   ],
                   "name": "Column 2"
@@ -97,10 +83,10 @@
                       "data": [
                         {
                           "id": 34,
-                          "name": "<p><span style=\"color: #ffffff\"><span style=\"color: #ffffff\">Dropshipping</span></p></span>"
+                          "name": "<p><span style='font-size: 14px; color: rgb(255, 255, 255)'>Dropshipping</span></p>"
                         }
                       ],
-                      "name": "<span><p style='color: #ffffff; font-size: 16px'><strong>Services</strong></p></span>"
+                      "name": "<p><span style='font-size: 16px'>Services</span></p>"
                     }
                   ],
                   "name": "Column 3"
@@ -133,11 +119,6 @@
             "copyright": "Copyright © 2024 Company, All rights reserved.",
             "socialMedia": [
               {
-                "icon": "fab fa-facebook",
-                "link": "https://www.facebook.com/",
-                "type": "facebook"
-              },
-              {
                 "icon": "fab fa-instagram",
                 "link": "https://www.instagram.com/",
                 "type": "Instagram"
@@ -149,28 +130,7 @@
               }
             ],
             "paymentData": {
-                "data": [
-                  {
-                    "name": "Pastpay",
-                    "image": "/art/payments/pastpay-white.png?v=2",
-                    "value": "Pastpay"
-                  },
-                  {
-                    "name": "Paypal",
-                    "image": "/art/payments/paypal-white.png?v=2",
-                    "value": "Paypal"
-                  },
-                  {
-                    "name": "Visa",
-                    "image": "/art/payments/visa-white.png?v=2",
-                    "value": "Visa"
-                  },
-                  {
-                    "name": "Mastercard",
-                    "image": "/art/payments/mastercard-white.png?v=2",
-                    "value": "Mastercard"
-                  }
-                ]
+                "data": []
               },
             "whatsapp": {
                 "number": "+1 234 56789",
@@ -182,10 +142,7 @@
                 "caption": "Monday-Friday 8am-4pm CET"
             },
             "email": "example@mail.com",
-            "logo": {
-                "source": "/art/wowsbar-white.png",
-                "alt": "Company logo"
-            }
+            "logo": null
         }
     }
 }
