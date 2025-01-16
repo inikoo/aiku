@@ -18,7 +18,7 @@ use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\PalletDelivery;
 use Lorisleiva\Actions\ActionRequest;
 
-class RetinaUpdatePalletDeliveryTimeline extends RetinaAction
+class UpdateRetinaPalletDeliveryTimeline extends RetinaAction
 {
     use WithActionUpdate;
 

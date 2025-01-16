@@ -39,7 +39,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class RetinaIndexUnpaidInvoices extends OrgAction
+class IndexRetinaUnpaidInvoices extends OrgAction
 {
     use WithFulfilmentCustomerSubNavigation;
     use WithCustomerSubNavigation;

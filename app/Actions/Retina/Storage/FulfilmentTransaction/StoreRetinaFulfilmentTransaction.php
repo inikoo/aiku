@@ -6,7 +6,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Retina\Storage\PalletReturn;
+namespace App\Actions\Retina\Storage\FulfilmentTransaction;
 
 use App\Actions\Fulfilment\FulfilmentTransaction\SetClausesInFulfilmentTransaction;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateTransactions;
@@ -22,7 +22,7 @@ use App\Models\SysAdmin\Organisation;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class RetinaStoreFulfilmentTransaction extends RetinaAction
+class StoreRetinaFulfilmentTransaction extends RetinaAction
 {
     use WithActionUpdate;
 

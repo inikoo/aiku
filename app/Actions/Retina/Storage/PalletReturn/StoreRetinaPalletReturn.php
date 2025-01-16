@@ -34,7 +34,7 @@ use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
 
-class RetinaStorePalletReturn extends RetinaAction
+class StoreRetinaPalletReturn extends RetinaAction
 {
     use WithDeliverableStoreProcessing;
     use WithModelAddressActions;

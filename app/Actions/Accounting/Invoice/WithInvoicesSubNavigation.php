@@ -21,10 +21,12 @@ trait WithInvoicesSubNavigation
             $routeName = 'grp.org.accounting.invoices';
             $param = [$parent->slug];
             $numberUnpaid = $parent->orderingStats?->number_unpaid_invoices ?? 0;
+            $numberPaid = $parent->orderingStats?->number_invoices - $numberUnpaid ?? 0;
         } else {
             $routeName = 'grp.org.fulfilments.show.operations.invoices';
             $param = [$parent->organisation->slug, $parent->slug];
             $numberUnpaid = $parent->shop->orderingStats?->number_unpaid_invoices ?? 0;
+            $numberPaid = $parent->shop->orderingStats?->number_invoices - $numberUnpaid ?? 0;
         }
 
         return [
@@ -33,6 +35,14 @@ trait WithInvoicesSubNavigation
                 "label"    => __('All'),
                 "route"     => [
                     "name"       => $routeName . '.all_invoices.index',
+                    "parameters" => $param,
+                ],
+            ],
+            [
+                "number"   => $numberPaid,
+                "label"    => __("Paid"),
+                "route"     => [
+                    "name"       => $routeName . '.paid_invoices.index',
                     "parameters" => $param,
                 ],
             ],

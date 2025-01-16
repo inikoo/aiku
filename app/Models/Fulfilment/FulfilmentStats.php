@@ -111,6 +111,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_recurring_bills_status_former
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $current_recurring_bills_amount
+ * @property string $current_recurring_bills_amount_org_currency
+ * @property string $current_recurring_bills_amount_grp_currency
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FulfilmentStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FulfilmentStats newQuery()

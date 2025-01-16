@@ -13,6 +13,7 @@ import { useFormatTime } from "@/Composables/useFormatTime"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faFileInvoiceDollar, faHandHoldingUsd } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import Icon from '@/Components/Icon.vue'
 library.add(faFileInvoiceDollar, faHandHoldingUsd)
 
 
@@ -80,6 +81,13 @@ function invoiceRoute(invoice: Invoice) {
             <div class="text-center">
             <!-- {{ item.type }} -->
                 <FontAwesomeIcon :icon='item.type?.icon?.icon' v-tooltip="item.type?.icon?.tooltip" :class='item.type?.icon?.class' fixed-width aria-hidden='true' />
+            </div>
+        </template>
+
+        <!-- Column: Status -->
+        <template #cell(pay_status)="{ item }">
+            <div class="text-center">
+                <Icon :data="item.pay_status" />
             </div>
         </template>
 

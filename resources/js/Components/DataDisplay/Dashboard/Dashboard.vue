@@ -2,125 +2,88 @@
 import DashboardSettings from "./DashboardSettings.vue"
 import DashboardTable from "./DashboardTable.vue"
 import DashboardWidget from "./DashboardWidget.vue"
-import { inject, ref, computed } from "vue"
+import { inject, ref, computed, provide } from "vue"
 
 const props = defineProps<{
-	data: {
-		interval_options: {
-			label: string
-			labelShort: string
-			value: string
-		}[]
-		dashboard_stats: {
-			columns?: {
-				widgets?: {
-					data: {
-						currency: {
-							code: string
-							symbol: string
-						}
-						total: {
-							[key: string]: {
-								total_invoices: number
-								total_refunds: number
-								total_sales: string
-							}
-						}
-						organisations: {
-							name: string
-							type: string
-							code: string
-							currency: {
-								code: string
-								symbol: string
-							}
-							invoices: {
-								number_invoices: number
-							}
-							sales: {
-								number_sales: number
-							}
-							refunds: {
-								number_refunds: number
-							}
-
-							// number_invoices_type_refund?: number
-							// number_invoices?: number
-							// number_invoices_type_invoice?: number
-							interval_percentages?: {
-								sales?: {
-									[key: string]: {
-										amount: string
-										percentage: number
-										difference: number
-									}
-								}
-								invoices?: {
-									[key: string]: {
-										amount: string
-										percentage: number
-										difference: number
-									}
-								}
-								refunds?: {
-									[key: string]: {
-										amount: string
-										percentage: number
-										difference: number
-									}
-								}
-							}
-						}[]
-					}[]
-				}[]
-			}[]
-			settings: {}
-		}
+	dashboard: {
+		settings:{}[]
+		interval_options: Array<{ label: string; value: string }>
+		table:{}[]
+		total:{}[]
+		widgets:{}[]
 	}
+	checked?: boolean
+	tableType?: string
 }>()
 
-const currency = ref([
-	{
-		name: "Group",
-		code: "grp",
-		symbol: props.data.dashboard_stats.columns[0].widgets[0].data.currency.symbol,
-	},
-	{ name: "Organisation", code: "org", symbol: null },
-])
+const layout = inject("layout")
+const locale = inject("locale")
+const checked = ref(props.checked || false);
 
-const selectedCurrency = ref(currency.value[0])
-const isOrganisation = ref(selectedCurrency.value.code === "org")
-const toggleCurrency = () => {
-	selectedCurrency.value = isOrganisation.value ? currency.value[1] : currency.value[0]
-}
+const onToggleChecked = (value: boolean) => {
+    checked.value = value; 
+};
 
-const abcdef = computed(() => {
-	return props.data.dashboard_stats.columns[0].widgets[0].data.organisations
-		.filter((org) => org.type !== "agent")
-		.map((org) => {
-			return {
+const isOrganisation = ref(false)
+
+const tableDatas = computed(() => {
+	if (props.tableType == "org") {
+		return props.dashboard.table
+		
+		.map((org) => ({
+			name: org.name,
+			code: org.code,
+			interval_percentages: org.interval_percentages,
+			sales: org.sales || 0,
+			route: org.route,
+			currency: org.currency_code,
+		}))
+	}else{
+		return props.dashboard.table
+			.filter((org) => org.type !== "agent")
+			.map((org) => ({
 				name: org.name,
 				code: org.code,
 				interval_percentages: org.interval_percentages,
 				sales: org.sales || 0,
-				currency:
-					selectedCurrency.value.code === "grp"
-						? props.data.dashboard_stats.columns[0].widgets[0].data.currency.code
-						: org.currency.code,
-			}
-		})
+				currency: org.currency_code ,
+			}))
+	}
 })
-console.log(abcdef.value, "haha")
+
+const toggleCurrency = () => {
+	isOrganisation.value = !isOrganisation.value
+}
+
+
 </script>
+
 <template>
 	<div>
+		
 		<DashboardSettings
-			:groupCurrencySymbol="groupCurrencySymbol"
-			:intervalOptions="interval_options"
-			:selectedInterval="selectedDateOption"
-			@update-interval="updateInterval" />
-		<DashboardTable />
-		<DashboardWidget />
+			v-if="props.dashboard?.settings"
+			@toggle-currency="toggleCurrency"
+			@update-checked="onToggleChecked"
+			:intervalOptions="props.dashboard?.interval_options"
+			:checked="checked"
+			:tableType="tableType"
+			:settings="props.dashboard?.settings"
+		/>
+		
+		<DashboardTable
+			v-if="props.dashboard?.table"
+			:tableData="tableDatas"
+			:locale="locale"
+			:tableType="props.tableType"
+			:totalAmount="props.dashboard.total"
+			:selectedDateOption="props.dashboard.settings.selected_interval"
+		/>
+
+		<DashboardWidget 
+			v-if="props.dashboard?.widgets"
+			:widgetsData="dashboard.widgets"/>
 	</div>
 </template>
-<style scoped></style>
+
+

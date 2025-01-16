@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsCommand;
 
-class RetinaStoreStoredItemsToReturn extends RetinaAction
+class StoreRetinaStoredItemsToReturn extends RetinaAction
 {
     use AsCommand;
 

@@ -30,7 +30,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class RetinaIndexInvoices extends RetinaAction
+class IndexRetinaInvoices extends RetinaAction
 {
     private Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|Shop $parent;
 
