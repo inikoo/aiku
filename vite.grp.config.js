@@ -12,10 +12,21 @@ import { fileURLToPath, URL } from "node:url";
 import { codecovVitePlugin } from "@codecov/vite-plugin";
 import path from "node:path"
 
+
 export default ({ mode }) => {
     process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
+
+   /*  const filesNeedToExclude = ["storage/media"];
+    const filesPathToExclude = filesNeedToExclude.map((src) =>
+        fileURLToPath(new URL(src, import.meta.url))
+    ); */
     return defineConfig(
         {
+            server: {
+                watch: {
+                    ignored: ["**/storage/media/**"], 
+                },
+            },
             plugins: [
                 laravel({
                             hotFile       : "public/grp.hot",
