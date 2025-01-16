@@ -222,9 +222,19 @@ const onChangeQuantity = debounce((row: number, idStoredItemAuditDelta: number, 
                 :class="pallet.slug ? 'primaryLink' : ''">
                 {{ pallet.reference }}
             </component>
+            
+            <div v-if="pallet.customer_reference" v-tooltip="trans('Customer\'s reference')" class="mt-1 space-x-1.5 whitespace-nowrap">
+                <span class="text-gray-400 text-sm">({{ pallet.customer_reference }})</span>
+            </div>
         </template>
 
-
+        <!-- Column: Location -->
+        <template #cell(location_code)="{ item: pallet }">
+            <component :is="pallet.location_code ? Link : 'div'" :href="pallet.location_code ? route('grp.org.warehouses.show.infrastructure.locations.show', ['aw', pallet.warehouse_slug, pallet.location_slug]) : undefined"
+                :class="pallet.slug ? 'secondaryLink' : ''">
+                {{ pallet.location_code }}
+            </component>
+        </template>
 
         <!-- Column: Customer Reference -->
         <template #cell(customer_reference)="{ item: item }">
@@ -260,7 +270,7 @@ const onChangeQuantity = debounce((row: number, idStoredItemAuditDelta: number, 
             <DataTable v-if="proxyItem.stored_items?.length || proxyItem.new_stored_items?.length" :value="[...proxyItem.stored_items, ...proxyItem.new_stored_items]">
                 <Column field="reference" :header="trans('SKU')">
                     <template #body="{ data }">
-                        <div class="whitespace-nowrap">{{ data.reference }} <FontAwesomeIcon v-if="data.type === 'new_item'" v-tooltip="trans('New stored item')" icon='fas fa-star' size="xs" class='text-indigo-500' fixed-width aria-hidden='true' /></div>
+                        <div class="whitespace-nowrap">{{ data.reference }} <FontAwesomeIcon v-if="data.type === 'new_item'" v-tooltip="trans('New added Customer\'s SKU')" icon='fas fa-star' size="xs" class='text-indigo-500' fixed-width aria-hidden='true' /></div>
                     </template>
                 </Column>
 
