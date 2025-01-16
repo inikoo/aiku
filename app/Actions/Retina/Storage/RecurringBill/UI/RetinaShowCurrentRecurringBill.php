@@ -9,7 +9,7 @@
 namespace App\Actions\Retina\Storage\RecurringBill\UI;
 
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Billing\UI\ShowRetinaBillingDashboard;
+use App\Actions\UI\Retina\Billing\UI\RetinaShowRetinaBillingDashboard;
 use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\RecurringBillResource;
@@ -24,7 +24,7 @@ use Lorisleiva\Actions\ActionRequest;
 /**
  * @property StoredItem $storedItem
  */
-class ShowRetinaCurrentRecurringBill extends RetinaAction
+class RetinaShowCurrentRecurringBill extends RetinaAction
 {
     public function asController(RecurringBill $recurringBill, ActionRequest $request): RecurringBill
     {
@@ -161,12 +161,12 @@ class ShowRetinaCurrentRecurringBill extends RetinaAction
                 ],
 
                 RecurringBillTabsEnum::TRANSACTIONS->value => $this->tab == RecurringBillTabsEnum::TRANSACTIONS->value ?
-                    fn () => RecurringBillTransactionsResource::collection(IndexRetinaRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))
-                    : Inertia::lazy(fn () => RecurringBillTransactionsResource::collection(IndexRetinaRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))),
+                    fn () => RecurringBillTransactionsResource::collection(RetinaIndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))
+                    : Inertia::lazy(fn () => RecurringBillTransactionsResource::collection(RetinaIndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))),
 
             ]
         )->table(
-            IndexRetinaRecurringBillTransactions::make()->tableStructure(
+            RetinaIndexRecurringBillTransactions::make()->tableStructure(
                 $recurringBill,
                 prefix: RecurringBillTabsEnum::TRANSACTIONS->value
             )
@@ -182,7 +182,7 @@ class ShowRetinaCurrentRecurringBill extends RetinaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            ShowRetinaBillingDashboard::make()->getBreadcrumbs(),
+            RetinaShowRetinaBillingDashboard::make()->getBreadcrumbs(),
             [
 
                 'type'   => 'simple',

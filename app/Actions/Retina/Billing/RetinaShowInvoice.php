@@ -24,7 +24,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowInvoice extends RetinaAction
+class RetinaShowInvoice extends RetinaAction
 {
     private Organisation|Fulfilment|FulfilmentCustomer|Shop $parent;
 
@@ -38,7 +38,7 @@ class ShowInvoice extends RetinaAction
         return true;
     }
 
-    public function inRetina(Invoice $invoice, ActionRequest $request): Invoice
+    public function asController(Invoice $invoice, ActionRequest $request): Invoice
     {
         $this->parent = $request->user()->customer->fulfilmentCustomer;
         $this->initialisation($request)->withTab(InvoiceTabsEnum::values());
