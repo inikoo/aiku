@@ -8,8 +8,7 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Actions\Fulfilment\RecurringBill\CalculateRecurringBillRentalAmount;
-use App\Actions\Fulfilment\RecurringBill\CalculateRecurringBillTotals;
+use App\Actions\Fulfilment\RecurringBill\CalculateRecurringBillTemporalAggregates;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
@@ -165,15 +164,11 @@ class FetchAuroraFulfilmentCustomers extends FetchAuroraAction
                 }
             }
 
-            CalculateRecurringBillRentalAmount::make()->action(
+            CalculateRecurringBillTemporalAggregates::make()->action(
                 recurringBill:$recurringBill,
                 hydratorsDelay: 60
             );
 
-            CalculateRecurringBillTotals::make()->action(
-                recurringBill:$recurringBill,
-                hydratorsDelay: 60
-            );
         }
 
         return $customer;
