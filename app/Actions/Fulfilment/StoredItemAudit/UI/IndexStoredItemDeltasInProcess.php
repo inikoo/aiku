@@ -2,11 +2,11 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 14 Jan 2025 12:52:25 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Thu, 16 Jan 2025 18:17:30 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\StoredItemAudit;
+namespace App\Actions\Fulfilment\StoredItemAudit\UI;
 
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
@@ -22,7 +22,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class EditStoredItemDeltasInAudit extends OrgAction
+class IndexStoredItemDeltasInProcess extends OrgAction
 {
     use HasFulfilmentAssetsAuthorisation;
     use WithFulfilmentCustomerSubNavigation;

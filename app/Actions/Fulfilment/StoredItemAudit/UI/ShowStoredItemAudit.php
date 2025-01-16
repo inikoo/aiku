@@ -9,16 +9,15 @@
 namespace App\Actions\Fulfilment\StoredItemAudit\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
-use App\Actions\Fulfilment\StoredItemAudit\EditStoredItemDeltasInAudit;
 use App\Actions\Fulfilment\StoredItemAuditDelta\UI\IndexStoredItemAuditDeltas;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
-use App\Http\Resources\Fulfilment\EditStoredItemDeltasResource;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditDeltasResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditResource;
+use App\Http\Resources\Fulfilment\StoredItemDeltasInProcessResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItemAudit;
@@ -81,7 +80,7 @@ class ShowStoredItemAudit extends OrgAction
                     ]
                 ]
             ];
-            $editDeltas = EditStoredItemDeltasResource::collection(EditStoredItemDeltasInAudit::run($storedItemAudit, 'edit_stored_item_deltas'));
+            $editDeltas = StoredItemDeltasInProcessResource::collection(IndexStoredItemDeltasInProcess::run($storedItemAudit, 'edit_stored_item_deltas'));
         } else {
             // todo
             $deltas = StoredItemAuditDeltasResource::collection(IndexStoredItemAuditDeltas::run($storedItemAudit, 'stored_item_deltas'));
@@ -184,7 +183,7 @@ class ShowStoredItemAudit extends OrgAction
 
         if ($storedItemAudit->state === StoredItemAuditStateEnum::IN_PROCESS) {
             $render->table(
-                EditStoredItemDeltasInAudit::make()->tableStructure(
+                IndexStoredItemDeltasInProcess::make()->tableStructure(
                     $storedItemAudit->fulfilmentCustomer,
                     prefix: 'edit_stored_item_deltas'
                 )

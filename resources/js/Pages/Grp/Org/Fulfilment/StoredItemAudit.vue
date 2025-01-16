@@ -166,7 +166,13 @@ const storedItemsQuantity = reactive<StoredItemsQuantity>({
 // Section: update quantity stored item
 const isLoadingQuantity = reactive<StoredItemsQuantity>({})
 const onChangeQuantity = (row: number, idStoredItemAuditDelta: number, quantity: number) => {
-    console.log('lolo', props.route_list?.stored_item_audit_delta?.update?.name)
+
+    //todo if   "store_item_audit_delta_id" ==null,
+    // use props.route_list?.stored_item_audit_delta?.store.name
+    // get back the store_item_audit_delta_id and set it uo so next time you call update
+
+
+  console.log('lolo', props.route_list?.stored_item_audit_delta?.update?.name)
     if (!props.route_list?.stored_item_audit_delta?.update?.name) {
         return
     }
@@ -222,6 +228,9 @@ const statesBoxEdit = reactive<StoredItemsQuantity>({
     <!-- <TableStoredItemsAudits :data="edit_stored_item_deltas" tab="edit_stored_item_deltas" :storedItemsRoute="storedItemsRoute" /> -->
 
     <Table v-if="edit_stored_item_deltas" :resource="edit_stored_item_deltas" name="edit_stored_item_deltas" class="mt-5">
+
+
+
         <!-- Column: Reference -->
         <template #cell(reference)="{ item: pallet }">
             <component :is="pallet.slug ? Link : 'div'" :href="pallet.slug ? palletRoute(pallet) : undefined"
@@ -289,8 +298,12 @@ const statesBoxEdit = reactive<StoredItemsQuantity>({
                 </Column>
 
                 <Column field="quantity" header="Actions" class="">
+
+
                     <template #body="{ data }">
-                        
+
+                      <pre>{{data}}</pre>
+
                         <div class="relative">
                             <div v-if="get(isLoadingQuantity, [item.rowIndex, data.storedItemAuditDelta], false) || get(isLoadingUnselect, [item.rowIndex, data.storedItemAuditDelta], false)" class="z-10 opacity-60 absolute w-full h-full top-0 left-0">
                                 <div class="skeleton h-full w-full"></div>
