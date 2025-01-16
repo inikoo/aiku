@@ -205,7 +205,7 @@ const openedBlockSideEditor = inject('openedBlockSideEditor', ref(null))
                                     v-model="element.web_block.layout.data.fieldValue"
                                     :blueprint="getBlueprint(element.type)"
                                     :block="element"
-                                    @update:modelValue="(e) => (console.log('sdsdsd'),onSaveWorkshop(element))"
+                                    @update:modelValue="(e) => (onSaveWorkshop(element))"
                                     :uploadImageRoute="{...webpage.images_upload_route, parameters : { modelHasWebBlocks: element.id }}"
                                 />
                             </div>
