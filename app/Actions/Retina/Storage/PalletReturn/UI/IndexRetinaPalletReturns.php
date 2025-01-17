@@ -183,7 +183,7 @@ class IndexRetinaPalletReturns extends RetinaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('pallet returns'),
+                        'label' => __('Pallet Returns'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],
