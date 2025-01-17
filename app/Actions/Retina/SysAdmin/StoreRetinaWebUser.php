@@ -16,6 +16,7 @@ use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -81,7 +82,7 @@ class StoreRetinaWebUser extends RetinaAction
             'contact_name' => ['sometimes', 'nullable', 'max:255'],
             'username'     => [
                 'required',
-                'string',
+                new AlphaDashDot(),
                 'min:4',
                 'max:255',
                 new IUnique(
@@ -93,7 +94,6 @@ class StoreRetinaWebUser extends RetinaAction
             ],
             'password'     =>
                 [
-                    'required',
                     'required',
                     app()->isLocal() || app()->environment('testing') ? Password::min(3) : Password::min(8)->uncompromised()
                 ],

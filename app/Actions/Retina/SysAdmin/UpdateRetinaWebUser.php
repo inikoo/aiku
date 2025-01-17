@@ -11,7 +11,6 @@ namespace App\Actions\Retina\SysAdmin;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
 use App\Actions\RetinaAction;
-use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Models\CRM\WebUser;
@@ -25,9 +24,8 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateRetinaWebUser extends RetinaAction
 {
     use WithActionUpdate;
-    use WithNoStrictRules;
 
-    protected WebUser $webUser;
+    private WebUser $webUserToUpdate;
 
     public function handle(WebUser $webUser, array $modelData): WebUser
     {
@@ -37,10 +35,10 @@ class UpdateRetinaWebUser extends RetinaAction
             data_set($modelData, 'data.legacy_password', null);
         }
 
-        $webUser = $this->update($webUser, $modelData, ['data', 'settings']);
+        $webUser = $this->update($webUser, $modelData, ['data']);
 
         if (Arr::hasAny($webUser->getChanges(), ['status'])) {
-            CustomerHydrateWebUsers::dispatch($webUser->customer)->delay($this->hydratorsDelay);
+            CustomerHydrateWebUsers::dispatch($webUser->customer);
         }
 
         return $webUser;
@@ -48,65 +46,48 @@ class UpdateRetinaWebUser extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->asAction) {
-            return true;
-        }
-
-        if ($request->user() instanceof WebUser) {
-            return true;
-        }
-
-        return false;
+        return $this->customer->id == $request->route()->parameter('webUser')->customer_id and $request->user()->is_root;
     }
 
     public function rules(): array
     {
-        $rules = [
-            'username'   => [
+        return [
+            'username'     => [
                 'sometimes',
                 'required',
-                $this->strict ? new AlphaDashDot() : 'string',
+                new AlphaDashDot(),
+                'min:4',
+                'max:255',
                 new IUnique(
                     table: 'web_users',
                     extraConditions: [
                         ['column' => 'website_id', 'value' => $this->webUser->website->id],
                         ['column' => 'deleted_at', 'operator' => 'notNull'],
-                        ['column' => 'id', 'value' => $this->webUser->id, 'operator' => '!='],
+                        ['column' => 'id', 'value' => $this->webUserToUpdate->id, 'operator' => '!='],
                     ]
                 ),
             ],
-            'email'      => [
+            'email'        => [
                 'sometimes',
-                'nullable',
-                $this->strict ? 'email' : 'string:500',
+                'required',
+                'email',
                 new IUnique(
                     table: 'web_users',
                     extraConditions: [
                         ['column' => 'website_id', 'value' => $this->webUser->website->id],
                         ['column' => 'deleted_at', 'operator' => 'notNull'],
-                        ['column' => 'id', 'value' => $this->webUser->id, 'operator' => '!='],
+                        ['column' => 'id', 'value' => $this->webUserToUpdate->id, 'operator' => '!='],
                     ]
                 ),
-
             ],
-            'contact_name' => ['sometimes'],
-            'data'       => ['sometimes', 'array'],
-            'password'   => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') || !$this->strict ? Password::min(3) : Password::min(8)->uncompromised()],
-            'is_root'    => ['sometimes', 'boolean']
+            'contact_name' => ['sometimes', 'string', 'max:255'],
+            'password'     => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? Password::min(3) : Password::min(8)->uncompromised()],
         ];
-
-        if (!$this->strict) {
-
-            $rules                    = $this->noStrictUpdateRules($rules);
-
-        }
-
-        return $rules;
     }
 
     public function AsController(WebUser $webUser, ActionRequest $request): WebUser
     {
-        $this->webUser = $webUser;
+        $this->webUserToUpdate = $webUser;
         $this->initialisation($request);
 
         return $this->handle($webUser, $this->validatedData);
