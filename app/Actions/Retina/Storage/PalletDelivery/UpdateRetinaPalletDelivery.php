@@ -30,7 +30,6 @@ class UpdateRetinaPalletDelivery extends RetinaAction
     use WithAttributes;
     use WithActionUpdate;
 
-    public Customer $customer;
     private bool $action = false;
 
     public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
@@ -53,9 +52,7 @@ class UpdateRetinaPalletDelivery extends RetinaAction
     {
         if ($this->action) {
             return true;
-        }
-
-        if ($request->user() instanceof WebUser) {
+        } elseif ($this->customer->id == $request->route()->parameter('palletDelivery')->fulfilmentCustomer->customer_id) {
             return true;
         }
 
@@ -100,7 +97,7 @@ class UpdateRetinaPalletDelivery extends RetinaAction
     public function action(PalletDelivery $palletDelivery, $modelData): PalletDelivery
     {
         $this->action = true;
-        $this->initialisation($modelData);
+        $this->actionInitialisation($palletDelivery->fulfilmentCustomer, $modelData);
 
         return $this->handle($palletDelivery, $this->validatedData);
     }

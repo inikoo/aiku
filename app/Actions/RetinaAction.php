@@ -12,6 +12,9 @@ use App\Actions\Traits\WithTab;
 use App\Actions\UI\WithInertia;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -28,6 +31,8 @@ class RetinaAction
     protected Website $website;
     protected Customer $customer;
     protected WebUser $webUser;
+    protected Fulfilment $fulfilment;
+    protected Organisation $organisation;
 
 
     protected array $validatedData;
@@ -38,6 +43,7 @@ class RetinaAction
         $this->webUser       = $request->user();
         $this->customer      = $this->webUser->customer;
         $this->shop          = $this->customer->shop;
+        $this->fulfilment    = $this->shop->fulfilment;
         $this->organisation  = $this->shop->organisation;
         $this->website       = $request->get('website');
         $this->fillFromRequest($request);
@@ -47,6 +53,17 @@ class RetinaAction
         return $this;
     }
 
+    public function actionInitialisation(FulfilmentCustomer $fulfilmentCustomer, array $modelData): static
+    {
+        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
+        $this->customer     = $fulfilmentCustomer->customer;
+        $this->shop         = $this->fulfilment->shop;
+        $this->organisation = $this->fulfilment->organisation;
+        $this->setRawAttributes($modelData);
+        $this->validatedData = $this->validateAttributes();
+
+        return $this;
+    }
 
 
 }
