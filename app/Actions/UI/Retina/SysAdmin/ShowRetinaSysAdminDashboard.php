@@ -28,26 +28,25 @@ class ShowRetinaSysAdminDashboard extends RetinaAction
 
     public function htmlResponse(): Response
     {
-
         $title = __('Account');
 
         return Inertia::render(
             'SysAdmin/RetinaSysAdminDashboard',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                // 'title'       => $title,
+                'title'       => $title,
                 'pageHead'    => [
-                    'title'         => $title,
-                    'icon'          => [
+                    'title' => $title,
+                    'icon'  => [
                         'icon'  => ['fal', 'fa-users-cog'],
                         'title' => $title
                     ],
 
                 ],
-                'stats' => [
+                'stats'       => [
                     [
-                        'name' => __('users'),
-                        'stat' => $this->customer->stats->number_current_web_users,
+                        'name'  => __('users'),
+                        'stat'  => $this->customer->stats->number_current_web_users,
                         'route' => ['name' => 'retina.sysadmin.web-users.index']
                     ],
 
@@ -69,7 +68,7 @@ class ShowRetinaSysAdminDashboard extends RetinaAction
                             'route' => [
                                 'name' => 'retina.sysadmin.dashboard'
                             ],
-                            'label'  => __(' Account'),
+                            'label' => __(' Account'),
                         ]
                     ]
                 ]
