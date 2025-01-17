@@ -5,12 +5,12 @@ import DashboardWidget from "./DashboardWidget.vue"
 import { inject, ref, computed, provide } from "vue"
 
 const props = defineProps<{
-	dashboard: {
-		settings:{}[]
-		interval_options: Array<{ label: string; value: string }>
-		table:{}[]
-		total:{}[]
-		widgets:{}[]
+	dashboard?: {
+		settings?:{}[]
+		interval_options?: Array<{ label: string; value: string }>
+		table?:{}[]
+		total?:{}[]
+		widgets?:{}[]
 	}
 	checked?: boolean
 	tableType?: string
