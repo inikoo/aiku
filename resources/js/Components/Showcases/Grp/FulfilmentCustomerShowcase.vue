@@ -109,7 +109,7 @@ const optionRadio = [
     },
     {
         value: 'items_storage',
-        label: trans('Items Storage')
+        label: trans('Customer\'s SKU')
     },
     {
         value: 'dropshipping',
@@ -218,8 +218,8 @@ const isLoading = ref<string | boolean>(false)
             </div>
         </div>
 
-        <!-- Section: -->
-        <div class="w-full space-y-4">
+        <!-- Section: Radiobox, Recurring bills balance, Rental agreement-->
+        <div class="w-full max-w-lg space-y-4 justify-self-end">
             <div v-if="data.balance.current > 0" class="bg-indigo-50 border border-indigo-300 text-gray-700 flex flex-col justify-between px-4 py-5 sm:p-6 rounded-lg tabular-nums">
                 <div class="w-full flex justify-between items-center">
                     <div class="">
