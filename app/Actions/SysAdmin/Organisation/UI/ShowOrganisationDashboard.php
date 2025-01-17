@@ -139,8 +139,9 @@ class ShowOrganisationDashboard extends OrgAction
         $dashboard = [
             'interval_options'  => $this->getIntervalOptions(),
             'settings' => [
-                'db_settings'   => auth()->user()->settings,
+                'db_settings'   => $userSettings,
                 'key_currency'  =>  'org',
+                'show_shop' => Arr::get($userSettings, 'selected_shop_in_org', true),
                 'options_currency'  => [
                     [
                         'value' => 'org',
