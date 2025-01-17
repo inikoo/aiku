@@ -73,7 +73,7 @@ class StoredItemDeltasInProcessResource extends JsonResource
                     'type'                    => 'current_item',
                 ]),
 
-            'new_stored_items' => $pallet->getEditNewStoredItemDeltasQuery()
+            'new_stored_items' => $pallet->getEditNewStoredItemDeltasQuery($this->id)
                 ->where('stored_item_audit_deltas.pallet_id', $this->id)
                 ->where('stored_item_audit_deltas.stored_item_audit_id', $this->stored_item_audit_id)
                 ->get()->map(fn($item) => [
