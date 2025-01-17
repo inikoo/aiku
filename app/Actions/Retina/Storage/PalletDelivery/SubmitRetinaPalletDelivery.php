@@ -67,6 +67,8 @@ class SubmitRetinaPalletDelivery extends RetinaAction
         } elseif ($this->customer->id == $request->route()->parameter('palletDelivery')->fulfilmentCustomer->customer_id) {
             return true;
         }
+
+        return false;
     }
 
     public function jsonResponse(PalletDelivery $palletDelivery): JsonResource
