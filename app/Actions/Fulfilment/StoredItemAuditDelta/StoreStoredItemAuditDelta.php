@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\StoredItemAuditDelta;
 
+use App\Actions\Fulfilment\StoredItemAudit\Hydrators\StoredItemAuditHydrateDeltas;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
@@ -44,7 +45,11 @@ class StoreStoredItemAuditDelta extends OrgAction
         data_set($modelData, 'is_stored_item_new_in_pallet', true);
 
 
-        return $storedItemAudit->deltas()->create($modelData);
+        $storedItemAuditDelta = $storedItemAudit->deltas()->create($modelData);
+        StoredItemAuditHydrateDeltas::dispatch($storedItemAudit);
+
+        return $storedItemAuditDelta;
+
     }
 
     public function rules(): array

@@ -8,7 +8,7 @@
 
 namespace App\Actions\UI\Retina\Billing\UI;
 
-use App\Actions\UI\Retina\Dashboard\ShowDashboard;
+use App\Actions\UI\Retina\Dashboard\ShowRetinaDashboard;
 use App\Models\CRM\Customer;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -108,7 +108,7 @@ class ShowRetinaBillingDashboard
     {
         return
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowRetinaDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

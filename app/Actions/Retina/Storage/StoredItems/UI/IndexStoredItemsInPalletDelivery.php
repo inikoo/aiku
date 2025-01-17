@@ -9,7 +9,7 @@
 namespace App\Actions\Retina\Storage\StoredItems\UI;
 
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Storage\UI\RetinaShowRetinaStorageDashboard;
+use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\PalletDelivery;
@@ -120,7 +120,7 @@ class IndexStoredItemsInPalletDelivery extends RetinaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            RetinaShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+            ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',

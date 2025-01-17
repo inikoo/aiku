@@ -11,7 +11,7 @@ namespace App\Actions\Retina\Storage\StoredItemsAudit\UI;
 
 use App\Actions\RetinaAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
-use App\Actions\UI\Retina\Storage\UI\RetinaShowRetinaStorageDashboard;
+use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
 use App\Http\Resources\Fulfilment\StoredItemAuditsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -118,7 +118,7 @@ class IndexRetinaStoredItemsAudits extends RetinaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            RetinaShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+            ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',
