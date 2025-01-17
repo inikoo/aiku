@@ -12,6 +12,7 @@ use App\Actions\Accounting\Invoice\WithInvoicesExport;
 use App\Actions\RetinaAction;
 use App\Actions\Traits\WithExportData;
 use App\Models\Accounting\Invoice;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,8 +29,18 @@ class PdfRetinaInvoice extends RetinaAction
         return $this->processDataExportPdf($invoice);
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->customer->id == $request->route()->parameter('invoice')->customer_id) {
+            return true;
+        }
+        return false;
+    }
+
     public function asController(Invoice $invoice): Response
     {
+        $this->initialisation(request());
+
         return $this->handle($invoice);
     }
 }

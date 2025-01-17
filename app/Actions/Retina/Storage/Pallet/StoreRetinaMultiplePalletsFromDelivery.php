@@ -24,6 +24,7 @@ use Lorisleiva\Actions\ActionRequest;
 class StoreRetinaMultiplePalletsFromDelivery extends RetinaAction
 {
     private FulfilmentCustomer $fulfilmentCustomer;
+    private bool $action = false;
 
     private PalletDelivery|FulfilmentCustomer $parent;
 
@@ -38,12 +39,9 @@ class StoreRetinaMultiplePalletsFromDelivery extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->asAction) {
+        if ($this->action) {
             return true;
-        }
-
-        if ($request->user() instanceof WebUser) {
-            // TODO: Raul please do the permission for the web user
+        } elseif ($this->customer->id == $request->route()->parameter('palletDelivery')->fulfilmentCustomer->customer_id) {
             return true;
         }
 
@@ -86,11 +84,11 @@ class StoreRetinaMultiplePalletsFromDelivery extends RetinaAction
 
     public function action(PalletDelivery $palletDelivery, array $modelData, int $hydratorsDelay = 0): void
     {
-        $this->asAction           = true;
+        $this->action           = true;
         $this->hydratorsDelay     = $hydratorsDelay;
         $this->parent             = $palletDelivery;
         $this->fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
-        $this->initialisation($modelData);
+        $this->actionInitialisation($this->fulfilmentCustomer, $modelData);
 
         $this->handle($palletDelivery, $this->validatedData);
     }

@@ -320,12 +320,12 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
                     <template #body="{ data }">
 
                         stored item id: {{ data.id || '-' }} <br />
-                        storedItemAuditDelta: {{ data.storedItemAuditDelta || '-' }}
+                        storedItemAuditDelta: {{ data.stored_item_audit_delta || '-' }}
 
                         <!-- <pre>{{ props.route_list?.stored_item_audit_delta?.store }}</pre> -->
                         <!-- <pre>{{ data }}</pre> -->
                         <div class="relative">
-                            <div v-if="get(isLoadingQuantity, [item.rowIndex, data.storedItemAuditDelta], false) || get(isLoadingUnselect, [item.rowIndex, data.storedItemAuditDelta], false)"
+                            <div v-if="get(isLoadingQuantity, [item.rowIndex, data.stored_item_audit_delta], false) || get(isLoadingUnselect, [item.rowIndex, data.stored_item_audit_delta], false)"
                                 class="z-10 opacity-60 absolute w-full h-full top-0 left-0">
                                 <div class="skeleton h-full w-full"></div>
                             </div>
@@ -334,8 +334,9 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
                                 <div class="flex justify-center border border-gray-300 rounded gap-y-1">
                                     <!-- Button: Check -->
                                     <Button v-if="data.type !== 'new_item'"
-                                        @click="() => onChangeQuantity(item.rowIndex, data.storedItemAuditDelta, data.quantity)"
-                                        type="tertiary" icon="fal fa-check-circle" class="border-none rounded-none" />
+                                        @click="() => onStoreStoredItem(item.rowIndex, item.id, data.id, data.quantity)"
+                                        type="tertiary" icon="fal fa-check-circle" class="border-none rounded-none"
+                                    />
 
                                     <!-- Section: - and + -->
                                     <div class="transition-all relative inline-flex items-center justify-center "
@@ -346,8 +347,8 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
                                                 <!-- Button: Minus -->
                                                 <div  @click="() => (
                                                         set(data, `audited_quantity`, get(data, `audited_quantity`, data.quantity) - 1),
-                                                        data.storedItemAuditDelta
-                                                            ? debounceChangeQuantity(item.rowIndex, data.storedItemAuditDelta, get(data, `audited_quantity`, data.quantity))
+                                                        data.stored_item_audit_delta
+                                                            ? debounceChangeQuantity(item.rowIndex, data.stored_item_audit_delta, get(data, `audited_quantity`, data.quantity))
                                                             : debounceStoreQuantity(item.rowIndex, item.id, data.id, get(data, `audited_quantity`, data.quantity))
                                                     )"
                                                     class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-1 py-1.5 text-xs justify-self-center">
@@ -356,7 +357,7 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
 
                                                 <div class="text-center tabular-nums border border-transparent hover:border-dashed hover:border-gray-300 group-focus:border-dashed group-focus:border-gray-300">
                                                     <InputNumber v-model="data.audited_quantity"
-                                                        @update:modelValue="(e) => debounceChangeQuantity(item.rowIndex, data.storedItemAuditDelta, e)"
+                                                        @update:modelValue="(e) => debounceChangeQuantity(item.rowIndex, data.stored_item_audit_delta, e)"
                                                         buttonLayout="horizontal" :min="0" style="width: 100%"
                                                         :inputStyle="{
                                                             padding: '0px',
@@ -368,8 +369,8 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
                                                 <!-- Button: Plus -->
                                                 <div  @click="() => (
                                                         set(data, `audited_quantity`, get(data, `audited_quantity`, data.quantity) + 1),
-                                                        data.storedItemAuditDelta
-                                                            ? debounceChangeQuantity(item.rowIndex, data.storedItemAuditDelta, get(data, `audited_quantity`, data.quantity))
+                                                        data.stored_item_audit_delta
+                                                            ? debounceChangeQuantity(item.rowIndex, data.stored_item_audit_delta, get(data, `audited_quantity`, data.quantity))
                                                             : debounceStoreQuantity(item.rowIndex, item.id, data.id, get(data, `audited_quantity`, data.quantity))
                                                     )"
                                                     type="tertiary" size="xs"
@@ -381,7 +382,9 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
 
                                             <div v-else @click="set(statesBoxEdit, `${item.rowIndex}.${data.id}`, true)"
                                                 class="hover:bg-gray-200 text-gray-400 hover:text-gray-600 w-full flex justify-center items-center h-full cursor-pointer px-2 gap-x-1">
-                                                <span class="text-gray-600">{{ data.audited_quantity }}</span>
+                                                <span class="text-gray-600">
+                                                  {{!data.stored_item_audit_delta_id ?  data.quantity :  data.audited_quantity }}
+                                                </span>
                                                 <FontAwesomeIcon v-tooltip="trans('Edit')" icon='fal fa-pencil' size="sm" class=''
                                                     fixed-width aria-hidden='true' />
                                             </div>
@@ -391,27 +394,26 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
                                     <!-- Button: Reset -->
                                     <Button
                                         v-if="data.type === 'new_item'"
-                                        @click="() => onUnselectNewStoredItem(item.rowIndex, data.storedItemAuditDelta)"
+                                        @click="() => onUnselectNewStoredItem(item.rowIndex, data.stored_item_audit_delta)"
                                         type="tertiary"
                                         icon="fal fa-trash-alt"
                                         class="border-none rounded-none text-red-500"
-                                        :loading="!!get(isLoadingUnselect, [item.rowIndex, data.storedItemAuditDelta], false)"
+                                        :loading="!!get(isLoadingUnselect, [item.rowIndex, data.stored_item_audit_delta], false)"
                                     />
 
-                                    <Button
-                                        v-else
-                                        @click="() => (
-                                            set(data, `audited_quantity`, get(data, `audited_quantity`, data.quantity)),
+                                  <Button
+                                    v-else-if="   data.stored_item_audit_delta"
+                                    @click="() => (
+                                            set(data, audited_quantity, get(data, audited_quantity, data.quantity)),
                                             data.storedItemAuditDelta
-                                                ? debounceChangeQuantity(item.rowIndex, data.storedItemAuditDelta, get(data, `audited_quantity`, data.quantity))
-                                                : debounceStoreQuantity(item.rowIndex, item.id, data.id, get(data, `audited_quantity`, data.quantity))
+                                                ? debounceChangeQuantity(item.rowIndex, data.storedItemAuditDelta, get(data, audited_quantity, data.quantity))
+                                                : debounceStoreQuantity(item.rowIndex, item.id, data.id, get(data, audited_quantity, data.quantity))
                                         )"
-                                        :disabled="data.audited_quantity === data.quantity"
-                                        type="tertiary"
-                                        icon="fal fa-undo"
-                                        class="border-none rounded-none"
-                                        :loading="!!get(isLoadingUnselect, [item.rowIndex, data.storedItemAuditDelta], false)"
-                                    />
+                                    type="tertiary"
+                                    icon="fal fa-undo"
+                                    class="border-none rounded-none"
+                                    :loading="!!get(isLoadingUnselect, [item.rowIndex, data.storedItemAuditDelta], false)"
+                                  />
                                 </div>
 
                                 <FontAwesomeIcon v-tooltip="trans('Close')"
@@ -428,11 +430,11 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
                 <!-- <Column field="quantity" header="Checked" class="text-right"> -->
                 <template #body="{ data }">
                     <template v-if="data.type === 'new_item'">
-                        <div v-if="get(isLoadingUnselect, [item.rowIndex, data.storedItemAuditDelta], false)"
+                        <div v-if="get(isLoadingUnselect, [item.rowIndex, data.stored_item_audit_delta], false)"
                             class="text-center text-red-500">
                             <LoadingIcon class="" />
                         </div>
-                        <div v-else @click="() => onUnselectNewStoredItem(item.rowIndex, data.storedItemAuditDelta)"
+                        <div v-else @click="() => onUnselectNewStoredItem(item.rowIndex, data.stored_item_audit_delta)"
                             class="text-red-500 hover:underline cursor-pointer">
                             {{ trans("Unselect") }}
                         </div>

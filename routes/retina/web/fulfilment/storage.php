@@ -7,7 +7,6 @@
  */
 
 use App\Actions\Fulfilment\Pallet\DownloadPalletsTemplate;
-use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Helpers\Upload\HistoryUploads;
 use App\Actions\Retina\Storage\Pallet\UI\EditRetinaPallet;
 use App\Actions\Retina\Storage\Pallet\UI\IndexRetinaPallets;
@@ -32,7 +31,7 @@ Route::get('/dashboard', ShowRetinaStorageDashboard::class)->name('dashboard');
 Route::prefix('pallet-deliveries')->as('pallet-deliveries.')->group(function () {
     Route::get('', IndexRetinaPalletDeliveries::class)->name('index');
     Route::get('{palletDelivery}', ShowRetinaPalletDelivery::class)->name('show');
-    Route::get('{palletDelivery}/pallets/{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('pallets.show');
+    Route::get('{palletDelivery}/pallets/{pallet}', [ShowRetinaPallet::class, 'inPalletDelivery'])->name('pallets.show');
     Route::get('{palletDelivery}/pallets-templates', DownloadPalletsTemplate::class)->name('pallets.uploads.templates');
     Route::get('{palletDelivery}/pallets-histories', [HistoryUploads::class, 'inPalletRetina'])->name('pallets.uploads.history');
 });
@@ -40,7 +39,7 @@ Route::prefix('pallet-deliveries')->as('pallet-deliveries.')->group(function () 
 Route::prefix('pallet-returns')->as('pallet-returns.')->group(function () {
     Route::get('', IndexRetinaPalletReturns::class)->name('index');
     Route::get('{palletReturn}', ShowRetinaPalletReturn::class)->name('show');
-    Route::get('{palletReturn}/pallets/{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('pallets.show');
+    Route::get('{palletReturn}/pallets/{pallet}', [ShowRetinaPallet::class, 'inPalletReturn'])->name('pallets.show');
     Route::get('{fulfilmentCustomer}/stored-items-templates', ExportRetinaPalletReturnStoredItem::class)->name('stored-items.uploads.templates');
     Route::get('{fulfilmentCustomer}/pallets-templates', ExportRetinaPalletReturnPallet::class)->name('pallets.uploads.templates');
     Route::get('{palletReturn}/upload-histories', [HistoryUploads::class, 'inPalletReturnRetina'])->name('uploads.history');
