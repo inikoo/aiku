@@ -55,6 +55,11 @@ const props = defineProps(
             required: false,
         },
 
+        // To align the label each row to the top (middle by default)
+        rowAlignTop: {
+            type: Boolean,
+        },
+
         striped: {
             type: Boolean,
             default: false,
@@ -897,6 +902,7 @@ const isLoading = ref<string | boolean>(false)
                                                         : typeof item[column.key] == 'number' || column.type === 'number' || column.type === 'currency' || column.type === 'date' || column.align === 'right'
                                                             ? 'text-right pl-3 pr-9 tabular-nums'  // if the value is number
                                                             : 'px-6',
+                                                    props.rowAlignTop ? 'align-top' : '',
                                                     { 'first:border-l-4 first:border-gray-700 bg-gray-200/75': selectedRow?.[name]?.includes(item[checkboxKey]) },
                                                     column.className
                                                 ]">
