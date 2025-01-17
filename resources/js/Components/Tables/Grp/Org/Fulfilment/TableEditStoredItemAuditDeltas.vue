@@ -320,6 +320,7 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
                     <template #body="{ data }">
 
                         stored item id: {{ data.id || '-' }} <br />
+                      stored item id: {{ data.audit_type || '-' }} <br />
                         storedItemAuditDelta: {{ data.stored_item_audit_delta || '-' }}
 
                         <!-- <pre>{{ props.route_list?.stored_item_audit_delta?.store }}</pre> -->
