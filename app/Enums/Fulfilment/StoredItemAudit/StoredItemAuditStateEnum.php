@@ -36,8 +36,8 @@ enum StoredItemAuditStateEnum: string
             'in_process' => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'class'   => 'text-yellow-500',  // Color for normal icon (Aiku)
+                'color'   => 'yellow',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'
@@ -46,8 +46,8 @@ enum StoredItemAuditStateEnum: string
             'completed' => [
                 'tooltip' => __('Completed'),
                 'icon'    => 'fal fa-check',
-                'class'   => 'text-indigo-400',
-                'color'   => 'indigo',
+                'class'   => 'text-lime-500',
+                'color'   => 'lime',
                 'app'     => [
                     'name' => 'check',
                     'type' => 'font-awesome-5'

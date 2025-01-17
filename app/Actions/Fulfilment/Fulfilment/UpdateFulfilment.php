@@ -32,6 +32,8 @@ class UpdateFulfilment extends OrgAction
     {
         $settings       = $fulfilment->settings;
         $updateSettings = false;
+        $updateAll = Arr::get($modelData, 'update_all', false);
+        data_forget($modelData, 'update_all');
 
         if (Arr::exists($modelData, 'weekly_cut_off_day')) {
             $settings['rental_agreement_cut_off']['weekly']['day'] = $modelData['weekly_cut_off_day'];
@@ -72,7 +74,7 @@ class UpdateFulfilment extends OrgAction
 
         $fulfilment = $this->update($fulfilment, $modelData, ['settings']);
 
-        if (Arr::get($modelData, 'update_all', false)) {
+        if ($updateAll) {
             $recurringBills = $fulfilment->recurringBills->where('status', RecurringBillStatusEnum::CURRENT);
             $currentDate    = now();
 
