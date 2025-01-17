@@ -113,6 +113,23 @@ class StoreRetinaPalletReturn extends RetinaAction
         }
     }
 
+    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletReturn
+    {
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $this->action = true;
+        $this->actionInitialisation($fulfilmentCustomer, $modelData);
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
+    }
+
+    public function actionFromRetinaWithStoredItems(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletReturn
+    {
+        $this->withStoredItems = true;
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $this->action = true;
+        $this->actionInitialisation($fulfilmentCustomer, $modelData);
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
+    }
+
 
     public function rules(): array
     {

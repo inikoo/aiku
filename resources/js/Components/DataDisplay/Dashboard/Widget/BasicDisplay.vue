@@ -205,8 +205,8 @@ function NumberDashboard(shop: any) {
 							:duration="1.5"
 							:scrollSpyOnce="true"
 							:options="{
-            formattingFn: (value: number) => locale.number(value)
-          }" />
+						formattingFn: (value: number) => locale.number(value)
+					}" />
 					</Link>
 				</template>
 				<template v-else>
