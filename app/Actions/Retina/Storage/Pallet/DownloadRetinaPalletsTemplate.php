@@ -33,7 +33,7 @@ class DownloadRetinaPalletsTemplate extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->customer->id == $request->route()->parameter('fulfilmentCustomer')->customer_id) {
+        if ($this->customer->id == $request->route()->parameter('palletDelivery')->fulfilmentCustomer->customer_id) {
             return true;
         }
 

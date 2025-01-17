@@ -12,8 +12,13 @@
 use App\Actions\Billables\Rental\StoreRental;
 use App\Actions\Billables\Service\StoreService;
 use App\Actions\Catalogue\Shop\UpdateShop;
+use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
+use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
+use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Retina\Storage\FulfilmentTransaction\StoreRetinaFulfilmentTransaction;
 use App\Actions\Retina\Storage\Pallet\ImportRetinaPallet;
 use App\Actions\Retina\Storage\Pallet\StoreRetinaPalletFromDelivery;
@@ -21,6 +26,7 @@ use App\Actions\Retina\Storage\PalletDelivery\Pdf\PdfRetinaPalletDelivery;
 use App\Actions\Retina\Storage\PalletDelivery\StoreRetinaPalletDelivery;
 use App\Actions\Retina\Storage\PalletDelivery\SubmitRetinaPalletDelivery;
 use App\Actions\Retina\Storage\PalletDelivery\UpdateRetinaPalletDelivery;
+use App\Actions\Retina\Storage\PalletReturn\StoreRetinaPalletReturn;
 use App\Actions\UI\Retina\Profile\UpdateRetinaProfile;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
@@ -28,8 +34,11 @@ use App\Enums\Billables\Rental\RentalStateEnum;
 use App\Enums\Billables\Rental\RentalUnitEnum;
 use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
@@ -38,8 +47,10 @@ use App\Models\Billables\Service;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\RentalAgreement;
 use App\Models\Helpers\Upload;
+use App\Models\Inventory\Location;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -115,6 +126,19 @@ beforeEach(function () {
         );
     }
     $this->rentalAgreement = $rentalAgreement;
+
+    $location           = $this->warehouse->locations()->first();
+    if (!$location) {
+        StoreLocation::run(
+            $this->warehouse,
+            Location::factory()->definition()
+        );
+        StoreLocation::run(
+            $this->warehouse,
+            Location::factory()->definition()
+        );
+    }
+    $this->location = $location;
 
     $this->webUser  = createWebUser($this->customer);
 
@@ -245,3 +269,76 @@ test('Generate Pallet Delivery PDF', function (PalletDelivery $palletDelivery) {
 
     return $palletDelivery;
 })->depends('Create Retina Pallet Delivery');
+
+test('Process Pallet Delivery (from aiku)', function (PalletDelivery $palletDelivery) {
+
+    $palletDelivery = ConfirmPalletDelivery::make()->action($palletDelivery);
+
+    expect($palletDelivery)->toBeInstanceOf(PalletDelivery::class)
+        ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::CONFIRMED);
+
+
+    $palletDelivery = ReceivedPalletDelivery::make()->action($palletDelivery);
+
+    expect($palletDelivery)->toBeInstanceOf(PalletDelivery::class)
+        ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::RECEIVED);
+
+
+    $palletDelivery = StartBookingPalletDelivery::make()->action($palletDelivery);
+
+    expect($palletDelivery)->toBeInstanceOf(PalletDelivery::class)
+        ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKING_IN);
+
+
+
+    $pallet = $palletDelivery->pallets->first();
+    BookInPallet::make()->action($pallet, ['location_id' => $this->location->id]);
+    $pallet->refresh();
+
+    expect($pallet->location)->toBeInstanceOf(Location::class)
+        ->and($pallet->location->id)->toBe($this->location->id)
+        ->and($pallet->state)->toBe(PalletStateEnum::BOOKED_IN);
+
+
+    return $palletDelivery;
+})->depends('Submit Retina Pallet Delivery');
+
+test('Create Retina Pallet Return', function () {
+
+    $fulfilmentCustomer = $this->fulfilmentCustomer;
+    $palletReturn = StoreRetinaPalletReturn::make()->action(
+        $fulfilmentCustomer,
+        [
+            'warehouse_id' => $this->warehouse->id,
+        ]
+    );
+
+    $fulfilmentCustomer->refresh();
+
+    expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($palletReturn->state)->toBe(PalletReturnStateEnum::IN_PROCESS)
+        ->and($fulfilmentCustomer->number_pallet_returns)->toBe(1);
+
+    return $palletReturn;
+});
+
+
+test('Create Retina Pallet Return (with stored item)', function (PalletReturn $palletReturn) {
+
+    $fulfilmentCustomer = $this->fulfilmentCustomer;
+
+    $palletReturn = StoreRetinaPalletReturn::make()->actionFromRetinaWithStoredItems(
+        $fulfilmentCustomer,
+        [
+            'warehouse_id' => $this->warehouse->id,
+        ]
+    );
+
+    $fulfilmentCustomer->refresh();
+
+    expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($palletReturn->state)->toBe(PalletReturnStateEnum::IN_PROCESS)
+        ->and($palletReturn->type)->toBe(PalletReturnTypeEnum::STORED_ITEM);
+
+    return $palletReturn;
+})->depends('Create Retina Pallet Return');
