@@ -62,7 +62,7 @@ class StoredItemDeltasInProcessResource extends JsonResource
                     'quantity'                  => (int)$item->quantity,
                     'audited_quantity'          => (int)$item->audited_quantity,
                     'audit_notes'               => $item->audit_notes,
-                    'storedItemAuditDelta'      => $item->stored_item_audit_delta_id,
+                    'stored_item_audit_delta'      => $item->stored_item_audit_delta_id,
                     'update_routes'             => [
                         'name'       => 'grp.models.stored_item_audit_delta.update',
                         'parameters' => [
@@ -80,11 +80,11 @@ class StoredItemDeltasInProcessResource extends JsonResource
                     'reference'            => $item->stored_item_reference,
                     'quantity'             => 0,
                     'audited_quantity'     => (int)$item->audited_quantity,
-                    'storedItemAuditDelta' => $item->audit_id,
+                    'stored_item_audit_delta' => $item->audit_id,
                     'update_routes'        => [
                         'name'       => 'grp.models.stored_item_audit_delta.update',
                         'parameters' => [
-                            'storedItemAuditDelta' => $item->audit_id
+                          $item->audit_id
                         ]
                     ],
                     'audit_notes'          => $item->audit_notes,
