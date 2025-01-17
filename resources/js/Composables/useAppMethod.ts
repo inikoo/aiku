@@ -20,7 +20,7 @@ export const useLogoutAuth = (dataUser, options) => {
         last_active: new Date(),
         action: 'logout',
         current_page: {
-            label: trans('Logout'),
+            label: trans('LogoutRetina'),
             url: null,
             icon_left: null,
             icon_right: null,

@@ -34,13 +34,22 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowPalletReturn extends RetinaAction
+class ShowRetinaPalletReturn extends RetinaAction
 {
     private FulfilmentCustomer $parent;
 
     public function handle(PalletReturn $palletReturn): PalletReturn
     {
         return $palletReturn;
+    }
+
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->customer->id == $request->route()->parameter('palletReturn')->fulfilmentCustomer->customer_id) {
+            return true;
+        }
+        return false;
     }
 
 

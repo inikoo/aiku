@@ -6,18 +6,19 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Actions\Fulfilment\PalletDelivery\Json\GetFulfilmentPhysicalGoods;
-use App\Actions\Fulfilment\PalletDelivery\Json\GetFulfilmentServices;
-use App\Actions\Fulfilment\PalletReturn\Json\GetReturnPallets;
-use App\Actions\Fulfilment\PalletReturn\Json\GetReturnStoredItems;
+use App\Actions\Retina\Storage\PalletDelivery\Json\GetRetinaFulfilmentPhysicalGoods;
+use App\Actions\Retina\Storage\PalletDelivery\Json\GetRetinaFulfilmentServices;
+use App\Actions\Retina\Storage\PalletReturn\Json\GetRetinaReturnPallets;
+use App\Actions\Retina\Storage\PalletReturn\Json\GetRetinaReturnStoredItems;
 use Illuminate\Support\Facades\Route;
 
-Route::get('fulfilment/{fulfilment}/delivery/{scope}/services', [GetFulfilmentServices::class, 'inPalletDelivery'])->name('fulfilment.delivery.services.index');
-Route::get('fulfilment/{fulfilment}/return/{scope}/services', [GetFulfilmentServices::class, 'inPalletReturn'])->name('fulfilment.return.services.index');
+Route::get('fulfilment/{fulfilment}/delivery/{scope}/services', [GetRetinaFulfilmentServices::class, 'inPalletDelivery'])->name('fulfilment.delivery.services.index');
+Route::get('fulfilment/{fulfilment}/return/{scope}/services', [GetRetinaFulfilmentServices::class, 'inPalletReturn'])->name('fulfilment.return.services.index');
 
-Route::get('fulfilment/{fulfilment}/delivery/{scope}/physical-goods', [GetFulfilmentPhysicalGoods::class, 'inPalletDelivery'])->name('fulfilment.delivery.physical-goods.index');
-Route::get('fulfilment/{fulfilment}/return/{scope}/physical-goods', [GetFulfilmentPhysicalGoods::class, 'inPalletReturn'])->name('fulfilment.return.physical-goods.index');
 
-Route::get('fulfilment/return/pallets', [GetReturnPallets::class, 'fromRetina'])->name('fulfilment.return.pallets');
+Route::get('fulfilment/{fulfilment}/delivery/{scope}/physical-goods', [GetRetinaFulfilmentPhysicalGoods::class, 'inPalletDelivery'])->name('fulfilment.delivery.physical-goods.index');
+Route::get('fulfilment/{fulfilment}/return/{scope}/physical-goods', [GetRetinaFulfilmentPhysicalGoods::class, 'inPalletReturn'])->name('fulfilment.return.physical-goods.index');
 
-Route::get('fulfilment/{fulfilment}/return/{scope}/stored-items', [GetReturnStoredItems::class, 'fromRetina'])->name('fulfilment.return.stored-items');
+Route::get('fulfilment/return/pallets', GetRetinaReturnPallets::class)->name('fulfilment.return.pallets');
+
+Route::get('fulfilment/{fulfilment}/return/{scope}/stored-items', GetRetinaReturnStoredItems::class)->name('fulfilment.return.stored-items');

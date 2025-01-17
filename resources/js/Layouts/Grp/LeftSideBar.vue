@@ -31,8 +31,8 @@ const handleToggleLeftBar = () => {
 }
 
 const logoutData = {
-    label: 'Logout',
-    tooltip: 'Logout the app',
+    label: 'LogoutRetina',
+    tooltip: 'LogoutRetina the app',
     icon: 'fal fa-sign-out-alt',
 }
 
@@ -80,7 +80,7 @@ const onLogoutAuth = () => {
             <LeftSidebarNavigation />
         </div>
 
-        <!-- Section: Logout -->
+        <!-- Section: LogoutRetina -->
         <div class="absolute bottom-20 w-full">
             <div class="flex justify-center">
                 <Popover class="relative w-full " v-slot="{ open }">
@@ -88,14 +88,14 @@ const onLogoutAuth = () => {
                         <div class="w-full rounded-md" :class="[open ? 'bg-black/25' : '']">
                             <NavigationSimple :nav="logoutData" />
                         </div>
-                        <!-- <Button icon="far fa-door-open" label="Logout" type="tertiary">
+                        <!-- <Button icon="far fa-door-open" label="LogoutRetina" type="tertiary">
                             <div class="text-gray-100">
                                 <FontAwesomeIcon icon="far fa-door-open" fixed-width aria-hidden='true' size="lg" />
-                                Logout
+                                LogoutRetina
                             </div>
                         </Button> -->
                     </PopoverButton>
-                    
+
                     <transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0 scale-95" enter-to-class="opacity-100 scale-100" leave-active-class="transition duration-150 ease-in" leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95" >
                         <PopoverPanel class="absolute -top-3 left-1/2 -translate-y-full bg-white rounded-md px-4 py-3 border border-gray-200 shadow">
                             <div class="min-w-32 flex flex-col justify-center gap-y-2">

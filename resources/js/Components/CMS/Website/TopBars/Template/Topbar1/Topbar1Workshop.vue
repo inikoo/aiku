@@ -62,7 +62,7 @@ const layout = inject('layout', {})
                 v-if="checkVisible(model?.greeting?.visible || null, isLoggedIn) && textReplaceVariables(model?.greeting?.text, layout.iris_variables)"
                 class="flex items-center"
                 v-html="textReplaceVariables(model?.greeting?.text, layout.iris_variables)"
-               
+
             /> -->
 
             <!-- Section: Main title -->
@@ -75,7 +75,7 @@ const layout = inject('layout', {})
 
 
         <div class="action_buttons flex justify-between md:justify-start items-center gap-x-1 flex-wrap md:flex-nowrap">
-                
+
             <!-- Section: Profile -->
             <a v-if="checkVisible(model?.profile?.visible || null, isLoggedIn)"
                 id="profile_button"
@@ -114,7 +114,7 @@ const layout = inject('layout', {})
                 <FontAwesomeIcon icon='fal fa-shopping-cart' class='text-base px-[5px]' v-tooltip="trans('Basket')" fixed-width aria-hidden='true' />
                 <span v-html="textReplaceVariables(model?.cart?.text, layout.iris_variables)" />
             </a>
-            
+
             <!-- Section: Login -->
              <span class="hover-dashed">
                 <a v-if="checkVisible(model?.login?.visible || null, isLoggedIn)"
@@ -129,7 +129,7 @@ const layout = inject('layout', {})
                     <span v-html="textReplaceVariables(model?.login?.text, layout.iris_variables)" />
                 </a>
              </span>
-            
+
 
             <!-- Section: Register -->
             <span class="hover-dashed">
@@ -145,7 +145,7 @@ const layout = inject('layout', {})
                 </a>
             </span>
 
-            <!-- Section: Logout -->
+            <!-- Section: LogoutRetina -->
             <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
                 :href="model?.logout?.link"
                 class="space-x-1.5 whitespace-nowrap hover-dashed"

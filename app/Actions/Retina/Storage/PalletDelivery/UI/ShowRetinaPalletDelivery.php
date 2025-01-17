@@ -39,7 +39,6 @@ class ShowRetinaPalletDelivery extends RetinaAction
     }
 
 
-
     public function asController(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
         $this->initialisation($request)->withTab(PalletDeliveryTabsEnum::values());

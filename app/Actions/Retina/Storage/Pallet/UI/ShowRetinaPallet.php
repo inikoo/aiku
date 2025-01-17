@@ -20,6 +20,8 @@ use App\Http\Resources\History\HistoryResource;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\PalletReturn;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -30,6 +32,20 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowRetinaPallet extends RetinaAction
 {
     public function asController(Pallet $pallet, ActionRequest $request): Pallet
+    {
+        $this->initialisation($request)->withTab(PalletTabsEnum::values());
+
+        return $this->handle($pallet);
+    }
+
+    public function inPalletDelivery(PalletDelivery $palletDelivery, Pallet $pallet, ActionRequest $request): Pallet
+    {
+        $this->initialisation($request)->withTab(PalletTabsEnum::values());
+
+        return $this->handle($pallet);
+    }
+
+    public function inPalletReturn(PalletReturn $palletReturn, Pallet $pallet, ActionRequest $request): Pallet
     {
         $this->initialisation($request)->withTab(PalletTabsEnum::values());
 

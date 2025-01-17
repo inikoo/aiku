@@ -10,6 +10,9 @@ import Tag from '@/Components/Tag.vue'
 import { faChevronDown } from '@fas'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { trans } from "laravel-vue-i18n"
+import LoadingIcon from "./Utils/LoadingIcon.vue"
+import LoadingText from "./Utils/LoadingText.vue"
 
 library.add(faChevronDown)
 
@@ -85,7 +88,7 @@ const getOptions = async () => {
                   
             }
         })
-        onGetOptionsSuccess(response)
+        await onGetOptionsSuccess(response)
         loading.value = false
     } catch (error) {
         console.log(error)
@@ -99,7 +102,7 @@ const getOptions = async () => {
 }
 
 
-const onGetOptionsSuccess = (response) => {
+const onGetOptionsSuccess = async (response) => {
     const newData = response?.data?.data ?? [];
     const updatedOptions = q.value && q.value !== '' ? [...newData] : page.value > 1 ? [...optionData.value, ...newData] : [...newData];
     optionData.value = props.filterOptions ? props.filterOptions(updatedOptions) : updatedOptions;
@@ -109,6 +112,7 @@ const onGetOptionsSuccess = (response) => {
 
 
 const SearchChange = (value: any) => {
+    if(value === '') return // ==========================
     q.value = value
     page.value = 1
     clearTimeout(timeoutId)
@@ -133,9 +137,9 @@ const onScrollMultiselect = () => {
 }
 
 const onCreate = (option, select) => {
-    return props.onCreate(option, select).then(create => {
+    return props.onCreate(option, select).then(async (create) => {
         props.value[props.fieldName] = create; // Assign the result to the specified field
-        getOptions(); // Call getOptions after the value is set
+        await getOptions(); // Call getOptions after the value is set
         return create // Return false as specified
     }).catch(error => {
         console.error('Error in onCreate:', error);
@@ -205,7 +209,7 @@ defineExpose({
         :noResultsText="loading ? 'loading...' : 'No Result'"
         @open="getOptions()"
         @search-change="SearchChange"
-        @change="props.onChange"
+        @change="(props.onChange, getOptions())"
         :closeOnDeselect="closeOnDeselect"
         :isSelected="isSelected"
         :loading="loadingCaret"
@@ -220,10 +224,19 @@ defineExpose({
             </slot>
         </template>
 
+        <template #placeholder>
+            <slot name="placeholder" :search="q" >
+                <div v-if="loading" class="flex items-center gap-x-1 text-gray-400 w-full px-2 py-2" >
+                    <LoadingIcon />
+                    <LoadingText />
+                </div>
+            </slot>
+        </template>
+
         <template #noresults>
             <slot name="noresults" :search="q" >
                 <div class="px-2 py-2" >
-                    No Result
+                    {{ trans("No Result") }}
                 </div>
             </slot>
         </template>
@@ -236,7 +249,7 @@ defineExpose({
         <template #nooptions>
             <slot name="nooptions" :search="q" >
                 <div class="px-2 py-2" >
-                    No Result
+                    {{ trans("No Result") }}
                 </div>
             </slot>
         </template>

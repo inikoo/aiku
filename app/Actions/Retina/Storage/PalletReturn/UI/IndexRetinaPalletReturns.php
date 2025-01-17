@@ -25,7 +25,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexPalletReturns extends RetinaAction
+class IndexRetinaPalletReturns extends RetinaAction
 {
     private FulfilmentCustomer $parent;
 
@@ -183,7 +183,7 @@ class IndexPalletReturns extends RetinaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('pallet returns'),
+                        'label' => __('Pallet Returns'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],
