@@ -37,12 +37,9 @@ class StoreRetinaPalletReturn extends RetinaAction
     use WithDeliverableStoreProcessing;
     use WithModelAddressActions;
 
-    public Customer $customer;
-
     private bool $action = false;
 
     private bool $withStoredItems = false;
-    private Fulfilment $fulfilment;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletReturn
     {

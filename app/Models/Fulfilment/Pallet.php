@@ -240,11 +240,16 @@ class Pallet extends Model implements Auditable
     }
 
 
-    public function getEditNewStoredItemDeltasQuery(): Builder
+    public function getEditNewStoredItemDeltasQuery(int $palletID): Builder
     {
         return DB::table('stored_item_audit_deltas')
             ->where('stored_item_audit_deltas.is_stored_item_new_in_pallet', true)
             ->leftJoin('stored_items', 'stored_item_audit_deltas.stored_item_id', '=', 'stored_items.id')
+            ->leftJoin('pallet_stored_items', function ($join) use ($palletID) {
+                $join->on('pallet_stored_items.stored_item_id', '=', 'stored_item_audit_deltas.stored_item_id')
+                    ->where('pallet_stored_items.pallet_id', '=', $palletID);
+            })
+            ->whereNull('pallet_stored_items.id')
             ->select(
                 'stored_items.reference  as stored_item_reference',
                 'stored_items.id  as stored_item_id',

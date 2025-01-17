@@ -234,37 +234,6 @@ class IndexPalletsInCustomer extends OrgAction
         ];
 
         $actions = [];
-        if ($this->fulfilmentCustomer->items_storage) {
-            $openStoredItemAudit = $this->fulfilmentCustomer->storedItemAudits()->where('state', StoredItemAuditStateEnum::IN_PROCESS)->first();
-
-            if ($openStoredItemAudit) {
-                $actions[] = [
-                    'type'    => 'button',
-                    'style'   => 'secondary',
-                    'tooltip' => __("Continue customer's SKUs audit"),
-                    'label'   => __("Continue customer's SKUs audit"),
-                    'route'   => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.show',
-                        'parameters' => array_merge($request->route()->originalParameters(), ['storedItemAudit' => $openStoredItemAudit->slug])
-                    ]
-                ];
-            } else {
-                $actions[] = [
-                    'type'    => 'button',
-                    'tooltip' => __("Start customer's SKUs audit"),
-                    'label'   => __("Start customer's SKUs audit"),
-                    'route'   => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.create',
-                        'parameters' => $request->route()->originalParameters()
-                    ]
-                ];
-            }
-
-
-
-
-
-        }
 
 
         return Inertia::render(

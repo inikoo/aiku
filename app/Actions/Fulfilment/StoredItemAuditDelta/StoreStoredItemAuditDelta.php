@@ -16,6 +16,7 @@ use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaTypeEnum;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\Fulfilment\StoredItemAudit;
 use App\Models\Fulfilment\StoredItemAuditDelta;
+use DB;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -27,19 +28,35 @@ class StoreStoredItemAuditDelta extends OrgAction
         data_set($modelData, 'organisation_id', $storedItemAudit->organisation_id);
         data_set($modelData, 'audited_at', now());
 
-        $auditType       = StoredItemAuditDeltaTypeEnum::ADDITION;
         $isNewStoredItem = false;
         $storedItem      = StoredItem::where('id', $modelData['stored_item_id'])->first();
 
+
+        $originalQuantity = DB::table('pallet_stored_items')
+            ->where('stored_item_id', $storedItem->id)
+            ->where('pallet_id', $modelData['pallet_id'])
+            ->get()->pluck('quantity')->first();
+
+        if ($originalQuantity == null) {
+            $originalQuantity = 0;
+            $auditType        = StoredItemAuditDeltaTypeEnum::SET_UP;
+        } elseif ($originalQuantity > $modelData['audited_quantity']) {
+            $auditType = StoredItemAuditDeltaTypeEnum::SUBTRACTION;
+        } elseif ($originalQuantity < $modelData['audited_quantity']) {
+            $auditType = StoredItemAuditDeltaTypeEnum::ADDITION;
+        } else {
+            $auditType = StoredItemAuditDeltaTypeEnum::NO_CHANGE;
+        }
+
+
         if (in_array($storedItem->state, [StoredItemStateEnum::SUBMITTED, StoredItemStateEnum::IN_PROCESS])) {
-            $auditType       = StoredItemAuditDeltaTypeEnum::SET_UP;
             $isNewStoredItem = true;
         }
 
 
         data_set($modelData, 'audit_type', $auditType);
         data_set($modelData, 'state', StoredItemAuditDeltaStateEnum::IN_PROCESS);
-        data_set($modelData, 'original_quantity', 0);
+        data_set($modelData, 'original_quantity', $originalQuantity);
 
         data_set($modelData, 'is_new_stored_item', $isNewStoredItem);
         data_set($modelData, 'is_stored_item_new_in_pallet', true);
@@ -49,7 +66,6 @@ class StoreStoredItemAuditDelta extends OrgAction
         StoredItemAuditHydrateDeltas::dispatch($storedItemAudit);
 
         return $storedItemAuditDelta;
-
     }
 
     public function rules(): array
