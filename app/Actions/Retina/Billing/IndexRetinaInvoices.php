@@ -84,6 +84,7 @@ class IndexRetinaInvoices extends RetinaAction
                 'invoices.created_at',
                 'invoices.updated_at',
                 'invoices.slug',
+                'invoices.pay_status',
                 'currencies.code as currency_code',
                 'currencies.symbol as currency_symbol',
                 'shops.name as shop_name',

@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Lorisleiva\Actions\Concerns\AsController;
 
-class Logout
+class LogoutRetina
 {
     use AsController;
 

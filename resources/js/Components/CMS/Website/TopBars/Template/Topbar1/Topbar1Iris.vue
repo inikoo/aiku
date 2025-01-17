@@ -63,7 +63,7 @@ const layout = inject('layout', {})
 
 
         <div class="action_buttons flex justify-between md:justify-start items-center gap-x-1 flex-wrap md:flex-nowrap">
-                
+
             <!-- Section: Profile -->
             <a v-if="checkVisible(model?.profile?.visible || null, isLoggedIn)"
                 id="profile_button"
@@ -71,7 +71,7 @@ const layout = inject('layout', {})
                 :target="model?.profile?.link.target"
                 class="space-x-1.5 whitespace-nowrap "
                 :style="getStyles(model?.profile.container?.properties)"
-               
+
             >
                 <FontAwesomeIcon icon='fal fa-user' class='' v-tooltip="trans('Profile')" fixed-width aria-hidden='true' />
                 <span v-html="textReplaceVariables(model?.profile?.text, layout.iris_variables)" />
@@ -84,7 +84,7 @@ const layout = inject('layout', {})
                 :target="model?.favourite?.link.target"
                 class="space-x-1.5 whitespace-nowrap "
                 :style="getStyles(model?.favourite.container?.properties)"
-              
+
             >
                 <FontAwesomeIcon icon='fal fa-heart' class='' fixed-width aria-hidden='true' />
                 <span v-html="textReplaceVariables(model?.favourite?.text, layout.iris_variables)" />
@@ -97,12 +97,12 @@ const layout = inject('layout', {})
                 :target="model?.cart?.link.target"
                 class="space-x-1.5 flex items-center whitespace-nowrap "
                 :style="getStyles(model?.cart.container?.properties)"
-            
+
             >
                 <FontAwesomeIcon icon='fal fa-shopping-cart' class='text-base px-[5px]' v-tooltip="trans('Basket')" fixed-width aria-hidden='true' />
                 <span v-html="textReplaceVariables(model?.cart?.text, layout.iris_variables)" />
             </a>
-            
+
             <!-- Section: Login -->
              <span class="">
                 <a v-if="checkVisible(model?.login?.visible || null, isLoggedIn)"
@@ -111,13 +111,13 @@ const layout = inject('layout', {})
                     class="space-x-1.5 cursor-pointer whitespace-nowrap"
                     id=""
                     :style="getStyles(model?.login?.container?.properties)"
-                 
+
                 >
                     <FontAwesomeIcon icon='fal fa-sign-in' class='' fixed-width aria-hidden='true' />
                     <span v-html="textReplaceVariables(model?.login?.text, layout.iris_variables)" />
                 </a>
              </span>
-            
+
 
             <!-- Section: Register -->
             <span class="">
@@ -126,19 +126,19 @@ const layout = inject('layout', {})
                     :target="model?.register?.link.target"
                     class="space-x-1.5 cursor-pointer whitespace-nowrap "
                     :style="getStyles(model?.register.container?.properties)"
-                 
+
                 >
                     <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
                     <span v-html="textReplaceVariables(model?.register.text, layout.iris_variables)" />
                 </a>
             </span>
 
-            <!-- Section: Logout -->
+            <!-- Section: LogoutRetina -->
             <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
                 :href="model?.logout?.link"
                 class="space-x-1.5 whitespace-nowrap "
                 :style="getStyles(model?.logout.container?.properties)"
-   
+
             >
                 <FontAwesomeIcon icon='fal fa-sign-out' v-tooltip="trans('Log out')" class='' fixed-width aria-hidden='true' />
                 <span v-html="textReplaceVariables(model?.logout?.text, layout.iris_variables)" />

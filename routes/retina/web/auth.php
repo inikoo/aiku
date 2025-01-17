@@ -8,7 +8,7 @@
 
 
 use App\Actions\CRM\WebUser\Retina\RetinaLogin;
-use App\Actions\CRM\WebUser\Retina\Logout;
+use App\Actions\CRM\WebUser\Retina\LogoutRetina;
 use App\Actions\CRM\WebUser\Retina\RetinaRegister;
 use App\Actions\CRM\WebUser\Retina\UI\ShowRetinaLogin;
 use App\Actions\CRM\WebUser\Retina\UI\ShowRetinaPrepareAccount;
@@ -33,7 +33,7 @@ Route::middleware('guest:retina')->group(function () {
 });
 
 Route::middleware('retina-auth:retina')->group(function () {
-    Route::post('logout', Logout::class)->name('logout');
+    Route::post('logout', LogoutRetina::class)->name('logout');
     Route::get('reset/password', ShowRetinaResetWebUserPassword::class)->name('reset-password.edit');
     Route::patch('reset/password', UpdateRetinaWebUserPassword::class)->name('reset-password.update');
     Route::get('prepare-account', ShowRetinaPrepareAccount::class)->name('prepare-account.show');

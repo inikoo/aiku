@@ -6,9 +6,9 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\PalletReturn\Json;
+namespace App\Actions\Retina\Storage\PalletReturn\Json;
 
-use App\Actions\OrgAction;
+use App\Actions\RetinaAction;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
@@ -26,7 +26,7 @@ use App\Models\CRM\WebUser;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class GetReturnPallets extends OrgAction
+class GetRetinaReturnPallets extends RetinaAction
 {
     protected function getElementGroups(PalletReturn $palletReturn): array
     {
@@ -122,14 +122,11 @@ class GetReturnPallets extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($request->user() instanceof WebUser) {
+        if ($this->customer->id == $request->route()->parameter('fulfilmentCustomer')->customer_id) {
             return true;
         }
 
-        $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+        return false;
     }
 
     public function jsonResponse(LengthAwarePaginator $pallets): AnonymousResourceCollection
@@ -139,7 +136,7 @@ class GetReturnPallets extends OrgAction
 
     public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+        $this->initialisation($request);
 
         return $this->handle($fulfilmentCustomer);
     }
