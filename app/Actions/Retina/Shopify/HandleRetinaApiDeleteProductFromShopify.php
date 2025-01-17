@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 17-01-2025-09h-56m
@@ -9,7 +10,6 @@
 namespace App\Actions\Retina\Shopify;
 
 use App\Actions\Dropshipping\Shopify\Product\DeleteShopifyUserHasProduct;
-use App\Actions\OrgAction;
 use App\Actions\RetinaAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dropshipping\ShopifyUser;

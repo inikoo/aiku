@@ -6,26 +6,11 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\CRM\Customer\DeleteCustomerDeliveryAddress;
-use App\Actions\CRM\Customer\UpdateCustomerDeliveryAddress;
-use App\Actions\CRM\WebUser\StoreWebUser;
-use App\Actions\CRM\WebUser\UpdateWebUser;
-use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
-use App\Actions\Dropshipping\Shopify\Product\HandleApiDeleteProductFromShopify;
-use App\Actions\Dropshipping\Shopify\Product\StoreProductShopify;
-use App\Actions\Fulfilment\FulfilmentCustomer\AddDeliveryAddressToFulfilmentCustomer;
-use App\Actions\Fulfilment\Pallet\DeletePallet;
-use App\Actions\Fulfilment\Pallet\UpdatePallet;
-use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
-use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Retina\CRM\DeleteRetinaCustomerDeliveryAddress;
-use App\Actions\Retina\CRM\RetinaUpdateCustomerSettings;
 use App\Actions\Retina\CRM\StoreRetinaCustomerClient;
 use App\Actions\Retina\CRM\UpdateRetinaCustomerDeliveryAddress;
 use App\Actions\Retina\CRM\UpdateRetinaCustomerSettings;
 use App\Actions\Retina\Fulfilment\DeleteRetinaFulfilmentTransaction;
-use App\Actions\Retina\Fulfilment\RetinaDeleteFulfilmentTransaction;
-use App\Actions\Retina\Fulfilment\RetinaUpdateFulfilmentTransaction;
 use App\Actions\Retina\Fulfilment\UpdateRetinaFulfilmentTransaction;
 use App\Actions\Retina\Shopify\HandleRetinaApiDeleteProductFromShopify;
 use App\Actions\Retina\Shopify\StoreRetinaProductShopify;
@@ -54,7 +39,6 @@ use App\Actions\Retina\SysAdmin\AddRetinaDeliveryAddressToFulfilmentCustomer;
 use App\Actions\Retina\SysAdmin\StoreRetinaWebUser;
 use App\Actions\Retina\SysAdmin\UpdateRetinaFulfilmentCustomer;
 use App\Actions\Retina\SysAdmin\UpdateRetinaWebUser;
-use App\Actions\UI\Retina\Profile\RetinaUpdateProfile;
 use App\Actions\UI\Retina\Profile\UpdateRetinaProfile;
 use Illuminate\Support\Facades\Route;
 

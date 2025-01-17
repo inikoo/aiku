@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 17-01-2025-09h-57m
@@ -9,7 +10,6 @@
 namespace App\Actions\Retina\SysAdmin;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
-use App\Actions\OrgAction;
 use App\Actions\RetinaAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
