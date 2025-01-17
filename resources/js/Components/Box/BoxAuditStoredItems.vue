@@ -112,7 +112,7 @@ const dataBoxStats = [
                     <FontAwesomeIcon icon='fal fa-envelope' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-base text-gray-500 white w-full truncate">{{ boxStats?.customer.email }}</dd>
+                <a :href="`mailto:${boxStats?.customer.email}`" class="text-base text-gray-500 hover:underline white w-full truncate">{{ boxStats?.customer?.email }}</a>
             </div>
 
             <!-- Field: Phone -->
@@ -122,7 +122,7 @@ const dataBoxStats = [
                     <FontAwesomeIcon icon='fal fa-phone' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-base text-gray-500">{{ boxStats?.customer.phone }}</dd>
+                <a :href="`tel:${boxStats?.customer.phone}`" class="text-base text-gray-500 hover:underline white w-full truncate">{{ boxStats?.customer?.phone }}</a>
             </div>
         </BoxStatPallet>
 

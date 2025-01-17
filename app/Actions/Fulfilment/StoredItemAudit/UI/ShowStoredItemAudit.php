@@ -174,10 +174,10 @@ class ShowStoredItemAudit extends OrgAction
                     ]
                 ],
 
-                'data'                    => StoredItemAuditResource::make($storedItemAudit),
-                'edit_stored_item_deltas' => $editDeltas,
-                'stored_item_deltas' => $deltas,
-                'fulfilment_customer'     => FulfilmentCustomerResource::make($storedItemAudit->fulfilmentCustomer)->getArray()
+                'data'                      => StoredItemAuditResource::make($storedItemAudit),
+                'edit_stored_item_deltas'   => $editDeltas,
+                'stored_item_deltas'        => $deltas,
+                'fulfilment_customer'       => FulfilmentCustomerResource::make($storedItemAudit->fulfilmentCustomer)->getArray()
             ]
         );
 

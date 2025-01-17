@@ -101,10 +101,10 @@ class IndexStoredItemAuditDeltas extends OrgAction
             $table->withEmptyState($emptyStateData)
                 ->withModelOperations($modelOperations);
 
-            $table->column(key: 'state', label: __('state'), canBeHidden: false, searchable: true)
+            $table->column(key: 'state', label: __('state'), canBeHidden: false, searchable: true, type: 'icon')
                 ->column(key: 'original_quantity', label: __('original quantity'), canBeHidden: false, searchable: true)
                 ->column(key: 'audited_quantity', label: __('audited quantity'), canBeHidden: false, searchable: true)
-                ->column(key: 'audit_type', label: __('audit type'), canBeHidden: false, searchable: true)
+                ->column(key: 'audit_type_label', label: __('audit type'), canBeHidden: false, searchable: true)
                 ->column(key: 'audited_at', label: __('audited at'), canBeHidden: false, searchable: true);
         };
     }

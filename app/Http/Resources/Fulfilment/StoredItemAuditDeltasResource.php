@@ -22,9 +22,10 @@ class StoredItemAuditDeltasResource extends JsonResource
             'stored_item_id'                    => $this->stored_item_id,
             'stored_item_reference'             => $this->stored_item_reference,
             'audited_at'                        => $this->audited_at,
-            'original_quantity'                 => $this->original_quantity,
-            'audited_quantity'                  => $this->audited_quantity,
+            'original_quantity'                 => (int) $this->original_quantity,
+            'audited_quantity'                  => (int) $this->audited_quantity,
             'audit_type'                        => $this->audit_type,
+            'audit_type_label'                  => $this->audit_type->labels()[$this->audit_type->value],
             'state'                             => $this->state,
             'state_label'                       => $this->state->labels()[$this->state->value],
             'state_icon'                        => $this->state->stateIcon()[$this->state->value]

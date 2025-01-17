@@ -38,6 +38,8 @@ import InputNumber from 'primevue/inputnumber'
 import { notify } from '@kyvg/vue3-notification'
 import CreateStoredItems from '@/Components/CreateStoredItems.vue'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
+import { Table as TableTS } from '@/types/Table'
+import TableStoredItemAuditDeltas from '@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemAuditDeltas.vue'
 // import QuantityInput from '@/Components/Utils/QuantityInput.vue'
 library.add(faStickyNote, faPlus, faMinus, falCheckCircle, faUndo, faArrowToLeft, faTrashAlt, faCheckCircle, faStar)
 
@@ -48,7 +50,8 @@ const props = defineProps<{
     title: string
     pageHead: PageHeadingTypes
     notes_data: any
-    edit_stored_item_deltas: any
+    edit_stored_item_deltas: TableTS
+    stored_item_deltas: TableTS
     fulfilment_customer: any
     route_list: {
         update: routeType
@@ -481,10 +484,13 @@ const statesBoxEdit = reactive<StoredItemsQuantity>({
 
             </div> -->
         </template>
-
-
     </Table>
-    {{ storedItemsQuantity }}
+
+    <TableStoredItemAuditDeltas
+        v-if="stored_item_deltas"
+        :data="stored_item_deltas"
+        tab="stored_item_deltas"
+    />
 </template>
 
 <style scoped>
