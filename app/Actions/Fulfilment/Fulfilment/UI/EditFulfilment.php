@@ -47,7 +47,9 @@ class EditFulfilment extends OrgAction
                     $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
-                    'title' => $fulfilment->shop->name,
+                    'model' => $fulfilment->shop->name,
+                    'title' => __('Settings'),
+                    'icon'  => 'fal fa-sliders-h'
                 ],
 
                 'formData' => [
@@ -193,6 +195,7 @@ class EditFulfilment extends OrgAction
                                         27,
                                         28
                                     ],
+                                    'noSaveButton'  => true,
                                     'value'   => [
                                         'date'       => Arr::get($fulfilment->settings, 'rental_agreement_cut_off.monthly.day'),
                                         'isWeekdays' => Arr::get($fulfilment->settings, 'rental_agreement_cut_off.monthly.is_weekdays'),
