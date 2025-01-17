@@ -7,7 +7,7 @@
  */
 
 
-use App\Actions\UI\Retina\Dashboard\ShowDashboard;
+use App\Actions\UI\Retina\Dashboard\ShowRetinaDashboard;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', ShowDashboard::class)->name('show');
+Route::get('/', ShowRetinaDashboard::class)->name('show');

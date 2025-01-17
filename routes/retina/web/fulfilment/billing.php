@@ -6,7 +6,7 @@
  * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-use App\Actions\Retina\Accounting\PdfRetinaInvoice;
+use App\Actions\Retina\Accounting\Invoice\PdfRetinaInvoice;
 use App\Actions\Retina\Billing\IndexRetinaInvoices;
 use App\Actions\Retina\Billing\ShowRetinaInvoice;
 use App\Actions\Retina\Storage\RecurringBill\UI\ShowRetinaCurrentRecurringBill;
