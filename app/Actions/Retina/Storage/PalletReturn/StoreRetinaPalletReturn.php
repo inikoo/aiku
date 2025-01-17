@@ -44,7 +44,6 @@ class StoreRetinaPalletReturn extends RetinaAction
 
     private bool $withStoredItems = false;
     private Fulfilment $fulfilment;
-    private Organisation $organisation;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletReturn
     {
@@ -146,12 +145,11 @@ class StoreRetinaPalletReturn extends RetinaAction
     }
 
 
-    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): PalletReturn
+    public function asController(ActionRequest $request): PalletReturn
     {
         /** @var FulfilmentCustomer $fulfilmentCustomer */
         $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
         $this->fulfilment   = $fulfilmentCustomer->fulfilment;
-        $this->organisation   = $organisation;
 
         $this->initialisation($request);
 
