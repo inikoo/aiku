@@ -10,7 +10,7 @@ namespace App\Actions\UI\Retina\Dropshipping\Orders;
 
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Dashboard\ShowDashboard;
+use App\Actions\UI\Retina\Dashboard\ShowRetinaDashboard;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Http\Resources\Ordering\OrdersResource;
 use App\Models\Dropshipping\ShopifyUser;
@@ -64,7 +64,7 @@ class IndexDropshippingRetinaOrders extends RetinaAction
     {
         return
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowRetinaDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

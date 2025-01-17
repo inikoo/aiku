@@ -12,7 +12,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\Concerns\AsController;
 
-class ShowPasswordResetLink
+class ShowRetinaPasswordResetLink
 {
     use AsController;
 

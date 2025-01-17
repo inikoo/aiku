@@ -10,7 +10,7 @@ namespace App\Actions\UI\Retina\Dropshipping\Product\UI;
 
 use App\Actions\Catalogue\Product\UI\IndexProducts as IndexUIProducts;
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Dashboard\ShowDashboard;
+use App\Actions\UI\Retina\Dashboard\ShowRetinaDashboard;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Http\Resources\Catalogue\DropshippingPortfolioResource;
 use App\Models\Dropshipping\ShopifyUser;
@@ -64,7 +64,7 @@ class IndexDropshippingRetinaPortfolio extends RetinaAction
     {
         return
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowRetinaDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

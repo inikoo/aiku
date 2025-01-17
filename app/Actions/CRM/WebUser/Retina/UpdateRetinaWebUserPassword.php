@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateWebUserPassword extends OrgAction
+class UpdateRetinaWebUserPassword extends OrgAction
 {
     use WithActionUpdate;
 

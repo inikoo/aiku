@@ -8,8 +8,8 @@
 
 namespace App\Actions\Retina\Billing;
 
-use App\Actions\Accounting\InvoiceTransaction\UI\IndexInvoiceTransactions;
-use App\Actions\Accounting\Payment\UI\IndexPayments;
+use App\Actions\Retina\Accounting\Invoice\Transaction\UI\IndexRetinaInvoiceTransactions;
+use App\Actions\Retina\Accounting\Payment\UI\IndexRetinaPayments;
 use App\Actions\RetinaAction;
 use App\Enums\UI\Accounting\InvoiceTabsEnum;
 use App\Http\Resources\Accounting\InvoiceResource;
@@ -149,17 +149,17 @@ class ShowRetinaInvoice extends RetinaAction
 
 
                 InvoiceTabsEnum::ITEMS->value => $this->tab == InvoiceTabsEnum::ITEMS->value ?
-                    fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))
-                    : Inertia::lazy(fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))),
+                    fn () => InvoiceTransactionsResource::collection(IndexRetinaInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))
+                    : Inertia::lazy(fn () => InvoiceTransactionsResource::collection(IndexRetinaInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))),
 
                 InvoiceTabsEnum::PAYMENTS->value => $this->tab == InvoiceTabsEnum::PAYMENTS->value ?
-                    fn () => PaymentsResource::collection(IndexPayments::run($invoice))
-                    : Inertia::lazy(fn () => PaymentsResource::collection(IndexPayments::run($invoice))),
+                    fn () => PaymentsResource::collection(IndexRetinaPayments::run($invoice))
+                    : Inertia::lazy(fn () => PaymentsResource::collection(IndexRetinaPayments::run($invoice))),
 
 
             ]
-        )->table(IndexPayments::make()->tableStructure($invoice, [], InvoiceTabsEnum::PAYMENTS->value))
-            ->table(IndexInvoiceTransactions::make()->tableStructure($invoice, InvoiceTabsEnum::ITEMS->value));
+        )->table(IndexRetinaPayments::make()->tableStructure($invoice, [], InvoiceTabsEnum::PAYMENTS->value))
+            ->table(IndexRetinaInvoiceTransactions::make()->tableStructure($invoice, InvoiceTabsEnum::ITEMS->value));
     }
 
 

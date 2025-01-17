@@ -63,7 +63,7 @@ class IndexInvoices extends OrgAction
 
 
         $queryBuilder = QueryBuilder::for(Invoice::class);
-        
+
         if ($this->bucket) {
             if ($this->bucket == 'unpaid') {
                 $queryBuilder->where('invoices.pay_status', InvoicePayStatusEnum::UNPAID);

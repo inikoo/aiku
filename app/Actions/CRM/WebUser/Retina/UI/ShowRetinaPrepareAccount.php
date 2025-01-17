@@ -13,14 +13,19 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 
-class ShowRegister
+class ShowRetinaPrepareAccount
 {
     use AsController;
 
 
     public function handle(ActionRequest $request): Response
     {
-        return Inertia::render('Auth/Register');
+        return Inertia::render('Errors/ErrorInApp', [
+            'error' => [
+                'code'        => 403,
+                'title'       => 'We still prepare your account',
+                'description' => 'please come back shortly.'
+            ]
+        ]);
     }
-
 }

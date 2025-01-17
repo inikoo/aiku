@@ -18,7 +18,7 @@ use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
 
-class UpdateWebUserPasswordViaEmail
+class UpdateRetinaWebUserPasswordViaEmail
 {
     use WithActionUpdate;
 
