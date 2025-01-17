@@ -26,7 +26,7 @@
   
   const dataCompany = [
       {
-          label: 'Contact',
+          label: 'Contact name',
           key: 'contact',
           value: props.data.contact_name ?? '-'
       },

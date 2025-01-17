@@ -28,7 +28,7 @@ const props = defineProps<{
 
 const dataCompany = [
     {
-        label: 'Contact',
+        label: 'Contact name',
         key: 'contact',
         value: props.data.customer?.contact_name
     },
