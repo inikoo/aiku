@@ -22,9 +22,13 @@ use App\Actions\Retina\CRM\RetinaUpdateCustomerSettings;
 use App\Actions\Retina\Fulfilment\RetinaDeleteFulfilmentTransaction;
 use App\Actions\Retina\Fulfilment\RetinaUpdateFulfilmentTransaction;
 use App\Actions\Retina\Storage\FulfilmentTransaction\StoreRetinaFulfilmentTransaction;
+use App\Actions\Retina\Storage\Pallet\ImportRetinaPallet;
 use App\Actions\Retina\Storage\Pallet\RetinaImportPallet;
 use App\Actions\Retina\Storage\Pallet\RetinaStoreMultiplePalletsFromDelivery;
 use App\Actions\Retina\Storage\Pallet\RetinaStorePalletFromDelivery;
+use App\Actions\Retina\Storage\Pallet\StoreRetinaMultiplePalletsFromDelivery;
+use App\Actions\Retina\Storage\Pallet\StoreRetinaPalletFromDelivery;
+use App\Actions\Retina\Storage\PalletDelivery\Pdf\PdfRetinaPalletDelivery;
 use App\Actions\Retina\Storage\PalletDelivery\Pdf\RetinaPdfPalletDelivery;
 use App\Actions\Retina\Storage\PalletDelivery\StoreRetinaPalletDelivery;
 use App\Actions\Retina\Storage\PalletDelivery\SubmitRetinaPalletDelivery;
@@ -67,14 +71,14 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
 
 Route::post('pallet-delivery', StoreRetinaPalletDelivery::class)->name('pallet-delivery.store');
 Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->group(function () {
-    Route::post('pallet-upload', RetinaImportPallet::class)->name('pallet.upload');
-    Route::post('pallet', RetinaStorePalletFromDelivery::class)->name('pallet.store');
-    Route::post('multiple-pallet', RetinaStoreMultiplePalletsFromDelivery::class)->name('multiple-pallets.store');
+    Route::post('pallet-upload', ImportRetinaPallet::class)->name('pallet.upload');
+    Route::post('pallet', StoreRetinaPalletFromDelivery::class)->name('pallet.store');
+    Route::post('multiple-pallet', StoreRetinaMultiplePalletsFromDelivery::class)->name('multiple-pallets.store');
     Route::patch('update', UpdateRetinaPalletDelivery::class)->name('update');
     Route::patch('update-timeline', UpdateRetinaPalletDeliveryTimeline::class)->name('timeline.update');
     Route::post('transaction', [StoreRetinaFulfilmentTransaction::class,'fromRetinaInPalletDelivery'])->name('transaction.store');
     Route::post('submit', SubmitRetinaPalletDelivery::class)->name('submit');
-    Route::get('pdf', RetinaPdfPalletDelivery::class)->name('pdf');
+    Route::get('pdf', PdfRetinaPalletDelivery::class)->name('pdf');
 });
 
 Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {

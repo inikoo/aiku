@@ -6,6 +6,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
 use Inertia\Testing\AssertableInertia;
 

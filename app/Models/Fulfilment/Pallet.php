@@ -234,7 +234,7 @@ class Pallet extends Model implements Auditable
                 'stored_item_audit_deltas.audited_quantity',
                 'stored_item_audit_deltas.state',
                 'stored_item_audit_deltas.audit_type',
-                'stored_item_audit_deltas.id as audit_id',
+                'stored_item_audit_deltas.id as stored_item_audit_delta_id',
                 'pallet_stored_items.pallet_id as pallet_id'
             );
     }

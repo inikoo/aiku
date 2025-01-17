@@ -948,10 +948,9 @@ test('payment accounts search', function () {
     expect($paymentAccount->universalSearch()->count())->toBe(1);
 });
 
-// test('topups search', function () {
-//     $this->artisan('search:topups')->assertExitCode(0);
-
-//     $topup = Topup::first();
-//     ReindexTopUpSearch::run($topup);
-//     expect($topup->universalSearch()->count())->toBe(1);
-// });
+test('top up search', function () {
+    $this->artisan('search:top_ups')->assertExitCode(0);
+    $topUp = TopUp::first();
+    ReindexTopUpSearch::run($topUp);
+    expect($topUp->universalSearch()->count())->toBe(1);
+});

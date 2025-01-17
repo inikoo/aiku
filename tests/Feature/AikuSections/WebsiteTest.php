@@ -8,7 +8,6 @@
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
-use App\Actions\Web\Banner\Search\ReindexBannerSearch;
 use App\Actions\Web\Banner\StoreBanner;
 use App\Actions\Web\Banner\UpdateBanner;
 use App\Actions\Web\ExternalLink\AttachExternalLinkToWebBlock;
@@ -40,7 +39,6 @@ use App\Models\Web\Webpage;
 use App\Models\Web\WebpageStats;
 use App\Models\Web\Website;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -121,9 +119,10 @@ test('create webpage', function (Website $website) {
 
     $snapshot = $webpage->unpublishedSnapshot;
 
+
     expect($snapshot->layout)->toBeObject()
         ->and($snapshot->stats)->toBeInstanceOf(SnapshotStats::class)
-        ->and((object) Arr::get($snapshot->layout, 'web_blocks'))->toBeObject()
+        ->and($snapshot->layout->web_blocks)->toBeArray()
         ->and($snapshot->checksum)->toBeString()
         ->and($snapshot->state)->toBe(SnapshotStateEnum::UNPUBLISHED);
 

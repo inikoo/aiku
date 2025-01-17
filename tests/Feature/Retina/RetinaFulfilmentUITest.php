@@ -6,6 +6,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
@@ -174,7 +176,7 @@ test('show pallet delivery (pallet tab)', function () {
 test('show pallet delivery (services tab)', function () {
     $this->withoutExceptionHandling();
     actingAs($this->webUser, 'retina');
-    $response = $this->get('/app/storage/pallet-deliveries/'.$this->palletDelivery->slug.'?tab=services');
+    $response = $this->get('/app/fulfilment/storage/pallet-deliveries/'.$this->palletDelivery->slug.'?tab=services');
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Storage/RetinaPalletDelivery')
@@ -194,7 +196,7 @@ test('show pallet delivery (services tab)', function () {
 test('show pallet delivery (physical goods tab)', function () {
     $this->withoutExceptionHandling();
     actingAs($this->webUser, 'retina');
-    $response = $this->get('/app/storage/pallet-deliveries/'.$this->palletDelivery->slug.'?tab=physical_goods');
+    $response = $this->get('/app/fulfilment/storage/pallet-deliveries/'.$this->palletDelivery->slug.'?tab=physical_goods');
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Storage/RetinaPalletDelivery')
@@ -256,7 +258,7 @@ test('show pallet return (pallet tab)', function () {
 test('show pallet return (stored item tab)', function () {
     $this->withoutExceptionHandling();
     actingAs($this->webUser, 'retina');
-    $response = $this->get('/app/storage/pallet-returns/'.$this->palletReturn->slug.'?tab=stored_items');
+    $response = $this->get('/app/fulfilment/storage/pallet-returns/'.$this->palletReturn->slug.'?tab=stored_items');
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Storage/RetinaPalletReturn')
@@ -276,7 +278,7 @@ test('show pallet return (stored item tab)', function () {
 test('show pallet return (services tab)', function () {
     // $this->withoutExceptionHandling();
     actingAs($this->webUser, 'retina');
-    $response = $this->get('/app/storage/pallet-returns/'.$this->palletReturn->slug.'?tab=services');
+    $response = $this->get('/app/fulfilment/storage/pallet-returns/'.$this->palletReturn->slug.'?tab=services');
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Storage/RetinaPalletReturn')
@@ -296,7 +298,7 @@ test('show pallet return (services tab)', function () {
 test('show pallet return (physical goods tab)', function () {
     // $this->withoutExceptionHandling();
     actingAs($this->webUser, 'retina');
-    $response = $this->get('/app/storage/pallet-returns/'.$this->palletReturn->slug.'?tab=physical_goods');
+    $response = $this->get('/app/fulfilment/storage/pallet-returns/'.$this->palletReturn->slug.'?tab=physical_goods');
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Storage/RetinaPalletReturn')

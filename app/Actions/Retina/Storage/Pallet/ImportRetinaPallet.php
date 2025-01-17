@@ -23,7 +23,7 @@ use App\Models\Inventory\Warehouse;
 use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\ActionRequest;
 
-class RetinaImportPallet
+class ImportRetinaPallet
 {
     use WithImportModel;
 
