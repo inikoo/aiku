@@ -346,10 +346,10 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
                                                 class="relative flex flex-nowrap items-center justify-center gap-y-1 gap-x-1">
                                                 <!-- Button: Minus -->
                                                 <div  @click="() => (
-                                                        set(data, `audited_quantity`, get(data, `audited_quantity`, data.quantity) - 1),
+                                                        set(data, `${data.stored_item_audit_delta ? 'audited_quantity' : 'quantity'}`, ((data.stored_item_audit_delta ? data.audited_quantity : data.quantity) - 1) >= 0 ? ((data.stored_item_audit_delta ? data.audited_quantity : data.quantity) - 1) : 0),
                                                         data.stored_item_audit_delta
                                                             ? debounceChangeQuantity(item.rowIndex, data.stored_item_audit_delta, get(data, `audited_quantity`, data.quantity))
-                                                            : debounceStoreQuantity(item.rowIndex, item.id, data.id, get(data, `audited_quantity`, data.quantity))
+                                                            : debounceStoreQuantity(item.rowIndex, item.id, data.id, get(data, `quantity`, data.quantity))
                                                     )"
                                                     class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-1 py-1.5 text-xs justify-self-center">
                                                     <FontAwesomeIcon icon='fas fa-minus' class='' fixed-width aria-hidden='true' />
@@ -370,10 +370,10 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
 
                                                 <!-- Button: Plus -->
                                                 <div  @click="() => (
-                                                        set(data, `audited_quantity`, get(data, `audited_quantity`, data.quantity) + 1),
+                                                        set(data, `${data.stored_item_audit_delta ? 'audited_quantity' : 'quantity'}`, (data.stored_item_audit_delta ? data.audited_quantity : data.quantity) + 1),
                                                         data.stored_item_audit_delta
                                                             ? debounceChangeQuantity(item.rowIndex, data.stored_item_audit_delta, get(data, `audited_quantity`, data.quantity))
-                                                            : debounceStoreQuantity(item.rowIndex, item.id, data.id, get(data, `audited_quantity`, data.quantity))
+                                                            : debounceStoreQuantity(item.rowIndex, item.id, data.id, get(data, `quantity`, data.quantity))
                                                     )"
                                                     type="tertiary" size="xs"
                                                     class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-1 py-1.5 text-xs justify-self-center">
