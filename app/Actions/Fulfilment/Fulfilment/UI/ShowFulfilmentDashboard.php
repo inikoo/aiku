@@ -58,11 +58,11 @@ class ShowFulfilmentDashboard extends OrgAction
                 ],
                 'dashboard_stats' => [
                     'widgets' => [
-                        'column_count'    => 4,
+                        'column_count'    => 4 ,
                         'components' => [
 
                             $this->getWidget(
-                                colSpan: 2,
+                                colSpan: 1,
                                 data: [
                                     'value'       => $fulfilment->shop->orderingStats->number_invoices,
                                     'description' => __('invoices'),
@@ -99,7 +99,8 @@ class ShowFulfilmentDashboard extends OrgAction
 
 
                             $this->getWidget(
-                                colSpan: 2,
+                                colSpan: 1,
+                                maxWidth: '500px',
                                 data: [
                                     'value'         => $fulfilment->stats->current_recurring_bills_amount,
                                     'description'   => __('Next Bills'),
@@ -129,6 +130,7 @@ class ShowFulfilmentDashboard extends OrgAction
                             ),
 
                             $this->getWidget(
+                                rowSpan: 1,
                                 data: [
                                     'value'       => $fulfilment->stats->number_customers_status_active,
                                     'description' => __('Active Customers'),
