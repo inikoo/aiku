@@ -17,7 +17,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowCustomerClient extends RetinaAction
+class ShowRetinaCustomerClient extends RetinaAction
 {
     // use WithActionButtons;
     // use WithWebUserMeta;
@@ -114,8 +114,8 @@ class ShowCustomerClient extends RetinaAction
 
                 /*
                 CustomerTabsEnum::PRODUCTS->value => $this->tab == CustomerTabsEnum::PRODUCTS->value ?
-                    fn () => ProductsResource::collection(IndexDropshippingRetinaProducts::run($customer))
-                    : Inertia::lazy(fn () => ProductsResource::collection(IndexDropshippingRetinaProducts::run($customer))),
+                    fn () => ProductsResource::collection(IndexRetinaDropshippingProducts::run($customer))
+                    : Inertia::lazy(fn () => ProductsResource::collection(IndexRetinaDropshippingProducts::run($customer))),
                 */
 
                 // CustomerTabsEnum::DISPATCHED_EMAILS->value => $this->tab == CustomerTabsEnum::DISPATCHED_EMAILS->value ?
@@ -130,7 +130,7 @@ class ShowCustomerClient extends RetinaAction
             ]
         );
         // ->table(IndexOrders::make()->tableStructure($customer))
-        //     //    ->table(IndexDropshippingRetinaProducts::make()->tableStructure($customer))
+        //     //    ->table(IndexRetinaDropshippingProducts::make()->tableStructure($customer))
         //     ->table(IndexDispatchedEmails::make()->tableStructure($customer))
         //     ->table(
         //         IndexWebUsers::make()->tableStructure(
@@ -170,7 +170,7 @@ class ShowCustomerClient extends RetinaAction
     {
         return
             array_merge(
-                IndexCustomerClients::make()->getBreadcrumbs($routeName, $routeParameters),
+                IndexRetinaCustomerClients::make()->getBreadcrumbs($routeName, $routeParameters),
                 [
                     [
                         'type'   => 'simple',

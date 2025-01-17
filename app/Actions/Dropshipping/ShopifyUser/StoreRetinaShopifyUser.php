@@ -20,7 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreShopifyUser extends OrgAction
+class StoreRetinaShopifyUser extends OrgAction
 {
     use AsAction;
     use WithAttributes;

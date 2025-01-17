@@ -29,8 +29,7 @@ class EditRentalAgreement extends OrgAction
 {
     private function getOrdinal($number)
     {
-        if(is_integer($number))
-        {
+        if (is_integer($number)) {
             $suffixes = ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th'];
             if ((($number % 100) >= 11) && (($number % 100) <= 13)) {
                 return $number . 'th';

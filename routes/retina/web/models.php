@@ -6,30 +6,21 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\CRM\Customer\DeleteCustomerDeliveryAddress;
-use App\Actions\CRM\Customer\UpdateCustomerDeliveryAddress;
-use App\Actions\CRM\WebUser\StoreWebUser;
-use App\Actions\CRM\WebUser\UpdateWebUser;
-use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
-use App\Actions\Dropshipping\Shopify\Product\HandleApiDeleteProductFromShopify;
-use App\Actions\Dropshipping\Shopify\Product\StoreProductShopify;
-use App\Actions\Fulfilment\FulfilmentCustomer\AddDeliveryAddressToFulfilmentCustomer;
-use App\Actions\Fulfilment\Pallet\DeletePallet;
-use App\Actions\Fulfilment\Pallet\UpdatePallet;
-use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
-use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
-use App\Actions\Retina\CRM\RetinaUpdateCustomerSettings;
-use App\Actions\Retina\Fulfilment\RetinaDeleteFulfilmentTransaction;
-use App\Actions\Retina\Fulfilment\RetinaUpdateFulfilmentTransaction;
+use App\Actions\Retina\CRM\DeleteRetinaCustomerDeliveryAddress;
+use App\Actions\Retina\CRM\StoreRetinaCustomerClient;
+use App\Actions\Retina\CRM\UpdateRetinaCustomerDeliveryAddress;
+use App\Actions\Retina\CRM\UpdateRetinaCustomerSettings;
+use App\Actions\Retina\Fulfilment\DeleteRetinaFulfilmentTransaction;
+use App\Actions\Retina\Fulfilment\UpdateRetinaFulfilmentTransaction;
+use App\Actions\Retina\Shopify\HandleRetinaApiDeleteProductFromShopify;
+use App\Actions\Retina\Shopify\StoreRetinaProductShopify;
 use App\Actions\Retina\Storage\FulfilmentTransaction\StoreRetinaFulfilmentTransaction;
+use App\Actions\Retina\Storage\Pallet\DeleteRetinaPallet;
 use App\Actions\Retina\Storage\Pallet\ImportRetinaPallet;
-use App\Actions\Retina\Storage\Pallet\RetinaImportPallet;
-use App\Actions\Retina\Storage\Pallet\RetinaStoreMultiplePalletsFromDelivery;
-use App\Actions\Retina\Storage\Pallet\RetinaStorePalletFromDelivery;
 use App\Actions\Retina\Storage\Pallet\StoreRetinaMultiplePalletsFromDelivery;
 use App\Actions\Retina\Storage\Pallet\StoreRetinaPalletFromDelivery;
+use App\Actions\Retina\Storage\Pallet\UpdateRetinaPallet;
 use App\Actions\Retina\Storage\PalletDelivery\Pdf\PdfRetinaPalletDelivery;
-use App\Actions\Retina\Storage\PalletDelivery\Pdf\RetinaPdfPalletDelivery;
 use App\Actions\Retina\Storage\PalletDelivery\StoreRetinaPalletDelivery;
 use App\Actions\Retina\Storage\PalletDelivery\SubmitRetinaPalletDelivery;
 use App\Actions\Retina\Storage\PalletDelivery\UpdateRetinaPalletDelivery;
@@ -42,16 +33,21 @@ use App\Actions\Retina\Storage\PalletReturn\StoreRetinaPalletReturn;
 use App\Actions\Retina\Storage\PalletReturn\StoreRetinaStoredItemsToReturn;
 use App\Actions\Retina\Storage\PalletReturn\SubmitRetinaPalletReturn;
 use App\Actions\Retina\Storage\PalletReturn\UpdateRetinaPalletReturn;
-use App\Actions\UI\Retina\Profile\RetinaUpdateProfile;
-use App\Actions\UI\Retina\SysAdmin\UpdateRetinaFulfilmentCustomer;
+use App\Actions\Retina\Storage\StoredItem\StoreRetinaStoredItem;
+use App\Actions\Retina\Storage\StoredItem\SyncRetinaStoredItemToPallet;
+use App\Actions\Retina\SysAdmin\AddRetinaDeliveryAddressToFulfilmentCustomer;
+use App\Actions\Retina\SysAdmin\StoreRetinaWebUser;
+use App\Actions\Retina\SysAdmin\UpdateRetinaFulfilmentCustomer;
+use App\Actions\Retina\SysAdmin\UpdateRetinaWebUser;
+use App\Actions\UI\Retina\Profile\UpdateRetinaProfile;
 use Illuminate\Support\Facades\Route;
 
-Route::patch('/profile', RetinaUpdateProfile::class)->name('profile.update');
-Route::patch('/settings', RetinaUpdateCustomerSettings::class)->name('settings.update');
+Route::patch('/profile', UpdateRetinaProfile::class)->name('profile.update');
+Route::patch('/settings', UpdateRetinaCustomerSettings::class)->name('settings.update');
 
 Route::name('fulfilment-transaction.')->prefix('fulfilment_transaction/{fulfilmentTransaction:id}')->group(function () {
-    Route::patch('', RetinaUpdateFulfilmentTransaction::class)->name('update');
-    Route::delete('', RetinaDeleteFulfilmentTransaction::class)->name('delete');
+    Route::patch('', UpdateRetinaFulfilmentTransaction::class)->name('update');
+    Route::delete('', DeleteRetinaFulfilmentTransaction::class)->name('delete');
 });
 
 Route::post('pallet-return', StoreRetinaPalletReturn::class)->name('pallet-return.store');
@@ -82,31 +78,31 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
 });
 
 Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
-    Route::post('stored-items', SyncStoredItemToPallet::class)->name('stored-items.update');
-    Route::delete('', [DeletePallet::class, 'fromRetina'])->name('delete');
-    Route::patch('', [UpdatePallet::class, 'fromRetina'])->name('update');
+    Route::post('stored-items', SyncRetinaStoredItemToPallet::class)->name('stored-items.update');
+    Route::delete('', DeleteRetinaPallet::class)->name('delete');
+    Route::patch('', UpdateRetinaPallet::class)->name('update');
 });
 
-Route::post('stored-items', [StoreStoredItem::class, 'fromRetina'])->name('stored-items.store');
+Route::post('stored-items', StoreRetinaStoredItem::class)->name('stored-items.store');
 
 Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
-    Route::patch('delivery-address/update', [UpdateCustomerDeliveryAddress::class, 'fromRetina'])->name('delivery-address.update');
-    Route::delete('delivery-address/{address:id}/delete', [DeleteCustomerDeliveryAddress::class, 'fromRetina'])->name('delivery-address.delete');
+    Route::patch('delivery-address/update', UpdateRetinaCustomerDeliveryAddress::class)->name('delivery-address.update');
+    Route::delete('delivery-address/{address:id}/delete', DeleteRetinaCustomerDeliveryAddress::class)->name('delivery-address.delete');
 });
 
 Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
     Route::patch('update', UpdateRetinaFulfilmentCustomer::class)->name('update');
-    Route::post('delivery-address/store', [AddDeliveryAddressToFulfilmentCustomer::class, 'fromRetina'])->name('delivery-address.store');
+    Route::post('delivery-address/store', AddRetinaDeliveryAddressToFulfilmentCustomer::class)->name('delivery-address.store');
 });
 
-Route::post('customer-client', [StoreCustomerClient::class, 'fromRetina'])->name('customer-client.store');
+Route::post('customer-client', StoreRetinaCustomerClient::class)->name('customer-client.store');
 
 Route::name('dropshipping.')->prefix('dropshipping')->group(function () {
-    Route::post('shopify-user/{shopifyUser:id}/products', StoreProductShopify::class)->name('shopify_user.product.store')->withoutScopedBindings();
-    Route::delete('shopify-user/{shopifyUser:id}/products/{product}', HandleApiDeleteProductFromShopify::class)->name('shopify_user.product.delete')->withoutScopedBindings();
+    Route::post('shopify-user/{shopifyUser:id}/products', StoreRetinaProductShopify::class)->name('shopify_user.product.store')->withoutScopedBindings();
+    Route::delete('shopify-user/{shopifyUser:id}/products/{product}', HandleRetinaApiDeleteProductFromShopify::class)->name('shopify_user.product.delete')->withoutScopedBindings();
 });
 
 Route::name('web-users.')->prefix('web-users')->group(function () {
-    Route::post('', [StoreWebUser::class, 'inRetina'])->name('store');
-    Route::patch('{webUser:id}/update', [UpdateWebUser::class, 'inRetina'])->name('update');
+    Route::post('', StoreRetinaWebUser::class)->name('store');
+    Route::patch('{webUser:id}/update', UpdateRetinaWebUser::class)->name('update');
 });

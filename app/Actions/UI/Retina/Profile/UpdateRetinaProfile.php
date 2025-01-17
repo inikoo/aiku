@@ -21,7 +21,7 @@ use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 
-class RetinaUpdateProfile extends GrpAction
+class UpdateRetinaProfile extends GrpAction
 {
     use WithActionUpdate;
 

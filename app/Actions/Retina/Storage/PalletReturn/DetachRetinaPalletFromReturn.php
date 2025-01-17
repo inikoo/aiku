@@ -17,10 +17,8 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
-use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 
 class DetachRetinaPalletFromReturn extends RetinaAction
@@ -53,7 +51,7 @@ class DetachRetinaPalletFromReturn extends RetinaAction
         return true;
     }
 
-    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, Pallet $pallet, ActionRequest $request): bool
+    public function asController(PalletReturn $palletReturn, Pallet $pallet, ActionRequest $request): bool
     {
         $this->initialisation($request);
 

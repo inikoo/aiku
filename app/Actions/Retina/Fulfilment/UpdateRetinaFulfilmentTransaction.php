@@ -14,7 +14,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\FulfilmentTransaction;
 use Lorisleiva\Actions\ActionRequest;
 
-class RetinaUpdateFulfilmentTransaction extends RetinaAction
+class UpdateRetinaFulfilmentTransaction extends RetinaAction
 {
     use WithActionUpdate;
 

@@ -16,7 +16,7 @@ use App\Models\Helpers\Country;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
-class FetchCustomerClientFromShopify extends RetinaAction
+class FetchRetinaCustomerClientFromShopify extends RetinaAction
 {
     private Customer $parent;
 

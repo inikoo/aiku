@@ -6,19 +6,19 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\Retina\Dropshipping\Orders;
+namespace App\Actions\UI\Retina\Dropshipping\Product\UI;
 
-use App\Actions\Ordering\Order\UI\IndexOrders;
+use App\Actions\Catalogue\Product\UI\IndexProducts as IndexUIProducts;
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Dashboard\ShowRetinaDashboard;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
-use App\Http\Resources\Ordering\OrdersResource;
+use App\Http\Resources\Catalogue\DropshippingPortfolioResource;
 use App\Models\Dropshipping\ShopifyUser;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class IndexDropshippingRetinaOrders extends RetinaAction
+class IndexRetinaDropshippingPortfolio extends RetinaAction
 {
     public function handle(ShopifyUser $shopifyUser): ShopifyUser
     {
@@ -42,22 +42,22 @@ class IndexDropshippingRetinaOrders extends RetinaAction
     public function htmlResponse(ShopifyUser $shopifyUser): Response
     {
         return Inertia::render(
-            'Dropshipping/Orders',
+            'Dropshipping/Portfolios',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('Orders'),
+                 'breadcrumbs' => $this->getBreadcrumbs(),
+                'title'       => __('My Portfolio'),
                 'pageHead'    => [
-                    'title' => __('Orders'),
-                    'icon'  => 'fal fa-money-bill-wave'
+                    'title' => __('My Portfolio'),
+                    'icon'  => 'fal fa-cube'
                 ],
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => ProductTabsEnum::navigation()
                 ],
 
-                'orders' => OrdersResource::collection(IndexOrders::run($shopifyUser, 'orders'))
+                'products' => DropshippingPortfolioResource::collection(IndexUIProducts::make()->inDropshipping($shopifyUser, 'current'))
             ]
-        )->table(IndexOrders::make()->tableStructure($shopifyUser, 'orders'));
+        )->table(IndexUIProducts::make()->tableStructure($shopifyUser, prefix: 'products'));
     }
 
     public function getBreadcrumbs(): array
@@ -70,9 +70,9 @@ class IndexDropshippingRetinaOrders extends RetinaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'retina.dropshipping.orders.index'
+                                'name' => 'retina.dropshipping.portfolios.index'
                             ],
-                            'label'  => __('Orders'),
+                            'label'  => __('My Portfolio'),
                         ]
                     ]
                 ]

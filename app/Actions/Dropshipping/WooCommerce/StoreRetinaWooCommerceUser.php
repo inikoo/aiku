@@ -10,31 +10,33 @@ namespace App\Actions\Dropshipping\WooCommerce;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
+use App\Models\Dropshipping\Platform;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class AuthorizeWooCommerceUser extends OrgAction
+class StoreRetinaWooCommerceUser extends OrgAction
 {
     use AsAction;
     use WithAttributes;
     use WithActionUpdate;
 
-    public function handle(Customer $customer, $modelData): string
+    public function handle(Customer $customer, $modelData): void
     {
-        $endpoint = '/wc-auth/v1/authorize';
-        $params = [
-            'app_name' => config('app.name'),
-            'scope' => 'read',
-            'user_id' => $modelData['name'],
-            'return_url' => '',
-            'callback_url' => ''
-        ];
+        data_set($modelData, 'group_id', $customer->group_id);
+        data_set($modelData, 'organisation_id', $customer->organisation_id);
 
-        return $modelData['url'].$endpoint.'?'.http_build_query($params);
+        $customer->wooCommerceUser()->create($modelData);
+
+        $customer->platforms()->attach(Platform::where('type', PlatformTypeEnum::WOOCOMMERCE->value)->first(), [
+            'group_id'        => $customer->group_id,
+            'organisation_id' => $customer->organisation_id,
+            'shop_id'         => $customer->shop_id
+        ]);
     }
 
     public function authorize(ActionRequest $request): bool
@@ -49,8 +51,7 @@ class AuthorizeWooCommerceUser extends OrgAction
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255', Rule::unique('woo_commerce_users', 'name')],
-            'url' => ['required', 'string']
+            'name' => ['required', 'string', 'max:255', Rule::unique('woo_commerce_users', 'name')]
         ];
     }
 

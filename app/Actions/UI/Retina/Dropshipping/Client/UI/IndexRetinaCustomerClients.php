@@ -23,7 +23,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexCustomerClients extends RetinaAction
+class IndexRetinaCustomerClients extends RetinaAction
 {
     public function authorize(ActionRequest $request): bool
     {

@@ -193,34 +193,42 @@ function NumberDashboard(shop: any) {
 <template>
 	<div :class="['rounded-lg p-6 shadow-md relative h-full', getStatusColor(widgetData.status)]">
 		<p
-			v-tooltip="printLabelByType(widgetData.value)"
+			v-tooltip="printLabelByType(widgetData?.value)"
 			class="text-4xl font-bold leading-tight truncate">
 			<!-- Render CountUp if widgetData.type is 'number' -->
-			<template v-if="widgetData.type === 'number'">
-				<Link :href="NumberDashboard(widgetData.route)" v-if="widgetData.route">
+			<template v-if="widgetData?.type === 'number'">
+				<template v-if="widgetData?.route">
+					<Link :href="NumberDashboard(widgetData.route)">
+						<CountUp
+							class="primaryLink inline-block"
+							:endVal="widgetData?.value"
+							:duration="1.5"
+							:scrollSpyOnce="true"
+							:options="{
+            formattingFn: (value: number) => locale.number(value)
+          }" />
+					</Link>
+				</template>
+				<template v-else>
 					<CountUp
-						class="primaryLink inline-block"
-						:endVal="widgetData.value"
+						:endVal="widgetData?.value"
 						:duration="1.5"
 						:scrollSpyOnce="true"
 						:options="{
-          		formattingFn: (value: number) => locale.number(value)
-     		 }" />
-				</Link>
-				<CountUp
-					v-if="!widgetData.route"
-					:endVal="widgetData.value"
-					:duration="1.5"
-					:scrollSpyOnce="true"
-					:options="{
-          		formattingFn: (value: number) => locale.number(value)
-     		 }" />
+          formattingFn: (value: number) => locale.number(value)
+        }" />
+				</template>
 			</template>
 
 			<template v-else>
-				<Link :href="NumberDashboard(widgetData.route)" class="primaryLink">
-					{{ printLabelByType(widgetData.value) }}
-				</Link>
+				<template v-if="widgetData?.route">
+					<Link :href="NumberDashboard(widgetData.route)" class="primaryLink">
+						{{ printLabelByType(widgetData?.value) }}
+					</Link>
+				</template>
+				<template v-else>
+					{{ printLabelByType(widgetData?.value) }}
+				</template>
 			</template>
 		</p>
 

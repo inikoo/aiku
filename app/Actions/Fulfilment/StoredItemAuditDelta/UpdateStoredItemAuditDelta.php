@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\StoredItemAuditDelta;
 
+use App\Actions\Fulfilment\StoredItemAudit\Hydrators\StoredItemAuditHydrateDeltas;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
@@ -50,7 +51,10 @@ class UpdateStoredItemAuditDelta extends OrgAction
         }
 
 
-        return $this->update($storedItemAuditDelta, $modelData, ['data']);
+        $storedItemAuditDelta = $this->update($storedItemAuditDelta, $modelData, ['data']);
+        StoredItemAuditHydrateDeltas::dispatch($storedItemAuditDelta->storedItemAudit);
+
+        return $storedItemAuditDelta;
     }
 
     public function authorize(ActionRequest $request): bool

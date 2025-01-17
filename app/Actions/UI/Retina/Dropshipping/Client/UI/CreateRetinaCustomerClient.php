@@ -16,7 +16,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class CreateCustomerClient extends RetinaAction
+class CreateRetinaCustomerClient extends RetinaAction
 {
     public function handle(ActionRequest $request): Response
     {
@@ -113,7 +113,7 @@ class CreateCustomerClient extends RetinaAction
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return array_merge(
-            IndexCustomerClients::make()->getBreadcrumbs(
+            IndexRetinaCustomerClients::make()->getBreadcrumbs(
                 routeName: preg_replace('/create$/', 'index', $routeName),
                 routeParameters: $routeParameters,
             ),
