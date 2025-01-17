@@ -27,7 +27,7 @@ use App\Actions\Retina\Storage\PalletDelivery\StoreRetinaPalletDelivery;
 use App\Actions\Retina\Storage\PalletDelivery\SubmitRetinaPalletDelivery;
 use App\Actions\Retina\Storage\PalletDelivery\UpdateRetinaPalletDelivery;
 use App\Actions\Retina\Storage\PalletReturn\StoreRetinaPalletReturn;
-use App\Actions\UI\Retina\Profile\UpdateRetinaProfile;
+use App\Actions\Retina\UI\Profile\UpdateRetinaProfile;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
 use App\Enums\Billables\Rental\RentalStateEnum;

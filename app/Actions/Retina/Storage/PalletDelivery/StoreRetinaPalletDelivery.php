@@ -142,7 +142,7 @@ class StoreRetinaPalletDelivery extends RetinaAction
         /** @var FulfilmentCustomer $fulfilmentCustomer */
         $this->action = true;
         // dd($fulfilment->warehouses);
-        $this->actionInitialisation($fulfilmentCustomer, $modelData);
+        $this->initialisationFulfilmentActions($fulfilmentCustomer, $modelData);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }

@@ -39,7 +39,7 @@ use App\Actions\Retina\SysAdmin\AddRetinaDeliveryAddressToFulfilmentCustomer;
 use App\Actions\Retina\SysAdmin\StoreRetinaWebUser;
 use App\Actions\Retina\SysAdmin\UpdateRetinaFulfilmentCustomer;
 use App\Actions\Retina\SysAdmin\UpdateRetinaWebUser;
-use App\Actions\UI\Retina\Profile\UpdateRetinaProfile;
+use App\Actions\Retina\UI\Profile\UpdateRetinaProfile;
 use Illuminate\Support\Facades\Route;
 
 Route::patch('/profile', UpdateRetinaProfile::class)->name('profile.update');

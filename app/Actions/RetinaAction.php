@@ -9,7 +9,7 @@
 namespace App\Actions;
 
 use App\Actions\Traits\WithTab;
-use App\Actions\UI\WithInertia;
+use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
@@ -25,7 +25,6 @@ class RetinaAction
     use AsAction;
     use WithAttributes;
     use WithTab;
-    use WithInertia;
 
 
     protected Website $website;
@@ -33,6 +32,7 @@ class RetinaAction
     protected WebUser $webUser;
     protected Fulfilment $fulfilment;
     protected Organisation $organisation;
+    protected Shop $shop;
 
 
     protected array $validatedData;
@@ -53,7 +53,7 @@ class RetinaAction
         return $this;
     }
 
-    public function actionInitialisation(FulfilmentCustomer $fulfilmentCustomer, array $modelData): static
+    public function initialisationFulfilmentActions(FulfilmentCustomer $fulfilmentCustomer, array $modelData): static
     {
         $this->fulfilment   = $fulfilmentCustomer->fulfilment;
         $this->customer     = $fulfilmentCustomer->customer;

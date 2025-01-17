@@ -32,8 +32,8 @@ const handleToggleLeftBar = () => {
 const isStaging = layout.app.environment === 'staging'
 
 const logoutData = {
-    label: 'LogoutRetina',
-    tooltip: 'LogoutRetina the app',
+    label: 'Logout',
+    tooltip: 'Logout the app',
     icon: 'fal fa-sign-out-alt',
 }
 
@@ -52,7 +52,7 @@ const onLogoutAuth = () => {
         last_active: new Date(),
         action: 'logout',
         current_page: {
-            label: trans('LogoutRetina'),
+            label: trans('Logout'),
             url: null,
             icon_left: null,
             icon_right: null,

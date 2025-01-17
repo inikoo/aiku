@@ -6,32 +6,22 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\Retina\Profile;
+namespace App\Actions\Retina\UI\Profile;
 
 use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
+use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Dashboard\ShowRetinaDashboard;
-use App\Actions\UI\WithInertia;
-use App\Http\Resources\CRM\WebUserResource;
 use App\Models\CRM\WebUser;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowRetinaProfile
+class ShowRetinaProfile extends RetinaAction
 {
-    use AsAction;
-    use WithInertia;
-
     public function asController(ActionRequest $request): WebUser
     {
         return $request->user();
-    }
-
-    public function jsonResponse(WebUser $webUser): WebUserResource
-    {
-        return new WebUserResource($webUser);
     }
 
     public function htmlResponse(WebUser $webUser, ActionRequest $request): Response
@@ -126,7 +116,7 @@ class ShowRetinaProfile
                     "route" => [
                         "name" => "retina.profile.show",
                     ],
-                    "label" => __("my profile"),
+                    "label" => __("My profile"),
                 ],
             ],
         ]);

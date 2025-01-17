@@ -31,8 +31,8 @@ const handleToggleLeftBar = () => {
 }
 
 const logoutData = {
-    label: 'LogoutRetina',
-    tooltip: 'LogoutRetina the app',
+    label: 'Logout',
+    tooltip: 'Logout the app',
     icon: 'fal fa-sign-out-alt',
 }
 

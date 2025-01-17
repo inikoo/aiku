@@ -96,7 +96,7 @@ class UpdateRetinaPalletDelivery extends RetinaAction
     public function action(PalletDelivery $palletDelivery, $modelData): PalletDelivery
     {
         $this->action = true;
-        $this->actionInitialisation($palletDelivery->fulfilmentCustomer, $modelData);
+        $this->initialisationFulfilmentActions($palletDelivery->fulfilmentCustomer, $modelData);
 
         return $this->handle($palletDelivery, $this->validatedData);
     }

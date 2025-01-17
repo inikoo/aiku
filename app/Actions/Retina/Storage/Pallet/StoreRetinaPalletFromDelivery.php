@@ -116,7 +116,7 @@ class StoreRetinaPalletFromDelivery extends RetinaAction
         $this->hydratorsDelay         = $hydratorsDelay;
         $this->parent                 = $palletDelivery;
         $fulfilmentCustomer           = $palletDelivery->fulfilmentCustomer;
-        $this->actionInitialisation($fulfilmentCustomer, $modelData);
+        $this->initialisationFulfilmentActions($fulfilmentCustomer, $modelData);
 
         return $this->handle($palletDelivery, $this->validatedData);
     }

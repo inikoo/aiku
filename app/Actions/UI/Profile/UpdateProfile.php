@@ -9,10 +9,9 @@
 namespace App\Actions\UI\Profile;
 
 use App\Actions\GrpAction;
-use App\Actions\Helpers\Media\SaveModelImage;
+use App\Actions\Traits\UI\WithProfile;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\SysAdmin\User;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\Rules\Password;
@@ -21,39 +20,16 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateProfile extends GrpAction
 {
     use WithActionUpdate;
-
+    use WithProfile;
 
     public function handle(User $user, array $modelData): User
     {
-        if (Arr::has($modelData, 'image')) {
-            /** @var UploadedFile $image */
-            $image = Arr::get($modelData, 'image');
-            data_forget($modelData, 'image');
-            $imageData = [
-                'path'         => $image->getPathName(),
-                'originalName' => $image->getClientOriginalName(),
-                'extension'    => $image->getClientOriginalExtension(),
-            ];
-            $user      = SaveModelImage::run(
-                model: $user,
-                imageData: $imageData,
-                scope: 'avatar'
-            );
+        $user = $this->processProfileAvatar($modelData, $user);
+
+        if (Arr::exists($modelData, 'app_theme')) {
+            $appTheme = Arr::pull($modelData, 'app_theme');
+            $modelData['settings']['app_theme'] = $appTheme;
         }
-
-        foreach ($modelData as $key => $value) {
-            data_set(
-                $modelData,
-                match ($key) {
-                    'app_theme' => 'settings.app_theme',
-                    default     => $key
-                },
-                $value
-            );
-        }
-
-        data_forget($modelData, 'app_theme');
-
 
         return $this->update($user, $modelData, ['settings']);
     }

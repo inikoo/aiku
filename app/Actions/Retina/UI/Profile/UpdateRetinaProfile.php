@@ -6,27 +6,23 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\Retina\Profile;
+namespace App\Actions\Retina\UI\Profile;
 
-use App\Actions\GrpAction;
-use App\Actions\Helpers\Media\SaveModelImage;
+use App\Actions\RetinaAction;
+use App\Actions\Traits\UI\WithProfile;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\CRM\WebUser;
-use App\Models\Web\Website;
 use App\Rules\IUnique;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateRetinaProfile extends GrpAction
+class UpdateRetinaProfile extends RetinaAction
 {
     use WithActionUpdate;
-
-    public WebUser $webUser;
-    public Website $website;
+    use WithProfile;
 
     public function handle(WebUser $webUser, array $modelData): WebUser
     {
@@ -34,39 +30,7 @@ class UpdateRetinaProfile extends GrpAction
         if (Arr::exists($modelData, 'password')) {
             data_set($modelData, 'password', Hash::make($modelData['password']));
         }
-
-        if (Arr::has($modelData, 'image')) {
-            /** @var UploadedFile $image */
-            $image = Arr::get($modelData, 'image');
-            data_forget($modelData, 'image');
-            $imageData = [
-                'path'         => $image->getPathName(),
-                'originalName' => $image->getClientOriginalName(),
-                'extension'    => $image->getClientOriginalExtension(),
-            ];
-            $webUser      = SaveModelImage::run(
-                model: $webUser,
-                imageData: $imageData,
-                scope: 'avatar'
-            );
-        }
-
-
-        foreach ($modelData as $key => $value) {
-            data_set(
-                $modelData,
-                match ($key) {
-                    'app_theme' => 'settings.app_theme',
-                    default     => $key
-                },
-                $value
-            );
-        }
-
-        data_forget($modelData, 'app_theme');
-
-        $webUser->refresh();
-
+        $webUser= $this->processProfileAvatar($modelData, $webUser);
         return $this->update($webUser, $modelData);
     }
 
@@ -83,7 +47,7 @@ class UpdateRetinaProfile extends GrpAction
                     ['column' => 'id', 'value' => $this->webUser->id, 'operator' => '!='],
                 ]
             )],
-            'username'       => ['sometimes', 'required', new IUnique(
+            'username'       => ['sometimes', 'required', 'min:4' , new IUnique(
                 table: 'web_users',
                 extraConditions: [
                     ['column' => 'website_id', 'value' => $this->website->id],
@@ -108,22 +72,14 @@ class UpdateRetinaProfile extends GrpAction
 
     public function asController(ActionRequest $request): WebUser
     {
-        /** @var WebUser $webUser */
-        $webUser       = $request->user();
-        $this->webUser = $webUser;
-        $this->website = $webUser->website;
-        $this->initialisation($webUser->group, $request);
 
-        return $this->handle($webUser, $this->validatedData);
+        $this->initialisation($request);
+        return $this->handle($this->webUser, $this->validatedData);
     }
 
     public function action(WebUser $webUser, array $modelData): WebUser
     {
-        /** @var WebUser $webUser */
-        $this->webUser = $webUser;
-        $this->website = $webUser->website;
-        $this->initialisation($webUser->group, $modelData);
-
-        return $this->handle($webUser, $this->validatedData);
+        $this->setRawAttributes($modelData);
+        return $this->handle($webUser, $this->validateAttributes());
     }
 }

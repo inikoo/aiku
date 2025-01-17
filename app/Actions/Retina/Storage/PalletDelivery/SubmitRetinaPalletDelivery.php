@@ -85,7 +85,7 @@ class SubmitRetinaPalletDelivery extends RetinaAction
     {
         $this->action       = true;
         $this->palletDelivery = $palletDelivery;
-        $this->actionInitialisation($palletDelivery->fulfilmentCustomer, $modelData);
+        $this->initialisationFulfilmentActions($palletDelivery->fulfilmentCustomer, $modelData);
         return $this->handle($palletDelivery);
     }
 

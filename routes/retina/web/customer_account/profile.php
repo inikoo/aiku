@@ -7,6 +7,6 @@
  */
 
 
-use App\Actions\UI\Retina\Profile\ShowRetinaProfile;
+use App\Actions\Retina\UI\Profile\ShowRetinaProfile;
 
 Route::get('/', ShowRetinaProfile::class)->name('show');
