@@ -8,47 +8,47 @@
  *
 */
 
-use App\Actions\Dropshipping\ShopifyUser\DeleteShopifyUser;
-use App\Actions\Dropshipping\ShopifyUser\StoreShopifyUser;
-use App\Actions\Dropshipping\WooCommerce\AuthorizeWooCommerceUser;
-use App\Actions\Dropshipping\WooCommerce\StoreWooCommerceUser;
-use App\Actions\UI\Retina\Dropshipping\Client\FetchCustomerClientFromShopify;
-use App\Actions\UI\Retina\Dropshipping\Client\UI\CreateCustomerClient;
-use App\Actions\UI\Retina\Dropshipping\Client\UI\IndexCustomerClients;
-use App\Actions\UI\Retina\Dropshipping\Client\UI\ShowCustomerClient;
-use App\Actions\UI\Retina\Dropshipping\Orders\IndexDropshippingRetinaOrders;
-use App\Actions\UI\Retina\Dropshipping\Product\UI\IndexDropshippingRetinaPortfolio;
-use App\Actions\UI\Retina\Dropshipping\Product\UI\IndexDropshippingRetinaProducts;
-use App\Actions\UI\Retina\Dropshipping\ShowDropshipping;
-use App\Actions\UI\Retina\Dropshipping\ShowProduct;
+use App\Actions\Dropshipping\ShopifyUser\DeleteRetinaShopifyUser;
+use App\Actions\Dropshipping\ShopifyUser\StoreRetinaShopifyUser;
+use App\Actions\Dropshipping\WooCommerce\AuthorizeRetinaWooCommerceUser;
+use App\Actions\Dropshipping\WooCommerce\StoreRetinaWooCommerceUser;
+use App\Actions\UI\Retina\Dropshipping\Client\FetchRetinaCustomerClientFromShopify;
+use App\Actions\UI\Retina\Dropshipping\Client\UI\CreateRetinaCustomerClient;
+use App\Actions\UI\Retina\Dropshipping\Client\UI\IndexRetinaCustomerClients;
+use App\Actions\UI\Retina\Dropshipping\Client\UI\ShowRetinaCustomerClient;
+use App\Actions\UI\Retina\Dropshipping\Orders\IndexRetinaDropshippingOrders;
+use App\Actions\UI\Retina\Dropshipping\Product\UI\IndexRetinaDropshippingPortfolio;
+use App\Actions\UI\Retina\Dropshipping\Product\UI\IndexRetinaDropshippingProducts;
+use App\Actions\UI\Retina\Dropshipping\ShowRetinaDropshipping;
+use App\Actions\UI\Retina\Dropshipping\ShowRetinaProduct;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('platform')->as('platform.')->group(function () {
-    Route::get('/', ShowDropshipping::class)->name('dashboard');
+    Route::get('/', ShowRetinaDropshipping::class)->name('dashboard');
 
-    Route::post('shopify-user', StoreShopifyUser::class)->name('shopify_user.store');
-    Route::delete('shopify-user', DeleteShopifyUser::class)->name('shopify_user.delete');
+    Route::post('shopify-user', StoreRetinaShopifyUser::class)->name('shopify_user.store');
+    Route::delete('shopify-user', DeleteRetinaShopifyUser::class)->name('shopify_user.delete');
 
-    Route::post('wc-user/authorize', AuthorizeWooCommerceUser::class)->name('wc.authorize');
-    Route::post('wc-user', StoreWooCommerceUser::class)->name('wc.store');
-    Route::delete('wc-user', DeleteShopifyUser::class)->name('wc.delete');
+    Route::post('wc-user/authorize', AuthorizeRetinaWooCommerceUser::class)->name('wc.authorize');
+    Route::post('wc-user', StoreRetinaWooCommerceUser::class)->name('wc.store');
+    Route::delete('wc-user', DeleteRetinaShopifyUser::class)->name('wc.delete');
 });
 
 Route::prefix('client')->as('client.')->group(function () {
-    Route::get('/', IndexCustomerClients::class)->name('index');
-    Route::get('create', CreateCustomerClient::class)->name('create');
-    Route::get('fetch', FetchCustomerClientFromShopify::class)->name('fetch');
-    Route::get('{customerClient}/show', ShowCustomerClient::class)->name('show');
+    Route::get('/', IndexRetinaCustomerClients::class)->name('index');
+    Route::get('create', CreateRetinaCustomerClient::class)->name('create');
+    Route::get('fetch', FetchRetinaCustomerClientFromShopify::class)->name('fetch');
+    Route::get('{customerClient}/show', ShowRetinaCustomerClient::class)->name('show');
 });
 
 Route::prefix('portfolios')->as('portfolios.')->group(function () {
-    Route::get('my-portfolio', IndexDropshippingRetinaPortfolio::class)->name('index');
-    Route::get('my-portfolio/{product}', ShowProduct::class)->name('show');
-    Route::get('products', IndexDropshippingRetinaProducts::class)->name('products.index');
+    Route::get('my-portfolio', IndexRetinaDropshippingPortfolio::class)->name('index');
+    Route::get('my-portfolio/{product}', ShowRetinaProduct::class)->name('show');
+    Route::get('products', IndexRetinaDropshippingProducts::class)->name('products.index');
 });
 
 Route::prefix('orders')->as('orders.')->group(function () {
-    Route::get('/', IndexDropshippingRetinaOrders::class)->name('index');
+    Route::get('/', IndexRetinaDropshippingOrders::class)->name('index');
 });
 
 // Route::get('/users', IndexUsers::class)->name('web-users.index');

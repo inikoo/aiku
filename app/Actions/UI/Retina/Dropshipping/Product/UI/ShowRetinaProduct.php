@@ -21,7 +21,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowProduct extends RetinaAction
+class ShowRetinaProduct extends RetinaAction
 {
     public function authorize(ActionRequest $request): bool
     {
