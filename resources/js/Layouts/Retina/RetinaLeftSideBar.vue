@@ -32,15 +32,15 @@ const handleToggleLeftBar = () => {
 const isStaging = layout.app.environment === 'staging'
 
 const logoutData = {
-    label: 'Logout',
-    tooltip: 'Logout the app',
+    label: 'LogoutRetina',
+    tooltip: 'LogoutRetina the app',
     icon: 'fal fa-sign-out-alt',
 }
 
 const isLoadingLogout = ref(false)
 const onLogoutAuth = () => {
-    
-    router.post(route('retina.logout'), {}, 
+
+    router.post(route('retina.logout'), {},
     {
         onStart: () => isLoadingLogout.value = true,
         onError: () => isLoadingLogout.value = false,
@@ -52,7 +52,7 @@ const onLogoutAuth = () => {
         last_active: new Date(),
         action: 'logout',
         current_page: {
-            label: trans('Logout'),
+            label: trans('LogoutRetina'),
             url: null,
             icon_left: null,
             icon_right: null,
@@ -99,7 +99,7 @@ const onLogoutAuth = () => {
                 <RetinaLeftSidebarNavigation />
             </div>
 
-            <!-- Section: Logout -->
+            <!-- Section: LogoutRetina -->
             <div class="absolute left-0 bottom-[88px] w-full mx-auto">
                 <Popover class="relative w-10/12 mx-auto" v-slot="{ open }">
                     <PopoverButton class="flex w-full focus:outline-none focus:ring-0 focus:border-none">
@@ -107,7 +107,7 @@ const onLogoutAuth = () => {
                             <NavigationSimple :nav="logoutData" />
                         </div>
                     </PopoverButton>
-                    
+
                     <transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0 scale-95" enter-to-class="opacity-100 scale-100" leave-active-class="transition duration-150 ease-in" leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95" >
                         <PopoverPanel class="absolute -top-3 left-1/2 -translate-y-full bg-white rounded-md px-4 py-3 border border-gray-200 shadow">
                             <div class="min-w-32 flex flex-col justify-center gap-y-2">

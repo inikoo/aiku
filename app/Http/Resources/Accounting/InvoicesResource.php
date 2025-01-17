@@ -61,9 +61,7 @@ class InvoicesResource extends JsonResource
             'currency_code'    => $this->currency_code,
             'currency_symbol'  => $this->currency_symbol,
             'organisation_name' => $this->organisation_name,
-            'organisation_slug' => $this->organisation_slug,
-            'shop_name'         => $this->shop_name,
-            'shop_slug'         => $this->shop_slug,
+            'organisation_slug' => $this->organisation_slug
         ];
     }
 }

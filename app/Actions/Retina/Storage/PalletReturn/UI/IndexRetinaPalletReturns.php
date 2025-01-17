@@ -25,7 +25,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexPalletReturns extends RetinaAction
+class IndexRetinaPalletReturns extends RetinaAction
 {
     private FulfilmentCustomer $parent;
 

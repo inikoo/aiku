@@ -16,11 +16,11 @@ const props = defineProps<{
 			selected_interval?: string
 			selected_currency_in_grp?: string
 			selected_currency_in_org?: string
-			selected_shop_in_true?: string
-			selected_shop_in_false?: string
+			selected_shop_open?: boolean
+			selected_shop_closed?: boolean
 		}
 		key_currency?: string
-		show_shop?: string
+		key_shop?: string
 		options_currency: {
 			value: string
 			label: string
@@ -72,7 +72,7 @@ const updateCurrency = (currency_scope: string) => {
 const updateShop = (shop_scope: string) => {
 	router.patch(route("grp.models.user.update", layout.user?.id), {
 		settings: {
-			[`selected_shop_in_${props.settings?.show_shop || true}`]: shop_scope,
+			[`selected_shop_in_${props.settings?.key_shop || 'true'}`]: shop_scope,
 		},
 	}, {
 		onStart: () => {
@@ -91,12 +91,12 @@ const updateShop = (shop_scope: string) => {
 
 		<!-- Section: Currency -->
 		<div class="flex flex-wrap justify-end items-center space-x-2 lg:space-x-4">
-			<ToggleSwitch 
-			:modelValue="get(settings, ['db_settings', `selected_shop_in_${settings.show_shop}`], '')" 
+		<!-- 	<ToggleSwitch 
+			:modelValue="get(settings, ['db_settings', `selected_shop_in_${settings.key_shop}`], '')" 
 			@update:modelValue="(e: string) => updateShop(e)"
 			:trueValue="settings.options_currency[1].value"
 			:falseValue="settings.options_currency[0].value"
-			/>
+			/> -->
 
 			<p class="font-medium" :class="[settings.options_currency[0].value == get(settings, ['db_settings', `selected_currency_in_${settings.key_currency}`], '') ? '' : 'opacity-50']">
 				{{ settings.options_currency[0].label }}

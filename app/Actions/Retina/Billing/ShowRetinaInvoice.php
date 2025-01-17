@@ -137,7 +137,9 @@ class ShowRetinaInvoice extends RetinaAction
                         // 'address'      => AddressResource::collection($invoice->customer->addresses),
                     ],
                     'information' => [
-
+                        'recurring_bill'    => [
+                            'reference'     => $invoice->reference
+                        ],
                         'routes'         => [
                         ],
                         'paid_amount'    => $invoice->payment_amount,

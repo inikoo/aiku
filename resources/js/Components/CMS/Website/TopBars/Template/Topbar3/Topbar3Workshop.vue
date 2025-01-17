@@ -69,7 +69,7 @@ const emits = defineEmits<{
                 <span v-html="textReplaceVariables(model?.profile?.text, layout.iris_variables)"></span>
             </a>
 
-            <!-- Section: Logout -->
+            <!-- Section: LogoutRetina -->
             <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
                 :href="model?.logout?.link"
                 class="space-x-1.5 hover-dashed"
@@ -84,23 +84,23 @@ const emits = defineEmits<{
 
             <!-- Login -->
             <span class="hover-dashed">
-                <a v-if="checkVisible(model?.login.visible || null, isLoggedIn)" 
+                <a v-if="checkVisible(model?.login.visible || null, isLoggedIn)"
                     :href="model?.login?.link.href"
                     :target="model?.login?.link.target"
                     class="space-x-1.5 cursor-pointer"
                     id=""
                       @click="()=> emits('setPanelActive', 'login')"
                     :style="getStyles(model?.login.container.properties)"
-                    
+
                 >
                     <FontAwesomeIcon icon='fal fa-sign-in' class='' fixed-width aria-hidden='true' />
                     <span v-html="textReplaceVariables(model?.login?.text, layout.iris_variables)" />
                 </a>
             </span>
-            
+
             <!-- Register -->
              <span class="hover-dashed">
-                <a v-if="checkVisible(model?.register.visible || null, isLoggedIn)" 
+                <a v-if="checkVisible(model?.register.visible || null, isLoggedIn)"
                     :href="model?.register?.link.href"
                     :target="model?.register?.link.target"
                     class="space-x-1.5 cursor-pointer "
@@ -112,7 +112,7 @@ const emits = defineEmits<{
                     <span v-html="textReplaceVariables(model?.register?.text, layout.iris_variables)" />
                 </a>
              </span>
-           
+
         </div>
 
         <!-- Section: Main title -->

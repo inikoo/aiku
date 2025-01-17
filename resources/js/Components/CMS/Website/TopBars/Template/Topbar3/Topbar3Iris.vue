@@ -61,7 +61,7 @@ const emits = defineEmits<{
                 :target="model?.profile?.link.target"
                 class="space-x-1.5 "
                 :style="getStyles(model?.profile.container.properties)"
-               
+
             >
                 <!-- <i class="far fa-user fa-flip-horizontal  " title="Profile" aria-hidden="true"></i> -->
                 <FontAwesomeIcon icon='fal fa-user' class='' v-tooltip="trans('Profile')" fixed-width
@@ -69,12 +69,12 @@ const emits = defineEmits<{
                 <span v-html="textReplaceVariables(model?.profile?.text, layout.iris_variables)"></span>
             </a>
 
-            <!-- Section: Logout -->
+            <!-- Section: LogoutRetina -->
             <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
                 :href="model?.logout?.link"
                 class="space-x-1.5 "
                 :style="getStyles(model?.logout.container.properties)"
-             
+
             >
                 <!-- <i class="far fa-flip-horizontal fa-sign-out" title="Log out" aria-hidden="true"></i> -->
                 <FontAwesomeIcon icon='fal fa-sign-out' v-tooltip="trans('Log out')" class='' fixed-width
@@ -84,35 +84,35 @@ const emits = defineEmits<{
 
             <!-- Login -->
             <span class="">
-                <a v-if="checkVisible(model?.login.visible || null, isLoggedIn)" 
+                <a v-if="checkVisible(model?.login.visible || null, isLoggedIn)"
                     :href="model?.login?.link.href"
                     :target="model?.login?.link.target"
                     class="space-x-1.5 cursor-pointer"
                     id=""
-                     
+
                     :style="getStyles(model?.login.container.properties)"
-                    
+
                 >
                     <FontAwesomeIcon icon='fal fa-sign-in' class='' fixed-width aria-hidden='true' />
                     <span v-html="textReplaceVariables(model?.login?.text, layout.iris_variables)" />
                 </a>
             </span>
-            
+
             <!-- Register -->
              <span class="">
-                <a v-if="checkVisible(model?.register.visible || null, isLoggedIn)" 
+                <a v-if="checkVisible(model?.register.visible || null, isLoggedIn)"
                     :href="model?.register?.link.href"
                     :target="model?.register?.link.target"
                     class="space-x-1.5 cursor-pointer "
                     id=""
                     :style="getStyles(model?.register.container.properties)"
-                          
+
                 >
                     <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
                     <span v-html="textReplaceVariables(model?.register?.text, layout.iris_variables)" />
                 </a>
              </span>
-           
+
         </div>
 
         <!-- Section: Main title -->
@@ -128,7 +128,7 @@ const emits = defineEmits<{
                 :target="model?.favourite?.link.target"
                 class="mx-0 space-x-1.5 "
                 :style="getStyles(model?.favourite.container.properties)"
-              
+
             >
                 <FontAwesomeIcon icon='fal fa-heart' class='' fixed-width aria-hidden='true' />
                 <span v-html="textReplaceVariables(model?.favourite?.text, layout.iris_variables)"></span>
@@ -141,7 +141,7 @@ const emits = defineEmits<{
                 :target="model?.cart?.link.target"
                 class="space-x-1.5 "
                 :style="getStyles(model?.cart.container.properties)"
-           
+
             >
                 <FontAwesomeIcon icon='fal fa-shopping-cart' class='text-base px-[5px]' v-tooltip="trans('Cart')"
                     fixed-width aria-hidden='true' />

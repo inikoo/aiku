@@ -25,16 +25,16 @@ const onToggleChecked = (value: boolean) => {
 };
 
 const isOrganisation = ref(false)
-
-const tableDatas = computed(() => {
-	if (props.tableType == "org") {
-		return props.dashboard.table
-		.filter((org) => {
-			if (props.dashboard.settings.show_shop) {
+/* .filter((org) => {
+			if (props.dashboard.settings.key_shop) {
                 return org.state !== "closed";
             }
             return true;
-		})
+		}) */
+const tableDatas = computed(() => {
+	if (props.tableType == "org") {
+		return props.dashboard.table
+	
 		.map((org) => ({
 			name: org.name,
 			code: org.code,
