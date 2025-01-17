@@ -33,10 +33,5 @@ const props = withDefaults(
 </script>
 
 <template>
-  <div
-    class="bg-white shadow-md rounded-lg p-6 flex flex-col h-full w-full border border-gray-200"
-  >
-    <div class="flex-grow">
-    
-  </div>
+
 </template>
