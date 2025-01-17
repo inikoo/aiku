@@ -155,7 +155,7 @@ const onUnselectNewStoredItem = (row: number, store_item_audit_deltas_id: number
 }
 
 
-// Section: update quantity stored item
+// Section: store quantity stored item (first update)
 const isLoadingStoreQuantity = reactive<StoredItemsQuantity>({})
 const onStoreStoredItem = (row: number, idPallet: number, idStoredItemAudit: number, quantity: number) => {
     console.log('onStoreStoredItem')
@@ -196,7 +196,7 @@ const onStoreStoredItem = (row: number, idPallet: number, idStoredItemAudit: num
 const debounceStoreQuantity = debounce((row: number, idPallet: number, idStoredItemAudit: number, quantity: number) => onStoreStoredItem(row, idPallet, idStoredItemAudit, quantity), 500)
 
 
-// Section: Change quantity
+// Section: Update quantity stored item
 const isLoadingQuantity = reactive<StoredItemsQuantity>({})
 const onChangeQuantity = (row: number, idStoredItemAuditDelta: number | null, quantity: number) => {
     console.log('onChangeQuantity')
@@ -240,7 +240,7 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
 </script>
 
 <template>
-    <Table :resource="data" :name="tab" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5" striped rowAlignTop>
 
         <!-- Column: Reference -->
         <template #cell(reference)="{ item: pallet }">
@@ -266,7 +266,7 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
 
         <!-- Column: Customer Reference -->
         <template #cell(customer_reference)="{ item: item }">
-            <div>
+            <div class="">
                 {{ item.customer_reference }}
                 <span v-if="item.notes" class="text-gray-400 text-xs ml-1">
                     <FontAwesomeIcon icon="fal fa-sticky-note" class="text-gray-400" fixed-width aria-hidden="true" />
@@ -354,7 +354,7 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
                                                     <FontAwesomeIcon icon='fas fa-minus' class='' fixed-width aria-hidden='true' />
                                                 </div>
 
-                                                <div class="text-center tabular-nums">
+                                                <div class="text-center tabular-nums border border-transparent hover:border-dashed hover:border-gray-300 group-focus:border-dashed group-focus:border-gray-300">
                                                     <InputNumber v-model="data.audited_quantity"
                                                         @update:modelValue="(e) => debounceChangeQuantity(item.rowIndex, data.storedItemAuditDelta, e)"
                                                         buttonLayout="horizontal" :min="0" style="width: 100%"
@@ -380,9 +380,9 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
                                             </div>
 
                                             <div v-else @click="set(statesBoxEdit, `${item.rowIndex}.${data.id}`, true)"
-                                                class="hover:bg-gray-200 text-gray-400 hover:text-gray-600 w-fit flex justify-center items-center h-full cursor-pointer px-2 gap-x-1">
+                                                class="hover:bg-gray-200 text-gray-400 hover:text-gray-600 w-full flex justify-center items-center h-full cursor-pointer px-2 gap-x-1">
                                                 <span class="text-gray-600">{{ data.audited_quantity }}</span>
-                                                <FontAwesomeIcon v-tooltip="trans('Edit')" icon='fal fa-pencil' class=''
+                                                <FontAwesomeIcon v-tooltip="trans('Edit')" icon='fal fa-pencil' size="sm" class=''
                                                     fixed-width aria-hidden='true' />
                                             </div>
                                         </transition>
@@ -390,12 +390,28 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
 
                                     <!-- Button: Reset -->
                                     <Button
-                                        @click="() => data.type === 'new_item' ? onUnselectNewStoredItem(item.rowIndex, data.storedItemAuditDelta) : null"
+                                        v-if="data.type === 'new_item'"
+                                        @click="() => onUnselectNewStoredItem(item.rowIndex, data.storedItemAuditDelta)"
                                         type="tertiary"
-                                        :icon="data.type === 'new_item' ? 'fal fa-trash-alt' : 'fal fa-undo'"
+                                        icon="fal fa-trash-alt"
+                                        class="border-none rounded-none text-red-500"
+                                        :loading="!!get(isLoadingUnselect, [item.rowIndex, data.storedItemAuditDelta], false)"
+                                    />
+
+                                    <Button
+                                        v-else
+                                        @click="() => (
+                                            set(data, `audited_quantity`, get(data, `audited_quantity`, data.quantity)),
+                                            data.storedItemAuditDelta
+                                                ? debounceChangeQuantity(item.rowIndex, data.storedItemAuditDelta, get(data, `audited_quantity`, data.quantity))
+                                                : debounceStoreQuantity(item.rowIndex, item.id, data.id, get(data, `audited_quantity`, data.quantity))
+                                        )"
+                                        :disabled="data.audited_quantity === data.quantity"
+                                        type="tertiary"
+                                        icon="fal fa-undo"
                                         class="border-none rounded-none"
                                         :loading="!!get(isLoadingUnselect, [item.rowIndex, data.storedItemAuditDelta], false)"
-                                        :class="data.type === 'new_item' ? 'text-red-500' : ''" />
+                                    />
                                 </div>
 
                                 <FontAwesomeIcon v-tooltip="trans('Close')"
