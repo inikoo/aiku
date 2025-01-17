@@ -152,7 +152,7 @@ const fetchTabData = async (tabSlug: string) => {
 
 }
 
-// Section: Logout
+// Section: LogoutRetina
 const isLoadingLogout = ref(false)
 const onLogoutAuth = () => {
     useLogoutAuth(layout.user, {
