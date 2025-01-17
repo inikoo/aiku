@@ -193,8 +193,8 @@ function NumberDashboard(shop: any) {
 <template>
 	<div :class="['rounded-lg p-6 shadow-md relative h-full', getStatusColor(widgetData.status)]">
 		<p
-			v-tooltip="printLabelByType(widgetData?.value)"
 			class="text-4xl font-bold leading-tight truncate">
+			<!-- v-tooltip="printLabelByType(widgetData?.value)" -->
 			<!-- Render CountUp if widgetData.type is 'number' -->
 			<template v-if="widgetData?.type === 'number'">
 				<template v-if="widgetData?.route">
