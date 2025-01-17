@@ -26,7 +26,7 @@ class StoreRetinaFulfilmentTransaction extends RetinaAction
 {
     use WithActionUpdate;
 
-    private Organisation $organisation;
+    protected Organisation $organisation;
 
     public function handle(PalletDelivery|PalletReturn $parent, array $modelData): FulfilmentTransaction
     {
@@ -99,5 +99,12 @@ class StoreRetinaFulfilmentTransaction extends RetinaAction
         $this->initialisation($request);
 
         $this->handle($palletReturn, $this->validatedData);
+    }
+
+    public function action(PalletReturn|PalletDelivery $parent, array $modelData): void
+    {
+        $this->actionInitialisation($parent->fulfilmentCustomer, $modelData);
+
+        $this->handle($parent, $this->validatedData);
     }
 }
