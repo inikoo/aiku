@@ -16,7 +16,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class DeleteShopifyUser extends OrgAction
+class DeleteRetinaShopifyUser extends OrgAction
 {
     use AsAction;
     use WithAttributes;

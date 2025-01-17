@@ -13,7 +13,7 @@ use App\Actions\Comms\Mailshot\UI\IndexMailshots;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Dropshipping\Product\UI\IndexDropshippingRetinaPortfolio;
+use App\Actions\UI\Retina\Dropshipping\Product\UI\IndexRetinaDropshippingPortfolio;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Http\Resources\Catalogue\ProductsResource;
 use App\Models\Catalogue\Product;
@@ -21,7 +21,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowProduct extends RetinaAction
+class ShowRetinaProduct extends RetinaAction
 {
     public function handle(Product $product): Product
     {
@@ -127,7 +127,7 @@ class ShowProduct extends RetinaAction
         $portfolio = Product::where('slug', $routeParameters['product'])->first();
 
         return array_merge(
-            IndexDropshippingRetinaPortfolio::make()->getBreadcrumbs(),
+            IndexRetinaDropshippingPortfolio::make()->getBreadcrumbs(),
             $headCrumb(
                 $portfolio,
                 [

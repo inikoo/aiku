@@ -18,7 +18,6 @@ use App\Models\Fulfilment\RecurringBillTransaction;
 
 class CalculateRecurringBillTemporalAggregates extends OrgAction
 {
-
     public function __construct()
     {
         $this->hydratorsDelay = 30;
@@ -27,7 +26,7 @@ class CalculateRecurringBillTemporalAggregates extends OrgAction
 
     public function handle(RecurringBill $recurringBill): RecurringBill
     {
-        if($recurringBill->status != RecurringBillStatusEnum::CURRENT) {
+        if ($recurringBill->status != RecurringBillStatusEnum::CURRENT) {
             return $recurringBill;
         }
 

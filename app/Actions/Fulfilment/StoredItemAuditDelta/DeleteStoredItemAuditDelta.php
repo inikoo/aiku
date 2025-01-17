@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\StoredItemAuditDelta;
 
+use App\Actions\Fulfilment\StoredItemAudit\Hydrators\StoredItemAuditHydrateDeltas;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\StoredItemAuditDelta;
@@ -21,6 +22,7 @@ class DeleteStoredItemAuditDelta extends OrgAction
     {
 
         $storedItemAuditDelta->delete();
+        StoredItemAuditHydrateDeltas::dispatch($storedItemAuditDelta->storedItemAudit);
 
         return true;
     }

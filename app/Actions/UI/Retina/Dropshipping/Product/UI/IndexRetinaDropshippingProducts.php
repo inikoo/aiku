@@ -12,13 +12,13 @@ use App\Actions\Catalogue\Product\UI\IndexProducts as IndexUIProducts;
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Dashboard\ShowRetinaDashboard;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
-use App\Http\Resources\Catalogue\DropshippingPortfolioResource;
+use App\Http\Resources\Catalogue\ProductsResource;
 use App\Models\Dropshipping\ShopifyUser;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class IndexDropshippingRetinaPortfolio extends RetinaAction
+class IndexRetinaDropshippingProducts extends RetinaAction
 {
     public function handle(ShopifyUser $shopifyUser): ShopifyUser
     {
@@ -42,22 +42,30 @@ class IndexDropshippingRetinaPortfolio extends RetinaAction
     public function htmlResponse(ShopifyUser $shopifyUser): Response
     {
         return Inertia::render(
-            'Dropshipping/Portfolios',
+            'Dropshipping/Products',
             [
                  'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('My Portfolio'),
+                'title'       => __('All Products'),
                 'pageHead'    => [
-                    'title' => __('My Portfolio'),
+                    'title' => __('All Products'),
                     'icon'  => 'fal fa-cube'
                 ],
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => ProductTabsEnum::navigation()
                 ],
+                'routes' => [
+                    'store_product' => [
+                        'name'       => 'retina.models.dropshipping.shopify_user.product.store',
+                        'parameters' => [
+                            'shopifyUser' => $shopifyUser->id
+                        ]
+                    ],
+                ],
 
-                'products' => DropshippingPortfolioResource::collection(IndexUIProducts::make()->inDropshipping($shopifyUser, 'current'))
+                'products' => ProductsResource::collection(IndexUIProducts::make()->inDropshipping($shopifyUser, 'all'))
             ]
-        )->table(IndexUIProducts::make()->tableStructure($shopifyUser, prefix: 'products'));
+        )->table(IndexUIProducts::make()->tableStructure($shopifyUser->customer->shop, prefix: 'products'));
     }
 
     public function getBreadcrumbs(): array
@@ -70,9 +78,9 @@ class IndexDropshippingRetinaPortfolio extends RetinaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'retina.dropshipping.portfolios.index'
+                                'name' => 'retina.dropshipping.portfolios.products.index'
                             ],
-                            'label'  => __('My Portfolio'),
+                            'label'  => __('Products'),
                         ]
                     ]
                 ]
