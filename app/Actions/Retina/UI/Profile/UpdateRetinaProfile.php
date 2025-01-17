@@ -79,6 +79,8 @@ class UpdateRetinaProfile extends RetinaAction
 
     public function action(WebUser $webUser, array $modelData): WebUser
     {
+        $this->website= $webUser->website;
+        $this->webUser = $webUser;
         $this->setRawAttributes($modelData);
         return $this->handle($webUser, $this->validateAttributes());
     }
