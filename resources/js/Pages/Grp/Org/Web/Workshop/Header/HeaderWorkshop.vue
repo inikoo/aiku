@@ -335,12 +335,12 @@ onMounted(() => {
     </div>
 
     <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false">
-        <HeaderListModal :onSelectBlock :webBlockTypes="selectedWebBlock.filter((item) => {
+        <HeaderListModal :onSelectBlock :webBlockTypes="selectedTab == 0 ? selectedWebBlock.filter((item) => {
             const hasFulfilmentParam = route().params['fulfilment'];
             return hasFulfilmentParam
                 ? item.code.includes('fulfilment')
                 : !item.code.includes('fulfilment');
-        })" :currentTopbar="usedTemplates.topBar" :isLoading="isLoadingTemplate" />
+        }) : selectedWebBlock" :currentTopbar="usedTemplates.topBar" :isLoading="isLoadingTemplate" />
     </Modal>
 </template>
 
