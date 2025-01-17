@@ -10,7 +10,6 @@
 namespace App\Actions\UI\Retina\SysAdmin;
 
 use App\Actions\RetinaAction;
-use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -28,9 +27,7 @@ class CreateRetinaWebUser extends RetinaAction
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->originalParameters()
-                ),
+                'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'    => __('Create User'),
                 'pageHead' => [
                     'title' => __('Create User'),
@@ -55,32 +52,25 @@ class CreateRetinaWebUser extends RetinaAction
                         [
                             [
                                 'fields' => [
-                                    'type' => [
-                                        'options' => [
-                                            WebUserTypeEnum::WEB->value => [
-                                                'label' => __('Customer')
-                                            ],
-                                            WebUserTypeEnum::API->value => [
-                                                'label' => __('API user')
-                                            ]
-                                        ]
-                                    ],
                                     'contact_name' => [
                                         'type'  => 'input',
                                         'label' => __('contact name'),
                                         'value' => ''
                                     ],
                                     'email' => [
+                                        'required' => true,
                                         'type'  => 'input',
                                         'label' => __('email'),
                                         'value' => $this->customer->hasUsers() ? '' : $this->customer->email
                                     ],
                                     'username' => [
+                                        'required' => true,
                                         'type'  => 'input',
                                         'label' => __('username'),
                                         'value' => ''
                                     ],
                                     'password' => [
+                                        'required' => true,
                                         'type'  => 'password',
                                         'label' => __('password'),
                                         'value' => ''
@@ -98,14 +88,13 @@ class CreateRetinaWebUser extends RetinaAction
         );
     }
 
-    public function asController(
-        ActionRequest $request
-    ): ActionRequest {
+    public function asController(ActionRequest $request): ActionRequest
+    {
         $this->initialisation($request);
         return $request;
     }
 
-    public function getBreadcrumbs(array $routeParameters): array
+    public function getBreadcrumbs(): array
     {
         return
             array_merge(
