@@ -78,7 +78,7 @@ const emits = defineEmits<{
     <div id="top_bar" class="py-2 px-4 grid md:grid-cols-5"
         :style="getStyles(model?.container?.properties)"
     >
-        
+
         <!-- Section: Greeting -->
         <!-- <div v-if="checkVisible(model?.greeting.visible || null, isLoggedIn)" v-html="textReplaceVariables(model?.greeting?.text, layout.iris_variables)" class="flex items-center" /> -->
 
@@ -158,14 +158,14 @@ const emits = defineEmits<{
                 <span v-html="textReplaceVariables(model?.profile?.text, layout.iris_variables)" />
             </a>
 
-            <Image 
+            <Image
                 class="h-9 max-w-32 hover-dashed"
                 :src="model?.logo?.source"
                 imageCover
                 @click="()=> emits('setPanelActive', 'logo')"
             />
 
-            <!-- Section: Logout -->
+            <!-- Section: LogoutRetina -->
             <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
                 :href="model?.logout?.link"
                 class="col-span-2 text-right block md:hidden space-x-1.5 hover-dashed"
@@ -178,7 +178,7 @@ const emits = defineEmits<{
         </div>
 
         <div class="md:col-span-2 flex md:justify-end gap-x-4 ">
-            <!-- Section: Logout -->
+            <!-- Section: LogoutRetina -->
             <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
                 :href="model?.logout?.link"
                 class="hidden md:block space-x-1.5 hover-dashed"
@@ -198,13 +198,13 @@ const emits = defineEmits<{
                     id=""
                     :style="getStyles(model?.register.container?.properties)"
                     @click="()=> emits('setPanelActive', 'register')"
-                    
+
                 >
                     <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
                     <span v-html="textReplaceVariables(model?.register.text, layout.iris_variables)" />
                 </a>
              </span>
-           
+
 
             <!-- Login -->
             <span class="hover-dashed">
@@ -222,7 +222,7 @@ const emits = defineEmits<{
                 </a>
             </span>
 
-            
+
         </div>
     </div>
 

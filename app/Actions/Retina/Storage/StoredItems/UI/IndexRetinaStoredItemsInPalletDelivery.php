@@ -12,8 +12,7 @@ use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\StoredItem;
+use App\Models\Fulfilment\PalletDelivery;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -23,9 +22,9 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexStoredItems extends RetinaAction
+class IndexRetinaStoredItemsInPalletDelivery extends RetinaAction
 {
-    public function handle(FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
+    public function handle(PalletDelivery $palletDelivery, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -37,13 +36,8 @@ class IndexStoredItems extends RetinaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        return QueryBuilder::for(StoredItem::class)
+        return QueryBuilder::for($palletDelivery->pallets())
             ->defaultSort('slug')
-            ->when($parent, function ($query) use ($parent) {
-                if (class_basename($parent) == "FulfilmentCustomer") {
-                    $query->where('fulfilment_customer_id', $parent->id);
-                }
-            })
             ->allowedSorts(['slug', 'state'])
             ->allowedFilters([$globalSearch, 'slug', 'state'])
             ->withPaginator($prefix)
@@ -68,9 +62,12 @@ class IndexStoredItems extends RetinaAction
                         'description'   => __("No items stored in any pallets")
                     ]
                 )
-                ->column(key: 'state', label: __('State'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'customer_name', label: __('Customer Name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'location', label: __('Location'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'state', label: __('State'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'status', label: __('Status'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'notes', label: __('Notes'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('slug');
         };
     }
@@ -90,7 +87,7 @@ class IndexStoredItems extends RetinaAction
     public function htmlResponse(LengthAwarePaginator $storedItems, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Storage/RetinaStoredItems',
+            'Fulfilment/StoredItems',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __("customer's sKUs"),
@@ -129,7 +126,7 @@ class IndexStoredItems extends RetinaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'retina.fulfilment.storage.stored-items.index'
+                            'name' => 'grp.fulfilment.stored-items.index'
                         ],
                         'label' => __("customer's sKUs"),
                         'icon'  => 'fal fa-bars',

@@ -78,7 +78,7 @@ const emits = defineEmits<{
     <div id="top_bar" class="py-2 px-4 grid md:grid-cols-5"
         :style="getStyles(model?.container?.properties)"
     >
-        
+
         <!-- Section: Greeting -->
         <!-- <div v-if="checkVisible(model?.greeting.visible || null, isLoggedIn)" v-html="textReplaceVariables(model?.greeting?.text, layout.iris_variables)" class="flex items-center" /> -->
 
@@ -93,7 +93,7 @@ const emits = defineEmits<{
                 :target="model?.profile?.link.target"
                 class="hidden space-x-1.5 md:flex flex-nowrap items-center "
                 :style="getStyles(model?.profile.container?.properties)"
-                
+
             >
                 <!-- <i class="far fa-user fa-flip-horizontal  " title="Profile" aria-hidden="true"></i> -->
                 <FontAwesomeIcon icon='fal fa-user' class='' v-tooltip="trans('Profile')" fixed-width aria-hidden='true' />
@@ -107,7 +107,7 @@ const emits = defineEmits<{
                 :target="model?.favourite?.link.target"
                 class="space-x-1.5 flex flex-nowrap items-center "
                 :style="getStyles(model?.favourite.container?.properties)"
-              
+
             >
                 <FontAwesomeIcon icon='fal fa-heart' class='' fixed-width aria-hidden='true' />
                 <span v-html="textReplaceVariables(model?.favourite?.text, layout.iris_variables)" />
@@ -120,7 +120,7 @@ const emits = defineEmits<{
                 :target="model?.cart?.link.target"
                 class="space-x-1.5 flex flex-nowrap items-center "
                 :style="getStyles(model?.cart.container?.properties)"
-          
+
             >
                 <FontAwesomeIcon icon='fal fa-shopping-cart' class='text-base px-[5px]' v-tooltip="trans('Basket')"
                     fixed-width aria-hidden='true' />
@@ -151,26 +151,26 @@ const emits = defineEmits<{
                 :target="model?.profile?.link.target"
                 class="col-span-2 md:hidden space-x-1.5 flex flex-nowrap items-center "
                 :style="getStyles(model?.profile.container?.properties)"
-               
+
             >
                 <!-- <i class="far fa-user fa-flip-horizontal  " title="Profile" aria-hidden="true"></i> -->
                 <FontAwesomeIcon icon='fal fa-user' class='' v-tooltip="trans('Profile')" fixed-width aria-hidden='true' />
                 <span v-html="textReplaceVariables(model?.profile?.text, layout.iris_variables)" />
             </a>
 
-            <Image 
+            <Image
                 class="h-9 max-w-32 "
                 :src="model?.logo?.source"
                 imageCover
                 @click="()=> emits('setPanelActive', 'logo')"
             />
 
-            <!-- Section: Logout -->
+            <!-- Section: LogoutRetina -->
             <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
                 :href="model?.logout?.link"
                 class="col-span-2 text-right block md:hidden space-x-1.5 "
                 :style="getStyles(model?.logout.container?.properties)"
-               
+
             >
                 <FontAwesomeIcon icon='fal fa-sign-out' v-tooltip="trans('Log out')" class='' fixed-width aria-hidden='true' />
                 <span class="" v-html="textReplaceVariables(model?.logout?.text, layout.iris_variables)" />
@@ -178,12 +178,12 @@ const emits = defineEmits<{
         </div>
 
         <div class="md:col-span-2 flex md:justify-end gap-x-4 ">
-            <!-- Section: Logout -->
+            <!-- Section: LogoutRetina -->
             <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
                 :href="model?.logout?.link"
                 class="hidden md:block space-x-1.5 "
                 :style="getStyles(model?.logout.container?.properties)"
-             
+
             >
                 <FontAwesomeIcon icon='fal fa-sign-out' v-tooltip="trans('Log out')" class='' fixed-width aria-hidden='true' />
                 <span class="hidden md:inline" v-html="textReplaceVariables(model?.logout?.text, layout.iris_variables)" />
@@ -197,14 +197,14 @@ const emits = defineEmits<{
                     class="space-x-1.5 cursor-pointer"
                     id=""
                     :style="getStyles(model?.register.container?.properties)"
-                
-                    
+
+
                 >
                     <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
                     <span v-html="textReplaceVariables(model?.register.text, layout.iris_variables)" />
                 </a>
              </span>
-           
+
 
             <!-- Login -->
             <span class="">
@@ -215,14 +215,14 @@ const emits = defineEmits<{
                     class="space-x-1.5 cursor-pointer"
                     id=""
                     :style="getStyles(model?.login?.container?.properties)"
-     
+
                 >
                     <FontAwesomeIcon icon='fal fa-sign-in' class='' fixed-width aria-hidden='true' />
                     <span v-html="textReplaceVariables(model?.login?.text, layout.iris_variables)" />
                 </a>
             </span>
 
-            
+
         </div>
     </div>
 

@@ -20,6 +20,7 @@ import { faPlus, faChevronDown, faTimes, faMinus, faSparkles, faRampLoading } fr
 import { faTrashAlt, faExclamationTriangle } from "@far"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import InputNumber from "primevue/inputnumber"
+import LoadingIcon from "./Utils/LoadingIcon.vue"
 
 library.add(faPlus, faChevronDown, faTimes, faMinus, faTrashAlt, faSparkles, faExclamationTriangle)
 
@@ -75,20 +76,23 @@ const createStoredItems = async (option, select) => {
 	}
 }
 
+// Section: Delete stored items
+const isDeleteStoredItem = ref(false)
 const deleteStoredItems = async (closeModal : boolean) => {
+	isDeleteStoredItem.value = true
 	try {
 		const response: any = await axios.delete(
 			route(props.storedItemsRoute.delete.name, {storedItem : props.form.id}),
 		)
 		props.form.errors = {}
 		props.form.id = null
-		loadingAddStoredItem.value = false
+		isDeleteStoredItem.value = false
 		if(closeModal) emits('closeModal')
 		else disabledSelect.value.disabled = false
 	} catch (error: any) {
 		console.log(error)
 		props.form.errors.id = error?.response?.data?.message
-		loadingAddStoredItem.value = false
+		isDeleteStoredItem.value = false
 		notify({
 			title: "Failed to add new stored items",
 			text: error.message ? error.message : 'failed to create stored item',
@@ -202,11 +206,13 @@ const onSaved = async () => {
 							{{ `${trans(`Create`)} : ${search}` }}
 						</div>
 					</template>
+					
 					<template v-if="!disabledSelect.edit" #caret="{ handleCaretClick, isOpen }">
 						<div class="px-2">
-							<font-awesome-icon v-if="!disabledSelect.disabled" :icon="['fas', 'chevron-down']"
+							<LoadingIcon v-if="isDeleteStoredItem" class="text-red-500 text-sm mr-1" />
+							<font-awesome-icon v-else-if="!disabledSelect.disabled" :icon="['fas', 'chevron-down']"
 								class="text-xs mr-2" />
-							<font-awesome-icon v-else :icon="faTrashAlt" class="text-xs mr-2 text-red-600"
+							<font-awesome-icon v-else :icon="faTrashAlt" class="text-xs mr-2 text-red-400 hover:text-red-600"
 								@click="deleteStoredItems(false)" />
 						</div>
 					</template>
@@ -221,8 +227,8 @@ const onSaved = async () => {
 								</template>
 							</Tag>
 						</div>
-						<div v-else>
-							<FontAwesomeIcon :icon="faRampLoading" />
+						<div v-else class="flex justify-start w-full px-2 gap-3">
+							<LoadingIcon />
 						</div>
 					</template>
 				</SelectQuery>

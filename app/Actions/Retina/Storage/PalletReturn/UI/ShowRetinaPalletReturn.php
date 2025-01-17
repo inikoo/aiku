@@ -34,7 +34,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowPalletReturn extends RetinaAction
+class ShowRetinaPalletReturn extends RetinaAction
 {
     private FulfilmentCustomer $parent;
 
