@@ -37,6 +37,8 @@ class RetinaAction
     {
         $this->webUser       = $request->user();
         $this->customer      = $this->webUser->customer;
+        $this->shop          = $this->customer->shop;
+        $this->organisation  = $this->shop->organisation;
         $this->website       = $request->get('website');
         $this->fillFromRequest($request);
 
