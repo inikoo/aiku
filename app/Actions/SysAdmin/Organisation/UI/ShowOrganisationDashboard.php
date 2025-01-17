@@ -141,7 +141,19 @@ class ShowOrganisationDashboard extends OrgAction
             'settings' => [
                 'db_settings'   => $userSettings,
                 'key_currency'  =>  'org',
-                'show_shop' => Arr::get($userSettings, 'selected_shop_in_org', true),
+                'key_shop' => true,
+                'selected_shop_in_false' => Arr::get($userSettings, 'selected_shop_in_false', false),
+                'selected_shop_in_true' => Arr::get($userSettings, 'selected_shop_in_true', true),
+                'options_shop' => [
+                    [
+                        'value' => true,
+                        'label' => __('Show All')
+                    ],
+                    [
+                        'value' => false,
+                        'label' => __('Closed')
+                    ]
+                ],
                 'options_currency'  => [
                     [
                         'value' => 'org',
