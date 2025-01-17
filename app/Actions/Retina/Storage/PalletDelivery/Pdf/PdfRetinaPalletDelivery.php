@@ -17,7 +17,7 @@ use Lorisleiva\Actions\Concerns\WithAttributes;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
 use Symfony\Component\HttpFoundation\Response;
 
-class RetinaPdfPalletDelivery
+class PdfRetinaPalletDelivery
 {
     use AsAction;
     use WithAttributes;
