@@ -333,16 +333,16 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
                             <div class="flex gap-x-2.5 items-center w-64">
                                 <div class="flex justify-center border border-gray-300 rounded gap-y-1">
                                     <!-- Button: Check -->
-                                    <Button v-if="data.type !== 'new_item'"
+                                    <Button v-if="data.type !== 'new_item' && !data.stored_item_audit_delta"
                                         @click="() => onStoreStoredItem(item.rowIndex, item.id, data.id, data.quantity)"
                                         type="tertiary" icon="fal fa-check-circle" class="border-none rounded-none"
                                     />
 
                                     <!-- Section: - and + -->
                                     <div class="transition-all relative inline-flex items-center justify-center "
-                                        :class="get(statesBoxEdit, `${item.rowIndex}.${data.id}`, false) ? 'w-28' : 'w-14'">
+                                        :class="!get('statesBoxEdit', `${item.rowIndex}.${data.id}`, false) ? 'w-28' : 'w-14'">
                                         <transition>
-                                            <div v-if="get(statesBoxEdit, `${item.rowIndex}.${data.id}`, false)"
+                                            <div v-if="!get('statesBoxEdit', `${item.rowIndex}.${data.id}`, false)"
                                                 class="relative flex flex-nowrap items-center justify-center gap-y-1 gap-x-1">
                                                 <!-- Button: Minus -->
                                                 <div  @click="() => (
@@ -356,13 +356,15 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
                                                 </div>
 
                                                 <div class="text-center tabular-nums border border-transparent hover:border-dashed hover:border-gray-300 group-focus:border-dashed group-focus:border-gray-300">
-                                                    <InputNumber v-model="data.audited_quantity"
+                                                    
+                                                    <InputNumber
+                                                        :modelValue="data.stored_item_audit_delta ? data.audited_quantity : data.quantity"
                                                         @update:modelValue="(e) => debounceChangeQuantity(item.rowIndex, data.stored_item_audit_delta, e)"
                                                         buttonLayout="horizontal" :min="0" style="width: 100%"
                                                         :inputStyle="{
                                                             padding: '0px',
                                                             width: '50px',
-                                                            color: data.audited_quantity > data.quantity ? '#00d200' : data.audited_quantity === data.quantity ? 'gray' : 'red'
+                                                            coloxxr: data.audited_quantity > data.quantity ? '#00d200' : data.audited_quantity === data.quantity ? 'gray' : 'red'
                                                         }" />
                                                 </div>
 
@@ -380,7 +382,7 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
                                                 </div>
                                             </div>
 
-                                            <div v-else @click="set(statesBoxEdit, `${item.rowIndex}.${data.id}`, true)"
+                                            <div v-else @click="set(statesBoxEdit, `zzz${item.rowIndex}.${data.id}`, true)"
                                                 class="hover:bg-gray-200 text-gray-400 hover:text-gray-600 w-full flex justify-center items-center h-full cursor-pointer px-2 gap-x-1">
                                                 <span class="text-gray-600">
                                                   {{!data.stored_item_audit_delta_id ?  data.quantity :  data.audited_quantity }}
@@ -416,12 +418,12 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
                                   />
                                 </div>
 
-                                <FontAwesomeIcon v-tooltip="trans('Close')"
+                                <!-- <FontAwesomeIcon v-tooltip="trans('Close')"
                                     @click="() => set(statesBoxEdit, `${item.rowIndex}.${data.id}`, false)"
                                     icon='fal fa-arrow-to-left'
                                     class='py-1 px-1 transition-all cursor-pointer text-gray-400 hover:text-gray-700'
                                     :class="get(statesBoxEdit, `${item.rowIndex}.${data.id}`, false) ? '' : 'hidden'"
-                                    fixed-width aria-hidden='true' />
+                                    fixed-width aria-hidden='true' /> -->
                             </div>
                         </div>
                     </template>
