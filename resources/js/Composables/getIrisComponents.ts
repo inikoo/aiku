@@ -22,6 +22,9 @@ import Topbar3 from '@/Components/CMS/Website/TopBars/Template/Topbar3/Topbar3Ir
 import Header1 from '@/Components/CMS/Website/Headers/Header1/Header1Iris.vue'
 import Menu1 from '@/Components/CMS/Website/Menus/Menu1Workshop.vue'
 import TextColumn from '@/Components/CMS/Webpage/TextColumn/TextColumnIris.vue'
+import Topbar1FulfilmentIris from '@/Components/CMS/Website/TopBars/Template/Topbar1Fulfilment/Topbar1FulfilmentIris.vue'
+import Topbar2FulfilmentIris from '@/Components/CMS/Website/TopBars/Template/Topbar2Fulfilment/Topbar2FulfilmentIris.vue'
+import Topbar3FulfilmentIris from '@/Components/CMS/Website/TopBars/Template/Topbar3Fulfilment/Topbar3FulfilmentIris.vue'
 import NotFoundComponents from '@/Components/CMS/Webpage/NotFoundComponent.vue'
 
 
@@ -50,7 +53,10 @@ export const getIrisComponent = (componentName: string) => {
         'text': Text,
         'cta_aurora_1' : CtaAurora1,
         'overview_2' : Overview2,
-        'text-column' : TextColumn
+        'text-column' : TextColumn,
+        'top-bar-1-fulfilment': Topbar1FulfilmentIris,
+        'top-bar-2-fulfilment': Topbar2FulfilmentIris,
+        'top-bar-3-fulfilment': Topbar3FulfilmentIris,
        
     }
     return components[componentName] ?? NotFoundComponents

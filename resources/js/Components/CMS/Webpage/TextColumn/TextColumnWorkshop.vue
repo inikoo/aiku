@@ -11,7 +11,7 @@ library.add(faCube, faStar, faImage, faPencil);
 const props = defineProps<{
     modelValue: any;
     webpageData?: any;
-    blockData: Record<string, any>;
+    blockData?: Record<string, any>;
 }>();
 
 const emits = defineEmits<{

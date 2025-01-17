@@ -15,7 +15,7 @@ library.add(faCube, faLink)
 
 const props = defineProps<{
 	fieldValue: FieldValue
-	webpageData: any
+	webpageData?: any
 	web_block: Object
 	id: Number
 	type: String

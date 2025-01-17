@@ -1,8 +1,8 @@
 {
 	"scope": "website",
-	"slug": "top-bar-1",
-	"code": "top-bar-1",
-	"name": "Topbar Simple",
+	"slug": "top-bar-2-fulfilment",
+	"code": "top-bar-2-fulfilment",
+	"name": "Topbar Fantastic [fulfilment]",
 	"component": "topbar",
 	"data": {
 		"fieldValue": {
@@ -11,29 +11,38 @@
 				"properties": {
 					"background": {
 						"type": "color",
-						"color": "rgba(20,20,20,1)",
+						"color": "linear-gradient(90deg, rgba(221,245,254,1) 0%, rgba(252,247,255,1) 16%, rgba(255,252,246,1) 35%, rgba(248,240,255,1) 57%, rgba(255,250,246,1) 83%)",
 						"image": {
 							"original": null
 						}
 					},
 					"text": {
-						"color": "rgba(255,255,255,1)",
-						"fontFamily": "Raleway"
+						"color": "rgba(10,10,10,1)",
+						"fontFamily": "Inter, sans-serif"
 					}
 				}
 			},
 			"main_title": {
-				"text": "<p><strong>Stay Fit & Healthy: Save 15% on Natural Supplements!</strong></p>",
+				"text": "<p>Celebrating your membership anniversary!</p>",
 				"visible": "all"
 			},
+			"greeting": {
+				"text": "<p>Welcome, <strong>{{ name }}</strong>!",
+				"visible": "login"
+			},
 			"login": {
-				"link": null,
+				"link": {
+					"type" : "external",
+					"href": "/app",
+					"target" : "_self"
+				},
 				"text": "Login",
 				"visible": "logout",
 				"container": {
 					"properties": {
 						"text": {
-							"color": "rgba(255, 255, 255, 1)"
+							"color": "rgba(255, 255, 255, 1)",
+							"fontFamily": "Inter, sans-serif"
 						},
 						"border": {
 							"top": {
@@ -113,7 +122,8 @@
 				"container": {
 					"properties": {
 						"text": {
-							"color": "rgba(255, 255, 255, 1)"
+							"color": "rgba(10, 10, 10, 1)",
+							"fontFamily": "Inter, sans-serif"
 						},
 						"border": {
 							"top": {
@@ -123,7 +133,7 @@
 								"value": 1
 							},
 							"unit": "px",
-							"color": "rgba(255, 255, 255, 1)",
+							"color": "rgba(10, 10, 10, 1)",
 							"right": {
 								"value": 1
 							},
@@ -186,68 +196,15 @@
 					}
 				}
 			},
-			"cart": {
-				"link": null,
-				"text": "{{ cart_count }} items",
-				"visible": "login",
-				"container": {
-					"properties": {
-						"text": {
-							"color": "rgba(255, 255, 255, 1)"
-						},
-						"padding": {
-							"top": {
-								"value": 5
-							},
-							"left": {
-								"value": 20
-							},
-							"unit": "px",
-							"right": {
-								"value": 20
-							},
-							"bottom": {
-								"value": 5
-							}
-						}
-					}
-				}
-			},
-			"favourite": {
-				"link": null,
-				"text": "{{ favourites_count }}",
-				"visible": "login",
-				"container": {
-					"properties": {
-						"text": {
-							"color": "rgba(255, 255, 255, 1)"
-						},
-						"padding": {
-							"top": {
-								"value": 5
-							},
-							"left": {
-								"value": 20
-							},
-							"unit": "px",
-							"right": {
-								"value": 20
-							},
-							"bottom": {
-								"value": 5
-							}
-						}
-					}
-				}
-			},
 			"profile": {
-				"link":null,
-				"text": "{{ name }}",
+				"link": null,
+				"text": "Profile",
 				"visible": "login",
 				"container": {
 					"properties": {
 						"text": {
-							"color": "rgba(255, 255, 255, 1)"
+							"color": "rgba(10, 10, 10, 1)",
+							"fontFamily": "Inter, sans-serif"
 						},
 						"padding": {
 							"top": {
@@ -274,7 +231,8 @@
 				"container": {
 					"properties": {
 						"text": {
-							"color": "rgba(255, 255, 255, 1)"
+							"color": "rgba(10, 10, 10, 1)",
+							"fontFamily": "Inter, sans-serif"
 						},
 						"padding": {
 							"top": {

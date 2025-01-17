@@ -7,32 +7,38 @@ import SelectQuery from "@/Components/SelectQuery.vue"
 import { set } from "lodash"
 
 
-interface Link {
-	type: string,
-	href: string,
-	workshop : string | null,
-	id : string | null | number,
-	target : string
-}
+const props = withDefaults(defineProps<{
+	modelValue: {
+		type: String  // external|internal
+		href: string
+		target: string // "_self"|"_blank",
+		id: string | number
+		workshop_route: string
+	},
+	defaultValue?: {
+		type: String  // external|internal
+		href: string
+		target: string // "_self"|"_blank",
+		id: string | number
+		workshop_route: string
+	},
+	props_radio_type?: any,
+	props_radio_target?: any,
+	props_input?: any,
+	props_selectquery?: any
+}>(), {})
 
-const props = defineProps({
-    modelValue: {
-        type: Object,
-        required: true,
-    },
-});
 
 const emit = defineEmits(['update:modelValue']);
 
 const localModel = ref({
-    type: 'external',
+	type: 'external',
 	href: null,
-	workshop : null,
-	id : null,
-	target : "_self",
-	data : props.modelValue || {}
+	workshop: null,
+	id: null,
+	target: "_self",
+	data: props.modelValue || {}
 });
-
 
 const options = ref([
 	{ label: "Internal", value: "internal" },
@@ -44,16 +50,6 @@ const targets = ref([
 	{ label: "New Page", value: "_blank" },
 ])
 
-watch(localModel, (newValue) => {
-	const data = {
-		type: newValue.type,
-		href: newValue.href,
-		workshop: newValue.workshop,
-		id: newValue.id,
-		target: newValue.target
-	}
-	emit('update:modelValue',data)
-},{deep : true})
 
 function getRoute() {
 	if (route().current().includes('fulfilments')) {
@@ -69,20 +65,33 @@ function getRoute() {
 			shop: route().params['shop'],
 			website: route().params['website'],
 		})
-	}else {
-        return route('grp.org.shops.show.web.webpages.index', {
+	} else {
+		return route('grp.org.shops.show.web.webpages.index', {
 			organisation: route().params['organisation'],
 			shop: route().params['shop'],
 			website: route().params['website'],
 		})
-    }
+	}
 }
 
+watch(localModel, (newValue) => {
+	const data = {
+		type: newValue.type,
+		href: newValue.href,
+		workshop: newValue.workshop,
+		id: newValue.id,
+		target: newValue.target
+	}
+	emit('update:modelValue', data)
+}, { deep: true })
 
 onMounted(() => {
-    if (props.modelValue) {
-        localModel.value = { ...props.modelValue, data : props.modelValue };
-    }
+	if (props.modelValue) localModel.value = { ...props.modelValue, data: props.modelValue }
+	else {
+		if(props.defaultValue) {
+			localModel.value = {...props.defaultValue, data: props.defaultValue }
+		}
+	}
 });
 
 </script>
@@ -94,15 +103,12 @@ onMounted(() => {
 			<div class="mb-3 border border-gray-300 rounded-md w-full px-4 py-2">
 				<div class="flex flex-wrap justify-between w-full">
 					<div v-for="(option, indexOption) in targets" class="flex items-center gap-2">
-						<RadioButton
-							:modelValue="localModel.target"
+						<RadioButton :modelValue="localModel.target" v-bind="props_radio_target"
 							@update:modelValue="(e: string) => set(localModel, 'target', e)"
-							:inputId="`${option.value}${indexOption}`"
-							name="target"
-							size="small"
-							:value="option.value"
-						/>
-						<label @click="() => localModel.target = option.value" :for="`${option.value}${indexOption}`" class="cursor-pointer">{{ option.label }}</label>
+							:inputId="`${option.value}${indexOption}`" name="target" size="small"
+							:value="option.value" />
+						<label :for="`${option.value}${indexOption}`"
+							class="cursor-pointer">{{ option.label }}</label>
 					</div>
 				</div>
 			</div>
@@ -113,40 +119,26 @@ onMounted(() => {
 			<div class="mb-3 border border-gray-300 rounded-md w-full px-4 py-2">
 				<div class="flex flex-wrap justify-between w-full">
 					<div v-for="(option, indexOption) in options" class="flex items-center gap-2">
-						<RadioButton
-							:modelValue="localModel.type"
+						<RadioButton :modelValue="localModel.type" v-bind="props_radio_type"
 							@update:modelValue="(e: string) => set(localModel, 'type', e)"
-							:inputId="`${option.value}${indexOption}`"
-							name="type"
-							size="small"
-							:value="option.value"
-						/>
-						<label @click="() => localModel.type = option.value" :for="`${option.value}${indexOption}`" class="cursor-pointer">{{ option.label }}</label>
+							:inputId="`${option.value}${indexOption}`" name="type" size="small" :value="option.value" />
+						<label  :for="`${option.value}${indexOption}`"
+							class="cursor-pointer">{{ option.label }}</label>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		
-		
 		<div>
 			<div class="my-2 text-gray-500 text-xs tracking-wide mb-2">{{ trans("Destination") }}</div>
-			<PureInput
-				v-if="localModel?.type == 'external'"
-				v-model="localModel.href"
-				placeholder="www.anotherwebsite.com/page"
-			/>
-			
-			<SelectQuery
-				v-if="localModel?.type == 'internal'"
-				:object="true"
-				fieldName="data"
-				:value="localModel"
-				:closeOnSelect="true"
-				label="href" 
-				:onChange="(e)=>{ localModel.href = e.href}"
-				:urlRoute="getRoute()"
-				/>
+		<!-- 	{{ defaultValue }}
+			{{ localModel }} -->
+			<PureInput v-if="localModel?.type == 'external'" v-model="localModel.href"
+				placeholder="www.anotherwebsite.com/page" v-bind="props_input"/>
+
+			<SelectQuery v-if="localModel?.type == 'internal'" :object="true" fieldName="data" :value="localModel"
+				:closeOnSelect="true" label="href" :onChange="(e) => { localModel.href = e.href, localModel.id = e.id, localModel.workshop = e.workshop  }"
+				:urlRoute="getRoute()" v-bind="props_selectquery"/>
 		</div>
 	</div>
 </template>

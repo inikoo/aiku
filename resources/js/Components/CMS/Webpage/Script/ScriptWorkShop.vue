@@ -9,8 +9,8 @@ library.add(faCube, faStar);
 
 const props = defineProps<{
 	modelValue: any
-	webpageData: any
-	blockData: Object
+	webpageData?: any
+	blockData?: Object
 }>()
 
 </script>

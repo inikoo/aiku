@@ -75,40 +75,6 @@ const layout = inject('layout', {})
 
 
         <div class="action_buttons flex justify-between md:justify-start items-center gap-x-1 flex-wrap md:flex-nowrap">
-
-            <!-- Section: Profile -->
-            <a v-if="checkVisible(model?.profile?.visible || null, isLoggedIn)"
-                id="profile_button"
-                class="space-x-1.5 whitespace-nowrap hover-dashed"
-                :style="getStyles(model?.profile.container?.properties)"
-                 @click="()=> emits('setPanelActive', 'profile')"
-            >
-                <FontAwesomeIcon icon='fal fa-user' class='' v-tooltip="trans('Profile')" fixed-width aria-hidden='true' />
-                <span v-html="textReplaceVariables(model?.profile?.text, layout.iris_variables)" />
-            </a>
-
-            <!-- Section: Favourite -->
-            <a v-if="checkVisible(model?.favourite?.visible || null, isLoggedIn)"
-                id="favorites_button"
-                class="space-x-1.5 whitespace-nowrap hover-dashed"
-                :style="getStyles(model?.favourite.container?.properties)"
-                @click="()=> emits('setPanelActive', 'favourite')"
-            >
-                <FontAwesomeIcon icon='fal fa-heart' class='' fixed-width aria-hidden='true' />
-                <span v-html="textReplaceVariables(model?.favourite?.text, layout.iris_variables)" />
-            </a>
-
-            <!-- Section: Cart -->
-            <a v-if="checkVisible(model?.cart?.visible || null, isLoggedIn)"
-                id="header_order_totals"
-                class="space-x-1.5 flex items-center whitespace-nowrap hover-dashed"
-                :style="getStyles(model?.cart.container?.properties)"
-                @click="()=> emits('setPanelActive', 'cart')"
-            >
-                <FontAwesomeIcon icon='fal fa-shopping-cart' class='text-base px-[5px]' v-tooltip="trans('Basket')" fixed-width aria-hidden='true' />
-                <span v-html="textReplaceVariables(model?.cart?.text, layout.iris_variables)" />
-            </a>
-
             <!-- Section: Login -->
              <span class="hover-dashed">
                 <a v-if="checkVisible(model?.login?.visible || null, isLoggedIn)"
@@ -146,6 +112,16 @@ const layout = inject('layout', {})
                 <span v-html="textReplaceVariables(model?.logout?.text, layout.iris_variables)" />
             </a>
         </div>
+
+        <a v-if="checkVisible(model?.profile?.visible || null, isLoggedIn)"
+                id="profile_button"
+                class="space-x-1.5 whitespace-nowrap hover-dashed"
+                :style="getStyles(model?.profile.container?.properties)"
+                 @click="()=> emits('setPanelActive', 'profile')"
+            >
+                <FontAwesomeIcon icon='fal fa-user' class='' v-tooltip="trans('Profile')" fixed-width aria-hidden='true' />
+                <span v-html="textReplaceVariables(model?.profile?.text, layout.iris_variables)" />
+            </a>
     </div>
 </template>
 

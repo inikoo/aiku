@@ -17,7 +17,9 @@ import EmptyState from '@/Components/Utils/EmptyState.vue'
 import HeaderListModal from '@/Components/CMS/Fields/ListModal.vue'
 import { setIframeView } from "@/Composables/Workshop"
 import ProgressSpinner from 'primevue/progressspinner';
-
+import ConfirmDialog from 'primevue/confirmdialog';
+import { useConfirm } from "primevue/useconfirm";
+import ConfirmPopup from 'primevue/confirmpopup';
 import { routeType } from "@/types/route"
 import { PageHeading as TSPageHeading } from "@/types/PageHeading"
 
@@ -32,6 +34,7 @@ import {
   faTimes,
   faPlusCircle,
   faBars,
+  faExclamationTriangle
 } from "@fas"
 import { faHeart, faExternalLink } from "@far"
 
@@ -57,7 +60,7 @@ const props = defineProps<{
   webBlockTypes: Object
 }>()
 
-const Navigation = ref(props.data?.menu)
+const Navigation = ref(props.data.menu)
 const selectedNav = ref(0)
 const previewMode = ref(false)
 const isLoading = ref(false)
@@ -67,7 +70,7 @@ const isIframeLoading = ref(true)
 const iframeClass = ref("w-full h-full")
 const _iframe = ref<IframeHTMLAttributes | null>(null)
 const iframeSrc = ref(route("grp.websites.header.preview", [route().params["website"]]))
-
+const confirm = useConfirm();
 const addNavigation = () => {
   Navigation?.value?.data?.fieldValue?.navigation.push({
     label: "New Navigation",
@@ -79,6 +82,8 @@ const addNavigation = () => {
 const deleteNavigation = (index: Number) => {
   selectedNav.value = null
   Navigation.value?.data?.fieldValue?.navigation.splice(index, 1)
+  debouncedSendUpdate(Navigation.value)
+  sendToIframe({ key: 'reload', value: {} })
 }
 
 const onPublish = async (action: routeType, popover: Funcition) => {
@@ -120,7 +125,7 @@ const onSelectBlock = (menu: Object) => {
 }
 
 const sendToIframe = (data: any) => {
-    _iframe.value?.contentWindow.postMessage(data, '*')
+  _iframe.value?.contentWindow.postMessage(data, '*')
 }
 
 const autoSave = async (data: object) => {
@@ -143,7 +148,6 @@ const openFullScreenPreview = () => {
   window.open(iframeSrc.value, "_blank")
 }
 
-
 const handleIframeError = () => {
   console.error('Failed to load iframe content.');
 }
@@ -153,14 +157,37 @@ const debouncedSendUpdate = debounce((data) => autoSave(data), 1000, {
   trailing: true,
 })
 
-watch(
-  Navigation,
-  (newVal) => {
+const confirmDelete = (event,index) => {
+  confirm.require({
+        target: event.currentTarget, 
+        message: 'Are you sure you want to delete?',
+        rejectProps: {
+            label: 'No',
+            severity: 'secondary',
+            outlined: true,
+        },
+        acceptProps: {
+            label: 'Yes',
+        },
+        accept: () => {
+          deleteNavigation(index)
+        },
+    });
+};
+
+const onChangeNavigation = (setData) =>{
+  const data = Navigation.value
+  data.data.fieldValue.navigation[selectedNav] = setData
+  debouncedSendUpdate(data)
+  sendToIframe({ key: 'reload', value: {} })
+}
+
+/* watch(Navigation,(newVal) => {
     if (newVal) debouncedSendUpdate(newVal)
   },
   { deep: true }
 )
-
+ */
 </script>
 
 <template>
@@ -178,7 +205,7 @@ watch(
       <div class="flex justify-between">
         <div class="font-bold text-sm">Navigations:</div>
         <Button type="create" label="Add Navigation" size="xs"
-          v-if="Navigation?.data?.fieldValue?.navigation?.length < 8 " @click="addNavigation"></Button>
+          v-if="Navigation?.data?.fieldValue?.navigation?.length < 8" @click="addNavigation"></Button>
       </div>
       <draggable :list="Navigation?.data.fieldValue.navigation" ghost-class="ghost" group="column" itemKey="id"
         class="mt-2 space-y-1" :animation="200">
@@ -194,8 +221,8 @@ watch(
               ]">
                 <span class="font-medium">{{ element.label }}</span>
               </div>
-              <div class="flex-none py-0 text-xs leading-5 text-gray-500 cursor-pointer">
-                <font-awesome-icon :icon="['fal', 'times']" @click="() => deleteNavigation(index)" />
+              <div @click="(event)=>confirmDelete(event,index)" class="flex-none py-0 text-xs leading-5 text-gray-500 cursor-pointer">
+                <font-awesome-icon :icon="['fal', 'times']" />
               </div>
             </div>
           </div>
@@ -207,7 +234,7 @@ watch(
       <div class="h-full w-full bg-slate-100">
         <div class="flex justify-between bg-slate-200 border border-b-gray-300">
           <div class="flex">
-            <ScreenView @screenView="(e)=>iframeClass = setIframeView(e)" />
+            <ScreenView @screenView="(e) => iframeClass = setIframeView(e)" />
             <div class="py-1 px-2 cursor-pointer" title="Desktop view" v-tooltip="'Preview'"
               @click="openFullScreenPreview">
               <FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" />
@@ -229,22 +256,20 @@ watch(
           </div>
         </div>
 
-        <EditMode v-if="!previewMode" :Navigation="Navigation?.data?.fieldValue?.navigation" :selectedNav="selectedNav" />
+        <EditMode 
+          v-if="!previewMode" 
+          v-model="Navigation.data.fieldValue.navigation[selectedNav]"
+          @update:model-value="(data)=>onChangeNavigation(data)"
+         />
         <div v-else class="h-full w-full bg-slate-100">
           <!-- <div v-if="isIframeLoading" class="flex justify-center items-center w-full h-64 p-12 bg-white">
             <FontAwesomeIcon icon="fad fa-spinner-third" class="animate-spin w-6" aria-hidden="true" />
           </div> -->
           <div v-if="isIframeLoading" class="loading-overlay">
-              <ProgressSpinner />
+            <ProgressSpinner />
           </div>
-          <iframe 
-            :src="iframeSrc" 
-            :title="props.title" 
-            :class="[iframeClass, isIframeLoading ? 'hidden' : '']"
-            @error="handleIframeError" 
-            @load="isIframeLoading = false" 
-            ref="_iframe"
-          />
+          <iframe :src="iframeSrc" :title="props.title" :class="[iframeClass, isIframeLoading ? 'hidden' : '']"
+            @error="handleIframeError" @load="isIframeLoading = false" ref="_iframe" />
         </div>
 
       </div>
@@ -262,44 +287,47 @@ watch(
   </div>
 
   <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false">
-    <HeaderListModal 
-            :onSelectBlock
-            :webBlockTypes="webBlockTypes.data.filter((item)=> item.component == 'menu')"
-            :currentTopbar="usedTemplates"
-        />
+    <HeaderListModal :onSelectBlock :webBlockTypes="webBlockTypes.data.filter((item) => item.component == 'menu')"
+      :currentTopbar="usedTemplates" />
   </Modal>
+
+  <ConfirmPopup>
+        <template #icon>
+            <FontAwesomeIcon :icon="faExclamationTriangle" class="text-yellow-500" />
+        </template>
+    </ConfirmPopup>
 </template>
 
 <style scoped lang="scss">
 :deep(.loading-overlay) {
-    position: block;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.8);
-    z-index: 1000;
+  position: block;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 1000;
 }
 
 :deep(.spinner) {
-    border: 4px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top: 4px solid #3498db;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top: 4px solid #3498db;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
+  0% {
+    transform: rotate(0deg);
+  }
 
-    100% {
-        transform: rotate(360deg);
-    }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

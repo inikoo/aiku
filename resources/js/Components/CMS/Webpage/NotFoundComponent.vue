@@ -19,7 +19,7 @@
   
   const props = defineProps<{
       modelValue: any
-      webpageData: any
+      webpageData?: any
       web_block : any
   }>()
   

@@ -4,8 +4,8 @@ import { getStyles } from '@/Composables/styles'
 
 const props = defineProps<{
 	modelValue: any
-	webpageData: any
-	blockData: Object
+	webpageData?: any
+	blockData?: Object
 }>()
 
 const emits = defineEmits<{

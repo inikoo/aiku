@@ -4,19 +4,19 @@ import Popover from 'primevue/popover';
 import { library, icon } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faGalaxy, faTimesCircle } from '@fas';
-import { faBaby, faCactus, faCircle, faObjectGroup, faUser } from '@fal';
+import { faBaby, faCactus, faCircle, faObjectGroup, faUser, faHouse, faTruck, faTag, faPhone } from '@fal';
 import { faLambda } from '@fad';
 import { faBackpack } from '@far';
 
 // Add icons to the library
-library.add(faTimesCircle, faUser, faCactus, faBaby, faObjectGroup, faGalaxy, faLambda, faBackpack);
+library.add(faTimesCircle, faUser, faCactus, faBaby, faObjectGroup, faGalaxy, faLambda, faBackpack, faHouse, faTruck, faTag, faPhone );
 
 const props = withDefaults(
     defineProps<{
         modelValue: string | SVGElement;
-        iconList: Array<string | [string, string]>;
-        listType: string;
-        valueType: string; // "fontawesome | string | svg | array"
+        iconList?: Array<string | [string, string]>;
+        listType?: string;
+        valueType?: string; // "fontawesome | string | svg | array"
     }>(),
     {
         iconList: [],
@@ -27,7 +27,7 @@ const props = withDefaults(
 
 const _popover = ref();
 const allIcons = props.listType === 'extend' 
-    ? [...[faTimesCircle, faUser, faCactus, faBaby, faObjectGroup, faGalaxy, faLambda, faBackpack], ...props.iconList] 
+    ? [...[faTimesCircle, faUser, faCactus, faBaby, faObjectGroup, faGalaxy, faLambda, faBackpack, faHouse, faTruck, faTag, faPhone ], ...props.iconList] 
     : props.iconList;
 
 const emits = defineEmits<{
