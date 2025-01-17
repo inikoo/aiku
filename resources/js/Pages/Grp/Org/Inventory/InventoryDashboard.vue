@@ -98,7 +98,7 @@ const options = {
 	<PageHeading :data="pageHead"></PageHeading>
 	<FlatTreeMap class="mx-4" v-for="(treeMap, idx) in flatTreeMaps" :key="idx" :nodes="treeMap" />
 	<dl class="px-4 mt-5 grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-3">
-	<div class="col-span-12">
+	<!-- <div class="col-span-12">
         <div v-for="(column, colIdx) in dashboard.columns" :key="colIdx" class="flex flex-col md:flex-row gap-6">
             <StatProgressCard
                 v-for="(widget, key) in column.widgets"
@@ -112,7 +112,7 @@ const options = {
         <div class="flex flex-col md:flex-row gap-6 mt-5">
         <AccuracyDashboardWidget/>
         </div>
-	</div>
+	</div> -->
 		<div
 			v-for="stats in dashboardStats"
 			class="px-4 py-5 sm:p-6 rounded-lg bg-white shadow tabular-nums ring-3 ring-gray-300">
