@@ -62,14 +62,14 @@ class StoredItemDeltasInProcessResource extends JsonResource
                     'quantity'                  => (int)$item->quantity,
                     'audited_quantity'          => (int)$item->audited_quantity,
                     'audit_notes'               => $item->audit_notes,
-                    'store_item_audit_delta_id' => $item->stored_item_audit_delta_id,
-                    'type'                      => 'current_item',
+                    'storedItemAuditDelta'      => $item->stored_item_audit_delta_id,
                     'update_routes'             => [
                         'name'       => 'grp.models.stored_item_audit_delta.update',
                         'parameters' => [
                             $item->stored_item_audit_delta_id
                         ]
                     ],
+                    'type'                      => 'current_item',
                 ]),
 
             'new_stored_items' => $pallet->getEditNewStoredItemDeltasQuery()
