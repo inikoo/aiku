@@ -176,20 +176,6 @@ const columnClasses = computed(() => {
 							type="dashboard"
 							class="h-full" />
 					</div>
-
-					<!-- Progress Dashboard Card -->
-					<div v-if="widget.type === 'card_progress_bar'">
-						<ProgressDashboardCard
-							:label="widget.label"
-							:value="widget.data?.value || 'N/A'"
-							:progressBar="
-								widget.data?.progress_bar || {
-									value: 0,
-									max: 100,
-									color: 'blue',
-								}
-							" />
-					</div>
 				</template>
 			</template>
 		</div>
