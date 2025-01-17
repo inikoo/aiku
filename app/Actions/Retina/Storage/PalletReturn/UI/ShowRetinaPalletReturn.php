@@ -44,6 +44,15 @@ class ShowRetinaPalletReturn extends RetinaAction
     }
 
 
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->customer->id == $request->route()->parameter('palletReturn')->fulfilmentCustomer->customer_id) {
+            return true;
+        }
+        return false;
+    }
+
+
     public function asController(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
         $this->parent = $request->user()->customer->fulfilmentCustomer;

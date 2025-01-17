@@ -13,8 +13,8 @@ import { faImage, faEdit } from "@far"
 
 const props = defineProps<{
     modelValue: any
-	webpageData: any
-	blockData: Object
+	webpageData?: any
+	blockData?: Object
 }>()
 
 
@@ -113,7 +113,7 @@ const onUpload = async (files: File[], clear: Function) => {
 			formData.append(`images[${index}]`, file)
 		})
 		const response = await axios.post(
-			route(props.webpageData?.images_upload_route.name, { modelHasWebBlocks: props.blockData.id }),
+			route(props.webpageData?.images_upload_route.name, { modelHasWebBlocks: props.blockData?.id }),
 			formData,
 			{
 				headers: {
@@ -246,7 +246,7 @@ onBeforeUnmount(() => {
 			:uploadRoute="{
 				...webpageData.images_upload_route,
 				parameters: {
-						modelHasWebBlocks: blockData.id
+						modelHasWebBlocks: blockData?.id
 					},
 			}"
 			:closePopup="() => (isModalGallery = false)"

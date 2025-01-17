@@ -95,6 +95,7 @@ class StoreRetinaPalletDelivery extends RetinaAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
+        // dd($this->fulfilment);
         if ($this->fulfilment->warehouses()->count() == 1) {
             /** @var Warehouse $warehouse */
             $warehouse = $this->fulfilment->warehouses()->first();
@@ -130,9 +131,18 @@ class StoreRetinaPalletDelivery extends RetinaAction
     {
         /** @var FulfilmentCustomer $fulfilmentCustomer */
         $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
-        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
-
+        // $this->fulfilment   = $fulfilmentCustomer->fulfilment;
         $this->initialisation($request);
+
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
+    }
+
+    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletDelivery
+    {
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $this->action = true;
+        // dd($fulfilment->warehouses);
+        $this->actionInitialisation($fulfilmentCustomer, $modelData);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }

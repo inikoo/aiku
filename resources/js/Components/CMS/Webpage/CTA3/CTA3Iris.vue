@@ -9,8 +9,8 @@ import { getStyles } from "@/Composables/styles"
 
 const props = defineProps<{
 	fieldValue: any
-	webpageData: any
-	blockData: Object
+	webpageData?: any
+	blockData?: Object
 }>()
 
 const emits = defineEmits<{

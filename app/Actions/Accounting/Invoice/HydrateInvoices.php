@@ -8,6 +8,7 @@
 
 namespace App\Actions\Accounting\Invoice;
 
+use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydrateOffers;
 use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydratePayments;
 use App\Actions\Traits\Hydrators\WithHydrateCommand;
 use App\Models\Accounting\Invoice;
@@ -24,7 +25,7 @@ class HydrateInvoices
 
     public function handle(Invoice $invoice): void
     {
-        //InvoiceHydrateOffers::run($invoice); // todo review test this an uncomment
+        InvoiceHydrateOffers::run($invoice);
         InvoiceHydratePayments::run($invoice);
     }
 

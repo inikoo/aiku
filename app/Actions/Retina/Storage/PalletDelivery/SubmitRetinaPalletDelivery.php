@@ -22,7 +22,6 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\PalletDelivery;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\ActionRequest;
@@ -31,6 +30,7 @@ class SubmitRetinaPalletDelivery extends RetinaAction
 {
     use WithActionUpdate;
 
+    private bool $action = false;
     private PalletDelivery $palletDelivery;
 
     public function handle(PalletDelivery $palletDelivery): PalletDelivery
@@ -62,19 +62,11 @@ class SubmitRetinaPalletDelivery extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->palletDelivery->state != PalletDeliveryStateEnum::IN_PROCESS) {
-            return false;
-        }
-
-        if ($this->asAction) {
+        if ($this->action) {
+            return true;
+        } elseif ($this->customer->id == $request->route()->parameter('palletDelivery')->fulfilmentCustomer->customer_id) {
             return true;
         }
-
-        if ($request->user() instanceof WebUser) {
-            return true;
-        }
-
-        return false;
     }
 
     public function jsonResponse(PalletDelivery $palletDelivery): JsonResource
@@ -89,11 +81,11 @@ class SubmitRetinaPalletDelivery extends RetinaAction
         return $this->handle($palletDelivery);
     }
 
-    public function action(PalletDelivery $palletDelivery): PalletDelivery
+    public function action(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
     {
-        $this->asAction       = true;
+        $this->action       = true;
         $this->palletDelivery = $palletDelivery;
-        $this->initialisation([]);
+        $this->actionInitialisation($palletDelivery->fulfilmentCustomer, $modelData);
         return $this->handle($palletDelivery);
     }
 

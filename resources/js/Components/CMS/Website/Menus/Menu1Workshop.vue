@@ -1,11 +1,4 @@
-<!--
-  - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Tue, 22 Aug 2023 19:44:06 Malaysia Time, Kuala Lumpur, Malaysia
-  - Copyright (c) 2023, Raul A Perusquia Flores
-  -->
-
 <script setup lang="ts">
-
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faChevronRight, faSignOutAlt, faShoppingCart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faUserCircle } from '@fas';
@@ -13,47 +6,45 @@ import { faHeart } from '@far';
 
 library.add(faChevronRight, faSignOutAlt, faShoppingCart, faHeart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faUserCircle);
 
-
 const props = withDefaults(defineProps<{
     navigations: Array<any>;
-    colorThemed: Object;
-
-}>(), {
-});
-
-const selectedColor = props.colorThemed?.color
-
-
-
+}>(), {});
 </script>
 
 <template>
-    <!-- Main Nav -->
-    <div class="bg-white shadow-md border-b-2 border-gray-700" :style="{ borderColor : selectedColor[0]}">
-        <div class="flex flex-col justify-between items-center">
+    <!-- Main Navigation -->
+    <div class="bg-white shadow-lg border-b border-gray-300">
+        <div class="container  flex flex-col justify-between items-center px-4">
 
-            <!-- Section: Navigation list horizontal -->
+            <!-- Navigation List -->
             <nav class="relative flex text-sm text-gray-600 w-full">
-                <div v-for="(navigation, idxNavigation) in navigations" href="#" class="group w-full ">
-                    <div
-                        class="px-5 hover:bg-gray-200 hover:text-orange-500 flex items-center justify-center gap-x-1 h-full cursor-pointer">
-                        <div class="w-fit text-center">{{ navigation.label }}</div>
-                        <FontAwesomeIcon v-if="navigation.type == 'multiple'" icon="fas fa-chevron-down" class="text-[11px]"></FontAwesomeIcon>
-                    </div>
+                <div 
+                    v-for="(navigation, idxNavigation) in navigations" 
+                    :key="idxNavigation" 
+                    class="group w-full hover:bg-gray-100 hover:text-orange-500 p-4 flex items-center justify-center cursor-pointer transition duration-200">
+                        <FontAwesomeIcon v-if="navigation.icon" :icon="navigation.icon" class="mr-2" />
+                        <div class="text-center">{{ navigation.label }}</div>
+                        <FontAwesomeIcon 
+                            v-if="navigation.type == 'multiple'" 
+                            icon="fas fa-chevron-down" 
+                            class="ml-2 text-[11px]" />
+                
 
-                    <!-- Section: Subnav hover -->
+                    <!-- Sub-navigation -->
                     <div v-if="navigation.subnavs"
-                        class="hidden group-hover:grid inline absolute left-0 top-full border bg-white border-gray-300 w-full grid-cols-4 gap-x-5 gap-y-8 px-6 pt-6 pb-14 z-50">
-                        <div v-for="subnav in navigation.subnavs" class="space-y-2">
-                            <div class="font-semibold">{{ subnav.title }}</div>
+                        class="hidden group-hover:grid absolute left-0 top-full bg-white border border-gray-300 w-full grid-cols-4 gap-6 p-6 shadow-lg z-50">
+                        <div v-for="subnav in navigation.subnavs" :key="subnav.title" class="space-y-4">
+                            <div class="font-semibold text-gray-700">{{ subnav.title }}</div>
 
-                            <!-- Subnav links -->
-                            <div class="flex flex-col gap-y-2">
-                                <div v-for="link in subnav.links" class="flex items-center gap-x-2">
-                                    <FontAwesomeIcon :icon="link.icon ? link.icon  : 'fas fa-chevron-right'" class=" text-[10px] text-gray-400">
-                                    </FontAwesomeIcon>
-                                    <a :href="link.url"
-                                        class=" text-gray-500 hover:text-gray-600 hover:underline cursor-pointer">
+                            <!-- Sub-navigation Links -->
+                            <div class="flex flex-col gap-y-3">
+                                <div v-for="link in subnav.links" :key="link.url" class="flex items-center gap-x-3">
+                                    <FontAwesomeIcon 
+                                        :icon="link.icon || 'fas fa-chevron-right'" 
+                                        class="text-[10px] text-gray-400" />
+                                    <a 
+                                        :href="link.url"
+                                        class="text-gray-500 hover:text-orange-500 hover:underline transition duration-200">
                                         {{ link.label }}
                                     </a>
                                 </div>
@@ -65,3 +56,9 @@ const selectedColor = props.colorThemed?.color
         </div>
     </div>
 </template>
+
+<style scoped>
+.container {
+    max-width: 1200px;
+}
+</style>

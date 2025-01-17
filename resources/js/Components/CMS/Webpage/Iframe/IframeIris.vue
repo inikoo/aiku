@@ -13,8 +13,8 @@ library.add(faPresentation, faLink, faPaperclip)
 
 const props = defineProps<{
     fieldValue: any
-	webpageData: any
-	blockData: Object
+	webpageData?: any
+	blockData?: Object
 }>()
 
 

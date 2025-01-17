@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, toRaw } from 'vue'
+import { ref, toRaw, watch } from 'vue'
 import draggable from "vuedraggable";
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import Dialog from 'primevue/dialog';
@@ -29,9 +29,9 @@ interface navigation {
 }
 
 const props = defineProps<{
-  Navigation: Array,
-  selectedNav: Number | null
+  modelValue: string | number | null | any
 }>()
+
 const confirm = useConfirm();
 const visibleNameDialog = ref(false)
 const visibleDialog = ref(false)
@@ -41,34 +41,37 @@ const linkValue = ref<navigation | null>()
 const parentIdx = ref<Number>(0)
 const linkIdx = ref<Number>(0)
 
+const emits = defineEmits<{
+    (e: 'update:modelValue', value: string | number): void
+}>()
+
 const addLink = (data: Object) => {
   data.links.push(
-    { label: "New Link", link: "", id: uuidv4() }
+    { label: "New Link", link: "", id: uuidv4(), icon:null }
   )
+  emits('update:modelValue',props.modelValue)
 }
 
-const deleteLink = (data: Array, index: Number) => {
-  data.splice(index, 1)
-}
 
 const changeType = (type: string, data: Object) => {
   if (type == 'multiple') data['subnavs'] = []
 }
 
 const addCard = () => {
-  props.Navigation[props.selectedNav].subnavs.push(
+  if(!props.modelValue.subnavs) props.modelValue.subnavs = []
+  props.modelValue.subnavs.push(
     {
       title: "New Navigation",
       id: uuidv4(),
       links: [
-        { label: "New nav", link: "", id: uuidv4() },
+      { label: "New Link", link: "", id: uuidv4(), icon:null }
       ],
     },
   )
 }
 
-const deleteNavCard = (data, index) => {
-  props.Navigation[props.selectedNav].subnavs.splice(index, 1)
+const deleteNavCard = (index : number) => {
+  props.modelValue.subnavs.splice(index, 1)
 }
 
 const onNameClick = (data = null, index = -1) => {
@@ -77,7 +80,7 @@ const onNameClick = (data = null, index = -1) => {
 }
 
 const onChangeName = (data) => {
-  props.Navigation[props.selectedNav].subnavs[data.index] = data
+  props.modelValue.subnavs[data.index] = data
   visibleNameDialog.value = false
   nameValue.value = null
 }
@@ -90,8 +93,8 @@ const onLinkClick = (data = null, parentIndex = -1, index = -1) => {
 }
 
 const onChangeLink = (data) => {
-  props.Navigation[props.selectedNav].subnavs[parentIdx.value].links[linkIdx.value] = {
-    ...props.Navigation[props.selectedNav].subnavs[parentIdx.value].links[linkIdx.value],
+  props.modelValue.subnavs[parentIdx.value].links[linkIdx.value] = {
+    ...props.modelValue.subnavs[parentIdx.value].links[linkIdx.value],
     label: data.label,
     link: data.link,
   }
@@ -106,8 +109,8 @@ const editNavigation = () => {
 }
 
 const onChangeNavigationLink = (data) => {
-  props.Navigation[props.selectedNav] = {
-    ...props.Navigation[props.selectedNav],
+  props.modelValue = {
+    ...props.modelValue,
     label: data.label,
     link: data.link
   }
@@ -115,11 +118,10 @@ const onChangeNavigationLink = (data) => {
 }
 
 
-const confirm1 = (event,data,index) => {
+const confirmDelete = (event,data,index) => {
     confirm.require({
         target: event.currentTarget,
         message: 'Are you sure you want to delete ?',
-        icon: faExclamation,
         rejectProps: {
             label: 'No',
             severity: 'secondary',
@@ -128,89 +130,143 @@ const confirm1 = (event,data,index) => {
         acceptProps: {
             label: 'Yes'
         },
-        accept: () => deleteLink(data,index),
+        accept: () => {
+          data.links.splice(index,1)
+        },
     });
 };
 
-const iconPickerValue = ref()
-
-
+watch(()=>props.modelValue,(newValue)=>{
+emits('update:modelValue',newValue)
+},{deep:true})
 
 </script>
 
 <template>
-  <div class="bg-slate-100">
-    <div class="grid grid-flow-row-dense grid-cols-4 gap-4 px-4 pt-4 bg-slate-10">
-      <div v-if="Navigation[selectedNav]" class="bg-white py-2 rounded-lg m-1 col-span-1 px-2 cursor-grab">
-        <div class="font-bold text-xs mb-3">Navigation Title :</div>
-        <PureInput v-model="Navigation[selectedNav].label"></PureInput>
+  <div class="bg-slate-50 min-h-screen p-6">
+    <div class="grid grid-flow-row-dense grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Sidebar  navigasi -->
+      <div
+        v-if="modelValue"
+        class="bg-white rounded-lg shadow-md p-6 transition-transform duration-300 hover:scale-105"
+      >
+        <h2 class="font-bold text-gray-800 text-lg mb-4">Navigation Title</h2>
+        <div class="flex items-center gap-3">
+          <IconPicker v-model="modelValue.icon" />
+          <input
+            v-model="modelValue.label"
+            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Enter modelValue Title"
+          />
+        </div>
       </div>
 
-      <div v-if="Navigation[selectedNav]" class="bg-white py-2 rounded-lg m-1 col-span-1 px-2 cursor-grab">
-        <div class="font-bold text-xs mb-3">Type :</div>
-        <PureMultiselect :required="true" v-model="Navigation[selectedNav].type" label="label" value-prop="value"
-          @-on-change="(e) => changeType(e, Navigation[selectedNav])"
-          :options="[{ label: 'Single', value: 'single' }, { label: 'Multiple', value: 'multiple' }]">
-        </PureMultiselect>
+      <!-- Multiselect navigasi -->
+      <div
+        v-if="modelValue"
+        class="bg-white rounded-lg shadow-md p-6 transition-transform duration-300 hover:scale-105"
+      >
+        <h3 class="font-bold text-gray-800 text-md mb-3">Type</h3>
+        <PureMultiselect
+          :required="true"
+          v-model="modelValue.type"
+          label="label"
+          value-prop="value"
+          :options="[
+            { label: 'Single', value: 'single' },
+            { label: 'Multiple', value: 'multiple' }
+          ]"
+          @change="(e) => changeType(e, modelValue)"
+        />
       </div>
 
-
-      <div v-if="Navigation[selectedNav] && Navigation[selectedNav].type == 'single'"
-        class="bg-white py-3 rounded-lg m-1 col-span-1 px-3 cursor-grab shadow-sm border border-gray-200">
-        <div class="font-bold text-xs mb-2 text-gray-700">Link :</div>
-
-        <Button label="Set Url" v-if="!Navigation[selectedNav].link" :icon="faLink" class="p-button-sm p-button-text"
-          @click="editNavigation"></Button>
-
-        <div v-else class="flex justify-between items-center w-full p-2 bg-gray-50 rounded-md">
-          <!-- Tautan -->
-          <div class="text-gray-500 hover:text-gray-600 hover:underline cursor-pointer text-xs truncate max-w-[70%]"
-            :title="Navigation[selectedNav]?.link?.href" @click="editNavigation">
-            {{ Navigation[selectedNav]?.link?.href ? Navigation[selectedNav]?.link?.href : 'https//:' }}
-          </div>
-
-          <!-- Ikon tambahan -->
+      <!-- Link  Single -->
+      <div
+        v-if="modelValue && modelValue.type == 'single'"
+        class="bg-white rounded-lg shadow-md p-6 transition-transform duration-300 hover:scale-105"
+      >
+        <h3 class="font-bold text-gray-800 text-md mb-3">Link</h3>
+        <div v-if="!modelValue.link">
+          <Button
+            label="Set Url"
+            :icon="faLink"
+            class="p-button-sm p-button-text"
+            @click="editNavigation"
+          />
+        </div>
+        <div v-else class="flex items-center justify-between bg-gray-100 p-3 rounded-md">
+          <a
+            class="text-blue-500 hover:underline truncate"
+            :href="modelValue?.link?.href"
+            target="_blank"
+          >
+            {{ modelValue?.link?.href || 'https://' }}
+          </a>
           <div class="flex items-center gap-2">
-            <a v-if="Navigation[selectedNav]?.link?.type == 'internal'" :href="Navigation[selectedNav].link.workshop"
-              target="_blank" class="p-1">
-              <font-awesome-icon :icon="faCompassDrafting"
-                class="text-gray-400 hover:text-gray-600 transition"></font-awesome-icon>
+            <a
+              v-if="modelValue?.link?.type === 'internal'"
+              :href="modelValue.link.workshop"
+              target="_blank"
+              class="p-1 text-gray-500 hover:text-blue-500"
+            >
+              <FontAwesomeIcon :icon="faCompassDrafting" />
             </a>
-            <a v-if="Navigation[selectedNav]?.link?.href" :href="Navigation[selectedNav]?.link?.href" target="_blank"
-              class="p-1">
-              <font-awesome-icon :icon="faExternalLink"
-                class="text-gray-400 hover:text-gray-600 transition"></font-awesome-icon>
+            <a
+              v-if="modelValue?.link?.href"
+              :href="modelValue?.link?.href"
+              target="_blank"
+              class="p-1 text-gray-500 hover:text-blue-500"
+            >
+              <FontAwesomeIcon :icon="faExternalLink" />
             </a>
           </div>
         </div>
       </div>
 
-
-
-      <div
-        v-if="Navigation[selectedNav] && Navigation[selectedNav].type == 'multiple' && Navigation[selectedNav]?.subnavs?.length <= 7"
-        class="bg-white py-2 rounded-lg m-1 col-span-1 px-2 cursor-grab">
-        <div class="font-bold text-xs mb-3">Action :</div>
-        <Button type="create" label="Add Card" size="xs" @click="addCard"></Button>
+      <!-- Tambahkan Card -->
+      <div v-if="modelValue && modelValue.type === 'multiple'"
+        class="bg-white rounded-lg shadow-md p-6 transition-transform duration-300 hover:scale-105"
+      >
+        <h3 class="font-bold text-gray-800 text-md mb-3">Action</h3>
+        <Button
+          label="Add Card"
+          type="create"
+          @click="addCard"
+        />
       </div>
-
     </div>
 
-    <draggable v-if="Navigation[selectedNav] && Navigation[selectedNav].type == 'multiple'" :animation="200"
-      :list="Navigation[selectedNav].subnavs" ghost-class="ghost" group="subnav" itemKey="id"
-      class="grid grid-flow-row-dense grid-cols-4 gap-4 p-4 bg-slate-10">
+    <!-- Draggable subnavs -->
+    <draggable
+      v-if="modelValue && modelValue.type === 'multiple'"
+      :list="modelValue.subnavs"
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6"
+      ghost-class="ghost"
+      itemKey="id"
+    >
       <template #item="{ element, index }">
-        <div class="bg-white h-[26rem] rounded-lg p-4 col-span-1 cursor-grab">
-          <div class="flex justify-between">
-            <div class="font-bold text-xs mb-3" @click="() => onNameClick(element, index)">{{ element.title }}</div>
-            <div>
-              <font-awesome-icon v-if="element.links.length < 8" icon="fas fa-plus-circle"
-                @click="() => addLink(element)" class="cursor-pointer text-gray-400 mb-3 mr-3"></font-awesome-icon>
-              <font-awesome-icon icon="fas fa-trash-alt" class="cursor-pointer text-red-400 mb-3"
-                @click="() => deleteNavCard(element, index)"></font-awesome-icon>
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          <div class="flex justify-between items-center">
+            <h4
+              class="font-bold text-gray-800 text-md cursor-pointer"
+              @click="() => onNameClick(element, index)"
+            >
+              {{ element.title }}
+            </h4>
+            <div class="flex items-center gap-2">
+              <FontAwesomeIcon
+                v-if="element.links.length < 8"
+                icon="fas fa-plus-circle"
+                class="cursor-pointer text-blue-500"
+                @click="() => addLink(element)"
+              />
+              <FontAwesomeIcon
+                icon="fas fa-trash-alt"
+                class="cursor-pointer text-red-500"
+                @click="() => deleteNavCard(index)"
+              />
             </div>
           </div>
-
           <draggable :list="element.links" ghost-class="ghost" group="link" itemKey="id" :animation="200"
             class="flex flex-col gap-y-2 p-3 relative">
             <template #item="{ element: link, index: linkIndex }">
@@ -240,7 +296,7 @@ const iconPickerValue = ref()
                         class="text-gray-400 hover:text-gray-600 transition"></font-awesome-icon>
                     </a>
 
-                    <span v-tooltip="'Delete'" @click="(e)=>confirm1(e,element.links,index)">
+                    <span v-tooltip="'Delete'" @click="(e)=>confirmDelete(e,element,linkIndex)">
                       <font-awesome-icon :icon="faTimesCircle"
                         class="text-red-400 hover:text-red-600 transition"></font-awesome-icon>
                     </span>
@@ -251,12 +307,11 @@ const iconPickerValue = ref()
           </draggable>
         </div>
       </template>
-
     </draggable>
 
 
-    <div v-if="Navigation[selectedNav]?.subnavs?.length == 0 && Navigation[selectedNav].type == 'multiple'">
-      <EmptyState :data="{ title: 'you dont have Any Navigation', description: '' }" />
+    <div v-if="modelValue?.subnavs?.length == 0 && modelValue.type == 'multiple'">
+      <EmptyState :data="{ title: 'you dont have Any modelValue', description: '' }" />
     </div>
 
 
@@ -269,7 +324,7 @@ const iconPickerValue = ref()
     </Dialog>
 
     <Dialog v-model:visible="visibleNavigation" modal header="Edit Link" :style="{ width: '25rem' }">
-      <DialogEditLink :modelValue="toRaw({ ...Navigation[selectedNav] })" @on-save="onChangeNavigationLink" />
+      <DialogEditLink :modelValue="toRaw({ ...modelValue })" @on-save="onChangeNavigationLink" />
     </Dialog>
 
     <ConfirmPopup>

@@ -9,14 +9,10 @@ import { getComponent } from '@/Composables/getWorkshopComponents'
 import { getIrisComponent } from '@/Composables/getIrisComponents'
 import { ref, onMounted, onUnmounted, reactive, provide, toRaw} from 'vue'
 import WebPreview from "@/Layouts/WebPreview.vue";
-import debounce from 'lodash/debounce'
 import EmptyState from "@/Components/Utils/EmptyState.vue"
 import { sendMessageToParent, iframeToParent, irisStyleVariables } from '@/Composables/Workshop'
 import RenderHeaderMenu from './RenderHeaderMenu.vue'
-import { usePage, router } from '@inertiajs/vue3'
-import { useColorTheme } from '@/Composables/useStockList'
-import { cloneDeep, get, set } from 'lodash'
-import Toggle from '@/Components/Pure/Toggle.vue';
+import { router } from '@inertiajs/vue3'
 
 import { Root as RootWebpage } from '@/types/webpageTypes'
 import { trans } from 'laravel-vue-i18n'
@@ -31,10 +27,6 @@ const props = defineProps<{
     webpage?: RootWebpage
     header: {
         data: {}
-        theme: {
-            color: string[]
-            layout: string
-        }
     }
     footer: {
         footer: {}
@@ -80,8 +72,8 @@ onMounted(() => {
             router.reload({
                 only: ['footer','header','webpage'],
                 onSuccess: () => {
-                    if(props.footer?.footer) Object.assign(layout.footer, toRaw(props.footer.footer));
-                    if(props.header?.data) Object.assign(layout.header, toRaw(props.header.data));
+                  /*   if(props.footer?.footer) Object.assign(layout.footer, toRaw(props.footer.footer));
+                    if(props.header?.data) Object.assign(layout.header, toRaw(props.header.data)); */
                     if(props.webpage) data.value = props.webpage
                 }
             });
