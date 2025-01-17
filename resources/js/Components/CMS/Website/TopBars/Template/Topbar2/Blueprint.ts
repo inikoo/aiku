@@ -21,16 +21,24 @@ export default {
             ]
 		},
 		{
-			name: "Logo",
-            key:['logo'],
-			type: "upload_image",
+			name: "Title",
+            key : ["main_title"],
 			icon: {
-				icon: "fal fa-image",
-				tooltip: "Logo",
+				icon: "fal fa-text",
+				tooltip: "Text",
 			},
-			props_data: {
-				defaultValue: null,
-			}
+			replaceForm: [
+				{
+					key: ["visible"],
+					label :'Visibility',
+					type: "VisibleLoggedIn",
+				},
+				{
+					key: ["text"],
+					label :'Text',
+					type: "editorhtml",
+				},
+			],
 		},
 		{
 			name: "Login",
@@ -46,10 +54,59 @@ export default {
 					type: "VisibleLoggedIn",
 				},
 				{
-					key: [],
-					label :'Button',
-					type: "button",
-				},     
+					key: ["link"],
+					label :'Link',
+					type: "link",
+					props_data : {
+						defaultValue : {
+							type : "external",
+							href: "/app",
+							target : '_self'
+						},
+						props_radio_type : {
+							disabled : true
+						},
+						props_radio_target : {
+							disabled : true
+						},
+						props_input: {
+							disabled : true
+						},
+						props_selectquery:{
+							disabled : true
+						}
+					}
+				},
+				{
+					key: ["container",'properties','background'],
+					label :'Background',
+					type: "background",
+				},
+				{
+					key: ["container",'properties','text'],
+					label :'Text',
+					type: "textProperty",
+				},
+				{
+					key: ['text'],
+					label :'Button Text',
+					type: "text",
+				},
+				{
+					key: ["container",'properties','border'],
+					label :'Border',
+					type: "border",
+				},
+				{
+					key: ["container",'properties','margin'],
+					label :'Margin',
+					type: "margin",
+				},
+				{
+					key: ["container",'properties','padding'],
+					label :'Padding',
+					type: "padding",
+				},
 			],
 		},
 		{
@@ -57,100 +114,69 @@ export default {
             key:["register"],
 			icon: {
 				icon: "fal fa-dot-circle",
-				tooltip: "Register",
+				tooltip: "Action",
 			},
 			replaceForm: [
 				{
 					key: ["visible"],
-					type: "VisibleLoggedIn",
 					label :'Visibility',
-					props_data: {
-						defaultValue: "logout",
+					type: "VisibleLoggedIn",
+				},
+				{
+					key: ["link"],
+					label :'Link',
+					type: "link",
+					props_data : {
+						defaultValue : {
+							href: "/aw-fulfilment.co.uk/register-fulfilment",
+							id: 15594,
+							target: "_self",
+							type: "internal",
+							workshop: "http://app.aiku.test/org/aw/shops/awf/web/awf/webpages/register-fulfilment-awf/workshop"
+						},
+						props_radio_type : {
+							disabled : true
+						},
+						props_radio_target : {
+							disabled : true
+						},
+						props_input: {
+							disabled : true
+						},
+						props_selectquery:{
+							disabled : true
+						}
 					}
 				},
 				{
-					key: [],
-					type: "button",
-					label :'Button',
-					props_data: {
-						defaultValue: {
-							container: {
-								properties: {
-									text: {
-										"color": "rgba(10, 10, 10, 1)"
-									},
-									border: {
-										top: {
-											"value": 1
-										},
-										left: {
-											"value": 1
-										},
-										"unit": "px",
-										"color": "rgba(10, 10, 10, 1)",
-										right: {
-											"value": 1
-										},
-										bottom: {
-											"value": 1
-										},
-										rounded: {
-											"unit": "px",
-											topleft: {
-												"value": 5
-											},
-											topright: {
-												"value": 5
-											},
-											bottomleft: {
-												"value": 5
-											},
-											bottomright: {
-												"value": 5
-											}
-										}
-									},
-									margin: {
-										top: {
-											"value": 0
-										},
-										left: {
-											"value": 0
-										},
-										"unit": "px",
-										right: {
-											"value": 0
-										},
-										bottom: {
-											"value": 0
-										}
-									},
-									padding: {
-										top: {
-											"value": 5
-										},
-										left: {
-											"value": 10
-										},
-										"unit": "px",
-										right: {
-											"value": 10
-										},
-										bottom: {
-											"value": 5
-										}
-									},
-									background: {
-										"type": "color",
-										"color": "rgba(10, 10, 10, 0)",
-										image: {
-											"original": null
-										}
-									}
-								}
-							}
-						},
-					}
+					key: ["container",'properties','background'],
+					label :'Background',
+					type: "background",
+				},
+				{
+					key: ["container",'properties','text'],
+					label :'Text',
+					type: "textProperty",
+				},
+				{
+					key: ['text'],
+					label :'Button Text',
+					type: "text",
+				},
+				{
+					key: ["container",'properties','border'],
+					label :'Border',
+					type: "border",
+				},
+				{
+					key: ["container",'properties','margin'],
+					label :'Margin',
+					type: "margin",
+				},
+				{
+					key: ["container",'properties','padding'],
+					label :'Padding',
+					type: "padding",
 				},
 			],
 		},
@@ -171,16 +197,29 @@ export default {
 					},
 				},
 				{
+					key: ["link"],
+					type: "link",
+					label :'Link',
+					props_data: {
+						defaultValue: {
+							type : "external",
+							url: "",
+							id: null,
+							workshop_route : ""
+						},
+					},
+				},
+				{
 					key: ['container', 'properties'],
 					type: "button",
-					label: "Button",
+					label :'Button',
 				},
 				{
 					key: ['text'],
 					type: "editorhtml",
 					label :'Text',
 					props_data: {
-						defaultValue: '{{ cart_count }} items',
+						defaultValue: '{{ cart_count }}',
 					},
 				},
 			],
@@ -202,6 +241,19 @@ export default {
 					},
 				},
 				{
+					key: ["link"],
+					type: "link",
+					label :'Link',
+					props_data: {
+						defaultValue: {
+							"type" : "external",
+							"url": "",
+							"id": null,
+							"workshop_route" : ""
+						},
+					},
+				},
+				{
 					key: ['container', 'properties'],
 					type: "button",
 					label :'Button',
@@ -209,7 +261,7 @@ export default {
 				{
 					key: ['text'],
 					type: "editorhtml",
-					label :'Text',
+					label :'text',
 					props_data: {
 						defaultValue: '{{ favourites_count }}',
 					},
@@ -236,13 +288,35 @@ export default {
 					key: ['container', 'properties'],
 					type: "button",
 					label :'Button',
+					props_data: {
+						defaultValue: {
+							text: {
+								color: "rgba(255, 255, 255, 1)"
+							},
+							padding: {
+								top: {
+									value: 5
+								},
+								left: {
+									value: 10
+								},
+								unit: "px",
+								right: {
+									value: 10
+								},
+								bottom: {
+									value: 5
+								}
+							}
+						},
+					},
 				},
 				{
 					key: ['text'],
 					type: "editorhtml",
 					label :'Text',
 					props_data: {
-						defaultValue: 'Welcome, <strong>{{ name }}</strong>!',
+						defaultValue: '{{ name }}',
 					},
 				},
 			],

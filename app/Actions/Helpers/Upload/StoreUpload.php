@@ -10,6 +10,7 @@ namespace App\Actions\Helpers\Upload;
 
 use App\Actions\OrgAction;
 use App\Models\Catalogue\Shop;
+use App\Models\CRM\WebUser;
 use App\Models\Helpers\Upload;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -19,7 +20,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
-use OwenIt\Auditing\Resolvers\UserResolver;
 
 class StoreUpload extends OrgAction
 {
@@ -36,11 +36,13 @@ class StoreUpload extends OrgAction
 
 
         if (!Arr::exists($modelData, 'user_id')) {
-            /** @var User $user */
-            $user = UserResolver::resolve();
-            if($user instanceof User)
-            {
+            /** @var User|WebUser $user */
+            $user = request()->user();
+
+            if ($user instanceof User) {
                 data_set($modelData, 'user_id', $user->id);
+            } elseif ($user instanceof WebUser) {
+                data_set($modelData, 'web_user_id', $user->id);
             }
         }
 
@@ -62,6 +64,7 @@ class StoreUpload extends OrgAction
             $rules['number_success']    = ['sometimes', 'numeric'];
             $rules['number_fails']      = ['sometimes', 'numeric'];
             $rules['user_id']           = ['sometimes', 'exists:users,id'];
+            $rules['web_user_id']       = ['sometimes', 'exists:web_users,id'];
             $rules['original_filename'] = ['sometimes', 'string'];
             $rules['filename']          = ['sometimes', 'string'];
             $rules['filesize']          = ['sometimes', 'numeric'];

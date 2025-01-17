@@ -105,12 +105,11 @@ const emits = defineEmits<{
              @setPanelActive="(data : string)=>sendMessageToParent('HeaderPanelOpen',data)"
         />
 
-
         <!-- Section: Menu -->
-        <NavigationMenu 
+        <component 
             v-if="menu" 
-            :data="menu?.menu" 
-            :colorThemed="colorThemed" 
+            :is="getComponent(menu?.menu.code)" 
+            :navigations="menu?.menu?.data.fieldValue.navigation" 
             class="hidden md:block" 
         />
 </template>

@@ -18,7 +18,7 @@ library.add(faStar, faDollarSign, faGlobe);
 const props = defineProps<{
     properties: {};
     modelValue: any;
-    webpageData: any;
+    webpageData?: any;
     web_block: Object
 }>();
 

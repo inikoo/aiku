@@ -37,9 +37,14 @@ class PdfRetinaInvoice extends RetinaAction
         return false;
     }
 
-    public function asController(Invoice $invoice): Response
+    public function rules(): array
     {
-        $this->initialisation(request());
+        return [];
+    }
+
+    public function asController(Invoice $invoice, ActionRequest $request): Response
+    {
+        $this->initialisation($request);
 
         return $this->handle($invoice);
     }

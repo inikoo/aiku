@@ -57,8 +57,6 @@ const emits = defineEmits<{
             <!-- Section: Profile -->
             <a v-if="checkVisible(model?.profile?.visible || null, isLoggedIn)"
                 id="profile_button"
-                :href="model?.profile?.link.href"
-                :target="model?.profile?.link.target"
                 class="space-x-1.5 hover-dashed"
                 :style="getStyles(model?.profile.container.properties)"
                 @click="()=> emits('setPanelActive', 'profile')"
@@ -71,7 +69,6 @@ const emits = defineEmits<{
 
             <!-- Section: LogoutRetina -->
             <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
-                :href="model?.logout?.link"
                 class="space-x-1.5 hover-dashed"
                 :style="getStyles(model?.logout.container.properties)"
                 @click="()=> emits('setPanelActive', 'logout')"
@@ -84,9 +81,7 @@ const emits = defineEmits<{
 
             <!-- Login -->
             <span class="hover-dashed">
-                <a v-if="checkVisible(model?.login.visible || null, isLoggedIn)"
-                    :href="model?.login?.link.href"
-                    :target="model?.login?.link.target"
+                <a v-if="checkVisible(model?.login.visible || null, isLoggedIn)" 
                     class="space-x-1.5 cursor-pointer"
                     id=""
                       @click="()=> emits('setPanelActive', 'login')"
@@ -100,9 +95,7 @@ const emits = defineEmits<{
 
             <!-- Register -->
              <span class="hover-dashed">
-                <a v-if="checkVisible(model?.register.visible || null, isLoggedIn)"
-                    :href="model?.register?.link.href"
-                    :target="model?.register?.link.target"
+                <a v-if="checkVisible(model?.register.visible || null, isLoggedIn)" 
                     class="space-x-1.5 cursor-pointer "
                     id=""
                     :style="getStyles(model?.register.container.properties)"
@@ -124,8 +117,6 @@ const emits = defineEmits<{
             <!-- Section: Favourites -->
             <a v-if="checkVisible(model?.favourite?.visible || null, isLoggedIn)"
                 id="favorites_button"
-                :href="model?.favourite?.link.href"
-                :target="model?.favourite?.link.target"
                 class="mx-0 space-x-1.5 hover-dashed"
                 :style="getStyles(model?.favourite.container.properties)"
                 @click="()=> emits('setPanelActive', 'favourites')"
@@ -137,8 +128,6 @@ const emits = defineEmits<{
             <!-- Section: Cart -->
             <a v-if="checkVisible(model?.cart?.visible || null, isLoggedIn)"
                 id="header_order_totals"
-                :href="model?.cart?.link.href"
-                :target="model?.cart?.link.target"
                 class="space-x-1.5 hover-dashed"
                 :style="getStyles(model?.cart.container.properties)"
                 @click="()=> emits('setPanelActive', 'cart')"

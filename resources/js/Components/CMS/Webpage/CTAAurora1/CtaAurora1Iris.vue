@@ -15,8 +15,8 @@ const props = defineProps<{
 	fieldValue: {
         
     }
-	webpageData: any
-	blockData: Object
+	webpageData?: any
+	blockData?: Object
 }>()
 console.log(props)
 </script>

@@ -17,8 +17,8 @@ library.add(faCube, faLink, faImage)
 
 const props = defineProps<{
 	modelValue: any
-	webpageData: any
-	blockData: Object
+	webpageData?: any
+	blockData?: Object
 }>()
 
 console.log(props)
@@ -106,7 +106,7 @@ const onUpload = (e) => {
 	<Gallery
 		:open="openGallery"
 		@on-close="openGallery = false"
-		:uploadRoutes="route(webpageData?.images_upload_route.name, { modelHasWebBlocks: blockData.id })"
+		:uploadRoutes="route(webpageData?.images_upload_route.name, { modelHasWebBlocks: blockData?.id })"
 		@onPick="setImage"
 		@onUpload="onUpload">
 	</Gallery>

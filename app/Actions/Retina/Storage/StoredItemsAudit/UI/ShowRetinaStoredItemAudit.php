@@ -9,7 +9,7 @@
 
 namespace App\Actions\Retina\Storage\StoredItemsAudit\UI;
 
-use App\Actions\Fulfilment\StoredItemAudit\UI\IndexStoredItemDeltasInProcess;
+use App\Actions\Retina\Storage\StoredItemsAudit\Deltas\UI\IndexRetinaStoredItemDeltasInProcess;
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
@@ -101,15 +101,11 @@ class ShowRetinaStoredItemAudit extends RetinaAction
 
 
                 'data'                => StoredItemAuditResource::make($storedItemAudit),
-                'pallets'             => PalletsResource::collection(IndexStoredItemDeltasInProcess::run($storedItemAudit->fulfilmentCustomer, 'pallets')),
+                'pallets'             => PalletsResource::collection(IndexRetinaStoredItemDeltasInProcess::run($storedItemAudit, 'pallets')),
                 'fulfilment_customer' => FulfilmentCustomerResource::make($storedItemAudit->fulfilmentCustomer)->getArray()
             ]
         )->table(
-            //todo create this
-            IndexRetinaStoredItemDeltas::make()->tableStructure(
-                $storedItemAudit->fulfilmentCustomer,
-                prefix: 'pallets'
-            )
+            IndexRetinaStoredItemDeltasInProcess::make()->tableStructure(fulfilmentCustomer: $storedItemAudit->fulfilmentCustomer, prefix: 'pallets')
         );
     }
 
