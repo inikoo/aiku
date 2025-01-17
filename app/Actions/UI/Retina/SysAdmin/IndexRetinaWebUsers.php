@@ -12,7 +12,6 @@ use App\Actions\RetinaAction;
 use App\Http\Resources\CRM\WebUsersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\WebUser;
-use App\Models\SysAdmin\Group;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -32,41 +31,13 @@ class IndexRetinaWebUsers extends RetinaAction
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
+
         return $this->handle();
     }
-
-    protected function getElementGroups(Group $group): array
-    {
-        return
-            [
-                'status' => [
-                    'label'    => __('Status'),
-                    'elements' => [
-                        'active'    =>
-                            [
-                                __('Active'),
-                                $group->sysadminStats->number_users_status_active
-                            ],
-                        'suspended' => [
-                            __('Suspended'),
-                            $group->sysadminStats->number_users_status_inactive
-                        ]
-                    ],
-                    'engine'   => function ($query, $elements) {
-                        $query->where('status', array_pop($elements) === 'active');
-                    }
-
-                ],
-            ];
-    }
-
-
 
 
     public function handle($prefix = null): LengthAwarePaginator
     {
-
-
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('web_users.contact_name', $value)
@@ -85,22 +56,10 @@ class IndexRetinaWebUsers extends RetinaAction
         $queryBuilder->where('customer_id', $this->customer->id);
 
 
-        //        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-        //            $queryBuilder->whereElementGroup(
-        //                key: $key,
-        //                allowedElements: array_keys($elementGroup['elements']),
-        //                engine: $elementGroup['engine'],
-        //                prefix: $prefix
-        //            );
-        //        }
-        //
-
-
-
         return $queryBuilder
             ->defaultSort('username')
-            ->select(['web_users.slug','web_users.username', 'web_users.email', 'web_users.status', 'web_users.is_root', 'web_user_stats.last_active_at as last_active'])
-            ->allowedSorts(['web_users.status','username', 'email', 'contact_name', 'last_active'])
+            ->select(['web_users.slug', 'web_users.username', 'web_users.email', 'web_users.status', 'web_users.is_root', 'web_user_stats.last_active_at as last_active'])
+            ->allowedSorts(['web_users.status', 'username', 'email', 'contact_name', 'last_active'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -114,15 +73,6 @@ class IndexRetinaWebUsers extends RetinaAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
-
-            //                foreach ($this->getElementGroups($group) as $key => $elementGroup) {
-            //                    $table->elementGroup(
-            //                        key: $key,
-            //                        label: $elementGroup['label'],
-            //                        elements: $elementGroup['elements']
-            //                    );
-            //                }
-
 
             $table
                 ->withTitle(title: __('Users'))
@@ -143,20 +93,20 @@ class IndexRetinaWebUsers extends RetinaAction
 
     public function htmlResponse(LengthAwarePaginator $webUsers, ActionRequest $request): Response
     {
-
         $title = __('Users');
+
         return Inertia::render(
             'SysAdmin/RetinaWebUsers',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName()),
                 'title'       => $title,
                 'pageHead'    => [
-                    'title'         => $title,
-                    'icon'          => [
+                    'title'   => $title,
+                    'icon'    => [
                         'type' => 'icon',
                         'icon' => 'fal fa-user-circle'
                     ],
-                    'actions'       => [
+                    'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'create',
@@ -193,7 +143,7 @@ class IndexRetinaWebUsers extends RetinaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'retina.sysadmin.web-users.index',
+                                'name' => 'retina.sysadmin.web-users.index',
                             ],
                             'label' => __('Users'),
                             'icon'  => 'fal fa-bars',

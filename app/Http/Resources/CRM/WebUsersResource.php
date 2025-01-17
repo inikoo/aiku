@@ -8,21 +8,28 @@
 
 namespace App\Http\Resources\CRM;
 
-use App\Models\CRM\WebUser;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Carbon\Carbon;
 
+/**
+ * @property mixed $slug
+ * @property mixed $username
+ * @property mixed $status
+ * @property mixed $email
+ * @property mixed $is_root
+ * @property mixed $created_at
+ * @property mixed $last_active
+ */
 class WebUsersResource extends JsonResource
 {
     public function toArray($request): array
     {
-        /** @var WebUser $webUser */
-        $webUser = $this;
+
 
         return [
-            'slug'        => $webUser->slug,
-            'username'    => $webUser->username,
-            'status'        => match ($webUser->status) {
+            'slug'        => $this->slug,
+            'username'    => $this->username,
+            'status'        => match ($this->status) {
                 true => [
                     'tooltip' => __('active'),
                     'icon'    => 'fal fa-check',
@@ -34,11 +41,11 @@ class WebUsersResource extends JsonResource
                     'class'   => 'text-red-500'
                 ]
             },
-            'email'       => $webUser->email,
-            'is_root'     => $webUser->is_root,
-            'created_at'  => $webUser->created_at,
-            'last_active' => $webUser->last_active
-                                ? Carbon::parse($webUser->last_active)->diffForHumans()
+            'email'       => $this->email,
+            'is_root'     => $this->is_root,
+            'created_at'  => $this->created_at,
+            'last_active' => $this->last_active
+                                ? Carbon::parse($this->last_active)->diffForHumans()
                                 : ''
             ];
     }
