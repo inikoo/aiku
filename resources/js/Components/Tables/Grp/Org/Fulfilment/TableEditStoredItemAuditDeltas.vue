@@ -32,10 +32,10 @@ import { Pallet, PalletDelivery } from '@/types/Pallet'
 
 import { faStickyNote, faCheckCircle as falCheckCircle, faUndo, faArrowToLeft, faTrashAlt } from '@fal'
 import { faCheckCircle } from '@fad'
-import { faPlus, faMinus, faStar } from '@fas'
+import { faPlus, faMinus, faStar, faCheckCircle as fasCheckCircle } from '@fas'
 
 
-library.add(faCheck, faTimes)
+library.add(faCheck, faTimes, fasCheckCircle)
 
 const props = defineProps<{
     data: {}
@@ -335,8 +335,11 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
                                 <div class="flex justify-center border border-gray-300 rounded gap-y-1">
                                     <!-- Button: Check -->
                                     <Button v-if="data.type !== 'new_item' && !data.stored_item_audit_delta"
-                                        @click="() => onStoreStoredItem(item.rowIndex, item.id, data.id, data.quantity)"
-                                        type="tertiary" icon="fal fa-check-circle" class="border-none rounded-none"
+                                        @click="() => data.audit_type === 'no_change' ? null : onStoreStoredItem(item.rowIndex, item.id, data.id, data.quantity)"
+                                        type="tertiary"
+                                        :icon="data.audit_type === 'no_change' ? 'fas fa-check-circle' : 'fal fa-check-circle'"
+                                        class="border-none rounded-none"
+                                        :class="data.audit_type === 'no_change' ? 'text-green-500' : ''"
                                     />
 
                                     <!-- Section: - and + -->
