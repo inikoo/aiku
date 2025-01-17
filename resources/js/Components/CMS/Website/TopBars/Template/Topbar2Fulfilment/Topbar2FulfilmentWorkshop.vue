@@ -98,29 +98,6 @@ const emits = defineEmits<{
                 <span v-html="textReplaceVariables(model?.profile?.text, layout.iris_variables)" />
             </a>
 
-            <!-- Section: Favourites -->
-            <a v-if="checkVisible(model?.favourite?.visible || null, isLoggedIn)"
-                id="favorites_button"
-                class="space-x-1.5 flex flex-nowrap items-center hover-dashed"
-                :style="getStyles(model?.favourite.container?.properties)"
-                 @click="()=> emits('setPanelActive', 'favourites')"
-            >
-                <FontAwesomeIcon icon='fal fa-heart' class='' fixed-width aria-hidden='true' />
-                <span v-html="textReplaceVariables(model?.favourite?.text, layout.iris_variables)" />
-            </a>
-
-            <!-- Section: Cart -->
-            <a v-if="checkVisible(model?.cart?.visible || null, isLoggedIn)"
-                id="header_order_totals"
-                class="space-x-1.5 flex flex-nowrap items-center hover-dashed"
-                :style="getStyles(model?.cart.container?.properties)"
-                @click="()=> emits('setPanelActive', 'cart')"
-            >
-                <FontAwesomeIcon icon='fal fa-shopping-cart' class='text-base px-[5px]' v-tooltip="trans('Basket')"
-                    fixed-width aria-hidden='true' />
-                <span v-html="textReplaceVariables(model?.cart?.text, layout.iris_variables)" />
-            </a>
-
 
             <!-- Section: Logged out (Login, Register) -->
             <!-- <template v-if="isDropshipping">

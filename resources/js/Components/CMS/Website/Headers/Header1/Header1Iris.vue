@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import MobileMenu from '@/Components/MobileMenu.vue'
-import Menu from 'primevue/menu'
+
 import { getStyles } from "@/Composables/styles";
 import { checkVisible, textReplaceVariables } from '@/Composables/Workshop'
 import { inject } from 'vue'
@@ -26,10 +25,7 @@ const props = defineProps<{
 
 const isLoggedIn = inject('isPreviewLoggedIn', false)
 
-const _menu = ref();
-const toggle = (event) => {
-    _menu.value.toggle(event)
-};
+
 
 
 </script>
@@ -63,36 +59,7 @@ const toggle = (event) => {
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Mobile view (hidden on desktop) -->
-        <div class="block md:hidden p-3">
-            <div class="flex justify-between items-center">
-                <MobileMenu :header="modelValue" :menu="modelValue" />
-
-                <!-- Logo for Mobile -->
-                <img v-if="!fieldValue.logo" src="https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png" alt="Ancient Wisdom Logo" class="h-10 mx-2">
-                <Image v-else :src="fieldValue?.logo?.source" class="h-10 mx-2"></Image>
-
-                <!-- Profile Icon with Dropdown Menu -->
-                <div @click="toggle" class="flex items-center cursor-pointer text-white">
-                    <FontAwesomeIcon icon="fas fa-user-circle" class="text-2xl" />
-                    <Menu ref="_menu" id="overlay_menu" :model="items" :popup="true">
-                        <template #itemicon="{ item }">
-                            <FontAwesomeIcon :icon="item.icon" />
-                        </template>
-                    </Menu>
-                </div>
-            </div>
-
-            <!-- Mobile Search Bar -->
-            <div class="relative mt-2">
-                <input type="text" placeholder="Search Products"
-                    class="border border-gray-300 py-2 px-4 rounded-md w-full shadow-inner focus:outline-none focus:border-gray-500">
-                <FontAwesomeIcon icon="fas fa-search" class="absolute top-1/2 -translate-y-1/2 right-4 text-gray-500"
-                    fixed-width />
-            </div>
-        </div>
+        </div>        
     </div>
 </template>
 

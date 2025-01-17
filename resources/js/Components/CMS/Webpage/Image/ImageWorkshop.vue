@@ -21,7 +21,7 @@ library.add(faCube, faStar, faImage, faPencil)
 const props = defineProps<{
 	modelValue: any
 	webpageData?: any
-	blockData:Object
+	blockData?:Object
 	// uploadRoutes: routeType
 }>()
 
@@ -76,7 +76,7 @@ const onUpload = async (files: File[], clear: Function) => {
 			formData.append(`images[${index}]`, file)
 		})
 		const response = await axios.post(
-			route(props.webpageData?.images_upload_route.name, { modelHasWebBlocks: props.blockData.id }),
+			route(props.webpageData?.images_upload_route.name, { modelHasWebBlocks: props.blockData?.id }),
 			formData,
 			{
 				headers: {
@@ -238,7 +238,7 @@ console.log(props.modelValue)
 				:uploadRoute="{
 					...webpageData?.images_upload_route,
 					parameters: {
-						modelHasWebBlocks: blockData.id
+						modelHasWebBlocks: blockData?.id
 					},
 				}"
 			/>

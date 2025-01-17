@@ -114,29 +114,6 @@ const emits = defineEmits<{
 
         <div class="action_buttons" style="display: flex; justify-content: flex-end; column-gap: 5px; grid-column: span 5 / span 5">
 
-            <!-- Section: Favourites -->
-            <a v-if="checkVisible(model?.favourite?.visible || null, isLoggedIn)"
-                id="favorites_button"
-                class="mx-0 space-x-1.5 hover-dashed"
-                :style="getStyles(model?.favourite.container.properties)"
-                @click="()=> emits('setPanelActive', 'favourites')"
-            >
-                <FontAwesomeIcon icon='fal fa-heart' class='' fixed-width aria-hidden='true' />
-                <span v-html="textReplaceVariables(model?.favourite?.text, layout.iris_variables)"></span>
-            </a>
-
-            <!-- Section: Cart -->
-            <a v-if="checkVisible(model?.cart?.visible || null, isLoggedIn)"
-                id="header_order_totals"
-                class="space-x-1.5 hover-dashed"
-                :style="getStyles(model?.cart.container.properties)"
-                @click="()=> emits('setPanelActive', 'cart')"
-            >
-                <FontAwesomeIcon icon='fal fa-shopping-cart' class='text-base px-[5px]' v-tooltip="trans('Cart')"
-                    fixed-width aria-hidden='true' />
-                <span v-html="textReplaceVariables(model?.cart?.text, layout.iris_variables)"></span>
-            </a>
-
 
             <!-- <div @click="() => onClickRegister()" href="/register.sys" class="space-x-1.5">
                 <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />

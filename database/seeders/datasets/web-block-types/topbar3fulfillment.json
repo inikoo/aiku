@@ -1,8 +1,8 @@
 {
 	"scope": "website",
-	"slug": "top-bar-1",
-	"code": "top-bar-1",
-	"name": "Topbar Simple",
+	"slug": "top-bar-3-fulfilment",
+	"code": "top-bar-3-fulfilment",
+	"name": "Topbar Awesome [fulfilment]",
 	"component": "topbar",
 	"data": {
 		"fieldValue": {
@@ -11,29 +11,33 @@
 				"properties": {
 					"background": {
 						"type": "color",
-						"color": "rgba(20,20,20,1)",
+						"color": "linear-gradient(to right, rgb(204, 251, 241), rgb(99, 102, 241))",
 						"image": {
 							"original": null
 						}
 					},
 					"text": {
-						"color": "rgba(255,255,255,1)",
-						"fontFamily": "Raleway"
+						"color": "rgba(10,10,10,1)",
+						"fontFamily": "Comfortaa"
 					}
 				}
 			},
 			"main_title": {
-				"text": "<p><strong>Stay Fit & Healthy: Save 15% on Natural Supplements!</strong></p>",
+				"text": "<p><strong>Pure Ingredients, Pure Health: 20% Off on Organic Goods!</strong></p>",
 				"visible": "all"
 			},
 			"login": {
-				"link": null,
+				"link": {
+					"type" : "external",
+					"href": "/app",
+					"target" : "_self"
+				},
 				"text": "Login",
 				"visible": "logout",
 				"container": {
 					"properties": {
 						"text": {
-							"color": "rgba(255, 255, 255, 1)"
+							"color": "rgba(20, 20, 20, 1)"
 						},
 						"border": {
 							"top": {
@@ -43,7 +47,7 @@
 								"value": 0
 							},
 							"unit": "px",
-							"color": "rgba(231, 231, 231, 1)",
+							"color": "rgba(20, 20, 20, 1)",
 							"right": {
 								"value": 0
 							},
@@ -53,16 +57,16 @@
 							"rounded": {
 								"unit": "px",
 								"topleft": {
-									"value": 5
+									"value": 0
 								},
 								"topright": {
-									"value": 5
+									"value": 0
 								},
 								"bottomleft": {
-									"value": 5
+									"value": 0
 								},
 								"bottomright": {
-									"value": 5
+									"value": 0
 								}
 							}
 						},
@@ -98,7 +102,7 @@
 						},
 						"background": {
 							"type": "color",
-							"color": "rgba(10, 10, 10, 1)",
+							"color": "rgba(10, 10, 10, 0)",
 							"image": {
 								"original": null
 							}
@@ -113,22 +117,22 @@
 				"container": {
 					"properties": {
 						"text": {
-							"color": "rgba(255, 255, 255, 1)"
+							"color": "rgba(10, 10, 10, 1)"
 						},
 						"border": {
 							"top": {
-								"value": 1
+								"value": 0
 							},
 							"left": {
-								"value": 1
+								"value": 0
 							},
 							"unit": "px",
-							"color": "rgba(255, 255, 255, 1)",
+							"color": "rgba(10, 10, 10, 1)",
 							"right": {
-								"value": 1
+								"value": 0
 							},
 							"bottom": {
-								"value": 1
+								"value": 0
 							},
 							"rounded": {
 								"unit": "px",
@@ -186,68 +190,14 @@
 					}
 				}
 			},
-			"cart": {
-				"link": null,
-				"text": "{{ cart_count }} items",
-				"visible": "login",
-				"container": {
-					"properties": {
-						"text": {
-							"color": "rgba(255, 255, 255, 1)"
-						},
-						"padding": {
-							"top": {
-								"value": 5
-							},
-							"left": {
-								"value": 20
-							},
-							"unit": "px",
-							"right": {
-								"value": 20
-							},
-							"bottom": {
-								"value": 5
-							}
-						}
-					}
-				}
-			},
-			"favourite": {
-				"link": null,
-				"text": "{{ favourites_count }}",
-				"visible": "login",
-				"container": {
-					"properties": {
-						"text": {
-							"color": "rgba(255, 255, 255, 1)"
-						},
-						"padding": {
-							"top": {
-								"value": 5
-							},
-							"left": {
-								"value": 20
-							},
-							"unit": "px",
-							"right": {
-								"value": 20
-							},
-							"bottom": {
-								"value": 5
-							}
-						}
-					}
-				}
-			},
 			"profile": {
-				"link":null,
-				"text": "{{ name }}",
+				"link": null,
+				"text": "<strong>{{name}}<strong>",
 				"visible": "login",
 				"container": {
 					"properties": {
 						"text": {
-							"color": "rgba(255, 255, 255, 1)"
+							"color": "rgba(10, 10, 10, 1)"
 						},
 						"padding": {
 							"top": {
@@ -274,7 +224,7 @@
 				"container": {
 					"properties": {
 						"text": {
-							"color": "rgba(255, 255, 255, 1)"
+							"color": "rgba(10, 10, 10, 1)"
 						},
 						"padding": {
 							"top": {

@@ -15,8 +15,8 @@ library.add(faCube, faLink, faImage)
 
 const props = defineProps<{
 	fieldValue: FieldValue
-	webpageData: any
-	blockData: Object
+	webpageData?: any
+	blockData?: Object
 }>()
 
 

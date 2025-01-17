@@ -75,6 +75,7 @@ const emits = defineEmits<{
 </script>
 
 <template>
+    <div></div>
     <div id="top_bar" class="py-2 px-4 grid md:grid-cols-5"
         :style="getStyles(model?.container?.properties)"
     >
@@ -89,37 +90,17 @@ const emits = defineEmits<{
             <!-- Section: Profile -->
             <a v-if="checkVisible(model?.profile?.visible || null, isLoggedIn)"
                 id="profile_button"
-                class="hidden space-x-1.5 md:flex flex-nowrap items-center hover-dashed"
+                 :href="model?.profile?.link?.href"
+                :target="model?.profile?.link?.target"
+                class="hidden space-x-1.5 md:flex flex-nowrap items-center "
                 :style="getStyles(model?.profile.container?.properties)"
-                 @click="()=> emits('setPanelActive', 'profile')"
+
             >
                 <!-- <i class="far fa-user fa-flip-horizontal  " title="Profile" aria-hidden="true"></i> -->
                 <FontAwesomeIcon icon='fal fa-user' class='' v-tooltip="trans('Profile')" fixed-width aria-hidden='true' />
                 <span v-html="textReplaceVariables(model?.profile?.text, layout.iris_variables)" />
             </a>
 
-            <!-- Section: Favourites -->
-            <a v-if="checkVisible(model?.favourite?.visible || null, isLoggedIn)"
-                id="favorites_button"
-                class="space-x-1.5 flex flex-nowrap items-center hover-dashed"
-                :style="getStyles(model?.favourite.container?.properties)"
-                 @click="()=> emits('setPanelActive', 'favourites')"
-            >
-                <FontAwesomeIcon icon='fal fa-heart' class='' fixed-width aria-hidden='true' />
-                <span v-html="textReplaceVariables(model?.favourite?.text, layout.iris_variables)" />
-            </a>
-
-            <!-- Section: Cart -->
-            <a v-if="checkVisible(model?.cart?.visible || null, isLoggedIn)"
-                id="header_order_totals"
-                class="space-x-1.5 flex flex-nowrap items-center hover-dashed"
-                :style="getStyles(model?.cart.container?.properties)"
-                @click="()=> emits('setPanelActive', 'cart')"
-            >
-                <FontAwesomeIcon icon='fal fa-shopping-cart' class='text-base px-[5px]' v-tooltip="trans('Basket')"
-                    fixed-width aria-hidden='true' />
-                <span v-html="textReplaceVariables(model?.cart?.text, layout.iris_variables)" />
-            </a>
 
 
             <!-- Section: Logged out (Login, Register) -->
@@ -141,9 +122,11 @@ const emits = defineEmits<{
             <!-- Section: Profile -->
             <a v-if="checkVisible(model?.profile?.visible || null, isLoggedIn)"
                 id="profile_button"
-                class="col-span-2 md:hidden space-x-1.5 flex flex-nowrap items-center hover-dashed"
+                :href="model?.profile?.link?.href"
+                :target="model?.profile?.link?.target"
+                class="col-span-2 md:hidden space-x-1.5 flex flex-nowrap items-center "
                 :style="getStyles(model?.profile.container?.properties)"
-                @click="()=> emits('setPanelActive', 'profile')"
+
             >
                 <!-- <i class="far fa-user fa-flip-horizontal  " title="Profile" aria-hidden="true"></i> -->
                 <FontAwesomeIcon icon='fal fa-user' class='' v-tooltip="trans('Profile')" fixed-width aria-hidden='true' />
@@ -151,7 +134,7 @@ const emits = defineEmits<{
             </a>
 
             <Image
-                class="h-9 max-w-32 hover-dashed"
+                class="h-9 max-w-32 "
                 :src="model?.logo?.source"
                 imageCover
                 @click="()=> emits('setPanelActive', 'logo')"
@@ -159,9 +142,10 @@ const emits = defineEmits<{
 
             <!-- Section: LogoutRetina -->
             <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
-                class="col-span-2 text-right block md:hidden space-x-1.5 hover-dashed"
+                :href="model?.logout?.link"
+                class="col-span-2 text-right block md:hidden space-x-1.5 "
                 :style="getStyles(model?.logout.container?.properties)"
-                @click="()=> emits('setPanelActive', 'logout')"
+
             >
                 <FontAwesomeIcon icon='fal fa-sign-out' v-tooltip="trans('Log out')" class='' fixed-width aria-hidden='true' />
                 <span class="" v-html="textReplaceVariables(model?.logout?.text, layout.iris_variables)" />
@@ -171,21 +155,24 @@ const emits = defineEmits<{
         <div class="md:col-span-2 flex md:justify-end gap-x-4 ">
             <!-- Section: LogoutRetina -->
             <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
-                class="hidden md:block space-x-1.5 hover-dashed"
+                :href="model?.logout?.link"
+                class="hidden md:block space-x-1.5 "
                 :style="getStyles(model?.logout.container?.properties)"
-                @click="()=> emits('setPanelActive', 'logout')"
+
             >
                 <FontAwesomeIcon icon='fal fa-sign-out' v-tooltip="trans('Log out')" class='' fixed-width aria-hidden='true' />
                 <span class="hidden md:inline" v-html="textReplaceVariables(model?.logout?.text, layout.iris_variables)" />
             </a>
 
             <!-- Register -->
-             <span class="hover-dashed">
+             <span class="">
                 <a v-if="checkVisible(model?.register?.visible || null, isLoggedIn)"
+                    :href="model?.register?.link?.href"
+                    :target="model?.register?.link?.target"
                     class="space-x-1.5 cursor-pointer"
                     id=""
                     :style="getStyles(model?.register.container?.properties)"
-                    @click="()=> emits('setPanelActive', 'register')"
+
 
                 >
                     <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
@@ -195,13 +182,15 @@ const emits = defineEmits<{
 
 
             <!-- Login -->
-            <span class="hover-dashed">
+            <span class="">
                 <a
                     v-if="checkVisible(model?.login?.visible || null, isLoggedIn)"
+                    :href="model?.login?.link.href"
+                    :target="model?.login?.link.target"
                     class="space-x-1.5 cursor-pointer"
                     id=""
                     :style="getStyles(model?.login?.container?.properties)"
-                    @click="()=> emits('setPanelActive', 'login')"
+
                 >
                     <FontAwesomeIcon icon='fal fa-sign-in' class='' fixed-width aria-hidden='true' />
                     <span v-html="textReplaceVariables(model?.login?.text, layout.iris_variables)" />
