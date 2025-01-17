@@ -55,9 +55,10 @@ class StoredItemDeltasInProcessResource extends JsonResource
 
             'stored_items' => $pallet->getEditStoredItemDeltasQuery($this->id, $this->stored_item_audit_id)
                 ->where('pallet_stored_items.pallet_id', $this->id)
-                ->get()->map(fn ($item) => [
+                ->get()->map(fn($item) => [
+                    'stored_item_audit_id'    => $this->stored_item_audit_id,
                     'pallet_id'               => $item->pallet_id,
-                    'id'                      => $item->stored_item_id,
+                    'stored_item_id'          => $item->stored_item_id,
                     'reference'               => $item->stored_item_reference,
                     'quantity'                => (int)$item->quantity,
                     'audited_quantity'        => (int)$item->audited_quantity,
@@ -76,8 +77,9 @@ class StoredItemDeltasInProcessResource extends JsonResource
             'new_stored_items' => $pallet->getEditNewStoredItemDeltasQuery($this->id)
                 ->where('stored_item_audit_deltas.pallet_id', $this->id)
                 ->where('stored_item_audit_deltas.stored_item_audit_id', $this->stored_item_audit_id)
-                ->get()->map(fn ($item) => [
-                    'id'                      => $item->stored_item_id,
+                ->get()->map(fn($item) => [
+                    'stored_item_audit_id'    => $this->stored_item_audit_id,
+                    'stored_item_id'          => $item->stored_item_id,
                     'reference'               => $item->stored_item_reference,
                     'quantity'                => 0,
                     'audited_quantity'        => (int)$item->audited_quantity,

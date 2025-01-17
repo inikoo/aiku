@@ -158,7 +158,7 @@ const onUnselectNewStoredItem = (row: number, store_item_audit_deltas_id: number
 // Section: store quantity stored item (first update)
 const isLoadingStoreQuantity = reactive<StoredItemsQuantity>({})
 const onStoreStoredItem = (row: number, idPallet: number, idStoredItemAudit: number, quantity: number) => {
-    console.log('onStoreStoredItem')
+    console.log('onStoreStoredItem', idStoredItemAudit)
     // Store
     console.log('lolo', props.route_list?.stored_item_audit_delta?.store?.name)
     if (!props.route_list?.stored_item_audit_delta?.store?.name) {
@@ -193,7 +193,7 @@ const onStoreStoredItem = (row: number, idPallet: number, idStoredItemAudit: num
         }
     )
 }
-const debounceStoreQuantity = debounce((row: number, idPallet: number, idStoredItemAudit: number, quantity: number) => onStoreStoredItem(row, idPallet, idStoredItemAudit, quantity), 500)
+const debounceStoreStoredItem = debounce((row: number, idPallet: number, idStoredItemAudit: number, quantity: number) => onStoreStoredItem(row, idPallet, idStoredItemAudit, quantity), 500)
 
 
 // Section: Update quantity stored item
@@ -318,9 +318,10 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
 
 
                     <template #body="{ data }">
-
-                        stored item id: {{ data.id || '-' }} <br />
-                      stored item id: {{ data.audit_type || '-' }} <br />
+                        <pre>{{ data }}</pre>
+                        stored_item_audit_id: {{ data.stored_item_audit_id || '-' }} <br />
+                        stored_item_id: {{ data.stored_item_id || '-' }} <br />
+                        audit_type: {{ data.audit_type || '-' }} <br />
                         storedItemAuditDelta: {{ data.stored_item_audit_delta || '-' }}
 
                         <!-- <pre>{{ props.route_list?.stored_item_audit_delta?.store }}</pre> -->
@@ -335,7 +336,7 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
                                 <div class="flex justify-center border border-gray-300 rounded gap-y-1">
                                     <!-- Button: Check -->
                                     <Button v-if="data.type !== 'new_item' && !data.stored_item_audit_delta"
-                                        @click="() => data.audit_type === 'no_change' ? null : onStoreStoredItem(item.rowIndex, item.id, data.id, data.quantity)"
+                                        @click="() => data.audit_type === 'no_change' ? null : onStoreStoredItem(item.rowIndex, item.id, data.stored_item_id, data.quantity)"
                                         type="tertiary"
                                         :icon="data.audit_type === 'no_change' ? 'fas fa-check-circle' : 'fal fa-check-circle'"
                                         class="border-none rounded-none"
@@ -353,7 +354,7 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
                                                         set(data, `${data.stored_item_audit_delta ? 'audited_quantity' : 'quantity'}`, ((data.stored_item_audit_delta ? data.audited_quantity : data.quantity) - 1) >= 0 ? ((data.stored_item_audit_delta ? data.audited_quantity : data.quantity) - 1) : 0),
                                                         data.stored_item_audit_delta
                                                             ? debounceChangeQuantity(item.rowIndex, data.stored_item_audit_delta, get(data, `audited_quantity`, data.quantity))
-                                                            : debounceStoreQuantity(item.rowIndex, item.id, data.id, get(data, `quantity`, data.quantity))
+                                                            : debounceStoreStoredItem(item.rowIndex, item.id, data.stored_item_id, get(data, `quantity`, data.quantity))
                                                     )"
                                                     class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-1 py-1.5 text-xs justify-self-center">
                                                     <FontAwesomeIcon icon='fas fa-minus' class='' fixed-width aria-hidden='true' />
@@ -377,7 +378,7 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
                                                         set(data, `${data.stored_item_audit_delta ? 'audited_quantity' : 'quantity'}`, (data.stored_item_audit_delta ? data.audited_quantity : data.quantity) + 1),
                                                         data.stored_item_audit_delta
                                                             ? debounceChangeQuantity(item.rowIndex, data.stored_item_audit_delta, get(data, `audited_quantity`, data.quantity))
-                                                            : debounceStoreQuantity(item.rowIndex, item.id, data.id, get(data, `quantity`, data.quantity))
+                                                            : debounceStoreStoredItem(item.rowIndex, item.id, data.stored_item_id, get(data, `quantity`, data.quantity))
                                                     )"
                                                     type="tertiary" size="xs"
                                                     class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-1 py-1.5 text-xs justify-self-center">

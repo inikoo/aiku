@@ -478,7 +478,7 @@ const isShowInWebpage = (activityItem) => {
 											:key="activityItemIdx"
 											class="w-full"
 											:is="isPreviewMode ? getIrisComponent(activityItem?.type) : getComponent(activityItem?.type)"
-											:webpageData="webpage" :blockData="activityItem"
+											:webpageData="webpage" :blockData?="activityItem"
 											v-model="activityItem.web_block.layout.data.fieldValue"
 											:fieldValue="activityItem.web_block?.layout?.data?.fieldValue"
 											@autoSave="() => onSaveWorkshop(activityItem)"

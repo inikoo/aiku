@@ -31,12 +31,7 @@
 				"visible": "login"
 			},
 			"login": {
-				"link": {
-					"type" : "internal",
-					"url": "https://ancientwisdom.biz/login",
-					"id": 12,
-					"workshop_route" : ""
-				},
+				"link": null,
 				"text": "Login",
 				"visible": "logout",
 				"container": {
@@ -117,12 +112,7 @@
 				}
 			},
 			"register": {
-				"link": {
-					"type" : "external",
-					"url": "ancientwisdom.biz/register.sys",
-					"id": null,
-					"workshop_route" : ""
-				},
+				"link": null,
 				"text": "Register",
 				"visible": "logout",
 				"container": {
@@ -203,12 +193,7 @@
 				}
 			},
 			"cart": {
-				"link": {
-					"type" : "internal",
-					"url": "https://ancientwisdom.biz/login",
-					"id": 12,
-					"workshop_route" : ""
-				},
+				"link": null,
 				"text": "{{ cart_count }} items",
 				"visible": "login",
 				"container": {
@@ -236,12 +221,7 @@
 				}
 			},
 			"favourite": {
-				"link": {
-					"type" : "external",
-					"url": "ancientwisdom.biz/favourites.sys",
-					"id": null,
-					"workshop_route" : ""
-				},
+				"link": null,
 				"text": "{{ favourites_count }}",
 				"visible": "login",
 				"container": {
@@ -269,12 +249,7 @@
 				}
 			},
 			"profile": {
-				"link": {
-					"type" : "external",
-					"url": "ancientwisdom.biz/profile.sys",
-					"id": null,
-					"workshop_route" : ""
-				},
+				"link": null,
 				"text": "Profile",
 				"visible": "login",
 				"container": {
@@ -302,12 +277,7 @@
 				}
 			},
 			"logout": {
-				"link": {
-					"type" : "external",
-					"url": "ancientwisdom.biz/logout.sys",
-					"id": null,
-					"workshop_route" : ""
-				},
+				"link": null,
 				"text": "Log out",
 				"visible": "login",
 				"container": {

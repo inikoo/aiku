@@ -25,7 +25,7 @@ const visible = ref(false);
 <template>
     <div>
         <button @click="visible = true">
-            <FontAwesomeIcon icon="fa-solid fa-bars" class="text-white text-xl" />
+            <FontAwesomeIcon :icon="faBars" class="text-xl" />
         </button>
         <Drawer v-model:visible="visible" :header="''">
             <template #header>

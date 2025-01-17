@@ -20,8 +20,8 @@ library.add(faPresentation, faLink, faPaperclip)
 
 const props = defineProps<{
     modelValue: any
-	webpageData: any
-	blockData: Object
+	webpageData?: any
+	blockData?: Object
 }>()
 
 /* const emits = defineEmits<{

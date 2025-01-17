@@ -1,8 +1,8 @@
 {
 	"scope": "website",
-	"slug": "top-bar-1",
-	"code": "top-bar-1",
-	"name": "Topbar Simple",
+	"slug": "top-bar-1-fulfilment",
+	"code": "top-bar-1-fulfilment",
+	"name": "Topbar Simple [fulfilment]",
 	"component": "topbar",
 	"data": {
 		"fieldValue": {
@@ -27,7 +27,11 @@
 				"visible": "all"
 			},
 			"login": {
-				"link": null,
+				"link": {
+					"type" : "external",
+					"href": "/app",
+					"target" : "_self"
+				},
 				"text": "Login",
 				"visible": "logout",
 				"container": {
@@ -186,90 +190,9 @@
 					}
 				}
 			},
-			"cart": {
-				"link": null,
-				"text": "{{ cart_count }} items",
-				"visible": "login",
-				"container": {
-					"properties": {
-						"text": {
-							"color": "rgba(255, 255, 255, 1)"
-						},
-						"padding": {
-							"top": {
-								"value": 5
-							},
-							"left": {
-								"value": 20
-							},
-							"unit": "px",
-							"right": {
-								"value": 20
-							},
-							"bottom": {
-								"value": 5
-							}
-						}
-					}
-				}
-			},
-			"favourite": {
-				"link": null,
-				"text": "{{ favourites_count }}",
-				"visible": "login",
-				"container": {
-					"properties": {
-						"text": {
-							"color": "rgba(255, 255, 255, 1)"
-						},
-						"padding": {
-							"top": {
-								"value": 5
-							},
-							"left": {
-								"value": 20
-							},
-							"unit": "px",
-							"right": {
-								"value": 20
-							},
-							"bottom": {
-								"value": 5
-							}
-						}
-					}
-				}
-			},
 			"profile": {
 				"link":null,
 				"text": "{{ name }}",
-				"visible": "login",
-				"container": {
-					"properties": {
-						"text": {
-							"color": "rgba(255, 255, 255, 1)"
-						},
-						"padding": {
-							"top": {
-								"value": 5
-							},
-							"left": {
-								"value": 20
-							},
-							"unit": "px",
-							"right": {
-								"value": 20
-							},
-							"bottom": {
-								"value": 5
-							}
-						}
-					}
-				}
-			},
-			"logout": {
-				"link": null,
-				"text": "Log out",
 				"visible": "login",
 				"container": {
 					"properties": {
