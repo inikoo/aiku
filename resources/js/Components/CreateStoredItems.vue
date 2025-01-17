@@ -250,7 +250,7 @@ const onSaved = async () => {
 					@click="decrementQuantity"
 					class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-1 py-1.5 text-base justify-self-center"
 				>
-					<FontAwesomeIcon icon='fal fa-minus' class='' fixed-width aria-hidden='true' />
+					<FontAwesomeIcon icon='fas fa-minus' class='' fixed-width aria-hidden='true' />
 				</div>
 				<div class="text-center tabular-nums">
 					<!-- <Transition name="spin-to-right">
@@ -275,7 +275,7 @@ const onSaved = async () => {
 					@click="incrementQuantity"
 					class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-1 py-1.5 text-base justify-self-center"
 				>
-					<FontAwesomeIcon icon='fal fa-plus' class='' fixed-width aria-hidden='true' />
+					<FontAwesomeIcon icon='fas fa-plus' class='' fixed-width aria-hidden='true' />
 				</div>
 			</div>
 

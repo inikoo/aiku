@@ -10,11 +10,11 @@ import { Link, router } from '@inertiajs/vue3'
 
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faQuestionCircle, faEnvelope, faPhone, faIdCardAlt } from '@fal'
+import { faNarwhal, faPallet, faQuestionCircle, faEnvelope, faPhone, faIdCardAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
-library.add(faQuestionCircle, faIdCardAlt, faEnvelope, faPhone)
+library.add(faNarwhal, faPallet, faQuestionCircle, faIdCardAlt, faEnvelope, faPhone)
 
 const props = defineProps<{
     auditData: {}
@@ -36,31 +36,45 @@ onMounted(() => {
 
 const dataBoxStats = [
     {
-        label: 'Audited pallets',
+        label: 'Audited',
+        icon: 'fal fa-pallet',
+        tooltip: trans('Pallet'),
         value: props.auditData.number_audited_pallets
     },
     {
-        label: 'Audited Customer\'s SKUs',
+        label: 'Audited',
+        icon: 'fal fa-narwhal',
+        tooltip: trans('Customer\'s SKU'),
         value: props.auditData.number_audited_stored_items
     },
     {
-        label: 'Audited Customer\'s SKUs (with additions)',
+        label: 'Audited (with additions)',
+        icon: 'fal fa-narwhal',
+        tooltip: trans('Customer\'s SKU'),
         value: props.auditData.number_audited_stored_items_with_additions
     },
     {
-        label: 'Audited Customer\'s SKUs (with subtractions)',
+        label: 'Audited (with subtractions)',
+        icon: 'fal fa-narwhal',
+        tooltip: trans('Customer\'s SKU'),
         value: props.auditData.number_audited_stored_items_with_with_subtractions
     },
     {
-        label: 'Audited Customer\'s SKUs (with stock checked)',
+        label: 'Audited (with stock checked)',
+        icon: 'fal fa-narwhal',
+        tooltip: trans('Customer\'s SKU'),
         value: props.auditData.number_audited_stored_items_with_with_stock_checked
     },
     {
-        label: 'Associated Customer\'s SKUs',
+        label: 'Associated',
+        icon: 'fal fa-narwhal',
+        tooltip: trans('Customer\'s SKU'),
         value: props.auditData.number_associated_stored_items
     },
     {
-        label: 'Created Customer\'s SKUs',
+        label: 'Created',
+        icon: 'fal fa-narwhal',
+        tooltip: trans('Customer\'s SKU'),
         value: props.auditData.number_created_stored_items
     },
 ]
@@ -163,18 +177,16 @@ const dataBoxStats = [
         <!-- Box: Order summary -->
         <BoxStatPallet class="sm:col-span-2 border-t sm:border-t-0 border-gray-300">
             <dl class="flex flex-col gap-y-2 text-gray-500 rounded-lg px-4 py-2">
-                <div class="pt-2 first:pt-0 pr-2 flex flex-col gap-y-2 ">
-                    <div v-for="stat in dataBoxStats" class="even:bg-gray-100 py-1 px-2 grid grid-cols-7 gap-x-4 items-center justify-between">
-                        <dt class="col-span-5 flex flex-col">
-                            <div class="flex items-center leading-none">
-                                <span>{{stat.label}}</span>
-                                <!-- <FontAwesomeIcon v-if="fieldSummary.information_icon" icon='fal fa-question-circle' v-tooltip="fieldSummary.information_icon" class='ml-1 cursor-pointer text-gray-400 hover:text-gray-500' fixed-width aria-hidden='true' /> -->
-                            </div>
-                            <!-- <span v-if="fieldSummary.information" v-tooltip="fieldSummary.information" class="text-xs text-gray-400 truncate">{{ fieldSummary.information }}</span> -->
+                <div class="pt-2 first:pt-0 pr-2 flex flex-col gap-y-1.5 ">
+                    <div v-for="stat in dataBoxStats" class="grid grid-cols-7 gap-x-4 items-center justify-between">
+                        <dt class="col-span-5 flex items-center gap-x-1.5">
+                            <FontAwesomeIcon v-if="stat.icon" v-tooltip="stat.tooltip" :icon='stat.icon' class='text-gray-400 text-sm' fixed-width aria-hidden='true' />
+                            <span>{{stat.label}}</span>
                         </dt>
+
                         <!-- <Transition name="spin-to-down">
                             <dd :key="fieldSummary.quantity" class="justify-self-end">{{ typeof fieldSummary.quantity === 'number' ? locale.number(0) : null}}</dd>
-                             ddd
+                            ddd
                         </Transition> -->
                         
                         <div class="relative col-span-2 justify-self-end font-medium overflow-hidden">
