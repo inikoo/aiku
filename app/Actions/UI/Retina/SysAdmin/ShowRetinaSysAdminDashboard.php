@@ -9,7 +9,7 @@
 namespace App\Actions\UI\Retina\SysAdmin;
 
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Dashboard\ShowDashboard;
+use App\Actions\UI\Retina\Dashboard\ShowRetinaDashboard;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -61,7 +61,7 @@ class ShowRetinaSysAdminDashboard extends RetinaAction
     {
         return
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowRetinaDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

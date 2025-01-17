@@ -28,7 +28,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class RetinaStorePalletFromDelivery extends RetinaAction
+class StoreRetinaPalletFromDelivery extends RetinaAction
 {
     private PalletDelivery $parent;
 

@@ -6,6 +6,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+/** @noinspection PhpUnhandledExceptionInspection */
 
 use App\Actions\HumanResources\Workplace\StoreWorkplace;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;

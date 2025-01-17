@@ -13,7 +13,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrat
 use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\Search\PalletReturnRecordSearch;
 use App\Actions\Fulfilment\WithDeliverableStoreProcessing;
-use App\Actions\Fulfilment\WithTaxCategoryTraits;
+use App\Actions\Helpers\TaxCategory\GetTaxCategory;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletReturns;
 use App\Actions\RetinaAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletReturns;
@@ -28,7 +28,6 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
-use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
@@ -38,7 +37,6 @@ class StoreRetinaPalletReturn extends RetinaAction
 {
     use WithDeliverableStoreProcessing;
     use WithModelAddressActions;
-    use WithTaxCategoryTraits;
 
     public Customer $customer;
 
@@ -50,9 +48,16 @@ class StoreRetinaPalletReturn extends RetinaAction
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletReturn
     {
-        if (!Arr::exists($modelData, 'tax_category_id')) {
-            $this->processTaxCategory($modelData, $fulfilmentCustomer, $this->organisation);
-        }
+        data_set(
+            $modelData,
+            'tax_category_id',
+            GetTaxCategory::run(
+                country: $fulfilmentCustomer->organisation->country,
+                taxNumber: $fulfilmentCustomer->customer->taxNumber,
+                billingAddress: $fulfilmentCustomer->customer->address,
+                deliveryAddress: $fulfilmentCustomer->customer->address,
+            )->id
+        );
 
         data_set($modelData, 'currency_id', $fulfilmentCustomer->fulfilment->shop->currency_id, overwrite: false);
 

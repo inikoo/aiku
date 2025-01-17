@@ -8,6 +8,7 @@
 
 namespace App\Actions\Accounting\TopUp;
 
+use App\Actions\Accounting\TopUp\Search\TopUpRecordSearch;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateTopUps;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateTopUps;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
@@ -31,8 +32,6 @@ class StoreTopUp extends OrgAction
         data_set($modelData, 'currency_id', $payment->currency_id);
         data_set($modelData, 'customer_id', $payment->customer_id);
         data_set($modelData, 'shop_id', $payment->shop_id);
-
-
 
 
         data_set(
@@ -59,6 +58,8 @@ class StoreTopUp extends OrgAction
         OrganisationHydrateTopUps::dispatch($topUp->organisation)->delay($this->hydratorsDelay);
         GroupHydrateTopUps::dispatch($topUp->group)->delay($this->hydratorsDelay);
 
+        TopUpRecordSearch::dispatch($topUp);
+
         return $topUp;
     }
 
@@ -72,7 +73,7 @@ class StoreTopUp extends OrgAction
         if (!$this->strict) {
             $rules['org_amount'] = ['required', 'numeric'];
             $rules['grp_amount'] = ['required', 'numeric'];
-            $rules = $this->noStrictStoreRules($rules);
+            $rules               = $this->noStrictStoreRules($rules);
         }
 
         return $rules;

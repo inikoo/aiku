@@ -20,7 +20,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class RetinaShowRetinaStorageDashboard
+class ShowRetinaStorageDashboard
 {
     use AsAction;
 

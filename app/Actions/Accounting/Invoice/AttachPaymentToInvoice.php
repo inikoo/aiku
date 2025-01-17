@@ -43,7 +43,7 @@ class AttachPaymentToInvoice extends OrgAction
         }
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'amount'    => ['required', 'numeric'],

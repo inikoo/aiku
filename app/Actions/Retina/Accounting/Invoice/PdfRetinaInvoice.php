@@ -1,12 +1,12 @@
 <?php
 
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 24 Apr 2023 20:23:18 Malaysia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Fri, 17 Jan 2025 08:44:57 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Retina\Accounting;
+namespace App\Actions\Retina\Accounting\Invoice;
 
 use App\Actions\Accounting\Invoice\WithInvoicesExport;
 use App\Actions\RetinaAction;

@@ -15,7 +15,7 @@ use Illuminate\Support\Collection;
 
 class ReindexTopUpSearch extends HydrateModel
 {
-    public string $commandSignature = 'search:topups {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'search:top_ups {organisations?*} {--s|slugs=}';
 
 
     public function handle(TopUp $topUp): void
@@ -36,7 +36,7 @@ class ReindexTopUpSearch extends HydrateModel
 
     protected function loopAll(Command $command): void
     {
-        $command->info("Reindex Topups");
+        $command->info("Reindex Top Ups");
         $count = TopUp::count();
 
         $bar = $command->getOutput()->createProgressBar($count);

@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class RetinaStoreMultiplePalletsFromDelivery extends RetinaAction
+class StoreRetinaMultiplePalletsFromDelivery extends RetinaAction
 {
     private FulfilmentCustomer $fulfilmentCustomer;
 
@@ -32,7 +32,7 @@ class RetinaStoreMultiplePalletsFromDelivery extends RetinaAction
         data_set($modelData, 'warehouse_id', $palletDelivery->warehouse_id);
 
         for ($i = 1; $i <= Arr::get($modelData, 'number_pallets'); $i++) {
-            RetinaStorePalletFromDelivery::run($palletDelivery, Arr::except($modelData, ['number_pallets']));
+            StoreRetinaPalletFromDelivery::run($palletDelivery, Arr::except($modelData, ['number_pallets']));
         }
     }
 

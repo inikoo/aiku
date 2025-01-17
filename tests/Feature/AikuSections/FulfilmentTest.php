@@ -214,7 +214,6 @@ test('update fulfilment settings (monthly cut off day)', function (Fulfilment $f
 
 test('get end date recurring bill (monthly)', function () {
 
-    // fase 1
     $startDate = Carbon::create(2025, 10, 20);
     $endDate = $this->getRecurringBillEndDate->getEndDate(
         $startDate,
@@ -224,15 +223,14 @@ test('get end date recurring bill (monthly)', function () {
         ]
     );
 
-    expect($endDate)->toBeInstanceOf(Carbon::class);
-    expect($endDate->toDateString())->toEqual(now()->copy()->addMonth()->day(9)->toDateString());
+    expect($endDate)->toBeInstanceOf(Carbon::class)
+        ->and($endDate->toDateString())->toEqual(now()->copy()->addMonth()->day(9)->toDateString());
 
     return $endDate;
 });
 
 test('get end date recurring bill (weekly)', function () {
 
-    // fase 1
     $startDate = Carbon::create(2025, 10, 20); // 20 is monday
     $endDate = $this->getRecurringBillEndDate->getEndDate(
         $startDate,
@@ -245,7 +243,6 @@ test('get end date recurring bill (weekly)', function () {
     expect($endDate)->toBeInstanceOf(Carbon::class)
         ->toEqual(Carbon::create(2025, 10, 27));
 
-    // fase 2
     $startDate = Carbon::create(2025, 11, 21); // 21 is friday
     $endDate = $this->getRecurringBillEndDate->getEndDate(
         $startDate,
@@ -682,6 +679,7 @@ test('Fetch new webhook fulfilment customer', function (FulfilmentCustomer $fulf
     expect($webhook)->toHaveKey('webhook_access_key')
         ->and($webhook['webhook_access_key'])->toBeString()
         ->and(strlen($webhook['webhook_access_key']))->toBe(64);
+    /** @var FulfilmentCustomer $updatedFulfilmentCustomer */
     $updatedFulfilmentCustomer = FulfilmentCustomer::find($fulfilmentCustomer->id);
     expect($updatedFulfilmentCustomer->webhook_access_key)->toBe($webhook['webhook_access_key']);
 
@@ -2582,4 +2580,8 @@ test('fulfilment customers search', function () {
     $fulfilmentCustomers = FulfilmentCustomer::first();
     ReindexFulfilmentCustomerSearch::run($fulfilmentCustomers);
     expect($fulfilmentCustomers->universalSearch()->count())->toBe(1);
+});
+
+test('update current recurring bills', function () {
+    $this->artisan('current_recurring_bills:update_temporal_aggregates')->assertExitCode(0);
 });

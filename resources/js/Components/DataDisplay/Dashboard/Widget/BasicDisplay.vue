@@ -5,12 +5,12 @@ import { faCheck, faExclamation, faInfo, faPlay } from "@fas"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { inject, ref } from "vue"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
-import MeterGroup from 'primevue/metergroup';
+import MeterGroup from "primevue/metergroup"
 import { values } from "lodash"
 import ChartDashboardDynamic from "../../ChartDashboardDynamic.vue"
-import Chart from 'primevue/chart'
+import Chart from "primevue/chart"
 import ProgressDashboardCard from "../../ProgressDashboardCard.vue"
-
+import { Link } from "@inertiajs/vue3"
 library.add(faCheck, faExclamation, faInfo, faPlay)
 
 // Props for dynamic behavior
@@ -23,6 +23,7 @@ const props = withDefaults(
 			status: "success" | "warning" | "danger" | "information" | "neutral"
 			type?: "number" | "currency"
 			currency_code?: string
+			route?: {}
 		}
 		visual?: any
 	}>(),
@@ -171,7 +172,10 @@ const printLabelByType = (label?: string) => {
 	}
 }
 
-
+function NumberDashboard(shop: any) {
+	console.log(shop)
+	return route(shop?.name, shop?.parameters)
+}
 // const chartLabels = ["1", "2", "3", "4", "5", "6", "7", "8"]
 // const chartData = [10, 20, 15, 25, 20, 18, 22, 10]
 // const dummyChartData = {
@@ -191,30 +195,48 @@ const printLabelByType = (label?: string) => {
 		<p
 			v-tooltip="printLabelByType(widgetData.value)"
 			class="text-4xl font-bold leading-tight truncate">
-			<CountUp
-				v-if="widgetData.type === 'number'"
-				:endVal="widgetData.value"
-				:duration="1.5"
-				:scrollSpyOnce="true"
-				:options="{
-                    formattingFn: (value: number) => locale.number(value)
-                }" />
+			<!-- Render CountUp if widgetData.type is 'number' -->
+			<template v-if="widgetData.type === 'number'">
+				<Link :href="NumberDashboard(widgetData.route)" v-if="widgetData.route">
+					<CountUp
+						class="primaryLink inline-block"
+						:endVal="widgetData.value"
+						:duration="1.5"
+						:scrollSpyOnce="true"
+						:options="{
+          		formattingFn: (value: number) => locale.number(value)
+     		 }" />
+				</Link>
+				<CountUp
+					v-if="!widgetData.route"
+					:endVal="widgetData.value"
+					:duration="1.5"
+					:scrollSpyOnce="true"
+					:options="{
+          		formattingFn: (value: number) => locale.number(value)
+     		 }" />
+			</template>
 
-			<span v-else>
-				{{ printLabelByType(widgetData.value) }}
-			</span>
+			<template v-else>
+				<Link :href="NumberDashboard(widgetData.route)" class="primaryLink">
+					{{ printLabelByType(widgetData.value) }}
+				</Link>
+			</template>
 		</p>
+
 		<p class="text-base text-gray-500">{{ widgetData.description }}</p>
 
 		<!-- Visual Progress Bar -->
 		<div v-if="visual?.type === 'MeterGroup'" class="mt-3">
 			<ProgressDashboardCard
-			:progressBar="{
-				value: visual.value,
-				max: visual.max,
-				color:visual.color
-			}"
-		/>
+				:progressBar="{
+					value: visual.value,
+					max: visual.max,
+					color: visual.color,
+					routeDashboard: visual.route,
+					right_label: visual.right_label,
+					label: visual.label,
+				}" />
 		</div>
 
 		<!-- Visual Percentage -->
@@ -238,40 +260,48 @@ const printLabelByType = (label?: string) => {
 				" />
 		</div>
 
-		<div v-if="visual?.type === ''"></div>
+		<div v-if="visual?.type === 'number'" class="mt-2">
+			<span class="text-2xl font-bold leading-tight truncate">
+				<Link :href="NumberDashboard(visual.route)">
+					<CountUp
+						class="primaryLink w-10"
+						v-if="visual.type === 'number'"
+						:endVal="visual.value"
+						:duration="1.5"
+						:scrollSpyOnce="true"
+						:options="{
+                    formattingFn: (value: number) => locale.number(value)
+                }" />
+				</Link>
+			</span>
+		</div>
 		<Chart
 			v-else-if="visual?.type == 'pie'"
 			type="pie"
 			:labels="'visual?.label'"
-			:data="visual.value"
-		/>
+			:data="visual.value" />
 
 		<Chart
 			v-else-if="visual?.type == 'bar'"
 			type="bar"
 			:labels="'visual?.label'"
-			:data="visual.value"
-		/>
-		
+			:data="visual.value" />
+
 		<Chart
 			v-else-if="visual?.type == 'line'"
 			type="line"
 			:labels="'visual?.value'"
-			:data="visual.value"
-		/>
+			:data="visual.value" />
 
 		<Chart
 			v-else-if="visual?.type == 'doughnut'"
 			type="doughnut"
 			:labels="'visual?.label'"
-			:data="visual.value"
-		/>
+			:data="visual.value" />
 
 		<!-- <div v-if="visual?.type === 'chart'">
 			<ChartDashboardDynamic :labels="visual?.label" :dataset="visual.value" lineColor="#00D8FF" />
 		</div> -->
-
-		
 
 		<!-- Conditional Red Exclamation Icon -->
 		<div
@@ -286,7 +316,4 @@ const printLabelByType = (label?: string) => {
 		</div>
 	</div>
 </template>
-<style scoped lang="scss">
-
-
-</style>
+<style scoped lang="scss"></style>

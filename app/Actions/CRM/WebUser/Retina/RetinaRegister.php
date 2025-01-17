@@ -23,7 +23,7 @@ use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 
-class Register
+class RetinaRegister
 {
     use AsController;
 

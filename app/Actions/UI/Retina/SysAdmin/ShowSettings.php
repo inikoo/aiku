@@ -10,7 +10,7 @@ namespace App\Actions\UI\Retina\SysAdmin;
 
 use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Dashboard\ShowDashboard;
+use App\Actions\UI\Retina\Dashboard\ShowRetinaDashboard;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -99,7 +99,7 @@ class ShowSettings extends RetinaAction
     {
         return
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowRetinaDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

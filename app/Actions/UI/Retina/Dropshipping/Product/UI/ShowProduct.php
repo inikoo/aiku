@@ -12,7 +12,7 @@ use App\Actions\Catalogue\Product\UI\GetProductShowcase;
 use App\Actions\CRM\Favourite\UI\IndexProductFavourites;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Dashboard\ShowDashboard;
+use App\Actions\UI\Retina\Dashboard\ShowRetinaDashboard;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Http\Resources\Catalogue\ProductFavouritesResource;
 use App\Http\Resources\Sales\OrderResource;
@@ -76,7 +76,7 @@ class ShowProduct extends RetinaAction
     {
         return
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs($routeParameters),
+                ShowRetinaDashboard::make()->getBreadcrumbs($routeParameters),
                 [
                     [
                         'type'   => 'simple',

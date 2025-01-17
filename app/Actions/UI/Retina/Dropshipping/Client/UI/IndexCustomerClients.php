@@ -9,7 +9,7 @@
 namespace App\Actions\UI\Retina\Dropshipping\Client\UI;
 
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Dashboard\ShowDashboard;
+use App\Actions\UI\Retina\Dashboard\ShowRetinaDashboard;
 use App\Http\Resources\CRM\CustomerClientResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
@@ -184,7 +184,7 @@ class IndexCustomerClients extends RetinaAction
     {
         return
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs($routeParameters),
+                ShowRetinaDashboard::make()->getBreadcrumbs($routeParameters),
                 [
                     [
                         'type'   => 'simple',
