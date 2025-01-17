@@ -334,8 +334,9 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
                                 <div class="flex justify-center border border-gray-300 rounded gap-y-1">
                                     <!-- Button: Check -->
                                     <Button v-if="data.type !== 'new_item'"
-                                        @click="() => onChangeQuantity(item.rowIndex, data.stored_item_audit_delta, data.quantity)"
-                                        type="tertiary" icon="fal fa-check-circle" class="border-none rounded-none" />
+                                        @click="() => onStoreStoredItem(item.rowIndex, item.id, data.id, data.quantity)"
+                                        type="tertiary" icon="fal fa-check-circle" class="border-none rounded-none"
+                                    />
 
                                     <!-- Section: - and + -->
                                     <div class="transition-all relative inline-flex items-center justify-center "
