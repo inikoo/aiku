@@ -38,30 +38,23 @@ class ShowRetinaWebUser extends RetinaAction
 
     public function htmlResponse(WebUser $webUser, ActionRequest $request): Response
     {
-        $model = __('User');
-        $iconRight  = [];
-        $subNavigation = [];
+        $iconRight = [];
 
         return Inertia::render(
             'SysAdmin/RetinaWebUser',
             [
-                'title'       => __('User'),
+                'title'       => __('User').': '.$webUser->username,
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
-                    'model'         => $model,
-                    'title'         => $webUser->username,
-                    'subNavigation' => $subNavigation,
-                    'icon'              => 'fal fa-user-circle',
+                    //'model'         => $model,
+                    'title'     => $webUser->username,
+                    'icon'      => 'fal fa-user-circle',
                     'iconRight' => $iconRight,
-                // 'meta'          => [
-                    //     [
-                    //         'name' => $webUser->username
-                    //     ]
-                    // ],
-                    'actions'   => [ [
+                    'actions'   => [
+                        [
                             'type'  => 'button',
                             'style' => 'edit',
                             'route' => [
@@ -73,7 +66,7 @@ class ShowRetinaWebUser extends RetinaAction
                     ],
 
                 ],
-                'data'     => new WebUserResource($webUser)
+                'data'        => new WebUserResource($webUser)
             ]
         );
     }
@@ -114,9 +107,7 @@ class ShowRetinaWebUser extends RetinaAction
         return match ($routeName) {
             'retina.sysadmin.web-users.show' =>
             array_merge(
-                ShowRetinaSysAdminDashboard::make()->getBreadcrumbs(
-                    $routeName
-                ),
+                ShowRetinaSysAdminDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $webUser,
                     [

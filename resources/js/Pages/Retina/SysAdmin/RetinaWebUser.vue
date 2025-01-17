@@ -11,10 +11,8 @@
   import { faGlobe } from '@fal'
   import { capitalize } from "@/Composables/capitalize"
   import { PageHeading as TSPageHeading } from '@/types/PageHeading'
-  import ShowcaseStats from '@/Components/ShowcaseStats.vue'
   import { useFormatTime } from '@/Composables/useFormatTime'
   import { trans } from 'laravel-vue-i18n'
-  import AddressLocation from '@/Components/Elements/Info/AddressLocation.vue'
   import Tag from '@/Components/Tag.vue'
   
   
@@ -48,7 +46,7 @@
           value: '-'
       },
       {
-          label: 'Create At',
+          label: 'Created at',
           key: 'created_At',
           value: useFormatTime(props.data.customer?.created_at)
       },
@@ -74,7 +72,7 @@
   
           <!-- Section: field data -->
           <div>
-              <div class="text-xl font-bold mb-2">{{ trans('Web user details') }}</div>
+              <div class="text-xl font-bold mb-2">{{ trans('User details') }}</div>
               <div class="h-fit w-80 relative grid grid-cols-1 divide-y divide-gray-300 border border-gray-300 rounded-md">
                   <div v-for="(print, index) in dataCompany" class="py-2.5 px-4">
                       <div class="text-gray-400 text-xs">
@@ -88,22 +86,8 @@
               </div>
           </div>
   
-          <!-- Company Data -->
-          <!-- <div class="justify-self-end bg-slate-50 px-6 py-4 space-y-4 w-80 border border-gray-200 rounded-md shadow">
-              <div v-for="print,index in dataCompany" class="">
-                  <div class="font-semibold text-sm">{{ print.label }}</div>
-                  <template v-if="print.key !== 'location'">
-                      <div class="text-gray-500">
-                          {{ print.value }}
-                      </div>
-                  </template>
-                  <div v-else>
-                      <AddressLocation :data="print.value" />
-                  </div>
-              </div>
-          </div> -->
-  
-  
+
+
       </div>
           <!-- <pre>{{ data }}</pre> -->
   </template>

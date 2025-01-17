@@ -48,7 +48,7 @@ const dataCompany = [
         value: '-'
     },
     {
-        label: 'Create At',
+        label: 'Created at',
         key: 'created_At',
         value: useFormatTime(props.data.customer?.created_at)
     },
