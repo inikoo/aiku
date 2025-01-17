@@ -166,7 +166,7 @@ class UpdateRetinaPallet extends RetinaAction
         $this->fulfilment   = $fulfilmentCustomer->fulfilment;
         $this->pallet       = $pallet;
 
-        $this->initialisation($request->get('website')->organisation, $request);
+        $this->initialisation($request);
 
         return $this->handle($pallet, $this->validatedData);
     }
