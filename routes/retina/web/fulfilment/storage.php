@@ -6,8 +6,8 @@
  * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-use App\Actions\Fulfilment\Pallet\DownloadPalletsTemplate;
 use App\Actions\Helpers\Upload\HistoryUploads;
+use App\Actions\Retina\Storage\Pallet\DownloadRetinaPalletsTemplate;
 use App\Actions\Retina\Storage\Pallet\UI\EditRetinaPallet;
 use App\Actions\Retina\Storage\Pallet\UI\IndexRetinaPallets;
 use App\Actions\Retina\Storage\Pallet\UI\ShowRetinaPallet;
@@ -32,7 +32,7 @@ Route::prefix('pallet-deliveries')->as('pallet-deliveries.')->group(function () 
     Route::get('', IndexRetinaPalletDeliveries::class)->name('index');
     Route::get('{palletDelivery}', ShowRetinaPalletDelivery::class)->name('show');
     Route::get('{palletDelivery}/pallets/{pallet}', [ShowRetinaPallet::class, 'inPalletDelivery'])->name('pallets.show');
-    Route::get('{palletDelivery}/pallets-templates', DownloadPalletsTemplate::class)->name('pallets.uploads.templates');
+    Route::get('{palletDelivery}/pallets-templates', DownloadRetinaPalletsTemplate::class)->name('pallets.uploads.templates');
     Route::get('{palletDelivery}/pallets-histories', [HistoryUploads::class, 'inPalletRetina'])->name('pallets.uploads.history');
 });
 
