@@ -78,11 +78,11 @@ class ShowFulfilmentDashboard extends OrgAction
                                 visual: [
                                     'label' => __('Paid'),
                                     'type'  => 'MeterGroup',
-                                    'value' => $fulfilment->shop->orderingStats->number_invoices-$fulfilment->shop->orderingStats->number_unpaid_invoices,
+                                    'value' => $fulfilment->shop->orderingStats->number_invoices - $fulfilment->shop->orderingStats->number_unpaid_invoices,
                                     'max'   => $fulfilment->shop->orderingStats->number_invoices,
                                     'color' => 'bg-blue-500',
-                                    'right_label'=>[
-                                        'label'=>__('Unpaid').' '.$fulfilment->shop->orderingStats->number_unpaid_invoices,
+                                    'right_label' => [
+                                        'label' => __('Unpaid').' '.$fulfilment->shop->orderingStats->number_unpaid_invoices,
                                         'route'         => [
                                             'name'       => 'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.index',
                                             'parameters' => [
