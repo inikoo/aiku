@@ -343,7 +343,7 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
                                     />
 
                                     <!-- Section: - and + -->
-                                    <div class="transition-all relative inline-flex items-center justify-center "
+                                    <div v-if="data.audit_type !== 'no_change'" class="transition-all relative inline-flex items-center justify-center "
                                         :class="!get('statesBoxEdit', `${item.rowIndex}.${data.id}`, false) ? 'w-28' : 'w-14'">
                                         <transition>
                                             <div v-if="!get('statesBoxEdit', `${item.rowIndex}.${data.id}`, false)"
@@ -409,12 +409,7 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
 
                                   <Button
                                     v-else-if="   data.stored_item_audit_delta"
-                                    @click="() => (
-                                            set(data, audited_quantity, get(data, audited_quantity, data.quantity)),
-                                            data.storedItemAuditDelta
-                                                ? debounceChangeQuantity(item.rowIndex, data.storedItemAuditDelta, get(data, audited_quantity, data.quantity))
-                                                : debounceStoreQuantity(item.rowIndex, item.id, data.id, get(data, audited_quantity, data.quantity))
-                                        )"
+                                    @click="() => onUnselectNewStoredItem(item.rowIndex, data.stored_item_audit_delta)"
                                     type="tertiary"
                                     icon="fal fa-undo"
                                     class="border-none rounded-none"
