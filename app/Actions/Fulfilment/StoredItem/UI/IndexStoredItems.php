@@ -13,6 +13,7 @@ use App\Actions\Fulfilment\StoredItemAudit\UI\IndexStoredItemAudits;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
+use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Enums\UI\Fulfilment\StoredItemsInWarehouseTabsEnum;
 use App\Http\Resources\Fulfilment\ReturnStoredItemsResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditsResource;
@@ -139,7 +140,7 @@ class IndexStoredItems extends OrgAction
         // dd($this->parent);
         // dd(StoredItemAuditsResource::collection(IndexStoredItemAudits::run($this->parent)));
         $subNavigation = [];
-
+        $actions = [];
         $icon      = ['fal', 'fa-narwhal'];
         $title     = __("customer's sKUs");
         $afterTitle = null;
@@ -156,6 +157,39 @@ class IndexStoredItems extends OrgAction
 
                 'label'     => __("customer's sKUs")
             ];
+
+
+            if ($this->parent->items_storage) {
+                $openStoredItemAudit = $this->parent->storedItemAudits()->where('state', StoredItemAuditStateEnum::IN_PROCESS)->first();
+
+                if ($openStoredItemAudit) {
+                    $actions[] = [
+                        'type'    => 'button',
+                        'style'   => 'secondary',
+                        'tooltip' => __("Continue customer's SKUs audit"),
+                        'label'   => __("Continue customer's SKUs audit"),
+                        'route'   => [
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.show',
+                            'parameters' => array_merge($request->route()->originalParameters(), ['storedItemAudit' => $openStoredItemAudit->slug])
+                        ]
+                    ];
+                } else {
+                    $actions[] = [
+                        'type'    => 'button',
+                        'tooltip' => __("Start customer's SKUs audit"),
+                        'label'   => __("Start customer's SKUs audit"),
+                        'route'   => [
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.create',
+                            'parameters' => $request->route()->originalParameters()
+                        ]
+                    ];
+                }
+
+
+
+
+
+            }
         }
         return Inertia::render(
             'Org/Fulfilment/StoredItems',
@@ -171,15 +205,7 @@ class IndexStoredItems extends OrgAction
                     'iconRight'     => $iconRight,
                     'icon'          => $icon,
                     'subNavigation' => $subNavigation,
-                    'actions'       => [
-                        'buttons' => [
-                            'route' => [
-                                'name'       => 'grp.org.hr.employees.create',
-                                'parameters' => array_values(request()->route()->originalParameters())
-                            ],
-                            'label' => __("customer's sKUs")
-                        ]
-                    ],
+                    'actions'       => $actions
                 ],
                 'tabs'                                              => [
                     'current'    => $this->tab,

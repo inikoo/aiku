@@ -17,7 +17,6 @@ use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\RetinaAction;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
@@ -30,6 +29,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreRetinaPalletFromDelivery extends RetinaAction
 {
+    private bool $action = false;
     private PalletDelivery $parent;
 
     public function handle(PalletDelivery $palletDelivery, array $modelData): Pallet
@@ -72,12 +72,9 @@ class StoreRetinaPalletFromDelivery extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->asAction) {
+        if ($this->action) {
             return true;
-        }
-
-        if ($request->user() instanceof WebUser) {
-            // TODO: Raul please do the permission for the web user
+        } elseif ($this->customer->id == $request->route()->parameter('palletDelivery')->fulfilmentCustomer->customer_id) {
             return true;
         }
 
@@ -115,10 +112,11 @@ class StoreRetinaPalletFromDelivery extends RetinaAction
 
     public function action(PalletDelivery $palletDelivery, array $modelData, int $hydratorsDelay = 0): Pallet
     {
-        $this->asAction       = true;
-        $this->hydratorsDelay = $hydratorsDelay;
-        $this->parent         = $palletDelivery;
-        $this->initialisation($modelData);
+        $this->action                 = true;
+        $this->hydratorsDelay         = $hydratorsDelay;
+        $this->parent                 = $palletDelivery;
+        $fulfilmentCustomer           = $palletDelivery->fulfilmentCustomer;
+        $this->actionInitialisation($fulfilmentCustomer, $modelData);
 
         return $this->handle($palletDelivery, $this->validatedData);
     }

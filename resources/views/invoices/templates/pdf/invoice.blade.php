@@ -292,9 +292,9 @@
         <td style="text-align:right">
             {{ $payment->updated_at->format('F j, Y H:i a') }}
         </td>
-        <td style="text-align:left">{{ $payment->state }}</td>
+        <td style="text-align:left">{{ $payment->state->labels()[$payment->state->value] }}</td>
         <td style="text-align:left">{{ $payment->reference }}</td>
-        <td style="text-align:right">{{ $payment->amount }}</td>
+        <td style="text-align:right">{{ $invoice->currency->symbol . $payment->amount }}</td>
     </tr>
     @endforeach
     </tbody>
