@@ -132,7 +132,7 @@ provide('isPreviewMode', isPreviewMode)
 
             <!-- Footer --> 
              <component
-                v-if="footer?.data"
+                v-if="footer.data.data"
                 :is="isPreviewMode || route().current() == 'grp.websites.preview' ? getIrisComponent(footer.data.code) : getComponent(footer.data.code)"
                 v-model="footer.data.data.fieldValue"
                 @update:model-value="updateData(footer.data)"
