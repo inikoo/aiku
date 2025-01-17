@@ -7,7 +7,7 @@
  * copyright 2025
 */
 
-namespace App\Actions\UI\Retina\SysAdmin;
+namespace App\Actions\Retina\SysAdmin;
 
 use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\Helpers\Address\UpdateAddress;

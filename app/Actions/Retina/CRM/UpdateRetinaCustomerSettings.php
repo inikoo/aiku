@@ -13,7 +13,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Models\CRM\Customer;
 use Lorisleiva\Actions\ActionRequest;
 
-class RetinaUpdateCustomerSettings extends RetinaAction
+class UpdateRetinaCustomerSettings extends RetinaAction
 {
     use WithActionUpdate;
 

@@ -53,7 +53,7 @@ class DetachRetinaPalletFromReturn extends RetinaAction
         return true;
     }
 
-    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, Pallet $pallet, ActionRequest $request): bool
+    public function asController(PalletReturn $palletReturn, Pallet $pallet, ActionRequest $request): bool
     {
         $this->initialisation($request);
 

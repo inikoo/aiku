@@ -18,7 +18,7 @@ use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\FulfilmentTransaction;
 use Lorisleiva\Actions\ActionRequest;
 
-class RetinaDeleteFulfilmentTransaction extends RetinaAction
+class DeleteRetinaFulfilmentTransaction extends RetinaAction
 {
     use WithActionUpdate;
 
