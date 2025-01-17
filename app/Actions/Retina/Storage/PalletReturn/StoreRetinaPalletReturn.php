@@ -21,9 +21,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletReturns
 use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
-use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Inventory\Warehouse;
@@ -113,6 +111,23 @@ class StoreRetinaPalletReturn extends RetinaAction
         } else {
             $this->set('type', PalletReturnTypeEnum::PALLET);
         }
+    }
+
+    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletReturn
+    {
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $this->action = true;
+        $this->actionInitialisation($fulfilmentCustomer, $modelData);
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
+    }
+
+    public function actionFromRetinaWithStoredItems(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletReturn
+    {
+        $this->withStoredItems = true;
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $this->action = true;
+        $this->actionInitialisation($fulfilmentCustomer, $modelData);
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
 
