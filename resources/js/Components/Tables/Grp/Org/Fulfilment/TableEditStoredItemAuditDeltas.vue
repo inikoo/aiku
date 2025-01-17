@@ -404,7 +404,7 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
                                     />
 
                                   <Button
-                                    v-else-if="  data.audited_quantity == data.quantity && data.stored_item_audit_delta"  "
+                                    v-else-if="   data.stored_item_audit_delta"
                                     @click="() => (
                                             set(data, audited_quantity, get(data, audited_quantity, data.quantity)),
                                             data.storedItemAuditDelta
