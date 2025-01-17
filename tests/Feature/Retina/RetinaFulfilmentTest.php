@@ -42,7 +42,6 @@ use App\Models\Fulfilment\RentalAgreement;
 use App\Models\Helpers\Upload;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Lorisleiva\Actions\ActionRequest;
 
 use function Pest\Laravel\actingAs;
 
@@ -144,7 +143,7 @@ test('Create Retina Pallet Delivery', function () {
     $palletDelivery = StoreRetinaPalletDelivery::make()->action($fulfilmentCustomer, []);
 
     $fulfilmentCustomer->refresh();
-    
+
     expect($palletDelivery)->toBeInstanceOf(PalletDelivery::class)
         ->and($fulfilmentCustomer->number_pallet_deliveries)->toBe(1);
 
@@ -229,7 +228,7 @@ test('Import Pallet (xlsx) for Pallet Delivery', function (PalletDelivery $palle
 
 test('Submit Retina Pallet Delivery', function (PalletDelivery $palletDelivery) {
     $palletDelivery = SubmitRetinaPalletDelivery::make()->action($palletDelivery, []);
-    $fulfilmentCustomer= $palletDelivery->fulfilmentCustomer;
+    $fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
     $palletDelivery->refresh();
     $fulfilmentCustomer->refresh();
 

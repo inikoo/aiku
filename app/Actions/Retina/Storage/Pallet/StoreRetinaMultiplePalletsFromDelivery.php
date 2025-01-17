@@ -11,7 +11,6 @@ namespace App\Actions\Retina\Storage\Pallet;
 
 use App\Actions\RetinaAction;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Inventory\Warehouse;

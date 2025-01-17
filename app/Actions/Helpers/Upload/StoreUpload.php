@@ -38,8 +38,7 @@ class StoreUpload extends OrgAction
         if (!Arr::exists($modelData, 'user_id')) {
             /** @var User $user */
             $user = UserResolver::resolve();
-            if($user instanceof User)
-            {
+            if ($user instanceof User) {
                 data_set($modelData, 'user_id', $user->id);
             }
         }

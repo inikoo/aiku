@@ -22,7 +22,6 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\PalletDelivery;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\ActionRequest;
@@ -67,7 +66,7 @@ class SubmitRetinaPalletDelivery extends RetinaAction
             return true;
         } elseif ($this->customer->id == $request->route()->parameter('palletDelivery')->fulfilmentCustomer->customer_id) {
             return true;
-        } 
+        }
     }
 
     public function jsonResponse(PalletDelivery $palletDelivery): JsonResource
