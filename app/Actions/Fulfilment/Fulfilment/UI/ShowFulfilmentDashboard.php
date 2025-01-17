@@ -133,9 +133,15 @@ class ShowFulfilmentDashboard extends OrgAction
                                     'value'       => $fulfilment->stats->number_customers_status_active,
                                     'description' => __('Active Customers'),
                                     'type'        => 'number',
+                                    'route'         => [
+                                        'name'       => 'grp.org.fulfilments.show.crm.customers.index',
+                                        'parameters' => [
+                                            $fulfilment->organisation->slug,
+                                            $fulfilment->slug
+                                        ]
+                                    ]
                                 ]
                             ),
-
 
 //                            $this->getWidget(
 //                                colSpan: 2,
