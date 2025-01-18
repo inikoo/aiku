@@ -8,6 +8,7 @@
 
 namespace App\Actions\UI\Retina\Storage\UI;
 
+use App\Actions\RetinaAction;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
@@ -18,16 +19,17 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowRetinaStorageDashboard
+class ShowRetinaStorageDashboard extends RetinaAction
 {
-    use AsAction;
-
-
-    public function asController(ActionRequest $request): Response
+    public function asController(ActionRequest $request): FulfilmentCustomer
     {
-        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
+        $this->initialisation($request);
+        return $this->customer->fulfilmentCustomer;
+    }
+
+    public function htmlResponse(FulfilmentCustomer $fulfilmentCustomer): Response
+    {
 
         $clauses = null;
         foreach ($fulfilmentCustomer->rentalAgreementClauses as $clause) {
@@ -64,13 +66,13 @@ class ShowRetinaStorageDashboard
         ]);
     }
 
-    public function getDashboardData(FulfilmentCustomer $parent): array
+    public function getDashboardData(FulfilmentCustomer $fulfilmentCustomer): array
     {
         $stats = [];
 
         $stats['pallets'] = [
             'label'         => __('Pallet'),
-            'count'         => $parent->number_pallets,
+            'count'         => $fulfilmentCustomer->number_pallets,
             'description'   => __('in warehouse'),
         ];
 
@@ -78,33 +80,33 @@ class ShowRetinaStorageDashboard
             $stats['pallets']['state'][$case->value] = [
                 'value' => $case->value,
                 'icon'  => PalletStateEnum::stateIcon()[$case->value],
-                'count' => PalletStateEnum::count($parent)[$case->value] ?? 0,
+                'count' => PalletStateEnum::count($fulfilmentCustomer)[$case->value] ?? 0,
                 'label' => PalletStateEnum::labels()[$case->value]
             ];
         }
 
         $stats['pallet_deliveries'] = [
             'label' => __('Pallet Delivery'),
-            'count' => $parent->number_pallet_deliveries
+            'count' => $fulfilmentCustomer->number_pallet_deliveries
         ];
         foreach (PalletDeliveryStateEnum::cases() as $case) {
             $stats['pallet_deliveries']['cases'][$case->value] = [
                 'value' => $case->value,
                 'icon'  => PalletDeliveryStateEnum::stateIcon()[$case->value],
-                'count' => PalletDeliveryStateEnum::count($parent)[$case->value],
+                'count' => PalletDeliveryStateEnum::count($fulfilmentCustomer)[$case->value],
                 'label' => PalletDeliveryStateEnum::labels()[$case->value]
             ];
         }
 
         $stats['pallet_returns'] = [
             'label' => __('Pallet Return'),
-            'count' => $parent->number_pallet_returns
+            'count' => $fulfilmentCustomer->number_pallet_returns
         ];
         foreach (PalletReturnStateEnum::cases() as $case) {
             $stats['pallet_returns']['cases'][$case->value] = [
                 'value' => $case->value,
                 'icon'  => PalletReturnStateEnum::stateIcon()[$case->value],
-                'count' => PalletReturnStateEnum::count($parent)[$case->value],
+                'count' => PalletReturnStateEnum::count($fulfilmentCustomer)[$case->value],
                 'label' => PalletReturnStateEnum::labels()[$case->value]
             ];
         }
