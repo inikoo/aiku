@@ -1,35 +1,32 @@
 <?php
 
 /*
- * author Arya Permana - Kirin
- * created on 10-01-2025-14h-11m
- * github: https://github.com/KirinZero0
- * copyright 2025
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 19 Jan 2025 01:27:54 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
+ */
 
-namespace App\Actions\UI\Retina\Asset\UI;
+namespace App\Actions\Retina\Storage\UI;
 
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
 use App\Http\Resources\Helpers\CurrencyResource;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class IndexRetinaAssets extends RetinaAction
+class IndexRetinaPricing extends RetinaAction
 {
-    public function asController(ActionRequest $request)
+    public function asController(ActionRequest $request):FulfilmentCustomer
     {
         $this->initialisation($request);
 
-        return $this->handle($request);
+        return $this->customer->fulfilmentCustomer;
     }
 
-    public function handle(ActionRequest $request): Response
+    public function htmlResponse(FulfilmentCustomer $fulfilmentCustomer): Response
     {
-        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
-        $fulfilment = $fulfilmentCustomer->fulfilment;
-        $shop = $fulfilment->shop;
+        $shop = $this->shop;
 
 
         $assets = [];
@@ -46,18 +43,18 @@ class IndexRetinaAssets extends RetinaAction
         }
 
         return Inertia::render(
-            'Storage/RetinaStorageAssets',
+            'Storage/RetinaStoragePricing',
             [
-                'title'                         => __('Assets'),
+                'title'                         => __('Pricing'),
                 'breadcrumbs'                   => $this->getBreadcrumbs(
                     request()->route()->getName(),
                 ),
                 'pageHead'                      => [
                     'icon'          => [
-                        'icon'    => ['fal', 'fa-pallet'],
-                        'tooltip' => __('Pallet')
+                        'icon'    => ['fal', 'fa-usd-circle'],
+                        'tooltip' => __('Prices')
                     ],
-                    'title'         => 'Assets',
+                    'title'         => 'Prices',
                 ],
                 'currency'     => CurrencyResource::make($fulfilmentCustomer->fulfilment->shop->currency),
 
@@ -69,7 +66,7 @@ class IndexRetinaAssets extends RetinaAction
     public function getBreadcrumbs(string $routeName): array
     {
         return match ($routeName) {
-            'retina.fulfilment.storage.assets.index' =>
+            'retina.fulfilment.pricing' =>
             array_merge(
                 ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
                 [
@@ -77,9 +74,9 @@ class IndexRetinaAssets extends RetinaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'retina.fulfilment.storage.assets.index',
+                                'name'       => 'retina.fulfilment.pricing',
                             ],
-                            'label' => __('assets'),
+                            'label' => __('Prices'),
                             'icon'  => 'fal fa-bars',
                         ],
 

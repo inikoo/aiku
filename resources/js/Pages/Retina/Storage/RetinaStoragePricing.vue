@@ -8,10 +8,9 @@ import { inject } from 'vue'
 
 import DataTable from "primevue/datatable"
 import Column from "primevue/column"
-import Row from "primevue/row"
-import { data } from '../../../Components/CMS/Website/Product/ProductTemplates/Product2/Descriptor';
 
-const props = defineProps<{
+
+defineProps<{
     title: string
     pageHead : PageHeadingTypes
     assets: {

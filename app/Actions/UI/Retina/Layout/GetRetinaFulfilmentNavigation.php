@@ -20,7 +20,6 @@ class GetRetinaFulfilmentNavigation
         $groupNavigation = [];
 
 
-
         $additionalSubsections = [];
 
         if ($webUser?->customer?->fulfilmentCustomer?->number_pallets_status_storing) {
@@ -30,7 +29,7 @@ class GetRetinaFulfilmentNavigation
                     'icon'  => ['fal', 'fa-truck-ramp'],
                     'root'  => 'retina.fulfilment.storage.pallet-returns.',
                     'route' => [
-                        'name'       => 'retina.fulfilment.storage.pallet-returns.index'
+                        'name' => 'retina.fulfilment.storage.pallet-returns.index'
                     ]
                 ]
             ];
@@ -42,7 +41,7 @@ class GetRetinaFulfilmentNavigation
                 'icon'  => ['fal', 'fa-barcode'],
                 'root'  => 'retina.fulfilment.storage.stored-items.',
                 'route' => [
-                    'name'       => 'retina.fulfilment.storage.stored-items.index'
+                    'name' => 'retina.fulfilment.storage.stored-items.index'
                 ]
             ];
 
@@ -51,7 +50,7 @@ class GetRetinaFulfilmentNavigation
                 'icon'  => ['fal', 'fa-ballot-check'],
                 'root'  => 'retina.fulfilment.storage.stored-items-audits.',
                 'route' => [
-                    'name'       => 'retina.fulfilment.storage.stored-items-audits.index'
+                    'name' => 'retina.fulfilment.storage.stored-items-audits.index'
                 ]
             ];
         }
@@ -71,7 +70,7 @@ class GetRetinaFulfilmentNavigation
                         'icon'  => ['fal', 'fa-pallet'],
                         'root'  => 'retina.fulfilment.storage.pallets.',
                         'route' => [
-                            'name'       => 'retina.fulfilment.storage.pallets.index'
+                            'name' => 'retina.fulfilment.storage.pallets.index'
                         ]
                     ],
                     [
@@ -79,23 +78,39 @@ class GetRetinaFulfilmentNavigation
                         'icon'  => ['fal', 'fa-truck'],
                         'root'  => 'retina.fulfilment.storage.pallet-deliveries.',
                         'route' => [
-                            'name'       => 'retina.fulfilment.storage.pallet-deliveries.index'
+                            'name' => 'retina.fulfilment.storage.pallet-deliveries.index'
                         ]
                     ],
                     ...$additionalSubsections,
 
 
-                    [
-                        'label' => __('Pricing'),
-                        'icon'  => ['fal', 'fa-usd-circle'],
-                        'root'  => 'retina.fulfilment.storage.assets.',
-                        'route' => [
-                            'name'       => 'retina.fulfilment.storage.assets.index'
-                        ]
-                    ],
                 ]
             ]
         ];
+
+        $groupNavigation['pricing'] = [
+            'label'   => __('Pricing'),
+            'icon'    => ['fal', 'fa-usd-circle'],
+            'root'    => 'retina.fulfilment.pricing',
+            'route'   => [
+                'name' => 'retina.fulfilment.pricing'
+            ],
+            'topMenu' => [
+
+
+                [
+                    'label' => __('Pricing'),
+                    'icon'  => ['fal', 'fa-usd-circle'],
+                    'root'  => 'retina.fulfilment.pricing',
+                    'route' => [
+                        'name' => 'retina.fulfilment.storage.pricing'
+                    ]
+                ],
+            ]
+
+        ];
+
+
         /*$groupNavigation['dropshipping'] = [
             'label'   => __('Dropshipping'),
             'icon'    => ['fal', 'fa-hand-holding-box'],
@@ -161,9 +176,6 @@ class GetRetinaFulfilmentNavigation
 
 
         if ($webUser->is_root) {
-
-
-
             $groupNavigation['sysadmin'] = [
                 'label'   => __('manage account'),
                 'icon'    => ['fal', 'fa-users-cog'],
@@ -195,7 +207,6 @@ class GetRetinaFulfilmentNavigation
                     ]
                 ]
             ];
-
             /*            $groupNavigation['dropshipping'] = [
                             'label'   => __('Dropshipping'),
                             'icon'    => ['fal', 'fa-parachute-box'],
@@ -217,7 +228,6 @@ class GetRetinaFulfilmentNavigation
                                 ]
                             ]
                         ];*/
-
         }
 
 

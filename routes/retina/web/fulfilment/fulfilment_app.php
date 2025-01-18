@@ -7,6 +7,7 @@
  */
 
 
+use App\Actions\Retina\Storage\UI\IndexRetinaPricing;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', 'storage/dashboard');
@@ -18,3 +19,5 @@ Route::prefix("storage")
 Route::prefix("billing")
     ->name("billing.")
     ->group(__DIR__."/billing.php");
+
+\Route::get('pricing', IndexRetinaPricing::class)->name('pricing');

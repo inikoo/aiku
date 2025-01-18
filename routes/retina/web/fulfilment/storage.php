@@ -20,8 +20,8 @@ use App\Actions\Retina\Storage\PalletReturn\UI\ShowRetinaPalletReturn;
 use App\Actions\Retina\Storage\StoredItems\UI\IndexRetinaStoredItems;
 use App\Actions\Retina\Storage\StoredItemsAudit\UI\IndexRetinaStoredItemsAudits;
 use App\Actions\Retina\Storage\StoredItemsAudit\UI\ShowRetinaStoredItemAudit;
-use App\Actions\UI\Retina\Asset\UI\IndexRetinaAssets;
-use App\Actions\UI\Retina\Storage\UI\ShowRetinaStorageDashboard;
+use App\Actions\Retina\Storage\UI\IndexRetinaPricing;
+use App\Actions\Retina\Storage\UI\ShowRetinaStorageDashboard;
 
 Route::redirect('/', 'dashboard');
 
@@ -52,4 +52,3 @@ Route::get('stored-items', IndexRetinaStoredItems::class)->name('stored-items.in
 Route::get('stored-items-audits', IndexRetinaStoredItemsAudits::class)->name('stored-items-audits.index');
 Route::get('stored-items-audits/{storedItemAudit}', ShowRetinaStoredItemAudit::class)->name('stored-items-audits.show');
 
-Route::get('assets', IndexRetinaAssets::class)->name('assets.index');
