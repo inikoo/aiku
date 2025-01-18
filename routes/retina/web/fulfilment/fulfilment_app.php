@@ -16,6 +16,10 @@ Route::prefix("storage")
     ->name("storage.")
     ->group(__DIR__."/storage.php");
 
+Route::prefix("itemised-storage")
+    ->name("itemised_storage.")
+    ->group(__DIR__."/stored_items.php");
+
 Route::prefix("billing")
     ->name("billing.")
     ->group(__DIR__."/billing.php");

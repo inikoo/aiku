@@ -93,18 +93,10 @@ class IndexRetinaStoredItems extends RetinaAction
             'Storage/RetinaStoredItems',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __("customer's sKUs"),
+                'title'       => __("SKUs"),
                 'pageHead'    => [
-                    'title'   => __("customer's sKUs"),
-                    'actions' => [
-                        'buttons' => [
-                            'route' => [
-                                'name'       => 'grp.org.hr.employees.create',
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ],
-                            'label' => __("customer's sKUs")
-                        ]
-                    ],
+                    'title'   => __("SKUs"),
+
                 ],
                 'data' => StoredItemResource::collection($storedItems),
             ]
@@ -131,7 +123,7 @@ class IndexRetinaStoredItems extends RetinaAction
                         'route' => [
                             'name' => 'retina.fulfilment.storage.stored-items.index'
                         ],
-                        'label' => __("customer's sKUs"),
+                        'label' => __("SKUs"),
                         'icon'  => 'fal fa-bars',
                     ],
 

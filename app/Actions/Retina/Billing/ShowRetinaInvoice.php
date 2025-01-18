@@ -10,6 +10,7 @@ namespace App\Actions\Retina\Billing;
 
 use App\Actions\Retina\Accounting\Invoice\Transaction\UI\IndexRetinaInvoiceTransactions;
 use App\Actions\Retina\Accounting\Payment\UI\IndexRetinaPayments;
+use App\Actions\Retina\Billing\UI\ShowRetinaBillingDashboard;
 use App\Actions\RetinaAction;
 use App\Enums\UI\Accounting\InvoiceTabsEnum;
 use App\Http\Resources\Accounting\InvoiceResource;
@@ -51,6 +52,7 @@ class ShowRetinaInvoice extends RetinaAction
             [
                 'title'       => __('invoice'),
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $invoice,
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
@@ -166,10 +168,55 @@ class ShowRetinaInvoice extends RetinaAction
 
 
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
+
+    public function getBreadcrumbs(Invoice $invoice, string $routeName, array $routeParameters, string $suffix = ''): array
     {
-        return [];
+        $headCrumb = function (Invoice $invoice, array $routeParameters, string $suffix) {
+            return [
+                [
+
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => $routeParameters['index'],
+                            'label' => __('Invoices')
+                        ],
+                        'model' => [
+                            'route' => $routeParameters['model'],
+                            'label' => $invoice->reference,
+                        ],
+
+                    ],
+                    'suffix'         => $suffix
+
+                ],
+            ];
+        };
+
+
+        return match ($routeName) {
+            'retina.fulfilment.billing.invoices.show' =>
+            array_merge(
+                ShowRetinaBillingDashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    $invoice,
+                    [
+                        'index' => [
+                            'name'       => 'retina.fulfilment.billing.invoices.index',
+                            'parameters' => $routeParameters
+                        ],
+                        'model' => [
+                            'name'       => 'retina.fulfilment.billing.invoices.show',
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix
+                ),
+            ),
+            default => []
+        };
     }
+
 
     public function getPrevious(Invoice $invoice, ActionRequest $request): ?array
     {

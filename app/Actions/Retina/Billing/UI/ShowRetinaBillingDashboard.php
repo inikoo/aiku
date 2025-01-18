@@ -34,6 +34,7 @@ class ShowRetinaBillingDashboard
             'Billing/RetinaBillingDashboard',
             [
                 'title'       => __('Billing'),
+                'breadcrumbs'    => $this->getBreadcrumbs(),
                 'pageHead'    => [
                     'icon'      => [
                         'icon'  => ['fal', 'fa-file-invoice-dollar'],
@@ -116,7 +117,7 @@ class ShowRetinaBillingDashboard
                             'route' => [
                                 'name' => 'retina.fulfilment.billing.dashboard'
                             ],
-                            'label'  => __(' Billing'),
+                            'label'  => __('Billing'),
                         ]
                     ]
                 ]

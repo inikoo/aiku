@@ -12,7 +12,6 @@ use App\Actions\Retina\Billing\UI\ShowRetinaBillingDashboard;
 use App\Actions\RetinaAction;
 use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
-use App\Http\Resources\Fulfilment\RecurringBillResource;
 use App\Http\Resources\Fulfilment\RecurringBillTransactionsResource;
 use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Fulfilment\RecurringBill;
@@ -44,10 +43,6 @@ class ShowRetinaCurrentRecurringBill extends RetinaAction
         $navigation = RecurringBillTabsEnum::navigation();
         unset($navigation[RecurringBillTabsEnum::HISTORY->value]);
 
-        $palletPriceTotal = 0;
-        foreach ($recurringBill->transactions()->where('item_type', 'Pallet') as $transaction) {
-            $palletPriceTotal += $transaction->item->rental->price;
-        }
 
         $showGrossAndDiscount = $recurringBill->gross_amount !== $recurringBill->net_amount;
 
@@ -62,7 +57,7 @@ class ShowRetinaCurrentRecurringBill extends RetinaAction
                             'icon'  => ['fa', 'fa-receipt'],
                             'title' => __('recurring bill')
                         ],
-                    'model' => __(' Bill'),
+                    'model' => __('Bill'),
                     'title' => $recurringBill->slug
                 ],
                 'timeline_rb' => [
@@ -78,15 +73,6 @@ class ShowRetinaCurrentRecurringBill extends RetinaAction
                         'number_stored_items' => $recurringBill->stats->number_transactions_type_stored_items,
                     ],
                     'order_summary' => [
-                        // [
-                        //     [
-                        //         "label"         => __("total"),
-                        //         'price_gross'   => $recurringBill->gross_amount,
-                        //         'price_net'     => $recurringBill->net_amount,
-                        //         "price_total"   => $recurringBill->total_amount,
-                        //         // "information" => 777777,
-                        //     ],
-                        // ],
                         [
                             [
                                 'label'       => __('Pallets'),
@@ -103,12 +89,6 @@ class ShowRetinaCurrentRecurringBill extends RetinaAction
                                 'price_base'  => __('Multiple'),
                                 'price_total' => $recurringBill->goods_amount
                             ],
-                            // [
-                            //     'label'         => __("Customer'S SKUs"),
-                            //     'quantity'      => $recurringBill->stats->number_transactions_type_stored_items ?? 0,
-                            //     'price_base'    => __('Multiple'),
-                            //     'price_total'   => 1111111
-                            // ],
                         ],
                         $showGrossAndDiscount ? [
                             [
@@ -174,13 +154,10 @@ class ShowRetinaCurrentRecurringBill extends RetinaAction
     }
 
 
-    public function jsonResponse(RecurringBill $recurringBill): RecurringBillResource
-    {
-        return new RecurringBillResource($recurringBill);
-    }
 
     public function getBreadcrumbs(): array
     {
+
         return array_merge(
             ShowRetinaBillingDashboard::make()->getBreadcrumbs(),
             [

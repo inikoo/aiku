@@ -8,6 +8,7 @@
 
 namespace App\Actions\Retina\Fulfilment\UI;
 
+use App\Actions\Retina\UI\Dashboard\ShowRetinaDashboard;
 use App\Actions\RetinaAction;
 use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -17,7 +18,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class IndexRetinaPricing extends RetinaAction
 {
-    public function asController(ActionRequest $request):FulfilmentCustomer
+    public function asController(ActionRequest $request): FulfilmentCustomer
     {
         $this->initialisation($request);
 
@@ -65,10 +66,9 @@ class IndexRetinaPricing extends RetinaAction
 
     public function getBreadcrumbs(string $routeName): array
     {
-        return match ($routeName) {
-            'retina.fulfilment.pricing' =>
+        return
             array_merge(
-                ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+                ShowRetinaDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',
@@ -77,12 +77,12 @@ class IndexRetinaPricing extends RetinaAction
                                 'name'       => 'retina.fulfilment.pricing',
                             ],
                             'label' => __('Prices'),
-                            'icon'  => 'fal fa-bars',
-                        ],
-
+                        ]
                     ]
                 ]
-            ),
-        };
+            );
+
+
+
     }
 }

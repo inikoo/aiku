@@ -5,7 +5,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue"
 
 import { useTabChange } from "@/Composables/tab-change"
 import { capitalize } from "@/Composables/capitalize"
-import { computed, defineAsyncComponent, ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { Component } from 'vue'
 import RecurringBillTransactions from '@/Pages/Grp/Org/Fulfilment/RecurringBillTransactions.vue'
 import BoxStatsRecurringBills from '@/Components/Fulfilment/BoxStatsRecurringBills.vue'
@@ -17,8 +17,6 @@ import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import { BoxStats } from '@/types/Pallet'
 
-// import FileShowcase from '@/xxxxxxxxxxxx'
-import { Currency } from '@/types/LayoutRules';
 
 const props = defineProps<{
     title: string,
@@ -45,7 +43,6 @@ const component = computed(() => {
         transactions: RecurringBillTransactions,
         history: TableHistories,
         request_logs: TableUserRequestLogs,
-        // showcase: FileShowcase
     }
 
     return components[currentTab.value]

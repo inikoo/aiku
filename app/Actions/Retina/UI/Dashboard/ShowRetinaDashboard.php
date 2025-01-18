@@ -25,7 +25,7 @@ class ShowRetinaDashboard
             'Dashboard/RetinaDashboard',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->originalParameters()
+                    __('Home')
                 ),
             ]
         );
@@ -39,7 +39,7 @@ class ShowRetinaDashboard
                 'type'   => 'simple',
                 'simple' => [
                     'icon'  => 'fal fa-home',
-                    'label' => 'Dashboard',
+                    'label' => $label,
                     'route' => [
                         'name' => 'retina.dashboard.show'
                     ]

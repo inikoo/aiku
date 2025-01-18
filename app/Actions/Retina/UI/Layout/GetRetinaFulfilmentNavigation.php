@@ -20,6 +20,21 @@ class GetRetinaFulfilmentNavigation
         $groupNavigation = [];
 
 
+        $groupNavigation['home'] = [
+            'label'   => __('Home'),
+            'icon'    => ['fal', 'fa-home'],
+            'root'    => 'retina.dashboard.show',
+            'route'   => [
+                'name' => 'retina.dashboard.show'
+            ],
+            'topMenu' => [
+
+
+            ]
+
+        ];
+
+
         $additionalSubsections = [];
 
         if ($webUser?->customer?->fulfilmentCustomer?->number_pallets_status_storing) {
@@ -35,30 +50,11 @@ class GetRetinaFulfilmentNavigation
             ];
         }
 
-        if ($webUser->customer->fulfilmentCustomer->items_storage) {
-            $additionalSubsections[] = [
-                'label' => __('SKUs'),
-                'icon'  => ['fal', 'fa-barcode'],
-                'root'  => 'retina.fulfilment.storage.stored-items.',
-                'route' => [
-                    'name' => 'retina.fulfilment.storage.stored-items.index'
-                ]
-            ];
-
-            $additionalSubsections[] = [
-                'label' => __('SKU audits'),
-                'icon'  => ['fal', 'fa-ballot-check'],
-                'root'  => 'retina.fulfilment.storage.stored-items-audits.',
-                'route' => [
-                    'name' => 'retina.fulfilment.storage.stored-items-audits.index'
-                ]
-            ];
-        }
 
 
         $groupNavigation['storage'] = [
-            'label'   => __('Dashboard'),
-            'icon'    => ['fal', 'fa-tachometer-alt'],
+            'label'   => __('Storage'),
+            'icon'    => ['fal', 'fa-pallet'],
             'root'    => 'retina.fulfilment.storage.',
             'route'   => [
                 'name' => 'retina.fulfilment.storage.dashboard'
@@ -87,6 +83,39 @@ class GetRetinaFulfilmentNavigation
                 ]
             ]
         ];
+
+        if ($webUser->customer->fulfilmentCustomer->items_storage) {
+            $groupNavigation['stored_items'] = [
+                'label'   => __('Skus'),
+                'icon'    => ['fal', 'fa-barcode'],
+                'root'    => 'retina.fulfilment.itemised_storage.',
+                'route'   => [
+                    'name' => 'retina.fulfilment.itemised_storage.stored_items.index'
+                ],
+                'topMenu' => [
+                    'subSections' => [
+
+                        [
+                            'label' => __('SKUs'),
+                            'icon'  => ['fal', 'fa-barcode'],
+                            'root'  => 'retina.fulfilment.itemised_storage.stored_items.',
+                            'route' => [
+                                'name' => 'retina.fulfilment.itemised_storage.stored_items.index'
+                            ]
+                        ],
+                        [
+                            'label' => __('Audits'),
+                            'icon'  => ['fal', 'fa-ballot-check'],
+                            'root'  => 'retina.fulfilment.itemised_storage.stored_items_audits.index',
+                            'route' => [
+                                'name' => 'retina.fulfilment.itemised_storage.stored_items_audits.index'
+                            ]
+                        ]
+
+                    ]
+                ]
+            ];
+        }
 
         $groupNavigation['pricing'] = [
             'label'   => __('Pricing'),

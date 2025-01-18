@@ -8,6 +8,7 @@
 
 namespace App\Actions\Retina\Billing;
 
+use App\Actions\Retina\Billing\UI\ShowRetinaBillingDashboard;
 use App\Actions\RetinaAction;
 use App\Http\Resources\Accounting\InvoicesResource;
 use App\InertiaTable\InertiaTable;
@@ -266,10 +267,7 @@ class IndexRetinaInvoices extends RetinaAction
         return Inertia::render(
             'Billing/RetinaInvoices',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $routeName,
-                    $routeParameters
-                ),
+                'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('invoices'),
                 'pageHead'    => [
 
@@ -295,8 +293,23 @@ class IndexRetinaInvoices extends RetinaAction
         return $this->handle($this->parent);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(): array
     {
-        return [];
+        return array_merge(
+            ShowRetinaBillingDashboard::make()->getBreadcrumbs(),
+            [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => [
+                            'name' => 'retina.fulfilment.billing.invoices.index',
+                        ],
+                        'label' => __('Invoices'),
+                        'icon'  => 'fal fa-bars',
+                    ],
+
+                ]
+            ]
+        );
     }
 }

@@ -68,7 +68,7 @@ class ShowRetinaSysAdminDashboard extends RetinaAction
                             'route' => [
                                 'name' => 'retina.sysadmin.dashboard'
                             ],
-                            'label' => __(' Account'),
+                            'label' => __('Account'),
                         ]
                     ]
                 ]

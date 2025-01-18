@@ -8,6 +8,7 @@
 
 namespace App\Actions\Retina\Fulfilment\UI;
 
+use App\Actions\Retina\UI\Dashboard\ShowRetinaDashboard;
 use App\Actions\RetinaAction;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
@@ -47,13 +48,14 @@ class ShowRetinaStorageDashboard extends RetinaAction
         }
 
         return Inertia::render('Storage/RetinaStorageDashboard', [
-            'title'        => __('Dashboard'),
-
+            'title'        => __('Storage Dashboard'),
+            'breadcrumbs'    => $this->getBreadcrumbs(),
             'pageHead'    => [
-                'title'         => __('Dashboard'),
+
+                'title'         => __('Storage Dashboard'),
                 'icon'          => [
                     'icon'  => ['fal', 'fa-tachometer-alt'],
-                    'title' => __('Dashboard')
+                    'title' => __('Storage Dashboard')
                 ],
 
             ],
@@ -114,22 +116,24 @@ class ShowRetinaStorageDashboard extends RetinaAction
         return $stats;
     }
 
-    public function getBreadcrumbs($label = null): array
+    public function getBreadcrumbs(): array
     {
-        return [
-            [
 
-                'type'   => 'simple',
-                'simple' => [
-                    'icon'  => 'fal fa-home',
-                    'label' => $label,
-                    'route' => [
-                        'name' => 'retina.dashboard.show'
+        return
+            array_merge(
+                ShowRetinaDashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'retina.fulfilment.storage.dashboard'
+                            ],
+                            'label' => __('Storage'),
+                        ]
                     ]
                 ]
+            );
 
-            ],
-
-        ];
     }
 }
