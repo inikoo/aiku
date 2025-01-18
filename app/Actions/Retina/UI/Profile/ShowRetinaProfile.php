@@ -8,9 +8,11 @@
 
 namespace App\Actions\Retina\UI\Profile;
 
+use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Dashboard\ShowRetinaDashboard;
+use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\CRM\WebUser;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -26,41 +28,56 @@ class ShowRetinaProfile extends RetinaAction
 
     public function htmlResponse(WebUser $webUser, ActionRequest $request): Response
     {
+        $customer = $webUser->customer;
+
+
+        $personalInformationFields = [
+            'contact_name' => [
+                'type'  => 'input',
+                'label' => __('contact name'),
+                'value' => $customer->contact_name
+            ],
+            'email'        => [
+                'type'  => 'input',
+                'label' => __('email'),
+                'value' => $customer->email
+            ],
+            'about'        => [
+                'type'  => 'textarea',
+                'label' => __('about'),
+                'value' => $customer->about
+            ],
+            'image'        => [
+                'type'  => 'avatar',
+                'label' => __('avatar'),
+                'value' => !blank($customer->image_id)
+                    ? $customer->imageSources(320, 320)
+                    : [
+                        'original' => '/retina-default-user.svg'
+                    ],
+            ],
+        ];
+
+        if ($webUser->is_root) {
+            unset($personalInformationFields['email']);
+        }
+
+
         $sections["properties"] = [
-            "label"  => __("Profile"),
+            "label"  => __("Personal information"),
             "icon"   => "fal fa-user-circle",
+            "fields" => $personalInformationFields,
+        ];
+
+        $sections["credentials"] = [
+            "label"  => __("Username/Password"),
+            "icon"   => "fal fa-key",
             "fields" => [
                 "username" => [
                     "type"  => "input",
                     "label" => __("username"),
                     "value" => $webUser->username,
                 ],
-                "email" => [
-                    "type"  => "input",
-                    "label" => __("email"),
-                    "value" => $webUser->email,
-                ],
-                "about" => [
-                    "type"  => "textarea",
-                    "label" => __("about"),
-                    "value" => $webUser->about,
-                ],
-                "image" => [
-                    "type"  => "avatar",
-                    "label" => __("avatar"),
-                    "value" => !blank($webUser->image_id)
-                        ? $webUser->imageSources(320, 320)
-                        : [
-                            'original'  => '/retina-default-user.svg'
-                        ],
-                ],
-            ],
-        ];
-
-        $sections["password"] = [
-            "label"  => __("Password"),
-            "icon"   => "fal fa-key",
-            "fields" => [
                 "password" => [
                     "type"  => "password",
                     "label" => __("password"),
@@ -68,6 +85,38 @@ class ShowRetinaProfile extends RetinaAction
                 ],
             ],
         ];
+
+        if ($webUser->is_root) {
+            $sections["customer"] = [
+                "label"  => __("Account details"),
+                "icon"   => "fal fa-user",
+                "fields" => [
+                    'company_name'    => [
+                        'type'  => 'input',
+                        'label' => __('company'),
+                        'value' => $customer->company_name
+                    ],
+                    'email'           => [
+                        'type'  => 'input',
+                        'label' => __('email'),
+                        'value' => $customer->email
+                    ],
+                    'phone'           => [
+                        'type'  => 'phone',
+                        'label' => __('Phone'),
+                        'value' => $customer->phone
+                    ],
+                    'contact_address' => [
+                        'type'    => 'address',
+                        'label'   => __('Address'),
+                        'value'   => AddressFormFieldsResource::make($customer->address)->getArray(),
+                        'options' => [
+                            'countriesAddressData' => GetAddressData::run()
+                        ]
+                    ]
+                ],
+            ];
+        }
 
         $sections["language"] = [
             "label"  => __("Language"),

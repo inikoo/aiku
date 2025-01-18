@@ -66,7 +66,6 @@ class UpdateCustomer extends OrgAction
             Arr::forget($modelData, 'delivery_address');
             UpdateAddress::run($customer->deliveryAddress, $deliveryAddressData);
         }
-
         if (Arr::has($modelData, 'tax_number')) {
             $taxNumberData = Arr::get($modelData, 'tax_number');
             Arr::forget($modelData, 'tax_number');
@@ -91,8 +90,6 @@ class UpdateCustomer extends OrgAction
                 DeleteTaxNumber::run($customer->taxNumber);
             }
         }
-
-
         if (Arr::hasAny($modelData, ['contact_name', 'company_name'])) {
             $contact_name = Arr::exists($modelData, 'contact_name') ? Arr::get($modelData, 'contact_name') : $customer->contact_name;
             $company_name = Arr::exists($modelData, 'company_name') ? Arr::get($modelData, 'company_name') : $customer->company_name;
@@ -101,11 +98,23 @@ class UpdateCustomer extends OrgAction
         }
 
         $emailSubscriptionsData = Arr::pull($modelData, 'email_subscriptions', []);
-
         $customer->comms->update($emailSubscriptionsData);
-
-
         $customer = $this->update($customer, $modelData, ['data']);
+
+        if (Arr::hasAny($modelData, ['contact_name', 'email'])) {
+            $rootWebUser = $customer->webUsers->where('is_root', true)->first();
+            if ($rootWebUser) {
+
+                $rootWebUser->update(
+                    [
+                        'contact_name' => $customer->contact_name,
+                        'email'        => $customer->email
+                    ]
+                );
+
+
+            }
+        }
 
 
         CustomerRecordSearch::dispatch($customer)->delay($this->hydratorsDelay);

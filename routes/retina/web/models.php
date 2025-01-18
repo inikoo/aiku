@@ -37,7 +37,7 @@ use App\Actions\Retina\Storage\StoredItem\StoreRetinaStoredItem;
 use App\Actions\Retina\Storage\StoredItem\SyncRetinaStoredItemToPallet;
 use App\Actions\Retina\SysAdmin\AddRetinaDeliveryAddressToFulfilmentCustomer;
 use App\Actions\Retina\SysAdmin\StoreRetinaWebUser;
-use App\Actions\Retina\SysAdmin\UpdateRetinaFulfilmentCustomer;
+use App\Actions\Retina\SysAdmin\UpdateRetinaCustomer;
 use App\Actions\Retina\SysAdmin\UpdateRetinaWebUser;
 use App\Actions\Retina\UI\Profile\UpdateRetinaProfile;
 use Illuminate\Support\Facades\Route;
@@ -86,13 +86,16 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
 Route::post('stored-items', StoreRetinaStoredItem::class)->name('stored-items.store');
 
 Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
+
+    Route::patch('update', UpdateRetinaCustomer::class)->name('update');
+
     Route::patch('delivery-address/update', UpdateRetinaCustomerDeliveryAddress::class)->name('delivery-address.update');
     Route::delete('delivery-address/{address:id}/delete', DeleteRetinaCustomerDeliveryAddress::class)->name('delivery-address.delete');
 });
 
-Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
-    Route::patch('update', UpdateRetinaFulfilmentCustomer::class)->name('update');
-    Route::post('delivery-address/store', AddRetinaDeliveryAddressToFulfilmentCustomer::class)->name('delivery-address.store');
+Route::name('fulfilment_customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
+
+    Route::post('delivery-address/store', AddRetinaDeliveryAddressToFulfilmentCustomer::class)->name('delivery_address.store');
 });
 
 Route::post('customer-client', StoreRetinaCustomerClient::class)->name('customer-client.store');

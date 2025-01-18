@@ -9,6 +9,7 @@
 namespace App\Actions\CRM\WebUser;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
+use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
@@ -35,6 +36,18 @@ class UpdateWebUser extends OrgAction
             data_set($modelData, 'password', Hash::make($modelData['password']));
             data_set($modelData, 'auth_type', WebUserAuthTypeEnum::DEFAULT);
             data_set($modelData, 'data.legacy_password', null);
+        }
+
+
+        if ($webUser->is_root) {
+            $customerDataToUpdate = [];
+            if (Arr::has($modelData, 'contact_name')) {
+                $customerDataToUpdate['contact_name'] = Arr::pull($modelData, 'contact_name');
+            }
+            if (Arr::has($modelData, 'email')) {
+                $customerDataToUpdate['email'] = Arr::pull($modelData, 'email');
+            }
+            UpdateCustomer::make()->action($webUser->customer, $customerDataToUpdate);
         }
 
         $webUser = $this->update($webUser, $modelData, ['data', 'settings']);

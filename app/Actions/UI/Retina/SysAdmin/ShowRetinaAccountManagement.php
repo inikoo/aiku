@@ -16,7 +16,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowSettings extends RetinaAction
+class ShowRetinaAccountManagement extends RetinaAction
 {
     public function authorize(ActionRequest $request): bool
     {
@@ -36,15 +36,14 @@ class ShowSettings extends RetinaAction
     {
 
         $customer = $request->user()->customer;
-        $fulfilmentCustomer = $customer->fulfilmentCustomer;
 
         return Inertia::render(
             'EditModel',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('settings'),
+                'title'       => __('Account management'),
                 'pageHead'    => [
-                    'title' => __('settings'),
+                    'title' => __('Account management'),
                 ],
                 "formData" => [
                     "blueprint" =>
@@ -64,12 +63,17 @@ class ShowSettings extends RetinaAction
                                         'label' => __('company'),
                                         'value' => $customer->company_name
                                     ],
+                                    'email' => [
+                                        'type'  => 'input',
+                                        'label' => __('email'),
+                                        'value' => $customer->email
+                                    ],
                                     'phone'        => [
                                         'type'  => 'phone',
                                         'label' => __('Phone'),
                                         'value' => $customer->phone
                                     ],
-                                    'address' => [
+                                    'contact_address' => [
                                         'type'    => 'address',
                                         'label'   => __('Address'),
                                         'value'   => AddressFormFieldsResource::make($customer->address)->getArray(),
@@ -82,13 +86,11 @@ class ShowSettings extends RetinaAction
                     ],
                     "args"      => [
                         "updateRoute" => [
-                            "name"       => "retina.models.fulfilment-customer.update",
-                            'parameters' => [$fulfilmentCustomer->id]
+                            "name"       => "retina.models.customer.update",
+                            'parameters' => [$customer->id]
                         ],
                     ],
                 ],
-
-
             ]
         );
     }
@@ -107,7 +109,7 @@ class ShowSettings extends RetinaAction
                             'route' => [
                                 'name' => 'retina.sysadmin.settings.edit'
                             ],
-                            'label'  => __('settings'),
+                            'label'  => __('Account management'),
                         ]
                     ]
                 ]

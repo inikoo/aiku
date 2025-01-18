@@ -9,15 +9,12 @@
 
 namespace App\Actions\Retina\SysAdmin;
 
-use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
+use App\Actions\CRM\WebUser\UpdateWebUser;
 use App\Actions\RetinaAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Models\CRM\WebUser;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -29,19 +26,7 @@ class UpdateRetinaWebUser extends RetinaAction
 
     public function handle(WebUser $webUser, array $modelData): WebUser
     {
-        if (Arr::exists($modelData, 'password')) {
-            data_set($modelData, 'password', Hash::make($modelData['password']));
-            data_set($modelData, 'auth_type', WebUserAuthTypeEnum::DEFAULT);
-            data_set($modelData, 'data.legacy_password', null);
-        }
-
-        $webUser = $this->update($webUser, $modelData, ['data']);
-
-        if (Arr::hasAny($webUser->getChanges(), ['status'])) {
-            CustomerHydrateWebUsers::dispatch($webUser->customer);
-        }
-
-        return $webUser;
+        return UpdateWebUser::run($webUser, $modelData);
     }
 
     public function authorize(ActionRequest $request): bool

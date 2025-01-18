@@ -388,7 +388,7 @@ class ShowRetinaPalletReturn extends RetinaAction
                                     ],
                                     'store_route' => [
                                         'method'      => 'post',
-                                        'name'        => 'retina.models.fulfilment-customer.delivery-address.store',
+                                        'name'        => 'retina.models.fulfilment_customer.delivery_address.store',
                                         'parameters'  => [
                                             'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer
                                         ]

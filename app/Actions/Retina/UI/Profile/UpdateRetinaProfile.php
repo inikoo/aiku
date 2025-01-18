@@ -8,14 +8,14 @@
 
 namespace App\Actions\Retina\UI\Profile;
 
+use App\Actions\CRM\WebUser\UpdateWebUser;
 use App\Actions\RetinaAction;
 use App\Actions\Traits\UI\WithProfile;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Models\CRM\WebUser;
 use App\Rules\IUnique;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Hash;
+use App\Rules\Phone;
+use App\Rules\ValidAddress;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
@@ -27,22 +27,15 @@ class UpdateRetinaProfile extends RetinaAction
 
     public function handle(WebUser $webUser, array $modelData): WebUser
     {
-        if (Arr::exists($modelData, 'password')) {
-            data_set($modelData, 'password', Hash::make($modelData['password']));
-            data_set($modelData, 'auth_type', WebUserAuthTypeEnum::DEFAULT);
-            data_set($modelData, 'data.legacy_password', null);
-        }
-        $webUser = $this->processProfileAvatar($modelData, $webUser);
-
-        return $this->update($webUser, $modelData, ['data']);
+        return UpdateWebUser::run($webUser, $modelData);
     }
 
 
     public function rules(): array
     {
-        return [
-            'password'    => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? Password::min(4) : Password::min(8)->uncompromised()],
-            'email'       => [
+        $rules = [
+            'contact_name' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'email'        => [
                 'sometimes',
                 'required',
                 'email',
@@ -55,7 +48,15 @@ class UpdateRetinaProfile extends RetinaAction
                     ]
                 )
             ],
-            'username'    => [
+            'about'        => 'sometimes|nullable|string|max:255',
+            'image'        => [
+                'sometimes',
+                'nullable',
+                File::image()
+                    ->max(12 * 1024)
+            ],
+
+            'username' => [
                 'sometimes',
                 'required',
                 'min:4',
@@ -68,18 +69,22 @@ class UpdateRetinaProfile extends RetinaAction
                     ]
                 )
             ],
-            'about'       => 'sometimes|nullable|string|max:255',
+            'password' => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? Password::min(4) : Password::min(8)->uncompromised()],
+
+
             'language_id' => ['sometimes', 'required', 'exists:languages,id'],
-            'app_theme'   => ['sometimes', 'required'],
-            'image'       => [
-                'sometimes',
-                'nullable',
-                File::image()
-                    ->max(12 * 1024)
-            ],
 
 
         ];
+
+        if ($this->webUser->is_root) {
+            $rules['company_name']    = ['sometimes', 'nullable', 'string', 'max:255'];
+            $rules['phone']           = ['sometimes', 'nullable', new Phone()];
+            $rules['contact_address'] = ['sometimes', 'required', new ValidAddress()];
+        }
+
+
+        return $rules;
     }
 
 
