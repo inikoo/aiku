@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { Link } from "@inertiajs/vue3"
-// import { useLayoutStore } from "@/Stores/retinaLayout"
 import { Disclosure } from "@headlessui/vue"
-import Button from "@/Components/Elements/Buttons/Button.vue"
-import { trans } from "laravel-vue-i18n"
-import Image from "@/Components/Image.vue"
+
 import { layoutStructure } from "@/Composables/useLayoutStructure";
 
 import { faChevronDown } from "@far"
@@ -18,7 +15,7 @@ import ScreenWarning from "@/Components/Utils/ScreenWarning.vue"
 
 library.add(faChevronDown, faDotCircle, faTerminal, faCog, faAbacus, faFolder, faFax,faUserCircle, faBarcode, faBallotCheck, faUsdCircle)
 
-const props = defineProps<{
+defineProps<{
     sidebarOpen: boolean
     logoRoute: string
 }>()
@@ -29,13 +26,6 @@ defineEmits<{
 
 const layout = inject('layout')
 
-// For label
-// const label = {
-//     organisationSelect: trans("Select organisation"),
-//     shopSelect: trans("Go to shop"),
-//     warehouseSelect: trans("Select warehouses"),
-//     fulfilmentSelect: trans("Select fulfilments")
-// }
 
 
 const layoutStore = inject("layout", layoutStructure);
