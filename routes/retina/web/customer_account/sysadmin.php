@@ -6,12 +6,12 @@
  * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-use App\Actions\UI\Retina\SysAdmin\CreateRetinaWebUser;
-use App\Actions\UI\Retina\SysAdmin\EditRetinaWebUser;
-use App\Actions\UI\Retina\SysAdmin\IndexRetinaWebUsers;
-use App\Actions\UI\Retina\SysAdmin\ShowRetinaAccountManagement;
-use App\Actions\UI\Retina\SysAdmin\ShowRetinaSysAdminDashboard;
-use App\Actions\UI\Retina\SysAdmin\ShowRetinaWebUser;
+use App\Actions\Retina\UI\SysAdmin\CreateRetinaWebUser;
+use App\Actions\Retina\UI\SysAdmin\EditRetinaWebUser;
+use App\Actions\Retina\UI\SysAdmin\IndexRetinaWebUsers;
+use App\Actions\Retina\UI\SysAdmin\ShowRetinaAccountManagement;
+use App\Actions\Retina\UI\SysAdmin\ShowRetinaSysAdminDashboard;
+use App\Actions\Retina\UI\SysAdmin\ShowRetinaWebUser;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowRetinaSysAdminDashboard::class)->name('dashboard');

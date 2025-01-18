@@ -8,7 +8,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Actions\UI\Retina\GetFirstLoadProps;
+use App\Actions\Retina\UI\GetRetinaFirstLoadProps;
 use App\Http\Resources\UI\LoggedWebUserResource;
 use App\Http\Resources\Web\WebsiteIrisResource;
 use App\Models\CRM\WebUser;
@@ -31,7 +31,7 @@ class HandleRetinaInertiaRequests extends Middleware
 
         if (!$request->inertia() or Session::get('reloadLayout')) {
 
-            $firstLoadOnlyProps          = GetFirstLoadProps::run($request, $webUser);
+            $firstLoadOnlyProps          = GetRetinaFirstLoadProps::run($request, $webUser);
             $firstLoadOnlyProps['ziggy'] = function () use ($request) {
                 return array_merge((new Ziggy())->toArray(), [
                     'location' => $request->url(),

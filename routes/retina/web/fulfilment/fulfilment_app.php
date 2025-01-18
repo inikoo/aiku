@@ -7,7 +7,7 @@
  */
 
 
-use App\Actions\Retina\Storage\UI\IndexRetinaPricing;
+use App\Actions\Retina\Fulfilment\UI\IndexRetinaPricing;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', 'storage/dashboard');

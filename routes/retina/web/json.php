@@ -6,10 +6,10 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Actions\Retina\Storage\PalletDelivery\Json\GetRetinaFulfilmentPhysicalGoods;
-use App\Actions\Retina\Storage\PalletDelivery\Json\GetRetinaFulfilmentServices;
-use App\Actions\Retina\Storage\PalletReturn\Json\GetRetinaReturnPallets;
-use App\Actions\Retina\Storage\PalletReturn\Json\GetRetinaReturnStoredItems;
+use App\Actions\Retina\Fulfilment\PalletDelivery\Json\GetRetinaFulfilmentPhysicalGoods;
+use App\Actions\Retina\Fulfilment\PalletDelivery\Json\GetRetinaFulfilmentServices;
+use App\Actions\Retina\Fulfilment\PalletReturn\Json\GetRetinaReturnPallets;
+use App\Actions\Retina\Fulfilment\PalletReturn\Json\GetRetinaReturnStoredItems;
 use Illuminate\Support\Facades\Route;
 
 Route::get('fulfilment/{fulfilment}/delivery/{scope}/services', [GetRetinaFulfilmentServices::class, 'inPalletDelivery'])->name('fulfilment.delivery.services.index');

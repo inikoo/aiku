@@ -7,21 +7,21 @@
  */
 
 use App\Actions\Helpers\Upload\HistoryUploads;
-use App\Actions\Retina\Storage\Pallet\DownloadRetinaPalletsTemplate;
-use App\Actions\Retina\Storage\Pallet\UI\EditRetinaPallet;
-use App\Actions\Retina\Storage\Pallet\UI\IndexRetinaPallets;
-use App\Actions\Retina\Storage\Pallet\UI\ShowRetinaPallet;
-use App\Actions\Retina\Storage\PalletDelivery\UI\IndexRetinaPalletDeliveries;
-use App\Actions\Retina\Storage\PalletDelivery\UI\ShowRetinaPalletDelivery;
-use App\Actions\Retina\Storage\PalletReturn\ExportRetinaPalletReturnPallet;
-use App\Actions\Retina\Storage\PalletReturn\ExportRetinaPalletReturnStoredItem;
-use App\Actions\Retina\Storage\PalletReturn\UI\IndexRetinaPalletReturns;
-use App\Actions\Retina\Storage\PalletReturn\UI\ShowRetinaPalletReturn;
-use App\Actions\Retina\Storage\StoredItems\UI\IndexRetinaStoredItems;
-use App\Actions\Retina\Storage\StoredItemsAudit\UI\IndexRetinaStoredItemsAudits;
-use App\Actions\Retina\Storage\StoredItemsAudit\UI\ShowRetinaStoredItemAudit;
-use App\Actions\Retina\Storage\UI\IndexRetinaPricing;
-use App\Actions\Retina\Storage\UI\ShowRetinaStorageDashboard;
+use App\Actions\Retina\Fulfilment\Pallet\DownloadRetinaPalletsTemplate;
+use App\Actions\Retina\Fulfilment\Pallet\UI\EditRetinaPallet;
+use App\Actions\Retina\Fulfilment\Pallet\UI\IndexRetinaPallets;
+use App\Actions\Retina\Fulfilment\Pallet\UI\ShowRetinaPallet;
+use App\Actions\Retina\Fulfilment\PalletDelivery\UI\IndexRetinaPalletDeliveries;
+use App\Actions\Retina\Fulfilment\PalletDelivery\UI\ShowRetinaPalletDelivery;
+use App\Actions\Retina\Fulfilment\PalletReturn\ExportRetinaPalletReturnPallet;
+use App\Actions\Retina\Fulfilment\PalletReturn\ExportRetinaPalletReturnStoredItem;
+use App\Actions\Retina\Fulfilment\PalletReturn\UI\IndexRetinaPalletReturns;
+use App\Actions\Retina\Fulfilment\PalletReturn\UI\ShowRetinaPalletReturn;
+use App\Actions\Retina\Fulfilment\StoredItems\UI\IndexRetinaStoredItems;
+use App\Actions\Retina\Fulfilment\StoredItemsAudit\UI\IndexRetinaStoredItemsAudits;
+use App\Actions\Retina\Fulfilment\StoredItemsAudit\UI\ShowRetinaStoredItemAudit;
+use App\Actions\Retina\Fulfilment\UI\IndexRetinaPricing;
+use App\Actions\Retina\Fulfilment\UI\ShowRetinaStorageDashboard;
 
 Route::redirect('/', 'dashboard');
 

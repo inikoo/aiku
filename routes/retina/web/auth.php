@@ -7,8 +7,8 @@
  */
 
 
-use App\Actions\CRM\WebUser\Retina\RetinaLogin;
 use App\Actions\CRM\WebUser\Retina\LogoutRetina;
+use App\Actions\CRM\WebUser\Retina\RetinaLogin;
 use App\Actions\CRM\WebUser\Retina\RetinaRegister;
 use App\Actions\CRM\WebUser\Retina\UI\ShowRetinaLogin;
 use App\Actions\CRM\WebUser\Retina\UI\ShowRetinaPrepareAccount;
@@ -16,8 +16,8 @@ use App\Actions\CRM\WebUser\Retina\UI\ShowRetinaRegister;
 use App\Actions\CRM\WebUser\Retina\UI\ShowRetinaResetWebUserPassword;
 use App\Actions\CRM\WebUser\Retina\UpdateRetinaWebUserPassword;
 use App\Actions\CRM\WebUser\UpdateRetinaWebUserPasswordViaEmail;
-use App\Actions\UI\Retina\Auth\PasswordRetinaResetLink;
-use App\Actions\UI\Retina\Auth\ShowRetinaPasswordResetLink;
+use App\Actions\Retina\UI\Auth\PasswordRetinaResetLink;
+use App\Actions\Retina\UI\Auth\ShowRetinaPasswordResetLink;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest:retina')->group(function () {

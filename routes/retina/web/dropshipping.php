@@ -12,15 +12,15 @@ use App\Actions\Dropshipping\ShopifyUser\DeleteRetinaShopifyUser;
 use App\Actions\Dropshipping\ShopifyUser\StoreRetinaShopifyUser;
 use App\Actions\Dropshipping\WooCommerce\AuthorizeRetinaWooCommerceUser;
 use App\Actions\Dropshipping\WooCommerce\StoreRetinaWooCommerceUser;
-use App\Actions\UI\Retina\Dropshipping\Client\FetchRetinaCustomerClientFromShopify;
-use App\Actions\UI\Retina\Dropshipping\Client\UI\CreateRetinaCustomerClient;
-use App\Actions\UI\Retina\Dropshipping\Client\UI\IndexRetinaCustomerClients;
-use App\Actions\UI\Retina\Dropshipping\Client\UI\ShowRetinaCustomerClient;
-use App\Actions\UI\Retina\Dropshipping\Orders\IndexRetinaDropshippingOrders;
-use App\Actions\UI\Retina\Dropshipping\Product\UI\IndexRetinaDropshippingPortfolio;
-use App\Actions\UI\Retina\Dropshipping\Product\UI\IndexRetinaDropshippingProducts;
-use App\Actions\UI\Retina\Dropshipping\ShowRetinaDropshipping;
-use App\Actions\UI\Retina\Dropshipping\ShowRetinaProduct;
+use App\Actions\Retina\Dropshipping\Client\FetchRetinaCustomerClientFromShopify;
+use App\Actions\Retina\Dropshipping\Client\UI\CreateRetinaCustomerClient;
+use App\Actions\Retina\Dropshipping\Client\UI\IndexRetinaCustomerClients;
+use App\Actions\Retina\Dropshipping\Client\UI\ShowRetinaCustomerClient;
+use App\Actions\Retina\Dropshipping\Orders\IndexRetinaDropshippingOrders;
+use App\Actions\Retina\Dropshipping\Product\UI\IndexRetinaDropshippingPortfolio;
+use App\Actions\Retina\Dropshipping\Product\UI\IndexRetinaDropshippingProducts;
+use App\Actions\Retina\Dropshipping\ShowRetinaDropshipping;
+use App\Actions\Retina\Dropshipping\ShowRetinaProduct;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('platform')->as('platform.')->group(function () {

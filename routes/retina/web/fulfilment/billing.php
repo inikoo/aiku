@@ -9,8 +9,8 @@
 use App\Actions\Retina\Accounting\Invoice\PdfRetinaInvoice;
 use App\Actions\Retina\Billing\IndexRetinaInvoices;
 use App\Actions\Retina\Billing\ShowRetinaInvoice;
-use App\Actions\Retina\Storage\RecurringBill\UI\ShowRetinaCurrentRecurringBill;
-use App\Actions\UI\Retina\Billing\UI\ShowRetinaBillingDashboard;
+use App\Actions\Retina\Billing\UI\ShowRetinaBillingDashboard;
+use App\Actions\Retina\Fulfilment\RecurringBill\UI\ShowRetinaCurrentRecurringBill;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', 'dashboard');
