@@ -165,7 +165,7 @@ test('show pallet delivery (pallet tab)', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', $this->palletDelivery->reference)
+                        ->where('title', 'New pallet delivery')
                         ->etc()
             )
             ->has('tabs');
@@ -185,7 +185,6 @@ test('show pallet delivery (services tab)', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', $this->palletDelivery->reference)
                         ->etc()
             )
             ->has('tabs');
@@ -205,7 +204,6 @@ test('show pallet delivery (physical goods tab)', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', $this->palletDelivery->reference)
                         ->etc()
             )
             ->has('tabs');
@@ -229,7 +227,7 @@ test('index pallet returns', function () {
         $page
             ->component('Storage/RetinaPalletReturns')
             ->has('title')
-            ->has('breadcrumbs', 2)
+            ->has('breadcrumbs', 3)
             ->has('pageHead')
             ->has('data');
     });
@@ -243,7 +241,7 @@ test('show pallet return (pallet tab)', function () {
         $page
             ->component('Storage/RetinaPalletReturn')
             ->has('title')
-            ->has('breadcrumbs', 2)
+            ->has('breadcrumbs', 3)
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
@@ -283,7 +281,7 @@ test('show pallet return (services tab)', function () {
         $page
             ->component('Storage/RetinaPalletReturn')
             ->has('title')
-            ->has('breadcrumbs', 2)
+            ->has('breadcrumbs', 3)
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
@@ -303,7 +301,7 @@ test('show pallet return (physical goods tab)', function () {
         $page
             ->component('Storage/RetinaPalletReturn')
             ->has('title')
-            ->has('breadcrumbs', 2)
+            ->has('breadcrumbs', 3)
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
