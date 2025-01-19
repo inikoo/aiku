@@ -18,7 +18,6 @@ use App\Models\Fulfilment\PalletDelivery;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -28,23 +27,20 @@ class IndexRetinaPalletDeliveries extends RetinaAction
 {
     use HasRentalAgreement;
 
-    private FulfilmentCustomer $parent;
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
-        $this->parent = $this->customer->fulfilmentCustomer;
 
         return $this->handle($this->customer->fulfilmentCustomer);
     }
 
-    public function handle(FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
+    public function handle(FulfilmentCustomer $fulfilmentCustomer, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('reference', $value)
-                    ->orWhereStartWith('customer_reference', $value)
-                    ->orWhereStartWith('slug', $value);
+                    ->orWhereStartWith('customer_reference', $value);
             });
         });
 
@@ -53,28 +49,24 @@ class IndexRetinaPalletDeliveries extends RetinaAction
         }
 
         $queryBuilder = QueryBuilder::for(PalletDelivery::class);
-        $queryBuilder->where('pallet_deliveries.fulfilment_customer_id', $parent->id);
+        $queryBuilder->where('pallet_deliveries.fulfilment_customer_id', $fulfilmentCustomer->id);
 
         return $queryBuilder
             ->defaultSort('reference')
-            ->allowedSorts(['reference','customer_reference','number_pallets'])
+            ->allowedSorts(['reference', 'customer_reference', 'number_pallets'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        return $this->hasRentalAgreement($this->customer->fulfilmentCustomer);
-    }
 
-    public function tableStructure(FulfilmentCustomer $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(FulfilmentCustomer $fulfilmentCustomer, ?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($fulfilmentCustomer, $modelOperations, $prefix) {
             if ($prefix) {
                 $table
                     ->name($prefix)
-                    ->pageName($prefix . 'Page');
+                    ->pageName($prefix.'Page');
             }
 
 
@@ -88,35 +80,27 @@ class IndexRetinaPalletDeliveries extends RetinaAction
         };
     }
 
-    public function jsonResponse(LengthAwarePaginator $customers): AnonymousResourceCollection
-    {
-        return PalletDeliveriesResource::collection($customers);
-    }
-
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
     {
-
         return Inertia::render(
             'Storage/RetinaPalletDeliveries',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                 ),
-                'title'    => __('pallet deliveries'),
-                'pageHead' => [
-                    'title'     => __('Deliveries'),
-                    'model'     => __('Storage'),
-                    'icon' => [
+                'title'       => __('pallet deliveries'),
+                'pageHead'    => [
+                    'title'   => __('Deliveries'),
+                    'icon'    => [
                         'icon'  => ['fal', 'fa-truck'],
                         'title' => __('delivery')
                     ],
                     'actions' => [
                         [
-                            'type'     => 'button',
-                            'style'    => 'create',
-                            'label'    => __('New Delivery'),
-                            'disabled' => !$this->hasRentalAgreement($this->parent),
-                            'route'    => [
+                            'type'  => 'button',
+                            'style' => 'create',
+                            'label' => __('New Delivery'),
+                            'route' => [
                                 'method'     => 'post',
                                 'name'       => 'retina.models.pallet-delivery.store',
                                 'parameters' => []
@@ -124,16 +108,16 @@ class IndexRetinaPalletDeliveries extends RetinaAction
                         ]
                     ]
                 ],
-                'data' => PalletDeliveriesResource::collection($customers),
+                'data'        => PalletDeliveriesResource::collection($customers),
 
             ]
-        )->table($this->tableStructure($this->parent));
+        )->table($this->tableStructure($this->customer->fulfilmentCustomer));
     }
 
     public function getBreadcrumbs(string $routeName): array
     {
         return match ($routeName) {
-            'retina.fulfilment.storage.pallet-deliveries.index' =>
+            'retina.fulfilment.storage.pallet_deliveries.index' =>
             array_merge(
                 ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
                 [
@@ -141,7 +125,7 @@ class IndexRetinaPalletDeliveries extends RetinaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'retina.fulfilment.storage.pallet-deliveries.index',
+                                'name' => 'retina.fulfilment.storage.pallet_deliveries.index',
                             ],
                             'label' => __('Pallet Deliveries'),
                             'icon'  => 'fal fa-bars',

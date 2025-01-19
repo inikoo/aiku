@@ -124,7 +124,7 @@ class StoreRetinaPalletFromDelivery extends RetinaAction
     public function htmlResponse(): RedirectResponse
     {
 
-        return Redirect::route('retina.fulfilment.storage.pallet-deliveries.show', [
+        return Redirect::route('retina.fulfilment.storage.pallet_deliveries.show', [
             'palletDelivery'     => $this->parent->slug
         ]);
     }

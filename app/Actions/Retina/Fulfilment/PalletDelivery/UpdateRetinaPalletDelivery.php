@@ -112,7 +112,7 @@ class UpdateRetinaPalletDelivery extends RetinaAction
     //             'fulfilmentCustomer'     => $palletDelivery->fulfilmentCustomer->slug,
     //             'palletDelivery'         => $palletDelivery->slug
     //         ])),
-    //         default => Inertia::location(route('retina.fulfilment.storage.pallet-deliveries.show', [
+    //         default => Inertia::location(route('retina.fulfilment.storage.pallet_deliveries.show', [
     //             'palletDelivery'         => $palletDelivery->slug
     //         ]))
     //     };

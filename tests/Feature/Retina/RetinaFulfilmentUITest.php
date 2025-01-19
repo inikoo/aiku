@@ -133,7 +133,7 @@ test('index pallets', function () {
         $page
             ->component('Storage/RetinaPallets')
             ->has('title')
-            ->has('breadcrumbs', 2)
+            ->has('breadcrumbs', 3)
             ->has('pageHead')
             ->has('data');
     });
@@ -142,12 +142,12 @@ test('index pallets', function () {
 test('index pallet deliveries', function () {
     actingAs($this->webUser, 'retina');
     $this->withoutExceptionHandling();
-    $response = $this->get(route('retina.fulfilment.storage.pallet-deliveries.index'));
+    $response = $this->get(route('retina.fulfilment.storage.pallet_deliveries.index'));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Storage/RetinaPalletDeliveries')
             ->has('title')
-            ->has('breadcrumbs', 2)
+            ->has('breadcrumbs', 3)
             ->has('pageHead')
             ->has('data');
     });
@@ -156,12 +156,12 @@ test('index pallet deliveries', function () {
 test('show pallet delivery (pallet tab)', function () {
     // $this->withoutExceptionHandling();
     actingAs($this->webUser, 'retina');
-    $response = $this->get(route('retina.fulfilment.storage.pallet-deliveries.show', [$this->palletDelivery->slug]));
+    $response = $this->get(route('retina.fulfilment.storage.pallet_deliveries.show', [$this->palletDelivery->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Storage/RetinaPalletDelivery')
             ->has('title')
-            ->has('breadcrumbs', 2)
+            ->has('breadcrumbs', 3)
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
@@ -181,7 +181,7 @@ test('show pallet delivery (services tab)', function () {
         $page
             ->component('Storage/RetinaPalletDelivery')
             ->has('title')
-            ->has('breadcrumbs', 2)
+            ->has('breadcrumbs', 3)
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
@@ -201,7 +201,7 @@ test('show pallet delivery (physical goods tab)', function () {
         $page
             ->component('Storage/RetinaPalletDelivery')
             ->has('title')
-            ->has('breadcrumbs', 2)
+            ->has('breadcrumbs', 3)
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page

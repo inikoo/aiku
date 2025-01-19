@@ -150,7 +150,7 @@ class StoreRetinaPalletDelivery extends RetinaAction
 
     public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): Response
     {
-        return Inertia::location(route('retina.fulfilment.storage.pallet-deliveries.show', [
+        return Inertia::location(route('retina.fulfilment.storage.pallet_deliveries.show', [
             'palletDelivery' => $palletDelivery->slug
         ]));
     }

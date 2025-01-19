@@ -114,7 +114,7 @@ class StoreJobOrder extends OrgAction
             'grp.models.production.job-order.store' => Inertia::location(route('grp.org.productions.show.job-order.show', [
                 'organisation'           => $jobOrder->organisation->slug,
             ])),
-            default => Inertia::location(route('retina.fulfilment.storage.pallet-deliveries.show', [
+            default => Inertia::location(route('retina.fulfilment.storage.pallet_deliveries.show', [
                 'jobOrder'         => $jobOrder->slug
             ]))
         };

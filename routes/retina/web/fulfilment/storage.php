@@ -20,7 +20,6 @@ use App\Actions\Retina\Fulfilment\PalletReturn\UI\ShowRetinaPalletReturn;
 use App\Actions\Retina\Fulfilment\StoredItems\UI\IndexRetinaStoredItems;
 use App\Actions\Retina\Fulfilment\StoredItemsAudit\UI\IndexRetinaStoredItemsAudits;
 use App\Actions\Retina\Fulfilment\StoredItemsAudit\UI\ShowRetinaStoredItemAudit;
-use App\Actions\Retina\Fulfilment\UI\IndexRetinaPricing;
 use App\Actions\Retina\Fulfilment\UI\ShowRetinaStorageDashboard;
 
 Route::redirect('/', 'dashboard');
@@ -28,7 +27,7 @@ Route::redirect('/', 'dashboard');
 
 Route::get('/dashboard', ShowRetinaStorageDashboard::class)->name('dashboard');
 
-Route::prefix('pallet-deliveries')->as('pallet-deliveries.')->group(function () {
+Route::prefix('pallet-deliveries')->as('pallet_deliveries.')->group(function () {
     Route::get('', IndexRetinaPalletDeliveries::class)->name('index');
     Route::get('{palletDelivery}', ShowRetinaPalletDelivery::class)->name('show');
     Route::get('{palletDelivery}/pallets/{pallet}', [ShowRetinaPallet::class, 'inPalletDelivery'])->name('pallets.show');
@@ -51,4 +50,3 @@ Route::get('pallets/{pallet}/edit', EditRetinaPallet::class)->name('pallets.edit
 Route::get('stored-items', IndexRetinaStoredItems::class)->name('stored-items.index');
 Route::get('stored-items-audits', IndexRetinaStoredItemsAudits::class)->name('stored-items-audits.index');
 Route::get('stored-items-audits/{storedItemAudit}', ShowRetinaStoredItemAudit::class)->name('stored-items-audits.show');
-

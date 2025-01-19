@@ -72,9 +72,9 @@ class GetRetinaFulfilmentNavigation
                     [
                         'label' => __('deliveries'),
                         'icon'  => ['fal', 'fa-truck'],
-                        'root'  => 'retina.fulfilment.storage.pallet-deliveries.',
+                        'root'  => 'retina.fulfilment.storage.pallet_deliveries.',
                         'route' => [
-                            'name' => 'retina.fulfilment.storage.pallet-deliveries.index'
+                            'name' => 'retina.fulfilment.storage.pallet_deliveries.index'
                         ]
                     ],
                     ...$additionalSubsections,
