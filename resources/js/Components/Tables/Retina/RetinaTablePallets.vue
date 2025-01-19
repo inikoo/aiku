@@ -11,70 +11,16 @@ import { Link } from '@inertiajs/vue3'
 
 import { faTimes, faStickyNote } from '@fal'
 import TagPallet from '@/Components/TagPallet.vue'
-import Icon from '@/Components/Icon.vue'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import Tag from '@/Components/Tag.vue'
 
 library.add(faTimes, faStickyNote)
 
-const props = defineProps<{
+defineProps<{
     data: {}
     tab?: string
 }>()
 
 
-function palletRoute(pallet: Pallet) {
-    switch (route().current()) {
-        case 'grp.org.fulfilments.show.operations.pallets.current.index':
-            return route(
-                'grp.org.fulfilments.show.operations.pallets.current.show',
-                [
-                    route().params['organisation'],
-                    route().params['fulfilment'],
-                    pallet['slug']
-                ])
-        case 'grp.org.warehouses.show.inventory.pallets.current.index':
-            return route(
-                'grp.org.warehouses.show.inventory.pallets.current.show',
-                [
-                    route().params['organisation'],
-                    route().params['warehouse'],
-                    pallet['slug']
-                ])
-
-        case 'grp.org.warehouses.show.infrastructure.locations.show':
-            return route(
-                'grp.org.warehouses.show.infrastructure.locations.show.pallets.show',
-                [
-                    route().params['organisation'],
-                    route().params['warehouse'],
-                    route().params['location'],
-                    pallet['slug']
-                ])
-        case 'grp.org.fulfilments.show.crm.customers.show':
-            return route(
-                'grp.org.fulfilments.show.crm.customers.show.pallets.show',
-                [
-                    route().params['organisation'],
-                    route().params['fulfilment'],
-                    route().params['fulfilmentCustomer'],
-                    pallet['slug']
-                ])
-        case 'retina.fulfilment.storage.pallets.index':
-            if(pallet.slug) {
-                return route(
-                    'retina.fulfilment.storage.pallets.show',
-                    [
-                        pallet.slug
-                    ])
-            } else {
-                return '#'
-            }
-
-        default:
-            return []
-    }
-}
 
 </script>
 
@@ -87,23 +33,10 @@ function palletRoute(pallet: Pallet) {
             </Link>
         </template>
 
-        <template #cell(state)="{ item: pallet }">
-            <!-- <Icon v-if="pallet['state_icon']" :data="pallet['state_icon']" class="px-1" /> -->
-            <TagPallet :stateIcon="pallet.state_icon" />
+        <template #cell(status)="{ item: pallet }">
+            <TagPallet :stateIcon="pallet.status_icon" />
         </template>
 
-        
-        <template #cell(type_icon)="{ item: pallet }">
-            <div class="space-y-1">
-                <TagPallet :stateIcon="pallet.state_icon" v-tooltip="'Current state of this pallet'" />
-                <TagPallet :stateIcon="pallet.status_icon" v-tooltip="'Current status of this pallet'" />
-            </div>
-        </template>
-
-        <!-- Column: Pallet Reference -->
-      <!--   <template #cell(reference)="{ item: pallet }">
-            {{ pallet.reference }}
-        </template> -->
 
         <!-- Column: Rental name -->
         <template #cell(rental)="{ item: pallet }">
@@ -123,24 +56,12 @@ function palletRoute(pallet: Pallet) {
                 </Tag>
             </div>
             <div v-else class="text-gray-400 text-xs italic">
-                No items
             </div>
         </template>
 
         <template #cell(notes)="{ item }">
-            <FontAwesomeIcon icon="fal fa-sticky-note" class="text-gray-400" fixed-width aria-hidden="true" />
-            {{ item.notes }}
+          <div class="text-xs	max-w-52">{{ item.notes }}</div>
         </template>
 
-        <!-- Column: Customer Reference -->
-        <!-- <template #cell(customer_reference)="{ item: item }">
-            <div>
-                {{ item.customer_reference }}
-                <span v-if="item.notes" class="text-gray-400 text-xs ml-1">
-                    <FontAwesomeIcon icon="fal fa-sticky-note" class="text-gray-400" fixed-width aria-hidden="true" />
-                    {{ item.notes }}
-                </span>
-            </div>
-        </template> -->
     </Table>
 </template>

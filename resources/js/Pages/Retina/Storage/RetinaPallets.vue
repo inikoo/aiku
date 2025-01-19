@@ -38,16 +38,7 @@ const webUserForm = useForm({
 
 
 const sendWarehouse = async (data: object) => {
-    // try {
-    //     const response = await axios.post(
-    //         route(data.route?.name, data.route?.parameters),
-    //         { warehouse_id: get(warehouseValue.value, 'id') }
-    //     )
-    //     router.visit(route(response.data.route.name, response.data.route.parameters))
-    // } catch (error) {
-    //     console.log('error', error)
-    //     errorMessage.value = error.response.data.message
-    // }
+
 }
 
 
