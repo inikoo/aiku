@@ -45,6 +45,7 @@ const generatePassword = () => {
   const generatedPassword = Math.random().toString(36).slice(-8); 
   target[props.fieldName] = generatedPassword;
   emits("update:form", target);
+  props.form.clearErrors()
   if (_password.value) _password.value.showPassword = false; 
 };
 
@@ -82,7 +83,8 @@ const generatePassword = () => {
 
         <!-- Generate Button -->
         <div
-            class="mt-4 text-sm bg-gray-200 rounded-xs border w-full py-2 text-center hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+        type="button"
+            class="mt-4 text-sm bg-gray-200 inline-block select-none rounded-xs border w-full py-2 text-center hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 cursor-pointer"
             @click="generatePassword">
             <FontAwesomeIcon class="mr-1" :icon="faSync" /> Generate
         </div>
