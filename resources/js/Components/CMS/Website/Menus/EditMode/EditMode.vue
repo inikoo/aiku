@@ -168,7 +168,6 @@ emits('update:modelValue',newValue)
         </div>
       </div>
 
-      {{ props.modelValue }}
 
       <!-- Multiselect navigasi -->
       <div
