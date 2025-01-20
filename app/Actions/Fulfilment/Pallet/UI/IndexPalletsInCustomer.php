@@ -235,7 +235,36 @@ class IndexPalletsInCustomer extends OrgAction
 
         $actions = [];
 
+        if($this->parent->number_pallets_status_storing)
+        {
+            $actions[] = [
+                'type'    => 'button',
+                    'style'   => 'create',
+                    'tooltip' => $this->parent->items_storage ? __('Create new return (whole pallet)') : __('Create new return'),
+                    'label'   => $this->parent->items_storage ? __('Return (whole pallet)') : __('Return'),
+                    'fullLoading'   => true,
+                    'route'   => [
+                        'method'     => 'post',
+                        'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
+                        'parameters' => [$this->parent->id]
+                    ]
+                ];
+        }
         if ($this->parent->items_storage) {
+            
+            $actions[] = [
+                'type'    => 'button',
+                'style'   => 'create',
+                'tooltip' => __('Create new return (stored items)'),
+                'label'   => __('Return (Stored items)'),
+                'fullLoading'   => true,
+                'route'   => [
+                    'method'     => 'post',
+                    'name'       => 'grp.models.fulfilment-customer.pallet-return-stored-items.store',
+                    'parameters' => [$this->parent->id]
+                ]
+            ];
+
             $openStoredItemAudit = $this->parent->storedItemAudits()->where('state', StoredItemAuditStateEnum::IN_PROCESS)->first();
 
             if ($openStoredItemAudit) {
