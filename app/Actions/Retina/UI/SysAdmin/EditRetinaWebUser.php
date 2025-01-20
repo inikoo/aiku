@@ -70,7 +70,7 @@ class EditRetinaWebUser extends RetinaAction
                             'label'   => __('properties'),
                             'icon'    => 'fa-light fa-key',
                             'current' => true,
-                            'fields'  => [
+                            'fields'  => array_merge([
                                 'contact_name' => [
                                     'type'  => 'input',
                                     'label' => __('contact name'),
@@ -91,11 +91,33 @@ class EditRetinaWebUser extends RetinaAction
                                     'label' => __('password'),
                                     'value' => ''
                                 ],
-
-                            ]
+                            ], $webUser->is_root ? [] : [
+                                'status' => [
+                                    'type'  => 'toggle',
+                                    'label' => __('Status'),
+                                    'value' => $webUser->status
+                                ]
+                            ])
                         ],
-
-
+                        [
+                            'label'   => __('Delete'),
+                            'icon'    => 'fa-light fa-trash',
+                            'fields'  => [
+                                'delete' => [
+                                    'type'  => 'action',
+                                    'action' => [
+                                        'label' => 'delete',
+                                        'type' => 'delete'
+                                    ],
+                                    'route' => [
+                                        'name' => 'retina.models.web-users.delete',
+                                        'parameters' => [
+                                            'webUser' => $webUser->id
+                                        ]
+                                    ]
+                                ],
+                            ]
+                        ]
                     ],
                     'args'      => [
                         'updateRoute' => [
