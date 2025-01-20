@@ -67,7 +67,7 @@ class HistoryUploads
     public function inPalletRetina(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): array|Collection
     {
         return $this->handle(class_basename(Pallet::class), [
-            'key'   => 'user_id',
+            'key'   => 'web_user_id',
             'value' => $request->user()->id
         ]);
     }
@@ -75,7 +75,7 @@ class HistoryUploads
     public function inPalletReturnRetina(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, ActionRequest $request): array|Collection
     {
         return $this->handle(class_basename(PalletReturnItem::class), [
-            'key'   => 'user_id',
+            'key'   => 'web_user_id',
             'value' => $request->user()->id
         ]);
     }
