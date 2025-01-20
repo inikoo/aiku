@@ -44,6 +44,10 @@ class EditRetinaWebUser extends RetinaAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
+                'navigation'           => [
+                    'previous' => $this->getPrevious($webUser, $request),
+                    'next'     => $this->getNext($webUser, $request),
+                ],
                 'pageHead'    => [
                     'title'     => __('Edit web user'),
                     'meta'      => [
@@ -70,7 +74,7 @@ class EditRetinaWebUser extends RetinaAction
                             'label'   => __('properties'),
                             'icon'    => 'fa-light fa-key',
                             'current' => true,
-                            'fields'  => [
+                            'fields'  => array_merge([
                                 'contact_name' => [
                                     'type'  => 'input',
                                     'label' => __('contact name'),
@@ -91,11 +95,33 @@ class EditRetinaWebUser extends RetinaAction
                                     'label' => __('password'),
                                     'value' => ''
                                 ],
-
-                            ]
+                            ], $webUser->is_root ? [] : [
+                                'status' => [
+                                    'type'  => 'toggle',
+                                    'label' => __('Status'),
+                                    'value' => $webUser->status
+                                ]
+                            ])
                         ],
-
-
+                        [
+                            'label'   => __('Delete'),
+                            'icon'    => 'fa-light fa-trash',
+                            'fields'  => [
+                                'delete' => [
+                                    'type'  => 'action',
+                                    'action' => [
+                                        'label' => 'delete',
+                                        'type' => 'delete'
+                                    ],
+                                    'route' => [
+                                        'name' => 'retina.models.web-users.delete',
+                                        'parameters' => [
+                                            'webUser' => $webUser->id
+                                        ]
+                                    ]
+                                ],
+                            ]
+                        ]
                     ],
                     'args'      => [
                         'updateRoute' => [
@@ -117,5 +143,43 @@ class EditRetinaWebUser extends RetinaAction
             routeParameters: $routeParameters,
             suffix: '('.__('Editing').')'
         );
+    }
+
+    public function getPrevious(WebUser $webUser, ActionRequest $request): ?array
+    {
+        $previous = WebUser::where('username', '<', $webUser->username)
+            ->where('web_users.customer_id', $this->customer->id)
+            ->orderBy('username', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+    }
+
+    public function getNext(WebUser $webUser, ActionRequest $request): ?array
+    {
+        $next = WebUser::where('username', '>', $webUser->username)
+            ->where('web_users.customer_id', $this->customer->id)
+            ->orderBy('username')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?WebUser $webUser, string $routeName): ?array
+    {
+        if (!$webUser) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'retina.sysadmin.web-users.edit' => [
+                'label' => $webUser->username,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'webUser' => $webUser->slug,
+                    ]
+
+                ]
+            ],
+        };
     }
 }

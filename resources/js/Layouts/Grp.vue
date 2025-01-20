@@ -50,7 +50,8 @@ const sidebarOpen = ref(false)
             :logoRoute="`grp.dashboard.show`" urlPrefix="grp." />
 
         <!-- Section: Breadcrumbs -->
-        <Breadcrumbs class="bg-white fixed z-[19] w-full transition-all duration-200 ease-in-out"
+        <Breadcrumbs
+            class="bg-white fixed z-[19] w-full transition-all duration-200 ease-in-out"
             :class="[
                 layout.leftSidebar.show ? 'left-0 md:left-48' : 'left-0 md:left-12',
                 layout.app.environment === 'staging' ? 'top-11 lg:top-16' : 'top-11 lg:top-10'

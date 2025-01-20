@@ -43,7 +43,7 @@
       {
           label: 'Last login',
           key: 'last_login',
-          value: '-'
+          value: props.data.last_login ?? '-'
       },
       {
           label: 'Created at',
@@ -51,7 +51,6 @@
           value: useFormatTime(props.data.customer?.created_at)
       },
       {
-          label: 'Status',
           key: 'status',
           value: props.data.status
       },

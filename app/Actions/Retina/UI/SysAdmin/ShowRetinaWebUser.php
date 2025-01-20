@@ -48,6 +48,10 @@ class ShowRetinaWebUser extends RetinaAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
+                'navigation'           => [
+                    'previous' => $this->getPrevious($webUser, $request),
+                    'next'     => $this->getNext($webUser, $request),
+                ],
                 'pageHead'    => [
                     //'model'         => $model,
                     'title'     => $webUser->username,
@@ -57,6 +61,7 @@ class ShowRetinaWebUser extends RetinaAction
                         [
                             'type'  => 'button',
                             'style' => 'edit',
+                            'label' => 'edit',
                             'route' => [
                                 'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                                 'parameters' => $request->route()->originalParameters()
@@ -124,6 +129,44 @@ class ShowRetinaWebUser extends RetinaAction
                 ),
             ),
             default => []
+        };
+    }
+
+    public function getPrevious(WebUser $webUser, ActionRequest $request): ?array
+    {
+        $previous = WebUser::where('username', '<', $webUser->username)
+            ->where('web_users.customer_id', $this->customer->id)
+            ->orderBy('username', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+    }
+
+    public function getNext(WebUser $webUser, ActionRequest $request): ?array
+    {
+        $next = WebUser::where('username', '>', $webUser->username)
+            ->where('web_users.customer_id', $this->customer->id)
+            ->orderBy('username')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?WebUser $webUser, string $routeName): ?array
+    {
+        if (!$webUser) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'retina.sysadmin.web-users.show' => [
+                'label' => $webUser->username,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'webUser' => $webUser->slug,
+                    ]
+
+                ]
+            ],
         };
     }
 
