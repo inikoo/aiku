@@ -16,14 +16,14 @@ import Action from "@/Components/Forms/Fields/Action.vue"
 import SubNavigation from "@//Components/Navigation/SubNavigation.vue"
 import { kebabCase } from "lodash"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import { faNarwhal } from "@fas"
+import {faNarwhal, faReceipt} from "@fas"
 import { faLayerPlus } from "@far"
 import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
 import { inject, ref } from "vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import { useTruncate } from '@/Composables/useTruncate'
 
-library.add(faTruckCouch, faUpload, faMapSigns, faNarwhal, faLayerPlus, faPallet, faWarehouse, faEmptySet, faMoneyBillWave)
+library.add(faTruckCouch, faUpload, faMapSigns, faNarwhal, faReceipt, faLayerPlus, faPallet, faWarehouse, faEmptySet, faMoneyBillWave)
 
 const props = defineProps<{
     data: PageHeadingTypes

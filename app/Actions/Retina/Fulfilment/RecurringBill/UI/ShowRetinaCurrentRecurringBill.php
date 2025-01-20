@@ -157,11 +157,9 @@ class ShowRetinaCurrentRecurringBill extends RetinaAction
 
     public function getBreadcrumbs(): array
     {
-
         return array_merge(
             ShowRetinaBillingDashboard::make()->getBreadcrumbs(),
             [
-
                 'type'   => 'simple',
                 'simple' => [
                     'icon'  => 'fal fa-receipt',

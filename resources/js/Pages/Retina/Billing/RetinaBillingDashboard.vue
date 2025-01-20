@@ -11,6 +11,7 @@ import {
 } from "@fal"
 import SectionTable from "@/Components/Table/SectionTable.vue"
 import { faAngleDown, faAngleUp } from "@far"
+import { faReceipt } from "@fas"
 import StoreStatsCard from "@/Components/DataDisplay/StoreStatsCard.vue"
 import InfoDashboardCard from "@/Components/DataDisplay/InfoDashboardCard.vue"
 import ProgressDashboardCard from "@/Components/DataDisplay/ProgressDashboardCard.vue"
@@ -40,7 +41,7 @@ const props = defineProps<{
 const locale = inject("locale", aikuLocaleStructure)
 
 library.add(
-faFileInvoiceDollar
+faFileInvoiceDollar, faReceipt
 )
 
 // Search functionality
