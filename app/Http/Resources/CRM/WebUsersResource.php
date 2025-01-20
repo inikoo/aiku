@@ -8,7 +8,6 @@
 
 namespace App\Http\Resources\CRM;
 
-use App\Actions\Utils\GetLocationFromIp;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Carbon\Carbon;
 
@@ -27,11 +26,17 @@ class WebUsersResource extends JsonResource
     {
 
 
+        $lastDevice = json_decode($this->last_device, true);
         return [
             'slug'        => $this->slug,
             'username'    => $this->username,
             'image'         => $this->imageSources(48, 48),
-            'location'      => GetLocationFromIp::run($this->last_login_ip),
+            'last_location'      => json_decode($this->last_location),
+            'last_device'      => $lastDevice ? [
+                $lastDevice['device_type'],
+                $lastDevice['platform'],
+            ] : null,
+            'last_os'      => $this->last_os,
             'status'       => $this->status,
             'status_icon'        => match ($this->status) {
                 true => [
