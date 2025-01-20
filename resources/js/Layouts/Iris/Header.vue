@@ -4,8 +4,11 @@ import NavigationMenu from '@/Layouts/Iris/NavigationMenu.vue'
 import { routeType } from "@/types/route"
 import MobileMenu from '@/Components/MobileMenu.vue'
 import Menu from 'primevue/menu'
-import {ref} from 'vue'
+import {ref,inject, provide} from 'vue'
 import { faUserCircle } from '@fal'
+import { router } from '@inertiajs/vue3'
+import { notify } from "@kyvg/vue3-notification"
+import { trans } from "laravel-vue-i18n"
 
 
 const props = defineProps<{
@@ -26,6 +29,45 @@ const _menu = ref();
 const toggle = (event) => {
     _menu.value.toggle(event)
 };
+
+const layout = inject('layout', {})
+const isLoggedIn = ref(layout.iris.user_auth ? true : false)
+provide('isPreviewLoggedIn', isLoggedIn)
+
+const onLogoutAuth = (link) => {
+    console.log('logout')
+    router.post(route('retina.logout'), {},
+        {
+            onSuccess: () => {
+                if(link) window.open(link)
+            },
+            onError: () => {
+                notify({
+                    title: trans("Something went wrong"),
+                    text: trans("Failed to logout"),
+                    type: "error"
+                })
+            },
+        })
+
+/* const dataActiveUser = {
+    ...layout.user,
+    name: null,
+    last_active: new Date(),
+    action: 'logout',
+    current_page: {
+        label: trans('Logout'),
+        url: null,
+        icon_left: null,
+        icon_right: null,
+    },
+}
+window.Echo.join(`retina.active.users`).whisper('otherIsNavigating', dataActiveUser)
+useLiveUsers().unsubscribe()  // Unsubscribe from Laravel Echo */
+}
+
+provide('onLogout', onLogoutAuth)
+console.log(layout)
 </script>
 
 <template>
@@ -35,7 +77,6 @@ const toggle = (event) => {
         :is="getIrisComponent(data?.topBar.code)"
         :fieldValue="data.topBar.data.fieldValue" 
         v-model="data.topBar.data.fieldValue" 
-        :loginMode="true"
         class="hidden md:block" 
     />
 
@@ -43,7 +84,6 @@ const toggle = (event) => {
     <component 
         :is="getIrisComponent(data?.header?.code)" 
         :fieldValue="data.header.data.fieldValue" 
-        :loginMode="true"
         class="hidden md:block"
         />
 

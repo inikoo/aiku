@@ -39,7 +39,7 @@ const active = ref()
 
 const isLoggedIn = inject('isPreviewLoggedIn', false)
 
-
+const onLogout = inject('onLogout')
 const locale = inject('locale', aikuLocaleStructure)
 const layout = inject('layout', {})
 
@@ -70,12 +70,12 @@ const layout = inject('layout', {})
                 id="profile_button"
                  :href="model?.profile?.link?.href"
                 :target="model?.profile?.link?.target"
-                class="space-x-1.5 whitespace-nowrap "
+                class="space-x-1.5 whitespace-nowrap flex flex-nowrap items-center "
                 :style="getStyles(model?.profile.container?.properties)"
 
             >
                 <FontAwesomeIcon icon='fal fa-user' class='' v-tooltip="trans('Profile')" fixed-width aria-hidden='true' />
-                <span v-html="textReplaceVariables(model?.profile?.text, layout.iris_variables)" />
+                <div v-html="textReplaceVariables(model?.profile?.text, layout.iris_variables)" />
             </a>
 
 
@@ -95,23 +95,9 @@ const layout = inject('layout', {})
              </span>
 
 
-            <!-- Section: Register -->
-            <!-- <span class="">
-                <a v-if="checkVisible(model?.register?.visible || null, isLoggedIn)"
-                    :href="model?.register?.link?.href"
-                    :target="model?.register?.link?.target"
-                    class="space-x-1.5 cursor-pointer whitespace-nowrap "
-                    :style="getStyles(model?.register.container?.properties)"
-
-                >
-                    <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
-                    <span v-html="textReplaceVariables(model?.register.text, layout.iris_variables)" />
-                </a>
-            </span> -->
-
             <!-- Section: LogoutRetina -->
             <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
-                :href="model?.logout?.link"
+                  @click="()=>onLogout(model?.logout?.link)"
                 class="space-x-1.5 whitespace-nowrap "
                 :style="getStyles(model?.logout.container?.properties)"
 
