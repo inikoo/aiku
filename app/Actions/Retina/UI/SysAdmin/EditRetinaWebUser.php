@@ -44,6 +44,10 @@ class EditRetinaWebUser extends RetinaAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
+                'navigation'           => [
+                    'previous' => $this->getPrevious($webUser, $request),
+                    'next'     => $this->getNext($webUser, $request),
+                ],
                 'pageHead'    => [
                     'title'     => __('Edit web user'),
                     'meta'      => [
@@ -139,5 +143,43 @@ class EditRetinaWebUser extends RetinaAction
             routeParameters: $routeParameters,
             suffix: '('.__('Editing').')'
         );
+    }
+
+    public function getPrevious(WebUser $webUser, ActionRequest $request): ?array
+    {
+        $previous = WebUser::where('username', '<', $webUser->username)
+            ->where('web_users.customer_id', $this->customer->id)
+            ->orderBy('username', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+    }
+
+    public function getNext(WebUser $webUser, ActionRequest $request): ?array
+    {
+        $next = WebUser::where('username', '>', $webUser->username)
+            ->where('web_users.customer_id', $this->customer->id)
+            ->orderBy('username')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?WebUser $webUser, string $routeName): ?array
+    {
+        if (!$webUser) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'retina.sysadmin.web-users.edit' => [
+                'label' => $webUser->username,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'webUser' => $webUser->slug,
+                    ]
+
+                ]
+            ],
+        };
     }
 }
