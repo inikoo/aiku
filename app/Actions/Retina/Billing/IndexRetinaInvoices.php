@@ -70,8 +70,6 @@ class IndexRetinaInvoices extends RetinaAction
             abort(422);
         }
 
-        $queryBuilder->whereNull('paid_at');
-
         $queryBuilder->leftjoin('organisations', 'invoices.organisation_id', '=', 'organisations.id');
         $queryBuilder->leftjoin('shops', 'invoices.shop_id', '=', 'shops.id');
 
@@ -96,7 +94,6 @@ class IndexRetinaInvoices extends RetinaAction
             ])
             ->leftJoin('currencies', 'invoices.currency_id', 'currencies.id')
             ->leftJoin('invoice_stats', 'invoices.id', 'invoice_stats.invoice_id');
-
 
 
         if ($parent instanceof Shop) {
