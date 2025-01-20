@@ -129,9 +129,13 @@ class IndexStoredItemAudits extends OrgAction
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
                     match (class_basename($parent)) {
-                        'Group' => [
-                            'title' => __("No post rooms found"),
-                            'count' => $parent->commsStats->number_org_post_rooms,
+                        'FulfilmentCustomer' => [
+                            'title' => __("No audits found"),
+                            'count' => $parent->number_stored_item_audits,
+                        ],
+                        'Fulfilment' => [
+                            'title' => __("No audits found"),
+                            'count' => $parent->stats->number_stored_item_audits,
                         ],
                         default => null
                     }
