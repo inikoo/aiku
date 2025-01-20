@@ -303,9 +303,9 @@ const edit_block = (audit_type: string, is_edit: boolean) => {
 
         <!-- Column: Customer SKUS -->
         <template #cell(stored_items)="{ proxyItem, item }">
-            pallet id: {{ item.id }} <br />
+            <!-- pallet id: {{ item.id }} <br />
             item.stored_item_audit_id: {{ item.stored_item_audit_id }} <br />
-            route store: {{ props.route_list?.stored_item_audit_delta?.store.name }} <br />
+            route store: {{ props.route_list?.stored_item_audit_delta?.store.name }} <br /> -->
 
             <DataTable v-if="proxyItem.stored_items?.length || proxyItem.new_stored_items?.length"
                 :value="[...proxyItem.stored_items, ...proxyItem.new_stored_items]">
@@ -327,12 +327,12 @@ const edit_block = (audit_type: string, is_edit: boolean) => {
 
 
                     <template #body="{ data }">
-                        <pre>{{ data }}</pre>
+                        <!-- <pre>{{ data }}</pre>
                         stored_item_audit_id: {{ data.stored_item_audit_id || '-' }} <br />
                         stored_item_id: {{ data.stored_item_id || '-' }} <br />
                         audit_type: {{ data.audit_type || '-' }} <br />
                         stored_item_audit_delta_id: {{ data.stored_item_audit_delta_id || '-' }} <br />
-                        edit_block: {{ edit_block(data.audit_type, data.is_edit) }}
+                        edit_block: {{ edit_block(data.audit_type, data.is_edit) }} -->
 
                         <!-- <pre>{{ props.route_list?.stored_item_audit_delta?.store }}</pre> -->
                         <!-- <pre>{{ data }}</pre> -->
