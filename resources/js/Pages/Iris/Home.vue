@@ -27,7 +27,7 @@ defineOptions({ layout: LayoutIris })
 library.add(faCheck, faPlus, faMinus)
 
 const layout = inject('layout', {})
-const isPreviewLoggedIn = ref(layout.iris.is_logged_in)
+const isPreviewLoggedIn = ref(layout.iris.user_auth)
 
 const showWebpage = (activityItem) => {
     if (activityItem?.web_block?.layout && activityItem.show) {
