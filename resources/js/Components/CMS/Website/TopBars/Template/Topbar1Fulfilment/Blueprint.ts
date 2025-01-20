@@ -92,28 +92,6 @@ export default {
 					key: ['container', 'properties'],
 					type: "button",
 					label :'Button',
-					props_data: {
-						defaultValue: {
-							text: {
-								color: "rgba(255, 255, 255, 1)"
-							},
-							padding: {
-								top: {
-									value: 5
-								},
-								left: {
-									value: 10
-								},
-								unit: "px",
-								right: {
-									value: 10
-								},
-								bottom: {
-									value: 5
-								}
-							}
-						},
-					},
 				},
 				{
 					key: ['text'],
@@ -122,6 +100,41 @@ export default {
 					props_data: {
 						defaultValue: '{{ name }}',
 					},
+				},
+			],
+		},
+		{
+			name: "Logout",
+            key:['logout'],
+			icon: {
+				icon: "fal fa-sign-out-alt",
+				tooltip: "Action",
+			},
+			replaceForm: [
+				{
+					key: ["container",'properties','text'],
+					label :'Text',
+					type: "textProperty",
+				},
+				{
+					key: ['text'],
+					label :'Button Text',
+					type: "text",
+				},
+				{
+					key: ["container",'properties','border'],
+					label :'Border',
+					type: "border",
+				},
+				{
+					key: ["container",'properties','margin'],
+					label :'Margin',
+					type: "margin",
+				},
+				{
+					key: ["container",'properties','padding'],
+					label :'Padding',
+					type: "padding",
 				},
 			],
 		},
