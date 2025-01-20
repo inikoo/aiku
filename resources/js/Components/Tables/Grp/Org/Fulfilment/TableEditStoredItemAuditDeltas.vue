@@ -387,7 +387,7 @@ const edit_block = (audit_type: string, is_edit: boolean) => {
                                                     <div class="text-center tabular-nums border border-transparent hover:border-dashed hover:border-gray-300 group-focus:border-dashed group-focus:border-gray-300">
                                         
                                                         <InputNumber
-                                                            :modelValue="data.stored_item_audit_delta_id ? data.audited_quantity : data.quantity"
+                                                            :modelValue="data.stored_item_audit_delta_id ? data.audited_quantity : data.quantity ||   edit_block(data.audit_type, data.is_edit) =='edit'  "
                                                             @update:modelValue="(e) => debounceChangeQuantity(item.rowIndex, data.stored_item_audit_delta_id, e)"
                                                             buttonLayout="horizontal" :min="0" style="width: 100%"
                                                             :inputStyle="{
