@@ -55,8 +55,8 @@ class AttachPalletsToReturn extends OrgAction
 
             Pallet::whereIn('id', $palletsToSelect)->update([
                 'pallet_return_id' => $palletReturn->id,
-                'status'           => PalletStatusEnum::STORING,
-                'state'            => PalletStateEnum::IN_PROCESS
+                'status'           => PalletStatusEnum::RETURNING,
+                'state'            => PalletStateEnum::REQUEST_RETURN
             ]);
 
             $pallets = Pallet::findOrFail($palletsToSelect);
