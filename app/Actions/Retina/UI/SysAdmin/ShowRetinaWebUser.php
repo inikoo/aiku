@@ -61,7 +61,6 @@ class ShowRetinaWebUser extends RetinaAction
                         [
                             'type'  => 'button',
                             'style' => 'edit',
-                            'label' => 'edit',
                             'route' => [
                                 'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                                 'parameters' => $request->route()->originalParameters()
