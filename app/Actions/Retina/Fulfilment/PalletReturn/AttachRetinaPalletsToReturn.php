@@ -30,6 +30,8 @@ class AttachRetinaPalletsToReturn extends RetinaAction
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
+
+
         $selectedPalletIds = Arr::get($modelData, 'pallets', []);
 
         if (count($selectedPalletIds) === 0) {
@@ -53,8 +55,8 @@ class AttachRetinaPalletsToReturn extends RetinaAction
 
             Pallet::whereIn('id', $palletsToSelect)->update([
                 'pallet_return_id' => $palletReturn->id,
-                'status'           => PalletStatusEnum::STORING,
-                'state'            => PalletStateEnum::IN_PROCESS
+                'status'           => PalletStatusEnum::RETURNING,
+                'state'            => PalletStateEnum::REQUEST_RETURN
             ]);
 
             $pallets = Pallet::findOrFail($palletsToSelect);

@@ -231,9 +231,9 @@
 
     @foreach($return->services() as $service)
         <tr class="@if($loop->last) last @endif">
-            <td style="text-align:left">{{ $service->code }}</td>
-            <td style="text-align:left">{{ $service->name }}</td>
-            <td style="text-align:left">{{ $service->currency?->symbol . $service->price }}</td>
+            <td style="text-align:left">{{ $service->asset->code }}</td>
+            <td style="text-align:left">{{ $service->asset->name }}</td>
+            <td style="text-align:left">{{ $return->currency?->symbol . $service->net_amount }}</td>
         </tr>
     @endforeach
 

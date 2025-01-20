@@ -470,6 +470,9 @@ Route::name('website.')->prefix('website/{website:id}')->group(function () {
     Route::patch('/settings/update', PublishWebsiteProductTemplate::class)->name('settings.update');
 
     Route::patch('theme', [PublishWebsiteMarginal::class, 'theme'])->name('update.theme');
+    //    Route::patch('menu-toggle', ToggleWebsiteMenuStatus::class)->name('menu.toggle.status');
+    //    Route::patch('header-toggle', ToggleWebsiteHeaderStatus::class)->name('header.toggle.status');
+    //    Route::patch('footer-toggle', ToggleWebsiteFooterStatus::class)->name('footer.toggle.status');
 
     Route::patch('', UpdateWebsite::class)->name('update');
     Route::post('launch', LaunchWebsite::class)->name('launch');

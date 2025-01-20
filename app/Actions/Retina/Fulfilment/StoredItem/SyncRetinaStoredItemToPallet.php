@@ -13,8 +13,6 @@ use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateStoredItems;
 use App\Actions\RetinaAction;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\CRM\WebUser;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
