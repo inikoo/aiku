@@ -245,8 +245,8 @@ class IndexPalletReturns extends OrgAction
                                 $this->parent->number_pallets_status_storing ? [
                                     'type'    => 'button',
                                     'style'   => 'create',
-                                    'tooltip' => !$this->parent->number_stored_items_status_storing ? __('Create new return (whole pallet)') : __('Create new return'),
-                                    'label'   => !$this->parent->number_stored_items_status_storing ? __('Return (whole pallet)') : __('Return'),
+                                    'tooltip' => $this->parent->items_storage ? __('Create new return (whole pallet)') : __('Create new return'),
+                                    'label'   => $this->parent->items_storage ? __('Return (whole pallet)') : __('Return'),
                                     'fullLoading'   => true,
                                     'route'   => [
                                         'method'     => 'post',
@@ -259,7 +259,7 @@ class IndexPalletReturns extends OrgAction
                         },
                         match (class_basename($this->parent)) {
                             'FulfilmentCustomer' =>
-                            !$this->parent->number_stored_items_status_storing ? [
+                            $this->parent->items_storage ? [
                                 'type'    => 'button',
                                 'style'   => 'create',
                                 'tooltip' => __('Create new return (stored items)'),
