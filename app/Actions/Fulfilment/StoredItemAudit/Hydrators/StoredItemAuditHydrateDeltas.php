@@ -37,20 +37,19 @@ class StoredItemAuditHydrateDeltas
     {
 
         $deltas = $storedItemAudit->deltas;
-
         $inProcessDeltas = $deltas->where('state', StoredItemAuditDeltaStateEnum::IN_PROCESS);
         $additionDeltas = $deltas->where('audit_type', StoredItemAuditDeltaTypeEnum::ADDITION);
         $subtractionDeltas = $deltas->where('audit_type', StoredItemAuditDeltaTypeEnum::SUBTRACTION);
-        $checkDeltas = $deltas->where('audit_type', StoredItemAuditDeltaTypeEnum::CHECK);
+        $checkDeltas = $deltas->where('audit_type', StoredItemAuditDeltaTypeEnum::NO_CHANGE);
 
         $stats = [
-            'number_audited_pallets' => $deltas->pluck('pallet_id')->unique()->count(),
-            'number_audited_stored_items' => $deltas->pluck('stored_item_id')->unique()->count(),
+            'number_audited_pallets' => $storedItemAudit->deltas->pluck('pallet_id')->unique()->count(),
+            'number_audited_stored_items' => $storedItemAudit->deltas->pluck('stored_item_id')->unique()->count(),
             'number_audited_stored_items_with_additions' => $additionDeltas->pluck('stored_item_id')->unique()->count(),
             'number_audited_stored_items_with_with_subtractions' => $subtractionDeltas->pluck('stored_item_id')->unique()->count(),
             'number_audited_stored_items_with_with_stock_checked' => $checkDeltas->pluck('stored_item_id')->unique()->count(),
-            'number_associated_stored_items' => $inProcessDeltas->pluck('stored_items')->unique()->count(),
-            'number_created_stored_items' => $inProcessDeltas->where('is_new_stored_item', true)->where('is_stored_item_new_in_pallet', true)->pluck('stored_items')->unique()->count(),
+            'number_associated_stored_items' => $inProcessDeltas->where('is_stored_item_new_in_pallet', true)->pluck('stored_item_id')->unique()->count(),
+            'number_created_stored_items' => $inProcessDeltas->where('audit_type', StoredItemAuditDeltaTypeEnum::SET_UP)->where('is_new_stored_item', true)->pluck('stored_item_id')->unique()->count(),
         ];
 
         $storedItemAudit->update($stats);
