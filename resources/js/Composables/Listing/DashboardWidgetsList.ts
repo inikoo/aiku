@@ -11,10 +11,13 @@ import { defineAsyncComponent } from 'vue'
 
 const BasicDisplay = defineAsyncComponent(() => import('@/Components/DataDisplay/Dashboard/Widget/BasicDisplay.vue'))
 const OverviewDisplay = defineAsyncComponent(() => import('@/Components/DataDisplay/Dashboard/Widget/OverviewDisplay.vue'))
+const OperationDisplay = defineAsyncComponent(() => import('@/Components/DataDisplay/Dashboard/Widget/OperationDisplay.vue'))
 
 export const widgetList: {[key: string]: Component} = {
     'basic': BasicDisplay,
-    'flat_tree_map': FlatTreeMap
+    'flat_tree_map': FlatTreeMap,
+    'overview_display': OverviewDisplay,
+    'operation_display': OperationDisplay
 }
 
 export const getComponentWidget = (componentName: string) => {
