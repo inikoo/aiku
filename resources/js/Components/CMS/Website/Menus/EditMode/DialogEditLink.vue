@@ -138,7 +138,7 @@ const selectQueryOnChange = (e) => {
 				:value="localModel"
 				:closeOnSelect="true"
 				label="href" 
-				:urlRoute="getRoute"
+				:urlRoute="getRoute()"
 				/>
 		</div>
       
