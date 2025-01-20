@@ -222,6 +222,7 @@ class ShowRetinaInvoice extends RetinaAction
     {
         $previous = Invoice::where('reference', '<', $invoice->reference)
             ->where('invoices.shop_id', $invoice->shop_id)
+            ->where('invoices.customer_id', $invoice->customer_id)
             ->orderBy('reference', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
@@ -231,6 +232,7 @@ class ShowRetinaInvoice extends RetinaAction
     {
         $next = Invoice::where('reference', '>', $invoice->reference)
             ->where('invoices.shop_id', $invoice->shop_id)
+            ->where('invoices.customer_id', $invoice->customer_id)
             ->orderBy('reference')->first();
 
         return $this->getNavigation($next, $request->route()->getName());

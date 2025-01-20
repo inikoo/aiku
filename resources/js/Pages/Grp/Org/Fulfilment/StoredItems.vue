@@ -10,7 +10,7 @@ import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItems.vue"
 
-import { faNarwhal } from '@fal'
+import { faNarwhal, faBallotCheck } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { computed, ref } from 'vue'
@@ -18,7 +18,7 @@ import { useTabChange } from '@/Composables/tab-change'
 import Tabs from '@/Components/Navigation/Tabs.vue'
 import Table from '@/Components/Table/Table.vue'
 import TableStoredItemsAudits from '@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemsAudits.vue'
-library.add(faNarwhal)
+library.add(faNarwhal, faBallotCheck)
 
 const props = defineProps<{
     data: {}

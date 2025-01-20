@@ -6,6 +6,9 @@ import MobileMenu from '@/Components/MobileMenu.vue'
 import Menu from 'primevue/menu'
 import {ref,inject, provide} from 'vue'
 import { faUserCircle } from '@fal'
+import { router } from '@inertiajs/vue3'
+import { notify } from "@kyvg/vue3-notification"
+import { trans } from "laravel-vue-i18n"
 
 
 const props = defineProps<{
@@ -30,7 +33,41 @@ const toggle = (event) => {
 const layout = inject('layout', {})
 const isLoggedIn = ref(layout.iris.user_auth ? true : false)
 provide('isPreviewLoggedIn', isLoggedIn)
-console.log('layout',layout)
+
+const onLogoutAuth = (link) => {
+    console.log('logout')
+    router.post(route('retina.logout'), {},
+        {
+            onSuccess: () => {
+                if(link) window.open(link)
+            },
+            onError: () => {
+                notify({
+                    title: trans("Something went wrong"),
+                    text: trans("Failed to logout"),
+                    type: "error"
+                })
+            },
+        })
+
+/* const dataActiveUser = {
+    ...layout.user,
+    name: null,
+    last_active: new Date(),
+    action: 'logout',
+    current_page: {
+        label: trans('Logout'),
+        url: null,
+        icon_left: null,
+        icon_right: null,
+    },
+}
+window.Echo.join(`retina.active.users`).whisper('otherIsNavigating', dataActiveUser)
+useLiveUsers().unsubscribe()  // Unsubscribe from Laravel Echo */
+}
+
+provide('onLogout', onLogoutAuth)
+console.log(layout)
 </script>
 
 <template>

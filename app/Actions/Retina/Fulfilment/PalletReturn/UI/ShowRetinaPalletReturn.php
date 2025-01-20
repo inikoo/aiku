@@ -154,67 +154,13 @@ class ShowRetinaPalletReturn extends RetinaAction
                     'afterTitle' => $afterTitle,
                     'model'     => __('pallet return'),
                     'actions'   => $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
-                        [
+       /*                 [
                             'type'      => 'button',
                             'style'     => 'tertiary',
                             'icon'      => 'fal fa-upload',
                             'label'     => __('upload'),
                             'tooltip'   => __('Upload file')
-                        ],
-                        [
-                            'type'   => 'buttonGroup',
-                            'key'    => 'upload-add',
-                            'button' => [
-                                [
-                                    'type'  => 'button',
-                                    'style' => 'secondary',
-                                    'icon'  => 'fal fa-plus',
-                                    'label' => __('add pallet'),
-                                    'route' => [
-                                        'name'       => 'retina.models.pallet-return.pallet.store',
-                                        'parameters' => [
-                                            'palletReturn'       => $palletReturn->id
-                                        ]
-                                    ]
-                                ],
-                                [
-                                    'type'    => 'button',
-                                    'style'   => 'secondary',
-                                    'icon'    => 'fal fa-plus',
-                                    'label'   => __('add SKU'),
-                                    'route'   => [
-                                        'name'       => 'retina.models.pallet-return.stored_item.store',
-                                        'parameters' => [
-                                            'palletReturn'       => $palletReturn->id
-                                        ]
-                                    ]
-                                ],
-                                [
-                                    'type'  => 'button',
-                                    'style' => 'secondary',
-                                    'icon'  => 'fal fa-plus',
-                                    'label' => __('add service'),
-                                    'route' => [
-                                        'name'       => 'retina.models.pallet-return.transaction.store',
-                                        'parameters' => [
-                                            'palletReturn'       => $palletReturn->id
-                                        ]
-                                    ]
-                                ],
-                                [
-                                    'type'  => 'button',
-                                    'style' => 'secondary',
-                                    'icon'  => 'fal fa-plus',
-                                    'label' => __('add physical good'),
-                                    'route' => [
-                                        'name'       => 'retina.models.pallet-return.transaction.store',
-                                        'parameters' => [
-                                            'palletReturn'       => $palletReturn->id
-                                        ]
-                                    ]
-                                ],
-                            ]
-                        ],
+                        ],*/
                         $palletReturn->pallets()->count() > 0 ? [
                             'type'    => 'button',
                             'style'   => 'save',
@@ -606,14 +552,18 @@ class ShowRetinaPalletReturn extends RetinaAction
 
     public function getPrevious(PalletReturn $palletReturn, ActionRequest $request): ?array
     {
-        $previous = PalletReturn::where('id', '<', $palletReturn->id)->orderBy('id', 'desc')->first();
+        $previous = PalletReturn::where('id', '<', $palletReturn->id)
+            ->where('fulfilment_customer_id', $this->customer->fulfilmentCustomer->id)
+            ->orderBy('id', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(PalletReturn $palletReturn, ActionRequest $request): ?array
     {
-        $next = PalletReturn::where('id', '>', $palletReturn->id)->orderBy('id')->first();
+        $next = PalletReturn::where('id', '>', $palletReturn->id)
+            ->where('fulfilment_customer_id', $this->customer->fulfilmentCustomer->id)
+            ->orderBy('id')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }

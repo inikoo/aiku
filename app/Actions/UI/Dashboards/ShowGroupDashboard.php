@@ -222,13 +222,13 @@ class ShowGroupDashboard extends OrgAction
             visual: [
                 'type' => 'pie',
                 'value' => [
-                    'labels'=> ['A', 'B', 'C'],
+                    'labels' => ['A', 'B', 'C'],
                     'currency_codes' => $visualData['invoices_data']['currency_codes'],
                     /* 'datasets'    => $visualData['invoices_data']['datasets'] */
                     //TODO: new datasets
                     'datasets'    => [
                         [
-                            'data'=> [540, 325, 702],
+                            'data' => [540, 325, 702],
                             'backgroundColor' => '#00ffff',
                             'borderColor' => '#ff7f00',
                             'borderWidth' => 1

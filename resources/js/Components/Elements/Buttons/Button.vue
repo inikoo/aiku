@@ -58,7 +58,7 @@ else if ( props.type == 'secondary' ||  props.style == 'secondary' ) {
 }
 
 else if (props.type == 'tertiary' || props.style == 'tertiary') styleClass = 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70'
-else if (props.type == 'exit' || props.style == 'exit' || props.style == 'exitEdit' || props.type == 'edit' || props.style == 'edit' ) styleClass = 'bg-transparent text-indigo-500 text-xl hover:text-indigo-700 disabled:bg-gray-200/70'
+else if (props.type == 'exit' || props.style == 'exit' || props.style == 'exitEdit' || props.type == 'edit' || props.style == 'edit' ) styleClass = 'buttonEdit'
 else if (props.type == 'dashed' || props.style == 'dashed' ) styleClass = 'bg-transparent border border-dashed border-gray-400 text-gray-700 hover:bg-black/10'
 else if (props.type == 'rainbow' || props.style == 'rainbow' ) styleClass = 'bg-indigo-500 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
 
@@ -219,6 +219,26 @@ const getActionIcon = (icon: any) => {
 
     &:disabled {
         background-color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4] + "22"} 70%, black)`') !important;
+    }
+}
+
+.buttonEdit {
+    // Primary but less opacity
+    @apply bg-transparent text-xl !important;
+
+    // border: v-bind('`1px solid ${layout?.app?.theme[4] + "88"}`');
+    color: v-bind('layout?.app?.theme[4]') !important;
+
+    &:hover {
+        color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4]} 85%, ${layout?.app?.theme[5]})`') !important;
+    }
+
+    // &:focus {
+    //     box-shadow: 0 0 0 2px v-bind('layout?.app?.theme[4]') !important;
+    // }
+
+    &:disabled {
+        background-color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[5]} 50%, grey)`') !important;
     }
 }
 </style>

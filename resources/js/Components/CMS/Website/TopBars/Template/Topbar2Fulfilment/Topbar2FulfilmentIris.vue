@@ -63,7 +63,7 @@ const isLoggedIn = inject('isPreviewLoggedIn', false)
 
 const locale = inject('locale', aikuLocaleStructure)
 const layout = inject('layout', {})
-
+const onLogout = inject('onLogout')
 const isModalOpen = ref(false)
 
 const emits = defineEmits<{
@@ -141,21 +141,12 @@ const emits = defineEmits<{
             />
 
             <!-- Section: LogoutRetina -->
-            <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
-                :href="model?.logout?.link"
-                class="col-span-2 text-right block md:hidden space-x-1.5 "
-                :style="getStyles(model?.logout.container?.properties)"
-
-            >
-                <FontAwesomeIcon icon='fal fa-sign-out' v-tooltip="trans('Log out')" class='' fixed-width aria-hidden='true' />
-                <span class="" v-html="textReplaceVariables(model?.logout?.text, layout.iris_variables)" />
-            </a>
         </div>
 
         <div class="md:col-span-2 flex md:justify-end gap-x-4 ">
             <!-- Section: LogoutRetina -->
             <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
-                :href="model?.logout?.link"
+               @click="()=>onLogout(model?.logout?.link)"
                 class="hidden md:block space-x-1.5 "
                 :style="getStyles(model?.logout.container?.properties)"
 

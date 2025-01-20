@@ -21,7 +21,6 @@ use App\Actions\RetinaAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletDeliveries;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletDeliveries;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
-use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
@@ -37,11 +36,7 @@ class StoreRetinaPalletDelivery extends RetinaAction
     use HasRentalAgreement;
     use WithDeliverableStoreProcessing;
 
-
-    public Customer $customer;
-
     private bool $action = false;
-    private FulfilmentCustomer $fulfilmentCustomer;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletDelivery
     {
