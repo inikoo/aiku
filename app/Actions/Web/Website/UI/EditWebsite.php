@@ -10,6 +10,7 @@ namespace App\Actions\Web\Website\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
+use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
@@ -63,8 +64,8 @@ class EditWebsite extends OrgAction
                 'updateRoute' => [
                     'name'       => 'grp.models.fulfilment.website.update',
                     'parameters' => [
-                       $this->scope->id,
-                       $website->id,
+                        $this->scope->id,
+                        $website->id,
                     ]
                 ],
             ];
@@ -79,6 +80,188 @@ class EditWebsite extends OrgAction
                         ]
                     ]
                 ],
+            ];
+        }
+
+        $blueprints = [];
+
+        $blueprints[] = [
+            'label'  => __('ID/domain'),
+            'icon'   => 'fa-light fa-id-card',
+            'fields' => [
+                'code'          => [
+                    'type'     => 'input',
+                    'label'    => __('code'),
+                    'value'    => $website->code,
+                    'required' => true,
+                ],
+                'name'          => [
+                    'type'     => 'input',
+                    'label'    => __('name'),
+                    'value'    => $website->name,
+                    'required' => true,
+                ],
+                'domain'        => [
+                    'type'      => 'inputWithAddOn',
+                    'label'     => __('domain'),
+                    'leftAddOn' => [
+                        'label' => 'http://www.'
+                    ],
+                    'value'     => $website->domain,
+                    'required'  => true,
+                ],
+                'google_tag_id' => [
+                    'type'     => 'input',
+                    'label'    => __('google tag id'),
+                    'value'    => Arr::get($website->settings, "google_tag_id"),
+                    'required' => false,
+                ],
+            ]
+        ];
+
+        if (in_array($website->type, [WebsiteTypeEnum::B2B, WebsiteTypeEnum::DROPSHIPPING])) {
+            $blueprints[] = [
+                'label'  => __('Registrations'),
+                'icon'   => 'fa-light fa-id-card',
+                'fields' => [
+                    'approval'           => [
+                        'type'     => 'toggle',
+                        'label'    => __('Registrations Approval'),
+                        'value'    => false,
+                        'required' => true,
+                    ],
+                    'registrations_type' => [
+                        'type'     => 'radio',
+                        'mode'     => 'card',
+                        'label'    => __('Registration Type'),
+                        'value'    => [
+                            'title'       => "type B",
+                            'description' => 'This user able to create and delete',
+                            'label'       => '17 users left',
+                            'value'       => "typeB",
+                        ],
+                        'required' => true,
+                        'options'  => [
+                            [
+                                'title'       => "type A",
+                                'description' => 'This user able to edit',
+                                'label'       => '425 users left',
+                                'value'       => "typeA",
+                            ],
+                            [
+                                'title'       => "type B",
+                                'description' => 'This user able to create and delete',
+                                'label'       => '17 users left',
+                                'value'       => "typeB",
+                            ],
+                        ]
+                    ],
+                    'web_registrations'  => [
+                        'type'     => 'webRegistrations',
+                        'label'    => __('Web Registration'),
+                        'value'    => [
+                            [
+                                'key'      => 'telephone',
+                                'name'     => __('telephone'),
+                                'show'     => true,
+                                'required' => false,
+                            ],
+                            [
+                                'key'      => 'address',
+                                'name'     => __('address'),
+                                'show'     => false,
+                                'required' => false,
+                            ],
+                            [
+                                'key'      => 'company',
+                                'name'     => __('company'),
+                                'show'     => false,
+                                'required' => false,
+                            ],
+                            [
+                                'key'      => 'contact_name',
+                                'name'     => __('contact_name'),
+                                'show'     => false,
+                                'required' => false,
+                            ],
+                            [
+                                'key'      => 'registration_number',
+                                'name'     => __('registration number'),
+                                'show'     => true,
+                                'required' => false,
+                            ],
+                            [
+                                'key'      => 'tax_number',
+                                'name'     => __('tax number'),
+                                'show'     => false,
+                                'required' => false,
+                            ],
+                            [
+                                'key'      => 'terms_and_conditions',
+                                'name'     => __('terms and conditions'),
+                                'show'     => true,
+                                'required' => true,
+                            ],
+                            [
+                                'key'      => 'marketing',
+                                'name'     => __('marketing'),
+                                'show'     => false,
+                                'required' => false,
+                            ],
+                        ],
+                        'required' => true,
+                        'options'  => [
+                            [
+                                'key'      => 'telephone',
+                                'name'     => __('telephone'),
+                                'show'     => true,
+                                'required' => false,
+                            ],
+                            [
+                                'key'      => 'address',
+                                'name'     => __('address'),
+                                'show'     => false,
+                                'required' => false,
+                            ],
+                            [
+                                'key'      => 'company',
+                                'name'     => __('company'),
+                                'show'     => false,
+                                'required' => false,
+                            ],
+                            [
+                                'key'      => 'contact_name',
+                                'name'     => __('contact name'),
+                                'show'     => false,
+                                'required' => false,
+                            ],
+                            [
+                                'key'      => 'registration_number',
+                                'name'     => __('registration number'),
+                                'show'     => true,
+                                'required' => false,
+                            ],
+                            [
+                                'key'      => 'tax_number',
+                                'name'     => __('tax number'),
+                                'show'     => false,
+                                'required' => false,
+                            ],
+                            [
+                                'key'      => 'terms_and_conditions',
+                                'name'     => __('terms and conditions'),
+                                'show'     => true,
+                                'required' => false,
+                            ],
+                            [
+                                'key'      => 'marketing',
+                                'name'     => __('marketing'),
+                                'show'     => false,
+                                'required' => false,
+                            ],
+                        ]
+                    ]
+                ]
             ];
         }
 
@@ -122,184 +305,7 @@ class EditWebsite extends OrgAction
                     ],
                 ],
                 'formData'    => [
-                    'blueprint' => [
-                        [
-                            'label'  => __('ID/domain'),
-                            'icon'   => 'fa-light fa-id-card',
-                            'fields' => [
-                                'code'   => [
-                                    'type'     => 'input',
-                                    'label'    => __('code'),
-                                    'value'    => $website->code,
-                                    'required' => true,
-                                ],
-                                'name'   => [
-                                    'type'     => 'input',
-                                    'label'    => __('name'),
-                                    'value'    => $website->name,
-                                    'required' => true,
-                                ],
-                                'domain' => [
-                                    'type'      => 'inputWithAddOn',
-                                    'label'     => __('domain'),
-                                    'leftAddOn' => [
-                                        'label' => 'http://www.'
-                                    ],
-                                    'value'     => $website->domain,
-                                    'required'  => true,
-                                ],
-                                'google_tag_id' => [
-                                    'type'      => 'input',
-                                    'label'     => __('google tag id'),
-                                    'value'     => Arr::get($website->settings, "google_tag_id"),
-                                    'required'  => false,
-                                ],
-                            ]
-                        ],
-                        [
-                            'label'  => __('Registrations'),
-                            'icon'   => 'fa-light fa-id-card',
-                            'fields' => [
-                                'approval'           => [
-                                    'type'     => 'toggle',
-                                    'label'    => __('Registrations Approval'),
-                                    'value'    => false,
-                                    'required' => true,
-                                ],
-                                'registrations_type' => [
-                                    'type'     => 'radio',
-                                    'mode'     => 'card',
-                                    'label'    => __('Registration Type'),
-                                    'value'    => [
-                                        'title'       => "type B",
-                                        'description' => 'This user able to create and delete',
-                                        'label'       => '17 users left',
-                                        'value'       => "typeB",
-                                    ],
-                                    'required' => true,
-                                    'options'  => [
-                                        [
-                                            'title'       => "type A",
-                                            'description' => 'This user able to edit',
-                                            'label'       => '425 users left',
-                                            'value'       => "typeA",
-                                        ],
-                                        [
-                                            'title'       => "type B",
-                                            'description' => 'This user able to create and delete',
-                                            'label'       => '17 users left',
-                                            'value'       => "typeB",
-                                        ],
-                                    ]
-                                ],
-                                'web_registrations'  => [
-                                    'type'     => 'webRegistrations',
-                                    'label'    => __('Web Registration'),
-                                    'value'    => [
-                                        [
-                                            'key'      => 'telephone',
-                                            'name'     => __('telephone'),
-                                            'show'     => true,
-                                            'required' => false,
-                                        ],
-                                        [
-                                            'key'      => 'address',
-                                            'name'     => __('address'),
-                                            'show'     => false,
-                                            'required' => false,
-                                        ],
-                                        [
-                                            'key'      => 'company',
-                                            'name'     => __('company'),
-                                            'show'     => false,
-                                            'required' => false,
-                                        ],
-                                        [
-                                            'key'      => 'contact_name',
-                                            'name'     => __('contact_name'),
-                                            'show'     => false,
-                                            'required' => false,
-                                        ],
-                                        [
-                                            'key'      => 'registration_number',
-                                            'name'     => __('registration number'),
-                                            'show'     => true,
-                                            'required' => false,
-                                        ],
-                                        [
-                                            'key'      => 'tax_number',
-                                            'name'     => __('tax number'),
-                                            'show'     => false,
-                                            'required' => false,
-                                        ],
-                                        [
-                                            'key'      => 'terms_and_conditions',
-                                            'name'     => __('terms and conditions'),
-                                            'show'     => true,
-                                            'required' => true,
-                                        ],
-                                        [
-                                            'key'      => 'marketing',
-                                            'name'     => __('marketing'),
-                                            'show'     => false,
-                                            'required' => false,
-                                        ],
-                                    ],
-                                    'required' => true,
-                                    'options'  => [
-                                        [
-                                            'key'      => 'telephone',
-                                            'name'     => __('telephone'),
-                                            'show'     => true,
-                                            'required' => false,
-                                        ],
-                                        [
-                                            'key'      => 'address',
-                                            'name'     => __('address'),
-                                            'show'     => false,
-                                            'required' => false,
-                                        ],
-                                        [
-                                            'key'      => 'company',
-                                            'name'     => __('company'),
-                                            'show'     => false,
-                                            'required' => false,
-                                        ],
-                                        [
-                                            'key'      => 'contact_name',
-                                            'name'     => __('contact name'),
-                                            'show'     => false,
-                                            'required' => false,
-                                        ],
-                                        [
-                                            'key'      => 'registration_number',
-                                            'name'     => __('registration number'),
-                                            'show'     => true,
-                                            'required' => false,
-                                        ],
-                                        [
-                                            'key'      => 'tax_number',
-                                            'name'     => __('tax number'),
-                                            'show'     => false,
-                                            'required' => false,
-                                        ],
-                                        [
-                                            'key'      => 'terms_and_conditions',
-                                            'name'     => __('terms and conditions'),
-                                            'show'     => true,
-                                            'required' => false,
-                                        ],
-                                        [
-                                            'key'      => 'marketing',
-                                            'name'     => __('marketing'),
-                                            'show'     => false,
-                                            'required' => false,
-                                        ],
-                                    ]
-                                ]
-                            ]
-                        ],
-                    ],
+                    'blueprint' => $blueprints,
 
                     'args' => $args
 
