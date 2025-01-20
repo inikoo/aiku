@@ -312,3 +312,24 @@ test('show pallet return (physical goods tab)', function () {
 
     });
 });
+
+test('index web users', function () {
+    // $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.sysadmin.web-users.index'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('SysAdmin/RetinaWebUsers')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Users')
+                        ->etc()
+            )
+            ->has('labels')
+            ->has('data');
+
+    });
+});
