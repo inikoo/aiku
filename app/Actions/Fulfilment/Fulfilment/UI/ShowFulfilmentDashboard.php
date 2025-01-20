@@ -100,7 +100,6 @@ class ShowFulfilmentDashboard extends OrgAction
 
                             $this->getWidget(
                                 colSpan: 1,
-                                maxWidth: '500px',
                                 data: [
                                     'value'         => $fulfilment->stats->current_recurring_bills_amount,
                                     'description'   => __('Next Bills'),
