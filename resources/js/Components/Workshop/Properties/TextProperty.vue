@@ -25,14 +25,13 @@ const fontFamilies = [...useFontFamilyList];
 
 <template>
     <div class="flex flex-col pt-1 pb-3">
-
         <div class="pb-2">
             <div class="px-3 flex justify-between items-center mb-2">
                 <div class="text-xs">{{ trans('Color') }}</div>
-                <ColorPicker :color="model.color"
+                <ColorPicker :color="model?.color"
                     @changeColor="(newColor) => model.color = `rgba(${newColor.rgba.r}, ${newColor.rgba.g}, ${newColor.rgba.b}, ${newColor.rgba.a})`"
                     closeButton
-                    :isEditable="!model.color?.includes('var')"
+                    :isEditable="!model?.color?.includes('var')"
                 >
                     <template #button>
                         <div v-bind="$attrs"

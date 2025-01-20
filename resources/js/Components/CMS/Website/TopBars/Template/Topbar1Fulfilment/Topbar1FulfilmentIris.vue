@@ -95,20 +95,6 @@ const layout = inject('layout', {})
              </span>
 
 
-            <!-- Section: Register -->
-            <!-- <span class="">
-                <a v-if="checkVisible(model?.register?.visible || null, isLoggedIn)"
-                    :href="model?.register?.link?.href"
-                    :target="model?.register?.link?.target"
-                    class="space-x-1.5 cursor-pointer whitespace-nowrap "
-                    :style="getStyles(model?.register.container?.properties)"
-
-                >
-                    <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
-                    <span v-html="textReplaceVariables(model?.register.text, layout.iris_variables)" />
-                </a>
-            </span> -->
-
             <!-- Section: LogoutRetina -->
             <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
                 :href="model?.logout?.link"
