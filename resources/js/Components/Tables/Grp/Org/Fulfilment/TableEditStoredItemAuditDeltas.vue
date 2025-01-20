@@ -241,6 +241,11 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
 
 
 const stateStoredItemEdited = reactive<StoredItemsQuantity>({})
+
+
+const isGreenIconVisible = () => {
+    
+}
 </script>
 
 <template>
@@ -356,14 +361,13 @@ const stateStoredItemEdited = reactive<StoredItemsQuantity>({})
                                         :disabled="data.audit_type === 'no_change'"
                                     />
 
-                                    
-                                    <!-- Section: - and + -->
+                                    <!-- Edit button -->
                                     <div v-if="!data.stored_item_audit_delta_id" @click="() => set(data, ['is_edit'], !(get(data, ['is_edit'], false)))" class="px-2 flex items-center hover:bg-gray-200 cursor-pointer">
                                         <FontAwesomeIcon icon='far fa-edit' class='' fixed-width aria-hidden='true' />
                                     </div>
                                     
-
-                                    <template v-if=" (!data.stored_item_audit_delta_id && get(data, ['is_edit'], false)) || data.audit_type != 'no_change'"  || !ckeck_green_icon_visible()   >
+                                    <!-- Section: - and + -->
+                                    <template v-if=" (!data.stored_item_audit_delta_id && get(data, ['is_edit'], false)) || (data.audit_type && data.audit_type != 'no_change')">
                                         <div class="transition-all relative inline-flex items-center justify-center "
                                             :class="!get('statesBoxEdit', `${item.rowIndex}.${data.id}`, false) ? 'w-28' : 'w-14'">
                                             <transition>
