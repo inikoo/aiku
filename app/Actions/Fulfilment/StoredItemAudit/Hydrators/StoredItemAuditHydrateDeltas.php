@@ -49,7 +49,7 @@ class StoredItemAuditHydrateDeltas
             'number_audited_stored_items_with_with_subtractions' => $subtractionDeltas->pluck('stored_item_id')->unique()->count(),
             'number_audited_stored_items_with_with_stock_checked' => $checkDeltas->pluck('stored_item_id')->unique()->count(),
             'number_associated_stored_items' => $inProcessDeltas->where('is_stored_item_new_in_pallet', true)->pluck('stored_item_id')->unique()->count(),
-            'number_created_stored_items' => $inProcessDeltas->where('audit_type', StoredItemAuditDeltaTypeEnum::SET_UP)->where('is_new_stored_item', true)->pluck('stored_item_id')->unique()->count(),
+            'number_created_stored_items' => $inProcessDeltas->where('is_new_stored_item', true)->pluck('stored_item_id')->unique()->count(),
         ];
 
         $storedItemAudit->update($stats);
