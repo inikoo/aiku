@@ -3,7 +3,7 @@ import { getComponentWidget } from "@/Composables/Listing/DashboardWidgetsList"
 
 const props = defineProps<{
 	widgetsData: {
-		column_count: number
+		column_count?: number
 		components: {
 			type: string // 'basic'
 			col_span?: number
@@ -23,15 +23,19 @@ const props = defineProps<{
 		:style="{
 			'grid-template-columns': `repeat(${widgetsData.column_count || 1}, minmax(0, 1fr))`,
 		}">
-		<component
-			v-for="(component, index) in props.widgetsData.components"
-			:is="getComponentWidget(component.type)"
-			:widgetData="component.data"
-			:visual="component.visual"
-			:style="{
-				'grid-column': `span ${component.col_span || 1} / span ${component.col_span || 1}`,
-				'grid-row': `span ${component.row_span || 1} / span ${component.row_span || 1}`,
-			}" />
+		<template
+            v-for="(component, index) in props.widgetsData?.components"
+            :key="'widget' + index"
+        >
+            <component
+                :is="getComponentWidget(component.type)"
+                :widget="component.data"
+                :visual="component.visual"
+                :style="{
+                    'grid-column': `span ${component.col_span || 1} / span ${component.col_span || 1}`,
+                    'grid-row': `span ${component.row_span || 1} / span ${component.row_span || 1}`,
+                }" />
+        </template>
 	</div>
 
 	<!-- <div class="col-span-12">
