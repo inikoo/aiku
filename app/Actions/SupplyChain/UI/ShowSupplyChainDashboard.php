@@ -113,7 +113,7 @@ class ShowSupplyChainDashboard extends GrpAction
                                             'index' => [
                                                 'number' => $this->group->supplyChainStats->number_active_independent_suppliers
                                             ],
-                
+
                                         ],
                                         [
                                             'name'      => __('supplier products'),
@@ -123,7 +123,7 @@ class ShowSupplyChainDashboard extends GrpAction
                                             'index'     => [
                                                 'number' => $this->group->supplyChainStats->number_current_supplier_products
                                             ],
-                
+
                                         ],
                                     ],
                                     // 'mode'  => 'compact'
