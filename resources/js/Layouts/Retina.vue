@@ -66,9 +66,18 @@ const isStaging = layout.app.environment === 'staging'
             <div class="bg-white shadow-lg rounded h-full overflow-y-auto relative flex flex-col pb-6 text-gray-700">
                 <!-- Section: Breadcrumbs -->
                 <div class="mt-1">
-                    <Breadcrumbs v-if="usePage().props.breadcrumbs?.length > 0"
+                    <!-- <Breadcrumbs v-if="usePage().props.breadcrumbs?.length > 0"
                         :breadcrumbs="usePage().props.breadcrumbs ?? []"
                         :navigation="usePage().props.navigation ?? []"
+                    /> -->
+
+                    <Breadcrumbs
+                        class="bg-white w-full transition-all duration-200 ease-in-out"
+                        :class="[
+                            layout.leftSidebar.show ? 'left-0 md:left-48' : 'left-0 md:left-12',
+                        ]"
+                        :breadcrumbs="usePage().props.breadcrumbs ?? []" :navigation="usePage().props.navigation ?? []"
+                        :layout="layout"    
                     />
                 </div>
                         <slot />

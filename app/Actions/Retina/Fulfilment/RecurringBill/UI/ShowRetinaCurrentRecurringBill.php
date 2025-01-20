@@ -160,15 +160,17 @@ class ShowRetinaCurrentRecurringBill extends RetinaAction
         return array_merge(
             ShowRetinaBillingDashboard::make()->getBreadcrumbs(),
             [
-                'type'   => 'simple',
-                'simple' => [
-                    'icon'  => 'fal fa-receipt',
-                    'label' => __('next bill'),
-                    'route' => [
-                        'name' => 'retina.fulfilment.billing.next_recurring_bill'
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'icon'  => 'fal fa-receipt',
+                        'label' => __('Next Bill'),
+                        'route' => [
+                            'name' => 'retina.fulfilment.billing.next_recurring_bill'
+                        ]
                     ]
-                ]
 
+                ]
             ],
         );
     }
