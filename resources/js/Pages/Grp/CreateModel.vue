@@ -240,11 +240,11 @@ const onSelectSubmitChange = (value) => {
                                     <!-- Title of Field -->
                                     <dt class="text-sm font-medium text-gray-500 capitalize">
                                         <div class="inline-flex items-start leading-none">
+                                            <span>{{ fieldData.label }}</span>
                                             <!-- Icon: Required -->
                                             <FontAwesomeIcon v-if="fieldData.required"
                                                 :icon="['fas', 'asterisk']"
                                                 class="font-light text-[12px] text-red-400 mr-1" />
-                                            <span>{{ fieldData.label }}</span>
                                         </div>
                                     </dt>
                                     
