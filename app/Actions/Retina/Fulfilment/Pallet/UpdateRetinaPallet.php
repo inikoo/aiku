@@ -40,6 +40,7 @@ class UpdateRetinaPallet extends RetinaAction
 
 
     private Pallet $pallet;
+    private bool $action = false;
 
     public function handle(Pallet $pallet, array $modelData): Pallet
     {
@@ -72,7 +73,7 @@ class UpdateRetinaPallet extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->asAction) {
+        if ($this->action) {
             return true;
         }
 
@@ -171,20 +172,15 @@ class UpdateRetinaPallet extends RetinaAction
         return $this->handle($pallet, $this->validatedData);
     }
 
-    // public function action(Pallet $pallet, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Pallet
-    // {
-    //     $this->strict = $strict;
-    //     if (!$audit) {
-    //         Pallet::disableAuditing();
-    //     }
+    public function action(Pallet $pallet, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Pallet
+    {
+        $this->pallet         = $pallet;
+        $this->action         = true;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->initialisationFulfilmentActions($pallet->fulfilmentCustomer, $modelData);
 
-    //     $this->pallet         = $pallet;
-    //     $this->asAction       = true;
-    //     $this->hydratorsDelay = $hydratorsDelay;
-    //     $this->initialisationFromFulfilment($pallet->fulfilment, $modelData);
-
-    //     return $this->handle($pallet, $this->validatedData);
-    // }
+        return $this->handle($pallet, $this->validatedData);
+    }
 
     public function jsonResponse(Pallet $pallet): PalletResource
     {

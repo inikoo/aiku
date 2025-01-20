@@ -37,11 +37,7 @@ class StoreRetinaPalletDelivery extends RetinaAction
     use HasRentalAgreement;
     use WithDeliverableStoreProcessing;
 
-
-    public Customer $customer;
-
     private bool $action = false;
-    private FulfilmentCustomer $fulfilmentCustomer;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletDelivery
     {

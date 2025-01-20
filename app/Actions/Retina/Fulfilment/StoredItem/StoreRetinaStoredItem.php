@@ -30,8 +30,7 @@ class StoreRetinaStoredItem extends RetinaAction
 {
     use AsAction;
     use WithAttributes;
-
-    public FulfilmentCustomer $fulfilmentCustomer;
+    private bool $action = false;
 
     public function handle(FulfilmentCustomer $parent, array $modelData): StoredItem
     {
@@ -60,7 +59,7 @@ class StoreRetinaStoredItem extends RetinaAction
             return true;
         }
 
-        if ($this->asAction) {
+        if ($this->action) {
             return true;
         }
 
@@ -90,6 +89,14 @@ class StoreRetinaStoredItem extends RetinaAction
         $this->fulfilment         = $fulfilmentCustomer->fulfilment;
 
         $this->initialisation($request);
+
+        return $this->handle($fulfilmentCustomer, $this->validateAttributes());
+    }
+
+    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): StoredItem
+    {
+        $this->action = true;
+        $this->initialisationFulfilmentActions($fulfilmentCustomer, $modelData);
 
         return $this->handle($fulfilmentCustomer, $this->validateAttributes());
     }
