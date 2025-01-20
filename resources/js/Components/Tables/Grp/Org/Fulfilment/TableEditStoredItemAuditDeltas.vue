@@ -244,7 +244,7 @@ const stateStoredItemEdited = reactive<StoredItemsQuantity>({})
 
 
 const edit_block = (audit_type: string, is_edit: boolean) => {
-    return audit_type === 'no_change' ? 'checked' : is_edit ? 'edit' : false
+    return audit_type === 'no_change' ? 'checked' : audit_type || is_edit ? 'edit' : false
 }
 </script>
 
