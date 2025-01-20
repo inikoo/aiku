@@ -39,7 +39,7 @@ enum StoredItemsInWarehouseTabsEnum: string
             StoredItemsInWarehouseTabsEnum::STORED_ITEM_AUDITS => [
 
                 'title' => __("Customer's SKUs Audits"),
-                'icon'  => 'fal fa-narwhal',
+                'icon'  => 'fal fa-ballot-check',
             ],
 
         };
