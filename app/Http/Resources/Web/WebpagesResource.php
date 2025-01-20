@@ -42,7 +42,7 @@ class WebpagesResource extends JsonResource
                 'website' => $this->website_slug,
                 'webpage' => $this->slug,
             ]),
-            "href" => $this->website_url . '/' . $this->url,
+            "href" => (app()->isProduction() ? 'https://' : 'http://'). $this->website_url . '/' . $this->url,
             "type" => $this->type,
             "typeIcon" => $this->type->stateIcon()[$this->type->value] ?? ["fal", "fa-browser"],
             /* 	"typeIcon2" => match ($this->type) {
