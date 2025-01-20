@@ -157,7 +157,7 @@ const emits = defineEmits<{
             </a>
 
             <!-- Register -->
-             <span class="hover-dashed">
+           <!--   <span class="hover-dashed">
                 <a v-if="checkVisible(model?.register?.visible || null, isLoggedIn)"
                     class="space-x-1.5 cursor-pointer"
                     id=""
@@ -169,7 +169,7 @@ const emits = defineEmits<{
                     <span v-html="textReplaceVariables(model?.register.text, layout.iris_variables)" />
                 </a>
              </span>
-
+ -->
 
             <!-- Login -->
             <span class="hover-dashed">

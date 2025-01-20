@@ -100,7 +100,7 @@ const emits = defineEmits<{
             </span>
 
             <!-- Register -->
-             <span class="">
+           <!--   <span class="">
                 <a v-if="checkVisible(model?.register.visible || null, isLoggedIn)"
                     :href="model?.register?.link.href"
                     :target="model?.register?.link.target"
@@ -112,7 +112,7 @@ const emits = defineEmits<{
                     <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
                     <span v-html="textReplaceVariables(model?.register?.text, layout.iris_variables)" />
                 </a>
-             </span>
+             </span> -->
 
         </div>
 

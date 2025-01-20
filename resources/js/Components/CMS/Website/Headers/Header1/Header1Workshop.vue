@@ -43,10 +43,7 @@ const toggle = (event) => {
             <div class="w-full grid grid-cols-3 items-center gap-6">
                 <!-- Logo -->
                 <div :style="getStyles(modelValue.logo.properties)" @click="() => emits('setPanelActive', 'logo')">
-                    <img v-if="!modelValue.logo.source" :src="modelValue?.logo?.url" :alt="modelValue?.logo?.alt"
-                        :style="{ width: `${modelValue.logo.width}%` }" class="hover-dashed" />
-                    <Image v-else :alt="modelValue?.logo?.alt" :src="modelValue?.logo?.source"
-                        :style="{ width: `${modelValue.logo.width}%` }" class="hover-dashed"></Image>
+                    <Image :alt="modelValue?.logo?.alt" :src="modelValue?.logo?.image?.source" class="hover-dashed"></Image>
                 </div>
 
                 <!-- Search Bar -->
