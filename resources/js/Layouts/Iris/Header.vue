@@ -4,7 +4,7 @@ import NavigationMenu from '@/Layouts/Iris/NavigationMenu.vue'
 import { routeType } from "@/types/route"
 import MobileMenu from '@/Components/MobileMenu.vue'
 import Menu from 'primevue/menu'
-import {ref} from 'vue'
+import {ref,inject, provide} from 'vue'
 import { faUserCircle } from '@fal'
 
 
@@ -26,6 +26,11 @@ const _menu = ref();
 const toggle = (event) => {
     _menu.value.toggle(event)
 };
+
+const layout = inject('layout', {})
+const isLoggedIn = ref(layout.iris.user_auth ? true : false)
+provide('isPreviewLoggedIn', isLoggedIn)
+console.log('layout',layout)
 </script>
 
 <template>
@@ -35,7 +40,6 @@ const toggle = (event) => {
         :is="getIrisComponent(data?.topBar.code)"
         :fieldValue="data.topBar.data.fieldValue" 
         v-model="data.topBar.data.fieldValue" 
-        :loginMode="true"
         class="hidden md:block" 
     />
 
@@ -43,7 +47,6 @@ const toggle = (event) => {
     <component 
         :is="getIrisComponent(data?.header?.code)" 
         :fieldValue="data.header.data.fieldValue" 
-        :loginMode="true"
         class="hidden md:block"
         />
 

@@ -81,46 +81,6 @@ export default {
 			],
 		},
 		{
-			name: "Register",
-            key:["register"],
-			icon: {
-				icon: "fal fa-dot-circle",
-				tooltip: "Action",
-			},
-			replaceForm: [
-				{
-					key: ["container",'properties','background'],
-					label :'Background',
-					type: "background",
-				},
-				{
-					key: ["container",'properties','text'],
-					label :'Text',
-					type: "textProperty",
-				},
-				{
-					key: ['text'],
-					label :'Button Text',
-					type: "text",
-				},
-				{
-					key: ["container",'properties','border'],
-					label :'Border',
-					type: "border",
-				},
-				{
-					key: ["container",'properties','margin'],
-					label :'Margin',
-					type: "margin",
-				},
-				{
-					key: ["container",'properties','padding'],
-					label :'Padding',
-					type: "padding",
-				},
-			],
-		},
-		{
 			name: "Profile",
             key: ["profile"],
 			icon: {
@@ -162,6 +122,41 @@ export default {
 					props_data: {
 						defaultValue: '{{ name }}',
 					},
+				},
+			],
+		},
+		{
+			name: "Logout",
+            key:['logout'],
+			icon: {
+				icon: "fal fa-sign-out-alt",
+				tooltip: "Action",
+			},
+			replaceForm: [
+				{
+					key: ["container",'properties','text'],
+					label :'Text',
+					type: "textProperty",
+				},
+				{
+					key: ['text'],
+					label :'Button Text',
+					type: "text",
+				},
+				{
+					key: ["container",'properties','border'],
+					label :'Border',
+					type: "border",
+				},
+				{
+					key: ["container",'properties','margin'],
+					label :'Margin',
+					type: "margin",
+				},
+				{
+					key: ["container",'properties','padding'],
+					label :'Padding',
+					type: "padding",
 				},
 			],
 		},

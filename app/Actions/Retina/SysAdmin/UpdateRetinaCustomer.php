@@ -9,7 +9,6 @@
 
 namespace App\Actions\Retina\SysAdmin;
 
-
 use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\RetinaAction;
 use App\Actions\Traits\WithActionUpdate;

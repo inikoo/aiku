@@ -36,6 +36,7 @@ use App\Actions\Retina\Fulfilment\PalletReturn\UpdateRetinaPalletReturn;
 use App\Actions\Retina\Fulfilment\StoredItem\StoreRetinaStoredItem;
 use App\Actions\Retina\Fulfilment\StoredItem\SyncRetinaStoredItemToPallet;
 use App\Actions\Retina\SysAdmin\AddRetinaDeliveryAddressToFulfilmentCustomer;
+use App\Actions\Retina\SysAdmin\DeleteRetinaWebUser;
 use App\Actions\Retina\SysAdmin\StoreRetinaWebUser;
 use App\Actions\Retina\SysAdmin\UpdateRetinaCustomer;
 use App\Actions\Retina\SysAdmin\UpdateRetinaWebUser;
@@ -108,4 +109,5 @@ Route::name('dropshipping.')->prefix('dropshipping')->group(function () {
 Route::name('web-users.')->prefix('web-users')->group(function () {
     Route::post('', StoreRetinaWebUser::class)->name('store');
     Route::patch('{webUser:id}/update', UpdateRetinaWebUser::class)->name('update');
+    Route::delete('{webUser:id}/delete', DeleteRetinaWebUser::class)->name('delete');
 });

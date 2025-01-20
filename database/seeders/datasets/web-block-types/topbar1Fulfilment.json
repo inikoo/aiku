@@ -110,60 +110,14 @@
 					}
 				}
 			},
-			"register": {
-				"link": null,
-				"text": "Register",
-				"visible": "logout",
+			"profile": {
+				"link":null,
+				"text": "{{ name }}",
+				"visible": "login",
 				"container": {
 					"properties": {
 						"text": {
 							"color": "rgba(255, 255, 255, 1)"
-						},
-						"border": {
-							"top": {
-								"value": 1
-							},
-							"left": {
-								"value": 1
-							},
-							"unit": "px",
-							"color": "rgba(255, 255, 255, 1)",
-							"right": {
-								"value": 1
-							},
-							"bottom": {
-								"value": 1
-							},
-							"rounded": {
-								"unit": "px",
-								"topleft": {
-									"value": 5
-								},
-								"topright": {
-									"value": 5
-								},
-								"bottomleft": {
-									"value": 5
-								},
-								"bottomright": {
-									"value": 5
-								}
-							}
-						},
-						"margin": {
-							"top": {
-								"value": 0
-							},
-							"left": {
-								"value": 0
-							},
-							"unit": "px",
-							"right": {
-								"value": 0
-							},
-							"bottom": {
-								"value": 0
-							}
 						},
 						"padding": {
 							"top": {
@@ -179,20 +133,13 @@
 							"bottom": {
 								"value": 5
 							}
-						},
-						"background": {
-							"type": "color",
-							"color": "rgba(10, 10, 10, 0)",
-							"image": {
-								"original": null
-							}
 						}
 					}
 				}
 			},
-			"profile": {
-				"link":null,
-				"text": "{{ name }}",
+			"logout": {
+				"link": null,
+				"text": "Log out",
 				"visible": "login",
 				"container": {
 					"properties": {

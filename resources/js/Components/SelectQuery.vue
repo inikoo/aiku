@@ -209,7 +209,7 @@ defineExpose({
         :noResultsText="loading ? 'loading...' : 'No Result'"
         @open="getOptions()"
         @search-change="SearchChange"
-        @change="(props.onChange, getOptions())"
+        @change="((e)=>{props.onChange(e), getOptions()})"
         :closeOnDeselect="closeOnDeselect"
         :isSelected="isSelected"
         :loading="loadingCaret"

@@ -81,18 +81,36 @@ export default {
 			],
 		},
 		{
-			name: "Register",
-            key:["register"],
+			name: "Profile",
+            key: ["profile"],
 			icon: {
-				icon: "fal fa-dot-circle",
-				tooltip: "Action",
+				icon: "fal fa-user",
+				tooltip: "Profile",
 			},
 			replaceForm: [
 				{
-					key: ["container",'properties','background'],
-					label :'Background',
-					type: "background",
+					key: ['container', 'properties'],
+					type: "button",
+					label :'Button',
 				},
+				{
+					key: ['text'],
+					type: "editorhtml",
+					label :'Text',
+					props_data: {
+						defaultValue: '{{ name }}',
+					},
+				},
+			],
+		},
+		{
+			name: "Logout",
+            key:['logout'],
+			icon: {
+				icon: "fal fa-sign-out-alt",
+				tooltip: "Action",
+			},
+			replaceForm: [
 				{
 					key: ["container",'properties','text'],
 					label :'Text',
@@ -117,53 +135,6 @@ export default {
 					key: ["container",'properties','padding'],
 					label :'Padding',
 					type: "padding",
-				},
-			],
-		},
-		
-	
-		{
-			name: "Profile",
-            key: ["profile"],
-			icon: {
-				icon: "fal fa-user",
-				tooltip: "Profile",
-			},
-			replaceForm: [
-				{
-					key: ['container', 'properties'],
-					type: "button",
-					label :'Button',
-					props_data: {
-						defaultValue: {
-							text: {
-								color: "rgba(255, 255, 255, 1)"
-							},
-							padding: {
-								top: {
-									value: 5
-								},
-								left: {
-									value: 10
-								},
-								unit: "px",
-								right: {
-									value: 10
-								},
-								bottom: {
-									value: 5
-								}
-							}
-						},
-					},
-				},
-				{
-					key: ['text'],
-					type: "editorhtml",
-					label :'Text',
-					props_data: {
-						defaultValue: '{{ name }}',
-					},
 				},
 			],
 		},

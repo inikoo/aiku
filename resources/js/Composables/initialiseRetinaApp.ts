@@ -117,6 +117,10 @@ export const initialiseRetinaApp = () => {
             layout.user = usePage().props.auth.user
         }
 
+        if (usePage().props.iris) {
+            layout.iris = usePage().props.iris
+        }
+
         if (usePage().props.auth?.user?.avatar_thumbnail) {
             layout.avatar_thumbnail = usePage().props.auth.user.avatar_thumbnail
         }

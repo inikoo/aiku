@@ -11,10 +11,11 @@ import { capitalize } from "@/Composables/capitalize"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import Table from "@/Components/Table/Table.vue"
 import Icon from '@/Components/Icon.vue'
+import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faReceipt,faRoad, faUserCircle, faUserSlash, faBlender, faTimes, faCheck, faYinYang } from '@fal'
+import { faReceipt,faRoad, faUserCircle, faUserSlash, faBlender, faTimes, faCheck, faYinYang, faCrown } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faReceipt, faRoad, faUserCircle, faUserSlash, faBlender, faTimes, faCheck, faYinYang)
+library.add(faReceipt, faCrown,faRoad, faUserCircle, faUserSlash, faBlender, faTimes, faCheck, faYinYang)
 
 
 defineProps<{
@@ -45,13 +46,18 @@ function webUserRoute(webUser: {}) {
     <Table :resource="data" class="mt-5">
 
         <template #cell(status)="{ item: webUser }">
-            <Icon :data="webUser.status" class="px-1" />
+            <Icon :data="webUser.status_icon" class="px-1" />
         </template>
 
         <template #cell(username)="{ item: webUser }">
-            <Link :href="webUserRoute(webUser)" class="primaryLink py-0.5">
-            {{ webUser.username }}
+            <Link :href="webUserRoute(webUser)" :class="'primaryLink py-0.5 ' + (!webUser.status ? 'line-through' : '')">
+                {{ webUser.username }}
             </Link>
+            <Icon v-if="webUser?.root_icon" :data="webUser.root_icon" class="px-1" />
+        </template>
+
+        <template #cell(location)="{ item: webUser }">
+            <AddressLocation :data="webUser.location" />
         </template>
 
         <template #cell(type)="{ item }">

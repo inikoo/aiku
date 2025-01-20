@@ -38,11 +38,13 @@ class PalletDeliveriesResource extends JsonResource
             'customer_name'              => $this->customer_name,
             'customer_slug'              => $this->customer_slug,
             'estimated_delivery_date'    => $this->estimated_delivery_date,
+            'date'                       => $this->date,
             'organisation_name'          => $this->organisation_name,
             'organisation_slug'          => $this->organisation_slug,
             'shop_name'                  => $this->shop_name,
             'shop_slug'                  => $this->shop_slug,
             'fulfilment_slug'            => $this->fulfilment_slug,
+            'amount'                     => $this->net_amount,
 
             'receiveRoute'               => [
                 'name'       => 'grp.models.pallet-delivery.received',

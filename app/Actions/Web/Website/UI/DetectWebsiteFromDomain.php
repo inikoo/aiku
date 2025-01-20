@@ -33,7 +33,7 @@ class DetectWebsiteFromDomain
         if (app()->environment('staging')) {
             $domain = str_replace('canary.', '', $domain);
         }
-        // dd($domain);
+        $domain = str_replace('www.', '', $domain);
 
         /** @var Website $website */
         $website = Website::where('domain', $domain)->first();

@@ -17,7 +17,7 @@ library.add(faCheck, faExclamation, faInfo, faPlay)
 const props = withDefaults(
 	defineProps<{
 		showRedBorder: boolean
-		widgetData: {
+		widget: {
 			value: string
 			description: string
 			status: "success" | "warning" | "danger" | "information" | "neutral"
@@ -28,7 +28,7 @@ const props = withDefaults(
 		visual?: any
 	}>(),
 	{
-		widgetData: () => {
+		widget: () => {
 			return {
 				value: "0",
 				description: "",
@@ -164,9 +164,9 @@ const getIconColor = (status?: string) => {
 }
 
 const printLabelByType = (label?: string) => {
-	switch (props.widgetData.type) {
+	switch (props.widget.type) {
 		case "currency":
-			return locale.currencyFormat(props.widgetData.currency_code || "usd", Number(label))
+			return locale.currencyFormat(props.widget.currency_code || "usd", Number(label))
 		default:
 			return label
 	}
@@ -226,20 +226,17 @@ const setChartOptions = () => ({
 </script>
 
 <template>
-	<div
-		:class="[
-			'rounded-lg p-6 shadow-md relative h-full flex flex-col',
-			getStatusColor(widgetData.status),
-		]">
-		<p class="text-4xl font-bold leading-tight truncate">
-			<!-- v-tooltip="printLabelByType(widgetData?.value)" -->
-			<!-- Render CountUp if widgetData.type is 'number' -->
-			<template v-if="widgetData?.type === 'number'">
-				<template v-if="widgetData?.route">
-					<Link :href="NumberDashboard(widgetData.route)">
+	<div :class="['rounded-lg p-6 shadow-md relative h-full', getStatusColor(widget.status)]">
+		<p
+			class="text-4xl font-bold leading-tight truncate">
+			<!-- v-tooltip="printLabelByType(widget?.value)" -->
+			<!-- Render CountUp if widget.type is 'number' -->
+			<template v-if="widget?.type === 'number'">
+				<template v-if="widget?.route">
+					<Link :href="NumberDashboard(widget.route)">
 						<CountUp
 							class="primaryLink inline-block"
-							:endVal="widgetData?.value"
+							:endVal="widget?.value"
 							:duration="1.5"
 							:scrollSpyOnce="true"
 							:options="{
@@ -249,7 +246,7 @@ const setChartOptions = () => ({
 				</template>
 				<template v-else>
 					<CountUp
-						:endVal="widgetData?.value"
+						:endVal="widget?.value"
 						:duration="1.5"
 						:scrollSpyOnce="true"
 						:options="{
@@ -259,18 +256,18 @@ const setChartOptions = () => ({
 			</template>
 
 			<template v-else>
-				<template v-if="widgetData?.route">
-					<Link :href="NumberDashboard(widgetData.route)" class="primaryLink">
-						{{ printLabelByType(widgetData?.value) }}
+				<template v-if="widget?.route">
+					<Link :href="NumberDashboard(widget.route)" class="primaryLink">
+						{{ printLabelByType(widget?.value) }}
 					</Link>
 				</template>
 				<template v-else>
-					{{ printLabelByType(widgetData?.value) }}
+					{{ printLabelByType(widget?.value) }}
 				</template>
 			</template>
 		</p>
 
-		<p class="text-base text-gray-500">{{ widgetData.description }}</p>
+		<p class="text-base text-gray-500">{{ widget.description }}</p>
 
 		<!-- Visual Progress Bar -->
 		<div v-if="visual?.type === 'MeterGroup'" class="mt-3">
@@ -371,12 +368,12 @@ const setChartOptions = () => ({
 
 		<!-- Conditional Red Exclamation Icon -->
 		<div
-			v-if="getIcon(widgetData.status)"
+			v-if="getIcon(widget.status)"
 			class="absolute bottom-0 right-0 transform translate-x-1/2 translate-y-1/2 rounded-full w-6 h-6 text-xs flex items-center justify-center shadow-md"
-			:class="getIconColor(widgetData.status)">
+			:class="getIconColor(widget.status)">
 			<FontAwesomeIcon
-				v-if="getIcon(widgetData.status)"
-				:icon="getIcon(widgetData.status)"
+				v-if="getIcon(widget.status)"
+				:icon="getIcon(widget.status)"
 				fixed-width
 				aria-hidden="true" />
 		</div>

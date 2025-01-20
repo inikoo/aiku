@@ -109,13 +109,20 @@ const editNavigation = () => {
 }
 
 const onChangeNavigationLink = (data) => {
-  props.modelValue = {
+  const updatedData = {
     ...props.modelValue,
     label: data.label,
-    link: data.link
-  }
-  visibleNavigation.value = false
-}
+    link: data.link,
+  };
+
+  // Emit the updated data to the parent
+  emits('update:modelValue', updatedData);
+
+  // Close the dialog
+  visibleNavigation.value = false;
+};
+
+
 
 
 const confirmDelete = (event,data,index) => {
@@ -161,6 +168,7 @@ emits('update:modelValue',newValue)
         </div>
       </div>
 
+
       <!-- Multiselect navigasi -->
       <div
         v-if="modelValue"
@@ -186,7 +194,7 @@ emits('update:modelValue',newValue)
         class="bg-white rounded-lg shadow-md p-6 transition-transform duration-300 hover:scale-105"
       >
         <h3 class="font-bold text-gray-800 text-md mb-3">Link</h3>
-        <div v-if="!modelValue.link">
+        <div v-if="!modelValue?.link?.href">
           <Button
             label="Set Url"
             :icon="faLink"
@@ -195,13 +203,14 @@ emits('update:modelValue',newValue)
           />
         </div>
         <div v-else class="flex items-center justify-between bg-gray-100 p-3 rounded-md">
-          <a
+          <span
             class="text-blue-500 hover:underline truncate"
-            :href="modelValue?.link?.href"
+           
             target="_blank"
+            @click="(e)=>editNavigation(e)"
           >
             {{ modelValue?.link?.href || 'https://' }}
-          </a>
+          </span>
           <div class="flex items-center gap-2">
             <a
               v-if="modelValue?.link?.type === 'internal'"
