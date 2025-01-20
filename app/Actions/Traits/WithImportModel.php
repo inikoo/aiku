@@ -33,19 +33,20 @@ trait WithImportModel
         }
     }
 
-    public function rumImport($file, $command): Upload
+    public function runImport($file, $command): Upload
     {
         return $this->handle($file);
     }
 
-    public function asController($parent, ActionRequest $request): Upload
-    {
-        $request->validate();
-        $file = $request->file('file');
-        Storage::disk('local')->put($this->tmpPath, $file);
-
-        return $this->handle($parent, $file);
-    }
+    // do this in parent class
+    //    public function asController($parent, ActionRequest $request): Upload
+    //    {
+    //        $request->validate();
+    //        $file = $request->file('file');
+    //        Storage::disk('local')->put($this->tmpPath, $file);
+    //
+    //        return $this->handle($parent, $file);
+    //    }
 
     public function rules(): array
     {
@@ -78,7 +79,7 @@ trait WithImportModel
         }
 
         $file = ConvertUploadedFile::run($filename);
-        $upload = $this->rumImport($file, $command);
+        $upload = $this->runImport($file, $command);
 
         Storage::disk('local')->delete("tmp/".$newFileName);
 
