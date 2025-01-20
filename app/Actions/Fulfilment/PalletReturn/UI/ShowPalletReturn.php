@@ -214,7 +214,7 @@ class ShowPalletReturn extends OrgAction
                 $palletReturn->state == PalletReturnStateEnum::CONFIRMED ? [
                     'type'    => 'button',
                     'style'   => 'save',
-                    'tooltip' => __('start picking'),
+                    'tooltip' => __('Start picking'),
                     'label'   => __('start picking'),
                     'key'     => 'start picking',
                     'route'   => [
@@ -231,7 +231,7 @@ class ShowPalletReturn extends OrgAction
                 $palletReturn->state == PalletReturnStateEnum::PICKING ? [
                     'type'    => 'button',
                     'style'   => 'save',
-                    'tooltip' => __('set all pending as picked'),
+                    'tooltip' => __('Set all pending as picked'),
                     'label'   => __('pick all'),
                     'key'     => 'pick all',
                     'route'   => [
@@ -248,16 +248,13 @@ class ShowPalletReturn extends OrgAction
                 $palletReturn->state == PalletReturnStateEnum::PICKED ? [
                     'type'    => 'button',
                     'style'   => 'save',
-                    'tooltip' => __('set as dispatched'),
-                    'label'   => __('Dispatching'),
+                    'tooltip' => __('Set as dispatched'),
+                    'label'   => __('Dispatch'),
                     'key'     => 'Dispatching',
                     'route'   => [
                         'method'     => 'post',
-                        'name'       => 'grp.models.fulfilment-customer.pallet-return.dispatched',
+                        'name'       => 'grp.models.pallet-return.dispatch',
                         'parameters' => [
-                            'organisation'       => $palletReturn->organisation->slug,
-                            'fulfilment'         => $palletReturn->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
                             'palletReturn'       => $palletReturn->id
                         ]
                     ]

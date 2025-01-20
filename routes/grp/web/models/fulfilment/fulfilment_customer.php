@@ -17,7 +17,7 @@ use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryTimeline;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DetachPalletFromReturn;
-use App\Actions\Fulfilment\PalletReturn\DispatchedPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\DispatchPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
@@ -60,7 +60,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
         Route::post('delivery', PickingPalletReturn::class)->name('picking');
         Route::post('confirm', ConfirmPalletReturn::class)->name('confirm');
         Route::post('received', PickedPalletReturn::class)->name('picked');
-        Route::post('dispatched', DispatchedPalletReturn::class)->name('dispatched');
+        Route::post('dispatched', DispatchPalletReturn::class)->name('dispatched');
     });
 
 

@@ -48,7 +48,7 @@ use App\Actions\Fulfilment\PalletDelivery\SubmitAndConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\DispatchedPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\DispatchPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
@@ -1560,7 +1560,7 @@ test('dispatch pallet return', function (PalletReturn $palletReturn) {
         ->andReturn();
     $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
 
-    $dispatchedPalletReturn = DispatchedPalletReturn::make()->action(
+    $dispatchedPalletReturn = DispatchPalletReturn::make()->action(
         $fulfilmentCustomer,
         $palletReturn
     );

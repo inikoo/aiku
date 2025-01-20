@@ -13,12 +13,16 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Models\Fulfilment\PalletReturn;
 
-class UpdatePalletReturnStateFromItems extends HydrateModel
+class AutomaticallySetPalletReturnAsPickedIfAllItemsPicked extends HydrateModel
 {
     use WithActionUpdate;
 
     public function handle(PalletReturn $palletReturn): void
     {
+        if($palletReturn->state != PalletReturnItemStateEnum::PICKING) {
+            return;
+        }
+
         $palletCount = $palletReturn->pallets()->count();
 
         $palletPickedCount    = $palletReturn->pallets()
