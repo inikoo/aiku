@@ -31,12 +31,13 @@ import Tag from "@/Components/Tag.vue"
 import { Pallet, PalletDelivery } from '@/types/Pallet'
 
 import { faStickyNote, faCheckCircle as falCheckCircle, faUndo, faArrowToLeft, faTrashAlt } from '@fal'
+import { faUndoAlt } from '@fal'
 import { faEdit } from '@far'
 import { faCheckCircle } from '@fad'
 import { faPlus, faMinus, faStar, faCheckCircle as fasCheckCircle } from '@fas'
 
 
-library.add(faCheck, faTimes, fasCheckCircle, faEdit)
+library.add(faCheck, faTimes, fasCheckCircle, faEdit, faUndoAlt)
 
 const props = defineProps<{
     data: {}
@@ -150,7 +151,8 @@ const onUnselectNewStoredItem = (row: number, store_item_audit_deltas_id: number
             },
             onFinish: () => {
                 set(isLoadingUnselect, `${row}.${store_item_audit_deltas_id}`, false)
-            }
+            },
+            preserveScroll: true,
         }
     )
 }
@@ -335,15 +337,25 @@ const stateStoredItemEdited = reactive<StoredItemsQuantity>({})
                             </div>
 
                             <div class="flex gap-x-2.5 items-center w-64">
+                                <div v-if="data.audit_type === 'no_change'">
+                                    <Button 
+                                        type="tertiary"
+                                        icon="fas fa-check-circle"
+                                        class="border-none rounded-none text-green-500 cursor-auto hover:bg-transparent -mx-2"
+                                    />
+                                </div>
+
                                 <div class="flex justify-center border border-gray-300 rounded gap-y-1">
                                     <!-- Button: Check -->
-                                    <Button v-if="data.type !== 'new_item'"
+                                    <Button v-if="data.type !== 'new_item' && data.audit_type !== 'no_change' && data.audit_type !== 'addition' && !get(data, ['is_edit'], false)"
                                         @click="() => data.audit_type === 'no_change' ? null : onStoreStoredItem(item.rowIndex, item.id, data.stored_item_id, data.quantity, data.stored_item_audit_id)"
                                         type="tertiary"
                                         :icon="data.audit_type === 'no_change' ? 'fas fa-check-circle' : 'fal fa-check-circle'"
                                         class="border-none rounded-none"
-                                        :class="data.audit_type === 'no_change' ? 'text-green-500' : ''"
+                                        :class="data.audit_type === 'no_change' ? 'text-green-500 hover:cursor-auto' : ''"
+                                        :disabled="data.audit_type === 'no_change'"
                                     />
+
                                     
                                     <!-- Section: - and + -->
                                     <div v-if="!data.stored_item_audit_delta_id" @click="() => set(data, ['is_edit'], !(get(data, ['is_edit'], false)))" class="px-2 flex items-center hover:bg-gray-200 cursor-pointer">
@@ -406,17 +418,20 @@ const stateStoredItemEdited = reactive<StoredItemsQuantity>({})
 
                                     <!-- Button: Reset -->
                                     <Button
-                                        v-if="data.type === 'new_item'"
-                                        @click="() => onUnselectNewStoredItem(item.rowIndex, data.stored_item_audit_delta_id)"
+                                        v-if="get(data, ['is_edit'], false)"
+                                        @click="set(data, ['is_edit'], false)"
+                                        @clicccck="() => onUnselectNewStoredItem(item.rowIndex, data.stored_item_audit_delta_id)"
+                                        v-tooltip="trans('Close input')"
                                         type="tertiary"
-                                        icon="fal fa-trash-alt"
-                                        class="border-none rounded-none text-red-500"
+                                        icon="fal fa-undo-alt"
+                                        class="border-none rounded-none text-gray-500"
                                         :loading="!!get(isLoadingUnselect, [item.rowIndex, data.stored_item_audit_delta_id], false)"
                                     />
 
                                   <Button
                                     v-else-if="   data.stored_item_audit_delta_id"
                                     @click="() => onUnselectNewStoredItem(item.rowIndex, data.stored_item_audit_delta_id)"
+                                    v-tooltip="trans('Reset to original')"
                                     type="tertiary"
                                     icon="fal fa-undo"
                                     class="border-none rounded-none"

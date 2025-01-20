@@ -52,7 +52,7 @@ class UpdateStoredItemAuditDelta extends OrgAction
 
 
         $storedItemAuditDelta = $this->update($storedItemAuditDelta, $modelData, ['data']);
-        StoredItemAuditHydrateDeltas::dispatch($storedItemAuditDelta->storedItemAudit);
+        StoredItemAuditHydrateDeltas::run($storedItemAuditDelta->storedItemAudit);
 
         return $storedItemAuditDelta;
     }
