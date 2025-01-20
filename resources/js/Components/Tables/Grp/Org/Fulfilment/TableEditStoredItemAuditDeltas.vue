@@ -331,7 +331,8 @@ const isGreenIconVisible = () => {
                         stored_item_audit_id: {{ data.stored_item_audit_id || '-' }} <br />
                         stored_item_id: {{ data.stored_item_id || '-' }} <br />
                         audit_type: {{ data.audit_type || '-' }} <br />
-                        stored_item_audit_delta_id: {{ data.stored_item_audit_delta_id || '-' }}
+                        stored_item_audit_delta_id: {{ data.stored_item_audit_delta_id || '-' }} <br />
+                        Green button: {{ data.audit_type === 'no_change' }}
 
                         <!-- <pre>{{ props.route_list?.stored_item_audit_delta?.store }}</pre> -->
                         <!-- <pre>{{ data }}</pre> -->
