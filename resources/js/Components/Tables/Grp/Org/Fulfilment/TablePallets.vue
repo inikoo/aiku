@@ -150,9 +150,7 @@ function fulfilmentCustomerRoute(pallet: Pallet) {
         </template>
 
 
-        <!-- Column: Icon (status and state) -->
         <template #cell(state)="{ item: pallet }">
-            <Icon :data="pallet['status_icon']" />
             <Icon :data="pallet['state_icon']" />
         </template>
 

@@ -29,6 +29,7 @@ enum PalletReturnStateEnum: string
     case CONSOLIDATED = 'consolidated';
     case CANCEL       = 'cancel';
 
+
     public static function labels($forElements = false): array
     {
         return [

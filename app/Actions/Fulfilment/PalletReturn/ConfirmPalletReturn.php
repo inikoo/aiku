@@ -35,18 +35,18 @@ class ConfirmPalletReturn extends OrgAction
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $modelData[PalletReturnStateEnum::CONFIRMED->value.'_at'] = now();
+        $modelData['confirmed_at'] = now();
         $modelData['state']                                       = PalletReturnStateEnum::CONFIRMED;
 
         foreach ($palletReturn->pallets as $pallet) {
             UpdatePallet::run($pallet, [
-                'state'  => PalletStateEnum::CONFIRMED,
-                'status' => PalletStatusEnum::RECEIVING
+                'state'  => PalletStateEnum::REQUEST_RETURN_CONFIRMED,
+                'status' => PalletStatusEnum::RETURNING
             ]);
 
             $palletReturn->pallets()->syncWithoutDetaching([
                 $pallet->id => [
-                    'state' => PalletStateEnum::CONFIRMED
+                    'state' => PalletStateEnum::REQUEST_RETURN_CONFIRMED
                 ]
             ]);
         }

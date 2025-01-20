@@ -166,8 +166,6 @@ class IndexPallets extends OrgAction
                 ->withModelOperations($modelOperations);
 
             $table->column(key: 'type_icon', label: ['fal', 'fa-yin-yang'], type: 'icon');
-
-
             $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
 
 
@@ -204,7 +202,6 @@ class IndexPallets extends OrgAction
         $icon       = ['fal', 'fa-pallet'];
         $afterTitle = null;
         $iconRight  = null;
-
 
         return Inertia::render(
             'Org/Fulfilment/Pallets',

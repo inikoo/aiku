@@ -24,11 +24,11 @@ enum PalletStateEnum: string
     case IN_PROCESS = 'in_process';
 
     // Status: receiving
-    case SUBMITTED  = 'submitted';
-    case CONFIRMED  = 'confirmed';
-    case RECEIVED   = 'received';
+    case SUBMITTED = 'submitted';
+    case CONFIRMED = 'confirmed';
+    case RECEIVED = 'received';
     case BOOKING_IN = 'booking_in';
-    case BOOKED_IN  = 'booked_in';
+    case BOOKED_IN = 'booked_in';
 
     // Status: not_received
     case NOT_RECEIVED = 'not_received';
@@ -37,13 +37,15 @@ enum PalletStateEnum: string
     case STORING = 'storing';
 
     // Status: returning
-    case REQUEST_RETURN = 'request_return';
+    case REQUEST_RETURN_IN_PROCESS = 'request_return_in_process';
+    case REQUEST_RETURN_SUBMITTED = 'request_return_submitted';
+    case REQUEST_RETURN_CONFIRMED = 'request_return_confirmed';
     case PICKING = 'picking';
-    case PICKED  = 'picked';
+    case PICKED = 'picked';
 
     // Status: incident
-    case DAMAGED        = 'damaged';
-    case LOST           = 'lost';
+    case DAMAGED = 'damaged';
+    case LOST = 'lost';
     case OTHER_INCIDENT = 'other_incident';
 
     // Status: returned
@@ -53,21 +55,23 @@ enum PalletStateEnum: string
     public static function labels(): array
     {
         return [
-            'in_process'     => __('In process'),
-            'submitted'      => __('Submitted'),
-            'confirmed'      => __('Confirmed'),
-            'not_received'   => __('Not Received'),
-            'received'       => __('Received'),
-            'booking_in'     => __('Booking in'),
-            'booked_in'      => __('Booked in'),
-            'storing'        => __('Storing'),
-            'request_return' => __('Request Return'),
-            'picking'        => __('Picking'),
-            'picked'         => __('Picked'),
-            'dispatched'     => __('Dispatched'),
-            'lost'           => __('Lost'),
-            'damaged'        => __('Damaged'),
-            'other_incident' => __('Other'),
+            'in_process'                => __('In process'),
+            'submitted'                 => __('Submitted'),
+            'confirmed'                 => __('Confirmed'),
+            'not_received'              => __('Not Received'),
+            'received'                  => __('Received'),
+            'booking_in'                => __('Booking in'),
+            'booked_in'                 => __('Booked in'),
+            'storing'                   => __('Storing'),
+            'request_return_in_process' => __('Request Return'),
+            'request_return_submitted'  => __('Request Return').' ('.__('Submitted').')',
+            'request_return_confirmed'  => __('Request Return').' ('.__('Confirmed').')',
+            'picking'                   => __('Picking'),
+            'picked'                    => __('Picked'),
+            'dispatched'                => __('Dispatched'),
+            'lost'                      => __('Lost'),
+            'damaged'                   => __('Damaged'),
+            'other_incident'            => __('Other'),
         ];
     }
 
@@ -146,7 +150,7 @@ enum PalletStateEnum: string
             ],
             'storing'      => [
                 'tooltip' => __('Storing'),
-                'icon'    => 'fal fa-check-double',
+                'icon'    => 'fal fa-warehouse-alt',
                 'class'   => 'text-purple-500',
                 'color'   => 'purple',
                 'app'     => [
@@ -155,7 +159,7 @@ enum PalletStateEnum: string
                 ]
             ],
 
-            'dispatched'     => [
+            'dispatched'                => [
                 'tooltip' => __('Dispatched'),
                 'icon'    => 'fal fa-sign-out-alt',
                 'class'   => 'text-gray-400',
@@ -165,17 +169,37 @@ enum PalletStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'request_return'        => [
+            'request_return_in_process' => [
                 'tooltip' => __('Request Return'),
-                'icon'    => 'fal fa-check',
-                'class'   => 'text-green-400',
+                'icon'    => 'fal fa-sign-out-alt',
+                'class'   => 'text-green-600',
                 'color'   => 'green',
                 'app'     => [
                     'name' => 'check',
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'picking'        => [
+            'request_return_submitted'  => [
+                'tooltip' => __('Request Return').' ('.__('Submitted').')',
+                'icon'    => 'fal fa-sign-out-alt',
+                'class'   => 'text-green-600',
+                'color'   => 'green',
+                'app'     => [
+                    'name' => 'check',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'request_return_confirmed'  => [
+                'tooltip' => __('Request Return').' ('.__('Confirmed').')',
+                'icon'    => 'fal fa-sign-out-alt',
+                'class'   => 'text-green-600',
+                'color'   => 'green',
+                'app'     => [
+                    'name' => 'check',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'picking'                   => [
                 'tooltip' => __('Picking'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-green-400',
@@ -185,7 +209,7 @@ enum PalletStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'picked'         => [
+            'picked'                    => [
                 'tooltip' => __('Picked'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-green-400',
@@ -195,7 +219,7 @@ enum PalletStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'damaged'        => [
+            'damaged'                   => [
                 'tooltip' => __('Damaged'),
                 'icon'    => 'fal fa-fragile',
                 'class'   => 'text-red-400',
@@ -205,7 +229,7 @@ enum PalletStateEnum: string
                     'type' => 'material-community'
                 ]
             ],
-            'lost'           => [
+            'lost'                      => [
                 'tooltip' => __('Lost'),
                 'icon'    => 'fal fa-ghost',
                 'class'   => 'text-red-400',
@@ -215,7 +239,7 @@ enum PalletStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'other_incident' => [
+            'other_incident'            => [
                 'tooltip' => __('Other incident'),
                 'icon'    => 'fal fa-ghost',
                 'class'   => 'text-red-400',
