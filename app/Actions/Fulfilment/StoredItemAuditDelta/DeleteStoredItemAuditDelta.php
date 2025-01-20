@@ -22,7 +22,7 @@ class DeleteStoredItemAuditDelta extends OrgAction
     {
 
         $storedItemAuditDelta->delete();
-        StoredItemAuditHydrateDeltas::dispatch($storedItemAuditDelta->storedItemAudit);
+        StoredItemAuditHydrateDeltas::run($storedItemAuditDelta->storedItemAudit);
 
         return true;
     }
