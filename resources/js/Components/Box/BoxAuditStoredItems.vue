@@ -10,11 +10,11 @@ import { Link, router } from '@inertiajs/vue3'
 
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faNarwhal, faPallet, faQuestionCircle, faEnvelope, faPhone, faIdCardAlt } from '@fal'
+import { faNarwhal, faPallet, faQuestionCircle, faEnvelope, faPhone, faIdCardAlt, faPlus, faMinus, faCheck, faLink, faLayerPlus } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
-library.add(faNarwhal, faPallet, faQuestionCircle, faIdCardAlt, faEnvelope, faPhone)
+library.add(faNarwhal, faPallet, faQuestionCircle, faIdCardAlt, faEnvelope, faPhone, faPlus, faMinus,faCheck, faLink, faLayerPlus)
 
 const props = defineProps<{
     auditData: {}
@@ -49,31 +49,31 @@ const dataBoxStats = [
     },
     {
         label: 'Audited (with additions)',
-        icon: 'fal fa-narwhal',
+        icon: 'fal fa-plus',
         tooltip: trans('Customer\'s SKU'),
         value: props.auditData.number_audited_stored_items_with_additions
     },
     {
         label: 'Audited (with subtractions)',
-        icon: 'fal fa-narwhal',
+        icon: 'fal fa-minus',
         tooltip: trans('Customer\'s SKU'),
         value: props.auditData.number_audited_stored_items_with_with_subtractions
     },
     {
         label: 'Audited (with stock checked)',
-        icon: 'fal fa-narwhal',
+        icon: 'fal fa-check',
         tooltip: trans('Customer\'s SKU'),
         value: props.auditData.number_audited_stored_items_with_with_stock_checked
     },
     {
         label: 'Associated',
-        icon: 'fal fa-narwhal',
+        icon: 'fal fa-link',
         tooltip: trans('Customer\'s SKU'),
         value: props.auditData.number_associated_stored_items
     },
     {
         label: 'Created',
-        icon: 'fal fa-narwhal',
+        icon: 'fal fa-layer-plus',
         tooltip: trans('Customer\'s SKU'),
         value: props.auditData.number_created_stored_items
     },

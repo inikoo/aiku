@@ -39,7 +39,7 @@ const isLoggedIn = inject('isPreviewLoggedIn', false)
 const locale = inject('locale', aikuLocaleStructure)
 const layout = inject('layout', {})
 
-
+const onLogout = inject('onLogout')
 const emits = defineEmits<{
     (e: 'setPanelActive', value: string | number): void
 }>()
@@ -72,7 +72,7 @@ const emits = defineEmits<{
 
             <!-- Section: LogoutRetina -->
             <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
-                :href="model?.logout?.link"
+                 @click="()=>onLogout(model?.logout?.link)"
                 class="space-x-1.5 "
                 :style="getStyles(model?.logout.container.properties)"
 
