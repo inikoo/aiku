@@ -31,11 +31,12 @@ import Tag from "@/Components/Tag.vue"
 import { Pallet, PalletDelivery } from '@/types/Pallet'
 
 import { faStickyNote, faCheckCircle as falCheckCircle, faUndo, faArrowToLeft, faTrashAlt } from '@fal'
+import { faBallot } from '@fal'
 import { faCheckCircle } from '@fad'
 import { faPlus, faMinus, faStar, faCheckCircle as fasCheckCircle } from '@fas'
 
 
-library.add(faCheck, faTimes, fasCheckCircle)
+library.add(faCheck, faTimes, fasCheckCircle, faBallot)
 
 const props = defineProps<{
     data: {}
@@ -346,7 +347,7 @@ const stateStoredItemEdited = reactive<StoredItemsQuantity>({})
                                     
                                     <!-- Section: - and + -->
                                     <div v-if="!data.stored_item_audit_delta_id" @click="() => set(data, ['is_edit'], !(get(data, ['is_edit'], false)))" class="px-2 flex items-center">
-                                        <FontAwesomeIcon icon='fal fa-pencil' class='' fixed-width aria-hidden='true' />
+                                        <FontAwesomeIcon icon='fal fa-ballot' class='' fixed-width aria-hidden='true' />
                                     </div>
                                     
 
