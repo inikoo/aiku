@@ -363,8 +363,8 @@ const stateStoredItemEdited = reactive<StoredItemsQuantity>({})
                                     </div>
                                     
 
-                                    <template v-if="!data.stored_item_audit_delta_id && get(data, ['is_edit'], false)">
-                                        <div v-if="get(data, ['is_edit'], false) || !data.stored_item_audit_delta_id" class="transition-all relative inline-flex items-center justify-center "
+                                    <template v-if="(!data.stored_item_audit_delta_id && get(data, ['is_edit'], false)) || data.audit_type === 'addition'">
+                                        <div class="transition-all relative inline-flex items-center justify-center "
                                             :class="!get('statesBoxEdit', `${item.rowIndex}.${data.id}`, false) ? 'w-28' : 'w-14'">
                                             <transition>
                                                 <div v-if="!get('statesBoxEdit', `${item.rowIndex}.${data.id}`, false)"
