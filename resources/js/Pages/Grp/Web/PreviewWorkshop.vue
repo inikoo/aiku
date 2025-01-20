@@ -228,12 +228,7 @@ provide('isPreviewMode', isPreviewMode)
 }
 
 .hover-dashed {
-    transition: border 0.3s ease;
-    border: 1px solid transparent; /* Default tanpa border */
-}
-
-.hover-dashed:hover {
-    border: 1px dashed #999; 
+    @apply hover:bg-gray-200/30 border border-transparent hover:border-white/80 border-dashed cursor-pointer;
 }
 
 
