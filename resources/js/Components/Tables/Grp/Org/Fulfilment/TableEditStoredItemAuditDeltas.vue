@@ -150,7 +150,8 @@ const onUnselectNewStoredItem = (row: number, store_item_audit_deltas_id: number
             },
             onFinish: () => {
                 set(isLoadingUnselect, `${row}.${store_item_audit_deltas_id}`, false)
-            }
+            },
+            preserveScroll: true,
         }
     )
 }
@@ -335,15 +336,25 @@ const stateStoredItemEdited = reactive<StoredItemsQuantity>({})
                             </div>
 
                             <div class="flex gap-x-2.5 items-center w-64">
+                                <div v-if="data.audit_type === 'no_change'">
+                                    <Button 
+                                        type="tertiary"
+                                        icon="fas fa-check-circle"
+                                        class="border-none rounded-none text-green-500 cursor-auto hover:bg-transparent -mx-2"
+                                    />
+                                </div>
+
                                 <div class="flex justify-center border border-gray-300 rounded gap-y-1">
                                     <!-- Button: Check -->
-                                    <Button v-if="data.type !== 'new_item'"
+                                    <Button v-if="data.type !== 'new_item' && data.audit_type !== 'no_change'"
                                         @click="() => data.audit_type === 'no_change' ? null : onStoreStoredItem(item.rowIndex, item.id, data.stored_item_id, data.quantity, data.stored_item_audit_id)"
                                         type="tertiary"
                                         :icon="data.audit_type === 'no_change' ? 'fas fa-check-circle' : 'fal fa-check-circle'"
                                         class="border-none rounded-none"
-                                        :class="data.audit_type === 'no_change' ? 'text-green-500' : ''"
+                                        :class="data.audit_type === 'no_change' ? 'text-green-500 hover:cursor-auto' : ''"
+                                        :disabled="data.audit_type === 'no_change'"
                                     />
+
                                     
                                     <!-- Section: - and + -->
                                     <div v-if="!data.stored_item_audit_delta_id" @click="() => set(data, ['is_edit'], !(get(data, ['is_edit'], false)))" class="px-2 flex items-center hover:bg-gray-200 cursor-pointer">
