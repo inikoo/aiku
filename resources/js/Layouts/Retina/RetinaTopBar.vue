@@ -69,7 +69,9 @@ console.log('environment', isStaging)
                         'color': layout.app.theme[2],
                         // 'border-bottom': `1px solid ${layout.app.theme[1]}3F`
                     }">
-                    <Link  :href="layout.app?.url ?? '#'"
+                    <!-- {{ layout.iris?.domain }} -->
+                    <a  :href="layout.iris?.domain ? `https://${layout.iris?.domain}` : '#'"
+                        target="_blank"
                         class="hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
                         :class="[
                              layout.leftSidebar.show ? 'py-1 pl-4' : 'pl-3 w-full'
@@ -82,7 +84,7 @@ console.log('environment', isStaging)
                                 {{ layout.website?.label }}
                             </p>
                         </Transition>
-                    </Link>
+                    </a>
                 </div>
             </div>
 

@@ -111,14 +111,15 @@ class EditRetinaWebUser extends RetinaAction
                                     'type'  => 'action',
                                     'action' => [
                                         'label' => 'delete',
-                                        'type' => 'delete'
-                                    ],
-                                    'route' => [
-                                        'name' => 'retina.models.web-users.delete',
-                                        'parameters' => [
-                                            'webUser' => $webUser->id
+                                        'type' => 'delete',
+                                        'route' => [
+                                            'name' => 'retina.models.web-users.delete',
+                                            'parameters' => [
+                                                'webUser' => $webUser->id
+                                            ],
+                                            'method'      => 'delete'
                                         ]
-                                    ]
+                                    ],
                                 ],
                             ]
                         ]
