@@ -13,6 +13,8 @@ use App\Actions\RetinaAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\CRM\WebUser;
 use Illuminate\Console\Command;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 
 class DeleteRetinaWebUser extends RetinaAction
@@ -28,6 +30,11 @@ class DeleteRetinaWebUser extends RetinaAction
             CustomerHydrateWebUsers::dispatch($webUser->customer);
         }
         return $webUser;
+    }
+
+    public function htmlResponse(): RedirectResponse
+    {
+        return Redirect::route('retina.sysadmin.web-users.index');
     }
 
     public function asController(WebUser $webUser, ActionRequest $request): Webuser
