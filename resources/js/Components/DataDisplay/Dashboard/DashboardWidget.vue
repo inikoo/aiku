@@ -28,6 +28,7 @@ const props = defineProps<{
 			:is="getComponentWidget(component.type)"
 			:widgetData="component.data"
 			:visual="component.visual"
+			
 			:style="{
 				'grid-column': `span ${component.col_span || 1} / span ${component.col_span || 1}`,
 				'grid-row': `span ${component.row_span || 1} / span ${component.row_span || 1}`,
@@ -78,13 +79,11 @@ const props = defineProps<{
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(var(--column-count, 2), minmax(0, 1fr));
+  grid-auto-rows: minmax(0, auto);
 }
 
 .widget-item {
-  background-color: #fff;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 500px;
 }
 
 @media (max-width: 768px) {

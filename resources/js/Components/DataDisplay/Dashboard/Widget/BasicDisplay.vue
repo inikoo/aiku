@@ -176,6 +176,41 @@ function NumberDashboard(shop: any) {
 	console.log(shop)
 	return route(shop?.name, shop?.parameters)
 }
+
+const setChartOptions = () => ({
+	responsive: true,
+	maintainAspectRatio: false,
+	plugins: {
+		legend: {
+			position: "top",
+			labels: {
+				font: {
+					size: 12,
+				},
+				color: "#666",
+			},
+		},
+	},
+	scales: {
+		x: {
+			ticks: {
+				color: "#666",
+			},
+			grid: {
+				display: false,
+			},
+		},
+		y: {
+			ticks: {
+				color: "#666",
+			},
+			grid: {
+				color: "#ddd",
+			},
+		},
+	},
+})
+
 // const chartLabels = ["1", "2", "3", "4", "5", "6", "7", "8"]
 // const chartData = [10, 20, 15, 25, 20, 18, 22, 10]
 // const dummyChartData = {
@@ -191,9 +226,12 @@ function NumberDashboard(shop: any) {
 </script>
 
 <template>
-	<div :class="['rounded-lg p-6 shadow-md relative h-full', getStatusColor(widgetData.status)]">
-		<p
-			class="text-4xl font-bold leading-tight truncate">
+	<div
+		:class="[
+			'rounded-lg p-6 shadow-md relative h-full flex flex-col',
+			getStatusColor(widgetData.status),
+		]">
+		<p class="text-4xl font-bold leading-tight truncate">
 			<!-- v-tooltip="printLabelByType(widgetData?.value)" -->
 			<!-- Render CountUp if widgetData.type is 'number' -->
 			<template v-if="widgetData?.type === 'number'">
@@ -283,29 +321,49 @@ function NumberDashboard(shop: any) {
 				</Link>
 			</span>
 		</div>
-		<Chart
-			v-else-if="visual?.type == 'pie'"
-			type="pie"
-			:labels="'visual?.label'"
-			:data="visual.value" />
+		<div class="flex-grow"></div>
+		<div v-if="visual && ['line', 'bar', 'pie', 'doughnut'].includes(visual.type)" class="mt-4 h-full flex items-end">
+			<div class="w-full h-full">
+				<Chart
+					:type="visual.type"
+					:labels="visual.label"
+					:data="visual.value"
+					:height="300"
+					:options="setChartOptions" />
+			</div>
+		</div>
+		<!-- <div v-else-if="visual?.type == 'pie'" class="flex-grow relative w-full h-full">
+			<Chart type="pie" :labels="'visual?.label'" :data="visual.value" class="w-full h-64" />
+		</div>
 
-		<Chart
-			v-else-if="visual?.type == 'bar'"
-			type="bar"
-			:labels="'visual?.label'"
-			:data="visual.value" />
+		<div v-else-if="visual?.type == 'line'" class="flex-grow relative w-full h-full">
+			<Chart
+				type="line"
+				:labels="'visual?.label'"
+				:data="visual.value"
+				class="w-full h-full"
+				:options="setChartOptions" />
+		</div>
 
-		<Chart
-			v-else-if="visual?.type == 'line'"
-			type="line"
-			:labels="'visual?.value'"
-			:data="visual.value" />
+		<div v-else-if="visual?.type == 'bar'" class="bottom-content">
+			<Chart
+				type="bar"
+				:labels="'visual?.label'"
+				:data="visual.value"
+				class="w-full h-full"
+				:options="setChartOptions" />
+		</div>
 
-		<Chart
+		<div
 			v-else-if="visual?.type == 'doughnut'"
-			type="doughnut"
-			:labels="'visual?.label'"
-			:data="visual.value" />
+			class="flex items-center justify-center w-full h-full">
+			<Chart
+				type="doughnut"
+				:labels="'visual?.label'"
+				:data="visual.value"
+				class="w-full h-64 justify-center"
+				:options="setChartOptions" />
+		</div> -->
 
 		<!-- <div v-if="visual?.type === 'chart'">
 			<ChartDashboardDynamic :labels="visual?.label" :dataset="visual.value" lineColor="#00D8FF" />
@@ -324,4 +382,22 @@ function NumberDashboard(shop: any) {
 		</div>
 	</div>
 </template>
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.chart-container {
+	flex-grow: 1; /* Fill remaining space in the widget */
+	position: relative; /* For absolute positioning of the canvas */
+}
+
+.chart-container canvas {
+	display: block;
+	width: 100%;
+	height: 100% !important; /* Ensure the canvas fills its container */
+}
+
+.bottom-content {
+	display: flex;
+	align-items: flex-end; /* Align content to the bottom */
+	justify-content: center;
+	height: 100%;
+}
+</style>

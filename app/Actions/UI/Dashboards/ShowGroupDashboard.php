@@ -156,7 +156,82 @@ class ShowGroupDashboard extends OrgAction
                 'value' => [
                     'labels'  => $visualData['invoices_data']['labels'],
                     'currency_codes' => $visualData['invoices_data']['currency_codes'],
-                    'datasets'    => $visualData['invoices_data']['datasets']
+                    /* 'datasets'    => $visualData['invoices_data']['datasets'] */
+                    //TODO: new datasets
+                    'datasets'    => [
+                        [
+                            'label' => __('Invoices'),
+                            'data'  => $visualData['invoices_data']['datasets'][0]['data'],
+                            'backgroundColor' => '#4e73df',
+                            'borderColor' => '#4e73df',
+                            'borderWidth' => 1
+                        ],
+                        [
+                            'label' => __('Refunds'),
+                            'data'  => $visualData['invoices_data']['datasets'][0]['data'],
+                            'backgroundColor' => '#e74a3b',
+                            'borderColor' => '#e74a3b',
+                            'borderWidth' => 1
+                        ]
+                    ]
+                ],
+            ]
+        );
+
+        $dashboard['widgets']['components'][] = $this->getWidget(
+            data: [
+                'value' => $total['total_invoices'],
+                'type' => 'number',
+                'description'   => __('Total invoices')
+            ],
+            visual: [
+                'type' => 'line',
+                'value' => [
+                    'labels'  => $visualData['invoices_data']['labels'],
+                    'currency_codes' => $visualData['invoices_data']['currency_codes'],
+                    /* 'datasets'    => $visualData['invoices_data']['datasets'] */
+                    //TODO: new datasets
+                    'datasets'    => [
+                        [
+                            'label' => __('Fist Data'),
+                            'data'  => [420,740,660,50,40,1000],
+                            'backgroundColor' => '#4e73df',
+                            'borderColor' => '#4e73df',
+                            'borderWidth' => 1
+                        ],
+                        [
+                            'label' => __('Second Data'),
+                            'data'  => [100,200,550,150,140,1000],
+                            'backgroundColor' => '#e74a3b',
+                            'borderColor' => '#e74a3b',
+                            'borderWidth' => 1
+                        ]
+                    ]
+                ],
+            ]
+        );
+
+        $dashboard['widgets']['components'][] = $this->getWidget(
+            data: [
+                'value' => $total['total_invoices'],
+                'type' => 'number',
+                'description'   => __('Total invoices')
+            ],
+            visual: [
+                'type' => 'pie',
+                'value' => [
+                    'labels'=> ['A', 'B', 'C'],
+                    'currency_codes' => $visualData['invoices_data']['currency_codes'],
+                    /* 'datasets'    => $visualData['invoices_data']['datasets'] */
+                    //TODO: new datasets
+                    'datasets'    => [
+                        [
+                            'data'=> [540, 325, 702],
+                            'backgroundColor' => '#00ffff',
+                            'borderColor' => '#ff7f00',
+                            'borderWidth' => 1
+                        ]
+                    ]
                 ],
             ]
         );
