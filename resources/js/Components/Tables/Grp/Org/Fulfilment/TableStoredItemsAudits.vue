@@ -54,6 +54,7 @@ function storedItemAuditRoute(storedItemAudit: {}) {
 
 <template>
     <!-- <pre>{{ props.data.data[0] }}</pre> -->
+    sd
     <Table :resource="data" :name="tab" class="mt-5">
         {{ data }}
         <template #cell(state)="{ item: storedItemAudit }">
