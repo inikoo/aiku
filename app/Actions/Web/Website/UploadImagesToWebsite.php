@@ -24,16 +24,16 @@ class UploadImagesToWebsite extends OrgAction
 
     public function header(Website $website, ActionRequest $request): Collection
     {
-        $this->scope = $website->shop;
-        $this->initialisationFromShop($this->scope, $request);
+        $this->scope = $website->organisation;
+        $this->initialisation($this->scope, $request);
 
         return $this->handle($website, 'header', $this->validatedData);
     }
 
     public function footer(Website $website, ActionRequest $request): Collection
     {
-        $this->scope = $website->shop;
-        $this->initialisationFromShop($this->scope, $request);
+        $this->scope = $website->organisation;
+        $this->initialisation($this->scope, $request);
 
         return $this->handle($website, 'footer', $this->validatedData);
     }

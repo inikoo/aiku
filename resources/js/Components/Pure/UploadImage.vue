@@ -196,7 +196,7 @@ watch(
 		<InputText v-model="modelValue.alt" class="w-full" />
 	</div>
 
-	<div v-if="modelValue?.width" class="mt-8 ">
+	<!-- <div v-if="modelValue?.width" class="mt-8 ">
 		<div class="flex justify-between mb-2 text-gray-500 text-xs font-semibold">
 			<div>Width</div>
 		</div>
@@ -204,7 +204,7 @@ watch(
 			<Slider v-model="modelValue.width" class="w-[85%] transition-all duration-300 ease-in-out" />
 			<div class="text-xs font-bold text-gray-500">{{ modelValue?.width }}%</div>
 		</div>
-	</div>
+	</div> -->
 
 	<div v-if="modelValue?.properties?.border" class="mt-8">
 		<div v-if="modelValue?.properties?.border" class="border-t border-gray-300">

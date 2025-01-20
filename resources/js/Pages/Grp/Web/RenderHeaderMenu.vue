@@ -107,7 +107,7 @@ const emits = defineEmits<{
 
         <!-- Section: Menu -->
         <component 
-            v-if="menu" 
+            v-if="menu?.menu?.data" 
             :is="getComponent(menu?.menu.code)" 
             :navigations="menu?.menu?.data.fieldValue.navigation" 
             class="hidden md:block" 

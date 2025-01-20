@@ -35,11 +35,8 @@ const isLoggedIn = inject('isPreviewLoggedIn', false)
         <div class="flex flex-col justify-between items-center py-4 px-6">
             <div class="w-full grid grid-cols-3 items-center gap-6">
                 <!-- Logo -->
-                <div :style="getStyles(fieldValue.logo.properties)">
-                    <img v-if="!fieldValue.logo.source" :src="fieldValue?.logo?.url" :alt="fieldValue?.logo?.alt"
-                        :style="{ width: `${fieldValue.logo.width}%` }" />
-                    <Image v-else :alt="fieldValue?.logo?.alt" :src="fieldValue?.logo?.source"
-                        :style="{ width: `${fieldValue.logo.width}%` }"></Image>
+                <div :style="getStyles(fieldValue.logo.properties)" @click="() => emits('setPanelActive', 'logo')">
+                    <Image :alt="fieldValue?.logo?.alt" :src="fieldValue?.logo?.image?.source" class="hover-dashed"></Image>
                 </div>
 
                 <!-- Search Bar -->

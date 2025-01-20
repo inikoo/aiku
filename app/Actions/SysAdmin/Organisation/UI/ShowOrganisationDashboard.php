@@ -147,7 +147,7 @@ class ShowOrganisationDashboard extends OrgAction
                 'options_shop' => [
                     [
                         'value' => 'open',
-                        'label' => __('Show All')
+                        'label' => __('Open')
                     ],
                     [
                         'value' => 'closed',

@@ -27,7 +27,29 @@ export default {
 				icon: "fal fa-image",
 				tooltip: "Logo",
 			},
-            type: "upload_image",
+        /*     type: "upload_image", */
+			replaceForm: [
+				{
+					key: ['properties','dimension'],
+					label : "Dimension",
+					type: "dimension",
+				},
+				{
+					key: ["image"],
+					label : "Upload image",
+					type: "upload_image",
+				},
+				{
+					key: ['properties','margin'],
+					label : "Margin",
+					type: "margin",
+				},
+				{
+					key: ['properties','padding'],
+					label : "Padding",
+					type: "padding",
+				},
+			],
 			/* replaceForm: [
 				{
 					key: ["visible"],
