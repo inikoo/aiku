@@ -70,12 +70,12 @@ const layout = inject('layout', {})
                 id="profile_button"
                  :href="model?.profile?.link?.href"
                 :target="model?.profile?.link?.target"
-                class="space-x-1.5 whitespace-nowrap "
+                class="space-x-1.5 whitespace-nowrap flex flex-nowrap items-center "
                 :style="getStyles(model?.profile.container?.properties)"
 
             >
                 <FontAwesomeIcon icon='fal fa-user' class='' v-tooltip="trans('Profile')" fixed-width aria-hidden='true' />
-                <span v-html="textReplaceVariables(model?.profile?.text, layout.iris_variables)" />
+                <div v-html="textReplaceVariables(model?.profile?.text, layout.iris_variables)" />
             </a>
 
 
