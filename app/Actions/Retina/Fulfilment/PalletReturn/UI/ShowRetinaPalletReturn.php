@@ -606,14 +606,18 @@ class ShowRetinaPalletReturn extends RetinaAction
 
     public function getPrevious(PalletReturn $palletReturn, ActionRequest $request): ?array
     {
-        $previous = PalletReturn::where('id', '<', $palletReturn->id)->orderBy('id', 'desc')->first();
+        $previous = PalletReturn::where('id', '<', $palletReturn->id)
+            ->where('fulfilment_customer_id', $this->customer->fulfilmentCustomer->id)
+            ->orderBy('id', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(PalletReturn $palletReturn, ActionRequest $request): ?array
     {
-        $next = PalletReturn::where('id', '>', $palletReturn->id)->orderBy('id')->first();
+        $next = PalletReturn::where('id', '>', $palletReturn->id)
+            ->where('fulfilment_customer_id', $this->customer->fulfilmentCustomer->id)
+            ->orderBy('id')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }
