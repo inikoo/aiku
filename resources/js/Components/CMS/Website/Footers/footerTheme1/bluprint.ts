@@ -63,7 +63,7 @@ export default {
             name: "Logo",
             type: "upload_image"
         },
-        {
+        /* {
             key: ["paymentData"],
             name: "Payments",
             replaceForm: [
@@ -77,7 +77,7 @@ export default {
                     type: "hidden"
                 }
             ]
-        },
+        }, */
         {
             key: ["socialMedia"],
             name: "Social Media",
