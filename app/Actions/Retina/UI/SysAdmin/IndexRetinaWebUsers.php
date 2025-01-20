@@ -56,10 +56,10 @@ class IndexRetinaWebUsers extends RetinaAction
         $queryBuilder->where('customer_id', $this->customer->id);
 
 
-        return $queryBuilder
+        return  $queryBuilder
             ->defaultSort('username')
-            ->select(['web_users.slug', 'web_users.username', 'web_users.email', 'web_users.status', 'web_users.is_root', 'web_user_stats.last_active_at as last_active'])
-            ->allowedSorts(['web_users.status', 'username', 'email', 'contact_name', 'last_active'])
+            ->select(['web_users.slug','web_users.id', 'web_user_stats.last_login_ip as last_login_ip' ,'web_users.username', 'web_users.image_id','web_users.contact_name', 'web_users.status', 'web_users.is_root', 'web_user_stats.last_active_at as last_active'])
+            ->allowedSorts(['web_users.status', 'web_users.username', 'contact_name', 'last_active'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -78,9 +78,12 @@ class IndexRetinaWebUsers extends RetinaAction
                 ->withTitle(title: __('Users'))
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
+                ->column(key: 'image', label: ['data' => ['fal', 'fa-user-circle'], 'type' => 'icon', 'tooltip' => __('avatar')], type: 'avatar')
                 ->column(key: 'status', label: ['data' => ['fal', 'fa-yin-yang'], 'type' => 'icon', 'tooltip' => __('status')], type: 'icon')
                 ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'contact_name', label: __('contact name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'location', label: __('location'), canBeHidden: false)
+                ->column(key: 'device', label: __('device'), canBeHidden: false)
                 ->column(key: 'last_active', label: __('last active'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('username');
         };

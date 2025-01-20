@@ -11,6 +11,7 @@ namespace App\Actions\Retina\Fulfilment\PalletDelivery\UI;
 use App\Actions\Catalogue\HasRentalAgreement;
 use App\Actions\Retina\Fulfilment\UI\ShowRetinaStorageDashboard;
 use App\Actions\RetinaAction;
+use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -27,6 +28,24 @@ class IndexRetinaPalletDeliveries extends RetinaAction
 {
     use HasRentalAgreement;
 
+    protected function getElementGroups(FulfilmentCustomer $fulfilmentCustomer): array
+    {
+        return [
+            'state' => [
+                'label'    => __('State'),
+                'elements' => array_merge_recursive(
+                    PalletDeliveryStateEnum::labels(forElements: true),
+                    PalletDeliveryStateEnum::count($fulfilmentCustomer, forElements: true)
+                ),
+
+                'engine' => function ($query, $elements) {
+                    $query->whereIn('pallet_deliveries.state', $elements);
+                }
+            ],
+
+
+        ];
+    }
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
@@ -50,11 +69,41 @@ class IndexRetinaPalletDeliveries extends RetinaAction
 
         $queryBuilder = QueryBuilder::for(PalletDelivery::class);
         $queryBuilder->where('pallet_deliveries.fulfilment_customer_id', $fulfilmentCustomer->id);
+        $queryBuilder->leftJoin('pallet_delivery_stats', 'pallet_deliveries.id', '=', 'pallet_delivery_stats.pallet_delivery_id');
+        $queryBuilder->leftJoin('organisations', 'pallet_deliveries.organisation_id', '=', 'pallet_deliveries.id')
+        ->leftJoin('fulfilments', 'pallet_deliveries.fulfilment_id', '=', 'fulfilments.id')
+        ->leftJoin('shops', 'fulfilments.shop_id', '=', 'shops.id');
+
+        foreach ($this->getElementGroups($fulfilmentCustomer) as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine'],
+                prefix: $prefix
+            );
+        }
+
+        $queryBuilder->select(
+            'pallet_deliveries.id',
+            'pallet_deliveries.reference',
+            'pallet_deliveries.customer_reference',
+            'pallet_delivery_stats.number_pallets',
+            'pallet_deliveries.estimated_delivery_date',
+            'pallet_deliveries.date',
+            'pallet_deliveries.state',
+            'pallet_deliveries.net_amount',
+            'pallet_deliveries.slug',
+            'shops.name as shop_name',
+            'shops.slug as shop_slug',
+            'organisations.name as organisation_name',
+            'organisations.slug as organisation_slug',
+            'fulfilments.slug as fulfilment_slug',
+        );
 
         return $queryBuilder
             ->defaultSort('reference')
             ->allowedSorts(['reference', 'customer_reference', 'number_pallets'])
-            ->allowedFilters([$globalSearch])
+            ->allowedFilters([$globalSearch,AllowedFilter::exact('state')])
             ->withPaginator($prefix)
             ->withQueryString();
     }
@@ -69,14 +118,22 @@ class IndexRetinaPalletDeliveries extends RetinaAction
                     ->pageName($prefix.'Page');
             }
 
+            foreach ($this->getElementGroups($fulfilmentCustomer) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
 
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
                 ->column(key: 'reference', label: __('reference number'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'customer_reference', label: __("delivery name"), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_pallets', label: __('total pallets'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'amount', label: __('Amount'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_pallets', label: __('total pallets'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'date', label: __('Date'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 

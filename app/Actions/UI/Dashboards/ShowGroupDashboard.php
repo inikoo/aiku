@@ -10,6 +10,7 @@ namespace App\Actions\UI\Dashboards;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithDashboard;
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
@@ -34,7 +35,7 @@ class ShowGroupDashboard extends OrgAction
     public function getDashboardInterval(Group $group, array $userSettings): array
     {
         $selectedInterval = Arr::get($userSettings, 'selected_interval', 'all');
-        $organisations = $group->organisations;
+        $organisations = $group->organisations()->where('type', '!=', OrganisationTypeEnum::AGENT->value)->get();
         $orgCurrencies = [];
         foreach ($organisations as $organisation) {
             $orgCurrencies[] = $organisation->currency->symbol;
@@ -93,6 +94,7 @@ class ShowGroupDashboard extends OrgAction
                     ]
                 ]
             ];
+
 
             if ($organisation->salesIntervals !== null) {
                 $responseData['interval_percentages']['sales'] = $this->getIntervalPercentage(

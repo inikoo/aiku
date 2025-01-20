@@ -5,6 +5,7 @@
  * Copyright: 2025
 */
 
+import FlatTreeMap from '@/Components/DataDisplay/Dashboard/Widget/FlatTreeMap.vue'
 import type { Component } from 'vue'
 import { defineAsyncComponent } from 'vue'
 
@@ -12,7 +13,8 @@ const BasicDisplay = defineAsyncComponent(() => import('@/Components/DataDisplay
 const OverviewDisplay = defineAsyncComponent(() => import('@/Components/DataDisplay/Dashboard/Widget/OverviewDisplay.vue'))
 
 export const widgetList: {[key: string]: Component} = {
-    'basic': BasicDisplay
+    'basic': BasicDisplay,
+    'flat_tree_map': FlatTreeMap
 }
 
 export const getComponentWidget = (componentName: string) => {

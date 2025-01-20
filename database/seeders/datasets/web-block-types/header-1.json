@@ -80,10 +80,8 @@
 			},
 			"logo": {
 				"visible": "all",
-				"source": null,
-				"url": "https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png",
+				"image": null,
 				"alt": "image",
-				"width": 50,
 				"properties": {
 					"padding": {
 						"unit": "px",
@@ -144,6 +142,16 @@
 						},
 						"bottom": {
 							"value": 0
+						}
+					},
+					"dimension": {
+						"height": {
+							"value": "100%",
+							"unit": "px"
+						},
+						"width": {
+							"value": "50",
+							"unit": "px"
 						}
 					}
 				}
