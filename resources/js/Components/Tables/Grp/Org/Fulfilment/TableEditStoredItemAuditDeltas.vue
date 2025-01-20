@@ -346,7 +346,7 @@ const stateStoredItemEdited = reactive<StoredItemsQuantity>({})
 
                                 <div class="flex justify-center border border-gray-300 rounded gap-y-1">
                                     <!-- Button: Check -->
-                                    <Button v-if="data.type !== 'new_item' && data.audit_type !== 'no_change'"
+                                    <Button v-if="data.type !== 'new_item' && data.audit_type !== 'no_change' && !get(data, ['is_edit'], false)"
                                         @click="() => data.audit_type === 'no_change' ? null : onStoreStoredItem(item.rowIndex, item.id, data.stored_item_id, data.quantity, data.stored_item_audit_id)"
                                         type="tertiary"
                                         :icon="data.audit_type === 'no_change' ? 'fas fa-check-circle' : 'fal fa-check-circle'"
@@ -417,8 +417,9 @@ const stateStoredItemEdited = reactive<StoredItemsQuantity>({})
 
                                     <!-- Button: Reset -->
                                     <Button
-                                        v-if="data.type === 'new_item'"
-                                        @click="() => onUnselectNewStoredItem(item.rowIndex, data.stored_item_audit_delta_id)"
+                                        v-if="get(data, ['is_edit'], false)"
+                                        @click="set(data, ['is_edit'], false)"
+                                        @clicccck="() => onUnselectNewStoredItem(item.rowIndex, data.stored_item_audit_delta_id)"
                                         type="tertiary"
                                         icon="fal fa-trash-alt"
                                         class="border-none rounded-none text-red-500"
