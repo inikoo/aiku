@@ -243,8 +243,8 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
 const stateStoredItemEdited = reactive<StoredItemsQuantity>({})
 
 
-const isGreenIconVisible = () => {
-    
+const edit_block = (audit_type: string, is_edit: boolean) => {
+    return audit_type === 'no_change' ? 'checked' : is_edit ? 'edit' : false
 }
 </script>
 
@@ -332,7 +332,7 @@ const isGreenIconVisible = () => {
                         stored_item_id: {{ data.stored_item_id || '-' }} <br />
                         audit_type: {{ data.audit_type || '-' }} <br />
                         stored_item_audit_delta_id: {{ data.stored_item_audit_delta_id || '-' }} <br />
-                        edit_block: {{ data.audit_type === 'no_change' }}
+                        edit_block: {{ edit_block(data.audit_type, data.is_edit) }}
 
                         <!-- <pre>{{ props.route_list?.stored_item_audit_delta?.store }}</pre> -->
                         <!-- <pre>{{ data }}</pre> -->
