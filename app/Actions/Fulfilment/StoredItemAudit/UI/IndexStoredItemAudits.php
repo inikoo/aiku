@@ -139,7 +139,15 @@ class IndexStoredItemAudits extends OrgAction
 
             $table
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
-                ->column(key: 'reference', label: __('Reference'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'reference', label: __('Reference'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_audited_pallets', label: __('Audited Pallets'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_audited_stored_items', label: __('Audited Stored Items'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_audited_stored_items_with_additions', label: __('Audited Stored Items(with additions)'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_audited_stored_items_with_with_subtractions', label: __('Audited Stored Items(with subtractions)'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_audited_stored_items_with_with_stock_checked', label: __('Audited Stored Items(with stock checked)'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_associated_stored_items', label: __('Associated Stored Items'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_created_stored_items', label: __('Created Stored Items'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'created_at', label: __('Created At'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
