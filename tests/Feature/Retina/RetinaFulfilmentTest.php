@@ -22,11 +22,14 @@ use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Retina\Fulfilment\FulfilmentTransaction\StoreRetinaFulfilmentTransaction;
 use App\Actions\Retina\Fulfilment\Pallet\ImportRetinaPallet;
 use App\Actions\Retina\Fulfilment\Pallet\StoreRetinaPalletFromDelivery;
+use App\Actions\Retina\Fulfilment\Pallet\UpdateRetinaPallet;
 use App\Actions\Retina\Fulfilment\PalletDelivery\Pdf\PdfRetinaPalletDelivery;
 use App\Actions\Retina\Fulfilment\PalletDelivery\StoreRetinaPalletDelivery;
 use App\Actions\Retina\Fulfilment\PalletDelivery\SubmitRetinaPalletDelivery;
 use App\Actions\Retina\Fulfilment\PalletDelivery\UpdateRetinaPalletDelivery;
 use App\Actions\Retina\Fulfilment\PalletReturn\StoreRetinaPalletReturn;
+use App\Actions\Retina\Fulfilment\StoredItem\StoreRetinaStoredItem;
+use App\Actions\Retina\Fulfilment\StoredItem\SyncRetinaStoredItemToPallet;
 use App\Actions\Retina\UI\Profile\UpdateRetinaProfile;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
@@ -49,6 +52,7 @@ use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\RentalAgreement;
+use App\Models\Fulfilment\StoredItem;
 use App\Models\Helpers\Upload;
 use App\Models\Inventory\Location;
 use Illuminate\Http\UploadedFile;
@@ -184,6 +188,51 @@ test('Add Retina Pallet to PalletDelivery', function (PalletDelivery $palletDeli
 
     return $pallet;
 })->depends('Create Retina Pallet Delivery');
+
+test('Update Retina Pallet to PalletDelivery', function (Pallet $pallet) {
+    $pallet = UpdateRetinaPallet::make()->action($pallet, 
+    [
+        'customer_reference' => 'bruh-01'
+    ]);
+
+    $pallet->refresh();
+
+    expect($pallet)->toBeInstanceOf(Pallet::class)
+        ->and($pallet->customer_reference)->toBe('bruh-01');
+
+    return $pallet;
+})->depends('Add Retina Pallet to PalletDelivery');
+
+test('Create Stored Item', function () {
+    $storedItem = StoreRetinaStoredItem::make()->action($this->fulfilmentCustomer,
+    [
+        'reference' => 'item1'
+    ]);
+
+    $storedItem->refresh();
+
+    expect($storedItem)->toBeInstanceOf(StoredItem::class)
+        ->and($storedItem->fulfilmentCustomer->number_stored_items)->toBe(1);
+    return $storedItem;
+});
+
+test('Sync Stored Item to Pallet', function (Pallet $pallet) {
+    SyncRetinaStoredItemToPallet::make()->action($pallet,
+    [
+        'stored_item_ids' => [
+            1 => [
+                'quantity' => 100
+            ]
+        ]
+    ]);
+
+    $pallet->refresh();
+
+    expect($pallet)->toBeInstanceOf(Pallet::class)
+        ->and($pallet->number_stored_items)->toBe(1);
+
+    return $pallet;
+})->depends('Update Retina Pallet to PalletDelivery');
 
 test('Add Retina Mutiple Pallets to Pallet Delivery', function (PalletDelivery $palletDelivery) {
     StoreMultiplePalletsFromDelivery::make()->action($palletDelivery, [

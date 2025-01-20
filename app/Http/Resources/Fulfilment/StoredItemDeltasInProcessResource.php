@@ -74,6 +74,7 @@ class StoredItemDeltasInProcessResource extends JsonResource
                     'type'                       => 'current_item',
                 ]),
 
+
             'new_stored_items' => $pallet->getEditNewStoredItemDeltasQuery($this->id)
                 ->where('stored_item_audit_deltas.pallet_id', $this->id)
                 ->where('stored_item_audit_deltas.stored_item_audit_id', $this->stored_item_audit_id)
@@ -84,6 +85,7 @@ class StoredItemDeltasInProcessResource extends JsonResource
                     'quantity'                => 0,
                     'audited_quantity'        => (int)$item->audited_quantity,
                     'stored_item_audit_delta_id' => $item->audit_id,
+                    'audit_type'                 => $item->audit_type,
                     'update_routes'           => [
                         'name'       => 'grp.models.stored_item_audit_delta.update',
                         'parameters' => [

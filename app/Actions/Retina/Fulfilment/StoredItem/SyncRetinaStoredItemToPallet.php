@@ -9,6 +9,7 @@
 
 namespace App\Actions\Retina\Fulfilment\StoredItem;
 
+use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateStoredItems;
 use App\Actions\RetinaAction;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\CRM\WebUser;
@@ -26,8 +27,7 @@ class SyncRetinaStoredItemToPallet extends RetinaAction
     use AsAction;
     use WithAttributes;
 
-    protected FulfilmentCustomer $fulfilmentCustomer;
-    protected Fulfilment $fulfilment;
+    private bool $action = false;
 
     public function handle(Pallet $pallet, array $modelData): void
     {
@@ -38,11 +38,12 @@ class SyncRetinaStoredItemToPallet extends RetinaAction
         });
 
         $pallet->storedItems()->sync(Arr::get($modelData, 'stored_item_ids', []));
+        PalletHydrateStoredItems::dispatch($pallet);
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->asAction) {
+        if ($this->action) {
             return true;
         }
 
@@ -73,10 +74,15 @@ class SyncRetinaStoredItemToPallet extends RetinaAction
 
     public function asController(Pallet $pallet, ActionRequest $request): void
     {
-        $this->fulfilmentCustomer = $pallet->fulfilmentCustomer;
-        $this->fulfilment         = $pallet->fulfilment;
-
         $this->initialisation($request);
+
+        $this->handle($pallet, $this->validatedData);
+    }
+
+    public function action(Pallet $pallet, array $modelData): void
+    {
+        $this->action = true;
+        $this->initialisationFulfilmentActions($pallet->fulfilmentCustomer, $modelData);
 
         $this->handle($pallet, $this->validatedData);
     }
