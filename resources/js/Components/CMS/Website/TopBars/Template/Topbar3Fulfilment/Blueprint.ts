@@ -1,3 +1,4 @@
+
 export default {
 	blueprint: [
 		{
@@ -49,35 +50,6 @@ export default {
 			},
 			replaceForm: [
 				{
-					key: ["visible"],
-					label :'Visibility',
-					type: "VisibleLoggedIn",
-				},
-				{
-					key: ["link"],
-					label :'Link',
-					type: "link",
-					props_data : {
-						defaultValue : {
-							type : "external",
-							href: "/app",
-							target : '_self'
-						},
-						props_radio_type : {
-							disabled : true
-						},
-						props_radio_target : {
-							disabled : true
-						},
-						props_input: {
-							disabled : true
-						},
-						props_selectquery:{
-							disabled : true
-						}
-					}
-				},
-				{
 					key: ["container",'properties','background'],
 					label :'Background',
 					type: "background",
@@ -110,94 +82,6 @@ export default {
 			],
 		},
 		{
-			name: "Cart",
-            key: ["cart"],
-			icon: {
-				icon: "fal fa-shopping-cart",
-				tooltip: "Cart",
-			},
-			replaceForm: [
-				{
-					key: ["visible"],
-					type: "VisibleLoggedIn",
-					label :'Visibility',
-					props_data: {
-						defaultValue: 'login',
-					},
-				},
-				{
-					key: ["link"],
-					type: "link",
-					label :'Link',
-					props_data: {
-						defaultValue: {
-							type : "external",
-							url: "",
-							id: null,
-							workshop_route : ""
-						},
-					},
-				},
-				{
-					key: ['container', 'properties'],
-					type: "button",
-					label :'Button',
-				},
-				{
-					key: ['text'],
-					type: "editorhtml",
-					label :'Text',
-					props_data: {
-						defaultValue: '{{ cart_count }}',
-					},
-				},
-			],
-		},
-		{
-			name: "Favourite",
-            key: ["favourite"],
-			icon: {
-				icon: "fal fa-heart",
-				tooltip: "Favourite",
-			},
-			replaceForm: [
-				{
-					key: ["visible"],
-					type: "VisibleLoggedIn",
-					label :'Visibility',
-					props_data: {
-						defaultValue: 'login',
-					},
-				},
-				{
-					key: ["link"],
-					type: "link",
-					label :'Link',
-					props_data: {
-						defaultValue: {
-							"type" : "external",
-							"url": "",
-							"id": null,
-							"workshop_route" : ""
-						},
-					},
-				},
-				{
-					key: ['container', 'properties'],
-					type: "button",
-					label :'Button',
-				},
-				{
-					key: ['text'],
-					type: "editorhtml",
-					label :'text',
-					props_data: {
-						defaultValue: '{{ favourites_count }}',
-					},
-				},
-			],
-		},
-		{
 			name: "Profile",
             key: ["profile"],
 			icon: {
@@ -205,14 +89,6 @@ export default {
 				tooltip: "Profile",
 			},
 			replaceForm: [
-				{
-					key: ["visible"],
-					type: "VisibleLoggedIn",
-					label :'Visibility',
-					props_data: {
-						defaultValue: 'login',
-					},
-				},
 				{
 					key: ['container', 'properties'],
 					type: "button",
@@ -247,6 +123,41 @@ export default {
 					props_data: {
 						defaultValue: '{{ name }}',
 					},
+				},
+			],
+		},
+		{
+			name: "Logout",
+            key:['logout'],
+			icon: {
+				icon: "fal fa-sign-out-alt",
+				tooltip: "Action",
+			},
+			replaceForm: [
+				{
+					key: ["container",'properties','text'],
+					label :'Text',
+					type: "textProperty",
+				},
+				{
+					key: ['text'],
+					label :'Button Text',
+					type: "text",
+				},
+				{
+					key: ["container",'properties','border'],
+					label :'Border',
+					type: "border",
+				},
+				{
+					key: ["container",'properties','margin'],
+					label :'Margin',
+					type: "margin",
+				},
+				{
+					key: ["container",'properties','padding'],
+					label :'Padding',
+					type: "padding",
 				},
 			],
 		},

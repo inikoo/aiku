@@ -101,16 +101,6 @@ const layout = inject('layout', {})
                 </a>
             </span> -->
 
-            <!-- Section: LogoutRetina -->
-            <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
-                
-                class="space-x-1.5 whitespace-nowrap hover-dashed"
-                :style="getStyles(model?.logout.container?.properties)"
-                @click="()=> emits('setPanelActive', 'logout')"
-            >
-                <FontAwesomeIcon icon='fal fa-sign-out' v-tooltip="trans('Log out')" class='' fixed-width aria-hidden='true' />
-                <span v-html="textReplaceVariables(model?.logout?.text, layout.iris_variables)" />
-            </a>
         </div>
 
         <a v-if="checkVisible(model?.profile?.visible || null, isLoggedIn)"
@@ -121,6 +111,15 @@ const layout = inject('layout', {})
             >
                 <FontAwesomeIcon icon='fal fa-user' class='' v-tooltip="trans('Profile')" fixed-width aria-hidden='true' />
                 <span v-html="textReplaceVariables(model?.profile?.text, layout.iris_variables)" />
+            </a>
+
+            <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
+                class="space-x-1.5 whitespace-nowrap hover-dashed"
+                :style="getStyles(model?.logout.container?.properties)"
+                @click="()=> emits('setPanelActive', 'logout')"
+            >
+                <FontAwesomeIcon icon='fal fa-sign-out' v-tooltip="trans('Log out')" class='' fixed-width aria-hidden='true' />
+                <span v-html="textReplaceVariables(model?.logout?.text, layout.iris_variables)" />
             </a>
     </div>
 </template>

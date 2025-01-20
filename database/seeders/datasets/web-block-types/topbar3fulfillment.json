@@ -144,7 +144,8 @@
 				"container": {
 					"properties": {
 						"text": {
-							"color": "rgba(10, 10, 10, 1)"
+							"color": "rgba(10, 10, 10, 1)",
+							"fontFamily": "Inter, sans-serif"
 						},
 						"padding": {
 							"top": {
