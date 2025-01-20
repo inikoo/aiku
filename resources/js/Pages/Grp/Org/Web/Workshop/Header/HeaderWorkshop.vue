@@ -198,7 +198,11 @@ watch(usedTemplates, (newVal) => {
 
 
 const selectedWebBlock = computed(() => {
-    return props.web_block_types.filter(item => item.data.component === selectedTab.value.componentName)
+    const data = props.web_block_types.filter(item => item.data.component === selectedTab.value.componentName)
+    if(selectedTab.value.componentName == "topbar"){
+        if(route().params["fulfilment"]) return data.filter((item)=> item.code.includes('fulfilment'))
+        else return data.filter((item)=> !item.code.includes('fulfilment'))
+    }else return data
 })
 
 
@@ -230,7 +234,6 @@ onMounted(() => {
         }
     })
 })
-
 
 
 </script>
@@ -333,14 +336,8 @@ onMounted(() => {
             </section>
         </div>
     </div>
-
     <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false">
-        <HeaderListModal :onSelectBlock :webBlockTypes="selectedTab == 0 ? selectedWebBlock.filter((item) => {
-            const hasFulfilmentParam = route().params['fulfilment'];
-            return hasFulfilmentParam
-                ? item.code.includes('fulfilment')
-                : !item.code.includes('fulfilment');
-        }) : selectedWebBlock" :currentTopbar="usedTemplates.topBar" :isLoading="isLoadingTemplate" />
+        <HeaderListModal :onSelectBlock :webBlockTypes="selectedWebBlock" :currentTopbar="usedTemplates.topBar" :isLoading="isLoadingTemplate" />
     </Modal>
 </template>
 
