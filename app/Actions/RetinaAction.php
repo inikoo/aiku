@@ -56,7 +56,7 @@ class RetinaAction
     }
 
     public function initialisationFulfilmentActions(FulfilmentCustomer $fulfilmentCustomer, array $modelData): static
-    { 
+    {
         $this->fulfilment   = $fulfilmentCustomer->fulfilment;
         $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->customer     = $fulfilmentCustomer->customer;

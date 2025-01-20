@@ -190,10 +190,12 @@ test('Add Retina Pallet to PalletDelivery', function (PalletDelivery $palletDeli
 })->depends('Create Retina Pallet Delivery');
 
 test('Update Retina Pallet to PalletDelivery', function (Pallet $pallet) {
-    $pallet = UpdateRetinaPallet::make()->action($pallet, 
-    [
+    $pallet = UpdateRetinaPallet::make()->action(
+        $pallet,
+        [
         'customer_reference' => 'bruh-01'
-    ]);
+    ]
+    );
 
     $pallet->refresh();
 
@@ -204,10 +206,12 @@ test('Update Retina Pallet to PalletDelivery', function (Pallet $pallet) {
 })->depends('Add Retina Pallet to PalletDelivery');
 
 test('Create Stored Item', function () {
-    $storedItem = StoreRetinaStoredItem::make()->action($this->fulfilmentCustomer,
-    [
+    $storedItem = StoreRetinaStoredItem::make()->action(
+        $this->fulfilmentCustomer,
+        [
         'reference' => 'item1'
-    ]);
+    ]
+    );
 
     $storedItem->refresh();
 
@@ -217,14 +221,16 @@ test('Create Stored Item', function () {
 });
 
 test('Sync Stored Item to Pallet', function (Pallet $pallet) {
-    SyncRetinaStoredItemToPallet::make()->action($pallet,
-    [
+    SyncRetinaStoredItemToPallet::make()->action(
+        $pallet,
+        [
         'stored_item_ids' => [
             1 => [
                 'quantity' => 100
             ]
         ]
-    ]);
+    ]
+    );
 
     $pallet->refresh();
 
