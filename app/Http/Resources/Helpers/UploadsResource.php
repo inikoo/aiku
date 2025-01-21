@@ -31,7 +31,11 @@ class UploadsResource extends JsonResource
             'number_fails'      => $upload->number_fails,
             'path'              => $upload->path,
             'download_route'    => [
-                'name'       => 'org.uploads.download',
+                'name'       => 'grp.helpers.uploads.records.show',
+                'parameters' => $upload->id,
+            ],
+            'show_route'    => [
+                'name'       => 'grp.helpers.uploads.records.show',
                 'parameters' => $upload->id,
             ],
         ];
