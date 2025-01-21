@@ -16,8 +16,8 @@ const props = defineProps<{
 			selected_interval?: string
 			selected_currency_in_grp?: string
 			selected_currency_in_org?: string
-			selected_shop_open?: boolean
-			selected_shop_closed?: boolean
+			selected_shop_open?: string
+			selected_shop_closed?: string
 		}
 		key_currency?: string
 		key_shop?: string
@@ -110,9 +110,9 @@ const updateShop = (shop_scope: string) => {
 				<p
 					class="font-medium"
 					:class="[
-						settings.db_settings.selected_shop_open === settings.options_shop[1].value 
-        ? 'text-black font-bold' 
-        : 'opacity-50' 
+						settings.db_settings.selected_shop_open === settings.options_shop[1].value
+							? 'text-black font-bold'
+							: 'opacity-50',
 					]">
 					{{ settings.options_shop[1].label }}
 				</p>
@@ -128,16 +128,14 @@ const updateShop = (shop_scope: string) => {
 				<p
 					class="font-medium"
 					:class="[
-						settings.db_settings.selected_shop_open === settings.options_shop[0].value 
-        ? 'text-black font-bold' 
-        : 'opacity-50' 
+						settings.db_settings.selected_shop_open === settings.options_shop[0].value
+							? 'text-black font-bold'
+							: 'opacity-50',
 					]">
 					{{ settings.options_shop[0].label }}
 				</p>
 			</div>
-			<div v-else>
-			
-			</div>
+			<div v-else></div>
 
 			<!-- Currency Toggle with Labels -->
 			<div class="flex items-center justify-end space-x-4">
@@ -191,7 +189,7 @@ const updateShop = (shop_scope: string) => {
 
 		<!-- Section: Interval -->
 		<nav
-			class="isolate flex rounded-full bg-white-50 border border-gray-200 p-1"
+			class="isolate flex rounded-full bg-white-50 border border-gray-200 p-1 hidden sm:flex"
 			aria-label="Tabs">
 			<div
 				v-for="(interval, idxInterval) in intervalOptions"
@@ -213,5 +211,20 @@ const updateShop = (shop_scope: string) => {
 				/></span>
 			</div>
 		</nav>
+		<div class="block sm:hidden">
+			<label for="intervalDropdown" class="sr-only">Select Interval</label>
+			<select
+				id="intervalDropdown"
+				class="w-full border-gray-300 rounded-md text-sm"
+				v-model="settings.db_settings.selected_interval"
+				@change="updateInterval($event.target.value)">
+				<option
+					v-for="(interval, idxInterval) in intervalOptions"
+					:key="idxInterval"
+					:value="interval.value">
+					{{ interval.value }}
+				</option>
+			</select>
+		</div>
 	</div>
 </template>

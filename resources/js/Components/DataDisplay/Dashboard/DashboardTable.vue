@@ -15,7 +15,7 @@ import { useTabChange } from "@/Composables/tab-change"
 
 
 const props = defineProps<{
-	tableData: {}
+	tableData: {}[]
 	locale: any
 	totalAmount: {
 		total_invoices: number
@@ -50,9 +50,9 @@ const activeTab = ref(tabs.value[1].value)
 					}}</Tab>
 				</TabList>
 			</Tabs>
-			
-			<DataTable :value="tableData" removableSort>
-				<Column sortable>
+		
+			<DataTable :value="tableData" removableSort >
+				<Column sortable field="code" >
 					<template #header>
 						<div class="flex items-center justify-between">
 							<span class="font-bold">Code</span>
@@ -169,7 +169,7 @@ const activeTab = ref(tabs.value[1].value)
 				</Column>
 
 				<!-- Invoice -->
-				<Column sortable class="overflow-hidden transition-all" headerClass="align-right">
+				<Column sortable field="invoices" class="overflow-hidden transition-all" headerClass="align-right">
 					<template #header>
 						<div class="flex justify-end items-end">
 							<span class="font-bold">Invoices</span>
@@ -178,10 +178,10 @@ const activeTab = ref(tabs.value[1].value)
 					<template #body="{ data }">
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
-								<div :key="data.interval_percentages?.invoices?.amount || 0">
+								<div :key="data?.invoices?.amount || 0">
 									{{
 										locale.number(
-											data.interval_percentages?.invoices?.amount || 0
+											data?.invoices?.amount || 0
 										)
 									}}
 								</div>
@@ -192,7 +192,7 @@ const activeTab = ref(tabs.value[1].value)
 
 				<!-- Invoice: Diff 1y -->
 				<Column
-					field="invoices_diff"
+					field="invoices_percentage"
 					sortable
 					class="overflow-hidden transition-all"
 					headerClass="align-right"
@@ -304,7 +304,7 @@ const activeTab = ref(tabs.value[1].value)
 
 				<!-- Sales: Diff 1y -->
 				<Column
-					field="sales_diff"
+					field="sales_percentage"
 					sortable
 					class="overflow-hidden transition-all"
 					headerClass="align-right"
