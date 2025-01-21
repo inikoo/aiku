@@ -60,7 +60,7 @@ const usedTemplates = ref({
 })
 const isLoading = ref(false)
 const comment = ref('')
-const active = ref(true)
+const status = ref(true)
 const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
 const iframeSrc = route('grp.websites.header.preview', [route().params['website']])
@@ -123,7 +123,7 @@ const onPublish = async (action: routeType, popover: Function) => {
         route(action.name, action.parameters),
         {
             comment: comment.value,
-            layout: {... usedTemplates.value,  active : active.value}
+            layout: {... usedTemplates.value,  status : status.value}
         },
         {
             onStart: () => isLoading.value = true,
@@ -257,7 +257,7 @@ onMounted(() => {
                 <span class="text-gray-700 capitalize">
                     {{ trans('Active') }}:
                 </span>
-                <ToggleSwitch v-model="active" class="transition-all duration-200 ease-in-out"/>
+                <ToggleSwitch v-model="status" class="transition-all duration-200 ease-in-out"/>
             </div>
         </template>
             </Publish>
