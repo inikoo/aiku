@@ -305,9 +305,9 @@ const edit_block = (audit_type: string, is_edit: boolean, keep_is_edit: boolean)
 
         <!-- Column: Customer SKUS -->
         <template #cell(stored_items)="{ proxyItem, item }">
-            pallet id: {{ item.id }} <br />
+            <!-- pallet id: {{ item.id }} <br />
             item.stored_item_audit_id: {{ item.stored_item_audit_id }} <br />
-            route store: {{ props.route_list?.stored_item_audit_delta?.store.name }} <br />
+            route store: {{ props.route_list?.stored_item_audit_delta?.store.name }} <br /> -->
 
             <DataTable v-if="proxyItem.stored_items?.length || proxyItem.new_stored_items?.length"
                 :value="[...proxyItem.stored_items, ...proxyItem.new_stored_items]">
@@ -334,15 +334,16 @@ const edit_block = (audit_type: string, is_edit: boolean, keep_is_edit: boolean)
                         stored_item_id: {{ data.stored_item_id || '-' }} <br />
                         audit_type: {{ data.audit_type || '-' }} <br />
                         stored_item_audit_delta_id: {{ data.stored_item_audit_delta_id || '-' }} <br /> -->
-                        edit_block: {{ edit_block(data.audit_type, data.is_edit, !!get(isStoredItemEdited, [(item.rowIndex+1)?.toString(), `id${data.stored_item_audit_delta_id?.toString()}`], false)) }}
+                        <!-- edit_block: {{ edit_block(data.audit_type, data.is_edit, !!get(isStoredItemEdited, [(item.rowIndex+1)?.toString(), `id${data.stored_item_audit_delta_id?.toString()}`], false)) }} -->
 
                       <!-- <pre>{{ props.route_list?.stored_item_audit_delta?.store }}</pre>
                       <pre>{{ data }}</pre> -->
                         <div class="relative">
-                            <div v-if="get(isLoadingQuantity, [item.rowIndex, data.stored_item_audit_delta_id], false) || get(isLoadingUnselect, [item.rowIndex, data.stored_item_audit_delta_id], false)"
+                            <!-- <div 
                                 class="z-10 opacity-60 absolute w-full h-full top-0 left-0">
                                 <div class="skeleton h-full w-full"></div>
-                            </div>
+                            </div> -->
+
 
                             <div class="flex gap-x-2.5 items-center w-64">
                                 <!-- Check green -->
@@ -447,6 +448,9 @@ const edit_block = (audit_type: string, is_edit: boolean, keep_is_edit: boolean)
                                     :loading="!!get(isLoadingUnselect, [item.rowIndex, data.storedItemAuditDelta], false)"
                                   />
                                 </div>
+
+                                <LoadingIcon v-if="get(isLoadingQuantity, [item.rowIndex, data.stored_item_audit_delta_id], false) || get(isLoadingUnselect, [item.rowIndex, data.stored_item_audit_delta_id], false)" class="-ml-1 text-xs" />
+
                                 <!-- {{ isStoredItemEdited }} -->
 
                                 <!-- <FontAwesomeIcon v-tooltip="trans('Close')"
