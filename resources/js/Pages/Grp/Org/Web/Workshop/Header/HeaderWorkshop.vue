@@ -56,8 +56,8 @@ const props = defineProps<{
 
 provide('route_list', props.route_list)
 const usedTemplates = ref({ 
-    header : props.data.data.header,
-    topBar : props.data.data.topBar
+    header : props?.data?.data?.header,
+    topBar : props?.data?.data?.topBar
 })
 const isLoading = ref(false)
 const comment = ref('')
