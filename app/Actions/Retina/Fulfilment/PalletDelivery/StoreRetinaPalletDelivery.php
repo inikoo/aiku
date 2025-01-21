@@ -79,9 +79,7 @@ class StoreRetinaPalletDelivery extends RetinaAction
     {
         if ($this->action) {
             return true;
-        }
-
-        if ($request->user() instanceof WebUser) {
+        } elseif ($this->customer->id == $request->route()->parameter('palletDelivery')->fulfilmentCustomer->customer_id) {
             return true;
         }
 
