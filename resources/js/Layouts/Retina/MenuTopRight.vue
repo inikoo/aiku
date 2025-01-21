@@ -27,7 +27,7 @@ onUnmounted(() => {
     document.removeEventListener('keydown', () => false)
 })
 const isUserMac = navigator.platform.includes('Mac')  // To check the user's Operating System
-
+console.log(layout)
 </script>
 
 <template>
@@ -51,9 +51,10 @@ const isUserMac = navigator.platform.includes('Mac')  // To check the user's Ope
             <Link :href="route('retina.profile.show')"
                 id="avatar-thumbnail"
                 class="pl-3 pr-1 flex gap-x-2 items-center rounded-full"
-                :class="layout?.currentRoute.includes('retina.profile.show') ? 'bg-gray-200 ring-1 ring-gray-300' : 'hover:bg-gray-200'"
-            >
-                <div class="text-gray-700 text-lg">{{ layout?.customer?.company_name }}</div>
+                :class="layout?.currentRoute.includes('retina.profile.show') ? 'bg-gray-200 ring-1 ring-gray-300' : 'hover:bg-gray-200'">
+                <div class="text-gray-700 text-lg truncate max-w-[145px]" :title="`${layout?.user?.username} from ${layout?.customer?.company_name}`">
+                    {{ layout?.webUser_count > 1 ? `${layout?.user?.username}` :  layout?.customer?.company_name }}
+                </div>
                 <span class="sr-only">{{ trans("Open user menu") }}</span>
                 <div class="h-8 aspect-square rounded-full overflow-hidden border border-gray-300">
                     <Image v-if="layout.user.avatar_thumbnail" :src="layout.user.avatar_thumbnail" alt="" />

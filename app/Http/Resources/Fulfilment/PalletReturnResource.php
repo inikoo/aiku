@@ -22,30 +22,32 @@ class PalletReturnResource extends JsonResource
         $timeline = [];
         foreach (PalletReturnStateEnum::cases() as $state) {
             $timeline[$state->value] = [
-                'label'   => $state->labels()[$state->value],
-                'tooltip' => $state->labels()[$state->value],
-                'key'     => $state->value,
-                /*  'icon'      => $palletReturn->state->stateIcon()[$state->value]['icon'], */
-                'timestamp' => $palletReturn->{$state->snake() . '_at'} ? $palletReturn->{$state->snake() . '_at'}->toISOString() : null
+                'label'     => $state->labels()[$state->value],
+                'tooltip'   => $state->labels()[$state->value],
+                'key'       => $state->value,
+                'timestamp' => $palletReturn->{$state->snake().'_at'} ? $palletReturn->{$state->snake().'_at'}->toISOString() : null
             ];
         }
 
         $finalTimeline = Arr::except(
             $timeline,
-            [$palletReturn->state->value == PalletReturnStateEnum::CANCEL->value
-                ? ''
-                : PalletReturnStateEnum::CANCEL->value]
+            [
+                $palletReturn->state->value == PalletReturnStateEnum::CANCEL->value
+                    ? ''
+                    : PalletReturnStateEnum::CANCEL->value
+            ]
         );
 
         return [
-            'id'                      => $palletReturn->id,
-            'reference'               => $palletReturn->reference,
-            'state'                   => $palletReturn->state,
-            'timeline'                => $finalTimeline,
-            'number_pallets'          => $palletReturn->stats->number_pallets,
-            'number_stored_items'     => $palletReturn->stats->number_stored_items,
-            'number_services'         => $palletReturn->stats->number_services,
-            'number_physical_goods'   => $palletReturn->stats->number_physical_goods,
+            'id'                    => $palletReturn->id,
+            'reference'             => $palletReturn->reference,
+            'state'                 => $palletReturn->state,
+            'is_collection'         => $palletReturn->is_collection,
+            'timeline'              => $finalTimeline,
+            'number_pallets'        => $palletReturn->stats->number_pallets,
+            'number_stored_items'   => $palletReturn->stats->number_stored_items,
+            'number_services'       => $palletReturn->stats->number_services,
+            'number_physical_goods' => $palletReturn->stats->number_physical_goods,
         ];
     }
 }

@@ -118,6 +118,7 @@ class IndexUniversalSearch extends OrgAction
 
             'fulfilments.show.crm' => 'fulfilment',
             'fulfilments.show.catalogue.rentals' => 'fulfilment',
+            'procurement.' => 'procurement',
             'pallets.' => 'fulfilment',
             'stored_items.' => 'fulfilment',
             'stock_deliveries.' => 'fulfilment',

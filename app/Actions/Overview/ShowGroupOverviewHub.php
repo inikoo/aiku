@@ -47,7 +47,7 @@ class ShowGroupOverviewHub extends GrpAction
                         "currency_chosen" => 'usd' // | pounds | dollar
                     ],
                     'widgets' => [
-                        
+
                             'column_count' => 2,
                             'components' => [
                                 [
@@ -59,12 +59,12 @@ class ShowGroupOverviewHub extends GrpAction
                                 [
                                     'col_span' => 1,
                                     'type' => 'operation_display',
-                                    
+
                                 ],
                                 [
                                     'col_span' => 1,
                                     'type' => 'operation_display',
-                                    
+
                                 ]
                             ],
                        /*  [

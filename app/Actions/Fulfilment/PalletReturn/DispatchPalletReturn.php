@@ -52,7 +52,7 @@ class DispatchPalletReturn extends OrgAction
         $palletReturn = DB::transaction(function () use ($palletReturn, $pallets, $modelData) {
             /** @var Pallet $pallet */
             foreach ($pallets as $pallet) {
-                $pallet=UpdatePallet::make()->action($pallet, [
+                $pallet = UpdatePallet::make()->action($pallet, [
                     'state'  => PalletStateEnum::DISPATCHED,
                     'status' => PalletStatusEnum::RETURNED
                 ]);
@@ -64,7 +64,7 @@ class DispatchPalletReturn extends OrgAction
                     ]
                 ]);
             }
-           return $this->update($palletReturn, $modelData);
+            return $this->update($palletReturn, $modelData);
         });
 
         GroupHydratePalletReturns::dispatch($palletReturn->group);

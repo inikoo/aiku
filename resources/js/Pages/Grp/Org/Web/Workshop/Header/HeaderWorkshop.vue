@@ -17,6 +17,7 @@ import { irisStyleVariables, setIframeView } from '@/Composables/Workshop'
 import ProgressSpinner from 'primevue/progressspinner';
 import { useColorTheme } from '@/Composables/useStockList'
 import { set, get } from 'lodash'
+import ToggleSwitch from 'primevue/toggleswitch';
 
 import { routeType } from "@/types/route"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
@@ -59,6 +60,7 @@ const usedTemplates = ref({
 })
 const isLoading = ref(false)
 const comment = ref('')
+const status = ref(true)
 const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
 const iframeSrc = route('grp.websites.header.preview', [route().params['website']])
@@ -121,7 +123,7 @@ const onPublish = async (action: routeType, popover: Function) => {
         route(action.name, action.parameters),
         {
             comment: comment.value,
-            layout: usedTemplates.value
+            layout: {... usedTemplates.value,  status : status.value}
         },
         {
             onStart: () => isLoading.value = true,
@@ -248,7 +250,17 @@ onMounted(() => {
 
         <template #button-publish="{ action }">
             <Publish v-model="comment" :isLoading="isLoading || isLoadingSave" :is_dirty="true"
-                @onPublish="(popover) => onPublish(action.route, popover)" />
+                @onPublish="(popover) => onPublish(action.route, popover)">
+                <template #form-extend>
+            <div class="flex items-center gap-3 my-4">
+                <!-- Active Label and ToggleSwitch -->
+                <span class="text-gray-700 capitalize">
+                    {{ trans('Active') }}:
+                </span>
+                <ToggleSwitch v-model="status" class="transition-all duration-200 ease-in-out"/>
+            </div>
+        </template>
+            </Publish>
         </template>
     </PageHeading>
     <div class="h-[84vh] flex">
@@ -337,7 +349,8 @@ onMounted(() => {
         </div>
     </div>
     <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false">
-        <HeaderListModal :onSelectBlock :webBlockTypes="selectedWebBlock" :currentTopbar="usedTemplates.topBar" :isLoading="isLoadingTemplate" />
+        <HeaderListModal :onSelectBlock :webBlockTypes="selectedWebBlock" :currentTopbar="usedTemplates.topBar"
+            :isLoading="isLoadingTemplate" />
     </Modal>
 </template>
 

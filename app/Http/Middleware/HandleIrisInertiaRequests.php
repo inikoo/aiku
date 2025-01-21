@@ -34,6 +34,10 @@ class HandleIrisInertiaRequests extends Middleware
             ]);
         };
         // dd($webUser->customer->favourites->count());
+
+        $headerLayout = Arr::get($website->published_layout, 'header');
+        $isHeaderActive = Arr::get($headerLayout, 'status');
+
         return array_merge(
             $firstLoadOnlyProps,
             [
@@ -50,7 +54,7 @@ class HandleIrisInertiaRequests extends Middleware
 
                 'iris' => [
                     'header' => array_merge(
-                        Arr::get($website->published_layout, 'header'),
+                        $isHeaderActive == 'active' ? Arr::get($website->published_layout, 'header') : [],
                         [
                             'loginRoute' => [
                                 'name' => 'retina.login.show'
