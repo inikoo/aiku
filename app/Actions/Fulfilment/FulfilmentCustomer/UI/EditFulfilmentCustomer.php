@@ -103,6 +103,12 @@ class EditFulfilmentCustomer extends OrgAction
                                     'options' => [
                                         'countriesAddressData' => GetAddressData::run()
                                     ]
+                                ],
+                                'vat'      => [
+                                    'type'    => 'tax_number',
+                                    'label'   => __('vat'),
+                                    'value'   => null,
+                                    'country' => $fulfilmentCustomer->customer->address->country_code,
                                 ]
                             ]
                         ]

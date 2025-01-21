@@ -21,22 +21,34 @@ use App\Models\Fulfilment\PalletReturn;
 use App\Rules\ValidAddress;
 use Lorisleiva\Actions\ActionRequest;
 
-class StoreDeliveryAddressToPalletReturn extends OrgAction
+class AddAddressToPalletReturn extends OrgAction
 {
     use WithActionUpdate;
     use WithModelAddressActions;
 
-    public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
+    public function handle(FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $palletReturn = $this->addAddressToModelFromArray(
-            model: $palletReturn,
-            addressData: $modelData['delivery_address'],
-            scope: 'delivery',
-            updateLocation: false,
-            updateAddressField:false
-        );
+        if($modelData == []){
+            $address = $fulfilmentCustomer->customer->address->toArray();
+            $palletReturn = $this->addAddressToModelFromArray(
+                model: $palletReturn,
+                addressData: $address,
+                scope: 'delivery',
+                updateLocation: false,
+                updateAddressField:false
+            );
+        }else {
+            $palletReturn = $this->addAddressToModelFromArray(
+                model: $palletReturn,
+                addressData: $modelData['delivery_address'],
+                scope: 'delivery',
+                updateLocation: false,
+                updateAddressField:false
+            );
+        }
 
         $palletReturn->refresh();
+        $palletReturn->update(['delivery_address_id' =>  null]);
         PalletReturnRecordSearch::dispatch($palletReturn);
 
         return $palletReturn;
@@ -59,7 +71,7 @@ class StoreDeliveryAddressToPalletReturn extends OrgAction
     public function rules(): array
     {
         return [
-            'delivery_address'         => ['required', new ValidAddress()],
+            'delivery_address'         => ['sometimes', new ValidAddress()],
         ];
     }
 
@@ -68,10 +80,10 @@ class StoreDeliveryAddressToPalletReturn extends OrgAction
     {
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
 
-        return $this->handle($palletReturn, $this->validatedData);
+        return $this->handle($fulfilmentCustomer,$palletReturn, $this->validatedData);
     }
 
-    public function action(PalletReturn $palletReturn, array $modelData, int $hydratorsDelay = 0, bool $strict = true): PalletReturn
+    public function action(FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, array $modelData, int $hydratorsDelay = 0, bool $strict = true): PalletReturn
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
@@ -79,16 +91,17 @@ class StoreDeliveryAddressToPalletReturn extends OrgAction
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $modelData);
 
 
-        return $this->handle($palletReturn, $this->validatedData);
+        return $this->handle($fulfilmentCustomer,$palletReturn, $this->validatedData);
     }
 
     public function fromRetina(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
+        $customer = $request->user()->customer;
         $palletReturn = $request->user()->customer->palletReturn;
 
         $this->initialisation($request->get('website')->organisation, $request);
 
-        return $this->handle($palletReturn, $this->validatedData);
+        return $this->handle($customer, $palletReturn, $this->validatedData);
     }
 
 
