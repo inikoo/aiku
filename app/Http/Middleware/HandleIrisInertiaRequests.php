@@ -38,6 +38,9 @@ class HandleIrisInertiaRequests extends Middleware
         $headerLayout = Arr::get($website->published_layout, 'header');
         $isHeaderActive = Arr::get($headerLayout, 'status');
 
+        $footerLayout = Arr::get($website->published_layout, 'footer');
+        $isFooterActive = Arr::get($footerLayout, 'status');
+
         return array_merge(
             $firstLoadOnlyProps,
             [
@@ -56,7 +59,9 @@ class HandleIrisInertiaRequests extends Middleware
                     'header' => array_merge(
                         $isHeaderActive == 'active' ? Arr::get($website->published_layout, 'header') : [],
                     ),
-                    'footer' => Arr::get($website->published_layout, 'footer'),
+                    'footer' => array_merge(
+                        $isFooterActive == 'active' ? Arr::get($website->published_layout, 'footer') : [],
+                    ),
                     'menu'   => Arr::get($website->published_layout, 'menu'),
                     'theme'  => Arr::get($website->published_layout, 'theme'),
                     'is_logged_in'  => $webUser ? true : false,

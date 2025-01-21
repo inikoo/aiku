@@ -53,7 +53,7 @@ const props = defineProps<{
         stock_images_list: routeType
     }
 }>()
-console.log(props)
+
 provide('route_list', props.route_list)
 const usedTemplates = ref({ 
     header : props.data.data.header,
