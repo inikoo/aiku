@@ -9,7 +9,7 @@ import { faUserCircle } from '@fal'
 import { router } from '@inertiajs/vue3'
 import { notify } from "@kyvg/vue3-notification"
 import { trans } from "laravel-vue-i18n"
-
+import Image from '@/Components/Image.vue'
 
 const props = defineProps<{
     data: {
@@ -35,7 +35,6 @@ const isLoggedIn = ref(layout.iris.user_auth ? true : false)
 provide('isPreviewLoggedIn', isLoggedIn)
 
 const onLogoutAuth = (link) => {
-    console.log('logout')
     router.post(route('retina.logout'), {},
         {
             onSuccess: () => {
@@ -95,14 +94,15 @@ provide('onLogout', onLogoutAuth)
         :is="getIrisComponent(menu?.code)" 
         :navigations="menu.data.fieldValue.navigation"
         :colorThemed="colorThemed" 
-          class="hidden md:block"
+        class="hidden md:block"
     />
 
     <div class="block md:hidden p-3">
             <div class="flex justify-between items-center">
-                <MobileMenu :header="data.header.data.fieldValue" :menu="data.header.data.fieldValue" />
+                <MobileMenu :header="data.header.data.fieldValue" :menu="menu.data.fieldValue.navigation" />
                 <!-- Logo for Mobile -->
-                <Image  :src="data.header.data.fieldValue?.logo?.source" class="h-10 mx-2"></Image>
+           <!-- <pre> {{ data.header.data.fieldValue?.logo.image.source }}</pre>  -->
+                <img  :src="data.header.data.fieldValue?.logo.image.source.original" :alt="data.header.data.fieldValue?.logo.alt" class="h-10 mx-2"></img>
 
                 <!-- Profile Icon with Dropdown Menu -->
                 <div @click="toggle" class="flex items-center cursor-pointer">
@@ -116,11 +116,11 @@ provide('onLogout', onLogoutAuth)
             </div>
 
             <!-- Mobile Search Bar -->
-            <div class="relative mt-2">
+           <!--  <div class="relative mt-2">
                 <input type="text" placeholder="Search Products"
                     class="border border-gray-300 py-2 px-4 rounded-md w-full shadow-inner focus:outline-none focus:border-gray-500">
                 <FontAwesomeIcon icon="fas fa-search" class="absolute top-1/2 -translate-y-1/2 right-4 text-gray-500"
                     fixed-width />
-            </div>
+            </div> -->
     </div>
 </template>

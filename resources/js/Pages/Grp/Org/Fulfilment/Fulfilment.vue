@@ -18,6 +18,7 @@ import ModelDetails from "@/Components/ModelDetails.vue"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import FulfilmentShowcase from "@/Components/Showcases/Org/FulfilmentShowcase.vue"
 import TablePallets from "@/Components/Tables/Grp/Org/Fulfilment/TablePallets.vue"
+import Dashboard from "@/Components/DataDisplay/Dashboard/Dashboard.vue";
 
 library.add(faTachometerAlt, faHandHoldingBox)
 
@@ -59,5 +60,7 @@ const component = computed(() => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
+
+
     <component :is="component" :tab="currentTab" :data="props[currentTab]"></component>
 </template>
