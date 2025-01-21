@@ -130,7 +130,7 @@ onMounted(() => {
         <!-- Box: Status -->
         <BoxStatPallet class="py-1 sm:py-2 px-3" :label="capitalize(dataPalletDelivery?.state)" icon="fal fa-truck-couch">
             <div class="mb-4 h-full w-full py-1 px-2 flex flex-col bg-gray-100 ring-1 ring-gray-300 rounded items-center">
-                <svg id="palletDeliveryBarcode" class="w-full h-full" />
+                <svg id="palletDeliveryBarcode" class="w-full h-full"></svg>
                 <div class="text-xxs text-gray-500">
                     {{ route().params.palletDelivery }}
                 </div>
