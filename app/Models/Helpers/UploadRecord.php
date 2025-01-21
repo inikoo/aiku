@@ -51,6 +51,6 @@ class UploadRecord extends Model
 
     public function excel(): BelongsTo
     {
-        return $this->belongsTo(Upload::class);
+        return $this->belongsTo(Upload::class, 'upload_id');
     }
 }
