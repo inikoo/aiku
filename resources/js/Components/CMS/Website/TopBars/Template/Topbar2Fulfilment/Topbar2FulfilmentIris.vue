@@ -76,7 +76,7 @@ const emits = defineEmits<{
 
 <template>
     <div></div>
-    <div id="top_bar" class="py-2 px-4 grid md:grid-cols-5"
+    <div id="top_bar" class="py-2 px-4 grid md:grid-cols-5 hidden md:flex"
         :style="getStyles(model?.container?.properties)"
     >
 

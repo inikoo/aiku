@@ -106,6 +106,14 @@ const setFirstVisitToFalse = () => {
             <Notification :notification="props" />
         </template>
     </notifications>
+
+    <iframe 
+        id="superchat-widget" 
+        class="fixed bottom-0 right-0 z-[10000] placement-right" 
+        style="width: 300px; height: 400px;" 
+        src="https://widget.superchat.de/v2?applicationKey=WCNK7nqXPQlrVGq895A2obLRVa">
+    </iframe>
+
 </template>
 
 <style lang="scss">
