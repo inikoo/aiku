@@ -57,7 +57,7 @@ class HandleIrisInertiaRequests extends Middleware
 
                 'iris' => [
                     'header' => array_merge(
-                        $isHeaderActive == 'active' ? Arr::get($website->published_layout, 'header') : [],
+                         Arr::get($website->published_layout, 'header'),
                     ),
                     'footer' => array_merge(
                         $isFooterActive == 'active' ? Arr::get($website->published_layout, 'footer') : [],
