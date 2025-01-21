@@ -19,7 +19,7 @@ class AutomaticallySetPalletReturnAsPickedIfAllItemsPicked extends HydrateModel
 
     public function handle(PalletReturn $palletReturn): void
     {
-        if($palletReturn->state != PalletReturnItemStateEnum::PICKING) {
+        if ($palletReturn->state != PalletReturnItemStateEnum::PICKING) {
             return;
         }
 
