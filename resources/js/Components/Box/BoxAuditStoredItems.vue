@@ -17,13 +17,39 @@ import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 library.add(faNarwhal, faPallet, faQuestionCircle, faIdCardAlt, faEnvelope, faPhone, faPlus, faMinus,faCheck, faLink, faLayerPlus)
 
 const props = defineProps<{
-    auditData: {}
-    boxStats: BoxStats
+    auditData: {
+        reference: string
+        state_icon: {
+            icon: string
+            class: string
+            tooltip: string
+        }
+        number_audited_pallets: number
+        number_audited_stored_items: number
+        number_audited_stored_items_with_additions: number
+        number_audited_stored_items_with_with_subtractions: number
+        number_audited_stored_items_with_with_stock_checked: number
+        number_associated_stored_items: number
+        number_created_stored_items: number
+    }
+    boxStats: {
+        customer: {
+            reference: string
+            contact_name: string
+            company_name: string
+            email: string
+            phone: string
+        }
+        fulfilment: {
+            slug: string
+        }
+        slug: string
+        number_pallets: number
+    }
 }>()
 
 const locale = inject('locale', aikuLocaleStructure)
 
-console.log('ini',props)
 
 onMounted(() => {
     JsBarcode('#palletDeliveryBarcode', route().v().params.storedItemAudit, {
