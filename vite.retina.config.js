@@ -15,8 +15,8 @@ import path from "node:path";
 export default defineConfig(
   {
     server : {
+      cors : true,
       watch: {
-        cors   : true,
         ignored: ["**/storage/media/**"]
       }
     },
