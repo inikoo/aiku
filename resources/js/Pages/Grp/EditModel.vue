@@ -257,7 +257,7 @@ function connectToPlatform(routeName, parameters) {
                             <!-- Field: is not hidden = true -->
                             <div v-if="!fieldData?.hidden" class="py-4">
                                 <Action v-if="fieldData.type === 'action'" :action="fieldData.action" :dataToSubmit="fieldData.action?.data" />
-                                <FieldForm v-else :key="index" :field="fieldName" :fieldData="fieldData" :args="formData.args" :id="fieldData.name" />
+                                <FieldForm v-else :key="index" :field="fieldName" :fieldData="fieldData" :args="formData.args" :id="fieldData.name" :refForms="_fieldForm"/>
                             </div>
                         </template>
                     </div>

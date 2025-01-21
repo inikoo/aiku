@@ -67,7 +67,7 @@ const props = defineProps<{
         key: string,
         data: object,
     }
-   
+
     loginMode:Boolean
     previewMode:Boolean
 }>()
@@ -91,7 +91,7 @@ const emits = defineEmits<{
                 @setPanelActive="(data : string)=>sendMessageToParent('TopbarPanelOpen',data)"
             />
          </div>
-        
+
 
 
         <!-- Section: Header -->
@@ -106,10 +106,10 @@ const emits = defineEmits<{
         />
 
         <!-- Section: Menu -->
-        <component 
-            v-if="menu?.menu?.data" 
-            :is="getComponent(menu?.menu.code)" 
-            :navigations="menu?.menu?.data.fieldValue.navigation" 
-            class="hidden md:block" 
+        <component
+            v-if="menu?.menu?.data"
+            :is="getComponent(menu?.menu.code)"
+            :navigations="menu?.menu?.data.fieldValue.navigation"
+            class="hidden md:block"
         />
 </template>
