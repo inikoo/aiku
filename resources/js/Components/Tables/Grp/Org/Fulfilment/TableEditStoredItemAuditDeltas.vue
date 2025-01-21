@@ -345,6 +345,7 @@ const edit_block = (audit_type: string, is_edit: boolean, keep_is_edit: boolean)
                             </div>
 
                             <div class="flex gap-x-2.5 items-center w-64">
+                                <!-- Check green -->
                                 <div v-if="data.audit_type === 'no_change' && edit_block(data.audit_type, data.is_edit, !!get(isStoredItemEdited, [(item.rowIndex+1)?.toString(), `id${data.stored_item_audit_delta_id?.toString()}`], false)) != 'edit'">
                                     <Button 
                                         type="tertiary"
@@ -355,7 +356,7 @@ const edit_block = (audit_type: string, is_edit: boolean, keep_is_edit: boolean)
 
                                 <div class="flex justify-center border border-gray-300 rounded gap-y-1">
                                     <!-- Button: Check -->
-                                    <Button v-if="data.type !== 'new_item' && data.audit_type !== 'no_change' && data.audit_type !== 'addition' && !get(data, ['is_edit'], false)"
+                                    <Button v-if="data.type !== 'new_item' && data.audit_type !== 'no_change' && data.audit_type !== 'addition' && !get(data, ['is_edit'], false) && edit_block(data.audit_type, data.is_edit, !!get(isStoredItemEdited, [(item.rowIndex+1)?.toString(), `id${data.stored_item_audit_delta_id?.toString()}`], false)) != 'edit'"
                                         @click="() => data.audit_type === 'no_change' ? null : onStoreStoredItem(item.rowIndex, item.id, data.stored_item_id, data.quantity, data.stored_item_audit_id)"
                                         type="tertiary"
                                         :icon="data.audit_type === 'no_change' ? 'fas fa-check-circle' : 'fal fa-check-circle'"
@@ -365,7 +366,7 @@ const edit_block = (audit_type: string, is_edit: boolean, keep_is_edit: boolean)
                                     />
 
                                     <!-- Edit button -->
-                                    <div v-if="!data.stored_item_audit_delta_id" @click="() => set(data, ['is_edit'], !(get(data, ['is_edit'], false)))" class="px-2 flex items-center hover:bg-gray-200 cursor-pointer">
+                                    <div v-if="!data.stored_item_audit_delta_id && edit_block(data.audit_type, data.is_edit, !!get(isStoredItemEdited, [(item.rowIndex+1)?.toString(), `id${data.stored_item_audit_delta_id?.toString()}`], false)) != 'edit'" @click="() => set(data, ['is_edit'], !(get(data, ['is_edit'], false)))" class="px-2 flex items-center hover:bg-gray-200 cursor-pointer">
                                         <FontAwesomeIcon icon='far fa-edit' class='' fixed-width aria-hidden='true' />
                                     </div>
                                     
