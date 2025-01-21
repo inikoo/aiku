@@ -6,6 +6,7 @@ import Image from "@/Components/Image.vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faBars, faSignIn, faSignOut, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { library } from '@fortawesome/fontawesome-svg-core'
+import { faChevronCircleDown } from '@fal';
 // Add icons to library
 library.add(faBars, faSignIn, faSignOut, faTimesCircle);
 
@@ -37,8 +38,14 @@ const onLogout = inject('onLogout')
                     <div v-for="(item, index) in props.menu" :key="index">
                         <Disclosure v-if="item.type === 'multiple'">
                             <DisclosureButton class="w-full text-left p-4 font-semibold text-gray-500 border-b-2">
-                                {{ item.label }}
+                                <div class="w-full flex justify-between items-center">
+                                    <div>{{ item.label }}</div>
+                                    <div>
+                                        <FontAwesomeIcon :icon="faChevronCircleDown" />
+                                    </div>
+                                </div>
                             </DisclosureButton>
+
                             <DisclosurePanel>
                                 <div v-for="(submenu, indexSub) in item.subnavs" :key="indexSub">
                                     <span :href="submenu?.link?.href" :target="submenu?.link?.target"
