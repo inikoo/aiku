@@ -44,7 +44,10 @@ const tableDatas = computed(() => {
                 name: org.name,
                 code: org.code,
                 interval_percentages: org.interval_percentages,
-                sales: org.sales || 0,
+                sales: org.interval_percentages?.sales?.amount || 0,
+				invoices: org.interval_percentages?.invoices?.amount || 0,
+				sales_percentage: org.interval_percentages?.sales?.percentage || 0,
+				invoices_percentage: org.interval_percentages?.invoices?.percentage || 0,
                 route: org.route,
                 currency: org.currency_code,
             }));
@@ -55,12 +58,14 @@ const tableDatas = computed(() => {
                 name: org.name,
                 code: org.code,
                 interval_percentages: org.interval_percentages,
-                sales: org.sales || 0,
+                sales: org.interval_percentages?.sales?.amount || 0,
+				invoices: org.interval_percentages?.invoices?.amount || 0,
+				sales_percentage: org.interval_percentages?.sales?.percentage || 0,
+				invoices_percentage: org.interval_percentages?.invoices?.percentage || 0,
                 currency: org.currency_code,
             }));
     }
 });
-
 
 const toggleCurrency = () => {
 	isOrganisation.value = !isOrganisation.value

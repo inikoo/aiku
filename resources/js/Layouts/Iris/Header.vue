@@ -67,7 +67,7 @@ useLiveUsers().unsubscribe()  // Unsubscribe from Laravel Echo */
 }
 
 provide('onLogout', onLogoutAuth)
-console.log(layout)
+
 </script>
 
 <template>
