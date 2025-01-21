@@ -12,7 +12,6 @@ namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\Helpers\Address\Hydrators\AddressHydrateUsage;
 use App\Actions\OrgAction;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Helpers\Address;
 use Illuminate\Support\Facades\DB;
@@ -31,7 +30,6 @@ class DeletePalletReturnAddress extends OrgAction
         $address->delete();
 
         $palletreturn->refresh();
-        $palletreturn->update(['is_collection' => true]);
         return $palletreturn;
     }
 
@@ -44,10 +42,10 @@ class DeletePalletReturnAddress extends OrgAction
 
     }
 
-    public function asController(FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, Address $address, ActionRequest $request): void
+    public function asController(PalletReturn $palletReturn, Address $address, ActionRequest $request): void
     {
         $this->address = $address;
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+        $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
         $this->handle($palletReturn, $address);
     }
 
@@ -55,16 +53,6 @@ class DeletePalletReturnAddress extends OrgAction
     {
         $this->address = $address;
         $this->initialisationFromShop($palletreturn->shop, []);
-        return $this->handle($palletreturn, $address);
-    }
-
-    public function fromRetina(FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletreturn, Address $address, ActionRequest $request): PalletReturn
-    {
-        $this->address = $address;
-        $palletreturn      = $request->user()->palletreturn;
-
-        $this->initialisation($request->get('website')->organisation, $request);
-
         return $this->handle($palletreturn, $address);
     }
 }
