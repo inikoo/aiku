@@ -48,7 +48,8 @@ class ShowHistoryUpload
 
         return $queryBuilder
             ->defaultSort('upload_records.id')
-            ->allowedSorts(['reference', 'row_number', 'status', 'created_at'])
+            ->with('excel')
+            ->allowedSorts(['uploads.original_filename', 'row_number', 'status', 'created_at'])
             ->withPaginator($prefix)
             ->withQueryString();
     }
@@ -58,10 +59,13 @@ class ShowHistoryUpload
         return Inertia::render(
             'Uploads/UploadRecords',
             [
-                'breadcrumbs' => [],
+                'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('Upload Records'),
                 'pageHead'    => [
-                    'title'         => 'Upload Records',
+                    'icon'          => ['fal', 'fa-upload'],
+                    'model'         => __('Upload'),
+                    'title'         => __('Records'),
+                    'iconRight'     => 'fal fa-history'
                 ],
                 'data'        => UploadRecordsResource::collection($collection),
 
@@ -88,8 +92,10 @@ class ShowHistoryUpload
                             'count'       => 0
                         ]
                 )
-                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'row_number', label: __('row_number'), canBeHidden: false, searchable: true)
+                ->column(key: 'original_filename', label: __('filename'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'row_number', label: __('row number'), canBeHidden: false, searchable: true)
+                ->column(key: 'errors', label: __('errors'), canBeHidden: false, searchable: true)
+                ->column(key: 'fail_column', label: __('fail column'), canBeHidden: false, searchable: true)
                 ->column(key: 'status', label: __('status'), canBeHidden: false, searchable: true)
                 ->column(key: 'created_at', label: __('created_at'), canBeHidden: false, sortable: true, searchable: true);
         };
@@ -98,6 +104,26 @@ class ShowHistoryUpload
     public function jsonResponse(LengthAwarePaginator $collection): AnonymousResourceCollection
     {
         return UploadRecordsResource::collection($collection);
+    }
+
+    public function getBreadcrumbs(): array
+    {
+        return [
+            [
+
+                'type'   => 'simple',
+                'simple' => [
+                    'icon'  => 'fal fa-tachometer-alt-fast',
+                    'label' => 'Upload Records',
+                    'route' => [
+                        'name' => 'grp.helpers.uploads.records.show',
+                        'parameters' => request()->route()->originalParameters()
+                    ]
+                ]
+
+            ],
+
+        ];
     }
 
     public function asController(Upload $upload, ActionRequest $request): LengthAwarePaginator

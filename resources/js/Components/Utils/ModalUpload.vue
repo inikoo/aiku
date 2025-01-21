@@ -20,6 +20,7 @@ import Papa from 'papaparse'
 import * as XLSX from 'xlsx'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { notify } from '@kyvg/vue3-notification'
+import LoadingIcon from './LoadingIcon.vue'
 library.add(falFile, faTimes, faTimesCircle, faCheckCircle, faFileDownload, faDownload, faInfoCircle)
 
 
@@ -167,6 +168,8 @@ watch(model, async (newVal) => {
 const compHistoryList = computed(() => {
     return [...dataHistoryFileUpload.value, ...useEchoGrpPersonal().recentlyUploaded]
 })
+
+const isLoadingVisitHistory = ref<string | null>(null)
 </script>
 
 <template>
@@ -319,17 +322,21 @@ const compHistoryList = computed(() => {
                         <TransitionGroup name="list" tag="div" class="flex flex-wrap gap-x-2 gap-y-2">
                             <component
                                 :is="
-                                    history?.view_route?.name
+                                    history?.show_route?.name
                                         ? Link
                                         : 'div'
                                 "
                                 v-for="(history, index) in compHistoryList"
                                 :key="'list' + index"
-                                :href="history?.view_route?.name
-                                    ? route(history.view_route.name, history.view_route.parameters)
+                                :href="history?.show_route?.name
+                                    ? route(history.show_route.name, history.show_route.parameters)
                                     : '#'
                                 "
+                                @start="() => isLoadingVisitHistory = history.id"
+                                @finish="() => isLoadingVisitHistory = null"
+                                class="relative isolate"
                             >
+                                <LoadingIcon v-if="isLoadingVisitHistory == history.id" class="absolute top-3 right-2 z-10" />
                                 <div class="relative w-36 ring-1 ring-gray-300 rounded px-2 pt-2.5 pb-1 flex flex-col justify-start border-t-[3px] border-gray-500 "
                                     :class="!history.id ? 'bg-white' : 'bg-gray-100 hover:bg-gray-200 cursor-pointer'"
                                     v-tooltip="!history.id ? 'Recently uploaded' : ''"

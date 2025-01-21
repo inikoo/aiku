@@ -8,7 +8,6 @@
 
 namespace App\Http\Resources\CRM;
 
-use App\Actions\Utils\GetLocationFromIp;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Carbon\Carbon;
 
@@ -31,7 +30,7 @@ class WebUsersResource extends JsonResource
             'slug'        => $this->slug,
             'username'    => $this->username,
             'image'         => $this->imageSources(48, 48),
-            'location'      => GetLocationFromIp::run($this->last_login_ip),
+            'location'      => null,
             'status'       => $this->status,
             'status_icon'        => match ($this->status) {
                 true => [
