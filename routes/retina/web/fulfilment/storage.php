@@ -35,7 +35,7 @@ Route::prefix('pallet-deliveries')->as('pallet_deliveries.')->group(function () 
     Route::get('{palletDelivery}/pallets-histories', [HistoryUploads::class, 'inPalletRetina'])->name('pallets.uploads.history');
 });
 
-Route::prefix('pallet-returns')->as('pallet-returns.')->group(function () {
+Route::prefix('pallet-returns')->as('pallet_returns.')->group(function () {
     Route::get('', IndexRetinaPalletReturns::class)->name('index');
     Route::get('{palletReturn}', ShowRetinaPalletReturn::class)->name('show');
     Route::get('{palletReturn}/pallets/{pallet}', [ShowRetinaPallet::class, 'inPalletReturn'])->name('pallets.show');

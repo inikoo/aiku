@@ -137,7 +137,7 @@ class AttachRetinaPalletsToReturn extends RetinaAction
 
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): RedirectResponse
     {
-        return Redirect::route('retina.fulfilment.storage.pallet-returns.show', [
+        return Redirect::route('retina.fulfilment.storage.pallet_returns.show', [
             'palletReturn'     => $palletReturn->slug
         ]);
     }
