@@ -36,7 +36,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property string|null $published_at
  * @property string|null $published_until
  * @property string $checksum
- * @property object $layout
+ * @property array $layout
  * @property string|null $compiled_layout e.g. html in case of email builders
  * @property string|null $comment
  * @property bool $first_commit
@@ -65,7 +65,7 @@ class Snapshot extends Model
     protected array $dates = ['published_at', 'published_until'];
 
     protected $casts = [
-        'layout'  => 'object',
+        'layout'  => 'array',
         'state'   => SnapshotStateEnum::class,
         'scope'   => SnapshotScopeEnum::class,
         'builder' => SnapshotBuilderEnum::class
