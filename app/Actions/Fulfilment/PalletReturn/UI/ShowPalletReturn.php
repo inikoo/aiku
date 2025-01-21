@@ -494,63 +494,40 @@ class ShowPalletReturn extends OrgAction
                         FulfilmentCustomerResource::make($palletReturn->fulfilmentCustomer)->getArray(),
                         [
                             'address'      => [
-                                'value'   => $palletReturn->is_collection ? [] : AddressResource::make($palletReturn->deliveryAddress),
+                                'value'   => $palletReturn->is_collection ?
+                                    [] :
+                                    AddressResource::make($palletReturn->deliveryAddress),
                                 'options' => [
                                     'countriesAddressData' => GetAddressData::run()
                                 ],
-                                // 'address'                   => $palletReturn->is_collection ? [] : AddressResource::make($palletReturn->deliveryAddress),
-                                // 'address_list'                   => AddressResource::make($palletReturn->deliveryAddress),
+                                'address_customer' => [
+                                    'value'   => AddressResource::make($palletReturn->fulfilmentCustomer->customer->address),
+                                    'options' => [
+                                        'countriesAddressData' => GetAddressData::run()
+                                    ],
+                                ],
                                 'pinned_address_id'              => $palletReturn->fulfilmentCustomer->customer->delivery_address_id,
                                 'home_address_id'                => $palletReturn->fulfilmentCustomer->customer->address_id,
                                 'current_selected_address_id'    => $palletReturn->delivery_address_id,
-                                // 'selected_delivery_addresses_id' => $palletReturnDeliveryAddressIds,
-                                // 'routes_list'                    => [
-                                //     'pinned_route'                   => [
-                                //         'method'     => 'patch',
-                                //         'name'       => 'grp.models.customer.delivery-address.update',
-                                //         'parameters' => [
-                                //             'customer' => $palletReturn->fulfilmentCustomer->customer_id
-                                //         ]
-                                //     ],
-                                //     'delete_route'  => [
-                                //         'method'     => 'delete',
-                                //         'name'       => 'grp.models.fulfilment-customer.pallet-return-address.delete',
-                                //         'parameters' => [
-                                //             'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                                //             'palletReturn'       => $palletReturn->id
-                                //         ]
-                                //     ],
-                                //     'store_route' => [
-                                //         'method'      => 'post',
-                                //         'name'        => 'grp.models.fulfilment-customer.pellet-return-address.store',
-                                //         'parameters'  => [
-                                //             'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                                //             'palletReturn'       => $palletReturn->id
-                                //         ]
-                                //     ],
-                                // ]
                                 'routes_address' => [
                                     'store'  => [
                                         'method'     => 'post',
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-return-address.store',
+                                        'name'       => 'grp.models.pallet-return.address.store',
                                         'parameters' => [
-                                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
                                             'palletReturn'       => $palletReturn->id
                                         ]
                                     ],
                                     'delete'  => [
                                         'method'     => 'delete',
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-return-address.delete',
+                                        'name'       => 'grp.models.pallet-return.address.delete',
                                         'parameters' => [
-                                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
                                             'palletReturn'       => $palletReturn->id
                                         ]
                                     ],
                                     'update' => [
                                         'method'     => 'patch',
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-return-address.update',
+                                        'name'       => 'grp.models.pallet-return.address.update',
                                         'parameters' => [
-                                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
                                             'palletReturn'       => $palletReturn->id
                                         ]
                                     ]

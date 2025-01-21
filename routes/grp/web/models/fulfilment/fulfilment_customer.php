@@ -15,16 +15,13 @@ use App\Actions\Fulfilment\Pallet\DeletePalletInDelivery;
 use App\Actions\Fulfilment\PalletDelivery\Pdf\PdfPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryTimeline;
-use App\Actions\Fulfilment\PalletReturn\AddAddressToPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\DeletePalletReturnAddress;
 use App\Actions\Fulfilment\PalletReturn\DetachPalletFromReturn;
 use App\Actions\Fulfilment\PalletReturn\DispatchPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitAndConfirmPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturnDeliveryAddress;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\StoredItem\DeleteStoredItemFromReturn;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
@@ -43,9 +40,6 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     // pallet return
     Route::post('pallet-return', StorePalletReturn::class)->name('pallet-return.store');
     Route::post('pallet-return-stored-items', [StorePalletReturn::class,'withStoredItems'])->name('pallet-return-stored-items.store');
-    Route::post('pallet-return/address/{palletReturn:id}', AddAddressToPalletReturn::class)->name('pallet-return-address.store');
-    Route::patch('pallet-return/address/{palletReturn:id}/update', UpdatePalletReturnDeliveryAddress::class)->name('pallet-return-address.update');
-    Route::delete('pallet-return/{palletReturn:id}/address/{address:id}/delete', DeletePalletReturnAddress::class)->name('pallet-return-address.delete');
     Route::post('', [StoreWebUser::class, 'inFulfilmentCustomer'])->name('web-user.store');
 
 

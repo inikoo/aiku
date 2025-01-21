@@ -21,9 +21,12 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UpdatePalletReturnDeliveryAddress extends OrgAction
 {
-    public function handle(FulfilmentCustomer $fulfilmentcustomer, PalletReturn $palletReturn, array $modelData): void
+    public function handle(PalletReturn $palletReturn, array $modelData): void
     {
-        if (Arr::get($modelData, 'is_collection', true)) {
+        $isCollection = Arr::get($modelData, 'is_collection', true);
+        $palletReturn->update(['is_collection' => $isCollection]);
+
+        if (!$isCollection) {
             $addressData = Arr::get($modelData, 'address');
             $countryCode = Country::find($addressData['country_id'])->code;
             data_set($addressData, 'country_code', $countryCode);
@@ -37,8 +40,8 @@ class UpdatePalletReturnDeliveryAddress extends OrgAction
                 $updatedAddress->id,
                 $pivotData
             );
-        } else {
-            DeletePalletReturnAddress::run($palletReturn, Address::find($fulfilmentcustomer->palletReturn->delivery_address_id));
+        } elseif ($palletReturn->delivery_address_id) {
+            DeletePalletReturnAddress::run($palletReturn, Address::find($palletReturn->delivery_address_id));
         }
     }
 
@@ -64,27 +67,19 @@ class UpdatePalletReturnDeliveryAddress extends OrgAction
         return false;
     }
 
-    public function asController(FulfilmentCustomer $fulfilmentcustomer, PalletReturn $palletReturn, ActionRequest $request): void
+    public function asController(PalletReturn $palletReturn, ActionRequest $request): void
     {
-        $this->scope = $fulfilmentcustomer;
-        $this->initialisationFromShop($fulfilmentcustomer->shop, $request);
+        $this->scope = $palletReturn->customer;
+        $this->initialisationFromShop($palletReturn->shop, $request);
 
-        $this->handle($fulfilmentcustomer, $palletReturn, $this->validatedData);
+        $this->handle($palletReturn, $this->validatedData);
     }
 
-    // public function fromFulfilmentFulfilmentCustomer(FulfilmentFulfilmentCustomer $fulfilmentFulfilmentCustomer, ActionRequest $request): void
-    // {
-    //     $this->scope = $fulfilmentFulfilmentCustomer;
-    //     $this->initialisationFromFulfilment($fulfilmentFulfilmentCustomer->fulfilment, $request);
-
-    //     $this->handle($fulfilmentFulfilmentCustomer->fulfilmentcustomer, $this->validatedData);
-    // }
-
-    public function action(FulfilmentCustomer $fulfilmentcustomer, PalletReturn $palletReturn, $modelData): void
+    public function action(PalletReturn $palletReturn, $modelData): void
     {
         $this->asAction = true;
-        $this->initialisationFromShop($fulfilmentcustomer->shop, $modelData);
+        $this->initialisationFromShop($palletReturn->shop, $modelData);
 
-        $this->handle($fulfilmentcustomer, $palletReturn, $this->validatedData);
+        $this->handle($palletReturn, $this->validatedData);
     }
 }

@@ -84,9 +84,12 @@ use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
 use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitAndConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
+use App\Actions\Fulfilment\PalletReturn\AddAddressToPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\DeletePalletReturnAddress;
 use App\Actions\Fulfilment\PalletReturn\DispatchPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
+use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturnDeliveryAddress;
 use App\Actions\Fulfilment\PalletReturnItem\NotPickedPalletFromReturn;
 use App\Actions\Fulfilment\PalletReturnItem\SyncPalletReturnItem;
 use App\Actions\Fulfilment\PalletReturnItem\UndoPickingPalletFromReturn;
@@ -369,6 +372,9 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
 
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
 
+    Route::post('address', AddAddressToPalletReturn::class)->name('address.store');
+    Route::patch('address/update', UpdatePalletReturnDeliveryAddress::class)->name('address.update');
+    Route::delete('address/delete', DeletePalletReturnAddress::class)->name('address.delete');
 
     Route::post('dispatch', DispatchPalletReturn::class)->name('dispatch');
 

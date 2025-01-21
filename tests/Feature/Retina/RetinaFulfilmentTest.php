@@ -27,8 +27,14 @@ use App\Actions\Retina\Fulfilment\PalletDelivery\Pdf\PdfRetinaPalletDelivery;
 use App\Actions\Retina\Fulfilment\PalletDelivery\StoreRetinaPalletDelivery;
 use App\Actions\Retina\Fulfilment\PalletDelivery\SubmitRetinaPalletDelivery;
 use App\Actions\Retina\Fulfilment\PalletDelivery\UpdateRetinaPalletDelivery;
+use App\Actions\Retina\Fulfilment\PalletReturn\AttachRetinaPalletsToReturn;
+use App\Actions\Retina\Fulfilment\PalletReturn\CancelRetinaPalletReturn;
+use App\Actions\Retina\Fulfilment\PalletReturn\DetachRetinaPalletFromReturn;
 use App\Actions\Retina\Fulfilment\PalletReturn\ImportRetinaPalletReturnItem;
 use App\Actions\Retina\Fulfilment\PalletReturn\StoreRetinaPalletReturn;
+use App\Actions\Retina\Fulfilment\PalletReturn\StoreRetinaStoredItemsToReturn;
+use App\Actions\Retina\Fulfilment\PalletReturn\SubmitRetinaPalletReturn;
+use App\Actions\Retina\Fulfilment\PalletReturn\UpdateRetinaPalletReturn;
 use App\Actions\Retina\Fulfilment\StoredItem\StoreRetinaStoredItem;
 use App\Actions\Retina\Fulfilment\StoredItem\SyncRetinaStoredItemToPallet;
 use App\Actions\Retina\UI\Profile\UpdateRetinaProfile;
@@ -49,6 +55,7 @@ use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Billables\Rental;
 use App\Models\Billables\Service;
 use App\Models\CRM\WebUser;
+use App\Models\Fulfilment\FulfilmentTransaction;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
@@ -435,6 +442,23 @@ test('Create Retina Pallet Return', function () {
     return $palletReturn;
 });
 
+test('Update Retina Pallet Return', function (PalletReturn $palletReturn) {
+
+    $palletReturn = UpdateRetinaPalletReturn::make()->action(
+        $palletReturn,
+        [
+            'public_notes' => 'this notes',
+        ]
+    );
+
+    $palletReturn->refresh();
+
+    expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($palletReturn->public_notes)->toBe('this notes');
+
+    return $palletReturn;
+})->depends('Create Retina Pallet Return');
+
 test('import pallets in return (xlsx)', function (PalletReturn $palletReturn) {
     Storage::fake('local');
 
@@ -462,6 +486,86 @@ test('import pallets in return (xlsx)', function (PalletReturn $palletReturn) {
     return $palletReturn;
 })->depends('Create Retina Pallet Return');
 
+test('Attach Pallet to Retina Pallet Return', function (PalletReturn $palletReturn) {
+    $palletReturn = AttachRetinaPalletsToReturn::make()->action(
+        $palletReturn,
+        [
+            'pallets' => [2,3]
+        ]
+    );
+
+    $palletReturn->refresh();
+
+    expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($palletReturn->stats->number_pallets)->toBe(2);
+
+    return $palletReturn;
+})->depends('import pallets in return (xlsx)');
+
+test('Detach Pallet to Retina Pallet Return', function (PalletReturn $palletReturn) {
+    $pallet = $palletReturn->pallets()->first();
+    DetachRetinaPalletFromReturn::make()->action(
+        $palletReturn,
+        $pallet,
+        []
+    );
+
+    $palletReturn->refresh();
+
+    expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($palletReturn->stats->number_pallets)->toBe(1);
+
+    return $palletReturn;
+})->depends('Attach Pallet to Retina Pallet Return');
+
+test('Add Transaction to Retina Pallet Return', function (PalletReturn $palletReturn) {
+    $fulfilmentTransaction = StoreRetinaFulfilmentTransaction::make()->action(
+        $palletReturn,
+        [
+            'quantity' => 10,
+            'historic_asset_id' => $this->product->current_historic_asset_id
+        ]
+    );
+
+    $fulfilmentTransaction->refresh();
+    $palletReturn->refresh();
+    expect($fulfilmentTransaction)->toBeInstanceOf(FulfilmentTransaction::class)
+        ->and(intval($fulfilmentTransaction->quantity))->toBe(10)
+        ->and($palletReturn->stats->number_physical_goods)->toBe(1);
+
+    return $fulfilmentTransaction;
+})->depends('Attach Pallet to Retina Pallet Return');
+
+test('Submit Retina Pallet Return', function (PalletReturn $palletReturn) {
+
+    $palletReturn = SubmitRetinaPalletReturn::make()->action(
+        $palletReturn,
+        []
+    );
+
+    $palletReturn->refresh();
+
+    expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($palletReturn->state)->toBe(PalletReturnStateEnum::SUBMITTED);
+
+    return $palletReturn;
+})->depends('Detach Pallet to Retina Pallet Return');
+
+test('Cancel Retina Pallet Return', function (PalletReturn $palletReturn) {
+
+    $palletReturn = CancelRetinaPalletReturn::make()->action(
+        $palletReturn,
+        []
+    );
+
+    $palletReturn->refresh();
+
+    expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($palletReturn->state)->toBe(PalletReturnStateEnum::CANCEL);
+
+    return $palletReturn;
+})->depends('Submit Retina Pallet Return');
+
 test('Create Retina Pallet Return (with stored item)', function (PalletReturn $palletReturn) {
 
     $fulfilmentCustomer = $this->fulfilmentCustomer;
@@ -481,3 +585,23 @@ test('Create Retina Pallet Return (with stored item)', function (PalletReturn $p
 
     return $palletReturn;
 })->depends('Create Retina Pallet Return');
+
+test('Attach Stored Item to Retina Pallet Return (with stored item)', function (PalletReturn $palletReturn) {
+    $palletReturn = StoreRetinaStoredItemsToReturn::make()->action(
+        $palletReturn,
+        [
+            'stored_items' => [
+                2 => [
+                    'quantity' => 200
+                ]
+            ]
+        ]
+    );
+
+    $palletReturn->refresh();
+
+    expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($palletReturn->stats->number_stored_items)->toBe(1);
+
+    return $palletReturn;
+})->depends('Create Retina Pallet Return (with stored item)');
