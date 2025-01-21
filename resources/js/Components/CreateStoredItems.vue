@@ -301,8 +301,8 @@ const onSaved = async () => {
 	</div>
 
 	<div v-if="!messageMode" class="flex gap-3 mt-5">
-		<Button type="tertiary" label="Cancel" @click="onCancel"></Button>
-		<Button full @click="onSaved" type="save" :loading="props.form.processing" :disabled="!(props.form.id || props.form.oldData?.id)"></Button>		
+		<Button type="tertiary" :label="trans('Cancel')" @click="onCancel" class="select-none" />
+		<Button full @click="onSaved" type="save" :loading="props.form.processing" :disabled="!(props.form.id || props.form.oldData?.id)" />
 	</div>
 
 	<div v-else class="grid grid-cols-2 gap-3">
