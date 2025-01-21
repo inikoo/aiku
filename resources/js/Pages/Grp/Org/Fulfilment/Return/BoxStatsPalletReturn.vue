@@ -24,6 +24,8 @@ import OrderSummary from '@/Components/Summary/OrderSummary.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faQuestionCircle, faPencil } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import { data } from '@/Components/CMS/Website/Product/ProductTemplates/Product1/Descriptor'
+import ModalAddressCollection from '@/Components/Utils/ModalAddressCollection.vue'
 library.add(faQuestionCircle, faPencil)
 
 const props = defineProps<{
@@ -44,6 +46,7 @@ onMounted(() => {
 
 // Method: Create new address
 const isModalAddress = ref(false)
+const isModalAddressCollection = ref(false)
 </script>
 
 <template>
@@ -115,7 +118,7 @@ const isModalAddress = ref(false)
                         aria-hidden='true' />
                 </dt>
 
-                <dd v-if="boxStats.fulfilment_customer.address.value" class="w-full text-xs text-gray-500">
+                <dd v-if="dataPalletReturn.is_collection !== true" class="w-full text-xs text-gray-500">
                     <div class="relative px-2.5 py-2 ring-1 ring-gray-300 rounded bg-gray-50">
                         <span class="" v-html="boxStats.fulfilment_customer.address.value.formatted_address" />
 
@@ -127,7 +130,7 @@ const isModalAddress = ref(false)
                     </div>
                 </dd>
                 <div v-else @click="() => isModalAddress = true" class="text-xs inline whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
-                    <span>Setup delivery address</span>
+                    <span>set Collection address</span>
                 </div>
             </div>
         </BoxStatPallet>
@@ -200,6 +203,13 @@ const isModalAddress = ref(false)
             :updateRoute    
         />
 	</Modal>
+
+    <Modal :isOpen="isModalAddressCollection" @onClose="() => (isModalAddressCollection = false)">
+        <ModalAddressCollection
+            :addresses="boxStats.fulfilment_customer.address"
+            :updateRoute    
+        />
+    </Modal>
 </template>
 
 <style scoped lang="scss">
