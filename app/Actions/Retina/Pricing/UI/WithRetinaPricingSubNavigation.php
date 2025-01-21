@@ -21,7 +21,7 @@ trait WithRetinaPricingSubNavigation
                 "label"    => __("All"),
 
                 "route"     => [
-                    "name"       => "retina.fulfilment.pricing",
+                    "name"       => "retina.fulfilment.pricing.index",
                     "parameters" => [],
                 ],
                 "leftIcon" => [

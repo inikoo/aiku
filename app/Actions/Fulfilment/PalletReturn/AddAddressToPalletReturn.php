@@ -28,7 +28,7 @@ class AddAddressToPalletReturn extends OrgAction
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        if($modelData == []){
+        if ($modelData == []) {
             $address = $fulfilmentCustomer->customer->address->toArray();
             $palletReturn = $this->addAddressToModelFromArray(
                 model: $palletReturn,
@@ -37,7 +37,7 @@ class AddAddressToPalletReturn extends OrgAction
                 updateLocation: false,
                 updateAddressField:false
             );
-        }else {
+        } else {
             $palletReturn = $this->addAddressToModelFromArray(
                 model: $palletReturn,
                 addressData: $modelData['delivery_address'],
@@ -80,7 +80,7 @@ class AddAddressToPalletReturn extends OrgAction
     {
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
 
-        return $this->handle($fulfilmentCustomer,$palletReturn, $this->validatedData);
+        return $this->handle($fulfilmentCustomer, $palletReturn, $this->validatedData);
     }
 
     public function action(FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, array $modelData, int $hydratorsDelay = 0, bool $strict = true): PalletReturn
@@ -91,7 +91,7 @@ class AddAddressToPalletReturn extends OrgAction
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $modelData);
 
 
-        return $this->handle($fulfilmentCustomer,$palletReturn, $this->validatedData);
+        return $this->handle($fulfilmentCustomer, $palletReturn, $this->validatedData);
     }
 
     public function fromRetina(PalletReturn $palletReturn, ActionRequest $request): PalletReturn

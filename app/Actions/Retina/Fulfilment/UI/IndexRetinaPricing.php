@@ -77,7 +77,7 @@ class IndexRetinaPricing extends RetinaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'retina.fulfilment.pricing',
+                                'name'       => 'retina.fulfilment.pricing.index',
                             ],
                             'label' => __('Prices'),
                         ]

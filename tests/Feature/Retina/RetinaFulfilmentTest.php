@@ -408,7 +408,7 @@ test('Update Retina Pallet to PalletDelivery', function (PalletDelivery $palletD
     );
 
     $pallet->refresh();
-    
+
     expect($pallet)->toBeInstanceOf(Pallet::class)
         ->and($pallet->reference)->toBe('000001-diam-p0001')
         ->and($pallet->customer_reference)->toBe('bruh-01');
