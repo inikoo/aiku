@@ -44,7 +44,7 @@ const props = defineProps<{
             topBar : Object
         }
     }
-    state:boolean
+    status:boolean
     autosaveRoute: routeType
     web_block_types: {}
     route_list: {
@@ -61,7 +61,7 @@ const usedTemplates = ref({
 })
 const isLoading = ref(false)
 const comment = ref('')
-const status = ref(true)
+const status = ref(props.status)
 const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
 const iframeSrc = route('grp.websites.header.preview', [route().params['website']])

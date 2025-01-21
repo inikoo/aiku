@@ -55,11 +55,6 @@ class HandleIrisInertiaRequests extends Middleware
                 'iris' => [
                     'header' => array_merge(
                         $isHeaderActive == 'active' ? Arr::get($website->published_layout, 'header') : [],
-                        [
-                            'loginRoute' => [
-                                'name' => 'retina.login.show'
-                            ]
-                        ]
                     ),
                     'footer' => Arr::get($website->published_layout, 'footer'),
                     'menu'   => Arr::get($website->published_layout, 'menu'),
