@@ -9,6 +9,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Actions\Retina\SysAdmin\ProcessRetinaWebUserRequest;
 use App\Actions\SysAdmin\WithLogRequest;
 use hisorange\BrowserDetect\Parser as Browser;
 use Closure;
@@ -37,6 +38,17 @@ class LogWebUserRequestMiddleware
         if (!app()->runningUnitTests() && $user) {
             $parsedUserAgent = (new Browser())->parse($request->header('User-Agent'));
             $ip = $request->ip();
+            ProcessRetinaWebUserRequest::dispatch(
+                $user,
+                now(),
+                [
+                    'name'      => $request->route()->getName(),
+                    'arguments' => $request->route()->originalParameters(),
+                    'url'       => $request->path(),
+                ],
+                $ip,
+                $request->header('User-Agent')
+            );
             $user->stats()->update([
                 'last_device' => json_encode(
                     [
