@@ -171,6 +171,7 @@ use App\Actions\Web\ModelHasWebBlocks\UploadImagesToModelHasWebBlocks;
 use App\Actions\Web\Webpage\PublishWebpage;
 use App\Actions\Web\Webpage\ReorderWebBlocks;
 use App\Actions\Web\Webpage\UpdateWebpage;
+use App\Actions\Web\Website\AutosaveWebsiteMarginal;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\PublishWebsiteMarginal;
 use App\Actions\Web\Website\PublishWebsiteProductTemplate;
@@ -472,9 +473,9 @@ Route::name('website.')->prefix('website/{website:id}')->group(function () {
     Route::post('publish/header', [PublishWebsiteMarginal::class, 'header'])->name('publish.header');
     Route::post('publish/footer', [PublishWebsiteMarginal::class, 'footer'])->name('publish.footer');
 
-    Route::patch('autosave/header', [PublishWebsiteMarginal::class, 'header'])->name('autosave.header');
-    Route::patch('autosave/footer', [PublishWebsiteMarginal::class, 'footer'])->name('autosave.footer');
-    Route::patch('autosave/menu', [PublishWebsiteMarginal::class, 'menu'])->name('autosave.menu');
+    Route::patch('autosave/header', [AutosaveWebsiteMarginal::class, 'header'])->name('autosave.header');
+    Route::patch('autosave/footer', [AutosaveWebsiteMarginal::class, 'footer'])->name('autosave.footer');
+    Route::patch('autosave/menu', [AutosaveWebsiteMarginal::class, 'menu'])->name('autosave.menu');
 
     Route::post('publish/menu', [PublishWebsiteMarginal::class, 'menu'])->name('publish.menu');
 

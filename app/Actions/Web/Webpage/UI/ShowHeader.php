@@ -42,7 +42,6 @@ class ShowHeader extends OrgAction
 
     public function htmlResponse(Website $website, ActionRequest $request): Response
     {
-
         $headerLayout = Arr::get($website->published_layout, 'header');
         $isHeaderActive = Arr::get($headerLayout, 'status');
 
@@ -95,7 +94,7 @@ class ShowHeader extends OrgAction
                         ],
                     ],
                 ],
-                
+
                 'uploadImageRoute' => [
                     'name'       => 'grp.models.website.header.images.store',
                     'parameters' => [

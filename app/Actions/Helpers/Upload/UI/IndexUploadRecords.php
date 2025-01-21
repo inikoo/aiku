@@ -20,7 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class ShowHistoryUpload
+class IndexUploadRecords
 {
     use AsAction;
     use WithAttributes;

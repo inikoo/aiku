@@ -103,7 +103,7 @@ provide('isPreviewMode', isPreviewMode)
                     :data="header.data"
                     :menu="navigation"
                     :loginMode="isPreviewLoggedIn"
-                    @update:model-value="updateData(header.data)" 
+                    @update:model-value="updateData(header.data)"
                 />
             </div>
 
@@ -130,7 +130,7 @@ provide('isPreviewMode', isPreviewMode)
                 </div>
             </div>
 
-            <!-- Footer --> 
+            <!-- Footer -->
              <component
                 v-if="footer?.data?.data"
                 :is="isPreviewMode || route().current() == 'grp.websites.preview' ? getIrisComponent(footer.data.code) : getComponent(footer.data.code)"

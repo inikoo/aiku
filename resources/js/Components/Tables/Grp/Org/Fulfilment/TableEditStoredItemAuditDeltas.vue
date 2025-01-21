@@ -327,15 +327,15 @@ const edit_block = (audit_type: string, is_edit: boolean) => {
 
 
                     <template #body="{ data }">
-                        <!-- <pre>{{ data }}</pre>
+                        <pre>{{ data }}</pre>
                         stored_item_audit_id: {{ data.stored_item_audit_id || '-' }} <br />
                         stored_item_id: {{ data.stored_item_id || '-' }} <br />
                         audit_type: {{ data.audit_type || '-' }} <br />
                         stored_item_audit_delta_id: {{ data.stored_item_audit_delta_id || '-' }} <br />
-                        edit_block: {{ edit_block(data.audit_type, data.is_edit) }} -->
+                        edit_block: {{ edit_block(data.audit_type, data.is_edit) }}
 
-                        <!-- <pre>{{ props.route_list?.stored_item_audit_delta?.store }}</pre> -->
-                        <!-- <pre>{{ data }}</pre> -->
+                      <pre>{{ props.route_list?.stored_item_audit_delta?.store }}</pre>
+                      <pre>{{ data }}</pre>
                         <div class="relative">
                             <div v-if="get(isLoadingQuantity, [item.rowIndex, data.stored_item_audit_delta_id], false) || get(isLoadingUnselect, [item.rowIndex, data.stored_item_audit_delta_id], false)"
                                 class="z-10 opacity-60 absolute w-full h-full top-0 left-0">
