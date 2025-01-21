@@ -47,7 +47,6 @@ class UpdatePalletReturn extends OrgAction
             $groupId     = $palletReturn->group_id;
 
             data_set($addressData, 'group_id', $groupId);
-
             if (Arr::exists($addressData, 'id')) {
                 $countryCode = Country::find(Arr::get($addressData, 'country_id'))->code;
                 data_set($addressData, 'country_code', $countryCode);
@@ -57,13 +56,13 @@ class UpdatePalletReturn extends OrgAction
                 unset($addressData['can_delete']);
                 $updatedAddress     = UpdateAddress::run(Address::find(Arr::get($addressData, 'id')), $addressData);
                 $pivotData['label'] = $label;
-                $palletReturn->fulfilmentCustomer->customer->addresses()->updateExistingPivot(
+                $palletReturn->addresses()->updateExistingPivot(
                     $updatedAddress->id,
                     $pivotData
                 );
             } else {
                 $this->addAddressToModelFromArray(
-                    $palletReturn->fulfilmentCustomer->customer,
+                    $palletReturn,
                     $addressData,
                     'delivery',
                     false,
