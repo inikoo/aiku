@@ -285,12 +285,11 @@ class ShowPalletReturn extends OrgAction
 
 
 
-        $addresses = $palletReturn->fulfilmentCustomer->customer->addresses;
+        // $addresses = $palletReturn->fulfilmentCustomer->customer->addresses;
+        $addresses = $palletReturn->addresses;
 
         $processedAddresses = $addresses->map(function ($address) {
-
-
-            if (!DB::table('model_has_addresses')->where('address_id', $address->id)->where('model_type', '=', 'Customer')->exists()) {
+            if (!DB::table('model_has_addresses')->where('address_id', $address->id)->where('model_type', '=', 'PalletReturn')->exists()) {
 
                 return $address->setAttribute('can_delete', false)
                     ->setAttribute('can_edit', true);
@@ -507,16 +506,18 @@ class ShowPalletReturn extends OrgAction
                                     ],
                                     'delete_route'  => [
                                         'method'     => 'delete',
-                                        'name'       => 'grp.models.fulfilment-customer.delivery-address.delete',
+                                        'name'       => 'grp.models.fulfilment-customer.pallet-return-address.delete',
                                         'parameters' => [
-                                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id
+                                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
+                                            'palletReturn'       => $palletReturn->id
                                         ]
                                     ],
                                     'store_route' => [
                                         'method'      => 'post',
-                                        'name'        => 'grp.models.fulfilment-customer.address.store',
+                                        'name'        => 'grp.models.fulfilment-customer.pellet-return-address.store',
                                         'parameters'  => [
-                                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id
+                                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
+                                            'palletReturn'       => $palletReturn->id
                                         ]
                                     ],
                                 ]

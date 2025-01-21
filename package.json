@@ -123,6 +123,7 @@
         "vue-tel-input": "^8.1.1",
         "vue3-moveable": "^0.28.0",
         "vue3-popper": "^1.5.0",
-        "vuedraggable": "^4.1.0"
+        "vuedraggable": "^4.1.0",
+        "xlsx": "^0.18.5"
     }
 }
