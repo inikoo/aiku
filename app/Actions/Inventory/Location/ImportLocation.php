@@ -49,7 +49,7 @@ class ImportLocation
         return $upload;
     }
 
-    public function runImport($file, $command): Upload
+    public function runImportForCommand($file, $command): Upload
     {
         $warehouse = Warehouse::where('slug', $command->argument('warehouse'))->first();
         $warehouseArea = WarehouseArea::where('slug', $command->argument('warehouse'))->first();

@@ -384,6 +384,8 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
     //todo this new action
     Route::post('stored-item', StoreStoredItemsToReturn::class)->name('stored_item.store');
     Route::post('stored-item-upload', [ImportPalletReturnItem::class, 'fromGrp'])->name('stored-item.upload');
+
+    // This is wrong ImportPallet is used when creating a pallet delivery
     Route::post('pallet-upload', ImportPallet::class)->name('pallet.upload');
     Route::patch('/', UpdatePalletReturn::class)->name('update');
     Route::get('pdf', PdfPalletReturn::class)->name('pdf');
