@@ -42,20 +42,32 @@ class ShowGroupOverviewHub extends GrpAction
                     ],
                     'title'     => __('overview'),
                 ],
-                'dashboard' => [
+                'dashboard_stats' => [
                     'setting' => [
                         "currency_chosen" => 'usd' // | pounds | dollar
                     ],
-                    'columns' => [
-                        [
-                            'widgets' => [
+                    'widgets' => [
+                        
+                            'column_count' => 2,
+                            'components' => [
                                 [
-                                    'type' => 'overview_table',
+                                    'col_span' => 1,
+                                    'row_span' => 10,
+                                    'type' => 'overview_display',
                                     'data' => GetGroupOverview::run($this->group)
+                                ],
+                                [
+                                    'col_span' => 1,
+                                    'type' => 'operation_display',
+                                    
+                                ],
+                                [
+                                    'col_span' => 1,
+                                    'type' => 'operation_display',
+                                    
                                 ]
-                            ]
-                        ],
-                        [
+                            ],
+                       /*  [
                             'widgets' => [
                                 [
                                     'label' => __('the nutrition store'),
@@ -113,7 +125,7 @@ class ShowGroupOverviewHub extends GrpAction
                                     'type' => 'card_progress_bar',
                                 ],
                             ],
-                        ]
+                        ] */
                     ]
                 ],
             ]

@@ -42,27 +42,13 @@ import { faAngleDown, faAngleUp } from "@far"
 import StoreStatsCard from "@/Components/DataDisplay/StoreStatsCard.vue"
 import InfoDashboardCard from "@/Components/DataDisplay/InfoDashboardCard.vue"
 import ProgressDashboardCard from "@/Components/DataDisplay/ProgressDashboardCard.vue"
+import Dashboard from "@/Components/DataDisplay/Dashboard/Dashboard.vue"
 
 const props = defineProps<{
 	title: string
 	pageHead: any
-	dashboard: {
-		columns: Array<{
-			widgets: Array<{
-				type: string
-				data: {
-					data: Array<{
-						section: string
-						data: Array<{
-							name: string
-							icon: string
-							route: string
-							count: number
-						}>
-					}>
-				}
-			}>
-		}>
+	dashboard_stats: {
+		
 	}
 }>()
 
@@ -138,33 +124,36 @@ const columnClasses = computed(() => {
 	<!-- Dashboard Grid -->
 	<div class="grid grid-cols-12 gap-4 p-4">
 		<!-- Left Column -->
-		<div class="col-span-6 space-y-4">
+		<div class="col-span-12">
 			<!-- Loop through columns for the table -->
-			<template v-for="(column, colIndex) in props.dashboard.columns" :key="colIndex">
+			<!-- <template v-for="(column, colIndex) in props.dashboard.columns" :key="colIndex">
 				<template v-for="(widget, widgetIndex) in column.widgets" :key="widgetIndex">
 					<div v-if="widget.type === 'overview_table'">
 						<SectionTable :data="widget.data.data" />
 					</div>
 				</template>
-			</template>
+			</template> -->
+			<Dashboard
+				:dashboard="dashboard_stats"
+			/>
 		</div>
 
 		<!-- Middle Column -->
 		<div class="col-span-3 space-y-4">
 			<!-- Loop through widgets for middle column -->
-			<template v-for="(column, colIndex) in props.dashboard.columns" :key="colIndex">
+			<!-- <template v-for="(column, colIndex) in props.dashboard.columns" :key="colIndex">
 				<template v-for="(widget, widgetIndex) in column.widgets" :key="widgetIndex">
 					<div v-if="widget.type === 'multi_card'">
 						<StoreStatsCard :label="widget.label" :data="widget.data" :gridCols="2" />
 					</div>
 				</template>
-			</template>
+			</template> -->
 		</div>
 
 		<!-- Right Column -->
 		<div class="col-span-3 space-y-4">
 			<!-- Loop through widgets for right column -->
-			<template v-for="(column, colIndex) in props.dashboard.columns" :key="colIndex">
+		<!-- 	<template v-for="(column, colIndex) in props.dashboard.columns" :key="colIndex">
 				<template v-for="(widget, widgetIndex) in column.widgets" :key="widgetIndex">
 					<div
 						v-if="widget.type === 'card_currency' || widget.type === 'card_percentage'">
@@ -177,7 +166,7 @@ const columnClasses = computed(() => {
 							class="h-full" />
 					</div>
 				</template>
-			</template>
+			</template> -->
 		</div>
 	</div>
 </template>

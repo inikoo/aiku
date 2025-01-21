@@ -14,7 +14,6 @@ use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrat
 use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
 use App\Actions\Fulfilment\PalletDelivery\AutoAssignServicesToPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryStateFromItems;
-use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturnStateFromItems;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
 use App\Actions\RetinaAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePallets;
@@ -52,9 +51,7 @@ class UpdateRetinaPallet extends RetinaAction
             if ($pallet->pallet_delivery_id) {
                 UpdatePalletDeliveryStateFromItems::run($pallet->palletDelivery);
             }
-            if ($pallet->pallet_return_id) {
-                UpdatePalletReturnStateFromItems::run($pallet->palletReturn);
-            }
+
 
             GroupHydratePallets::dispatch($pallet->group)->delay($this->hydratorsDelay);
             OrganisationHydratePallets::dispatch($pallet->organisation)->delay($this->hydratorsDelay);

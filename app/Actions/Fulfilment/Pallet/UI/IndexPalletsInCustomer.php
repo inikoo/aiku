@@ -41,30 +41,30 @@ class IndexPalletsInCustomer extends OrgAction
     private FulfilmentCustomer $fulfilmentCustomer;
     private FulfilmentCustomer $parent;
 
-    protected function getElementGroups(FulfilmentCustomer $fulfilmentCustomer, string $prefix): array
-    {
-        $elements = [];
-
-        if ($prefix == 'all') {
-            $elements = [
-                'status' => [
-                    'label'    => __('Status'),
-                    'elements' => array_merge_recursive(
-                        PalletStatusEnum::labels($fulfilmentCustomer),
-                        PalletStatusEnum::count($fulfilmentCustomer)
-                    ),
-
-                    'engine' => function ($query, $elements) {
-                        $query->whereIn('pallets.status', $elements);
-                    }
-                ],
-
-
-            ];
-        }
-
-        return $elements;
-    }
+    //    protected function getElementGroups(FulfilmentCustomer $fulfilmentCustomer, string $prefix): array
+    //    {
+    //        $elements = [];
+    //
+    //        if ($prefix == 'all') {
+    //            $elements = [
+    //                'status' => [
+    //                    'label'    => __('Status'),
+    //                    'elements' => array_merge_recursive(
+    //                        PalletStatusEnum::labels($fulfilmentCustomer),
+    //                        PalletStatusEnum::count($fulfilmentCustomer)
+    //                    ),
+    //
+    //                    'engine' => function ($query, $elements) {
+    //                        $query->whereIn('pallets.status', $elements);
+    //                    }
+    //                ],
+    //
+    //
+    //            ];
+    //        }
+    //
+    //        return $elements;
+    //    }
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, $prefix = null): LengthAwarePaginator
     {
@@ -97,14 +97,14 @@ class IndexPalletsInCustomer extends OrgAction
         }
 
 
-        foreach ($this->getElementGroups($fulfilmentCustomer, $prefix) as $key => $elementGroup) {
-            $query->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
-        }
+        //        foreach ($this->getElementGroups($fulfilmentCustomer, $prefix) as $key => $elementGroup) {
+        //            $query->whereElementGroup(
+        //                key: $key,
+        //                allowedElements: array_keys($elementGroup['elements']),
+        //                engine: $elementGroup['engine'],
+        //                prefix: $prefix
+        //            );
+        //        }
 
 
         $query->whereNotNull('pallets.slug');
@@ -148,13 +148,13 @@ class IndexPalletsInCustomer extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            foreach ($this->getElementGroups($fulfilmentCustomer, $prefix) as $key => $elementGroup) {
-                $table->elementGroup(
-                    key: $key,
-                    label: $elementGroup['label'],
-                    elements: $elementGroup['elements']
-                );
-            }
+            //            foreach ($this->getElementGroups($fulfilmentCustomer, $prefix) as $key => $elementGroup) {
+            //                $table->elementGroup(
+            //                    key: $key,
+            //                    label: $elementGroup['label'],
+            //                    elements: $elementGroup['elements']
+            //                );
+            //            }
 
             $count = 0;
 
@@ -235,8 +235,7 @@ class IndexPalletsInCustomer extends OrgAction
 
         $actions = [];
 
-        if($this->parent->number_pallets_status_storing)
-        {
+        if ($this->parent->number_pallets_status_storing) {
             $actions[] = [
                 'type'    => 'button',
                     'style'   => 'create',
@@ -251,7 +250,7 @@ class IndexPalletsInCustomer extends OrgAction
                 ];
         }
         if ($this->parent->items_storage) {
-            
+
             $actions[] = [
                 'type'    => 'button',
                 'style'   => 'create',

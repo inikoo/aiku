@@ -23,47 +23,58 @@ use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
-use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 
-class DispatchedPalletReturn extends OrgAction
+class DispatchPalletReturn extends OrgAction
 {
     use WithActionUpdate;
 
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $modelData[PalletReturnStateEnum::DISPATCHED->value.'_at'] = now();
-        $modelData['state']                                        = PalletReturnStateEnum::DISPATCHED;
+        $modelData['dispatched_at'] = now();
+        $modelData['state'] = PalletReturnStateEnum::DISPATCHED;
 
-        foreach ($palletReturn->pallets()
-                     ->whereNot('status', PalletStatusEnum::INCIDENT->value)
-                     ->get() as $pallet) {
-            UpdatePallet::run($pallet, [
-                'state'  => PalletStateEnum::DISPATCHED,
-                'status' => PalletStatusEnum::RETURNED
-            ]);
+        /** @var Pallet $pallet */
 
-            $palletReturn->pallets()->syncWithoutDetaching([
-                $pallet->id => [
-                    'state' => PalletReturnStateEnum::DISPATCHED
-                ]
-            ]);
-        }
 
-        $palletReturn = $this->update($palletReturn, $modelData);
+        $pallets = $palletReturn->pallets()
+            ->whereNot('status', PalletStatusEnum::INCIDENT->value)
+            ->get();
+
+        $palletReturn = DB::transaction(function () use ($palletReturn, $pallets, $modelData) {
+            /** @var Pallet $pallet */
+            foreach ($pallets as $pallet) {
+                $pallet=UpdatePallet::make()->action($pallet, [
+                    'state'  => PalletStateEnum::DISPATCHED,
+                    'status' => PalletStatusEnum::RETURNED
+                ]);
+
+
+                $palletReturn->pallets()->syncWithoutDetaching([
+                    $pallet->id => [
+                        'state' => PalletReturnStateEnum::DISPATCHED
+                    ]
+                ]);
+            }
+           return $this->update($palletReturn, $modelData);
+        });
 
         GroupHydratePalletReturns::dispatch($palletReturn->group);
         OrganisationHydratePalletReturns::dispatch($palletReturn->organisation);
         WarehouseHydratePalletReturns::dispatch($palletReturn->warehouse);
         FulfilmentCustomerHydratePalletReturns::dispatch($palletReturn->fulfilmentCustomer);
         FulfilmentHydratePalletReturns::dispatch($palletReturn->fulfilment);
-
-
         SendPalletReturnNotification::run($palletReturn);
         PalletReturnRecordSearch::dispatch($palletReturn);
+
         return $palletReturn;
     }
 
@@ -81,13 +92,19 @@ class DispatchedPalletReturn extends OrgAction
         return new PalletReturnResource($palletReturn);
     }
 
-    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, ActionRequest $request): PalletReturn
+    /**
+     * @throws \Throwable
+     */
+    public function asController(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+        $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
 
         return $this->handle($palletReturn, $this->validatedData);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function maya(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
@@ -95,6 +112,9 @@ class DispatchedPalletReturn extends OrgAction
         return $this->handle($palletReturn, $this->validatedData);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function action(FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn): PalletReturn
     {
         $this->asAction = true;

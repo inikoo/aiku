@@ -25,8 +25,6 @@ enum PalletTypeEnum: string
             'pallet' => [
                 'tooltip' => __('pallet'),
                 'icon'    => 'fal fa-pallet',
-                'class'   => 'text-lime-500',
-                'color'   => 'lime',
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'
@@ -35,8 +33,6 @@ enum PalletTypeEnum: string
             'box' => [
                 'tooltip' => __('box'),
                 'icon'    => 'fal fa-box',
-                'class'   => 'text-indigo-400',
-                'color'   => 'indigo',
                 'app'     => [
                     'name' => 'share',
                     'type' => 'font-awesome-5'
@@ -45,8 +41,6 @@ enum PalletTypeEnum: string
             'oversize' => [
                 'tooltip' => __('oversize'),
                 'icon'    => 'fal fa-sort-size-up',
-                'class'   => 'text-indigo-400',
-                'color'   => 'indigo',
                 'app'     => [
                     'name' => 'share',
                     'type' => 'font-awesome-5'

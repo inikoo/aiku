@@ -69,7 +69,7 @@ class ImportRawMaterial extends OrgAction
         return UploadsResource::make($upload)->getArray();
     }
 
-    // public function rumImport($file, $command): Upload
+    // public function runImport($file, $command): Upload
     // {
     //     if ($palletDeliverySlug = $command->argument('palletDelivery')) {
     //         $palletDelivery = PalletDelivery::where('slug', $palletDeliverySlug)->first();

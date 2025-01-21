@@ -19,11 +19,11 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletReturns;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletReturns;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\SysAdmin\Organisation;
@@ -39,14 +39,10 @@ class SubmitPalletReturn extends OrgAction
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $modelData[PalletReturnStateEnum::SUBMITTED->value.'_at'] = now();
+        $modelData['submitted_at'] = now();
+        $modelData['confirmed_at'] = now();
+        $modelData['state']                                       = PalletReturnStateEnum::CONFIRMED;
 
-        if (!request()->user() instanceof WebUser) {
-            $modelData[PalletReturnStateEnum::CONFIRMED->value.'_at'] = now();
-            $modelData['state']                                       = PalletReturnStateEnum::CONFIRMED;
-        } else {
-            $modelData['state'] = PalletReturnStateEnum::SUBMITTED;
-        }
 
         foreach ($palletReturn->pallets as $pallet) {
             UpdatePallet::run($pallet, [
@@ -54,13 +50,15 @@ class SubmitPalletReturn extends OrgAction
                     container: $palletReturn->fulfilmentCustomer,
                     modelType: SerialReferenceModelEnum::PALLET
                 ),
-                'state'  => $modelData['state']->value,
-                'status' => PalletStatusEnum::RECEIVING
+                'state'     => PalletStateEnum::REQUEST_RETURN_CONFIRMED,
+                'status'    => PalletStatusEnum::RETURNING
             ]);
 
-            $palletReturn->pallets()->syncWithoutDetaching([$pallet->id => [
-                'state' => $modelData['state']
-            ]]);
+            $palletReturn->pallets()->syncWithoutDetaching([
+                $pallet->id => [
+                    'state' => $modelData['state']
+                ]
+            ]);
         }
 
         $palletReturn = $this->update($palletReturn, $modelData);
@@ -76,6 +74,7 @@ class SubmitPalletReturn extends OrgAction
             SendPalletReturnNotification::run($palletReturn);
         }
         PalletReturnRecordSearch::dispatch($palletReturn);
+
         return $palletReturn;
     }
 
@@ -106,6 +105,7 @@ class SubmitPalletReturn extends OrgAction
         $this->asAction          = true;
         $this->sendNotifications = $sendNotification;
         $this->initialisationFromFulfilment($palletReturn->fulfilment, []);
+
         return $this->handle($palletReturn, []);
     }
 }

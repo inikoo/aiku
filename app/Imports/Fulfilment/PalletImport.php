@@ -27,11 +27,12 @@ class PalletImport implements ToCollection, WithHeadingRow, SkipsOnFailure, With
 
     protected PalletDelivery $scope;
     protected bool $includeStoredItem;
+
     public function __construct(PalletDelivery $palletDelivery, Upload $upload, $includeStoredItem = false)
     {
-        $this->upload             = $upload;
-        $this->scope              = $palletDelivery;
-        $this->includeStoredItem  = $includeStoredItem;
+        $this->upload            = $upload;
+        $this->scope             = $palletDelivery;
+        $this->includeStoredItem = $includeStoredItem;
     }
 
     public function storeModel($row, $uploadRecord): void
@@ -49,12 +50,23 @@ class PalletImport implements ToCollection, WithHeadingRow, SkipsOnFailure, With
 
         if (!Arr::get($modelData, 'type')) {
             data_set($modelData, 'type', PalletTypeEnum::PALLET->value);
+        } else {
+            $type = strtolower(Arr::get($modelData, 'type'));
+
+            $type = match ($type) {
+                'oversize' => PalletTypeEnum::OVERSIZE->value,
+                'box', 'carton' => PalletTypeEnum::BOX->value,
+                default => PalletTypeEnum::PALLET->value,
+            };
+            data_set($modelData, 'type', $type);
         }
 
         data_set($modelData, 'data.bulk_import', [
             'id'   => $this->upload->id,
             'type' => 'Upload',
         ]);
+
+
 
         try {
             StorePalletFromDelivery::run(

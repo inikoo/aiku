@@ -12,7 +12,6 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { faTrashAlt } from "@far"
 import { faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp, faStickyNote } from "@fal"
 import Tag from "@/Components/Tag.vue"
-import { ref } from "vue"
 import type { Meta, Links } from "@/types/Table"
 import { Pallet } from "@/types/Pallet"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
@@ -150,9 +149,7 @@ function fulfilmentCustomerRoute(pallet: Pallet) {
         </template>
 
 
-        <!-- Column: Icon (status and state) -->
         <template #cell(state)="{ item: pallet }">
-            <Icon :data="pallet['status_icon']" />
             <Icon :data="pallet['state_icon']" />
         </template>
 

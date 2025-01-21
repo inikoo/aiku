@@ -9,7 +9,7 @@
 namespace App\Actions\Fulfilment\PalletReturnItem;
 
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
-use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturnStateFromItems;
+use App\Actions\Fulfilment\PalletReturn\AutomaticallySetPalletReturnAsPickedIfAllItemsPicked;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -46,7 +46,7 @@ class UndoPickingPalletFromReturn extends OrgAction
             }
         }
 
-        UpdatePalletReturnStateFromItems::run($palletReturnItem->palletReturn);
+        AutomaticallySetPalletReturnAsPickedIfAllItemsPicked::run($palletReturnItem->palletReturn);
 
         return $palletReturnItem;
     }
