@@ -21,12 +21,13 @@ class ShowRetinaSysAdminDashboard extends RetinaAction
         return $request->user()->is_root;
     }
 
-    public function asController(ActionRequest $request): void
+    public function asController(ActionRequest $request): Response
     {
         $this->initialisation($request);
+        return $this->handle($request);
     }
 
-    public function htmlResponse(): Response
+    public function handle(ActionRequest $request): Response
     {
         $title = __('Account');
 
@@ -41,6 +42,17 @@ class ShowRetinaSysAdminDashboard extends RetinaAction
                         'icon'  => ['fal', 'fa-users-cog'],
                         'title' => $title
                     ],
+                    'actions' => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'create',
+                            'label' => __('user'),
+                            'route' => [
+                                'name'       => 'retina.sysadmin.web-users.create',
+                                'parameters' => $request->route()->originalParameters()
+                            ]
+                        ]
+                    ]
 
                 ],
                 'stats'       => [
