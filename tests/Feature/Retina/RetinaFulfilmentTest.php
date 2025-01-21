@@ -27,6 +27,7 @@ use App\Actions\Retina\Fulfilment\PalletDelivery\Pdf\PdfRetinaPalletDelivery;
 use App\Actions\Retina\Fulfilment\PalletDelivery\StoreRetinaPalletDelivery;
 use App\Actions\Retina\Fulfilment\PalletDelivery\SubmitRetinaPalletDelivery;
 use App\Actions\Retina\Fulfilment\PalletDelivery\UpdateRetinaPalletDelivery;
+use App\Actions\Retina\Fulfilment\PalletReturn\ImportRetinaPalletReturnItem;
 use App\Actions\Retina\Fulfilment\PalletReturn\StoreRetinaPalletReturn;
 use App\Actions\Retina\Fulfilment\StoredItem\StoreRetinaStoredItem;
 use App\Actions\Retina\Fulfilment\StoredItem\SyncRetinaStoredItemToPallet;
@@ -189,22 +190,6 @@ test('Add Retina Pallet to PalletDelivery', function (PalletDelivery $palletDeli
     return $pallet;
 })->depends('Create Retina Pallet Delivery');
 
-test('Update Retina Pallet to PalletDelivery', function (Pallet $pallet) {
-    $pallet = UpdateRetinaPallet::make()->action(
-        $pallet,
-        [
-        'customer_reference' => 'bruh-01'
-    ]
-    );
-
-    $pallet->refresh();
-
-    expect($pallet)->toBeInstanceOf(Pallet::class)
-        ->and($pallet->customer_reference)->toBe('bruh-01');
-
-    return $pallet;
-})->depends('Add Retina Pallet to PalletDelivery');
-
 test('Create Stored Item', function () {
     $storedItem = StoreRetinaStoredItem::make()->action(
         $this->fulfilmentCustomer,
@@ -213,10 +198,29 @@ test('Create Stored Item', function () {
     ]
     );
 
+    $storedItem2 = StoreRetinaStoredItem::make()->action(
+        $this->fulfilmentCustomer,
+        [
+        'reference' => 'item2'
+    ]
+    );
+
+    $storedItem3 = StoreRetinaStoredItem::make()->action(
+        $this->fulfilmentCustomer,
+        [
+        'reference' => 'item3'
+    ]
+    );
+
     $storedItem->refresh();
+    $storedItem2->refresh();
+    $storedItem3->refresh();
 
     expect($storedItem)->toBeInstanceOf(StoredItem::class)
-        ->and($storedItem->fulfilmentCustomer->number_stored_items)->toBe(1);
+        ->and($storedItem2)->toBeInstanceOf(StoredItem::class)
+        ->and($storedItem3)->toBeInstanceOf(StoredItem::class)
+        ->and($storedItem->fulfilmentCustomer->number_stored_items)->toBe(3);
+
     return $storedItem;
 });
 
@@ -238,7 +242,7 @@ test('Sync Stored Item to Pallet', function (Pallet $pallet) {
         ->and($pallet->number_stored_items)->toBe(1);
 
     return $pallet;
-})->depends('Update Retina Pallet to PalletDelivery');
+})->depends('Add Retina Pallet to PalletDelivery');
 
 test('Add Retina Mutiple Pallets to Pallet Delivery', function (PalletDelivery $palletDelivery) {
     StoreMultiplePalletsFromDelivery::make()->action($palletDelivery, [
@@ -253,6 +257,41 @@ test('Add Retina Mutiple Pallets to Pallet Delivery', function (PalletDelivery $
 
     return $palletDelivery;
 })->depends('Create Retina Pallet Delivery');
+
+test('Sync Stored Item to Pallet (again)', function (PalletDelivery $palletDelivery) {
+    $pallet = $palletDelivery->pallets()->skip(1)->first();
+    $pallet2 = $palletDelivery->pallets()->skip(2)->first();
+    SyncRetinaStoredItemToPallet::make()->action(
+        $pallet,
+        [
+        'stored_item_ids' => [
+            2 => [
+                'quantity' => 200
+            ]
+        ]
+    ]
+    );
+    SyncRetinaStoredItemToPallet::make()->action(
+        $pallet2,
+        [
+        'stored_item_ids' => [
+            3 => [
+                'quantity' => 300
+            ]
+        ]
+    ]
+    );
+
+    $pallet->refresh();
+    $pallet2->refresh();
+
+    expect($pallet)->toBeInstanceOf(Pallet::class)
+        ->and($pallet->number_stored_items)->toBe(1);
+    expect($pallet2)->toBeInstanceOf(Pallet::class)
+        ->and($pallet2->number_stored_items)->toBe(1);
+
+    return $pallet;
+})->depends('Add Retina Mutiple Pallets to Pallet Delivery');
 
 test('Update Retina Pallet Delivery', function (PalletDelivery $palletDelivery) {
     $palletDelivery = UpdateRetinaPalletDelivery::make()->action($palletDelivery, [
@@ -323,7 +362,7 @@ test('Generate Pallet Delivery PDF', function (PalletDelivery $palletDelivery) {
     expect($pdf->output())->toBeString();
 
     return $palletDelivery;
-})->depends('Create Retina Pallet Delivery');
+})->depends('Submit Retina Pallet Delivery');
 
 test('Process Pallet Delivery (from aiku)', function (PalletDelivery $palletDelivery) {
 
@@ -358,6 +397,25 @@ test('Process Pallet Delivery (from aiku)', function (PalletDelivery $palletDeli
     return $palletDelivery;
 })->depends('Submit Retina Pallet Delivery');
 
+test('Update Retina Pallet to PalletDelivery', function (PalletDelivery $palletDelivery) {
+    $pallet = $palletDelivery->pallets->first();
+    $pallet = UpdateRetinaPallet::make()->action(
+        $pallet,
+        [
+        'reference'          => '000001-diam-p0001',
+        'customer_reference' => 'bruh-01',
+        ]
+    );
+
+    $pallet->refresh();
+    
+    expect($pallet)->toBeInstanceOf(Pallet::class)
+        ->and($pallet->reference)->toBe('000001-diam-p0001')
+        ->and($pallet->customer_reference)->toBe('bruh-01');
+
+    return $pallet;
+})->depends('Process Pallet Delivery (from aiku)');
+
 test('Create Retina Pallet Return', function () {
 
     $fulfilmentCustomer = $this->fulfilmentCustomer;
@@ -377,6 +435,32 @@ test('Create Retina Pallet Return', function () {
     return $palletReturn;
 });
 
+test('import pallets in return (xlsx)', function (PalletReturn $palletReturn) {
+    Storage::fake('local');
+
+    $tmpPath = 'tmp/uploads/';
+    //
+    $filePath = base_path('tests/fixtures/returnRetinaPalletItems.xlsx');
+    $file     = new UploadedFile($filePath, 'returnRetinaPalletItems.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+    Storage::fake('local')->put($tmpPath, $file);
+    $palletReturn->refresh();
+    expect($palletReturn->pallets()->count())->toBe(0)
+        ->and($palletReturn->stats->number_pallets)->toBe(0);
+    $upload = ImportRetinaPalletReturnItem::run($palletReturn, $file);
+    $palletReturn->refresh();
+
+    expect($upload)->toBeInstanceOf(Upload::class)
+        ->and($upload->model)->toBe('PalletReturnItem')
+        ->and($upload->original_filename)->toBe('returnRetinaPalletItems.xlsx')
+        ->and($upload->number_rows)->toBe(1)
+        ->and($upload->number_success)->toBe(1)
+        ->and($upload->number_fails)->toBe(0)
+        ->and($palletReturn->pallets()->count())->toBe(1)
+        ->and($palletReturn->stats->number_pallets)->toBe(1);
+
+    return $palletReturn;
+})->depends('Create Retina Pallet Return');
 
 test('Create Retina Pallet Return (with stored item)', function (PalletReturn $palletReturn) {
 

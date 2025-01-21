@@ -10,6 +10,7 @@ use App\Actions\Retina\CRM\DeleteRetinaCustomerDeliveryAddress;
 use App\Actions\Retina\CRM\StoreRetinaCustomerClient;
 use App\Actions\Retina\CRM\UpdateRetinaCustomerDeliveryAddress;
 use App\Actions\Retina\CRM\UpdateRetinaCustomerSettings;
+use App\Actions\Retina\Fulfilment\PalletDelivery\DeleteRetinaPalletDelivery;
 use App\Actions\Retina\Shopify\HandleRetinaApiDeleteProductFromShopify;
 use App\Actions\Retina\Shopify\StoreRetinaProductShopify;
 use App\Actions\Retina\Fulfilment\FulfilmentTransaction\DeleteRetinaFulfilmentTransaction;
@@ -76,6 +77,7 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('transaction', [StoreRetinaFulfilmentTransaction::class,'fromRetinaInPalletDelivery'])->name('transaction.store');
     Route::post('submit', SubmitRetinaPalletDelivery::class)->name('submit');
     Route::get('pdf', PdfRetinaPalletDelivery::class)->name('pdf');
+    Route::delete('/', DeleteRetinaPalletDelivery::class)->name('delete');
 });
 
 Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
