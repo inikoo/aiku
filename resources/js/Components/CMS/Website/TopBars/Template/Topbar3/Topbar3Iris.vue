@@ -50,7 +50,7 @@ const emits = defineEmits<{
 
 <template>
     <div></div>
-    <div id="top_bar" class="py-2 px-4 flex justify-between"
+    <div id="top_bar" class="py-2 px-4 flex justify-between hidden md:flex"
         :style="getStyles(model?.container.properties)"
     >
 

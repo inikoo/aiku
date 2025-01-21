@@ -50,7 +50,7 @@ const layout = inject('layout', {})
     <div></div>
     <div
         id="top_bar"
-        class="py-1 px-4 flex flex-col md:flex-row md:justify-between gap-x-4"
+        class="py-1 px-4 flex flex-col md:flex-row md:justify-between gap-x-4 hidden md:flex"
         :style="getStyles(model?.container.properties)"
     >
         <div class="flex-shrink flex flex-col md:flex-row items-center justify-between w-full "  >

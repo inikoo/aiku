@@ -77,7 +77,7 @@ provide('onLogout', onLogoutAuth)
         :is="getIrisComponent(data?.topBar.code)"
         :fieldValue="data.topBar.data.fieldValue" 
         v-model="data.topBar.data.fieldValue" 
-        class="hidden md:block" 
+        class="hidden md:block"
     />
 
     <!-- Section: Header-Menu -->
@@ -95,6 +95,7 @@ provide('onLogout', onLogoutAuth)
         :is="getIrisComponent(menu?.code)" 
         :navigations="menu.data.fieldValue.navigation"
         :colorThemed="colorThemed" 
+          class="hidden md:block"
     />
 
     <div class="block md:hidden p-3">
