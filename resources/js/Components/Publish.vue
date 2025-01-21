@@ -55,6 +55,7 @@ const emits = defineEmits<{
             <!-- Section: Popover -->
             <template #content="{ open, close }">
                 <div>
+                    <slot name="form-extend"></slot>
                     <div class="inline-flex items-start leading-none">
                         <FontAwesomeIcon :icon="'fas fa-asterisk'" class="font-light text-[12px] text-red-400 mr-1" />
                         <span class="capitalize">{{ trans('comment') }}</span>
