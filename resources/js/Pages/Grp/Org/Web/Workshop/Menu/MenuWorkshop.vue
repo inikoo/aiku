@@ -195,7 +195,10 @@ const onChangeNavigation = (setData) =>{
   <Head :title="capitalize(title)" />
   <PageHeading :data="pageHead">
     <template #button-publish="{ action }">
-      <Publish :isLoading="isLoading" :is_dirty="true" v-model="comment"
+      <Publish 
+        :isLoading="isLoading" 
+        :is_dirty="true" 
+        v-model="comment"
         @onPublish="(popover) => onPublish(action.route, popover)" />
     </template>
   </PageHeading>

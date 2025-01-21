@@ -20,6 +20,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Illuminate\Support\Arr;
 
 class ShowHeader extends OrgAction
 {
@@ -41,6 +42,10 @@ class ShowHeader extends OrgAction
 
     public function htmlResponse(Website $website, ActionRequest $request): Response
     {
+
+        $headerLayout = Arr::get($website->published_layout, 'header');
+        $isHeaderActive = Arr::get($headerLayout, 'status');
+
         return Inertia::render(
             'Org/Web/Workshop/Header/HeaderWorkshop',
             [
@@ -90,7 +95,7 @@ class ShowHeader extends OrgAction
                         ],
                     ],
                 ],
-
+                
                 'uploadImageRoute' => [
                     'name'       => 'grp.models.website.header.images.store',
                     'parameters' => [
@@ -121,7 +126,7 @@ class ShowHeader extends OrgAction
                         'parameters'    => []
                     ],
                 ],
-
+                'state' => $isHeaderActive ?? true,
                 'data' => GetWebsiteWorkshopHeader::run($website),
                 'web_block_types' => WebBlockTypesResource::collection(
                     $this->organisation->group->webBlockTypes()->where('fixed', false)->where('scope', 'website')->orderBy('id', 'asc')->get()
