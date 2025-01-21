@@ -123,8 +123,7 @@ const onPublish = async (action: routeType, popover: Function) => {
         route(action.name, action.parameters),
         {
             comment: comment.value,
-            active : active.value,
-            layout: usedTemplates.value
+            layout: {... usedTemplates.value,  active : active.value}
         },
         {
             onStart: () => isLoading.value = true,
