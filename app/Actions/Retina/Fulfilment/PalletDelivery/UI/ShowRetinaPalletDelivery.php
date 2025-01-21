@@ -90,6 +90,121 @@ class ShowRetinaPalletDelivery extends RetinaAction
 
         $title = __('pallet delivery').' '.$palletDelivery->reference;
 
+        $actions = $palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS
+            ? [
+                [
+                    'type'   => 'buttonGroup',
+                    'key'    => 'upload-add',
+                    'button' => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'secondary',
+                            'icon'  => ['fal', 'fa-upload'],
+                            'label' => 'upload',
+                        ],
+                        [
+                            'type'  => 'button',
+                            'style' => 'secondary',
+                            'icon'  => ['far', 'fa-layer-plus'],
+                            'label' => 'multiple',
+                            'route' => [
+                                'name'       => 'retina.models.pallet-delivery.multiple-pallets.store',
+                                'parameters' => [
+                                    'palletDelivery' => $palletDelivery->id
+                                ]
+                            ]
+                        ],
+                        [
+                            'type'  => 'button',
+                            'style' => 'secondary',
+                            'icon'  => 'fal fa-plus',
+                            'label' => __('add pallet'),
+                            'route' => [
+                                'name'       => 'retina.models.pallet-delivery.pallet.store',
+                                'parameters' => [
+                                    'palletDelivery' => $palletDelivery->id
+                                ]
+                            ]
+                        ],
+                        [
+                            'type'  => 'button',
+                            'style' => 'secondary',
+                            'icon'  => 'fal fa-plus',
+                            'label' => __('add service'),
+                            'route' => [
+                                'name'       => 'retina.models.pallet-delivery.transaction.store',
+                                'parameters' => [
+                                    'palletDelivery' => $palletDelivery->id
+                                ]
+                            ]
+                        ],
+                        [
+                            'type'  => 'button',
+                            'style' => 'secondary',
+                            'icon'  => 'fal fa-plus',
+                            'label' => __('add physical good'),
+                            'route' => [
+                                'name'       => 'retina.models.pallet-delivery.transaction.store',
+                                'parameters' => [
+                                    'palletDelivery' => $palletDelivery->id
+                                ]
+                            ]
+                        ],
+                    ]
+                ],
+                [
+                    'type'     => 'button',
+                    'icon'     => 'fad fa-save',
+                    'tooltip'  => __('Submit Delivery'),
+                    'label'    => __('submit'),
+                    'disabled' => $palletsInDelivery == 0,
+                    'key'      => 'action',
+                    'route'    => [
+                        'method'     => 'post',
+                        'name'       => 'retina.models.pallet-delivery.submit',
+                        'parameters' => [
+                            'palletDelivery' => $palletDelivery->id
+                        ]
+                    ]
+                ],
+            ]
+            : [
+                [
+                    'type'   => 'button',
+                    'style'  => 'tertiary',
+                    'label'  => 'PDF',
+                    'target' => '_blank',
+                    'icon'   => 'fal fa-file-pdf',
+                    'key'    => 'action',
+                    'route'  => [
+                        'name'       => 'retina.models.pallet-delivery.pdf',
+                        'parameters' => [
+                            'palletDelivery' => $palletDelivery->id
+                        ],
+                    ]
+                ]
+            ];
+
+        if (in_array($palletDelivery->state, [
+            PalletDeliveryStateEnum::IN_PROCESS,
+            PalletDeliveryStateEnum::SUBMITTED
+        ])) {
+            $actions = array_merge([[
+                'type'    => 'button',
+                'style'   => 'delete',
+                'tooltip' => __('delete'),
+                'label'   => __('delete'),
+                'key'     => 'action',
+                'route'   => [
+                    'method'     => 'delete',
+                    'name'       => 'retina.models.pallet-delivery.delete',
+                    'parameters' => [
+                        'palletDelivery' => $palletDelivery->id
+                    ]
+                ]
+            ]], $actions);
+        }
+
         return Inertia::render(
             'Storage/RetinaPalletDelivery',
             [
@@ -111,102 +226,9 @@ class ShowRetinaPalletDelivery extends RetinaAction
                         'label'     => $palletDelivery->reference,
                     ],
 
-                    'actions' => $palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS
-                        ? [
-                            [
-                                'type'   => 'buttonGroup',
-                                'key'    => 'upload-add',
-                                'button' => [
-                                    [
-                                        'type'  => 'button',
-                                        'style' => 'secondary',
-                                        'icon'  => ['fal', 'fa-upload'],
-                                        'label' => 'upload',
-                                    ],
-                                    [
-                                        'type'  => 'button',
-                                        'style' => 'secondary',
-                                        'icon'  => ['far', 'fa-layer-plus'],
-                                        'label' => 'multiple',
-                                        'route' => [
-                                            'name'       => 'retina.models.pallet-delivery.multiple-pallets.store',
-                                            'parameters' => [
-                                                'palletDelivery' => $palletDelivery->id
-                                            ]
-                                        ]
-                                    ],
-                                    [
-                                        'type'  => 'button',
-                                        'style' => 'secondary',
-                                        'icon'  => 'fal fa-plus',
-                                        'label' => __('add pallet'),
-                                        'route' => [
-                                            'name'       => 'retina.models.pallet-delivery.pallet.store',
-                                            'parameters' => [
-                                                'palletDelivery' => $palletDelivery->id
-                                            ]
-                                        ]
-                                    ],
-                                    [
-                                        'type'  => 'button',
-                                        'style' => 'secondary',
-                                        'icon'  => 'fal fa-plus',
-                                        'label' => __('add service'),
-                                        'route' => [
-                                            'name'       => 'retina.models.pallet-delivery.transaction.store',
-                                            'parameters' => [
-                                                'palletDelivery' => $palletDelivery->id
-                                            ]
-                                        ]
-                                    ],
-                                    [
-                                        'type'  => 'button',
-                                        'style' => 'secondary',
-                                        'icon'  => 'fal fa-plus',
-                                        'label' => __('add physical good'),
-                                        'route' => [
-                                            'name'       => 'retina.models.pallet-delivery.transaction.store',
-                                            'parameters' => [
-                                                'palletDelivery' => $palletDelivery->id
-                                            ]
-                                        ]
-                                    ],
-                                ]
-                            ],
-                            [
-                                'type'     => 'button',
-                                'icon'     => 'fad fa-save',
-                                'tooltip'  => __('Submit Delivery'),
-                                'label'    => __('submit'),
-                                'disabled' => $palletsInDelivery == 0,
-                                'key'      => 'action',
-                                'route'    => [
-                                    'method'     => 'post',
-                                    'name'       => 'retina.models.pallet-delivery.submit',
-                                    'parameters' => [
-                                        'palletDelivery' => $palletDelivery->id
-                                    ]
-                                ]
-                            ],
-                        ]
-                        : [
-                            [
-                                'type'   => 'button',
-                                'style'  => 'tertiary',
-                                'label'  => 'PDF',
-                                'target' => '_blank',
-                                'icon'   => 'fal fa-file-pdf',
-                                'key'    => 'action',
-                                'route'  => [
-                                    'name'       => 'retina.models.pallet-delivery.pdf',
-                                    'parameters' => [
-                                        'palletDelivery' => $palletDelivery->id
-                                    ],
-                                ]
-                            ]
-                        ]
-                ],
+                    'actions' => $actions,
 
+                ],
 
                 'updateRoute' => [
                     'route' => [
@@ -216,7 +238,6 @@ class ShowRetinaPalletDelivery extends RetinaAction
                         ]
                     ]
                 ],
-
 
                 'interest'           => [
                     'pallets_storage' => $palletDelivery->fulfilmentCustomer->pallets_storage,

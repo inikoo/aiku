@@ -180,7 +180,7 @@ class ShowPalletDelivery extends OrgAction
                                         'palletDelivery' => $palletDelivery->id
                                     ]
                                 ]
-                            ],
+                            ]
                         ]
                     ],
                     ($palletDelivery->pallets()->count() > 0) ?
@@ -289,6 +289,21 @@ class ShowPalletDelivery extends OrgAction
                 PalletDeliveryStateEnum::SUBMITTED
             ])) {
                 $actions = array_merge([$pdfButton], $actions);
+            } else {
+                $actions = array_merge([[
+                    'type'    => 'button',
+                    'style'   => 'delete',
+                    'tooltip' => __('delete'),
+                    'label'   => __('delete'),
+                    'key'     => 'action',
+                    'route'   => [
+                        'method'     => 'delete',
+                        'name'       => 'grp.models.pallet-delivery.delete',
+                        'parameters' => [
+                            'palletDelivery' => $palletDelivery->id
+                        ]
+                    ]
+                ]], $actions);
             }
         }
 

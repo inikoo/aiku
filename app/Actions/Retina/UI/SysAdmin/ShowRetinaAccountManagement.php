@@ -80,6 +80,12 @@ class ShowRetinaAccountManagement extends RetinaAction
                                         'options' => [
                                             'countriesAddressData' => GetAddressData::run()
                                         ]
+                                    ],
+                                    'vat'      => [
+                                        'type'    => 'tax_number',
+                                        'label'   => __('vat'),
+                                        'value'   => null,
+                                        'country' => $customer->address->country_code,
                                     ]
                                 ]
                         ]

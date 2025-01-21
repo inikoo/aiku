@@ -98,6 +98,12 @@ class EditCustomer extends OrgAction
                                     'options' => [
                                         'countriesAddressData' => GetAddressData::run()
                                     ]
+                                ],
+                                    'vat'      => [
+                                    'type'    => 'tax_number',
+                                    'label'   => __('vat'),
+                                    'value'   => null,
+                                    'country' => $customer->address->country_code,
                                 ]
                             ]
                         ]
