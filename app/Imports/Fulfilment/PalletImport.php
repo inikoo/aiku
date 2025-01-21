@@ -13,8 +13,10 @@ use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Imports\WithImport;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Helpers\Upload;
+use App\Rules\IUnique;
 use Exception;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -85,7 +87,22 @@ class PalletImport implements ToCollection, WithHeadingRow, SkipsOnFailure, With
     public function rules(): array
     {
         return [
-            'customer_reference' => ['nullable', 'unique:pallets,customer_reference'],
+            'customer_reference' => [
+                'sometimes',
+                'nullable',
+                'max:64',
+                'string',
+                Rule::notIn(['export', 'create', 'upload']),
+                new IUnique(
+                    table: 'pallets',
+                    column: 'customer_reference',
+                    extraConditions: [
+                        ['column' => 'fulfilment_customer_id', 'value' => $this->scope->fulfilment_customer_id],
+                    ]
+                ),
+
+
+            ],
             'notes'              => ['nullable'],
             'type'               => ['nullable'],
             'stored_item'        => ['nullable'],

@@ -60,7 +60,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_pallets_with_stored_items_state_not_received
  * @property int $number_pallets_state_storing
  * @property int $number_pallets_with_stored_items_state_storing
- * @property int $number_pallets_state_request_return
+ * @property int $number_pallets_state_request_return_in_process
  * @property int $number_pallets_with_stored_items_state_request_return
  * @property int $number_pallets_state_picking
  * @property int $number_pallets_with_stored_items_state_picking
@@ -123,6 +123,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
+ * @property int $number_pallets_state_request_return_submitted
+ * @property int $number_pallets_state_request_return_confirmed
  * @property-read \App\Models\Fulfilment\RecurringBill|null $currentRecurringBill
  * @property-read Customer $customer
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
