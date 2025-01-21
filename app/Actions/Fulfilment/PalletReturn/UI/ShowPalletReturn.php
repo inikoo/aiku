@@ -494,12 +494,18 @@ class ShowPalletReturn extends OrgAction
                         FulfilmentCustomerResource::make($palletReturn->fulfilmentCustomer)->getArray(),
                         [
                             'address'      => [
-                                'value'   => $palletReturn->is_collection ? [] : AddressResource::make($palletReturn->deliveryAddress),
+                                'value'   => $palletReturn->is_collection ?
+                                    [] :
+                                    AddressResource::make($palletReturn->deliveryAddress),
                                 'options' => [
                                     'countriesAddressData' => GetAddressData::run()
                                 ],
-                                'customer' => AddressResource::make($palletReturn->fulfilmentCustomer->customer->address),
-                                // 'address'                   => $palletReturn->is_collection ? [] : AddressResource::make($palletReturn->deliveryAddress),
+                                'address_customer' => [
+                                    'value'   => AddressResource::make($palletReturn->fulfilmentCustomer->customer->address),
+                                    'options' => [
+                                        'countriesAddressData' => GetAddressData::run()
+                                    ],
+                                ],
                                 // 'address_list'                   => AddressResource::make($palletReturn->deliveryAddress),
                                 'pinned_address_id'              => $palletReturn->fulfilmentCustomer->customer->delivery_address_id,
                                 'home_address_id'                => $palletReturn->fulfilmentCustomer->customer->address_id,
