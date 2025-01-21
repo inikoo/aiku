@@ -125,26 +125,26 @@ onMounted(() => {
 
 
         <!-- Box: Status -->
-        <BoxStatPallet class="py-1 sm:py-2" :label="capitalize(auditData.reference)" icon="fal fa-truck-couch">
+        <BoxStatPallet class="py-1 sm:py-2 px-3" :label="capitalize(auditData.reference)" icon="fal fa-truck-couch">
             
 
-            <div class="flex items-center w-full flex-none gap-x-2 mb-2 bg-yellow-200 py-2 px-3">
+            <div class="flex items-center w-full flex-none gap-x-2 mb-1">
                 <dt class="flex-none">
                     <span class="sr-only">{{ auditData.state_icon.tooltip }}</span>
                     <FontAwesomeIcon
                         :icon='auditData.state_icon.icon'
-                        :clasccs='auditData.state_icon.class'
+                        :class='auditData.state_icon.class'
                         class="text-white"
                         fixed-width
                         aria-hidden='true'
                     />
                 </dt>
-                <dd class="text-base" :classcc='auditData.state_icon.class'>
+                <dd class="text-base" :class='auditData.state_icon.class'>
                     {{ auditData.state_icon.tooltip }}
                 </dd>
             </div>
             
-            <div class="mb-4 h-full w-full py-1 px-3 flex flex-col border-t border-gray-300 items-center">
+            <div class="mb-4 h-full w-full py-1 px-2 flex flex-col border-t border-gray-300 items-center">
                 <svg id="palletDeliveryBarcode" class="w-full h-full" ></svg>
                 <!-- <div class="text-xxs text-gray-500">
                     pad-{{ auditData.reference }}
