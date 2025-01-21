@@ -30,7 +30,7 @@ class ImportRetinaPallet extends RetinaAction
     {
         return [
             'file'             => ['required', 'file', 'mimes:xlsx,csv,xls,txt'],
-            'with_stored_item' => ['required', 'bool']
+            'with_stored_item' => ['sometimes', 'required', 'bool']
         ];
     }
 
