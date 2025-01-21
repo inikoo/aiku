@@ -129,8 +129,8 @@ const isModalAddressCollection = ref(false)
                         </div>
                     </div>
                 </dd>
-                <div v-else @click="() => isModalAddress = true" class="text-xs inline whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
-                    <span>set Collection address</span>
+                <div v-else @click="() => isModalAddressCollection = true" class="text-xs inline whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                    <span>set collection address</span>
                 </div>
             </div>
         </BoxStatPallet>
