@@ -101,10 +101,10 @@ class StoreRetinaFulfilmentTransaction extends RetinaAction
         $this->handle($palletReturn, $this->validatedData);
     }
 
-    public function action(PalletReturn|PalletDelivery $parent, array $modelData): void
+    public function action(PalletReturn|PalletDelivery $parent, array $modelData): FulfilmentTransaction
     {
         $this->initialisationFulfilmentActions($parent->fulfilmentCustomer, $modelData);
 
-        $this->handle($parent, $this->validatedData);
+        return $this->handle($parent, $this->validatedData);
     }
 }

@@ -118,7 +118,6 @@ interface StoredItemsQuantity {
         [key: string]: number  // stored item id
     }
 }
-const storedItemsQuantity = reactive<StoredItemsQuantity>({})
 const statesBoxEdit = reactive<StoredItemsQuantity>({})
 
 const isLoading = ref(false)
@@ -200,6 +199,7 @@ const debounceStoreStoredItem = debounce((row: number, idPallet: number, idStore
 
 
 // Section: Update quantity stored item
+const isStoredItemEdited = reactive<StoredItemsQuantity>({})
 const isLoadingQuantity = reactive<StoredItemsQuantity>({})
 const onChangeQuantity = (row: number, idStoredItemAuditDelta: number | null, quantity: number) => {
     console.log('onChangeQuantity')
@@ -233,6 +233,8 @@ const onChangeQuantity = (row: number, idStoredItemAuditDelta: number | null, qu
             },
             onFinish: () => {
                 set(isLoadingQuantity, `${row}.${idStoredItemAuditDelta}`, false)
+                set(isStoredItemEdited, [(row+1)?.toString(), `id${idStoredItemAuditDelta?.toString()}`], true)
+                // isStoredItemEdited["1"]["256"] = true
             }
         }
     )
@@ -243,8 +245,8 @@ const debounceChangeQuantity = debounce((row: number, idStoredItemAuditDelta: nu
 const stateStoredItemEdited = reactive<StoredItemsQuantity>({})
 
 
-const edit_block = (audit_type: string, is_edit: boolean) => {
-    return audit_type === 'no_change' ? 'checked' : audit_type || is_edit ? 'edit' : false
+const edit_block = (audit_type: string, is_edit: boolean, keep_is_edit: boolean) => {
+    return keep_is_edit ? 'edit' : audit_type === 'no_change' ? 'checked' : audit_type || is_edit ? 'edit' : false
 }
 </script>
 
@@ -303,9 +305,9 @@ const edit_block = (audit_type: string, is_edit: boolean) => {
 
         <!-- Column: Customer SKUS -->
         <template #cell(stored_items)="{ proxyItem, item }">
-            <!-- pallet id: {{ item.id }} <br />
+            pallet id: {{ item.id }} <br />
             item.stored_item_audit_id: {{ item.stored_item_audit_id }} <br />
-            route store: {{ props.route_list?.stored_item_audit_delta?.store.name }} <br /> -->
+            route store: {{ props.route_list?.stored_item_audit_delta?.store.name }} <br />
 
             <DataTable v-if="proxyItem.stored_items?.length || proxyItem.new_stored_items?.length"
                 :value="[...proxyItem.stored_items, ...proxyItem.new_stored_items]">
@@ -327,15 +329,15 @@ const edit_block = (audit_type: string, is_edit: boolean) => {
 
 
                     <template #body="{ data }">
-                        <pre>{{ data }}</pre>
+                        <!-- <pre>{{ data }}</pre>
                         stored_item_audit_id: {{ data.stored_item_audit_id || '-' }} <br />
                         stored_item_id: {{ data.stored_item_id || '-' }} <br />
                         audit_type: {{ data.audit_type || '-' }} <br />
-                        stored_item_audit_delta_id: {{ data.stored_item_audit_delta_id || '-' }} <br />
-                        edit_block: {{ edit_block(data.audit_type, data.is_edit) }}
+                        stored_item_audit_delta_id: {{ data.stored_item_audit_delta_id || '-' }} <br /> -->
+                        edit_block: {{ edit_block(data.audit_type, data.is_edit, !!get(isStoredItemEdited, [(item.rowIndex+1)?.toString(), `id${data.stored_item_audit_delta_id?.toString()}`], false)) }}
 
-                      <pre>{{ props.route_list?.stored_item_audit_delta?.store }}</pre>
-                      <pre>{{ data }}</pre>
+                      <!-- <pre>{{ props.route_list?.stored_item_audit_delta?.store }}</pre>
+                      <pre>{{ data }}</pre> -->
                         <div class="relative">
                             <div v-if="get(isLoadingQuantity, [item.rowIndex, data.stored_item_audit_delta_id], false) || get(isLoadingUnselect, [item.rowIndex, data.stored_item_audit_delta_id], false)"
                                 class="z-10 opacity-60 absolute w-full h-full top-0 left-0">
@@ -343,7 +345,7 @@ const edit_block = (audit_type: string, is_edit: boolean) => {
                             </div>
 
                             <div class="flex gap-x-2.5 items-center w-64">
-                                <div v-if="data.audit_type === 'no_change'">
+                                <div v-if="data.audit_type === 'no_change' && edit_block(data.audit_type, data.is_edit, !!get(isStoredItemEdited, [(item.rowIndex+1)?.toString(), `id${data.stored_item_audit_delta_id?.toString()}`], false)) != 'edit'">
                                     <Button 
                                         type="tertiary"
                                         icon="fas fa-check-circle"
@@ -368,18 +370,19 @@ const edit_block = (audit_type: string, is_edit: boolean) => {
                                     </div>
                                     
                                     <!-- Section: - and + -->
-                                    <template v-if=" (!data.stored_item_audit_delta_id && get(data, ['is_edit'], false)) || (data.audit_type && data.audit_type != 'no_change')">
+                                    <template v-if=" (!data.stored_item_audit_delta_id && get(data, ['is_edit'], false)) || (data.audit_type && data.audit_type != 'no_change') || edit_block(data.audit_type, data.is_edit, !!get(isStoredItemEdited, [(item.rowIndex+1)?.toString(), `id${data.stored_item_audit_delta_id?.toString()}`], false)) == 'edit'">
                                         <div class="transition-all relative inline-flex items-center justify-center "
                                             :class="!get('statesBoxEdit', `${item.rowIndex}.${data.id}`, false) ? 'w-28' : 'w-14'">
                                             <transition>
                                                 <div v-if="!get('statesBoxEdit', `${item.rowIndex}.${data.id}`, false)"
                                                     class="relative flex flex-nowrap items-center justify-center gap-y-1 gap-x-1">
                                                     <!-- Button: Minus -->
-                                                    <div  @click="() => (
+                                                    <div  @click="async () => (
                                                             set(data, `${data.stored_item_audit_delta_id ? 'audited_quantity' : 'quantity'}`, ((data.stored_item_audit_delta_id ? data.audited_quantity : data.quantity) - 1) >= 0 ? ((data.stored_item_audit_delta_id ? data.audited_quantity : data.quantity) - 1) : 0),
                                                             data.stored_item_audit_delta_id
                                                                 ? debounceChangeQuantity(item.rowIndex, data.stored_item_audit_delta_id, get(data, `audited_quantity`, data.quantity))
                                                                 : debounceStoreStoredItem(item.rowIndex, item.id, data.stored_item_id, get(data, `quantity`, data.quantity), data.stored_item_audit_id)
+                                                            
                                                         )"
                                                         class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-1 py-1.5 text-xs justify-self-center">
                                                         <FontAwesomeIcon icon='fas fa-minus' class='' fixed-width aria-hidden='true' />
@@ -387,7 +390,7 @@ const edit_block = (audit_type: string, is_edit: boolean) => {
                                                     <div class="text-center tabular-nums border border-transparent hover:border-dashed hover:border-gray-300 group-focus:border-dashed group-focus:border-gray-300">
                                         
                                                         <InputNumber
-                                                            :modelValue="data.stored_item_audit_delta_id ? data.audited_quantity : data.quantity ||   edit_block(data.audit_type, data.is_edit) =='edit'  "
+                                                            :modelValue="data.stored_item_audit_delta_id ? data.audited_quantity : data.quantity ||   edit_block(data.audit_type, data.is_edit, !!get(isStoredItemEdited, [(item.rowIndex+1)?.toString(), `id${data.stored_item_audit_delta_id?.toString()}`], false)) =='edit'  "
                                                             @update:modelValue="(e) => debounceChangeQuantity(item.rowIndex, data.stored_item_audit_delta_id, e)"
                                                             buttonLayout="horizontal" :min="0" style="width: 100%"
                                                             :inputStyle="{
@@ -397,7 +400,7 @@ const edit_block = (audit_type: string, is_edit: boolean) => {
                                                             }" />
                                                     </div>
                                                     <!-- Button: Plus -->
-                                                    <div  @click="() => (
+                                                    <div  @click="async () => (
                                                             set(data, `${data.stored_item_audit_delta_id ? 'audited_quantity' : 'quantity'}`, (data.stored_item_audit_delta_id ? data.audited_quantity : data.quantity) + 1),
                                                             data.stored_item_audit_delta_id
                                                                 ? debounceChangeQuantity(item.rowIndex, data.stored_item_audit_delta_id, get(data, `audited_quantity`, data.quantity))
@@ -443,6 +446,7 @@ const edit_block = (audit_type: string, is_edit: boolean) => {
                                     :loading="!!get(isLoadingUnselect, [item.rowIndex, data.storedItemAuditDelta], false)"
                                   />
                                 </div>
+                                <!-- {{ isStoredItemEdited }} -->
 
                                 <!-- <FontAwesomeIcon v-tooltip="trans('Close')"
                                     @click="() => set(statesBoxEdit, `${item.rowIndex}.${data.id}`, false)"
