@@ -75,7 +75,7 @@ class IndexPalletStoredItems extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Group|FulfilmentCustomer|Pallet|Warehouse $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
 
@@ -92,7 +92,7 @@ class IndexPalletStoredItems extends OrgAction
                     match (class_basename($parent)) {
                         'FulfilmentCustomer' => [
                             'title'         => __("No stored items found"),
-                            'count'         => $parent->count(),
+                            'count'         => $parent->number_pallets_with_stored_items,
                             'description'   => __("No items stored in this customer")
                         ],
                         default => []

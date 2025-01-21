@@ -20,7 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class ShowHistoryUpload
+class IndexUploadRecords
 {
     use AsAction;
     use WithAttributes;
@@ -62,7 +62,10 @@ class ShowHistoryUpload
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('Upload Records'),
                 'pageHead'    => [
-                    'title'         => 'Upload Records',
+                    'icon'          => ['fal', 'fa-upload'],
+                    'model'         => __('Upload'),
+                    'title'         => __('Records'),
+                    'iconRight'     => 'fal fa-history'
                 ],
                 'data'        => UploadRecordsResource::collection($collection),
 

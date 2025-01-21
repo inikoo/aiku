@@ -44,6 +44,7 @@ const props = defineProps<{
             topBar : Object
         }
     }
+    status:boolean
     autosaveRoute: routeType
     web_block_types: {}
     route_list: {
@@ -60,7 +61,7 @@ const usedTemplates = ref({
 })
 const isLoading = ref(false)
 const comment = ref('')
-const status = ref(true)
+const status = ref(props.status)
 const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
 const iframeSrc = route('grp.websites.header.preview', [route().params['website']])
@@ -252,14 +253,30 @@ onMounted(() => {
             <Publish v-model="comment" :isLoading="isLoading || isLoadingSave" :is_dirty="true"
                 @onPublish="(popover) => onPublish(action.route, popover)">
                 <template #form-extend>
-            <div class="flex items-center gap-3 my-4">
-                <!-- Active Label and ToggleSwitch -->
-                <span class="text-gray-700 capitalize">
-                    {{ trans('Active') }}:
-                </span>
-                <ToggleSwitch v-model="status" class="transition-all duration-200 ease-in-out"/>
-            </div>
-        </template>
+                    <div class="flex items-center gap-2 mb-3">
+                    <div class="items-start leading-none flex-shrink-0">
+                        <FontAwesomeIcon :icon="'fas fa-asterisk'" class="font-light text-[12px] text-red-400 mr-1" />
+                        <span class="capitalize">{{ trans('Status') }} :</span>
+                    </div>
+                    <div class="flex items-center gap-4 w-full">
+                        <div class="flex overflow-hidden border-2 cursor-pointer w-full sm:w-auto"
+                            :class="status ? 'border-green-500' : 'border-red-500'" @click="()=>status=!status">
+                        <!-- Active Button -->
+                        <div class="flex-1 text-center py-1 px-1 sm:px-2 text-xs font-semibold transition-all duration-200 ease-in-out"
+                                :class="status ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'">
+                            Active
+                        </div>
+
+                        <!-- Inactive Button -->
+                        <div class="flex-1 text-center py-1 px-1 sm:px-2 text-xs font-semibold transition-all duration-200 ease-in-out"
+                                :class="!status ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-500'">
+                            Inactive
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+                </template>
+
             </Publish>
         </template>
     </PageHeading>

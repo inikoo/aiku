@@ -1,25 +1,23 @@
 <script setup lang="ts">
 import Drawer from 'primevue/drawer';
-import Accordion from 'primevue/accordion';
-import AccordionPanel from 'primevue/accordionpanel';
-import AccordionHeader from 'primevue/accordionheader';
-import AccordionContent from 'primevue/accordioncontent';
-import { ref } from 'vue';
+import { ref, inject } from 'vue';
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
 import Image from "@/Components/Image.vue";
-
-import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { faBars } from '@fortawesome/free-solid-svg-icons'; // Ensure correct icon import
-
-library.add(faBars);
+import { faBars, faSignIn, faSignOut, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faChevronCircleDown } from '@fal';
+// Add icons to library
+library.add(faBars, faSignIn, faSignOut, faTimesCircle);
 
 const props = defineProps<{
-   header: { logo?: { source: string } },
-   menu: { data: Array<{ type: string, label: string }> }
+    header: { logo?: { source: string } },
+    menu: { data: Array<{ type: string, label: string, subnavs?: Array<{ title: string, link: { href: string, target: string } }> }> }
 }>();
 
 const visible = ref(false);
-
+const isLoggedIn = inject('isPreviewLoggedIn', false)
+const onLogout = inject('onLogout')
 </script>
 
 <template>
@@ -28,29 +26,91 @@ const visible = ref(false);
             <FontAwesomeIcon :icon="faBars" class="text-xl" />
         </button>
         <Drawer v-model:visible="visible" :header="''">
+            <template #closeicon>
+                <FontAwesomeIcon :icon="faTimesCircle" @click="visible = false" />
+            </template>
             <template #header>
-                <img v-if="!props.header.logo"
-                    src="https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png"
-                    alt="Ancient Wisdom Logo" class="h-12">
-                <Image v-else :src="props.header.logo.source" class="h-12"></Image>
+                <img :src="header?.logo?.image?.source?.original" :alt="header?.logo?.alt" class="h-12" />
             </template>
 
-            <Accordion>
-                <template v-for="(item, index) in props.menu.data" :key="index">
-                    <AccordionPanel v-if="item.type === 'multiple'" :value="index">
-                        <AccordionHeader ><span class="font-bold text-gray-500">{{ item.label }}</span></AccordionHeader>
-                        <AccordionContent>
-                            <div v-for="(submenu, indexSub) in item.subnavs">
-                                <div class="p-4 text-sm font-semibold text-gray-500">{{ submenu.title }}</div>
-                            </div>
-                        </AccordionContent>
-                    </AccordionPanel>
+            <div class="menu-container">
+                <div class="menu-content">
+                    <div v-for="(item, index) in props.menu" :key="index">
+                        <Disclosure v-if="item.type === 'multiple'">
+                            <DisclosureButton class="w-full text-left p-4 font-semibold text-gray-500 border-b-2">
+                                <div class="w-full flex justify-between items-center">
+                                    <div>{{ item.label }}</div>
+                                    <div>
+                                        <FontAwesomeIcon :icon="faChevronCircleDown" />
+                                    </div>
+                                </div>
+                            </DisclosureButton>
 
-                    <div v-else class='py-4 px-5 border-b-2'>
-                        <div class="font-bold text-gray-500">{{item.label}}</div>
+                            <DisclosurePanel>
+                                <div v-for="(submenu, indexSub) in item.subnavs" :key="indexSub">
+                                    <span :href="submenu?.link?.href" :target="submenu?.link?.target"
+                                        class="p-4 text-sm font-semibold text-gray-500 block">{{ submenu.title }}</span>
+
+                                    <div v-for="(menu, indexMenu) in submenu.links" :key="indexSub">
+
+                                        <a :href="menu?.link?.href" :target="menu?.link?.target"
+                                            class="p-4 text-sm font-semibold text-gray-600 block">- {{ menu.label }}</a>
+                                    </div>
+                                </div>
+                            </DisclosurePanel>
+                        </Disclosure>
+
+                        <!-- Single link items -->
+                        <div v-else class="py-4 px-5 border-b-2">
+                            <a :href="item?.link?.href" :target="item?.link?.target" class="font-bold text-gray-500">
+                                {{ item.label }}
+                            </a>
+                        </div>
                     </div>
-                </template>
-            </Accordion>
+                </div>
+
+                <!-- Login section -->
+                <div class="login-section">
+                    <a v-if="!isLoggedIn" href="/app" class="font-bold text-gray-500">
+                        <FontAwesomeIcon :icon="faSignIn" class="mr-3"></FontAwesomeIcon>Login
+                    </a>
+                    <div v-else @click="onLogout()" class="font-bold text-red-500">
+                        <FontAwesomeIcon :icon="faSignOut" class="mr-3"></FontAwesomeIcon>LogOut
+                    </div>
+                </div>
+            </div>
         </Drawer>
     </div>
 </template>
+
+<style scoped>
+.menu-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.menu-content {
+    flex: 0 0 80%;
+    overflow-y: auto;
+}
+
+.login-section {
+    flex: 0 0 20%;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    border-top: 1px solid #e5e5e5;
+}
+
+.disclosure-button {
+    padding: 1rem;
+    font-weight: bold;
+    color: #4B5563;
+}
+
+.disclosure-panel {
+    padding: 0.5rem 1rem;
+    background-color: #F9FAFB;
+}
+</style>

@@ -4,12 +4,12 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 <script setup lang="ts">
-import {Head} from '@inertiajs/vue3';
-import  PageHeading from '@/Components/Headings/PageHeading.vue'
-import TableGuests from "@/Components/Tables/Grp/SysAdmin/TableGuests.vue";
+import { Head } from '@inertiajs/vue3'
+import PageHeading from '@/Components/Headings/PageHeading.vue'
+import TableUploadHistory from "@/Components/Tables/TableUploadHistory.vue"
 import { capitalize } from "@/Composables/capitalize"
 
-const props = defineProps <{
+const props = defineProps<{
     data: object
     title: string
     pageHead: object
@@ -17,10 +17,9 @@ const props = defineProps <{
 
 </script>
 <template>
-    <Head :title="capitalize(title)"/>
+
+    <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
-    <TableGuests :data="data" />
+    <TableUploadHistory :data="data" />
 
 </template>
-
-

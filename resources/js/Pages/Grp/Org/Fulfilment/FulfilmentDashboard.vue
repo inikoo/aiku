@@ -6,7 +6,6 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { faTruckCouch } from "@fal"
 import { capitalize } from "@/Composables/capitalize"
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from "chart.js"
-import { ref, computed } from "vue"
 import Dashboard from "@/Components/DataDisplay/Dashboard/Dashboard.vue"
 
 library.add(faTruckCouch)

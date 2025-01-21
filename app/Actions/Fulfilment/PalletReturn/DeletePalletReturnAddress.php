@@ -31,6 +31,7 @@ class DeletePalletReturnAddress extends OrgAction
         $address->delete();
 
         $palletreturn->refresh();
+        $palletreturn->update(['is_collection' => true]);
         return $palletreturn;
     }
 
