@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 21-01-2025-10h-55m
@@ -9,21 +10,13 @@
 namespace App\Actions\Retina\Pricing\UI;
 
 use App\Actions\Retina\Fulfilment\UI\IndexRetinaPricing;
-use App\Actions\Retina\UI\Dashboard\ShowRetinaDashboard;
 use App\Actions\RetinaAction;
-use App\Enums\Billables\Rental\RentalStateEnum;
-use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
-use App\Http\Resources\Fulfilment\RentalsResource;
 use App\Http\Resources\Fulfilment\ServicesResource;
-use App\Http\Resources\Helpers\CurrencyResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Billables\Rental;
-use App\Models\Billables\Service;
 use App\Models\Catalogue\Product;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -33,7 +26,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexRetinaGoods extends RetinaAction 
+class IndexRetinaGoods extends RetinaAction
 {
     use WithRetinaPricingSubNavigation;
     protected function getElementGroups(Fulfilment $parent): array
@@ -224,6 +217,3 @@ class IndexRetinaGoods extends RetinaAction
 
 
 }
-
-
-

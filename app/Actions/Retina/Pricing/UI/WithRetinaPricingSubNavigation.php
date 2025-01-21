@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 21-01-2025-10h-56m
@@ -8,9 +9,7 @@
 
 namespace App\Actions\Retina\Pricing\UI;
 
-use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Web\Website;
 
 trait WithRetinaPricingSubNavigation
 {

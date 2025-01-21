@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 21-01-2025-10h-56m
@@ -9,18 +10,13 @@
 namespace App\Actions\Retina\Pricing\UI;
 
 use App\Actions\Retina\Fulfilment\UI\IndexRetinaPricing;
-use App\Actions\Retina\UI\Dashboard\ShowRetinaDashboard;
 use App\Actions\RetinaAction;
 use App\Enums\Billables\Rental\RentalStateEnum;
-use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Http\Resources\Fulfilment\RentalsResource;
 use App\Http\Resources\Fulfilment\ServicesResource;
-use App\Http\Resources\Helpers\CurrencyResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Billables\Rental;
-use App\Models\Billables\Service;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -30,7 +26,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexRetinaRentals extends RetinaAction 
+class IndexRetinaRentals extends RetinaAction
 {
     use WithRetinaPricingSubNavigation;
     protected function getElementGroups(Fulfilment $parent): array
@@ -225,6 +221,3 @@ class IndexRetinaRentals extends RetinaAction
 
 
 }
-
-
-
