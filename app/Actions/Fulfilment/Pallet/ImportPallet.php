@@ -105,7 +105,7 @@ class ImportPallet extends OrgAction
             ]);
         }
 
-        return $this->handle($palletDelivery, $file,[]);
+        return $this->handle($palletDelivery, $file, []);
     }
 
     public string $commandSignature = 'pallet:import {--g|g_drive} {filename} {fulfilmentCustomer?} {warehouse?} {palletDelivery?}';

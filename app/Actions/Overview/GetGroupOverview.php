@@ -39,7 +39,7 @@ class GetGroupOverview extends OrgAction
     public function getSection(Group $group): array
     {
         $section = [
-            
+
             __('Sysadmin')          => [
                 [
                     'name'  => __('Changelog'),
