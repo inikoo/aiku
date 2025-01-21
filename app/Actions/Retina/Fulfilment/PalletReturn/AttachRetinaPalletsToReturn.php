@@ -13,6 +13,7 @@ use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
 use App\Actions\RetinaAction;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
+use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
 use Illuminate\Http\RedirectResponse;
@@ -27,7 +28,7 @@ class AttachRetinaPalletsToReturn extends RetinaAction
 
 
     private PalletReturn $parent;
-
+    private bool $action = false;
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
 
@@ -56,7 +57,7 @@ class AttachRetinaPalletsToReturn extends RetinaAction
             Pallet::whereIn('id', $palletsToSelect)->update([
                 'pallet_return_id' => $palletReturn->id,
                 'status'           => PalletStatusEnum::RETURNING,
-                'state'            => PalletStateEnum::REQUEST_RETURN
+                'state'            => PalletStateEnum::REQUEST_RETURN_IN_PROCESS
             ]);
 
             $pallets = Pallet::findOrFail($palletsToSelect);
@@ -100,7 +101,15 @@ class AttachRetinaPalletsToReturn extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return true;
+        if ($this->action) {
+            return true;
+        }
+
+        if ($request->user() instanceof WebUser) {
+            return true;
+        }
+
+        return false;
     }
 
     public function rules(): array
@@ -114,6 +123,14 @@ class AttachRetinaPalletsToReturn extends RetinaAction
     {
         $this->parent = $palletReturn;
         $this->initialisation($request);
+
+        return $this->handle($palletReturn, $this->validatedData);
+    }
+
+    public function action(PalletReturn $palletReturn, array $modelData): PalletReturn
+    {
+        $this->action = true;
+        $this->initialisationFulfilmentActions($palletReturn->fulfilmentCustomer, $modelData);
 
         return $this->handle($palletReturn, $this->validatedData);
     }

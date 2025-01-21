@@ -12,14 +12,16 @@ import { faTruck, faSignOut, faDollarSign } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faNarwhal, faBusinessTime, faUserTie, falSignout, faTruck, faSignOut, faDollarSign)
 
-import { Line } from 'vue-chartjs'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js'
 import { inject } from 'vue'
 import {trans} from "laravel-vue-i18n";
+import Dashboard from "@/Components/DataDisplay/Dashboard/Dashboard.vue";
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
 const props = defineProps<{
     data: {
+
+        dashboard_stats: {}
         flatTreeMaps: {}
         scheduledActivities: {
             icon: string
@@ -76,7 +78,11 @@ const stats = [
 </script>
 
 <template>
-    <!-- <pre>{{ data.scheduledActivities }}</pre> -->
+
+
+  <Dashboard class="p-4"
+    :dashboard="data.dashboard_stats"
+  />
 
     <div class="mt-2">
         <FlatTreeMap class="mx-4" v-for="(treeMap, idx) in data.flatTreeMaps" :key="idx" :nodes="treeMap" mode="compact" />

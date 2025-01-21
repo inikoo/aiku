@@ -9,6 +9,7 @@
 namespace App\Actions\Retina\Fulfilment\PalletReturn;
 
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
+use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateStoredItems;
 use App\Actions\RetinaAction;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
@@ -25,8 +26,8 @@ class StoreRetinaStoredItemsToReturn extends RetinaAction
 {
     use AsCommand;
 
-    public $commandSignature = 'stored-item:store-to-return {palletReturn}';
     private PalletReturn $parent;
+    private bool $action = false;
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
@@ -73,7 +74,7 @@ class StoreRetinaStoredItemsToReturn extends RetinaAction
         $palletReturn->refresh();
 
         PalletReturnHydratePallets::run($palletReturn);
-
+        PalletReturnHydrateStoredItems::run($palletReturn);
         return $palletReturn;
     }
 
@@ -117,6 +118,15 @@ class StoreRetinaStoredItemsToReturn extends RetinaAction
         $this->parent       = $palletReturn;
 
         $this->initialisation($request);
+        return $this->handle($palletReturn, $this->validatedData);
+    }
+
+    public function action(PalletReturn $palletReturn, array $modelData): PalletReturn
+    {
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $this->action       = true;
+        $this->parent       = $palletReturn;
+        $this->initialisationFulfilmentActions($palletReturn->fulfilmentCustomer, $modelData);
         return $this->handle($palletReturn, $this->validatedData);
     }
 
