@@ -16,6 +16,10 @@ import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import { useTruncate } from '@/Composables/useTruncate'
 library.add(faThumbtack, faPencil, faHouse, faTrashAlt, faTruck, faTruckCouch, faCheckCircle)
 
+import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue'
+
+const enabled = ref(false)
+
 const props = defineProps<{
     updateRoute: routeType
     addresses: AddressManagement
@@ -186,7 +190,8 @@ const onDeleteAddress = (addressID: number) => {
     <pre>home {{ addresses.home_address_id }}</pre> -->
         <div class="flex justify-between border-b border-gray-300">
             <div class="text-2xl font-bold text-center mb-2 flex gap-x-2">
-                {{ trans('Address Collection') }}
+                {{ trans('Delivery Address ') }}
+
 
                 <div class="relative">
                     <Transition name="slide-to-right">
@@ -204,8 +209,20 @@ const onDeleteAddress = (addressID: number) => {
         </div>
 
         <div class="relative transition-all">
-       
+
         </div>
+
+      <SwitchGroup as="div" class="flex items-center p-10">
+        <Switch v-model="enabled" :class="[enabled ? 'bg-indigo-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 focus:outline-hidden']">
+          <span aria-hidden="true" :class="[enabled ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block size-5 transform rounded-full bg-white ring-0 shadow-sm transition duration-200 ease-in-out']" />
+        </Switch>
+        <SwitchLabel as="span" class="ml-3 text-sm">
+          <span class="font-medium text-gray-900">{{trans('Collection')}}</span>
+          {{ ' ' }}
+
+        </SwitchLabel>
+      </SwitchGroup>
+
 
     </div>
 </template>

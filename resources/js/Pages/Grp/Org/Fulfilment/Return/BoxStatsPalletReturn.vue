@@ -10,10 +10,8 @@ import { onMounted, ref } from 'vue'
 import { capitalize } from '@/Composables/capitalize'
 import ModalAddress from '@/Components/Utils/ModalAddress.vue'
 
-
-
 import { PalletReturn, BoxStats } from '@/types/Pallet'
-import { Link, router } from '@inertiajs/vue3'
+import { Link } from '@inertiajs/vue3'
 import BoxStatPallet from '@/Components/Pallet/BoxStatPallet.vue'
 import { trans } from 'laravel-vue-i18n'
 
@@ -22,13 +20,12 @@ import { routeType } from '@/types/route'
 import OrderSummary from '@/Components/Summary/OrderSummary.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faQuestionCircle, faPencil } from '@fal'
+import { faQuestionCircle, faPencil ,faPenSquare} from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { data } from '@/Components/CMS/Website/Product/ProductTemplates/Product1/Descriptor'
 import ModalAddressCollection from '@/Components/Utils/ModalAddressCollection.vue'
-library.add(faQuestionCircle, faPencil)
+library.add(faQuestionCircle, faPencil, faPenSquare)
 
-const props = defineProps<{
+defineProps<{
     dataPalletReturn: PalletReturn
     boxStats: BoxStats
     updateRoute: routeType
@@ -62,7 +59,7 @@ const isModalAddressCollection = ref(false)
                     <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ boxStats.fulfilment_customer.customer.reference }}</dd>
+                <dd >{{ boxStats.fulfilment_customer.customer.reference }}</dd>
             </Link>
 
             <!-- Field: Contact name -->
@@ -73,7 +70,7 @@ const isModalAddressCollection = ref(false)
                     <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ boxStats.fulfilment_customer.customer.contact_name }}</dd>
+                <dd >{{ boxStats.fulfilment_customer.customer.contact_name }}</dd>
             </div>
 
 
@@ -85,7 +82,7 @@ const isModalAddressCollection = ref(false)
                     <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ boxStats.fulfilment_customer.customer.company_name }}</dd>
+                <dd>{{ boxStats.fulfilment_customer.customer.company_name }}</dd>
             </div>
 
             <!-- Field: Email -->
@@ -95,7 +92,7 @@ const isModalAddressCollection = ref(false)
                     <FontAwesomeIcon icon='fal fa-envelope' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <a :href="`mailto:${boxStats.fulfilment_customer?.customer.email}`" class="hover:underline text-xs text-gray-500 w-full pr-4 break-words leading-none">
+                <a :href="`mailto:${boxStats.fulfilment_customer?.customer.email}`" class="hover:underline  w-full pr-4 break-words leading-none">
                     {{ boxStats.fulfilment_customer?.customer.email }}
                 </a>
             </div>
@@ -107,7 +104,7 @@ const isModalAddressCollection = ref(false)
                     <FontAwesomeIcon icon='fal fa-phone' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <a class="text-xs text-gray-500">{{ boxStats.fulfilment_customer?.customer.phone }}</a>
+                <a >{{ boxStats.fulfilment_customer?.customer.phone }}</a>
             </div>
 
             <!-- Field: Delivery Address -->
@@ -129,8 +126,12 @@ const isModalAddressCollection = ref(false)
                         </div>
                     </div>
                 </dd>
-                <div v-else @click="() => isModalAddressCollection = true" class="text-xs inline whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
-                    <span>set collection address</span>
+                <div v-else>
+                    <span>For collection </span>
+                  <span
+                            @click="() => isModalAddressCollection = true" > <FontAwesomeIcon icon='fal fa-pen-square' size="sm" class='text-gray-400 cursor-pointer' fixed-width
+                                                                                              aria-hidden='true' />
+                  </span>
                 </div>
             </div>
         </BoxStatPallet>
