@@ -146,6 +146,7 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
             HandleIrisInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
+            LogWebUserRequestMiddleware::class
         ],
         'retina'      => [
             DetectWebsite::class,
