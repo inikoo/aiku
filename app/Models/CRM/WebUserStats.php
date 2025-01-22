@@ -44,6 +44,14 @@ class WebUserStats extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'last_location' => 'array',
+    ];
+
+    protected $attributes = [
+        'last_location' => '{}',
+    ];
+
     public function webUser(): BelongsTo
     {
         return $this->belongsTo(WebUser::class);

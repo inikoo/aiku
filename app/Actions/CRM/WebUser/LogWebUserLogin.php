@@ -34,11 +34,14 @@ class LogWebUserLogin
         $stats = [
             'last_login_at' => $datetime,
             'last_login_ip' => $ip,
-            'number_logins' => $webUser->stats->number_logins + 1
+            'number_logins' => ($webUser->stats->number_logins ?? 0) + 1
         ];
 
-        $webUser->stats()->update($stats);
-
+        if (!$webUser->stats) {
+            $webUser->stats()->create($stats);
+        } else {
+            $webUser->stats()->update($stats);
+        }
 
     }
 
