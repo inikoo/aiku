@@ -8,6 +8,7 @@
 
 namespace App\Models\Web;
 
+use App\Actions\Helpers\Images\GetPictureSources;
 use App\Enums\Web\Website\WebsiteCloudflareStatusEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Enums\Web\Website\WebsiteTypeEnum;
@@ -196,6 +197,20 @@ class Website extends Model implements Auditable, HasMedia
     public function storefront(): BelongsTo
     {
         return $this->belongsTo(Webpage::class, 'storefront_id');
+    }
+
+    public function logo(): BelongsTo
+    {
+        return $this->belongsTo(Media::class, 'logo_id');
+    }
+
+    public function imageSources($width = 0, $height = 0)
+    {
+        if ($this->logo) {
+            $avatarThumbnail = $this->logo->getImage()->resize($width, $height);
+            return GetPictureSources::run($avatarThumbnail);
+        }
+        return null;
     }
 
     protected function condition(): Attribute

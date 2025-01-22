@@ -116,6 +116,11 @@ class EditWebsite extends OrgAction
                     'value'    => Arr::get($website->settings, "google_tag_id"),
                     'required' => false,
                 ],
+                "image" => [
+                    "type"  => "avatar",
+                    "label" => __("Logo"),
+                    "value" => $website->imageSources(320, 320)
+                ]
             ]
         ];
 

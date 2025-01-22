@@ -25,7 +25,6 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexRetinaPalletDeliveries extends RetinaAction
 {
-
     protected function getElementGroups(FulfilmentCustomer $fulfilmentCustomer): array
     {
         return [

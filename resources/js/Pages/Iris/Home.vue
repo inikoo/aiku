@@ -30,19 +30,16 @@ const layout = inject('layout', {})
 const isPreviewLoggedIn = ref(layout.iris.user_auth)
 
 const showWebpage = (activityItem) => {
-  if (activityItem?.web_block?.layout && activityItem.show) {
-    if (isPreviewLoggedIn.value && activityItem.visibility.in) return true
-    else if (!isPreviewLoggedIn.value && activityItem.visibility.out) return true
-    else return false
-  } else return false
+    if (activityItem?.web_block?.layout && activityItem.show) {
+        if (isPreviewLoggedIn.value && activityItem.visibility.in) return true
+        else if (!isPreviewLoggedIn.value && activityItem.visibility.out) return true
+        else return false
+    } else return false
 }
-
-
 
 </script>
 
 <template>
-
   <Head>
     <title>{{ data.name }}</title>
     <meta property="og:title" :content="data.name " />
@@ -54,8 +51,11 @@ const showWebpage = (activityItem) => {
     <template v-if="props.blocks?.web_blocks?.length">
       <div v-for="(activityItem, activityItemIdx) in props.blocks.web_blocks" :key="'block' + activityItem.id"
         class="w-full">
-        <component :is="getIrisComponent(activityItem.type)" :key="activityItemIdx"
-          :fieldValue="activityItem.web_block.layout.data.fieldValue" v-show="showWebpage(activityItem)" />
+        <component 
+            v-if="showWebpage(activityItem)" 
+            :is="getIrisComponent(activityItem.type)" 
+            :key="activityItemIdx"
+            :fieldValue="activityItem.web_block.layout.data.fieldValue" />
       </div>
     </template>
 

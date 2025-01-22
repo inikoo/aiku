@@ -30,14 +30,28 @@ class UploadsResource extends JsonResource
             'number_success'    => $upload->number_success,
             'number_fails'      => $upload->number_fails,
             'path'              => $upload->path,
-            'download_route'    => [
-                'name'       => 'grp.helpers.uploads.records.show',
-                'parameters' => $upload->id,
-            ],
-            'show_route'    => [
-                'name'       => 'grp.helpers.uploads.records.show',
-                'parameters' => $upload->id,
-            ],
+            'download_route'    => match (request()->routeIs('retina.*')) {
+                true => [
+                    'name'       => 'retina.helpers.uploads.records.show',
+                    'parameters' => $upload->id
+                ],
+                default => [
+                    'name'       => 'grp.helpers.uploads.records.show',
+                    'parameters' => $upload->id
+                ]
+            },
+            'show_route'    =>  match (request()->routeIs('retina.*')) {
+                true => [
+                    'name'       => 'retina.helpers.uploads.records.download',
+                    'parameters' => $upload->id
+                ],
+                default => [
+                    'name'       => 'grp.helpers.uploads.records.download',
+                    'parameters' => $upload->id
+                ]
+            },
+
+            
         ];
     }
 }
