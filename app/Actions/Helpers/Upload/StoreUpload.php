@@ -26,12 +26,17 @@ class StoreUpload extends OrgAction
     use AsAction;
     use WithAttributes;
 
-    public function handle(Group|Organisation $parent, array $modelData): Upload
+    public function handle(Group|Organisation|Shop $parent, array $modelData): Upload
     {
         data_set($modelData, 'group_id', $parent instanceof Group ? $parent->id : $parent->group_id);
 
         if ($parent instanceof Organisation) {
             data_set($modelData, 'organisation_id', $parent->id);
+        }
+
+        if ($parent instanceof Shop) {
+            data_set($modelData, 'shop_id', $parent->id);
+            data_set($modelData, 'organisation_id', $parent->organisation_id);
         }
 
 
@@ -59,6 +64,7 @@ class StoreUpload extends OrgAction
             'model' => 'required|string',
             'parent_type' => 'required|string',
             'parent_id' => 'required|numeric',
+            'customer_id' => 'sometimes|nullable|numeric',
         ];
 
         if (!$this->strict) {
@@ -81,6 +87,7 @@ class StoreUpload extends OrgAction
 
     public function fromFile(Group|Organisation|Shop $parent, $file, array $modelData): Upload
     {
+        // dd($parent);
         $this->initialise($parent, $modelData);
 
         $modelData = $this->validatedData;

@@ -13,12 +13,15 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Catalogue\HasRentalAgreement;
+use App\Actions\Helpers\Upload\UI\IndexPalletUploads;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
+use App\Enums\UI\Fulfilment\PalletDeliveriesTabsEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
+use App\Http\Resources\Helpers\PalletUploadsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -50,7 +53,7 @@ class IndexPalletDeliveries extends OrgAction
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $fulfilment;
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletDeliveriesTabsEnum::values());
 
         return $this->handle($fulfilment);
     }
@@ -60,7 +63,7 @@ class IndexPalletDeliveries extends OrgAction
     {
 
         $this->parent = $fulfilmentCustomer;
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletDeliveriesTabsEnum::values());
 
         return $this->handle($fulfilmentCustomer);
     }
@@ -69,7 +72,7 @@ class IndexPalletDeliveries extends OrgAction
     public function inWarehouse(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $warehouse;
-        $this->initialisationFromWarehouse($warehouse, $request);
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletDeliveriesTabsEnum::values());
 
         return $this->handle($warehouse);
     }
@@ -79,7 +82,7 @@ class IndexPalletDeliveries extends OrgAction
     {
         $group = group();
         $this->parent = $group;
-        $this->initialisationFromGroup($group, $request);
+        $this->initialisationFromGroup($group, $request)->withTab(PalletDeliveriesTabsEnum::values());
 
         return $this->handle($group);
     }
@@ -253,13 +256,17 @@ class IndexPalletDeliveries extends OrgAction
         };
     }
 
-    public function jsonResponse(LengthAwarePaginator $customers): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $deliveries): AnonymousResourceCollection
     {
-        return PalletDeliveriesResource::collection($customers);
+        return PalletDeliveriesResource::collection($deliveries);
     }
 
-    public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $deliveries, ActionRequest $request): Response
     {
+        $navigation = PalletDeliveriesTabsEnum::navigation();
+        if ($this->parent instanceof Group || $this->parent instanceof Warehouse) {
+            unset($navigation[PalletDeliveriesTabsEnum::UPLOADS->value]);
+        }
         $subNavigation = [];
 
         $icon      = ['fal', 'fa-truck-couch'];
@@ -302,6 +309,7 @@ class IndexPalletDeliveries extends OrgAction
             ];
         }
         // dd(PalletDeliveriesResource::collection($customers));
+        // dd(PalletUploadsResource::collection(IndexPalletUploads::run($this->parent, PalletDeliveriesTabsEnum::UPLOADS->value)));
         return Inertia::render(
             'Org/Fulfilment/PalletDeliveries',
             [
@@ -336,10 +344,23 @@ class IndexPalletDeliveries extends OrgAction
                         }
                     ]
                 ],
-                'data'        => PalletDeliveriesResource::collection($customers),
+                'data'        => PalletDeliveriesResource::collection($deliveries),
 
+                'tabs' => [
+                    'current'    => $this->tab,
+                    'navigation' => $navigation
+                ],
+
+                PalletDeliveriesTabsEnum::DELIVERIES->value => $this->tab == PalletDeliveriesTabsEnum::DELIVERIES->value ?
+                    fn () => PalletDeliveriesResource::collection($deliveries)
+                    : Inertia::lazy(fn () => PalletDeliveriesResource::collection($deliveries)),
+
+                PalletDeliveriesTabsEnum::UPLOADS->value => $this->tab == PalletDeliveriesTabsEnum::UPLOADS->value ?
+                    fn () => PalletUploadsResource::collection(IndexPalletUploads::run($this->parent, PalletDeliveriesTabsEnum::UPLOADS->value))
+                    : Inertia::lazy(fn () => PalletUploadsResource::collection(IndexPalletUploads::run($this->parent, PalletDeliveriesTabsEnum::UPLOADS->value))),
             ]
-        )->table($this->tableStructure($this->parent));
+        )->table($this->tableStructure(parent: $this->parent, prefix:PalletDeliveriesTabsEnum::DELIVERIES->value))
+        ->table(IndexPalletUploads::make()->tableStructure(prefix:PalletDeliveriesTabsEnum::UPLOADS->value));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
