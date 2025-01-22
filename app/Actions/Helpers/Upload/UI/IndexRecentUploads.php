@@ -8,7 +8,6 @@
 
 namespace App\Actions\Helpers\Upload\UI;
 
-use App\Actions\OrgAction;
 use App\Http\Resources\Helpers\UploadsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -52,7 +51,7 @@ class IndexRecentUploads
     public function inPalletDelivery(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): array|Collection
     {
 
-        $this->initialisationFromFulfilment($fulfilment,$request);
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle(class_basename(Pallet::class), [
             'user_id'   =>  $request->user()->id
