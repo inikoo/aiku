@@ -26,6 +26,7 @@ class UpdatePalletReturnDeliveryAddress extends OrgAction
         if ($addressData) {
             $countryCode = Country::find($addressData['country_id'])->code;
             data_set($addressData, 'country_code', $countryCode);
+            unset($addressData['id']);
             unset($addressData['label']);
             unset($addressData['can_edit']);
             unset($addressData['can_delete']);
@@ -57,16 +58,14 @@ class UpdatePalletReturnDeliveryAddress extends OrgAction
     public function asController(PalletReturn $palletReturn, ActionRequest $request): void
     {
         $this->scope = $palletReturn->customer;
-        $this->initialisationFromShop($palletReturn->shop, $request);
-
+        $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
         $this->handle($palletReturn, $this->validatedData);
     }
 
     public function action(PalletReturn $palletReturn, $modelData): void
     {
         $this->asAction = true;
-        $this->initialisationFromShop($palletReturn->shop, $modelData);
-
+        $this->initialisationFromFulfilment($palletReturn->fulfilment, $modelData);
         $this->handle($palletReturn, $this->validatedData);
     }
 }
