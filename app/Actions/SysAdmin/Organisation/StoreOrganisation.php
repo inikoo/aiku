@@ -132,17 +132,11 @@ class StoreOrganisation extends GrpAction
             $organisation->outboxTestIntervals()->create();
 
 
-            if ($organisation->type == OrganisationTypeEnum::SHOP) {
+            if ($organisation->type == OrganisationTypeEnum::SHOP || $organisation->type == OrganisationTypeEnum::DIGITAL_AGENCY) {
                 $organisation->crmStats()->create();
-                $organisation->orderingStats()->create();
-                $organisation->salesIntervals()->create();
-                $organisation->orderingIntervals()->create();
-                $organisation->orderHandlingStats()->create();
-                $organisation->mailshotsIntervals()->create();
-                $organisation->fulfilmentStats()->create();
                 $organisation->catalogueStats()->create();
-                $organisation->manufactureStats()->create();
                 $organisation->discountsStats()->create();
+                $organisation->mailshotsIntervals()->create();
 
                 $paymentServiceProvider = PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::ACCOUNT)->first();
 
@@ -159,6 +153,19 @@ class StoreOrganisation extends GrpAction
                     StoreOrgPartner::make()->action($otherOrganisation, $organisation);
                     StoreOrgPartner::make()->action($organisation, $otherOrganisation);
                 }
+            }
+
+            if ($organisation->type == OrganisationTypeEnum::SHOP) {
+
+                $organisation->orderingStats()->create();
+                $organisation->salesIntervals()->create();
+                $organisation->orderingIntervals()->create();
+                $organisation->orderHandlingStats()->create();
+                $organisation->fulfilmentStats()->create();
+                $organisation->manufactureStats()->create();
+
+
+
             }
 
             $organisation->serialReferences()->create(

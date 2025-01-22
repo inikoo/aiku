@@ -13,7 +13,6 @@ use App\Actions\Traits\WithDashboard;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -25,102 +24,19 @@ class ShowOrganisationDashboard extends OrgAction
     use AsAction;
     use WithDashboard;
 
+    public function authorize(ActionRequest $request): bool
+    {
+        return in_array($this->organisation->id, $request->user()->authorisedOrganisations()->pluck('id')->toArray());
+    }
+
     public function handle(Organisation $organisation, ActionRequest $request): Response
     {
-        // $sales   = [
-        //         'sales'    => JsonResource::make($organisation->orderingStats),
-        //         'currency' => $organisation->currency,
-        //         'total'    => collect([
-        //             'ytd' => 'sales_ytd',
-        //             'qtd' => 'sales_qtd',
-        //             'mtd' => 'sales_mtd',
-        //             'wtd' => 'sales_wtd',
-        //             'lm'  => 'sales_lm',
-        //             'lw'  => 'sales_lw',
-        //             'ld'  => 'sales_ld',
-        //             'tdy' => 'sales_tdy',
-        //             '1y'  => 'sales_1y',
-        //             '1q'  => 'sales_1q',
-        //             '1m'  => 'sales_1m',
-        //             '1w'  => 'sales_1w',
-        //         ])->mapWithKeys(function ($salesInterval, $key) use ($organisation) {
-        //             return [
-        //                 $key => [
-        //                     'total_sales'    => $organisation->shops->sum(fn ($shop) => $shop->salesIntervals->$salesInterval ?? 0),
-        //                     'total_invoices' => $organisation->shops->sum(fn ($shop) => $shop->orderingIntervals->{"invoices_{$key}"} ?? 0),
-        //                     'total_refunds'  => $organisation->shops->sum(fn ($shop) => $shop->orderingIntervals->{"refunds_{$key}"} ?? 0),
-        //                 ]
-        //             ];
-        //         })->toArray() + [
-        //             'all' => [
-        //                 'total_sales'    => $organisation->salesIntervals->sales_org_currency_all ?? 0,
-        //                 'total_invoices' => $organisation->orderingIntervals->invoices_all ?? 0,
-        //                 'total_refunds'  => $organisation->orderingIntervals->refunds_all ?? 0,
-        //             ],
-        //         ],
-        //         'shops' => $organisation->shops->map(function (Shop $shop) use ($organisation) {
-        //             $responseData = [
-        //                 'name'      => $shop->name,
-        //                 'slug'      => $shop->slug,
-        //                 'type'      => $shop->type,
-        //                 'currency'  => $shop->currency,
-        //                 'state'     => $shop->state,
-        //                 'route'    =>   $shop->type == ShopTypeEnum::FULFILMENT
-        //                 ? [
-        //                     'name'       => 'grp.org.fulfilments.show.dashboard',
-        //                     'parameters' => [
-        //                         'organisation' => $organisation->slug,
-        //                         'fulfilment'   => $shop->slug
-        //                     ]
-        //                 ]
-        //                 : [
-        //                     'name'       => 'grp.org.shops.show.dashboard',
-        //                     'parameters' => [
-        //                         'organisation' => $organisation->slug,
-        //                         'shop'         => $shop->slug
-        //                     ]
-        //                 ]
-        //             ];
+        $userSettings = $request->user()->settings;
 
-        //             if ($shop->salesIntervals !== null) {
-        //                 $responseData['interval_percentages']['sales'] = $this->mapIntervals(
-        //                     $shop->salesIntervals,
-        //                     'sales',
-        //                     [
-        //                         'ytd', 'qtd', 'mtd', 'wtd', 'lm', 'lw', 'ld', 'tdy', '1y', '1q', '1m', '1w', 'all'
-        //                     ]
-        //                 );
-        //             }
-
-        //             if ($shop->orderingIntervals !== null) {
-        //                 $responseData['interval_percentages']['invoices'] = $this->mapIntervals(
-        //                     $shop->orderingIntervals,
-        //                     'invoices',
-        //                     [
-        //                         'ytd', 'qtd', 'mtd', 'wtd', 'lm', 'lw', 'ld', 'tdy', '1y', '1q', '1m', '1w', 'all'
-        //                     ]
-        //                 );
-        //             }
-
-        //             if ($shop->orderingIntervals !== null) {
-        //                 $responseData['interval_percentages']['refunds'] = $this->mapIntervals(
-        //                     $shop->orderingIntervals,
-        //                     'refunds',
-        //                     [
-        //                         'ytd', 'qtd', 'mtd', 'wtd', 'lm', 'lw', 'ld', 'tdy', '1y', '1q', '1m', '1w', 'all'
-        //                     ]
-        //                 );
-        //             }
-
-        //             return $responseData;
-        //         }),
-        // ];
-
-        $userSettings = auth()->user()->settings;
         return Inertia::render(
             'Dashboard/OrganisationDashboard',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters(), __('Dashboard')),
+                'breadcrumbs'     => $this->getBreadcrumbs($request->route()->originalParameters(), __('Dashboard')),
                 'dashboard_stats' => $this->getDashboardInterval($organisation, $userSettings),
             ]
         );
@@ -129,22 +45,22 @@ class ShowOrganisationDashboard extends OrgAction
     public function getDashboardInterval(Organisation $organisation, array $userSettings): array
     {
         $selectedInterval = Arr::get($userSettings, 'selected_interval', 'all');
-        $shops = $organisation->shops;
-        $shopCurrencies = [];
+        $shops            = $organisation->shops;
+        $shopCurrencies   = [];
         foreach ($shops as $shop) {
             $shopCurrencies[] = $shop->currency->symbol;
         }
         $shopCurrenciesSymbol = implode('/', array_unique($shopCurrencies));
 
         $dashboard = [
-            'interval_options'  => $this->getIntervalOptions(),
-            'settings' => [
-                'db_settings'   => $userSettings,
-                'key_currency'  =>  'org',
-                'key_shop' => 'open',
+            'interval_options' => $this->getIntervalOptions(),
+            'settings'         => [
+                'db_settings'          => $userSettings,
+                'key_currency'         => 'org',
+                'key_shop'             => 'open',
                 'selected_shop_closed' => Arr::get($userSettings, 'selected_shop_closed', 'closed'),
-                'selected_shop_open' => Arr::get($userSettings, 'selected_shop_open', 'open'),
-                'options_shop' => [
+                'selected_shop_open'   => Arr::get($userSettings, 'selected_shop_open', 'open'),
+                'options_shop'         => [
                     [
                         'value' => 'open',
                         'label' => __('Open')
@@ -154,7 +70,7 @@ class ShowOrganisationDashboard extends OrgAction
                         'label' => __('Closed')
                     ]
                 ],
-                'options_currency'  => [
+                'options_currency'     => [
                     [
                         'value' => 'org',
                         'label' => $organisation->currency->symbol,
@@ -165,84 +81,85 @@ class ShowOrganisationDashboard extends OrgAction
                     ]
                 ]
             ],
-            'table' => [],
-            'widgets' => [
-                'column_count'    => 4,
-                'components' => []
+            'table'            => [],
+            'widgets'          => [
+                'column_count' => 4,
+                'components'   => []
             ]
         ];
 
         $selectedCurrency = Arr::get($userSettings, 'selected_currency_in_org', 'org');
-        $total = [
+        $total            = [
             'total_sales'    => $organisation->shops->sum(fn ($shop) => $shop->salesIntervals->{"sales_org_currency_$selectedInterval"} ?? 0),
             'total_invoices' => 0,
             'total_refunds'  => 0,
         ];
 
         $visualData = [
-            'sales' => [],
-            'invoices' => [],
+            'sales_data'    => [],
+            'invoices_data' => [],
         ];
 
         $dashboard['table'] = $shops->map(function (Shop $shop) use ($selectedInterval, $organisation, &$dashboard, $selectedCurrency, &$visualData, &$total) {
-            $keyCurrency = $dashboard['settings']['key_currency'];
-            $currencyCode = $selectedCurrency === $keyCurrency ? $organisation->currency->code : $shop->currency->code;
+            $keyCurrency   = $dashboard['settings']['key_currency'];
+            $currencyCode  = $selectedCurrency === $keyCurrency ? $organisation->currency->code : $shop->currency->code;
             $salesCurrency = 'sales_'.$selectedCurrency.'_currency';
             if ($selectedCurrency === 'shop') {
                 $salesCurrency = 'sales';
             }
             $responseData = [
-                'name'      => $shop->name,
-                'slug'      => $shop->slug,
-                'code'      => $shop->code,
-                'type'      => $shop->type,
-                'currency_code'  => $currencyCode,
-                'state'     => $shop->state,
-                'route'     => $shop->type == ShopTypeEnum::FULFILMENT
-                ? [
-                    'name'       => 'grp.org.fulfilments.show.dashboard',
-                    'parameters' => [
-                        'organisation' => $organisation->slug,
-                        'fulfilment'   => $shop->slug
+                'name'          => $shop->name,
+                'slug'          => $shop->slug,
+                'code'          => $shop->code,
+                'type'          => $shop->type,
+                'currency_code' => $currencyCode,
+                'state'         => $shop->state,
+                'route'         => $shop->type == ShopTypeEnum::FULFILMENT
+                    ? [
+                        'name'       => 'grp.org.fulfilments.show.dashboard',
+                        'parameters' => [
+                            'organisation' => $organisation->slug,
+                            'fulfilment'   => $shop->slug
+                        ]
                     ]
-                ]
-                : [
-                    'name'       => 'grp.org.shops.show.dashboard',
-                    'parameters' => [
-                        'organisation' => $organisation->slug,
-                        'shop'         => $shop->slug
+                    : [
+                        'name'       => 'grp.org.shops.show.dashboard',
+                        'parameters' => [
+                            'organisation' => $organisation->slug,
+                            'shop'         => $shop->slug
+                        ]
                     ]
-                ]
             ];
 
             if ($shop->salesIntervals !== null) {
-                $responseData['interval_percentages']['sales'] = $this->getIntervalPercentage(
+                $responseData['interval_percentages']['sales']     = $this->getIntervalPercentage(
                     $shop->salesIntervals,
                     $salesCurrency,
                     $selectedInterval,
                 );
-                $visualData['sales_data']['labels'][] = $shop->code;
-                $visualData['sales_data']['currency_codes'][] = $currencyCode;
+                $visualData['sales_data']['labels'][]              = $shop->code;
+                $visualData['sales_data']['currency_codes'][]      = $currencyCode;
                 $visualData['sales_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['sales']['amount'];
             }
 
             if ($shop->orderingIntervals !== null) {
-                $responseData['interval_percentages']['invoices'] = $this->getIntervalPercentage(
+                $responseData['interval_percentages']['invoices']     = $this->getIntervalPercentage(
                     $shop->orderingIntervals,
                     'invoices',
                     $selectedInterval,
                 );
-                $responseData['interval_percentages']['refunds'] = $this->getIntervalPercentage(
+                $responseData['interval_percentages']['refunds']      = $this->getIntervalPercentage(
                     $shop->orderingIntervals,
                     'refunds',
                     $selectedInterval,
                 );
-                $total['total_invoices'] += $responseData['interval_percentages']['invoices']['amount'];
-                $total['total_refunds'] += $responseData['interval_percentages']['refunds']['amount'];
-                $visualData['invoices_data']['labels'][] = $shop->code;
-                $visualData['invoices_data']['currency_codes'][] = $currencyCode;
+                $total['total_invoices']                              += $responseData['interval_percentages']['invoices']['amount'];
+                $total['total_refunds']                               += $responseData['interval_percentages']['refunds']['amount'];
+                $visualData['invoices_data']['labels'][]              = $shop->code;
+                $visualData['invoices_data']['currency_codes'][]      = $currencyCode;
                 $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
             }
+
             return $responseData;
         })->toArray();
 
@@ -250,34 +167,35 @@ class ShowOrganisationDashboard extends OrgAction
 
         $dashboard['widgets']['components'][] = $this->getWidget(
             data: [
-                'status' => $total['total_sales'] < 0 ? 'danger' : '',
-                'value' => $total['total_sales'],
+                'status'        => $total['total_sales'] < 0 ? 'danger' : '',
+                'value'         => $total['total_sales'],
                 'currency_code' => $organisation->currency->code,
-                'type' => 'currency',
+                'type'          => 'currency',
                 'description'   => __('Total sales')
             ],
             visual: [
-                'type' => 'doughnut',
+                'type'  => 'doughnut',
                 'value' => [
-                    'labels'  => $visualData['sales_data']['labels'],
-                    'currency_codes' => $visualData['sales_data']['currency_codes'],
-                    'datasets'    => $visualData['sales_data']['datasets']
+                    'labels'         => Arr::get($visualData, 'sales_data.labels'),
+                    'currency_codes' => Arr::get($visualData, 'sales_data.currency_codes'),
+                    'datasets'       => Arr::get($visualData, 'sales_data.datasets'),
                 ],
             ]
         );
 
         $dashboard['widgets']['components'][] = $this->getWidget(
             data: [
-                'value' => $total['total_invoices'],
-                'type' => 'number',
-                'description'   => __('Total invoices')
+                'value'       => $total['total_invoices'],
+                'type'        => 'number',
+                'description' => __('Total invoices')
             ],
             visual: [
-                'type' => 'bar',
+                'type'  => 'bar',
                 'value' => [
-                    'labels'  => $visualData['invoices_data']['labels'],
-                    'currency_codes' => $visualData['invoices_data']['currency_codes'],
-                    'datasets'    => $visualData['invoices_data']['datasets']
+                    'labels'         => Arr::get($visualData, 'invoices_data.labels'),
+                    'currency_codes' => Arr::get($visualData, 'invoices_data.currency_codes'),
+                    'datasets'       => Arr::get($visualData, 'invoices_data.datasets'),
+
                 ],
             ]
         );
