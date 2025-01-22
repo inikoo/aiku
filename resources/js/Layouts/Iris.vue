@@ -87,20 +87,16 @@ const setFirstVisitToFalse = () => {
                 </div>
             </div>
         </Modal>
-
+        
         <div :class="[(theme.layout === 'blog' || !theme.layout ) ? 'container max-w-7xl mx-auto shadow-xl' : '']" :style="{ fontFamily: theme.fontFamily}">
-           <!--  <IrisLoginInformation /> -->
             <IrisHeader v-if="header.header" :data="header" :colorThemed="theme" :menu="navigation"/>
-
-            <!-- Main Content -->
             <main>
                 <slot />
             </main>
-            <Footer v-if="footer && !isArray(footer)" :data="footer" :colorThemed="theme"/>
+          <Footer v-if="footer && !isArray(footer)" :data="footer" :colorThemed="theme"/>
         </div>
     </div>
 
-    <!-- Global declaration: Notification -->
     <notifications dangerously-set-inner-html :max="3" width="500" classes="custom-style-notification" :pauseOnHover="true">
         <template #body="props">
             <Notification :notification="props" />
