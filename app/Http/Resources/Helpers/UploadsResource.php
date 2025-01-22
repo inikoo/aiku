@@ -51,7 +51,7 @@ class UploadsResource extends JsonResource
                 ]
             },
 
-            
+
         ];
     }
 }

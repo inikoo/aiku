@@ -85,6 +85,7 @@ use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitAndConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\AddAddressToPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\DeletePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DeletePalletReturnAddress;
 use App\Actions\Fulfilment\PalletReturn\DispatchPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPalletReturn;
@@ -377,6 +378,7 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
     Route::delete('address/delete', DeletePalletReturnAddress::class)->name('address.delete');
 
     Route::post('dispatch', DispatchPalletReturn::class)->name('dispatch');
+    Route::delete('/', DeletePalletReturn::class)->name('delete');
 
 
     Route::post('transaction', [StoreFulfilmentTransaction::class,'inPalletReturn'])->name('transaction.store');
