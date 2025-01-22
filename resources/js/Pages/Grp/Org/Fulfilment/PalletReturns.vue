@@ -9,19 +9,43 @@ import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import TablePalletReturns from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturns.vue"
+import TablePalletReturnItemUploads from "@/Components/Tables/TablePalletReturnItemUploads.vue"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
+import Tabs from "@/Components/Navigation/Tabs.vue"
+import { computed, ref } from "vue"
+import type { Component } from "vue"
+import type { Navigation } from "@/types/Tabs"
+import { useTabChange } from "@/Composables/tab-change"
 
 const props = defineProps<{
     title: string
     pageHead: TSPageHeading
     data: {}
+    tabs: {
+        current: string
+        navigation: Navigation
+    }
+    returns?: {}
+    uploads?: {}
 }>()
+
+const currentTab = ref(props.tabs.current)
+const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
+
+const component = computed(() => {
+    const components: Component = {
+        returns: TablePalletReturns,
+        uploads: TablePalletReturnItemUploads
+    }
+
+    return components[currentTab.value]
+})
 
 </script>
 
 <template>
-
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
-    <TablePalletReturns :data="data" />
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
+    <component :is="component" :tab="currentTab" :data="props[currentTab]"></component>
 </template>

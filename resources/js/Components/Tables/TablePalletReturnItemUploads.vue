@@ -28,7 +28,7 @@ const layout = inject('layout', layoutStructure)
 
 function uploadRoutes(upload: {}) {
     switch (route().current()) {
-        case 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.index':
+        case 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.index':
             return route(
                 'grp.helpers.uploads.records.show',
                 [
