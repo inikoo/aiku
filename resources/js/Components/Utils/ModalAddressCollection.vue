@@ -180,7 +180,7 @@ const onDeleteAddress = (addressID: number) => {
 watch(enabled, async (newValue) => {
 	const addressID = props.addresses?.address_customer?.value.id
 	const address = props.addresses?.address_customer?.value
-	if (newValue) {
+	if (!newValue) {
 		const filterDataAdddress = { ...address }
 		delete filterDataAdddress.formatted_address
 		delete filterDataAdddress.country

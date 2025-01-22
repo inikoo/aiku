@@ -163,7 +163,7 @@ const isModalAddressCollection = ref(false)
 							v-html="boxStats.fulfilment_customer.address.value.formatted_address" />
 
 						<div
-							@click="() => (isModalAddress = true)"
+							@click="() => (isModalAddressCollection = true)"
 							class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
 							<!-- <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='mr-1' fixed-width aria-hidden='true' /> -->
 							<span>Edit</span>
