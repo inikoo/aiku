@@ -281,6 +281,21 @@ class ShowPalletReturn extends OrgAction
                         ]
                     ]
                 ];
+            } else {
+                $actions = array_merge([[
+                    'type'    => 'button',
+                    'style'   => 'delete',
+                    'tooltip' => __('delete'),
+                    'label'   => __('delete'),
+                    'key'     => 'action',
+                    'route'   => [
+                        'method'     => 'delete',
+                        'name'       => 'grp.models.pallet-return.delete',
+                        'parameters' => [
+                            'palletReturn' => $palletReturn->id
+                        ]
+                    ]
+                ]], $actions);
             }
         }
 
