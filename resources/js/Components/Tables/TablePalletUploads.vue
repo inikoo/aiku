@@ -26,46 +26,33 @@ const props = defineProps<{
 
 const layout = inject('layout', layoutStructure)
 
-// function palletReturnRoute(palletReturn: PalletDelivery) {
-//     switch (route().current()) {
-//         case 'grp.org.warehouses.show.dispatching.pallet-returns.index':
-//             return route(
-//                 'grp.org.warehouses.show.dispatching.pallet-returns.show',
-//                 [
-//                     route().params['organisation'],
-//                     route().params['warehouse'],
-//                     palletReturn.slug
-//                 ]);
-//         case 'grp.org.fulfilments.show.operations.pallet-returns.index':
-//             return route(
-//                 'grp.org.fulfilments.show.operations.pallet-returns.show',
-//                 [
-//                     route().params['organisation'],
-//                     route().params['fulfilment'],
-//                     palletReturn.slug
-//                 ]);
-//         case 'retina.fulfilment.storage.pallet_returns.index':
-//             return route(
-//                 'retina.fulfilment.storage.pallet_returns.show',
-//                 [
-//                     palletReturn.slug
-//                 ]);
-//         default:
-//             return route(
-//                 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show',
-//                 [
-//                     route().params['organisation'],
-//                     route().params['fulfilment'],
-//                     route().params['fulfilmentCustomer'],
-//                     palletReturn.slug
-//                 ]);
-//     }
-// }
+function uploadRoutes(upload: {}) {
+    switch (route().current()) {
+        case 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.index':
+            return route(
+                'grp.helpers.uploads.records.show',
+                [
+                    upload.id
+                ]);
+        default:
+            return route(
+                'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.index',
+                [
+                    upload.id
+                ]);
+    }
+}
 
 </script>
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
+        <template #cell(original_filename)="{ item: upload }">
+            <Link :href="uploadRoutes(upload)" class="primaryLink">
+                {{ upload['original_filename'] }}
+            </Link>
+        </template>
+
         <template #cell(uploaded_at)="{ item: upload }">
             {{ useFormatTime(upload.uploaded_at) }}
         </template>
