@@ -8,6 +8,7 @@
 
 namespace App\Http\Resources\CRM;
 
+use App\Actions\SysAdmin\WithLogRequest;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Carbon\Carbon;
 
@@ -22,15 +23,27 @@ use Carbon\Carbon;
  */
 class WebUsersResource extends JsonResource
 {
+    use WithLogRequest;
     public function toArray($request): array
     {
 
-
+        $location = json_decode($this->last_location);
         return [
             'slug'        => $this->slug,
             'username'    => $this->username,
             'image'         => $this->imageSources(48, 48),
-            'location'      => null,
+            'server'       => $location == ['localhost'],
+            'last_location'      => $location,
+            'last_device'      => array_filter([
+                $this->last_device ? [
+                    'tooltip' => $this->last_device,
+                    'icon' => $this->getDeviceIcon($this->last_device)
+                ] : null,
+                $this->last_os ? [
+                    'tooltip' => $this->last_os,
+                    'icon'  => $this->getPlatformIcon($this->last_os)
+                ] : null,
+            ]),
             'status'       => $this->status,
             'status_icon'        => match ($this->status) {
                 true => [

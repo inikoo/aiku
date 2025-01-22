@@ -35,7 +35,7 @@ class ImportPalletsInPalletDelivery extends OrgAction
         $includeStoredItem = Arr::pull($modelData, 'with_stored_item', false);
 
         $upload = StoreUpload::make()->fromFile(
-            $palletDelivery->organisation,
+            $palletDelivery->fulfilment->shop,
             $file,
             [
                 'model' => 'Pallet',

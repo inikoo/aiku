@@ -91,6 +91,7 @@ const onUploadFile = async (fileUploaded: File) => {
 }
 
 // Method: submit the selected file to server
+const idRecentUpload = ref<number | null>(null)
 const submitUpload = async () => {
     if (!props.upload_spreadsheet?.route?.upload?.name) {
         notify({
@@ -118,7 +119,13 @@ const submitUpload = async () => {
                 // }
             }
         )
+        
+        selectedFile.value = null  // Clear the selected file
+        csvData.value = []  // Clear the preview table
+        
+        idRecentUpload.value = aaa.data.id
         useEchoGrpPersonal().isShowProgress = true
+        
 
     } catch (error: any) {
         console.error(error)
@@ -164,6 +171,32 @@ watch(model, async (newVal) => {
     isLoadingHistory.value = false
 })
 
+// Watch the recently uploaded data, if complete then reload the table
+watch(() => useEchoGrpPersonal().recentlyUploaded.find((upload: {id: number}) => upload.id == idRecentUpload.value), (newVal) => {
+    console.log('newVal', newVal)
+
+    if(newVal?.total && (newVal?.done == newVal?.total)) {
+        console.log('done', newVal?.done)
+        console.log('total', newVal?.total)
+        router.reload(
+            {
+                only: ['pallets'],  // Only reload the props with dynamic name tabSlug (i.e props.showcase, props.menu)
+                onSuccess: () => {
+                    notify({
+                        title: trans('Upload Success!'),
+                        text: trans('Data in table has reloaded.'),
+                        type: 'success',
+                    })
+                    model.value = false
+                },
+                onError: (e) => {
+                    // console.log('eeerr', e)
+                }
+            }
+        )
+    }
+})
+
 
 const compHistoryList = computed(() => {
     return [...dataHistoryFileUpload.value, ...useEchoGrpPersonal().recentlyUploaded]
@@ -174,6 +207,7 @@ const isLoadingVisitHistory = ref<string | null>(null)
 
 <template>
     <Modal :isOpen="model" @onClose="() => closeModal()" :closeButton="true" width="w-[800px]">
+        <!-- <pre>{{ useEchoGrpPersonal() }}</pre> -->
         <div class="flex flex-col justify-between h-[500px] overflow-y-auto pb-4 px-3">
             <div>
                 <!-- Title -->
@@ -264,11 +298,12 @@ const isLoadingVisitHistory = ref<string | null>(null)
                             <div class="text-sm py-1 flex justify-between">
                                 <div>{{ trans('Preview your data') }}</div>
                                 
-                                <div v-if="additionalDataToSend?.includes('stored_items')" class="text-xxs flex items-center gap-x-1 text-gray-500 hover:text-gray-600 italic">
+                                <!-- Hide for now -->
+                                <!-- <div v-if="additionalDataToSend?.includes('stored_items')" class="text-xxs flex items-center gap-x-1 text-gray-500 hover:text-gray-600 italic">
                                     <label for="include_stored_items" class="select-none cursor-pointer">Include stored items</label>
                                     <input v-model="isIncludeStoreItems" id="include_stored_items" type="checkbox"
                                         class="h-3.5 w-3.5 rounded-sm text-indigo-600 focus:ring-0 cursor-pointer" />
-                                </div>
+                                </div> -->
                             </div>
 
                             <div class="w-full border border-gray-300 rounded-md overflow-x-auto">
@@ -336,7 +371,7 @@ const isLoadingVisitHistory = ref<string | null>(null)
                                 @finish="() => isLoadingVisitHistory = null"
                                 class="relative isolate"
                             >
-                                <LoadingIcon v-if="isLoadingVisitHistory == history.id" class="absolute top-3 right-2 z-10" />
+                                <LoadingIcon v-if="isLoadingVisitHistory ? (isLoadingVisitHistory == history.id || isLoadingVisitHistory == history.action_id) : false" class="absolute top-3 right-2 z-10" />
                                 <div class="relative w-36 ring-1 ring-gray-300 rounded px-2 pt-2.5 pb-1 flex flex-col justify-start border-t-[3px] border-gray-500 "
                                     :class="!history.id ? 'bg-white' : 'bg-gray-100 hover:bg-gray-200 cursor-pointer'"
                                     v-tooltip="!history.id ? 'Recently uploaded' : ''"

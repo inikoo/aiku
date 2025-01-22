@@ -21,7 +21,7 @@ enum ShopStateEnum: string
     case CLOSING_DOWN = 'closing_down';
     case CLOSED       = 'closed';
 
-    public static function labels($forElements = false): array
+    public static function labels(): array
     {
         return [
             'in_process'      => __('In Process'),
@@ -31,10 +31,8 @@ enum ShopStateEnum: string
         ];
     }
 
-    public static function count(
-        Organisation|Group $parent,
-        $forElements = false
-    ): array {
+    public static function count(Organisation|Group $parent): array
+    {
         $stats = $parent->catalogueStats;
 
         return [
