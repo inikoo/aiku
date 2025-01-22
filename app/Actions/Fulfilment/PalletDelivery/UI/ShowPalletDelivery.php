@@ -416,12 +416,9 @@ class ShowPalletDelivery extends OrgAction
                             ]
                         ],
                         'history' => [
-                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.pallets.uploads.history',
+                            'name'       => 'grp.json.pallet_delivery.recent_uploads',
                             'parameters' => [
-                                'organisation'       => $palletDelivery->organisation->slug,
-                                'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
-                                'palletDelivery'     => $palletDelivery->slug
+                                'palletDelivery'     => $palletDelivery->id
                             ]
                         ],
                         'download' => [

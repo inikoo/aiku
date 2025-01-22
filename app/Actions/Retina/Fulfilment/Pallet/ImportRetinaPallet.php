@@ -9,7 +9,7 @@
 
 namespace App\Actions\Retina\Fulfilment\Pallet;
 
-use App\Actions\Fulfilment\Pallet\ImportPallet;
+use App\Actions\Fulfilment\PalletDelivery\ImportPalletsInPalletDelivery;
 use App\Actions\RetinaAction;
 use App\Actions\Traits\WithImportModel;
 use App\Models\Fulfilment\PalletDelivery;
@@ -23,7 +23,7 @@ class ImportRetinaPallet extends RetinaAction
 
     public function handle(PalletDelivery $palletDelivery, $file, array $modelData): Upload
     {
-        return ImportPallet::run($palletDelivery, $file, $modelData);
+        return ImportPalletsInPalletDelivery::run($palletDelivery, $file, $modelData);
     }
 
     public function rules(): array

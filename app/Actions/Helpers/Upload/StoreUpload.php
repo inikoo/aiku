@@ -57,6 +57,8 @@ class StoreUpload extends OrgAction
     {
         $rules = [
             'model' => 'required|string',
+            'parent_type' => 'required|string',
+            'parent_id' => 'required|numeric',
         ];
 
         if (!$this->strict) {

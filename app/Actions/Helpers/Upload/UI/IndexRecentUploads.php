@@ -2,12 +2,13 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 16 Aug 2023 08:09:28 Malaysia Time, Pantai Lembeng, Bali
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Wed, 22 Jan 2025 14:19:44 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Helpers\Upload;
+namespace App\Actions\Helpers\Upload\UI;
 
+use App\Actions\OrgAction;
 use App\Http\Resources\Helpers\UploadsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -25,7 +26,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class HistoryUploads
+class IndexRecentUploads
 {
     use AsAction;
     use WithAttributes;
@@ -50,9 +51,12 @@ class HistoryUploads
 
     public function inPalletDelivery(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): array|Collection
     {
+
+        $this->initialisationFromFulfilment($fulfilment,$request);
+
         return $this->handle(class_basename(Pallet::class), [
-            'key'   => 'user_id',
-            'value' => $request->user()->id
+            'user_id'   =>  $request->user()->id
+
         ]);
     }
 

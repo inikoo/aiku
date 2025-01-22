@@ -16,6 +16,9 @@ return new class () extends Migration {
         Schema::table('uploads', function (Blueprint $table) {
             $table->unsignedInteger('customer_id')->index()->nullable();
             $table->foreign('customer_id')->references('id')->on('customers')->nullOnDelete();
+            $table->string('parent_type')->index()->nullable();
+            $table->unsignedInteger('parent_id')->index()->nullable();
+            $table->index(['parent_type', 'parent_id']);
         });
     }
 
@@ -24,6 +27,8 @@ return new class () extends Migration {
     {
         Schema::table('uploads', function (Blueprint $table) {
             $table->dropColumn('customer_id');
+            $table->dropColumn('parent_type');
+            $table->dropColumn('parent_id');
         });
     }
 };

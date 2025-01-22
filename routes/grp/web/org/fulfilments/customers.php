@@ -41,7 +41,7 @@ use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
 use App\Actions\Fulfilment\StoredItemAudit\UI\CreateStoredItemAudit;
 use App\Actions\Fulfilment\StoredItemAudit\UI\IndexStoredItemAudits;
 use App\Actions\Fulfilment\StoredItemAudit\UI\ShowStoredItemAudit;
-use App\Actions\Helpers\Upload\HistoryUploads;
+use App\Actions\Helpers\Upload\UI\IndexRecentUploads;
 
 //Route::get('', ShowFulfilmentCRMDashboard::class)->name('dashboard');
 
@@ -88,7 +88,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
         Route::get('{palletDelivery}', [ShowPalletDelivery::class, 'inFulfilmentCustomer'])->name('show');
         Route::get('{palletDelivery}/pallets/{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('pallets.show');
 
-        Route::get('{palletDelivery}/pallets-histories', [HistoryUploads::class, 'inPalletDelivery'])->name('pallets.uploads.history');
+        Route::get('{palletDelivery}/pallets-histories', [IndexRecentUploads::class, 'inPalletDelivery'])->name('pallets.uploads.history');
         Route::get('{palletDelivery}/pallets-templates', DownloadPalletsTemplate::class)->name('pallets.uploads.templates');
     });
 
@@ -99,7 +99,6 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
 
         Route::get('pallets-stored-items/export', ExportPalletReturnStoredItem::class)->name('pallets.stored-items.export');
         Route::get('pallets/export', ExportPalletReturnPallet::class)->name('pallets.export');
-        Route::get('{palletReturn}/pallets-histories', [HistoryUploads::class, 'inPalletReturn'])->name('pallets.uploads.history');
         Route::get('{palletReturn}/pallets-templates', [DownloadPalletsTemplate::class, 'inReturn'])->name('pallets.uploads.templates');
     });
 

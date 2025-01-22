@@ -25,7 +25,6 @@ use App\Actions\Fulfilment\Pallet\AttachPalletsToReturn;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\DeletePallet;
 use App\Actions\Fulfilment\Pallet\DeletePalletInDelivery;
-use App\Actions\Fulfilment\Pallet\ImportPallet;
 use App\Actions\Fulfilment\Pallet\ImportPalletReturnItem;
 use App\Actions\Fulfilment\Pallet\ReturnPalletToCustomer;
 use App\Actions\Fulfilment\Pallet\SetPalletAsDamaged;
@@ -38,6 +37,7 @@ use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\Pallet\UndoBookedInPallet;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\ImportPalletsInPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\Notifications\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\Pdf\PdfPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
@@ -63,6 +63,7 @@ use App\Actions\Fulfilment\StoredItem\DeleteStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Inventory\Location\StoreLocation;
+use App\Actions\Traits\WithGetRecurringBillEndDate;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
@@ -107,7 +108,6 @@ use App\Models\Web\Website;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
-use App\Actions\Traits\WithGetRecurringBillEndDate;
 
 use function Pest\Laravel\actingAs;
 
@@ -1831,7 +1831,7 @@ test('import pallet (xlsx)', function (PalletDelivery $palletDelivery) {
 
     expect($palletDelivery->stats->number_pallets)->toBe(0);
 
-    $upload = ImportPallet::run($palletDelivery, $file, [
+    $upload = ImportPalletsInPalletDelivery::run($palletDelivery, $file, [
         'with_stored_item' => false
     ]);
     $palletDelivery->refresh();
@@ -1859,7 +1859,7 @@ test('import pallet and stored item (xlsx)', function (PalletDelivery $palletDel
     expect($palletDelivery->pallets->count())->toBe(1)
         ->and($palletDelivery->stats->number_pallets)->toBe(1);
 
-    $upload = ImportPallet::run(
+    $upload = ImportPalletsInPalletDelivery::run(
         palletDelivery: $palletDelivery,
         file: $file,
         includeStoredItem: true
