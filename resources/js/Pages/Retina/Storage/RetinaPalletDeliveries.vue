@@ -45,18 +45,36 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
 }
 
 const handleClick = (action: Action) => {
-    if (action.disabled) openModal.value = true
-    else {
-        const href = action.route?.name ? route(action.route?.name, action.route?.parameters) : action.route?.name ? route(action.route?.name, action.route?.parameters) : '#'
-        const method = action.route?.method ?? 'get'
+    if (action.disabled) {
+        openModal.value = true;
+    } else {
+        const href = action.route?.name
+            ? route(action.route?.name, action.route?.parameters)
+            : '#';
+        const method = action.route?.method ?? 'get';
+
+        loading.value = true; 
+
         router[method](
             href,
             {
-                onBefore: () => { loading.value = true },
-                onerror: () => { loading.value = false }
-            })
+                onBefore: () => { loading.value = true; }, 
+                onError: () => {
+                    loading.value = false;
+                    console.error("An error occurred during navigation.");
+                },
+            }
+        )
+        .then(() => {
+            loading.value = false;
+        })
+        .catch((error) => {
+            loading.value = false;
+            console.error("Unexpected error:", error);
+        });
     }
 };
+
 
 </script>
 
@@ -64,7 +82,7 @@ const handleClick = (action: Action) => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-new-delivery="{ action }">
-           <Button :style="action.style" :icon="action.icon" :label="action.label" size="l"
+           <Button :style="action.style" :icon="action.icon" :label="action.label" 
                 :loading="loading" @click="() => handleClick(action)" /> 
         </template>
     </PageHeading>
