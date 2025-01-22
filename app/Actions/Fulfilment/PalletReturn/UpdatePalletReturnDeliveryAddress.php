@@ -30,16 +30,10 @@ class UpdatePalletReturnDeliveryAddress extends OrgAction
             $addressData = Arr::get($modelData, 'address');
             $countryCode = Country::find($addressData['country_id'])->code;
             data_set($addressData, 'country_code', $countryCode);
-            $label = isset($addressData['label']) ? $addressData['label'] : null;
             unset($addressData['label']);
             unset($addressData['can_edit']);
             unset($addressData['can_delete']);
-            $updatedAddress     = UpdateAddress::run(Address::find(Arr::get($addressData, 'id')), $addressData);
-            $pivotData['label'] = $label;
-            $palletReturn->addresses()->updateExistingPivot(
-                $updatedAddress->id,
-                $pivotData
-            );
+            UpdateAddress::run(Address::find(Arr::get($addressData, 'id')), $addressData);
         } elseif ($palletReturn->delivery_address_id) {
             DeletePalletReturnAddress::run($palletReturn, Address::find($palletReturn->delivery_address_id));
         }
