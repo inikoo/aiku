@@ -316,7 +316,7 @@ const isLoadingVisitHistory = ref<string | null>(null)
 
             <!-- Section: table history -->
             <div class="flex items-start gap-x-2 gap-y-2 flex-col mt-4">
-                <div class="text-sm text-gray-600"> {{ trans('History uploaded') }}:</div>
+                <span class="primaryLink  "> {{ trans('Previous uploads') }}  </span>
                 <div v-if="!isLoadingHistory" class="flex flex-wrap gap-x-2 gap-y-2">
                     <template v-if="compHistoryList.length">
                         <TransitionGroup name="list" tag="div" class="flex flex-wrap gap-x-2 gap-y-2">

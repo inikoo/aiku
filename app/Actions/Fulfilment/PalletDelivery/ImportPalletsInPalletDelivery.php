@@ -2,13 +2,12 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 18 Sep 2023 18:48:13 Malaysia Time, Pantai Lembeng, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Wed, 22 Jan 2025 14:29:40 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\Pallet;
+namespace App\Actions\Fulfilment\PalletDelivery;
 
-use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Helpers\Upload\ImportUpload;
 use App\Actions\Helpers\Upload\StoreUpload;
 use App\Actions\OrgAction;
@@ -24,7 +23,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\ActionRequest;
 
-class ImportPallet extends OrgAction
+class ImportPalletsInPalletDelivery extends OrgAction
 {
     use WithImportModel;
     use HasFulfilmentAssetsAuthorisation;
@@ -41,6 +40,8 @@ class ImportPallet extends OrgAction
             [
                 'model' => 'Pallet',
                 'customer_id' => $palletDelivery->fulfilmentCustomer->customer_id,
+                'parent_type' => $palletDelivery->getMorphClass(),
+                'parent_id' => $palletDelivery->id,
             ]
         );
 
