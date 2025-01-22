@@ -510,7 +510,7 @@ class ShowPalletReturn extends OrgAction
                         [
                             'address'      => [
                                 'value'   => $palletReturn->is_collection ?
-                                    [] :
+                                    null :
                                     AddressResource::make($palletReturn->deliveryAddress),
                                 'options' => [
                                     'countriesAddressData' => GetAddressData::run()

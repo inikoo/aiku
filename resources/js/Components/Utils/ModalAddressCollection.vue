@@ -30,7 +30,7 @@ const props = defineProps<{
 // }>()
 
 const homeAddress =
-	Array.isArray(props.addresses?.value) && props.addresses?.value.length > 0
+	props.addresses?.value
 		? props.addresses?.value
 		: props.addresses?.address_customer?.value
 const enabled = ref(props.is_collection || false)
