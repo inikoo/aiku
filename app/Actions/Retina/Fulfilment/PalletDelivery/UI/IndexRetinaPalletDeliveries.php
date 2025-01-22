@@ -135,6 +135,22 @@ class IndexRetinaPalletDeliveries extends RetinaAction
 
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
     {
+        $actions = [];
+
+        if (!app()->environment('production')) {
+            $actions = [
+                [
+                    'type'  => 'button',
+                    'style' => 'create',
+                    'label' => __('New Delivery'),
+                    'route' => [
+                        'method'     => 'post',
+                        'name'       => 'retina.models.pallet-delivery.store',
+                        'parameters' => []
+                    ]
+                ]
+            ];
+        }
         return Inertia::render(
             'Storage/RetinaPalletDeliveries',
             [
@@ -146,18 +162,7 @@ class IndexRetinaPalletDeliveries extends RetinaAction
                         'icon'  => ['fal', 'fa-truck'],
                         'title' => __('delivery')
                     ],
-                    'actions' => [
-                        [
-                            'type'  => 'button',
-                            'style' => 'create',
-                            'label' => __('New Delivery'),
-                            'route' => [
-                                'method'     => 'post',
-                                'name'       => 'retina.models.pallet-delivery.store',
-                                'parameters' => []
-                            ]
-                        ]
-                    ]
+                    'actions' => $actions
                 ],
                 'data'        => PalletDeliveriesResource::collection($customers),
 
