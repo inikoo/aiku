@@ -103,7 +103,7 @@ provide('isPreviewMode', isPreviewMode)
                     :data="header.data"
                     :menu="navigation"
                     :loginMode="isPreviewLoggedIn"
-                    @update:model-value="updateData(header.data)" 
+                    @update:model-value="updateData(header.data)"
                 />
             </div>
 
@@ -130,7 +130,7 @@ provide('isPreviewMode', isPreviewMode)
                 </div>
             </div>
 
-            <!-- Footer --> 
+            <!-- Footer -->
              <component
                 v-if="footer?.data?.data"
                 :is="isPreviewMode || route().current() == 'grp.websites.preview' ? getIrisComponent(footer.data.code) : getComponent(footer.data.code)"
@@ -228,12 +228,7 @@ provide('isPreviewMode', isPreviewMode)
 }
 
 .hover-dashed {
-    transition: border 0.3s ease;
-    border: 1px solid transparent; /* Default tanpa border */
-}
-
-.hover-dashed:hover {
-    border: 1px dashed #999; 
+    @apply hover:bg-gray-200/30 border border-transparent hover:border-white/80 border-dashed cursor-pointer;
 }
 
 

@@ -78,6 +78,9 @@ class UpdateRetinaPalletReturn extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->action) {
+            return true;
+        }
         return true;
     }
 
@@ -95,5 +98,12 @@ class UpdateRetinaPalletReturn extends RetinaAction
         $this->initialisation($request);
 
         return $this->handle($palletReturn, $this->validatedData);
+    }
+
+    public function action(PalletReturn $palletReturn, array $modelData): PalletReturn
+    {
+        $this->action = true;
+        $this->initialisationFulfilmentActions($palletReturn->fulfilmentCustomer, $modelData);
+        return $this->handle($palletReturn, $modelData);
     }
 }

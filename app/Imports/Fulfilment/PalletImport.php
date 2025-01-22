@@ -13,8 +13,10 @@ use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Imports\WithImport;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Helpers\Upload;
+use App\Rules\IUnique;
 use Exception;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -27,11 +29,12 @@ class PalletImport implements ToCollection, WithHeadingRow, SkipsOnFailure, With
 
     protected PalletDelivery $scope;
     protected bool $includeStoredItem;
+
     public function __construct(PalletDelivery $palletDelivery, Upload $upload, $includeStoredItem = false)
     {
-        $this->upload             = $upload;
-        $this->scope              = $palletDelivery;
-        $this->includeStoredItem  = $includeStoredItem;
+        $this->upload            = $upload;
+        $this->scope             = $palletDelivery;
+        $this->includeStoredItem = $includeStoredItem;
     }
 
     public function storeModel($row, $uploadRecord): void
@@ -49,12 +52,23 @@ class PalletImport implements ToCollection, WithHeadingRow, SkipsOnFailure, With
 
         if (!Arr::get($modelData, 'type')) {
             data_set($modelData, 'type', PalletTypeEnum::PALLET->value);
+        } else {
+            $type = strtolower(Arr::get($modelData, 'type'));
+
+            $type = match ($type) {
+                'oversize' => PalletTypeEnum::OVERSIZE->value,
+                'box', 'carton' => PalletTypeEnum::BOX->value,
+                default => PalletTypeEnum::PALLET->value,
+            };
+            data_set($modelData, 'type', $type);
         }
 
         data_set($modelData, 'data.bulk_import', [
             'id'   => $this->upload->id,
             'type' => 'Upload',
         ]);
+
+
 
         try {
             StorePalletFromDelivery::run(
@@ -73,7 +87,22 @@ class PalletImport implements ToCollection, WithHeadingRow, SkipsOnFailure, With
     public function rules(): array
     {
         return [
-            'customer_reference' => ['nullable', 'unique:pallets,customer_reference'],
+            'customer_reference' => [
+                'sometimes',
+                'nullable',
+                'max:64',
+                'string',
+                Rule::notIn(['export', 'create', 'upload']),
+                new IUnique(
+                    table: 'pallets',
+                    column: 'customer_reference',
+                    extraConditions: [
+                        ['column' => 'fulfilment_customer_id', 'value' => $this->scope->fulfilment_customer_id],
+                    ]
+                ),
+
+
+            ],
             'notes'              => ['nullable'],
             'type'               => ['nullable'],
             'stored_item'        => ['nullable'],

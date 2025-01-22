@@ -108,7 +108,7 @@ export const initialiseRetinaApp = () => {
             layout.app.environment = usePage().props?.environment
         }
 
-        layout.webUser = usePage().props.auth?.webUser || null
+        layout.webUser_count = usePage().props.auth?.webUser_count || null
 
         // let moduleName = (layout.currentRoute || "").split(".")
         // layout.currentModule = moduleName.length > 1 ? moduleName[1] : ""

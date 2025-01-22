@@ -17,8 +17,10 @@ import { UploadPallet } from '@/types/Pallet'
 import { Link, router } from "@inertiajs/vue3"
 import { useEchoGrpPersonal } from '@/Stores/echo-grp-personal'
 import Papa from 'papaparse'
+import * as XLSX from 'xlsx'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { notify } from '@kyvg/vue3-notification'
+import LoadingIcon from './LoadingIcon.vue'
 library.add(falFile, faTimes, faTimesCircle, faCheckCircle, faFileDownload, faDownload, faInfoCircle)
 
 
@@ -51,27 +53,41 @@ const csvData = ref<string[]>([])
 
 // Running when file is uploaded or dropped
 const onUploadFile = async (fileUploaded: File) => {
-    const fileExtention = fileUploaded?.name?.split('.')?.pop()?.toLowerCase()  // csv, xlsx, xls
-    errorMessage.value = null
+    const fileExtension = fileUploaded?.name?.split('.').pop().toLowerCase();
+    errorMessage.value = null;
 
-    if (fileExtention === 'csv' || fileExtention === 'xlsx' || fileExtention === 'xls') {
-        selectedFile.value = fileUploaded
+    if (fileExtension === 'csv') {
+        selectedFile.value = fileUploaded;
         Papa.parse(fileUploaded, {
             header: false,
             skipEmptyLines: true,
-            complete: (results: { data: [] }) => {
-                csvData.value = results.data
+            complete: (results) => {
+                csvData.value = results.data;
+                // console.log('csvData', results.data);
             },
-            error: (error: any) => {
-                console.error('Error parsing CSV:', error)
+            error: (error) => {
+                console.error('Error parsing CSV:', error);
             }
-        })
+        });
+    } else if (fileExtension === 'xlsx' || fileExtension === 'xls') {
+        selectedFile.value = fileUploaded;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const json = XLSX.utils.sheet_to_json(worksheet, {header: 1, raw: false});
+            csvData.value = json;
+            // console.log('xlsx', json);
+        };
+        reader.onerror = (error) => {
+            console.error('Error reading Excel file:', error);
+        };
+        reader.readAsArrayBuffer(fileUploaded);
     } else {
-        errorMessage.value = trans('File extension is not one of these:')+' .csv, .xlsx, .xls'
+        errorMessage.value = trans('File extension is not one of these:') + ' .csv, .xlsx, .xls';
     }
-
-    // console.log('aa', fileUploaded)
-
 }
 
 // Method: submit the selected file to server
@@ -96,6 +112,10 @@ const submitUpload = async () => {
             },
             {
                 headers: { "Content-Type": "multipart/form-data" },
+                // onUploadProgress: function(progressEvent) {
+                //     var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+                //     console.log('percent', percentCompleted)
+                // }
             }
         )
         useEchoGrpPersonal().isShowProgress = true
@@ -148,6 +168,8 @@ watch(model, async (newVal) => {
 const compHistoryList = computed(() => {
     return [...dataHistoryFileUpload.value, ...useEchoGrpPersonal().recentlyUploaded]
 })
+
+const isLoadingVisitHistory = ref<string | null>(null)
 </script>
 
 <template>
@@ -300,17 +322,21 @@ const compHistoryList = computed(() => {
                         <TransitionGroup name="list" tag="div" class="flex flex-wrap gap-x-2 gap-y-2">
                             <component
                                 :is="
-                                    history?.view_route?.name
+                                    history?.show_route?.name
                                         ? Link
                                         : 'div'
                                 "
                                 v-for="(history, index) in compHistoryList"
                                 :key="'list' + index"
-                                :href="history?.view_route?.name
-                                    ? route(history.view_route.name, history.view_route.parameters)
+                                :href="history?.show_route?.name
+                                    ? route(history.show_route.name, history.show_route.parameters)
                                     : '#'
                                 "
+                                @start="() => isLoadingVisitHistory = history.id"
+                                @finish="() => isLoadingVisitHistory = null"
+                                class="relative isolate"
                             >
+                                <LoadingIcon v-if="isLoadingVisitHistory == history.id" class="absolute top-3 right-2 z-10" />
                                 <div class="relative w-36 ring-1 ring-gray-300 rounded px-2 pt-2.5 pb-1 flex flex-col justify-start border-t-[3px] border-gray-500 "
                                     :class="!history.id ? 'bg-white' : 'bg-gray-100 hover:bg-gray-200 cursor-pointer'"
                                     v-tooltip="!history.id ? 'Recently uploaded' : ''"

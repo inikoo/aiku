@@ -55,8 +55,8 @@ class AttachPalletsToReturn extends OrgAction
 
             Pallet::whereIn('id', $palletsToSelect)->update([
                 'pallet_return_id' => $palletReturn->id,
-                'status'           => PalletStatusEnum::STORING,
-                'state'            => PalletStateEnum::IN_PROCESS
+                'status'           => PalletStatusEnum::RETURNING,
+                'state'            => PalletStateEnum::REQUEST_RETURN_IN_PROCESS
             ]);
 
             $pallets = Pallet::findOrFail($palletsToSelect);
@@ -162,7 +162,7 @@ class AttachPalletsToReturn extends OrgAction
                 'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
                 'palletReturn'           => $palletReturn->slug
             ]),
-            default => Redirect::route('retina.fulfilment.storage.pallet-returns.show', [
+            default => Redirect::route('retina.fulfilment.storage.pallet_returns.show', [
                 'palletReturn'     => $palletReturn->slug
             ])
         };

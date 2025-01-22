@@ -17,6 +17,7 @@ import { irisStyleVariables, setIframeView } from '@/Composables/Workshop'
 import ProgressSpinner from 'primevue/progressspinner';
 import { useColorTheme } from '@/Composables/useStockList'
 import { set, get } from 'lodash'
+import ToggleSwitch from 'primevue/toggleswitch';
 
 import { routeType } from "@/types/route"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
@@ -43,6 +44,7 @@ const props = defineProps<{
             topBar : Object
         }
     }
+    status:boolean
     autosaveRoute: routeType
     web_block_types: {}
     route_list: {
@@ -54,11 +56,12 @@ const props = defineProps<{
 
 provide('route_list', props.route_list)
 const usedTemplates = ref({ 
-    header : props.data.data.header,
-    topBar : props.data.data.topBar
+    header : props?.data?.data?.header,
+    topBar : props?.data?.data?.topBar
 })
 const isLoading = ref(false)
 const comment = ref('')
+const status = ref(props.status)
 const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
 const iframeSrc = route('grp.websites.header.preview', [route().params['website']])
@@ -121,7 +124,7 @@ const onPublish = async (action: routeType, popover: Function) => {
         route(action.name, action.parameters),
         {
             comment: comment.value,
-            layout: usedTemplates.value
+            layout: {... usedTemplates.value,  status : status.value}
         },
         {
             onStart: () => isLoading.value = true,
@@ -248,7 +251,33 @@ onMounted(() => {
 
         <template #button-publish="{ action }">
             <Publish v-model="comment" :isLoading="isLoading || isLoadingSave" :is_dirty="true"
-                @onPublish="(popover) => onPublish(action.route, popover)" />
+                @onPublish="(popover) => onPublish(action.route, popover)">
+                <template #form-extend>
+                    <div class="flex items-center gap-2 mb-3">
+                    <div class="items-start leading-none flex-shrink-0">
+                        <FontAwesomeIcon :icon="'fas fa-asterisk'" class="font-light text-[12px] text-red-400 mr-1" />
+                        <span class="capitalize">{{ trans('Status') }} :</span>
+                    </div>
+                    <div class="flex items-center gap-4 w-full">
+                        <div class="flex overflow-hidden border-2 cursor-pointer w-full sm:w-auto"
+                            :class="status ? 'border-green-500' : 'border-red-500'" @click="()=>status=!status">
+                        <!-- Active Button -->
+                        <div class="flex-1 text-center py-1 px-1 sm:px-2 text-xs font-semibold transition-all duration-200 ease-in-out"
+                                :class="status ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'">
+                            Active
+                        </div>
+
+                        <!-- Inactive Button -->
+                        <div class="flex-1 text-center py-1 px-1 sm:px-2 text-xs font-semibold transition-all duration-200 ease-in-out"
+                                :class="!status ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-500'">
+                            Inactive
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+                </template>
+
+            </Publish>
         </template>
     </PageHeading>
     <div class="h-[84vh] flex">
@@ -337,7 +366,8 @@ onMounted(() => {
         </div>
     </div>
     <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false">
-        <HeaderListModal :onSelectBlock :webBlockTypes="selectedWebBlock" :currentTopbar="usedTemplates.topBar" :isLoading="isLoadingTemplate" />
+        <HeaderListModal :onSelectBlock :webBlockTypes="selectedWebBlock" :currentTopbar="usedTemplates.topBar"
+            :isLoading="isLoadingTemplate" />
     </Modal>
 </template>
 

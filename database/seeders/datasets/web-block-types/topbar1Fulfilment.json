@@ -136,6 +136,33 @@
 						}
 					}
 				}
+			},
+			"logout": {
+				"link": null,
+				"text": "Log out",
+				"visible": "login",
+				"container": {
+					"properties": {
+						"text": {
+							"color": "rgba(255, 255, 255, 1)"
+						},
+						"padding": {
+							"top": {
+								"value": 5
+							},
+							"left": {
+								"value": 20
+							},
+							"unit": "px",
+							"right": {
+								"value": 20
+							},
+							"bottom": {
+								"value": 5
+							}
+						}
+					}
+				}
 			}
 		}
 	}

@@ -57,7 +57,7 @@ createInertiaApp(
                       dsn                     : import.meta.env.VITE_SENTRY_DSN,
                       environment             : import.meta.env.VITE_APP_ENV,
                       release                 : import.meta.env.VITE_RELEASE,
-                      debug                   : true,
+                      debug                   : false,
                       tracesSampleRate        : 1.0,
                       replaysSessionSampleRate: 0.1,
                       replaysOnErrorSampleRate: 1.0,

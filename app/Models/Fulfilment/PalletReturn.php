@@ -80,6 +80,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
+ * @property bool $is_collection
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
  * @property-read Currency $currency

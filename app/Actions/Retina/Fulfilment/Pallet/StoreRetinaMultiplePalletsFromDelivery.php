@@ -22,7 +22,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreRetinaMultiplePalletsFromDelivery extends RetinaAction
 {
-    private FulfilmentCustomer $fulfilmentCustomer;
     private bool $action = false;
 
     private PalletDelivery|FulfilmentCustomer $parent;

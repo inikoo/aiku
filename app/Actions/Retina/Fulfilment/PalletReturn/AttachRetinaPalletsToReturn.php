@@ -13,6 +13,7 @@ use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
 use App\Actions\RetinaAction;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
+use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
 use Illuminate\Http\RedirectResponse;
@@ -27,9 +28,11 @@ class AttachRetinaPalletsToReturn extends RetinaAction
 
 
     private PalletReturn $parent;
-
+    private bool $action = false;
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
+
+
         $selectedPalletIds = Arr::get($modelData, 'pallets', []);
 
         if (count($selectedPalletIds) === 0) {
@@ -53,8 +56,8 @@ class AttachRetinaPalletsToReturn extends RetinaAction
 
             Pallet::whereIn('id', $palletsToSelect)->update([
                 'pallet_return_id' => $palletReturn->id,
-                'status'           => PalletStatusEnum::STORING,
-                'state'            => PalletStateEnum::IN_PROCESS
+                'status'           => PalletStatusEnum::RETURNING,
+                'state'            => PalletStateEnum::REQUEST_RETURN_IN_PROCESS
             ]);
 
             $pallets = Pallet::findOrFail($palletsToSelect);
@@ -98,7 +101,15 @@ class AttachRetinaPalletsToReturn extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return true;
+        if ($this->action) {
+            return true;
+        }
+
+        if ($request->user() instanceof WebUser) {
+            return true;
+        }
+
+        return false;
     }
 
     public function rules(): array
@@ -116,9 +127,17 @@ class AttachRetinaPalletsToReturn extends RetinaAction
         return $this->handle($palletReturn, $this->validatedData);
     }
 
+    public function action(PalletReturn $palletReturn, array $modelData): PalletReturn
+    {
+        $this->action = true;
+        $this->initialisationFulfilmentActions($palletReturn->fulfilmentCustomer, $modelData);
+
+        return $this->handle($palletReturn, $this->validatedData);
+    }
+
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): RedirectResponse
     {
-        return Redirect::route('retina.fulfilment.storage.pallet-returns.show', [
+        return Redirect::route('retina.fulfilment.storage.pallet_returns.show', [
             'palletReturn'     => $palletReturn->slug
         ]);
     }

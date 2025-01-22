@@ -29,15 +29,16 @@ export default {
 			},
         /*     type: "upload_image", */
 			replaceForm: [
-				{
-					key: ['properties','dimension'],
-					label : "Dimension",
-					type: "dimension",
-				},
+				
 				{
 					key: ["image"],
 					label : "Upload image",
 					type: "upload_image",
+				},
+				{
+					key: ['properties','dimension'],
+					label : "Dimension",
+					type: "dimension",
 				},
 				{
 					key: ['properties','margin'],

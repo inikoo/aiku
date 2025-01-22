@@ -11,25 +11,29 @@ namespace App\Actions\Fulfilment\Pallet;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Helpers\Upload\ImportUpload;
 use App\Actions\Helpers\Upload\StoreUpload;
+use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Actions\Traits\WithImportModel;
-use App\Http\Resources\Helpers\UploadsResource;
 use App\Imports\Fulfilment\PalletImport;
-use App\Models\CRM\WebUser;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Helpers\Upload;
 use App\Models\Inventory\Warehouse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\ActionRequest;
 
-class ImportPallet
+class ImportPallet extends OrgAction
 {
     use WithImportModel;
+    use HasFulfilmentAssetsAuthorisation;
 
-    private string $origin = 'grp';
+    private Fulfilment $parent; // need for authorisation
 
-    public function handle(PalletDelivery $palletDelivery, $file, $includeStoredItem = false): Upload
+    public function handle(PalletDelivery $palletDelivery, $file, array $modelData): Upload
     {
+        $includeStoredItem = Arr::pull($modelData, 'with_stored_item', false);
 
         $upload = StoreUpload::make()->fromFile(
             $palletDelivery->organisation,
@@ -59,36 +63,20 @@ class ImportPallet
     {
         return [
             'file'             => ['required', 'file', 'mimes:xlsx,csv,xls,txt'],
-            'with_stored_item' => ['required', 'bool']
+            'with_stored_item' => ['sometimes', 'required', 'bool']
         ];
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $userable = $request->user();
-        if ($userable instanceof WebUser) {
-            return true;
-        }
 
-        return true;
-    }
-
-    public function fromRetina(PalletDelivery $palletDelivery, ActionRequest $request): Upload
+    public function asController(PalletDelivery $palletDelivery, ActionRequest $request): Upload
     {
-        $request->validate();
+        $this->parent = $palletDelivery->fulfilment;
+        $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
+
         $file = $request->file('file');
         Storage::disk('local')->put($this->tmpPath, $file);
 
-        return $this->handle($palletDelivery, $file, $request->input('with_stored_item'));
-    }
-
-    public function fromGrp(PalletDelivery $palletDelivery, ActionRequest $request): Upload
-    {
-        $request->validate();
-        $file = $request->file('file');
-        Storage::disk('local')->put($this->tmpPath, $file);
-
-        return $this->handle($palletDelivery, $file, $request->input('with_stored_item'));
+        return $this->handle($palletDelivery, $file, $this->validatedData);
     }
 
     public function prepareForValidation(ActionRequest $request): void
@@ -98,12 +86,8 @@ class ImportPallet
         ]);
     }
 
-    public function jsonResponse(Upload $upload): array
-    {
-        return UploadsResource::make($upload)->getArray();
-    }
 
-    public function rumImport($file, $command): Upload
+    public function runImportForCommand($file, $command): Upload
     {
         if ($palletDeliverySlug = $command->argument('palletDelivery')) {
             $palletDelivery = PalletDelivery::where('slug', $palletDeliverySlug)->first();
@@ -115,7 +99,7 @@ class ImportPallet
             ]);
         }
 
-        return $this->handle($palletDelivery, $file);
+        return $this->handle($palletDelivery, $file, []);
     }
 
     public string $commandSignature = 'pallet:import {--g|g_drive} {filename} {fulfilmentCustomer?} {warehouse?} {palletDelivery?}';

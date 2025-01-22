@@ -41,7 +41,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_pallets_with_stored_items_state_not_received
  * @property int $number_pallets_state_storing
  * @property int $number_pallets_with_stored_items_state_storing
- * @property int $number_pallets_state_request_return
+ * @property int $number_pallets_state_request_return_in_process
  * @property int $number_pallets_with_stored_items_state_request_return
  * @property int $number_pallets_state_picking
  * @property int $number_pallets_with_stored_items_state_picking
@@ -79,6 +79,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string $total_volume cbm
  * @property string $total_weight kg
+ * @property int $number_pallets_state_request_return_submitted
+ * @property int $number_pallets_state_request_return_confirmed
  * @property-read \App\Models\Inventory\Location $location
  * @method static Builder<static>|LocationStats newModelQuery()
  * @method static Builder<static>|LocationStats newQuery()

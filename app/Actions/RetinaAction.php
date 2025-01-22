@@ -31,6 +31,7 @@ class RetinaAction
     protected Customer $customer;
     protected WebUser $webUser;
     protected Fulfilment $fulfilment;
+    protected FulfilmentCustomer $fulfilmentCustomer;
     protected Organisation $organisation;
     protected Shop $shop;
 
@@ -42,6 +43,7 @@ class RetinaAction
     {
         $this->webUser       = $request->user();
         $this->customer      = $this->webUser->customer;
+        $this->fulfilmentCustomer = $this->customer->fulfilmentCustomer;
         $this->shop          = $this->customer->shop;
         $this->fulfilment    = $this->shop->fulfilment;
         $this->organisation  = $this->shop->organisation;
@@ -56,6 +58,7 @@ class RetinaAction
     public function initialisationFulfilmentActions(FulfilmentCustomer $fulfilmentCustomer, array $modelData): static
     {
         $this->fulfilment   = $fulfilmentCustomer->fulfilment;
+        $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->customer     = $fulfilmentCustomer->customer;
         $this->shop         = $this->fulfilment->shop;
         $this->organisation = $this->fulfilment->organisation;

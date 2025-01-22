@@ -69,20 +69,4 @@ class ImportRawMaterial extends OrgAction
         return UploadsResource::make($upload)->getArray();
     }
 
-    // public function rumImport($file, $command): Upload
-    // {
-    //     if ($palletDeliverySlug = $command->argument('palletDelivery')) {
-    //         $palletDelivery = PalletDelivery::where('slug', $palletDeliverySlug)->first();
-    //     } else {
-    //         $warehouse          = Warehouse::where('slug', $command->argument('warehouse'))->first();
-    //         $fulfilmentCustomer = FulfilmentCustomer::where('slug', $command->argument('fulfilmentCustomer'))->first();
-    //         $palletDelivery     = StorePalletDelivery::run($fulfilmentCustomer, [
-    //             'warehouse_id' => $warehouse->id,
-    //         ]);
-    //     }
-
-    //     return $this->handle($palletDelivery, $file);
-    // }
-
-    // public string $commandSignature = 'pallet:import {--g|g_drive} {filename} {fulfilmentCustomer?} {warehouse?} {palletDelivery?}';
-}
+   }

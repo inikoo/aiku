@@ -27,7 +27,7 @@ use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
 use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\DispatchedPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\DispatchPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturnItem\NotPickedPalletFromReturn;
@@ -63,7 +63,7 @@ Route::patch('pallet-delivery/{palletDelivery:id}/booked-in', SetPalletDeliveryA
 Route::patch('pallet-return/{palletReturn:id}/confirm', [ConfirmPalletReturn::class, 'maya'])->name('pallet-return.confirm');
 Route::patch('pallet-return/{palletReturn:id}/start-picking', [PickingPalletReturn::class, 'maya'])->name('pallet-return.picking');
 Route::patch('pallet-return/{palletReturn:id}/picked', [PickedPalletReturn::class, 'maya'])->name('pallet-return.picked');
-Route::patch('pallet-return/{palletReturn:id}/dispatch', [DispatchedPalletReturn::class, 'maya'])->name('pallet-return.dispatch');
+Route::patch('pallet-return/{palletReturn:id}/dispatch', [DispatchPalletReturn::class, 'maya'])->name('pallet-return.dispatch');
 
 Route::patch('pallet-return-item/{palletReturnItem:id}/pick', SetPalletInReturnAsPicked::class)->name('pallet-return-item.pick');
 Route::patch('pallet-return-item/{palletReturnItem:id}/undo-pick', UndoPickingPalletFromReturn::class)->name('pallet-return-item.undo-pick');

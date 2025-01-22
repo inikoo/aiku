@@ -95,6 +95,10 @@ Route::middleware(["auth"])->group(function () {
         ->name("websites.")
         ->group(__DIR__."/websites.php");
 
+    Route::prefix("helpers")
+        ->name("helpers.")
+        ->group(__DIR__."/helpers.php");
+
     Route::fallback(function () {
         $status = 404;
         return Inertia::render('Errors/Error404', compact('status'))

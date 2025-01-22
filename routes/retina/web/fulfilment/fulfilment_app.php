@@ -24,4 +24,9 @@ Route::prefix("billing")
     ->name("billing.")
     ->group(__DIR__."/billing.php");
 
-\Route::get('pricing', IndexRetinaPricing::class)->name('pricing');
+
+// \Route::get('pricing', IndexRetinaPricing::class)->name('pricing');
+
+Route::prefix("pricing")
+    ->name("pricing")
+    ->group(__DIR__."/pricing.php");

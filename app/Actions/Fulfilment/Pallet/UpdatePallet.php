@@ -13,7 +13,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrat
 use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
 use App\Actions\Fulfilment\PalletDelivery\AutoAssignServicesToPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryStateFromItems;
-use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturnStateFromItems;
+use App\Actions\Fulfilment\PalletReturn\AutomaticallySetPalletReturnAsPickedIfAllItemsPicked;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePallets;
@@ -42,16 +42,18 @@ class UpdatePallet extends OrgAction
 
     public function handle(Pallet $pallet, array $modelData): Pallet
     {
+
+
         $originalType = $pallet->type;
         $pallet       = $this->update($pallet, $modelData, ['data']);
-
+        $pallet->refresh();
 
         if (Arr::hasAny($pallet->getChanges(), ['state'])) {
             if ($pallet->pallet_delivery_id) {
                 UpdatePalletDeliveryStateFromItems::run($pallet->palletDelivery);
             }
             if ($pallet->pallet_return_id) {
-                UpdatePalletReturnStateFromItems::run($pallet->palletReturn);
+                AutomaticallySetPalletReturnAsPickedIfAllItemsPicked::run($pallet->palletReturn);
             }
 
             GroupHydratePallets::dispatch($pallet->group)->delay($this->hydratorsDelay);

@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\PalletReturn\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\PalletReturn\AddAddressToPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Json\GetReturnPallets;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemsInReturn;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
@@ -214,7 +215,7 @@ class ShowPalletReturn extends OrgAction
                 $palletReturn->state == PalletReturnStateEnum::CONFIRMED ? [
                     'type'    => 'button',
                     'style'   => 'save',
-                    'tooltip' => __('start picking'),
+                    'tooltip' => __('Start picking'),
                     'label'   => __('start picking'),
                     'key'     => 'start picking',
                     'route'   => [
@@ -231,7 +232,7 @@ class ShowPalletReturn extends OrgAction
                 $palletReturn->state == PalletReturnStateEnum::PICKING ? [
                     'type'    => 'button',
                     'style'   => 'save',
-                    'tooltip' => __('set all pending as picked'),
+                    'tooltip' => __('Set all pending as picked'),
                     'label'   => __('pick all'),
                     'key'     => 'pick all',
                     'route'   => [
@@ -248,16 +249,13 @@ class ShowPalletReturn extends OrgAction
                 $palletReturn->state == PalletReturnStateEnum::PICKED ? [
                     'type'    => 'button',
                     'style'   => 'save',
-                    'tooltip' => __('set as dispatched'),
-                    'label'   => __('Dispatching'),
+                    'tooltip' => __('Set as dispatched'),
+                    'label'   => __('Dispatch'),
                     'key'     => 'Dispatching',
                     'route'   => [
                         'method'     => 'post',
-                        'name'       => 'grp.models.fulfilment-customer.pallet-return.dispatched',
+                        'name'       => 'grp.models.pallet-return.dispatch',
                         'parameters' => [
-                            'organisation'       => $palletReturn->organisation->slug,
-                            'fulfilment'         => $palletReturn->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
                             'palletReturn'       => $palletReturn->id
                         ]
                     ]
@@ -288,42 +286,47 @@ class ShowPalletReturn extends OrgAction
 
 
 
-        $addresses = $palletReturn->fulfilmentCustomer->customer->addresses;
+        // $addresses = $palletReturn->fulfilmentCustomer->customer->addresses;
+        // $addresses = $palletReturn->addresses;
 
-        $processedAddresses = $addresses->map(function ($address) {
+        // $processedAddresses = $addresses->map(function ($address) {
+        //     if (!DB::table('model_has_addresses')->where('address_id', $address->id)->where('model_type', '=', 'PalletReturn')->exists()) {
+
+        //         return $address->setAttribute('can_delete', false)
+        //             ->setAttribute('can_edit', true);
+        //     }
 
 
-            if (!DB::table('model_has_addresses')->where('address_id', $address->id)->where('model_type', '=', 'Customer')->exists()) {
+        //     return $address->setAttribute('can_delete', true)
+        //                     ->setAttribute('can_edit', true);
+        // });
 
-                return $address->setAttribute('can_delete', false)
-                    ->setAttribute('can_edit', true);
-            }
+        // if($addresses->count() == 0){
+        //     AddAddressToPalletReturn::run($palletReturn->fulfilmentCustomer, $palletReturn, []);
+        // }
 
+        // $customerAddressId              = $palletReturn->fulfilmentCustomer->customer->address->id;
+        // $customerDeliveryAddressId      = $palletReturn->fulfilmentCustomer->customer->deliveryAddress->id;
+        // $palletReturnDeliveryAddressIds = PalletReturn::where('fulfilment_customer_id', $palletReturn->fulfilment_customer_id)
+        //                                     ->pluck('delivery_address_id')
+        //                                     ->unique()
+        //                                     ->toArray();
 
-            return $address->setAttribute('can_delete', true)
-                            ->setAttribute('can_edit', true);
-        });
+        // $forbiddenAddressIds = array_merge(
+        //     $palletReturnDeliveryAddressIds,
+        //     [$customerAddressId, $customerDeliveryAddressId]
+        // );
 
-        $customerAddressId              = $palletReturn->fulfilmentCustomer->customer->address->id;
-        $customerDeliveryAddressId      = $palletReturn->fulfilmentCustomer->customer->deliveryAddress->id;
-        $palletReturnDeliveryAddressIds = PalletReturn::where('fulfilment_customer_id', $palletReturn->fulfilment_customer_id)
-                                            ->pluck('delivery_address_id')
-                                            ->unique()
-                                            ->toArray();
+        // $processedAddresses->each(function ($address) use ($forbiddenAddressIds) {
+        //     if (in_array($address->id, $forbiddenAddressIds, true)) {
+        //         $address->setAttribute('can_delete', false)
+        //                 ->setAttribute('can_edit', true);
+        //     }
+        // });
 
-        $forbiddenAddressIds = array_merge(
-            $palletReturnDeliveryAddressIds,
-            [$customerAddressId, $customerDeliveryAddressId]
-        );
+        // $deliveryAddress = $palletReturn->deliveryAddress;
 
-        $processedAddresses->each(function ($address) use ($forbiddenAddressIds) {
-            if (in_array($address->id, $forbiddenAddressIds, true)) {
-                $address->setAttribute('can_delete', false)
-                        ->setAttribute('can_edit', true);
-            }
-        });
-
-        $addressCollection = AddressResource::collection($processedAddresses);
+        // $addressCollection = AddressResource::collection($processedAddresses);
         // dd($palletReturn->fulfilmentCustomer->customer->address_id);
         // dd($addressCollection);
         // dd($palletReturnDeliveryAddressIds);
@@ -491,37 +494,43 @@ class ShowPalletReturn extends OrgAction
                         FulfilmentCustomerResource::make($palletReturn->fulfilmentCustomer)->getArray(),
                         [
                             'address'      => [
-                                'value'   => AddressResource::make($palletReturn->deliveryAddress ?? new Address()),
+                                'value'   => $palletReturn->is_collection ?
+                                    [] :
+                                    AddressResource::make($palletReturn->deliveryAddress),
                                 'options' => [
                                     'countriesAddressData' => GetAddressData::run()
                                 ],
-                                'address_list'                   => $addressCollection,
+                                'address_customer' => [
+                                    'value'   => AddressResource::make($palletReturn->fulfilmentCustomer->customer->address),
+                                    'options' => [
+                                        'countriesAddressData' => GetAddressData::run()
+                                    ],
+                                ],
                                 'pinned_address_id'              => $palletReturn->fulfilmentCustomer->customer->delivery_address_id,
                                 'home_address_id'                => $palletReturn->fulfilmentCustomer->customer->address_id,
                                 'current_selected_address_id'    => $palletReturn->delivery_address_id,
-                                'selected_delivery_addresses_id' => $palletReturnDeliveryAddressIds,
-                                'routes_list'                    => [
-                                    'pinned_route'                   => [
-                                        'method'     => 'patch',
-                                        'name'       => 'grp.models.customer.delivery-address.update',
+                                'routes_address' => [
+                                    'store'  => [
+                                        'method'     => 'post',
+                                        'name'       => 'grp.models.pallet-return.address.store',
                                         'parameters' => [
-                                            'customer' => $palletReturn->fulfilmentCustomer->customer_id
+                                            'palletReturn'       => $palletReturn->id
                                         ]
                                     ],
-                                    'delete_route'  => [
+                                    'delete'  => [
                                         'method'     => 'delete',
-                                        'name'       => 'grp.models.fulfilment-customer.delivery-address.delete',
+                                        'name'       => 'grp.models.pallet-return.address.delete',
                                         'parameters' => [
-                                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id
+                                            'palletReturn'       => $palletReturn->id
                                         ]
                                     ],
-                                    'store_route' => [
-                                        'method'      => 'post',
-                                        'name'        => 'grp.models.fulfilment-customer.address.store',
-                                        'parameters'  => [
-                                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id
+                                    'update' => [
+                                        'method'     => 'patch',
+                                        'name'       => 'grp.models.pallet-return.address.update',
+                                        'parameters' => [
+                                            'palletReturn'       => $palletReturn->id
                                         ]
-                                    ],
+                                    ]
                                 ]
                             ],
                         ]

@@ -125,5 +125,40 @@ export default {
 				},
 			],
 		},
+		{
+			name: "Logout",
+            key:['logout'],
+			icon: {
+				icon: "fal fa-sign-out-alt",
+				tooltip: "Action",
+			},
+			replaceForm: [
+				{
+					key: ["container",'properties','text'],
+					label :'Text',
+					type: "textProperty",
+				},
+				{
+					key: ['text'],
+					label :'Button Text',
+					type: "text",
+				},
+				{
+					key: ["container",'properties','border'],
+					label :'Border',
+					type: "border",
+				},
+				{
+					key: ["container",'properties','margin'],
+					label :'Margin',
+					type: "margin",
+				},
+				{
+					key: ["container",'properties','padding'],
+					label :'Padding',
+					type: "padding",
+				},
+			],
+		},
 	],
 }

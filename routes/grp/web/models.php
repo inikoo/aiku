@@ -77,14 +77,19 @@ use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
 use App\Actions\Fulfilment\PalletDelivery\CancelPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\DeletePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\Pdf\PdfPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
 use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitAndConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
+use App\Actions\Fulfilment\PalletReturn\AddAddressToPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\DeletePalletReturnAddress;
+use App\Actions\Fulfilment\PalletReturn\DispatchPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
+use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturnDeliveryAddress;
 use App\Actions\Fulfilment\PalletReturnItem\NotPickedPalletFromReturn;
 use App\Actions\Fulfilment\PalletReturnItem\SyncPalletReturnItem;
 use App\Actions\Fulfilment\PalletReturnItem\UndoPickingPalletFromReturn;
@@ -170,6 +175,7 @@ use App\Actions\Web\ModelHasWebBlocks\UploadImagesToModelHasWebBlocks;
 use App\Actions\Web\Webpage\PublishWebpage;
 use App\Actions\Web\Webpage\ReorderWebBlocks;
 use App\Actions\Web\Webpage\UpdateWebpage;
+use App\Actions\Web\Website\AutosaveWebsiteMarginal;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\PublishWebsiteMarginal;
 use App\Actions\Web\Website\PublishWebsiteProductTemplate;
@@ -352,25 +358,41 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('booked-in', SetPalletDeliveryAsBookedIn::class)->name('booked-in');
 
 
-    Route::post('pallet-upload', [ImportPallet::class, 'fromGrp'])->name('pallet.upload');
+    Route::post('pallet-upload', ImportPallet::class, )->name('pallet.upload');
     Route::post('pallet', StorePalletFromDelivery::class)->name('pallet.store');
     Route::post('multiple-pallet', StoreMultiplePalletsFromDelivery::class)->name('multiple-pallets.store');
 
     Route::post('transaction', [StoreFulfilmentTransaction::class,'inPalletDelivery'])->name('transaction.store');
+    Route::delete('/', DeletePalletDelivery::class)->name('delete');
 
     Route::get('pdf', PdfPalletDelivery::class)->name('pdf');
 });
 
+
+
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
+
+    Route::post('address', AddAddressToPalletReturn::class)->name('address.store');
+    Route::patch('address/update', UpdatePalletReturnDeliveryAddress::class)->name('address.update');
+    Route::delete('address/delete', DeletePalletReturnAddress::class)->name('address.delete');
+
+    Route::post('dispatch', DispatchPalletReturn::class)->name('dispatch');
+
 
     Route::post('transaction', [StoreFulfilmentTransaction::class,'inPalletReturn'])->name('transaction.store');
     Route::post('pallet', AttachPalletsToReturn::class)->name('pallet.store');
     //todo this new action
     Route::post('stored-item', StoreStoredItemsToReturn::class)->name('stored_item.store');
     Route::post('stored-item-upload', [ImportPalletReturnItem::class, 'fromGrp'])->name('stored-item.upload');
-    Route::post('pallet-upload', [ImportPallet::class, 'fromGrp'])->name('pallet.upload');
+
+    // This is wrong ImportPallet is used when creating a pallet delivery
+    Route::post('pallet-upload', ImportPallet::class)->name('pallet.upload');
     Route::patch('/', UpdatePalletReturn::class)->name('update');
     Route::get('pdf', PdfPalletReturn::class)->name('pdf');
+
+
+
+
 });
 
 Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
@@ -461,15 +483,18 @@ Route::name('website.')->prefix('website/{website:id}')->group(function () {
     Route::post('publish/header', [PublishWebsiteMarginal::class, 'header'])->name('publish.header');
     Route::post('publish/footer', [PublishWebsiteMarginal::class, 'footer'])->name('publish.footer');
 
-    Route::patch('autosave/header', [PublishWebsiteMarginal::class, 'header'])->name('autosave.header');
-    Route::patch('autosave/footer', [PublishWebsiteMarginal::class, 'footer'])->name('autosave.footer');
-    Route::patch('autosave/menu', [PublishWebsiteMarginal::class, 'menu'])->name('autosave.menu');
+    Route::patch('autosave/header', [AutosaveWebsiteMarginal::class, 'header'])->name('autosave.header');
+    Route::patch('autosave/footer', [AutosaveWebsiteMarginal::class, 'footer'])->name('autosave.footer');
+    Route::patch('autosave/menu', [AutosaveWebsiteMarginal::class, 'menu'])->name('autosave.menu');
 
     Route::post('publish/menu', [PublishWebsiteMarginal::class, 'menu'])->name('publish.menu');
 
     Route::patch('/settings/update', PublishWebsiteProductTemplate::class)->name('settings.update');
 
     Route::patch('theme', [PublishWebsiteMarginal::class, 'theme'])->name('update.theme');
+    //    Route::patch('menu-toggle', ToggleWebsiteMenuStatus::class)->name('menu.toggle.status');
+    //    Route::patch('header-toggle', ToggleWebsiteHeaderStatus::class)->name('header.toggle.status');
+    //    Route::patch('footer-toggle', ToggleWebsiteFooterStatus::class)->name('footer.toggle.status');
 
     Route::patch('', UpdateWebsite::class)->name('update');
     Route::post('launch', LaunchWebsite::class)->name('launch');

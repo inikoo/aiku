@@ -8,7 +8,6 @@
 
 namespace App\Actions\Retina\Fulfilment\PalletDelivery\UI;
 
-use App\Actions\Catalogue\HasRentalAgreement;
 use App\Actions\Retina\Fulfilment\UI\ShowRetinaStorageDashboard;
 use App\Actions\RetinaAction;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
@@ -26,7 +25,6 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexRetinaPalletDeliveries extends RetinaAction
 {
-    use HasRentalAgreement;
 
     protected function getElementGroups(FulfilmentCustomer $fulfilmentCustomer): array
     {
@@ -108,7 +106,6 @@ class IndexRetinaPalletDeliveries extends RetinaAction
             ->withQueryString();
     }
 
-
     public function tableStructure(FulfilmentCustomer $fulfilmentCustomer, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($fulfilmentCustomer, $modelOperations, $prefix) {
@@ -142,9 +139,7 @@ class IndexRetinaPalletDeliveries extends RetinaAction
         return Inertia::render(
             'Storage/RetinaPalletDeliveries',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                ),
+                'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('pallet deliveries'),
                 'pageHead'    => [
                     'title'   => __('Deliveries'),
@@ -171,26 +166,23 @@ class IndexRetinaPalletDeliveries extends RetinaAction
         )->table($this->tableStructure($this->customer->fulfilmentCustomer));
     }
 
-    public function getBreadcrumbs(string $routeName): array
+    public function getBreadcrumbs(): array
     {
-        return match ($routeName) {
-            'retina.fulfilment.storage.pallet_deliveries.index' =>
-            array_merge(
-                ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+        return array_merge(
+            ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+            [
                 [
-                    [
-                        'type'   => 'simple',
-                        'simple' => [
-                            'route' => [
-                                'name' => 'retina.fulfilment.storage.pallet_deliveries.index',
-                            ],
-                            'label' => __('Pallet Deliveries'),
-                            'icon'  => 'fal fa-bars',
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => [
+                            'name' => 'retina.fulfilment.storage.pallet_deliveries.index',
                         ],
+                        'label' => __('Deliveries'),
+                        'icon'  => 'fal fa-bars',
+                    ],
 
-                    ]
                 ]
-            ),
-        };
+            ]
+        );
     }
 }

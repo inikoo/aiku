@@ -27,6 +27,7 @@ class DetachRetinaPalletFromReturn extends RetinaAction
 
 
     private Pallet $pallet;
+    private bool $action = false;
 
     public function handle(PalletReturn $palletReturn, Pallet $pallet): bool
     {
@@ -48,12 +49,23 @@ class DetachRetinaPalletFromReturn extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->action) {
+            return true;
+        }
         return true;
     }
 
     public function asController(PalletReturn $palletReturn, Pallet $pallet, ActionRequest $request): bool
     {
         $this->initialisation($request);
+
+        return $this->handle($palletReturn, $pallet);
+    }
+
+    public function action(PalletReturn $palletReturn, Pallet $pallet, array $modelData): bool
+    {
+        $this->action = true;
+        $this->initialisationFulfilmentActions($palletReturn->fulfilmentCustomer, $modelData);
 
         return $this->handle($palletReturn, $pallet);
     }

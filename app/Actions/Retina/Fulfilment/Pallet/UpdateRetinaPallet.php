@@ -14,7 +14,6 @@ use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrat
 use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
 use App\Actions\Fulfilment\PalletDelivery\AutoAssignServicesToPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryStateFromItems;
-use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturnStateFromItems;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
 use App\Actions\RetinaAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePallets;
@@ -40,6 +39,7 @@ class UpdateRetinaPallet extends RetinaAction
 
 
     private Pallet $pallet;
+    private bool $action = false;
 
     public function handle(Pallet $pallet, array $modelData): Pallet
     {
@@ -51,9 +51,7 @@ class UpdateRetinaPallet extends RetinaAction
             if ($pallet->pallet_delivery_id) {
                 UpdatePalletDeliveryStateFromItems::run($pallet->palletDelivery);
             }
-            if ($pallet->pallet_return_id) {
-                UpdatePalletReturnStateFromItems::run($pallet->palletReturn);
-            }
+
 
             GroupHydratePallets::dispatch($pallet->group)->delay($this->hydratorsDelay);
             OrganisationHydratePallets::dispatch($pallet->organisation)->delay($this->hydratorsDelay);
@@ -72,7 +70,7 @@ class UpdateRetinaPallet extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->asAction) {
+        if ($this->action) {
             return true;
         }
 
@@ -171,20 +169,15 @@ class UpdateRetinaPallet extends RetinaAction
         return $this->handle($pallet, $this->validatedData);
     }
 
-    // public function action(Pallet $pallet, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Pallet
-    // {
-    //     $this->strict = $strict;
-    //     if (!$audit) {
-    //         Pallet::disableAuditing();
-    //     }
+    public function action(Pallet $pallet, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Pallet
+    {
+        $this->pallet         = $pallet;
+        $this->action         = true;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->initialisationFulfilmentActions($pallet->fulfilmentCustomer, $modelData);
 
-    //     $this->pallet         = $pallet;
-    //     $this->asAction       = true;
-    //     $this->hydratorsDelay = $hydratorsDelay;
-    //     $this->initialisationFromFulfilment($pallet->fulfilment, $modelData);
-
-    //     return $this->handle($pallet, $this->validatedData);
-    // }
+        return $this->handle($pallet, $this->validatedData);
+    }
 
     public function jsonResponse(Pallet $pallet): PalletResource
     {

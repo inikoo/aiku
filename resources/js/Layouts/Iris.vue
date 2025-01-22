@@ -33,7 +33,6 @@ const navigation =  usePage().props?.iris?.menu
 const footer =  usePage().props?.iris?.footer
 const theme =  usePage().props?.iris?.theme ? usePage().props?.iris?.theme :  {color : [...useColorTheme[2]]}
 
-console.log('inislds',usePage().props?.iris)
 
 onMounted(() => {
     irisStyleVariables(theme?.color)
@@ -59,6 +58,8 @@ const setFirstVisitToFalse = () => {
     }
     firstVisit.value = false
 };
+
+
 
 </script>
 
@@ -105,6 +106,14 @@ const setFirstVisitToFalse = () => {
             <Notification :notification="props" />
         </template>
     </notifications>
+
+    <iframe 
+        id="superchat-widget" 
+        class="fixed bottom-0 right-0 z-[10000] placement-right" 
+        style="width: 300px; height: 400px;" 
+        src="https://widget.superchat.de/v2?applicationKey=WCNK7nqXPQlrVGq895A2obLRVa">
+    </iframe>
+
 </template>
 
 <style lang="scss">

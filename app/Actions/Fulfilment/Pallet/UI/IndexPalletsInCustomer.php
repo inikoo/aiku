@@ -13,6 +13,7 @@ use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
+use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Enums\UI\Fulfilment\FulfilmentCustomerPalletsTabsEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -40,30 +41,30 @@ class IndexPalletsInCustomer extends OrgAction
     private FulfilmentCustomer $fulfilmentCustomer;
     private FulfilmentCustomer $parent;
 
-    protected function getElementGroups(FulfilmentCustomer $fulfilmentCustomer, string $prefix): array
-    {
-        $elements = [];
-
-        if ($prefix == 'all') {
-            $elements = [
-                'status' => [
-                    'label'    => __('Status'),
-                    'elements' => array_merge_recursive(
-                        PalletStatusEnum::labels($fulfilmentCustomer),
-                        PalletStatusEnum::count($fulfilmentCustomer)
-                    ),
-
-                    'engine' => function ($query, $elements) {
-                        $query->whereIn('pallets.status', $elements);
-                    }
-                ],
-
-
-            ];
-        }
-
-        return $elements;
-    }
+    //    protected function getElementGroups(FulfilmentCustomer $fulfilmentCustomer, string $prefix): array
+    //    {
+    //        $elements = [];
+    //
+    //        if ($prefix == 'all') {
+    //            $elements = [
+    //                'status' => [
+    //                    'label'    => __('Status'),
+    //                    'elements' => array_merge_recursive(
+    //                        PalletStatusEnum::labels($fulfilmentCustomer),
+    //                        PalletStatusEnum::count($fulfilmentCustomer)
+    //                    ),
+    //
+    //                    'engine' => function ($query, $elements) {
+    //                        $query->whereIn('pallets.status', $elements);
+    //                    }
+    //                ],
+    //
+    //
+    //            ];
+    //        }
+    //
+    //        return $elements;
+    //    }
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, $prefix = null): LengthAwarePaginator
     {
@@ -96,14 +97,14 @@ class IndexPalletsInCustomer extends OrgAction
         }
 
 
-        foreach ($this->getElementGroups($fulfilmentCustomer, $prefix) as $key => $elementGroup) {
-            $query->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
-        }
+        //        foreach ($this->getElementGroups($fulfilmentCustomer, $prefix) as $key => $elementGroup) {
+        //            $query->whereElementGroup(
+        //                key: $key,
+        //                allowedElements: array_keys($elementGroup['elements']),
+        //                engine: $elementGroup['engine'],
+        //                prefix: $prefix
+        //            );
+        //        }
 
 
         $query->whereNotNull('pallets.slug');
@@ -147,13 +148,13 @@ class IndexPalletsInCustomer extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            foreach ($this->getElementGroups($fulfilmentCustomer, $prefix) as $key => $elementGroup) {
-                $table->elementGroup(
-                    key: $key,
-                    label: $elementGroup['label'],
-                    elements: $elementGroup['elements']
-                );
-            }
+            //            foreach ($this->getElementGroups($fulfilmentCustomer, $prefix) as $key => $elementGroup) {
+            //                $table->elementGroup(
+            //                    key: $key,
+            //                    label: $elementGroup['label'],
+            //                    elements: $elementGroup['elements']
+            //                );
+            //            }
 
             $count = 0;
 
@@ -233,6 +234,61 @@ class IndexPalletsInCustomer extends OrgAction
         ];
 
         $actions = [];
+
+        if ($this->parent->number_pallets_status_storing) {
+            $actions[] = [
+                'type'    => 'button',
+                    'style'   => 'create',
+                    'tooltip' => $this->parent->items_storage ? __('Create new return (whole pallet)') : __('Create new return'),
+                    'label'   => $this->parent->items_storage ? __('Return (whole pallet)') : __('Return'),
+                    'fullLoading'   => true,
+                    'route'   => [
+                        'method'     => 'post',
+                        'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
+                        'parameters' => [$this->parent->id]
+                    ]
+                ];
+        }
+        if ($this->parent->items_storage) {
+
+            $actions[] = [
+                'type'    => 'button',
+                'style'   => 'create',
+                'tooltip' => __('Create new return (stored items)'),
+                'label'   => __('Return (Stored items)'),
+                'fullLoading'   => true,
+                'route'   => [
+                    'method'     => 'post',
+                    'name'       => 'grp.models.fulfilment-customer.pallet-return-stored-items.store',
+                    'parameters' => [$this->parent->id]
+                ]
+            ];
+
+            $openStoredItemAudit = $this->parent->storedItemAudits()->where('state', StoredItemAuditStateEnum::IN_PROCESS)->first();
+
+            if ($openStoredItemAudit) {
+                $actions[] = [
+                    'type'    => 'button',
+                    'style'   => 'secondary',
+                    'tooltip' => __("Continue customer's SKUs audit"),
+                    'label'   => __("Continue customer's SKUs audit"),
+                    'route'   => [
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.show',
+                        'parameters' => array_merge($request->route()->originalParameters(), ['storedItemAudit' => $openStoredItemAudit->slug])
+                    ]
+                ];
+            } else {
+                $actions[] = [
+                    'type'    => 'button',
+                    'tooltip' => __("Start customer's SKUs audit"),
+                    'label'   => __("Start customer's SKUs audit"),
+                    'route'   => [
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.create',
+                        'parameters' => $request->route()->originalParameters()
+                    ]
+                ];
+            }
+        }
 
 
         return Inertia::render(

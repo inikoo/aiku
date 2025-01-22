@@ -49,6 +49,10 @@ export const initialiseIrisApp = () => {
             layout.iris = usePage().props.iris
         }
 
+        if (usePage().props?.user_auth) {
+            layout.user_auth = usePage().props?.user_auth
+        }
+
         // Set data of Locale (Language)
         // if (usePage().props.localeData) {
         //     locale.language = usePage().props.localeData.language

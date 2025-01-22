@@ -82,20 +82,21 @@ class IndexStoredItems extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            // dd(class_basename($parent) );
+
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
                     match (class_basename($parent)) {
+
                         'FulfilmentCustomer' => [
                             'title'         => __("No stored items found"),
-                            'count'         => $parent->count(),
+                            'count'         => $parent->number_stored_items,
                             'description'   => __("No items stored in this customer")
                         ],
                         'Group' => [
                             'title'         => __("No stored items found"),
-                            'count'         => $parent->count(),
+                            'count'         => $parent->fulfilmentStats->number_stored_items,
                             'description'   => __("No items stored in this group")
                         ],
                         default => []
@@ -137,8 +138,7 @@ class IndexStoredItems extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $storedItems, ActionRequest $request): Response
     {
-        // dd($this->parent);
-        // dd(StoredItemAuditsResource::collection(IndexStoredItemAudits::run($this->parent)));
+
         $subNavigation = [];
         $actions = [];
         $icon      = ['fal', 'fa-narwhal'];
@@ -155,7 +155,7 @@ class IndexStoredItems extends OrgAction
             ];
             $afterTitle = [
 
-                'label'     => __("customer's sKUs")
+                'label'     => __("Customer's SKUs")
             ];
 
 

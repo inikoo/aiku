@@ -38,7 +38,7 @@ const model = defineModel<ModelTopbar1>()
 const active = ref()
 
 const isLoggedIn = inject('isPreviewLoggedIn', false)
-
+const onLogout = inject('onLogout', true)
 
 const locale = inject('locale', aikuLocaleStructure)
 const layout = inject('layout', {})
@@ -135,7 +135,7 @@ const layout = inject('layout', {})
 
             <!-- Section: LogoutRetina -->
             <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
-                :href="model?.logout?.link"
+                @click="()=>onLogout()"
                 class="space-x-1.5 whitespace-nowrap "
                 :style="getStyles(model?.logout.container?.properties)"
 

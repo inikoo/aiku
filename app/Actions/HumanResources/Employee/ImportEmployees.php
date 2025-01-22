@@ -50,7 +50,7 @@ class ImportEmployees
 
     public string $commandSignature = 'employee:import {org} {--g|g_drive} {filename}';
 
-    public function rumImport($file, $command): Upload
+    public function runImportForCommand($file, $command): Upload
     {
         $this->parent = Organisation::where('slug', $command->argument('org'))->first();
 

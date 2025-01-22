@@ -17,7 +17,7 @@ use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryTimeline;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DetachPalletFromReturn;
-use App\Actions\Fulfilment\PalletReturn\DispatchedPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\DispatchPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
@@ -36,11 +36,11 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     Route::delete('pallet-delivery/{palletDelivery:id}/pallet/{pallet:id}', DeletePalletInDelivery::class)->name('pallet-delivery.pallet.delete');
     Route::get('pallet-delivery/{palletDelivery:id}/export', PdfPalletDelivery::class)->name('pallet-delivery.export');
     Route::patch('pallet-delivery/{palletDelivery:id}/timeline', UpdatePalletDeliveryTimeline::class)->name('pallet-delivery.timeline.update');
+
+    // pallet return
     Route::post('pallet-return', StorePalletReturn::class)->name('pallet-return.store');
     Route::post('pallet-return-stored-items', [StorePalletReturn::class,'withStoredItems'])->name('pallet-return-stored-items.store');
-
     Route::post('', [StoreWebUser::class, 'inFulfilmentCustomer'])->name('web-user.store');
-
 
 
     Route::post('address', AddDeliveryAddressToFulfilmentCustomer::class)->name('address.store');
@@ -60,7 +60,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
         Route::post('delivery', PickingPalletReturn::class)->name('picking');
         Route::post('confirm', ConfirmPalletReturn::class)->name('confirm');
         Route::post('received', PickedPalletReturn::class)->name('picked');
-        Route::post('dispatched', DispatchedPalletReturn::class)->name('dispatched');
+        Route::post('dispatched', DispatchPalletReturn::class)->name('dispatched');
     });
 
 

@@ -8,6 +8,7 @@
 
 namespace App\Actions\Retina\Fulfilment\UI;
 
+use App\Actions\Retina\Pricing\UI\WithRetinaPricingSubNavigation;
 use App\Actions\Retina\UI\Dashboard\ShowRetinaDashboard;
 use App\Actions\RetinaAction;
 use App\Http\Resources\Helpers\CurrencyResource;
@@ -18,6 +19,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class IndexRetinaPricing extends RetinaAction
 {
+    use WithRetinaPricingSubNavigation;
     public function asController(ActionRequest $request): FulfilmentCustomer
     {
         $this->initialisation($request);
@@ -56,6 +58,7 @@ class IndexRetinaPricing extends RetinaAction
                         'tooltip' => __('Prices')
                     ],
                     'title'         => 'Prices',
+                    'subNavigation' => $this->getPricingNavigation($fulfilmentCustomer->fulfilment),
                 ],
                 'currency'     => CurrencyResource::make($fulfilmentCustomer->fulfilment->shop->currency),
 
@@ -74,7 +77,7 @@ class IndexRetinaPricing extends RetinaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'retina.fulfilment.pricing',
+                                'name'       => 'retina.fulfilment.pricing.index',
                             ],
                             'label' => __('Prices'),
                         ]

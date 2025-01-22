@@ -29,7 +29,7 @@ class UpdateStoredItemToPallet extends OrgAction
     public function handle(Pallet $pallet, StoredItem $storedItem, int $quantity): void
     {
         $this->update($pallet->storedItems()->where('stored_item_id', $storedItem->id)->first(), [
-            'quantity' => $quantity
+            'pallet_stored_items.quantity' => $quantity
         ]);
     }
 }

@@ -59,10 +59,15 @@ function storedItemAuditRoute(storedItemAudit: {}) {
         <template #cell(state)="{ item: storedItemAudit }">
             <Icon :data="storedItemAudit['state_icon']" class="px-1" />
         </template>
+
         <template #cell(reference)="{ item: storedItemAudit }">
             <Link :href="storedItemAuditRoute(storedItemAudit)" class="primaryLink">
                 {{ storedItemAudit.reference }}
             </Link>
+        </template>
+
+        <template #cell(created_at)="{ item: storedItemAudit }">
+            {{ useFormatTime(storedItemAudit.created_at, {formatTime: 'hm'}) }}
         </template>
     </Table>
 </template>

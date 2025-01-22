@@ -28,6 +28,7 @@ import Action from '@/Components/Forms/Fields/Action.vue'
 import AppLogin from '@/Components/Forms/Fields/AppLogin.vue'
 import Pin from '@/Components/Forms/Fields/Pin.vue'
 import GeneratePassword from '@/Components/Forms/Fields/GeneratePassword.vue'
+import TaxNumber from '@/Components/Forms/Fields/TaxNumber.vue'
 
 const GoogleSearch = defineAsyncComponent(() => import('@/Components/Forms/Fields/GoogleSearch.vue'))
 const EmployeeState = defineAsyncComponent(() => import('@/Components/Forms/Fields/Employee/EmployeeState.vue'))
@@ -79,7 +80,8 @@ export const componentsList: {[key: string]: Component} = {
     'app_theme': AppTheme,
     'googleSearch': GoogleSearch,
     'employeeState': EmployeeState,
-    'pin' : Pin
+    'pin' : Pin,
+    'tax_number' : TaxNumber
 }
 
 export const getComponent = (componentName: string) => {

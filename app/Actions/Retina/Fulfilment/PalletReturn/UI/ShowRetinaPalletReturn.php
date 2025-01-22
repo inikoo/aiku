@@ -129,9 +129,9 @@ class ShowRetinaPalletReturn extends RetinaAction
         $showGrossAndDiscount = $palletReturn->gross_amount !== $palletReturn->net_amount;
 
         if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
-            $downloadRoute = 'retina.fulfilment.storage.pallet-returns.pallets.uploads.templates';
+            $downloadRoute = 'retina.fulfilment.storage.pallet_returns.pallets.uploads.templates';
         } else {
-            $downloadRoute = 'retina.fulfilment.storage.pallet-returns.stored-items.uploads.templates';
+            $downloadRoute = 'retina.fulfilment.storage.pallet_returns.stored-items.uploads.templates';
         };
         return Inertia::render(
             'Storage/RetinaPalletReturn',
@@ -154,67 +154,13 @@ class ShowRetinaPalletReturn extends RetinaAction
                     'afterTitle' => $afterTitle,
                     'model'     => __('pallet return'),
                     'actions'   => $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
-                        [
+       /*                 [
                             'type'      => 'button',
                             'style'     => 'tertiary',
                             'icon'      => 'fal fa-upload',
                             'label'     => __('upload'),
                             'tooltip'   => __('Upload file')
-                        ],
-                        [
-                            'type'   => 'buttonGroup',
-                            'key'    => 'upload-add',
-                            'button' => [
-                                [
-                                    'type'  => 'button',
-                                    'style' => 'secondary',
-                                    'icon'  => 'fal fa-plus',
-                                    'label' => __('add pallet'),
-                                    'route' => [
-                                        'name'       => 'retina.models.pallet-return.pallet.store',
-                                        'parameters' => [
-                                            'palletReturn'       => $palletReturn->id
-                                        ]
-                                    ]
-                                ],
-                                [
-                                    'type'    => 'button',
-                                    'style'   => 'secondary',
-                                    'icon'    => 'fal fa-plus',
-                                    'label'   => __('add SKU'),
-                                    'route'   => [
-                                        'name'       => 'retina.models.pallet-return.stored_item.store',
-                                        'parameters' => [
-                                            'palletReturn'       => $palletReturn->id
-                                        ]
-                                    ]
-                                ],
-                                [
-                                    'type'  => 'button',
-                                    'style' => 'secondary',
-                                    'icon'  => 'fal fa-plus',
-                                    'label' => __('add service'),
-                                    'route' => [
-                                        'name'       => 'retina.models.pallet-return.transaction.store',
-                                        'parameters' => [
-                                            'palletReturn'       => $palletReturn->id
-                                        ]
-                                    ]
-                                ],
-                                [
-                                    'type'  => 'button',
-                                    'style' => 'secondary',
-                                    'icon'  => 'fal fa-plus',
-                                    'label' => __('add physical good'),
-                                    'route' => [
-                                        'name'       => 'retina.models.pallet-return.transaction.store',
-                                        'parameters' => [
-                                            'palletReturn'       => $palletReturn->id
-                                        ]
-                                    ]
-                                ],
-                            ]
-                        ],
+                        ],*/
                         $palletReturn->pallets()->count() > 0 ? [
                             'type'    => 'button',
                             'style'   => 'save',
@@ -318,7 +264,7 @@ class ShowRetinaPalletReturn extends RetinaAction
                             ]
                         ],
                         'history' => [
-                            'name'       => 'retina.fulfilment.storage.pallet-returns.uploads.history',
+                            'name'       => 'retina.fulfilment.storage.pallet_returns.uploads.history',
                             'parameters' => [
                                 'palletReturn'     => $palletReturn->slug
                             ]
@@ -582,17 +528,17 @@ class ShowRetinaPalletReturn extends RetinaAction
         $palletReturn = PalletReturn::where('slug', $routeParameters['palletReturn'])->first();
 
         return match ($routeName) {
-            'retina.fulfilment.storage.pallet-returns.show' => array_merge(
+            'retina.fulfilment.storage.pallet_returns.show' => array_merge(
                 ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $palletReturn,
                     [
                         'index' => [
-                            'name'       => 'retina.fulfilment.storage.pallet-returns.index',
+                            'name'       => 'retina.fulfilment.storage.pallet_returns.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'retina.fulfilment.storage.pallet-returns.show',
+                            'name'       => 'retina.fulfilment.storage.pallet_returns.show',
                             'parameters' => $routeParameters
                         ]
                     ],
@@ -606,14 +552,18 @@ class ShowRetinaPalletReturn extends RetinaAction
 
     public function getPrevious(PalletReturn $palletReturn, ActionRequest $request): ?array
     {
-        $previous = PalletReturn::where('id', '<', $palletReturn->id)->orderBy('id', 'desc')->first();
+        $previous = PalletReturn::where('id', '<', $palletReturn->id)
+            ->where('fulfilment_customer_id', $this->customer->fulfilmentCustomer->id)
+            ->orderBy('id', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(PalletReturn $palletReturn, ActionRequest $request): ?array
     {
-        $next = PalletReturn::where('id', '>', $palletReturn->id)->orderBy('id')->first();
+        $next = PalletReturn::where('id', '>', $palletReturn->id)
+            ->where('fulfilment_customer_id', $this->customer->fulfilmentCustomer->id)
+            ->orderBy('id')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }

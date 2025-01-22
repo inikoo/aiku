@@ -23,7 +23,6 @@ use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\PalletReturn;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\ActionRequest;
@@ -34,17 +33,12 @@ class SubmitRetinaPalletReturn extends RetinaAction
 
 
     private bool $sendNotifications = false;
+    private bool $action = false;
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
         $modelData[PalletReturnStateEnum::SUBMITTED->value.'_at'] = now();
-
-        if (!request()->user() instanceof WebUser) {
-            $modelData[PalletReturnStateEnum::CONFIRMED->value.'_at'] = now();
-            $modelData['state']                                       = PalletReturnStateEnum::CONFIRMED;
-        } else {
-            $modelData['state'] = PalletReturnStateEnum::SUBMITTED;
-        }
+        $modelData['state'] = PalletReturnStateEnum::SUBMITTED;
 
         foreach ($palletReturn->pallets as $pallet) {
             UpdatePallet::run($pallet, [
@@ -79,6 +73,9 @@ class SubmitRetinaPalletReturn extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->action) {
+            return true;
+        }
         return true;
     }
 
@@ -91,6 +88,14 @@ class SubmitRetinaPalletReturn extends RetinaAction
     {
         $this->sendNotifications = true;
         $this->initialisation($request);
+
+        return $this->handle($palletReturn, $this->validatedData);
+    }
+
+    public function action(PalletReturn $palletReturn, array $modelData): PalletReturn
+    {
+        $this->action = true;
+        $this->initialisationFulfilmentActions($palletReturn->fulfilmentCustomer, $modelData);
 
         return $this->handle($palletReturn, $this->validatedData);
     }
