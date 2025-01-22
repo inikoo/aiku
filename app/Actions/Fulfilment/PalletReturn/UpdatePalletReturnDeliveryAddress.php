@@ -23,19 +23,14 @@ class UpdatePalletReturnDeliveryAddress extends OrgAction
 {
     public function handle(PalletReturn $palletReturn, array $modelData): void
     {
-        $isCollection = Arr::get($modelData, 'is_collection', true);
-        $palletReturn->update(['is_collection' => $isCollection]);
-
-        if (!$isCollection) {
-            $addressData = Arr::get($modelData, 'address');
+        $addressData = Arr::get($modelData, 'address');
+        if ($addressData) {
             $countryCode = Country::find($addressData['country_id'])->code;
             data_set($addressData, 'country_code', $countryCode);
             unset($addressData['label']);
             unset($addressData['can_edit']);
             unset($addressData['can_delete']);
             UpdateAddress::run(Address::find(Arr::get($addressData, 'id')), $addressData);
-        } elseif ($palletReturn->delivery_address_id) {
-            DeletePalletReturnAddress::run($palletReturn, Address::find($palletReturn->delivery_address_id));
         }
     }
 
@@ -43,7 +38,6 @@ class UpdatePalletReturnDeliveryAddress extends OrgAction
     {
         return [
             'address'             => ['sometimes'],
-            'is_collection'       => ['sometimes', 'boolean'],
         ];
     }
 
