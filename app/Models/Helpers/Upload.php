@@ -41,6 +41,8 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property string|null $source_id
  * @property int|null $web_user_id
  * @property int|null $customer_id
+ * @property string|null $parent_type
+ * @property int|null $parent_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation

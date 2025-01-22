@@ -32,6 +32,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_audits_event_other
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $last_device
+ * @property string|null $last_os
+ * @property array<array-key, mixed>|null $last_location
  * @property-read \App\Models\CRM\WebUser $webUser
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WebUserStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WebUserStats newQuery()
