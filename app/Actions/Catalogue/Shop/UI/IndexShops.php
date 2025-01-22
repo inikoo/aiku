@@ -54,8 +54,8 @@ class IndexShops extends OrgAction
             'state' => [
                 'label'    => __('State'),
                 'elements' => array_merge_recursive(
-                    ShopStateEnum::labels(forElements: true),
-                    ShopStateEnum::count($parent, forElements: true)
+                    ShopStateEnum::labels(),
+                    ShopStateEnum::count($parent)
                 ),
 
                 'engine' => function ($query, $elements) {

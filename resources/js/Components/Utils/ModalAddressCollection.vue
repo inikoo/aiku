@@ -34,7 +34,6 @@ const homeAddress =
 		? props.addresses?.value
 		: props.addresses?.address_customer?.value
 const enabled = ref(props.is_collection || false)
-console.log(homeAddress, "homeAddress")
 
 // Method: Create new address
 const isSubmitAddressLoading = ref(false)

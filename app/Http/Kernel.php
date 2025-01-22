@@ -29,6 +29,7 @@ use App\Http\Middleware\ResetWebUserPasswordMiddleware;
 use App\Http\Middleware\RetinaAuthenticate;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\HandleInertiaGrpRequests;
+use App\Http\Middleware\IrisAuthenticate;
 use App\Http\Middleware\LogWebUserRequestMiddleware;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
 use App\Http\Middleware\RedirectIfAuthenticated;
@@ -146,6 +147,7 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
             HandleIrisInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
+            LogWebUserRequestMiddleware::class
         ],
         'retina'      => [
             DetectWebsite::class,
@@ -199,6 +201,7 @@ class Kernel extends HttpKernel
     protected $routeMiddleware = [
         'auth'                   => Authenticate::class,
         'retina-auth'            => RetinaAuthenticate::class,
+        'iris-auth'              => IrisAuthenticate::class,
         'auth.basic'             => AuthenticateWithBasicAuth::class,
         'auth.session'           => AuthenticateSession::class,
         'cache.headers'          => SetCacheHeaders::class,

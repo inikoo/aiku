@@ -21,13 +21,13 @@ use App\Actions\UI\Iris\ShowTnc;
 use App\Actions\UI\Iris\ShowWelcome;
 use App\Actions\UI\Iris\ShowSearchResult; */
 use Illuminate\Support\Facades\Route;
-use App\Actions\CRM\WebUser\Retina\RetinaLogin;
-use Inertia\Inertia;
 
-Route::prefix("")->group(function () {
-    require __DIR__ . '/system.php';
+Route::middleware(["iris-auth:retina"])->group(function () {
+    Route::prefix("")->group(function () {
+        require __DIR__ . '/system.php';
 
-    Route::get('/{path?}', ShowHome::class)->where("path", ".*")->name('home');
+        Route::get('/{path?}', ShowHome::class)->where("path", ".*")->name('home');
+    });
 });
 
 Route::prefix("crm")
