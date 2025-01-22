@@ -50,7 +50,7 @@ class StorePalletDelivery extends OrgAction
                 $modelData,
                 'tax_category_id',
                 GetTaxCategory::run(
-                    country: $this->organisation->country,
+                    country: $fulfilmentCustomer->organisation->country,
                     taxNumber: $fulfilmentCustomer->customer->taxNumber,
                     billingAddress: $fulfilmentCustomer->customer->address,
                     deliveryAddress: $fulfilmentCustomer->customer->address,

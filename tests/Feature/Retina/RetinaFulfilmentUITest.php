@@ -222,7 +222,7 @@ test('show sysadmin dashboard', function () {
 test('index pallet returns', function () {
     actingAs($this->webUser, 'retina');
     $this->withoutExceptionHandling();
-    $response = $this->get(route('retina.fulfilment.storage.pallet-returns.index'));
+    $response = $this->get(route('retina.fulfilment.storage.pallet_returns.index'));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Storage/RetinaPalletReturns')
@@ -236,7 +236,7 @@ test('index pallet returns', function () {
 test('show pallet return (pallet tab)', function () {
     // $this->withoutExceptionHandling();
     actingAs($this->webUser, 'retina');
-    $response = $this->get(route('retina.fulfilment.storage.pallet-returns.show', [$this->palletReturn->slug]));
+    $response = $this->get(route('retina.fulfilment.storage.pallet_returns.show', [$this->palletReturn->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Storage/RetinaPalletReturn')

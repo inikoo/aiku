@@ -14,7 +14,6 @@ use App\Actions\Helpers\Upload\StoreUpload;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Actions\Traits\WithImportModel;
-use App\Http\Resources\Helpers\UploadsResource;
 use App\Imports\Fulfilment\PalletImport;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -30,8 +29,7 @@ class ImportPallet extends OrgAction
     use WithImportModel;
     use HasFulfilmentAssetsAuthorisation;
 
-    private Fulfilment $parent;
-
+    private Fulfilment $parent; // need for authorisation
 
     public function handle(PalletDelivery $palletDelivery, $file, array $modelData): Upload
     {
@@ -88,12 +86,8 @@ class ImportPallet extends OrgAction
         ]);
     }
 
-    public function jsonResponse(Upload $upload): array
-    {
-        return UploadsResource::make($upload)->getArray();
-    }
 
-    public function runImport($file, $command): Upload
+    public function runImportForCommand($file, $command): Upload
     {
         if ($palletDeliverySlug = $command->argument('palletDelivery')) {
             $palletDelivery = PalletDelivery::where('slug', $palletDeliverySlug)->first();

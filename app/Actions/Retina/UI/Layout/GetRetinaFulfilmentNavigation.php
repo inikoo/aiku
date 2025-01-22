@@ -42,9 +42,9 @@ class GetRetinaFulfilmentNavigation
                 [
                     'label' => __('returns'),
                     'icon'  => ['fal', 'fa-truck-ramp'],
-                    'root'  => 'retina.fulfilment.storage.pallet-returns.',
+                    'root'  => 'retina.fulfilment.storage.pallet_returns.',
                     'route' => [
-                        'name' => 'retina.fulfilment.storage.pallet-returns.index'
+                        'name' => 'retina.fulfilment.storage.pallet_returns.index'
                     ]
                 ]
             ];
