@@ -12,6 +12,7 @@ use App\Actions\Retina\UI\Dashboard\ShowRetinaDashboard;
 use App\Actions\RetinaAction;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Http\Resources\CRM\CustomersResource;
 use Lorisleiva\Actions\ActionRequest;
 
 class ShowRetinaSysAdminDashboard extends RetinaAction
@@ -55,6 +56,8 @@ class ShowRetinaSysAdminDashboard extends RetinaAction
                     ]
 
                 ],
+                'customer'     => CustomersResource::make($this->fulfilmentCustomer)->resolve(),
+
                 'stats'       => [
                     [
                         'name'  => __('users'),
