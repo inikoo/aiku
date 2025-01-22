@@ -75,7 +75,7 @@ class IndexRetinaPallets extends RetinaAction
             ->select('pallets.*', 'rentals.code as rental_code', 'rentals.name as rental_name')
             ->allowedSorts(['customer_reference', 'reference','state','rental_code'])
             ->allowedFilters([$globalSearch, 'customer_reference'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, 100)
             ->withQueryString();
     }
 
