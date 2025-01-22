@@ -6,7 +6,6 @@
  * copyright 2025
 */
 
-
 namespace App\Actions\Retina\Helpers\Upload\UI;
 
 use App\Actions\RetinaAction;
