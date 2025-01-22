@@ -104,7 +104,7 @@ const onSubmitEditAddress = (address: Address) => {
 	delete filterDataAdddress.country_code
 
 	router.patch(
-		route(props.updateRoute.name, props.updateRoute.parameters),
+		route(props.addresses.routes_address.update.name, props.addresses.routes_address.update.parameters),
 		{
 			[props.keyPayloadEdit || "address"]: filterDataAdddress,
 		},
