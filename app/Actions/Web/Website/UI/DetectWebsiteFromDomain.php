@@ -19,7 +19,7 @@ class DetectWebsiteFromDomain
     /**
      * @throws \App\Exceptions\IrisWebsiteNotFound
      */
-    public function handle($domain): Website
+    public function handle($domain): ?Website
     {
         if (app()->environment('local')) {
             if ($domain == 'fulfilment.test') {
@@ -34,6 +34,11 @@ class DetectWebsiteFromDomain
             $domain = str_replace('canary.', '', $domain);
         }
         $domain = str_replace('www.', '', $domain);
+
+        if ($domain == config('app.domain')) {
+            return null;
+        }
+
 
         /** @var Website $website */
         $website = Website::where('domain', $domain)->first();
