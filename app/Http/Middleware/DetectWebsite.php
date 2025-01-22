@@ -19,9 +19,9 @@ class DetectWebsite
     {
 
         $website = DetectWebsiteFromDomain::run($request->getHost());
+        if (is_null($website)) {
 
-        if(is_null($website)){
-            return redirect()->to('https://'.config('app.domain'));
+            abort(404, 'Not found');
         }
 
         $request->merge([
