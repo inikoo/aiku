@@ -10,6 +10,7 @@ namespace App\Actions\Web\Website;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
+use App\Actions\Traits\UI\WithLogo;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Web\Website\Search\WebsiteRecordSearch;
 use App\Enums\Web\Website\WebsiteStateEnum;
@@ -19,18 +20,23 @@ use App\Models\Web\Website;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\File;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateWebsite extends OrgAction
 {
     use WithActionUpdate;
     use HasWebAuthorisation;
+    use WithLogo;
 
     private Website $website;
 
 
     public function handle(Website $website, array $modelData): Website
     {
+        $website = $this->processWebsiteLogo($modelData, $website);
+        data_forget($modelData, 'image');
+
         if (Arr::has($modelData, "google_tag_id")) {
             data_set($modelData, "settings.google_tag_id", Arr::pull($modelData, "google_tag_id"));
         }
@@ -97,6 +103,12 @@ class UpdateWebsite extends OrgAction
             'state'         => ['sometimes', Rule::enum(WebsiteStateEnum::class)],
             'status'        => ['sometimes', 'boolean'],
             'google_tag_id' => ['sometimes', 'string'],
+            'image'       => [
+                'sometimes',
+                'nullable',
+                File::image()
+                    ->max(12 * 1024)
+            ]
         ];
 
         if (!$this->strict) {

@@ -51,7 +51,7 @@ class IndexRetinaPalletReturns extends RetinaAction
         $queryBuilder->where('pallet_returns.fulfilment_customer_id', $fulfilmentCustomer->id);
 
         return $queryBuilder
-            ->defaultSort('reference','state','type','date')
+            ->defaultSort('reference', 'state', 'type', 'date')
             ->allowedSorts(['reference'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)

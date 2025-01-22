@@ -15,7 +15,7 @@ return new class () extends Migration {
     {
 
 
-        $tables=['fulfilment_customers','fulfilment_stats','organisation_fulfilment_stats','group_fulfilment_stats','warehouse_stats'];
+        $tables = ['fulfilment_customers','fulfilment_stats','organisation_fulfilment_stats','group_fulfilment_stats','warehouse_stats'];
 
         foreach ($tables as $tableName) {
             Schema::table($tableName, function (Blueprint $table) use ($tableName) {
