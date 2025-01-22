@@ -32,7 +32,6 @@ class DetectWebsiteFromDomain
         }
 
         if (app()->environment('local')) {
-
             if ($domain == 'fulfilment.test') {
                 $domain = config('app.local.retina_fulfilment_domain');
             } elseif ($domain == 'ds.test') {

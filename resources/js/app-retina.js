@@ -43,7 +43,6 @@ const MyPreset = definePreset(Aura, {
 
 createInertiaApp(
     {
-      title  : (title) => `${title} - ${appName}`,
         resolve: name => {
             const pages = import.meta.glob('./Pages/Retina/**/*.vue', { eager: true })
             let page = pages[`./Pages/Retina/${name}.vue`]
