@@ -53,7 +53,11 @@ const iconList: { [key: string]: string } = {
                 <!-- shops_index, warehouses_index, fulfilments_index -->
                 <template v-if="itemKey == 'shops_index' || itemKey == 'warehouses_index' || itemKey == 'fulfilments_index'">
                     <!-- Shops index (if the shop length more than 1 || the selected shop is not 'open') -->
-                    <template v-if="itemKey == 'shops_index' && (layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.length || 0) > 1">
+                    <template v-if="
+                        itemKey == 'shops_index' && (layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.length || 0) > 1
+                        || itemKey == 'shops_index' && (layout.digital_agency.data.find(agency => agency.slug == layout.currentParams.organisation)?.authorised_shops.length || 0) > 1
+                    "
+                    >
                         <NavigationSimple v-if="
                             !layout.organisationsState[layout.currentParams.organisation]?.currentShop
                             || (layout.organisationsState[layout.currentParams.organisation]?.currentShop && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.find(shop => shop.slug === layout.organisationsState[layout.currentParams.organisation]?.currentShop)?.state === 'openxx')
