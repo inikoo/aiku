@@ -74,7 +74,7 @@ const disableBeforeToday = (date: Date) => {
 <template>
     <div class="h-min grid md:grid-cols-4 border-b border-gray-200 divide-y md:divide-y-0 divide-x divide-gray-200">
         <!-- Box: Status -->
-        <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class=" pb-2 py-5 px-3"
+        <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class=" pb-2 py-2 px-3"
             :tooltip="trans('Detail')" :label="capitalize(data_pallet.state)" icon="fal fa-truck-couch">
             <div class="flex items-center w-full flex-none gap-x-2 mb-2">
                 <dt class="flex-none">
@@ -82,7 +82,7 @@ const disableBeforeToday = (date: Date) => {
                     <FontAwesomeIcon :icon='box_stats.delivery_state.icon' :class='box_stats.delivery_state.class'
                         fixed-width aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.delivery_state.tooltip }}</dd>
+                <dd class="text-sm text-gray-500">{{ box_stats.delivery_state.tooltip }}</dd>
             </div>
 
             <div class="flex items-center w-full flex-none gap-x-2">
@@ -96,13 +96,13 @@ const disableBeforeToday = (date: Date) => {
                     <template #button>
                         <div v-if="data_pallet.estimated_delivery_date"
                             v-tooltip="useDaysLeftFromToday(data_pallet.estimated_delivery_date)"
-                            class="group text-xs text-gray-500">
+                            class="group text-sm text-gray-500">
                             {{ useFormatTime(data_pallet.estimated_delivery_date) }}
                             <FontAwesomeIcon icon='fal fa-pencil' size="sm"
                                 class='text-gray-400 group-hover:text-gray-600' fixed-width aria-hidden='true' />
                         </div>
 
-                        <div v-else class="text-xs text-gray-500 hover:text-gray-600 underline">
+                        <div v-else class="text-sm text-gray-500 hover:text-gray-600 underline">
                             {{ trans('Set estimated date') }}
                         </div>
                     </template>
@@ -119,7 +119,7 @@ const disableBeforeToday = (date: Date) => {
                 </Popover>
 
                 <div v-else>
-                    <dd class="text-xs text-gray-500">{{ data_pallet.estimated_delivery_date ?
+                    <dd class="text-sm text-gray-500">{{ data_pallet.estimated_delivery_date ?
                         useFormatTime(data_pallet.estimated_delivery_date) : 'Not Set' }}</dd>
                 </div>
 
@@ -159,7 +159,7 @@ const disableBeforeToday = (date: Date) => {
 
                 <!-- <div class="mt-6">
                     <button type="submit"
-                        class="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50">Checkout</button>
+                        class="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-3 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50">Checkout</button>
                 </div> -->
             </section>
         </BoxStatPallet>
