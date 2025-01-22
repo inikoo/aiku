@@ -12,9 +12,9 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('group_id')->index();
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedSmallInteger('website_id')->index();
-            $table->foreign('website_id')->references('id')->on('websites')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('website_id')->references('id')->on('websites')->onUpdate('cascade')->onDelete('set null');
             $table->unsignedInteger('web_user_id')->index();
-            $table->foreign('web_user_id')->references('id')->on('web_users')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('web_user_id')->references('id')->on('web_users')->onUpdate('cascade')->onDelete('set null');
             $table->dateTimeTz('date');
             $table->string('route_name');
             $table->jsonb('route_params');

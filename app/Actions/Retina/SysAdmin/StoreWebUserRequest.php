@@ -43,7 +43,6 @@ class StoreWebUserRequest extends GrpAction
             'os'                     => ['required', 'string'],
             'route_name'             => ['required', 'string'],
             'route_params'           => ['required'],
-            'aiku_scoped_section_id' => ['nullable', 'integer'],
             'device'                 => ['required', 'string'],
             'browser'                => ['required', 'string'],
             'ip_address'             => ['required', 'string'],
