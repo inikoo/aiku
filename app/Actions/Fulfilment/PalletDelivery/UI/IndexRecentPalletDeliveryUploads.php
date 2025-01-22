@@ -30,7 +30,8 @@ class IndexRecentPalletDeliveryUploads extends OrgAction
     public function handle(PalletDelivery $palletDelivery, User $user): array|Collection
     {
         $upload = Upload::where('user_id', $user->id)->where('parent_id', $palletDelivery->id)
-            ->where('parent_type', $palletDelivery->getMorphClass());
+            ->where('parent_type', $palletDelivery->getMorphClass())
+        ->whereDay('created_at', today());
 
         return $upload->orderBy('created_at', 'DESC')->get()->reverse();
     }
