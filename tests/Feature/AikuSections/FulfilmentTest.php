@@ -1346,8 +1346,8 @@ test('store pallet to return', function (PalletReturn $palletReturn) {
     expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
         ->and($palletReturn->stats->number_pallets)->toBe(1)
         ->and($firstPallet)->toBeInstanceOf(Pallet::class)
-        ->and($firstPallet->status)->toBe(PalletStatusEnum::STORING)
-        ->and($firstPallet->state)->toBe(PalletStateEnum::IN_PROCESS)
+        ->and($firstPallet->status)->toBe(PalletStatusEnum::RETURNING)
+        ->and($firstPallet->state)->toBe(PalletStateEnum::REQUEST_RETURN_IN_PROCESS)
         ->and($firstPallet->pallet_return_id)->toBe($palletReturn->id);
 
     return $palletReturn;
@@ -1474,7 +1474,7 @@ test('submit pallet return', function (PalletReturn $palletReturn) {
     expect($submittedPalletReturn)->toBeInstanceOf(PalletReturn::class)
         ->and($submittedPalletReturn->state)->toBe(PalletReturnStateEnum::CONFIRMED)
         ->and($firstPallet)->toBeInstanceOf(Pallet::class)
-        ->and($firstPallet->status)->toBe(PalletStatusEnum::RECEIVING);
+        ->and($firstPallet->status)->toBe(PalletStatusEnum::RETURNING);
 
     return $submittedPalletReturn;
 })->depends('store pallet to return');
@@ -1831,7 +1831,9 @@ test('import pallet (xlsx)', function (PalletDelivery $palletDelivery) {
 
     expect($palletDelivery->stats->number_pallets)->toBe(0);
 
-    $upload = ImportPallet::run($palletDelivery, $file);
+    $upload = ImportPallet::run($palletDelivery, $file, [
+        'with_stored_item' => false
+    ]);
     $palletDelivery->refresh();
     expect($upload)->toBeInstanceOf(Upload::class)
         ->and($upload->number_rows)->toBe(1)
