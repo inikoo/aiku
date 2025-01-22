@@ -62,7 +62,7 @@ class ShowRetinaStorageDashboard extends RetinaAction
 
             'currency'     => CurrencyResource::make($fulfilmentCustomer->fulfilment->shop->currency),
             'storageData'  => $this->getDashboardData($fulfilmentCustomer),
-            'customer'     => CustomersResource::make($fulfilmentCustomer->customer)->resolve(),
+//            'customer'     => CustomersResource::make($fulfilmentCustomer->customer)->resolve(),
             'rental_agreement' => RetinaRentalAgreementResource::make($fulfilmentCustomer->rentalAgreement),
             'discounts'    => $clauses
         ]);
