@@ -93,20 +93,20 @@ const options = {
         <div class="grid md:grid-cols-2 gap-y-4 md:gap-y-0 gap-x-8">
             <!-- Section: Profile box -->
             <div>
-                <div
+               <!--  <div
                     class="h-fit bg-slate-50 border border-slate-200 text-retina-600 p-6 flex flex-col justify-between rounded-lg shadow overflow-hidden">
                     <div class="w-full">
                         <h2 v-if="customer?.name" class="text-3xl font-bold"> {{ customer?.name }}</h2>
                         <h2 v-else class="text-3xl font-light italic brightness-75">{{ trans('No name') }}</h2>
                         <div class="text-lg">
-                            {{ customer?.shop }}
+                            {{ customer?.shop }} -->
                             <!-- <span class="text-gray-400">
                                 ({{ customer?.number_current_customer_clients || 0 }} clients)
                             </span> -->
-                        </div>
+                  <!--       </div>
                     </div>
 
-                    <div class="mt-4 space-y-3 text-sm text-slate-500">
+                    <div class="mt-4 space-y-3 text-sm text-slate-500"> -->
                         <!-- <div class="border-l-2 border-slate-500 pl-4">
                             <h3 class="font-light">Phone</h3>
                             <address class="text-base font-medium not-italic text-gray-600">
@@ -119,7 +119,7 @@ const options = {
                                 <p>{{ customer?.email || '-' }}</p>
                             </address>
                         </div> -->
-                        <div class="border-l-2 border-slate-500 pl-4">
+                     <!--    <div class="border-l-2 border-slate-500 pl-4">
                             <h3 class="font-light">Member since</h3>
                             <address class="text-base font-medium not-italic text-gray-600">
                                 <p>{{ useFormatTime(customer?.created_at) || '-' }}</p>
@@ -143,7 +143,7 @@ const options = {
 
 
                     </div>
-                </div>
+                </div> -->
 
                 <div class="mt-4 space-y-4 grid md:grid-cols-2 gap-x-4">
                     <div class="flex  justify-between px-4 py-5 sm:p-6 rounded-lg bg-white border border-gray-300 tabular-nums col-span-2">
@@ -247,7 +247,7 @@ const options = {
             </div>
 
             <!-- Section: Stats box -->
-            <div class="h-fit grid md:grid-cols-2 gap-y-3 gap-x-2 text-gray-600">
+          <!--   <div class="h-fit grid md:grid-cols-2 gap-y-3 gap-x-2 text-gray-600">
                 <div class="w-full md:col-span-2">
                     <div class="text-2xl font-semibold text-gray-600">
                         {{ trans("Discounts") }}🎉
@@ -285,7 +285,7 @@ const options = {
                     </DataTable>
                 </div>
 
-            </div>
+            </div> -->
         </div>
         <!-- <pre>{{ props }}</pre> -->
     </div>
