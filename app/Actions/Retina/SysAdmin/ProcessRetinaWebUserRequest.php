@@ -1,40 +1,38 @@
 <?php
 
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 21 Nov 2024 10:24:50 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2024, Raul A Perusquia Flores
- */
+ * Author: Ganes <gustiganes@gmail.com>
+ * Created on: 20-01-2025, Bali, Indonesia
+ * Github: https://github.com/Ganes556
+ * Copyright: 2025
+ *
+*/
 
-namespace App\Actions\Analytics\UserRequest;
+namespace App\Actions\Retina\SysAdmin;
 
-use App\Actions\Analytics\GetSectionRoute;
-use App\Actions\GrpAction;
-use App\Actions\SysAdmin\User\StoreUserRequest;
+use App\Actions\RetinaAction;
 use App\Actions\SysAdmin\WithLogRequest;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Utils\GetOsFromUserAgent;
-use App\Models\Analytics\UserRequest;
-use App\Models\SysAdmin\User;
+use App\Models\Analytics\WebUserRequest;
+use App\Models\CRM\WebUser;
 use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Support\Carbon;
 
-class ProcessUserRequest extends GrpAction
+class ProcessRetinaWebUserRequest extends RetinaAction
 {
     use WithNoStrictRules;
     use WithLogRequest;
 
+
     /**
      * @throws \Throwable
      */
-    public function handle(User $user, Carbon $datetime, array $routeData, string $ip, string $userAgent): UserRequest|null
+    public function handle(WebUser $webUser, Carbon $datetime, array $routeData, string $ip, string $userAgent): WebUserRequest|null
     {
-        if ($routeData['name'] == 'grp.search.index') {
+        if ($routeData['name'] == 'retina.search.index') {
             return null;
         }
-
-        $section                = GetSectionRoute::run($routeData['name'], $routeData['arguments']);
-        $aiku_scoped_section_id = $section?->id ?? null;
 
 
         $parsedUserAgent = (new Browser())->parse($userAgent);
@@ -42,7 +40,6 @@ class ProcessUserRequest extends GrpAction
             'date'                   => $datetime,
             'route_name'             => $routeData['name'],
             'route_params'           => json_encode($routeData['arguments']),
-            'aiku_scoped_section_id' => $aiku_scoped_section_id,
             'os'                     => GetOsFromUserAgent::run($parsedUserAgent),
             'device'                 => $parsedUserAgent->deviceType(),
             'browser'                => explode(' ', $parsedUserAgent->browserName())[0] ?: 'Unknown',
@@ -50,8 +47,8 @@ class ProcessUserRequest extends GrpAction
             'location'               => json_encode($this->getLocation($ip)),
         ];
 
-        return StoreUserRequest::make()->action(
-            user: $user,
+        return StoreWebUserRequest::make()->action(
+            webUser: $webUser,
             modelData: $modelData,
             hydratorsDelay: 300
         );
