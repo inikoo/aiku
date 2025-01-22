@@ -10,21 +10,22 @@
 
 namespace App\Actions\Fulfilment\PalletReturn;
 
-use App\Actions\Helpers\Address\Hydrators\AddressHydrateUsage;
 use App\Actions\OrgAction;
 use App\Models\Fulfilment\PalletReturn;
-use App\Models\Helpers\Address;
 use Lorisleiva\Actions\ActionRequest;
 
 class DeletePalletReturnAddress extends OrgAction
 {
     public function handle(PalletReturn $palletreturn): PalletReturn
     {
-        $addressDelivery = $palletreturn->deliveryAddress;
-        $palletreturn->addresses()->detach($addressDelivery->id);
-        AddressHydrateUsage::dispatch($palletreturn->deliveryAddress);
-        Address::find($addressDelivery->id)->delete();
-        $palletreturn->refresh();
+        $address = $palletreturn->deliveryAddress;
+        if ($address) {
+            $palletreturn->delivery_address_id = null;
+            $palletreturn->is_collection = true;
+            $palletreturn->save();
+            $address->delete();
+        }
+
         return $palletreturn;
     }
 
