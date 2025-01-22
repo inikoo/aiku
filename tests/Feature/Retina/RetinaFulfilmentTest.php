@@ -339,7 +339,9 @@ test('Import Pallet (xlsx) for Pallet Delivery', function (PalletDelivery $palle
 
     expect($palletDelivery->stats->number_pallets)->toBe(10);
 
-    $upload = ImportRetinaPallet::run($palletDelivery, $file);
+    $upload = ImportRetinaPallet::run($palletDelivery, $file, [
+        'with_stored_item' => false
+    ]);
     $palletDelivery->refresh();
     expect($upload)->toBeInstanceOf(Upload::class)
         ->and($upload->number_rows)->toBe(1)

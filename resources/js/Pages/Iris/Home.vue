@@ -40,13 +40,6 @@ const showWebpage = (activityItem) => {
 </script>
 
 <template>
-  <Head>
-    <title>{{ data.name }}</title>
-    <meta property="og:title" :content="data.name " />
-    <meta name="description" :content="data.name ">
-    <meta property="og:image"
-      content="https://socialsharepreview.com/api/image-proxy?url=https%3A%2F%2Fwww.zelolab.com%2Fwp-content%2Fuploads%2F2022%2F12%2Fhow-to-create-and-set-up-a-social-share-preview-image-on-your-website.jpg" />
-  </Head>
   <div class="bg-white">
     <template v-if="props.blocks?.web_blocks?.length">
       <div v-for="(activityItem, activityItemIdx) in props.blocks.web_blocks" :key="'block' + activityItem.id"

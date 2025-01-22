@@ -23,25 +23,14 @@ class UpdatePalletReturnDeliveryAddress extends OrgAction
 {
     public function handle(PalletReturn $palletReturn, array $modelData): void
     {
-        $isCollection = Arr::get($modelData, 'is_collection', true);
-        $palletReturn->update(['is_collection' => $isCollection]);
-
-        if (!$isCollection) {
-            $addressData = Arr::get($modelData, 'address');
+        $addressData = Arr::get($modelData, 'address');
+        if ($addressData) {
             $countryCode = Country::find($addressData['country_id'])->code;
             data_set($addressData, 'country_code', $countryCode);
-            $label = isset($addressData['label']) ? $addressData['label'] : null;
             unset($addressData['label']);
             unset($addressData['can_edit']);
             unset($addressData['can_delete']);
-            $updatedAddress     = UpdateAddress::run(Address::find(Arr::get($addressData, 'id')), $addressData);
-            $pivotData['label'] = $label;
-            $palletReturn->addresses()->updateExistingPivot(
-                $updatedAddress->id,
-                $pivotData
-            );
-        } elseif ($palletReturn->delivery_address_id) {
-            DeletePalletReturnAddress::run($palletReturn, Address::find($palletReturn->delivery_address_id));
+            UpdateAddress::run(Address::find(Arr::get($addressData, 'id')), $addressData);
         }
     }
 
@@ -49,7 +38,6 @@ class UpdatePalletReturnDeliveryAddress extends OrgAction
     {
         return [
             'address'             => ['sometimes'],
-            'is_collection'       => ['sometimes', 'boolean'],
         ];
     }
 

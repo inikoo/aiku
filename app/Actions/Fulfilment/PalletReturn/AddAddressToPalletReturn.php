@@ -34,8 +34,8 @@ class AddAddressToPalletReturn extends OrgAction
             updateLocation: false,
             updateAddressField:false
         );
-
         $palletReturn->refresh();
+        $palletReturn->update(['is_collection' => false]);
         PalletReturnRecordSearch::dispatch($palletReturn);
 
         return $palletReturn;
