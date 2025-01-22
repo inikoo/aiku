@@ -29,7 +29,15 @@ class LogWebUserRequestMiddleware
             return $next($request);
         }
 
+        if (str_starts_with($routeName, 'iris.') &&  !$request->route()->originalParameters()) {
+            return $next($request);
+        }
+
         if ($request->route()->getName() == 'retina.logout') {
+            return $next($request);
+        }
+
+        if ($request->route() instanceof \Illuminate\Routing\Route && $request->route()->getAction('uses') instanceof \Closure) {
             return $next($request);
         }
 
