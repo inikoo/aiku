@@ -29,7 +29,7 @@ class ImportPallet extends OrgAction
     use WithImportModel;
     use HasFulfilmentAssetsAuthorisation;
 
-    private Fulfilment $parent; // need for authorisation
+    private Fulfilment $parent; // needed for authorisation
 
     public function handle(PalletDelivery $palletDelivery, $file, array $modelData): Upload
     {
@@ -40,6 +40,7 @@ class ImportPallet extends OrgAction
             $file,
             [
                 'model' => 'Pallet',
+                'customer_id' => $palletDelivery->fulfilmentCustomer->customer_id,
             ]
         );
 
