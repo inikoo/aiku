@@ -1,46 +1,21 @@
 <script setup lang='ts'>
 import { trans } from 'laravel-vue-i18n'
-import { defineExpose, ref } from 'vue'
+import { inject } from 'vue'
+import { getStyles } from '@/Composables/styles'
+import { checkVisible, textReplaceVariables } from '@/Composables/Workshop'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faHeart, faShoppingCart, faSignOut, faUser, faSignIn, faUserPlus } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { inject } from 'vue'
-import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
-import { getStyles } from '@/Composables/styles'
-import { checkVisible, textReplaceVariables } from '@/Composables/Workshop'
-import { iframeToParent } from '@/Composables/Workshop'
-import { sendMessageToParent } from '@/Composables/Workshop'
+
+import {TopbarFulfilmentTypes} from '@/types/TopbarFulfilment'
 
 library.add(faHeart, faShoppingCart, faSignOut, faUser, faSignIn, faUserPlus)
 
-interface ModelTopbar1 {
-    greeting: {
-        text: string
-    }
-    main_title: {
-        text: string
-        visible: string // 'all'
-    }
-    container: {
-        properties: {
-            color: {
-
-            }
-            background: {
-
-            }
-        }
-    }
-}
-
-const model = defineModel<ModelTopbar1>()
-const active = ref()
-
+const model = defineModel<TopbarFulfilmentTypes>()
 const isLoggedIn = inject('isPreviewLoggedIn', false)
 
 const onLogout = inject('onLogout')
-const locale = inject('locale', aikuLocaleStructure)
 const layout = inject('layout', {})
 
 
@@ -62,13 +37,12 @@ const layout = inject('layout', {})
             />
         </div>
 
-
         <div class="action_buttons flex justify-between md:justify-start items-center gap-x-1 flex-wrap md:flex-nowrap">
 
             <!-- Section: Profile -->
             <a v-if="checkVisible(model?.profile?.visible || null, isLoggedIn)"
                 id="profile_button"
-                 :href="model?.profile?.link?.href"
+                :href="model?.profile?.link?.href"
                 :target="model?.profile?.link?.target"
                 class="space-x-1.5 whitespace-nowrap flex flex-nowrap items-center "
                 :style="getStyles(model?.profile.container?.properties)"
@@ -97,7 +71,7 @@ const layout = inject('layout', {})
 
             <!-- Section: LogoutRetina -->
             <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
-                  @click="()=>onLogout(model?.logout?.link)"
+                @click="()=>onLogout()"
                 class="space-x-1.5 whitespace-nowrap "
                 :style="getStyles(model?.logout.container?.properties)"
 
