@@ -21,7 +21,7 @@ import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
 
-const appName = 'Iris';
+/* const appName = 'Iris' */;
 
 const MyPreset = definePreset(Aura, {
   semantic: {
@@ -43,7 +43,9 @@ const MyPreset = definePreset(Aura, {
 
 createInertiaApp(
     {
-      title  : (title) => `${title}`,
+     /*  title: (title) => {
+        return `${title}`;
+    }, */
         resolve: name => {
             const irisPages = import.meta.glob('./Pages/Iris/**/*.vue', { eager: true })
             const retinaPages = import.meta.glob('./Pages/Retina/**/*.vue', { eager: true }) // need improvement in the future
