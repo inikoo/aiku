@@ -24,14 +24,14 @@ class LogWebUserRequestMiddleware
             return $next($request);
         }
 
-        if (!str_starts_with($request->route()->getName(), 'retina.')) {
+        $routeName = $request->route()->getName();
+        if (!str_starts_with($routeName, 'retina.') && !str_starts_with($routeName, 'iris.')) {
             return $next($request);
         }
 
         if ($request->route()->getName() == 'retina.logout') {
             return $next($request);
         }
-
 
         /* @var User $user */
         $user = $request->user();
@@ -49,22 +49,21 @@ class LogWebUserRequestMiddleware
                 $ip,
                 $request->header('User-Agent')
             );
-            $user->stats()->update([
-                'last_device' => json_encode(
-                    [
-                        'device_type' => [
-                            'tooltip' => $parsedUserAgent->deviceType(),
-                            'icon' => $this->getDeviceIcon($parsedUserAgent->deviceType())
-                        ],
-                        'platform' => [
-                            'tooltip' => $this->detectWindows11($parsedUserAgent),
-                            'icon'  => $this->getPlatformIcon($this->detectWindows11($parsedUserAgent))
-                        ],
-                    ]
-                ),
-                'last_location' => json_encode($this->getLocation($ip)),
-                'last_active_at' => now()
-            ]);
+            if ($user->stats()->first() == null) {
+                $user->stats()->create([
+                    'last_device' => $parsedUserAgent->deviceType(),
+                    'last_os' => $this->detectWindows11($parsedUserAgent),
+                    'last_location' => json_encode($this->getLocation($ip)),
+                    'last_active_at' => now()
+                ]);
+            } else {
+                $user->stats()->update([
+                    'last_device' => $parsedUserAgent->deviceType(),
+                    'last_os' => $this->detectWindows11($parsedUserAgent),
+                    'last_location' => json_encode($this->getLocation($ip)),
+                    'last_active_at' => now()
+                ]);
+            }
         }
 
         return $next($request);

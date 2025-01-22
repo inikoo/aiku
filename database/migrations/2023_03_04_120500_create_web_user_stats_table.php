@@ -24,7 +24,8 @@ return new class () extends Migration {
             $table->foreign('web_user_id')->references('id')->on('web_users')->onUpdate('cascade')->onDelete('cascade');
             $table = $this->userStats($table);
             $table = $this->auditFieldsForNonSystem($table);
-            $table->jsonb('last_device')->nullable();
+            $table->string('last_device')->nullable();
+            $table->string('last_os')->nullable();
             $table->jsonb('last_location')->nullable();
             $table->timestampsTz();
         });

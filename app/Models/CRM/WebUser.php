@@ -12,6 +12,7 @@ use App\Actions\CRM\WebUser\SendLinkResetPassword;
 use App\Audits\Redactors\PasswordRedactor;
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
+use App\Models\Analytics\WebUserRequest;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -24,6 +25,7 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -168,4 +170,10 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
     {
         return $this->belongsTo(Customer::class);
     }
+
+    public function webUserRequests(): HasMany
+    {
+        return $this->hasMany(WebUserRequest::class);
+    }
+
 }

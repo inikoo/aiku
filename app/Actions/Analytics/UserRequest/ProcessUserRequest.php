@@ -11,8 +11,8 @@ namespace App\Actions\Analytics\UserRequest;
 use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\GrpAction;
 use App\Actions\SysAdmin\User\StoreUserRequest;
+use App\Actions\SysAdmin\WithLogRequest;
 use App\Actions\Traits\Rules\WithNoStrictRules;
-use App\Actions\Utils\GetLocationFromIp;
 use App\Actions\Utils\GetOsFromUserAgent;
 use App\Models\Analytics\UserRequest;
 use App\Models\SysAdmin\User;
@@ -22,7 +22,7 @@ use Illuminate\Support\Carbon;
 class ProcessUserRequest extends GrpAction
 {
     use WithNoStrictRules;
-
+    use WithLogRequest;
 
     /**
      * @throws \Throwable
@@ -47,7 +47,7 @@ class ProcessUserRequest extends GrpAction
             'device'                 => $parsedUserAgent->deviceType(),
             'browser'                => explode(' ', $parsedUserAgent->browserName())[0] ?: 'Unknown',
             'ip_address'             => $ip,
-            'location'               => json_encode(GetLocationFromIp::run($ip)),
+            'location'               => json_encode($this->getLocation($ip)),
         ];
 
         return StoreUserRequest::make()->action(

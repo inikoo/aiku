@@ -13,7 +13,7 @@ return new class () extends Migration {
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedSmallInteger('website_id')->index();
             $table->foreign('website_id')->references('id')->on('websites')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedSmallInteger('web_user_id')->index();
+            $table->unsignedInteger('web_user_id')->index();
             $table->foreign('web_user_id')->references('id')->on('web_users')->onUpdate('cascade')->onDelete('cascade');
             $table->dateTimeTz('date');
             $table->string('route_name');
