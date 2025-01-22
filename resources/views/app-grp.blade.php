@@ -10,7 +10,7 @@
         <link href="https://fonts.bunny.net/css?family=fira-sans:100,200,300,400,500,600,700,800,900&display=swap" rel="stylesheet" />
         <link href="https://fonts.bunny.net/css?family=inter:100,200,300,400,500,600,700,800,900&display=swap" rel="stylesheet" />
 
-        <link rel="icon" type="image/png" href="{{ url('favicons/favicon.png') }}">
+        <link rel="icon" type="image/png" href="{{ url('favicon.png') }}">
         <link rel="icon" href="{{ url('favicon.svg') }}" type="image/svg+xml">
 
         @if (config('app.env', 'production') === 'staging')
