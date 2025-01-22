@@ -21,8 +21,6 @@ import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
 
-/* const appName = 'Iris' */;
-
 const MyPreset = definePreset(Aura, {
   semantic: {
       primary: {
