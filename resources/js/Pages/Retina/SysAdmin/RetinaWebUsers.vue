@@ -15,10 +15,11 @@ import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faReceipt,faRoad, faUserCircle, faUserSlash, faBlender, faTimes, faCheck, faYinYang, faCrown } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faDesktopAlt } from '@far'
+import { faDesktopAlt, faQuestionCircle } from '@far'
 import { faWindows } from '@fortawesome/free-brands-svg-icons'
+import { faServer } from '@fas'
 
-library.add(faReceipt, faCrown,faRoad,  faDesktopAlt, faWindows,faUserCircle, faUserSlash, faBlender, faTimes, faCheck, faYinYang)
+library.add(faReceipt, faCrown,faRoad, faQuestionCircle ,faServer ,faDesktopAlt, faWindows,faUserCircle, faUserSlash, faBlender, faTimes, faCheck, faYinYang)
 
 
 defineProps<{
@@ -39,7 +40,6 @@ function webUserRoute(webUser: {}) {
                 ])
     }
 }
-
 </script>
 
 
@@ -60,13 +60,18 @@ function webUserRoute(webUser: {}) {
         </template>
 
         <template #cell(last_location)="{ item: webUser }">
-            <AddressLocation :data="webUser.last_location" />
+            <div class="flex space-x-2 text-lg text-gray-700">
+                <AddressLocation v-if="webUser?.last_location != null && !webUser.server" :data="webUser.last_location" />
+                <FontAwesomeIcon v-else-if="webUser?.last_location != null" :icon="['fas', 'server']" v-tooltip="'server'" fixed-width aria-hidden="true"/>
+                <FontAwesomeIcon v-else :icon="['far', 'fa-question-circle']" v-tooltip="'Unknown location'" fixed-width aria-hidden="true" />
+            </div>
         </template>
 
         <template #cell(last_device)="{ item: webUser }">
             <div class="flex space-x-2 text-lg text-gray-700">
                 <Icon v-if="webUser.last_device?.[0]" :data="webUser.last_device[0]"></Icon>
                 <Icon v-if="webUser.last_device?.[1]" :data="webUser.last_device[1]"></Icon>
+                <FontAwesomeIcon v-else :icon="['far', 'fa-question-circle']" v-tooltip="'Unknown device & os'" fixed-width aria-hidden="true" />
             </div>
         </template>
 

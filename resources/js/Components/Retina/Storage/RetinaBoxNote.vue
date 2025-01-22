@@ -88,9 +88,9 @@ const onSubmitNote = async () => {
             :class="noteData.editable ? 'cursor-pointer hover:bg-gray-50' : 'bg-gray-50 text-gray-500'"
         >
             <template v-if="noteData.note">{{ useTruncate(noteData.note, 200) }}</template>
-            <span v-else class="italic select-none text-gray-400">
+          <!--   <span v-else class="italic select-none text-gray-400">
                 {{ trans('No note added') }}
-            </span>
+            </span> -->
         </p>
     </div>
 

@@ -128,7 +128,7 @@ const disableBeforeToday = (date: Date) => {
 
 
         <!-- Box: Notes -->
-        <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class="pb-2 pt-6 px-3"
+        <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class="pb-2 pt-2 px-3"
             :tooltip="trans('Notes')" :percentage="0">
             <div class="grid gap-y-3">
                 <RetinaBoxNote

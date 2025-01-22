@@ -27,11 +27,13 @@ class WebUsersResource extends JsonResource
     public function toArray($request): array
     {
 
+        $location = json_decode($this->last_location);
         return [
             'slug'        => $this->slug,
             'username'    => $this->username,
             'image'         => $this->imageSources(48, 48),
-            'last_location'      => json_decode($this->last_location),
+            'server'       => $location == ['localhost'],
+            'last_location'      => $location,
             'last_device'      => array_filter([
                 $this->last_device ? [
                     'tooltip' => $this->last_device,
