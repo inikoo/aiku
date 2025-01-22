@@ -4,15 +4,25 @@
   - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
-<script setup>
+<script setup lang="ts">
 import { Head } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Stats from "@/Components/DataDisplay/Stats.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { trans } from "laravel-vue-i18n"
 import { useFormatTime } from "@/Composables/useFormatTime"
+import { PageHeading as PageHeadingTypes } from "@/types/PageHeading"
+import { PalletCustomer, FulfilmentCustomerStats } from '@/types/Pallet'
 
-defineProps(["title", "pageHead", "stats", "customer"])
+
+const props = defineProps<{
+    title: string
+    pageHead : PageHeadingTypes
+    customer: PalletCustomer
+	stats : {}
+}>()
+
+
 </script>
 
 <template>
