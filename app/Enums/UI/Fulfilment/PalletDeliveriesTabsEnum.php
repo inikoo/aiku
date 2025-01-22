@@ -28,8 +28,8 @@ enum PalletDeliveriesTabsEnum: string
         return match ($this) {
             PalletDeliveriesTabsEnum::UPLOADS => [
                 'title' => __('uploads'),
-                'icon'  => 'fal fa-clock',
-                'type'  => 'icon',
+                'icon'  => 'fal fa-upload',
+            //    'type'  => 'icon',
                 'align' => 'right',
             ],
             PalletDeliveriesTabsEnum::DELIVERIES => [
