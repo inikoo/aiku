@@ -43,6 +43,7 @@ import PureMultiselectInfiniteScroll from '@/Components/Pure/PureMultiselectInfi
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt, faNarwhal, faUndo } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import ModalConfirmationDelete from "@/Components/Utils/ModalConfirmationDelete.vue"
 library.add(faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt, faNarwhal, faUndo )
 
 const props = defineProps<{
@@ -223,6 +224,30 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                 :style="action.style" :icon="action.icon" v-tooltip="action.tooltip"
             />
             <div v-else></div>
+        </template>
+
+        <!-- Button: Add Pallet -->
+        <template #button-delete-return="{ action }">
+            <div>
+                <ModalConfirmationDelete
+                    :modelValue="true"
+                    :routeDelete="action.route"
+                >
+                    <template #default="{ isOpenModal, changeModel }">
+
+                        <Button
+                            @click="() => changeModel()"
+                            :style="action.style"
+                            :label="action.label"
+                            :icon="action.icon"
+                            :iconRight="action.iconRight"
+                            :key="`ActionButton${action.label}${action.style}`"
+                            :tooltip="action.tooltip"
+                        />
+
+                    </template>
+                </ModalConfirmationDelete>
+            </div>
         </template>
 
         <!-- Button: Add Pallet -->
