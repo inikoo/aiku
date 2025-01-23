@@ -10,7 +10,6 @@ namespace App\Actions\CRM\WebUser;
 
 use App\Actions\Comms\Email\SendResetPasswordEmail;
 use App\Models\CRM\WebUser;
-use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class SendLinkResetPassword
