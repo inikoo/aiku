@@ -17,9 +17,7 @@ use App\Enums\Comms\DispatchedEmail\DispatchedEmailProviderEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Models\Comms\Email;
 use App\Models\Comms\Outbox;
-use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
-use Lorisleiva\Actions\ActionRequest;
 
 class SendResetPasswordEmail extends OrgAction
 {

@@ -29,8 +29,7 @@ trait WithSendBulkEmails
             }
         }
         if (preg_match_all("/\[(.*?)]/", $html, $matches)) {
-            foreach ($matches[1] as $i => $tag)
-            {
+            foreach ($matches[1] as $i => $tag) {
                 $placeholder = $this->replaceMergeTags($tag, $dispatchedEmail, $unsubscribeUrl, $passwordToken);
                 $html        = str_replace($matches[0][$i], sprintf('%s', $placeholder), $html);
             }
@@ -52,9 +51,9 @@ trait WithSendBulkEmails
         $placeholder = Str::kebab(trim($placeholder));
 
 
-        if($dispatchedEmail->recipient instanceof WebUser){
+        if ($dispatchedEmail->recipient instanceof WebUser) {
             $customerName = $dispatchedEmail->recipient->customer->name;
-        }else{
+        } else {
             $customerName = $dispatchedEmail->recipient->name;
         }
 

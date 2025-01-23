@@ -124,7 +124,7 @@ class GetFulfilmentNavigation
                             "icon"    => ["fal", "fa-satellite-dish"],
                             "root"    => "grp.org.fulfilments.show.v.dashboard",
                             "route"   => [
-                                "name"       => "grp.org.fulfilments.show.operations.comms.dashboard",
+                                "name"       => "grp.org.fulfilments.show.v.dashboard",
                                 "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug]
                             ],
                         ],
