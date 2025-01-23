@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 23-01-2025-10h-14m
@@ -12,8 +13,6 @@ use App\Actions\RetinaAction;
 use App\Http\Resources\Helpers\PalletUploadsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\WebUser;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Helpers\Upload;
 use App\Services\QueryBuilder;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -34,11 +33,11 @@ class IndexRetinaPalletUploads extends RetinaAction
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
-        
+
         $queryBuilder = QueryBuilder::for(Upload::class);
         $queryBuilder->where('model', 'Pallet');
         $queryBuilder->where('parent_type', 'PalletDelivery');
-        
+
         $queryBuilder->where('uploads.web_user_id', $webUser->id);
         /*
         foreach ($this->elementGroups as $key => $elementGroup) {
@@ -50,7 +49,7 @@ class IndexRetinaPalletUploads extends RetinaAction
                 );
                 }
                 */
-                
+
         return $queryBuilder
             ->defaultSort('uploads.id')
             ->allowedSorts(['uploads.original_filename', 'number_rows', 'number_success', 'number_fails', 'created_at'])

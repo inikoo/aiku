@@ -43,9 +43,9 @@ class GetFulfilmentServices extends OrgAction
         $queryBuilder->join('assets', 'services.asset_id', '=', 'assets.id');
         $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
 
-        if($scope instanceof PalletDelivery || $scope instanceof PalletReturn){
+        if ($scope instanceof PalletDelivery || $scope instanceof PalletReturn) {
             $queryBuilder->whereNotIn('services.asset_id', $scope->services()->pluck('asset_id'));
-        } elseif ($scope instanceof RecurringBill){
+        } elseif ($scope instanceof RecurringBill) {
             $queryBuilder->whereNotIn('services.asset_id', $scope->transactions()->pluck('asset_id'));
         }
 

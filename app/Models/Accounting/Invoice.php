@@ -87,6 +87,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property InvoicePayStatusEnum|null $pay_status
+ * @property bool $in_process Used for refunds only
+ * @property int|null $invoice_id For refunds link to original invoice
  * @property-read Address|null $address
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Address|null $billingAddress

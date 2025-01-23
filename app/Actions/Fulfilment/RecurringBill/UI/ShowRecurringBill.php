@@ -92,7 +92,7 @@ class ShowRecurringBill extends OrgAction
 
         $actions = [];
 
-        if($recurringBill->status === RecurringBillStatusEnum::CURRENT) {
+        if ($recurringBill->status === RecurringBillStatusEnum::CURRENT) {
             $actions = [
                 [
                     'type'    => 'button',

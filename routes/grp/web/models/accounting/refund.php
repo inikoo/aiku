@@ -1,0 +1,14 @@
+<?php
+
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 13 Sept 2024 13:14:25 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
+
+use App\Actions\Accounting\Refund\StoreRefund;
+use Illuminate\Support\Facades\Route;
+
+Route::name('refund.')->prefix('refund/invoice/{invoice:id}')->group(function () {
+    Route::patch('/', StoreRefund::class)->name('store');
+});

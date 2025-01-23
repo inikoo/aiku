@@ -2,7 +2,7 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 23 Jan 2025 11:52:09 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Thu, 23 Jan 2025 12:13:20 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::table('invoices', function (Blueprint $table) {
+        Schema::table('invoice_transactions', function (Blueprint $table) {
             $table->boolean('in_process')->default(false)->comment('Used for refunds only');
         });
     }
@@ -21,7 +21,7 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::table('invoices', function (Blueprint $table) {
+        Schema::table('invoice_transactions', function (Blueprint $table) {
             $table->dropColumn('in_process');
         });
     }
