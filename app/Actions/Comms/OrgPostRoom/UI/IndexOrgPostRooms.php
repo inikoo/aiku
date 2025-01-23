@@ -141,7 +141,7 @@ class IndexOrgPostRooms extends OrgAction
     public function htmlResponse(LengthAwarePaginator $orgPostRooms, ActionRequest $request): Response
     {
         $subNavigation = $this->getCommsNavigation($this->organisation, $this->parent);
-        
+
         $title = __('Post Room');
         $icon  = [
             'icon'  => ['fal', 'fa-cube'],
@@ -248,7 +248,7 @@ class IndexOrgPostRooms extends OrgAction
                     ]
                 )
             ),
-            'grp.org.fulfilments.show.operations.comms.post-rooms.index'=>
+            'grp.org.fulfilments.show.operations.comms.post-rooms.index' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs($routeParameters),
                 [

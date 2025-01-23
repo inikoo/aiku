@@ -116,7 +116,7 @@ class EmailOngoingRun extends Model
         return $this->hasMany(EmailBulkRun::class);
     }
 
-    public function sender():string
+    public function sender(): string
     {
         if (app()->environment('production')) {
             /** @var Shop $parent */

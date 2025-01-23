@@ -278,7 +278,7 @@ class IndexOutboxes extends OrgAction
                     ]
                 )
             ),
-            'grp.org.fulfilments.show.operations.comms.outboxes'=>
+            'grp.org.fulfilments.show.operations.comms.outboxes' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs($routeParameters),
                 [

@@ -71,9 +71,9 @@ class HandleRetinaInertiaRequests extends Middleware
                 ],
                 'iris' => [
                 'header' => array_merge($isHeaderActive == 'active' ? Arr::get($website->published_layout, 'header') : []),
-                    'footer' => array_merge( $isFooterActive == 'active' ? Arr::get($website->published_layout, 'footer') : []),
+                    'footer' => array_merge($isFooterActive == 'active' ? Arr::get($website->published_layout, 'footer') : []),
                     'menu'   => Arr::get($website->published_layout, 'menu'),
-                    "website" =>WebsiteIrisResource::make($request->get('website'))->getArray()
+                    "website" => WebsiteIrisResource::make($request->get('website'))->getArray()
                 ]
 
             ],
