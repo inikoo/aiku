@@ -24,13 +24,26 @@ const props = defineProps<{
     }
 }>()
 
+
+const iframeSrc = 
+	route("grp.websites.preview", [
+		route().params["website"],
+		route().params["webpage"],
+		{
+			organisation: route().params["organisation"],
+			shop: route().params["shop"],
+			fulfilment : route().params["fulfilment"]
+		},
+	]
+)
+
 </script>
 
 <template>
     <div class="px-6 py-24 sm:py-20 lg:px-8">
         <div class="grid grid-cols-2">
             <div>
-                <pre>{{ data }}</pre>
+                <!-- <pre>{{ data }}</pre> -->
             </div>
 
             <BrowserView
@@ -45,7 +58,13 @@ const props = defineProps<{
 
             >
                 <template #page v-if="data.layout.web_blocks?.length">
-                    <template v-if="data.layout.web_blocks?.length">
+                    <iframe
+						ref="_iframe"
+						:src="iframeSrc"
+						:title="props.title"
+                        class="w-full h-full"
+					/>
+                   <!--  <template v-if="data.layout.web_blocks?.length">
                         <div class="px-10">
                             <div v-for="(activityItem, activityItemIdx) in data.layout.web_blocks"
                                 :key="'block' + activityItem.id"
@@ -64,7 +83,7 @@ const props = defineProps<{
                     </template>
                     <div v-else class="text-center text-2xl sm:text-4xl font-bold text-gray-400 mt-16">
                         This page have no data
-                    </div>
+                    </div> -->
                 </template>
             </BrowserView>
         </div>

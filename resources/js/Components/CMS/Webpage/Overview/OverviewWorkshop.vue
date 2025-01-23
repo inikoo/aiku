@@ -144,7 +144,7 @@ onBeforeUnmount(() => {
 <template>
 	<div
 		ref="_parentComponent"
-		class="relative isolate transition-all"
+		class="relative isolate transition-all hidden md:block"
 		:style="getStyles(modelValue.container.properties)">
 		<!-- Render text elements -->
 		<div v-for="(text, index) in modelValue.texts.values" :key="index">
@@ -239,7 +239,14 @@ onBeforeUnmount(() => {
 			</div>
 		</div>
 	</div>
-
+	<div class="block md:hidden p-6">
+		<div v-for="(image, index) in modelValue.images" :key="index">
+			<Image :src="image.sources" />
+		</div>
+		<div v-for="(text, index) in modelValue.texts.values" :key="index">
+			<div v-html="text.text" />
+		</div>
+	</div>
 	<Modal :isOpen="isModalGallery" @onClose="() => (isModalGallery = false)" width="w-3/4">
 		<GalleryManagement
 			:maxSelected="1"

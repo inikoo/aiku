@@ -1,22 +1,17 @@
 <?php
 /*
  * author Arya Permana - Kirin
- * created on 22-01-2025-16h-22m
+ * created on 23-01-2025-10h-14m
  * github: https://github.com/KirinZero0
  * copyright 2025
 */
 
-/*
- * author Arya Permana - Kirin
- * created on 22-01-2025-13h-30m
- * github: https://github.com/KirinZero0
- * copyright 2025
-*/
+namespace App\Actions\Retina\Helpers\Upload\UI;
 
-namespace App\Actions\Helpers\Upload\UI;
-
-use App\Http\Resources\Helpers\PalletReturnItemUploadsResource;
+use App\Actions\RetinaAction;
+use App\Http\Resources\Helpers\PalletUploadsResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Helpers\Upload;
@@ -29,28 +24,22 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class IndexPalletReturnItemUploads
+class IndexRetinaPalletUploads extends RetinaAction
 {
     use AsAction;
     use WithAttributes;
 
-    private bool $asAction = false;
-
-    public function handle(Fulfilment|FulfilmentCustomer $parent, string $prefix = null): LengthAwarePaginator
+    public function handle(WebUser $webUser, string $prefix = null): LengthAwarePaginator
     {
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
-
+        
         $queryBuilder = QueryBuilder::for(Upload::class);
-        $queryBuilder->where('model', 'PalletReturnItem');
-        $queryBuilder->where('parent_type', 'PalletReturn');
-
-        if ($parent instanceof FulfilmentCustomer) {
-            $queryBuilder->where('uploads.customer_id', $parent->customer_id);
-        } elseif ($parent instanceof Fulfilment) {
-            $queryBuilder->where('uploads.shop_id', $parent->shop_id);
-        }
+        $queryBuilder->where('model', 'Pallet');
+        $queryBuilder->where('parent_type', 'PalletDelivery');
+        
+        $queryBuilder->where('uploads.web_user_id', $webUser->id);
         /*
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
@@ -58,10 +47,10 @@ class IndexPalletReturnItemUploads
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
                 engine: $elementGroup['engine']
-            );
-        }
-        */
-
+                );
+                }
+                */
+                
         return $queryBuilder
             ->defaultSort('uploads.id')
             ->allowedSorts(['uploads.original_filename', 'number_rows', 'number_success', 'number_fails', 'created_at'])
@@ -72,7 +61,7 @@ class IndexPalletReturnItemUploads
     public function htmlResponse(LengthAwarePaginator $collection, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Uploads/UploadRecords',
+            'Uploads/RetinaUploadRecords',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('Upload Records'),
@@ -82,7 +71,7 @@ class IndexPalletReturnItemUploads
                     'title'         => __('Records'),
                     'iconRight'     => 'fal fa-history'
                 ],
-                'data'        => PalletReturnItemUploadsResource::collection($collection),
+                'data'        => PalletUploadsResource::collection($collection),
 
             ]
         )->table($this->tableStructure());
@@ -117,7 +106,7 @@ class IndexPalletReturnItemUploads
 
     public function jsonResponse(LengthAwarePaginator $collection): AnonymousResourceCollection
     {
-        return PalletReturnItemUploadsResource::collection($collection);
+        return PalletUploadsResource::collection($collection);
     }
 
     public function getBreadcrumbs(): array
@@ -141,13 +130,9 @@ class IndexPalletReturnItemUploads
         ];
     }
 
-    public function asController(Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        return $this->handle($fulfilment);
-    }
-
-    public function inFulfilmentCustomer(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
-    {
-        return $this->handle($fulfilmentCustomer);
+        $this->initialisation($request);
+        return $this->handle($this->webUser);
     }
 }

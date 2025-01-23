@@ -5,10 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, IframeHTMLAttributes, provide, inject } from "vue"
-
-import { getComponent } from '@/Composables/getWorkshopComponents'
-import { getIrisComponent } from '@/Composables/getIrisComponents'
+import { ref, onMounted, IframeHTMLAttributes, provide, watch } from "vue"
 import { Head, router } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
@@ -17,13 +14,10 @@ import Publish from "@/Components/Publish.vue"
 import { notify } from "@kyvg/vue3-notification"
 import ScreenView from "@/Components/ScreenView.vue"
 import WebpageSideEditor from "@/Components/Workshop/WebpageSideEditor.vue"
-import Drawer from "primevue/drawer"
-/* import { socketWeblock } from "@/Composables/SocketWebBlock" */
-import Toggle from "@/Components/Pure/Toggle.vue"
 import { setIframeView } from "@/Composables/Workshop"
-import ProgressSpinner from 'primevue/progressspinner'
-import Button from "@/Components/Elements/Buttons/Button.vue"
-
+import { trans } from "laravel-vue-i18n"
+import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
+import ButtonPreviewLogin from "@/Components/Workshop/Tools/ButtonPreviewLogin.vue"
 import { Root, Daum } from "@/types/webBlockTypes"
 import { Root as RootWebpage } from "@/types/webpageTypes"
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading"
@@ -31,12 +25,7 @@ import { PageHeading as PageHeadingTypes } from "@/types/PageHeading"
 import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faExternalLink, } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { trans } from "laravel-vue-i18n"
-import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
-import ButtonPreviewLogin from "@/Components/Workshop/Tools/ButtonPreviewLogin.vue"
-import ButtonPreviewEdit from "@/Components/Workshop/Tools/ButtonPreviewEdit.vue"
-import { debounce } from "lodash"
-import { layoutStructure } from "@/Composables/useLayoutStructure"
+
 import { routeType } from "@/types/route"
 
 library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars)
@@ -47,20 +36,17 @@ const props = defineProps<{
 	webpage: RootWebpage
 	webBlockTypes: Root
 }>()
-console.log(props)
+
 provide('isInWorkshop', true)
 
-const layout = inject('layout', layoutStructure)
 
-const isLoading = ref<string | boolean>(false)
-const openDrawer = ref<string | boolean>(false)
-const isPreviewMode = ref<boolean>(false)
 const data = ref(props.webpage)
 const iframeClass = ref("w-full h-full")
 const isIframeLoading = ref(true)
-const _WebpageSideEditor = ref(null)
 const isPreviewLoggedIn = ref(false)
 const isModalBlockList = ref(false)
+const sendToIframe = (data: any) => { _iframe.value?.contentWindow.postMessage(data, '*')}
+
 /* const socketConnectionWebpage = props.webpage ? socketWeblock(props.webpage.slug) : null */
 const _iframe = ref<IframeHTMLAttributes | null>(null)
 const addBlockCancelToken = ref<Function | null>(null)
@@ -88,7 +74,7 @@ const addNewBlock = async (block: Daum) => {
             },
 			onSuccess:(e) => { 
 				data.value = e.props.webpage 
-				// sendToIframe({ key: 'reload', value: {} })
+				sendToIframe({ key: 'reload', value: {} })
 			},
 			onError: (error) => {
 				notify({
@@ -142,6 +128,7 @@ const debounceSaveWorkshop = (block) => {
 				},
 				onSuccess: (e) => {
 					data.value = e.props.webpage
+					sendToIframe({ key: 'reload', value: {} })
 				},
 				onError: (error) => {
 					notify({
@@ -165,6 +152,7 @@ const onSaveWorkshop = (block) => {
 	// Call debounceSaveWorkshop to handle save for this block
 	debounceSaveWorkshop(block)
 }
+
 const onSaveWorkshopFromId = (blockId: number, from?: string) => {
 	// Debug purpose
 	if (from) {
@@ -182,6 +170,7 @@ const onSaveWorkshopFromId = (blockId: number, from?: string) => {
 		debounceSaveWorkshop(block)
 	}
 }
+
 provide('onSaveWorkshopFromId', onSaveWorkshopFromId)
 provide('onSaveWorkshop', onSaveWorkshop)
 
@@ -201,7 +190,7 @@ const sendOrderBlock = async (block: Object) => {
             },
 			onSuccess:(e) => { 
 				data.value = e.props.webpage 
-				// sendToIframe({ key: 'reload', value: {} })
+				sendToIframe({ key: 'reload', value: {} })
 			},
             onError: (error) => {
                 notify({
@@ -231,7 +220,7 @@ const sendDeleteBlock = async (block: Daum) => {
             },
 			onSuccess:(e) => { 
 				data.value = e.props.webpage 
-				// sendToIframe({ key: 'reload', value: {} })
+				sendToIframe({ key: 'reload', value: {} })
 			},
             onError: (error) => {
                 notify({
@@ -291,6 +280,18 @@ const onPublish = async (action: routeType, popover: {close: Function, open: Fun
 // }
 
 const iframeSrc = 
+	route("grp.websites.webpage.preview", [
+		route().params["website"],
+		route().params["webpage"],
+		{
+			organisation: route().params["organisation"],
+			shop: route().params["shop"],
+			fulfilment : route().params["fulfilment"]
+		},
+	]
+)
+
+const previewSrc = 
 	route("grp.websites.preview", [
 		route().params["website"],
 		route().params["webpage"],
@@ -301,52 +302,36 @@ const iframeSrc =
 		},
 	]
 )
+
 const openFullScreenPreview = () => {
-	window.open(iframeSrc + '&isInWorkshop=true', "_blank")
+	window.open(previewSrc + '&isInWorkshop=true', "_blank")
 }
 
 const setHideBlock = (block : Daum) => {
 	block.show = !block.show 
-	// isLoadingblock.value = "deleteBlock" + block.id,
 	onSaveWorkshop(block)
 }
 
-// const sendToIframe = (data: any) => {
-// 	_iframe.value?.contentWindow.postMessage(data, "*")
-// }
-
-
-// watch(isPreviewMode, (newVal) => {
-//     sendToIframe({ key: 'isPreviewMode', value: newVal })
-// }, { deep: true })
 
 onMounted(() => {
-/* 	if (socketConnectionWebpage)
-		socketConnectionWebpage.actions.subscribe((value: Root) => {
-			data.value = { ...data.value, ...value }
-		}) */
-	// window.addEventListener("message", (event) => {
-	// 	if (event.origin !== window.location.origin) return;
-	// 	const { data } = event;
-	// 	if (event.data === "openModalBlockList") {
-	// 		isModalBlockList.value = true
-	// 	} else if (data.key === 'autosave') {
-	// 		onSaveWorkshop(data.value)
-	// 	}
-	// })
+	window.addEventListener("message", (event) => {
+		if (event.origin !== window.location.origin) return;
+		const { data } = event;
+		if (event.data === "openModalBlockList") {
+			isModalBlockList.value = true
+		} else if (data.key === 'autosave') {
+			onSaveWorkshop(data.value)
+		} else if (data.key === 'activeBlock') {
+			openedBlockSideEditor.value = data.value
+		}
+	})
 })
 
-onUnmounted(() => {
-/* 	if (socketConnectionWebpage) socketConnectionWebpage.actions.unsubscribe() */
+
+watch(openedBlockSideEditor,(newValue)=>{
+	sendToIframe({ key: 'activeBlock', value: newValue })
 })
 
-const isShowInWebpage = (activityItem) => {
-    if (activityItem?.web_block?.layout && activityItem.show) {
-        if (isPreviewLoggedIn.value && activityItem.visibility.in) return true
-        else if (!isPreviewLoggedIn.value && activityItem.visibility.out) return true
-        else return false
-    } else return false
-}
 
 </script>
 
@@ -427,6 +412,7 @@ const isShowInWebpage = (activityItem) => {
 				<div class="flex gap-3 items-center px-4">
 					<ButtonPreviewLogin
 						v-model="isPreviewLoggedIn"
+						@update:model-value="(e)=> sendToIframe({ key: 'isPreviewLoggedIn', value: e })"
 					/>
 
 					<!-- <div class="h-6 w-px bg-gray-400 mx-2"></div> -->
@@ -451,14 +437,14 @@ const isShowInWebpage = (activityItem) => {
 				</div> -->
 
 				<div class="h-full w-full bg-white overflow-auto">
-					<!-- <iframe
+					<iframe
 						ref="_iframe"
 						:src="iframeSrc"
 						:title="props.title"
 						:class="[iframeClass, isIframeLoading ? 'hidden' : '']"
-						@error="handleIframeError"
-						@load="isIframeLoading = false" /> -->
-					<div v-if="data" class="relative">
+						@load="isIframeLoading = false" 
+					/>
+					<!-- <div v-if="data" class="relative">
 						<div v-if="data?.layout?.web_blocks?.length">
 							<TransitionGroup tag="div" name="list" class="relative">
 								<template
@@ -473,16 +459,6 @@ const isShowInWebpage = (activityItem) => {
 										}"
 										@click="() => openedBlockSideEditor === activityItemIdx ? null : openedBlockSideEditor = activityItemIdx"
 									>
-										<!-- <component
-											v-show="isShowInWebpage(activityItem)"
-											:key="activityItemIdx"
-											class="w-full"
-											:is="isPreviewMode ? getIrisComponent(activityItem?.type) : getComponent(activityItem?.type)"
-											:webpageData="webpage" :blockData?="activityItem"
-											v-model="activityItem.web_block.layout.data.fieldValue"
-											:fieldValue="activityItem.web_block?.layout?.data?.fieldValue"
-											@autoSave="() => onSaveWorkshop(activityItem)"
-										/> -->
 										<component
 											:is="getComponent(activityItem?.type)"
 											:webpageData="webpage"
@@ -497,27 +473,8 @@ const isShowInWebpage = (activityItem) => {
 						</div>
 
 						<div v-else class="py-8">
-							<!-- <div v-if="'!isInWorkshop'" class="mx-auto">
-								<div class="text-center text-gray-500">
-									{{ trans('Your journey starts here') }}
-								</div>
-								<div class="w-64 mx-auto">
-									<Button label="add new block" class="mt-3" full type="dashed"
-										@click="() => isModalBlockList = true">
-										<div class="text-gray-500">
-											<FontAwesomeIcon icon='fal fa-plus' class='' fixed-width aria-hidden='true' />
-											{{ trans('Add block') }}
-										</div>
-									</Button>
-								</div>
-							</div> -->
-
-							<!-- <EmptyState v-else :data="{
-								title: trans('Pick First Block For Your Website'),
-								description: trans('Pick block from list')
-							}" /> -->
 						</div>
-					</div>
+					</div> -->
 				</div>
 			</div>
 		</div>

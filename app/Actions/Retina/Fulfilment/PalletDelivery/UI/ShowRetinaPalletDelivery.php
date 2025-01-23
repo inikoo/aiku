@@ -96,7 +96,8 @@ class ShowRetinaPalletDelivery extends RetinaAction
                     'type'   => 'buttonGroup',
                     'key'    => 'upload-add',
                     'button' => array_values(
-                        array_filter([
+                        array_filter(
+                            [
                         !app()->environment('production') ? [
                             'type'  => 'button',
                             'style' => 'secondary',
@@ -152,9 +153,9 @@ class ShowRetinaPalletDelivery extends RetinaAction
                             ]
                         ],
                     ],
-                    fn($button) => $button !== null // Filter out null values
+                            fn ($button) => $button !== null // Filter out null values
+                        )
                     )
-                )
                 ],
                 [
                     'type'     => 'button',

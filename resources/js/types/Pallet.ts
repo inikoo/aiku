@@ -92,6 +92,7 @@ export interface FulfilmentCustomerStats {
 export interface PalletDelivery {
     id: number
     customer_name: string
+    customer_reference: string | null
     number_pallets: number
     number_boxes: number
     number_oversizes: number

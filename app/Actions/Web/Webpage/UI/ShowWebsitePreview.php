@@ -23,7 +23,7 @@ use Lorisleiva\Actions\ActionRequest;
 use App\Actions\Web\Website\GetWebsiteWorkshopMenu;
 use Illuminate\Support\Arr;
 
-class ShowWebpageWorkshopPreview extends OrgAction
+class ShowWebsitePreview extends OrgAction
 {
     use HasWebAuthorisation;
 
@@ -56,7 +56,7 @@ class ShowWebpageWorkshopPreview extends OrgAction
         $website = $webpage->website;
 
         return Inertia::render(
-            'Web/PreviewWebpageWorkshop',
+            'Web/PreviewWorkshop',
             [
                 'webpage' => WebpageResource::make($webpage)->getArray(),
                 'header' => GetWebsiteWorkshopHeader::run($website),

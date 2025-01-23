@@ -15,6 +15,7 @@ use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\RecurringBill;
 use App\Services\QueryBuilder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -23,7 +24,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetFulfilmentServices extends OrgAction
 {
-    public function handle(Fulfilment $parent, PalletDelivery|PalletReturn $scope): LengthAwarePaginator
+    public function handle(Fulfilment $parent, PalletDelivery|PalletReturn|RecurringBill $scope): LengthAwarePaginator
     {
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -42,7 +43,11 @@ class GetFulfilmentServices extends OrgAction
         $queryBuilder->join('assets', 'services.asset_id', '=', 'assets.id');
         $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
 
-        $queryBuilder->whereNotIn('services.asset_id', $scope->services()->pluck('asset_id'));
+        if($scope instanceof PalletDelivery || $scope instanceof PalletReturn){
+            $queryBuilder->whereNotIn('services.asset_id', $scope->services()->pluck('asset_id'));
+        } elseif ($scope instanceof RecurringBill){
+            $queryBuilder->whereNotIn('services.asset_id', $scope->transactions()->pluck('asset_id'));
+        }
 
         $queryBuilder
             ->defaultSort('services.id')
@@ -93,6 +98,13 @@ class GetFulfilmentServices extends OrgAction
     }
 
     public function inPalletReturn(Fulfilment $fulfilment, PalletReturn $scope, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilment, $scope);
+    }
+
+    public function inRecurringBill(Fulfilment $fulfilment, RecurringBill $scope, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 

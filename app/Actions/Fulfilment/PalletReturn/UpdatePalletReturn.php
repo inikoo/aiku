@@ -39,6 +39,10 @@ class UpdatePalletReturn extends OrgAction
      * @var true
      */
     private bool $action = false;
+    /**
+     * @var \App\Models\Fulfilment\PalletReturn
+     */
+    private PalletReturn $palletReturn;
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
@@ -91,7 +95,8 @@ class UpdatePalletReturn extends OrgAction
     public function rules(): array
     {
         return [
-
+            'customer_reference'        => ['sometimes', 'nullable', 'string', Rule::unique('pallet_returns', 'customer_reference')
+                ->ignore($this->palletReturn->id)],
             'customer_notes'      => ['sometimes', 'nullable', 'string', 'max:5000'],
             'address'             => ['sometimes'],
             'delivery_address_id' => ['sometimes', Rule::exists('addresses', 'id')]
@@ -100,6 +105,7 @@ class UpdatePalletReturn extends OrgAction
 
     public function asController(Organisation $organisation, PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
+        $this->palletReturn = $palletReturn;
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
 
         return $this->handle($palletReturn, $this->validatedData);

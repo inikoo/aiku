@@ -178,22 +178,31 @@ watch(() => useEchoGrpPersonal().recentlyUploaded.find((upload: {id: number}) =>
     if(newVal?.total && (newVal?.done == newVal?.total)) {
         console.log('done', newVal?.done)
         console.log('total', newVal?.total)
-        router.reload(
-            {
+
+        if (newVal?.number_success > 0) {
+            router.reload({
                 only: ['pallets'],  // Only reload the props with dynamic name tabSlug (i.e props.showcase, props.menu)
                 onSuccess: () => {
                     notify({
-                        title: trans('Upload Success!'),
+                        title: trans('Upload finish'),
                         text: trans('Data in table has reloaded.'),
                         type: 'success',
                     })
-                    model.value = false
+                    model.value = false                    
                 },
                 onError: (e) => {
                     // console.log('eeerr', e)
                 }
-            }
-        )
+            })
+        } else {
+            notify({
+                title: trans('Upload finish'),
+                text: trans('0 data added. See upload page for details.'),
+                type: 'info',
+            })
+        }
+
+        
     }
 })
 
