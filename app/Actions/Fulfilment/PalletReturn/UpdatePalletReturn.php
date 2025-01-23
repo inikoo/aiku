@@ -114,6 +114,7 @@ class UpdatePalletReturn extends OrgAction
     public function action(PalletReturn $palletReturn, $modelData): PalletReturn
     {
         $this->action = true;
+        $this->palletReturn = $palletReturn;
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $modelData);
 
         return $this->handle($palletReturn, $this->validatedData);

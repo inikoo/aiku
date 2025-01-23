@@ -113,6 +113,7 @@ class UpdatePalletDelivery extends OrgAction
     public function action(PalletDelivery $palletDelivery, $modelData): PalletDelivery
     {
         $this->action = true;
+        $this->palletDelivery = $palletDelivery;
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, $modelData);
 
         return $this->handle($palletDelivery, $this->validatedData);
