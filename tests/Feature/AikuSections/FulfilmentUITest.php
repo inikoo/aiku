@@ -104,6 +104,7 @@ beforeEach(function () {
         $this->product
     ) = createProduct($this->shop);
 
+    $this->website = createWebsite($this->shop);
 
     $this->customer = createCustomer($this->shop);
 
@@ -394,6 +395,47 @@ test('UI show fulfilment customer', function () {
                         ->etc()
             )
             ->has('tabs');
+
+    });
+});
+
+test('UI show fulfilment customer web users', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.web-users.index', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->fulfilmentCustomer->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Shop/CRM/WebUsers')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->customer->name)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
+test('UI show fulfilment customer web users (tab requests)', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.web-users.index', [
+        $this->organisation->slug, $this->fulfilment->slug, $this->customer->fulfilmentCustomer->slug,
+        'tab' => 'requests'
+    ]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Shop/CRM/WebUsers')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->customer->name)
+                        ->etc()
+            )
+            ->has('tabs')
+            ->has('requests');
 
     });
 });
