@@ -335,7 +335,7 @@ Route::name('fulfilment-transaction.')->prefix('fulfilment_transaction/{fulfilme
 Route::name('recurring-bill.')->prefix('recurring-bill/{recurringBill:id}')->group(function () {
     Route::patch('', UpdateRecurringBilling::class)->name('update');
     Route::patch('consolidate', ConsolidateRecurringBill::class)->name('consolidate');
-    Route::post('transaction/{historicAsset:id}', StoreRecurringBillTransaction::class)->name('transaction.store');
+    Route::post('transaction/{historicAsset:id}', StoreRecurringBillTransaction::class)->name('transaction.store')->withoutScopedBindings();
 });
 
 Route::name('product.')->prefix('product')->group(function () {

@@ -103,6 +103,14 @@ class StoreRecurringBillTransaction extends OrgAction
         return $recurringBillTransaction;
     }
 
+    public function prepareForValidation(ActionRequest $request): void
+    {
+        if (!$this->has('start_date')) {
+            $date = now();
+            $this->set('start_date', $date);
+        }
+    }
+
     public function rules(): array
     {
         return [
@@ -122,7 +130,7 @@ class StoreRecurringBillTransaction extends OrgAction
     public function asController(RecurringBill $recurringBill, HistoricAsset $historicAsset, ActionRequest $request)
     {
         $this->initialisationFromFulfilment($recurringBill->fulfilment, $request);
-        return $this->handle($recurringBill, $historicAsset, $this->validatedData);
+        $this->handle($recurringBill, $historicAsset, $this->validatedData);
     }
 
 }
