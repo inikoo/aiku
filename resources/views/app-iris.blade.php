@@ -3,21 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        @php
-            $currentPath = request()->path();
-            $webpages = request()->get('website')->webpages ?? [];
-            $matchedPage = collect($webpages)->firstWhere('url', $currentPath);
-        @endphp
-
-        <!-- Title and Metadata -->
-        @if($matchedPage)
-            <title>{{ $matchedPage['title'] }} - {{ request()->get('website')->name }}</title>
-            <meta name="description" content="{{ $matchedPage['description'] ?? 'Default description' }}">
-            <meta name="keywords" content="{{ $matchedPage['keywords'] ?? 'Default keywords' }}">
-        @else
-            <title>{{ request()->get('website')->name }}</title>
-        @endif
+        <title inertia></title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

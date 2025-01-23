@@ -10,10 +10,6 @@ namespace App\Enums\UI\Fulfilment;
 
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
-use App\Enums\HasTabsWithQuantity;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\PalletDelivery;
 
 enum PalletDeliveriesTabsEnum: string
 {
@@ -28,8 +24,8 @@ enum PalletDeliveriesTabsEnum: string
         return match ($this) {
             PalletDeliveriesTabsEnum::UPLOADS => [
                 'title' => __('uploads'),
-                'icon'  => 'fal fa-clock',
-                'type'  => 'icon',
+                'icon'  => 'fal fa-upload',
+            //    'type'  => 'icon',
                 'align' => 'right',
             ],
             PalletDeliveriesTabsEnum::DELIVERIES => [

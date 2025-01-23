@@ -11,15 +11,12 @@ import * as Sentry from "@sentry/vue";
 import FloatingVue from "floating-vue";
 import "floating-vue/dist/style.css";
 import Layout from "@/Layouts/Grp.vue";
-import { capitalize } from "@/Composables/capitalize.ts";
 import PrimeVue from "primevue/config";
 import Aura from "@primevue/themes/aura";
 import { definePreset } from "@primevue/themes";
 import ConfirmationService from "primevue/confirmationservice";
 
-const appName = capitalize(
-    window.document.getElementsByTagName("title")[0]?.innerText) ||
-  "Aiku";
+const appName = 'aiku';
 
 const MyPreset = definePreset(Aura, {
   semantic: {

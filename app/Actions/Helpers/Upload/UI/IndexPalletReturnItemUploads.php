@@ -16,8 +16,6 @@
 namespace App\Actions\Helpers\Upload\UI;
 
 use App\Http\Resources\Helpers\PalletReturnItemUploadsResource;
-use App\Http\Resources\Helpers\PalletUploadsResource;
-use App\Http\Resources\Helpers\UploadRecordsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -48,7 +46,7 @@ class IndexPalletReturnItemUploads
         $queryBuilder->where('model', 'PalletReturnItem');
         $queryBuilder->where('parent_type', 'PalletReturn');
 
-        if($parent instanceof FulfilmentCustomer){
+        if ($parent instanceof FulfilmentCustomer) {
             $queryBuilder->where('uploads.customer_id', $parent->customer_id);
         } elseif ($parent instanceof Fulfilment) {
             $queryBuilder->where('uploads.shop_id', $parent->shop_id);
