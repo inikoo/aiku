@@ -51,9 +51,9 @@ const sidebarOpen = ref(false)
 
         <!-- Section: Breadcrumbs -->
         <Breadcrumbs
-            class="bg-white fixed z-[19] w-full transition-all duration-200 ease-in-out"
+            class="bg-white fixed z-[19] transition-all duration-200 ease-in-out"
             :class="[
-                layout.leftSidebar.show ? 'left-0 md:left-48' : 'left-0 md:left-12',
+                layout.leftSidebar.show ? 'left-0 md:left-48 w-[calc(100%-192px)]' : 'left-0 md:left-12 w-[calc(100%-48px)]',
                 layout.app.environment === 'staging' ? 'top-11 lg:top-16' : 'top-11 lg:top-10'
             ]"
             :breadcrumbs="usePage().props.breadcrumbs ?? []" :navigation="usePage().props.navigation ?? []"
