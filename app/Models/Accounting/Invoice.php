@@ -243,4 +243,9 @@ class Invoice extends Model implements Auditable
         return $this->belongsTo(SalesChannel::class);
     }
 
+    public function refunds(): HasMany
+    {
+        return $this->hasMany(Invoice::class, 'invoice_id');
+    }
+
 }
