@@ -136,7 +136,7 @@ class ShowRefund extends OrgAction
         return Inertia::render(
             'Org/Accounting/InvoiceRefund',
             [
-                'title'                => __('invoice'),
+                'title'                => __('refund'),
                 'breadcrumbs'          => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
@@ -146,10 +146,10 @@ class ShowRefund extends OrgAction
                     'next'     => $this->getNext($invoice, $request),
                 ],
                 'pageHead'             => [
-                    'model' => __('invoice'),
+                    'model' => __('refund'),
                     'title' => $invoice->reference,
                     'icon'  => [
-                        'icon'  => ['fal', 'fa-file-invoice-dollar'],
+                        'icon'  => ['fas', 'fa-hand-holding-usd'],
                         'title' => $invoice->reference
                     ],
                     'actions' =>  [
@@ -159,7 +159,7 @@ class ShowRefund extends OrgAction
                             'label' => __('Create'),
                             'route' => [
                                 'method'     => 'post',
-                                'name'       => 'grp.models.refund.store',
+                                'name'       => '',
                                 'parameters' => [
                                     'invoice' => $invoice->id,
                                 ]

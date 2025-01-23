@@ -24,8 +24,7 @@ const formReset = useForm({
     token: route().params?.token,
 })
 
-// console.log('ewew', formReset)
-// Method: Submit forms
+
 const submitResetPassword = () => {
     if (route().params?.token) {
         formReset.patch(route('retina.reset-password.email.update'), {})
@@ -46,7 +45,7 @@ watchEffect(() => {
 
         <form class="space-y-8" @submit.prevent="submitResetPassword">
             <div class="text-center font-semibold text-xl">
-                {{ trans("The Administrator ask you to reset password") }}
+                {{ trans("The Administrator ask you to reset password 🔐") }}
             </div>
 
             <div class="flex flex-col gap-y-4">

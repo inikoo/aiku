@@ -18,7 +18,7 @@ class ShowRetinaResetWebUserPassword
 
     public function handle(): Response
     {
-        return Inertia::render('Auth/SetNewPassword');
+        return Inertia::render('SysAdmin/ResetWebUserPassword');
     }
 
 }

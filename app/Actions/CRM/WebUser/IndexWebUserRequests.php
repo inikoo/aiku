@@ -59,7 +59,7 @@ class IndexWebUserRequests extends OrgAction
                     ->whereIn('web_users.id', $parent->webUsers->pluck('id'));
             });
         } elseif ($parent instanceof Group) {
-            $queryBuilder->where('group_id', $parent->id);
+            $queryBuilder->where('web_user_requests.group_id', $parent->id);
         }
 
         $queryBuilder->leftJoin('web_users', 'web_users.id', '=', 'web_user_requests.web_user_id');

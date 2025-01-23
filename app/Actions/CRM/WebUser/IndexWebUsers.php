@@ -255,9 +255,9 @@ class IndexWebUsers extends OrgAction
     public function inGroup(ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = group();
-        $this->initialisationFromGroup($this->parent, $request);
+        $this->initialisationFromGroup($this->parent, $request)->withTab(WebUserTabsEnum::values());
 
-        return $this->handle(parent: $this->parent);
+        return $this->handle(parent: $this->parent, prefix: WebUserTabsEnum::WEB_USERS->value);
     }
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
@@ -265,16 +265,16 @@ class IndexWebUsers extends OrgAction
         $this->parent = $organisation;
         $this->initialisation($organisation, $request);
 
-        return $this->handle($this->parent);
+        return $this->handle(parent: $this->parent, prefix: WebUserTabsEnum::WEB_USERS->value);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inWebsite(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $website;
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(WebUserTabsEnum::values());
 
-        return $this->handle(parent: $website);
+        return $this->handle(parent: $website, prefix: WebUserTabsEnum::WEB_USERS->value);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -291,7 +291,7 @@ class IndexWebUsers extends OrgAction
         $this->parent = $customer;
         $this->initialisationFromShop($shop, $request);
 
-        return $this->handle(parent: $customer);
+        return $this->handle(parent: $customer, prefix: WebUserTabsEnum::WEB_USERS->value);
     }
 
 
