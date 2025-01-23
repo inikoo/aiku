@@ -10,20 +10,22 @@ namespace App\Actions\Comms\Traits;
 
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\Group;
 
 trait WithCommsSubNavigation
 {
-    protected function getCommsNavigation(Organisation $organisation, Shop|Fulfilment $parent): array
+    protected function getCommsNavigation(Shop|Fulfilment|Group $parent): array
     {
         if ($parent instanceof Shop) {
-            return $this->getNavigationRouteShops($organisation, $parent);
+            return $this->getNavigationRouteShops($parent);
+        } elseif ($parent instanceof Fulfilment) {
+            return $this->getNavigationRouteFulfilments($parent);
         } else {
-            return $this->getNavigationRouteFulfilments($organisation, $parent);
+            return [];
         }
     }
 
-    protected function getNavigationRouteShops(Organisation $organisation, Shop $shop): array
+    protected function getNavigationRouteShops(Shop $shop): array
     {
         return [
 
@@ -31,7 +33,7 @@ trait WithCommsSubNavigation
                 "isAnchor" => true,
                 "label"    => __("Comms Dashboard"),
 
-                "route"     => [
+                "route"    => [
                     "name"       => "grp.org.shops.show.comms.dashboard",
                     "parameters" => [$shop->organisation->slug, $shop->slug],
                 ],
@@ -42,9 +44,9 @@ trait WithCommsSubNavigation
             ],
             [
                 "label"    => __("Post Rooms"),
-                "route"     => [
+                "route"    => [
                     "name"       => "grp.org.shops.show.comms.post-rooms.index",
-                    "parameters" => [$organisation->slug, $shop->slug],
+                    "parameters" => [$shop->organisation->slug, $shop->slug],
                 ],
                 "leftIcon" => [
                     "icon"    => ["fal", "fa-inbox-out"],
@@ -53,7 +55,7 @@ trait WithCommsSubNavigation
             ],
             [
                 "label"    => __("Outboxes"),
-                "route"     => [
+                "route"    => [
                     "name"       => "grp.org.shops.show.comms.outboxes.index",
                     "parameters" => [$shop->organisation->slug, $shop->slug],
                 ],
@@ -66,14 +68,14 @@ trait WithCommsSubNavigation
         ];
     }
 
-    protected function getNavigationRouteFulfilments(Organisation $organisation, Fulfilment $fulfilment): array
+    protected function getNavigationRouteFulfilments(Fulfilment $fulfilment): array
     {
         return [
 
             [
                 "isAnchor" => true,
                 "label"    => __("Comms Dashboard"),
-                "route"     => [
+                "route"    => [
                     "name"       => "grp.org.fulfilments.show.operations.comms.dashboard",
                     "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
                 ],
@@ -84,9 +86,9 @@ trait WithCommsSubNavigation
             ],
             [
                 "label"    => __("Post Rooms"),
-                "route"     => [
+                "route"    => [
                     "name"       => "grp.org.fulfilments.show.operations.comms.post-rooms.index",
-                    "parameters" => [$organisation->slug, $fulfilment->slug],
+                    "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
                 ],
                 "leftIcon" => [
                     "icon"    => ["fal", "fa-inbox-out"],
@@ -95,7 +97,7 @@ trait WithCommsSubNavigation
             ],
             [
                 "label"    => __("Outboxes"),
-                "route"     => [
+                "route"    => [
                     "name"       => "grp.org.fulfilments.show.operations.comms.outboxes",
                     "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
                 ],

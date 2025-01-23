@@ -119,7 +119,7 @@ class Snapshot extends Model
         return $this->hasMany(Slide::class);
     }
 
-    public function compiledLayout(): object|string
+    public function compiledLayout(): array|string
     {
         switch (class_basename($this->parent)) {
             case 'Banner':

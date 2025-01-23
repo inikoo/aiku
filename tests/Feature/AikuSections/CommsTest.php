@@ -311,6 +311,7 @@ test('UI Index PostRoom Overview', function () {
 });
 
 test('UI Index Outboxes Overview', function () {
+    $this->withoutExceptionHandling();
     $response = $this->get(route('grp.overview.comms-marketing.outboxes.index'));
 
     $response->assertInertia(function (AssertableInertia $page) {

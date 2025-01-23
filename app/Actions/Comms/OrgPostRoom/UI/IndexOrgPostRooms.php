@@ -140,7 +140,7 @@ class IndexOrgPostRooms extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $orgPostRooms, ActionRequest $request): Response
     {
-        $subNavigation = $this->getCommsNavigation($this->organisation, $this->parent);
+        $subNavigation = $this->getCommsNavigation($this->parent);
 
         $title = __('Post Room');
         $icon  = [
