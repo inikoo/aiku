@@ -3,12 +3,12 @@ import { useForm } from '@inertiajs/vue3';
 import { ref, onMounted, nextTick, watch } from 'vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import PureInput from '@/Components/Pure/PureInput.vue';
-import LayoutIris from '@/Layouts/Iris.vue';
+import RetinaShowIris from '@/Layouts/RetinaShowIris.vue';
 import Password from 'primevue/password';
 import Multiselect from "@vueform/multiselect"
 
 // Set default layout
-defineOptions({ layout: LayoutIris });
+defineOptions({ layout: RetinaShowIris });
 
 // Define form using Inertia's useForm
 const form = useForm({
