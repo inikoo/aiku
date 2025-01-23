@@ -157,7 +157,7 @@ defineExpose({
 
 <template>
     <div class="bg-yellow-500 font-bold text-white flex justify-center">
-        This is Real Beefree api key from Ourora becarefull
+        This is Real Beefree api key from Aurora be careful
     </div>
 
     <div v-if="showBee" id="app">

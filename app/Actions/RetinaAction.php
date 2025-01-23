@@ -68,5 +68,22 @@ class RetinaAction
         return $this;
     }
 
+    public function logoutInitialisation(ActionRequest $request): static
+    {
+
+        $this->website       = $request->get('website');
+
+        $this->shop          = $this->website->shop;
+        $this->fulfilment    = $this->shop->fulfilment;
+        $this->organisation  = $this->shop->organisation;
+
+        $this->fillFromRequest($request);
+
+        $this->validatedData = $this->validateAttributes();
+
+        return $this;
+    }
+
+
 
 }

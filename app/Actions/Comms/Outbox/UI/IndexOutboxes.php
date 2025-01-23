@@ -42,6 +42,11 @@ class IndexOutboxes extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+
+        if($this->parent instanceof Fulfilment){
+            return    $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        }
+
         if ($this->parent instanceof Group) {
             return $request->user()->hasPermissionTo("group-overview");
         }
