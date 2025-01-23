@@ -151,6 +151,20 @@ class ShowRefund extends OrgAction
                     'icon'  => [
                         'icon'  => ['fal', 'fa-file-invoice-dollar'],
                         'title' => $invoice->reference
+                    ],
+                    'actions' =>  [
+                        [
+                            'type'  => 'button',
+                            'style' => 'create',
+                            'label' => __('Create'),
+                            'route' => [
+                                'method'     => 'post',
+                                'name'       => 'grp.models.refund.store',
+                                'parameters' => [
+                                    'invoice' => $invoice->id,
+                                ]
+                            ]
+                        ]
                     ]
                 ],
                 'tabs'                 => [
