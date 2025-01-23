@@ -48,103 +48,103 @@ class StoreRefund extends OrgAction
     {
         //        $invoice->
 
-        if (class_basename($parent) == 'Customer') {
-            $modelData['customer_id'] = $parent->id;
-        } elseif (class_basename($parent) == 'RecurringBill') {
-            $modelData['customer_id'] = $parent->fulfilmentCustomer->customer_id;
-        } else {
-            $modelData['customer_id'] = $parent->customer_id;
-        }
-
-        if (!Arr::has($modelData, 'billing_address')) {
-            if ($parent instanceof Order) {
-                $modelData['billing_address'] = $parent->billingAddress;
-            } elseif ($parent instanceof RecurringBill) {
-                $modelData['billing_address'] = $parent->fulfilmentCustomer->customer->address;
-            } else {
-                $modelData['billing_address'] = $parent->address;
-            }
-        }
-
-        if (!Arr::exists($modelData, 'tax_category_id')) {
-            if ($parent instanceof Order || $parent instanceof RecurringBill) {
-                $modelData['tax_category_id'] = $parent->tax_category_id;
-            } else {
-                /** @var Customer $customer */
-                $customer = Customer::find($modelData['customer_id']);
-
-                $billingAddress  = $customer->address;
-                $deliveryAddress = $customer->deliveryAddress;
-
-                data_set(
-                    $modelData,
-                    'tax_category_id',
-                    GetTaxCategory::run(
-                        country: $this->organisation->country,
-                        taxNumber: $customer->taxNumber,
-                        billingAddress: $billingAddress,
-                        deliveryAddress: $deliveryAddress
-                    )->id
-                );
-            }
-        }
-
-
-        $billingAddressData = Arr::pull($modelData, 'billing_address');
-
-        $modelData['shop_id']     = $this->shop->id;
-        $modelData['currency_id'] = $this->shop->currency_id;
-
-        data_set($modelData, 'group_id', $parent->group_id);
-        data_set($modelData, 'organisation_id', $parent->organisation_id);
-
-        $modelData = $this->processExchanges($modelData, $this->shop);
-
-
-        $date = now();
-        data_set($modelData, 'date', $date, overwrite: false);
-        data_set($modelData, 'tax_liability_at', $date, overwrite: false);
-
-
-        $invoice = DB::transaction(function () use ($parent, $modelData, $billingAddressData) {
-            /** @var Invoice $invoice */
-            $invoice = $parent->invoices()->create($modelData);
-            $invoice->stats()->create();
-            $this->createFixedAddress(
-                $invoice,
-                $billingAddressData,
-                'Ordering',
-                'billing',
-                'address_id'
-            );
-            $invoice->updateQuietly(
-                [
-                    'billing_country_id' => $invoice->address->country_id
-                ]
-            );
-
-            return $invoice;
-        });
-
-
-        if ($invoice->customer_id) {
-            CustomerHydrateInvoices::dispatch($invoice->customer)->delay($this->hydratorsDelay);
-        }
-
-        // todo: Upload Invoices to Google Drive #544
-        //UploadPdfInvoice::run($invoice);
-        /** @var Invoice $invoice */
-        ShopHydrateInvoices::dispatch($invoice->shop)->delay($this->hydratorsDelay);
-        OrganisationHydrateInvoices::dispatch($invoice->organisation)->delay($this->hydratorsDelay);
-        GroupHydrateInvoices::dispatch($invoice->group)->delay($this->hydratorsDelay);
-
-        ShopHydrateSales::dispatch($invoice->shop)->delay($this->hydratorsDelay);
-        OrganisationHydrateSales::dispatch($invoice->organisation)->delay($this->hydratorsDelay);
-        GroupHydrateSales::dispatch($invoice->group)->delay($this->hydratorsDelay);
-
-        InvoiceRecordSearch::dispatch($invoice);
-
-        return $invoice;
+        //        if (class_basename($parent) == 'Customer') {
+        //            $modelData['customer_id'] = $parent->id;
+        //        } elseif (class_basename($parent) == 'RecurringBill') {
+        //            $modelData['customer_id'] = $parent->fulfilmentCustomer->customer_id;
+        //        } else {
+        //            $modelData['customer_id'] = $parent->customer_id;
+        //        }
+        //
+        //        if (!Arr::has($modelData, 'billing_address')) {
+        //            if ($parent instanceof Order) {
+        //                $modelData['billing_address'] = $parent->billingAddress;
+        //            } elseif ($parent instanceof RecurringBill) {
+        //                $modelData['billing_address'] = $parent->fulfilmentCustomer->customer->address;
+        //            } else {
+        //                $modelData['billing_address'] = $parent->address;
+        //            }
+        //        }
+        //
+        //        if (!Arr::exists($modelData, 'tax_category_id')) {
+        //            if ($parent instanceof Order || $parent instanceof RecurringBill) {
+        //                $modelData['tax_category_id'] = $parent->tax_category_id;
+        //            } else {
+        //                /** @var Customer $customer */
+        //                $customer = Customer::find($modelData['customer_id']);
+        //
+        //                $billingAddress  = $customer->address;
+        //                $deliveryAddress = $customer->deliveryAddress;
+        //
+        //                data_set(
+        //                    $modelData,
+        //                    'tax_category_id',
+        //                    GetTaxCategory::run(
+        //                        country: $this->organisation->country,
+        //                        taxNumber: $customer->taxNumber,
+        //                        billingAddress: $billingAddress,
+        //                        deliveryAddress: $deliveryAddress
+        //                    )->id
+        //                );
+        //            }
+        //        }
+        //
+        //
+        //        $billingAddressData = Arr::pull($modelData, 'billing_address');
+        //
+        //        $modelData['shop_id']     = $this->shop->id;
+        //        $modelData['currency_id'] = $this->shop->currency_id;
+        //
+        //        data_set($modelData, 'group_id', $parent->group_id);
+        //        data_set($modelData, 'organisation_id', $parent->organisation_id);
+        //
+        //        $modelData = $this->processExchanges($modelData, $this->shop);
+        //
+        //
+        //        $date = now();
+        //        data_set($modelData, 'date', $date, overwrite: false);
+        //        data_set($modelData, 'tax_liability_at', $date, overwrite: false);
+        //
+        //
+        //        $invoice = DB::transaction(function () use ($parent, $modelData, $billingAddressData) {
+        //            /** @var Invoice $invoice */
+        //            $invoice = $parent->invoices()->create($modelData);
+        //            $invoice->stats()->create();
+        //            $this->createFixedAddress(
+        //                $invoice,
+        //                $billingAddressData,
+        //                'Ordering',
+        //                'billing',
+        //                'address_id'
+        //            );
+        //            $invoice->updateQuietly(
+        //                [
+        //                    'billing_country_id' => $invoice->address->country_id
+        //                ]
+        //            );
+        //
+        //            return $invoice;
+        //        });
+        //
+        //
+        //        if ($invoice->customer_id) {
+        //            CustomerHydrateInvoices::dispatch($invoice->customer)->delay($this->hydratorsDelay);
+        //        }
+        //
+        //        // todo: Upload Invoices to Google Drive #544
+        //        //UploadPdfInvoice::run($invoice);
+        //        /** @var Invoice $invoice */
+        //        ShopHydrateInvoices::dispatch($invoice->shop)->delay($this->hydratorsDelay);
+        //        OrganisationHydrateInvoices::dispatch($invoice->organisation)->delay($this->hydratorsDelay);
+        //        GroupHydrateInvoices::dispatch($invoice->group)->delay($this->hydratorsDelay);
+        //
+        //        ShopHydrateSales::dispatch($invoice->shop)->delay($this->hydratorsDelay);
+        //        OrganisationHydrateSales::dispatch($invoice->organisation)->delay($this->hydratorsDelay);
+        //        GroupHydrateSales::dispatch($invoice->group)->delay($this->hydratorsDelay);
+        //
+        //        InvoiceRecordSearch::dispatch($invoice);
+        //
+        //        return $invoice;
     }
 
 
