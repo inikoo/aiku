@@ -30,7 +30,7 @@ class StoreRecurringBillTransaction extends OrgAction
         data_set($modelData, 'fulfilment_id', $recurringBill->fulfilment_id);
         data_set($modelData, 'fulfilment_customer_id', $recurringBill->fulfilment_customer_id);
         data_set($modelData, 'tax_category_id', $recurringBill->tax_category_id);
-        data_set($modelData, 'item_id', $item->id);
+
 
         if ($item instanceof FulfilmentTransaction) {
             if ($item->type == FulfilmentTransactionTypeEnum::SERVICE) {
@@ -44,6 +44,7 @@ class StoreRecurringBillTransaction extends OrgAction
 
             // todo add unit cost to the transaction
             $unitCost = $item->gross_amount / $item->quantity;
+            data_set($modelData, 'item_id', $item->id);
 
         } elseif ($item instanceof HistoricAsset) {
             if ($item->model_type == 'Service') {
@@ -56,6 +57,7 @@ class StoreRecurringBillTransaction extends OrgAction
             $totalQuantity   = Arr::pull($modelData, 'quantity');
 
             $unitCost = $item->price;
+            data_set($modelData, 'item_id', $item->model_id);
 
         } else {
             $type            = class_basename($item);
@@ -73,7 +75,7 @@ class StoreRecurringBillTransaction extends OrgAction
             }
 
             $unitCost    = $item->rental->price;
-
+            data_set($modelData, 'item_id', $item->id);
         }
 
         data_set($modelData, 'item_type', $type);
