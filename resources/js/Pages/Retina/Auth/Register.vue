@@ -12,7 +12,7 @@ defineOptions({ layout: RetinaShowIris });
 
 // Define form using Inertia's useForm
 const form = useForm({
-  first_name: '',
+  name: '',
   last_name: '',
   email: '',
   phone_number: '',
@@ -69,26 +69,21 @@ onMounted(async () => {
 
 
         <!-- First Name -->
-        <div class="sm:col-span-3">
-          <label for="first-name" class="block text-sm font-medium text-gray-900">First Name</label>
+        <div class="sm:col-span-6">
+          <label for="first-name" class="block text-sm font-medium text-gray-900"> Name</label>
           <div class="mt-2">
-            <PureInput v-model="form.first_name" type="text" id="first-name" name="first_name" required />
+            <PureInput v-model="form.name" type="text" id="name" name="name" required />
+            <p v-if="form.errors.name" class="text-sm text-red-600 mt-1">{{ form.errors.name }}</p>
           </div>
         </div>
-
-        <!-- Last Name -->
-        <div class="sm:col-span-3">
-          <label for="last-name" class="block text-sm font-medium text-gray-900">Last Name</label>
-          <div class="mt-2">
-            <PureInput v-model="form.last_name" type="text" id="last-name" name="last_name" required />
-          </div>
-        </div>
+        
 
         <!-- Email -->
         <div class="sm:col-span-3">
           <label for="email" class="block text-sm font-medium text-gray-900">Email</label>
           <div class="mt-2">
             <PureInput v-model="form.email" type="email" id="email" name="email" required />
+            <p v-if="form.errors.email" class="text-sm text-red-600 mt-1">{{ form.errors.email }}</p>
           </div>
         </div>
 
@@ -97,6 +92,7 @@ onMounted(async () => {
           <label for="phone-number" class="block text-sm font-medium text-gray-900">Phone Number</label>
           <div class="mt-2">
             <PureInput v-model="form.phone_number" type="text" id="phone-number" name="phone_number" required />
+            <p v-if="form.errors.phone_number" class="text-sm text-red-600 mt-1">{{ form.errors.phone_number }}</p>
           </div>
         </div>
 
@@ -105,6 +101,7 @@ onMounted(async () => {
           <label for="business-name" class="block text-sm font-medium text-gray-900">Business Name</label>
           <div class="mt-2">
             <PureInput v-model="form.business_name" type="text" id="business-name" name="business_name" required />
+            <p v-if="form.errors.business_name" class="text-sm text-red-600 mt-1">{{ form.errors.business_name }}</p>
           </div>
         </div>
 
@@ -112,7 +109,8 @@ onMounted(async () => {
         <div class="sm:col-span-6">
           <label for="website" class="block text-sm font-medium text-gray-900">Website</label>
           <div class="mt-2">
-            <PureInput v-model="form.website" type="url" id="website" name="website" required />
+            <PureInput v-model="form.website" type="url" id="website" name="website" />
+            <p v-if="form.errors.website" class="text-sm text-red-600 mt-1">{{ form.errors.website }}</p>
           </div>
         </div>
 
@@ -120,7 +118,8 @@ onMounted(async () => {
         <div class="sm:col-span-6">
           <label for="what-you-sell" class="block text-sm font-medium text-gray-900">What Do You Sell</label>
           <div class="mt-2">
-            <PureInput v-model="form.what_you_sell" type="text" id="what-you-sell" name="what_you_sell" required />
+            <PureInput v-model="form.what_you_sell" type="text" id="what-you-sell" name="what_you_sell"  />
+            <p v-if="form.errors.what_you_sell" class="text-sm text-red-600 mt-1">{{ form.errors.what_you_sell }}</p>
           </div>
         </div>
 
@@ -129,11 +128,12 @@ onMounted(async () => {
           <label for="shipments-per-week" class="block text-sm font-medium text-gray-900">Shipments Sent Per
             Week</label>
           <div class="mt-2">
-            <select v-model="form.shipments_per_week" id="shipments-per-week" name="shipments_per_week" required
+            <select v-model="form.shipments_per_week" id="shipments-per-week" name="shipments_per_week" 
               class="block w-full mt-1 py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
               <option value="" disabled selected>Select shipments per week</option>
               <option v-for="option in optionsSend" :key="option" :value="option">{{ option }}</option>
             </select>
+            <p v-if="form.errors.shipments_per_week" class="text-sm text-red-600 mt-1">{{ form.errors.shipments_per_week }}</p>
           </div>
         </div>
 
@@ -145,6 +145,7 @@ onMounted(async () => {
           <div class="mt-2">
             <PureInput v-model="form.goods_size_and_weight" type="text" id="goods-size-and-weight"
               name="goods_size_and_weight" required />
+              <p v-if="form.errors.goods_size_and_weight" class="text-sm text-red-600 mt-1">{{ form.errors.goods_size_and_weight }}</p>
           </div>
         </div>
 
@@ -158,6 +159,7 @@ onMounted(async () => {
                 class="h-5 w-5 text-indigo-600 border-gray-300 rounded-sm focus:ring-2 focus:ring-indigo-500" />
               <label :for="interest.value" class="text-sm font-medium text-gray-900">{{ interest.label }}</label>
             </div>
+            <p v-if="form.errors.interests" class="text-sm text-red-600 mt-1">{{ form.errors.interests }}</p>
           </div>
         </div>
 
@@ -165,7 +167,8 @@ onMounted(async () => {
         <div class="sm:col-span-3">
           <label for="password" class="block text-sm font-medium text-gray-900">Password</label>
           <div class="mt-2 password">
-            <PureInput v-model="form.password" :type="'password'" />
+            <PureInput v-model="form.password" :type="'password'" required/>
+            <p v-if="form.errors.password" class="text-sm text-red-600 mt-1">{{ form.errors.password }}</p>
           </div>
         </div>
 
@@ -173,7 +176,8 @@ onMounted(async () => {
         <div class="sm:col-span-3">
           <label for="password-confirmation" class="block text-sm font-medium text-gray-900">Retype Password</label>
           <div class="mt-2 password">
-            <PureInput v-model="form.password_confirmation" :type="'password'" />
+            <PureInput v-model="form.password_confirmation" :type="'password'" required/>
+            <p v-if="form.errors.password_confirmation" class="text-sm text-red-600 mt-1">{{ form.errors.password_confirmation }}</p>
           </div>
         </div>
 
