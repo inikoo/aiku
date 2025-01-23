@@ -17,7 +17,6 @@ class SendLinkResetPassword
 {
     use AsAction;
 
-
     public function handle(string $token, WebUser $webUser): void
     {
         $url = route('retina.email.reset-password.show', [
@@ -25,40 +24,10 @@ class SendLinkResetPassword
             'email' => $webUser->email
         ]);
 
-        SendResetPasswordEmail::run($webUser->customer, [
+
+        SendResetPasswordEmail::run($webUser, [
             'url' => $url
         ]);
     }
 
-    // to delete
-    /*
-    public function getEmailData(string $subject, string $sender, string $email, string $html, string $url): array
-    {
-        if (preg_match_all("/{{(.*?)}}/", $html, $matches)) {
-            foreach ($matches[1] as $i => $placeholder) {
-                $placeholder = $this->replaceMergeTags($placeholder, $url);
-                $html        = str_replace($matches[0][$i], sprintf('%s', $placeholder), $html);
-            }
-        }
-
-        if (preg_match_all("/\[(.*?)]/", $html, $matches)) {
-            foreach ($matches[1] as $i => $placeholder) {
-                $placeholder = $this->replaceMergeTags($placeholder, $url);
-                $html        = str_replace($matches[0][$i], sprintf('%s', $placeholder), $html);
-            }
-        }
-
-        return SendSesEmail::make()->getEmailData($subject, $sender, $email, $html);
-    }
-    */
-
-    private function replaceMergeTags($placeholder, $url): string
-    {
-        $placeholder = Str::kebab(trim($placeholder));
-
-        return match ($placeholder) {
-            'reset-password-url' => $url,
-            default              => ''
-        };
-    }
 }

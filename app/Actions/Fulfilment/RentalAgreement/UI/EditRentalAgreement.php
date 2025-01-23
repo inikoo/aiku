@@ -71,7 +71,6 @@ class EditRentalAgreement extends OrgAction
                     'mode'     => "tabs",
                     'valueProp' => 'value',
                     'required' => true,
-                    /* 'options'  => Options::forEnum(RentalAgreementStateEnum::class), */
                     'value'    => $rentalAgreement->state,
                     'options'  => [
                         [

@@ -1,7 +1,7 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Fri, 09 Feb 2024 10:30:07 Malaysia Time, Kuala Lumpur, Malaysia
-  - Copyright (c) 2024, Raul A Perusquia Flores
+  - Created: Thu, 23 Jan 2025 14:28:22 Malaysia Time, Kuala Lumpur, Malaysia
+  - Copyright (c) 2025, Raul A Perusquia Flores
   -->
 
 <script setup lang="ts">
@@ -11,7 +11,7 @@ import { trans } from 'laravel-vue-i18n'
 import ValidationErrors from '@/Components/ValidationErrors.vue'
 import PureInput from '@/Components/Pure/PureInput.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
-import Layout from '@/Layouts/GrpAuth.vue'
+import Layout from '@/Layouts/RetinaAuth.vue'
 
 defineOptions({ layout: Layout })
 
@@ -45,7 +45,7 @@ watchEffect(() => {
 
         <form class="space-y-8" @submit.prevent="submitResetPassword">
             <div class="text-center font-semibold text-xl">
-                {{ trans("The Administrator ask you to reset password") }}
+                {{ trans("Reset your password") }}
             </div>
 
             <div class="flex flex-col gap-y-4">
