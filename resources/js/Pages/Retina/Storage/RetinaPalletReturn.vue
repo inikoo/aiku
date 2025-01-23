@@ -53,6 +53,7 @@ import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
 import UploadExcel from "@/Components/Upload/UploadExcel.vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
+import ModalConfirmationDelete from "@/Components/Utils/ModalConfirmationDelete.vue"
 
 const props = defineProps<{
 	title: string
@@ -246,6 +247,28 @@ const isModalUploadOpen = ref(false)
                         <span class="text-gray-200 font-normal">{{ notes_data.warehouse.note }}</span>
                     </div>
                 </div>
+            </div>
+        </template>
+        
+        <!-- Button: Add Pallet -->
+        <template #button-delete-return="{ action }">
+            <div>
+                <ModalConfirmationDelete
+                    :modelValue="true"
+                    :routeDelete="action.route"
+                >
+                    <template #default="{ isOpenModal, changeModel }">
+                        <Button
+                            @click="() => changeModel()"
+                            :style="action.style"
+                            :label="action.label"
+                            :icon="action.icon"
+                            :iconRight="action.iconRight"
+                            :key="`ActionButton${action.label}${action.style}`"
+                            :tooltip="action.tooltip"
+                        />
+                    </template>
+                </ModalConfirmationDelete>
             </div>
         </template>
 

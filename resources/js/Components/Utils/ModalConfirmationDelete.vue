@@ -95,7 +95,7 @@ const onClickDelete = () => {
                                 </div>
 
                                 <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse gap-x-2">
-                                    <Button :loading="isLoadingdelete" @click="() => (onClickDelete(), emits('onYes'))" type="red" label="Delete" icon="fal fa-trash-alt" />
+                                    <Button :loading="isLoadingdelete" @click="() => (onClickDelete(), emits('onYes'))" type="red" label="Delete" icon="far fa-trash-alt" />
 
                                     <!-- <button type="button"
                                         class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-red-500 sm:ml-3 sm:w-auto"
