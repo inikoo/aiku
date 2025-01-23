@@ -280,6 +280,18 @@ const onPublish = async (action: routeType, popover: {close: Function, open: Fun
 // }
 
 const iframeSrc = 
+	route("grp.websites.webpage.preview", [
+		route().params["website"],
+		route().params["webpage"],
+		{
+			organisation: route().params["organisation"],
+			shop: route().params["shop"],
+			fulfilment : route().params["fulfilment"]
+		},
+	]
+)
+
+const previewSrc = 
 	route("grp.websites.preview", [
 		route().params["website"],
 		route().params["webpage"],
@@ -292,7 +304,7 @@ const iframeSrc =
 )
 
 const openFullScreenPreview = () => {
-	window.open(iframeSrc + '&isInWorkshop=true', "_blank")
+	window.open(previewSrc + '&isInWorkshop=true', "_blank")
 }
 
 const setHideBlock = (block : Daum) => {
@@ -388,12 +400,12 @@ watch(openedBlockSideEditor,(newValue)=>{
 				<!-- Section: Screenview -->
 				<div class="flex">
 					<ScreenView @screenView="(e)=>iframeClass = setIframeView(e)" />
-					<!-- <div
+					<div
 						class="py-1 px-2 cursor-pointer"
 						v-tooltip="'Preview'"
 						@click="openFullScreenPreview">
 						<FontAwesomeIcon :icon="faExternalLink" fixed-width aria-hidden="true" />
-					</div> -->
+					</div>
 				</div>
 
 				<!-- Tools: login-logout, edit-preview -->
