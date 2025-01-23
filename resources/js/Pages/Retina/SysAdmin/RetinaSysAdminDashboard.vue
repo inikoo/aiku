@@ -5,7 +5,6 @@
   -->
 
 <script setup lang="ts">
-<script setup lang="ts">
 import { Head } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Stats from "@/Components/DataDisplay/Stats.vue"
