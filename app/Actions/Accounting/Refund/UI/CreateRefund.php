@@ -13,7 +13,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithOrderExchanges;
-use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\RecurringBill;
@@ -33,26 +32,7 @@ class CreateRefund extends OrgAction
 
     public function handle(Invoice $invoice): Invoice
     {
-        $modelData = $invoice->toArray();
-        $parent = $invoice->customer;
-        $reference = $invoice->reference . '-refund-' . rand(000, 999);
-
-        data_set($modelData, 'reference', $reference);
-        data_set($modelData, 'type', InvoiceTypeEnum::REFUND);
-        data_set($modelData, 'total_amount', 0);
-        data_set($modelData, 'gross_amount', 0);
-        data_set($modelData, 'goods_amount', 0);
-        data_set($modelData, 'net_amount', 0);
-        data_set($modelData, 'grp_net_amount', 0);
-        data_set($modelData, 'org_net_amount', 0);
-        data_set($modelData, 'tax_amount', 0);
-        data_set($modelData, 'in_process', true);
-        data_set($modelData, 'invoice_id', $invoice->id);
-
-        $date = now();
-        data_set($modelData, 'date', $date, overwrite: false);
-
-        return StoreRefund::make()->action($parent, $modelData);
+        return StoreRefund::make()->action($invoice, []);
     }
 
     public function htmlResponse(Invoice $invoice, ActionRequest $request): RedirectResponse
