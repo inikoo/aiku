@@ -56,6 +56,7 @@ class ShowRetinaWebUser extends RetinaAction
                     //'model'         => $model,
                     'title'     => $webUser->username,
                     'icon'      => 'fal fa-user-circle',
+                    'noCapitalise'  => true,
                     'iconRight' => $iconRight,
                     'actions'   => [
                         [

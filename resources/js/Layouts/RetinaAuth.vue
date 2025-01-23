@@ -11,15 +11,20 @@ import { breakpointType } from '@/Composables/useWindowSize'
 import { provide } from "vue"
 import { useLayoutStore } from "@/Stores/retinaLayout"
 import ScreenWarning from '@/Components/Utils/ScreenWarning.vue'
+import { useIrisLayoutStore } from "@/Stores/irisLayout"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faExclamationTriangle } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import Image from '@/Components/Image.vue'
 library.add(faExclamationTriangle)
 
 
 provide('layout', useLayoutStore())
 
+const layout = useIrisLayoutStore()
+console.log('layout',layout,useLayoutStore())
+console.log('usepage',usePage().props.iris.logo)
 if (usePage().props.language) {
     loadLanguageAsync(usePage().props.language)
 }
@@ -31,10 +36,13 @@ const isStaging = useLayoutStore().app.environment === 'staging'
 
 <template>
     <!-- <ScreenWarning v-if="isStaging" /> -->
-    <div class="relative h-screen w-screen bg-gradient-to-tr from-slate-950 to-slate-800 pt-64 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-center gap-x-2">
+    <div class="relative h-screen w-screen bg-gradient-to-tr from-slate-950 to-slate-800 p-auto sm:px-6 lg:px-8">
+        <div v-if="!usePage().props?.iris?.logo" class="flex items-center justify-center gap-x-2">
             <img class="h-12 w-auto" src="/art/logo-yellow.svg" :alt="usePage().props.iris?.name || 'App'" />
             <span style="font-family: Fira" class="text-4xl text-white leading-none">{{ usePage().props.iris?.name }}</span>
+        </div>
+        <div v-else class="flex items-center justify-center gap-x-2">
+            <Image class="h-12 w-auto" :src="usePage().props.iris.logo" :alt="usePage().props.iris?.name || 'App'" />
         </div>
 
         <div class="grid grid-cols-7 mt-8 mx-auto md:w-full max-w-xl shadow-lg rounded-lg overflow-hidden">
