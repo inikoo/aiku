@@ -23,6 +23,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faQuestionCircle, faPencil, faPenSquare } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import ModalAddressCollection from "@/Components/Utils/ModalAddressCollection.vue"
+import PalletEditCustomerReference from "@/Components/Pallet/PalletEditCustomerReference.vue"
 library.add(faQuestionCircle, faPencil, faPenSquare)
 
 defineProps<{
@@ -187,11 +188,21 @@ const isModalAddressCollection = ref(false)
 		<!-- Box Stats: 2 -->
 		<BoxStatPallet
 			class="py-1 sm:py-2 px-3"
-			:label="capitalize(dataPalletReturn.state)"
+			:label="capitalize(dataPalletReturn?.state)"
 			icon="fal fa-truck-couch">
+			<!-- Customer reference -->
+            <div class="mb-1">
+                <PalletEditCustomerReference
+                    :dataPalletDelivery="dataPalletReturn"
+                    :updateRoute
+					:disabled="dataPalletReturn?.state !== 'in_process' && dataPalletReturn?.state !== 'submit'"
+                />
+            </div>
+
+			<!-- Barcode -->
 			<div
-				class="mt-2 mb-4 h-full w-full lg:max-w-72 mx-auto py-1 px-2 flex flex-col bg-gray-100 ring-1 ring-gray-300 rounded items-center">
-				<svg id="palletReturnBarcode" class="w-full h-full" />
+				class="mb-4 h-full w-full lg:max-w-72 mx-auto py-1 px-2 flex flex-col bg-gray-100 ring-1 ring-gray-300 rounded items-center">
+				<svg id="palletReturnBarcode" class="w-full h-full"></svg>
 				<div class="text-xs text-gray-500">
 					{{ route().params.palletReturn }}
 				</div>

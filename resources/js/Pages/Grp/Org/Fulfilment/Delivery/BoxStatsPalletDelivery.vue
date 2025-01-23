@@ -16,11 +16,17 @@ import { routeType } from '@/types/route'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faQuestionCircle, faExpandArrows } from '@fal'
+import { faQuestionCircle, faExpandArrows, faHashtag } from '@fal'
+import { faLevelDown } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import OrderSummary from '@/Components/Summary/OrderSummary.vue'
+import Button from '@/Components/Elements/Buttons/Button.vue'
+import Modal from '@/Components/Utils/Modal.vue'
+import PureInput from '@/Components/Pure/PureInput.vue'
+import PalletEditCustomerReference from '@/Components/Pallet/PalletEditCustomerReference.vue'
+// import { useTruncate } from '@/Composables/useTruncate'
 
-library.add(faQuestionCircle, faExpandArrows)
+library.add(faQuestionCircle, faExpandArrows, faHashtag, faLevelDown)
 
 const locale = inject('locale', aikuLocaleStructure)
 const props = defineProps<{
@@ -65,6 +71,38 @@ onMounted(() => {
         displayValue: false
     })
 })
+
+// Section: Edit Customer Reference
+const cloneCustomerReference = ref(props.dataPalletDelivery.customer_reference)
+const showModalEdit = ref(false)
+const isLoadingSaveCustomer = ref(false)
+const onUpdateCustomerReference = () => {
+    // console.log('eee', cloneCustomerReference.value)
+    router.patch(route(props.updateRoute.name, props.updateRoute.parameters),
+    {
+        customer_reference: cloneCustomerReference.value
+    },
+    {
+        onStart: () => isLoadingSaveCustomer.value = true,
+        onError: () => {
+            notify({
+                title: trans("Failed"),
+                text: trans("Failed to update the Customer reference, try again."),
+                type: "error",
+            })
+        },
+        onSuccess: () => {
+            showModalEdit.value = false,
+            notify({
+                title: trans("Success"),
+                text: trans("Customer reference updated successfully."),
+                type: "success",
+            }),
+            cloneCustomerReference.value = props.dataPalletDelivery.customer_reference
+        },
+        onFinish: () => isLoadingSaveCustomer.value = false,
+    })
+}
 </script>
 
 <template>
@@ -129,6 +167,16 @@ onMounted(() => {
 
         <!-- Box: Status -->
         <BoxStatPallet class="py-1 sm:py-2 px-3" :label="capitalize(dataPalletDelivery?.state)" icon="fal fa-truck-couch">
+            <!-- Customer reference -->
+            <div class="mb-1">
+                <PalletEditCustomerReference
+                    :dataPalletDelivery
+                    :updateRoute
+					:disabled="dataPalletDelivery?.state !== 'in_process' && dataPalletDelivery?.state !== 'submit'"
+                />
+            </div>
+
+            <!-- Barcode -->
             <div class="mb-4 h-full w-full py-1 px-2 flex flex-col bg-gray-100 ring-1 ring-gray-300 rounded items-center">
                 <svg id="palletDeliveryBarcode" class="w-full h-full"></svg>
                 <div class="text-xxs text-gray-500">
@@ -235,5 +283,6 @@ onMounted(() => {
                 </div> -->
             </section>
         </BoxStatPallet>
+
     </div>
 </template>
