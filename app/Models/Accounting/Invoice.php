@@ -238,4 +238,9 @@ class Invoice extends Model implements Auditable
         return $this->belongsTo(SalesChannel::class);
     }
 
+    public function originalInvoice(): BelongsTo
+    {
+        return $this->belongsTo(SalesChannel::class);
+    }
+
 }

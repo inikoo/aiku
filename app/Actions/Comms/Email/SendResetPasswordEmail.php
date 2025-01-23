@@ -17,8 +17,7 @@ use App\Enums\Comms\DispatchedEmail\DispatchedEmailProviderEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Models\Comms\Email;
 use App\Models\Comms\Outbox;
-use App\Models\CRM\Customer;
-use Lorisleiva\Actions\ActionRequest;
+use App\Models\CRM\WebUser;
 
 class SendResetPasswordEmail extends OrgAction
 {
@@ -28,21 +27,22 @@ class SendResetPasswordEmail extends OrgAction
 
     private Email $email;
 
-    public function handle(Customer $customer, array $modelData)
+    public function handle(WebUser $webUser, array $modelData)
     {
         /** @var Outbox $outbox */
-        $outbox = $customer->shop->outboxes()->where('code', 'password_reminder')->first();
+        $outbox = $webUser->shop->outboxes()->where('code', 'password_reminder')->first();
 
-        $recipient = $customer;
+        $recipient       = $webUser;
         $dispatchedEmail = StoreDispatchedEmail::run($outbox->emailOngoingRun, $recipient, [
-            'is_test' => false,
-            'outbox_id' => Outbox::where('type', OutboxTypeEnum::TEST)->pluck('id')->first(),
+            'is_test'       => false,
+            'outbox_id'     => Outbox::where('type', OutboxTypeEnum::CUSTOMER_NOTIFICATION)->pluck('id')->first(),
             'email_address' => $recipient->email,
-            'provider' => DispatchedEmailProviderEnum::SES
+            'provider'      => DispatchedEmailProviderEnum::SES
         ]);
         $dispatchedEmail->refresh();
 
         $emailHtmlBody = $outbox->emailOngoingRun->email->liveSnapshot->compiled_layout;
+
 
         return $this->sendEmailWithMergeTags(
             $dispatchedEmail,
@@ -54,46 +54,5 @@ class SendResetPasswordEmail extends OrgAction
         );
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->asAction) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public function rules(): array
-    {
-        $rules = [
-
-        ];
-
-        if (!$this->strict) {
-            $rules = $this->noStrictUpdateRules($rules);
-        }
-
-        return $rules;
-    }
-
-    public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Email|string
-    {
-        $this->strict = $strict;
-        if (!$audit) {
-            Email::disableAuditing();
-        }
-        $this->asAction = true;
-        $this->hydratorsDelay = $hydratorsDelay;
-        $this->initialisation($customer->organisation, $modelData);
-
-        return $this->handle($customer, $this->validatedData);
-    }
-
-    public function asController(Customer $customer, ActionRequest $request): Email
-    {
-        $this->initialisation($customer->organisation, $request);
-
-        return $this->handle($customer, $this->validatedData);
-    }
 
 }

@@ -180,7 +180,7 @@ class Mailshot extends Model implements Auditable
             $parent = $this->parent;
             $sender = $parent->senderEmail->email_address;
         } else {
-            $sender = config('mail.devel.sender_email_address');
+            $sender = config('app.email_address_in_non_production_env');
         }
 
         return $sender;

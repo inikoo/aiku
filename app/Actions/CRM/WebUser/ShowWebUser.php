@@ -93,6 +93,7 @@ class ShowWebUser extends OrgAction
                 'pageHead'    => [
                     'model'         => $model,
                     'title'         => $webUser->username,
+                    'noCapitalise'  => true,
                     'subNavigation' => $subNavigation,
                     'icon'              => 'fal fa-user',
                     'iconRight' => $iconRight,

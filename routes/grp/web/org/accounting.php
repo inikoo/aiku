@@ -73,6 +73,7 @@ Route::get('/invoices/export', ExportInvoices::class)->name('invoices.export');
 Route::get('/invoices', [IndexInvoices::class, 'allOrganisation'])->name('invoices.index'); // need check in retina
 Route::get('/invoices/all', [IndexInvoices::class, 'allOrganisation'])->name('invoices.all_invoices.index');
 Route::get('/invoices/unpaid', [IndexInvoices::class, 'unpaidOrganisation'])->name('invoices.unpaid_invoices.index');
+Route::get('/invoices/paid', [IndexInvoices::class, 'paidOrganisation'])->name('invoices.paid_invoices.index');
 Route::get('/invoices/{invoice}', [ShowInvoice::class, 'inOrganisation'])->name('invoices.show'); // need check in retina
 Route::get('/invoices/all/{invoice}', [ShowInvoice::class, 'inOrganisation'])->name('invoices.all_invoices.show');
 Route::get('/invoices/unpaid/{invoice}', [ShowInvoice::class, 'inOrganisation'])->name('invoices.unpaid_invoices.show');

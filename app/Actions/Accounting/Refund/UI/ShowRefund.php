@@ -149,7 +149,7 @@ class ShowRefund extends OrgAction
                     'model' => __('refund'),
                     'title' => $invoice->reference,
                     'icon'  => [
-                        'icon'  => ['fal', 'fa-hand-holding-usd'],
+                        'icon'  => ['fas', 'fa-hand-holding-usd'],
                         'title' => $invoice->reference
                     ],
                     'actions' =>  [
