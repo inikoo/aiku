@@ -15,6 +15,7 @@ use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailProviderEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Models\Comms\DispatchedEmail;
 use App\Models\Comms\Email;
 use App\Models\Comms\Outbox;
 use App\Models\CRM\WebUser;
@@ -27,7 +28,7 @@ class SendResetPasswordEmail extends OrgAction
 
     private Email $email;
 
-    public function handle(WebUser $webUser, array $modelData)
+    public function handle(WebUser $webUser, array $modelData): DispatchedEmail
     {
         /** @var Outbox $outbox */
         $outbox = $webUser->shop->outboxes()->where('code', 'password_reminder')->first();
@@ -42,6 +43,7 @@ class SendResetPasswordEmail extends OrgAction
         $dispatchedEmail->refresh();
 
         $emailHtmlBody = $outbox->emailOngoingRun->email->liveSnapshot->compiled_layout;
+
 
 
         return $this->sendEmailWithMergeTags(

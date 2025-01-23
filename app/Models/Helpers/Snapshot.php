@@ -131,9 +131,9 @@ class Snapshot extends Model
                 return $compiledLayout;
             case 'Website':
             case 'Webpage':
-                return $this->layout->html;
+                return $this->layout['html'];
             default:
-                return (object)[];
+                return [];
         }
     }
 }

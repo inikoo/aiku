@@ -12,14 +12,20 @@ namespace Tests\Feature;
 
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Comms\Email\SendResetPasswordEmail;
+use App\Actions\Comms\Email\StoreEmail;
 use App\Actions\Comms\Mailshot\StoreMailshot;
 use App\Actions\Comms\Mailshot\UpdateMailshot;
 use App\Actions\Comms\Outbox\StoreOutbox;
+use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\Web\Website\StoreWebsite;
+use App\Enums\Comms\Email\EmailBuilderEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
+use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Models\Catalogue\Shop;
+use App\Models\Comms\DispatchedEmail;
 use App\Models\Comms\Mailshot;
 use App\Models\Comms\Outbox;
+use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Web\Website;
 use Config;
@@ -157,8 +163,8 @@ test('test post room hydrator', function ($shop) {
         $postRoom,
         $shop,
         [
-            'type'      => OutboxCodeEnum::NEWSLETTER,
-            'name'      => 'Test',
+            'type' => OutboxCodeEnum::NEWSLETTER,
+            'name' => 'Test',
         ]
     );
 
@@ -171,14 +177,32 @@ test('test post room hydrator', function ($shop) {
 
 
 test('test send email reset password', function () {
-    $customer = $this->customer;
+    StoreWebsite::make()->action($this->shop, Website::factory()->definition());
 
-    $html = SendResetPasswordEmail::make()->action($customer, []);
+    $webUser = StoreWebUser::make()->action($this->customer, WebUser::factory()->definition());
 
-    expect($html)->toBeString();
+    $outbox = $webUser->shop->outboxes()->where('code', 'password_reminder')->first();
+    $email  = StoreEmail::make()->action($outbox->emailOngoingRun, null, [
+        'subject'               => 'Reset Password',
+        'body'                  => 'Reset Password',
+        'layout'                => ['body' => 'Reset Password'],
+        'compiled_layout'       => 'xxx',
+        'state'                 => 'active',
+        'builder'               => EmailBuilderEnum::BEEFREE,
+        'snapshot_state'        => SnapshotStateEnum::LIVE,
+        'snapshot_recyclable'   => true,
+        'snapshot_first_commit' => true,
+    ], strict: false);
 
-    return $customer;
-})->depends('outbox seeded when shop created')->todo();
+
+    $dispatchedEmail = SendResetPasswordEmail::run($webUser, [
+        'url' => 'https://test.com'
+    ]);
+
+    expect($dispatchedEmail)->toBeInstanceOf(DispatchedEmail::class);
+
+    return $this->customer;
+})->depends('outbox seeded when shop created');
 
 test('UI index mail outboxes', function () {
     $response = $this->get(route('grp.org.shops.show.comms.outboxes.index', [$this->organisation->slug, $this->shop->slug]));
@@ -199,7 +223,7 @@ test('UI index mail outboxes', function () {
 });
 
 test('UI show mail outboxes', function () {
-    $outbox = $this->shop->outboxes()->first();
+    $outbox   = $this->shop->outboxes()->first();
     $response = $this->get(route('grp.org.shops.show.comms.outboxes.show', [$this->organisation->slug, $this->shop->slug, $outbox]));
 
     $response->assertInertia(function (AssertableInertia $page) use ($outbox) {
@@ -238,7 +262,7 @@ test('UI Index Org Post Rooms', function () {
 
 test('UI Show Org Post Rooms', function () {
     $orgPostRoom = $this->organisation->orgPostRooms()->first();
-    $response = $this->get(route('grp.org.shops.show.comms.post-rooms.show', [$this->organisation->slug, $this->shop->slug, $orgPostRoom->slug]));
+    $response    = $this->get(route('grp.org.shops.show.comms.post-rooms.show', [$this->organisation->slug, $this->shop->slug, $orgPostRoom->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) use ($orgPostRoom) {
         $page
