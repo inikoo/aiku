@@ -111,6 +111,7 @@ class UpdateRetinaPalletReturn extends RetinaAction
     public function action(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
         $this->action = true;
+        $this->palletReturn = $palletReturn;
         $this->initialisationFulfilmentActions($palletReturn->fulfilmentCustomer, $modelData);
         return $this->handle($palletReturn, $modelData);
     }
