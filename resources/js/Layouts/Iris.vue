@@ -107,7 +107,7 @@ const setFirstVisitToFalse = () => {
     <iframe 
         id="superchat-widget" 
         class="rounded-lg shadow-lg" 
-        style="width: 100%; height: 100%; border: none;" 
+        style="width: 300px; height: 300px; border: none;" 
         src="https://widget.superchat.de/v2?applicationKey=WCNK7nqXPQlrVGq895A2obLRVa">
     </iframe>
 </div>
