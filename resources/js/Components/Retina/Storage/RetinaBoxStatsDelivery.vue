@@ -18,6 +18,7 @@ import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import RetinaBoxNote from "@/Components/Retina/Storage/RetinaBoxNote.vue"
 import OrderSummary from "@/Components/Summary/OrderSummary.vue"
+import PalletEditCustomerReference from "@/Components/Pallet/PalletEditCustomerReference.vue"
 
 
 const props = defineProps<{
@@ -76,13 +77,13 @@ const disableBeforeToday = (date: Date) => {
         <!-- Box: Status -->
         <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class=" pb-2 py-2 px-3"
             :tooltip="trans('Detail')" :label="capitalize(data_pallet.state)" icon="fal fa-truck-couch">
-            <div class="flex items-center w-full flex-none gap-x-2 mb-2">
+            <div class="flex items-center w-full flex-none gap-x-2 mb-2" :class="box_stats.delivery_state.class">
                 <dt class="flex-none">
                     <span class="sr-only">{{ box_stats.delivery_state.tooltip }}</span>
-                    <FontAwesomeIcon :icon='box_stats.delivery_state.icon' :class='box_stats.delivery_state.class'
+                    <FontAwesomeIcon :icon='box_stats.delivery_state.icon'
                         fixed-width aria-hidden='true' />
                 </dt>
-                <dd class="text-sm text-gray-500">{{ box_stats.delivery_state.tooltip }}</dd>
+                <dd class="">{{ box_stats.delivery_state.tooltip }}</dd>
             </div>
 
             <div class="flex items-center w-full flex-none gap-x-2">
@@ -130,6 +131,15 @@ const disableBeforeToday = (date: Date) => {
         <!-- Box: Notes -->
         <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class="pb-2 pt-2 px-3"
             :tooltip="trans('Notes')" :percentage="0">
+            <!-- Customer reference -->
+            <div class="mb-1">
+                <PalletEditCustomerReference
+                    :dataPalletDelivery="data_pallet"
+                    :updateRoute="updateRoute.route"
+					:disabled="data_pallet?.state !== 'in_process' && data_pallet?.state !== 'submitted'"
+                />
+            </div>
+
             <div class="grid gap-y-3">
                 <RetinaBoxNote
                     v-for="(note, index) in notes_data"
