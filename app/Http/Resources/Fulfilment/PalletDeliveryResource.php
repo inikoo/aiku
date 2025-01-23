@@ -38,10 +38,11 @@ class PalletDeliveryResource extends JsonResource
             ]
         );
 
-
+        // dd($palletDelivery);
         return [
             'id'                      => $palletDelivery->id,
             'customer_name'           => $palletDelivery->fulfilmentCustomer->customer->name,
+            'customer_reference'      => $palletDelivery->customer_reference,
             'reference'               => $palletDelivery->reference,
             'state'                   => $palletDelivery->state->value,
             'timeline'                => $finalTimeline,

@@ -16,11 +16,16 @@ import { routeType } from '@/types/route'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faQuestionCircle, faExpandArrows } from '@fal'
+import { faQuestionCircle, faExpandArrows, faHashtag } from '@fal'
+import { faLevelDown } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import OrderSummary from '@/Components/Summary/OrderSummary.vue'
+import Button from '@/Components/Elements/Buttons/Button.vue'
+import Modal from '@/Components/Utils/Modal.vue'
+import PureInput from '@/Components/Pure/PureInput.vue'
+// import { useTruncate } from '@/Composables/useTruncate'
 
-library.add(faQuestionCircle, faExpandArrows)
+library.add(faQuestionCircle, faExpandArrows, faHashtag, faLevelDown)
 
 const locale = inject('locale', aikuLocaleStructure)
 const props = defineProps<{
@@ -65,6 +70,38 @@ onMounted(() => {
         displayValue: false
     })
 })
+
+// Section: Edit Customer Reference
+const cloneCustomerReference = ref(props.dataPalletDelivery.customer_reference)
+const showModalEdit = ref(false)
+const isLoadingSaveCustomer = ref(false)
+const onUpdateCustomerReference = () => {
+    // console.log('eee', cloneCustomerReference.value)
+    router.patch(route(props.updateRoute.name, props.updateRoute.parameters),
+    {
+        customer_reference: cloneCustomerReference.value
+    },
+    {
+        onStart: () => isLoadingSaveCustomer.value = true,
+        onError: () => {
+            notify({
+                title: trans("Failed"),
+                text: trans("Failed to update the Customer reference, try again."),
+                type: "error",
+            })
+        },
+        onSuccess: () => {
+            showModalEdit.value = false,
+            notify({
+                title: trans("Success"),
+                text: trans("Customer reference updated successfully."),
+                type: "success",
+            }),
+            cloneCustomerReference.value = props.dataPalletDelivery.customer_reference
+        },
+        onFinish: () => isLoadingSaveCustomer.value = false,
+    })
+}
 </script>
 
 <template>
@@ -129,6 +166,22 @@ onMounted(() => {
 
         <!-- Box: Status -->
         <BoxStatPallet class="py-1 sm:py-2 px-3" :label="capitalize(dataPalletDelivery?.state)" icon="fal fa-truck-couch">
+            <!-- Customer reference -->
+            <div class="mb-1">
+                <div @click="showModalEdit = !showModalEdit" class="flex gap-x-1 items-center truncate">
+                    <FontAwesomeIcon icon='fal fa-hashtag' class='text-gray-400' fixed-width aria-hidden='true' />
+                    <template v-if="!dataPalletDelivery.customer_reference">
+                        <Button type="dashed" size="xs"><span class="text-gray-400">Edit Customer reference</span></Button>
+                    </template>
+
+                    <div v-else class="group hover:underline cursor-pointer">
+                        <span class="text-gray-500 truncate">{{ dataPalletDelivery.customer_reference }}</span>
+                        <FontAwesomeIcon icon='fal fa-pencil' size="xs" class='text-gray-400 group-hover:text-gray-600' fixed-width aria-hidden='true' />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Barcode -->
             <div class="mb-4 h-full w-full py-1 px-2 flex flex-col bg-gray-100 ring-1 ring-gray-300 rounded items-center">
                 <svg id="palletDeliveryBarcode" class="w-full h-full"></svg>
                 <div class="text-xxs text-gray-500">
@@ -235,5 +288,23 @@ onMounted(() => {
                 </div> -->
             </section>
         </BoxStatPallet>
+
+        <Modal :isOpen="showModalEdit" @onClose="showModalEdit = false" width="w-full max-w-lg">
+            <h2 class="text-lg font-semibold mb-2">{{ trans("Edit Customer Reference") }}</h2>
+            <div class="flex gap-x-2">
+                <PureInput
+                    v-model="cloneCustomerReference"
+                    placeholder="PD-2025-1234"
+                    size="sm"
+                    @onEnter="onUpdateCustomerReference"
+                />
+
+                <Button type="primary" @click="onUpdateCustomerReference" :loading="isLoadingSaveCustomer">
+                    <LoadingIcon v-if="isLoadingSaveCustomer" />
+                    {{ trans('Save') }}
+                    <FontAwesomeIcon icon='fas fa-level-down' class='rotate-90' fixed-width aria-hidden='true' />
+                </Button>
+            </div>
+        </Modal>
     </div>
 </template>
