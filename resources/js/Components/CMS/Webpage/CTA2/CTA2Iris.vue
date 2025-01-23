@@ -35,10 +35,10 @@ const props = defineProps<{
 			<section v-html="fieldValue.headline" />
 
 			<div class="mt-10 flex items-center justify-center gap-x-6">
-				<div typeof="button" :style="getStyles(fieldValue.button.container.properties)"
+				<a  :href="fieldValue?.button?.link?.href" :target="fieldValue?.button?.link?.target" typeof="button" :style="getStyles(fieldValue.button.container.properties)"
 					class="mt-10 flex items-center justify-center w-64 mx-auto gap-x-6">
 					{{ fieldValue.button.text }}
-				</div>
+			</a>
 			</div>
 		</div>
 	</div>

@@ -37,13 +37,13 @@ const openGallery = ref(false)
 			<div class="text-gray-600 pr-3 overflow-y-auto mb-4">
 					<div v-html="fieldValue.text" />
 			</div>
-
-			<div
+			<a
 				typeof="button"
 				:style="getStyles(fieldValue.button.container.properties)"
+				:href="fieldValue?.button?.link?.href" :target="fieldValue?.button?.link?.target"
 				class="mt-10 flex items-center justify-center w-64 mx-auto gap-x-6">
 				{{ fieldValue.button.text }}
-			</div>
+			</a>
 		</div>
 	</div>
 </template>

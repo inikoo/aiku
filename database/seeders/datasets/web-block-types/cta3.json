@@ -11,7 +11,7 @@
 			"button": {
 				"link": {
 					"type": "internal",
-					"url": "https://ancientwisdom.biz/showroom",
+					"href": "https://ancientwisdom.biz/showroom",
 					"id": 9,
 					"workshop_route": ""
 				},
