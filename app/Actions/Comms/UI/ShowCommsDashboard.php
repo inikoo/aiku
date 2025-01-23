@@ -94,7 +94,7 @@ class ShowCommsDashboard extends OrgAction
                     ]
                 ]
             ),
-            'grp.org.fulfilments.show.comms.dashboard' =>
+            'grp.org.fulfilments.show.comms.dashboard', 'grp.org.fulfilments.show.operations.comms.dashboard' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs($routeParameters),
                 [
@@ -102,7 +102,7 @@ class ShowCommsDashboard extends OrgAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'grp.org.fulfilments.show.comms.dashboard',
+                                'name'       => 'grp.org.fulfilments.show.operations.comms.dashboard',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('Comms')

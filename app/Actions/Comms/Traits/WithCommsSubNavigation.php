@@ -17,11 +17,14 @@ trait WithCommsSubNavigation
     protected function getCommsNavigation(Organisation $organisation, Shop|Fulfilment $parent): array
     {
         if ($parent instanceof Shop) {
-            $shop    = $parent;
+            return $this->getNavigationRouteShops($organisation, $parent);
         } else {
-            $shop    = $parent->shop;
+            return $this->getNavigationRouteFulfilments($organisation, $parent);
         }
+    }
 
+    protected function getNavigationRouteShops(Organisation $organisation, Shop $shop): array
+    {
         return [
 
             [
@@ -53,6 +56,48 @@ trait WithCommsSubNavigation
                 "route"     => [
                     "name"       => "grp.org.shops.show.comms.outboxes.index",
                     "parameters" => [$shop->organisation->slug, $shop->slug],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-inbox-out"],
+                    "tooltip" => __("Outboxes"),
+                ],
+            ],
+
+        ];
+    }
+
+    protected function getNavigationRouteFulfilments(Organisation $organisation, Fulfilment $fulfilment): array
+    {
+        return [
+
+            [
+                "isAnchor" => true,
+                "label"    => __("Comms Dashboard"),
+                "route"     => [
+                    "name"       => "grp.org.fulfilments.show.operations.comms.dashboard",
+                    "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-chart-network"],
+                    "tooltip" => __("Tree view of the webpages"),
+                ],
+            ],
+            [
+                "label"    => __("Post Rooms"),
+                "route"     => [
+                    "name"       => "grp.org.fulfilments.show.operations.comms.post-rooms.index",
+                    "parameters" => [$organisation->slug, $fulfilment->slug],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-inbox-out"],
+                    "tooltip" => __("Post Rooms"),
+                ],
+            ],
+            [
+                "label"    => __("Outboxes"),
+                "route"     => [
+                    "name"       => "grp.org.fulfilments.show.operations.comms.outboxes",
+                    "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
                 ],
                 "leftIcon" => [
                     "icon"    => ["fal", "fa-inbox-out"],
