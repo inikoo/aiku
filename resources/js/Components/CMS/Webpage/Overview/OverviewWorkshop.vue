@@ -31,18 +31,21 @@ const _textRefs = ref([])
 const _imageRefs = ref([])
 
 function onDragImage({ top = 0, bottom = 0, left = 0, right = 0 }) {
-	props.modelValue.images[activeImageIndex.value].properties.position.top = `${top}px`
-	props.modelValue.images[activeImageIndex.value].properties.position.bottom = `${bottom}px`
-	props.modelValue.images[activeImageIndex.value].properties.position.left = `${left}px`
-	props.modelValue.images[activeImageIndex.value].properties.position.right = `${right}px`
+	
+	props.modelValue.images[activeImageIndex.value].properties.position.top = `${(top / props?.modelValue?.container?.properties?.dimension?.height?.value) * 100}%`
+	props.modelValue.images[activeImageIndex.value].properties.position.bottom =`${(bottom / props?.modelValue?.container?.properties?.dimension?.height?.value) * 100}%`
+	props.modelValue.images[activeImageIndex.value].properties.position.left = `${(left / props?.modelValue?.container?.properties?.dimension?.height?.value) * 100}%`
+	props.modelValue.images[activeImageIndex.value].properties.position.right = `${(right / props?.modelValue?.container?.properties?.dimension?.height?.value) * 100}%`
+	console.log(props.modelValue.images)
 	onSave()
 }
 
 function onDragText({ top = 0, bottom = 0, left = 0, right = 0 }) {
-	props.modelValue.texts.values[activeTextIndex.value].properties.position.top = `${top}px`
-	props.modelValue.texts.values[activeTextIndex.value].properties.position.bottom = `${bottom}px`
-	props.modelValue.texts.values[activeTextIndex.value].properties.position.left = `${left}px`
-	props.modelValue.texts.values[activeTextIndex.value].properties.position.right = `${right}px`
+	props.modelValue.texts.values[activeTextIndex.value].properties.position.top = `${(top / props?.modelValue?.container?.properties?.dimension?.height?.value) * 100}%`
+	props.modelValue.texts.values[activeTextIndex.value].properties.position.bottom = `${(bottom / props?.modelValue?.container?.properties?.dimension?.height?.value) * 100}%`
+	props.modelValue.texts.values[activeTextIndex.value].properties.position.left = `${(left / props?.modelValue?.container?.properties?.dimension?.height?.value) * 100}%`
+	props.modelValue.texts.values[activeTextIndex.value].properties.position.right = `${(right / props?.modelValue?.container?.properties?.dimension?.height?.value) * 100}%`
+	console.log(props.modelValue.texts)
 	onSave()
 }
 
@@ -144,7 +147,7 @@ onBeforeUnmount(() => {
 <template>
 	<div
 		ref="_parentComponent"
-		class="relative isolate transition-all"
+		class="relative isolate transition-all hidden md:block"
 		:style="getStyles(modelValue.container.properties)">
 		<!-- Render text elements -->
 		<div v-for="(text, index) in modelValue.texts.values" :key="index">
@@ -239,7 +242,14 @@ onBeforeUnmount(() => {
 			</div>
 		</div>
 	</div>
-
+	<div class="block md:hidden p-6">
+		<div v-for="(image, index) in modelValue.images" :key="index">
+			<Image :src="image.sources" />
+		</div>
+		<div v-for="(text, index) in modelValue.texts.values" :key="index">
+			<div v-html="text.text" />
+		</div>
+	</div>
 	<Modal :isOpen="isModalGallery" @onClose="() => (isModalGallery = false)" width="w-3/4">
 		<GalleryManagement
 			:maxSelected="1"
