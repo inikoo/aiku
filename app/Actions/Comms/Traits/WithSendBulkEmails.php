@@ -10,6 +10,7 @@ namespace App\Actions\Comms\Traits;
 
 use App\Actions\Comms\Ses\SendSesEmail;
 use App\Models\Comms\DispatchedEmail;
+use App\Models\CRM\WebUser;
 use Illuminate\Support\Str;
 
 trait WithSendBulkEmails
@@ -20,16 +21,17 @@ trait WithSendBulkEmails
 
         $html = $this->processStyles($html);
 
+
         if (preg_match_all("/{{(.*?)}}/", $html, $matches)) {
             foreach ($matches[1] as $i => $placeholder) {
                 $placeholder = $this->replaceMergeTags($placeholder, $dispatchedEmail, $unsubscribeUrl, $passwordToken);
                 $html        = str_replace($matches[0][$i], sprintf('%s', $placeholder), $html);
             }
         }
-
         if (preg_match_all("/\[(.*?)]/", $html, $matches)) {
-            foreach ($matches[1] as $i => $placeholder) {
-                $placeholder = $this->replaceMergeTags($placeholder, $dispatchedEmail, $unsubscribeUrl, $passwordToken);
+            foreach ($matches[1] as $i => $tag)
+            {
+                $placeholder = $this->replaceMergeTags($tag, $dispatchedEmail, $unsubscribeUrl, $passwordToken);
                 $html        = str_replace($matches[0][$i], sprintf('%s', $placeholder), $html);
             }
         }
@@ -43,18 +45,29 @@ trait WithSendBulkEmails
         );
     }
 
-    private function replaceMergeTags($placeholder, $dispatchedEmail, $unsubscribeUrl = null, $passwordToken = null): string
+    private function replaceMergeTags($placeholder, $dispatchedEmail, $unsubscribeUrl = null, $passwordToken = null): ?string
     {
+        $originalPlaceholder = $placeholder;
+
         $placeholder = Str::kebab(trim($placeholder));
 
+
+        if($dispatchedEmail->recipient instanceof WebUser){
+            $customerName = $dispatchedEmail->recipient->customer->name;
+        }else{
+            $customerName = $dispatchedEmail->recipient->name;
+        }
+
+
         return match ($placeholder) {
-            'customer-name' => $dispatchedEmail->recipient->name,
-            'reset-password-url' => $passwordToken,
+
+            'customer-name' => $customerName,
+            'reset_-password_-u-r-l' => $passwordToken,
             'unsubscribe' => sprintf(
                 "<a ses:no-track href=\"$unsubscribeUrl\">%s</a>",
                 __('Unsubscribe')
             ),
-            default => ''
+            default => $originalPlaceholder,
         };
     }
 

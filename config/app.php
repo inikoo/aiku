@@ -262,6 +262,7 @@ return [
     ],
     'log_user_requests' => env('LOG_USER_REQUESTS', false),
 
-    'default_outbox_builder' => env('DEFAULT_OUTBOX_BUILDER', 'beefree'),
-
+    'default_outbox_builder'              => env('DEFAULT_OUTBOX_BUILDER', 'beefree'),
+    'send_email_in_non_production_env'    => env('SEND_EMAIL_IN_NON_PRODUCTION_ENV', false),
+    'email_address_in_non_production_env' => env('EMAIL_ADDRESS_IN_NON_PRODUCTION_ENV', 'dev@aw-advantage.com')
 ];
