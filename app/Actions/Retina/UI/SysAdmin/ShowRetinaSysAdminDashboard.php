@@ -56,7 +56,7 @@ class ShowRetinaSysAdminDashboard extends RetinaAction
                     ]
 
                 ],
-                'customer'     => CustomersResource::make($this->fulfilmentCustomer)->resolve(),
+                'customer'     => CustomersResource::make($this->fulfilmentCustomer->customer)->resolve(),
 
                 'stats'       => [
                     [
