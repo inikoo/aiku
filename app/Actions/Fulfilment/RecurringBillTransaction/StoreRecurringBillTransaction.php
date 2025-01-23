@@ -12,15 +12,18 @@ use App\Actions\Fulfilment\RecurringBill\CalculateRecurringBillTotals;
 use App\Actions\Fulfilment\RecurringBill\Hydrators\RecurringBillHydrateTransactions;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
+use App\Models\Catalogue\HistoricAsset;
 use App\Models\Fulfilment\FulfilmentTransaction;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\RecurringBillTransaction;
 use App\Models\Fulfilment\StoredItem;
+use Illuminate\Support\Arr;
+use Lorisleiva\Actions\ActionRequest;
 
 class StoreRecurringBillTransaction extends OrgAction
 {
-    public function handle(RecurringBill $recurringBill, Pallet|StoredItem|FulfilmentTransaction $item, array $modelData): RecurringBillTransaction
+    public function handle(RecurringBill $recurringBill, Pallet|StoredItem|FulfilmentTransaction|HistoricAsset $item, array $modelData): RecurringBillTransaction
     {
         data_set($modelData, 'organisation_id', $recurringBill->organisation_id);
         data_set($modelData, 'group_id', $recurringBill->group_id);
@@ -41,6 +44,18 @@ class StoreRecurringBillTransaction extends OrgAction
 
             // todo add unit cost to the transaction
             $unitCost = $item->gross_amount / $item->quantity;
+
+        } elseif ($item instanceof HistoricAsset) {
+            if ($item->model_type == 'Service') {
+                $type = 'Service';
+            } else {
+                $type = 'Product';
+            }
+            $assetId         = $item->asset->id;
+            $historicAssetId = $item->id;
+            $totalQuantity   = Arr::pull($modelData, 'quantity');
+
+            $unitCost = $item->price;
 
         } else {
             $type            = class_basename($item);
@@ -92,6 +107,7 @@ class StoreRecurringBillTransaction extends OrgAction
     {
         return [
             'start_date' => ['required', 'date'],
+            'quantity' => ['sometimes', 'numeric'],
         ];
     }
 
@@ -103,5 +119,10 @@ class StoreRecurringBillTransaction extends OrgAction
         return $this->handle($recurringBill, $item, $this->validatedData);
     }
 
+    public function asController(RecurringBill $recurringBill, HistoricAsset $historicAsset, ActionRequest $request)
+    {
+        $this->initialisationFromFulfilment($recurringBill->fulfilment, $request);
+        return $this->handle($recurringBill, $historicAsset, $this->validatedData);
+    }
 
 }

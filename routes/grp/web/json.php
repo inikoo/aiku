@@ -30,9 +30,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('fulfilment/{fulfilment}/delivery/{scope}/services', [GetFulfilmentServices::class, 'inPalletDelivery'])->name('fulfilment.delivery.services.index');
 Route::get('fulfilment/{fulfilment}/return/{scope}/services', [GetFulfilmentServices::class, 'inPalletReturn'])->name('fulfilment.return.services.index');
+Route::get('fulfilment/{fulfilment}/recurring-bill/{scope}/services', [GetFulfilmentServices::class, 'inRecurringBill'])->name('fulfilment.recurring-bill.services.index');
 
 Route::get('fulfilment/{fulfilment}/delivery/{scope}/physical-goods', [GetFulfilmentPhysicalGoods::class, 'inPalletDelivery'])->name('fulfilment.delivery.physical-goods.index');
 Route::get('fulfilment/{fulfilment}/return/{scope}/physical-goods', [GetFulfilmentPhysicalGoods::class, 'inPalletReturn'])->name('fulfilment.return.physical-goods.index');
+Route::get('fulfilment/{fulfilment}/recurring-bill/{scope}/physical-goods', [GetFulfilmentPhysicalGoods::class, 'inRecurringBill'])->name('fulfilment.recurring-bill.physical-goods.index');
+
 
 Route::get('fulfilment/{fulfilmentCustomer}/return/{palletReturn}/stored-items', GetReturnStoredItems::class)->name('fulfilment.return.stored-items');
 Route::get('fulfilment/{fulfilmentCustomer}/return/pallets', GetReturnPallets::class)->name('fulfilment.return.pallets');

@@ -15,6 +15,7 @@ use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\RecurringBill;
 use App\Services\QueryBuilder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -23,7 +24,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetFulfilmentPhysicalGoods extends OrgAction
 {
-    public function handle(Fulfilment $parent, PalletDelivery|PalletReturn $scope): LengthAwarePaginator
+    public function handle(Fulfilment $parent, PalletDelivery|PalletReturn|RecurringBill $scope): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -39,7 +40,11 @@ class GetFulfilmentPhysicalGoods extends OrgAction
         $queryBuilder->join('assets', 'products.asset_id', '=', 'assets.id');
         $queryBuilder->join('currencies', 'products.currency_id', '=', 'currencies.id');
 
-        $queryBuilder->whereNotIn('products.asset_id', $scope->products()->pluck('asset_id'));
+        if($scope instanceof PalletDelivery || $scope instanceof PalletReturn){
+            $queryBuilder->whereNotIn('products.asset_id', $scope->services()->pluck('asset_id'));
+        } elseif ($scope instanceof RecurringBill){
+            $queryBuilder->whereNotIn('products.asset_id', $scope->transactions()->pluck('asset_id'));
+        }
 
 
 
@@ -87,6 +92,13 @@ class GetFulfilmentPhysicalGoods extends OrgAction
     }
 
     public function inPalletReturn(Fulfilment $fulfilment, PalletReturn $scope, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilment, $scope);
+    }
+
+    public function inRecurringBill(Fulfilment $fulfilment, PalletReturn $scope, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 
