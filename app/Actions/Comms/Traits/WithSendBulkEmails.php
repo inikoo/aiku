@@ -10,7 +10,10 @@ namespace App\Actions\Comms\Traits;
 
 use App\Actions\Comms\Ses\SendSesEmail;
 use App\Models\Comms\DispatchedEmail;
+use App\Models\CRM\Customer;
+use App\Models\CRM\Prospect;
 use App\Models\CRM\WebUser;
+use App\Models\SysAdmin\User;
 use Illuminate\Support\Str;
 
 trait WithSendBulkEmails
@@ -29,8 +32,7 @@ trait WithSendBulkEmails
             }
         }
         if (preg_match_all("/\[(.*?)]/", $html, $matches)) {
-            foreach ($matches[1] as $i => $tag)
-            {
+            foreach ($matches[1] as $i => $tag) {
                 $placeholder = $this->replaceMergeTags($tag, $dispatchedEmail, $unsubscribeUrl, $passwordToken);
                 $html        = str_replace($matches[0][$i], sprintf('%s', $placeholder), $html);
             }
@@ -51,16 +53,15 @@ trait WithSendBulkEmails
 
         $placeholder = Str::kebab(trim($placeholder));
 
-
-        if($dispatchedEmail->recipient instanceof WebUser){
+        if ($dispatchedEmail->recipient instanceof WebUser) {
             $customerName = $dispatchedEmail->recipient->customer->name;
-        }else{
+        } else {
             $customerName = $dispatchedEmail->recipient->name;
         }
 
 
         return match ($placeholder) {
-
+            'username' => $this->getUsername($dispatchedEmail->recipient),
             'customer-name' => $customerName,
             'reset_-password_-u-r-l' => $passwordToken,
             'unsubscribe' => sprintf(
@@ -71,6 +72,29 @@ trait WithSendBulkEmails
         };
     }
 
+    public function getUsername(WebUser|Customer|Prospect|User $recipient): string
+    {
+        if ($recipient instanceof WebUser || $recipient instanceof User) {
+            return $recipient->username;
+        }
+
+        return '';
+    }
+
+    public function getName(WebUser|Customer|Prospect|User $recipient): string
+    {
+        if ($recipient instanceof WebUser) {
+            return $recipient->customer->name;
+        } elseif ($recipient instanceof Customer || $recipient instanceof Prospect) {
+            return $recipient->name;
+        } else {
+            return $recipient->company_name ?? $recipient->username;
+        }
+
+
+    }
+
+
     public function processStyles($html): array|string|null
     {
         $html = preg_replace_callback('/<[^>]+style=["\'](.*?)["\'][^>]*>/i', function ($match) {
@@ -79,8 +103,9 @@ trait WithSendBulkEmails
             // Find and modify color values within the style attribute
             $style = preg_replace_callback('/color\s*:\s*([^;]+);/i', function ($colorMatch) {
                 $colorValue    = $colorMatch[1];
-                $modifiedColor = $colorValue . ' !important';
-                return 'color: ' . $modifiedColor . ';';
+                $modifiedColor = $colorValue.' !important';
+
+                return 'color: '.$modifiedColor.';';
             }, $style);
 
             // Update the style attribute in the HTML tag
