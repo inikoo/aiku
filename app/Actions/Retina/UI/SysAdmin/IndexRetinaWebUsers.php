@@ -9,7 +9,7 @@
 namespace App\Actions\Retina\UI\SysAdmin;
 
 use App\Actions\RetinaAction;
-use App\Http\Resources\CRM\WebUsersResource;
+use App\Http\Resources\CRM\WebUsersRetinaResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\WebUser;
 use App\Services\QueryBuilder;
@@ -91,7 +91,7 @@ class IndexRetinaWebUsers extends RetinaAction
 
     public function jsonResponse(LengthAwarePaginator $users): AnonymousResourceCollection
     {
-        return WebUsersResource::collection($users);
+        return WebUsersRetinaResource::collection($users);
     }
 
     public function htmlResponse(LengthAwarePaginator $webUsers, ActionRequest $request): Response
@@ -126,7 +126,7 @@ class IndexRetinaWebUsers extends RetinaAction
                     'usernameNoSet' => __('username no set')
                 ],
 
-                'data' => WebUsersResource::collection($webUsers),
+                'data' => WebUsersRetinaResource::collection($webUsers),
             ]
         )->table(
             $this->tableStructure()
