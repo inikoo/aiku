@@ -12,14 +12,15 @@ import PureInput from '@/Components/Pure/PureInput.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import { faHashtag } from '@fal'
 import { faLevelDown } from '@fas'
-library.add(faLevelDown)
+library.add(faLevelDown, faHashtag)
 
 
 const props = defineProps<{
     dataPalletDelivery: PalletDelivery
     updateRoute: routeType
-
+    disabled?: boolean
 }>()
 
 const cloneCustomerReference = ref(props.dataPalletDelivery.customer_reference)
@@ -27,6 +28,7 @@ const showModalEdit = ref(false)
 const isLoadingSaveCustomer = ref(false)
 const onUpdateCustomerReference = () => {
     // console.log('eee', cloneCustomerReference.value)
+    if (props.disabled) return
     router.patch(route(props.updateRoute.name, props.updateRoute.parameters),
     {
         customer_reference: cloneCustomerReference.value
@@ -55,16 +57,20 @@ const onUpdateCustomerReference = () => {
 </script>
 
 <template>
-    <div @click="showModalEdit = !showModalEdit" class="flex gap-x-1 items-center truncate">
+    <div @click="disabled ? false : showModalEdit = !showModalEdit" class="flex gap-x-1 items-center truncate">
         <FontAwesomeIcon icon='fal fa-hashtag' class='text-gray-400' fixed-width aria-hidden='true' />
-        <template v-if="!dataPalletDelivery.customer_reference">
-            <Button type="dashed" size="xs"><span class="text-gray-400">{{ trans("Edit Customer reference") }}</span></Button>
+        <template v-if="!disabled">
+            <template v-if="!dataPalletDelivery.customer_reference">
+                <Button type="dashed" size="xs"><span class="text-gray-400">{{ trans("Edit Customer reference") }}</span></Button>
+            </template>
+            <div v-else class="group border-b border-dashed border-gray-400 hover:border-solid hover:border-gray-500 cursor-pointer">
+                <span class="text-gray-500 truncate">{{ dataPalletDelivery.customer_reference }}</span>
+                <FontAwesomeIcon icon='fal fa-pencil' size="xs" class='ml-1 text-gray-400 group-hover:text-gray-600' fixed-width aria-hidden='true' />
+            </div>
         </template>
-
-        <div v-else class="group border-b border-dashed border-gray-400 hover:border-solid hover:border-gray-500 cursor-pointer">
+        <template v-else>
             <span class="text-gray-500 truncate">{{ dataPalletDelivery.customer_reference }}</span>
-            <FontAwesomeIcon icon='fal fa-pencil' size="xs" class='ml-1 text-gray-400 group-hover:text-gray-600' fixed-width aria-hidden='true' />
-        </div>
+        </template>
 
         
         <Modal :isOpen="showModalEdit" @onClose="showModalEdit = false" width="w-full max-w-lg">

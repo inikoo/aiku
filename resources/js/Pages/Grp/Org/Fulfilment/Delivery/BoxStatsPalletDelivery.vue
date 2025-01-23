@@ -172,6 +172,7 @@ const onUpdateCustomerReference = () => {
                 <PalletEditCustomerReference
                     :dataPalletDelivery
                     :updateRoute
+					:disabled="dataPalletDelivery?.state !== 'in_process' && dataPalletDelivery?.state !== 'submit'"
                 />
             </div>
 
