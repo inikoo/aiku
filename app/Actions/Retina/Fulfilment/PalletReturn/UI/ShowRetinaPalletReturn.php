@@ -183,7 +183,7 @@ class ShowRetinaPalletReturn extends RetinaAction
                 'style'   => 'delete',
                 'tooltip' => __('delete'),
                 'label'   => __('delete'),
-                'key'     => 'action',
+                'key'     => 'delete_return',
                 'route'   => [
                     'method'     => 'delete',
                     'name'       => 'retina.models.pallet-return.delete',
