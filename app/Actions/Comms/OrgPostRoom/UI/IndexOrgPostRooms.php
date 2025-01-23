@@ -12,6 +12,7 @@ namespace App\Actions\Comms\OrgPostRoom\UI;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\Comms\Traits\WithCommsSubNavigation;
 use App\Actions\Comms\UI\ShowCommsDashboard;
+use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
 use App\Http\Resources\Mail\OrgPostRoomsResource;
 use App\InertiaTable\InertiaTable;
@@ -139,8 +140,8 @@ class IndexOrgPostRooms extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $orgPostRooms, ActionRequest $request): Response
     {
-        $subNavigation = $this->getCommsNavigation($this->organisation, $this->shop);
-
+        $subNavigation = $this->getCommsNavigation($this->organisation, $this->parent);
+        
         $title = __('Post Room');
         $icon  = [
             'icon'  => ['fal', 'fa-cube'],
@@ -246,6 +247,22 @@ class IndexOrgPostRooms extends OrgAction
                         'parameters' => $routeParameters
                     ]
                 )
+            ),
+            'grp.org.fulfilments.show.operations.comms.post-rooms.index'=>
+            array_merge(
+                ShowFulfilment::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.fulfilments.show.operations.comms.post-rooms.index',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('Post Rooms')
+                        ]
+                    ]
+                ]
             ),
 
             default => []
