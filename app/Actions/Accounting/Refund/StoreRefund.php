@@ -14,12 +14,7 @@ use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithOrderExchanges;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
-use App\Models\CRM\Customer;
-use App\Models\Fulfilment\RecurringBill;
-use App\Models\Ordering\Order;
-use App\Rules\IUnique;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 
 class StoreRefund extends OrgAction
 {
@@ -28,81 +23,67 @@ class StoreRefund extends OrgAction
     use WithNoStrictRules;
 
 
-    private Order|Customer|RecurringBill $parent;
 
-    public function handle(Customer|Order|RecurringBill $parent, array $modelData): Invoice
+
+    /**
+     * @throws \Throwable
+     */
+    public function handle(Invoice $invoice, array $modelData): Invoice
     {
-        data_set($modelData, 'group_id', $parent->group_id);
-        data_set($modelData, 'organisation_id', $parent->organisation_id);
-        data_set($modelData, 'shop_id', $parent->shop_id);
 
-        return DB::transaction(function () use ($parent, $modelData) {
-            /** @var Invoice $invoice */
-            $invoice = $parent->invoices()->create($modelData);
-            $invoice->stats()->create();
 
-            return $invoice;
+
+        $reference = $invoice->reference . '-refund-' . rand(000, 999);
+
+        data_set($modelData, 'reference', $reference);
+        data_set($modelData, 'type', InvoiceTypeEnum::REFUND);
+        data_set($modelData, 'total_amount', 0);
+        data_set($modelData, 'gross_amount', 0);
+        data_set($modelData, 'goods_amount', 0);
+        data_set($modelData, 'net_amount', 0);
+        data_set($modelData, 'grp_net_amount', 0);
+        data_set($modelData, 'org_net_amount', 0);
+        data_set($modelData, 'tax_amount', 0);
+        data_set($modelData, 'in_process', true);
+        data_set($modelData, 'invoice_id', $invoice->id);
+        data_set($modelData, 'customer_id', $invoice->customer_id);
+        data_set($modelData, 'currency_id', $invoice->currency_id);
+        data_set($modelData, 'tax_category_id', $invoice->tax_category_id);
+
+        $date = now();
+        data_set($modelData, 'date', $date, overwrite: false);
+
+
+        data_set($modelData, 'group_id', $invoice->group_id);
+        data_set($modelData, 'organisation_id', $invoice->organisation_id);
+        data_set($modelData, 'shop_id', $invoice->shop_id);
+
+        return DB::transaction(function () use ($invoice, $modelData) {
+            /** @var Invoice $refund */
+            $refund = $invoice->refunds()->create($modelData);
+            $refund->stats()->create();
+
+            return $refund;
         });
     }
 
     public function rules(): array
     {
-        $rules = [
-            'reference'       => [
-                'required',
-                'max:64',
-                'string',
-                new IUnique(
-                    table: 'invoices',
-                    extraConditions: [
-                        ['column' => 'shop_id', 'value' => $this->shop->id],
-                    ]
-                ),
-            ],
-            'currency_id'     => ['required', 'exists:currencies,id'],
-            'type'            => ['required', Rule::enum(InvoiceTypeEnum::class)],
-            'net_amount'      => ['required', 'numeric'],
-            'total_amount'    => ['required', 'numeric'],
-            'gross_amount'    => ['required', 'numeric'],
-            'rental_amount'   => ['sometimes', 'required', 'numeric'],
-            'goods_amount'    => ['sometimes', 'required', 'numeric'],
-            'services_amount' => ['sometimes', 'required', 'numeric'],
-            'tax_amount'      => ['required', 'numeric'],
+        return[
 
-
-            'date'             => ['sometimes', 'date'],
-            'tax_liability_at' => ['sometimes', 'date'],
-            'data'             => ['sometimes', 'array'],
-            'sales_channel_id' => [
-                'sometimes',
-                'required',
-                Rule::exists('sales_channels', 'id')->where(function ($query) {
-                    $query->where('group_id', $this->shop->group_id);
-                })
-            ],
         ];
 
-        if (!$this->strict) {
-            $rules['reference'] = [
-                'required',
-                'max:64',
-                'string'
-            ];
 
-            $rules['tax_category_id'] = ['sometimes', 'required', 'exists:tax_categories,id'];
-            $rules['address_id'] = ['required', 'exists:addresses,id'];
-            $rules                    = $this->orderingAmountNoStrictFields($rules);
-            $rules                    = $this->noStrictStoreRules($rules);
-        }
 
-        return $rules;
     }
 
-    public function action(Customer|Order|RecurringBill $parent, array $modelData): Invoice
+    /**
+     * @throws \Throwable
+     */
+    public function action(Invoice $invoice, array $modelData): Invoice
     {
-        $this->strict = false;
-        $this->initialisationFromShop($parent->shop, $modelData);
+        $this->initialisationFromShop($invoice->shop, $modelData);
 
-        return $this->handle($parent, $this->validatedData);
+        return $this->handle($invoice, $this->validatedData);
     }
 }

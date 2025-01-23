@@ -32,10 +32,6 @@ Route::prefix('{fulfilment}')->name('show.')
             ->name("web.")
             ->group(__DIR__."/websites.php");
 
-        Route::prefix("comms")
-            ->name("v.")
-            ->group(__DIR__."/comms.php");
-
         Route::prefix("settings")
             ->name("settings")
             ->group(__DIR__."/settings.php");

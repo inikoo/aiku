@@ -12,11 +12,13 @@ namespace App\Actions\Comms\OrgPostRoom\UI;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\Comms\Traits\WithCommsSubNavigation;
 use App\Actions\Comms\UI\ShowCommsDashboard;
+use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
 use App\Http\Resources\Mail\OrgPostRoomsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\OrgPostRoom;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -30,6 +32,11 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexOrgPostRooms extends OrgAction
 {
     use WithCommsSubNavigation;
+
+    /**
+     * @var \App\Models\Fulfilment\Fulfilment
+     */
+    private Fulfilment|Shop $parent;
 
     public function handle(Organisation $organisation, $prefix = null): LengthAwarePaginator
     {
@@ -117,6 +124,10 @@ class IndexOrgPostRooms extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->parent instanceof Fulfilment) {
+            return $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        }
+
         return $request->user()->hasAnyPermission([
             'shop-admin.'.$this->shop->id,
             'marketing.'.$this->shop->id.'.view',
@@ -129,8 +140,8 @@ class IndexOrgPostRooms extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $orgPostRooms, ActionRequest $request): Response
     {
-        $subNavigation = $this->getCommsNavigation($this->organisation, $this->shop);
-
+        $subNavigation = $this->getCommsNavigation($this->organisation, $this->parent);
+        
         $title = __('Post Room');
         $icon  = [
             'icon'  => ['fal', 'fa-cube'],
@@ -183,7 +194,17 @@ class IndexOrgPostRooms extends OrgAction
 
     public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent = $shop;
+
         $this->initialisationFromShop($shop, $request);
+        return $this->handle($organisation);
+    }
+
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
         return $this->handle($organisation);
     }
 
@@ -226,6 +247,22 @@ class IndexOrgPostRooms extends OrgAction
                         'parameters' => $routeParameters
                     ]
                 )
+            ),
+            'grp.org.fulfilments.show.operations.comms.post-rooms.index'=>
+            array_merge(
+                ShowFulfilment::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.fulfilments.show.operations.comms.post-rooms.index',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('Post Rooms')
+                        ]
+                    ]
+                ]
             ),
 
             default => []
