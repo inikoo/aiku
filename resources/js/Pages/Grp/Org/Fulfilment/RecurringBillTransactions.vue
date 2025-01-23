@@ -44,7 +44,7 @@ const locale = inject('locale', aikuLocaleStructure)
 
     <Table :resource="data" :name="tab" class="mt-5" :is-check-box="false">
         <template #cell(item_name)="{ item }">
-            <Link :href="route(item.route.name, item.route.parameters)" class="primaryLink">
+            <Link :href="route(item.route.name, {...item.route.parameters})" class="primaryLink">
                 {{ item['item_name'] }}
             </Link>
         </template>

@@ -31,21 +31,18 @@ const _textRefs = ref([])
 const _imageRefs = ref([])
 
 function onDragImage({ top = 0, bottom = 0, left = 0, right = 0 }) {
-	
-	props.modelValue.images[activeImageIndex.value].properties.position.top = `${(top / props?.modelValue?.container?.properties?.dimension?.height?.value) * 100}%`
-	props.modelValue.images[activeImageIndex.value].properties.position.bottom =`${(bottom / props?.modelValue?.container?.properties?.dimension?.height?.value) * 100}%`
-	props.modelValue.images[activeImageIndex.value].properties.position.left = `${(left / props?.modelValue?.container?.properties?.dimension?.height?.value) * 100}%`
-	props.modelValue.images[activeImageIndex.value].properties.position.right = `${(right / props?.modelValue?.container?.properties?.dimension?.height?.value) * 100}%`
-	console.log(props.modelValue.images)
+	props.modelValue.images[activeImageIndex.value].properties.position.top = `${top}px`
+	props.modelValue.images[activeImageIndex.value].properties.position.bottom = `${bottom}px`
+	props.modelValue.images[activeImageIndex.value].properties.position.left = `${left}px`
+	props.modelValue.images[activeImageIndex.value].properties.position.right = `${right}px`
 	onSave()
 }
 
 function onDragText({ top = 0, bottom = 0, left = 0, right = 0 }) {
-	props.modelValue.texts.values[activeTextIndex.value].properties.position.top = `${(top / props?.modelValue?.container?.properties?.dimension?.height?.value) * 100}%`
-	props.modelValue.texts.values[activeTextIndex.value].properties.position.bottom = `${(bottom / props?.modelValue?.container?.properties?.dimension?.height?.value) * 100}%`
-	props.modelValue.texts.values[activeTextIndex.value].properties.position.left = `${(left / props?.modelValue?.container?.properties?.dimension?.height?.value) * 100}%`
-	props.modelValue.texts.values[activeTextIndex.value].properties.position.right = `${(right / props?.modelValue?.container?.properties?.dimension?.height?.value) * 100}%`
-	console.log(props.modelValue.texts)
+	props.modelValue.texts.values[activeTextIndex.value].properties.position.top = `${top}px`
+	props.modelValue.texts.values[activeTextIndex.value].properties.position.bottom = `${bottom}px`
+	props.modelValue.texts.values[activeTextIndex.value].properties.position.left = `${left}px`
+	props.modelValue.texts.values[activeTextIndex.value].properties.position.right = `${right}px`
 	onSave()
 }
 

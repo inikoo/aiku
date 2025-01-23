@@ -13,6 +13,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\RecurringBillTransaction\UI\IndexRecurringBillTransactions;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
+use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
 use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\RecurringBillResource;
@@ -89,6 +90,40 @@ class ShowRecurringBill extends OrgAction
     {
         $showGrossAndDiscount = $recurringBill->gross_amount !== $recurringBill->net_amount;
 
+        $actions = [];
+
+        if($recurringBill->status === RecurringBillStatusEnum::CURRENT) {
+            $actions = [
+                [
+                    'type'    => 'button',
+                    'style'   => 'secondary',
+                    'icon'    => 'fal fa-plus',
+                    'key'     => 'add-service',
+                    'label'   => __('add service'),
+                    'tooltip' => __('Add single service'),
+                    'route'   => [
+                        'name'       => 'grp.models.recurring-bill.transaction.store',
+                        'parameters' => [
+                            'recurringBill' => $recurringBill->id
+                        ]
+                    ]
+                ],
+                [
+                    'type'    => 'button',
+                    'style'   => 'secondary',
+                    'icon'    => 'fal fa-plus',
+                    'key'     => 'add_physical_good',
+                    'label'   => __('add physical good'),
+                    'tooltip' => __('Add physical good'),
+                    'route'   => [
+                        'name'       => 'grp.models.recurring-bill.transaction.store',
+                        'parameters' => [
+                            'recurringBill' => $recurringBill->id
+                        ]
+                    ]
+                ]
+            ];
+        }
         return Inertia::render(
             'Org/Fulfilment/RecurringBill',
             [
@@ -109,6 +144,7 @@ class ShowRecurringBill extends OrgAction
                         ],
                     'model' => __('Recurring Bill'),
                     'title' => $recurringBill->slug,
+                    'actions' => $actions
                 ],
                 'currency'                => CurrencyResource::make($recurringBill->currency),
                 'updateRoute'      => [
@@ -210,6 +246,21 @@ class ShowRecurringBill extends OrgAction
                             ],
                         ],
                     ],
+                ],
+
+                'service_list_route'       => [
+                    'name'       => 'grp.json.fulfilment.recurring-bill.services.index',
+                    'parameters' => [
+                        'fulfilment' => $recurringBill->fulfilment->slug,
+                        'scope'      => $recurringBill->slug
+                    ]
+                ],
+                'physical_good_list_route' => [
+                    'name'       => 'grp.json.fulfilment.recurring-bill.physical-goods.index',
+                    'parameters' => [
+                        'fulfilment' => $recurringBill->fulfilment->slug,
+                        'scope'      => $recurringBill->slug
+                    ]
                 ],
 
                 'tabs' => [
