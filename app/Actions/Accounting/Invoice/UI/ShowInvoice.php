@@ -130,6 +130,23 @@ class ShowInvoice extends OrgAction
                 ]
             ];
         }
+        $actions = [];
+        if (!app()->environment('production')) {
+            $actions = [
+                [
+                    'type'  => 'button',
+                    'style' => 'create',
+                    'label' => __('create refund'),
+                    'route' => [
+                        'method' => 'post',
+                        'name'       => 'grp.models.refund.create',
+                        'parameters' => [
+                            'invoice' => $invoice->id
+                        ]
+                    ],
+                ]
+            ];
+        }
 
         return Inertia::render(
             'Org/Accounting/Invoice',
@@ -149,7 +166,8 @@ class ShowInvoice extends OrgAction
                     'icon'  => [
                         'icon'  => ['fal', 'fa-file-invoice-dollar'],
                         'title' => $invoice->reference
-                    ]
+                    ],
+                    'actions'      => $actions
                 ],
                 'tabs'                 => [
                     'current'    => $this->tab,

@@ -30,19 +30,24 @@ class SendSesEmail
 
     public function handle(string $subject, string $emailHtmlBody, DispatchedEmail $dispatchedEmail, string $sender, string $unsubscribeUrl = null): DispatchedEmail
     {
-
         if ($dispatchedEmail->state != DispatchedEmailStateEnum::READY) {
             return $dispatchedEmail;
         }
 
-        if (!app()->isProduction() and (!config('mail.devel.send_ses_emails') and !$dispatchedEmail->is_test)) {
+        $actuallySend = false;
+        if (app()->isProduction()) {
+            $actuallySend = true;
+        } elseif (config('app.send_email_in_non_production_env') or $dispatchedEmail->is_test) {
+            $actuallySend = true;
+        }
+
+
+        if (!$actuallySend) {
             UpdateDispatchedEmail::run(
                 $dispatchedEmail,
                 [
-                    'state'               => DispatchedEmailStateEnum::SENT,
-                    // 'is_sent'             => true,
-                    'sent_at'             => now(),
-                    // 'date'                => now(),
+                    'state'                => DispatchedEmailStateEnum::SENT,
+                    'sent_at'              => now(),
                     'provider_dispatch_id' => 'devel-'.Str::uuid()
                 ]
             );
@@ -52,21 +57,17 @@ class SendSesEmail
             }
 
 
-
             UpdateDispatchedEmail::run(
                 $dispatchedEmail,
                 [
-                    'state'        => DispatchedEmailStateEnum::DELIVERED,
-                    // 'date'         => now(),
-                    // 'delivered_at' => now(),
-                    // 'is_delivered' => true
+                    'state' => DispatchedEmailStateEnum::DELIVERED,
                 ]
             );
 
 
-
             return $dispatchedEmail;
         }
+
 
         $emailData = $this->getEmailData(
             $subject,
@@ -87,8 +88,8 @@ class SendSesEmail
                 UpdateDispatchedEmail::run(
                     $dispatchedEmail,
                     [
-                        'state'               => DispatchedEmailStateEnum::SENT,
-                        'sent_at'             => now(),
+                        'state'                => DispatchedEmailStateEnum::SENT,
+                        'sent_at'              => now(),
                         'provider_dispatch_id' => Arr::get($result, 'MessageId')
                     ]
                 );
@@ -98,9 +99,8 @@ class SendSesEmail
                         UpdateProspectEmailSent::run($dispatchedEmail->recipient);
                     }
                 }
-
-
             } catch (AwsException $e) {
+
                 if ($e->getAwsErrorCode() == 'Throttling' and $attempt < $numberAttempts - 1) {
                     $attempt++;
                     usleep(rand(200, 300) + pow(2, $attempt));
@@ -131,7 +131,7 @@ class SendSesEmail
                         'date'        => now(),
                         'data->error' =>
                             [
-                                'msg'     => $e->getMessage(),
+                                'msg' => $e->getMessage(),
                             ],
                     ]
                 );
@@ -186,7 +186,6 @@ class SendSesEmail
             'Message'     => $message['Message'],
             'Headers'     => $headers
         ];
-
     }
 
     /**
@@ -194,7 +193,6 @@ class SendSesEmail
      */
     public function getRawEmail(array $emailData): array
     {
-
         $mail = new PHPMailer();
 
         $mail->addAddress($emailData['Destination']['ToAddresses'][0]);
@@ -209,8 +207,6 @@ class SendSesEmail
 
         $mail->Body    = $emailData['Message']['Body']['Html']['Data'];
         $mail->XMailer = null;
-
-
 
 
         $mail->preSend();

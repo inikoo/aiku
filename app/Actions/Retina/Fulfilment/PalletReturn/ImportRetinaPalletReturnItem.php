@@ -29,6 +29,9 @@ class ImportRetinaPalletReturnItem extends RetinaAction
             $file,
             [
                 'model' => 'PalletReturnItem',
+                'parent_type' => class_basename($palletReturn),
+                'parent_id' => $palletReturn->id,
+                'customer_id' => $palletReturn->fulfilmentCustomer->customer_id,
             ]
         );
 

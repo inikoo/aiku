@@ -16,10 +16,10 @@ trait AwsClient
     {
         return new SesClient([
             'version'     => 'latest',
-            'region'      => env('AWS_DEFAULT_REGION'),
+            'region'      => config('services.ses.region'),
             'credentials' => [
-                'key'    => env('AWS_ACCESS_KEY_ID'),
-                'secret' => env('AWS_SECRET_ACCESS_KEY'),
+                'key'    => config('services.ses.key'),
+                'secret' => config('services.ses.secret'),
             ],
         ]);
     }

@@ -8,14 +8,16 @@
 
 namespace App\Actions\Retina\UI\Auth;
 
+use App\Actions\RetinaAction;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 
-class PasswordRetinaResetLink
+class PasswordRetinaResetLink extends RetinaAction
 {
     use AsController;
 
@@ -42,16 +44,35 @@ class PasswordRetinaResetLink
         ]);
     }
 
-    public function rules(): array
+    public function getValidationMessages(): array
     {
         return [
-            'email' => ['required', 'email', 'exists:web_users'],
+            'email.exists' => __('We can\'t find a user with that email address.'),
         ];
     }
 
+    public function rules(): array
+    {
+        return [
+            'email' => [
+                'required',
+                'email',
+                Rule::exists('web_users')
+                    ->where('status', true)
+                    ->where(
+                        'website_id',
+                        $this->website->id
+                    )
+            ],
+        ];
+    }
+
+    /**
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function asController(ActionRequest $request): void
     {
-        $request->validate();
+        $this->logoutInitialisation($request);
 
         $this->handle($request);
     }
