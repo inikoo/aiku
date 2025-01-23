@@ -98,7 +98,7 @@ class GetFulfilmentPhysicalGoods extends OrgAction
         return $this->handle($fulfilment, $scope);
     }
 
-    public function inRecurringBill(Fulfilment $fulfilment, PalletReturn $scope, ActionRequest $request): LengthAwarePaginator
+    public function inRecurringBill(Fulfilment $fulfilment, RecurringBill $scope, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 
