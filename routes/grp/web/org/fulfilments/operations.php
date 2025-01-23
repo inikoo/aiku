@@ -89,3 +89,7 @@ Route::prefix('invoices')->as('invoices')->group(function () {
     Route::get('/all/{invoice}', [ShowInvoice::class, 'inFulfilment'])->name('.all_invoices.show');
     Route::get('/unpaid/{invoice}', [ShowInvoice::class, 'inFulfilment'])->name('.unpaid_invoices.show');
 });
+
+Route::prefix("comms")
+    ->name("comms.")
+    ->group(__DIR__."/comms.php");
