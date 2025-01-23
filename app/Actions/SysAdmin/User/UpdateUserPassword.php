@@ -36,7 +36,7 @@ class UpdateUserPassword extends GrpAction
         return [
             'password' => [
                 'required',
-                app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()
+                app()->isLocal() || app()->environment('testing') ? null : Password::min(8)
             ],
         ];
     }

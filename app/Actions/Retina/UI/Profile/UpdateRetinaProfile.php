@@ -69,7 +69,7 @@ class UpdateRetinaProfile extends RetinaAction
                     ]
                 )
             ],
-            'password' => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? Password::min(4) : Password::min(8)->uncompromised()],
+            'password' => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? Password::min(4) : Password::min(8)],
 
 
             'language_id' => ['sometimes', 'required', 'exists:languages,id'],

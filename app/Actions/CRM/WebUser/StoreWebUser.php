@@ -108,7 +108,7 @@ class StoreWebUser extends OrgAction
                 [
                     'sometimes',
                     'required',
-                    app()->isLocal() || app()->environment('testing') || !$this->strict ? Password::min(3) : Password::min(8)->uncompromised()
+                    app()->isLocal() || app()->environment('testing') || !$this->strict ? Password::min(3) : Password::min(8)
                 ],
 
         ];

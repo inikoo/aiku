@@ -192,7 +192,7 @@ class UpdateEmployee extends OrgAction
 
 
             ];
-            $rules['password']          = ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()];
+            $rules['password']          = ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)];
             $rules['user_model_status'] = ['sometimes', 'boolean'];
         }
 

@@ -33,7 +33,7 @@ class UpdateRetinaWebUserPassword extends OrgAction
     public function rules(): array
     {
         return [
-            'password' => ['required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+            'password' => ['required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)],
         ];
     }
 

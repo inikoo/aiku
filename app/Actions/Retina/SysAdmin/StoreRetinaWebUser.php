@@ -95,7 +95,7 @@ class StoreRetinaWebUser extends RetinaAction
             'password'     =>
                 [
                     'required',
-                    app()->isLocal() || app()->environment('testing') ? Password::min(3) : Password::min(8)->uncompromised()
+                    app()->isLocal() || app()->environment('testing') ? Password::min(3) : Password::min(8)
                 ],
 
             'email'        => [

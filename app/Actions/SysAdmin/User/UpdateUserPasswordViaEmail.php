@@ -34,7 +34,7 @@ class UpdateUserPasswordViaEmail
     public function rules(): array
     {
         return [
-            'password' => ['required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+            'password' => ['required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)],
             'token'    => ['nullable', 'string'],
             'email'    => ['nullable', 'string']
         ];
