@@ -333,6 +333,15 @@ class IndexInvoices extends OrgAction
         return $this->handle($organisation);
     }
 
+    public function paidOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'paid';
+        $this->parent = $organisation;
+        $this->initialisation($organisation, $request);
+
+        return $this->handle($organisation);
+    }
+
     public function unpaidFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'unpaid';

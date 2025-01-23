@@ -35,7 +35,7 @@ import { faClock, faFileInvoice, faFilePdf } from '@fas'
 import { faCheck } from '@far'
 import { usePage } from '@inertiajs/vue3';
 
-library.add(faCheck, faIdCardAlt, faMapMarkedAlt, faPhone, faFolder, faCube, faChartLine, faCreditCard, faClock, faFileInvoice, faPercent, faCalendarAlt, faDollarSign, faFilePdf, faMapMarkerAlt, faPencil)
+library.add(faCheck, faIdCardAlt, faHandHoldingUsd ,faMapMarkedAlt, faPhone, faFolder, faCube, faChartLine, faCreditCard, faClock, faFileInvoice, faPercent, faCalendarAlt, faDollarSign, faFilePdf, faMapMarkerAlt, faPencil)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
@@ -56,6 +56,7 @@ import { InvoiceResource } from '@/types/invoice'
 import axios from 'axios'
 import { notify } from '@kyvg/vue3-notification'
 import NeedToPay from '@/Components/Utils/NeedToPay.vue'
+import { faHandHoldingUsd } from '@fas'
 // const locale = useLocaleStore()
 const locale = inject('locale', aikuLocaleStructure)
 

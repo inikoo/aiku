@@ -118,7 +118,7 @@ class EditWebsite extends OrgAction
                 ],
                 "image" => [
                     "type"  => "avatar",
-                    "label" => __("Logo"),
+                    "label" => __("favicon"),
                     "value" => $website->imageSources(320, 320)
                 ]
             ]

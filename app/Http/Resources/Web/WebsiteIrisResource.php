@@ -20,7 +20,6 @@ class WebsiteIrisResource extends JsonResource
     {
         /** @var Website $website */
         $website = $this;
-
         return [
             'id'     => $website->id,
             'slug'   => $website->slug,
@@ -28,6 +27,7 @@ class WebsiteIrisResource extends JsonResource
             'name'   => $website->name,
             'domain' => $website->domain,
             'url'    => app()->environment('local') ? 'http://'.$website->domain : 'https://'.$website->domain,
+            'logo'   => $website->imageSources(350, 350)
         ];
     }
 }
