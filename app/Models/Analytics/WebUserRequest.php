@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $group_id
  * @property int $website_id
+ * @property int $web_user_id
  * @property string $date
  * @property string $route_name
  * @property string $route_params
@@ -29,9 +30,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $ip_address
  * @property string $location
  * @property-read WebUser $webUser
- * @method static \Illuminate\Database\Eloquent\Builder<static>|UserRequest newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|UserRequest newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|UserRequest query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WebUserRequest newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WebUserRequest newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WebUserRequest query()
  * @mixin \Eloquent
  */
 class WebUserRequest extends Model

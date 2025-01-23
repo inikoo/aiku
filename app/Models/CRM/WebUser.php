@@ -80,6 +80,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\CRM\WebUserStats|null $stats
  * @property-read Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
+ * @property-read Collection<int, WebUserRequest> $webUserRequests
  * @property-read Website $website
  * @method static Builder<static>|WebUser newModelQuery()
  * @method static Builder<static>|WebUser newQuery()

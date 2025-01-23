@@ -21,8 +21,6 @@ import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
 
-const appName = 'Retina' || window.document.getElementsByTagName('title')[0]?.innerText;
-
 const MyPreset = definePreset(Aura, {
   semantic: {
       primary: {
@@ -43,7 +41,6 @@ const MyPreset = definePreset(Aura, {
 
 createInertiaApp(
     {
-      title  : (title) => `${title} - ${appName}`,
         resolve: name => {
             const pages = import.meta.glob('./Pages/Retina/**/*.vue', { eager: true })
             let page = pages[`./Pages/Retina/${name}.vue`]

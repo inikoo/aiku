@@ -11,6 +11,7 @@ namespace App\Http\Middleware;
 
 use App\Actions\Retina\SysAdmin\ProcessRetinaWebUserRequest;
 use App\Actions\SysAdmin\WithLogRequest;
+use App\Models\CRM\WebUser;
 use hisorange\BrowserDetect\Parser as Browser;
 use Closure;
 use Illuminate\Http\Request;
@@ -41,13 +42,19 @@ class LogWebUserRequestMiddleware
             return $next($request);
         }
 
-        /* @var User $user */
-        $user = $request->user();
-        if (!app()->runningUnitTests() && $user) {
+        /* @var WebUser $webUser */
+        $webUser = $request->user();
+
+
+
+        if (!app()->runningUnitTests() && $webUser and $webUser instanceof WebUser) {
+
+
+
             $parsedUserAgent = (new Browser())->parse($request->header('User-Agent'));
             $ip = $request->ip();
             ProcessRetinaWebUserRequest::dispatch(
-                $user,
+                $webUser,
                 now(),
                 [
                     'name'      => $request->route()->getName(),
@@ -57,15 +64,15 @@ class LogWebUserRequestMiddleware
                 $ip,
                 $request->header('User-Agent')
             );
-            if ($user->stats()->first() == null) {
-                $user->stats()->create([
+            if ($webUser->stats()->first() == null) {
+                $webUser->stats()->create([
                     'last_device' => $parsedUserAgent->deviceType(),
                     'last_os' => $this->detectWindows11($parsedUserAgent),
                     'last_location' => json_encode($this->getLocation($ip)),
                     'last_active_at' => now()
                 ]);
             } else {
-                $user->stats()->update([
+                $webUser->stats()->update([
                     'last_device' => $parsedUserAgent->deviceType(),
                     'last_os' => $this->detectWindows11($parsedUserAgent),
                     'last_location' => json_encode($this->getLocation($ip)),

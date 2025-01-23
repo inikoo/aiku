@@ -19,6 +19,10 @@ class DetectWebsite
     {
 
         $website = DetectWebsiteFromDomain::run($request->getHost());
+        if (is_null($website)) {
+
+            abort(404, 'Not found');
+        }
 
         $request->merge([
             'domain'  => $website->domain,
