@@ -44,10 +44,9 @@ const locale = inject('locale', aikuLocaleStructure)
 
     <Table :resource="data" :name="tab" class="mt-5" :is-check-box="false">
         <template #cell(item_name)="{ item }">
-            {{ item.route  }}
-           <!--  <Link :href="route(item.route.name, {...item.route.parameters})" class="primaryLink">
+            <Link :href="route(item.route.name, {...item.route.parameters})" class="primaryLink">
                 {{ item['item_name'] }}
-            </Link> -->
+            </Link>
         </template>
         <template #cell(asset_price)="{ item }">
             {{ locale.currencyFormat(item.currency_code, item.asset_price || 0) }}/{{ item.unit_label }}
