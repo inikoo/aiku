@@ -56,7 +56,7 @@ class ShowWebpageWorkshopPreview extends OrgAction
         $website = $webpage->website;
 
         return Inertia::render(
-            'Web/PreviewWorkshop',
+            'Web/PreviewWebpageWorkshop',
             [
                 'webpage' => WebpageResource::make($webpage)->getArray(),
                 'header' => GetWebsiteWorkshopHeader::run($website),

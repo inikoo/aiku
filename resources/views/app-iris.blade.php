@@ -3,13 +3,6 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        @php
-            $currentPath = request()->path();
-            $webpages = request()->get('website')->webpages ?? [];
-            $matchedPage = collect($webpages)->firstWhere('url', $currentPath);
-        @endphp
-
         <title inertia></title>
 
         <!-- Fonts -->
