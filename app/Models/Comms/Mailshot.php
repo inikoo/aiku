@@ -178,7 +178,9 @@ class Mailshot extends Model implements Auditable
         if (app()->environment('production')) {
             /** @var Shop $parent */
             $parent = $this->parent;
-            $sender = $parent->senderEmail->email_address;
+            //todo we need to set up sender and very SES etc
+            //   $sender = $parent->senderEmail->email_address;
+            $sender = $parent->email;
         } else {
             $sender = config('app.email_address_in_non_production_env');
         }
