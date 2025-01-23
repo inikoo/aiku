@@ -9,14 +9,18 @@
 namespace App\Actions\Retina\Fulfilment\PalletDelivery\UI;
 
 use App\Actions\Retina\Fulfilment\UI\ShowRetinaStorageDashboard;
+use App\Actions\Retina\Helpers\Upload\UI\IndexRetinaPalletUploads;
 use App\Actions\RetinaAction;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Enums\UI\Fulfilment\PalletDeliveriesTabsEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
+use App\Http\Resources\Helpers\PalletUploadsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Services\QueryBuilder;
 use Closure;
+use FFI;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -46,7 +50,7 @@ class IndexRetinaPalletDeliveries extends RetinaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(PalletDeliveriesTabsEnum::values());
 
         return $this->handle($this->customer->fulfilmentCustomer);
     }
@@ -133,9 +137,11 @@ class IndexRetinaPalletDeliveries extends RetinaAction
         };
     }
 
-    public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $deliveries, ActionRequest $request): Response
     {
         $actions = [];
+
+        $navigation = PalletDeliveriesTabsEnum::navigation();
 
         if (!app()->environment('production')) {
             $actions = [
@@ -164,10 +170,22 @@ class IndexRetinaPalletDeliveries extends RetinaAction
                     ],
                     'actions' => $actions
                 ],
-                'data'        => PalletDeliveriesResource::collection($customers),
+                'data'        => PalletDeliveriesResource::collection($deliveries),
+                'tabs' => [
+                    'current'    => $this->tab,
+                    'navigation' => $navigation
+                ],
 
+                PalletDeliveriesTabsEnum::DELIVERIES->value => $this->tab == PalletDeliveriesTabsEnum::DELIVERIES->value ?
+                    fn () => PalletDeliveriesResource::collection($deliveries)
+                    : Inertia::lazy(fn () => PalletDeliveriesResource::collection($deliveries)),
+
+                PalletDeliveriesTabsEnum::UPLOADS->value => $this->tab == PalletDeliveriesTabsEnum::UPLOADS->value ?
+                    fn () => PalletUploadsResource::collection(IndexRetinaPalletUploads::run($this->webUser, PalletDeliveriesTabsEnum::UPLOADS->value))
+                    : Inertia::lazy(fn () => PalletUploadsResource::collection(IndexRetinaPalletUploads::run($this->webUser, PalletDeliveriesTabsEnum::UPLOADS->value))),
             ]
-        )->table($this->tableStructure($this->customer->fulfilmentCustomer));
+        )->table($this->tableStructure(fulfilmentCustomer: $this->customer->fulfilmentCustomer, prefix: PalletDeliveriesTabsEnum::DELIVERIES->value))
+        ->table(IndexRetinaPalletUploads::make()->tableStructure(prefix:PalletDeliveriesTabsEnum::UPLOADS->value));
     }
 
     public function getBreadcrumbs(): array
