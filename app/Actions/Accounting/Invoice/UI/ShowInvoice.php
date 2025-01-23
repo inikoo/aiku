@@ -149,6 +149,20 @@ class ShowInvoice extends OrgAction
                     'icon'  => [
                         'icon'  => ['fal', 'fa-file-invoice-dollar'],
                         'title' => $invoice->reference
+                    ],
+                    'actions'      => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'create',
+                            'label' => __('create refund'),
+                            'route' => [
+                                'method' => 'post',
+                                'name'       => 'grp.models.refund.create',
+                                'parameters' => [
+                                    'invoice' => $invoice->id
+                                ]
+                            ],
+                        ]
                     ]
                 ],
                 'tabs'                 => [
