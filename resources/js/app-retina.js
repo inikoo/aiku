@@ -21,8 +21,6 @@ import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
 
-const appName = 'Retina' || window.document.getElementsByTagName('title')[0]?.innerText;
-
 const MyPreset = definePreset(Aura, {
   semantic: {
       primary: {

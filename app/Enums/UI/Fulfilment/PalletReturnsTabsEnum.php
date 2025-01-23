@@ -10,10 +10,6 @@ namespace App\Enums\UI\Fulfilment;
 
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
-use App\Enums\HasTabsWithQuantity;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\PalletDelivery;
 
 enum PalletReturnsTabsEnum: string
 {

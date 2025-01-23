@@ -31,6 +31,10 @@ class UpdatePalletDelivery extends OrgAction
 
     public Customer $customer;
     private bool $action = false;
+    /**
+     * @var \App\Models\Fulfilment\PalletDelivery
+     */
+    private PalletDelivery $palletDelivery;
 
     public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
     {
@@ -73,6 +77,8 @@ class UpdatePalletDelivery extends OrgAction
         }
 
         return [
+            'customer_reference'        => ['sometimes', 'nullable', 'string', Rule::unique('pallet_deliveries', 'customer_reference')
+                ->ignore($this->palletDelivery->id)],
             'customer_notes'            => ['sometimes', 'nullable', 'string', 'max:4000'],
             'estimated_delivery_date'   => ['sometimes', 'date'],
             'current_recurring_bill_id' => [
@@ -98,6 +104,7 @@ class UpdatePalletDelivery extends OrgAction
 
     public function asController(Organisation $organisation, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
+        $this->palletDelivery = $palletDelivery;
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
 
         return $this->handle($palletDelivery, $this->validatedData);

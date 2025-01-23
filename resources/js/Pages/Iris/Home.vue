@@ -31,8 +31,7 @@ const isPreviewLoggedIn = ref(layout.iris.user_auth)
 const showWebpage = (activityItem) => {
     if (activityItem?.web_block?.layout && activityItem.show) {
         if (isPreviewLoggedIn.value && activityItem.visibility.in) return true
-        else if (!isPreviewLoggedIn.value && activityItem.visibility.out) return true
-        else return false
+        else return !isPreviewLoggedIn.value && activityItem.visibility.out;
     } else return false
 }
 
