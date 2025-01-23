@@ -40,9 +40,9 @@ class GetFulfilmentPhysicalGoods extends OrgAction
         $queryBuilder->join('assets', 'products.asset_id', '=', 'assets.id');
         $queryBuilder->join('currencies', 'products.currency_id', '=', 'currencies.id');
 
-        if($scope instanceof PalletDelivery || $scope instanceof PalletReturn){
+        if ($scope instanceof PalletDelivery || $scope instanceof PalletReturn) {
             $queryBuilder->whereNotIn('products.asset_id', $scope->services()->pluck('asset_id'));
-        } elseif ($scope instanceof RecurringBill){
+        } elseif ($scope instanceof RecurringBill) {
             $queryBuilder->whereNotIn('products.asset_id', $scope->transactions()->pluck('asset_id'));
         }
 

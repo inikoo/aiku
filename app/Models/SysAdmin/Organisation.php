@@ -34,6 +34,7 @@ use App\Models\Comms\OrgPostRoom;
 use App\Models\Comms\Outbox;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
+use App\Models\CRM\WebUser;
 use App\Models\Discounts\Offer;
 use App\Models\Discounts\OfferCampaign;
 use App\Models\Dispatching\DeliveryNote;
@@ -765,6 +766,11 @@ class Organisation extends Model implements HasMedia, Auditable
     public function orgPostRooms(): HasMany
     {
         return $this->hasMany(OrgPostRoom::class);
+    }
+
+    public function webUsers(): HasMany
+    {
+        return $this->hasMany(WebUser::class);
     }
 
     public function pickings(): HasMany
