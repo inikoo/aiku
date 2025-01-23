@@ -1,6 +1,6 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Thu, 23 Jan 2025 14:28:22 Malaysia Time, Kuala Lumpur, Malaysia
+  - Created: Thu, 23 Jan 2025 23:38:18 Malaysia Time, Kuala Lumpur, Malaysia
   - Copyright (c) 2025, Raul A Perusquia Flores
   -->
 
@@ -15,22 +15,26 @@ import Layout from '@/Layouts/RetinaAuth.vue'
 
 defineOptions({ layout: Layout })
 
+const props=defineProps({
+  webUserPasswordResetID: {
+    type: Number,
+  },
+  token: {
+    type: String,
+  },
+});
+
 const isPasswordSame = ref(false)
 const repeatPassword = ref('')
 
 const formReset = useForm({
     password: '',
-    email: route().params?.email,
-    token: route().params?.token,
+    web_user_password_reset_id: props.webUserPasswordResetID,
+    token: props.token,
 })
 
 const submitResetPassword = () => {
-    console.log('ewew', route().params.token)
-    if (route().params?.token) {
-        formReset.patch(route('retina.reset-password.email.update'), {})
-    } else {
-        formReset.patch(route('retina.reset-password.update'), {})
-    }
+  formReset.patch(route('retina.reset-password.update'), {})
 }
 
 

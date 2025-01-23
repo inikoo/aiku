@@ -34,8 +34,8 @@ class UpdateRetinaWebUserPasswordViaEmail
     {
         return [
             'password' => ['required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)],
-            'token'    => ['nullable', 'string'],
-            'email'    => ['nullable', 'string']
+            'token'    => ['required', 'string'],
+            'email'    => ['required', 'email']
         ];
     }
 
@@ -54,19 +54,10 @@ class UpdateRetinaWebUserPasswordViaEmail
 
     }
 
-    public function action(WebUser $user, $objectData): WebUser
-    {
-        $this->asAction = true;
-        $this->setRawAttributes($objectData);
-        $validatedData = $this->validateAttributes();
-
-        return $this->handle($user, $validatedData);
-    }
 
     public function htmlResponse(): Response
     {
         Session::put('reloadLayout', '1');
-
         return Inertia::location(route('retina.dashboard.show'));
     }
 }

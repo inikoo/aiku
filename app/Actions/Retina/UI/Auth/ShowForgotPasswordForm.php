@@ -12,13 +12,15 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\Concerns\AsController;
 
-class ShowRetinaPasswordResetLink
+class ShowForgotPasswordForm
 {
     use AsController;
 
     public function handle(): Response
     {
-        return Inertia::render('Auth/ResetUserPassword', [
+        return Inertia::render('Auth/ForgotPasswordForm', [
+            'back_label' => __('Back to login'),
+            'instructions' => __('We will email you a password reset link that will allow you to choose a new one.'),
             'status' => session('status'),
         ]);
     }
