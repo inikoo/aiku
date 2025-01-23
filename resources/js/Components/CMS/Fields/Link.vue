@@ -37,6 +37,7 @@ const localModel = ref({
 	workshop: null,
 	id: null,
 	target: "_self",
+	url : null,
 	data: props.modelValue || {}
 });
 
@@ -80,7 +81,8 @@ watch(localModel, (newValue) => {
 		href: newValue.href,
 		workshop: newValue.workshop,
 		id: newValue.id,
-		target: newValue.target
+		target: newValue.target,
+		url : newValue.href,
 	}
 	emit('update:modelValue', data)
 }, { deep: true })
@@ -137,7 +139,7 @@ onMounted(() => {
 				placeholder="www.anotherwebsite.com/page" v-bind="props_input"/>
 
 			<SelectQuery v-if="localModel?.type == 'internal'" :object="true" fieldName="data" :value="localModel"
-				:closeOnSelect="true" label="href" :onChange="(e) => { localModel.href = e.href, localModel.id = e.id, localModel.workshop = e.workshop  }"
+				:closeOnSelect="true" label="href" :onChange="(e) => { localModel.url = e?.url, localModel.href = e?.href, localModel.id = e?.id, localModel.workshop = e?.workshop  }"
 				:urlRoute="getRoute()" v-bind="props_selectquery"/>
 		</div>
 	</div>
