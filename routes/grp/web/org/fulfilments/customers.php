@@ -9,6 +9,7 @@
 
 use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Accounting\Invoice\UI\ShowInvoice;
+use App\Actions\Accounting\Refund\UI\ShowRefund;
 use App\Actions\CRM\Customer\UI\EditCustomer;
 use App\Actions\CRM\WebUser\CreateWebUser;
 use App\Actions\CRM\WebUser\EditWebUser;
@@ -112,6 +113,12 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
         Route::get('', [IndexInvoices::class, 'inFulfilmentCustomer'])->name('index');
         Route::get('{invoice}', [ShowInvoice::class, 'inFulfilmentCustomer'])->name('show');
     });
+
+    Route::prefix('refund')->as('.refund.')->group(function () {
+        Route::get('{invoice}', [ShowRefund::class, 'inFulfilmentCustomer'])->name('show');
+    });
+
+
 
     Route::get('/stored-item-audits', [IndexStoredItemAudits::class, 'inFulfilmentCustomer'])->name('.stored-item-audits.index');
     Route::get('/stored-item-audits/create', [CreateStoredItemAudit::class, 'inFulfilmentCustomer'])->name('.stored-item-audits.create');
