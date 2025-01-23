@@ -46,6 +46,9 @@ class StoreRefund extends OrgAction
         data_set($modelData, 'tax_amount', 0);
         data_set($modelData, 'in_process', true);
         data_set($modelData, 'invoice_id', $invoice->id);
+        data_set($modelData, 'customer_id', $invoice->customer_id);
+        data_set($modelData, 'currency_id', $invoice->currency_id);
+        data_set($modelData, 'tax_category_id', $invoice->tax_category_id);
 
         $date = now();
         data_set($modelData, 'date', $date, overwrite: false);
