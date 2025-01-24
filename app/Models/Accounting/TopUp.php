@@ -36,7 +36,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $currency_id
  * @property numeric|null $grp_amount
  * @property numeric|null $org_amount
- * @property array<array-key, mixed> $data
+ * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $fetched_at

@@ -124,7 +124,7 @@ class UpdateGuest extends GrpAction
             $rules['password'] = [
                 'sometimes',
                 'required',
-                app()->isLocal() || app()->environment('testing') ? 'min:8' : Password::min(8)->uncompromised(),
+                app()->isLocal() || app()->environment('testing') ? 'min:8' : Password::min(8),
             ];
         }
 

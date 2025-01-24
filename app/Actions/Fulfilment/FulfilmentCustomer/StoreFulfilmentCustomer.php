@@ -86,7 +86,7 @@ class StoreFulfilmentCustomer extends OrgAction
                 [
                     'sometimes',
                     'required',
-                    app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()
+                    app()->isLocal() || app()->environment('testing') ? null : Password::min(8)
                 ],
 
         ];

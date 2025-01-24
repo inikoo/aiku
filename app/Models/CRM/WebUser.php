@@ -8,7 +8,6 @@
 
 namespace App\Models\CRM;
 
-use App\Actions\CRM\WebUser\SendLinkResetPassword;
 use App\Audits\Redactors\PasswordRedactor;
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
@@ -54,8 +53,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $remember_token
  * @property int $number_api_tokens
  * @property string|null $about
- * @property array<array-key, mixed> $data
- * @property array<array-key, mixed> $settings
+ * @property array $data
+ * @property array $settings
  * @property bool $reset_password
  * @property int $language_id
  * @property int|null $image_id
@@ -75,6 +74,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read Organisation $organisation
+ * @property-read Collection<int, \App\Models\CRM\WebUserPasswordReset> $passwordResets
  * @property-read Collection<int, \Spatie\Permission\Models\Permission> $permissions
  * @property-read Shop|null $shop
  * @property-read \App\Models\CRM\WebUserStats|null $stats
@@ -82,6 +82,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Collection<int, WebUserRequest> $webUserRequests
  * @property-read Website $website
+ * @method static \Database\Factories\CRM\WebUserFactory factory($count = null, $state = [])
  * @method static Builder<static>|WebUser newModelQuery()
  * @method static Builder<static>|WebUser newQuery()
  * @method static Builder<static>|WebUser onlyTrashed()
@@ -152,11 +153,6 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
             ->slugsShouldBeNoLongerThan(128);
     }
 
-    public function sendPasswordResetNotification($token): void
-    {
-        SendLinkResetPassword::run($token, $this);
-    }
-
     public function stats(): HasOne
     {
         return $this->hasOne(WebUserStats::class);
@@ -175,6 +171,11 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
     public function webUserRequests(): HasMany
     {
         return $this->hasMany(WebUserRequest::class);
+    }
+
+    public function passwordResets(): HasMany
+    {
+        return $this->hasMany(WebUserPasswordReset::class);
     }
 
 }

@@ -108,7 +108,7 @@ class UpdateWebUser extends OrgAction
             ],
             'contact_name' => ['sometimes'],
             'data'       => ['sometimes', 'array'],
-            'password'   => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') || !$this->strict ? Password::min(3) : Password::min(8)->uncompromised()],
+            'password'   => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') || !$this->strict ? Password::min(3) : Password::min(8)],
             'is_root'    => ['sometimes', 'boolean']
         ];
 

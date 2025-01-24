@@ -117,10 +117,10 @@ class EditWebsite extends OrgAction
                     'required' => false,
                 ],
                 "image" => [
-                    "type"  => "avatar",
+                    "type"  => "image_crop_square",
                     "label" => __("favicon"),
                     "value" => $website->imageSources(320, 320)
-                ]
+                ],
             ]
         ];
 

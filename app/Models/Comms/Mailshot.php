@@ -51,9 +51,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $sent_at
  * @property \Illuminate\Support\Carbon|null $cancelled_at
  * @property \Illuminate\Support\Carbon|null $stopped_at
- * @property array<array-key, mixed> $recipients_recipe
+ * @property array $recipients_recipe
  * @property int|null $publisher_id
- * @property array<array-key, mixed> $data
+ * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $fetched_at
@@ -178,7 +178,9 @@ class Mailshot extends Model implements Auditable
         if (app()->environment('production')) {
             /** @var Shop $parent */
             $parent = $this->parent;
-            $sender = $parent->senderEmail->email_address;
+            //todo we need to set up sender and very SES etc
+            //   $sender = $parent->senderEmail->email_address;
+            $sender = $parent->email;
         } else {
             $sender = config('app.email_address_in_non_production_env');
         }

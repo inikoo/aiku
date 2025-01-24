@@ -122,7 +122,7 @@ class ShowPalletDelivery extends OrgAction
                                 'type'    => 'button',
                                 'style'   => 'secondary',
                                 'icon'    => ['fal', 'fa-upload'],
-                                'label'   => 'upload',
+                                'label'   => 'attach file',
                                 'key'     => 'upload',
                                 'tooltip' => __('Upload pallets via spreadsheet'),
                             ],
@@ -295,7 +295,7 @@ class ShowPalletDelivery extends OrgAction
                     'style'   => 'delete',
                     'tooltip' => __('delete'),
                     'label'   => __('delete'),
-                    'key'     => 'action',
+                    'key'     => 'delete_delivery',
                     'route'   => [
                         'method'     => 'delete',
                         'name'       => 'grp.models.pallet-delivery.delete',

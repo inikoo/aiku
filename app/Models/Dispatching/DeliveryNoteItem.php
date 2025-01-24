@@ -45,7 +45,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string|null $profit_amount
  * @property string|null $org_profit_amount
  * @property string|null $grp_profit_amount
- * @property array<array-key, mixed> $data
+ * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $fetched_at

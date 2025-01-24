@@ -9,7 +9,7 @@
 namespace App\Models\Comms;
 
 use App\Actions\Utils\Abbreviate;
-use App\Enums\Comms\Email\EmailBuilderEnum;
+use App\Enums\Comms\Outbox\OutboxBuilderEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
@@ -46,13 +46,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $model_type
  * @property int|null $model_id
  * @property string $name
- * @property EmailBuilderEnum|null $builder current default builder for future emails
+ * @property OutboxBuilderEnum|null $builder current default builder for future emails
  * @property OutboxStateEnum $state
- * @property array<array-key, mixed> $data
+ * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property array<array-key, mixed> $sources
+ * @property array $sources
  * @property-read Collection<int, \App\Models\Comms\DispatchedEmail> $dispatchedEmails
  * @property-read Collection<int, \App\Models\Comms\EmailBulkRun> $emailBulkRuns
  * @property-read \App\Models\Comms\EmailOngoingRun|null $emailOngoingRun
@@ -98,7 +98,7 @@ class Outbox extends Model
         'code'    => OutboxCodeEnum::class,
         'type'    => OutboxTypeEnum::class,
         'state'   => OutboxStateEnum::class,
-        'builder' => EmailBuilderEnum::class
+        'builder' => OutboxBuilderEnum::class
     ];
 
     protected $attributes = [

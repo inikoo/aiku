@@ -39,7 +39,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property string|null $grp_exchange
  * @property string|null $org_exchange
  * @property bool $is_auto_assign
- * @property array<array-key, mixed> $data
+ * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Asset $asset

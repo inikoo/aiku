@@ -254,8 +254,8 @@ const isModalUploadOpen = ref(false)
         <template #button-delete-return="{ action }">
             <div>
                 <ModalConfirmationDelete
-                    :modelValue="true"
                     :routeDelete="action.route"
+                    isFullLoading
                 >
                     <template #default="{ isOpenModal, changeModel }">
                         <Button

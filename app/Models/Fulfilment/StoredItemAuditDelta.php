@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property StoredItemAuditDeltaStateEnum|null $state
  * @property StoredItemAuditDeltaTypeEnum|null $audit_type
  * @property string|null $notes
- * @property array<array-key, mixed> $data
+ * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int|null $location_id

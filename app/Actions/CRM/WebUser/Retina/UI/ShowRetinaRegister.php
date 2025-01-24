@@ -12,6 +12,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
+use App\Actions\Helpers\Country\UI\GetAddressData;
 
 class ShowRetinaRegister
 {
@@ -20,7 +21,12 @@ class ShowRetinaRegister
 
     public function handle(ActionRequest $request): Response
     {
-        return Inertia::render('Auth/Register');
+        return Inertia::render(
+            'Auth/Register',
+            [
+            'countriesAddressData' => GetAddressData::run()
+        ]
+        );
     }
 
 }

@@ -33,7 +33,7 @@ class ShowCommsDashboard extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Shop
     {
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(CommsDashboardTabsEnum::values());
 
         return $this->handle($shop);
     }
@@ -41,7 +41,7 @@ class ShowCommsDashboard extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): Fulfilment
     {
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(CommsDashboardTabsEnum::values());
 
         return $this->handle($fulfilment);
     }
@@ -63,7 +63,7 @@ class ShowCommsDashboard extends OrgAction
                         'title' => __('dashboard')
                     ],
                     'title'         => __('Comms dashboard'),
-                    'subNavigation' => $this->getCommsNavigation($parent->organisation, $parent),
+                    'subNavigation' => $this->getCommsNavigation($parent),
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,

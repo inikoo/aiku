@@ -1,25 +1,18 @@
 <script setup lang="ts">
-// import Button from '@/Components/Elements/Buttons/Button.vue'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
-// import { Button as ButtonTS } from '@/types/Button'
-// import { routeType } from '@/types/route'
-// import { Link } from '@inertiajs/vue3'
 import { trans } from 'laravel-vue-i18n'
 import { inject } from 'vue'
 import { ufo404 } from '@/Assets/Iconscout/404_ufo'
 import { rocket_falling } from '@/Assets/Iconscout/rocket_falling'
 
-const props = defineProps<{
+defineProps<{
     error?: {
         status: number
         title: string
         description: string
     }
 
-    // navigations?: {
-    //     route: routeType
-    //     button: ButtonTS
-    // }[]
+
 }>()
 
 const layout = inject('layout', layoutStructure)

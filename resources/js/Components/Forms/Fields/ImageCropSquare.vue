@@ -90,9 +90,9 @@ watch(isOpenModalCrop, (value) => {
                 </div>
             </div>
 
-            <div class="text-gray-500 italic text-sm mt-1">
+            <div class="text-gray-500 italic text-xs mt-1">
                 <FontAwesomeIcon icon='fal fa-info-circle' class='' fixed-width aria-hidden='true' />
-                {{ trans("Use scroll to zoom in and zoom out") }}
+                {{ trans("Use mouse scroll to zoom in and zoom out") }}
             </div>
             
             <div class="w-full mt-8">

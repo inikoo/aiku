@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateTopSellers;
+use App\Actions\CRM\WebUserPasswordReset\PurgeWebUserPasswordReset;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStatus;
 use App\Actions\Fulfilment\UpdateCurrentRecurringBillsTemporalAggregates;
 use App\Actions\Helpers\Intervals\ResetDailyIntervals;
@@ -48,6 +49,10 @@ class Kernel extends ConsoleKernel
 
         $schedule->job(UpdateCurrentRecurringBillsTemporalAggregates::makeJob())->dailyAt('00:00')->timezone('UTC')->sentryMonitor(
             monitorSlug: 'UpdateCurrentRecurringBillsTemporalAggregates',
+        );
+
+        $schedule->job(PurgeWebUserPasswordReset::makeJob())->dailyAt('03:00')->timezone('UTC')->sentryMonitor(
+            monitorSlug: 'PurgeWebUserPasswordReset',
         );
     }
 
