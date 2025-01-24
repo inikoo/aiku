@@ -161,5 +161,45 @@ export default {
 				},
 			],
 		},
-	],
+		{
+			name: "Register",
+            key:["register"],
+			icon: {
+				icon: "fal fa-dot-circle",
+				tooltip: "Action",
+			},
+			replaceForm: [
+				{
+					key: ["container",'properties','text'],
+					label :'Text',
+					type: "textProperty",
+					props_data: {
+						defaultValue: {
+							color: "rgba(255, 255, 255, 1)",
+						},
+					},
+				},
+				{
+					key: ['text'],
+					label :'Button Text',
+					type: "text",
+				},
+				{
+					key: ["container",'properties','border'],
+					label :'Border',
+					type: "border",
+				},
+				{
+					key: ["container",'properties','margin'],
+					label :'Margin',
+					type: "margin",
+				},
+				{
+					key: ["container",'properties','padding'],
+					label :'Padding',
+					type: "padding",
+				},
+			]
+		}
+	]
 }

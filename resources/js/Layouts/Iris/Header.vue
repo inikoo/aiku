@@ -68,7 +68,7 @@ provide('onLogout', onLogoutAuth)
         
     <div class="block md:hidden p-3">
         <div class="flex justify-between items-center">
-            <MobileMenu :header="data.header.data.fieldValue" :menu="menu.data.fieldValue.navigation" />
+            <MobileMenu :header="data.header.data.fieldValue" :menu="menu?.data?.fieldValue?.navigation" />
             <!-- Logo for Mobile -->
             <!-- <pre> {{ data.header.data.fieldValue?.logo.image.source }}</pre>  -->
             <img :src="data.header.data.fieldValue?.logo.image.source.original"
