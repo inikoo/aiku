@@ -16,6 +16,7 @@ use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithOrderExchanges;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceTransaction;
+use Illuminate\Support\Facades\DB;
 
 class StoreRefundInvoiceTransaction extends OrgAction
 {
@@ -53,7 +54,31 @@ class StoreRefundInvoiceTransaction extends OrgAction
         data_set($modelData, 'recurring_bill_transaction_id', $invoiceTransaction->recurring_bill_transaction_id);
         data_set($modelData, 'data', $invoiceTransaction->data);
 
-        return $invoiceTransaction->transactionRefunds()->create($modelData);
+        return DB::transaction(function () use ($invoice, $invoiceTransaction, $modelData) {
+            $invoiceTransaction = $invoiceTransaction->transactionRefunds()->create($modelData);
+            $newDataInvoice = [
+                'total_amount' => $invoice->total_amount + $invoiceTransaction->net_amount,
+                'tax_amount' => $invoice->tax_amount + $invoiceTransaction->tax_amount,
+                'grp_net_amount' => $invoice->grp_net_amount + $invoiceTransaction->grp_net_amount,
+                'org_net_amount' => $invoice->org_net_amount + $invoiceTransaction->org_net_amount,
+            ];
+
+            if ($invoiceTransaction->model_type == 'Rental') {
+                $newDataInvoice['rental_amount'] = $invoice->rental_amount + $invoiceTransaction->net_amount;
+            } elseif ($invoiceTransaction->model_type == 'Charge') {
+                $newDataInvoice['charges_amount'] = $invoice->charges_amount + $invoiceTransaction->net_amount;
+            } elseif ($invoiceTransaction->model_type == 'Service') {
+                $newDataInvoice['services_amount'] = $invoice->services_amount + $invoiceTransaction->net_amount;
+            } elseif ($invoiceTransaction->model_type == 'Product') {
+                $newDataInvoice['goods_amount'] = $invoice->goods_amount + $invoiceTransaction->net_amount;
+            } elseif ($invoiceTransaction->model_type == 'ShippingZone') {
+                $newDataInvoice['shipping_amount'] = $invoice->shipping_amount + $invoiceTransaction->net_amount;
+            }
+
+            $invoice->update($newDataInvoice);
+
+            return $invoiceTransaction;
+        });
     }
 
     // public function rules(): array
