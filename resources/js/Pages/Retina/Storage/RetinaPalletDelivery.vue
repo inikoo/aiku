@@ -301,6 +301,7 @@ const typePallet = [
                 @click="() => isModalUploadOpen = true"
                 :style="action.style"
                 :icon="action.icon"
+                :label="action.label"
                 v-tooltip="action.tooltip"
                 class="rounded-l-md rounded-r-none border-none"
             />
