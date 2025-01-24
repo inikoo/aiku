@@ -43,7 +43,7 @@ const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChan
 // import { useLocaleStore } from '@/Stores/locale'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
-import TableInvoiceTransactions from "@/Components/Tables/Grp/Org/Accounting/TableInvoiceTransactions.vue";
+import TableInvoiceRefundsTransactions from "@/Components/Tables/Grp/Org/Accounting/TableInvoiceRefundsTransactions.vue";
 import { Address } from '@/types/PureComponent/Address'
 import { Icon } from '@/types/Utils/Icon'
 // import AddressLocation from '@/Components/Elements/Info/AddressLocation.vue'
@@ -57,6 +57,7 @@ import axios from 'axios'
 import { notify } from '@kyvg/vue3-notification'
 import NeedToPay from '@/Components/Utils/NeedToPay.vue'
 import { faHandHoldingUsd } from '@fas'
+import ModalConfirmationDelete from '@/Components/Utils/ModalConfirmationDelete.vue'
 // const locale = useLocaleStore()
 const locale = inject('locale', aikuLocaleStructure)
 
@@ -110,7 +111,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
     const components: Component = {
-        items: TableInvoiceTransactions,
+        items: TableInvoiceRefundsTransactions,
         payments: TablePayments,
         details: ModelDetails,
         history: ModelChangelog,
@@ -205,6 +206,32 @@ watch(paymentData, () => {
                 <Button label="PDF" icon="fas fa-file-pdf" type="tertiary" />
             </a>
         </template>
+        
+        <!-- Button: delete Refund -->
+        <template #button-delete-refund="{ action }">
+            <div>
+                <ModalConfirmationDelete
+                    :routeDelete="action.route"
+                    isFullLoading
+                >
+                    <template #default="{ isOpenModal, changeModel, isLoadingdelete }">
+                        <Button
+                            @click="() => changeModel()"
+                            :style="action.style"
+                            :label="action.label"
+                            :icon="action.icon"
+                            :loading="isLoadingdelete"
+                            :iconRight="action.iconRight"
+                            :key="`ActionButton${action.label}${action.style}`"
+                            :tooltip="action.tooltip"
+                        />
+
+                    </template>
+                </ModalConfirmationDelete>
+            </div>
+        </template>
+
+
     </PageHeading>
 
     <div class="grid grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">
