@@ -14,6 +14,7 @@ use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
+use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\UI\Accounting\InvoiceTabsEnum;
 use App\Http\Resources\Accounting\InvoiceResource;
 use App\Http\Resources\Accounting\InvoiceTransactionsResource;
@@ -476,6 +477,8 @@ class ShowInvoice extends OrgAction
             return null;
         }
 
+        // $isInvoice = $invoice->type === InvoiceTypeEnum::INVOICE;
+
         return match ($routeName) {
             'grp.org.accounting.invoices.show' => [
                 'label' => $invoice->reference,
@@ -548,6 +551,7 @@ class ShowInvoice extends OrgAction
                 ]
             ],
 
+            //  'grp.org.fulfilments.show.crm.customers.show.refund.show'
             'grp.org.fulfilments.show.crm.customers.show.invoices.show' => [
                 'label' => $invoice->reference,
                 'route' => [
@@ -556,7 +560,7 @@ class ShowInvoice extends OrgAction
                         'organisation'       => $invoice->organisation->slug,
                         'fulfilment'         => $invoice->shop->fulfilment->slug,
                         'fulfilmentCustomer' => $this->parent->slug,
-                        'invoice'            => $invoice->slug
+                        'invoice' => $invoice->slug
                     ]
                 ]
             ],

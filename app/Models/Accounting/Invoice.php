@@ -240,7 +240,7 @@ class Invoice extends Model implements Auditable
 
     public function originalInvoice(): BelongsTo
     {
-        return $this->belongsTo(SalesChannel::class);
+        return $this->belongsTo(Invoice::class, 'invoice_id');
     }
 
     public function refunds(): HasMany
