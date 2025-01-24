@@ -6,10 +6,15 @@ import RetinaShowIris from '@/Layouts/RetinaShowIris.vue';
 import { trans } from 'laravel-vue-i18n'
 import Multiselect from '@vueform/multiselect'
 
+
 // Set default layout
 defineOptions({ layout: RetinaShowIris });
 const props = defineProps({
-  countriesAddressData : Array
+  countriesAddressData : Array,
+  registerRoute: {
+    name : String,
+    parameters : String
+  }
 });
 
 console.log('sdsd',props)
@@ -55,7 +60,7 @@ const submit = () => {
   };
 
 
-  form.post(route('retina.register.store'), {
+  form.post(route(props.registerRoute.name,props.registerRoute.parameters ), {
     onError: () => {
       isLoading.value = false;
     },
