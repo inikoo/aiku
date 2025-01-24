@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
-import { ref, onMounted, nextTick, watch } from 'vue';
+import { ref, onMounted, nextTick, watch} from 'vue';
 import PureInput from '@/Components/Pure/PureInput.vue';
 import RetinaShowIris from '@/Layouts/RetinaShowIris.vue';
 import { trans } from 'laravel-vue-i18n'
@@ -21,24 +21,23 @@ console.log('sdsd',props)
 
 // Define form using Inertia's useForm
 const form = useForm({
-  name: '',
-  last_name: '',
+  contact_name: '',
   email: '',
-  phone_number: '',
-  business_name: '',
+  phone: '',
+  company_name: '',
   website: '',
-  what_you_sell: '',
+  product: '',
   shipments_per_week: '',
-  goods_size_and_weight: '',
+  size_and_weight: '',
   password: '',
   password_confirmation: '',
-  interests: [],
+  interest: [],
   country_id: '',
   postal_code : '',
   post_town : '',
   address_line_1 : '',
   address_line_2 : '',
-  address : {}
+  contact_address : {}
 });
 
 // Define reactive variables
@@ -51,7 +50,7 @@ const submit = () => {
   isLoading.value = true;
 
   // Gabungkan field address
-  form.address = {
+  form.contact_address = {
     country_id: form.country_id,
     postal_code: form.postal_code,
     post_town: form.post_town,
@@ -86,7 +85,7 @@ for (const item in props.countriesAddressData) {
 // Autofocus first PureInput on mount
 onMounted(async () => {
   await nextTick();
-  document.getElementById('first-name')?.focus();
+  document.getElementById('contact_name')?.focus();
 });
 </script>
 
@@ -101,10 +100,10 @@ onMounted(async () => {
 
         <!-- First Name -->
         <div class="sm:col-span-6">
-          <label for="first-name" class="block text-sm font-medium text-gray-900">{{trans("Name")}}</label>
+          <label for="name" class="block text-sm font-medium text-gray-900">{{trans("Name")}}</label>
           <div class="mt-2">
-            <PureInput v-model="form.name" type="text" id="name" name="name" required />
-            <p v-if="form.errors.name" class="text-sm text-red-600 mt-1">{{ form.errors.name }}</p>
+            <PureInput v-model="form.contact_name" type="text" id="contact_name" name="contact_name" required />
+            <p v-if="form.errors.contact_name" class="text-sm text-red-600 mt-1">{{ form.errors.contact_name }}</p>
           </div>
         </div>
         
@@ -122,8 +121,8 @@ onMounted(async () => {
         <div class="sm:col-span-3">
           <label for="phone-number" class="block text-sm font-medium text-gray-900">{{trans("Phone Number")}}</label>
           <div class="mt-2">
-            <PureInput v-model="form.phone_number" type="text" id="phone-number" name="phone_number" required />
-            <p v-if="form.errors.phone_number" class="text-sm text-red-600 mt-1">{{ form.errors.phone_number }}</p>
+            <PureInput v-model="form.phone" type="text" id="phone-number" name="phone" required />
+            <p v-if="form.errors.phone" class="text-sm text-red-600 mt-1">{{ form.errors.phone }}</p>
           </div>
         </div>
 
@@ -131,8 +130,8 @@ onMounted(async () => {
         <div class="sm:col-span-6">
           <label for="business-name" class="block text-sm font-medium text-gray-900">{{trans("Business Name")}}</label>
           <div class="mt-2">
-            <PureInput v-model="form.business_name" type="text" id="business-name" name="business_name" />
-            <p v-if="form.errors.business_name" class="text-sm text-red-600 mt-1">{{ form.errors.business_name }}</p>
+            <PureInput v-model="form.company_name" type="text" id="business-name" name="company_name" />
+            <p v-if="form.errors.company_name" class="text-sm text-red-600 mt-1">{{ form.errors.company_name }}</p>
           </div>
         </div>
 
@@ -208,8 +207,8 @@ onMounted(async () => {
         <div class="sm:col-span-6">
           <label for="what-you-sell" class="block text-sm font-medium text-gray-900">{{trans("What Do You Sell")}}</label>
           <div class="mt-2">
-            <PureInput v-model="form.what_you_sell" type="text" id="what-you-sell" name="what_you_sell"  />
-            <p v-if="form.errors.what_you_sell" class="text-sm text-red-600 mt-1">{{ form.errors.what_you_sell }}</p>
+            <PureInput v-model="form.product" type="text" id="what-you-sell" name="product"  />
+            <p v-if="form.errors.product" class="text-sm text-red-600 mt-1">{{ form.errors.product }}</p>
           </div>
         </div>
 
@@ -231,23 +230,23 @@ onMounted(async () => {
         <div class="sm:col-span-3">
           <label for="goods-size-and-weight" class="block text-sm font-medium text-gray-900">{{trans("Size and Weight of Your Goods")}}</label>
           <div class="mt-2">
-            <PureInput v-model="form.goods_size_and_weight" type="text" id="goods-size-and-weight"
-              name="goods_size_and_weight"  />
-              <p v-if="form.errors.goods_size_and_weight" class="text-sm text-red-600 mt-1">{{ form.errors.goods_size_and_weight }}</p>
+            <PureInput v-model="form.size_and_weight" type="text" id="goods-size-and-weight"
+              name="size_and_weight"  />
+              <p v-if="form.errors.size_and_weight" class="text-sm text-red-600 mt-1">{{ form.errors.size_and_weight }}</p>
           </div>
         </div>
 
         <div class="sm:col-span-6 flex flex-col">
           <label class="block text-sm font-medium text-gray-900">{{trans("User Interests")}}</label>
           <div class="mt-2 flex flex-wrap gap-6">
-            <!-- Loop through the interests -->
+            <!-- Loop through the interest -->
             <div v-for="interest in interestsList" :key="interest.value"
               class="flex items-center space-x-3 border-2 py-3 px-6 rounded-lg transition-all duration-200 ease-in-out hover:bg-indigo-50 hover:shadow-lg">
-              <input v-model="form.interests" :type="'checkbox'" :id="interest.value" :value="interest.value"
+              <input v-model="form.interest" :type="'checkbox'" :id="interest.value" :value="interest.value"
                 class="h-5 w-5 text-indigo-600 border-gray-300 rounded-sm focus:ring-2 focus:ring-indigo-500" />
               <label :for="interest.value" class="text-sm font-medium text-gray-900">{{ interest.label }}</label>
             </div>
-            <p v-if="form.errors.interests" class="text-sm text-red-600 mt-1">{{ form.errors.interests }}</p>
+            <p v-if="form.errors.interest" class="text-sm text-red-600 mt-1">{{ form.errors.interest }}</p>
           </div>
         </div>
 
