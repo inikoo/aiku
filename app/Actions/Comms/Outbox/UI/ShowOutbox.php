@@ -20,7 +20,6 @@ use App\Http\Resources\Mail\EmailBulkRunsResource;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Mail\OutboxesResource;
 use App\Models\Catalogue\Shop;
-use App\Models\Comms\EmailOngoingRun;
 use App\Models\Comms\Outbox;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
@@ -154,7 +153,7 @@ class ShowOutbox extends OrgAction
         // $actions       = $this->workshopActions($request);
         $actions = [];
 
-        if ($outbox->type === OutboxTypeEnum::CUSTOMER_NOTIFICATION && $outbox->builder !== EmailBuilderEnum::BLADE->value && $outbox->model_type === class_basename(EmailOngoingRun::class)) {
+        if ($outbox->builder !== EmailBuilderEnum::BLADE->value) {
             $actions = [
                 [
                     'type'  => 'button',

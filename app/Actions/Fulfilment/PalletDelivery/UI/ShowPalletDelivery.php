@@ -122,7 +122,7 @@ class ShowPalletDelivery extends OrgAction
                                 'type'    => 'button',
                                 'style'   => 'secondary',
                                 'icon'    => ['fal', 'fa-upload'],
-                                'label'   => 'attach file',
+                                'label'   => '',
                                 'key'     => 'upload',
                                 'tooltip' => __('Upload pallets via spreadsheet'),
                             ],

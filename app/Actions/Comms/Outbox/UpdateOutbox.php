@@ -41,6 +41,7 @@ class UpdateOutbox extends OrgAction
     public function rules(): array
     {
         return [
+            'fulfilment_id' => ['sometimes', 'required', 'integer'],
             'state'    => ['sometimes', 'required', Rule::Enum(OutboxStateEnum::class)],
             'model_id' => ['sometimes', 'required', 'integer'],
             'name'     => [

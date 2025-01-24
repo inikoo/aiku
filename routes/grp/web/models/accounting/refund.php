@@ -7,10 +7,12 @@
  */
 
 use App\Actions\Accounting\Refund\UI\CreateRefund;
+use App\Actions\Accounting\Refund\UI\CreateRefundInvoiceTransaction;
 use App\Actions\Accounting\Refund\UI\DeleteRefund;
 use Illuminate\Support\Facades\Route;
 
 Route::name('refund.')->prefix('refund/invoice/{invoice:id}')->group(function () {
     Route::post('/', CreateRefund::class)->name('create');
     Route::delete('/delete', DeleteRefund::class)->name('delete');
+    Route::post('/refund-transaction/{invoiceTransaction}', CreateRefundInvoiceTransaction::class)->name('refund-transaction.create');
 });

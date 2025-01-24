@@ -16,7 +16,6 @@ use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
