@@ -348,8 +348,7 @@ class ShowPalletDelivery extends OrgAction
         if($palletDelivery->recurringBill) {
             $recurringBill = $palletDelivery->recurringBill;
 
-            if ($this->parent instanceof Fulfilment)
-            {
+            if ($this->parent instanceof Fulfilment) {
                 $route = [
                     'name' => 'grp.org.fulfilments.show.operations.recurring_bills.current.show',
                     'parameters' => [

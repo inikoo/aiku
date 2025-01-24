@@ -72,11 +72,13 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
  * @property string $tax_amount
  * @property string $total_amount
  * @property string $payment_amount
- * @property array|null $data
+ * @property array<array-key, mixed>|null $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
+ * @property int|null $invoice_id
+ * @property int|null $recurring_bill_id
  * @property-read Currency $currency
  * @property-read Address|null $deliveryAddress
  * @property-read mixed $discount_amount

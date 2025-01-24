@@ -51,7 +51,7 @@ const onClickRefund = (routeRefund: routeType, idRefund: number) => {
 
             <template #cell(action)="{ item }">
                 <Button
-                    v-if="!item.invoice_transaction_id"
+                    v-if="!item.in_process"
                     @click="onClickRefund(item.refund_route, item.id)"
                     :label="trans('Refund')"
                     icon="fal fa-plus"

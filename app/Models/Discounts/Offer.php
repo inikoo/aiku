@@ -43,9 +43,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $type
  * @property string|null $trigger_type
  * @property int|null $trigger_id
- * @property array $allowances
- * @property array $data
- * @property array $settings
+ * @property array<array-key, mixed> $allowances
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
  * @property bool $is_discretionary
  * @property bool $is_locked
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -56,7 +56,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
- * @property array $source_data
+ * @property array<array-key, mixed> $source_data
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, InvoiceTransaction> $invoiceTransactions
