@@ -22,10 +22,11 @@ class ShowRetinaRegister
     public function handle(ActionRequest $request): Response
     {
         return Inertia::render(
-            'Auth/Register', 
-        [
+            'Auth/Register',
+            [
             'countriesAddressData' => GetAddressData::run()
-        ]);
+        ]
+        );
     }
 
 }

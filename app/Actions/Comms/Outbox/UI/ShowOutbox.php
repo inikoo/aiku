@@ -36,6 +36,11 @@ class ShowOutbox extends OrgAction
 {
     use HasWorkshopAction;
 
+    /**
+     * @var \App\Models\Catalogue\Shop|\App\Models\Fulfilment\Fulfilment|\App\Models\SysAdmin\Organisation
+     */
+    private Organisation|Fulfilment|Shop $parent;
+
     public function handle(Outbox $outbox): Outbox
     {
         return $outbox;
@@ -43,6 +48,10 @@ class ShowOutbox extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->parent instanceof Fulfilment) {
+            return    $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        }
+
         return $request->user()->hasAnyPermission([
             'shop-admin.'.$this->shop->id,
             'marketing.'.$this->shop->id.'.view',
@@ -54,15 +63,16 @@ class ShowOutbox extends OrgAction
 
     public function inOrganisation(Organisation $organisation, Outbox $outbox, ActionRequest $request): Outbox
     {
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(OutboxTabsEnum::values());
 
         return $this->handle($outbox);
     }
 
-
     /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Organisation $organisation, Shop $shop, Outbox $outbox, ActionRequest $request): Outbox
     {
+        $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(OutboxTabsEnum::values());
 
         return $this->handle($outbox);
@@ -71,6 +81,7 @@ class ShowOutbox extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWebsite(Organisation $organisation, Shop $shop, Website $website, Outbox $outbox, ActionRequest $request): Outbox
     {
+        $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(OutboxTabsEnum::values());
 
         return $this->handle($outbox);
@@ -79,11 +90,11 @@ class ShowOutbox extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Outbox $outbox, ActionRequest $request): Outbox
     {
+        $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(OutboxTabsEnum::values());
 
         return $this->handle($outbox);
     }
-
 
     public function htmlResponse(Outbox $outbox, ActionRequest $request): Response
     {
@@ -256,6 +267,20 @@ class ShowOutbox extends OrgAction
                     $suffix
                 )
             ),
+            'grp.org.fulfilments.show.operations.comms.outboxes.show' =>
+            array_merge(
+                IndexOutboxes::make()->getBreadcrumbs('grp.org.fulfilments.show.operations.comms.outboxes', $routeParameters),
+                $headCrumb(
+                    $outbox,
+                    [
+
+                        'name'       => 'grp.org.fulfilments.show.operations.comms.outboxes.show',
+                        'parameters' => $routeParameters
+
+                    ],
+                    $suffix
+                )
+            ),
             default => []
         };
     }
@@ -279,7 +304,6 @@ class ShowOutbox extends OrgAction
         if (!$outbox) {
             return null;
         }
-
         return match ($routeName) {
             'grp.org.shops.show.comms.outboxes.show' => [
                 'label' => $outbox->name,
@@ -301,6 +325,18 @@ class ShowOutbox extends OrgAction
                         'organisation' => $this->organisation->slug,
                         'shop'         => $outbox->shop->slug,
                         'website'      => $outbox->website->slug,
+                        'outbox'       => $outbox->slug
+                    ]
+
+                ]
+            ],
+            'grp.org.fulfilments.show.operations.comms.outboxes.show' => [
+                'label' => $outbox->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation' => $this->organisation->slug,
+                        'fulfilment'   => $this->fulfilment->slug,
                         'outbox'       => $outbox->slug
                     ]
 
