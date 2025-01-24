@@ -1,14 +1,12 @@
 <?php
 
 /*
- * Author: Ganes <gustiganes@gmail.com>
- * Created on: 24-01-2025, Bali, Indonesia
- * Github: https://github.com/Ganes556
- * Copyright: 2025
- *
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 24 Jan 2025 16:38:28 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
+ */
 
-namespace App\Actions\Accounting\Refund;
+namespace App\Actions\Accounting\InvoiceTransaction;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
@@ -27,8 +25,12 @@ class StoreRefundInvoiceTransaction extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function handle(Invoice $invoice, InvoiceTransaction $invoiceTransaction, array $modelData): InvoiceTransaction
+    public function handle(InvoiceTransaction $invoiceTransaction, array $modelData): InvoiceTransaction
     {
+
+
+        $invoice=$invoiceTransaction->invoice;
+
         data_set($modelData, 'group_id', $invoiceTransaction->group_id);
         data_set($modelData, 'organisation_id', $invoiceTransaction->organisation_id);
         data_set($modelData, 'shop_id', $invoiceTransaction->shop_id);
@@ -82,17 +84,22 @@ class StoreRefundInvoiceTransaction extends OrgAction
         });
     }
 
-    // public function rules(): array
-    // {
-    //     return[
-    //         'invoice_id' => 'required|exists:invoices,id',
-    //     ];
-    // }
+     public function rules(): array
+     {
+         return[
+             'amount' => ['required', 'numeric'],
+         ];
+     }
 
-    public function action(Invoice $invoice, InvoiceTransaction $invoiceTransaction, array $modelData): InvoiceTransaction
-    {
-        $this->initialisationFromShop($invoice->shop, $modelData);
 
-        return $this->handle($invoice, $invoiceTransaction, $this->validatedData);
-    }
+    /**
+     * @throws \Throwable
+     */
+    public function asController(InvoiceTransaction $invoiceTransaction,$request): InvoiceTransaction
+     {
+         $this->initialisationFromShop($invoiceTransaction->shop,$request);
+         return $this->handle($invoiceTransaction,$this->validatedData);
+     }
+
+
 }
