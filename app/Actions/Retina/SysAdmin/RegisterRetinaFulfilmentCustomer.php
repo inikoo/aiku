@@ -8,25 +8,15 @@
 
 namespace App\Actions\Retina\SysAdmin;
 
-use App\Actions\CRM\Customer\StoreCustomer;
-use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\Fulfilment\FulfilmentCustomer\RegisterFulfilmentCustomer;
-use App\Actions\OrgAction;
 use App\Actions\RetinaAction;
-use App\Enums\CRM\Customer\CustomerStateEnum;
-use App\Enums\CRM\Customer\CustomerStatusEnum;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
-use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use Symfony\Component\HttpFoundation\Response;
 
 class RegisterRetinaFulfilmentCustomer extends RetinaAction
 {
@@ -82,6 +72,11 @@ class RegisterRetinaFulfilmentCustomer extends RetinaAction
             'size_and_weight'                   => ['required', 'string'],
 
         ];
+    }
+
+    public function afterValidator($validator, $request)
+    {
+        dd($validator);
     }
 
     /**

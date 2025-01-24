@@ -113,6 +113,18 @@ const layout = inject('layout', {})
                 <div v-html="textReplaceVariables(model?.profile?.text, layout.iris_variables)" />
             </a>
 
+             <!-- Section: Register -->
+             <span class="hover-dashed">
+                <a v-if="checkVisible(model?.register?.visible || null, isLoggedIn)"
+                    class="space-x-1.5 cursor-pointer whitespace-nowrap hover-dashed"
+                    :style="getStyles(model?.register.container?.properties)"
+                    @click="()=> emits('setPanelActive', 'register')"
+                >
+                    <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
+                    <span v-html="textReplaceVariables(model?.register.text, layout.iris_variables)" />
+                </a>
+            </span>
+
             <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
                 class="space-x-1.5 whitespace-nowrap hover-dashed"
                 :style="getStyles(model?.logout.container?.properties)"

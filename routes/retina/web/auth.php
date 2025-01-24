@@ -9,7 +9,6 @@
 
 use App\Actions\CRM\WebUser\Retina\LogoutRetina;
 use App\Actions\CRM\WebUser\Retina\RetinaLogin;
-use App\Actions\CRM\WebUser\Retina\RetinaRegister;
 use App\Actions\CRM\WebUser\Retina\UI\ShowRetinaLogin;
 use App\Actions\CRM\WebUser\Retina\UI\ShowRetinaPrepareAccount;
 use App\Actions\CRM\WebUser\Retina\UI\ShowRetinaRegister;
