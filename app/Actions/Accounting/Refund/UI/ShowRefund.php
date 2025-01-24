@@ -83,12 +83,12 @@ class ShowRefund extends OrgAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, Invoice $invoice, ActionRequest $request): Invoice
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, Invoice $invoice, Invoice $refund, ActionRequest $request): Invoice
     {
         $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(InvoiceRefundTabsEnum::values());
 
-        return $this->handle($invoice);
+        return $this->handle($refund);
     }
 
     public function htmlResponse(Invoice $invoice, ActionRequest $request): Response
@@ -403,7 +403,7 @@ class ShowRefund extends OrgAction
                     $suffix
                 ),
             ),
-            'grp.org.fulfilments.show.crm.customers.show.refund.show',
+            'grp.org.fulfilments.show.crm.customers.show.invoices.refund.show',
             => array_merge(
                 ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
@@ -596,7 +596,7 @@ class ShowRefund extends OrgAction
                     ]
                 ]
             ],
-            'grp.org.fulfilments.show.crm.customers.show.refund.show' => [
+            'grp.org.fulfilments.show.crm.customers.show.invoices.refund.show' => [
                 'label' => $invoice->reference,
                 'route' => [
                     'name'       => $isRefund ? $routeName : 'grp.org.fulfilments.show.crm.customers.show.invoices.show',
@@ -604,7 +604,8 @@ class ShowRefund extends OrgAction
                         'organisation' => $invoice->organisation->slug,
                         'fulfilment'         => $invoice->shop->fulfilment->slug,
                         'fulfilmentCustomer' => $this->parent->slug,
-                        'invoice' => $invoice->slug
+                        'invoice' => $invoice->originalInvoice->slug,
+                        'refund' => $invoice->slug
                     ]
                 ]
             ],
