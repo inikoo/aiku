@@ -15,6 +15,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\Comms\Email;
 use App\Models\Comms\EmailTemplate;
 use App\Models\Comms\Outbox;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
 use Illuminate\Support\Arr;
@@ -28,6 +29,11 @@ class ShowOutboxWorkshop extends OrgAction
     use WithActionButtons;
 
 
+    /**
+     * @var \App\Models\Catalogue\Shop|\App\Models\Fulfilment\Fulfilment
+     */
+    private Fulfilment|Shop $parent;
+
     public function handle(Email $email)
     {
         if ($email->builder == EmailBuilderEnum::BLADE) {
@@ -39,16 +45,35 @@ class ShowOutboxWorkshop extends OrgAction
     }
 
 
-    public function asController(Organisation $organisation, Shop $shop, Outbox $outbox, ActionRequest $request)
+    /**
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function asController(Organisation $organisation, Shop $shop, Outbox $outbox, ActionRequest $request): Email
     {
+        $this->parent = $shop;
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle($outbox->emailOngoingRun->email);
     }
 
-    public function inWebsite(Organisation $organisation, Shop $shop, Website $website, Outbox $outbox, ActionRequest $request)
+    /**
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function inWebsite(Organisation $organisation, Shop $shop, Website $website, Outbox $outbox, ActionRequest $request): Email
     {
+        $this->parent = $shop;
         $this->initialisationFromShop($shop, $request);
+
+        return $this->handle($outbox->emailOngoingRun->email);
+    }
+
+    /**
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, Outbox $outbox, ActionRequest $request): Email
+    {
+        $this->parent = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($outbox->emailOngoingRun->email);
     }
@@ -68,70 +93,81 @@ class ShowOutboxWorkshop extends OrgAction
                 //     'previous' => $this->getPrevious($emailTemplate, $request),
                 //     'next'     => $this->getNext($emailTemplate, $request),
                 // ],
-                'title'       => $email->subject,
-                'pageHead'    => [
-                    'title'     => $email->subject,
-                    'icon'      => [
+                'title' => $email->subject,
+                'pageHead' => [
+                    'title' => $email->subject,
+                    'icon' => [
                         'tooltip' => __('mailshot'),
-                        'icon'    => 'fal fa-mail-bulk'
+                        'icon' => 'fal fa-mail-bulk'
                     ],
                     // 'iconRight' => $emailTemplate->state->stateIcon()[$emailTemplate->state->value],
-                    'actions'   => [
+                    'actions' => [
                         [
-                            'type'  => 'button',
+                            'type' => 'button',
                             'style' => 'exit',
                             'label' => __('Exit workshop'),
                             'route' => [
-                                'name'       => preg_replace('/workshop$/', 'show', $request->route()->getName()),
+                                'name' => preg_replace('/workshop$/', 'show', $request->route()->getName()),
                                 'parameters' => array_values($request->route()->originalParameters()),
                             ]
                         ],
                         [
-                            'type'  => 'button',
+                            'type' => 'button',
                             'style' => 'exit',
-                            'label' => __('Toogle'),
-                            'route' => [
-                               'method' => 'patch',
-                               'name'       => 'grp.models.shop.outboxes.toggle',
-                               'parameters' => [
-                                    'shop' => $email->shop_id,
-                                    'outbox' => $email->outbox_id
+                            'label' => __('Toggle'),
+                            'route' => match (class_basename($this->parent)) {
+                                Shop::class => [
+                                    'method' => 'patch',
+                                    'name' => 'grp.models.shop.outboxes.toggle',
+                                    'parameters' => [
+                                        'shop' => $email->shop_id,
+                                        'outbox' => $email->outbox_id
+                                    ],
                                 ],
-                            ]
+                                Fulfilment::class => [
+                                    'method' => 'patch',
+                                    'name' => 'grp.models.fulfilment.outboxes.toggle',
+                                    'parameters' => [
+                                        'shop' => $email->shop_id,
+                                        'outbox' => $email->outbox_id
+                                    ],
+                                ],
+                                default => []
+                            }
                         ],
                     ]
 
                 ],
-               /*  'compiled_layout'    => $email->snapshot->compiled_layout, */
-                'unpublished_layout'    => $email->unpublishedSnapshot->layout,
-                'snapshot'          => $email->unpublishedSnapshot,
-                'builder'           => $email->builder,
-                'imagesUploadRoute'   => [
-                    'name'       => 'grp.models.email-templates.images.store',
+                /*  'compiled_layout'    => $email->snapshot->compiled_layout, */
+                'unpublished_layout' => $email->unpublishedSnapshot->layout,
+                'snapshot' => $email->unpublishedSnapshot,
+                'builder' => $email->builder,
+                'imagesUploadRoute' => [
+                    'name' => 'grp.models.email-templates.images.store',
                     'parameters' => $email->id
                 ],
-                'updateRoute'         => [
-                    'name'       => 'grp.models.shop.outboxes.workshop.update',
+                'updateRoute' => [
+                    'name' => 'grp.models.shop.outboxes.workshop.update',
                     'parameters' => [
                         'shop' => $email->shop_id,
                         'outbox' => $email->outbox_id
                     ],
                     'method' => 'patch'
                 ],
-                'loadRoute'           => [
-                    'name'       => 'grp.models.email-templates.content.show',
+                'loadRoute' => [
+                    'name' => 'grp.models.email-templates.content.show',
                     'parameters' => $email->id
                 ],
-                'publishRoute'           => [
-                    'name'       => 'grp.models.shop.outboxes.publish',
+                'publishRoute' => [
+                    'name' => 'grp.models.shop.outboxes.publish',
                     'parameters' => [
                         'shop' => $email->shop_id,
                         'outbox' => $email->outbox_id
                     ],
                     'method' => 'post'
                 ],
-                'sendTestRoute'           => [
-                    'name'       => 'grp.models.shop.outboxes.send.test',
+                'sendTestRoute' => [
+                    'name' => 'grp.models.shop.outboxes.send.test',
                     'parameters' => [
                         'shop' => $email->shop_id,
                         'outbox' => $email->outbox_id
@@ -143,8 +179,8 @@ class ShowOutboxWorkshop extends OrgAction
                 //     'name'       => 'grp.models.email-templates.content.show',
                 //     'parameters' => $emailTemplate->id
                 // ]
-                'apiKey'            => [
-                    'client_id'     => Arr::get($beeFreeSettings, 'client_id'),
+                'apiKey' => [
+                    'client_id' => Arr::get($beeFreeSettings, 'client_id'),
                     'client_secret' => Arr::get($beeFreeSettings, 'client_secret'),
                 ]
             ]
@@ -156,7 +192,7 @@ class ShowOutboxWorkshop extends OrgAction
         $headCrumb = function (string $type, Email $email, array $routeParameters, string $suffix = null) {
             return [
                 [
-                    'type'   => 'simple',
+                    'type' => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
                         'label' => __($email->subject)
@@ -181,11 +217,11 @@ class ShowOutboxWorkshop extends OrgAction
                     $outbox->emailOngoingRun->email,
                     [
                         'index' => [
-                            'name'       => 'grp.org.shops.show.comms.outboxes.show',
+                            'name' => 'grp.org.shops.show.comms.outboxes.show',
                             'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'grp.org.shops.show.comms.outboxes.workshop',
+                            'name' => 'grp.org.shops.show.comms.outboxes.workshop',
                             'parameters' => $routeParameters
                         ]
                     ],

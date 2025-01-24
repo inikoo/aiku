@@ -78,8 +78,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $date
  * @property \Illuminate\Support\Carbon|null $tax_liability_at
  * @property \Illuminate\Support\Carbon|null $paid_at
- * @property array<array-key, mixed> $payment_data
- * @property array<array-key, mixed> $data
+ * @property array $payment_data
+ * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at
@@ -87,8 +87,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property InvoicePayStatusEnum|null $pay_status
- * @property bool $in_process Used for refunds only
- * @property int|null $invoice_id For refunds link to original invoice
+ * @property bool $in_process
+ * @property int|null $invoice_id
  * @property-read Address|null $address
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Address|null $billingAddress
