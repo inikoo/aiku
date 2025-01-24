@@ -55,6 +55,21 @@ class UpdateFulfilmentCustomer extends OrgAction
                 );
             }
         }
+        foreach ($modelData as $key => $value) {
+            data_set(
+                $modelData,
+                match ($key) {
+                    'product'               => 'data.product',
+                    'shipment_per_week'     => 'data.shipment_per_week',
+                    'size_and_weight'       => 'data.size_and_weight',
+                    default => $key
+                },
+                $value
+            );
+        }
+        data_forget($modelData, 'product');
+        data_forget($modelData, 'shipment_per_week');
+        data_forget($modelData, 'size_and_weight');
 
         $fulfilmentCustomer = $this->update($fulfilmentCustomer, $modelData, ['data']);
 
@@ -101,6 +116,9 @@ class UpdateFulfilmentCustomer extends OrgAction
             'items_storage'   => ['sometimes', 'boolean'],
             'dropshipping'    => ['sometimes', 'boolean'],
             'address'         => ['sometimes'],
+            'product'                           => ['sometimes', 'string'],
+            'shipment_per_week'                 => ['sometimes', 'string'],
+            'size_and_weight'                   => ['sometimes', 'string'],
         ];
     }
 

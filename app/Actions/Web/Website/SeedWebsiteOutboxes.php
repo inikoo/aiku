@@ -12,6 +12,7 @@ use App\Actions\Comms\Outbox\StoreOutbox;
 use App\Actions\Comms\Outbox\UpdateOutbox;
 use App\Actions\Traits\WithOutboxBuilder;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
+use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
 use App\Models\Web\Website;
@@ -33,11 +34,18 @@ class SeedWebsiteOutboxes
 
 
                 if ($outbox = Outbox::where('website_id', $website->id)->where('code', $case)->first()) {
+
+                    $dataToUpdate = [
+                        'name' => $case->label(),
+                    ];
+
+                    if ($website->type == WebsiteTypeEnum::FULFILMENT) {
+                        $dataToUpdate['fulfilment_id'] = $website->shop->fulfilment->id;
+                    }
+
                     UpdateOutbox::make()->action(
                         $outbox,
-                        [
-                            'name' => $case->label(),
-                        ]
+                        $dataToUpdate
                     );
                 } else {
                     $outbox = StoreOutbox::make()->action(
