@@ -5,6 +5,7 @@ import PureInput from '@/Components/Pure/PureInput.vue';
 import RetinaShowIris from '@/Layouts/RetinaShowIris.vue';
 import { trans } from 'laravel-vue-i18n'
 import Multiselect from '@vueform/multiselect'
+import Address from '@/Components/Forms/Fields/Address.vue';
 
 
 // Set default layout
@@ -50,13 +51,13 @@ const submit = () => {
   isLoading.value = true;
 
   // Gabungkan field address
-  form.contact_address = {
-    country_id: form.country_id,
-    postal_code: form.postal_code,
-    post_town: form.post_town,
-    address_line_1: form.address_line_1,
-    address_line_2: form.address_line_2,
-  };
+  // form.contact_address = {
+  //   country_id: form.country_id,
+  //   postal_code: form.postal_code,
+  //   post_town: form.post_town,
+  //   address_line_1: form.address_line_1,
+  //   address_line_2: form.address_line_2,
+  // };
 
 
   form.post(route(props.registerRoute.name,props.registerRoute.parameters ), {
@@ -76,6 +77,23 @@ const interestsList = ref([
   { label: 'Dropshipping', value: 'dropshipping' },
 ]);
 
+const addressFieldData = 
+  {
+    type: "address",
+    label: "Address",
+    value: {
+        address_line_1: null,
+        address_line_2: null,
+        sorting_code: null,
+        postal_code: null,
+        locality: null,
+        dependent_locality: null,
+        administrative_area: null,
+        country_code: null,
+        country_id: 48
+    },
+    options: props.countriesAddressData
+}
 const countries = {};
 
 for (const item in props.countriesAddressData) {
@@ -149,13 +167,16 @@ onMounted(async () => {
         </div>
 
         <div class="sm:col-span-6">
+          <label for="website" class="block text-sm font-medium text-gray-900">{{trans("Country")}}</label>
+          <Address v-model="form[contact_address]" fieldName="contact_address" :form="form" :options="{countriesAddressData :countriesAddressData}" :fieldData="addressFieldData" />
+        </div>
+
+       <!--  <div class="sm:col-span-6">
         <label for="country_id" class="block text-sm font-medium text-gray-900">{{ trans("Country") }}</label>
         <div class="mt-2">
           <Multiselect 
             v-model="form.country_id" 
             :options="countries" 
-            label="label" 
-            track-by="value" 
             placeholder="Select a country"
             :searchable="true" 
             :clearable="true" 
@@ -174,7 +195,6 @@ onMounted(async () => {
           </div>
         </div>
 
-        <!-- Phone Number -->
         <div class="sm:col-span-3">
           <label for="postal_code" class="block text-sm font-medium text-gray-900">{{trans("Postal Code")}}</label>
           <div class="mt-2">
@@ -197,7 +217,7 @@ onMounted(async () => {
             <PureInput v-model="form.address_line_2" type="text" id="address_line_1" name="address_line_1" required />
             <p v-if="form.errors.address_line_2" class="text-sm text-red-600 mt-1">{{ form.errors.address_line_2 }}</p>
           </div>
-        </div>
+        </div> -->
 
         <div class="sm:col-span-6">
             <hr/>

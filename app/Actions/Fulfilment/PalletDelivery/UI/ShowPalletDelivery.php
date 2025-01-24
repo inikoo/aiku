@@ -344,7 +344,7 @@ class ShowPalletDelivery extends OrgAction
 
         $showGrossAndDiscount = $palletDelivery->gross_amount !== $palletDelivery->net_amount;
 
-        $recurringBillData = [];
+        $recurringBillData = null;
         if($palletDelivery->recurringBills()->first()) {
             $recurringBill = $palletDelivery->recurringBills()->first();
 
