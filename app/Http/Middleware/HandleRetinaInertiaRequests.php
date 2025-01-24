@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Session;
 use Inertia\Middleware;
 use Tightenco\Ziggy\Ziggy;
 use Illuminate\Support\Arr;
+use App\Models\Fulfilment\Fulfilment;
 
 class HandleRetinaInertiaRequests extends Middleware
 {
@@ -27,7 +28,7 @@ class HandleRetinaInertiaRequests extends Middleware
     {
         /** @var WebUser $webUser */
         $webUser = $request->user();
-
+        $all = $request->all()['website'] ?? null;
         $firstLoadOnlyProps = [];
 
         if (!$request->inertia() or Session::get('reloadLayout')) {
@@ -48,8 +49,7 @@ class HandleRetinaInertiaRequests extends Middleware
 
         $footerLayout = Arr::get($website->published_layout, 'footer');
         $isFooterActive = Arr::get($footerLayout, 'status');
-
-
+ 
         return array_merge(
             $firstLoadOnlyProps,
             [
@@ -62,6 +62,9 @@ class HandleRetinaInertiaRequests extends Middleware
                 ],
                 'ziggy' => [
                     'location' => $request->url(),
+                ],
+                "layout" =>   [
+                   'app_theme' => Arr::get($website->published_layout, 'theme.color', []),
                 ],
                 'iris' => [
                 'header' => array_merge($isHeaderActive == 'active' ? Arr::get($website->published_layout, 'header') : []),
