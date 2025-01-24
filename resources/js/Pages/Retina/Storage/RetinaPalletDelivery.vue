@@ -26,6 +26,8 @@ import RetinaTablePalletDeliveryPallets from '@/Components/Tables/Retina/RetinaT
 // import TablePhysicalGoods from "@/Components/Tables/Grp/Org/Fulfilment/TablePhysicalGoods.vue"
 import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItems.vue"
 import RetinaBoxStatsDelivery from "@/Components/Retina/Storage/RetinaBoxStatsDelivery.vue"
+import ModalConfirmationDelete from '@/Components/Utils/ModalConfirmationDelete.vue'
+
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -303,6 +305,30 @@ const typePallet = [
                 class="rounded-l-md rounded-r-none border-none"
             />
             <div v-else />
+        </template>
+        
+        <!-- Button: delete Delivery -->
+        <template #button-delete-delivery="{ action }">
+            <div>
+                <ModalConfirmationDelete
+                    :routeDelete="action.route"
+                    isFullLoading
+                >
+                    <template #default="{ isOpenModal, changeModel }">
+
+                        <Button
+                            @click="() => changeModel()"
+                            :style="action.style"
+                            :label="action.label"
+                            :icon="action.icon"
+                            :iconRight="action.iconRight"
+                            :key="`ActionButton${action.label}${action.style}`"
+                            :tooltip="action.tooltip"
+                        />
+
+                    </template>
+                </ModalConfirmationDelete>
+            </div>
         </template>
 
         <!-- Button: Add multiple pallets -->

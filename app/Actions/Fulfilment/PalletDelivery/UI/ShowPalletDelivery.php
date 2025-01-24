@@ -295,7 +295,7 @@ class ShowPalletDelivery extends OrgAction
                     'style'   => 'delete',
                     'tooltip' => __('delete'),
                     'label'   => __('delete'),
-                    'key'     => 'action',
+                    'key'     => 'delete_delivery',
                     'route'   => [
                         'method'     => 'delete',
                         'name'       => 'grp.models.pallet-delivery.delete',
