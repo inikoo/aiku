@@ -233,19 +233,20 @@ const closeModal = () => {
 					</div>
 
 					<!-- Section: Attachment preview -->
-					<Transition name="headlessui">
-						<div v-if="selectedFile" class="text-xxs mt-3 max-w-3xl overflow-x-hidden">
-							<div class="flex justify-end mt-3">
+					<!-- <Transition name="headlessui"> -->
+						<!-- <div v-if="selectedFile" class="text-xxs mt-3 max-w-3xl overflow-x-hidden"> -->
+							<div class="flex justify-end mt-4">
 								<Button
 									@click="() => submitUpload()"
 									label="Submit"
-									size="s"
+									size="l"
 									full
+									:disabled="!selectedFile || !selectedType"
 									:loading="isLoadingUpload" />
 							</div>
-						</div>
-						<div v-else />
-					</Transition>
+						<!-- </div> -->
+						<!-- <div v-else /> -->
+					<!-- </Transition> -->
 				</div>
 			</div>
 		</div>
