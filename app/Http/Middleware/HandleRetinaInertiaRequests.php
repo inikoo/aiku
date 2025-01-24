@@ -26,7 +26,7 @@ class HandleRetinaInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         /** @var WebUser $webUser */
-        $webUser = $request->user();
+        $webUser = $request->user();     
         $all = $request->all()['website'] ?? null;
         $firstLoadOnlyProps = [];
 

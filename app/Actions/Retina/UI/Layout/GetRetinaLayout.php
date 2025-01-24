@@ -12,6 +12,7 @@ use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\SysAdmin\Group\GroupResource;
 use App\Models\CRM\WebUser;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Illuminate\Support\Arr;
 
 class GetRetinaLayout
 {
@@ -19,13 +20,18 @@ class GetRetinaLayout
 
     public function handle($request, ?WebUser $webUser): array
     {
+        $website    = $request->get('website');
         if (!$webUser) {
-            return [];
+            return [
+                'app_theme' => Arr::get($website->published_layout, 'theme.color', []),
+                'website'  => GroupResource::make($request->get('website'))->getArray(),
+            ];
         }
+       
         return [
             'website'  => GroupResource::make($request->get('website'))->getArray(),
             'customer' => CustomersResource::make($webUser->customer)->getArray(),
-
+            'app_theme' => Arr::get($website->published_layout, 'theme.color', []),
             'navigation' => match ($request->get('website')->type->value) {
                 'fulfilment' => GetRetinaFulfilmentNavigation::run($webUser),
                 'dropshipping' => GetRetinaDropshippingNavigation::run($webUser, $request),
