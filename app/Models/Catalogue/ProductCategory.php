@@ -55,7 +55,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $name
  * @property string|null $description
  * @property int|null $image_id
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $activated_at
  * @property \Illuminate\Support\Carbon|null $discontinuing_at
  * @property \Illuminate\Support\Carbon|null $discontinued_at

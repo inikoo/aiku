@@ -55,8 +55,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $about
  * @property string|null $password_updated_at
  * @property int|null $theme_support_level
- * @property array $data
- * @property array $settings
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
  * @property bool $reset_password
  * @property int $language_id
  * @property int|null $image_id

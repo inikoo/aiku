@@ -59,8 +59,8 @@ use Spatie\Tags\HasTags;
  * @property numeric|null $price
  * @property string $units
  * @property string $unit
- * @property array $data
- * @property array $settings
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
  * @property int $currency_id
  * @property int|null $current_historic_asset_id
  * @property int|null $gross_weight outer weight including packing, grams

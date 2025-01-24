@@ -34,8 +34,8 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property bool $status
  * @property string|null $last_added_at
  * @property string|null $last_removed_at
- * @property array $data
- * @property array $settings
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $fetched_at

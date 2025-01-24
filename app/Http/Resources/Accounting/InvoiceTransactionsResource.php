@@ -27,7 +27,7 @@ class InvoiceTransactionsResource extends JsonResource
             'quantity'                  => (int) $this->quantity,
             'net_amount'                => $this->net_amount,
             'currency_code'             => $this->currency_code,
-            'in_process'             => $this->in_process,
+            'in_process'                => $this->in_process,
             'refund_route'              => [
                 'name'       => 'grp.models.refund.refund-transaction.create',
                 'parameters' => [

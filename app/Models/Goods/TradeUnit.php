@@ -44,11 +44,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $net_weight (grams)
  * @property int|null $gross_weight incl packing (grams)
  * @property int|null $marketing_weight to be shown in website (grams)
- * @property array|null $dimensions
+ * @property array<array-key, mixed>|null $dimensions
  * @property float|null $volume in cubic meters
  * @property string|null $type unit type
  * @property int|null $image_id
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at
@@ -56,7 +56,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_slug
  * @property string|null $source_id
- * @property array $sources
+ * @property array<array-key, mixed> $sources
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $attachments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, Barcode> $barcodes

@@ -65,7 +65,7 @@ class ShowRecurringBill extends OrgAction
     {
         $this->parent = $fulfilment;
         $this->bucket = 'current';
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(RecurringBillTabsEnum::values());
 
         return $this->handle($recurringBill);
     }
@@ -75,7 +75,7 @@ class ShowRecurringBill extends OrgAction
     {
         $this->parent = $fulfilment;
         $this->bucket = 'former';
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(RecurringBillTabsEnum::values());
 
         return $this->handle($recurringBill);
     }

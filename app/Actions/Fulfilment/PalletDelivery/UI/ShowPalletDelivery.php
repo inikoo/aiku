@@ -345,11 +345,10 @@ class ShowPalletDelivery extends OrgAction
         $showGrossAndDiscount = $palletDelivery->gross_amount !== $palletDelivery->net_amount;
 
         $recurringBillData = null;
-        if($palletDelivery->recurringBills()->first()) {
-            $recurringBill = $palletDelivery->recurringBills()->first();
+        if($palletDelivery->recurringBill) {
+            $recurringBill = $palletDelivery->recurringBill;
 
-            if ($this->parent instanceof Fulfilment)
-            {
+            if ($this->parent instanceof Fulfilment) {
                 $route = [
                     'name' => 'grp.org.fulfilments.show.operations.recurring_bills.current.show',
                     'parameters' => [

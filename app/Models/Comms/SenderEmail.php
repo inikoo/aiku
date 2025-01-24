@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $email_address
  * @property int $usage_count
  * @property SenderEmailStateEnum $state
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $last_verification_submitted_at
  * @property \Illuminate\Support\Carbon|null $verified_at
  * @property \Illuminate\Support\Carbon|null $created_at

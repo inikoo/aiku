@@ -538,7 +538,7 @@ const changePalletType=(form,fieldName,value)=>{
                             :label="action.label"
                             :icon="action.icon"
                             :tooltip="action.tooltip"
-                             class=" rounded-r-md ml-2"
+                            class=" rounded-r-md ml-2"
                         />
                     </template>
                     <template #content="{ close: closed }">

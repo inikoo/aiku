@@ -36,7 +36,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $picker_id
  * @property PickingEngineEnum $engine
  * @property int|null $location_id
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property string|null $queued_at
  * @property string|null $picking_at
  * @property string|null $picking_blocked_at

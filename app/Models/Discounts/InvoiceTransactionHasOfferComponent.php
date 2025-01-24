@@ -26,7 +26,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $discounted_amount
  * @property string $discounted_percentage
  * @property string|null $info
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at

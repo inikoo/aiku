@@ -43,7 +43,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property string $name
  * @property bool $is_accounts
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $last_used_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
