@@ -112,10 +112,10 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     Route::prefix('invoices')->as('.invoices.')->group(function () {
         Route::get('', [IndexInvoices::class, 'inFulfilmentCustomer'])->name('index');
         Route::get('{invoice}', [ShowInvoice::class, 'inFulfilmentCustomer'])->name('show');
-    });
 
-    Route::prefix('refund')->as('.refund.')->group(function () {
-        Route::get('{invoice}', [ShowRefund::class, 'inFulfilmentCustomer'])->name('show');
+        Route::prefix('{invoice}/refund')->as('refund.')->group(function () {
+            Route::get('{refund}', [ShowRefund::class, 'inFulfilmentCustomer'])->name('show');
+        });
     });
 
 
