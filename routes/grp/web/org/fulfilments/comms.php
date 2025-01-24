@@ -13,7 +13,7 @@ Route::get('', [ShowCommsDashboard::class, 'inFulfilment'])->name('dashboard');
 Route::get('outboxes', [IndexOutboxes::class, 'inFulfilment'])->name('outboxes');
 Route::get('outboxes/{outbox}', [ShowOutbox::class, 'inFulfilment'])->name('outboxes.show');
 
-Route::get('outboxes/{outbox}/workshop', ShowOutboxWorkshop::class)->name('outboxes.workshop');
+Route::get('outboxes/{outbox}/workshop', [ShowOutboxWorkshop::class, 'inFulfilment'])->name('outboxes.workshop');
 Route::get('outboxes/{outbox}/email-bulk-runs/{emailBulkRun}', [ShowEmailBulkRun::class, 'inOutbox'])->name('outboxes.show.email-bulk-runs.show');
 
 Route::get('post-rooms', [IndexOrgPostRooms::class, 'inFulfilment'])->name('post-rooms.index');
