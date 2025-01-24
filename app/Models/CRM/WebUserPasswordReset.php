@@ -14,13 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  *
  *
- * @property int $id
- * @property int $website_id
- * @property int $web_user_id
- * @property string $token
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\CRM\WebUser $webUser
+ * @property-read \App\Models\CRM\WebUser|null $webUser
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WebUserPasswordReset newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WebUserPasswordReset newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WebUserPasswordReset query()

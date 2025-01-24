@@ -53,8 +53,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $remember_token
  * @property int $number_api_tokens
  * @property string|null $about
- * @property array<array-key, mixed> $data
- * @property array<array-key, mixed> $settings
+ * @property array $data
+ * @property array $settings
  * @property bool $reset_password
  * @property int $language_id
  * @property int|null $image_id
@@ -82,6 +82,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Collection<int, WebUserRequest> $webUserRequests
  * @property-read Website $website
+ * @method static \Database\Factories\CRM\WebUserFactory factory($count = null, $state = [])
  * @method static Builder<static>|WebUser newModelQuery()
  * @method static Builder<static>|WebUser newQuery()
  * @method static Builder<static>|WebUser onlyTrashed()

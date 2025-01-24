@@ -471,6 +471,13 @@ Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function
     Route::post('website', [StoreWebsite::class, 'inFulfilment'])->name('website.store');
     Route::post('fulfilment-customer', StoreFulfilmentCustomer::class)->name('fulfilment_customer.store');
     Route::patch('website/{website:id}', [UpdateWebsite::class, 'inFulfilment'])->name('website.update')->withoutScopedBindings();
+
+    Route::name('outboxes.')->prefix('outboxes/{outbox:id}')->group(function () {
+        Route::patch('toggle', ToggleOutbox::class)->name('toggle')->withoutScopedBindings();
+        Route::post('publish', PublishOutbox::class)->name('publish')->withoutScopedBindings();
+        Route::patch('workshop', UpdateWorkshopOutbox::class)->name('workshop.update')->withoutScopedBindings();
+        Route::post('send/test', SendMailshotTest::class)->name('send.test')->withoutScopedBindings();
+    });
 });
 
 Route::post('fulfilment-customer-note/{fulfilmentCustomer}', StoreFulfilmentCustomerNote::class)->name('fulfilment_customer_note.store');
