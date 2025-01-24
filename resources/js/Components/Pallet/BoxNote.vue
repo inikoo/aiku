@@ -124,7 +124,7 @@ const fallbackColor = '#374151'  // Color
         </p>
     </div>
 
-    <Modal :isOpen="isModalOpen" @onClose="() => (isModalOpen = false, noteModalValue = noteData.note)">
+    <Modal :isOpen="isModalOpen" @onClose="() => (isModalOpen = false, noteModalValue = noteData.note)" width="w-[600px]">
 		<div class="min-h-64 max-h-96 px-2 overflow-auto flex flex-col justify-between">
             <div>
                 <div class="text-xl font-semibold mb-2">{{ noteData.label }} {{ trans("note") }}</div>

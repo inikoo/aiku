@@ -259,51 +259,37 @@ const onUpdateCustomerReference = () => {
 						aria-hidden="true" />
 				</dt>
 
-				<Popover
-					v-if="
-						dataPalletDelivery.state == 'in_process' ||
-						dataPalletDelivery.state == 'submitted' ||
-						dataPalletDelivery.state == 'confirmed'
-					"
-					position=""
-					style="z-index: 20">
-					<template #button>
-						<div
-							v-if="dataPalletDelivery.estimated_delivery_date"
-							v-tooltip="
-								useDaysLeftFromToday(dataPalletDelivery.estimated_delivery_date)
-							"
-							class="group text-gray-500"
-							:class="[dataPalletDelivery.state === 'in_process' ? 'underline' : '']">
-							{{ useFormatTime(dataPalletDelivery?.estimated_delivery_date) }}
-							<FontAwesomeIcon
-								icon="fal fa-pencil"
-								size="sm"
-								class="text-gray-400 group-hover:text-gray-600"
-								fixed-width
-								aria-hidden="true" />
-						</div>
+                <Popover v-if="dataPalletDelivery.state == 'in_process' || dataPalletDelivery.state == 'submitted' || dataPalletDelivery.state == 'confirmed'" position="" style="z-index: 20">
+                    <template #button>
+                        <div v-if="dataPalletDelivery.estimated_delivery_date"
+                            v-tooltip="useDaysLeftFromToday(dataPalletDelivery.estimated_delivery_date)"
+                            class="group  text-gray-500 text-left"
+                            :class="[dataPalletDelivery.state === 'in_process' ? 'underline' : '']"
+                        >
+                            {{ useFormatTime(dataPalletDelivery?.estimated_delivery_date) }}
+                            <FontAwesomeIcon icon='fal fa-pencil' size="sm"
+                                class='text-gray-400 group-hover:text-gray-600' fixed-width aria-hidden='true' />
+                        </div>
 
-						<div v-else class="text-gray-500 hover:text-gray-600 underline">
-							{{ trans("Set estimated date") }}
-						</div>
-					</template>
+                        <div v-else class=" text-gray-500 hover:text-gray-600 underline">
+                            {{ trans('Set estimated date') }}
+                        </div>
+                    </template>
 
-					<template #content="{ close }">
-						<DatePicker
-							v-model="dataPalletDelivery.estimated_delivery_date"
-							@update:modelValue="() => onChangeEstimateDate(close)"
-							inline
-							auto-apply
-							:disabled-dates="disableBeforeToday"
-							:enable-time-picker="false" />
-						<div
-							v-if="isLoadingSetEstimatedDate"
-							class="absolute inset-0 bg-white/70 flex items-center justify-center">
-							<LoadingIcon class="text-5xl" />
-						</div>
-					</template>
-				</Popover>
+                    <template #content="{ close }">
+                        <DatePicker
+                            v-model="dataPalletDelivery.estimated_delivery_date"
+                            @update:modelValue="() => onChangeEstimateDate(close)"
+                            inline auto-apply
+                            :disabled-dates="disableBeforeToday"
+                            :enable-time-picker="false"
+                        />
+                        <div v-if="isLoadingSetEstimatedDate" class="absolute inset-0 bg-white/70 flex items-center justify-center">
+                            <LoadingIcon class="text-5xl" />
+                        </div>
+                    </template>
+                </Popover>
+
 
 				<div v-else>
 					<dd class="text-gray-500">
