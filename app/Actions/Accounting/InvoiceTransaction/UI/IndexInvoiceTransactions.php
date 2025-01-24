@@ -48,6 +48,7 @@ class IndexInvoiceTransactions extends OrgAction
         $queryBuilder->select(
             [
                 'invoice_transactions.id',
+                'invoice_transactions.in_process',
                 'historic_assets.code',
                 'historic_assets.name',
                 'assets.slug',

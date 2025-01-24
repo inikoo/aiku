@@ -35,7 +35,7 @@ class CreateRefundInvoiceTransaction extends OrgAction
 
     public function asController(Invoice $invoice, InvoiceTransaction $invoiceTransaction, ActionRequest $request): void
     {
-        $this->initialisationFromShop($invoice->shop, $request->validated());
+        $this->initialisationFromShop($invoice->shop, $request);
 
         $this->handle($invoice, $invoiceTransaction, $this->validatedData);
     }
