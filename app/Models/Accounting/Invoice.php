@@ -101,8 +101,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Order|null $order
  * @property-read Collection<int, Order> $orders
  * @property-read Organisation $organisation
+ * @property-read SalesChannel|null $originalInvoice
  * @property-read Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read RecurringBill|null $recurringBill
+ * @property-read Collection<int, Invoice> $refunds
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
  * @property-read SalesChannel|null $salesChannel
  * @property-read Shop $shop

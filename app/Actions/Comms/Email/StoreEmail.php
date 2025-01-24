@@ -81,6 +81,7 @@ class StoreEmail extends OrgAction
             $email = $parent->email()->create($modelData);
 
 
+
             if ($snapshotData) {
                 if (Arr::get($snapshotData, 'builder') == 'blade') {
                     // blade templates are fixed, unpublished_snapshot_id is null
@@ -161,10 +162,10 @@ class StoreEmail extends OrgAction
         $rules = [
             'subject'    => ['required', 'string', 'max:255'],
             'identifier' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'builder'    => ['required', Rule::enum(EmailBuilderEnum::class)],
         ];
 
         if (!$this->strict) {
-            $rules['builder']               = ['sometimes', 'required', Rule::enum(EmailBuilderEnum::class)];
             $rules['layout']                = ['sometimes', 'required', 'array'];
             $rules['compiled_layout']       = ['sometimes', 'nullable', 'string'];
             $rules['snapshot_state']        = ['sometimes', 'required', Rule::enum(SnapshotStateEnum::class)];

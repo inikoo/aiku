@@ -13,6 +13,12 @@ library.add(faArrowLeft, faCheckCircle)
 
 defineOptions({ layout: LayoutRetinaAuth })
 defineProps({
+  back_label: {
+    type: String,
+  },
+  instructions: {
+    type: String,
+  },
     status: {
         type: String,
     },
@@ -24,7 +30,7 @@ const form = useForm({
 
 const isResetLinkSent = ref(false)
 const submit = () => {
-    form.post(route('retina.password.email'), {
+    form.post(route('retina.reset-password.send'), {
         onSuccess: () => isResetLinkSent.value = true 
     })
 }
@@ -33,16 +39,16 @@ const submit = () => {
 <template>
 
     <Head title="Forgot Password" />
-    <Link href="/app/login" class="absolute left-4 top-4 text-xs text-gray-600 hover:underline">
+    <Link :href="route('retina.login.show')" class="absolute left-4 top-4 text-xs text-gray-600 hover:underline">
         <FontAwesomeIcon icon='fal fa-arrow-left' class='' fixed-width aria-hidden='true' />
-        Back to login
+        {{back_label}}
     </Link>
 
     <!-- Section: form reset password -->
     <template v-if="!isResetLinkSent">
         <div class="text-center font-bold text-xl">Reset Password</div>
-        <div class="mt-2 mb-4 text-sm text-gray-600 italic">
-            We will email you a password reset link that will allow you to choose a new one.
+        <div class="mt-3 mb-4 text-sm text-center ">
+            {{ instructions }}
         </div>
         <form @submit.prevent="submit" class="mt-8">
             <div>
@@ -73,8 +79,8 @@ const submit = () => {
         <div class="text-center">
             <FontAwesomeIcon icon='fal fa-check-circle' class='text-green-500 text-4xl' fixed-width aria-hidden='true' />
         </div>
-        <div class="text-center font-bold text-xl">Reset link sent</div>
-        <div class="mt-2 mb-4 text-xs text-gray-600 italic">
+        <div class="text-center mt-2 font-bold text-xl">Reset link sent</div>
+        <div class="mt-3 mb-4 text-sm text-gray-600">
             We've sent link to reset your password to {{ form.email }}. Please check email especially on spam folder.
         </div>
     </template>

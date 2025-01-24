@@ -120,9 +120,9 @@ test('create webpage', function (Website $website) {
     $snapshot = $webpage->unpublishedSnapshot;
 
 
-    expect($snapshot->layout)->toBeObject()
+    expect($snapshot->layout)->toBeArray()
         ->and($snapshot->stats)->toBeInstanceOf(SnapshotStats::class)
-        ->and($snapshot->layout->web_blocks)->toBeArray()
+        ->and($snapshot->layout['web_blocks'])->toBeArray()
         ->and($snapshot->checksum)->toBeString()
         ->and($snapshot->state)->toBe(SnapshotStateEnum::UNPUBLISHED);
 
@@ -252,7 +252,7 @@ test('create fulfilment website', function () {
         ->and($homeWebpage->stats->number_snapshots)->toBe(1)
         ->and($homeWebpage->stats->number_deployments)->toBe(0)
         ->and($homeWebpage->unpublishedSnapshot)->toBeInstanceOf(Snapshot::class)
-        ->and($homeWebpage->unpublishedSnapshot->layout)->toBeObject();
+        ->and($homeWebpage->unpublishedSnapshot->layout)->toBeArray();
 
     return $website;
 });

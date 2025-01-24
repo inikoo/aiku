@@ -8,33 +8,40 @@
 
 namespace App\Actions\Retina\UI\Auth;
 
+use App\Actions\Comms\Email\SendResetPasswordEmail;
+use App\Actions\CRM\WebUserPasswordReset\StoreWebUserPasswordReset;
 use App\Actions\RetinaAction;
-use Illuminate\Support\Facades\Password;
+use App\Models\CRM\WebUser;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 
-class PasswordRetinaResetLink extends RetinaAction
+class SendRetinaResetPasswordEmail extends RetinaAction
 {
     use AsController;
 
-    /**
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function handle(ActionRequest $request): void
-    {
-        $status = Password::broker('web-users')->sendResetLink(
-            $request->only('email')
-        );
 
-        if ($status === Password::INVALID_USER) {
-            throw ValidationException::withMessages([
-                'email' => [trans($status)],
-            ]);
-        }
+    public function handle(array $modelData): void
+    {
+        $webUser = WebUser::where('website_id', $this->website->id)->where('email', $modelData['email'])->first();
+
+        $token = Str::random(rand(24, 28));
+        $webUserPasswordReset = StoreWebUserPasswordReset::run($webUser, $token);
+
+        $url = route('retina.reset-password.show', [
+            'token' => $token,
+            'id' => $webUserPasswordReset->id
+        ]);
+
+
+        SendResetPasswordEmail::run($webUser, [
+            'url' => $url
+        ]);
+
+
     }
 
     public function create(): Response
@@ -67,13 +74,11 @@ class PasswordRetinaResetLink extends RetinaAction
         ];
     }
 
-    /**
-     * @throws \Illuminate\Validation\ValidationException
-     */
+
     public function asController(ActionRequest $request): void
     {
         $this->logoutInitialisation($request);
 
-        $this->handle($request);
+        $this->handle($this->validatedData);
     }
 }

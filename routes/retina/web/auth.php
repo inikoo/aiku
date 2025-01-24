@@ -14,10 +14,10 @@ use App\Actions\CRM\WebUser\Retina\UI\ShowRetinaLogin;
 use App\Actions\CRM\WebUser\Retina\UI\ShowRetinaPrepareAccount;
 use App\Actions\CRM\WebUser\Retina\UI\ShowRetinaRegister;
 use App\Actions\CRM\WebUser\Retina\UI\ShowRetinaResetWebUserPassword;
+use App\Actions\CRM\WebUser\Retina\UI\ShowRetinaResetWebUserPasswordError;
 use App\Actions\CRM\WebUser\Retina\UpdateRetinaWebUserPassword;
-use App\Actions\CRM\WebUser\UpdateRetinaWebUserPasswordViaEmail;
-use App\Actions\Retina\UI\Auth\PasswordRetinaResetLink;
-use App\Actions\Retina\UI\Auth\ShowRetinaPasswordResetLink;
+use App\Actions\Retina\UI\Auth\SendRetinaResetPasswordEmail;
+use App\Actions\Retina\UI\Auth\ShowForgotPasswordForm;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest:retina')->group(function () {
@@ -26,15 +26,14 @@ Route::middleware('guest:retina')->group(function () {
     Route::get('register', ShowRetinaRegister::class)->name('register');
     Route::post('register', RetinaRegister::class)->name('register.store');
 
-    Route::get('email-reset-password', ShowRetinaPasswordResetLink::class)->name('email.reset-password.edit');
-    Route::get('reset-password', ShowRetinaResetWebUserPassword::class)->name('email.reset-password.show');
-    Route::post('reset/password/email', PasswordRetinaResetLink::class)->name('password.email');
-    Route::patch('reset/password/email', UpdateRetinaWebUserPasswordViaEmail::class)->name('reset-password.email.update');
+    Route::get('rp', ShowRetinaResetWebUserPassword::class)->name('reset-password.show');
+    Route::get('reset-password-send', ShowForgotPasswordForm::class)->name('reset-password.edit');
+    Route::get('reset-password-error', ShowRetinaResetWebUserPasswordError::class)->name('reset-password.error');
+    Route::post('reset-password-send', SendRetinaResetPasswordEmail::class)->name('reset-password.send');
+    Route::patch('reset-password', UpdateRetinaWebUserPassword::class)->name('reset-password.update');
 });
 
 Route::middleware('retina-auth:retina')->group(function () {
     Route::post('logout', LogoutRetina::class)->name('logout');
-    Route::get('reset/password', ShowRetinaResetWebUserPassword::class)->name('reset-password.edit');
-    Route::patch('reset/password', UpdateRetinaWebUserPassword::class)->name('reset-password.update');
     Route::get('prepare-account', ShowRetinaPrepareAccount::class)->name('prepare-account.show');
 });

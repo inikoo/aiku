@@ -119,7 +119,7 @@ class Snapshot extends Model
         return $this->hasMany(Slide::class);
     }
 
-    public function compiledLayout(): object|string
+    public function compiledLayout(): array|string
     {
         switch (class_basename($this->parent)) {
             case 'Banner':
@@ -131,9 +131,9 @@ class Snapshot extends Model
                 return $compiledLayout;
             case 'Website':
             case 'Webpage':
-                return $this->layout->html;
+                return $this->layout['html'];
             default:
-                return (object)[];
+                return [];
         }
     }
 }

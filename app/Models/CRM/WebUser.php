@@ -8,7 +8,6 @@
 
 namespace App\Models\CRM;
 
-use App\Actions\CRM\WebUser\SendLinkResetPassword;
 use App\Audits\Redactors\PasswordRedactor;
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
@@ -75,6 +74,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read Organisation $organisation
+ * @property-read Collection<int, \App\Models\CRM\WebUserPasswordReset> $passwordResets
  * @property-read Collection<int, \Spatie\Permission\Models\Permission> $permissions
  * @property-read Shop|null $shop
  * @property-read \App\Models\CRM\WebUserStats|null $stats
@@ -152,11 +152,6 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
             ->slugsShouldBeNoLongerThan(128);
     }
 
-    public function sendPasswordResetNotification($token): void
-    {
-        SendLinkResetPassword::run($token, $this);
-    }
-
     public function stats(): HasOne
     {
         return $this->hasOne(WebUserStats::class);
@@ -175,6 +170,11 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
     public function webUserRequests(): HasMany
     {
         return $this->hasMany(WebUserRequest::class);
+    }
+
+    public function passwordResets(): HasMany
+    {
+        return $this->hasMany(WebUserPasswordReset::class);
     }
 
 }

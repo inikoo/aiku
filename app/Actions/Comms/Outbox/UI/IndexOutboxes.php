@@ -149,7 +149,8 @@ class IndexOutboxes extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $outboxes, ActionRequest $request): Response
     {
-        $subNavigation = $this->getCommsNavigation($this->organisation, $this->parent);
+
+        $subNavigation = $this->getCommsNavigation($this->parent);
 
         return Inertia::render(
             'Comms/Outboxes',
@@ -278,7 +279,7 @@ class IndexOutboxes extends OrgAction
                     ]
                 )
             ),
-            'grp.org.fulfilments.show.operations.comms.outboxes'=>
+            'grp.org.fulfilments.show.operations.comms.outboxes' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs($routeParameters),
                 [

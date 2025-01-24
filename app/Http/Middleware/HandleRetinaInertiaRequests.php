@@ -31,7 +31,6 @@ class HandleRetinaInertiaRequests extends Middleware
         $firstLoadOnlyProps = [];
 
         if (!$request->inertia() or Session::get('reloadLayout')) {
-
             $firstLoadOnlyProps          = GetRetinaFirstLoadProps::run($request, $webUser);
             $firstLoadOnlyProps['ziggy'] = function () use ($request) {
                 return array_merge((new Ziggy())->toArray(), [
@@ -42,12 +41,7 @@ class HandleRetinaInertiaRequests extends Middleware
 
         $website                           = $request->get('website');
         $firstLoadOnlyProps['environment'] = app()->environment();
-        $firstLoadOnlyProps['ziggy']       = function () use ($request) {
-            return array_merge((new Ziggy())->toArray(), [
-                'location' => $request->url()
-            ]);
-        };
-        // dd($webUser->customer->favourites->count());
+
 
         $headerLayout = Arr::get($website->published_layout, 'header');
         $isHeaderActive = Arr::get($headerLayout, 'status');
@@ -71,9 +65,9 @@ class HandleRetinaInertiaRequests extends Middleware
                 ],
                 'iris' => [
                 'header' => array_merge($isHeaderActive == 'active' ? Arr::get($website->published_layout, 'header') : []),
-                    'footer' => array_merge( $isFooterActive == 'active' ? Arr::get($website->published_layout, 'footer') : []),
+                    'footer' => array_merge($isFooterActive == 'active' ? Arr::get($website->published_layout, 'footer') : []),
                     'menu'   => Arr::get($website->published_layout, 'menu'),
-                    "website" =>WebsiteIrisResource::make($request->get('website'))->getArray()
+                    "website" => WebsiteIrisResource::make($request->get('website'))->getArray()
                 ]
 
             ],
