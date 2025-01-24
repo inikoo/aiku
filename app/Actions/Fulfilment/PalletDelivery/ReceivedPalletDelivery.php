@@ -70,7 +70,7 @@ class ReceivedPalletDelivery extends OrgAction
 
         if ($palletDelivery->fulfilmentCustomer->currentRecurringBill) {
             $recurringBill = $palletDelivery->fulfilmentCustomer->currentRecurringBill;
-        
+
             $this->update($palletDelivery, [
                 'recurring_bill_id' => $recurringBill->id
             ]);

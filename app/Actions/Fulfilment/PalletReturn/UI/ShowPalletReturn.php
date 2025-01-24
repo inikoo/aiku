@@ -364,7 +364,7 @@ class ShowPalletReturn extends OrgAction
         };
 
         $recurringBillData = null;
-        if($palletReturn->recurringBill) {
+        if ($palletReturn->recurringBill) {
             $recurringBill = $palletReturn->recurringBill;
 
             if ($this->parent instanceof Fulfilment) {

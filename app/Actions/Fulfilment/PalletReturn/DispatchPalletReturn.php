@@ -67,6 +67,14 @@ class DispatchPalletReturn extends OrgAction
             return $this->update($palletReturn, $modelData);
         });
 
+        if ($palletReturn->fulfilmentCustomer->currentRecurringBill) {
+            $recurringBill = $palletReturn->fulfilmentCustomer->currentRecurringBill;
+
+            $this->update($palletReturn, [
+                'recurring_bill_id' => $recurringBill->id
+            ]);
+        }
+
         GroupHydratePalletReturns::dispatch($palletReturn->group);
         OrganisationHydratePalletReturns::dispatch($palletReturn->organisation);
         WarehouseHydratePalletReturns::dispatch($palletReturn->warehouse);

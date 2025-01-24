@@ -44,7 +44,7 @@ class StoreRecurringBillTransaction extends OrgAction
 
             // todo add unit cost to the transaction
             $unitCost = $item->gross_amount / $item->quantity;
-            data_set($modelData, 'item_id', $item->id);
+            data_set($modelData, 'item_id', $item->historicAsset->model_id);
 
         } elseif ($item instanceof HistoricAsset) {
             if ($item->model_type == 'Service') {

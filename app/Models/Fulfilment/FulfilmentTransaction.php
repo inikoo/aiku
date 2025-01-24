@@ -10,6 +10,7 @@ namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
 use App\Models\Catalogue\Asset;
+use App\Models\Catalogue\HistoricAsset;
 use App\Models\Traits\InFulfilment;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -79,6 +80,11 @@ class FulfilmentTransaction extends Model
     public function asset(): BelongsTo
     {
         return $this->belongsTo(Asset::class);
+    }
+
+    public function historicAsset(): BelongsTo
+    {
+        return $this->belongsTo(HistoricAsset::class);
     }
 
     public function clause(): BelongsTo
