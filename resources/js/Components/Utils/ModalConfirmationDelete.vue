@@ -18,6 +18,7 @@ const props = defineProps<{
     yesLabel?: string
     noLabel?: string
     routeDelete?: routeType
+    isFullLoading?: boolean
 }>()
 
 const emits = defineEmits<{
@@ -34,13 +35,17 @@ const onClickDelete = () => {
         route(props.routeDelete.name, props.routeDelete.parameters),
         {
             onStart: () => {
-                isLoadingdelete.value = false
+                isLoadingdelete.value = true
             },
             onSuccess: () => {
                 isOpenModal.value = false
             },
             onFinish: () => {
-                isLoadingdelete.value = false
+                if (props.isFullLoading) {
+
+                } else {
+                    isLoadingdelete.value = false
+                }
             }
         }
     )
@@ -88,7 +93,7 @@ const onClickDelete = () => {
                                         </DialogTitle>
                                         <div class="mt-2">
                                             <p class="text-sm text-gray-500">
-                                                {{ description || "The data will be permanently removed from our servers forever. This action cannot be undone."}}
+                                                {{ description || trans("The data will be permanently removed from our servers forever. This action cannot be undone.")}}
                                             </p>
                                         </div>
                                     </div>

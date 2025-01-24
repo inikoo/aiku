@@ -148,6 +148,7 @@ class IndexRetinaPalletDeliveries extends RetinaAction
                     'type'  => 'button',
                     'style' => 'create',
                     'label' => __('New Delivery'),
+                    'fullLoading'   => true,
                     'route' => [
                         'method'     => 'post',
                         'name'       => 'retina.models.pallet-delivery.store',

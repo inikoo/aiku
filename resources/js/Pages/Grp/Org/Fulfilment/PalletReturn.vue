@@ -226,12 +226,12 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
             <div v-else></div>
         </template>
 
-        <!-- Button: Add Pallet -->
+        <!-- Button: delete Return -->
         <template #button-delete-return="{ action }">
             <div>
                 <ModalConfirmationDelete
-                    :modelValue="true"
                     :routeDelete="action.route"
+                    isFullLoading
                 >
                     <template #default="{ isOpenModal, changeModel }">
 
