@@ -150,6 +150,7 @@ const onSubmitAddService = (data: Action, closedPopover: Function) => {
             onSuccess: () => {
                 closedPopover()
                 formAddService.reset()
+                handleTabUpdate('services')
             },
             onError: (errors) => {
                 notify({
@@ -196,6 +197,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                 closedPopover()
                 formAddPhysicalGood.reset()
                 isLoadingButton.value = false
+                handleTabUpdate('physical_goods')
             },
             onError: (errors) => {
                 isLoadingButton.value = false
