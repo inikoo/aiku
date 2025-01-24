@@ -466,6 +466,23 @@ class ShowPalletDelivery extends OrgAction
                     ],
                 ],
 
+                'attachmentRoutes' => [
+                    'attachRoute' => [
+                        'name' => 'grp.models.employee.attachment.attach',
+                        'parameters' => [
+                            'palletDelivery' => $palletDelivery->id,
+                        ],
+                        'method' => 'post'
+                    ],
+                    'detachRoute' => [
+                        'name' => 'grp.models.employee.attachment.detach',
+                        'parameters' => [
+                            'palletDelivery' => $palletDelivery->id,
+                        ],
+                        'method' => 'delete'
+                    ]
+                ],
+
                 // 'uploadRoutes' => [
                 //     'upload'  => [
                 //         'name'       => 'grp.models.pallet-delivery.pallet.upload',

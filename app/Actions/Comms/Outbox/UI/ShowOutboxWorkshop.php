@@ -13,6 +13,7 @@ use App\Actions\Traits\Actions\WithActionButtons;
 use App\Enums\Comms\Email\EmailBuilderEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Email;
+use App\Models\Comms\EmailOngoingRun;
 use App\Models\Comms\EmailTemplate;
 use App\Models\Comms\Outbox;
 use App\Models\Fulfilment\Fulfilment;
@@ -34,13 +35,20 @@ class ShowOutboxWorkshop extends OrgAction
      */
     private Fulfilment|Shop $parent;
 
-    public function handle(Email $email)
+    public function handle(Outbox $outbox)
     {
-        if ($email->builder == EmailBuilderEnum::BLADE) {
+        if ($outbox->builder == EmailBuilderEnum::BLADE) {
             throw ValidationException::withMessages([
                 'value' => 'Builder is not supported'
             ]);
         }
+
+        if ($outbox->model_type === class_basename(EmailOngoingRun::class)) {
+            $email = $outbox->emailOngoingRun->email;
+        } else {
+            $email = $outbox->mai->email;
+        }
+
         return $email;
     }
 
@@ -53,7 +61,7 @@ class ShowOutboxWorkshop extends OrgAction
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request);
 
-        return $this->handle($outbox->emailOngoingRun->email);
+        return $this->handle($outbox);
     }
 
     /**
@@ -64,7 +72,7 @@ class ShowOutboxWorkshop extends OrgAction
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request);
 
-        return $this->handle($outbox->emailOngoingRun->email);
+        return $this->handle($outbox);
     }
 
     /**
@@ -75,7 +83,7 @@ class ShowOutboxWorkshop extends OrgAction
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($outbox->emailOngoingRun->email);
+        return $this->handle($outbox);
     }
 
     public function htmlResponse(Email $email, ActionRequest $request): Response
