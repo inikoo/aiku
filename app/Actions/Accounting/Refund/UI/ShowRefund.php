@@ -16,6 +16,7 @@ use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
+use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\UI\Accounting\InvoiceRefundTabsEnum;
 use App\Http\Resources\Accounting\InvoiceRefundResource;
 use App\Http\Resources\Accounting\InvoiceTransactionsResource;
@@ -133,10 +134,39 @@ class ShowRefund extends OrgAction
             ];
         }
 
+        $actions = [];
+
+        if ($invoice->in_process) {
+            $actions[] = [
+                'type'  => 'button',
+                'style' => 'delete',
+                'label' => __('Delete'),
+                'route' => [
+                    'method'     => 'delete',
+                    'name'       => 'grp.models.refund.delete',
+                    'parameters' => [
+                        'invoice' => $invoice->id,
+                    ]
+                ]
+            ];
+            $actions[] = [
+                'type'  => 'button',
+                'style' => 'create',
+                'label' => __('Create'),
+                'route' => [
+                    'method'     => 'post',
+                    'name'       => '',
+                    'parameters' => [
+                        'invoice' => $invoice->id,
+                    ]
+                ]
+            ];
+        }
+
         return Inertia::render(
             'Org/Accounting/InvoiceRefund',
             [
-                'title'                => __('refund'),
+                'title'                => __('invoice refund'),
                 'breadcrumbs'          => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
@@ -146,26 +176,13 @@ class ShowRefund extends OrgAction
                     'next'     => $this->getNext($invoice, $request),
                 ],
                 'pageHead'             => [
-                    'model' => __('refund'),
+                    'model' => __('invoice refund'),
                     'title' => $invoice->reference,
                     'icon'  => [
                         'icon'  => ['fas', 'fa-hand-holding-usd'],
                         'title' => $invoice->reference
                     ],
-                    'actions' =>  [
-                        [
-                            'type'  => 'button',
-                            'style' => 'create',
-                            'label' => __('Create'),
-                            'route' => [
-                                'method'     => 'post',
-                                'name'       => '',
-                                'parameters' => [
-                                    'invoice' => $invoice->id,
-                                ]
-                            ]
-                        ]
-                    ]
+                    'actions' =>  $actions
                 ],
                 'tabs'                 => [
                     'current'    => $this->tab,
@@ -264,8 +281,8 @@ class ShowRefund extends OrgAction
 
 
                 InvoiceRefundTabsEnum::ITEMS->value => $this->tab == InvoiceRefundTabsEnum::ITEMS->value ?
-                    fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceRefundTabsEnum::ITEMS->value))
-                    : Inertia::lazy(fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceRefundTabsEnum::ITEMS->value))),
+                    fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice->originalInvoice, InvoiceRefundTabsEnum::ITEMS->value))
+                    : Inertia::lazy(fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice->originalInvoice, InvoiceRefundTabsEnum::ITEMS->value))),
 
                 InvoiceRefundTabsEnum::PAYMENTS->value => $this->tab == InvoiceRefundTabsEnum::PAYMENTS->value ?
                     fn () => PaymentsResource::collection(IndexPayments::run($invoice))
@@ -294,7 +311,7 @@ class ShowRefund extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('Invoice Refund').$suffixIndex,
+                            'label' => __('Invoices').$suffixIndex,
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
@@ -492,6 +509,8 @@ class ShowRefund extends OrgAction
             return null;
         }
 
+        $isRefund = $invoice->type === InvoiceTypeEnum::REFUND;
+
         return match ($routeName) {
             'grp.org.accounting.invoices.show' => [
                 'label' => $invoice->reference,
@@ -579,14 +598,13 @@ class ShowRefund extends OrgAction
             'grp.org.fulfilments.show.crm.customers.show.refund.show' => [
                 'label' => $invoice->reference,
                 'route' => [
-                    'name'       => $routeName,
+                    'name'       => $isRefund ? $routeName : 'grp.org.fulfilments.show.crm.customers.show.invoices.show',
                     'parameters' => [
                         'organisation' => $invoice->organisation->slug,
                         'fulfilment'         => $invoice->shop->fulfilment->slug,
                         'fulfilmentCustomer' => $this->parent->slug,
-                        'invoice'      => $invoice->slug
+                        'invoice' => $invoice->slug
                     ]
-
                 ]
             ],
         };
