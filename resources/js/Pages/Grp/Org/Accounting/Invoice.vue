@@ -198,9 +198,9 @@ watch(paymentData, () => {
     <PageHeading :data="pageHead">
 
         <!-- Button: PDF -->
-        <template #other>
+        <template #otherBefore>
             <a v-if="exportPdfRoute?.name" :href="route(exportPdfRoute.name, exportPdfRoute.parameters)" target="_blank"
-                class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none text-base" v-tooltip="trans('Download in')">
+                class="mt-4 sm:mt-0 sm:flex-none text-base" v-tooltip="trans('Download in')">
                 <Button label="PDF" icon="fas fa-file-pdf" type="tertiary" />
             </a>
         </template>
