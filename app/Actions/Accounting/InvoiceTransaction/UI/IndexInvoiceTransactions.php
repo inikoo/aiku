@@ -10,6 +10,7 @@ namespace App\Actions\Accounting\InvoiceTransaction\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
+use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Http\Resources\Accounting\InvoiceTransactionsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Invoice;
@@ -102,6 +103,9 @@ class IndexInvoiceTransactions extends OrgAction
             $table->column(key: 'name', label: __('description'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true, type: 'number');
             $table->column(key: 'net_amount', label: __('net'), canBeHidden: false, sortable: true, searchable: true, type: 'number');
+            if ($parent instanceof Invoice && $parent->type === InvoiceTypeEnum::REFUND && $parent->in_process) {
+                $table->column(key: 'action', label: __('action'), canBeHidden: false, sortable: false, searchable: false);
+            }
             $table->defaultSort('-invoice_transactions.updated_at');
         };
     }
