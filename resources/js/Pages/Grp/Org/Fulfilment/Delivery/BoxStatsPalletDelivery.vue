@@ -207,7 +207,7 @@ const onUpdateCustomerReference = () => {
                     <template #button>
                         <div v-if="dataPalletDelivery.estimated_delivery_date"
                             v-tooltip="useDaysLeftFromToday(dataPalletDelivery.estimated_delivery_date)"
-                            class="group  text-gray-500"
+                            class="group  text-gray-500 text-left"
                             :class="[dataPalletDelivery.state === 'in_process' ? 'underline' : '']"
                         >
                             {{ useFormatTime(dataPalletDelivery?.estimated_delivery_date) }}
