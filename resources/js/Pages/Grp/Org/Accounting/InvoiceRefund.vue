@@ -57,6 +57,7 @@ import axios from 'axios'
 import { notify } from '@kyvg/vue3-notification'
 import NeedToPay from '@/Components/Utils/NeedToPay.vue'
 import { faHandHoldingUsd } from '@fas'
+import ModalConfirmationDelete from '@/Components/Utils/ModalConfirmationDelete.vue'
 // const locale = useLocaleStore()
 const locale = inject('locale', aikuLocaleStructure)
 
@@ -205,6 +206,32 @@ watch(paymentData, () => {
                 <Button label="PDF" icon="fas fa-file-pdf" type="tertiary" />
             </a>
         </template>
+        
+        <!-- Button: delete Refund -->
+        <template #button-delete-refund="{ action }">
+            <div>
+                <ModalConfirmationDelete
+                    :routeDelete="action.route"
+                    isFullLoading
+                >
+                    <template #default="{ isOpenModal, changeModel, isLoadingdelete }">
+                        <Button
+                            @click="() => changeModel()"
+                            :style="action.style"
+                            :label="action.label"
+                            :icon="action.icon"
+                            :loading="isLoadingdelete"
+                            :iconRight="action.iconRight"
+                            :key="`ActionButton${action.label}${action.style}`"
+                            :tooltip="action.tooltip"
+                        />
+
+                    </template>
+                </ModalConfirmationDelete>
+            </div>
+        </template>
+
+
     </PageHeading>
 
     <div class="grid grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">
