@@ -79,12 +79,6 @@ const emits = defineEmits<{
         :style="getStyles(model?.container?.properties)"
     >
 
-        <!-- Section: Greeting -->
-        <!-- <div v-if="checkVisible(model?.greeting.visible || null, isLoggedIn)" v-html="textReplaceVariables(model?.greeting?.text, layout.iris_variables)" class="flex items-center" /> -->
-
-        <!-- Section: Main title -->
-        <!-- <div v-if="checkVisible(model?.main_title.visible || null, isLoggedIn)" class="text-center flex items-center" v-html="textReplaceVariables(model.main_title.text, layout.iris_variables)" /> -->
-
         <div class="md:col-span-2 action_buttons flex justify-center md:justify-start ">
             <!-- Section: Profile -->
             <a v-if="checkVisible(model?.profile?.visible || null, isLoggedIn)"
@@ -93,39 +87,12 @@ const emits = defineEmits<{
                 :style="getStyles(model?.profile.container?.properties)"
                  @click="()=> emits('setPanelActive', 'profile')"
             >
-                <!-- <i class="far fa-user fa-flip-horizontal  " title="Profile" aria-hidden="true"></i> -->
                 <FontAwesomeIcon icon='fal fa-user' class='' v-tooltip="trans('Profile')" fixed-width aria-hidden='true' />
                 <span v-html="textReplaceVariables(model?.profile?.text, layout.iris_variables)" />
             </a>
-
-
-            <!-- Section: Logged out (Login, Register) -->
-            <!-- <template v-if="isDropshipping">
-                <a href="/login.sys" class="space-x-1.5" id="">
-                    <span>Call us</span>
-                </a>
-            </template> -->
-
-
-            <!-- <div @click="() => onClickRegister()" href="/register.sys" class="space-x-1.5">
-                <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
-                <span>Register</span>
-            </div> -->
-
         </div>
 
         <div class="row-start-1 md:row-start-auto grid grid-cols-5 justify-between md:flex md:justify-center items-center">
-            <!-- Section: Profile -->
-            <a v-if="checkVisible(model?.profile?.visible || null, isLoggedIn)"
-                id="profile_button"
-                class="col-span-2 md:hidden space-x-1.5 flex flex-nowrap items-center hover-dashed"
-                :style="getStyles(model?.profile.container?.properties)"
-                @click="()=> emits('setPanelActive', 'profile')"
-            >
-                <!-- <i class="far fa-user fa-flip-horizontal  " title="Profile" aria-hidden="true"></i> -->
-                <FontAwesomeIcon icon='fal fa-user' class='' v-tooltip="trans('Profile')" fixed-width aria-hidden='true' />
-                <span v-html="textReplaceVariables(model?.profile?.text, layout.iris_variables)" />
-            </a>
 
             <Image
                 class="h-9 max-w-32 hover-dashed"
@@ -133,16 +100,6 @@ const emits = defineEmits<{
                 imageCover
                 @click="()=> emits('setPanelActive', 'logo')"
             />
-
-            <!-- Section: LogoutRetina -->
-            <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
-                class="col-span-2 text-right block md:hidden space-x-1.5 hover-dashed"
-                :style="getStyles(model?.logout.container?.properties)"
-                @click="()=> emits('setPanelActive', 'logout')"
-            >
-                <FontAwesomeIcon icon='fal fa-sign-out' v-tooltip="trans('Log out')" class='' fixed-width aria-hidden='true' />
-                <span class="" v-html="textReplaceVariables(model?.logout?.text, layout.iris_variables)" />
-            </a>
         </div>
 
         <div class="md:col-span-2 flex md:justify-end gap-x-4 ">
@@ -157,7 +114,7 @@ const emits = defineEmits<{
             </a>
 
             <!-- Register -->
-           <!--   <span class="hover-dashed">
+             <span class="hover-dashed">
                 <a v-if="checkVisible(model?.register?.visible || null, isLoggedIn)"
                     class="space-x-1.5 cursor-pointer"
                     id=""
@@ -169,7 +126,7 @@ const emits = defineEmits<{
                     <span v-html="textReplaceVariables(model?.register.text, layout.iris_variables)" />
                 </a>
              </span>
- -->
+
 
             <!-- Login -->
             <span class="hover-dashed">

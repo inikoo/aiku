@@ -8,7 +8,7 @@ import Footer from '@/Layouts/Iris/Footer.vue'
 import { useColorTheme } from '@/Composables/useStockList'
 import { usePage } from '@inertiajs/vue3'
 import ScreenWarning from '@/Components/Utils/ScreenWarning.vue'
-import { onMounted, provide, ref } from 'vue'
+import { onMounted, provide, ref, onBeforeUnmount } from 'vue'
 import { initialiseIrisApp } from '@/Composables/initialiseIris'
 import { useIrisLayoutStore } from "@/Stores/irisLayout"
 import { irisStyleVariables } from '@/Composables/Workshop'
@@ -34,9 +34,6 @@ const footer =  usePage().props?.iris?.footer
 const theme =  usePage().props?.iris?.theme ? usePage().props?.iris?.theme :  {color : [...useColorTheme[2]]}
 
 
-onMounted(() => {
-    irisStyleVariables(theme?.color)
-})
 
 const isFirstVisit = () => {
     const irisData = localStorage.getItem('iris');
@@ -59,6 +56,33 @@ const setFirstVisitToFalse = () => {
     firstVisit.value = false
 };
 
+
+const iframeStyle = ref({
+    width : "80px",
+    height : "80px",
+}); // Default to hidden or 0 width
+
+onMounted(() => {
+  irisStyleVariables(theme?.color)
+  const handleMessage = (event: MessageEvent) => {
+    // Validate the message origin
+    if (event.origin  === 'https://widget.superchat.de') {
+      // Check the message content (depends on what the iframe sends)
+      if (event.data.details.isOpen) {
+        iframeStyle.value = { width : '400px', height : "700px"}; 
+      } else if (!event.data.details.isOpen) {
+        iframeStyle.value = { width : '80px', height : "80px"}; 
+      }
+    }
+  };
+
+  // Listen to messages from the iframe
+  window.addEventListener('message', handleMessage);
+
+  onBeforeUnmount(() => {
+    window.removeEventListener('message', handleMessage);
+  });
+});
 
 
 </script>
@@ -103,14 +127,14 @@ const setFirstVisitToFalse = () => {
         </template>
     </notifications>
 
-    <div class="fixed bottom-0 right-0 z-50" style="width: 300px; height: 700px;">
+    
     <iframe 
-        id="superchat-widget" 
-        class="rounded-lg shadow-lg" 
-        style="width: 100%; height: 100%; border: none;" 
-        src="https://widget.superchat.de/v2?applicationKey=WCNK7nqXPQlrVGq895A2obLRVa">
-    </iframe>
-</div>
+    id="superchat-widget" 
+    class="rounded-lg shadow-lg fixed bottom-0 right-0 transition-all duration-300"
+    :style="{ ...iframeStyle, border: 'none' }"
+    src="https://widget.superchat.de/v2?applicationKey=WCNK7nqXPQlrVGq895A2obLRVa">
+  </iframe>
+
 
 
 
