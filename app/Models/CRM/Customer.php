@@ -79,7 +79,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $identity_document_number
  * @property string|null $contact_website
  * @property int|null $address_id
- * @property array $location
+ * @property array<array-key, mixed> $location
  * @property int|null $delivery_address_id
  * @property CustomerStatusEnum $status
  * @property CustomerStateEnum $state
@@ -90,8 +90,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $last_submitted_order_at
  * @property \Illuminate\Support\Carbon|null $last_dispatched_delivery_at
  * @property \Illuminate\Support\Carbon|null $last_invoiced_at
- * @property array $data
- * @property array $settings
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
  * @property string|null $internal_notes
  * @property string|null $warehouse_internal_notes
  * @property string|null $warehouse_public_notes
@@ -104,7 +104,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
- * @property array $migration_data
+ * @property array<array-key, mixed> $migration_data
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, \App\Models\CRM\Appointment> $appointments

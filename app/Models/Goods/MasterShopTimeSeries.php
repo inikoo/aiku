@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property TimeSeriesFrequencyEnum $frequency
  * @property string|null $from
  * @property string|null $to
- * @property array|null $data
+ * @property array<array-key, mixed>|null $data
  * @property int $number_records
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

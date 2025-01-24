@@ -34,9 +34,9 @@ use Spatie\Tags\HasTags;
  * @property EmailTemplateStateEnum $state
  * @property bool $is_seeded
  * @property EmailTemplateBuilderEnum $builder
- * @property array $layout
- * @property array $arguments
- * @property array $data
+ * @property array<array-key, mixed> $layout
+ * @property array<array-key, mixed> $arguments
+ * @property array<array-key, mixed> $data
  * @property int|null $screenshot_id
  * @property int $language_id
  * @property \Illuminate\Support\Carbon|null $active_at

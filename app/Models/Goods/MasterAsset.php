@@ -43,7 +43,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property numeric|null $price price per outer in grp currency
  * @property string $units
  * @property string|null $unit
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property int|null $gross_weight outer weight including packing, grams
  * @property int|null $marketing_weight to be shown in website, grams
  * @property string|null $barcode mirror from trade_unit

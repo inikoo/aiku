@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property int $shop_id
  * @property int $payment_account_id
  * @property int $currency_id
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static Builder<static>|PaymentAccountShop newModelQuery()

@@ -104,7 +104,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $identity_document_type
  * @property string|null $identity_document_number
  * @property int|null $address_id
- * @property array $location
+ * @property array<array-key, mixed> $location
  * @property int|null $collection_address_id
  * @property ShopStateEnum $state
  * @property ShopTypeEnum $type
@@ -117,8 +117,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $image_id
  * @property int|null $shipping_zone_schema_id
  * @property int|null $discount_shipping_zone_schema_id
- * @property array $data
- * @property array $settings
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
  * @property int|null $sender_email_id
  * @property int|null $prospects_sender_email_id
  * @property \Illuminate\Support\Carbon|null $fetched_at
