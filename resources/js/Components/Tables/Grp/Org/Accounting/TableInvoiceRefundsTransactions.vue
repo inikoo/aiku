@@ -4,6 +4,10 @@ import Table from '@/Components/Table/Table.vue'
 import { inject } from 'vue'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 import Button from '@/Components/Elements/Buttons/Button.vue'
+import { routeType } from '@/types/route'
+import { ref } from 'vue'
+import { router } from '@inertiajs/vue3'
+import { trans } from 'laravel-vue-i18n'
 
 defineProps<{
     data: object
@@ -12,6 +16,27 @@ defineProps<{
 
 const locale = inject('locale', aikuLocaleStructure)
 
+// Section: Refund
+const isLoading = ref<number[]>([])
+const onClickRefund = (routeRefund: routeType, idRefund: number) => {
+    router[routeRefund.method || 'post'](
+        route(routeRefund.name, routeRefund.parameters),
+        {
+
+        },
+        {
+            onStart: () => {
+                isLoading.value?.push(idRefund)
+            },
+            onFinish: () => {
+                const index = isLoading.value.indexOf(idRefund)
+                if (index > -1) {
+                    isLoading.value.splice(index, 1)
+                }
+            }
+        }
+    )
+}
 
 </script>
 
@@ -24,10 +49,14 @@ const locale = inject('locale', aikuLocaleStructure)
                 </div>
             </template>
 
-            <template #cell(actions)="{ item }">
+            <template #cell(action)="{ item }">
                 <Button
-                    label="Return"
+                    v-if="!item.invoice_transaction_id"
+                    @click="onClickRefund(item.refund_route, item.id)"
+                    :label="trans('Refund')"
                     icon="fal fa-plus"
+                    type="secondary"
+                    :loading="isLoading.includes(item.id)"
                 />
             </template>
         </Table>
