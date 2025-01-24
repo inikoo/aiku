@@ -74,6 +74,11 @@ class RegisterRetinaFulfilmentCustomer extends RetinaAction
         ];
     }
 
+    public function afterValidator($validator, $request)
+    {
+        dd($validator);
+    }
+
     /**
      * @throws \Throwable
      */
