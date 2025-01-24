@@ -25,6 +25,7 @@ import TextColumn from '@/Components/CMS/Webpage/TextColumn/TextColumnIris.vue'
 import Topbar1FulfilmentIris from '@/Components/CMS/Website/TopBars/Template/Topbar1Fulfilment/Topbar1FulfilmentIris.vue'
 import Topbar2FulfilmentIris from '@/Components/CMS/Website/TopBars/Template/Topbar2Fulfilment/Topbar2FulfilmentIris.vue'
 import Topbar3FulfilmentIris from '@/Components/CMS/Website/TopBars/Template/Topbar3Fulfilment/Topbar3FulfilmentIris.vue'
+import AboutUs from '@/Components/CMS/Webpage/AboutUs/AboutUsIris.vue'
 import NotFoundComponents from '@/Components/CMS/Webpage/NotFoundComponent.vue'
 
 
@@ -57,7 +58,7 @@ export const getIrisComponent = (componentName: string) => {
         'top-bar-1-fulfilment': Topbar1FulfilmentIris,
         'top-bar-2-fulfilment': Topbar2FulfilmentIris,
         'top-bar-3-fulfilment': Topbar3FulfilmentIris,
-       
+        'about_us': AboutUs
     }
     return components[componentName] ?? NotFoundComponents
 }
