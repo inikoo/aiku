@@ -18,11 +18,9 @@ class GetUserGroupScopeJobPositionsData
     public function handle(?User $user): array
     {
 
-        if (!$user) {
-            return [];
-        }
 
-        return (array) $user->pseudoJobPositions()->where('scope', 'Group')->get()->map(function ($jobPosition) {
+
+        return (array)$user?->pseudoJobPositions()->where('scope', 'group')->get()->map(function ($jobPosition) {
             return [$jobPosition->slug];
         })->reduce(function ($carry, $item) {
             return array_merge_recursive($carry, $item);

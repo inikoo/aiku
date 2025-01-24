@@ -53,6 +53,7 @@ class StoreRefundInvoiceTransaction extends OrgAction
         data_set($modelData, 'family_id', $invoiceTransaction->family_id);
         data_set($modelData, 'recurring_bill_transaction_id', $invoiceTransaction->recurring_bill_transaction_id);
         data_set($modelData, 'data', $invoiceTransaction->data);
+        data_set($modelData, 'in_process', true);
 
         return DB::transaction(function () use ($invoice, $invoiceTransaction, $modelData) {
             $invoiceTransaction = $invoiceTransaction->transactionRefunds()->create($modelData);

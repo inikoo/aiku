@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 24-01-2025-11h-25m
@@ -68,15 +69,10 @@ class RegisterRetinaFulfilmentCustomer extends RetinaAction
                     app()->isLocal() || app()->environment('testing') ? null : Password::min(8)
                 ],
             'product'                           => ['required', 'string'],
-            'shipment_per_week'                 => ['required', 'string'],
+            'shipments_per_week'                 => ['required', 'string'],
             'size_and_weight'                   => ['required', 'string'],
 
         ];
-    }
-
-    public function afterValidator($validator, $request)
-    {
-        dd($validator);
     }
 
     /**

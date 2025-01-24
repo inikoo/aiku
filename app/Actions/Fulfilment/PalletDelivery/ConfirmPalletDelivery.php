@@ -14,7 +14,6 @@ use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletDelivery\Notifications\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\Search\PalletDeliveryRecordSearch;
-use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletDeliveries;
 use App\Actions\OrgAction;
@@ -74,13 +73,7 @@ class ConfirmPalletDelivery extends OrgAction
         if ($this->sendNotifications) {
             SendPalletDeliveryNotification::dispatch($palletDelivery);
         }
-
-        if ($palletDelivery->fulfilmentCustomer->currentRecurringBill) {
-            $recurringBill = $palletDelivery->fulfilmentCustomer->currentRecurringBill;
         
-            $palletDelivery->recurringBills()->attach($recurringBill->id);
-        }
-
         GroupHydratePalletDeliveries::dispatch($palletDelivery->group);
         OrganisationHydratePalletDeliveries::dispatch($palletDelivery->organisation);
         WarehouseHydratePalletDeliveries::dispatch($palletDelivery->warehouse);

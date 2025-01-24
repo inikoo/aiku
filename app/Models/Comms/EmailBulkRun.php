@@ -35,7 +35,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
  * @property \Illuminate\Support\Carbon|null $sent_at
  * @property \Illuminate\Support\Carbon|null $cancelled_at
  * @property \Illuminate\Support\Carbon|null $stopped_at
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $fetched_at

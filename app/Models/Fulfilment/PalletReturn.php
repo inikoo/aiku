@@ -57,7 +57,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $consolidated_at
  * @property \Illuminate\Support\Carbon|null $cancel_at
  * @property string|null $date
- * @property array|null $data
+ * @property array<array-key, mixed>|null $data
  * @property string|null $customer_notes
  * @property string|null $public_notes
  * @property string|null $internal_notes
@@ -81,6 +81,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property bool $is_collection
+ * @property int|null $invoice_id
+ * @property int|null $recurring_bill_id
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
  * @property-read Currency $currency
