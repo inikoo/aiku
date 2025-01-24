@@ -73,7 +73,7 @@ class ConfirmPalletDelivery extends OrgAction
         if ($this->sendNotifications) {
             SendPalletDeliveryNotification::dispatch($palletDelivery);
         }
-        
+
         GroupHydratePalletDeliveries::dispatch($palletDelivery->group);
         OrganisationHydratePalletDeliveries::dispatch($palletDelivery->organisation);
         WarehouseHydratePalletDeliveries::dispatch($palletDelivery->warehouse);

@@ -8,6 +8,7 @@ import { routeType } from '@/types/route'
 import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { trans } from 'laravel-vue-i18n'
+import PureInput from '@/Components/Pure/PureInput.vue'
 
 defineProps<{
     data: object
@@ -58,6 +59,10 @@ const onClickRefund = (routeRefund: routeType, idRefund: number) => {
                     type="secondary"
                     :loading="isLoading.includes(item.id)"
                 />
+
+                <PureInput>
+                    
+                </PureInput>
             </template>
         </Table>
     </div>

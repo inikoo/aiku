@@ -142,7 +142,7 @@ class IndexRetinaPalletDeliveries extends RetinaAction
 
         $navigation = PalletDeliveriesTabsEnum::navigation();
 
-        
+
         $actions = [
                 [
                     'type'  => 'button',
@@ -156,7 +156,7 @@ class IndexRetinaPalletDeliveries extends RetinaAction
                     ]
                 ]
             ];
-            
+
         return Inertia::render(
             'Storage/RetinaPalletDeliveries',
             [
