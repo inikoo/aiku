@@ -56,8 +56,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $unit_value
  * @property int|null $image_id
  * @property int|null $gross_weight package weight grams
- * @property array $settings
- * @property array $data
+ * @property array<array-key, mixed> $settings
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $activated_at
  * @property \Illuminate\Support\Carbon|null $discontinuing_at
  * @property \Illuminate\Support\Carbon|null $discontinued_at
@@ -68,7 +68,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_slug
  * @property string|null $source_id
- * @property array $sources
+ * @property array<array-key, mixed> $sources
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, Barcode> $barcode
  * @property-read Group $group
