@@ -259,6 +259,11 @@ const isModalAddressCollection = ref(false)
 				aria-labelledby="summary-heading"
 				class="lg:max-w-xl rounded-lg px-4 py-4 sm:px-6 lg:mt-0">
 				<!-- <h2 id="summary-heading" class="text-lg font-medium">Order summary</h2> -->
+				<div class="text-gray-500 mb-2" v-if="boxStats?.recurring_bill">
+					<Link :href="route(boxStats?.recurring_bill?.route?.name,boxStats?.recurring_bill?.route?.parameters)" method="get" v-tooltip="'Recurring Bill'" class="primaryLink">
+						{{ boxStats?.recurring_bill?.reference }}
+					</Link>
+				</div>
 				<OrderSummary :order_summary="boxStats.order_summary" />
 			</section>
 		</BoxStatPallet>

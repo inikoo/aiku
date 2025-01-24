@@ -20,7 +20,7 @@ const isLoading = ref(false)
 const handleClick = (action: Action) => {
     const href = action.route?.name ? route(action.route?.name, action.route?.parameters) : action.route?.name ? route(action.route?.name, action.route?.parameters) : '#'
     const method = action.route?.method || 'get'
-    const data = action.route?.method !== 'get' ? props.dataToSubmit : null
+    const data = action.route?.method !== 'get' ? props.dataToSubmit : action.route.body
 
     router[method](
         href,
