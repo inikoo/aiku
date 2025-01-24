@@ -267,6 +267,20 @@ class ShowOutbox extends OrgAction
                     $suffix
                 )
             ),
+            'grp.org.fulfilments.show.operations.comms.outboxes.show' =>
+            array_merge(
+                IndexOutboxes::make()->getBreadcrumbs('grp.org.fulfilments.show.operations.comms.outboxes', $routeParameters),
+                $headCrumb(
+                    $outbox,
+                    [
+
+                        'name'       => 'grp.org.fulfilments.show.operations.comms.outboxes.show',
+                        'parameters' => $routeParameters
+
+                    ],
+                    $suffix
+                )
+            ),
             default => []
         };
     }
@@ -290,7 +304,6 @@ class ShowOutbox extends OrgAction
         if (!$outbox) {
             return null;
         }
-
         return match ($routeName) {
             'grp.org.shops.show.comms.outboxes.show' => [
                 'label' => $outbox->name,
@@ -312,6 +325,18 @@ class ShowOutbox extends OrgAction
                         'organisation' => $this->organisation->slug,
                         'shop'         => $outbox->shop->slug,
                         'website'      => $outbox->website->slug,
+                        'outbox'       => $outbox->slug
+                    ]
+
+                ]
+            ],
+            'grp.org.fulfilments.show.operations.comms.outboxes.show' => [
+                'label' => $outbox->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation' => $this->organisation->slug,
+                        'fulfilment'   => $this->fulfilment->slug,
                         'outbox'       => $outbox->slug
                     ]
 
