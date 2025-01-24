@@ -344,6 +344,39 @@ class ShowPalletDelivery extends OrgAction
 
         $showGrossAndDiscount = $palletDelivery->gross_amount !== $palletDelivery->net_amount;
 
+        $recurringBillData = [];
+        if($palletDelivery->recurringBills()->first()) {
+            $recurringBill = $palletDelivery->recurringBills()->first();
+
+            if ($this->parent instanceof Fulfilment)
+            {
+                $route = [
+                    'name' => 'grp.org.fulfilments.show.operations.recurring_bills.current.show',
+                    'parameters' => [
+                        'organisation' => $recurringBill->organisation->slug,
+                        'fulfilment' => $this->parent->slug,
+                        'recurringBill' => $recurringBill->slug
+                    ]
+                ];
+            } elseif ($this->parent instanceof FulfilmentCustomer) {
+                $route = [
+                    'name' => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show',
+                    'parameters' => [
+                        'organisation' => $recurringBill->organisation->slug,
+                        'fulfilment' => $this->parent->fulfilment->slug,
+                        'fulfilmentCustomer' => $this->parent->slug,
+                        'recurringBill' => $recurringBill->slug
+                    ]
+                ];
+            }
+            $recurringBillData = [
+                'reference' => $recurringBill->reference,
+                'status'    => $recurringBill->status,
+                'total_amount' => $recurringBill->total_amount,
+                'route'        => $route
+            ];
+        }
+
         return Inertia::render(
             'Org/Fulfilment/PalletDelivery',
             [
@@ -524,6 +557,7 @@ class ShowPalletDelivery extends OrgAction
                 'box_stats'  => [
                     'fulfilment_customer' => FulfilmentCustomerResource::make($palletDelivery->fulfilmentCustomer)->getArray(),
                     'delivery_state'     => PalletDeliveryStateEnum::stateIcon()[$palletDelivery->state->value],
+                    'recurring_bill'      => $recurringBillData,
                     'order_summary'       => [
                         [
                             // [
