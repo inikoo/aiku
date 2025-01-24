@@ -11,19 +11,13 @@ namespace App\Actions\Fulfilment\FulfilmentCustomer;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\OrgAction;
-use App\Enums\CRM\Customer\CustomerStateEnum;
-use App\Enums\CRM\Customer\CustomerStatusEnum;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
-use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use Symfony\Component\HttpFoundation\Response;
 
 class RegisterFulfilmentCustomer extends OrgAction
 {
@@ -40,7 +34,7 @@ class RegisterFulfilmentCustomer extends OrgAction
 
         $customer = StoreCustomer::make()->action($fulfilment->shop, $modelData);
 
-        
+
         $webUser = StoreWebUser::make()->action($customer, [
             'contact_name' => Arr::get($modelData, 'contact_name'),
             'username' => Arr::get($modelData, 'email'),
