@@ -21,12 +21,22 @@ class InvoiceTransactionsResource extends JsonResource
 {
     public function toArray($request): array
     {
+        // dd($request->route('invoice')->slug);
+        // $invoiceId = $request->route('invoice');
         return [
-            'code'          => $this->code,
-            'name'          => $this->name,
-            'quantity'      => (int) $this->quantity,
-            'net_amount'    => $this->net_amount,
-            'currency_code' => $this->currency_code
+            'code'                      => $this->code,
+            'name'                      => $this->name,
+            'quantity'                  => (int) $this->quantity,
+            'net_amount'                => $this->net_amount,
+            'currency_code'             => $this->currency_code,
+            // 'invoice_transaction_id'   => $this->invoice_transaction_id,
+            'refund_route'              => [
+                'name'       => 'grp.models.refund.refund-transaction.create',
+                'parameters' => [
+                    'invoiceTransaction' => $this->id,
+                    'invoice'            => $request->invoice->id
+                ]
+            ]
         ];
     }
 }

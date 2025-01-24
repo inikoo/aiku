@@ -46,7 +46,6 @@ class RetinaAction
         $this->organisation  = $this->shop->organisation;
         $this->website       = $request->get('website');
         $this->fillFromRequest($request);
-
         $this->validatedData = $this->validateAttributes();
 
         return $this;

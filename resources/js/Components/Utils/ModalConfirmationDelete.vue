@@ -55,7 +55,7 @@ const onClickDelete = () => {
 <template>
     <div>
 
-        <slot name="default" :isOpenModal :changeModel="() => isOpenModal = !isOpenModal">
+        <slot name="default" :isOpenModal :changeModel="() => isOpenModal = !isOpenModal" :isLoadingdelete>
 
         </slot>
 

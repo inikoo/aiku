@@ -68,7 +68,7 @@ class RegisterRetinaFulfilmentCustomer extends RetinaAction
                     app()->isLocal() || app()->environment('testing') ? null : Password::min(8)
                 ],
             'product'                           => ['required', 'string'],
-            'shipment_per_week'                 => ['required', 'string'],
+            'shipments_per_week'                 => ['required', 'string'],
             'size_and_weight'                   => ['required', 'string'],
 
         ];

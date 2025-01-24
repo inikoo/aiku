@@ -159,4 +159,9 @@ class InvoiceTransaction extends Model
     {
         return $this->belongsToMany(OfferComponent::class, 'invoice_transaction_has_offer_components');
     }
+
+    public function transactionRefunds(): HasMany
+    {
+        return $this->hasMany(InvoiceTransaction::class, 'invoice_transaction_id');
+    }
 }
