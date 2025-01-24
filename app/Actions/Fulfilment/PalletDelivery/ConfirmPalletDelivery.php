@@ -74,13 +74,7 @@ class ConfirmPalletDelivery extends OrgAction
         if ($this->sendNotifications) {
             SendPalletDeliveryNotification::dispatch($palletDelivery);
         }
-
-        if ($palletDelivery->fulfilmentCustomer->currentRecurringBill) {
-            $recurringBill = $palletDelivery->fulfilmentCustomer->currentRecurringBill;
         
-            $palletDelivery->recurringBills()->attach($recurringBill->id);
-        }
-
         GroupHydratePalletDeliveries::dispatch($palletDelivery->group);
         OrganisationHydratePalletDeliveries::dispatch($palletDelivery->organisation);
         WarehouseHydratePalletDeliveries::dispatch($palletDelivery->warehouse);
