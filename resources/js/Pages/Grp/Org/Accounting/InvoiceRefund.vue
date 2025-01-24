@@ -43,7 +43,7 @@ const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChan
 // import { useLocaleStore } from '@/Stores/locale'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
-import TableInvoiceTransactions from "@/Components/Tables/Grp/Org/Accounting/TableInvoiceTransactions.vue";
+import TableInvoiceRefundsTransactions from "@/Components/Tables/Grp/Org/Accounting/TableInvoiceRefundsTransactions.vue";
 import { Address } from '@/types/PureComponent/Address'
 import { Icon } from '@/types/Utils/Icon'
 // import AddressLocation from '@/Components/Elements/Info/AddressLocation.vue'
@@ -110,7 +110,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
     const components: Component = {
-        items: TableInvoiceTransactions,
+        items: TableInvoiceRefundsTransactions,
         payments: TablePayments,
         details: ModelDetails,
         history: ModelChangelog,
