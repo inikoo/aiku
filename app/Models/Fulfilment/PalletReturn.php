@@ -200,9 +200,9 @@ class PalletReturn extends Model
         return $this->hasOne(PalletReturnStats::class);
     }
 
-    public function recurringBills(): MorphToMany
+    public function recurringBill(): BelongsTo
     {
-        return $this->morphToMany(RecurringBill::class, 'model', 'model_has_recurring_bills')->withTimestamps();
+        return $this->belongsTo(RecurringBill::class);
     }
 
     public function transactions(): MorphMany
