@@ -21,7 +21,6 @@ if (usePage().props.language) {
 
 const layout = useLayoutStore()
 
-
 console.log('environment:', useLayoutStore().app.environment)
 
 
