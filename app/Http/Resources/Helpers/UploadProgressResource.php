@@ -32,6 +32,7 @@ class UploadProgressResource extends JsonResource
 
         return [
             'action_type'  => 'Upload',
+            'action_id'         => $upload->id,
             'id'                => $upload->id,
             'type'              => $upload->model,
             'original_filename' => $upload->original_filename,
