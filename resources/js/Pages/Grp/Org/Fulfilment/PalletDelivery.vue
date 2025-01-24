@@ -141,6 +141,7 @@ const handleFormSubmitAddPallet = (data: {}, closedPopover: Function) => {
             closedPopover()
             formAddPallet.reset()
             isLoadingButton.value = false
+            handleTabUpdate('pallets')
         },
         onError: (errors) => {
             isLoadingButton.value = false
@@ -189,7 +190,7 @@ const handleFormSubmitAddMultiplePallet = (data: {}, closedPopover: Function) =>
 const dataServiceList = ref([])
 const onSubmitAddService = (data: Action, closedPopover: Function) => {
     const selectedHistoricAssetId = dataServiceList.value.filter(service => service.id == formAddService.service_id)[0]?.historic_asset_id
-    // console.log('hhh', dataServiceList.value)
+    /*  console.log('hhh', handleTabUpdate) */
     formAddService.historic_asset_id = selectedHistoricAssetId
     isLoadingButton.value = 'addService'
 
@@ -200,6 +201,7 @@ const onSubmitAddService = (data: Action, closedPopover: Function) => {
             onSuccess: () => {
                 closedPopover()
                 formAddService.reset()
+                handleTabUpdate('services')
             },
             onError: (errors) => {
                 notify({
@@ -246,6 +248,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
             onSuccess: () => {
                 closedPopover()
                 formAddPhysicalGood.reset()
+                handleTabUpdate('physical_goods')
             },
             onError: (errors) => {
                 notify({
@@ -296,7 +299,7 @@ const changePalletType=(form,fieldName,value)=>{
                 :style="action.style"
                 :icon="action.icon"
                 v-tooltip="action.tooltip"
-                class="rounded-l-md rounded-r-none border-none"
+                class="rounded-l-ms rounded-r-none border-r-0"
             />
             <div v-else></div>
         </template>
@@ -333,7 +336,7 @@ const changePalletType=(form,fieldName,value)=>{
                         :iconRight="action.iconRight"
                         :key="`ActionButton${action.label}${action.style}`"
                         :tooltip="trans('Add multiple pallets')"
-                        class="rounded-none border-none" />
+                        class="rounded-l-sm rounded-r-md border-l-0" />
                     <div v-else></div>
                 </template>
 
@@ -380,7 +383,7 @@ const changePalletType=(form,fieldName,value)=>{
 
         <!-- Button: Add pallet (single) -->
         <template #button-group-add-pallet="{ action }">
-            <div class="relative" v-if="currentTab === 'pallets'">
+            <div class="relative">
                 <Popover>
                     <template #button>
                         <Button
@@ -389,7 +392,7 @@ const changePalletType=(form,fieldName,value)=>{
                             :icon="action.icon"
                             :key="`ActionButton${action.label}${action.style}`"
                             :tooltip="action.tooltip"
-                            class="rounded-l-none rounded-r-md border-none"
+                            class=" rounded-r-md ml-2"
                         />
                     </template>
                     <template #content="{ close: closed }">
@@ -439,12 +442,11 @@ const changePalletType=(form,fieldName,value)=>{
                     </template>
                 </Popover>
             </div>
-            <div v-else></div>
         </template>
 
         <!-- Button: Add service -->
         <template #button-group-add-service="{ action }">
-            <div class="relative" v-if="currentTab === 'services'">
+            <div class="relative" >
                 <Popover>
                     <template #button="{open}">
                         <Button
@@ -453,6 +455,7 @@ const changePalletType=(form,fieldName,value)=>{
                             :icon="action.icon"
                             :key="`ActionButton${action.label}${action.style}`"
                             :tooltip="action.tooltip"
+                             class=" rounded-r-md ml-2"
                         />
                     </template>
                     <template #content="{ close: closed }">
@@ -521,12 +524,11 @@ const changePalletType=(form,fieldName,value)=>{
                     </template>
                 </Popover>
             </div>
-            <div v-else></div>
         </template>
 
         <!-- Button: Add physical good -->
         <template #button-group-add-physical-good="{ action }">
-            <div class="relative" v-if="currentTab === 'physical_goods'">
+            <div class="relative" >
                 <Popover>
                     <template #button="{ open }">
                         <Button
@@ -536,6 +538,7 @@ const changePalletType=(form,fieldName,value)=>{
                             :label="action.label"
                             :icon="action.icon"
                             :tooltip="action.tooltip"
+                             class=" rounded-r-md ml-2"
                         />
                     </template>
                     <template #content="{ close: closed }">
@@ -605,7 +608,7 @@ const changePalletType=(form,fieldName,value)=>{
                     </template>
                 </Popover>
             </div>
-            <div v-else></div>
+           
         </template>
     </PageHeading>
 

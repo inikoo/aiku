@@ -86,14 +86,14 @@ const dataSet = {
                     </div>
                 </div>
             </div>
-
+<!--
             <div class="h-auto mb-3">
-                <!-- Conditional Rendering for the Chart -->
+                <!-- Conditional Rendering for the Chart 
                 <div class="chart-container bg-white p-4 w-full rounded-lg shadow drop-shadow-2xl relative">
                     <Pie :data="dataSet" :options="{
                         responsive: true,
                         maintainAspectRatio: false,
-                        /* plugins: {
+                        /plugins: {
                             tooltip: {
                                 callbacks: {
                                     label: function (context) {
@@ -102,7 +102,7 @@ const dataSet = {
                                     }
                                 }
                             }
-                        } */
+                        } 
                     }" />
 
                     <div v-if="totalValue == 0"
@@ -112,6 +112,7 @@ const dataSet = {
                     </div>
                 </div>
             </div>
+            -->
         </div>
     </div>
 
