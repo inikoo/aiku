@@ -60,7 +60,7 @@ class UpdateFulfilmentCustomer extends OrgAction
                 $modelData,
                 match ($key) {
                     'product'               => 'data.product',
-                    'shipment_per_week'     => 'data.shipment_per_week',
+                    'shipments_per_week'     => 'data.shipments_per_week',
                     'size_and_weight'       => 'data.size_and_weight',
                     default => $key
                 },
@@ -68,7 +68,7 @@ class UpdateFulfilmentCustomer extends OrgAction
             );
         }
         data_forget($modelData, 'product');
-        data_forget($modelData, 'shipment_per_week');
+        data_forget($modelData, 'shipments_per_week');
         data_forget($modelData, 'size_and_weight');
 
         $fulfilmentCustomer = $this->update($fulfilmentCustomer, $modelData, ['data']);

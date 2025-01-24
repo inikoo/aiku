@@ -50,7 +50,7 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
 
         $palletDelivery = $this->update($palletDelivery, $modelData);
 
-        $recurringBill = $palletDelivery->recurringBills()->first();
+        $recurringBill = $palletDelivery->fulfilmentCustomer->currentRecurringBill;
         if (!$recurringBill) {
             $recurringBill = StoreRecurringBill::make()->action(
                 rentalAgreement: $palletDelivery->fulfilmentCustomer->rentalAgreement,
@@ -71,6 +71,9 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
                     ]
                 );
             }
+            $this->update($palletDelivery, [
+                'recurring_bill_id' => $recurringBill->id
+            ]);
         } else {
             foreach ($palletDelivery->transactions as $transaction) {
                 StoreRecurringBillTransaction::make()->action(

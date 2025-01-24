@@ -31,7 +31,7 @@ class GetRetinaFirstLoadProps
         if (!$language) {
             $language = Language::where('code', 'en')->first();
         }
-
+        
 
         return
             [

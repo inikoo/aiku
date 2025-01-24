@@ -38,13 +38,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $grp_net_amount
  * @property string|null $org_net_amount
  * @property int $tax_category_id
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string $unit_cost
  * @property string $discount_percentage
  * @property string $temporal_quantity
+ * @property int|null $pallet_delivery_id
+ * @property int|null $pallet_return_id
  * @property-read Asset $asset
  * @property-read \App\Models\Fulfilment\RentalAgreementClause|null $clause
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment

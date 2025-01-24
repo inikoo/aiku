@@ -54,7 +54,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property numeric|null $org_exchange
  * @property numeric|null $grp_net_amount
  * @property numeric|null $org_net_amount
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $fetched_at
@@ -62,7 +62,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property string|null $source_alt_id to be used in no products transactions
- * @property int|null $invoice_transaction_id
+ * @property int|null $invoice_transaction_id For refunds link to original invoice transaction
+ * @property bool $in_process Used for refunds only
  * @property-read Asset|null $asset
  * @property-read Currency|null $currency
  * @property-read \App\Models\CRM\Customer $customer
@@ -77,6 +78,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read Transaction|null $transaction
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, InvoiceTransaction> $transactionRefunds
  * @method static Builder<static>|InvoiceTransaction newModelQuery()
  * @method static Builder<static>|InvoiceTransaction newQuery()
  * @method static Builder<static>|InvoiceTransaction onlyTrashed()
