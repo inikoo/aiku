@@ -68,6 +68,15 @@ class ReceivedPalletDelivery extends OrgAction
 
         $palletDelivery = $this->update($palletDelivery, $modelData);
 
+        if ($palletDelivery->fulfilmentCustomer->currentRecurringBill) {
+            $recurringBill = $palletDelivery->fulfilmentCustomer->currentRecurringBill;
+        
+            $this->update($palletDelivery, [
+                'recurring_bill_id' => $recurringBill->id
+            ]);
+        }
+
+
         GroupHydratePalletDeliveries::dispatch($palletDelivery->group);
         OrganisationHydratePalletDeliveries::dispatch($palletDelivery->organisation);
         WarehouseHydratePalletDeliveries::dispatch($palletDelivery->warehouse);
