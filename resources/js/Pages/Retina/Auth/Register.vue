@@ -33,11 +33,11 @@ const form = useForm({
   password: '',
   password_confirmation: '',
   interest: [],
-  country_id: '',
+/*   country_id: '',
   postal_code : '',
   post_town : '',
   address_line_1 : '',
-  address_line_2 : '',
+  address_line_2 : '', */
   contact_address : {}
 });
 
@@ -59,8 +59,8 @@ const submit = () => {
   //   address_line_2: form.address_line_2,
   // };
 
-
-  form.post(route(props.registerRoute.name,props.registerRoute.parameters ), {
+  if(form.password == form.password_confirmation){
+    form.post(route(props.registerRoute.name,props.registerRoute.parameters ), {
     onError: () => {
       isLoading.value = false;
     },
@@ -68,6 +68,10 @@ const submit = () => {
       /* form.reset(); */
     },
   });
+  }else{
+    form.setError('password',"password not match")
+  }
+
 };
 
 
@@ -94,11 +98,11 @@ const addressFieldData =
     },
     options: props.countriesAddressData
 }
-const countries = {};
+/* const countries = {}; */
 
-for (const item in props.countriesAddressData) {
+/* for (const item in props.countriesAddressData) {
     countries[item] = props.countriesAddressData[item]['label']
-}
+} */
 
 // Autofocus first PureInput on mount
 onMounted(async () => {
@@ -257,24 +261,39 @@ onMounted(async () => {
         </div>
 
         <div class="sm:col-span-6 flex flex-col">
-          <label class="block text-sm font-medium text-gray-900">{{trans("User Interests")}}</label>
+          <label class="block text-sm font-medium text-gray-900">{{ trans("User Interests") }}</label>
           <div class="mt-2 flex flex-wrap gap-6">
-            <!-- Loop through the interest -->
-            <div v-for="interest in interestsList" :key="interest.value"
-              class="flex items-center space-x-3 border-2 py-3 px-6 rounded-lg transition-all duration-200 ease-in-out hover:bg-indigo-50 hover:shadow-lg">
-              <input v-model="form.interest" :type="'checkbox'" :id="interest.value" :value="interest.value"
-                class="h-5 w-5 text-indigo-600 border-gray-300 rounded-sm focus:ring-2 focus:ring-indigo-500" />
-              <label :for="interest.value" class="text-sm font-medium text-gray-900">{{ interest.label }}</label>
+            <!-- Loop through the interests -->
+            <div
+              v-for="interest in interestsList"
+              :key="interest.value"
+              class="flex items-center space-x-3 border-2 py-3 px-6 rounded-lg transition-all duration-200 ease-in-out hover:bg-indigo-50 hover:shadow-lg cursor-pointer"
+              :class="{ 'bg-indigo-50 shadow-lg': form.interest.includes(interest.value) }"
+              @click="toggleInterest(interest.value)"
+            >
+              <!-- Checkbox -->
+              <input
+                v-model="form.interest"
+                type="checkbox"
+                :id="interest.value"
+                :value="interest.value"
+                class="h-5 w-5 text-indigo-600 border-gray-300 rounded-sm focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                @click.stop
+              />
+              <label :for="interest.value" class="text-sm font-medium text-gray-900 cursor-pointer">
+                {{ interest.label }}
+              </label>
             </div>
             <p v-if="form.errors.interest" class="text-sm text-red-600 mt-1">{{ form.errors.interest }}</p>
           </div>
         </div>
 
+
         <!-- Password -->
         <div class="sm:col-span-3">
           <label for="password" class="block text-sm font-medium text-gray-900">Password</label>
           <div class="mt-2 password">
-            <PureInput v-model="form.password" :type="'password'" required/>
+            <PureInput v-model="form.password" @update:modelValue="(e)=>form.clearErrors('password')" :type="'password'" required/>
             <p v-if="form.errors.password" class="text-sm text-red-600 mt-1">{{ form.errors.password }}</p>
           </div>
         </div>

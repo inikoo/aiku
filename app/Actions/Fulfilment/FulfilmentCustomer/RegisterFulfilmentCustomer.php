@@ -28,7 +28,7 @@ class RegisterFulfilmentCustomer extends OrgAction
     {
 
         $product = Arr::pull($modelData, 'product');
-        $shipment = Arr::pull($modelData, 'shipment_per_week');
+        $shipment = Arr::pull($modelData, 'shipments_per_week');
         $sizeAndWeight = Arr::pull($modelData, 'size_and_weight');
         $password = Arr::pull($modelData, 'password');
 
@@ -47,7 +47,7 @@ class RegisterFulfilmentCustomer extends OrgAction
         data_set($fulfilmmentCustomerModelData, 'items_storage', in_array('items_storage', $modelData['interest']));
         data_set($fulfilmmentCustomerModelData, 'dropshipping', in_array('dropshipping', $modelData['interest']));
         data_set($fulfilmmentCustomerModelData, 'product', $product);
-        data_set($fulfilmmentCustomerModelData, 'shipment_per_week', $shipment);
+        data_set($fulfilmmentCustomerModelData, 'shipments_per_week', $shipment);
         data_set($fulfilmmentCustomerModelData, 'size_and_weight', $sizeAndWeight);
 
         $fulfilmentCustomer = UpdateFulfilmentCustomer::run($customer->fulfilmentCustomer, $fulfilmmentCustomerModelData);
@@ -92,7 +92,7 @@ class RegisterFulfilmentCustomer extends OrgAction
                     app()->isLocal() || app()->environment('testing') ? null : Password::min(8)
                 ],
             'product'                           => ['required', 'string'],
-            'shipment_per_week'                 => ['required', 'string'],
+            'shipments_per_week'                 => ['required', 'string'],
             'size_and_weight'                   => ['required', 'string'],
 
         ];
