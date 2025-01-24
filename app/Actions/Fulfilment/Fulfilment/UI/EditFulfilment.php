@@ -71,7 +71,7 @@ class EditFulfilment extends OrgAction
                                     'required' => true,
                                 ],
                                 "image" => [
-                                    "type"  => "avatar",
+                                    "type"  => "image_crop_square",
                                     "label" => __("Logo"),
                                     "value" => $fulfilment->shop->imageSources(320, 320)
                                 ],

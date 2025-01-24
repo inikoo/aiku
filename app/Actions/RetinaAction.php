@@ -39,6 +39,19 @@ class RetinaAction
     protected array $validatedData;
 
 
+    public function registerInitialisation(Fulfilment $fulfilment, ActionRequest $request): static
+    {
+        $this->fulfilment    = $fulfilment;
+        $this->shop          = $this->fulfilment->shop;
+        $this->organisation  = $this->shop->organisation;
+        $this->website       = $request->get('website');
+        $this->fillFromRequest($request);
+
+        $this->validatedData = $this->validateAttributes();
+
+        return $this;
+    }
+
     public function initialisation(ActionRequest $request): static
     {
         $this->webUser       = $request->user();

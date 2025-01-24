@@ -22,9 +22,6 @@ class StoreRefund extends OrgAction
     use WithOrderExchanges;
     use WithNoStrictRules;
 
-
-
-
     /**
      * @throws \Throwable
      */
@@ -37,22 +34,34 @@ class StoreRefund extends OrgAction
 
         data_set($modelData, 'reference', $reference);
         data_set($modelData, 'type', InvoiceTypeEnum::REFUND);
-        data_set($modelData, 'total_amount', 0);
-        data_set($modelData, 'gross_amount', 0);
-        data_set($modelData, 'goods_amount', 0);
-        data_set($modelData, 'net_amount', 0);
-        data_set($modelData, 'grp_net_amount', 0);
-        data_set($modelData, 'org_net_amount', 0);
-        data_set($modelData, 'tax_amount', 0);
+
+        // amount
+        $amountFields = [
+            'total_amount', 'gross_amount', 'goods_amount', 'net_amount',
+            'grp_net_amount', 'org_net_amount', 'payment_amount', 'tax_amount',
+            'insurance_amount', 'shipping_amount', 'charges_amount',
+            'rental_amount', 'services_amount'
+        ];
+
+        foreach ($amountFields as $field) {
+            data_set($modelData, $field, $invoice->$field != 0 ? -$invoice->$field : 0);
+        }
+
         data_set($modelData, 'in_process', true);
         data_set($modelData, 'invoice_id', $invoice->id);
+        data_set($modelData, 'billing_country_id', $invoice->billing_country_id);
         data_set($modelData, 'customer_id', $invoice->customer_id);
         data_set($modelData, 'currency_id', $invoice->currency_id);
         data_set($modelData, 'tax_category_id', $invoice->tax_category_id);
+        data_set($modelData, 'address_id', $invoice->address_id);
+        data_set($modelData, 'order_id', $invoice->order_id);
+        data_set($modelData, 'sales_channel_id', $invoice->sales_channel_id);
+        data_set($modelData, 'tax_liability_at', $invoice->tax_liability_at);
+        data_set($modelData, 'recurring_bill_id', $invoice->recurring_bill_id);
+
 
         $date = now();
-        data_set($modelData, 'date', $date, overwrite: false);
-
+        data_set($modelData, 'date', $date, false);
 
         data_set($modelData, 'group_id', $invoice->group_id);
         data_set($modelData, 'organisation_id', $invoice->organisation_id);

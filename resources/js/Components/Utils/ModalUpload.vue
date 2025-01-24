@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
 import { trans } from 'laravel-vue-i18n'
 
 import Modal from '@/Components/Utils/Modal.vue'
@@ -21,6 +21,7 @@ import * as XLSX from 'xlsx'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { notify } from '@kyvg/vue3-notification'
 import LoadingIcon from './LoadingIcon.vue'
+import { set } from 'lodash'
 library.add(falFile, faTimes, faTimesCircle, faCheckCircle, faFileDownload, faDownload, faInfoCircle)
 
 
@@ -36,6 +37,7 @@ const props = defineProps<{
 
 const model = defineModel()
 
+const selectedEchopersonal = inject('selectedEchopersonal', {})
 
 // const emits = defineEmits();
 
@@ -124,7 +126,8 @@ const submitUpload = async () => {
         csvData.value = []  // Clear the preview table
         
         idRecentUpload.value = aaa.data.id
-        useEchoGrpPersonal().isShowProgress = true
+        // selectedEchopersonal.isShowProgress = true
+        set(selectedEchopersonal, 'isShowProgress', true)
         
 
     } catch (error: any) {
@@ -142,8 +145,8 @@ const clearAll = () => {
 }
 
 const closeModal = () =>{
- /*    useEchoGrpPersonal().isShowProgress = false */
-    useEchoGrpPersonal().isShowProgress = false
+    // selectedEchopersonal.isShowProgress = false
+    set(selectedEchopersonal, 'isShowProgress', false)
     model.value = false
 }
 
@@ -172,7 +175,7 @@ watch(model, async (newVal) => {
 })
 
 // Watch the recently uploaded data, if complete then reload the table
-watch(() => useEchoGrpPersonal().recentlyUploaded.find((upload: {id: number}) => upload.id == idRecentUpload.value), (newVal) => {
+watch(() => selectedEchopersonal?.recentlyUploaded?.find((upload: {id: number}) => upload.id == idRecentUpload.value), (newVal) => {
     console.log('newVal', newVal)
 
     if(newVal?.total && (newVal?.done == newVal?.total)) {
@@ -208,7 +211,7 @@ watch(() => useEchoGrpPersonal().recentlyUploaded.find((upload: {id: number}) =>
 
 
 const compHistoryList = computed(() => {
-    return [...dataHistoryFileUpload.value, ...useEchoGrpPersonal().recentlyUploaded]
+    return [...dataHistoryFileUpload.value, ...selectedEchopersonal.recentlyUploaded]
 })
 
 const isLoadingVisitHistory = ref<string | null>(null)
@@ -216,7 +219,7 @@ const isLoadingVisitHistory = ref<string | null>(null)
 
 <template>
     <Modal :isOpen="model" @onClose="() => closeModal()" :closeButton="true" width="w-[800px]">
-        <!-- <pre>{{ useEchoGrpPersonal() }}</pre> -->
+        <!-- <pre>{{ selectedEchopersonal }}</pre> -->
         <div class="flex flex-col justify-between h-[500px] overflow-y-auto pb-4 px-3">
             <div>
                 <!-- Title -->
