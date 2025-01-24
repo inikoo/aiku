@@ -141,6 +141,7 @@ class ShowRefund extends OrgAction
                 'type'  => 'button',
                 'style' => 'delete',
                 'label' => __('Delete'),
+                'key'   => 'delete_refund',
                 'route' => [
                     'method'     => 'delete',
                     'name'       => 'grp.models.refund.delete',
@@ -152,7 +153,7 @@ class ShowRefund extends OrgAction
             $actions[] = [
                 'type'  => 'button',
                 'style' => 'create',
-                'label' => __('Create'),
+                'label' => __('Finalise refund'),
                 'route' => [
                     'method'     => 'post',
                     'name'       => '',
