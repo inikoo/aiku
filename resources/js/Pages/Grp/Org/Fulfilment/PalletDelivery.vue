@@ -289,9 +289,15 @@ const changePalletType=(form,fieldName,value)=>{
     <PageHeading :data="pageHead">
         <!-- Button: Upload -->
         <template #button-group-upload="{ action }">
-            <Button v-if="currentTab === 'pallets'" @click="() => isModalUploadOpen = true"
-                :style="action.style" :icon="action.icon" v-tooltip="action.tooltip"
-                class="rounded-l-md rounded-r-none border-none" />
+            <Button
+                v-if="currentTab === 'pallets'"
+                @click="() => isModalUploadOpen = true"
+                :label="action.label"
+                :style="action.style"
+                :icon="action.icon"
+                v-tooltip="action.tooltip"
+                class="rounded-l-md rounded-r-none border-none"
+            />
             <div v-else></div>
         </template>
         
