@@ -2,51 +2,47 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 07 May 2024 10:16:58 British Summer Time, Sheffield, UK
- * Copyright (c) 2024, Raul A Perusquia Flores
+ * Created: Mon, 27 Jan 2025 03:17:38 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-namespace App\Actions\HumanResources\JobPosition;
+namespace App\Actions\SysAdmin\User;
 
-use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateJobPositionsShare;
 use App\Actions\HumanResources\JobPosition\Hydrators\JobPositionHydrateEmployees;
-use App\Actions\SysAdmin\User\SyncRolesFromJobPositions;
-use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
+use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class SyncEmployeeJobPositions
+class SyncUserPseudoOrganisationJobPositions
 {
     use AsAction;
 
-    public function handle(Employee $employee, array $jobPositions): void
+    public function handle(User $user, Organisation $organisation, array $jobPositions): User
     {
 
         $jobPositionsIds = array_keys($jobPositions);
-        $currentJobPositions = $employee->jobPositions()->pluck('job_positions.id')->all();
+
+        $currentJobPositions = $user->pseudoJobPositions()->where('job_positions.organisation_id', $organisation->id)->pluck('job_positions.id')->all();
 
         $newJobPositionsIds = array_diff($jobPositionsIds, $currentJobPositions);
         $removeJobPositions = array_diff($currentJobPositions, $jobPositionsIds);
         $jobPositionsToUpdate = array_intersect($jobPositionsIds, $currentJobPositions);
 
-        $employee->jobPositions()->detach($removeJobPositions);
-
+        $user->pseudoJobPositions()->detach($removeJobPositions);
         foreach ($newJobPositionsIds as $jobPositionId) {
-            $employee->jobPositions()->attach(
+            $user->pseudoJobPositions()->attach(
                 [
                     $jobPositionId => [
-                        'group_id'        => $employee->group_id,
-                        'organisation_id' => $employee->organisation_id,
-                        'scopes'          => $jobPositions[$jobPositionId]
+                        'group_id'        => $user->group_id,
+                        'organisation_id' => $organisation->id,
                     ]
                 ],
             );
         }
 
-
-
         foreach ($jobPositionsToUpdate as $jobPositionId) {
-            $employee->jobPositions()->updateExistingPivot(
+            $user->pseudoJobPositions()->updateExistingPivot(
                 $jobPositionId,
                 [
                     'scopes' => $jobPositions[$jobPositionId]
@@ -54,15 +50,8 @@ class SyncEmployeeJobPositions
             );
         }
 
-
-
-
-        foreach ($employee->users as $user) {
-            SyncRolesFromJobPositions::dispatch($user);
-        }
-
+        SyncRolesFromJobPositions::dispatch($user);
         if (count($newJobPositionsIds) || count($removeJobPositions)) {
-            EmployeeHydrateJobPositionsShare::run($employee);
             foreach ($removeJobPositions as $jobPositionId) {
                 $jobPosition = JobPosition::find($jobPositionId);
                 JobPositionHydrateEmployees::dispatch($jobPosition);
@@ -73,5 +62,7 @@ class SyncEmployeeJobPositions
                 JobPositionHydrateEmployees::dispatch($jobPosition);
             }
         }
+
+        return $user;
     }
 }

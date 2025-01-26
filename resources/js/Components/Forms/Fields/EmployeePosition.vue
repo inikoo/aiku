@@ -769,6 +769,5 @@ watch(() => newForm, () => {
 
     </div>
 
-    Newform
-    <pre>{{ newForm[fieldName] }}</pre>
+
 </template>

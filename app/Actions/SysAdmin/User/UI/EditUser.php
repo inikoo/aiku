@@ -45,8 +45,6 @@ class EditUser extends OrgAction
     public function htmlResponse(User $user, ActionRequest $request): Response
     {
 
-
-
         $jobPositionsOrganisationsData = [];
         foreach ($this->group->organisations as $organisation) {
             $jobPositionsOrganisationData                       = GetUserOrganisationScopeJobPositionsData::run($user, $organisation);
@@ -77,6 +75,7 @@ class EditUser extends OrgAction
         })->toArray();
 
         $organisationList = OrganisationsResource::collection($organisations);
+
 
         return Inertia::render("EditModel", [
             "title"       => __("user"),

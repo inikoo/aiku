@@ -16,6 +16,7 @@ use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateUserOrganisationPermissions extends OrgAction
@@ -27,12 +28,10 @@ class UpdateUserOrganisationPermissions extends OrgAction
 
     public function handle(User $user, Organisation $organisation, array $modelData): User
     {
-        $permissions = Arr::get($modelData, 'permissions', []);
-        $positions = $this->reorganisePositionsSlugsToIds($permissions);
+        $jobPositions = Arr::pull($modelData, 'job_positions', []);
+        $jobPositions = $this->reorganisePositionsSlugsToIds($jobPositions);
 
-        $user->syncPermissions($positions);
-
-        $user->refresh();
+        SyncUserPseudoOrganisationJobPositions::run($user, $organisation, $jobPositions);
 
         return $user;
     }
@@ -50,7 +49,13 @@ class UpdateUserOrganisationPermissions extends OrgAction
     public function rules(): array
     {
         return [
-            'permissions' => ['sometimes', 'array'],
+            'job_positions'                             => ['sometimes', 'array'],
+            'job_positions.*.slug'                      => ['sometimes', 'string'],
+            'job_positions.*.scopes'                    => ['sometimes', 'array'],
+            'job_positions.*.scopes.warehouses.slug.*'  => ['sometimes', Rule::exists('warehouses', 'slug')->where('organisation_id', $this->organisation->id)],
+            'job_positions.*.scopes.fulfilments.slug.*' => ['sometimes', Rule::exists('fulfilments', 'slug')->where('organisation_id', $this->organisation->id)],
+            'job_positions.*.scopes.shops.slug.*'       => ['sometimes', Rule::exists('shops', 'slug')->where('organisation_id', $this->organisation->id)],
+
         ];
     }
 
@@ -67,9 +72,6 @@ class UpdateUserOrganisationPermissions extends OrgAction
     public function prepareForValidation(ActionRequest $request): void
     {
         $this->prepareJobPositionsForValidation();
-        //todo check if is a valid current model (gust|employee) in user_has_models  if is an active one reject
-
-
     }
 
     public function asController(User $user, Organisation $organisation, ActionRequest $request): User
