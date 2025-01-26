@@ -255,5 +255,10 @@ class Employee extends Model implements HasMedia, Auditable
         return $this->morphMany(Task::class, 'assigner');
     }
 
+    public function getPseudoJobPositions()
+    {
+
+    }
+
 
 }

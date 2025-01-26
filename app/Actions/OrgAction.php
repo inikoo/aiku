@@ -47,6 +47,7 @@ class OrgAction
     public function initialisation(Organisation $organisation, ActionRequest|array $request): static
     {
         $this->organisation = $organisation;
+        $this->group = $organisation->group;
         if (is_array($request)) {
             $this->setRawAttributes($request);
         } else {
@@ -61,6 +62,7 @@ class OrgAction
     {
         $this->shop         = $shop;
         $this->organisation = $shop->organisation;
+        $this->group = $this->organisation->group;
         if (is_array($request)) {
             $this->setRawAttributes($request);
         } else {
@@ -76,6 +78,7 @@ class OrgAction
         $this->fulfilment   = $fulfilment;
         $this->shop         = $fulfilment->shop;
         $this->organisation = $fulfilment->organisation;
+        $this->group = $this->organisation->group;
         if (is_array($request)) {
             $this->setRawAttributes($request);
         } else {
@@ -90,6 +93,7 @@ class OrgAction
     {
         $this->warehouse    = $warehouse;
         $this->organisation = $warehouse->organisation;
+        $this->group = $this->organisation->group;
         if (is_array($request)) {
             $this->setRawAttributes($request);
         } else {
@@ -104,6 +108,7 @@ class OrgAction
     {
         $this->production   = $production;
         $this->organisation = $production->organisation;
+        $this->group = $this->organisation->group;
         if (is_array($request)) {
             $this->setRawAttributes($request);
         } else {

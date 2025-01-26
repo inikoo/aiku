@@ -155,7 +155,7 @@ class EditEmployee extends OrgAction
                     'organisation_list' => $organisationList,
                     'updatePseudoJobPositionsRoute'       => [
                         'method'     => 'patch',
-                        'name'       => 'grp.models.user.permissions.update',
+                        'name'       => 'grp.models.user.group_permissions.update',
                         'parameters' => [
                             'user'  => $user?->id
                         ]

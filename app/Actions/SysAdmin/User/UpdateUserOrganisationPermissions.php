@@ -66,7 +66,7 @@ class UpdateUserOrganisationPermissions extends OrgAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
-        $this->preparePositionsForValidation();
+        $this->prepareJobPositionsForValidation();
         //todo check if is a valid current model (gust|employee) in user_has_models  if is an active one reject
 
 

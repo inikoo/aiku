@@ -8,41 +8,75 @@
 
 namespace App\Actions\Traits;
 
+use App\Models\HumanResources\JobPosition;
 use Illuminate\Support\Arr;
 
 trait WithPreparePositionsForValidation
 {
-    public function preparePositionsForValidation(): void
+    public function prepareJobPositionsForValidation(): void
     {
-        if ($this->get('positions') and !$this->asAction) {
+
+
+        if ($this->get('permissions') and !$this->asAction) {
             $newData = [];
-            foreach ($this->get('positions') as $key => $position) {
-                $newData[] = match (Arr::get(explode('-', $key), 0)) {
-                    'wah', 'dist', 'ful', 'web', 'mrk', 'cus', 'shk' => [
-                        'slug'   => $key,
+
+            foreach ($this->get('permissions') as $jobPositionCode => $position) {
+
+                if ($jobPositionCode == 'shop-admin') {
+                    $newData[] = [
+                        'code'   => $jobPositionCode,
                         'scopes' => array_map(function ($scope) {
                             return [
                                 'slug' => $scope
                             ];
                         }, $position)
-                    ],
+                    ];
+                } else {
+                    $newData[] = match (Arr::get(explode('-', $jobPositionCode), 0)) {
+                        'wah', 'dist', 'ful', 'web', 'mrk', 'cus', 'shk',  => [
+                            'code'   => $jobPositionCode,
+                            'scopes' => array_map(function ($scope) {
+                                return [
+                                    'slug' => $scope
+                                ];
+                            }, $position)
+                        ],
 
-                    default => [
-                        'slug'   => $key,
-                        'scopes' => []
-                    ]
-                };
+                        default => [
+                            'code'   => $jobPositionCode,
+                            'scopes' => []
+                        ]
+                    };
+                }
+
+
+
             }
 
-            $positions = [
-                'positions' => $newData
+
+
+
+            foreach ($newData as $key => $data) {
+                if (in_array($data['code'], [
+                    'group-admin',
+                    'sys-admin',
+                    'gp-sc',
+                    'gp-g',
+                ])) {
+                    $slug = JobPosition::where('code', $data['code'])->where('group_id', $this->group->id)->first()->slug;
+                } else {
+                    $slug = JobPosition::where('code', $data['code'])->where('organisation_id', $this->organisation->id)->first()->slug;
+                }
+                $newData[$key]['slug'] = $slug;
+            }
+
+
+            $jobPositions = [
+                'job_positions' => $newData
             ];
 
-            $this->fill($positions);
+            $this->fill($jobPositions);
         }
-
-
-
     }
 
 }

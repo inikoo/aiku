@@ -96,7 +96,7 @@ class StoreGuest extends GrpAction
             $this->set('phone', preg_replace('/[^0-9+]/', '', $this->get('phone')));
         }
 
-        $this->preparePositionsForValidation();
+        $this->prepareJobPositionsForValidation();
     }
 
     public function afterValidator(Validator $validator, ActionRequest $request): void

@@ -176,7 +176,7 @@ class EditGuest extends GrpAction
                                     "current_organisation"  => $user->getOrganisation(),
                                     'updatePseudoJobPositionsRoute'       => [
                                         'method'     => 'patch',
-                                        "name"       => "grp.models.user.permissions.update",
+                                        "name"       => "grp.models.user.group_permissions.update",
                                         'parameters' => [
                                             'user' => $user->id
                                         ]
