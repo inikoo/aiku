@@ -19,7 +19,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateUserOrganisationPermissions extends OrgAction
+class UpdateUserOrganisationPseudoJobPositions extends OrgAction
 {
     use WithActionUpdate;
     use WithPreparePositionsForValidation;
@@ -61,6 +61,7 @@ class UpdateUserOrganisationPermissions extends OrgAction
 
     public function action(User $user, Organisation $organisation, $modelData): User
     {
+
         $this->asAction     = true;
         $this->organisation = $organisation;
 

@@ -150,7 +150,7 @@ class EditUser extends OrgAction
                                 ],
                                 'updateJobPositionsRoute'       => [
                                     'method'     => 'patch',
-                                    "name"       => "grp.models.user.organisation.permissions.update",
+                                    "name"       => "grp.models.user.organisation_pseudo_job_positions.update",
                                     'parameters' => [
                                         'user' => $user->id,
                                         'organisation' => null // fill in the organisation id in the frontend

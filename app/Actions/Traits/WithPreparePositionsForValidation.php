@@ -17,10 +17,13 @@ trait WithPreparePositionsForValidation
     {
 
 
-        if ($this->get('permissions') and !$this->asAction) {
+        if ($this->get('permissions')) {
             $newData = [];
 
             foreach ($this->get('permissions') as $jobPositionCode => $position) {
+
+
+
 
                 if ($jobPositionCode == 'shop-admin') {
                     $newData[] = [
@@ -48,12 +51,7 @@ trait WithPreparePositionsForValidation
                         ]
                     };
                 }
-
-
-
             }
-
-
 
 
             foreach ($newData as $key => $data) {
@@ -63,11 +61,14 @@ trait WithPreparePositionsForValidation
                     'gp-sc',
                     'gp-g',
                 ])) {
-                    $slug = JobPosition::where('code', $data['code'])->where('group_id', $this->group->id)->first()->slug;
+                    $jobPosition = JobPosition::where('code', $data['code'])->where('group_id', $this->group->id)->first();
                 } else {
-                    $slug = JobPosition::where('code', $data['code'])->where('organisation_id', $this->organisation->id)->first()->slug;
+                    $jobPosition = JobPosition::where('code', $data['code'])->where('organisation_id', $this->organisation->id)->first();
                 }
-                $newData[$key]['slug'] = $slug;
+                if ($jobPosition) {
+                    $newData[$key]['slug'] = $jobPosition->slug;
+                }
+
             }
 
 

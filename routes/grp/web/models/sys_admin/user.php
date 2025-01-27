@@ -7,14 +7,12 @@
  */
 
 use App\Actions\SysAdmin\User\UpdateUserGroupPseudoJobPositions;
-use App\Actions\SysAdmin\User\UpdateUserOrganisationPermissions;
-use App\Actions\SysAdmin\User\UpdateUsersPseudoJobPositions;
+use App\Actions\SysAdmin\User\UpdateUserOrganisationPseudoJobPositions;
 use App\Actions\SysAdmin\User\UpdateUser;
 use Illuminate\Support\Facades\Route;
 
 Route::name('user.')->prefix('user/{user:id}')->group(function () {
     Route::patch('', UpdateUser::class)->name('update');
-    Route::patch('organisation/{organisation:id}', UpdateUsersPseudoJobPositions::class)->name('pseudo-job-positions.update')->withoutScopedBindings();
     Route::patch('group-permissions', UpdateUserGroupPseudoJobPositions::class)->name('group_permissions.update');
-    Route::patch('organisation/{organisation:id}/permissions', UpdateUserOrganisationPermissions::class)->name('organisation.permissions.update')->withoutScopedBindings();
+    Route::patch('organisation-pseudo-job-positions/{organisation:id}', UpdateUserOrganisationPseudoJobPositions::class)->name('organisation_pseudo_job_positions.update')->withoutScopedBindings();
 });

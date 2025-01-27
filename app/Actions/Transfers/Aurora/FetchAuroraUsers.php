@@ -8,10 +8,10 @@
 
 namespace App\Actions\Transfers\Aurora;
 
+use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\User\UpdateUser;
-use App\Actions\SysAdmin\User\UpdateUsersPseudoJobPositions;
-use App\Enums\SysAdmin\User\UserAuthTypeEnum;
+use App\Actions\SysAdmin\User\UpdateUserOrganisationPseudoJobPositions;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\User;
 use App\Transfers\SourceOrganisationService;
@@ -78,13 +78,36 @@ class FetchAuroraUsers extends FetchAuroraAction
 
                     if ($user) {
                         if ($userData['user']['status']) {
-                            $user = UpdateUsersPseudoJobPositions::make()->action(
-                                $user,
-                                $organisationSource->getOrganisation(),
-                                [
-                                    'positions' => $userData['user']['positions']
-                                ]
-                            );
+
+                            $employee = $user->employees()->where('organisation_id', $organisationSource->getOrganisation()->id)->first();
+
+                            if ($employee) {
+
+                                UpdateEmployee::make()->action(
+                                    $employee,
+                                    [
+                                        'permissions' => $userData['user']['positions']
+                                    ],
+                                    hydratorsDelay: 60,
+                                    strict: false,
+                                    audit: false
+                                );
+
+
+                            } else {
+                                $user = UpdateUserOrganisationPseudoJobPositions::make()->action(
+                                    $user,
+                                    $organisationSource->getOrganisation(),
+                                    [
+                                        'permissions' => $userData['user']['positions']
+                                    ]
+                                );
+                            }
+
+
+                            // update user job positions here, but no it will be updated in aiku
+
+
                         }
 
                         return $this->updateUserSources($user, $userData);

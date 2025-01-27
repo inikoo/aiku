@@ -13,7 +13,6 @@ use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\Miscellaneous\GenderEnum;
 use App\Models\Helpers\UniversalSearch;
-use App\Models\SysAdmin\EmployeeHasOtherOrganisationJobPosition;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Task;
@@ -84,7 +83,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $images
- * @property-read EmployeeHasOtherOrganisationJobPosition|\App\Models\HumanResources\EmployeeHasJobPositions|null $pivot
  * @property-read Collection<int, \App\Models\HumanResources\JobPosition> $jobPositions
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Organisation $organisation
@@ -202,13 +200,6 @@ class Employee extends Model implements HasMedia, Auditable
         return $this->belongsToMany(JobPosition::class, 'employee_has_job_positions')
             ->using(EmployeeHasJobPositions::class)->withTimestamps()->withPivot(['share', 'scopes']);
     }
-
-    public function otherOrganisationJobPositions(): BelongsToMany
-    {
-        return $this->belongsToMany(JobPosition::class, 'employee_has_other_organisation_job_positions')
-            ->using(EmployeeHasOtherOrganisationJobPosition::class)->withTimestamps()->withPivot(['share', 'scopes']);
-    }
-
 
     public function getUser(): ?User
     {
