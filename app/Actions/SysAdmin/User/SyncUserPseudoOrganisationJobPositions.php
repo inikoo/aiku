@@ -50,7 +50,7 @@ class SyncUserPseudoOrganisationJobPositions
             );
         }
 
-        SyncRolesFromJobPositions::dispatch($user);
+        SyncRolesFromJobPositions::run($user);
         if (count($newJobPositionsIds) || count($removeJobPositions)) {
             foreach ($removeJobPositions as $jobPositionId) {
                 $jobPosition = JobPosition::find($jobPositionId);

@@ -58,7 +58,7 @@ class SyncEmployeeJobPositions
 
 
         foreach ($employee->users as $user) {
-            SyncRolesFromJobPositions::dispatch($user);
+            SyncRolesFromJobPositions::run($user);
         }
 
         if (count($newJobPositionsIds) || count($removeJobPositions)) {
