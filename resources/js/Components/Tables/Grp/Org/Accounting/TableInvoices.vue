@@ -31,7 +31,7 @@ function invoiceRoute(invoice: Invoice) {
             return route(
                 'shops.show.invoices.show',
                 [invoice.slug, invoice.slug])
-        case 'grp.org.fulfilments.show.operations.invoices.index':
+        case 'grp.org.fulfilments.show.operations.invoices.all.index':
             return route(
                 'grp.org.fulfilments.show.operations.invoices.show',
                 [route().params['organisation'], route().params['fulfilment'], invoice.slug])
@@ -51,11 +51,11 @@ function invoiceRoute(invoice: Invoice) {
             return route(
                 'grp.org.accounting.invoices.show',
                 [route().params['organisation'], invoice.slug])
-        case 'grp.org.fulfilments.show.operations.invoices.all_invoices.index':
+        case 'grp.org.fulfilments.show.operations.invoices.all.index':
             return route(
                 'grp.org.fulfilments.show.operations.invoices.all_invoices.show',
                 [route().params['organisation'], route().params['fulfilment'], invoice.slug])
-                case 'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.index':
+                case 'grp.org.fulfilments.show.operations.unpaid_invoices.index':
             return route(
                 'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.show',
                 [route().params['organisation'], route().params['fulfilment'], invoice.slug])

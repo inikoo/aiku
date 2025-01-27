@@ -73,8 +73,9 @@ Route::get('/payments/{payment}/edit', [EditPayment::class, 'inOrganisation'])->
 Route::get('/invoices/{invoice}/export', PdfInvoice::class)->name('invoices.download');
 Route::get('/invoices/export', ExportInvoices::class)->name('invoices.export');
 
+
 Route::get('/invoices', IndexInvoices::class)->name('invoices.index');
-Route::get('/invoices/{invoice}', ShowInvoice::class)->name('invoices.show'); // need check in retina
+Route::get('/invoices/{invoice}', ShowInvoice::class)->name('invoices.show');
 Route::get('/invoices/{invoice}/refunds', [IndexRefunds::class, 'inInvoiceInOrganisation'])->name('invoices.show.refunds.index');
 Route::get('/invoices/{invoice}/refunds/{refund}', [ShowRefund::class, 'inInvoiceInOrganisation'])->name('invoices.show.refunds.show');
 

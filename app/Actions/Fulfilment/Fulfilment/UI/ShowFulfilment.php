@@ -64,7 +64,7 @@ class ShowFulfilment extends OrgAction
                                 'description' => __('invoices'),
                                 'type'        => 'number',
                                 'route'       => [
-                                    'name'       => 'grp.org.fulfilments.show.operations.invoices.all_invoices.index',
+                                    'name'       => 'grp.org.fulfilments.show.operations.invoices.all.index',
                                     'parameters' => [
                                         $fulfilment->organisation->slug,
                                         $fulfilment->slug
@@ -80,7 +80,7 @@ class ShowFulfilment extends OrgAction
                                 'right_label' => [
                                     'label' => __('Unpaid').' '.$fulfilment->shop->orderingStats->number_unpaid_invoices,
                                     'route' => [
-                                        'name'       => 'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.index',
+                                        'name'       => 'grp.org.fulfilments.show.operations.unpaid_invoices.index',
                                         'parameters' => [
                                             $fulfilment->organisation->slug,
                                             $fulfilment->slug
@@ -312,7 +312,7 @@ class ShowFulfilment extends OrgAction
                         'name'  => __('Invoices'),
                         'icon'  => ['fal', 'fa-file-invoice-dollar'],
                         'route' => [
-                            'name'       => 'grp.org.fulfilments.show.operations.invoices.all_invoices.index',
+                            'name'       => 'grp.org.fulfilments.show.operations.invoices.all.index',
                             'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                         ],
                         'index' => [

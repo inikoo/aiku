@@ -9,7 +9,6 @@
 namespace App\Actions\Accounting\Invoice\UI;
 
 use App\Actions\Accounting\Invoice\WithInvoicesSubNavigation;
-use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
@@ -273,8 +272,6 @@ class IndexInvoices extends OrgAction
 
                 'label' => __('invoices')
             ];
-        } elseif ($this->parent instanceof Fulfilment) {
-            $model = __('Operations');
         } elseif ($this->parent instanceof CustomerClient) {
             $iconRight  = $icon;
             $afterTitle = [
@@ -365,7 +362,7 @@ class IndexInvoices extends OrgAction
         return $this->handle($organisation);
     }
 
-    public function unpaidFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    public function unpaidInFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'unpaid';
         $this->parent = $fulfilment;
@@ -374,7 +371,7 @@ class IndexInvoices extends OrgAction
         return $this->handle($fulfilment);
     }
 
-    public function paidFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    public function paidInFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'paid';
         $this->parent = $fulfilment;
@@ -395,7 +392,7 @@ class IndexInvoices extends OrgAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function allFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'all';
         $this->parent = $fulfilment;
@@ -512,7 +509,7 @@ class IndexInvoices extends OrgAction
 
             'grp.org.accounting.invoices.unpaid_invoices.index' =>
             array_merge(
-                ShowOrderingDashboard::make()->getBreadcrumbs( $routeParameters),
+                ShowOrderingDashboard::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,
@@ -532,7 +529,7 @@ class IndexInvoices extends OrgAction
                     trim('('.__('Paid').') ')
                 )
             ),
-            'grp.org.fulfilments.show.operations.invoices.all_invoices.index' =>
+            'grp.org.fulfilments.show.operations.invoices.all.index' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs(routeParameters: $routeParameters),
                 $headCrumb(

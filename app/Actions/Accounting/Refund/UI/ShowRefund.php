@@ -353,7 +353,7 @@ class ShowRefund extends OrgAction
                     $invoice,
                     [
                         'index' => [
-                            'name'       => 'grp.org.fulfilments.show.operations.invoices.index',
+                            'name'       => 'grp.org.fulfilments.show.operations.invoices.all.index',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment'])
                         ],
                         'model' => [
@@ -371,7 +371,7 @@ class ShowRefund extends OrgAction
                     $invoice,
                     [
                         'index' => [
-                            'name'       => 'grp.org.fulfilments.show.operations.invoices.all_invoices.index',
+                            'name'       => 'grp.org.fulfilments.show.operations.invoices.all.index',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment'])
                         ],
                         'model' => [
@@ -390,7 +390,7 @@ class ShowRefund extends OrgAction
                     $invoice,
                     [
                         'index' => [
-                            'name'       => 'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.index',
+                            'name'       => 'grp.org.fulfilments.show.operations.unpaid_invoices.index',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment'])
                         ],
                         'model' => [

@@ -9,7 +9,6 @@
 namespace App\Actions\Accounting\Refund\UI;
 
 use App\Actions\Accounting\Invoice\WithInvoicesSubNavigation;
-use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
@@ -241,7 +240,7 @@ class IndexRefunds extends OrgAction
 
         $icon = [
             'icon'  => ['fal', 'fa-file-invoice-dollar'],
-            'title' => __('invoices')
+            'title' => __('refunds')
         ];
 
         $afterTitle = null;
@@ -259,8 +258,6 @@ class IndexRefunds extends OrgAction
 
                 'label' => __('invoices')
             ];
-        } elseif ($this->parent instanceof Fulfilment) {
-            $model = __('Operations');
         } elseif ($this->parent instanceof CustomerClient) {
             $iconRight  = $icon;
             $afterTitle = [
@@ -390,6 +387,15 @@ class IndexRefunds extends OrgAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilment);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $fulfilmentCustomer;
@@ -493,7 +499,7 @@ class IndexRefunds extends OrgAction
                     trim('('.__('Paid').') ')
                 )
             ),
-            'grp.org.fulfilments.show.operations.invoices.all_invoices.index' =>
+            'grp.org.fulfilments.show.operations.invoices.refunds.index' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs(routeParameters: $routeParameters),
                 $headCrumb(
@@ -501,10 +507,10 @@ class IndexRefunds extends OrgAction
                         'name'       => $routeName,
                         'parameters' => $routeParameters
                     ],
-                    trim('('.__('All').') ')
+                    ''
                 )
             ),
-            'grp.org.fulfilments.show.operations.invoices.paid_invoices.index' =>
+            'grp.org.fulfilments.show.operations.paid_invoices.index' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs(routeParameters: $routeParameters),
                 $headCrumb(
@@ -515,7 +521,7 @@ class IndexRefunds extends OrgAction
                     trim('('.__('Paid').') ')
                 )
             ),
-            'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.index' =>
+            'grp.org.fulfilments.show.operations.unpaid_invoices.index' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs(routeParameters: $routeParameters),
                 $headCrumb(

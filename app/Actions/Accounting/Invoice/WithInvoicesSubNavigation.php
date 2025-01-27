@@ -26,7 +26,9 @@ trait WithInvoicesSubNavigation
             $numberPaid = $parent->orderingStats?->number_invoices - $numberUnpaid ?? 0;
             $numberRefunds = $parent->orderingStats?->number_invoices_type_refund ?? 0;
 
-
+            $allInvoicesRouteName = $routeName . '.index';
+            $refundsRouteName = preg_replace('/invoices/', 'refunds', $routeName).'.index';
+            $unpaidRouteName = preg_replace('/invoices/', 'unpaid_invoices', $routeName).'.index';
 
         } elseif ($parent instanceof Fulfilment) {
             $total = $parent->shop->orderingStats?->number_invoices ?? 10;
@@ -35,6 +37,10 @@ trait WithInvoicesSubNavigation
             $numberUnpaid = $parent->shop->orderingStats?->number_unpaid_invoices ?? 0;
             $numberPaid = $parent->shop->orderingStats?->number_invoices - $numberUnpaid ?? 0;
             $numberRefunds = $parent->shop->orderingStats?->number_invoices_type_refund ?? 0;
+            $allInvoicesRouteName = $routeName . '.all.index';
+            $refundsRouteName = $routeName . '.refunds.index';
+            $unpaidRouteName = $routeName . '.unpaid_invoices.index';
+
         } else {
             $total = $parent->orderingStats?->number_invoices ?? 10;
             $routeName = 'grp.org.shops.show.ordering.invoices';
@@ -42,6 +48,10 @@ trait WithInvoicesSubNavigation
             $numberUnpaid = $parent->orderingStats?->number_unpaid_invoices ?? 0;
             $numberPaid = $parent->orderingStats?->number_invoices - $numberUnpaid ?? 0;
             $numberRefunds = $parent->orderingStats?->number_invoices_type_refund ?? 0;
+            $allInvoicesRouteName = $routeName . '.index';
+            $unpaidRouteName = preg_replace('/invoices/', 'unpaid_invoices', $routeName).'.index';
+            $refundsRouteName = preg_replace('/invoices/', 'refunds', $routeName).'.index';
+
         }
 
         return [
@@ -50,24 +60,17 @@ trait WithInvoicesSubNavigation
                 "isAnchor" => true,
                 "label"    => __('Invoices'),
                 "route"     => [
-                    "name"       => $routeName . '.index',
+                    "name"       => $allInvoicesRouteName,
                     "parameters" => $param,
                 ],
             ],
-//            [
-//                "number"   => $numberPaid,
-//                "label"    => __("Paid"),
-//                "route"     => [
-//                "name"       =>preg_replace('/invoices/', 'paid_invoices', $routeName).'.index',
-//                    "parameters" => $param,
-//                ],
-//            ],
+
             [
                 "number"   => $numberUnpaid,
                 "label"    => __("Unpaid"),
                 'tooltip'  => __("Show only unpaid invoices"),
                 "route"     => [
-                    "name"       => preg_replace('/invoices/', 'unpaid_invoices', $routeName).'.index',
+                    "name"       => $unpaidRouteName,
                     "parameters" => $param,
                 ],
             ],
@@ -77,7 +80,7 @@ trait WithInvoicesSubNavigation
                 "label"    => __("Refunds"),
                 'align'    => 'right',
                 "route"     => [
-                    "name"       => preg_replace('/invoices/', 'refunds', $routeName).'.index',
+                    "name"       => $refundsRouteName,
                     "parameters" => $param,
                 ],
             ],

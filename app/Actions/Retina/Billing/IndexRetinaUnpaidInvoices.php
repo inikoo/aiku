@@ -409,7 +409,7 @@ class IndexRetinaUnpaidInvoices extends OrgAction
                 ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', $routeParameters),
                 $headCrumb()
             ),
-            'grp.org.fulfilments.show.operations.invoices.index' =>
+            'grp.org.fulfilments.show.operations.invoices.all.index' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs(routeParameters: $routeParameters),
                 $headCrumb()
