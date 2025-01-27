@@ -74,7 +74,8 @@ class FetchAuroraUser extends FetchAurora
                 'password'          => Str::random(64),
                 'fetched_at'        => now(),
                 'last_fetched_at'   => now(),
-                'positions'         => $this->parsePositions($this->auroraModelData->{'User Key'})
+                // Positions do not fetched from Aurora, use aiku UI instead
+                //'positions'         => $this->parsePositions($this->auroraModelData->{'User Key'})
             ];
 
         if ($this->parsedData['add_guest']) {

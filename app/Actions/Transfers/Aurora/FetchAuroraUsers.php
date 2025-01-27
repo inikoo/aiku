@@ -77,38 +77,38 @@ class FetchAuroraUsers extends FetchAuroraAction
 
 
                     if ($user) {
-                        if ($userData['user']['status']) {
-
-                            $employee = $user->employees()->where('organisation_id', $organisationSource->getOrganisation()->id)->first();
-
-                            if ($employee) {
-
-                                UpdateEmployee::make()->action(
-                                    $employee,
-                                    [
-                                        'permissions' => $userData['user']['positions']
-                                    ],
-                                    hydratorsDelay: 60,
-                                    strict: false,
-                                    audit: false
-                                );
-
-
-                            } else {
-                                $user = UpdateUserOrganisationPseudoJobPositions::make()->action(
-                                    $user,
-                                    $organisationSource->getOrganisation(),
-                                    [
-                                        'permissions' => $userData['user']['positions']
-                                    ]
-                                );
-                            }
-
-
-                            // update user job positions here, but no it will be updated in aiku
-
-
-                        }
+//                        if ($userData['user']['status']) {
+//
+//                            $employee = $user->employees()->where('organisation_id', $organisationSource->getOrganisation()->id)->first();
+//
+//                            // NOTE UNTESTED CODE
+//                            if ($employee) {
+//
+//                                UpdateEmployee::make()->action(
+//                                    $employee,
+//                                    [
+//                                        'permissions' => $userData['user']['positions']
+//                                    ],
+//                                    hydratorsDelay: 60,
+//                                    strict: false,
+//                                    audit: false
+//                                );
+//
+//
+//                            } else {
+//                                $user = UpdateUserOrganisationPseudoJobPositions::make()->action(
+//                                    $user,
+//                                    $organisationSource->getOrganisation(),
+//                                    [
+//                                        'permissions' => $userData['user']['positions']
+//                                    ]
+//                                );
+//                            }
+//
+//
+//
+//
+//                        }
 
                         return $this->updateUserSources($user, $userData);
                     }
