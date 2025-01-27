@@ -47,9 +47,9 @@ function invoiceRoute(invoice: Invoice) {
             return route(
                 'grp.org.accounting.invoices.unpaid_invoices.show',
                 [route().params['organisation'], invoice.slug])
-        case 'grp.org.accounting.invoices.all_invoices.index':
+        case 'grp.org.accounting.invoices.index':
             return route(
-                'grp.org.accounting.invoices.all_invoices.show',
+                'grp.org.accounting.invoices.show',
                 [route().params['organisation'], invoice.slug])
         case 'grp.org.fulfilments.show.operations.invoices.all_invoices.index':
             return route(

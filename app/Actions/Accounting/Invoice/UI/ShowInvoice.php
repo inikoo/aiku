@@ -65,7 +65,7 @@ class ShowInvoice extends OrgAction
         return false;
     }
 
-    public function inOrganisation(Organisation $organisation, Invoice $invoice, ActionRequest $request): Invoice
+    public function asController(Organisation $organisation, Invoice $invoice, ActionRequest $request): Invoice
     {
         $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(InvoiceTabsEnum::values());
@@ -153,7 +153,14 @@ class ShowInvoice extends OrgAction
                         'method' => 'post',
                         'name'       => 'grp.models.refund.create',
                         'parameters' => [
-                            'invoice' => $invoice->id
+                            'invoice' => $invoice->id,
+
+                        ],
+                        'body' => [
+                            'referral_route' => [
+                                'name'       => $request->route()->getName(),
+                                'parameters' => $request->route()->originalParameters()
+                            ]
                         ]
                     ],
                 ]
@@ -407,7 +414,7 @@ class ShowInvoice extends OrgAction
                     $invoice,
                     [
                         'index' => [
-                            'name'       => 'grp.org.accounting.invoices.all_invoices.index',
+                            'name'       => 'grp.org.accounting.invoices.index',
                             'parameters' => Arr::only($routeParameters, ['organisation'])
                         ],
                         'model' => [

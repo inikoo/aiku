@@ -399,6 +399,15 @@ class GetShopNavigation
                 "topMenu" => [
                     "subSections" => [
                         [
+                            "tooltip" => __("ordering dashboard"),
+                            "icon"    => ["fal", "fa-chart-network"],
+                            'root'    => 'grp.org.shops.show.ordering.dashboard',
+                            "route"   => [
+                                "name"       => 'grp.org.shops.show.ordering.dashboard',
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
+                        [
                             "label"   => __('Backlog'),
                             "tooltip" => __('Pending orders'),
                             "icon"    => ["fal", "fa-tasks-alt"],

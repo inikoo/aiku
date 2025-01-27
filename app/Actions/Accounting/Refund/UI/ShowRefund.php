@@ -33,27 +33,46 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowRefund extends OrgAction
 {
-    private Organisation|Fulfilment|FulfilmentCustomer|Shop $parent;
+    private Invoice|Organisation|Fulfilment|FulfilmentCustomer|Shop $parent;
 
-    public function handle(Invoice $invoice): Invoice
+    public function handle(Invoice $refund): Invoice
     {
-        return $invoice;
+        return $refund;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->parent instanceof Organisation) {
+        $routeName = $request->route()->getName();
+
+        if ($routeName == 'grp.org.accounting.invoices.show.refunds.sho') {
             return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
-        } elseif ($this->parent instanceof Shop) {
-            //todo think about it
-            return false;
-        } elseif ($this->parent instanceof Fulfilment) {
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
-        } elseif ($this->parent instanceof FulfilmentCustomer) {
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
         }
 
+
+
+        //        if ($this->parent instanceof Organisation) {
+        //            return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
+        //        } elseif ($this->parent instanceof Shop) {
+        //            //todo think about it
+        //            return false;
+        //        } elseif ($this->parent instanceof Fulfilment) {
+        //            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+        //        } elseif ($this->parent instanceof FulfilmentCustomer) {
+        //            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+        //        }elseif ($this->parent instanceof Invoice) {
+        //            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+        //        }
+
         return false;
+    }
+
+
+    public function inInvoiceInOrganisation(Organisation $organisation, Invoice $invoice, Invoice $refund, ActionRequest $request): Invoice
+    {
+        $this->parent = $invoice;
+        $this->initialisation($organisation, $request)->withTab(InvoiceRefundTabsEnum::values());
+
+        return $this->handle($refund);
     }
 
     public function inOrganisation(Organisation $organisation, Invoice $invoice, ActionRequest $request): Invoice
@@ -93,7 +112,6 @@ class ShowRefund extends OrgAction
 
     public function htmlResponse(Invoice $invoice, ActionRequest $request): Response
     {
-
         if ($invoice->recurringBill()->exists()) {
             if ($this->parent instanceof Fulfilment) {
                 $recurringBillRoute = [
@@ -116,20 +134,20 @@ class ShowRefund extends OrgAction
 
         if ($this->parent instanceof Fulfilment) {
             $customerRoute = [
-                'name'         => 'grp.org.fulfilments.show.crm.customers.show',
-                'parameters'   => [
-                    'organisation'      => $invoice->organisation->slug,
-                    'fulfilment'        => $invoice->customer->fulfilmentCustomer->fulfilment->slug,
+                'name'       => 'grp.org.fulfilments.show.crm.customers.show',
+                'parameters' => [
+                    'organisation'       => $invoice->organisation->slug,
+                    'fulfilment'         => $invoice->customer->fulfilmentCustomer->fulfilment->slug,
                     'fulfilmentCustomer' => $invoice->customer->fulfilmentCustomer->slug,
                 ]
             ];
         } else {
             $customerRoute = [
-                'name'         => 'grp.org.shops.show.crm.customers.show',
-                'parameters'   => [
-                    'organisation'      => $invoice->organisation->slug,
-                    'shop'        => $invoice->shop->slug,
-                    'customer' => $invoice->customer->slug,
+                'name'       => 'grp.org.shops.show.crm.customers.show',
+                'parameters' => [
+                    'organisation' => $invoice->organisation->slug,
+                    'shop'         => $invoice->shop->slug,
+                    'customer'     => $invoice->customer->slug,
                 ]
             ];
         }
@@ -167,30 +185,30 @@ class ShowRefund extends OrgAction
         return Inertia::render(
             'Org/Accounting/InvoiceRefund',
             [
-                'title'                => __('invoice refund'),
-                'breadcrumbs'          => $this->getBreadcrumbs(
+                'title'       => __('invoice refund'),
+                'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'           => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($invoice, $request),
                     'next'     => $this->getNext($invoice, $request),
                 ],
-                'pageHead'             => [
-                    'model' => __('invoice refund'),
-                    'title' => $invoice->reference,
-                    'icon'  => [
+                'pageHead'    => [
+                    'model'   => __('invoice refund'),
+                    'title'   => $invoice->reference,
+                    'icon'    => [
                         'icon'  => ['fas', 'fa-hand-holding-usd'],
                         'title' => $invoice->reference
                     ],
-                    'actions' =>  $actions
+                    'actions' => $actions
                 ],
-                'tabs'                 => [
+                'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => InvoiceRefundTabsEnum::navigation()
                 ],
 
-                'order_summary'        => [
+                'order_summary' => [
                     [
                         [
                             'label'       => __('Services'),
@@ -242,7 +260,7 @@ class ShowRefund extends OrgAction
                     ]
                 ],
                 'box_stats'      => [
-                    'customer' => [
+                    'customer'    => [
                         'slug'         => $invoice->customer->slug,
                         'reference'    => $invoice->customer->reference,
                         'route'        => $customerRoute,
@@ -253,28 +271,28 @@ class ShowRefund extends OrgAction
                         // 'address'      => AddressResource::collection($invoice->customer->addresses),
                     ],
                     'information' => [
-                        'recurring_bill'    => [
-                            'reference'     => $invoice->reference,
-                            'route'         => $recurringBillRoute
+                        'recurring_bill' => [
+                            'reference' => $invoice->reference,
+                            'route'     => $recurringBillRoute
                         ],
-                        'routes' => [
+                        'routes'         => [
                             'fetch_payment_accounts' => [
                                 'name'       => 'grp.json.shop.payment-accounts',
                                 'parameters' => [
                                     'shop' => $invoice->shop->slug
                                 ]
                             ],
-                            'submit_payment' => [
+                            'submit_payment'         => [
                                 'name'       => 'grp.models.invoice.payment.store',
                                 'parameters' => [
-                                    'invoice'    => $invoice->id,
-                                    'customer'   => $invoice->customer_id,
+                                    'invoice'  => $invoice->id,
+                                    'customer' => $invoice->customer_id,
                                 ]
                             ]
 
                         ],
-                        'paid_amount' => $invoice->payment_amount,
-                        'pay_amount'  => $roundedDiff
+                        'paid_amount'    => $invoice->payment_amount,
+                        'pay_amount'     => $roundedDiff
                     ]
                 ],
 
@@ -429,7 +447,7 @@ class ShowRefund extends OrgAction
                     $invoice,
                     [
                         'index' => [
-                            'name'       => 'grp.org.accounting.invoices.all_invoices.index',
+                            'name'       => 'grp.org.accounting.invoices.index',
                             'parameters' => Arr::only($routeParameters, ['organisation'])
                         ],
                         'model' => [
@@ -601,11 +619,11 @@ class ShowRefund extends OrgAction
                 'route' => [
                     'name'       => $isRefund ? $routeName : 'grp.org.fulfilments.show.crm.customers.show.invoices.show',
                     'parameters' => [
-                        'organisation' => $invoice->organisation->slug,
+                        'organisation'       => $invoice->organisation->slug,
                         'fulfilment'         => $invoice->shop->fulfilment->slug,
                         'fulfilmentCustomer' => $this->parent->slug,
-                        'invoice' => $invoice->originalInvoice->slug,
-                        'refund' => $invoice->slug
+                        'invoice'            => $invoice->originalInvoice->slug,
+                        'refund'             => $invoice->slug
                     ]
                 ]
             ],

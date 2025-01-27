@@ -12,36 +12,55 @@ use App\Actions\Accounting\Refund\StoreRefund;
 use App\Actions\OrgAction;
 use App\Models\Accounting\Invoice;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 
 class CreateRefund extends OrgAction
 {
-    /**
-     * @var \App\Models\Accounting\Invoice
-     */
-    private Invoice $invoice;
+    private array $referralRoute = [
+        'name' => 'dashboard',
+        'parameters' => []
+    ];
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Invoice $invoice): Invoice
     {
-        return StoreRefund::make()->action($invoice, []);
+        $refund = StoreRefund::make()->action($invoice, []);
+        return $refund;
+
     }
 
     public function htmlResponse(Invoice $refund, ActionRequest $request): RedirectResponse
     {
-        return Redirect::route('grp.org.fulfilments.show.crm.customers.show.invoices.refund.show', [
-            $refund->organisation->slug,
-            $refund->customer->fulfilmentCustomer->fulfilment->slug,
-            $refund->customer->fulfilmentCustomer->slug,
-            $this->invoice->slug,
-            $refund->slug
-        ]);
+        return Redirect::route(
+            $this->referralRoute['name'].'.refunds.show',
+            array_merge($this->referralRoute['parameters'], [$refund->slug])
+        );
     }
 
+    public function rules(): array
+    {
+        return [
+            'referral_route' => ['sometimes','array'],
+            'referral_route.name' => ['required','string'],
+            'referral_route.parameters' => ['required','array'],
+        ];
+    }
+
+    /**
+     * @throws \Throwable
+     */
     public function asController(Invoice $invoice, ActionRequest $request): Invoice
     {
-        $this->invoice = $invoice;
+
         $this->initialisationFromShop($invoice->shop, $request);
+
+        if (Arr::has($this->validatedData, 'referral_route')) {
+            $this->referralRoute = $this->validatedData['referral_route'];
+        }
 
         return $this->handle($invoice);
     }
