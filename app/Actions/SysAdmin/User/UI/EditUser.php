@@ -156,6 +156,14 @@ class EditUser extends OrgAction
                                         'organisation' => null // fill in the organisation id in the frontend
                                     ]
                                 ],
+                                'updateEmployeeJobPositionsRoute'       => [
+                                    'method'     => 'patch',
+                                    "name"       => "grp.models.employee.update",
+                                    //todo support case user has employed in 2 organisations
+                                    'parameters' => [
+                                        'employee' => $user->employees()->first()->id
+                                    ]
+                                ],
 
 
                                 'options'           => Organisation::get()->flatMap(function (Organisation $organisation) {

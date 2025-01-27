@@ -17,6 +17,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateUserOrganisationPseudoJobPositions extends OrgAction
@@ -68,6 +69,19 @@ class UpdateUserOrganisationPseudoJobPositions extends OrgAction
         $this->initialisation($organisation, $modelData);
 
         return $this->handle($user, $organisation, $this->validatedData);
+    }
+
+    public function afterValidator(Validator $validator, ActionRequest $request): void
+    {
+        /** @var User $userToUpdate */
+        $userToUpdate = $request->route()->parameter('user');
+        $employee = $userToUpdate->employees->where('organisation_id', $this->organisation->id)->first();
+
+        if ($employee) {
+            $validator->errors()->add('permissions', 'User is an employee of the organisation');
+        }
+
+
     }
 
     public function prepareForValidation(ActionRequest $request): void

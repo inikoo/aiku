@@ -131,6 +131,7 @@ const onSubmitNewForm = () => {
     }))
     .submit(
         props.fieldData.updateJobPositionsRoute.method || 'patch',
+        // todo use updateEmployeeJobPositionsRoute when user is employeed in this organisation
         route(props.fieldData.updateJobPositionsRoute.name, {...props.fieldData.updateJobPositionsRoute.parameters, organisation: props.fieldData.is_in_organisation ? undefined : props.organisationId}),
         {
             preserveScroll: true,
