@@ -8,6 +8,7 @@
 
 namespace App\Actions\Accounting\Refund\UI;
 
+use App\Actions\Accounting\Invoice\UI\ShowInvoice;
 use App\Actions\Accounting\Invoice\WithInvoicesSubNavigation;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
@@ -25,7 +26,6 @@ use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Invoice;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
-use App\Models\CRM\WebUser;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -83,6 +83,8 @@ class IndexRefunds extends OrgAction
             $queryBuilder->where('invoices.order_id', $parent->id);
         } elseif ($parent instanceof Group) {
             $queryBuilder->where('invoices.group_id', $parent->id);
+        } elseif ($parent instanceof Invoice) {
+            $queryBuilder->where('invoices.invoice_id', $parent->id);
         } else {
             abort(422);
         }
@@ -130,7 +132,7 @@ class IndexRefunds extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|Shop|Order $parent, $prefix = null): Closure
+    public function tableStructure(Invoice|Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|Shop|Order $parent, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($prefix, $parent) {
             if ($prefix) {
@@ -140,13 +142,16 @@ class IndexRefunds extends OrgAction
             }
 
 
-            $noResults = __("No invoices found");
-            if ($parent instanceof Customer) {
+            $noResults = __("No refunds found");
+            if ($parent instanceof Customer || $parent instanceof FulfilmentCustomer) {
                 $stats     = $parent->stats;
                 $noResults = __("Customer hasn't been invoiced");
             } elseif ($parent instanceof CustomerClient) {
                 $stats     = $parent->stats;
                 $noResults = __("This customer client hasn't been invoiced");
+            } elseif ($parent instanceof Invoice) {
+                $stats     = $parent->stats;
+                $noResults = __("Invoice don't have any refunds");
             } elseif ($parent instanceof Group) {
                 $stats     = $parent->orderingStats;
                 $noResults = __("This group hasn't been invoiced");
@@ -188,19 +193,28 @@ class IndexRefunds extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($request->user() instanceof WebUser) {
-            return true;
+
+        $routeName = $request->route()->getName();
+
+        if ($routeName == 'grp.org.fulfilments.show.crm.customers.show.invoices.show.refunds.index') {
+            return $request->user()->hasAnyPermission(
+                [
+                    "fulfilment-shop.{$this->fulfilment->id}.view",
+                    "accounting.{$this->fulfilment->organisation_id}.view"
+                ]
+            );
         }
+
+
+
+
 
         if ($this->parent instanceof Organisation) {
             return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
         } elseif ($this->parent instanceof Customer or $this->parent instanceof CustomerClient) {
             return $request->user()->hasPermissionTo("crm.{$this->organisation->id}.view");
         } elseif ($this->parent instanceof Shop) {
-            //todo think about it
-            $permission = $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
-
-            return $permission;
+            return $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
         } elseif ($this->parent instanceof FulfilmentCustomer or $this->parent instanceof Fulfilment) {
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
         } elseif ($this->parent instanceof Group) {
@@ -215,7 +229,6 @@ class IndexRefunds extends OrgAction
     {
         return InvoicesResource::collection($invoices);
     }
-
 
     public function htmlResponse(LengthAwarePaginator $invoices, ActionRequest $request): Response
     {
@@ -280,13 +293,23 @@ class IndexRefunds extends OrgAction
                 'icon'  => ['fal', 'fa-user'],
                 'title' => __('customer')
             ];
+        } elseif ($this->parent instanceof Invoice) {
+
+            $afterTitle = [
+                'label' => __('Refunds')
+            ];
+            $iconRight  = [
+                'icon' => 'fal fa-file-minus',
+            ];
+            $title      = $this->parent->reference;
+
         }
 
         $routeName       = $request->route()->getName();
         $routeParameters = $request->route()->originalParameters();
 
         return Inertia::render(
-            'Org/Accounting/Invoices',
+            'Org/Accounting/Refunds',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $routeName,
@@ -309,7 +332,6 @@ class IndexRefunds extends OrgAction
             ]
         )->table($this->tableStructure($this->parent));
     }
-
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
@@ -404,6 +426,16 @@ class IndexRefunds extends OrgAction
         return $this->handle($fulfilmentCustomer);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inInvoiceInFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, Invoice $invoice, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $invoice;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+        return $this->handle($invoice);
+    }
+
+
+
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inCustomer(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): LengthAwarePaginator
@@ -431,6 +463,7 @@ class IndexRefunds extends OrgAction
                 ]
             ];
         };
+
 
 
         return match ($routeName) {
@@ -566,7 +599,16 @@ class IndexRefunds extends OrgAction
                     ]
                 )
             ),
-
+            'grp.org.fulfilments.show.crm.customers.show.invoices.show.refunds.index' =>
+            array_merge(
+                ShowInvoice::make()->getBreadcrumbs('grp.org.fulfilments.show.crm.customers.show.invoices.show', $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
 
             default => []
         };

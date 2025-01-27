@@ -28,8 +28,7 @@ class CreateRefund extends OrgAction
      */
     public function handle(Invoice $invoice): Invoice
     {
-        $refund = StoreRefund::make()->action($invoice, []);
-        return $refund;
+        return StoreRefund::make()->action($invoice, []);
 
     }
 
