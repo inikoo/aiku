@@ -11,7 +11,7 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
-use App\Actions\UI\Fulfilment\ShowFulfilmentDashboard;
+use App\Actions\UI\Fulfilment\ShowWarehouseFulfilmentDashboard;
 use App\Enums\UI\Fulfilment\StoredItemsInWarehouseTabsEnum;
 use App\Http\Resources\Fulfilment\ReturnStoredItemsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
@@ -166,7 +166,7 @@ class IndexStoredItemsInWarehouse extends OrgAction
     public function getBreadcrumbs(array $routeParameters): array
     {
         return array_merge(
-            ShowFulfilmentDashboard::make()->getBreadcrumbs($routeParameters),
+            ShowWarehouseFulfilmentDashboard::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'   => 'simple',

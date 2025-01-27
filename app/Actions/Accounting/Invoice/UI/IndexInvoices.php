@@ -186,6 +186,7 @@ class IndexInvoices extends OrgAction
                 $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
                 $table->column(key: 'shop_name', label: __('shop'), canBeHidden: false, searchable: true);
             }
+            $table->column(key: 'pay_status', label: __('Payment'), canBeHidden: false, sortable: true, searchable: true, type: 'icon');
 
 
             $table->column(key: 'total_amount', label: __('total'), canBeHidden: false, sortable: true, searchable: true, type: 'number')
@@ -202,13 +203,18 @@ class IndexInvoices extends OrgAction
         if ($this->parent instanceof Organisation) {
             return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
         } elseif ($this->parent instanceof Customer or $this->parent instanceof CustomerClient) {
-            return $request->user()->hasPermissionTo("crm.{$this->organisation->id}.view");
+            return $request->user()->hasAnyPermission(["crm.{$this->shop->id}.view","accounting.{$this->shop->organisation_id}.view"]);
         } elseif ($this->parent instanceof Shop) {
             //todo think about it
             $permission = $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
             return $permission;
         } elseif ($this->parent instanceof FulfilmentCustomer or $this->parent instanceof Fulfilment) {
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+            return $request->user()->hasAnyPermission(
+                [
+                    "fulfilment-shop.{$this->fulfilment->id}.view",
+                    "accounting.{$this->fulfilment->organisation_id}.view"
+                ]
+            );
         } elseif ($this->parent instanceof Group) {
             return $request->user()->hasPermissionTo("group-overview");
         }

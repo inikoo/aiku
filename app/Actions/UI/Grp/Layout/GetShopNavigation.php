@@ -349,7 +349,7 @@ class GetShopNavigation
             ];
         }
 
-        if ($user->hasPermissionTo("crm.$shop->id.view")) {
+        if ($user->hasAnyPermission(["crm.$shop->id.view", "accounting.$shop->organisation_id.view"])) {
             $navigation["crm"] = [
                 "root"  => "grp.org.shops.show.crm.",
                 "label" => __("CRM"),
@@ -386,7 +386,7 @@ class GetShopNavigation
             ];
         }
 
-        if ($user->hasPermissionTo("orders.$shop->id.view")) {
+        if ($user->hasAnyPermission(["orders.$shop->id.view", "accounting.$shop->organisation_id.view"])) {
             $navigation["ordering"] = [
                 "root"    => "grp.org.shops.show.ordering.",
                 "scope"   => "shops",

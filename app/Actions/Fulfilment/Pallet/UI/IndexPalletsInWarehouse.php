@@ -10,7 +10,7 @@ namespace App\Actions\Fulfilment\Pallet\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
-use App\Actions\UI\Fulfilment\ShowFulfilmentDashboard;
+use App\Actions\UI\Fulfilment\ShowWarehouseFulfilmentDashboard;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Inventory\Location;
@@ -195,7 +195,7 @@ class IndexPalletsInWarehouse extends OrgAction
     public function getBreadcrumbs(array $routeParameters): array
     {
         return  array_merge(
-            ShowFulfilmentDashboard::make()->getBreadcrumbs($routeParameters),
+            ShowWarehouseFulfilmentDashboard::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'   => 'simple',

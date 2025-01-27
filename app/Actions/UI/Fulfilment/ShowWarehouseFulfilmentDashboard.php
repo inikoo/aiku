@@ -16,11 +16,15 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowFulfilmentDashboard extends OrgAction
+class ShowWarehouseFulfilmentDashboard extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.view");
+        return $request->user()->hasAnyPermission(
+            [
+                "fulfilment.{$this->warehouse->id}.view"
+            ]
+        );
     }
 
 
@@ -37,9 +41,9 @@ class ShowFulfilmentDashboard extends OrgAction
         return Inertia::render(
             'Org/Warehouse/Fulfilment/FulfilmentDashboard',
             [
-                'breadcrumbs'  => $this->getBreadcrumbs($request->route()->originalParameters()),
-                'title'        => __('fulfilment'),
-                'pageHead'     => [
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
+                'title'       => __('fulfilment'),
+                'pageHead'    => [
                     'icon'      => [
                         'icon'  => ['fal', 'fa-hand-holding-box'],
                         'title' => __('fulfilment')
@@ -48,7 +52,7 @@ class ShowFulfilmentDashboard extends OrgAction
                         'icon'  => ['fal', 'fa-chart-network'],
                         'title' => __('fulfilment')
                     ],
-                    'title' => __('fulfilment central command'),
+                    'title'     => __('fulfilment central command'),
                 ],
 
 

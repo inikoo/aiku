@@ -26,7 +26,7 @@ class GetOrganisationNavigation
         $navigation = [];
 
 
-        if ($user->hasAnyPermission(['org-supervisor.'.$organisation->id, 'shops-view.'.$organisation->id])) {
+        if ($user->hasAnyPermission([ 'accounting.'.$organisation->id.'.view', 'org-supervisor.'.$organisation->id, 'shops-view.'.$organisation->id])) {
             $navigation['shops_index'] = [
                 'label'   => __('Shops'),
                 'scope'   => 'shops',

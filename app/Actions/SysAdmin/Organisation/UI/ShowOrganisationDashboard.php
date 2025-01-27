@@ -116,7 +116,7 @@ class ShowOrganisationDashboard extends OrgAction
                 'state'         => $shop->state,
                 'route'         => $shop->type == ShopTypeEnum::FULFILMENT
                     ? [
-                        'name'       => 'grp.org.fulfilments.show.dashboard',
+                        'name'       => 'grp.org.fulfilments.show.operations.dashboard',
                         'parameters' => [
                             'organisation' => $organisation->slug,
                             'fulfilment'   => $shop->slug

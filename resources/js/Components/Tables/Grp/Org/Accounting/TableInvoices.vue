@@ -11,10 +11,10 @@ import { Invoice } from "@/types/invoice"
 import { useLocaleStore } from '@/Stores/locale'
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faFileInvoiceDollar, faHandHoldingUsd } from '@fal'
+import { faFileInvoiceDollar, faCircle,faCheckCircle,faQuestionCircle } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import Icon from '@/Components/Icon.vue'
-library.add(faFileInvoiceDollar, faHandHoldingUsd)
+library.add(faFileInvoiceDollar, faCircle,faCheckCircle,faQuestionCircle)
 
 
 const props = defineProps<{

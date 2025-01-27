@@ -9,6 +9,7 @@
 namespace App\Actions\Fulfilment\FulfilmentCustomer\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
+use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatusEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomersResource;
@@ -27,6 +28,8 @@ use App\Services\QueryBuilder;
 
 class IndexFulfilmentCustomers extends OrgAction
 {
+    use WithFulfilmentAuthorisation;
+
     protected function getElementGroups(Fulfilment $parent): array
     {
         return [
@@ -92,7 +95,6 @@ class IndexFulfilmentCustomers extends OrgAction
             ->leftJoin('shops', 'customers.shop_id', 'shops.id')
             ->leftJoin('currencies', 'shops.currency_id', 'currencies.id')
             ->allowedSorts(['reference', 'name', 'number_pallets', 'slug', 'number_pallets_status_storing', 'status', 'sales_all', 'sales_org_currency_all', 'sales_grp_currency_all', 'customers.created_at'])
-
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -143,14 +145,6 @@ class IndexFulfilmentCustomers extends OrgAction
         };
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
-    }
-
-
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
@@ -165,6 +159,25 @@ class IndexFulfilmentCustomers extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
     {
+        $actions = [];
+
+        if ($this->canEdit) {
+            $actions[] = [
+                'type'    => 'button',
+                'style'   => 'create',
+                'tooltip' => __('New Customer'),
+                'label'   => __('New Customer'),
+                'route'   => [
+                    'name'       => 'grp.org.fulfilments.show.crm.customers.create',
+                    'parameters' => [
+                        $this->fulfilment->organisation->slug,
+                        $this->fulfilment->slug
+                    ]
+                ]
+            ];
+        }
+
+
         return Inertia::render(
             'Org/Fulfilment/FulfilmentCustomers',
             [
@@ -175,24 +188,10 @@ class IndexFulfilmentCustomers extends OrgAction
                 'pageHead'    => [
                     'title'   => __('customers'),
                     'icon'    => [
-                        'icon'  => ['fal', 'fa-user'],
+                        'icon'    => ['fal', 'fa-user'],
                         'tooltip' => $this->fulfilment->shop->name.' '.__('customers')
                     ],
-                    'actions' => [
-                        [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('New Customer'),
-                            'label'   => __('New Customer'),
-                            'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.crm.customers.create',
-                                'parameters' => [
-                                    $this->fulfilment->organisation->slug,
-                                    $this->fulfilment->slug
-                                ]
-                            ]
-                        ],
-                    ],
+                    'actions' => $actions
                 ],
                 'data'        => FulfilmentCustomersResource::collection($customers),
 

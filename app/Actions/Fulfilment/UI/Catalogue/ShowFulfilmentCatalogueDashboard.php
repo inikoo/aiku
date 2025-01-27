@@ -9,6 +9,7 @@
 namespace App\Actions\Fulfilment\UI\Catalogue;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
+use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
@@ -30,6 +31,8 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class ShowFulfilmentCatalogueDashboard extends OrgAction
 {
+    use WithFulfilmentAuthorisation;
+
     protected function getElementGroups(Fulfilment $parent): array
     {
         return [
@@ -105,22 +108,12 @@ class ShowFulfilmentCatalogueDashboard extends OrgAction
             ->withQueryString();
     }
 
-
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->organisation->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->organisation->id}.edit");
-
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->organisation->id}.view");
-    }
-
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(FulfilmentAssetsTabsEnum::values());
 
         return $this->handle($fulfilment, FulfilmentAssetsTabsEnum::ASSETS->value);
     }
-
 
     public function htmlResponse(LengthAwarePaginator $assets, ActionRequest $request): Response
     {

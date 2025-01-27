@@ -20,8 +20,10 @@ class GetFulfilmentNavigation
     {
         $navigation = [];
 
-        if ($user->hasPermissionTo("fulfilment-shop.$fulfilment->id.view")) {
-
+        if ($user->hasAnyPermission([
+            "fulfilment-shop.{$fulfilment->id}.view",
+            "accounting.{$fulfilment->organisation_id}.view"
+        ])) {
             $navigation['operations'] = [
                 'root'  => 'grp.org.fulfilments.show.operations.',
                 'label' => __('Fulfilment'),
@@ -157,7 +159,7 @@ class GetFulfilmentNavigation
             ];
 
 
-            if ($fulfilment->shop->website) {
+            if ($fulfilment->shop->website and $user->hasPermissionTo("fulfilment-shop.{$fulfilment->id}.view")) {
                 $navigation['web'] = [
                     'root'    => 'grp.org.fulfilments.show.web.',
                     'scope'   => 'websites',
@@ -260,52 +262,54 @@ class GetFulfilmentNavigation
                             ],
                         ],
                         // Prospects for fulfilment is still not supported
-//                        [
-//                            'label'   => __('prospects'),
-//                            'tooltip' => __('Prospects'),
-//                            'icon'    => ['fal', 'fa-user-plus'],
-//                            'root'    => 'grp.org.fulfilments.show.crm.prospects.',
-//                            'route'   => [
-//                                'name'       => 'grp.org.fulfilments.show.crm.prospects.index',
-//                                'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
-//                            ],
-//                        ],
+                        //                        [
+                        //                            'label'   => __('prospects'),
+                        //                            'tooltip' => __('Prospects'),
+                        //                            'icon'    => ['fal', 'fa-user-plus'],
+                        //                            'root'    => 'grp.org.fulfilments.show.crm.prospects.',
+                        //                            'route'   => [
+                        //                                'name'       => 'grp.org.fulfilments.show.crm.prospects.index',
+                        //                                'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
+                        //                            ],
+                        //                        ],
                     ]
                 ]
 
             ];
-            $navigation['setting'] = [
-                "root"  => "grp.org.fulfilments.show.settings.",
-                "icon"  => ["fal", "fa-sliders-h"],
-                "label" => __("Setting"),
-                "route" => [
-                    "name"       => 'grp.org.fulfilments.show.settings.edit',
-                    "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
-                ],
-                "topMenu" => [
-                    "subSections" => [
-                        [
-                            "tooltip" => __("Fulfilment Setting"),
-                            "icon"    => ["fal", "fa-sliders-h"],
-                            'root'    => 'grp.org.fulfilments.show.settings.edit',
-                            "route"   => [
-                                "name"       => 'grp.org.fulfilments.show.settings.edit',
-                                "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
+            if ($user->hasPermissionTo("fulfilment-shop.{$fulfilment->id}.view")) {
+                $navigation['setting'] = [
+                    "root"    => "grp.org.fulfilments.show.settings.",
+                    "icon"    => ["fal", "fa-sliders-h"],
+                    "label"   => __("Setting"),
+                    "route"   => [
+                        "name"       => 'grp.org.fulfilments.show.settings.edit',
+                        "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
+                    ],
+                    "topMenu" => [
+                        "subSections" => [
+                            [
+                                "tooltip" => __("Fulfilment Setting"),
+                                "icon"    => ["fal", "fa-sliders-h"],
+                                'root'    => 'grp.org.fulfilments.show.settings.edit',
+                                "route"   => [
+                                    "name"       => 'grp.org.fulfilments.show.settings.edit',
+                                    "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
+                                ],
                             ],
-                        ],
-                        [
-                            "label"   => __("outboxes"),
-                            "tooltip" => __("outboxes"),
-                            "icon"    => ["fal", "fa-comment-dollar"],
-                            'root'    => 'grp.org.fulfilments.show.settings.outboxes.index',
-                            "route"   => [
-                                "name"       => "grp.org.fulfilments.show.settings.outboxes.index",
-                                "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
+                            [
+                                "label"   => __("outboxes"),
+                                "tooltip" => __("outboxes"),
+                                "icon"    => ["fal", "fa-comment-dollar"],
+                                'root'    => 'grp.org.fulfilments.show.settings.outboxes.index',
+                                "route"   => [
+                                    "name"       => "grp.org.fulfilments.show.settings.outboxes.index",
+                                    "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
+                                ],
                             ],
                         ],
                     ],
-                ],
-            ];
+                ];
+            }
         }
 
         return $navigation;

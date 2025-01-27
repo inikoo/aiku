@@ -1134,16 +1134,6 @@ test('UI edit recurring bill', function () {
     });
 });
 
-test('UI get section route fulfilment dashboard', function () {
-    $sectionScope = GetSectionRoute::make()->handle('grp.org.fulfilments.show.dashboard', [
-        'organisation' => $this->organisation->slug,
-        'fulfilment' => $this->fulfilment->slug
-    ]);
-
-    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
-        ->and($sectionScope->code)->toBe(AikuSectionEnum::FULFILMENT_DASHBOARD->value)
-        ->and($sectionScope->model_slug)->toBe($this->fulfilment->slug);
-});
 
 test('UI get section route fulfilment catalogue index', function () {
     $sectionScope = GetSectionRoute::make()->handle('grp.org.fulfilments.show.catalogue.index', [

@@ -23,7 +23,7 @@ enum InvoicePayStatusEnum: string
         return [
             'unpaid' => __('Unpaid'),
             'paid'   => __('Paid'),
-            'unknown' => __('Unknown'),
+            'unknown' => __('Unknown payment status'),
         ];
     }
 
@@ -32,29 +32,29 @@ enum InvoicePayStatusEnum: string
         return [
             'unpaid' => [
                 'tooltip' => __('Unpaid'),
-                'icon'    => 'fal fa-money-check-alt',
-                'class'   => 'text-red-500',  // Color for normal icon (Aiku)
-                'color'   => 'red',  // Color for box (Retina)
+                'icon'    => 'fal fa-circle',
+                'class'   => 'text-gray-200',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
                 'app'     => [
-                    'name' => 'seedling',
+                    'name' => 'circle',
                     'type' => 'font-awesome-5'
                 ]
             ],
             'paid'   => [
                 'tooltip' => __('Paid'),
-                'icon'    => 'fal fa-hand-holding-usd',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'icon'    => 'fal fa-check-circle',
+                'class'   => 'text-green-600',  // Color for normal icon (Aiku)
                 'color'   => 'lime',  // Color for box (Retina)
                 'app'     => [
-                    'name' => 'seedling',
+                    'name' => 'check-circle',
                     'type' => 'font-awesome-5'
                 ]
             ],
             'unknown' => [
                 'tooltip' => __('Unknown'),
-                'icon'    => 'fal fa-question',
+                'icon'    => 'fal fa-question-circle',
                 'class'   => 'text-gray-500',
-                'color'   => 'gray',
+                'color'   => 'question-circle',
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'

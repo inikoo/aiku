@@ -14,7 +14,7 @@ use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
-use App\Actions\UI\Fulfilment\ShowFulfilmentDashboard;
+use App\Actions\UI\Fulfilment\ShowWarehouseFulfilmentDashboard;
 use App\Enums\UI\Fulfilment\PalletTabsEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
@@ -245,7 +245,7 @@ class ShowPallet extends OrgAction
     public function getBreadcrumbsFromWarehouse(Pallet $pallet, $routeName, $suffix = null): array
     {
         return array_merge(
-            ShowFulfilmentDashboard::make()->getBreadcrumbs(request()->route()->originalParameters()),
+            ShowWarehouseFulfilmentDashboard::make()->getBreadcrumbs(request()->route()->originalParameters()),
             [
                 [
                     'type'           => 'modelWithIndex',
