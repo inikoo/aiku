@@ -58,6 +58,15 @@ class SetUserAuthorisedModels
             }
         }
 
+        foreach ($user->group->organisations as $organisation) {
+            if ($user->hasPermissionTo('accounting.'.$organisation->id.'.view')) {
+                foreach ($organisation->shops as $shop) {
+                    $authorisedShops[$shop->id] = ['org_id' => $organisation->id];
+                }
+            }
+        }
+
+
         $user->authorisedOrganisations()->sync($authorisedOrganisations);
         $user->authorisedShops()->sync($authorisedShops);
         $user->authorisedFulfilments()->sync($authorisedFulfilments);

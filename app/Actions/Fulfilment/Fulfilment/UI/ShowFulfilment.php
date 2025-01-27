@@ -486,7 +486,7 @@ class ShowFulfilment extends OrgAction
                                     'name'       => 'grp.org.fulfilments.index',
                                     'parameters' => Arr::only($routeParameters, 'organisation')
                                 ],
-                                'label' => __('Fulfilment'),
+                                'label' => __('Fulfilments'),
                                 'icon'  => 'fal fa-bars'
                             ],
                             'model' => [
