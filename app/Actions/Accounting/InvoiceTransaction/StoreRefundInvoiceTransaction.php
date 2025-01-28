@@ -31,23 +31,22 @@ class StoreRefundInvoiceTransaction extends OrgAction
 
         $invoice = $invoiceTransaction->invoice;
 
+        $netAmount = Arr::get($modelData, 'gross_amount', 0);
+
         data_set($modelData, 'group_id', $invoiceTransaction->group_id);
         data_set($modelData, 'organisation_id', $invoiceTransaction->organisation_id);
         data_set($modelData, 'shop_id', $invoiceTransaction->shop_id);
         data_set($modelData, 'customer_id', $invoiceTransaction->customer_id);
 
-        data_set($modelData, 'net_amount', Arr::get($modelData, 'gross_amount', 0));
+        data_set($modelData, 'net_amount', $netAmount);
         data_set($modelData, 'date', now());
 
-        // Todo calculate this from gross_amount
-        data_set($modelData, 'grp_net_amount', $invoiceTransaction->grp_net_amount);
-        data_set($modelData, 'org_net_amount', $invoiceTransaction->org_net_amount);
+        data_set($modelData, 'grp_net_amount', $netAmount * $invoiceTransaction->grp_exchange);
+        data_set($modelData, 'org_net_amount', $netAmount * $invoiceTransaction->org_exchange);
 
 
-
-        //todo calculat quantity from invoice.net_amount/gross_amount make the math
-        data_set($modelData, 'quantity', $invoiceTransaction->quantity);
-
+        $pricePerQuantity = $invoiceTransaction->net_amount / $invoiceTransaction->quantity;
+        data_set($modelData, 'quantity', $netAmount / $pricePerQuantity);
 
         data_set($modelData, 'model_type', $invoiceTransaction->model_type);
         data_set($modelData, 'invoice_id', $invoice->id);
