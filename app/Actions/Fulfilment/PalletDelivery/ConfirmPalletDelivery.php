@@ -41,6 +41,12 @@ class ConfirmPalletDelivery extends OrgAction
             SubmitPalletDelivery::run($palletDelivery);
         }
 
+        if ($palletDelivery->state == PalletDeliveryStateEnum::RECEIVED) {
+            $modelData['received_at'] = null;
+            $modelData['recurring_bill_id'] = null;
+        } else {
+            $modelData['confirmed_at'] = now();
+        }
         foreach ($palletDelivery->pallets as $pallet) {
             UpdatePallet::run($pallet, [
                 'reference' => GetSerialReference::run(
@@ -55,7 +61,6 @@ class ConfirmPalletDelivery extends OrgAction
             PalletRecordSearch::run($pallet);
         }
 
-        $modelData['confirmed_at'] = now();
         $modelData['state']        = PalletDeliveryStateEnum::CONFIRMED;
 
         if (!$palletDelivery->{PalletDeliveryStateEnum::SUBMITTED->value.'_at'}) {
@@ -91,7 +96,7 @@ class ConfirmPalletDelivery extends OrgAction
         }
 
         if (! in_array($this->palletDelivery->state, [PalletDeliveryStateEnum::SUBMITTED,
-            PalletDeliveryStateEnum::IN_PROCESS])) {
+            PalletDeliveryStateEnum::IN_PROCESS, PalletDeliveryStateEnum::RECEIVED])) {
             return false;
         }
 

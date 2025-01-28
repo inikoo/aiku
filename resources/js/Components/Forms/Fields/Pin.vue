@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faSyncAlt, faHistory } from '@fortawesome/free-solid-svg-icons';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { routeType } from '@/types/route'
+import axios from "axios"
 library.add(faSyncAlt);
 
 
@@ -30,22 +31,11 @@ const historyPin = () => {
 }
 
 const generateNewPin = () => {
-    router.get(route(props.fieldData.route_generate.name, props.fieldData.route_generate.parameters), {}, {
-        onFinish: () => {
-            console.log('Request selesai');
-        },
-        onSuccess: (response: { pin: number[] }) => {
-            console.log(response);
-            props.form[props.fieldName] = response.pin;
-        },
-        onError: (error) => {
-            notify({
-                title: "Failed",
-                text: "Error while fetching data",
-                type: "error"
-            })
-        },
-    });
+    axios
+        .get(route(props.fieldData.route_generate.name, props.fieldData.route_generate.parameters))
+        .then((response: any) => {
+            props.form[props.fieldName] = response.data.pin;
+        });
 };
 
 </script>

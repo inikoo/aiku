@@ -251,6 +251,21 @@ class ShowPalletDelivery extends OrgAction
                     [
                         'type'    => 'button',
                         'style'   => 'primary',
+                        'icon'    => 'fal fa-undo-alt',
+                        'tooltip' => __('Revert to Confirmed'),
+                        'label'   => __('Revert to Confirmed'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'post',
+                            'name'       => 'grp.models.pallet-delivery.confirm',
+                            'parameters' => [
+                                'palletDelivery' => $palletDelivery->id
+                            ]
+                        ]
+                    ],
+                    [
+                        'type'    => 'button',
+                        'style'   => 'primary',
                         'icon'    => 'fal fa-clipboard',
                         'tooltip' => __('Start booking'),
                         'label'   => __('start booking'),
