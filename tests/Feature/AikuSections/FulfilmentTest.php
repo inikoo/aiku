@@ -2448,7 +2448,7 @@ test('check invoice transactions length', function ($fulfilmentCustomer) {
 
     expect($invoice)->toBeInstanceOf(Invoice::class)
         ->and($invoice->invoiceTransactions()->count())->toBe(4)
-        ->and(count($queryData))->tobe(2);
+        ->and(count($queryData))->tobe(4);
 
     return $invoice;
 })->depends('update third rental agreement cause');

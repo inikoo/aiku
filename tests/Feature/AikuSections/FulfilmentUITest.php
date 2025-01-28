@@ -507,7 +507,7 @@ test('UI index fulfilment invoices unpaid', function () {
     $fulfilment = $this->shop->fulfilment;
     $response  = get(
         route(
-            'grp.org.fulfilments.show.operations.unpaid_invoices.index',
+            'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.index',
             [
                 $this->organisation->slug,
                 $fulfilment->slug
