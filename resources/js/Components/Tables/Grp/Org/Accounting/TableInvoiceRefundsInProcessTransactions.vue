@@ -103,6 +103,7 @@ const localeCode = navigator.language
                             :class="get(proxyItem, ['new_refund_amount'], null) > item.net_amount ? 'errorShake' : ''"
                             inputClass="width-12"
                             :max="item.net_amount"
+                            :min="0"
                             placeholder="0"
                             mode="currency"
                             :currency="item.currency_code"
@@ -119,8 +120,8 @@ const localeCode = navigator.language
                     </div>
 
                     <!-- {{ get(proxyItem, ['new_refund_amount'], null) > item.net_amount }} -->
-                    <LoadingIcon v-if="isLoadingQuantity.includes(item.code)" class="h-8" />
-                    <FontAwesomeIcon v-else-if="get(proxyItem, ['new_refund_amount'], null) ? proxyItem.new_refund_amount !== (proxyItem.refund_amount || 0) : false" @click="() => onClickQuantity(item.refund_route, item.code, get(proxyItem, ['new_refund_amount'], 0))" icon="fad fa-save" class="h-8 cursor-pointer" :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" aria-hidden="true" />
+                    <LoadingIcon v-if="isLoadingQuantity.includes(item.rowIndex)" class="h-8" />
+                    <FontAwesomeIcon v-else-if="get(proxyItem, ['new_refund_amount'], null) ? proxyItem.new_refund_amount !== (proxyItem.refund_amount || 0) : false" @click="() => onClickQuantity(item.refund_route, item.rowIndex, get(proxyItem, ['new_refund_amount'], 0))" icon="fad fa-save" class="h-8 cursor-pointer" :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" aria-hidden="true" />
                     <FontAwesomeIcon v-else icon="fal fa-save" class="h-8 text-gray-300" aria-hidden="true" />
                 </div>
 
