@@ -12,7 +12,7 @@ use App\Actions\Comms\EmailBulkRun\UI\IndexEmailBulkRuns;
 use App\Actions\Comms\Mailshot\UI\IndexMailshots;
 use App\Actions\OrgAction;
 use App\Actions\Web\HasWorkshopAction;
-use App\Enums\Comms\Email\EmailBuilderEnum;
+use App\Enums\Comms\Outbox\OutboxBuilderEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Enums\UI\Mail\OutboxTabsEnum;
@@ -153,7 +153,7 @@ class ShowOutbox extends OrgAction
         // $actions       = $this->workshopActions($request);
         $actions = [];
 
-        if ($outbox->builder !== EmailBuilderEnum::BLADE->value) {
+        if ($outbox->builder !== OutboxBuilderEnum::BLADE) {
             $actions = [
                 [
                     'type'  => 'button',

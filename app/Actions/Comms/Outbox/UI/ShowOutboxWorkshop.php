@@ -13,7 +13,6 @@ use App\Actions\Traits\Actions\WithActionButtons;
 use App\Enums\Comms\Email\EmailBuilderEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Email;
-use App\Models\Comms\EmailOngoingRun;
 use App\Models\Comms\EmailTemplate;
 use App\Models\Comms\Outbox;
 use App\Models\Fulfilment\Fulfilment;
@@ -43,13 +42,7 @@ class ShowOutboxWorkshop extends OrgAction
             ]);
         }
 
-        if ($outbox->model_type === class_basename(EmailOngoingRun::class)) {
-            $email = $outbox->emailOngoingRun->email;
-        } else {
-            $email = $outbox->mai->email;
-        }
-
-        return $email;
+        return $outbox->emailOngoingRun->email;
     }
 
 
