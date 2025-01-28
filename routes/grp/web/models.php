@@ -120,7 +120,7 @@ use App\Actions\HumanResources\ClockingMachine\DeleteClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\UpdateClockingMachine;
 use App\Actions\HumanResources\Employee\DeleteEmployee;
-use App\Actions\HumanResources\Employee\SetEmployeePin;
+use App\Actions\HumanResources\Employee\GeneratePinEmployee;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\JobPosition\DeleteJobPosition;
@@ -200,7 +200,7 @@ Route::prefix('employee/{employee:id}')->name('employee.')->group(function () {
     Route::delete('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inEmployee'])->name('attachment.detach')->withoutScopedBindings();
     Route::patch('', UpdateEmployee::class)->name('update');
     Route::delete('', DeleteEmployee::class)->name('.delete');
-    Route::patch('pin', SetEmployeePin::class)->name('generate-pin');
+    Route::patch('pin', GeneratePinEmployee::class)->name('generate-pin');
 });
 
 Route::prefix('workplace/{workplace:id}')->name('workplace.')->group(function () {

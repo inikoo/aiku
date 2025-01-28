@@ -6,6 +6,7 @@ import { ref } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faSyncAlt, faHistory } from '@fortawesome/free-solid-svg-icons';
 import { library } from '@fortawesome/fontawesome-svg-core';
+import { routeType } from '@/types/route'
 library.add(faSyncAlt);
 
 
@@ -15,6 +16,7 @@ const props = defineProps<{
     fieldName: string;
     fieldData: {
         required: boolean;
+        route_generate: routeType
     };
 }>();
 
@@ -28,11 +30,12 @@ const historyPin = () => {
 }
 
 const generateNewPin = () => {
-    router.get(route('grp.models.employee.generate-pin'), {}, {
+    router.patch(route(props.fieldData.route_generate.name, props.fieldData.route_generate.parameters), {}, {
         onFinish: () => {
             console.log('Request selesai');
         },
         onSuccess: (response: { pin: number[] }) => {
+            console.log('res', response);
             props.form[props.fieldName] = response.pin;
         },
         onError: (error) => {
@@ -54,10 +57,16 @@ const generateNewPin = () => {
     </div>
 
     <div class="flex  gap-1 flex-wrap rounded-lg">
-        <div v-for="(value, index) in Array.from(form[fieldName])" :key="index"
-            class="relative w-10 h-10 flex items-center justify-center text-lg font-medium border border-gray-300 rounded-lg bg-white shadow-sm hover:bg-blue-50 transition duration-150">
-            <span>{{ value }}</span>
-        </div>
+        <template v-if="form[fieldName]">
+            <div v-for="(value, index) in Array.from(form[fieldName])" :key="index"
+                class="relative w-10 h-10 flex items-center justify-center text-lg font-medium border border-gray-300 rounded-lg bg-white shadow-sm hover:bg-blue-50 transition duration-150">
+                <span>{{ value }}</span>
+            </div>
+        </template>
+
+        <template v-else>
+            {{ 'No Pin yet' }}
+        </template>
     </div>
 
 
