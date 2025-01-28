@@ -247,21 +247,6 @@ class ShowRefund extends OrgAction
                     ],
                     [
                         [
-                            'label'       => __('Charges'),
-                            // 'information'   => __('Shipping fee to your address using DHL service.'),
-                            'price_total' => $refund->charges_amount
-                        ],
-                        [
-                            'label'       => __('Shipping'),
-                            // 'information'   => __('Tax is based on 10% of total order.'),
-                            'price_total' => $refund->shipping_amount
-                        ],
-                        [
-                            'label'       => __('Insurance'),
-                            // 'information'   => __('Tax is based on 10% of total order.'),
-                            'price_total' => $refund->insurance_amount
-                        ],
-                        [
                             'label'       => __('Tax'),
                             'price_total' => $refund->tax_amount
                         ]
@@ -326,8 +311,8 @@ class ShowRefund extends OrgAction
                     : Inertia::lazy(fn() => RefundTransactionsResource::collection(IndexRefundTransactions::run($refund->originalInvoice, InvoiceRefundTabsEnum::ITEMS->value))),
 
                 InvoiceRefundTabsEnum::ITEMS_IN_PROCESS->value => $this->tab == InvoiceRefundTabsEnum::ITEMS_IN_PROCESS->value ?
-                    fn() => RefundInProcessTransactionsResource::collection(IndexRefundInProcessTransactions::run($refund->originalInvoice, InvoiceRefundTabsEnum::ITEMS_IN_PROCESS->value))
-                    : Inertia::lazy(fn() => RefundInProcessTransactionsResource::collection(IndexRefundInProcessTransactions::run($refund->originalInvoice, InvoiceRefundTabsEnum::ITEMS_IN_PROCESS->value))),
+                    fn() => RefundInProcessTransactionsResource::collection(IndexRefundInProcessTransactions::run($refund, InvoiceRefundTabsEnum::ITEMS_IN_PROCESS->value))
+                    : Inertia::lazy(fn() => RefundInProcessTransactionsResource::collection(IndexRefundInProcessTransactions::run($refund, InvoiceRefundTabsEnum::ITEMS_IN_PROCESS->value))),
 
                 InvoiceRefundTabsEnum::PAYMENTS->value => $this->tab == InvoiceRefundTabsEnum::PAYMENTS->value ?
                     fn() => PaymentsResource::collection(IndexPayments::run($refund))
