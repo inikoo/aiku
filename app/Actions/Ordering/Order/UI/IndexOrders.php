@@ -12,6 +12,7 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
+use App\Actions\Ordering\Order\WithOrdersSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -41,6 +42,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexOrders extends OrgAction
 {
     use WithCustomerSubNavigation;
+    use WithOrdersSubNavigation;
 
     private Group|Organisation|Shop|Customer|CustomerClient|Asset|ShopifyUser $parent;
     private string $bucket;
@@ -285,6 +287,8 @@ class IndexOrders extends OrgAction
             } else {
                 $subNavigation = $this->getCustomerSubNavigation($this->parent, $request);
             }
+        } elseif ($this->parent instanceof Shop) {
+            $subNavigation = $this->getOrdersNavigation($this->parent);
         }
         $title      = __('Orders');
         $model      = '';

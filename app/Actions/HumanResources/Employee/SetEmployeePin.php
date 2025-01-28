@@ -8,15 +8,16 @@
 
 namespace App\Actions\HumanResources\Employee;
 
+use App\Actions\OrgAction;
 use App\Models\HumanResources\Employee;
 use Exception;
 use Illuminate\Console\Command;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class SetEmployeePin
+class SetEmployeePin extends OrgAction
 {
     use AsAction;
-
 
     private mixed $updateQuietly = false;
 
@@ -77,6 +78,13 @@ class SetEmployeePin
     public function action(Employee $employee, $updateQuietly = false): void
     {
         $this->updateQuietly = $updateQuietly;
+        $this->setPin($employee);
+    }
+
+    public function asController(Employee $employee, ActionRequest $request): void
+    {
+        $this->initialisation($employee->organisation, $request);
+
         $this->setPin($employee);
     }
 
