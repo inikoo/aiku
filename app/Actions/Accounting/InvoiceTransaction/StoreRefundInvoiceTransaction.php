@@ -13,7 +13,9 @@ use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithOrderExchanges;
 use App\Models\Accounting\InvoiceTransaction;
+use Google\Cloud\Iam\V1\AuditConfigDelta\Action;
 use Illuminate\Support\Facades\DB;
+use Lorisleiva\Actions\ActionRequest;
 
 class StoreRefundInvoiceTransaction extends OrgAction
 {
@@ -26,7 +28,6 @@ class StoreRefundInvoiceTransaction extends OrgAction
      */
     public function handle(InvoiceTransaction $invoiceTransaction, array $modelData): InvoiceTransaction
     {
-
 
         $invoice = $invoiceTransaction->invoice;
 
@@ -78,7 +79,6 @@ class StoreRefundInvoiceTransaction extends OrgAction
             }
 
             $invoice->update($newDataInvoice);
-
             return $invoiceTransaction;
         });
     }
@@ -89,12 +89,10 @@ class StoreRefundInvoiceTransaction extends OrgAction
             'amount' => ['required', 'numeric'],
         ];
     }
-
-
     /**
      * @throws \Throwable
      */
-    public function asController(InvoiceTransaction $invoiceTransaction, $request): InvoiceTransaction
+    public function asController(InvoiceTransaction $invoiceTransaction, ActionRequest $request): InvoiceTransaction
     {
         $this->initialisationFromShop($invoiceTransaction->shop, $request);
         return $this->handle($invoiceTransaction, $this->validatedData);
