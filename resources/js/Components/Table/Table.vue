@@ -346,7 +346,7 @@ function changeSearchInputValue(key, value) {
 
 const changeGlobalSearchValue = debounce((value?: string) => {
     changeSearchInputValue('global', value);
-}, 1000)
+}, 400)
 
 // function changeFilterValue(key, value) {
 //     const intKey = findDataKey('filters', key);

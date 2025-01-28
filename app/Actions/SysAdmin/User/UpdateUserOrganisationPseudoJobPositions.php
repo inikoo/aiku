@@ -74,12 +74,13 @@ class UpdateUserOrganisationPseudoJobPositions extends OrgAction
 
     public function afterValidator(Validator $validator, ActionRequest $request): void
     {
-        /** @var User $userToUpdate */
-        if ($this->user) {
+
+        if($this->asAction) {
             $userToUpdate = $this->user;
-        } else {
+        }else{
             $userToUpdate = $request->route()->parameter('user');
         }
+
         $employee = $userToUpdate->employees->where('organisation_id', $this->organisation->id)->first();
 
         if ($employee) {
