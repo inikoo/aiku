@@ -121,8 +121,8 @@ class EditWebsite extends OrgAction
                     "label" => __("logo"),
                     "value" => $website->imageSources(320, 320),
                     'options' => [
-                        "minAspectRatio" => 1/1,
-                        "maxAspectRatio" => 12/4,
+                        "minAspectRatio" => 1 / 1,
+                        "maxAspectRatio" => 12 / 4,
                      /*    'aspectRatio' =>  12/4 */
                     ]
                 ],
