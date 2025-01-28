@@ -43,12 +43,12 @@ enum InvoiceRefundTabsEnum: string
             ],
 
             InvoiceRefundTabsEnum::ITEMS       => [
-                'title' => __('Items'),
+                'title' => __('Items').' (debug: finalised)',
                 'icon'  => 'fal fa-bars',
             ],
 
             InvoiceRefundTabsEnum::ITEMS_IN_PROCESS       => [
-                'title' => __('Refund Items'),
+                'title' => __('Items').' (debug: in process)',
                 'icon'  => 'fal fa-undo-alt',
             ],
         };
