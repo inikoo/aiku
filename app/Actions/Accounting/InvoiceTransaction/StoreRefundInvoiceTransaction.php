@@ -98,10 +98,10 @@ class StoreRefundInvoiceTransaction extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function asController(InvoiceTransaction $invoiceTransaction, ActionRequest $request): InvoiceTransaction
+    public function asController(InvoiceTransaction $invoiceTransaction, ActionRequest $request): void
     {
         $this->initialisationFromShop($invoiceTransaction->shop, $request);
-        return $this->handle($invoiceTransaction, $this->validatedData);
+        $this->handle($invoiceTransaction, $this->validatedData);
     }
 
 

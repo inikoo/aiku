@@ -44,6 +44,7 @@ const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChan
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import TableInvoiceRefundsTransactions from "@/Components/Tables/Grp/Org/Accounting/TableInvoiceRefundsTransactions.vue";
+import TableInvoiceRefundsInProcessTransactions from "@/Components/Tables/Grp/Org/Accounting/TableInvoiceRefundsInProcessTransactions.vue";
 import { Address } from '@/types/PureComponent/Address'
 import { Icon } from '@/types/Utils/Icon'
 // import AddressLocation from '@/Components/Elements/Info/AddressLocation.vue'
@@ -97,6 +98,7 @@ const props = defineProps<{
     order_summary: FieldOrderSummary[][]
     recurring_bill_route: routeType
     invoice_refund: InvoiceResource
+    items_in_process: {}
     items: {}
     payments: {}
     details: {}
@@ -112,6 +114,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const component = computed(() => {
     const components: Component = {
         items: TableInvoiceRefundsTransactions,
+        items_in_process: TableInvoiceRefundsInProcessTransactions,
         payments: TablePayments,
         details: ModelDetails,
         history: ModelChangelog,
