@@ -42,7 +42,7 @@ class PalletsResource extends JsonResource
             'id'                               => $this->id,
             'slug'                             => $this->slug,
             'reference'                        => $this->reference,
-            'customer_reference'               => (string)$this->customer_reference,
+            'customer_reference'               => $this->customer_reference,
             'fulfilment_customer_name'         => $this->fulfilment_customer_name,
             'fulfilment_customer_slug'         => $this->fulfilment_customer_slug,
             'fulfilment_customer_id'           => $this->fulfilment_customer_id,
