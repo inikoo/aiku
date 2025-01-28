@@ -54,7 +54,7 @@ const onClickQuantity = (routeRefund: routeType, slugRefund: number, amount: num
     router[routeRefund.method || 'post'](
         route(routeRefund.name, routeRefund.parameters),
         {
-            refund_amount: amount
+            gross_amount: amount
         },
         {
             onStart: () => {
@@ -82,7 +82,7 @@ const onClickQuantity = (routeRefund: routeType, slugRefund: number, amount: num
             </template>
 
             <template #cell(action)="{ item, proxyItem }">
-                <pre>refund: {{ item.refund_amount }}</pre>
+                <pre>{{ item }}</pre>
                 <pre>new: {{ item.new_refund_amount }}</pre>
                 ------<br>
                 <Button
