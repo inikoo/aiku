@@ -62,8 +62,8 @@ provide('onLogout', onLogoutAuth)
         class="hidden md:block" />
 
     <!-- <pre>{{ menu.data }}</pre> -->
- <!--    <component v-if="menu?.code" :is="getIrisComponent(menu?.code)" :navigations="menu.data.fieldValue.navigation"
-        :colorThemed="colorThemed" class="hidden md:block" /> -->
+    <component v-if="menu?.code" :is="getIrisComponent(menu?.code)" :navigations="menu.data.fieldValue.navigation"
+        :colorThemed="colorThemed" class="hidden md:block" />
 
         
     <div class="block md:hidden p-3">
