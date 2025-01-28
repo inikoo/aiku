@@ -143,8 +143,8 @@ const layout = inject('layout', layoutStructure)
                         <!-- ButtonGroup -->
                         <slot v-if="action.type == 'buttonGroup' && action.button?.length"
                             :name="`button-group-${action.key}`" :action="action">
-                            <div class="rounded-md flex" :class="[
-                                (action.button?.length || 0) > 1 ? 'shadow' : '',
+                            <div class="rounded-md flex flex-wrap justify-end gap-y-1" :class="[
+                                (action.button?.length || 0) > 1 ? '' : '',
                             ]" :style="{
                                 // border: `1px solid ${action?.button?.length > 1 ? layout?.app?.theme[4] + '88' : 'transparent'}`
                             }">
