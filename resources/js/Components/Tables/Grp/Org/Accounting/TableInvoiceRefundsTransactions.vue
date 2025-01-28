@@ -27,49 +27,50 @@ defineProps<{
 const locale = inject('locale', aikuLocaleStructure)
 
 // Section: add refund
-const isLoading = ref<number[]>([])
-const onClickRefund = (routeRefund: routeType, slugRefund: number) => {
-    router[routeRefund.method || 'post'](
-        route(routeRefund.name, routeRefund.parameters),
-        {
+// const isLoading = ref<number[]>([])
+// const onClickRefund = (routeRefund: routeType, slugRefund: number) => {
+//     router[routeRefund.method || 'post'](
+//         route(routeRefund.name, routeRefund.parameters),
+//         {
 
-        },
-        {
-            onStart: () => {
-                isLoading.value?.push(slugRefund)
-            },
-            onFinish: () => {
-                const index = isLoading.value.indexOf(slugRefund)
-                if (index > -1) {
-                    isLoading.value.splice(index, 1)
-                }
-            }
-        }
-    )
-}
+//         },
+//         {
+//             onStart: () => {
+//                 isLoading.value?.push(slugRefund)
+//             },
+//             onFinish: () => {
+//                 const index = isLoading.value.indexOf(slugRefund)
+//                 if (index > -1) {
+//                     isLoading.value.splice(index, 1)
+//                 }
+//             }
+//         }
+//     )
+// }
 
 // Section: update refund amount
-const isLoadingQuantity = ref<number[]>([])
-const onClickQuantity = (routeRefund: routeType, slugRefund: number, amount: number) => {
-    router[routeRefund.method || 'post'](
-        route(routeRefund.name, routeRefund.parameters),
-        {
-            refund_amount: amount
-        },
-        {
-            onStart: () => {
-                isLoadingQuantity.value?.push(slugRefund)
-            },
-            onFinish: () => {
-                const index = isLoadingQuantity.value.indexOf(slugRefund)
-                if (index > -1) {
-                    isLoadingQuantity.value.splice(index, 1)
-                }
-            }
-        }
-    )
-}
+// const isLoadingQuantity = ref<number[]>([])
+// const onClickQuantity = (routeRefund: routeType, slugRefund: number, amount: number) => {
+//     router[routeRefund.method || 'post'](
+//         route(routeRefund.name, routeRefund.parameters),
+//         {
+//             gross_amount: amount
+//         },
+//         {
+//             onStart: () => {
+//                 isLoadingQuantity.value?.push(slugRefund)
+//             },
+//             onFinish: () => {
+//                 const index = isLoadingQuantity.value.indexOf(slugRefund)
+//                 if (index > -1) {
+//                     isLoadingQuantity.value.splice(index, 1)
+//                 }
+//             }
+//         }
+//     )
+// }
 
+// const localeCode = navigator.language
 </script>
 
 <template>
@@ -81,45 +82,6 @@ const onClickQuantity = (routeRefund: routeType, slugRefund: number, amount: num
                 </div>
             </template>
 
-            <template #cell(action)="{ item, proxyItem }">
-                <pre>refund: {{ item.refund_amount }}</pre>
-                <pre>new: {{ item.new_refund_amount }}</pre>
-                ------<br>
-                <Button
-                    v-if="!item.in_process"
-                    @click="onClickRefund(item.refund_route, item.code)"
-                    :label="trans('Refund')"
-                    icon="fal fa-plus"
-                    type="secondary"
-                    :loading="isLoading.includes(item.code)"
-                />
-
-                <div class="flex items-center gap-x-1">
-                    <div>
-                        <InputNumber
-                            :modelValue="get(proxyItem, ['refund_amount'], 0)"
-                            @input="(e) => (console.log(e.value), set(proxyItem, ['new_refund_amount'], e.value))"
-                            @update:model-value="(e) => set(proxyItem, ['new_refund_amount'], e)"
-                            :class="get(proxyItem, ['new_refund_amount'], null) > item.net_amount ? 'errorShake' : ''"
-                            inputClass="width-12"
-                            :max="item.net_amount"
-                            placeholder="0"
-                        >
-                        </InputNumber>
-                        
-                        <p v-if="get(proxyItem, ['new_refund_amount'], null) > item.net_amount" class="italic text-red-500 text-xs mt-1">
-                            <!-- <FontAwesomeIcon icon='fal fa-exclamation-circle' class='' fixed-width aria-hidden='true' /> -->
-                            {{ trans('Refund amount should not over the net amount') }}
-                        </p>
-                    </div>
-
-                    <!-- {{ get(proxyItem, ['new_refund_amount'], null) > item.net_amount }} -->
-                    <LoadingIcon v-if="isLoadingQuantity.includes(item.code)" class="h-8" />
-                    <FontAwesomeIcon v-else-if="get(proxyItem, ['new_refund_amount'], null) ? proxyItem.new_refund_amount !== (proxyItem.refund_amount || 0) : false" @click="() => onClickQuantity(item.refund_route, item.code, get(proxyItem, ['new_refund_amount'], 0))" icon="fad fa-save" class="h-8 cursor-pointer" :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" aria-hidden="true" />
-                    <FontAwesomeIcon v-else icon="fal fa-save" class="h-8 text-gray-300" aria-hidden="true" />
-                </div>
-
-            </template>
         </Table>
     </div>
 </template>
