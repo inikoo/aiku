@@ -86,7 +86,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
  * @property-read Group $group
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Fulfilment\Pallet> $pallets
- * @property-read Collection<int, \App\Models\Fulfilment\RecurringBill> $recurringBills
+ * @property-read \App\Models\Fulfilment\RecurringBill|null $recurringBill
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
  * @property-read \App\Models\Fulfilment\PalletDeliveryStats|null $stats
  * @property-read TaxCategory $taxCategory
