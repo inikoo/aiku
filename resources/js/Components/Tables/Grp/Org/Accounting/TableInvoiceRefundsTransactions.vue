@@ -70,6 +70,7 @@ const onClickQuantity = (routeRefund: routeType, slugRefund: number, amount: num
     )
 }
 
+const localeCode = navigator.language
 </script>
 
 <template>
@@ -82,18 +83,17 @@ const onClickQuantity = (routeRefund: routeType, slugRefund: number, amount: num
             </template>
 
             <template #cell(action)="{ item, proxyItem }">
-                <pre>{{ item }}</pre>
-                <pre>new: {{ item.new_refund_amount }}</pre>
-                ------<br>
-                <Button
+                <pre>{{ item.data }}</pre>
+                <!-- <pre>new: {{ item.new_refund_amount }}</pre>
+                ------<br> -->
+                <!-- <Button
                     v-if="!item.in_process"
                     @click="onClickRefund(item.refund_route, item.code)"
                     :label="trans('Refund')"
                     icon="fal fa-plus"
                     type="secondary"
                     :loading="isLoading.includes(item.code)"
-                />
-
+                /> -->
                 <div class="flex items-center gap-x-1">
                     <div>
                         <InputNumber
@@ -104,6 +104,11 @@ const onClickQuantity = (routeRefund: routeType, slugRefund: number, amount: num
                             inputClass="width-12"
                             :max="item.net_amount"
                             placeholder="0"
+                            mode="currency"
+                            :currency="item.currency_code"
+                            :locale="localeCode"
+                            showButtons buttonLayout="horizontal" 
+                            :step="0.25"
                         >
                         </InputNumber>
                         
