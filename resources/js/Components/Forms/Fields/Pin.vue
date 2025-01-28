@@ -28,7 +28,7 @@ const historyPin = () => {
 }
 
 const generateNewPin = () => {
-    router.get(route('generate-pin'), {}, {
+    router.get(route('grp.models.employee.generate-pin'), {}, {
         onFinish: () => {
             console.log('Request selesai');
         },
