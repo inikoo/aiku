@@ -61,7 +61,7 @@ class GetReturnPallets extends OrgAction
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
-        
+
         $query = QueryBuilder::for(Pallet::class);
 
 

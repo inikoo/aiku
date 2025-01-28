@@ -30,12 +30,12 @@ const historyPin = () => {
 }
 
 const generateNewPin = () => {
-    router.get(route(props.fieldData.route_generate.name, props.fieldData.route_generate.parameters), {}, {
+    router.patch(route(props.fieldData.route_generate.name, props.fieldData.route_generate.parameters), {}, {
         onFinish: () => {
             console.log('Request selesai');
         },
         onSuccess: (response: { pin: number[] }) => {
-            console.log(response);
+            console.log('res', response);
             props.form[props.fieldName] = response.pin;
         },
         onError: (error) => {
