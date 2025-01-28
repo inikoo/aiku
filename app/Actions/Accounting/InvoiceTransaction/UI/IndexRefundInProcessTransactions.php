@@ -71,6 +71,7 @@ class IndexRefundInProcessTransactions extends OrgAction
             );
         } else {
             $queryBuilder->where('invoice_transactions.invoice_id', $parent->id)
+            ->where('invoice_transactions.in_process', true)
             ->addSelect(
                 DB::raw("'{$parent->currency->code}' AS currency_code")
             )
