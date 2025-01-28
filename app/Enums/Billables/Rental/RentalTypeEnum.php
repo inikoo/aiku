@@ -14,7 +14,30 @@ enum RentalTypeEnum: string
 {
     use EnumHelperTrait;
 
-    case ASSET_LOCATION                           = 'asset_location';
-    case LOCATION                                 = 'location';
+    case STORAGE   = 'storage';
+    case SPACE      = 'space';
+
+
+    public static function typeIcon(): array
+    {
+        return [
+            'storage' => [
+                'tooltip' => __('Storage'),
+                'icon'    => 'fal fa-inventory',
+                'app'     => [
+                    'name' => 'inventory',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'box' => [
+                'tooltip' => __('Space'),
+                'icon'    => 'fal fa-parking',
+                'app'     => [
+                    'name' => 'parking',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+        ];
+    }
 
 }
