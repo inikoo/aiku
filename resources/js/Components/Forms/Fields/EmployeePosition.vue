@@ -117,14 +117,11 @@ const props = defineProps<{
     isGroupAdminSelected?: boolean
 }>()
 
-// console.log('cccc', props.form?.organisations?.[props.fieldName])
-// console.log('vvv', props.form?.[props.fieldName])
+
 const abcdef = {
     [props.fieldName]: props.form?.organisations?.[props.fieldName] || props.form?.[props.fieldName] || 'fffff'
 }
-// console.log('pppp', props.form.organisations)
 const newForm = props.saveButton ? useForm(abcdef || {}) : reactive(props.form)
-// console.log('bbbb', newForm)
 const onSubmitNewForm = () => {
     console.log('Employee submit route name:', props.fieldData.updateJobPositionsRoute.name)
     console.log('Employee submit route:', route(props.fieldData.updateJobPositionsRoute.name, {...props.fieldData.updateJobPositionsRoute.parameters, organisation: props.fieldData.is_in_organisation ? undefined : props.organisationId}))
@@ -134,6 +131,7 @@ const onSubmitNewForm = () => {
     }))
     .submit(
         props.fieldData.updateJobPositionsRoute.method || 'patch',
+        // todo use updateEmployeeJobPositionsRoute when user is employeed in this organisation
         route(props.fieldData.updateJobPositionsRoute.name, {...props.fieldData.updateJobPositionsRoute.parameters, organisation: props.fieldData.is_in_organisation ? undefined : props.organisationId}),
         {
             preserveScroll: true,
@@ -232,6 +230,7 @@ const optionsJob = reactive<optionsJob>({
             {
                 slug: "shop-admin",
                 label: trans("Shop Administrator"),
+                optionsType: ['shops'],
                 number_employees: props.options.positions.data.find(position => position.slug == 'shop_admin')?.number_employees || 0,
             }
         ],
@@ -344,13 +343,6 @@ const optionsJob = reactive<optionsJob>({
                 label: trans("Supervisor"),
                 optionsType: ['warehouses'],
                 number_employees: props.options.positions.data.find(position => position.slug == 'wah-m')?.number_employees || 0,
-            },
-            {
-                slug: "wah-sk",
-                grade: "clerk",
-                label: trans("Stock Keeper"),
-                optionsType: ['warehouses'],
-                number_employees: props.options.positions.data.find(position => position.slug == 'wah-sk')?.number_employees || 0,
             },
             {
                 slug: "wah-sc",
@@ -778,6 +770,5 @@ watch(() => newForm, () => {
 
     </div>
 
-    Newform
-    <pre>{{ newForm[fieldName] }}</pre>
+
 </template>

@@ -45,8 +45,6 @@ class EditUser extends OrgAction
     public function htmlResponse(User $user, ActionRequest $request): Response
     {
 
-
-
         $jobPositionsOrganisationsData = [];
         foreach ($this->group->organisations as $organisation) {
             $jobPositionsOrganisationData                       = GetUserOrganisationScopeJobPositionsData::run($user, $organisation);
@@ -77,6 +75,7 @@ class EditUser extends OrgAction
         })->toArray();
 
         $organisationList = OrganisationsResource::collection($organisations);
+
 
         return Inertia::render("EditModel", [
             "title"       => __("user"),
@@ -144,17 +143,25 @@ class EditUser extends OrgAction
                                 "current_organisation"  => $user->getOrganisation(),
                                 'updatePseudoJobPositionsRoute'       => [
                                     'method'     => 'patch',
-                                    "name"       => "grp.models.user.permissions.update",
+                                    "name"       => "grp.models.user.group_permissions.update",
                                     'parameters' => [
                                         'user' => $user->id
                                     ]
                                 ],
                                 'updateJobPositionsRoute'       => [
                                     'method'     => 'patch',
-                                    "name"       => "grp.models.user.organisation.permissions.update",
+                                    "name"       => "grp.models.user.organisation_pseudo_job_positions.update",
                                     'parameters' => [
                                         'user' => $user->id,
                                         'organisation' => null // fill in the organisation id in the frontend
+                                    ]
+                                ],
+                                'updateEmployeeJobPositionsRoute'       => [
+                                    'method'     => 'patch',
+                                    "name"       => "grp.models.employee.update",
+                                    //todo support case user has employed in 2 organisations
+                                    'parameters' => [
+                                        'employee' => $user->employees()->first()->id
                                     ]
                                 ],
 

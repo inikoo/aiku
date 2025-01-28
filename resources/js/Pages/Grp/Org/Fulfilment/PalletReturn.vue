@@ -150,6 +150,7 @@ const onSubmitAddService = (data: Action, closedPopover: Function) => {
             onSuccess: () => {
                 closedPopover()
                 formAddService.reset()
+                handleTabUpdate('services')
             },
             onError: (errors) => {
                 notify({
@@ -196,6 +197,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                 closedPopover()
                 formAddPhysicalGood.reset()
                 isLoadingButton.value = false
+                handleTabUpdate('physical_goods')
             },
             onError: (errors) => {
                 isLoadingButton.value = false
@@ -266,8 +268,8 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
         </template>
 
         <!-- Button: Add service (single) -->
-        <template #button-group-add-service="{ action }">
-            <Popover v-if="currentTab === 'services'">
+        <template #button-group-add-service="{ action }" >
+            <Popover>
                 <template #button="{ open }">
                     <Button
                         @click="() => open ? false : onOpenModalAddService()"
@@ -335,13 +337,12 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                     </div>
                 </template>
             </Popover>
-            <div v-else />
         </template>
 
 
         <!-- Button: Add physical good (single) -->
         <template #button-group-add-physical-good="{ action }">
-            <div class="relative" v-if="currentTab === 'physical_goods'">
+            <div class="relative ml-2" >
                 <Popover>
                     <template #button="{ open }">
                         <Button
@@ -419,7 +420,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                     </template>
                 </Popover>
             </div>
-            <div v-else></div>
+       
         </template>
     </PageHeading>
 

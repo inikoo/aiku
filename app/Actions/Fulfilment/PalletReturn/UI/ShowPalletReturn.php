@@ -362,6 +362,38 @@ class ShowPalletReturn extends OrgAction
         } else {
             $downloadRoute = 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.stored-items.export';
         };
+
+        $recurringBillData = null;
+        if ($palletReturn->recurringBill) {
+            $recurringBill = $palletReturn->recurringBill;
+
+            if ($this->parent instanceof Fulfilment) {
+                $route = [
+                    'name' => 'grp.org.fulfilments.show.operations.recurring_bills.current.show',
+                    'parameters' => [
+                        'organisation' => $recurringBill->organisation->slug,
+                        'fulfilment' => $this->parent->slug,
+                        'recurringBill' => $recurringBill->slug
+                    ]
+                ];
+            } elseif ($this->parent instanceof FulfilmentCustomer) {
+                $route = [
+                    'name' => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show',
+                    'parameters' => [
+                        'organisation' => $recurringBill->organisation->slug,
+                        'fulfilment' => $this->parent->fulfilment->slug,
+                        'fulfilmentCustomer' => $this->parent->slug,
+                        'recurringBill' => $recurringBill->slug
+                    ]
+                ];
+            }
+            $recurringBillData = [
+                'reference' => $recurringBill->reference,
+                'status'    => $recurringBill->status,
+                'total_amount' => $recurringBill->total_amount,
+                'route'        => $route
+            ];
+        }
         // dd($palletReturn->deliveryAddress);
         return Inertia::render(
             'Org/Fulfilment/PalletReturn',
@@ -505,6 +537,7 @@ class ShowPalletReturn extends OrgAction
                 ],
                 'data'             => PalletReturnResource::make($palletReturn),
                 'box_stats'        => [
+                    'recurring_bill'      => $recurringBillData,
                     'fulfilment_customer'          => array_merge(
                         FulfilmentCustomerResource::make($palletReturn->fulfilmentCustomer)->getArray(),
                         [

@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\Fulfilment\UI;
 
+use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithDashboard;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
@@ -29,6 +30,7 @@ class ShowFulfilment extends OrgAction
     use AsAction;
     use WithInertia;
     use WithDashboard;
+    use WithFulfilmentAuthorisation;
 
 
     public function handle(Fulfilment $fulfilment): Fulfilment
@@ -36,13 +38,7 @@ class ShowFulfilment extends OrgAction
         return $fulfilment;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
-    }
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): Fulfilment
     {
@@ -53,14 +49,13 @@ class ShowFulfilment extends OrgAction
 
     private function getDashboard(Fulfilment $fulfilment): array
     {
-
         return [
 
 
-            'dashboard_stats' => [
+            'dashboard_stats'     => [
                 'widgets' => [
-                    'column_count'    => 4 ,
-                    'components' => [
+                    'column_count' => 4,
+                    'components'   => [
 
                         $this->getWidget(
                             colSpan: 1,
@@ -68,8 +63,8 @@ class ShowFulfilment extends OrgAction
                                 'value'       => $fulfilment->shop->orderingStats->number_invoices,
                                 'description' => __('invoices'),
                                 'type'        => 'number',
-                                'route'         => [
-                                    'name'       => 'grp.org.fulfilments.show.operations.invoices.all_invoices.index',
+                                'route'       => [
+                                    'name'       => 'grp.org.fulfilments.show.operations.invoices.all.index',
                                     'parameters' => [
                                         $fulfilment->organisation->slug,
                                         $fulfilment->slug
@@ -77,22 +72,21 @@ class ShowFulfilment extends OrgAction
                                 ]
                             ],
                             visual: [
-                                'label' => __('Paid'),
-                                'type'  => 'MeterGroup',
-                                'value' => $fulfilment->shop->orderingStats->number_invoices - $fulfilment->shop->orderingStats->number_unpaid_invoices,
-                                'max'   => $fulfilment->shop->orderingStats->number_invoices,
-                                'color' => 'bg-blue-500',
+                                'label'       => __('Paid'),
+                                'type'        => 'MeterGroup',
+                                'value'       => $fulfilment->shop->orderingStats->number_invoices - $fulfilment->shop->orderingStats->number_unpaid_invoices,
+                                'max'         => $fulfilment->shop->orderingStats->number_invoices,
+                                'color'       => 'bg-blue-500',
                                 'right_label' => [
                                     'label' => __('Unpaid').' '.$fulfilment->shop->orderingStats->number_unpaid_invoices,
-                                    'route'         => [
-                                        'name'       => 'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.index',
+                                    'route' => [
+                                        'name'       => 'grp.org.fulfilments.show.operations.unpaid_invoices.index',
                                         'parameters' => [
                                             $fulfilment->organisation->slug,
                                             $fulfilment->slug
                                         ]
                                     ]
                                 ]
-
 
 
                             ],
@@ -119,7 +113,7 @@ class ShowFulfilment extends OrgAction
                                 'label' => __('Bills'),
                                 'type'  => 'number',
                                 'value' => $fulfilment->stats->number_recurring_bills_status_current,
-                                'route'         => [
+                                'route' => [
                                     'name'       => 'grp.org.fulfilments.show.operations.recurring_bills.current.index',
                                     'parameters' => [
                                         $fulfilment->organisation->slug,
@@ -135,7 +129,7 @@ class ShowFulfilment extends OrgAction
                                 'value'       => $fulfilment->stats->number_customers_status_active,
                                 'description' => __('Active Customers'),
                                 'type'        => 'number',
-                                'route'         => [
+                                'route'       => [
                                     'name'       => 'grp.org.fulfilments.show.crm.customers.index',
                                     'parameters' => [
                                         $fulfilment->organisation->slug,
@@ -286,7 +280,7 @@ class ShowFulfilment extends OrgAction
                     ]
                 ]
             ],
-            'flatTreeMaps' => [
+            'flatTreeMaps'        => [
 
 
                 [
@@ -294,7 +288,7 @@ class ShowFulfilment extends OrgAction
                     [
                         'name'  => __('Customers'),
                         'icon'  => ['fal', 'fa-user-tie'],
-                        'route'  => [
+                        'route' => [
                             'name'       => 'grp.org.fulfilments.show.crm.customers.index',
                             'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                         ],
@@ -306,7 +300,7 @@ class ShowFulfilment extends OrgAction
                     [
                         'name'  => __('Recurring bills'),
                         'icon'  => ['fal', 'fa-receipt'],
-                        'route'  => [
+                        'route' => [
                             'name'       => 'grp.org.fulfilments.show.operations.recurring_bills.index',
                             'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                         ],
@@ -317,8 +311,8 @@ class ShowFulfilment extends OrgAction
                     [
                         'name'  => __('Invoices'),
                         'icon'  => ['fal', 'fa-file-invoice-dollar'],
-                        'route'  => [
-                           'name'        => 'grp.org.fulfilments.show.operations.invoices.all_invoices.index',
+                        'route' => [
+                            'name'       => 'grp.org.fulfilments.show.operations.invoices.all.index',
                             'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                         ],
                         'index' => [
@@ -332,20 +326,20 @@ class ShowFulfilment extends OrgAction
                     [
                         'name'  => __('Pallets'),
                         'icon'  => ['fal', 'fa-pallet'],
-                        'route'  => [
+                        'route' => [
                             'name'       => 'grp.org.fulfilments.show.operations.pallets.current.index',
                             'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                         ],
                         'index' => [
                             'number' => $this->organisation->fulfilmentStats->number_pallets_status_storing +
-                                $this->organisation->fulfilmentStats->number_pallets_status_receiving      +
+                                $this->organisation->fulfilmentStats->number_pallets_status_receiving +
                                 $this->organisation->fulfilmentStats->number_pallets_status_returning
                         ],
                     ],
                     [
                         'name'  => __("Customer'S SKUs"),
                         'icon'  => ['fal', 'fa-narwhal'],
-                        'route'  => [
+                        'route' => [
                             'name'       => 'grp.org.fulfilments.show.operations.pallets.current.index',
                             'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                         ],
@@ -359,7 +353,7 @@ class ShowFulfilment extends OrgAction
                     [
                         'name'  => __('Deliveries'),
                         'icon'  => ['fal', 'fa-truck-couch'],
-                        'route'  => [
+                        'route' => [
                             'name'       => 'grp.org.fulfilments.show.operations.pallet-deliveries.index',
                             'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                         ],
@@ -370,7 +364,7 @@ class ShowFulfilment extends OrgAction
                     [
                         'name'  => __('Returns'),
                         'icon'  => ['fal', 'fa-sign-out'],
-                        'route'  => [
+                        'route' => [
                             'name'       => 'grp.org.fulfilments.show.operations.pallet-returns.index',
                             'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                         ],
@@ -380,38 +374,37 @@ class ShowFulfilment extends OrgAction
                     ],
 
 
-
                 ],
             ],
             'scheduledActivities' => [
                 [
-                    'icon'          => 'fal fa-pallet',
-                    'title'         => __('pallets  '),
-                    'description'   => (
+                    'icon'        => 'fal fa-pallet',
+                    'title'       => __('pallets  '),
+                    'description' => (
                         $this->organisation->fulfilmentStats->number_pallets_state_in_process
-                        + $this->organisation->fulfilmentStats->number_pallets_state_submitted
-                        + $this->organisation->fulfilmentStats->number_pallets_state_confirmed
-                    ) . ' ' . __('pending')
+                            + $this->organisation->fulfilmentStats->number_pallets_state_submitted
+                            + $this->organisation->fulfilmentStats->number_pallets_state_confirmed
+                    ).' '.__('pending')
                 ],
                 [
-                    'icon'          => 'fal fa-truck-couch',
-                    'title'         => __('pallet delivery'),
-                    'description'   => (
+                    'icon'        => 'fal fa-truck-couch',
+                    'title'       => __('pallet delivery'),
+                    'description' => (
                         $this->organisation->fulfilmentStats->number_pallet_deliveries_state_in_process
-                        + $this->organisation->fulfilmentStats->number_pallet_deliveries_state_submitted
-                        + $this->organisation->fulfilmentStats->number_pallet_deliveries_state_confirmed
-                    ) . ' ' . __('pending')
+                            + $this->organisation->fulfilmentStats->number_pallet_deliveries_state_submitted
+                            + $this->organisation->fulfilmentStats->number_pallet_deliveries_state_confirmed
+                    ).' '.__('pending')
                 ],
                 [
-                    'icon'          => 'fal fa-sign-out',
-                    'title'         => __('pallet returns'),
-                    'description'   => (
+                    'icon'        => 'fal fa-sign-out',
+                    'title'       => __('pallet returns'),
+                    'description' => (
                         $this->organisation->fulfilmentStats->number_pallet_returns_state_in_process
-                        + $this->organisation->fulfilmentStats->number_pallet_returns_state_submitted
-                        + $this->organisation->fulfilmentStats->number_pallet_returns_state_confirmed
-                        + $this->organisation->fulfilmentStats->number_pallet_returns_state_picking
-                        + $this->organisation->fulfilmentStats->number_pallet_returns_state_picked
-                    ) . ' ' . __('pending')
+                            + $this->organisation->fulfilmentStats->number_pallet_returns_state_submitted
+                            + $this->organisation->fulfilmentStats->number_pallet_returns_state_confirmed
+                            + $this->organisation->fulfilmentStats->number_pallet_returns_state_picking
+                            + $this->organisation->fulfilmentStats->number_pallet_returns_state_picked
+                    ).' '.__('pending')
                 ],
             ]
         ];
@@ -450,7 +443,6 @@ class ShowFulfilment extends OrgAction
                     : Inertia::lazy(fn () => $this->getDashboard($fulfilment)),
 
 
-
             ]
         );
     }
@@ -470,8 +462,6 @@ class ShowFulfilment extends OrgAction
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
-
-
         $fulfilment = Fulfilment::where('slug', Arr::get($routeParameters, 'fulfilment'))->first();
 
         return
@@ -486,7 +476,7 @@ class ShowFulfilment extends OrgAction
                                     'name'       => 'grp.org.fulfilments.index',
                                     'parameters' => Arr::only($routeParameters, 'organisation')
                                 ],
-                                'label' => __('Fulfilment'),
+                                'label' => __('Fulfilments'),
                                 'icon'  => 'fal fa-bars'
                             ],
                             'model' => [

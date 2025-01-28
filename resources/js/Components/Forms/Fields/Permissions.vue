@@ -74,7 +74,7 @@ const groupPositionList = {
         icon: 'fas fa-helmet-battle',
         subDepartment: [
             {
-                slug: "group-admin",
+                slug: "group-admin", // Note, this is not slug is job position code
                 label: trans("Group Administrator"),
                 // number_employees: props.options.positions?.data?.find(position => position.slug == 'group_admin')?.number_employees || 0,
             }
@@ -87,7 +87,7 @@ const groupPositionList = {
         icon: 'fas fa-computer-classic',
         subDepartment: [
             {
-                slug: "sysadmin",
+                slug: "sys-admin", // Note, this is not slug is job position code
                 label: trans("System Administrator"),
                 // number_employees: props.options.positions?.data?.find(position => position.slug == 'system_admin')?.number_employees || 0,
             }
@@ -100,7 +100,7 @@ const groupPositionList = {
         level: 'group_supply_chain',
         subDepartment: [
             {
-                slug: "supply-chain",
+                slug: "gp-sc", // Note, this is not slug is job position code
                 grade: "manager",
                 label: trans("Manager"),
                 // number_employees: props.options.positions?.data?.find(position => position.slug == 'gp-sc')?.number_employees || 0,
@@ -115,7 +115,7 @@ const groupPositionList = {
         level: 'group_goods',
         subDepartment: [
             {
-                slug: "goods",
+                slug: "gp-g", // Note, this is not slug is job position code
                 grade: "manager",
                 label: trans("Manager"),
                 // number_employees: props.options.positions?.data?.find(position => position.slug == 'gp-g')?.number_employees || 0,

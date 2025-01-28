@@ -16,6 +16,9 @@ trait WithFulfilmentCustomerSubNavigation
 {
     public function getFulfilmentCustomerSubNavigation(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): array
     {
+
+        $user = $request->user();
+
         $subNavigation = [];
 
         $subNavigation[] = [
@@ -36,21 +39,28 @@ trait WithFulfilmentCustomerSubNavigation
         ];
 
         if ($fulfilmentCustomer->pallets_storage && $fulfilmentCustomer->rentalAgreement()->where('state', RentalAgreementStateEnum::ACTIVE)->exists()) {
-            $subNavigation[] = [
-                'route' => [
-                    'name'      => 'grp.org.fulfilments.show.crm.customers.show.web-users.index',
-                    'parameters' => $request->route()->originalParameters()
 
-                ],
 
-                'label'     => __('Web users'),
-                'leftIcon'  => [
-                    'icon'    => 'fal fa-terminal',
-                    'tooltip' => __('Web users'),
-                ],
-                'number' => $fulfilmentCustomer->customer->stats->number_web_users
+            if ($user->hasPermissionTo('fulfilment-customer.'.$fulfilmentCustomer->id.'.view')) {
 
-            ];
+                $subNavigation[] = [
+                    'route' => [
+                        'name'      => 'grp.org.fulfilments.show.crm.customers.show.web-users.index',
+                        'parameters' => $request->route()->originalParameters()
+
+                    ],
+
+                    'label'     => __('Web users'),
+                    'leftIcon'  => [
+                        'icon'    => 'fal fa-terminal',
+                        'tooltip' => __('Web users'),
+                    ],
+                    'number' => $fulfilmentCustomer->customer->stats->number_web_users
+
+                ];
+            }
+
+
             $subNavigation[] = [
                 'route' => [
                     'name'      => 'grp.org.fulfilments.show.crm.customers.show.pallets.index',
@@ -101,20 +111,7 @@ trait WithFulfilmentCustomerSubNavigation
 
             ];
 
-            $subNavigation[] = [
-                'route' => [
-                    'name'      => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.index',
-                    'parameters' => $request->route()->originalParameters()
-                ],
 
-                'label'     => __('Recurring bills'),
-                'leftIcon'  => [
-                    'icon'    => 'fal fa-receipt',
-                    'tooltip' => __('Recurring bills'),
-                ],
-                'number' => $fulfilmentCustomer->number_recurring_bills
-
-            ];
         }
 
 
@@ -146,6 +143,22 @@ trait WithFulfilmentCustomerSubNavigation
         }
 
         if ($fulfilmentCustomer->rentalAgreement()->exists()) {
+
+
+            $subNavigation[] = [
+                'route' => [
+                    'name'      => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.index',
+                    'parameters' => $request->route()->originalParameters()
+                ],
+
+                'label'     => __('Recurring bills'),
+                'leftIcon'  => [
+                    'icon'    => 'fal fa-receipt',
+                    'tooltip' => __('Recurring bills'),
+                ],
+                'number' => $fulfilmentCustomer->number_recurring_bills
+
+            ];
 
             $subNavigation[] = [
                 'route' => [

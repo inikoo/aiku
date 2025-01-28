@@ -29,7 +29,6 @@ class ShowShop extends OrgAction
     use WithInertia;
 
 
-
     public function handle(Shop $shop): Shop
     {
         return $shop;
@@ -40,32 +39,31 @@ class ShowShop extends OrgAction
         $this->canEdit   = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
         $this->canDelete = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
 
-        return $request->user()->hasPermissionTo("products.{$this->shop->id}.view");
+        return $request->user()->hasAnyPermission(["products.{$this->shop->id}.view", "accounting.{$this->shop->organisation_id}.view"]);
     }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Shop
     {
-
         $this->initialisationFromShop($shop, $request)->withTab(ShopTabsEnum::values());
+
         return $this->handle($shop);
     }
 
     public function htmlResponse(Shop $shop, ActionRequest $request): Response
     {
-
         return Inertia::render(
             'Org/Catalogue/Shop',
             [
-                'title'        => __('shop'),
-                'breadcrumbs'  => $this->getBreadcrumbs(
+                'title'       => __('shop'),
+                'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
-                'navigation'   => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($shop, $request),
                     'next'     => $this->getNext($shop, $request),
                 ],
 
-                'pageHead'     => [
+                'pageHead' => [
                     'title'   => $shop->name,
                     'icon'    => [
                         'title' => __('Shop'),
@@ -91,7 +89,7 @@ class ShowShop extends OrgAction
                         [
                             'name'  => __('customers'),
                             'icon'  => ['fal', 'fa-user'],
-                            'route'  => ['grp.org.shops.show.crm.customers.index', $shop->slug],
+                            'route' => ['grp.org.shops.show.crm.customers.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->crmStats->number_customers
                             ]
@@ -99,7 +97,7 @@ class ShowShop extends OrgAction
                         [
                             'name'  => __('prospects'),
                             'icon'  => ['fal', 'fa-user'],
-                            'route'  => ['grp.crm.shops.show.prospects.index', $shop->slug],
+                            'route' => ['grp.crm.shops.show.prospects.index', $shop->slug],
                             'index' => [
                                 'number' => 'TBD'// $shop->stats->number_customers
                             ]
@@ -109,7 +107,7 @@ class ShowShop extends OrgAction
                         [
                             'name'  => __('departments'),
                             'icon'  => ['fal', 'fa-folder-tree'],
-                            'route'  => ['shops.show.departments.index', $shop->slug],
+                            'route' => ['shops.show.departments.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_departments
                             ]
@@ -118,7 +116,7 @@ class ShowShop extends OrgAction
                         [
                             'name'  => __('families'),
                             'icon'  => ['fal', 'fa-folder'],
-                            'route'  => ['shops.show.families.index', $shop->slug],
+                            'route' => ['shops.show.families.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_families
                             ]
@@ -127,7 +125,7 @@ class ShowShop extends OrgAction
                         [
                             'name'  => __('products'),
                             'icon'  => ['fal', 'fa-cube'],
-                            'route'  => ['shops.show.products.index', $shop->slug],
+                            'route' => ['shops.show.products.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_products
                             ]
@@ -137,7 +135,7 @@ class ShowShop extends OrgAction
                         [
                             'name'  => __('orders'),
                             'icon'  => ['fal', 'fa-shopping-cart'],
-                            'route'  => ['grp.crm.shops.show.orders.index', $shop->slug],
+                            'route' => ['grp.crm.shops.show.orders.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->orderingStats->number_orders
                             ]
@@ -145,7 +143,7 @@ class ShowShop extends OrgAction
                         [
                             'name'  => __('invoices'),
                             'icon'  => ['fal', 'fa-file-invoice'],
-                            'route'  => ['grp.crm.shops.show.invoices.index', $shop->slug],
+                            'route' => ['grp.crm.shops.show.invoices.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->orderingStats->number_invoices
                             ]
@@ -153,7 +151,7 @@ class ShowShop extends OrgAction
                         [
                             'name'  => __('delivery-notes'),
                             'icon'  => ['fal', 'fa-sticky-note'],
-                            'route'  => ['grp.crm.shops.show.delivery-notes.index', $shop->slug],
+                            'route' => ['grp.crm.shops.show.delivery-notes.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->orderingStats->number_deliveries
                             ]
@@ -175,16 +173,13 @@ class ShowShop extends OrgAction
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($shop)))
 
 
-
             ]
         )->table(
             IndexHistory::make()->tableStructure(
                 prefix: ShopTabsEnum::HISTORY->value
             )
         );
-
     }
-
 
 
     public function jsonResponse(Shop $shop): ShopResource
@@ -194,7 +189,6 @@ class ShowShop extends OrgAction
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
-
         $shop = Shop::where('slug', $routeParameters['shop'])->first();
 
         return
@@ -215,7 +209,7 @@ class ShowShop extends OrgAction
                             'model' => [
                                 'route' => [
                                     'name'       => 'grp.org.shops.show.dashboard',
-                                    'parameters' => Arr::only($routeParameters, ['organisation','shop'])
+                                    'parameters' => Arr::only($routeParameters, ['organisation', 'shop'])
                                 ],
                                 'label' => $shop->code,
                                 'icon'  => 'fal fa-bars'
@@ -227,7 +221,6 @@ class ShowShop extends OrgAction
                     ]
                 ]
             );
-
     }
 
     public function getPrevious(Shop $shop, ActionRequest $request): ?array
@@ -257,7 +250,7 @@ class ShowShop extends OrgAction
                     'name'       => $routeName,
                     'parameters' => [
                         'organisation' => $this->organisation->slug,
-                        'shop'        => $shop->slug
+                        'shop'         => $shop->slug
                     ]
 
                 ]

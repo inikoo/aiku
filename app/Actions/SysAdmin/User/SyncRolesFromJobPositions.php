@@ -27,9 +27,7 @@ class SyncRolesFromJobPositions
         $roles = [];
 
         if ($user->status) {
-
             foreach ($user->employees as $employee) {
-
                 foreach ($employee->jobPositions as $jobPosition) {
                     $roles = $this->getRoles($roles, $jobPosition);
                 }
@@ -40,43 +38,61 @@ class SyncRolesFromJobPositions
             }
         }
 
-
-
-
         $user->syncRoles($roles);
-
-
 
         if ($user->roles()->where('name', RolesEnum::GROUP_ADMIN->value)->exists()) {
             foreach ($user->group->organisations as $organisation) {
-                UserAddRoles::run($user, [
-                    Role::where('name', RolesEnum::getRoleName(RolesEnum::ORG_ADMIN->value, $organisation))->first()
-                ]);
+                UserAddRoles::run(
+                    $user,
+                    [
+                        Role::where('name', RolesEnum::getRoleName(RolesEnum::ORG_ADMIN->value, $organisation))->first()
+                    ],
+                    setUserAuthorisedModels: false
+                );
             }
             foreach ($user->group->shops as $shop) {
                 if ($shop->type == ShopTypeEnum::FULFILMENT) {
-                    UserAddRoles::run($user, [
-                        Role::where('name', RolesEnum::getRoleName(RolesEnum::FULFILMENT_WAREHOUSE_SUPERVISOR->value, $shop->fulfilment))->first()
-                    ]);
-                    UserAddRoles::run($user, [
-                        Role::where('name', RolesEnum::getRoleName(RolesEnum::FULFILMENT_SHOP_SUPERVISOR->value, $shop->fulfilment))->first()
-                    ]);
+                    UserAddRoles::run(
+                        $user,
+                        [
+                            Role::where('name', RolesEnum::getRoleName(RolesEnum::FULFILMENT_WAREHOUSE_SUPERVISOR->value, $shop->fulfilment))->first()
+                        ],
+                        setUserAuthorisedModels: false
+                    );
+                    UserAddRoles::run(
+                        $user,
+                        [
+                            Role::where('name', RolesEnum::getRoleName(RolesEnum::FULFILMENT_SHOP_SUPERVISOR->value, $shop->fulfilment))->first()
+                        ],
+                        setUserAuthorisedModels: false
+                    );
                 } else {
-                    UserAddRoles::run($user, [
-                        Role::where('name', RolesEnum::getRoleName(RolesEnum::SHOP_ADMIN->value, $shop))->first()
-                    ]);
+                    UserAddRoles::run(
+                        $user,
+                        [
+                            Role::where('name', RolesEnum::getRoleName(RolesEnum::SHOP_ADMIN->value, $shop))->first()
+                        ],
+                        setUserAuthorisedModels: false
+                    );
                 }
             }
             foreach ($user->group->warehouses as $warehouse) {
-                UserAddRoles::run($user, [
-                    Role::where('name', RolesEnum::getRoleName(RolesEnum::WAREHOUSE_ADMIN->value, $warehouse))->first()
-                ]);
+                UserAddRoles::run(
+                    $user,
+                    [
+                        Role::where('name', RolesEnum::getRoleName(RolesEnum::WAREHOUSE_ADMIN->value, $warehouse))->first()
+                    ],
+                    setUserAuthorisedModels: false
+                );
             }
-
             foreach ($user->group->productions as $production) {
-                UserAddRoles::run($user, [
-                    Role::where('name', RolesEnum::getRoleName(RolesEnum::MANUFACTURING_ADMIN->value, $production))->first()
-                ]);
+                UserAddRoles::run(
+                    $user,
+                    [
+                        Role::where('name', RolesEnum::getRoleName(RolesEnum::MANUFACTURING_ADMIN->value, $production))->first()
+                    ],
+                    setUserAuthorisedModels: false
+                );
             }
         }
 
@@ -90,7 +106,6 @@ class SyncRolesFromJobPositions
 
     private function getRoles($roles, JobPosition $jobPosition): array
     {
-
         $jobPosition->refresh();
         if ($jobPosition->scope == JobPositionScopeEnum::ORGANISATION || $jobPosition->scope == JobPositionScopeEnum::GROUP) {
             $roles = array_merge($roles, $jobPosition->roles()->pluck('id')->all());
@@ -106,7 +121,6 @@ class SyncRolesFromJobPositions
 
     private function getRolesOrganisationScopes(JobPosition $jobPosition): array
     {
-
         $roles = [];
         $jobPosition->refresh();
         foreach ($jobPosition->roles as $role) {
@@ -122,7 +136,6 @@ class SyncRolesFromJobPositions
 
     public function asCommand(Command $command): int
     {
-
         try {
             /** @var User $user */
             $user = User::where('slug', $command->argument('user'))->firstOrFail();

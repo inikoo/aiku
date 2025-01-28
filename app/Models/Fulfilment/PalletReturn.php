@@ -28,7 +28,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -200,9 +199,9 @@ class PalletReturn extends Model
         return $this->hasOne(PalletReturnStats::class);
     }
 
-    public function recurringBills(): MorphToMany
+    public function recurringBill(): BelongsTo
     {
-        return $this->morphToMany(RecurringBill::class, 'model', 'model_has_recurring_bills')->withTimestamps();
+        return $this->belongsTo(RecurringBill::class);
     }
 
     public function transactions(): MorphMany

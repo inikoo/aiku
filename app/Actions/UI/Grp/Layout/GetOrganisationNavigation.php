@@ -26,7 +26,7 @@ class GetOrganisationNavigation
         $navigation = [];
 
 
-        if ($user->hasAnyPermission(['org-supervisor.'.$organisation->id, 'shops-view.'.$organisation->id])) {
+        if ($user->hasAnyPermission([ 'accounting.'.$organisation->id.'.view', 'org-supervisor.'.$organisation->id, 'shops-view.'.$organisation->id])) {
             $navigation['shops_index'] = [
                 'label'   => __('Shops'),
                 'scope'   => 'shops',
@@ -277,7 +277,7 @@ class GetOrganisationNavigation
                             'icon'  => ['fal', 'fa-file-invoice-dollar'],
                             'root'  => 'grp.org.accounting.invoices.',
                             'route' => [
-                                'name'       => 'grp.org.accounting.invoices.all_invoices.index',
+                                'name'       => 'grp.org.accounting.invoices.index',
                                 'parameters' => [$organisation->slug],
 
                             ]

@@ -40,21 +40,32 @@ class ShowInvoice extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+
         if ($this->parent instanceof Organisation) {
             return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
         } elseif ($this->parent instanceof Shop) {
             //todo think about it
             return false;
         } elseif ($this->parent instanceof Fulfilment) {
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+            return $request->user()->hasAnyPermission(
+                [
+                    "fulfilment-shop.{$this->fulfilment->id}.view",
+                    "accounting.{$this->fulfilment->organisation_id}.view"
+                ]
+            );
         } elseif ($this->parent instanceof FulfilmentCustomer) {
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+            return $request->user()->hasAnyPermission(
+                [
+                    "fulfilment-shop.{$this->fulfilment->id}.view",
+                    "accounting.{$this->fulfilment->organisation_id}.view"
+                ]
+            );
         }
 
         return false;
     }
 
-    public function inOrganisation(Organisation $organisation, Invoice $invoice, ActionRequest $request): Invoice
+    public function asController(Organisation $organisation, Invoice $invoice, ActionRequest $request): Invoice
     {
         $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(InvoiceTabsEnum::values());
@@ -142,7 +153,14 @@ class ShowInvoice extends OrgAction
                         'method' => 'post',
                         'name'       => 'grp.models.refund.create',
                         'parameters' => [
-                            'invoice' => $invoice->id
+                            'invoice' => $invoice->id,
+
+                        ],
+                        'body' => [
+                            'referral_route' => [
+                                'name'       => $request->route()->getName(),
+                                'parameters' => $request->route()->originalParameters()
+                            ]
                         ]
                     ],
                 ]
@@ -320,7 +338,7 @@ class ShowInvoice extends OrgAction
                     $invoice,
                     [
                         'index' => [
-                            'name'       => 'grp.org.fulfilments.show.operations.invoices.index',
+                            'name'       => 'grp.org.fulfilments.show.operations.invoices.all.index',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment'])
                         ],
                         'model' => [
@@ -338,7 +356,7 @@ class ShowInvoice extends OrgAction
                     $invoice,
                     [
                         'index' => [
-                            'name'       => 'grp.org.fulfilments.show.operations.invoices.all_invoices.index',
+                            'name'       => 'grp.org.fulfilments.show.operations.invoices.all.index',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment'])
                         ],
                         'model' => [
@@ -357,7 +375,7 @@ class ShowInvoice extends OrgAction
                     $invoice,
                     [
                         'index' => [
-                            'name'       => 'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.index',
+                            'name'       => 'grp.org.fulfilments.show.operations.unpaid_invoices.index',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment'])
                         ],
                         'model' => [
@@ -396,7 +414,7 @@ class ShowInvoice extends OrgAction
                     $invoice,
                     [
                         'index' => [
-                            'name'       => 'grp.org.accounting.invoices.all_invoices.index',
+                            'name'       => 'grp.org.accounting.invoices.index',
                             'parameters' => Arr::only($routeParameters, ['organisation'])
                         ],
                         'model' => [

@@ -120,7 +120,7 @@ class StoreEmployee extends OrgAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
-        $this->preparePositionsForValidation();
+        $this->prepareJobPositionsForValidation();
         if (!$this->get('username')) {
             $this->set('username', null);
         }

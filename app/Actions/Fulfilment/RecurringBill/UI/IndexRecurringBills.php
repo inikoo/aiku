@@ -11,6 +11,7 @@ namespace App\Actions\Fulfilment\RecurringBill\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\RecurringBill\WithRecurringBillsSubNavigation;
+use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
@@ -34,16 +35,11 @@ class IndexRecurringBills extends OrgAction
 {
     use WithFulfilmentCustomerSubNavigation;
     use WithRecurringBillsSubNavigation;
+    use WithFulfilmentAuthorisation;
 
     private Fulfilment|FulfilmentCustomer $parent;
     private string $bucket;
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
-    }
 
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator

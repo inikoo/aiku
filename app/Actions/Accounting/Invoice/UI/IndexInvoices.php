@@ -9,17 +9,18 @@
 namespace App\Actions\Accounting\Invoice\UI;
 
 use App\Actions\Accounting\Invoice\WithInvoicesSubNavigation;
-use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
+use App\Actions\Ordering\UI\ShowOrderingDashboard;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\Accounting\Invoice\InvoicePayStatusEnum;
+use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Http\Resources\Accounting\InvoicesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Invoice;
@@ -48,6 +49,7 @@ class IndexInvoices extends OrgAction
     use WithInvoicesSubNavigation;
 
     private Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|Shop $parent;
+    private string $bucket = '';
 
     public function handle(Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|Shop|Order $parent, $prefix = null): LengthAwarePaginator
     {
@@ -63,6 +65,7 @@ class IndexInvoices extends OrgAction
 
 
         $queryBuilder = QueryBuilder::for(Invoice::class);
+        $queryBuilder->where('invoices.type', InvoiceTypeEnum::INVOICE);
 
         if ($this->bucket) {
             if ($this->bucket == 'unpaid') {
@@ -95,7 +98,7 @@ class IndexInvoices extends OrgAction
         $queryBuilder->leftjoin('organisations', 'invoices.organisation_id', '=', 'organisations.id');
         $queryBuilder->leftjoin('shops', 'invoices.shop_id', '=', 'shops.id');
 
-        $queryBuilder->defaultSort('-invoices.date')
+        $queryBuilder->defaultSort('-date')
             ->select([
                 'invoices.reference',
                 'invoices.total_amount',
@@ -119,7 +122,7 @@ class IndexInvoices extends OrgAction
 
 
 
-        if ($parent instanceof Shop) {
+        if ($parent instanceof Shop || $parent instanceof Organisation) {
             $queryBuilder->leftJoin('customers', 'invoices.customer_id', '=', 'customers.id')
                 ->addSelect('customers.name as customer_name', 'customers.slug as customer_slug');
         }
@@ -130,7 +133,7 @@ class IndexInvoices extends OrgAction
                 ->addSelect('customers.name as customer_name', 'fulfilment_customers.slug as customer_slug');
         }
 
-        return $queryBuilder->allowedSorts(['number','pay_status', 'total_amount', 'net_amount', 'date', 'customer_name', 'reference'])
+        return $queryBuilder->allowedSorts(['number', 'pay_status', 'total_amount', 'net_amount', 'date', 'customer_name', 'reference'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -169,46 +172,53 @@ class IndexInvoices extends OrgAction
                     ]
                 );
 
-            $table->column(key: 'type', label: '', canBeHidden: false, searchable: true, type: 'icon')
-                ->defaultSort('reference');
-            $table->column(key: 'pay_status', label: '', canBeHidden: false, searchable: true, sortable: true, type: 'icon');
-            $table
-                ->withGlobalSearch()
-                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+
+
+
+
+            $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+
+            if ($parent instanceof Shop || $parent instanceof Fulfilment || $parent instanceof Organisation) {
+                $table->column(key: 'customer_name', label: __('customer'), canBeHidden: false, sortable: true, searchable: true);
+            }
 
             $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true, align: 'right');
 
 
-            if ($parent instanceof Fulfilment || $parent instanceof Shop) {
-                $table->column(key: 'customer_name', label: __('customer'), canBeHidden: false, sortable: true, searchable: true);
-            }
             if ($parent instanceof Group) {
                 $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
                 $table->column(key: 'shop_name', label: __('shop'), canBeHidden: false, searchable: true);
             }
+            $table->column(key: 'pay_status', label: __('Payment'), canBeHidden: false, sortable: true, searchable: true, type: 'icon');
 
 
             $table->column(key: 'total_amount', label: __('total'), canBeHidden: false, sortable: true, searchable: true, type: 'number')
-                ->defaultSort('reference');
+                ->defaultSort('-date');
         };
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($request->user() instanceof  WebUser) {
+        if ($request->user() instanceof WebUser) {
             return true;
         }
 
         if ($this->parent instanceof Organisation) {
             return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
         } elseif ($this->parent instanceof Customer or $this->parent instanceof CustomerClient) {
-            return $request->user()->hasPermissionTo("crm.{$this->organisation->id}.view");
+            return $request->user()->hasAnyPermission(["crm.{$this->shop->id}.view","accounting.{$this->shop->organisation_id}.view"]);
         } elseif ($this->parent instanceof Shop) {
             //todo think about it
             $permission = $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
+
             return $permission;
         } elseif ($this->parent instanceof FulfilmentCustomer or $this->parent instanceof Fulfilment) {
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+            return $request->user()->hasAnyPermission(
+                [
+                    "fulfilment-shop.{$this->fulfilment->id}.view",
+                    "accounting.{$this->fulfilment->organisation_id}.view"
+                ]
+            );
         } elseif ($this->parent instanceof Group) {
             return $request->user()->hasPermissionTo("group-overview");
         }
@@ -216,12 +226,10 @@ class IndexInvoices extends OrgAction
         return false;
     }
 
-
     public function jsonResponse(LengthAwarePaginator $invoices): AnonymousResourceCollection
     {
         return InvoicesResource::collection($invoices);
     }
-
 
     public function htmlResponse(LengthAwarePaginator $invoices, ActionRequest $request): Response
     {
@@ -237,14 +245,14 @@ class IndexInvoices extends OrgAction
             }
         } elseif ($this->parent instanceof FulfilmentCustomer) {
             $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
-        } elseif ($this->parent instanceof Fulfilment || $this->parent instanceof Organisation) {
+        } elseif ($this->parent instanceof Shop || $this->parent instanceof Fulfilment || $this->parent instanceof Organisation) {
             $subNavigation = $this->getInvoicesNavigation($this->parent);
         }
 
 
         $title = __('Invoices');
 
-        $icon  = [
+        $icon = [
             'icon'  => ['fal', 'fa-file-invoice-dollar'],
             'title' => __('invoices')
         ];
@@ -264,36 +272,28 @@ class IndexInvoices extends OrgAction
 
                 'label' => __('invoices')
             ];
-        } elseif ($this->parent instanceof Fulfilment) {
-            $model = __('Operations');
         } elseif ($this->parent instanceof CustomerClient) {
-
             $iconRight  = $icon;
             $afterTitle = [
                 'label' => $title
             ];
 
-            $title      = $this->parent->name;
-            $model      = __('customer client');
-            $icon       = [
+            $title = $this->parent->name;
+            $model = __('customer client');
+            $icon  = [
                 'icon'  => ['fal', 'fa-folder'],
                 'title' => __('customer client')
             ];
-
-
         } elseif ($this->parent instanceof Customer) {
-
             $iconRight  = $icon;
             $afterTitle = [
                 'label' => $title
             ];
-            $title = $this->parent->name;
+            $title      = $this->parent->name;
             $icon       = [
                 'icon'  => ['fal', 'fa-user'],
                 'title' => __('customer')
             ];
-
-
         }
 
         $routeName       = $request->route()->getName();
@@ -324,43 +324,7 @@ class IndexInvoices extends OrgAction
         )->table($this->tableStructure($this->parent));
     }
 
-    public function unpaidOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->bucket = 'unpaid';
-        $this->parent = $organisation;
-        $this->initialisation($organisation, $request);
-
-        return $this->handle($organisation);
-    }
-
-    public function paidOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->bucket = 'paid';
-        $this->parent = $organisation;
-        $this->initialisation($organisation, $request);
-
-        return $this->handle($organisation);
-    }
-
-    public function unpaidFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->bucket = 'unpaid';
-        $this->parent = $fulfilment;
-        $this->initialisationFromFulfilment($fulfilment, $request);
-
-        return $this->handle($fulfilment);
-    }
-
-    public function paidFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->bucket = 'paid';
-        $this->parent = $fulfilment;
-        $this->initialisationFromFulfilment($fulfilment, $request);
-
-        return $this->handle($fulfilment);
-    }
-
-    public function allOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'all';
         $this->parent = $organisation;
@@ -368,6 +332,54 @@ class IndexInvoices extends OrgAction
 
         return $this->handle($organisation);
     }
+
+
+    public function unpaid(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'unpaid';
+        $this->parent = $organisation;
+        $this->initialisation($organisation, $request);
+
+        return $this->handle($organisation);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function unpaidInShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'unpaid';
+        $this->parent = $shop;
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle($shop);
+    }
+
+    public function paid(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'paid';
+        $this->parent = $organisation;
+        $this->initialisation($organisation, $request);
+
+        return $this->handle($organisation);
+    }
+
+    public function unpaidInFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'unpaid';
+        $this->parent = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilment);
+    }
+
+    public function paidInFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'paid';
+        $this->parent = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilment);
+    }
+
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
@@ -380,7 +392,7 @@ class IndexInvoices extends OrgAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function allFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'all';
         $this->parent = $fulfilment;
@@ -407,15 +419,6 @@ class IndexInvoices extends OrgAction
         return $this->handle($fulfilmentCustomer);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inRetina(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $request->user()->customer->fulfilmentCustomer;
-        $fulfilment = $request->user()->customer->fulfilmentCustomer->fulfilment;
-        $this->initialisationFromFulfilment($fulfilment, $request);
-
-        return $this->handle($this->parent);
-    }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inCustomer(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): LengthAwarePaginator
@@ -429,7 +432,6 @@ class IndexInvoices extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-
         $headCrumb = function (array $routeParameters = [], ?string $suffix = null) {
             return [
                 [
@@ -446,18 +448,9 @@ class IndexInvoices extends OrgAction
         };
 
 
+
         return match ($routeName) {
-            'grp.org.fulfilments.show.crm.customers.show.invoices.index' =>
-            array_merge(
-                ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
-                $headCrumb()
-            ),
-            'grp.org.accounting.shops.show.invoices.index' =>
-            array_merge(
-                ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.shops.show.dashboard', $routeParameters),
-                $headCrumb()
-            ),
-            'grp.org.accounting.invoices.all_invoices.index' =>
+            'grp.org.accounting.invoices.index' =>
             array_merge(
                 ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', $routeParameters),
                 $headCrumb(
@@ -468,9 +461,55 @@ class IndexInvoices extends OrgAction
                     trim('('.__('All').') ')
                 )
             ),
-            'grp.org.accounting.invoices.unpaid_invoices.index' =>
+            'grp.org.accounting.unpaid_invoices.index' =>
             array_merge(
                 ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    trim('('.__('Unpaid').') ')
+                )
+            ),
+
+            'grp.org.shops.show.ordering.unpaid_invoices.index' =>
+            array_merge(
+                ShowOrderingDashboard::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    trim('('.__('Unpaid').') ')
+                ),
+            ),
+
+            'grp.org.fulfilments.show.crm.customers.show.invoices.index' =>
+            array_merge(
+                ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
+                $headCrumb()
+            ),
+            'grp.org.accounting.shops.show.invoices.index' =>
+            array_merge(
+                ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.shops.show.dashboard', $routeParameters),
+                $headCrumb()
+            ),
+            'grp.org.shops.show.ordering.invoices.index' =>
+            array_merge(
+                ShowOrderingDashboard::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.shops.show.ordering.invoices.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+
+
+            'grp.org.accounting.invoices.unpaid_invoices.index' =>
+            array_merge(
+                ShowOrderingDashboard::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,
@@ -490,7 +529,7 @@ class IndexInvoices extends OrgAction
                     trim('('.__('Paid').') ')
                 )
             ),
-            'grp.org.fulfilments.show.operations.invoices.all_invoices.index' =>
+            'grp.org.fulfilments.show.operations.invoices.all.index' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs(routeParameters: $routeParameters),
                 $headCrumb(
@@ -533,16 +572,7 @@ class IndexInvoices extends OrgAction
                     ]
                 )
             ),
-            'grp.org.shops.show.ordering.invoices.index' =>
-            array_merge(
-                ShowShop::make()->getBreadcrumbs($routeParameters),
-                $headCrumb(
-                    [
-                        'name'       => 'grp.org.shops.show.ordering.invoices.index',
-                        'parameters' => $routeParameters
-                    ]
-                )
-            ),
+
             'grp.org.shops.show.crm.customers.show.customer-clients.invoices.index' =>
             array_merge(
                 ShowCustomerClient::make()->getBreadcrumbs('grp.org.shops.show.crm.customers.show.customer-clients.show', $routeParameters),

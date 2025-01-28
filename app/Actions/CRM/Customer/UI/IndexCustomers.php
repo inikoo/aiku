@@ -45,7 +45,7 @@ class IndexCustomers extends OrgAction
         $this->canEdit       = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
         $this->canCreateShop = $request->user()->hasPermissionTo("org-admin.{$this->organisation->id}");
 
-        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.view");
+        return $request->user()->hasAnyPermission(["crm.{$this->shop->id}.view","accounting.{$this->shop->organisation_id}.view"]);
     }
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
@@ -297,7 +297,7 @@ class IndexCustomers extends OrgAction
 
         $action = null;
 
-        if (!$scope instanceof Group) {
+        if (!$scope instanceof Group and $this->canEdit) {
             $action = [
                 [
                     'type'    => 'button',

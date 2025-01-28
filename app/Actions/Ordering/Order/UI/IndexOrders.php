@@ -41,7 +41,6 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexOrders extends OrgAction
 {
     use WithCustomerSubNavigation;
-    // use WithOrderSubNavigation;
 
     private Group|Organisation|Shop|Customer|CustomerClient|Asset|ShopifyUser $parent;
     private string $bucket;
@@ -255,15 +254,15 @@ class IndexOrders extends OrgAction
         if ($this->parent instanceof Customer or $this->parent instanceof CustomerClient) {
             $this->canEdit = $request->user()->hasPermissionTo("crm.{$this->shop->id}.view");
 
-            return $request->user()->hasPermissionTo("crm.{$this->organisation->id}.view");
+            return $request->user()->hasAnyPermission(["crm.{$this->shop->id}.view","accounting.{$this->shop->organisation_id}.view"]);
         }
         if ($this->parent instanceof Group) {
             return $request->user()->hasPermissionTo("group-overview");
         }
 
-        $this->canEdit = $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
+        $this->canEdit = $request->user()->hasPermissionTo("orders.{$this->shop->id}.edit");
 
-        return $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
+        return $request->user()->hasAnyPermission(["orders.{$this->shop->id}.view","accounting.{$this->shop->organisation_id}.view"]);
     }
 
     public function jsonResponse(LengthAwarePaginator $orders): AnonymousResourceCollection

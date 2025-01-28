@@ -16,9 +16,11 @@ use App\Http\Resources\SysAdmin\UserResource;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateUserOrganisationPermissions extends OrgAction
+class UpdateUserOrganisationPseudoJobPositions extends OrgAction
 {
     use WithActionUpdate;
     use WithPreparePositionsForValidation;
@@ -27,12 +29,10 @@ class UpdateUserOrganisationPermissions extends OrgAction
 
     public function handle(User $user, Organisation $organisation, array $modelData): User
     {
-        $permissions = Arr::get($modelData, 'permissions', []);
-        $positions = $this->reorganisePositionsSlugsToIds($permissions);
+        $jobPositions = Arr::pull($modelData, 'job_positions', []);
+        $jobPositions = $this->reorganisePositionsSlugsToIds($jobPositions);
 
-        $user->syncPermissions($positions);
-
-        $user->refresh();
+        SyncUserPseudoOrganisationJobPositions::run($user, $organisation, $jobPositions);
 
         return $user;
     }
@@ -50,12 +50,19 @@ class UpdateUserOrganisationPermissions extends OrgAction
     public function rules(): array
     {
         return [
-            'permissions' => ['sometimes', 'array'],
+            'job_positions'                             => ['sometimes', 'array'],
+            'job_positions.*.slug'                      => ['sometimes', 'string'],
+            'job_positions.*.scopes'                    => ['sometimes', 'array'],
+            'job_positions.*.scopes.warehouses.slug.*'  => ['sometimes', Rule::exists('warehouses', 'slug')->where('organisation_id', $this->organisation->id)],
+            'job_positions.*.scopes.fulfilments.slug.*' => ['sometimes', Rule::exists('fulfilments', 'slug')->where('organisation_id', $this->organisation->id)],
+            'job_positions.*.scopes.shops.slug.*'       => ['sometimes', Rule::exists('shops', 'slug')->where('organisation_id', $this->organisation->id)],
+
         ];
     }
 
     public function action(User $user, Organisation $organisation, $modelData): User
     {
+
         $this->asAction     = true;
         $this->organisation = $organisation;
 
@@ -64,12 +71,22 @@ class UpdateUserOrganisationPermissions extends OrgAction
         return $this->handle($user, $organisation, $this->validatedData);
     }
 
+    public function afterValidator(Validator $validator, ActionRequest $request): void
+    {
+        /** @var User $userToUpdate */
+        $userToUpdate = $request->route()->parameter('user');
+        $employee = $userToUpdate->employees->where('organisation_id', $this->organisation->id)->first();
+
+        if ($employee) {
+            $validator->errors()->add('permissions', 'User is an employee of the organisation');
+        }
+
+
+    }
+
     public function prepareForValidation(ActionRequest $request): void
     {
-        $this->preparePositionsForValidation();
-        //todo check if is a valid current model (gust|employee) in user_has_models  if is an active one reject
-
-
+        $this->prepareJobPositionsForValidation();
     }
 
     public function asController(User $user, Organisation $organisation, ActionRequest $request): User

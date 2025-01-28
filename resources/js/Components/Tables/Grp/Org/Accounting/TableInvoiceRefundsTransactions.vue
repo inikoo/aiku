@@ -8,6 +8,14 @@ import { routeType } from '@/types/route'
 import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { trans } from 'laravel-vue-i18n'
+import PureInput from '@/Components/Pure/PureInput.vue'
+import InputNumber from 'primevue/inputnumber'
+import { get, set } from 'lodash'
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faSave } from '@fad'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faSave)
 
 defineProps<{
     data: object
@@ -18,7 +26,7 @@ const locale = inject('locale', aikuLocaleStructure)
 
 // Section: Refund
 const isLoading = ref<number[]>([])
-const onClickRefund = (routeRefund: routeType, idRefund: number) => {
+const onClickRefund = (routeRefund: routeType, slugRefund: number) => {
     router[routeRefund.method || 'post'](
         route(routeRefund.name, routeRefund.parameters),
         {
@@ -26,12 +34,33 @@ const onClickRefund = (routeRefund: routeType, idRefund: number) => {
         },
         {
             onStart: () => {
-                isLoading.value?.push(idRefund)
+                isLoading.value?.push(slugRefund)
             },
             onFinish: () => {
-                const index = isLoading.value.indexOf(idRefund)
+                const index = isLoading.value.indexOf(slugRefund)
                 if (index > -1) {
                     isLoading.value.splice(index, 1)
+                }
+            }
+        }
+    )
+}
+
+const isLoadingQuantity = ref<number[]>([])
+const onClickQuantity = (routeRefund: routeType, slugRefund: number, amount: number) => {
+    router[routeRefund.method || 'post'](
+        route(routeRefund.name, routeRefund.parameters),
+        {
+            refund_amount: amount
+        },
+        {
+            onStart: () => {
+                isLoadingQuantity.value?.push(slugRefund)
+            },
+            onFinish: () => {
+                const index = isLoadingQuantity.value.indexOf(slugRefund)
+                if (index > -1) {
+                    isLoadingQuantity.value.splice(index, 1)
                 }
             }
         }
@@ -49,15 +78,30 @@ const onClickRefund = (routeRefund: routeType, idRefund: number) => {
                 </div>
             </template>
 
-            <template #cell(action)="{ item }">
+            <template #cell(action)="{ item, proxyItem }">
+                <!-- <pre>{{ item }}</pre> -->
                 <Button
                     v-if="!item.in_process"
-                    @click="onClickRefund(item.refund_route, item.id)"
+                    @click="onClickRefund(item.refund_route, item.code)"
                     :label="trans('Refund')"
                     icon="fal fa-plus"
                     type="secondary"
-                    :loading="isLoading.includes(item.id)"
+                    :loading="isLoading.includes(item.code)"
                 />
+
+                <div class="flex items-center">
+                    <InputNumber
+                        :modelValue="get(proxyItem, ['refund_amount'], 0)"
+                        @update:modelValue="(value) => (console.log(value), set(proxyItem, ['refund_amount'], value))"
+                        inputClass="width-12"
+                    >
+                    
+                    </InputNumber>
+                    
+                    <FontAwesomeIcon v-if="true" @click="() => onClickQuantity(item.refund_route, item.code, get(proxyItem, ['refund_amount'], 0))" icon="fad fa-save" class="h-8 cursor-pointer" :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" aria-hidden="true" />
+                    <FontAwesomeIcon v-else icon="fal fa-save" class="h-8 text-gray-300" aria-hidden="true" />
+                </div>
+
             </template>
         </Table>
     </div>

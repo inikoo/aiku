@@ -16,6 +16,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $net_amount
  * @property string $name
  * @property string $currency_code
+ * @property mixed $id
+ * @property mixed $in_process
  */
 class InvoiceTransactionsResource extends JsonResource
 {
@@ -29,10 +31,9 @@ class InvoiceTransactionsResource extends JsonResource
             'currency_code'             => $this->currency_code,
             'in_process'                => $this->in_process,
             'refund_route'              => [
-                'name'       => 'grp.models.refund.refund-transaction.create',
+                'name'       => 'grp.models.invoice_transaction.refund_transaction.store',
                 'parameters' => [
                     'invoiceTransaction' => $this->id,
-                    'invoice'            => $request->invoice->id
                 ]
             ]
         ];

@@ -349,7 +349,7 @@ class GetShopNavigation
             ];
         }
 
-        if ($user->hasPermissionTo("crm.$shop->id.view")) {
+        if ($user->hasAnyPermission(["crm.$shop->id.view", "accounting.$shop->organisation_id.view"])) {
             $navigation["crm"] = [
                 "root"  => "grp.org.shops.show.crm.",
                 "label" => __("CRM"),
@@ -386,7 +386,7 @@ class GetShopNavigation
             ];
         }
 
-        if ($user->hasPermissionTo("orders.$shop->id.view")) {
+        if ($user->hasAnyPermission(["orders.$shop->id.view", "accounting.$shop->organisation_id.view"])) {
             $navigation["ordering"] = [
                 "root"    => "grp.org.shops.show.ordering.",
                 "scope"   => "shops",
@@ -398,6 +398,15 @@ class GetShopNavigation
                 ],
                 "topMenu" => [
                     "subSections" => [
+                        [
+                            "tooltip" => __("ordering dashboard"),
+                            "icon"    => ["fal", "fa-chart-network"],
+                            'root'    => 'grp.org.shops.show.ordering.dashboard',
+                            "route"   => [
+                                "name"       => 'grp.org.shops.show.ordering.dashboard',
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
                         [
                             "label"   => __('Backlog'),
                             "tooltip" => __('Pending orders'),

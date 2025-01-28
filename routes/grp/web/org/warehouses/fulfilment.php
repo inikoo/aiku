@@ -13,10 +13,10 @@ use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Inventory\Location\UI\IndexFulfilmentLocations;
 use App\Actions\Inventory\Location\UI\ShowFulfilmentLocation;
-use App\Actions\UI\Fulfilment\ShowFulfilmentDashboard;
+use App\Actions\UI\Fulfilment\ShowWarehouseFulfilmentDashboard;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', ShowFulfilmentDashboard::class)->name('dashboard');
+Route::get('/', ShowWarehouseFulfilmentDashboard::class)->name('dashboard');
 
 
 

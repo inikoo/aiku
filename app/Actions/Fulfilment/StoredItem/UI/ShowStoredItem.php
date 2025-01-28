@@ -11,7 +11,7 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
-use App\Actions\UI\Fulfilment\ShowFulfilmentDashboard;
+use App\Actions\UI\Fulfilment\ShowWarehouseFulfilmentDashboard;
 use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
@@ -206,7 +206,7 @@ class ShowStoredItem extends OrgAction
     public function getBreadcrumbsFromWarehouse(StoredItem $storedItem, $routeName, $suffix = null): array
     {
         return array_merge(
-            ShowFulfilmentDashboard::make()->getBreadcrumbs(request()->route()->originalParameters()),
+            ShowWarehouseFulfilmentDashboard::make()->getBreadcrumbs(request()->route()->originalParameters()),
             [
                 [
                     'type'           => 'modelWithIndex',

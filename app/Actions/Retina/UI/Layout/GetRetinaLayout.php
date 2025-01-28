@@ -27,7 +27,7 @@ class GetRetinaLayout
                 'website'  => GroupResource::make($request->get('website'))->getArray(),
             ];
         }
-       
+
         return [
             'website'  => GroupResource::make($request->get('website'))->getArray(),
             'customer' => CustomersResource::make($webUser->customer)->getArray(),

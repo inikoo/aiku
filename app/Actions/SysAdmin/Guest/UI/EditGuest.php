@@ -176,14 +176,14 @@ class EditGuest extends GrpAction
                                     "current_organisation"  => $user->getOrganisation(),
                                     'updatePseudoJobPositionsRoute'       => [
                                         'method'     => 'patch',
-                                        "name"       => "grp.models.user.permissions.update",
+                                        "name"       => "grp.models.user.group_permissions.update",
                                         'parameters' => [
                                             'user' => $user->id
                                         ]
                                     ],
                                     'updateJobPositionsRoute'       => [
                                         'method'     => 'patch',
-                                        "name"       => "grp.models.user.organisation.permissions.update",
+                                        "name"       => "grp.models.user.organisation_pseudo_job_positions.update",
                                         'parameters' => [
                                             'user' => $user->id,
                                             'organisation' => null // fill in the organisation id in the frontend
