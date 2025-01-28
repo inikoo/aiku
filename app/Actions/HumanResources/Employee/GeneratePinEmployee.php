@@ -11,19 +11,24 @@ namespace App\Actions\HumanResources\Employee;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\HumanResources\Employee;
+use App\Models\SysAdmin\Organisation;
+use Illuminate\Http\JsonResponse;
 use Lorisleiva\Actions\ActionRequest;
 
 class GeneratePinEmployee extends OrgAction
 {
     use WithActionUpdate;
 
-    public function handle(Employee $employee): array
+    public function handle(Employee $employee): string
     {
-        $employeePin = SetEmployeePin::make()->action($employee, false, true);
+        return SetEmployeePin::make()->action($employee, false, true);
+    }
 
-        return [
-            'pin' => $employeePin
-        ];
+    public function jsonResponse(string $pin): JsonResponse
+    {
+        return response()->json([
+            'pin' => $pin
+        ]);
     }
 
     public function authorize(ActionRequest $request): bool
@@ -35,7 +40,7 @@ class GeneratePinEmployee extends OrgAction
         return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
     }
 
-    public function asController(Employee $employee, ActionRequest $request): array
+    public function asController(Organisation $organisation, Employee $employee, ActionRequest $request): string
     {
         $this->initialisation($employee->organisation, $request);
 
