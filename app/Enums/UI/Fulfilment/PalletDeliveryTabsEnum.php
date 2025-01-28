@@ -22,6 +22,7 @@ enum PalletDeliveryTabsEnum: string
     case PHYSICAL_GOODS = 'physical_goods';
 
 
+    case ATTACHMENTS = 'attachments';
     case HISTORY = 'history';
 
     public function blueprint(PalletDelivery $parent): array
@@ -32,6 +33,12 @@ enum PalletDeliveryTabsEnum: string
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
                 'align' => 'right',
+            ],
+            PalletDeliveryTabsEnum::ATTACHMENTS => [
+                'align' => 'right',
+                'title' => __('attachments'),
+                'icon'  => 'fal fa-paperclip',
+                'type'  => 'icon'
             ],
             PalletDeliveryTabsEnum::PALLETS => [
                 'title'     => __("pallets")." ({$parent->stats->number_pallets})",

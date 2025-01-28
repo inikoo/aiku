@@ -34,7 +34,7 @@ import BoxStatsPalletDelivery from '@/Pages/Grp/Org/Fulfilment/Delivery/BoxStats
 import '@/Composables/Icon/PalletDeliveryStateEnum'
 
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone, faConciergeBell, faCube, faCalendarDay, faPencil, faUndoAlt } from '@fal'
+import { faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faPaperclip, faEnvelope, faPhone, faConciergeBell, faCube, faCalendarDay, faPencil, faUndoAlt } from '@fal'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue";
 
@@ -44,8 +44,10 @@ import TableFulfilmentTransactions from "@/Components/Tables/Grp/Org/Fulfilment/
 import { notify } from '@kyvg/vue3-notification'
 import PureMultiselectInfiniteScroll from '@/Components/Pure/PureMultiselectInfiniteScroll.vue'
 import ModalConfirmationDelete from '@/Components/Utils/ModalConfirmationDelete.vue'
+import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue";
 
-library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone,faExclamationTriangle, faConciergeBell, faCube, faCalendarDay, faPencil, faUndoAlt)
+
+library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faPaperclip, faEnvelope, faPhone,faExclamationTriangle, faConciergeBell, faCube, faCalendarDay, faPencil, faUndoAlt)
 
 
 
@@ -55,6 +57,7 @@ const props = defineProps<{
     pallets?: TableTS
     services?: TableTS
     physical_goods?: TableTS
+    attachments?: TableTS
     data?: {
         data: PalletDelivery
     }
@@ -88,7 +91,7 @@ const props = defineProps<{
         message: string
     }
     rental_lists?: [],
-    
+
     service_lists?: [],
     service_list_route: routeType
 
@@ -122,7 +125,8 @@ const component = computed(() => {
         pallets: TablePalletDeliveryPallets,
         services: TableFulfilmentTransactions,
         physical_goods: TableFulfilmentTransactions,
-        history: TableHistories
+        history: TableHistories,
+        attachments: TableAttachments
     }
     return components[currentTab.value]
 
@@ -303,7 +307,7 @@ const changePalletType=(form,fieldName,value)=>{
             />
             <div v-else></div>
         </template>
-        
+
         <!-- Button: delete Delivery -->
         <template #button-delete-delivery="{ action }">
             <div>
@@ -515,7 +519,7 @@ const changePalletType=(form,fieldName,value)=>{
                                     full
                                 />
                             </div>
-                            
+
                             <!-- Loading: fetching service list -->
                             <div v-if="isLoadingData === 'addService'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
                                 <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin text-5xl' fixed-width aria-hidden='true' />
@@ -608,7 +612,7 @@ const changePalletType=(form,fieldName,value)=>{
                     </template>
                 </Popover>
             </div>
-           
+
         </template>
     </PageHeading>
 
@@ -629,7 +633,7 @@ const changePalletType=(form,fieldName,value)=>{
                 <div class="flex-shrink-0">
                     <font-awesome-icon :icon="['fad', 'exclamation-triangle']" class="text-lg"
                         aria-hidden="true"
-                        
+
                     />
                 </div>
                 <div class="ml-3">
@@ -686,7 +690,7 @@ const changePalletType=(form,fieldName,value)=>{
             label: 'Upload your new pallet deliveries',
             information: 'The list of column file: customer_reference, notes, stored_items'
         }"
-        progressDescription="Adding Pallet Deliveries"        
+        progressDescription="Adding Pallet Deliveries"
         :upload_spreadsheet
         :additionalDataToSend="interest.pallets_storage ? ['stored_items'] : undefined"
     />

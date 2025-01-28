@@ -19,6 +19,7 @@ enum InvoiceRefundTabsEnum: string
     use HasTabs;
 
     case ITEMS                  = 'items';
+    case ITEMS_IN_PROCESS                  = 'items_in_process';
     case HISTORY                = 'history';
     case PAYMENTS               = 'payments';
 
@@ -41,9 +42,14 @@ enum InvoiceRefundTabsEnum: string
                 'align' => 'right',
             ],
 
-            InvoiceRefundTabsEnum::ITEMS => [
-                'title' => __('Items'),
+            InvoiceRefundTabsEnum::ITEMS       => [
+                'title' => __('Items').' (debug: finalised)',
                 'icon'  => 'fal fa-bars',
+            ],
+
+            InvoiceRefundTabsEnum::ITEMS_IN_PROCESS       => [
+                'title' => __('Items').' (debug: in process)',
+                'icon'  => 'fal fa-undo-alt',
             ],
         };
     }

@@ -10,6 +10,7 @@ namespace App\Actions\Helpers\Media;
 
 use App\Actions\OrgAction;
 use App\Models\CRM\Customer;
+use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Media;
 use App\Models\HumanResources\Employee;
@@ -24,7 +25,7 @@ class DetachAttachmentFromModel extends OrgAction
 {
     use AsAction;
 
-    public function handle(Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order $model, Media $attachment): Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order
+    public function handle(Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order|PalletDelivery $model, Media $attachment): Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order|PalletDelivery
     {
         $model->attachments()->detach($attachment->id);
 
@@ -96,4 +97,10 @@ class DetachAttachmentFromModel extends OrgAction
         $this->handle($order, $attachment);
     }
 
+    public function inPalletDelivery(PalletDelivery $palletDelivery, Media $attachment): PalletDelivery
+    {
+        $this->initialisation($palletDelivery->organisation, []);
+
+        return $this->handle($palletDelivery, $attachment);
+    }
 }

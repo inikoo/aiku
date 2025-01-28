@@ -125,6 +125,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property int $number_pallets_state_request_return_submitted
  * @property int $number_pallets_state_request_return_confirmed
+ * @property bool $space_rental For customer renting spaces, e.g. storage, parking
  * @property-read \App\Models\Fulfilment\RecurringBill|null $currentRecurringBill
  * @property-read Customer $customer
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment

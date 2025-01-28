@@ -16,6 +16,7 @@ use App\Http\Resources\Catalogue\ShopResource;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
+use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use Inertia\Inertia;
@@ -75,6 +76,9 @@ class EditUser extends OrgAction
         })->toArray();
 
         $organisationList = OrganisationsResource::collection($organisations);
+
+        /** @var Employee $employee */
+        $employee = $user->employees()->first();
 
 
         return Inertia::render("EditModel", [
@@ -161,7 +165,7 @@ class EditUser extends OrgAction
                                     "name"       => "grp.models.employee.update",
                                     //todo support case user has employed in 2 organisations
                                     'parameters' => [
-                                        'employee' => $user->employees()->first()->id
+                                        'employee' => $employee? $employee->id : null
                                     ]
                                 ],
 
