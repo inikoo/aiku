@@ -13,9 +13,11 @@ import InputNumber from 'primevue/inputnumber'
 import { get, set } from 'lodash'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faSave as falSave, faExclamationCircle } from '@fal'
 import { faSave } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faSave)
+import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
+library.add(faSave, falSave, faExclamationCircle)
 
 defineProps<{
     data: object
@@ -24,7 +26,7 @@ defineProps<{
 
 const locale = inject('locale', aikuLocaleStructure)
 
-// Section: Refund
+// Section: add refund
 const isLoading = ref<number[]>([])
 const onClickRefund = (routeRefund: routeType, slugRefund: number) => {
     router[routeRefund.method || 'post'](
@@ -46,6 +48,7 @@ const onClickRefund = (routeRefund: routeType, slugRefund: number) => {
     )
 }
 
+// Section: update refund amount
 const isLoadingQuantity = ref<number[]>([])
 const onClickQuantity = (routeRefund: routeType, slugRefund: number, amount: number) => {
     router[routeRefund.method || 'post'](
@@ -79,7 +82,9 @@ const onClickQuantity = (routeRefund: routeType, slugRefund: number, amount: num
             </template>
 
             <template #cell(action)="{ item, proxyItem }">
-                <!-- <pre>{{ item }}</pre> -->
+                <pre>refund: {{ item.refund_amount }}</pre>
+                <pre>new: {{ item.new_refund_amount }}</pre>
+                ------<br>
                 <Button
                     v-if="!item.in_process"
                     @click="onClickRefund(item.refund_route, item.code)"
@@ -89,16 +94,28 @@ const onClickQuantity = (routeRefund: routeType, slugRefund: number, amount: num
                     :loading="isLoading.includes(item.code)"
                 />
 
-                <div class="flex items-center">
-                    <InputNumber
-                        :modelValue="get(proxyItem, ['refund_amount'], 0)"
-                        @update:modelValue="(value) => (console.log(value), set(proxyItem, ['refund_amount'], value))"
-                        inputClass="width-12"
-                    >
-                    
-                    </InputNumber>
-                    
-                    <FontAwesomeIcon v-if="true" @click="() => onClickQuantity(item.refund_route, item.code, get(proxyItem, ['refund_amount'], 0))" icon="fad fa-save" class="h-8 cursor-pointer" :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" aria-hidden="true" />
+                <div class="flex items-center gap-x-1">
+                    <div>
+                        <InputNumber
+                            :modelValue="get(proxyItem, ['refund_amount'], 0)"
+                            @input="(e) => (console.log(e.value), set(proxyItem, ['new_refund_amount'], e.value))"
+                            @update:model-value="(e) => set(proxyItem, ['new_refund_amount'], e)"
+                            :class="get(proxyItem, ['new_refund_amount'], null) > item.net_amount ? 'errorShake' : ''"
+                            inputClass="width-12"
+                            :max="item.net_amount"
+                            placeholder="0"
+                        >
+                        </InputNumber>
+                        
+                        <p v-if="get(proxyItem, ['new_refund_amount'], null) > item.net_amount" class="italic text-red-500 text-xs mt-1">
+                            <!-- <FontAwesomeIcon icon='fal fa-exclamation-circle' class='' fixed-width aria-hidden='true' /> -->
+                            {{ trans('Refund amount should not over the net amount') }}
+                        </p>
+                    </div>
+
+                    <!-- {{ get(proxyItem, ['new_refund_amount'], null) > item.net_amount }} -->
+                    <LoadingIcon v-if="isLoadingQuantity.includes(item.code)" class="h-8" />
+                    <FontAwesomeIcon v-else-if="get(proxyItem, ['new_refund_amount'], null) ? proxyItem.new_refund_amount !== (proxyItem.refund_amount || 0) : false" @click="() => onClickQuantity(item.refund_route, item.code, get(proxyItem, ['new_refund_amount'], 0))" icon="fad fa-save" class="h-8 cursor-pointer" :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" aria-hidden="true" />
                     <FontAwesomeIcon v-else icon="fal fa-save" class="h-8 text-gray-300" aria-hidden="true" />
                 </div>
 
