@@ -44,6 +44,7 @@ class CustomersResource extends JsonResource
             'email'                           => $this->email,
             'phone'                           => $this->phone,
             'state'                           => $this->state,
+            'status'                          => $this->status,
             'address'                         => AddressResource::make($this->address),
             'is_dropshipping'                 => $this->is_dropshipping,
             'contact_name'                    => $this->contact_name,
