@@ -122,7 +122,7 @@ onMounted(async () => {
 
         <!-- First Name -->
         <div class="sm:col-span-6">
-          <label for="name" class="block text-sm font-medium text-gray-900">{{trans("Name")}}</label>
+          <label for="name" class="capitalize block text-sm font-medium text-gray-700">{{trans("Name")}}</label>
           <div class="mt-2">
             <PureInput v-model="form.contact_name" type="text" id="contact_name" name="contact_name" required />
             <p v-if="form.errors.contact_name" class="text-sm text-red-600 mt-1">{{ form.errors.contact_name }}</p>
@@ -132,7 +132,7 @@ onMounted(async () => {
 
         <!-- Email -->
         <div class="sm:col-span-3">
-          <label for="email" class="block text-sm font-medium text-gray-900">{{trans("Email")}}</label>
+          <label for="email" class="capitalize block text-sm font-medium text-gray-700">{{trans("Email")}}</label>
           <div class="mt-2">
             <PureInput v-model="form.email" type="email" id="email" name="email" required />
             <p v-if="form.errors.email" class="text-sm text-red-600 mt-1">{{ form.errors.email }}</p>
@@ -141,7 +141,7 @@ onMounted(async () => {
 
         <!-- Phone Number -->
         <div class="sm:col-span-3">
-          <label for="phone-number" class="block text-sm font-medium text-gray-900">{{trans("Phone Number")}}</label>
+          <label for="phone-number" class="capitalize block text-sm font-medium text-gray-700">{{trans("Phone Number")}}</label>
           <div class="mt-2">
             <PureInput v-model="form.phone" type="text" id="phone-number" name="phone" required />
             <p v-if="form.errors.phone" class="text-sm text-red-600 mt-1">{{ form.errors.phone }}</p>
@@ -150,7 +150,7 @@ onMounted(async () => {
 
         <!-- Business Name -->
         <div class="sm:col-span-6">
-          <label for="business-name" class="block text-sm font-medium text-gray-900">{{trans("Business Name")}}</label>
+          <label for="business-name" class="capitalize block text-sm font-medium text-gray-700">{{trans("Business Name")}}</label>
           <div class="mt-2">
             <PureInput v-model="form.company_name" type="text" id="business-name" name="company_name" />
             <p v-if="form.errors.company_name" class="text-sm text-red-600 mt-1">{{ form.errors.company_name }}</p>
@@ -159,7 +159,7 @@ onMounted(async () => {
 
         <!-- Website -->
         <div class="sm:col-span-6">
-          <label for="website" class="block text-sm font-medium text-gray-900">{{trans("Website")}}</label>
+          <label for="website" class="capitalize block text-sm font-medium text-gray-700">{{trans("Website")}}</label>
           <div class="mt-2">
             <PureInput v-model="form.website" />
             <p v-if="form.errors.website" class="text-sm text-red-600 mt-1">{{ form.errors.website }}</p>
@@ -171,12 +171,12 @@ onMounted(async () => {
         </div>
 
         <div class="sm:col-span-6">
-          <label for="website" class="block text-sm font-medium text-gray-900">{{trans("Country")}}</label>
+          <label for="website" class="capitalize block text-sm font-medium text-gray-700">{{trans("Country")}}</label>
           <Address v-model="form[contact_address]" fieldName="contact_address" :form="form" :options="{countriesAddressData :countriesAddressData}" :fieldData="addressFieldData" />
         </div>
 
        <!--  <div class="sm:col-span-6">
-        <label for="country_id" class="block text-sm font-medium text-gray-900">{{ trans("Country") }}</label>
+        <label for="country_id" class="capitalize block text-sm font-medium text-gray-700">{{ trans("Country") }}</label>
         <div class="mt-2">
           <Multiselect 
             v-model="form.country_id" 
@@ -192,7 +192,7 @@ onMounted(async () => {
       </div>
 
       <div class="sm:col-span-3">
-          <label for="post_town" class="block text-sm font-medium text-gray-900">{{trans("Post Town")}}</label>
+          <label for="post_town" class="capitalize block text-sm font-medium text-gray-700">{{trans("Post Town")}}</label>
           <div class="mt-2">
             <PureInput v-model="form.post_town" type="post_town" id="post_town" name="post_town" />
             <p v-if="form.errors.email" class="text-sm text-red-600 mt-1">{{ form.errors.post_town }}</p>
@@ -200,7 +200,7 @@ onMounted(async () => {
         </div>
 
         <div class="sm:col-span-3">
-          <label for="postal_code" class="block text-sm font-medium text-gray-900">{{trans("Postal Code")}}</label>
+          <label for="postal_code" class="capitalize block text-sm font-medium text-gray-700">{{trans("Postal Code")}}</label>
           <div class="mt-2">
             <PureInput v-model="form.postal_code" type="text" id="postal_code" name="postal_code" />
             <p v-if="form.errors.postal_code" class="text-sm text-red-600 mt-1">{{ form.errors.postal_code }}</p>
@@ -208,7 +208,7 @@ onMounted(async () => {
         </div>
 
         <div class="sm:col-span-6">
-          <label for="address_line_1" class="block text-sm font-medium text-gray-900">{{trans("Address")}}</label>
+          <label for="address_line_1" class="capitalize block text-sm font-medium text-gray-700">{{trans("Address")}}</label>
           <div class="mt-2">
             <PureInput v-model="form.address_line_1" type="text" id="address_line_1" name="address_line_1" />
             <p v-if="form.errors.address_line_1" class="text-sm text-red-600 mt-1">{{ form.errors.address_line_1 }}</p>
@@ -216,7 +216,7 @@ onMounted(async () => {
         </div>
 
         <div class="sm:col-span-6">
-          <label for="address_line_2" class="block text-sm font-medium text-gray-900">{{trans("Address 2")}}</label>
+          <label for="address_line_2" class="capitalize block text-sm font-medium text-gray-700">{{trans("Address 2")}}</label>
           <div class="mt-2">
             <PureInput v-model="form.address_line_2" type="text" id="address_line_1" name="address_line_1" required />
             <p v-if="form.errors.address_line_2" class="text-sm text-red-600 mt-1">{{ form.errors.address_line_2 }}</p>
@@ -229,7 +229,7 @@ onMounted(async () => {
 
         <!-- What Do You Sell -->
         <div class="sm:col-span-6">
-          <label for="what-you-sell" class="block text-sm font-medium text-gray-900">{{trans("What Do You Sell")}}</label>
+          <label for="what-you-sell" class="capitalize block text-sm font-medium text-gray-700">{{trans("What Do You Sell")}}</label>
           <div class="mt-2">
             <PureInput v-model="form.product" type="text" id="what-you-sell" name="product"  />
             <p v-if="form.errors.product" class="text-sm text-red-600 mt-1">{{ form.errors.product }}</p>
@@ -238,7 +238,7 @@ onMounted(async () => {
 
         <!-- Shipments Sent Per Week -->
         <div class="sm:col-span-3">
-          <label for="shipments-per-week" class="block text-sm font-medium text-gray-900">{{trans("Shipments Sent PerWeek")}}</label>
+          <label for="shipments-per-week" class="capitalize block text-sm font-medium text-gray-700">{{trans("Shipments Sent PerWeek")}}</label>
           <div class="mt-2">
             <select v-model="form.shipments_per_week" id="shipments-per-week" name="shipments_per_week" 
               class="block w-full mt-1 py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -252,7 +252,7 @@ onMounted(async () => {
 
         <!-- Goods Size and Weight -->
         <div class="sm:col-span-3">
-          <label for="goods-size-and-weight" class="block text-sm font-medium text-gray-900">{{trans("Size and Weight of Your Goods")}}</label>
+          <label for="goods-size-and-weight" class="capitalize block text-sm font-medium text-gray-700">{{trans("Size and Weight of Your Goods")}}</label>
           <div class="mt-2">
             <PureInput v-model="form.size_and_weight" type="text" id="goods-size-and-weight"
               name="size_and_weight"  />
@@ -261,7 +261,7 @@ onMounted(async () => {
         </div>
 
         <div class="sm:col-span-6 flex flex-col">
-          <label class="block text-sm font-medium text-gray-900">{{ trans("User Interests") }}</label>
+          <label class="capitalize block text-sm font-medium text-gray-700">{{ trans("User Interests") }}</label>
           <div class="mt-2 flex flex-wrap gap-6">
             <!-- Loop through the interests -->
             <div
@@ -291,7 +291,7 @@ onMounted(async () => {
 
         <!-- Password -->
         <div class="sm:col-span-3">
-          <label for="password" class="block text-sm font-medium text-gray-900">Password</label>
+          <label for="password" class="capitalize block text-sm font-medium text-gray-700">Password</label>
           <div class="mt-2 password">
             <PureInput v-model="form.password" @update:modelValue="(e)=>form.clearErrors('password')" :type="'password'" required/>
             <p v-if="form.errors.password" class="text-sm text-red-600 mt-1">{{ form.errors.password }}</p>
@@ -300,7 +300,7 @@ onMounted(async () => {
 
         <!-- Retype Password -->
         <div class="sm:col-span-3">
-          <label for="password-confirmation" class="block text-sm font-medium text-gray-900">Retype Password</label>
+          <label for="password-confirmation" class="capitalize block text-sm font-medium text-gray-700">Retype Password</label>
           <div class="mt-2 password">
             <PureInput v-model="form.password_confirmation" :type="'password'" required/>
             <p v-if="form.errors.password_confirmation" class="text-sm text-red-600 mt-1">{{ form.errors.password_confirmation }}</p>
