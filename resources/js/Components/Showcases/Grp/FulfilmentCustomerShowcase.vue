@@ -115,6 +115,10 @@ const optionRadio = [
         value: 'dropshipping',
         label: trans('Dropshipping')
     },
+    {
+        value: 'space_rental',
+        label: trans('Space (Parking)')
+    },
 ]
 
 const isLoadingButtonRentalAgreement = ref(false)
