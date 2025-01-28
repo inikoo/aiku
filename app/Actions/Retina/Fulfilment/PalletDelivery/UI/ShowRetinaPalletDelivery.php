@@ -120,7 +120,7 @@ class ShowRetinaPalletDelivery extends RetinaAction
                             'type'  => 'button',
                             'style' => 'secondary',
                             'icon'  => 'fal fa-plus',
-                            'label' => __('add pallet'),
+                            'label' => __('pallet'),
                             'route' => [
                                 'name'       => 'retina.models.pallet-delivery.pallet.store',
                                 'parameters' => [
@@ -132,7 +132,7 @@ class ShowRetinaPalletDelivery extends RetinaAction
                             'type'  => 'button',
                             'style' => 'secondary',
                             'icon'  => 'fal fa-plus',
-                            'label' => __('add service'),
+                            'label' => __('service'),
                             'route' => [
                                 'name'       => 'retina.models.pallet-delivery.transaction.store',
                                 'parameters' => [
@@ -144,7 +144,7 @@ class ShowRetinaPalletDelivery extends RetinaAction
                             'type'  => 'button',
                             'style' => 'secondary',
                             'icon'  => 'fal fa-plus',
-                            'label' => __('add physical good'),
+                            'label' => __('physical good'),
                             'route' => [
                                 'name'       => 'retina.models.pallet-delivery.transaction.store',
                                 'parameters' => [

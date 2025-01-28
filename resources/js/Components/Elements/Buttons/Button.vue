@@ -79,22 +79,22 @@ else styleClass = `buttonPrimary`
 // Styling depends on the 'size' props
 switch (props.size) {
     case 'xxs':
-        sizeClass = 'rounded px-2 py-1 text-xxs'
+        sizeClass = 'rounded px-1 py-0.5 md:px-2 md:py-1 text-xxs'
         break
     case 'xs':
-        sizeClass = 'rounded px-2.5 py-1.5 text-xs'
+        sizeClass = 'rounded px-1.5 md:px-2.5 py-1 md:py-1.5 text-xs'
         break
     case 's':
-        sizeClass = 'rounded-md px-3 py-[7px] text-sm'
+        sizeClass = 'rounded-md px-2 md:px-3 py-[5px] md:py-[7px] text-sm'
         break
     case 'm':
-        sizeClass = 'rounded-md px-4 py-[9px] text-sm'
+        sizeClass = 'rounded-md px-3 md:px-4 py-[7px] md:py-[9px] text-sm'
         break
     case 'l':
-        sizeClass = 'rounded-md px-[18px] py-[11px] text-base'
+        sizeClass = 'rounded-md px-4 md:px-[18px] py-[9px] md:py-[11px] text-base'
         break
     case 'xl':
-        sizeClass = 'rounded-md px-6 py-[13px] text-lg'
+        sizeClass = 'rounded-md px-[18px] md:px-6 py-[11px] md:py-[13px] text-lg'
         break
 }
 
