@@ -80,7 +80,7 @@ class ShowFulfilment extends OrgAction
                                 'right_label' => [
                                     'label' => __('Unpaid').' '.$fulfilment->shop->orderingStats->number_unpaid_invoices,
                                     'route' => [
-                                        'name'       => 'grp.org.fulfilments.show.operations.unpaid_invoices.index',
+                                        'name'       => 'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.index',
                                         'parameters' => [
                                             $fulfilment->organisation->slug,
                                             $fulfilment->slug
