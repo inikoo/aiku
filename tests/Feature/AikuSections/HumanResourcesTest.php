@@ -144,7 +144,7 @@ test('add job position to employee', function (Employee $employee) {
     $jobPosition = $this->organisation->jobPositions()->where('slug', 'hr-c')->first();
 
     UpdateEmployee::make()->action($employee, [
-        'positions' => [
+        'job_positions' => [
             [
             'slug'  => $jobPosition->slug,
             'scopes' => []
