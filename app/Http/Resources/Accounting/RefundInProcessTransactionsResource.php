@@ -6,7 +6,6 @@
  * copyright 2025
 */
 
-
 namespace App\Http\Resources\Accounting;
 
 use Illuminate\Http\Resources\Json\JsonResource;

@@ -58,6 +58,7 @@ class StoreRefundInvoiceTransaction extends OrgAction
         data_set($modelData, 'order_id', $invoiceTransaction->order_id);
         data_set($modelData, 'transaction_id', $invoiceTransaction->transaction_id);
         data_set($modelData, 'family_id', $invoiceTransaction->family_id);
+        data_set($modelData, 'historic_asset_id', $invoiceTransaction->historic_asset_id);
         data_set($modelData, 'recurring_bill_transaction_id', $invoiceTransaction->recurring_bill_transaction_id);
         data_set($modelData, 'in_process', true);
 
