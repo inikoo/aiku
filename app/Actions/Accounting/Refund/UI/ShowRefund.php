@@ -11,7 +11,6 @@
 namespace App\Actions\Accounting\Refund\UI;
 
 use App\Actions\Accounting\Invoice\UI\ShowInvoice;
-use App\Actions\Accounting\InvoiceTransaction\UI\IndexInvoiceTransactions;
 use App\Actions\Accounting\InvoiceTransaction\UI\IndexRefundInProcessTransactions;
 use App\Actions\Accounting\InvoiceTransaction\UI\IndexRefundTransactions;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
@@ -21,7 +20,6 @@ use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\UI\Accounting\InvoiceRefundTabsEnum;
 use App\Http\Resources\Accounting\InvoiceRefundResource;
-use App\Http\Resources\Accounting\InvoiceTransactionsResource;
 use App\Http\Resources\Accounting\PaymentsResource;
 use App\Http\Resources\Accounting\RefundInProcessTransactionsResource;
 use App\Http\Resources\Accounting\RefundTransactionsResource;
@@ -307,16 +305,16 @@ class ShowRefund extends OrgAction
 
 
                 InvoiceRefundTabsEnum::ITEMS->value => $this->tab == InvoiceRefundTabsEnum::ITEMS->value ?
-                    fn() => RefundTransactionsResource::collection(IndexRefundTransactions::run($refund->originalInvoice, InvoiceRefundTabsEnum::ITEMS->value))
-                    : Inertia::lazy(fn() => RefundTransactionsResource::collection(IndexRefundTransactions::run($refund->originalInvoice, InvoiceRefundTabsEnum::ITEMS->value))),
+                    fn () => RefundTransactionsResource::collection(IndexRefundTransactions::run($refund->originalInvoice, InvoiceRefundTabsEnum::ITEMS->value))
+                    : Inertia::lazy(fn () => RefundTransactionsResource::collection(IndexRefundTransactions::run($refund->originalInvoice, InvoiceRefundTabsEnum::ITEMS->value))),
 
                 InvoiceRefundTabsEnum::ITEMS_IN_PROCESS->value => $this->tab == InvoiceRefundTabsEnum::ITEMS_IN_PROCESS->value ?
-                    fn() => RefundInProcessTransactionsResource::collection(IndexRefundInProcessTransactions::run($refund, InvoiceRefundTabsEnum::ITEMS_IN_PROCESS->value))
-                    : Inertia::lazy(fn() => RefundInProcessTransactionsResource::collection(IndexRefundInProcessTransactions::run($refund, InvoiceRefundTabsEnum::ITEMS_IN_PROCESS->value))),
+                    fn () => RefundInProcessTransactionsResource::collection(IndexRefundInProcessTransactions::run($refund, InvoiceRefundTabsEnum::ITEMS_IN_PROCESS->value))
+                    : Inertia::lazy(fn () => RefundInProcessTransactionsResource::collection(IndexRefundInProcessTransactions::run($refund, InvoiceRefundTabsEnum::ITEMS_IN_PROCESS->value))),
 
                 InvoiceRefundTabsEnum::PAYMENTS->value => $this->tab == InvoiceRefundTabsEnum::PAYMENTS->value ?
-                    fn() => PaymentsResource::collection(IndexPayments::run($refund))
-                    : Inertia::lazy(fn() => PaymentsResource::collection(IndexPayments::run($refund))),
+                    fn () => PaymentsResource::collection(IndexPayments::run($refund))
+                    : Inertia::lazy(fn () => PaymentsResource::collection(IndexPayments::run($refund))),
 
 
             ]

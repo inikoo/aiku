@@ -259,7 +259,7 @@ const onUpdateCustomerReference = () => {
 						aria-hidden="true" />
 				</dt>
 
-                <Popover v-if="dataPalletDelivery.state == 'in_process' || dataPalletDelivery.state == 'submitted' || dataPalletDelivery.state == 'confirmed'" position="" style="z-index: 20">
+                <Popover v-if="dataPalletDelivery.state" position="" style="z-index: 20">
                     <template #button>
                         <div v-if="dataPalletDelivery.estimated_delivery_date"
                             v-tooltip="useDaysLeftFromToday(dataPalletDelivery.estimated_delivery_date)"

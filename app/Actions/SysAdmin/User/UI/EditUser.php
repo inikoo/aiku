@@ -165,7 +165,7 @@ class EditUser extends OrgAction
                                     "name"       => "grp.models.employee.update",
                                     //todo support case user has employed in 2 organisations
                                     'parameters' => [
-                                        'employee' => $employee? $employee->id : null
+                                        'employee' => $employee ? $employee->id : null
                                     ]
                                 ],
 
