@@ -8,24 +8,28 @@
 
 namespace App\Actions\HumanResources\Employee;
 
+use App\Actions\OrgAction;
 use App\Models\HumanResources\Employee;
 use Exception;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class SetEmployeePin
+class SetEmployeePin extends OrgAction
 {
     use AsAction;
 
-
     private mixed $updateQuietly = false;
+    /**
+     * @var array|\ArrayAccess|mixed
+     */
+    private mixed $needGeneratedPin = false;
 
     public function handle(Employee $employee): string
     {
         return $this->setPin($employee);
     }
 
-    public function setPin($employee, $try = 1): bool
+    public function setPin($employee, $try = 1): bool|string
     {
         try {
 
@@ -36,6 +40,10 @@ class SetEmployeePin
                 $letters[array_rand($letters)].$letters[array_rand($letters)].
                 $emojis[array_rand($emojis)].$emojis[array_rand($emojis)].
                 $numbers[array_rand($numbers)].$numbers[array_rand($numbers)];
+
+            if ($this->needGeneratedPin) {
+                return $pin;
+            }
 
             if ($this->updateQuietly) {
                 $employee->updateQuietly(['pin' => $pin]);
@@ -74,10 +82,12 @@ class SetEmployeePin
     public string $commandSignature = 'employee:set_pin {employee}';
 
 
-    public function action(Employee $employee, $updateQuietly = false): void
+    public function action(Employee $employee, $updateQuietly = false, $needGeneratedPin = false): bool|string
     {
         $this->updateQuietly = $updateQuietly;
-        $this->setPin($employee);
+        $this->needGeneratedPin = $needGeneratedPin;
+
+        return $this->setPin($employee);
     }
 
     public function asCommand(Command $command): int

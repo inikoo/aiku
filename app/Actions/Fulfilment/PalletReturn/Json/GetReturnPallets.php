@@ -58,7 +58,12 @@ class GetReturnPallets extends OrgAction
             });
         });
 
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
+
         $query = QueryBuilder::for(Pallet::class);
+
 
         $query->where('fulfilment_customer_id', $palletReturn->fulfilment_customer_id);
 
@@ -115,7 +120,7 @@ class GetReturnPallets extends OrgAction
 
 
         return $query->allowedSorts(['customer_reference', 'reference', 'fulfilment_customer_name'])
-            ->allowedFilters([$globalSearch, 'customer_reference', 'reference'])
+            ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }

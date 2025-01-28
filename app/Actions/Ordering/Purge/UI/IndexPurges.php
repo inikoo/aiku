@@ -10,6 +10,7 @@
 namespace App\Actions\Ordering\Purge\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
+use App\Actions\Ordering\Order\WithOrdersSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Http\Resources\Ordering\PurgesResource;
@@ -29,6 +30,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPurges extends OrgAction
 {
+    use WithOrdersSubNavigation;
     private Shop|Organisation|Group $parent;
 
     public function handle(Shop|Organisation|Group $parent, $prefix = null): LengthAwarePaginator
@@ -134,6 +136,7 @@ class IndexPurges extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $purges, ActionRequest $request): Response
     {
+        $subNavigation = null;
         $title      = __('Purges');
         $model      = '';
         $icon       = [
@@ -155,6 +158,10 @@ class IndexPurges extends OrgAction
             ]
         ];
 
+        if ($this->parent instanceof Shop) {
+            $subNavigation = $this->getOrdersNavigation($this->parent);
+        }
+
         return Inertia::render(
             'Org/Ordering/Purges',
             [
@@ -169,6 +176,7 @@ class IndexPurges extends OrgAction
                     'model'         => $model,
                     'afterTitle'    => $afterTitle,
                     'iconRight'     => $iconRight,
+                    'subNavigation' => $subNavigation,
                     'actions'       => $actions
                 ],
                 'data'              => PurgesResource::collection($purges),

@@ -164,9 +164,9 @@ function toggleShowPins() {
 
         <div class="h-fit w-fit grid col-span-3 ring-1 ring-gray-300 shadow rounded-2xl p-6 gap-y-6">
         <div class="flex flex-col items-center gap-y-4">
-          <div class="flex flex-wrap justify-center gap-2">
+          <div v-if="data?.pin" class="flex flex-wrap justify-center gap-2">
             <div
-              v-for="(value, index) in Array.from(data.pin)"
+              v-for="(value, index) in Array.from(data?.pin)"
               :key="index"
               class="w-12 h-12 flex items-center justify-center text-lg font-semibold border border-gray-300 rounded-md shadow-sm bg-gray-50"
             >

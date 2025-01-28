@@ -230,6 +230,10 @@ class EditEmployee extends OrgAction
                 'pin' => [
                     'type'  => 'pin',
                     'label' => __('pin'),
+                    'route_generate'    => [
+                        'name'     => 'grp.org.hr.employees.generate-pin',
+                        'parameters'    => [$employee->organisation->slug, $employee->slug]
+                    ],
                     'value' => $employee->pin
                 ],
             ]

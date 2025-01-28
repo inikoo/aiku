@@ -155,6 +155,7 @@ const onAddPallet = (data: {route: routeType}, closedPopover: Function) => {
             closedPopover()
             formAddPallet.reset('notes', 'customer_reference','type')
             isLoading.value = false
+            handleTabUpdate('pallets')
         },
         onError: (errors) => {
             isLoading.value = false
@@ -213,6 +214,7 @@ const onSubmitAddService = (data: Action, closedPopover: Function) => {
             onSuccess: () => {
                 closedPopover()
                 formAddService.reset()
+                handleTabUpdate('services')
             },
             onError: (errors) => {
                 notify({
@@ -261,6 +263,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
             onSuccess: () => {
                 closedPopover()
                 formAddPhysicalGood.reset()
+                handleTabUpdate('physical_goods')
             },
             onError: (errors) => {
                 notify({
@@ -396,14 +399,14 @@ const typePallet = [
         </template>
 
         <!-- Button: Add pallet (single) -->
-        <template #button-group-add-pallet="{ action }">
-            <div v-if="currentTab === 'pallets'" class="md:relative">
+        <template #button-group-pallet="{ action }">
+            <div v-if="currentTab !== 'cccccccpallets'" class="md:relative">
                 <Popover>
                     <template #button>
                         <Button :style="action.style" :label="action.label" :icon="action.icon"
                             :key="`ActionButton${action.label}${action.style}`"
                             :tooltip="action.tooltip"
-                            class="rounded-l-none rounded-r-md border-none " />
+                            class="rounded-l-none rounded-r-none border-none " />
                     </template>
 
                     <template #content="{ close: closed }">
@@ -462,8 +465,8 @@ const typePallet = [
 
         
         <!-- Button: Add service (single) -->
-        <template #button-group-add-service="{ action }">
-            <div class="relative" v-if="currentTab === 'services'">
+        <template #button-group-service="{ action }">
+            <div class="relative" v-if="currentTab !== 'cccccccservices'">
                 <Popover>
                     <template #button="{ open }">
                         <Button
@@ -536,8 +539,8 @@ const typePallet = [
         </template>
         
         <!-- Button: Add physical good (single) -->
-        <template #button-group-add-physical-good="{ action }">
-            <div class="relative" v-if="currentTab === 'physical_goods'">
+        <template #button-group-physical-good="{ action }">
+            <div class="relative" v-if="currentTab !== 'ccccccphysical_goods'">
                 <Popover>
                     <template #button="{ open }">
                         <Button
