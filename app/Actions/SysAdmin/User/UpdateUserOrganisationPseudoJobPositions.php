@@ -26,6 +26,7 @@ class UpdateUserOrganisationPseudoJobPositions extends OrgAction
     use WithPreparePositionsForValidation;
     use WithReorganisePositions;
 
+    private User $user;
 
     public function handle(User $user, Organisation $organisation, array $modelData): User
     {
@@ -65,7 +66,7 @@ class UpdateUserOrganisationPseudoJobPositions extends OrgAction
 
         $this->asAction     = true;
         $this->organisation = $organisation;
-
+        $this->user = $user;
         $this->initialisation($organisation, $modelData);
 
         return $this->handle($user, $organisation, $this->validatedData);
@@ -74,7 +75,12 @@ class UpdateUserOrganisationPseudoJobPositions extends OrgAction
     public function afterValidator(Validator $validator, ActionRequest $request): void
     {
         /** @var User $userToUpdate */
-        $userToUpdate = $request->route()->parameter('user');
+        if($this->user)
+        {
+            $userToUpdate = $this->user;
+        } else {
+            $userToUpdate = $request->route()->parameter('user');
+        }
         $employee = $userToUpdate->employees->where('organisation_id', $this->organisation->id)->first();
 
         if ($employee) {

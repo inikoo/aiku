@@ -9,6 +9,7 @@
 
 namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
+use App\Actions\Comms\Email\SendCustomerWelcomeEmail;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\OrgAction;
@@ -51,7 +52,10 @@ class RegisterFulfilmentCustomer extends OrgAction
         data_set($fulfilmmentCustomerModelData, 'shipments_per_week', $shipment);
         data_set($fulfilmmentCustomerModelData, 'size_and_weight', $sizeAndWeight);
 
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
         $fulfilmentCustomer = UpdateFulfilmentCustomer::run($customer->fulfilmentCustomer, $fulfilmmentCustomerModelData);
+
+        SendCustomerWelcomeEmail::run($fulfilmentCustomer->customer);
 
         return $fulfilmentCustomer;
     }
