@@ -30,8 +30,8 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPurges extends OrgAction
 {
-    private Shop|Organisation|Group $parent;
     use WithOrdersSubNavigation;
+    private Shop|Organisation|Group $parent;
 
     public function handle(Shop|Organisation|Group $parent, $prefix = null): LengthAwarePaginator
     {

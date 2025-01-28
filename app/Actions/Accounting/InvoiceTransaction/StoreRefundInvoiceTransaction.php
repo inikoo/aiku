@@ -12,7 +12,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithOrderExchanges;
-use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceTransaction;
 use Illuminate\Support\Facades\DB;
 
@@ -29,7 +28,7 @@ class StoreRefundInvoiceTransaction extends OrgAction
     {
 
 
-        $invoice=$invoiceTransaction->invoice;
+        $invoice = $invoiceTransaction->invoice;
 
         data_set($modelData, 'group_id', $invoiceTransaction->group_id);
         data_set($modelData, 'organisation_id', $invoiceTransaction->organisation_id);
@@ -84,22 +83,22 @@ class StoreRefundInvoiceTransaction extends OrgAction
         });
     }
 
-     public function rules(): array
-     {
-         return[
-             'amount' => ['required', 'numeric'],
-         ];
-     }
+    public function rules(): array
+    {
+        return[
+            'amount' => ['required', 'numeric'],
+        ];
+    }
 
 
     /**
      * @throws \Throwable
      */
-    public function asController(InvoiceTransaction $invoiceTransaction,$request): InvoiceTransaction
-     {
-         $this->initialisationFromShop($invoiceTransaction->shop,$request);
-         return $this->handle($invoiceTransaction,$this->validatedData);
-     }
+    public function asController(InvoiceTransaction $invoiceTransaction, $request): InvoiceTransaction
+    {
+        $this->initialisationFromShop($invoiceTransaction->shop, $request);
+        return $this->handle($invoiceTransaction, $this->validatedData);
+    }
 
 
 }

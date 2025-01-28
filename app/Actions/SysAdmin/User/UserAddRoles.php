@@ -24,14 +24,14 @@ class UserAddRoles
 
     private bool $trusted = false;
 
-    public function handle(User $user, array $roles, bool $setUserAuthorisedModels=true): User
+    public function handle(User $user, array $roles, bool $setUserAuthorisedModels = true): User
     {
 
         foreach ($roles as $role) {
             $user->assignRole($role);
         }
 
-        if($setUserAuthorisedModels) {
+        if ($setUserAuthorisedModels) {
             SetUserAuthorisedModels::run($user);
         }
 

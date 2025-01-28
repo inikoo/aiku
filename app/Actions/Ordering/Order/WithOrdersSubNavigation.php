@@ -6,8 +6,6 @@
  * copyright 2025
 */
 
-
-
 namespace App\Actions\Ordering\Order;
 
 use App\Models\Catalogue\Shop;
