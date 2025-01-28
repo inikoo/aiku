@@ -78,7 +78,7 @@ class IndexPalletsInDelivery extends OrgAction
 
         return $query->allowedSorts(['customer_reference', 'reference', 'fulfilment_customer_name','type'])
             ->allowedFilters([$globalSearch, 'customer_reference', 'reference'])
-            ->withPaginator($prefix, 1000)
+            ->withPaginator($prefix, 50)
             ->withQueryString();
     }
 

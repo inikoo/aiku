@@ -95,7 +95,7 @@ class IndexPalletsInWarehouse extends OrgAction
 
         return $query->allowedSorts(['customer_reference', 'reference', 'location_code'])
             ->allowedFilters([$globalSearch, 'customer_reference', 'reference'])
-            ->withPaginator($prefix, 1000)
+            ->withPaginator($prefix, 50)
             ->withQueryString();
     }
 
