@@ -29,7 +29,7 @@ class SetEmployeePin extends OrgAction
         return $this->setPin($employee);
     }
 
-    public function setPin($employee, $try = 1): bool
+    public function setPin($employee, $try = 1): bool|string
     {
         try {
 
@@ -82,7 +82,7 @@ class SetEmployeePin extends OrgAction
     public string $commandSignature = 'employee:set_pin {employee}';
 
 
-    public function action(Employee $employee, $updateQuietly = false, $needGeneratedPin = false): bool|array
+    public function action(Employee $employee, $updateQuietly = false, $needGeneratedPin = false): bool|string
     {
         $this->updateQuietly = $updateQuietly;
         $this->needGeneratedPin = $needGeneratedPin;
