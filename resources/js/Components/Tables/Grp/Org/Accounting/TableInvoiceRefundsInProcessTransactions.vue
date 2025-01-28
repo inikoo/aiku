@@ -13,11 +13,11 @@ import InputNumber from 'primevue/inputnumber'
 import { get, set } from 'lodash'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faSave as falSave, faExclamationCircle } from '@fal'
+import { faSave as falSave, faExclamationCircle, faMinus, faPlus } from '@fal'
 import { faSave } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
-library.add(faSave, falSave, faExclamationCircle)
+library.add(faSave, falSave, faExclamationCircle, faMinus, faPlus)
 
 defineProps<{
     data: object
@@ -82,7 +82,7 @@ const localeCode = navigator.language
                 </div>
             </template>
 
-            <template #cell(action)="{ item, proxyItem }">
+            <template v-if="false" #cell(action)="{ item, proxyItem }">
                 <pre>{{ item.data }}</pre>
                 <!-- <pre>new: {{ item.new_refund_amount }}</pre>
                 ------<br> -->
@@ -97,12 +97,12 @@ const localeCode = navigator.language
                 <div class="flex items-center gap-x-1">
                     <div>
                         <InputNumber
-                            :modelValue="get(proxyItem, ['refund_amount'], 0)"
+                            :modelValue="get(proxyItem, ['new_refund_amount'], get(proxyItem, ['refund_amount'], 0))"
                             @input="(e) => (console.log(e.value), set(proxyItem, ['new_refund_amount'], e.value))"
                             @update:model-value="(e) => set(proxyItem, ['new_refund_amount'], e)"
                             :class="get(proxyItem, ['new_refund_amount'], null) > item.net_amount ? 'errorShake' : ''"
                             inputClass="width-12"
-                            :max="item.net_amount"
+                            :max="Number(item.net_amount)"
                             :min="0"
                             placeholder="0"
                             mode="currency"
@@ -111,6 +111,12 @@ const localeCode = navigator.language
                             showButtons buttonLayout="horizontal" 
                             :step="0.25"
                         >
+                            <template #decrementicon>
+                                <FontAwesomeIcon icon="fal fa-minus" aria-hidden="true" />
+                            </template>
+                            <template #incrementicon>
+                                <FontAwesomeIcon icon="fal fa-plus" aria-hidden="true" />
+                            </template>
                         </InputNumber>
                         
                         <p v-if="get(proxyItem, ['new_refund_amount'], null) > item.net_amount" class="italic text-red-500 text-xs mt-1">

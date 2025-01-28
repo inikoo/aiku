@@ -57,6 +57,8 @@ class RegisterFulfilmentCustomer extends OrgAction
 
         SendCustomerWelcomeEmail::run($fulfilmentCustomer->customer);
 
+        auth('retina')->login($webUser);
+
         return $fulfilmentCustomer;
     }
 

@@ -79,6 +79,7 @@ const interestsList = ref([
   { label: 'Pallets Storage', value: 'pallets_storage' },
   { label: 'Items Storage', value: 'items_storage' },
   { label: 'Dropshipping', value: 'dropshipping' },
+  { label: 'Space (Parking)', value: 'rental_space' },
 ]);
 
 const addressFieldData = 
