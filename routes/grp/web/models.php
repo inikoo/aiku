@@ -359,6 +359,8 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('booking', StartBookingPalletDelivery::class)->name('booking');
     Route::post('booked-in', SetPalletDeliveryAsBookedIn::class)->name('booked-in');
 
+    Route::post('attachment/attach', [AttachAttachmentToModel::class, 'inPalletDelivery'])->name('attachment.attach');
+    Route::delete('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inPalletDelivery'])->name('attachment.detach')->withoutScopedBindings();
 
     Route::post('pallet-upload', ImportPalletsInPalletDelivery::class, )->name('pallet.upload');
     Route::post('pallet', StorePalletFromDelivery::class)->name('pallet.store');
