@@ -236,7 +236,8 @@ const organisation = [
         slug: 'es'
     },
 ]
-const selectedOrganisation = ref<typeof organisation[number] | null>(organisation[0])
+// const selectedOrganisation = ref<typeof organisation[number] | null>(organisation[0])
+const selectedOrganisation = ref<typeof organisation[number] | null>(null)
 
 const organisationPositionCounts = ref({})
 // watch(props.form, (newValue) => {
@@ -321,10 +322,10 @@ const organisationPositionCounts = ref({})
         <div class="grid max-w-4xl">
             <div class="flex justify-between px-2 border-b border-gray-300 py-2 mb-2">
                 <div>
-                    Organisations
+                    {{ trans('Organisations') }}
                 </div>
                 <div>
-                    Access
+                    {{ trans('Access') }}
                 </div>
             </div>
 
