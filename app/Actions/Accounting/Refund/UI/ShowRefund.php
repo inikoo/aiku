@@ -221,7 +221,7 @@ class ShowRefund extends OrgAction
                         'icon'  => ['fas', 'fa-hand-holding-usd'],
                         'title' => $refund->reference
                     ],
-                    'actions' => $actions
+                    // 'actions' => $actions
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,

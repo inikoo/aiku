@@ -82,7 +82,7 @@ const localeCode = navigator.language
                 </div>
             </template>
 
-            <template #cell(action)="{ item, proxyItem }">
+            <template v-if="false" #cell(action)="{ item, proxyItem }">
                 <pre>{{ item.data }}</pre>
                 <!-- <pre>new: {{ item.new_refund_amount }}</pre>
                 ------<br> -->
