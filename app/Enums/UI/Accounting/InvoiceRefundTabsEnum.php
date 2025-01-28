@@ -18,6 +18,7 @@ enum InvoiceRefundTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
+    case ITEMS_IN_PROCESS                  = 'items_in_process';
     case ITEMS                  = 'items';
     case HISTORY                = 'history';
     case PAYMENTS               = 'payments';
@@ -41,7 +42,7 @@ enum InvoiceRefundTabsEnum: string
                 'align' => 'right',
             ],
 
-            InvoiceRefundTabsEnum::ITEMS => [
+            InvoiceRefundTabsEnum::ITEMS, InvoiceRefundTabsEnum::ITEMS_IN_PROCESS => [
                 'title' => __('Items'),
                 'icon'  => 'fal fa-bars',
             ],
