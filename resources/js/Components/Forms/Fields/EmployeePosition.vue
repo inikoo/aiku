@@ -109,8 +109,14 @@ const props = defineProps<{
             }
         }
         updateOrganisationPermissionsRoute: routeType
+        updateEmployeeJobPositionsRoute: routeType
         updateJobPositionsRoute: routeType
         is_in_organisation: boolean
+        current_organisation: {  // the organisation of the employee
+            id: number
+            name: string
+            slug: string
+        }
     }
     saveButton?: boolean
     organisationId?: number
@@ -123,30 +129,62 @@ const abcdef = {
 }
 const newForm = props.saveButton ? useForm(abcdef || {}) : reactive(props.form)
 const onSubmitNewForm = () => {
-    console.log('Employee submit route name:', props.fieldData.updateJobPositionsRoute.name)
-    console.log('Employee submit route:', route(props.fieldData.updateJobPositionsRoute.name, {...props.fieldData.updateJobPositionsRoute.parameters, organisation: props.fieldData.is_in_organisation ? undefined : props.organisationId}))
-    newForm
-    .transform((data) => ({
-        permissions: data[props.fieldName]
-    }))
-    .submit(
-        props.fieldData.updateJobPositionsRoute.method || 'patch',
-        // todo use updateEmployeeJobPositionsRoute when user is employeed in this organisation
-        route(props.fieldData.updateJobPositionsRoute.name, {...props.fieldData.updateJobPositionsRoute.parameters, organisation: props.fieldData.is_in_organisation ? undefined : props.organisationId}),
-        {
-            preserveScroll: true,
-            onSuccess: () => notify({
-                title: trans('Success'),
-                text: trans('Successfully update the permissions'),
-                type: 'success',
-            }),
-            onError: () => notify({
-                title: trans('Something went wrong'),
-                text: trans('Failed to update the permissions'),
-                type: 'error',
-            })
-        }
-    )
+    // console.log('Employee submit route name:', props.fieldData.updateEmployeeJobPositionsRoute)
+    // console.log('Employee submit route:', route(props.fieldData.updateJobPositionsRoute.name, {...props.fieldData.updateJobPositionsRoute.parameters, organisation: props.fieldData.is_in_organisation ? undefined : props.organisationId}))
+    // console.log('xxxx', props.fieldData.current_organisation.slug == props.fieldName)
+
+    // const selectedRoute = props.fieldData.current_organisation.slug == props.fieldName
+    //     ? 'updateEmployeeJobPositionsRoute'
+    //     : props.fieldData.updateJobPositionsRoute.name, {...props.fieldData.updateJobPositionsRoute.parameters, organisation: props.fieldData.is_in_organisation ? undefined : props.organisationId}
+
+    if (props.fieldData.current_organisation.slug == props.fieldName){
+        console.log('.')
+        // If user is employeed in this organisation
+        newForm
+        .transform((data) => ({
+            permissions: data[props.fieldName]
+        }))
+        .submit(
+            props.fieldData.updateEmployeeJobPositionsRoute.method || 'patch',
+            route(props.fieldData.updateEmployeeJobPositionsRoute.name, {...props.fieldData.updateEmployeeJobPositionsRoute.parameters, organisation: props.fieldData.is_in_organisation ? undefined : props.organisationId}),
+            {
+                preserveScroll: true,
+                onSuccess: () => notify({
+                    title: trans('Success'),
+                    text: trans('Successfully update the permissions'),
+                    type: 'success',
+                }),
+                onError: () => notify({
+                    title: trans('Something went wrong'),
+                    text: trans('Failed to update the permissions'),
+                    type: 'error',
+                })
+            }
+        )
+    } else {
+        console.log(',')
+        newForm
+        .transform((data) => ({
+            permissions: data[props.fieldName]
+        }))
+        .submit(
+            props.fieldData.updateJobPositionsRoute.method || 'patch',
+            route(props.fieldData.updateJobPositionsRoute.name, {...props.fieldData.updateJobPositionsRoute.parameters, organisation: props.fieldData.is_in_organisation ? undefined : props.organisationId}),
+            {
+                preserveScroll: true,
+                onSuccess: () => notify({
+                    title: trans('Success'),
+                    text: trans('Successfully update the permissions'),
+                    type: 'success',
+                }),
+                onError: () => notify({
+                    title: trans('Something went wrong'),
+                    text: trans('Failed to update the permissions'),
+                    type: 'error',
+                })
+            }
+        )
+    }
 }
 
 
