@@ -112,7 +112,7 @@ const props = defineProps<{
         updateEmployeeJobPositionsRoute: routeType
         updateJobPositionsRoute: routeType
         is_in_organisation: boolean
-        current_organisation: {  // the organisation of the employee
+        current_organisation?: {  // the organisation of the employee
             id: number
             name: string
             slug: string
@@ -137,7 +137,7 @@ const onSubmitNewForm = () => {
     //     ? 'updateEmployeeJobPositionsRoute'
     //     : props.fieldData.updateJobPositionsRoute.name, {...props.fieldData.updateJobPositionsRoute.parameters, organisation: props.fieldData.is_in_organisation ? undefined : props.organisationId}
 
-    if (props.fieldData.current_organisation.slug == props.fieldName){
+    if (props.fieldData.current_organisation?.slug == props.fieldName){
         console.log('.')
         // If user is employeed in this organisation
         newForm
