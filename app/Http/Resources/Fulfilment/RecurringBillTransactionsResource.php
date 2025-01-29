@@ -9,7 +9,6 @@
 namespace App\Http\Resources\Fulfilment;
 
 use App\Actions\Utils\Abbreviate;
-use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Models\Fulfilment\Pallet;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Carbon;
@@ -40,24 +39,24 @@ class RecurringBillTransactionsResource extends JsonResource
 {
     public function toArray($request): array
     {
-        $description='';
+        $description = '';
 
-        if($this->item_type=='Pallet'){
-            $pallet=Pallet::find($this->item_id);
+        if ($this->item_type == 'Pallet') {
+            $pallet = Pallet::find($this->item_id);
 
-            $description=__('Storage').': '.$pallet->reference;
-            if($this->start_date){
+            $description = __('Storage').': '.$pallet->reference;
+            if ($this->start_date) {
                 $description .= ' (' . Carbon::parse($this->start_date)->format('d M Y') . '-';
-            } if($this->end_date){
+            } if ($this->end_date) {
                 $description .= Carbon::parse($this->end_date)->format('d M Y') . ')';
-            }else{
+            } else {
                 $description .= __('ongoing').')';
             }
 
 
         }
 
-        $unitAbbreviation=Abbreviate::run($this->asset_unit);
+        $unitAbbreviation = Abbreviate::run($this->asset_unit);
 
 
         return [
@@ -74,10 +73,10 @@ class RecurringBillTransactionsResource extends JsonResource
             'currency_code'      => $this->currency_code,
             'unit_abbreviation'  => $unitAbbreviation,
             'unit_label'         => $this->asset_unit,
-            'quantity'           =>   (int) $this->quantity*$this->temporal_quantity,
+            'quantity'           =>   (int) $this->quantity * $this->temporal_quantity,
             'total'              => $this->net_amount,
             'discount'           => (int) $this->discount,
-            'description'=>$description
+            'description' => $description
 
         ];
     }

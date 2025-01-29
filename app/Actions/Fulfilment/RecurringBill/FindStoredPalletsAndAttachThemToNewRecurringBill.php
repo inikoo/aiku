@@ -9,6 +9,7 @@
 namespace App\Actions\Fulfilment\RecurringBill;
 
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
+use App\Actions\Fulfilment\RecurringBill\Hydrators\RecurringBillHydrateTransactions;
 use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -31,12 +32,16 @@ class FindStoredPalletsAndAttachThemToNewRecurringBill extends OrgAction
                 $startDate = $recurringBill->start_date;
             }
             StoreRecurringBillTransaction::make()->action(
-                $recurringBill,
-                $pallet,
-                [
+                recurringBill:  $recurringBill,
+                item:$pallet,
+                modelData:[
                     'start_date' => $startDate
-                ]
+                ],
+                skipHydrators: true
             );
+            CalculateRecurringBillTotals::run($recurringBill);
+            RecurringBillHydrateTransactions::run($recurringBill);
+
         }
 
         return $recurringBill;

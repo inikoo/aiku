@@ -11,10 +11,18 @@ namespace App\Http\Resources\Fulfilment;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
-*
+ *
  * @property int $id
  * @property int $reference
  * @property int $slug
+ * @property mixed $customer_name
+ * @property mixed $fulfilment_customer_slug
+ * @property mixed $net_amount
+ * @property mixed $start_date
+ * @property mixed $end_date
+ * @property mixed $currency
+ * @property mixed $currency_symbol
+ * @property mixed $number_transactions
  */
 class RecurringBillsResource extends JsonResource
 {
@@ -31,6 +39,7 @@ class RecurringBillsResource extends JsonResource
             'end_date'                 => $this->end_date,
             'currency_code'            => $this->currency_code ?? ($this->currency ? $this->currency->code : null),
             'currency_symbol'          => $this->currency_symbol,
+            'number_transactions'      => $this->number_transactions
         ];
     }
 }

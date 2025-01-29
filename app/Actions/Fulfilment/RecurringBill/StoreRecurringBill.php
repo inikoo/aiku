@@ -43,7 +43,6 @@ class StoreRecurringBill extends OrgAction
 
 
         data_set($modelData, 'currency_id', $rentalAgreement->fulfilment->shop->currency_id, overwrite: false);
-
         data_set($modelData, 'organisation_id', $rentalAgreement->organisation_id);
         data_set($modelData, 'group_id', $rentalAgreement->group_id);
         data_set($modelData, 'fulfilment_id', $rentalAgreement->fulfilment_id);

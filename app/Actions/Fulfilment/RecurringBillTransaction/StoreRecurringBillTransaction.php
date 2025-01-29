@@ -23,6 +23,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreRecurringBillTransaction extends OrgAction
 {
+    private bool $skipHydrators = false;
+
     public function handle(RecurringBill $recurringBill, Pallet|StoredItem|FulfilmentTransaction|HistoricAsset $item, array $modelData): RecurringBillTransaction
     {
         data_set($modelData, 'organisation_id', $recurringBill->organisation_id);
@@ -97,9 +99,11 @@ class StoreRecurringBillTransaction extends OrgAction
         $recurringBillTransaction = CalculateRecurringBillTransactionAmounts::make()->action($recurringBillTransaction);
         $recurringBillTransaction = CalculateRecurringBillTransactionCurrencyExchangeRates::make()->action($recurringBillTransaction);
 
-        CalculateRecurringBillTotals::dispatch($recurringBill);
+        if (!$this->skipHydrators) {
+            CalculateRecurringBillTotals::run($recurringBill);
+            RecurringBillHydrateTransactions::run($recurringBill);
+        }
 
-        RecurringBillHydrateTransactions::dispatch($recurringBill)->delay($this->hydratorsDelay);
 
 
         return $recurringBillTransaction;
@@ -121,10 +125,11 @@ class StoreRecurringBillTransaction extends OrgAction
         ];
     }
 
-    public function action(RecurringBill $recurringBill, Pallet|StoredItem|FulfilmentTransaction $item, array $modelData, int $hydratorsDelay = 0): RecurringBillTransaction
+    public function action(RecurringBill $recurringBill, Pallet|StoredItem|FulfilmentTransaction $item, array $modelData, int $hydratorsDelay = 0, bool $skipHydrators = false): RecurringBillTransaction
     {
         $this->asAction = true;
         $this->hydratorsDelay = $hydratorsDelay;
+        $this->skipHydrators = $skipHydrators;
         $this->initialisationFromShop($recurringBill->fulfilment->shop, $modelData);
         return $this->handle($recurringBill, $item, $this->validatedData);
     }

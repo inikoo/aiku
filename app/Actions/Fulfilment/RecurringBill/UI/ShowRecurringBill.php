@@ -42,7 +42,6 @@ class ShowRecurringBill extends OrgAction
     private string $bucket;
 
 
-
     public function asController(Organisation $organisation, Fulfilment $fulfilment, RecurringBill $recurringBill, ActionRequest $request): RecurringBill
     {
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(RecurringBillTabsEnum::values());
@@ -122,11 +121,13 @@ class ShowRecurringBill extends OrgAction
                 ]
             ];
         }
+
         return Inertia::render(
             'Org/Fulfilment/RecurringBill',
             [
                 'title'            => __('recurring bill'),
                 'breadcrumbs'      => $this->getBreadcrumbs(
+                    $recurringBill,
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
@@ -135,16 +136,16 @@ class ShowRecurringBill extends OrgAction
                     'next'     => $this->getNext($recurringBill, $request),
                 ],
                 'pageHead'         => [
-                    'icon'  =>
+                    'icon'    =>
                         [
                             'icon'  => 'fal fa-receipt',
                             'title' => __('recurring bill')
                         ],
-                    'model' => __('Recurring Bill'),
-                    'title' => $recurringBill->slug,
+                    'model'   => __('Recurring Bill'),
+                    'title'   => $recurringBill->slug,
                     'actions' => $actions
                 ],
-                'currency'                => CurrencyResource::make($recurringBill->currency),
+                'currency'         => CurrencyResource::make($recurringBill->currency),
                 'updateRoute'      => [
                     'name'       => 'grp.models.recurring-bill.update',
                     'parameters' => [$recurringBill->id]
@@ -342,7 +343,7 @@ class ShowRecurringBill extends OrgAction
         };
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = ''): array
+    public function getBreadcrumbs(RecurringBill $recurringBill, string $routeName, array $routeParameters, $suffix = ''): array
     {
         $headCrumb = function (RecurringBill $recurringBill, array $routeParameters, string $suffix) {
             return [
@@ -364,9 +365,30 @@ class ShowRecurringBill extends OrgAction
             ];
         };
 
-        $recurringBill = RecurringBill::where('slug', $routeParameters['recurringBill'])->first();
+
 
         return match ($routeName) {
+            'grp.org.fulfilments.show.operations.recurring_bills.current.show' => array_merge(
+                ShowFulfilment::make()->getBreadcrumbs(
+                    Arr::only($routeParameters, ['organisation', 'fulfilment'])
+                ),
+                $headCrumb(
+                    $recurringBill,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.fulfilments.show.operations.recurring_bills.current.index',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.fulfilments.show.operations.recurring_bills.current.show',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'recurringBill'])
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+
+
             'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show',
             'grp.org.fulfilments.show.crm.customers.show.recurring_bills.edit' => array_merge(
                 ShowFulfilmentCustomer::make()->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])),
