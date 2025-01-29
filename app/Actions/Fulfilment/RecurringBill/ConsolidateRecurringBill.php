@@ -19,7 +19,10 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
+use App\Models\Accounting\Invoice;
 use App\Models\Fulfilment\RecurringBill;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 
 class ConsolidateRecurringBill extends OrgAction
@@ -30,7 +33,7 @@ class ConsolidateRecurringBill extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function handle(RecurringBill $recurringBill): RecurringBill
+    public function handle(RecurringBill $recurringBill): Invoice
     {
         $recurringBill       = $this->update($recurringBill, [
             'status' => RecurringBillStatusEnum::FORMER
@@ -58,7 +61,7 @@ class ConsolidateRecurringBill extends OrgAction
 
             $data = [
                 'tax_category_id' => $transaction->recurringBill->tax_category_id,
-                'quantity'        => $transaction->quantity,
+                'quantity'        => $transaction->quantity*$transaction->temporal_quantity,
                 'gross_amount'    => $transaction->gross_amount,
                 'net_amount'      => $transaction->net_amount,
             ];
@@ -86,7 +89,7 @@ class ConsolidateRecurringBill extends OrgAction
         FulfilmentHydrateRecurringBills::dispatch($recurringBill->fulfilment);
         FulfilmentCustomerHydrateRecurringBills::dispatch($recurringBill->fulfilmentCustomer);
 
-        return $recurringBill;
+        return $invoice;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -98,10 +101,25 @@ class ConsolidateRecurringBill extends OrgAction
         return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
+    public function htmlResponse(Invoice $invoice, ActionRequest $request): RedirectResponse
+    {
+        return Redirect::route(
+          'grp.org.fulfilments.show.crm.customers.show.invoices.show',
+            [
+                $invoice->organisation->slug,
+                $invoice->shop->fulfilment->slug,
+                $invoice->customer->fulfilmentCustomer->slug,
+                $invoice->slug
+            ]
+
+        );
+    }
+
+
     /**
      * @throws \Throwable
      */
-    public function asController(RecurringBill $recurringBill, ActionRequest $request): RecurringBill
+    public function asController(RecurringBill $recurringBill, ActionRequest $request): Invoice
     {
 
         $this->initialisationFromFulfilment($recurringBill->fulfilment, $request);
@@ -111,7 +129,7 @@ class ConsolidateRecurringBill extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function action(RecurringBill $recurringBill): RecurringBill
+    public function action(RecurringBill $recurringBill): Invoice
     {
         $this->asAction = true;
         $this->initialisationFromFulfilment($recurringBill->fulfilment, []);
