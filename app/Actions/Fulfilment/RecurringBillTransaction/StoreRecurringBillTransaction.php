@@ -47,7 +47,6 @@ class StoreRecurringBillTransaction extends OrgAction
             // todo add unit cost to the transaction
             $unitCost = $item->gross_amount / $item->quantity;
             data_set($modelData, 'item_id', $item->historicAsset->model_id);
-
         } elseif ($item instanceof HistoricAsset) {
             if ($item->model_type == 'Service') {
                 $type = 'Service';
@@ -60,7 +59,6 @@ class StoreRecurringBillTransaction extends OrgAction
 
             $unitCost = $item->price;
             data_set($modelData, 'item_id', $item->model_id);
-
         } else {
             $type            = class_basename($item);
             $assetId         = $item->rental->asset_id;
@@ -76,7 +74,7 @@ class StoreRecurringBillTransaction extends OrgAction
                 $totalQuantity = 1;
             }
 
-            $unitCost    = $item->rental->price;
+            $unitCost = $item->rental->price;
             data_set($modelData, 'item_id', $item->id);
         }
 
@@ -105,7 +103,6 @@ class StoreRecurringBillTransaction extends OrgAction
         }
 
 
-
         return $recurringBillTransaction;
     }
 
@@ -121,16 +118,18 @@ class StoreRecurringBillTransaction extends OrgAction
     {
         return [
             'start_date' => ['required', 'date'],
-            'quantity' => ['sometimes', 'numeric'],
+            'end_date'   => ['sometimes', 'required', 'date', 'gte:start_date'],
+            'quantity'   => ['sometimes', 'numeric'],
         ];
     }
 
     public function action(RecurringBill $recurringBill, Pallet|StoredItem|FulfilmentTransaction $item, array $modelData, int $hydratorsDelay = 0, bool $skipHydrators = false): RecurringBillTransaction
     {
-        $this->asAction = true;
+        $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->skipHydrators = $skipHydrators;
+        $this->skipHydrators  = $skipHydrators;
         $this->initialisationFromShop($recurringBill->fulfilment->shop, $modelData);
+
         return $this->handle($recurringBill, $item, $this->validatedData);
     }
 

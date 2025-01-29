@@ -26,7 +26,7 @@ class StoreRecurringBill extends OrgAction
 {
     use WithGetRecurringBillEndDate;
 
-    public function handle(RentalAgreement $rentalAgreement, array $modelData, RecurringBill $previousRecurringBill = null): RecurringBill
+    public function handle(RentalAgreement $rentalAgreement, array $modelData): RecurringBill
     {
         if (!Arr::exists($modelData, 'tax_category_id')) {
             data_set(
@@ -73,7 +73,6 @@ class StoreRecurringBill extends OrgAction
         );
 
 
-
         /** @var RecurringBill $recurringBill */
         $recurringBill = $rentalAgreement->recurringBills()->create($modelData);
         $recurringBill->stats()->create();
@@ -86,13 +85,14 @@ class StoreRecurringBill extends OrgAction
         );
 
         if ($this->strict) {
-            FindStoredPalletsAndAttachThemToNewRecurringBill::make()->action($recurringBill, $previousRecurringBill);
+            FindStoredPalletsAndAttachThemToNewRecurringBill::make()->action($recurringBill);
         }
 
         GroupHydrateRecurringBills::dispatch($recurringBill->group)->delay($this->hydratorsDelay);
         OrganisationHydrateRecurringBills::dispatch($recurringBill->organisation)->delay($this->hydratorsDelay);
         FulfilmentHydrateRecurringBills::dispatch($recurringBill->fulfilment)->delay($this->hydratorsDelay);
         FulfilmentCustomerHydrateRecurringBills::dispatch($recurringBill->fulfilmentCustomer)->delay($this->hydratorsDelay);
+
         return $recurringBill;
     }
 
@@ -104,14 +104,14 @@ class StoreRecurringBill extends OrgAction
         ];
     }
 
-    public function action(RentalAgreement $rentalAgreement, array $modelData, RecurringBill $previousRecurringBill = null, int $hydratorsDelay = 0, bool $strict = false): RecurringBill
+    public function action(RentalAgreement $rentalAgreement, array $modelData, int $hydratorsDelay = 0, bool $strict = false): RecurringBill
     {
-        $this->strict = $strict;
-        $this->asAction = true;
+        $this->strict         = $strict;
+        $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($rentalAgreement->fulfilment->shop, $modelData);
 
-        return $this->handle($rentalAgreement, $this->validatedData, $previousRecurringBill);
+        return $this->handle($rentalAgreement, $this->validatedData);
     }
 
 

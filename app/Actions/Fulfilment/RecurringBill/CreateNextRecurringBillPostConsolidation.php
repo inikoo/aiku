@@ -17,7 +17,6 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateRecurringBill
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Models\Fulfilment\RecurringBill;
-use Illuminate\Support\Facades\DB;
 
 class CreateNextRecurringBillPostConsolidation extends OrgAction
 {
@@ -39,18 +38,15 @@ class CreateNextRecurringBillPostConsolidation extends OrgAction
                 ->exists();
 
             if ($hasStoringPallet) {
-                // $newRecurringBill = DB::transaction(function () use ($previousRecurringBill) {
                 $newRecurringBill = StoreRecurringBill::make()->action(
                     rentalAgreement: $previousRecurringBill->fulfilmentCustomer->rentalAgreement,
                     modelData: ['start_date' => now()],
-                    previousRecurringBill: $previousRecurringBill,
                     strict: true
                 );
 
                 $this->update($previousRecurringBill->fulfilmentCustomer, ['current_recurring_bill_id' => $newRecurringBill->id]);
 
-                //                    return $newRecurringBill;
-                //                });
+
             }
         }
         if ($newRecurringBill) {
