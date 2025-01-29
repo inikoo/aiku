@@ -8,10 +8,11 @@
 
 namespace App\Http\Resources\Fulfilment;
 
-use App\Models\Billables\Service;
-use App\Models\Catalogue\Product;
+use App\Actions\Utils\Abbreviate;
+use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Models\Fulfilment\Pallet;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $asset_id
@@ -27,66 +28,38 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $id
  * @property mixed $is_auto_assign
  * @property mixed $historic_assets_id
+ * @property mixed $temporal_quantity
+ * @property mixed $item_type
+ * @property mixed $net_amount
+ * @property mixed $discount
+ * @property mixed $item_id
+ * @property mixed $start_date
+ * @property mixed $end_date
  */
 class RecurringBillTransactionsResource extends JsonResource
 {
     public function toArray($request): array
     {
-        if ($this->asset_type == 'service') {
-            $unitAbbreviation = 's';
-            $unitLabel        = __('service');
-        } else {
-            $unitAbbreviation = 'u';
-            $unitLabel        = __('unit');
+        $description='';
+
+        if($this->item_type=='Pallet'){
+            $pallet=Pallet::find($this->item_id);
+
+            $description=__('Storage').': '.$pallet->reference;
+            if($this->start_date){
+                $description .= ' (' . Carbon::parse($this->start_date)->format('d M Y') . '-';
+            } if($this->end_date){
+                $description .= Carbon::parse($this->end_date)->format('d M Y') . ')';
+            }else{
+                $description .= __('ongoing').')';
+            }
+
+
         }
 
-        $item_name = '';
-        $item_slug = '';
-        $route = [];
-        if ($this->item_type == 'Pallet') {
-            $pallet = Pallet::find($this->item_id);
-            if ($pallet) {
-                $item_name = $pallet->customer_reference;
-                $item_slug = $pallet->slug;
-                $route = [
-                    'name' => 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
-                    'parameters' => [
-                        'organisation' => $this->organisation_slug,
-                        'fulfilment' => $this->fulfilment_slug,
-                        'fulfilmentCustomer' => $this->fulfilment_customer_slug,
-                        'pallet'    => $item_slug
-                    ]
-                ];
-            }
-        } elseif ($this->item_type == 'Service') {
-            $service = Service::find($this->item_id);
-            if ($service) {
-                $item_name = $service->name;
-                $item_slug = $service->slug;
-                $route = [
-                    'name' => 'grp.org.fulfilments.show.catalogue.services.show',
-                    'parameters' => [
-                        'organisation' => $this->organisation_slug,
-                        'fulfilment' => $this->fulfilment_slug,
-                        'service' => $item_slug
-                    ]
-                ];
-            }
-        } elseif ($this->item_type == 'Product') {
-            $product = Product::find($this->item_id);
-            if ($product) {
-                $item_name = $product->name;
-                $item_slug = $product->slug;
-                $route = [
-                    'name' => 'grp.org.fulfilments.show.catalogue.outers.show',
-                    'parameters' => [
-                        'organisation' => $this->organisation_slug,
-                        'fulfilment' => $this->fulfilment_slug,
-                        'product' => $item_slug
-                    ]
-                ];
-            }
-        }
+        $unitAbbreviation=Abbreviate::run($this->asset_unit);
+
+
         return [
             'id'                 => $this->id,
             'type'               => $this->item_type,
@@ -96,32 +69,20 @@ class RecurringBillTransactionsResource extends JsonResource
             'asset_code'         => $this->asset_code,
             'asset_price'        => $this->asset_price,
             'asset_name'         => $this->asset_name,
-            'asset_price'        => $this->asset_price,
             'asset_unit'         => $this->asset_unit,
             'asset_units'        => $this->asset_units,
             'currency_code'      => $this->currency_code,
             'unit_abbreviation'  => $unitAbbreviation,
-            'unit_label'         => $unitLabel,
-            'quantity'           => (int) $this->quantity,
+            'unit_label'         => $this->asset_unit,
+            'quantity'           =>   (int) $this->quantity*$this->temporal_quantity,
             'total'              => $this->net_amount,
             'discount'           => (int) $this->discount,
-
-            'fulfilment_customer_slug' => $this->fulfilment_customer_slug,
-            'fulfilment_slug'   => $this->fulfilment_slug,
-            'organisation_slug' => $this->organisation_slug,
-
-            'item_name'          => $item_name,
-            'item_slug'          => $item_slug,
-
-            'route'              => $route
-            // 'historic_assets_id'=> $this->historic_assets_id
-
-
+            'description'=>$description
 
         ];
     }
 
-    public function typeIcon($type)
+    public function typeIcon($type): ?array
     {
         if ($type == 'Pallet') {
             return [
