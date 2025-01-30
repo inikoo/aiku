@@ -595,6 +595,8 @@ class ShowPalletDelivery extends OrgAction
                     'actions' => $actions,
                 ],
 
+                'can_edit_transactions'=>true,
+
                 'interest'  => [
                     'pallets_storage' => $palletDelivery->fulfilmentCustomer->pallets_storage,
                     'items_storage'   => $palletDelivery->fulfilmentCustomer->items_storage,

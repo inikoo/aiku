@@ -26,10 +26,10 @@ use Lorisleiva\Actions\ActionRequest;
 class StoreFulfilmentTransaction extends OrgAction
 {
     use WithActionUpdate;
+
     public function handle(PalletDelivery|PalletReturn $parent, array $modelData): FulfilmentTransaction
     {
-
-        data_set($modelData, 'tax_category_id', $parent->tax_category_id, overwrite:false);
+        data_set($modelData, 'tax_category_id', $parent->tax_category_id, overwrite: false);
 
         $historicAsset = HistoricAsset::find($modelData['historic_asset_id']);
         $net           = $modelData['quantity'] * $historicAsset->asset->price;
@@ -52,14 +52,25 @@ class StoreFulfilmentTransaction extends OrgAction
         /** @var FulfilmentTransaction $fulfilmentTransaction */
         $fulfilmentTransaction = $parent->transactions()->create($modelData);
 
-        if ($parent instanceof PalletDelivery && $parent->state == PalletDeliveryStateEnum::BOOKED_IN) {
-            if ($parent->recurringBill && $parent->recurringBill->status == RecurringBillStatusEnum::CURRENT) {
-                StoreRecurringBillTransaction::make()->action($parent->recurringBill, $fulfilmentTransaction, [
-                    'start_date' => now(),
-                    'end_date'   => now(),
-                ]);
+        if ($parent->recurringBill && $parent->recurringBill->status == RecurringBillStatusEnum::CURRENT) {
+            $recurringBillTransactionData = [
+                'start_date'                => now(),
+                'quantity'                  => $fulfilmentTransaction->quantity,
+                'fulfilment_transaction_id' => $fulfilmentTransaction->id
+
+            ];
+
+            if ($parent instanceof PalletDelivery) {
+                $recurringBillTransactionData['pallet_delivery_id'] = $parent->id;
+            } else {
+                $recurringBillTransactionData['pallet_return_id'] = $parent->id;
             }
+
+
+            StoreRecurringBillTransaction::make()->action($parent->recurringBill, $fulfilmentTransaction, $recurringBillTransactionData);
         }
+
+
 
         if ($fulfilmentTransaction->parent_type == 'PalletDelivery') {
             PalletDeliveryHydrateTransactions::run($fulfilmentTransaction->parent);
@@ -71,9 +82,9 @@ class StoreFulfilmentTransaction extends OrgAction
         $this->update(
             $fulfilmentTransaction,
             [
-            'grp_net_amount'   => $fulfilmentTransaction->net_amount * $fulfilmentTransaction->grp_exchange,
-            'org_net_amount'   => $fulfilmentTransaction->net_amount * $fulfilmentTransaction->org_exchange
-        ]
+                'grp_net_amount' => $fulfilmentTransaction->net_amount * $fulfilmentTransaction->grp_exchange,
+                'org_net_amount' => $fulfilmentTransaction->net_amount * $fulfilmentTransaction->org_exchange
+            ]
         );
         $fulfilmentTransaction->refresh();
         SetClausesInFulfilmentTransaction::run($fulfilmentTransaction);
@@ -94,19 +105,6 @@ class StoreFulfilmentTransaction extends OrgAction
         ];
     }
 
-    public function fromRetinaInPalletDelivery(PalletDelivery $palletDelivery, ActionRequest $request): void
-    {
-        $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
-
-        $this->handle($palletDelivery, $this->validatedData);
-    }
-
-    public function fromRetinaInPalletReturn(PalletReturn $palletReturn, ActionRequest $request): void
-    {
-        $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
-
-        $this->handle($palletReturn, $this->validatedData);
-    }
 
     public function inPalletDelivery(PalletDelivery $palletDelivery, ActionRequest $actionRequest): void
     {
