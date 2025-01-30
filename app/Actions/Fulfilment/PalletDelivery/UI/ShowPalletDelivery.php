@@ -209,41 +209,6 @@ class ShowPalletDelivery extends OrgAction
                             [
                                 'type'    => 'button',
                                 'style'   => 'secondary',
-                                'icon'    => ['fal', 'fa-upload'],
-                                'label'   => '',
-                                'key'     => 'upload',
-                                'tooltip' => __('Upload pallets via spreadsheet'),
-                            ],
-                            [
-                                'type'    => 'button',
-                                'style'   => 'secondary',
-                                'icon'    => ['far', 'fa-layer-plus'],
-                                'label'   => 'multiple',
-                                'key'     => 'multiple',
-                                'route'   => [
-                                    'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
-                                    'parameters' => [
-                                        'palletDelivery' => $palletDelivery->id
-                                    ]
-                                ]
-                            ],
-                            [
-                                'type'    => 'button',
-                                'style'   => 'secondary',
-                                'icon'    => 'fal fa-plus',
-                                'label'   => __('add pallet'),
-                                'key'     => 'add-pallet',
-                                'tooltip' => __('Add single pallet'),
-                                'route'   => [
-                                    'name'       => 'grp.models.pallet-delivery.pallet.store',
-                                    'parameters' => [
-                                        'palletDelivery' => $palletDelivery->id
-                                    ]
-                                ]
-                            ],
-                            [
-                                'type'    => 'button',
-                                'style'   => 'secondary',
                                 'icon'    => 'fal fa-plus',
                                 'key'     => 'add-service',
                                 'label'   => __('add service'),
@@ -291,41 +256,6 @@ class ShowPalletDelivery extends OrgAction
                         'type'   => 'buttonGroup',
                         'key'    => 'upload-add',
                         'button' => [
-                            [
-                                'type'    => 'button',
-                                'style'   => 'secondary',
-                                'icon'    => ['fal', 'fa-upload'],
-                                'label'   => '',
-                                'key'     => 'upload',
-                                'tooltip' => __('Upload pallets via spreadsheet'),
-                            ],
-                            [
-                                'type'    => 'button',
-                                'style'   => 'secondary',
-                                'icon'    => ['far', 'fa-layer-plus'],
-                                'label'   => 'multiple',
-                                'key'     => 'multiple',
-                                'route'   => [
-                                    'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
-                                    'parameters' => [
-                                        'palletDelivery' => $palletDelivery->id
-                                    ]
-                                ]
-                            ],
-                            [
-                                'type'    => 'button',
-                                'style'   => 'secondary',
-                                'icon'    => 'fal fa-plus',
-                                'label'   => __('add pallet'),
-                                'key'     => 'add-pallet',
-                                'tooltip' => __('Add single pallet'),
-                                'route'   => [
-                                    'name'       => 'grp.models.pallet-delivery.pallet.store',
-                                    'parameters' => [
-                                        'palletDelivery' => $palletDelivery->id
-                                    ]
-                                ]
-                            ],
                             [
                                 'type'    => 'button',
                                 'style'   => 'secondary',
@@ -395,41 +325,6 @@ class ShowPalletDelivery extends OrgAction
                             [
                                 'type'    => 'button',
                                 'style'   => 'secondary',
-                                'icon'    => ['fal', 'fa-upload'],
-                                'label'   => '',
-                                'key'     => 'upload',
-                                'tooltip' => __('Upload pallets via spreadsheet'),
-                            ],
-                            [
-                                'type'    => 'button',
-                                'style'   => 'secondary',
-                                'icon'    => ['far', 'fa-layer-plus'],
-                                'label'   => 'multiple',
-                                'key'     => 'multiple',
-                                'route'   => [
-                                    'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
-                                    'parameters' => [
-                                        'palletDelivery' => $palletDelivery->id
-                                    ]
-                                ]
-                            ],
-                            [
-                                'type'    => 'button',
-                                'style'   => 'secondary',
-                                'icon'    => 'fal fa-plus',
-                                'label'   => __('add pallet'),
-                                'key'     => 'add-pallet',
-                                'tooltip' => __('Add single pallet'),
-                                'route'   => [
-                                    'name'       => 'grp.models.pallet-delivery.pallet.store',
-                                    'parameters' => [
-                                        'palletDelivery' => $palletDelivery->id
-                                    ]
-                                ]
-                            ],
-                            [
-                                'type'    => 'button',
-                                'style'   => 'secondary',
                                 'icon'    => 'fal fa-plus',
                                 'key'     => 'add-service',
                                 'label'   => __('add service'),
@@ -496,41 +391,6 @@ class ShowPalletDelivery extends OrgAction
                             [
                                 'type'    => 'button',
                                 'style'   => 'secondary',
-                                'icon'    => ['fal', 'fa-upload'],
-                                'label'   => '',
-                                'key'     => 'upload',
-                                'tooltip' => __('Upload pallets via spreadsheet'),
-                            ],
-                            [
-                                'type'    => 'button',
-                                'style'   => 'secondary',
-                                'icon'    => ['far', 'fa-layer-plus'],
-                                'label'   => 'multiple',
-                                'key'     => 'multiple',
-                                'route'   => [
-                                    'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
-                                    'parameters' => [
-                                        'palletDelivery' => $palletDelivery->id
-                                    ]
-                                ]
-                            ],
-                            [
-                                'type'    => 'button',
-                                'style'   => 'secondary',
-                                'icon'    => 'fal fa-plus',
-                                'label'   => __('add pallet'),
-                                'key'     => 'add-pallet',
-                                'tooltip' => __('Add single pallet'),
-                                'route'   => [
-                                    'name'       => 'grp.models.pallet-delivery.pallet.store',
-                                    'parameters' => [
-                                        'palletDelivery' => $palletDelivery->id
-                                    ]
-                                ]
-                            ],
-                            [
-                                'type'    => 'button',
-                                'style'   => 'secondary',
                                 'icon'    => 'fal fa-plus',
                                 'key'     => 'add-service',
                                 'label'   => __('add service'),
@@ -579,41 +439,6 @@ class ShowPalletDelivery extends OrgAction
                         'type'   => 'buttonGroup',
                         'key'    => 'upload-add',
                         'button' => [
-                            [
-                                'type'    => 'button',
-                                'style'   => 'secondary',
-                                'icon'    => ['fal', 'fa-upload'],
-                                'label'   => '',
-                                'key'     => 'upload',
-                                'tooltip' => __('Upload pallets via spreadsheet'),
-                            ],
-                            [
-                                'type'    => 'button',
-                                'style'   => 'secondary',
-                                'icon'    => ['far', 'fa-layer-plus'],
-                                'label'   => 'multiple',
-                                'key'     => 'multiple',
-                                'route'   => [
-                                    'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
-                                    'parameters' => [
-                                        'palletDelivery' => $palletDelivery->id
-                                    ]
-                                ]
-                            ],
-                            [
-                                'type'    => 'button',
-                                'style'   => 'secondary',
-                                'icon'    => 'fal fa-plus',
-                                'label'   => __('add pallet'),
-                                'key'     => 'add-pallet',
-                                'tooltip' => __('Add single pallet'),
-                                'route'   => [
-                                    'name'       => 'grp.models.pallet-delivery.pallet.store',
-                                    'parameters' => [
-                                        'palletDelivery' => $palletDelivery->id
-                                    ]
-                                ]
-                            ],
                             [
                                 'type'    => 'button',
                                 'style'   => 'secondary',
