@@ -203,6 +203,75 @@ class ShowPalletDelivery extends OrgAction
                 ],
                 PalletDeliveryStateEnum::SUBMITTED => [
                     [
+                        'type'   => 'buttonGroup',
+                        'key'    => 'upload-add',
+                        'button' => [
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => ['fal', 'fa-upload'],
+                                'label'   => '',
+                                'key'     => 'upload',
+                                'tooltip' => __('Upload pallets via spreadsheet'),
+                            ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => ['far', 'fa-layer-plus'],
+                                'label'   => 'multiple',
+                                'key'     => 'multiple',
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => 'fal fa-plus',
+                                'label'   => __('add pallet'),
+                                'key'     => 'add-pallet',
+                                'tooltip' => __('Add single pallet'),
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-delivery.pallet.store',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => 'fal fa-plus',
+                                'key'     => 'add-service',
+                                'label'   => __('add service'),
+                                'tooltip' => __('Add single service'),
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-delivery.transaction.store',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => 'fal fa-plus',
+                                'key'     => 'add_physical_good',
+                                'label'   => __('add physical good'),
+                                'tooltip' => __('Add physical good'),
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-delivery.transaction.store',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
+                    [
                         'type'    => 'button',
                         'style'   => 'save',
                         'tooltip' => __('confirm'),
@@ -218,6 +287,75 @@ class ShowPalletDelivery extends OrgAction
                     ]
                 ],
                 PalletDeliveryStateEnum::CONFIRMED => [
+                    [
+                        'type'   => 'buttonGroup',
+                        'key'    => 'upload-add',
+                        'button' => [
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => ['fal', 'fa-upload'],
+                                'label'   => '',
+                                'key'     => 'upload',
+                                'tooltip' => __('Upload pallets via spreadsheet'),
+                            ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => ['far', 'fa-layer-plus'],
+                                'label'   => 'multiple',
+                                'key'     => 'multiple',
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => 'fal fa-plus',
+                                'label'   => __('add pallet'),
+                                'key'     => 'add-pallet',
+                                'tooltip' => __('Add single pallet'),
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-delivery.pallet.store',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => 'fal fa-plus',
+                                'key'     => 'add-service',
+                                'label'   => __('add service'),
+                                'tooltip' => __('Add single service'),
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-delivery.transaction.store',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => 'fal fa-plus',
+                                'key'     => 'add_physical_good',
+                                'label'   => __('add physical good'),
+                                'tooltip' => __('Add physical good'),
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-delivery.transaction.store',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
                     [
                         'type'    => 'button',
                         'style'   => 'negative',
@@ -251,6 +389,75 @@ class ShowPalletDelivery extends OrgAction
                 ],
                 PalletDeliveryStateEnum::RECEIVED => [
                     [
+                        'type'   => 'buttonGroup',
+                        'key'    => 'upload-add',
+                        'button' => [
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => ['fal', 'fa-upload'],
+                                'label'   => '',
+                                'key'     => 'upload',
+                                'tooltip' => __('Upload pallets via spreadsheet'),
+                            ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => ['far', 'fa-layer-plus'],
+                                'label'   => 'multiple',
+                                'key'     => 'multiple',
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => 'fal fa-plus',
+                                'label'   => __('add pallet'),
+                                'key'     => 'add-pallet',
+                                'tooltip' => __('Add single pallet'),
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-delivery.pallet.store',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => 'fal fa-plus',
+                                'key'     => 'add-service',
+                                'label'   => __('add service'),
+                                'tooltip' => __('Add single service'),
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-delivery.transaction.store',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => 'fal fa-plus',
+                                'key'     => 'add_physical_good',
+                                'label'   => __('add physical good'),
+                                'tooltip' => __('Add physical good'),
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-delivery.transaction.store',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
+                    [
                         'type'    => 'button',
                         'style'   => 'primary',
                         'icon'    => 'fal fa-undo-alt',
@@ -282,6 +489,75 @@ class ShowPalletDelivery extends OrgAction
                     ],
                 ],
                 PalletDeliveryStateEnum::BOOKING_IN => [
+                    [
+                        'type'   => 'buttonGroup',
+                        'key'    => 'upload-add',
+                        'button' => [
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => ['fal', 'fa-upload'],
+                                'label'   => '',
+                                'key'     => 'upload',
+                                'tooltip' => __('Upload pallets via spreadsheet'),
+                            ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => ['far', 'fa-layer-plus'],
+                                'label'   => 'multiple',
+                                'key'     => 'multiple',
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => 'fal fa-plus',
+                                'label'   => __('add pallet'),
+                                'key'     => 'add-pallet',
+                                'tooltip' => __('Add single pallet'),
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-delivery.pallet.store',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => 'fal fa-plus',
+                                'key'     => 'add-service',
+                                'label'   => __('add service'),
+                                'tooltip' => __('Add single service'),
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-delivery.transaction.store',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => 'fal fa-plus',
+                                'key'     => 'add_physical_good',
+                                'label'   => __('add physical good'),
+                                'tooltip' => __('Add physical good'),
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-delivery.transaction.store',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
                     ($palletStateReceivedCount == 0 and $palletNotInRentalCount == 0) ? [
                         'type'    => 'button',
                         'style'   => 'primary',
@@ -297,6 +573,77 @@ class ShowPalletDelivery extends OrgAction
                             ]
                         ]
                     ] : null,
+                ],
+                PalletDeliveryStateEnum::BOOKED_IN => [
+                    [
+                        'type'   => 'buttonGroup',
+                        'key'    => 'upload-add',
+                        'button' => [
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => ['fal', 'fa-upload'],
+                                'label'   => '',
+                                'key'     => 'upload',
+                                'tooltip' => __('Upload pallets via spreadsheet'),
+                            ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => ['far', 'fa-layer-plus'],
+                                'label'   => 'multiple',
+                                'key'     => 'multiple',
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => 'fal fa-plus',
+                                'label'   => __('add pallet'),
+                                'key'     => 'add-pallet',
+                                'tooltip' => __('Add single pallet'),
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-delivery.pallet.store',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => 'fal fa-plus',
+                                'key'     => 'add-service',
+                                'label'   => __('add service'),
+                                'tooltip' => __('Add single service'),
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-delivery.transaction.store',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => 'fal fa-plus',
+                                'key'     => 'add_physical_good',
+                                'label'   => __('add physical good'),
+                                'tooltip' => __('Add physical good'),
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-delivery.transaction.store',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
                 ],
                 default => []
             };

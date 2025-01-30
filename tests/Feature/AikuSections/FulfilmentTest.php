@@ -40,7 +40,7 @@ use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ImportPalletsInPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\Notifications\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\Pdf\PdfPalletDelivery;
-use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\ReceivePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
 use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
@@ -915,7 +915,7 @@ test('confirm second pallet delivery', function (PalletDelivery $palletDelivery)
 test('receive pallet delivery', function (PalletDelivery $palletDelivery) {
     SendPalletDeliveryNotification::shouldRun()->andReturn();
 
-    $palletDelivery = ReceivedPalletDelivery::make()->action($palletDelivery);
+    $palletDelivery = ReceivePalletDelivery::make()->action($palletDelivery);
 
     $palletDelivery->refresh();
 
@@ -933,7 +933,7 @@ test('receive pallet delivery', function (PalletDelivery $palletDelivery) {
 test('receive second pallet delivery', function (PalletDelivery $palletDelivery) {
     SendPalletDeliveryNotification::shouldRun()->andReturn();
 
-    $palletDelivery = ReceivedPalletDelivery::make()->action($palletDelivery);
+    $palletDelivery = ReceivePalletDelivery::make()->action($palletDelivery);
 
     $palletDelivery->refresh();
 
@@ -1107,7 +1107,7 @@ test('create pallet delivery that was not delivered by marking items', function 
     $palletDelivery = StorePalletDelivery::make()->action($fulfilmentCustomer, ['warehouse_id' => $this->warehouse->id,]);
     $pallet         = StorePalletFromDelivery::make()->action($palletDelivery, []);
     $palletDelivery = ConfirmPalletDelivery::make()->action($palletDelivery);
-    $palletDelivery = ReceivedPalletDelivery::make()->action($palletDelivery);
+    $palletDelivery = ReceivePalletDelivery::make()->action($palletDelivery);
 
     expect($palletDelivery->stats->number_pallets)->toBe(1)
         ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::RECEIVED);
@@ -2053,7 +2053,7 @@ test('submit and confirm fifth pallet delivery', function (Pallet $pallet) {
 test('receive fifth pallet delivery', function (PalletDelivery $palletDelivery) {
     SendPalletDeliveryNotification::shouldRun()->andReturn();
 
-    $palletDelivery = ReceivedPalletDelivery::make()->action($palletDelivery);
+    $palletDelivery = ReceivePalletDelivery::make()->action($palletDelivery);
 
     $palletDelivery->refresh();
 
@@ -2295,7 +2295,7 @@ test('submit and confirm sixth pallet delivery', function (Pallet $pallet) {
 test('receive sixth pallet delivery', function (PalletDelivery $palletDelivery) {
     SendPalletDeliveryNotification::shouldRun()->andReturn();
 
-    $palletDelivery = ReceivedPalletDelivery::make()->action($palletDelivery);
+    $palletDelivery = ReceivePalletDelivery::make()->action($palletDelivery);
 
     $palletDelivery->refresh();
 
