@@ -247,5 +247,8 @@ class FulfilmentCustomer extends Model
         return $this->hasMany(StoredItemAudit::class);
     }
 
-
+    public function spaces(): HasMany
+    {
+        return $this->hasMany(Space::class);
+    }
 }

@@ -99,6 +99,7 @@ use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\UpdateRecurringBilling;
 use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
 use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
+use App\Actions\Fulfilment\Space\StoreSpace;
 use App\Actions\Fulfilment\StoredItem\DeleteStoredItem;
 use App\Actions\Fulfilment\StoredItem\MoveStoredItem;
 use App\Actions\Fulfilment\StoredItem\ResetAuditStoredItemToPallet;
@@ -485,6 +486,7 @@ Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function
 });
 
 Route::post('fulfilment-customer-note/{fulfilmentCustomer}', StoreFulfilmentCustomerNote::class)->name('fulfilment_customer_note.store');
+Route::post('fulfilment-customer-space/{fulfilmentCustomer:id}', StoreSpace::class)->name('fulfilment_customer_space.store');
 
 
 
