@@ -26,6 +26,16 @@ class GetGuestShowcase
         // dd($guest);
         $user = $guest->getUser();
 
+        $jobPositionsOrganisationsData = [];
+        foreach ($guest->group->organisations as $organisation) {
+            $jobPositionsOrganisationData                       = GetUserOrganisationScopeJobPositionsData::run($user, $organisation);
+            $jobPositionsOrganisationsData[$organisation->slug] = $jobPositionsOrganisationData;
+        }
+
+
+
+        $permissionsGroupData = GetUserGroupScopeJobPositionsData::run($user);
+
         return [
             'data' => [
             'id'                      => $guest->id,
@@ -41,6 +51,10 @@ class GetGuestShowcase
                     'type' => $organisation->type,
                 ];
             }),
+            'perimissions_pictogram' => [
+                'group' => $permissionsGroupData,
+                'organisations' => $jobPositionsOrganisationsData
+            ],
             // 'permissions'             => $guest->getAllPermissions()->pluck('name')->toArray(),
             'last_active_at'          => $guest->stats->last_active_at,
             'last_login'              => [
