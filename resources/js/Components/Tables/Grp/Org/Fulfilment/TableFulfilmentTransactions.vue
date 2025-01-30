@@ -5,8 +5,8 @@
   -->
 
 <script setup lang="ts">
-import { Link, router } from '@inertiajs/vue3'
-import Table from '@/Components/Table/Table.vue'
+import { Link, router } from "@inertiajs/vue3"
+import Table from "@/Components/Table/Table.vue"
 import Icon from "@/Components/Icon.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faRobot, faBadgePercent, faTag, faUserRobot } from '@fal'
@@ -20,7 +20,7 @@ import { routeType } from '@/types/route'
 import Tag from '@/Components/Tag.vue'
 import State from 'pusher-js/types/src/core/http/state'
 
-library.add(faRobot)
+library.add(faRobot, faPlus, faMinus)
 
 const props = defineProps<{
     data: {}
@@ -29,9 +29,9 @@ const props = defineProps<{
     can_edit_transactions? : boolean
 }>()
 
-const layout = inject('layout', layoutStructure)
+const layout = inject("layout", layoutStructure)
 const emits = defineEmits<{
-    (e: 'renderTableKey'): void
+	(e: "renderTableKey"): void
 }>()
 
 // const layout = inject('layout', layoutStructure)
@@ -52,41 +52,40 @@ const emits = defineEmits<{
 // Section: Quantity
 const isLoading = ref<string | boolean>(false)
 const onUpdateQuantity = (idFulfilmentTransaction: number, value: number) => {
-    const routeUpdate = <routeType>{}
-    if (layout.app.name === 'Aiku') {
-        routeUpdate.name = 'grp.models.fulfilment-transaction.update'
-        routeUpdate.parameters = {fulfilmentTransaction: idFulfilmentTransaction}
-    } else {
-        routeUpdate.name = 'retina.models.fulfilment-transaction.update'
-        routeUpdate.parameters = {fulfilmentTransaction: idFulfilmentTransaction}
-    }
-    router.patch(
-        route(routeUpdate.name, routeUpdate.parameters),
-        {
-            quantity: value
-        },
-        {
-            onStart: () => isLoading.value = 'quantity' + idFulfilmentTransaction,
-            onFinish: () => isLoading.value = false
-        }
-    )
+    console.log(idFulfilmentTransaction,'loasding',value);
+    
+	const routeUpdate = <routeType>{}
+	if (layout.app.name === "Aiku") {
+		routeUpdate.name = "grp.models.fulfilment-transaction.update"
+		routeUpdate.parameters = { fulfilmentTransaction: idFulfilmentTransaction }
+	} else {
+		routeUpdate.name = "retina.models.fulfilment-transaction.update"
+		routeUpdate.parameters = { fulfilmentTransaction: idFulfilmentTransaction }
+	}
+	router.patch(
+		route(routeUpdate.name, routeUpdate.parameters),
+		{
+			quantity: value,
+		},
+		{
+			onStart: () => (isLoading.value = "quantity" + idFulfilmentTransaction),
+			onFinish: () => (isLoading.value = false),
+		}
+	)
 }
 const onDeleteTransaction = (idFulfilmentTransaction: number) => {
-    const routeDelete = <routeType>{}
-    if (layout.app.name === 'Aiku') {
-        routeDelete.name = 'grp.models.fulfilment-transaction.delete'
-        routeDelete.parameters = {fulfilmentTransaction: idFulfilmentTransaction}
-    } else {
-        routeDelete.name = 'retina.models.fulfilment-transaction.delete'
-        routeDelete.parameters = {fulfilmentTransaction: idFulfilmentTransaction}
-    }
-    router.delete(
-        route(routeDelete.name, routeDelete.parameters),
-        {
-            onStart: () => isLoading.value = 'buttonReset' + idFulfilmentTransaction,
-            onFinish: () => isLoading.value = false
-        }
-    )
+	const routeDelete = <routeType>{}
+	if (layout.app.name === "Aiku") {
+		routeDelete.name = "grp.models.fulfilment-transaction.delete"
+		routeDelete.parameters = { fulfilmentTransaction: idFulfilmentTransaction }
+	} else {
+		routeDelete.name = "retina.models.fulfilment-transaction.delete"
+		routeDelete.parameters = { fulfilmentTransaction: idFulfilmentTransaction }
+	}
+	router.delete(route(routeDelete.name, routeDelete.parameters), {
+		onStart: () => (isLoading.value = "buttonReset" + idFulfilmentTransaction),
+		onFinish: () => (isLoading.value = false),
+	})
 }
 
 const canDelete = (item) =>{
@@ -106,20 +105,21 @@ console.log(props.data)
             {{ item.code || '-' }} <FontAwesomeIcon v-if="item.is_auto_assign" :icon="faUserRobot" />
         </template>
 
-        <!-- Column: Name -->
-        <template #cell(name)="{ item }">
-            {{ item['name'] }} ({{ useLocaleStore().currencyFormat(item['currency_code'],
-                item['price'])}}/{{ item['unit_abbreviation'] }})
-            <Tag v-if="item['discount'] > 0" :theme="17">
-                <template #label>
-                    <font-awesome-icon :icon="faTag" class="text-xs text-emerald-700"/>
-                    {{ item['discount'] }}%
-                </template>
-            </Tag>
-        </template>
+		<!-- Column: Name -->
+		<template #cell(name)="{ item }">
+			{{ item["name"] }} ({{
+				useLocaleStore().currencyFormat(item["currency_code"], item["price"])
+			}}/{{ item["unit_abbreviation"] }})
+			<Tag v-if="item['discount'] > 0" :theme="17">
+				<template #label>
+					<font-awesome-icon :icon="faTag" class="text-xs text-emerald-700" />
+					{{ item["discount"] }}%
+				</template>
+			</Tag>
+		</template>
 
-        <!-- Column: Quantity -->
-        <template #cell(quantity)="{ item }">
+		<!-- Column: Quantity -->
+		<!--  <template #cell(quantity)="{ item }">
             <div v-if="canDelete(item)" class="w-32 ml-auto">
                 <PureInput
                     :modelValue="item.quantity"
@@ -134,23 +134,118 @@ console.log(props.data)
             </div>
 
             <div v-else>{{ item.quantity }}</div>
-        </template>
+        </template> -->
 
-        <!-- Column: Net -->
-        <template #cell(net_amount)="{ item }">
-            {{ useLocaleStore().currencyFormat(item.currency_code, item.total) }}
-        </template>
+		<template #cell(quantity)="{ item }">
+			<div v-if="state === 'in_process'"  class="custom-input-number">
+				<!--     <PureInput
+                    :modelValue="item.quantity"
+                    @onEnter="(e: number) => item.is_auto_assign ? false : onUpdateQuantity(item.id, e)"
+                    @blur="(e: string) => item.is_auto_assign ? false : e == item.quantity ? false : onUpdateQuantity(item.id, e)"
+                    :isLoading="isLoading === 'quantity' + item.id"
+                    type="number"
+                    align="right"
+                    :readonly="item.is_auto_assign"
+                    v-tooltip="item.is_auto_assign ? `Auto assign, can't change quantity.` : undefined"
+                /> -->
+				<InputNumber
+					v-model="item.quantity"
+					showButtons
+                   @update:modelValue="(value) => item.is_auto_assign ? false : onUpdateQuantity(item.id, value)"
+                    inputClass="w-14 text-center"
+					buttonLayout="horizontal"
+					style="width: 100%"
+                    :readonly="item.is_auto_assign"
+                    v-tooltip="item.is_auto_assign ? `Auto assign, can't change quantity.` : undefined"
+					:min="0" >
+					<template #incrementicon>
+						<FontAwesomeIcon
+							size="sm"
+							icon="far fa-plus"
+							class="text-black"
+							fixed-width 
+                            @click="item.is_auto_assign ? false : onUpdateQuantity(item.id, item.quantity + 1)"/>
+					</template>
+					<template #decrementicon>
+						<FontAwesomeIcon
+							size="sm"
+							icon="far fa-minus"
+							class="text-black"
+							fixed-width
+                            @click="item.is_auto_assign ? false : onUpdateQuantity(item.id, item.quantity - 1)" />
+					</template>
+				</InputNumber>
+			</div>
 
-        <!-- Column: Action -->
-        <template #cell(actions)="{ item }">
-            <Button
-                v-if="!item.is_auto_assign && state === 'in_process'"
-                @click="() => onDeleteTransaction(item.id)"
-                :loading="isLoading === 'buttonReset' + item.id"
-                icon="fal fa-times"
-                type="negative"
-                v-tooltip="'Unselect this field'"
-            />
-        </template>
-    </Table>
+			<div v-else>
+				{{ item.quantity }}
+			</div>
+		</template>
+
+		<!-- Column: Net -->
+		<template #cell(net_amount)="{ item }">
+			{{ useLocaleStore().currencyFormat(item.currency_code, item.total) }}
+		</template>
+
+		<!-- Column: Action -->
+		<template #cell(actions)="{ item }">
+			<Button
+				v-if="!item.is_auto_assign && state === 'in_process'"
+				@click="() => onDeleteTransaction(item.id)"
+				:loading="isLoading === 'buttonReset' + item.id"
+				icon="fal fa-trash-alt"
+				type="negative"
+				v-tooltip="'Unselect this field'" />
+		</template>
+	</Table>
 </template>
+
+<style>
+.custom-input-number :deep(.p-inputnumber) {
+	--p-inputnumber-button-width: 35px;
+	height: 35px;
+}
+
+.cursor-not-allowed {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.loading-circle {
+	width: 1rem;
+	height: 1rem;
+	animation: spin 1s linear infinite;
+}
+
+.circle-path {
+	stroke: #000;
+	stroke-linecap: round;
+	stroke-dasharray: 125.6;
+	stroke-dashoffset: 0;
+	animation: dash 1.5s ease-in-out infinite;
+}
+
+@keyframes spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes dash {
+	0% {
+		stroke-dashoffset: 125.6;
+	}
+	50% {
+		stroke-dashoffset: 62.8;
+		transform: rotate(45deg);
+	}
+	100% {
+		stroke-dashoffset: 125.6;
+		transform: rotate(360deg);
+	}
+}
+
+</style>

@@ -13,7 +13,6 @@ use App\Actions\SysAdmin\User\GetUserOrganisationScopeJobPositionsData;
 use App\Actions\Utils\GetLocationFromIp;
 use App\Models\SysAdmin\Guest;
 use Lorisleiva\Actions\Concerns\AsObject;
-
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;

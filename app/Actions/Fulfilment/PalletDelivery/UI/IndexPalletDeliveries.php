@@ -157,7 +157,7 @@ class IndexPalletDeliveries extends OrgAction
         );
 
 
-        if(!$parent instanceof RecurringBill) {
+        if (!$parent instanceof RecurringBill) {
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                 $queryBuilder->whereElementGroup(
                     key: $key,
@@ -165,7 +165,7 @@ class IndexPalletDeliveries extends OrgAction
                     engine: $elementGroup['engine'],
                     prefix: $prefix
                 );
-            }   
+            }
         }
 
         if ($parent instanceof Fulfilment || $parent instanceof Warehouse) {
@@ -243,14 +243,14 @@ class IndexPalletDeliveries extends OrgAction
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
 
-            if(!$parent instanceof RecurringBill) {
+            if (!$parent instanceof RecurringBill) {
                 foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                     $table->elementGroup(
                         key: $key,
                         label: $elementGroup['label'],
                         elements: $elementGroup['elements']
                     );
-                }            
+                }
             }
 
             if ($parent instanceof Fulfilment) {

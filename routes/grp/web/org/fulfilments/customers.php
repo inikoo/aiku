@@ -37,7 +37,9 @@ use App\Actions\Fulfilment\RecurringBill\UI\IndexRecurringBills;
 use App\Actions\Fulfilment\RecurringBill\UI\ShowRecurringBill;
 use App\Actions\Fulfilment\RentalAgreement\UI\CreateRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UI\EditRentalAgreement;
+use App\Actions\Fulfilment\Space\UI\CreateSpace;
 use App\Actions\Fulfilment\Space\UI\IndexSpaces;
+use App\Actions\Fulfilment\Space\UI\ShowSpace;
 use App\Actions\Fulfilment\StoredItem\UI\EditStoredItem;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
@@ -57,11 +59,11 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     Route::get('', ShowFulfilmentCustomer::class);
     Route::get('/edit', EditFulfilmentCustomer::class)->name('.edit');
 
+
     Route::get('/rental-agreement', CreateRentalAgreement::class)->name('.rental-agreement.create');
     Route::get('/rental-agreement/edit', EditRentalAgreement::class)->name('.rental-agreement.edit');
 
     Route::get('webhook', FetchNewWebhookFulfilmentCustomer::class)->name('.webhook.fetch');
-
 
     Route::prefix('web-users')->as('.web-users.')->group(function () {
         Route::get('', [IndexWebUsers::class, 'inFulfilmentCustomer'])->name('index');
@@ -113,6 +115,8 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
 
     Route::prefix('spaces')->as('.spaces.')->group(function () {
         Route::get('', [IndexSpaces::class, 'inFulfilmentCustomer'])->name('index');
+        Route::get('{space}', [ShowSpace::class, 'inFulfilmentCustomer'])->name('show');
+        Route::get('create', CreateSpace::class)->name('create');
     });
 
     Route::prefix('invoices')->as('.invoices.')->group(function () {

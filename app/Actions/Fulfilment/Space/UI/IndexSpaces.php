@@ -9,21 +9,15 @@
 
 namespace App\Actions\Fulfilment\Space\UI;
 
-use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
-use App\Actions\Ordering\Order\WithOrdersSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Http\Resources\Fulfilment\SpacesResource;
-use App\Http\Resources\Ordering\PurgesResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Space;
-use App\Models\Ordering\Purge;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -61,7 +55,7 @@ class IndexSpaces extends OrgAction
             $query->where('spaces.fulfilment_id', $parent->id);
         } elseif ($parent instanceof Group) {
             $query->where('spaces.group_id', $parent->id);
-        }  elseif ($parent instanceof Organisation) {
+        } elseif ($parent instanceof Organisation) {
             $query->where('spaces.organisation_id', $parent->id);
         } elseif ($parent instanceof FulfilmentCustomer) {
             $query->where('spaces.fulfilment_customer_id', $parent->id);
@@ -116,7 +110,7 @@ class IndexSpaces extends OrgAction
             $table->column(key: 'rental_name', label: __('rental'), sortable: true, canBeHidden: false, searchable: true);
             $table->column(key: 'start_at', label: __('start'), sortable: true, canBeHidden: false, searchable: true);
             $table->column(key: 'end_at', label: __('end'), sortable: true, canBeHidden: false, searchable: true);
-          
+
         };
     }
 
@@ -149,7 +143,7 @@ class IndexSpaces extends OrgAction
         }
 
         return Inertia::render(
-            'Org/Fulfilment/RecurringBills',
+            'Org/Fulfilment/Spaces',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
@@ -162,6 +156,17 @@ class IndexSpaces extends OrgAction
                     'iconRight'     => $iconRight,
                     'icon'          => $icon,
                     'subNavigation' => $subNavigation,
+                    'actions' => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'create',
+                            'label' => __('space'),
+                            'route' => [
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.spaces.create',
+                                'parameters' => array_values($request->route()->originalParameters())
+                            ],
+                        ]
+                    ],
                 ],
                 'data'        => SpacesResource::collection($spaces)
             ]
