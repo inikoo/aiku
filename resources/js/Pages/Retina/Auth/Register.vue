@@ -6,6 +6,8 @@ import RetinaShowIris from '@/Layouts/RetinaShowIris.vue';
 import { trans } from 'laravel-vue-i18n'
 import Multiselect from '@vueform/multiselect'
 import Address from '@/Components/Forms/Fields/Address.vue';
+import FulfilmentCustomer from '@/Pages/Grp/Org/Fulfilment/FulfilmentCustomer.vue';
+import CustomerDataForm from '@/Components/CustomerDataForm.vue';
 
 
 // Set default layout
@@ -43,9 +45,9 @@ const form = useForm({
 
 // Define reactive variables
 const isLoading = ref(false);
-const optionsSend = [
+/* const optionsSend = [
   '0-50', "51-100", "100+"
-]
+] */
 // Form submission handler
 const submit = () => {
   isLoading.value = true;
@@ -229,16 +231,16 @@ onMounted(async () => {
         </div>
 
         <!-- What Do You Sell -->
-        <div class="sm:col-span-6">
+       <!--  <div class="sm:col-span-6">
           <label for="what-you-sell" class="capitalize block text-sm font-medium text-gray-700">{{trans("What Do You Sell")}}</label>
           <div class="mt-2">
             <PureInput v-model="form.product" type="text" id="what-you-sell" name="product"  />
             <p v-if="form.errors.product" class="text-sm text-red-600 mt-1">{{ form.errors.product }}</p>
           </div>
-        </div>
+        </div> -->
 
         <!-- Shipments Sent Per Week -->
-        <div class="sm:col-span-3">
+       <!--  <div class="sm:col-span-3">
           <label for="shipments-per-week" class="capitalize block text-sm font-medium text-gray-700">{{trans("Shipments Sent PerWeek")}}</label>
           <div class="mt-2">
             <select v-model="form.shipments_per_week" id="shipments-per-week" name="shipments_per_week" 
@@ -248,17 +250,20 @@ onMounted(async () => {
             </select>
             <p v-if="form.errors.shipments_per_week" class="text-sm text-red-600 mt-1">{{ form.errors.shipments_per_week }}</p>
           </div>
-        </div>
+        </div> -->
 
 
         <!-- Goods Size and Weight -->
-        <div class="sm:col-span-3">
+        <!-- <div class="sm:col-span-3">
           <label for="goods-size-and-weight" class="capitalize block text-sm font-medium text-gray-700">{{trans("Size and Weight of Your Goods")}}</label>
           <div class="mt-2">
             <PureInput v-model="form.size_and_weight" type="text" id="goods-size-and-weight"
               name="size_and_weight"  />
               <p v-if="form.errors.size_and_weight" class="text-sm text-red-600 mt-1">{{ form.errors.size_and_weight }}</p>
           </div>
+        </div> -->
+        <div class="sm:col-span-6 flex flex-col">
+          <CustomerDataForm :form="form" />
         </div>
 
         <div class="sm:col-span-6 flex flex-col">
