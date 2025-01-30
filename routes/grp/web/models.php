@@ -426,7 +426,7 @@ Route::name('pallet-return-item.')->prefix('pallet-return-item/{palletReturnItem
     Route::patch('', SetPalletInReturnAsPicked::class)->name('update');
     Route::patch('not-picked', NotPickedPalletFromReturn::class)->name('not-picked');
     Route::patch('undo-picking', UndoPickingPalletFromReturn::class)->name('undo-picking');
-    Route::patch('undo', UndoPalletReturnItem::class)->name('undo');
+    Route::patch('undo', UndoPalletReturnItem::class)->name('undo-confirmed');
 });
 
 Route::patch('{storedItem:id}/stored-items/pallets', SyncStoredItemPallet::class)->name('stored-items.pallets.update');
