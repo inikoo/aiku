@@ -72,6 +72,37 @@ export const useDaysLeftFromToday = (isoDate?: string) => {
     }
 }
 
+//estimated time left for retina
+export const retinaUseDaysLeftFromToday = (isoDate?: string) => {
+    if (!isoDate) return trans('No date')
+
+    let targetDate: Date
+    try {
+        targetDate = new Date(isoDate)
+        if (isNaN(targetDate.getTime())) {
+            targetDate = parseISO(isoDate)
+        }
+    } catch {
+        return trans('invalid date')
+    }
+
+    const today = startOfDay(new Date())
+    targetDate = startOfDay(targetDate)
+
+    if (!isAfter(targetDate, today)) {
+        return trans('passed')
+    }
+
+    const daysLeft = differenceInDays(targetDate, today)
+
+    if (daysLeft === 1) {
+        return trans('in')  + ' ' + daysLeft + ' ' +  trans('days')
+    } else if (daysLeft === 0) {
+        return 'today'
+    } else  {
+        return trans('in') + ' ' + daysLeft + ' ' +  trans('days')
+    }
+}
 
 // Time countdown 1
 export const useTimeCountdown: any = (dateIso: string, options?: { human?: boolean, zero?: boolean }) => {
