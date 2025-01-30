@@ -29,7 +29,7 @@ use App\Models\Fulfilment\PalletDelivery;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\ActionRequest;
 
-class ReceivedPalletDelivery extends OrgAction
+class ReceivePalletDelivery extends OrgAction
 {
     use WithActionUpdate;
     private PalletDelivery $palletDelivery;
@@ -68,8 +68,7 @@ class ReceivedPalletDelivery extends OrgAction
 
         $palletDelivery = $this->update($palletDelivery, $modelData);
 
-        if ($palletDelivery->fulfilmentCustomer->currentRecurringBill) {
-            $recurringBill = $palletDelivery->fulfilmentCustomer->currentRecurringBill;
+        if ($recurringBill = $palletDelivery->fulfilmentCustomer->currentRecurringBill) {
 
             $this->update($palletDelivery, [
                 'recurring_bill_id' => $recurringBill->id
