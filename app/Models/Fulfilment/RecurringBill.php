@@ -151,6 +151,7 @@ class RecurringBill extends Model implements Auditable
         return $this->hasMany(RecurringBillTransaction::class);
     }
 
+
     public function stats(): HasOne
     {
         return $this->hasOne(RecurringBillStats::class);

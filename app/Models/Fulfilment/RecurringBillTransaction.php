@@ -107,4 +107,9 @@ class RecurringBillTransaction extends Model
         return $this->belongsTo(RentalAgreementClause::class, 'rental_agreement_clause_id');
     }
 
+    public function fulfilmentTransaction(): BelongsTo
+    {
+        return $this->belongsTo(FulfilmentTransaction::class);
+    }
+
 }
