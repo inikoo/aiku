@@ -39,18 +39,23 @@ class RecurringBillTransactionsResource extends JsonResource
 {
     public function toArray($request): array
     {
-        $description = '';
-
+        $desc_a = '';
+        $desc_b = '';
+        $desc_c = '';
         if ($this->item_type == 'Pallet') {
             $pallet = Pallet::find($this->item_id);
+            $desc_b = $pallet;
 
-            $description = __('Storage').': '.$pallet->reference;
+            $desc_a = __('Storage');
+
             if ($this->start_date) {
-                $description .= ' (' . Carbon::parse($this->start_date)->format('d M Y') . '-';
-            } if ($this->end_date) {
-                $description .= Carbon::parse($this->end_date)->format('d M Y') . ')';
+                $desc_c .= Carbon::parse($this->start_date)->format('d M Y') . '-';
+            }
+            
+            if ($this->end_date) {
+                $desc_c .= Carbon::parse($this->end_date)->format('d M Y') . ')';
             } else {
-                $description .= __('ongoing').')';
+                $desc_c .= __('ongoing');
             }
 
 
@@ -76,7 +81,12 @@ class RecurringBillTransactionsResource extends JsonResource
             'quantity'           =>   (int) $this->quantity * $this->temporal_quantity,
             'total'              => $this->net_amount,
             'discount'           => (int) $this->discount,
-            'description' => $description
+            // 'description'        => $description,
+            'description'         => [
+                'a' => $desc_a,
+                'b' => $desc_b,
+                'c' => $desc_c,
+            ]
 
         ];
     }
