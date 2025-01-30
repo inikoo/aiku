@@ -9,11 +9,12 @@ import { Link, router } from "@inertiajs/vue3"
 import Table from "@/Components/Table/Table.vue"
 import Icon from "@/Components/Icon.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faRobot, faBadgePercent, faTag, faUserRobot } from '@fal'
+import { faRobot, faBadgePercent, faTag, faUserRobot, faPlus, faMinus} from '@fal'
 import { useLocaleStore } from '@/Stores/locale'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { inject, ref } from "vue"
+import InputNumber from "@/Components/Pure/PureInputNumber.vue"
 import PureInput from '@/Components/Pure/PureInput.vue'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import { routeType } from '@/types/route'
@@ -137,7 +138,7 @@ console.log(props.data)
         </template> -->
 
 		<template #cell(quantity)="{ item }">
-			<div v-if="state === 'in_process'"  class="custom-input-number">
+			<div v-if="canDelete(item)"  class="custom-input-number">
 				<!--     <PureInput
                     :modelValue="item.quantity"
                     @onEnter="(e: number) => item.is_auto_assign ? false : onUpdateQuantity(item.id, e)"
@@ -155,7 +156,7 @@ console.log(props.data)
                     inputClass="w-14 text-center"
 					buttonLayout="horizontal"
 					style="width: 100%"
-                    :readonly="item.is_auto_assign"
+                    :readonly="!canDelete(item)"
                     v-tooltip="item.is_auto_assign ? `Auto assign, can't change quantity.` : undefined"
 					:min="0" >
 					<template #incrementicon>
