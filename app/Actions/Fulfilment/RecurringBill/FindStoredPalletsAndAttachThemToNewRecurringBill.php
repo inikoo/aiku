@@ -48,9 +48,10 @@ class FindStoredPalletsAndAttachThemToNewRecurringBill extends OrgAction
                 ],
                 skipHydrators: true
             );
-            CalculateRecurringBillTotals::run($recurringBill);
-            RecurringBillHydrateTransactions::run($recurringBill);
+
         }
+        CalculateRecurringBillTotals::run($recurringBill);
+        RecurringBillHydrateTransactions::run($recurringBill);
 
         $palletsInStoringState = $recurringBill->fulfilmentCustomer->pallets
             ->where('state', PalletStateEnum::LOST)
