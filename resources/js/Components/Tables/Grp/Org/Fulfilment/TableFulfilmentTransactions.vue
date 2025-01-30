@@ -9,7 +9,7 @@ import { Link, router } from '@inertiajs/vue3'
 import Table from '@/Components/Table/Table.vue'
 import Icon from "@/Components/Icon.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faRobot, faBadgePercent, faTag } from '@fal'
+import { faRobot, faBadgePercent, faTag, faUserRobot } from '@fal'
 import { useLocaleStore } from '@/Stores/locale'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Button from "@/Components/Elements/Buttons/Button.vue"
@@ -18,6 +18,7 @@ import PureInput from '@/Components/Pure/PureInput.vue'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import { routeType } from '@/types/route'
 import Tag from '@/Components/Tag.vue'
+import State from 'pusher-js/types/src/core/http/state'
 
 library.add(faRobot)
 
@@ -25,6 +26,7 @@ const props = defineProps<{
     data: {}
     state: string
     tab?: string
+    can_edit_transactions? : boolean
 }>()
 
 const layout = inject('layout', layoutStructure)
@@ -87,6 +89,13 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
     )
 }
 
+const canDelete = (item) =>{
+    if(item.is_auto_assign) return false
+    else if(!item.is_auto_assign && props.state === 'in_process')return true
+    else if(!item.is_auto_assign && props.can_edit_transactions)return true
+}
+
+console.log(props.data)
 </script>
 
 <template>
@@ -94,7 +103,7 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
     <Table :key="tab" :resource="data" :name="tab" class="mt-5">
         <!-- Column: Code -->
         <template #cell(code)="{ item }">
-            {{ item.code || '-' }}
+            {{ item.code || '-' }} <FontAwesomeIcon v-if="item.is_auto_assign" :icon="faUserRobot" />
         </template>
 
         <!-- Column: Name -->
@@ -111,8 +120,7 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
 
         <!-- Column: Quantity -->
         <template #cell(quantity)="{ item }">
-            <div
-            v-if="state === 'in_process'" class="w-32 ml-auto">
+            <div v-if="canDelete(item)" class="w-32 ml-auto">
                 <PureInput
                     :modelValue="item.quantity"
                     @onEnter="(e: number) => item.is_auto_assign ? false : onUpdateQuantity(item.id, e)"
@@ -120,7 +128,7 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
                     :isLoading="isLoading === 'quantity' + item.id"
                     type="number"
                     align="right"
-                    :readonly="item.is_auto_assign"
+                    :readonly="!canDelete(item)"
                     v-tooltip="item.is_auto_assign ? `Auto assign, can't change quantity.` : undefined"
                 />
             </div>

@@ -62,6 +62,7 @@ const props = defineProps<{
         attachRoute: routeType
         detachRoute: routeType
     }
+    can_edit_transactions?: boolean,
     data?: {
         data: PalletDelivery
     }
@@ -698,6 +699,7 @@ const isModalUploadFileOpen = ref(false)
             :rentalRoute="rentalRoute"
             :rentalList="props.rental_lists"
             :detachRoute="attachmentRoutes.detachRoute"
+            :can_edit_transactions="can_edit_transactions"
         />
     </div>
 
