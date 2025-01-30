@@ -87,6 +87,10 @@ class PalletReturnItemsResource extends JsonResource
                 'name'       => 'grp.models.pallet-return-item.undo-picking',
                 'parameters' => [$this->id]
             ],
+            'undoConfirmedRoute' => [
+                'name'       => 'grp.models.pallet-return-item.undo-confirmed',
+                'parameters' => [$this->id]
+            ],
             'notPickedRoute' => [
                 'method'     => 'patch',
                 'name'       => 'grp.models.pallet-return-item.not-picked',

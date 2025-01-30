@@ -97,6 +97,8 @@ class GetFulfilmentCustomerShowcase
                     'parameters' => array_values($request->route()->originalParameters())
                 ],
             ],
+            'status'                =>$fulfilmentCustomer->customer->status,
+            'additional_data'       =>$fulfilmentCustomer->data,
             'address_update_route'  => [
                 'method'     => 'patch',
                 'name'       => 'grp.models.fulfilment-customer.address.update',

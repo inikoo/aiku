@@ -13,7 +13,7 @@ const props = withDefaults(defineProps<{
 
 <template>
     <!-- Main Navigation -->
-    <div class="bg-white shadow-lg border-b border-gray-300">
+    <div class="bg-white  border-b border-gray-300">
         <div class="container  flex flex-col justify-between items-center px-4">
 
             <!-- Navigation List -->

@@ -200,7 +200,7 @@ class GetReturnPallets extends OrgAction
             }
 
 
-            $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
+            $table->column(key: 'actions', label: 'actions', canBeHidden: false, searchable: true);
 
 
             $table->defaultSort('reference');
