@@ -39,6 +39,7 @@ use App\Actions\Fulfilment\RentalAgreement\UI\CreateRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UI\EditRentalAgreement;
 use App\Actions\Fulfilment\Space\UI\CreateSpace;
 use App\Actions\Fulfilment\Space\UI\IndexSpaces;
+use App\Actions\Fulfilment\Space\UI\ShowSpace;
 use App\Actions\Fulfilment\StoredItem\UI\EditStoredItem;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
@@ -114,6 +115,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
 
     Route::prefix('spaces')->as('.spaces.')->group(function () {
         Route::get('', [IndexSpaces::class, 'inFulfilmentCustomer'])->name('index');
+        Route::get('{space}', [ShowSpace::class, 'inFulfilmentCustomer'])->name('show');
         Route::get('create', CreateSpace::class)->name('create');
     });
 

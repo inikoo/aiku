@@ -143,7 +143,7 @@ class IndexSpaces extends OrgAction
         }
 
         return Inertia::render(
-            'Org/Fulfilment/RecurringBills',
+            'Org/Fulfilment/Spaces',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

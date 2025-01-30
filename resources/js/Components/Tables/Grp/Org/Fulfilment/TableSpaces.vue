@@ -19,9 +19,30 @@ const props = defineProps<{
 	data: object
 	tab?: string
 }>()
+
+function spaceRoute(space) {
+	console.log(space)
+	switch (route().current()) {
+		case "grp.org.fulfilments.show.crm.customers.show.spaces.index":
+			return route("grp.org.fulfilments.show.crm.customers.show.spaces.show", [
+				route().params["organisation"],
+				route().params["fulfilment"],
+				route().params["fulfilmentCustomer"],
+				space.slug,
+			])
+		default:
+			return []
+	}
+}
+
 </script>
 
 <template>
 	<Table :resource="data" :name="tab" class="mt-5">
+		<template #cell(reference)="{ item: space }">
+			<Link :href="spaceRoute(space)" class="primaryLink">
+				{{ space["reference"] }}
+			</Link>
+		</template>
 	</Table>
 </template>

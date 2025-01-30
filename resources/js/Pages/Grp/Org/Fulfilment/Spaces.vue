@@ -1,4 +1,4 @@
-<!--
+resources/js/Pages/Grp/Org/Ordering/Purge.vue<!--
   - Author: Raul Perusquia <raul@inikoo.com>
   - Created: Sat, 27 Apr 2024 18:08:36 British Summer Time, Sheffield, UK
   - Copyright (c) 2024, Raul A Perusquia Flores
