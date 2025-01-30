@@ -15,6 +15,7 @@ use App\Models\Helpers\TaxCategory;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasRetinaSearch;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InFulfilmentCustomer;
@@ -25,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -101,13 +103,14 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletDelivery withoutTrashed()
  * @mixin \Eloquent
  */
-class PalletDelivery extends Model
+class PalletDelivery extends Model implements HasMedia
 {
     use HasSlug;
     use SoftDeletes;
     use HasUniversalSearch;
     use HasRetinaSearch;
     use InFulfilmentCustomer;
+    use HasAttachments;
 
     protected $guarded = [];
     protected $casts   = [
