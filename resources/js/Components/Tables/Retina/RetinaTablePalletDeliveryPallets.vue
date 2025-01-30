@@ -232,6 +232,7 @@ const typePallet = [
 
         <!-- Column: Icon -->
 		<template #cell(type_icon)="{ item: pallet }">
+		as
             <TagPallet :stateIcon="pallet.type_icon" />
 		</template>
 	</Table>
