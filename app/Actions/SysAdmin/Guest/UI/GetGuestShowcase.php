@@ -11,8 +11,6 @@ namespace App\Actions\SysAdmin\Guest\UI;
 use App\Actions\SysAdmin\User\GetUserGroupScopeJobPositionsData;
 use App\Actions\SysAdmin\User\GetUserOrganisationScopeJobPositionsData;
 use App\Actions\Utils\GetLocationFromIp;
-use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
-use App\Http\Resources\SysAdmin\UserShowcaseResource;
 use App\Models\SysAdmin\Guest;
 use Lorisleiva\Actions\Concerns\AsObject;
 

@@ -123,6 +123,8 @@ class StoreRecurringBillTransaction extends OrgAction
             'start_date' => ['required', 'date'],
             'end_date'   => ['sometimes', 'required', 'date', 'gte:start_date'],
             'quantity'   => ['sometimes', 'numeric'],
+            'pallet_delivery_id' => ['sometimes', 'exists:pallet_deliveries,id'],
+            'fulfilment_transaction_id' => ['sometimes', 'exists:fulfilment_transactions,id'],
         ];
     }
 

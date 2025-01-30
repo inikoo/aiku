@@ -80,12 +80,14 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
  * @property string|null $delete_comment
  * @property int|null $invoice_id
  * @property int|null $recurring_bill_id
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $attachments
  * @property-read Currency $currency
  * @property-read Address|null $deliveryAddress
  * @property-read mixed $discount_amount
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Group $group
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Fulfilment\Pallet> $pallets
  * @property-read \App\Models\Fulfilment\RecurringBill|null $recurringBill

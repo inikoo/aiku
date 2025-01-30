@@ -14,6 +14,10 @@ use App\Actions\Fulfilment\Pallet\SetPalletRental;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletDelivery\Notifications\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\Search\PalletDeliveryRecordSearch;
+use App\Actions\Fulfilment\RecurringBill\CalculateRecurringBillTotals;
+use App\Actions\Fulfilment\RecurringBill\Hydrators\RecurringBillHydrateTransactions;
+use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
+use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletDeliveries;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletDeliveries;
@@ -29,9 +33,10 @@ use App\Models\Fulfilment\PalletDelivery;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\ActionRequest;
 
-class ReceivedPalletDelivery extends OrgAction
+class ReceivePalletDelivery extends OrgAction
 {
     use WithActionUpdate;
+
     private PalletDelivery $palletDelivery;
 
     public function handle(PalletDelivery $palletDelivery, array $modelData = []): PalletDelivery
@@ -40,9 +45,6 @@ class ReceivedPalletDelivery extends OrgAction
         $modelData['state']       = PalletDeliveryStateEnum::RECEIVED;
 
         foreach ($palletDelivery->pallets as $pallet) {
-
-
-
             UpdatePallet::run($pallet, [
                 'state'       => PalletStateEnum::RECEIVED,
                 'status'      => PalletStatusEnum::RECEIVING,
@@ -63,19 +65,58 @@ class ReceivedPalletDelivery extends OrgAction
                     'rental_id' => $rental->id
                 ]);
             }
-
         }
 
         $palletDelivery = $this->update($palletDelivery, $modelData);
 
-        if ($palletDelivery->fulfilmentCustomer->currentRecurringBill) {
-            $recurringBill = $palletDelivery->fulfilmentCustomer->currentRecurringBill;
 
-            $this->update($palletDelivery, [
-                'recurring_bill_id' => $recurringBill->id
-            ]);
+        $currentRecurringBill = $palletDelivery->fulfilmentCustomer->currentRecurringBill;
+        if (!$currentRecurringBill) {
+            $currentRecurringBill = StoreRecurringBill::make()->action(
+                rentalAgreement: $palletDelivery->fulfilmentCustomer->rentalAgreement,
+                modelData: [
+                    'start_date' => now(),
+                ],
+                strict: true
+            );
+            $palletDelivery->fulfilmentCustomer->update(
+                [
+                    'current_recurring_bill_id' => $currentRecurringBill->id
+                ]
+            );
+        }
+        $this->update($palletDelivery, [
+            'recurring_bill_id' => $currentRecurringBill->id
+        ]);
+
+        foreach ($palletDelivery->transactions as $transaction) {
+            StoreRecurringBillTransaction::make()->action(
+                $currentRecurringBill,
+                $transaction,
+                [
+                    'start_date'                => now(),
+                    'quantity'                  => $transaction->quantity,
+                    'pallet_delivery_id'        => $palletDelivery->id,
+                    'fulfilment_transaction_id' => $transaction->id
+                ]
+            );
         }
 
+        $palletsInDelivery = $palletDelivery->pallets()
+            ->where('state', PalletStateEnum::RECEIVED);
+        foreach ($palletsInDelivery as $pallet) {
+            $startDate = now();
+            StoreRecurringBillTransaction::make()->action(
+                recurringBill: $currentRecurringBill,
+                item: $pallet,
+                modelData: [
+                    'start_date' => $startDate
+                ],
+                skipHydrators: true
+            );
+        }
+        CalculateRecurringBillTotals::run($currentRecurringBill);
+        RecurringBillHydrateTransactions::run($currentRecurringBill);
 
         GroupHydratePalletDeliveries::dispatch($palletDelivery->group);
         OrganisationHydratePalletDeliveries::dispatch($palletDelivery->organisation);
@@ -121,6 +162,7 @@ class ReceivedPalletDelivery extends OrgAction
         $this->palletDelivery = $palletDelivery;
 
         $this->initialisation($palletDelivery->organisation, []);
+
         return $this->handle($palletDelivery);
     }
 }

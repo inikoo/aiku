@@ -47,6 +47,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $temporal_quantity
  * @property int|null $pallet_delivery_id
  * @property int|null $pallet_return_id
+ * @property int|null $fulfilment_transaction_id
  * @property-read Asset $asset
  * @property-read \App\Models\Fulfilment\RentalAgreementClause|null $clause
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
