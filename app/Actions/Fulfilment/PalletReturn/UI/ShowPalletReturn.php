@@ -492,13 +492,13 @@ class ShowPalletReturn extends OrgAction
                             ]
                         ],
                     ],
-                     'templates' => [
+                     /*'templates' => [
                          'label' => 'Download Pallets & Stored Items (.xlsx)',
                          'route' => [
                              'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.stored-items.export',
                              'parameters' => $request->route()->originalParameters()
                          ]
-                     ]
+                     ]*/
                 ],
 
                 'palletRoute' => [
