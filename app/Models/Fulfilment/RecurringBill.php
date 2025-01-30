@@ -157,14 +157,14 @@ class RecurringBill extends Model implements Auditable
         return $this->hasOne(RecurringBillStats::class);
     }
 
-    public function palletDeliveries(): MorphToMany
+    public function palletDeliveries(): HasMany
     {
-        return $this->morphedByMany(PalletDelivery::class, 'model', 'model_has_recurring_bills')->withTimestamps();
+        return $this->hasMany(PalletDelivery::class);
     }
 
-    public function palletReturns(): MorphToMany
+    public function palletReturns(): HasMany
     {
-        return $this->morphedByMany(PalletReturn::class, 'model', 'model_has_recurring_bills')->withTimestamps();
+        return $this->hasMany(PalletReturn::class);
     }
 
     public function invoices(): HasOne
