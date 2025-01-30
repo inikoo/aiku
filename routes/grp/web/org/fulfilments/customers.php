@@ -37,6 +37,7 @@ use App\Actions\Fulfilment\RecurringBill\UI\IndexRecurringBills;
 use App\Actions\Fulfilment\RecurringBill\UI\ShowRecurringBill;
 use App\Actions\Fulfilment\RentalAgreement\UI\CreateRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UI\EditRentalAgreement;
+use App\Actions\Fulfilment\Space\UI\IndexSpaces;
 use App\Actions\Fulfilment\StoredItem\UI\EditStoredItem;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
@@ -108,6 +109,10 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
         Route::get('', [IndexRecurringBills::class, 'inFulfilmentCustomer'])->name('index');
         Route::get('{recurringBill}', [ShowRecurringBill::class, 'inFulfilmentCustomer'])->name('show');
         Route::get('{recurringBill}/edit', [EditRecurringBill::class, 'inFulfilmentCustomer'])->name('edit');
+    });
+
+    Route::prefix('spaces')->as('.spaces.')->group(function () {
+        Route::get('', [IndexSpaces::class, 'inFulfilmentCustomer'])->name('index');
     });
 
     Route::prefix('invoices')->as('.invoices.')->group(function () {
