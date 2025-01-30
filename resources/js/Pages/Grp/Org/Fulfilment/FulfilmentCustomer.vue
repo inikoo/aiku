@@ -37,7 +37,8 @@ import {
     faShare,
     faTruckLoading,
     faFileInvoice,
-    faExclamationTriangle, faUsdCircle
+    faExclamationTriangle, faUsdCircle,
+    faParking
 } from '@fal'
 import { notify } from '@kyvg/vue3-notification'
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
@@ -45,7 +46,7 @@ import type { Navigation } from "@/types/Tabs";
 import Modal from "@/Components/Utils/Modal.vue"
 import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
-library.add(faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare, faTruckLoading, faFileInvoice, faExclamationTriangle, faUsdCircle)
+library.add(faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare, faTruckLoading, faFileInvoice, faExclamationTriangle, faUsdCircle, faParking)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 

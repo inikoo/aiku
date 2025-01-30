@@ -30,6 +30,7 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -139,7 +140,7 @@ class IndexSpaces extends OrgAction
             $icon          = ['fal', 'fa-user'];
             $title         = $this->parent->customer->name;
             $iconRight     = [
-                'icon' => 'fal fa-receipt',
+                'icon' => 'fal fa-parking',
             ];
             $afterTitle    = [
 

@@ -39,7 +39,8 @@ class UpdateFulfilmentCustomer extends OrgAction
         $oldData = [
             'pallets_storage' => $fulfilmentCustomer->pallets_storage,
             'items_storage'  => $fulfilmentCustomer->items_storage,
-            'dropshipping'   => $fulfilmentCustomer->dropshipping
+            'dropshipping'   => $fulfilmentCustomer->dropshipping,
+            'space_rental'   => $fulfilmentCustomer->space_rental
         ];
 
         if (! blank($contactAddressData)) {
@@ -81,7 +82,8 @@ class UpdateFulfilmentCustomer extends OrgAction
             $newData = [
                 'pallets_storage' => $fulfilmentCustomer->pallets_storage,
                 'items_storage'  => $fulfilmentCustomer->items_storage,
-                'dropshipping'   => $fulfilmentCustomer->dropshipping
+                'dropshipping'   => $fulfilmentCustomer->dropshipping,
+                'space_rental'   => $fulfilmentCustomer->space_rental
             ];
 
 
@@ -115,6 +117,7 @@ class UpdateFulfilmentCustomer extends OrgAction
             'pallets_storage' => ['sometimes', 'boolean'],
             'items_storage'   => ['sometimes', 'boolean'],
             'dropshipping'    => ['sometimes', 'boolean'],
+            'space_rental'    => ['sometimes', 'boolean'],
             'address'         => ['sometimes'],
             'product'                           => ['sometimes', 'string'],
             'shipment_per_week'                 => ['sometimes', 'string'],
