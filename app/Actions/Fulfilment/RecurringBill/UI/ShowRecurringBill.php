@@ -126,6 +126,7 @@ class ShowRecurringBill extends OrgAction
             ];
         }
 
+        //   dd($recurringBill->end_date);
         return Inertia::render(
             'Org/Fulfilment/RecurringBill',
             [
@@ -156,7 +157,7 @@ class ShowRecurringBill extends OrgAction
                 ],
                 'timeline_rb'      => [
                     'start_date' => $recurringBill->start_date,
-                    'end_date'   => $recurringBill->end_date
+                    'end_date' => $recurringBill->end_date
                 ],
                 'consolidateRoute' => [
                     'name'       => 'grp.models.recurring-bill.consolidate',

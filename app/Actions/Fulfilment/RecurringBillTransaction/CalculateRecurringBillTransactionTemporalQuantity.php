@@ -16,10 +16,22 @@ class CalculateRecurringBillTransactionTemporalQuantity extends OrgAction
 {
     public function handle(RecurringBillTransaction $recurringBillTransaction): RecurringBillTransaction
     {
+        if (!in_array($recurringBillTransaction->item_type, ['Pallet', 'StoredItem', 'Space'])) {
+            return $recurringBillTransaction;
+        }
 
-        $today       = Carbon::now()->setTimezone('UTC');
-        $startDate       = Carbon::parse($recurringBillTransaction->start_date)->setTimezone('UTC');
-        $daysDifference = ceil($startDate->diffInDays($today));
+        $today   = Carbon::now()->setTimezone('UTC')->startOfDay();
+        $endDate = $today;
+        if ($recurringBillTransaction->end_date) {
+            if (Carbon::parse($recurringBillTransaction->end_date)->setTimezone('UTC')->startOfDay()->isBefore($today)) {
+                $endDate = $recurringBillTransaction->end_date;
+            }
+        }
+
+        $startDate      = Carbon::parse($recurringBillTransaction->start_date)->setTimezone('UTC')->startOfDay();
+        $daysDifference = floor($startDate->diffInDays($endDate) + 1);
+
+
 
         $recurringBillTransaction->update([
             'temporal_quantity' => $daysDifference,

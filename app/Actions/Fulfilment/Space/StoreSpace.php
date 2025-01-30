@@ -2,16 +2,24 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Id
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Thu, 30 Jan 2025 18:10:26 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Fulfilment\Space;
 
+use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
+use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
 use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Billables\Rental\RentalTypeEnum;
+use App\Enums\Fulfilment\Space\SpaceStateEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Space;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,6 +27,7 @@ use Symfony\Component\HttpFoundation\Response;
 class StoreSpace extends OrgAction
 {
     use WithFulfilmentAuthorisation;
+    use WithActionUpdate;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): Space
     {
@@ -26,25 +35,78 @@ class StoreSpace extends OrgAction
         data_set($modelData, 'group_id', $fulfilmentCustomer->group_id);
         data_set($modelData, 'fulfilment_id', $fulfilmentCustomer->fulfilment_id);
 
-        return $fulfilmentCustomer->spaces()->create($modelData);
+        $state = SpaceStateEnum::RESERVED;
+
+        $startAt = Carbon::parse(Arr::get($modelData, 'start_at', now()));
+
+        $dateWithoutTime = Carbon::parse($startAt)->startOfDay();
+        $today = Carbon::today();
+
+        if ($dateWithoutTime->isBefore($today)) {
+            $state = SpaceStateEnum::RENTING;
+        }
+
+        data_set($modelData, 'state', $state);
+        /** @var Space $space */
+        $space = $fulfilmentCustomer->spaces()->create($modelData);
+
+        if ($space->state === SpaceStateEnum::RENTING) {
+
+            $currentRecurringBill = $fulfilmentCustomer->currentRecurringBill;
+            if (!$currentRecurringBill) {
+                $currentRecurringBill = StoreRecurringBill::make()->action(
+                    rentalAgreement: $fulfilmentCustomer->rentalAgreement,
+                    modelData: [
+                        'start_date' => now(),
+                    ],
+                    strict: true
+                );
+                $fulfilmentCustomer->update(
+                    [
+                        'current_recurring_bill_id' => $currentRecurringBill->id
+                    ]
+                );
+            }
+
+            $this->update($space, [
+                'current_recurring_bill_id' => $currentRecurringBill->id
+            ]);
+
+            StoreRecurringBillTransaction::make()->action(
+                $currentRecurringBill,
+                $space,
+                [
+                    'start_date'                => $space->start_at,
+                    'quantity'                  => 1,
+                ]
+            );
+
+
+        }
+
+        return $space;
+
     }
 
     public function rules(): array
     {
         return [
-            'reference' => ['required',  'max:64', 'string'],
+            'reference'       => ['required', 'max:64', 'string'],
             'exclude_weekend' => ['required', 'bool'],
-            'start_at' => ['required', 'date'],
-            'end_at' => ['nullable', 'date'],
-            'rental_id' => ['required', 'integer', 'exists:rentals,id'],
+            'start_at'        => ['required', 'date'],
+            'end_at'          => ['nullable', 'date'],
+            'rental_id'       => ['required', 'integer', Rule::exists('rentals', 'id')
+                ->where('fulfilment_id', $this->fulfilment->id)
+                ->where('type', RentalTypeEnum::SPACE)
+            ],
         ];
     }
 
     public function htmlResponse(Space $space): Response
     {
         return Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.spaces.index', [
-            'organisation' => $space->organisation->slug,
-            'fulfilment' => $space->fulfilment->slug,
+            'organisation'       => $space->organisation->slug,
+            'fulfilment'         => $space->fulfilment->slug,
             'fulfilmentCustomer' => $space->fulfilmentCustomer->slug
         ]));
     }

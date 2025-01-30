@@ -12,6 +12,7 @@ namespace App\Actions\Maintenance\Fulfilment;
 
 use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
 use App\Actions\Fulfilment\RecurringBillTransaction\UpdateRecurringBillTransaction;
+use App\Actions\Fulfilment\UpdateCurrentRecurringBillsTemporalAggregates;
 use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
@@ -34,6 +35,7 @@ class RepairPalletDeliveriesAndReturns
         $this->fixPalletReturnRecurringBill();
         $this->fixPalletReturnTransactionsRecurringBill();
         $this->fixNonRentalRecurringBillTransactions();
+        UpdateCurrentRecurringBillsTemporalAggregates::run();
     }
 
     public function fixNonRentalRecurringBillTransactions(): void

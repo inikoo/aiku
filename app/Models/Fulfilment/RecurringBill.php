@@ -96,7 +96,9 @@ class RecurringBill extends Model implements Auditable
 
     protected $casts = [
         'data'   => 'array',
-        'status' => RecurringBillStatusEnum::class
+        'status' => RecurringBillStatusEnum::class,
+        'start_date' => 'datetime',
+        'end_date'   => 'datetime',
     ];
 
     protected $attributes = [

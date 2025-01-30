@@ -444,7 +444,6 @@ class ShowPalletReturn extends OrgAction
                         'palletReturn' => $palletReturn->id
                     ]
                 ],
-                'can_edit_transactions'=>true,
 
                 'deletePhysicalGoodRoute' => [
                     'name'       => 'org.models.pallet-return.physical_good.delete',
