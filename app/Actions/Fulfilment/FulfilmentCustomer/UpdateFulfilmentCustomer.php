@@ -38,12 +38,12 @@ class UpdateFulfilmentCustomer extends OrgAction
 
         $oldData = [
             'pallets_storage' => $fulfilmentCustomer->pallets_storage,
-            'items_storage'  => $fulfilmentCustomer->items_storage,
-            'dropshipping'   => $fulfilmentCustomer->dropshipping,
-            'space_rental'   => $fulfilmentCustomer->space_rental
+            'items_storage'   => $fulfilmentCustomer->items_storage,
+            'dropshipping'    => $fulfilmentCustomer->dropshipping,
+            'space_rental'    => $fulfilmentCustomer->space_rental
         ];
 
-        if (! blank($contactAddressData)) {
+        if (!blank($contactAddressData)) {
             if ($fulfilmentCustomer->customer->address) {
                 UpdateAddress::run($fulfilmentCustomer->customer->address, $contactAddressData);
             } else {
@@ -60,9 +60,9 @@ class UpdateFulfilmentCustomer extends OrgAction
             data_set(
                 $modelData,
                 match ($key) {
-                    'product'               => 'data.product',
-                    'shipments_per_week'     => 'data.shipments_per_week',
-                    'size_and_weight'       => 'data.size_and_weight',
+                    'product' => 'data.product',
+                    'shipments_per_week' => 'data.shipments_per_week',
+                    'size_and_weight' => 'data.size_and_weight',
                     default => $key
                 },
                 $value
@@ -75,15 +75,14 @@ class UpdateFulfilmentCustomer extends OrgAction
         $fulfilmentCustomer = $this->update($fulfilmentCustomer, $modelData, ['data']);
 
         if ($fulfilmentCustomer->wasChanged()) {
-
             $fulfilmentCustomer->customer->auditEvent    = 'update';
             $fulfilmentCustomer->customer->isCustomEvent = true;
 
             $newData = [
                 'pallets_storage' => $fulfilmentCustomer->pallets_storage,
-                'items_storage'  => $fulfilmentCustomer->items_storage,
-                'dropshipping'   => $fulfilmentCustomer->dropshipping,
-                'space_rental'   => $fulfilmentCustomer->space_rental
+                'items_storage'   => $fulfilmentCustomer->items_storage,
+                'dropshipping'    => $fulfilmentCustomer->dropshipping,
+                'space_rental'    => $fulfilmentCustomer->space_rental
             ];
 
 
@@ -95,6 +94,7 @@ class UpdateFulfilmentCustomer extends OrgAction
 
         FulfilmentHydrateCustomers::dispatch($fulfilmentCustomer->fulfilment);
         FulfilmentCustomerRecordSearch::dispatch($fulfilmentCustomer);
+
         return $fulfilmentCustomer;
     }
 
@@ -110,18 +110,18 @@ class UpdateFulfilmentCustomer extends OrgAction
     public function rules(): array
     {
         return [
-            'contact_name'    => ['sometimes', 'nullable','string'],
-            'company_name'    => ['sometimes', 'nullable','string'],
-            'email'           => ['sometimes', 'nullable','string'],
-            'phone'           => ['sometimes', 'nullable','string'],
-            'pallets_storage' => ['sometimes', 'boolean'],
-            'items_storage'   => ['sometimes', 'boolean'],
-            'dropshipping'    => ['sometimes', 'boolean'],
-            'space_rental'    => ['sometimes', 'boolean'],
-            'address'         => ['sometimes'],
-            'product'                           => ['sometimes', 'string'],
-            'shipment_per_week'                 => ['sometimes', 'string'],
-            'size_and_weight'                   => ['sometimes', 'string'],
+            'contact_name'      => ['sometimes', 'nullable', 'string'],
+            'company_name'      => ['sometimes', 'nullable', 'string'],
+            'email'             => ['sometimes', 'nullable', 'string'],
+            'phone'             => ['sometimes', 'nullable', 'string'],
+            'pallets_storage'   => ['sometimes', 'boolean'],
+            'items_storage'     => ['sometimes', 'boolean'],
+            'dropshipping'      => ['sometimes', 'boolean'],
+            'space_rental'      => ['sometimes', 'boolean'],
+            'address'           => ['sometimes'],
+            'product'           => ['sometimes', 'string'],
+            'shipment_per_week' => ['sometimes', 'string'],
+            'size_and_weight'   => ['sometimes', 'string'],
         ];
     }
 
@@ -133,7 +133,6 @@ class UpdateFulfilmentCustomer extends OrgAction
         FulfilmentCustomer $fulfilmentCustomer,
         ActionRequest $request
     ): FulfilmentCustomer {
-
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
@@ -141,11 +140,9 @@ class UpdateFulfilmentCustomer extends OrgAction
 
     public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): FulfilmentCustomer
     {
-
-
-
         $this->asAction = true;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
+
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
