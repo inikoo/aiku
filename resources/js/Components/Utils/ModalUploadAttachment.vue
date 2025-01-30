@@ -116,7 +116,7 @@ const submitUpload = async () => {
 		})
 		router.reload()  // To reload the table to show new data
 		closeModal()
-		useEchoGrpPersonal().isShowProgress = true
+		// useEchoGrpPersonal().isShowProgress = true
 	} catch (error: any) {
 		console.error(error)
 		errorMessage.value = error?.response?.data?.message

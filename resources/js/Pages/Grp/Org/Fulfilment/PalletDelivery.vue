@@ -58,7 +58,10 @@ const props = defineProps<{
     services?: TableTS
     physical_goods?: TableTS
     attachments?: TableTS
-    attachmentRoutes: routeType
+    attachmentRoutes: {
+        attachRoute: routeType
+        detachRoute: routeType
+    }
     data?: {
         data: PalletDelivery
     }
@@ -694,6 +697,7 @@ const isModalUploadFileOpen = ref(false)
             :storedItemsRoute="storedItemsRoute"
             :rentalRoute="rentalRoute"
             :rentalList="props.rental_lists"
+            :detachRoute="attachmentRoutes.detachRoute"
         />
     </div>
 

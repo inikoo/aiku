@@ -97,10 +97,10 @@ class DetachAttachmentFromModel extends OrgAction
         $this->handle($order, $attachment);
     }
 
-    public function inPalletDelivery(PalletDelivery $palletDelivery, Media $attachment): PalletDelivery
+    public function inPalletDelivery(PalletDelivery $palletDelivery, Media $attachment): void
     {
         $this->initialisation($palletDelivery->organisation, []);
 
-        return $this->handle($palletDelivery, $attachment);
+        $this->handle($palletDelivery, $attachment);
     }
 }
