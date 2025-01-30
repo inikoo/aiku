@@ -23,6 +23,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\RecurringBill;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -41,7 +42,7 @@ class IndexPalletReturns extends OrgAction
     use WithFulfilmentCustomerSubNavigation;
 
 
-    private Fulfilment|Warehouse|FulfilmentCustomer $parent;
+    private Fulfilment|Warehouse|FulfilmentCustomer|RecurringBill $parent;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -84,7 +85,7 @@ class IndexPalletReturns extends OrgAction
         return $this->handle($warehouse);
     }
 
-    protected function getElementGroups(Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn $parent): array
+    protected function getElementGroups(Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn|RecurringBill $parent): array
     {
         return [
             'state' => [
@@ -103,7 +104,7 @@ class IndexPalletReturns extends OrgAction
         ];
     }
 
-    public function handle(Fulfilment|Warehouse|FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Fulfilment|Warehouse|FulfilmentCustomer|RecurringBill $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -123,6 +124,8 @@ class IndexPalletReturns extends OrgAction
             $queryBuilder->where('pallet_returns.fulfilment_id', $parent->id);
         } elseif ($parent instanceof Warehouse) {
             $queryBuilder->where('pallet_returns.warehouse_id', $parent->id);
+        } elseif ($parent instanceof RecurringBill) {
+            $queryBuilder->where('pallet_returns.recurring_bill_id', $parent->id);
         } else {
             $queryBuilder->where('pallet_returns.fulfilment_customer_id', $parent->id);
         }
@@ -148,7 +151,7 @@ class IndexPalletReturns extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Fulfilment|Warehouse|FulfilmentCustomer $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Fulfilment|Warehouse|FulfilmentCustomer|RecurringBill $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
@@ -177,6 +180,11 @@ class IndexPalletReturns extends OrgAction
                         'Warehouse' => [
                             'title'       => __('No pallet returns found for this warehouse'),
                             'description' => __('This warehouse has not received any pallet returns yet'),
+                            'count'       => $parent->stats->number_pallet_returns
+                        ],
+                        'RecurringBill' => [
+                            'title'       => __('No pallet returns found for this recurring bill'),
+                            'description' => __('This recurring bill has no any pallet returns yet'),
                             'count'       => $parent->stats->number_pallet_returns
                         ],
                         'FulfilmentCustomer' => [

@@ -60,11 +60,11 @@ class ShowGuest extends GrpAction
                 'pageHead'    => [
                     'subNavigation' => $this->getGuestNavigation($guest, $request),
                     'title'     => $guest->contact_name,
-                    'icon'    =>
-                        [
-                            'icon'  => ['fal', 'fa-user-alien'],
-                            'title' => __('guest')
-                        ],
+                    'model'     => __('guest'),
+                    'icon'    => [
+                        'icon'  => ['fal', 'fa-user-alien'],
+                        'title' => __('guest')
+                    ],
                     'actions'   => [
                         $this->canEdit ? [
                             'type'  => 'button',

@@ -10,9 +10,12 @@ namespace App\Actions\Fulfilment\FulfilmentTransaction;
 
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateTransactions;
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateTransactions;
+use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
+use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\FulfilmentTransaction;
@@ -48,6 +51,15 @@ class StoreFulfilmentTransaction extends OrgAction
 
         /** @var FulfilmentTransaction $fulfilmentTransaction */
         $fulfilmentTransaction = $parent->transactions()->create($modelData);
+
+        if ($parent instanceof PalletDelivery && $parent->state == PalletDeliveryStateEnum::BOOKED_IN) {
+            if ($parent->recurringBill && $parent->recurringBill->status == RecurringBillStatusEnum::CURRENT) {
+                StoreRecurringBillTransaction::make()->action($parent->recurringBill, $fulfilmentTransaction, [
+                    'start_date' => now(),
+                    'end_date'   => now(),
+                ]);
+            }
+        }
 
         if ($fulfilmentTransaction->parent_type == 'PalletDelivery') {
             PalletDeliveryHydrateTransactions::run($fulfilmentTransaction->parent);

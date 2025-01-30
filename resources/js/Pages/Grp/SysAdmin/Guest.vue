@@ -15,6 +15,7 @@ import PageHeading from "@/Components/Headings/PageHeading.vue";
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 import { capitalize } from "@/Composables/capitalize"
 import TableGuests from "@/Components/Tables/Grp/SysAdmin/TableGuests.vue";
+import SysadminUserShowcase from '@/Components/Showcases/Grp/SysadminUserShowcase.vue'
 
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
@@ -28,6 +29,7 @@ const props = defineProps<{
     },
     guests?: object
     history: object
+    showcase?: {}
 
 }>()
 
@@ -37,7 +39,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
-        guests: TableGuests,
+        showcase: SysadminUserShowcase,
         details: ModelDetails,
         history: TableHistories
     };

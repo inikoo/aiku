@@ -9,10 +9,12 @@
 namespace App\Actions\Fulfilment\PalletReturnItem;
 
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
+use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Fulfilment\PalletReturnItemResource;
 use App\Models\Fulfilment\PalletReturnItem;
 use Lorisleiva\Actions\ActionRequest;
@@ -49,6 +51,12 @@ class UndoPalletReturnItem extends OrgAction
 
                 $palletReturnItem = $this->update($storedItem, $modelData, ['data']);
             }
+        }
+
+        if ($palletReturnItem->palletReturn->state == PalletReturnStateEnum::CONFIRMED) {
+            UpdatePalletReturn::run($palletReturnItem->palletReturn, [
+                'state' => PalletReturnStateEnum::SUBMITTED
+            ]);
         }
 
         return $palletReturnItem;

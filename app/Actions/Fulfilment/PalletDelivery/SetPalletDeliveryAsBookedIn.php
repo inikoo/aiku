@@ -13,8 +13,6 @@ use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrat
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletDelivery\Notifications\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\Search\PalletDeliveryRecordSearch;
-use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
-use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletDeliveries;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletDeliveries;
@@ -50,53 +48,9 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
 
         $palletDelivery = $this->update($palletDelivery, $modelData);
 
-        $recurringBill = $palletDelivery->fulfilmentCustomer->currentRecurringBill;
-        if (!$recurringBill) {
-            $recurringBill = StoreRecurringBill::make()->action(
-                rentalAgreement: $palletDelivery->fulfilmentCustomer->rentalAgreement,
-                modelData: [
-                'start_date' => now(),
-                'end_date'   => now()->addMonth(),
-                'status'     => 'active'
-                ],
-                strict: true
-            );
-            $palletDelivery->fulfilmentCustomer->update(['current_recurring_bill_id' => $recurringBill->id]);
-            foreach ($palletDelivery->transactions as $transaction) {
-                StoreRecurringBillTransaction::make()->action(
-                    $recurringBill,
-                    $transaction,
-                    [
-                        'start_date' => now()
-                    ]
-                );
-            }
-            $this->update($palletDelivery, [
-                'recurring_bill_id' => $recurringBill->id
-            ]);
-        } else {
-            foreach ($palletDelivery->transactions as $transaction) {
-                StoreRecurringBillTransaction::make()->action(
-                    $recurringBill,
-                    $transaction,
-                    [
-                        'start_date' => now()
-                    ]
-                );
-            }
-            foreach ($palletDelivery->pallets as $pallet) {
-                StoreRecurringBillTransaction::make()->action(
-                    $recurringBill,
-                    $pallet,
-                    [
-                        'start_date' => $pallet->storing_at
-                    ]
-                );
-            }
-        }
 
 
-        // $palletDelivery->recurringBills()->attach($recurringBill);
+
 
 
         GroupHydratePalletDeliveries::dispatch($palletDelivery->group);

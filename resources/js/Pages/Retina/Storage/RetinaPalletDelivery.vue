@@ -550,7 +550,7 @@ const typePallet = [
                             :icon="action.icon"
                             :key="`ActionButton${action.label}${action.style}`"
                             :tooltip="action.tooltip"
-                            class="border-none rounded-sm"
+                            class="border-none rounded-l-none rounded-r-md"
                         />
                     </template>
                     

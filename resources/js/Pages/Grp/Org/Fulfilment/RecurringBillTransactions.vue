@@ -3,7 +3,7 @@ import OrderSummary from '@/Components/Summary/OrderSummary.vue'
 import { FieldOrderSummary } from '@/types/Pallet'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
-import { Links, Meta } from '@/types/Table'
+import { Links, Meta, Table as TableTS } from '@/types/Table'
 import { faRobot, faBadgePercent, faTag } from '@fal'
 import Table from "@/Components/Table/Table.vue"
 import { inject } from 'vue'
@@ -13,26 +13,7 @@ import { Link, router } from "@inertiajs/vue3"
 library.add(faTag)
 
 const props = defineProps<{
-    data: {
-        data: {
-            id: number
-            type: string
-            asset_id: number
-            asset_slug: string
-            asset_code: string
-            asset_price: string
-            asset_name: string
-            asset_unit: string
-            asset_units: string
-            currency_code: string
-            unit_abbreviation: string
-            unit_label: string
-            quantity: number
-            total: string
-        }[]
-        links: Links
-        meta: Meta
-    },
+    data: TableTS
     tab?: string
 }>()
 
@@ -40,9 +21,25 @@ const locale = inject('locale', aikuLocaleStructure)
 </script>
 
 <template>
-    <!-- <pre>{{ data.data[0] }}</pre> -->
-
     <Table :resource="data" :name="tab" class="mt-5" :is-check-box="false">
+        <template #cell(description)="{ item }">
+            <div v-if="item.description?.a || item.description?.b || item.description?.c">
+                <span v-if="item.description?.a">{{ item.description.a }}:</span>
+                <Link v-if="item.description?.b" :href="item.description.b?.id ? route('grp.org.fulfilments.show.crm.customers.show.pallets.show', {
+                    organisation: route().params.organisation,
+                    fulfilment: route().params.fulfilment,
+                    fulfilmentCustomer: route().params.fulfilmentCustomer,
+                    pallet: item.description.b?.slug
+                }) : '#'" class="primaryLink">
+                    {{ item.description.b?.reference }}
+                </Link>
+                
+                <div v-if="item.description.c" class="text-gray-400 italic text-xs">({{ item.description.c }})</div>
+            </div>
+            <div v-else>
+
+            </div>
+        </template>
 
         <template #cell(asset_price)="{ item }">
             {{ locale.currencyFormat(item.currency_code, item.asset_price || 0) }}/{{ item.unit_label }}

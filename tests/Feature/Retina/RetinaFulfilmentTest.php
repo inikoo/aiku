@@ -15,7 +15,7 @@ use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
-use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\ReceivePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Inventory\Location\StoreLocation;
@@ -381,7 +381,7 @@ test('Process Pallet Delivery (from aiku)', function (PalletDelivery $palletDeli
         ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::CONFIRMED);
 
 
-    $palletDelivery = ReceivedPalletDelivery::make()->action($palletDelivery);
+    $palletDelivery = ReceivePalletDelivery::make()->action($palletDelivery);
 
     expect($palletDelivery)->toBeInstanceOf(PalletDelivery::class)
         ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::RECEIVED);
