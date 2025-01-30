@@ -53,19 +53,19 @@ class RecurringBillTransactionsResource extends JsonResource
             $desc_title = $pallet->reference;
 
             $desc_model = __('Storage');
-                        $desc_route = [
-                            'name' => 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
-                            'parameters'    => [
-                                'organisation'         => $request->route()->originalParameters()['organisation'],
-                                'fulfilment'           => $request->route()->originalParameters()['fulfilment'],
-                                'fulfilmentCustomer'   => $pallet->fulfilmentCustomer->slug,
-                                'pallet'               => $pallet->slug
-                            ]
-                        ];
+            $desc_route = [
+                'name' => 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
+                'parameters'    => [
+                    'organisation'         => $request->route()->originalParameters()['organisation'],
+                    'fulfilment'           => $request->route()->originalParameters()['fulfilment'],
+                    'fulfilmentCustomer'   => $pallet->fulfilmentCustomer->slug,
+                    'pallet'               => $pallet->slug
+                ]
+            ];
 
         } else {
-            $palletDelivery=null;
-            if($this->pallet_delivery_id){
+            $palletDelivery = null;
+            if ($this->pallet_delivery_id) {
                 $palletDelivery = PalletDelivery::find($this->pallet_delivery_id);
             }
 
@@ -84,8 +84,8 @@ class RecurringBillTransactionsResource extends JsonResource
                     ]
                 ];
             }
-            $palletReturn=null;
-            if($this->pallet_return_id){
+            $palletReturn = null;
+            if ($this->pallet_return_id) {
                 $palletReturn = PalletReturn::find($this->pallet_return_id);
             }
             if ($palletReturn) {

@@ -9,7 +9,9 @@
 namespace App\Actions\Fulfilment\RecurringBillTransaction;
 
 use App\Actions\OrgAction;
+use App\Enums\Billables\Rental\RentalUnitEnum;
 use App\Models\Fulfilment\RecurringBillTransaction;
+use App\Models\Fulfilment\Space;
 use Carbon\Carbon;
 
 class CalculateRecurringBillTransactionTemporalQuantity extends OrgAction
@@ -20,6 +22,17 @@ class CalculateRecurringBillTransactionTemporalQuantity extends OrgAction
             return $recurringBillTransaction;
         }
 
+        $onlyWorkDays = false;
+        if ($recurringBillTransaction->item_type == 'Space') {
+            $space = Space::find($recurringBillTransaction->item_id);
+            if ($space && $space->exclude_weekend) {
+                $onlyWorkDays = true;
+            }
+        }
+
+
+        $temporalQuantity = 1;
+
         $today   = Carbon::now()->setTimezone('UTC')->startOfDay();
         $endDate = $today;
         if ($recurringBillTransaction->end_date) {
@@ -28,17 +41,47 @@ class CalculateRecurringBillTransactionTemporalQuantity extends OrgAction
             }
         }
 
-        $startDate      = Carbon::parse($recurringBillTransaction->start_date)->setTimezone('UTC')->startOfDay();
-        $daysDifference = floor($startDate->diffInDays($endDate) + 1);
 
+        $startDate = Carbon::parse($recurringBillTransaction->start_date)->setTimezone('UTC')->startOfDay();
+
+
+        if ($recurringBillTransaction->asset->rental->unit == RentalUnitEnum::DAY) {
+            if ($onlyWorkDays) {
+                $temporalQuantity = $this->getWorkDays($startDate, $endDate);
+            } else {
+                $temporalQuantity = $this->getDays($startDate, $endDate);
+            }
+        } elseif ($recurringBillTransaction->asset->rental->unit == RentalUnitEnum::MONTH) {
+            $temporalQuantity = $this->getMonths($startDate, $endDate);
+        }
 
 
         $recurringBillTransaction->update([
-            'temporal_quantity' => $daysDifference,
+            'temporal_quantity' => $temporalQuantity,
         ]);
 
         return $recurringBillTransaction;
     }
+
+
+    public function getMonths($startDate, $endDate): int
+    {
+        $start = Carbon::parse($startDate)->startOfMonth();
+        $end   = Carbon::parse($endDate)->endOfMonth();
+
+        return $start->diffInMonths($end) + 1;
+    }
+
+    public function getWorkDays($startDate, $endDate): int
+    {
+        return floor($startDate->diffInWeekdays($endDate) + 1);
+    }
+
+    public function getDays($startDate, $endDate): int
+    {
+        return floor($startDate->diffInDays($endDate) + 1);
+    }
+
 
     public function action(RecurringBillTransaction $recurringBillTransaction, int $hydratorsDelay = 0): RecurringBillTransaction
     {

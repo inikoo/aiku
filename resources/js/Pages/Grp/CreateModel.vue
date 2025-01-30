@@ -244,7 +244,7 @@ const onSelectSubmitChange = (value) => {
                                             <!-- Icon: Required -->
                                             <FontAwesomeIcon v-if="fieldData.required"
                                                 :icon="['fas', 'asterisk']"
-                                                class="font-light text-[12px] text-red-400 mr-1" />
+                                                class="ml-1 font-light text-[8px] text-red-400 mr-1 opacity-75" />
                                         </div>
                                     </dt>
                                     

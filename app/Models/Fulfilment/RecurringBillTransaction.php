@@ -52,6 +52,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\Fulfilment\RentalAgreementClause|null $clause
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
+ * @property-read \App\Models\Fulfilment\FulfilmentTransaction|null $fulfilmentTransaction
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read HistoricAsset $historicAsset
  * @property-read Model|\Eloquent|null $item
