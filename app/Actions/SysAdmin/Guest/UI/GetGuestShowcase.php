@@ -14,6 +14,13 @@ use App\Actions\Utils\GetLocationFromIp;
 use App\Models\SysAdmin\Guest;
 use Lorisleiva\Actions\Concerns\AsObject;
 
+use App\Http\Resources\HumanResources\JobPositionResource;
+use App\Http\Resources\Inventory\WarehouseResource;
+use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
+use App\Http\Resources\Api\Dropshipping\ShopResource;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Models\SysAdmin\Organisation;
+
 class GetGuestShowcase
 {
     use AsObject;
@@ -42,14 +49,26 @@ class GetGuestShowcase
             'email'                   => $guest->email,
             'about'                   => $guest->about,
             'contact_name'            => $guest->contact_name,
-            'authorizedOrganisations' => $user->authorisedOrganisations->map(function ($organisation) {
-                return [
-                    'slug' => $organisation->slug,
-                    'name' => $organisation->name,
-                    'type' => $organisation->type,
-                ];
-            }),
-            'perimissions_pictogram' => [
+            // 'authorizedOrganisations' => $user->authorisedOrganisations->map(function ($organisation) {
+            //     return [
+            //         'slug' => $organisation->slug,
+            //         'name' => $organisation->name,
+            //         'type' => $organisation->type,
+            //     ];
+            // }),
+            'permissions_pictogram' => [
+                'organisation_list' => OrganisationsResource::collection($user->group->organisations),
+                "current_organisation"  => $user->getOrganisation(),
+                'options'           => Organisation::get()->flatMap(function (Organisation $organisation) {
+                    return [
+                        $organisation->slug => [
+                            'positions'   => JobPositionResource::collection($organisation->jobPositions),
+                            'shops'       => \App\Http\Resources\Catalogue\ShopResource::collection($organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get()),
+                            'fulfilments' => ShopResource::collection($organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
+                            'warehouses'  => WarehouseResource::collection($organisation->warehouses),
+                        ]
+                    ];
+                })->toArray(),
                 'group' => $permissionsGroupData,
                 'organisations' => $jobPositionsOrganisationsData
             ],
