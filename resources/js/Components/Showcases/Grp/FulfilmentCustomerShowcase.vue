@@ -1,5 +1,3 @@
-
-
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
   - Created: Tue, 02 Apr 2024 20:10:35 Central Indonesia Time, Sanur , Indonesia
@@ -20,17 +18,20 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import { Link } from '@inertiajs/vue3'
 import Tag from '@/Components/Tag.vue'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
+import Dialog from 'primevue/dialog';
+import { get } from 'lodash'
 
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faLink, faLongArrowRight } from '@far'
-import { faWallet } from '@fal'
+import { faPencil, faWallet } from '@fal'
 import { faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard } from '@fal'
 // import Modal from '@/Components/Utils/Modal.vue'
 import { Address, AddressManagement } from '@/types/PureComponent/Address'
 // import ModalAddress from '@/Components/Utils/ModalAddress.vue'
 import CountUp from 'vue-countup-v3'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
+import CustomerDataForm from '@/Components/CustomerDataForm.vue'
 library.add(faWallet, faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard, faLongArrowRight)
 
 const props = defineProps<{
@@ -91,6 +92,12 @@ const props = defineProps<{
             total: number
             currency_code: string
         }
+        status: string
+        additional_data: {
+            product : String,
+            size_and_weight : string,
+            shipments_per_week : string
+        }
     },
     tab: string
 }>()
@@ -123,25 +130,28 @@ const optionRadio = [
 
 const isLoadingButtonRentalAgreement = ref(false)
 const isLoading = ref<string | boolean>(false)
+const visible = ref(false)
+const _CustomerDataForm = ref()
 // const isModalAddress = ref(false)
+
 </script>
 
 <template>
+    {{  data.status }}
     <!-- Section: Stats box -->
     <div class="px-4 py-5 md:px-6 lg:px-8 grid grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-3">
 
         <div class="space-y-3">
             <!-- Section: Radio -->
-            
             <div class="space-y-3 relative w-full max-w-[500px]">
                 <!-- Section: Profile box -->
                 <!-- <Transition name="headlessui" mode="out-in"> -->
-                    <div class="col-span-2 grid ">
-                        <div class="w-full">
-                            <div class="rounded-lg shadow-sm ring-1 ring-gray-300">
-                                <dl class="flex flex-wrap">
-                                    <!-- Profile: Header -->
-                                    <!-- <div class="flex w-full py-6">
+                <div class="col-span-2 grid ">
+                    <div class="w-full">
+                        <div class="rounded-lg shadow-sm ring-1 ring-gray-300">
+                            <dl class="flex flex-wrap">
+                                <!-- Profile: Header -->
+                                <!-- <div class="flex w-full py-6">
                                         <div class="flex-auto pl-6">
                                             <dt class="text-sm font-semibold leading-6 text-gray-900">Total Clients</dt>
                                             <dd class="mt-1 text-base font-semibold leading-6 text-gray-900">{{ data.customer.number_current_customer_clients || 0 }}</dd>
@@ -153,63 +163,111 @@ const isLoading = ref<string | boolean>(false)
                                             </dd>
                                         </div>
                                     </div> -->
-                                    <!-- Section: Field -->
-                                    <div class="flex flex-col gap-y-2 w-full py-6">
+                                <!-- Section: Field -->
+                                <div class="flex flex-col gap-y-2 w-full py-6">
 
-                                        <!-- Field: Contact name -->
-                                        <div v-if="data.fulfilment_customer.customer.contact_name" class="flex items-center w-full flex-none gap-x-4 px-6">
-                                            <dt v-tooltip="'Contact name'" class="flex-none">
-                                                <FontAwesomeIcon icon='fal fa-address-card' class='text-gray-400' fixed-width aria-hidden='true' />
-                                            </dt>
-                                            <dd class="text-gray-500">{{ data.fulfilment_customer.customer.contact_name }}</dd>
-                                        </div>
+                                    <!-- Field: Contact name -->
+                                    <div v-if="data.fulfilment_customer.customer.contact_name"
+                                        class="flex items-center w-full flex-none gap-x-4 px-6">
+                                        <dt v-tooltip="'Contact name'" class="flex-none">
+                                            <FontAwesomeIcon icon='fal fa-address-card' class='text-gray-400'
+                                                fixed-width aria-hidden='true' />
+                                        </dt>
+                                        <dd class="text-gray-500">{{ data.fulfilment_customer.customer.contact_name }}
+                                        </dd>
+                                    </div>
 
-                                        <!-- Field: Company name -->
-                                        <div v-if="data.fulfilment_customer.customer.company_name" class="flex items-center w-full flex-none gap-x-4 px-6">
-                                            <dt v-tooltip="'Company name'" class="flex-none">
-                                                <FontAwesomeIcon icon='fal fa-building' class='text-gray-400' fixed-width aria-hidden='true' />
-                                            </dt>
-                                            <dd class="text-gray-500">{{ data.fulfilment_customer.customer.company_name }}</dd>
-                                        </div>
+                                    <!-- Field: Company name -->
+                                    <div v-if="data.fulfilment_customer.customer.company_name"
+                                        class="flex items-center w-full flex-none gap-x-4 px-6">
+                                        <dt v-tooltip="'Company name'" class="flex-none">
+                                            <FontAwesomeIcon icon='fal fa-building' class='text-gray-400' fixed-width
+                                                aria-hidden='true' />
+                                        </dt>
+                                        <dd class="text-gray-500">{{ data.fulfilment_customer.customer.company_name }}
+                                        </dd>
+                                    </div>
 
-                                        <!-- Field: Email -->
-                                        <div v-if="data.fulfilment_customer.customer?.email" class="flex items-center w-full flex-none gap-x-4 px-6">
-                                            <dt v-tooltip="'Email'" class="flex-none">
-                                                <FontAwesomeIcon icon='fal fa-envelope' class='text-gray-400' fixed-width aria-hidden='true' />
-                                            </dt>
-                                            <a :href="`mailto:${data.fulfilment_customer.customer?.email}`" v-tooltip="'Click to send email'" class="text-gray-500 hover:text-gray-700">{{ data.fulfilment_customer.customer?.email }}</a>
-                                        </div>
-                                        
-                                        <!-- Field: Phone -->
-                                        <div v-if="data.fulfilment_customer.customer?.phone" class="flex items-center w-full flex-none gap-x-4 px-6">
-                                            <dt v-tooltip="'Phone'" class="flex-none">
-                                                <FontAwesomeIcon icon='fal fa-phone' class='text-gray-400' fixed-width aria-hidden='true' />
-                                            </dt>
-                                            <a :href="`tel:${data.fulfilment_customer.customer?.phone}`" v-tooltip="'Click to make a phone call'" class="text-gray-500 hover:text-gray-700">{{ data.fulfilment_customer.customer?.phone }}</a>
-                                        </div>
+                                    <!-- Field: Email -->
+                                    <div v-if="data.fulfilment_customer.customer?.email"
+                                        class="flex items-center w-full flex-none gap-x-4 px-6">
+                                        <dt v-tooltip="'Email'" class="flex-none">
+                                            <FontAwesomeIcon icon='fal fa-envelope' class='text-gray-400' fixed-width
+                                                aria-hidden='true' />
+                                        </dt>
+                                        <a :href="`mailto:${data.fulfilment_customer.customer?.email}`"
+                                            v-tooltip="'Click to send email'"
+                                            class="text-gray-500 hover:text-gray-700">{{
+                                            data.fulfilment_customer.customer?.email }}</a>
+                                    </div>
 
-                                        <!-- Field: Address -->
-                                        <div v-if="data.fulfilment_customer.customer?.address" class="flex items w-full flex-none gap-x-4 px-6">
-                                            <dt v-tooltip="'Address'" class="flex-none">
-                                                <FontAwesomeIcon icon='fal fa-map-marker-alt' class='text-gray-400' fixed-width aria-hidden='true' />
-                                            </dt>
-                                            <dd class="w-full max-w-96 text-gray-500">
-                                                <div class="relative px-2.5 py-2 ring-1 ring-gray-300 rounded bg-gray-50">
-                                                    <span class="" v-html="data.fulfilment_customer.customer?.address.formatted_address" />
+                                    <!-- Field: Phone -->
+                                    <div v-if="data.fulfilment_customer.customer?.phone"
+                                        class="flex items-center w-full flex-none gap-x-4 px-6">
+                                        <dt v-tooltip="'Phone'" class="flex-none">
+                                            <FontAwesomeIcon icon='fal fa-phone' class='text-gray-400' fixed-width
+                                                aria-hidden='true' />
+                                        </dt>
+                                        <a :href="`tel:${data.fulfilment_customer.customer?.phone}`"
+                                            v-tooltip="'Click to make a phone call'"
+                                            class="text-gray-500 hover:text-gray-700">{{
+                                            data.fulfilment_customer.customer?.phone }}</a>
+                                    </div>
 
-                                                    <!-- <div @click="() => isModalAddress = true"
+                                    <!-- Field: Address -->
+                                    <div v-if="data.fulfilment_customer.customer?.address"
+                                        class="flex items w-full flex-none gap-x-4 px-6">
+                                        <dt v-tooltip="'Address'" class="flex-none">
+                                            <FontAwesomeIcon icon='fal fa-map-marker-alt' class='text-gray-400'
+                                                fixed-width aria-hidden='true' />
+                                        </dt>
+                                        <dd class="w-full max-w-96 text-gray-500">
+                                            <div class="relative px-2.5 py-2 ring-1 ring-gray-300 rounded bg-gray-50">
+                                                <span class=""
+                                                    v-html="data.fulfilment_customer.customer?.address.formatted_address" />
+
+                                                <!-- <div @click="() => isModalAddress = true"
                                                         class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
                                                         <span>{{ trans('Edit') }}</span>
                                                     </div> -->
-                                                </div>
-                                            </dd>
-                                        </div>
+                                            </div>
+                                        </dd>
                                     </div>
-                                </dl>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+                <!-- </Transition> -->
+                <div  class="col-span-2 grid">
+                    <div class="w-full">
+                        <div class="rounded-lg shadow-lg ring-1 ring-gray-300 bg-white p-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-xl font-semibold text-gray-900">Information</h2>
+                                <Button label="edit" size="xs" @click="visible = true" />
+                            </div>
+                            <div
+                                class="relative px-5 py-2 ring-1 ring-gray-300 rounded-lg bg-gray-50 shadow-sm space-y-2">
+                                <!-- Field: Product -->
+                                <div class="text-gray-600">
+                                    <strong class="text-gray-500">Product:</strong> {{ get(data,["additional_data","product"]," - ") }}
+                                </div>
+
+                                <!-- Field: Size and Weight -->
+                                <div  class="text-gray-600">
+                                    <strong class="text-gray-500">Size & Weight:</strong> {{ get(data,['additional_data','size_and_weight']," - ") }}
+                                </div>
+
+                                <!-- Field: Shipments Per Week -->
+                                <div class="text-gray-600">
+                                    <strong class="text-gray-500">Shipments Per Week:</strong> {{ get(data,['additional_data','shipments_per_week']," - ") }}
+                                </div>
                             </div>
                         </div>
                     </div>
-                <!-- </Transition> -->
+                </div>
+
+
 
                 <!-- Box Group: Pallets -->
                 <CustomerShowcaseStats v-if="data?.rental_agreement?.stats" :stats="data.stats" />
@@ -223,8 +281,9 @@ const isLoading = ref<string | boolean>(false)
         </div>
 
         <!-- Section: Radiobox, Recurring bills balance, Rental agreement-->
-        <div class="w-full max-w-lg space-y-4 justify-self-end">
-            <div v-if="data.balance.current > 0" class="bg-indigo-50 border border-indigo-300 text-gray-700 flex flex-col justify-between px-4 py-5 sm:p-6 rounded-lg tabular-nums">
+        <div v-if="data.status != 'pending_approval'" class="w-full max-w-lg space-y-4 justify-self-end">
+            <div v-if="data.balance.current > 0"
+                class="bg-indigo-50 border border-indigo-300 text-gray-700 flex flex-col justify-between px-4 py-5 sm:p-6 rounded-lg tabular-nums">
                 <div class="w-full flex justify-between items-center">
                     <div class="">
                         <div class="text-base capitalize">
@@ -240,34 +299,34 @@ const isLoading = ref<string | boolean>(false)
                     </div>
                 </div>
 
-                <div class="mt-8 fflex flex-col gap-x-2 gap-y-3 leading-none items-baseline text-2xl font-semibold text-org-500">
+                <div
+                    class="mt-8 fflex flex-col gap-x-2 gap-y-3 leading-none items-baseline text-2xl font-semibold text-org-500">
                     <!-- In Total -->
                     <div class="flex flex-col gap-y-1">
-                        <CountUp :endVal="data.balance.current" :duration="1.5" :scrollSpyOnce="true"
-                            :options="{
-                                formattingFn: (value: number) => locale.currencyFormat(data.currency_code, value)
-                            }" />
+                        <CountUp :endVal="data.balance.current" :duration="1.5" :scrollSpyOnce="true" :options="{
+                            formattingFn: (value: number) => locale.currencyFormat(data.currency_code, value)
+                        }" />
                         <div class="text-gray-700/60 text-sm leading-4 font-normal">
-                            {{data.balance.credit_transactions}} credit transactions
+                            {{ data.balance.credit_transactions }} credit transactions
                         </div>
                     </div>
                 </div>
             </div>
 
-            <TabSelector :optionRadio="optionRadio" :radioValue="radioValue" :updateRoute="data.updateRoute"/>
-            
+            <TabSelector :optionRadio="optionRadio" :radioValue="radioValue" :updateRoute="data.updateRoute" />
+
             <div class="border-t border-gray-200 pt-4 w-full max-w-full">
                 <!-- Section: Recurring Bills -->
-                <div v-if="data.recurring_bill" class="block group relative w-full gap-x-2 border border-gray-300 px-4 py-4 rounded-lg mb-4">
+                <div v-if="data.recurring_bill"
+                    class="block group relative w-full gap-x-2 border border-gray-300 px-4 py-4 rounded-lg mb-4">
                     <!-- <FontAwesomeIcon icon='fal fa-receipt' class='text-3xl text-gray-400' fixed-width aria-hidden='true' /> -->
-                    <div class="pl-2 leading-none text-lg"
-                        :style="{
-                            borderLeft: `4px solid ${layout.app.theme[0]}`
-                        }"
-                    >
+                    <div class="pl-2 leading-none text-lg" :style="{
+                        borderLeft: `4px solid ${layout.app.theme[0]}`
+                    }">
                         <div class="block text-lg font-semibold">Recurring Bills</div>
                         <div class="text-sm flex items-center gap-x-1">
-                            {{ locale.currencyFormat(data.recurring_bill.currency_code, data.recurring_bill.total || 0) }}
+                            {{ locale.currencyFormat(data.recurring_bill.currency_code, data.recurring_bill.total || 0)
+                            }}
                         </div>
                     </div>
 
@@ -279,7 +338,8 @@ const isLoading = ref<string | boolean>(false)
                         </div>
 
                         <div class="flex justify-center items-center">
-                            <FontAwesomeIcon icon='fal fa-chevron-right' class='text-xs' fixed-width aria-hidden='true' />
+                            <FontAwesomeIcon icon='fal fa-chevron-right' class='text-xs' fixed-width
+                                aria-hidden='true' />
                         </div>
 
                         <div class="col-span-4 text-sm">
@@ -292,36 +352,37 @@ const isLoading = ref<string | boolean>(false)
                         <div class="flex h-fit">
                             <Tag :theme="data.recurring_bill.status === 'current' ? 3 : undefined" size="xxs">
                                 <template #label>
-                                    <FontAwesomeIcon v-if="data.recurring_bill.status === 'current'" icon='fas fa-circle' class='text-green-500 animate-pulse text-[7px]' fixed-width aria-hidden='true' />
-                                    <span class="capitalize">{{ data.recurring_bill.status === 'current' ? 'Active' : 'Past' }}</span>
+                                    <FontAwesomeIcon v-if="data.recurring_bill.status === 'current'"
+                                        icon='fas fa-circle' class='text-green-500 animate-pulse text-[7px]' fixed-width
+                                        aria-hidden='true' />
+                                    <span class="capitalize">{{ data.recurring_bill.status === 'current' ? 'Active' :
+                                        'Past' }}</span>
                                 </template>
                             </Tag>
                         </div>
-                        
+
                         <Link :href="route(data.recurring_bill.route.name, data.recurring_bill.route.parameters)"
-                            @start="() => isLoading = 'loadingVisitRecurring'"
-                            @error="() => isLoading = false"
-                        >
-                            <Button
-                                :type="'tertiary'"
-                                :loading="isLoading === 'loadingVisitRecurring'"
-                                size="s"
-                                label="See details"
-                                iconRight="fal fa-external-link"
-                            />
+                            @start="() => isLoading = 'loadingVisitRecurring'" @error="() => isLoading = false">
+                        <Button :type="'tertiary'" :loading="isLoading === 'loadingVisitRecurring'" size="s"
+                            label="See details" iconRight="fal fa-external-link" />
                         </Link>
                     </div>
                 </div>
-                
+
                 <!-- Section: Rental Agreement -->
                 <div class="rounded-lg ring-1 ring-gray-300">
                     <div class="border-b border-gray-300 py-2 px-2 pl-4 flex items-center justify-between">
-                        <div class="">{{ trans('Rental Agreement') }} <span v-if="data.rental_agreement.stats?.data?.reference" class="text-gray-400 text-sm">#{{ data.rental_agreement.stats?.data?.reference }}</span></div>
-                        <Link v-if="data.rental_agreement.stats" :href="route(data.rental_agreement.stats?.data?.route.name, data.rental_agreement.stats?.data?.route.parameters)" @start="() => isLoadingButtonRentalAgreement = true" @cancel="() => isLoadingButtonRentalAgreement = false">
-                            <Button type="edit" :loading="isLoadingButtonRentalAgreement"/>
+                        <div class="">{{ trans('Rental Agreement') }} <span
+                                v-if="data.rental_agreement.stats?.data?.reference" class="text-gray-400 text-sm">#{{
+                                data.rental_agreement.stats?.data?.reference }}</span></div>
+                        <Link v-if="data.rental_agreement.stats"
+                            :href="route(data.rental_agreement.stats?.data?.route.name, data.rental_agreement.stats?.data?.route.parameters)"
+                            @start="() => isLoadingButtonRentalAgreement = true"
+                            @cancel="() => isLoadingButtonRentalAgreement = false">
+                        <Button type="edit" :loading="isLoadingButtonRentalAgreement" />
                         </Link>
                     </div>
-                    
+
                     <!-- Stats -->
                     <div v-if="data.rental_agreement.stats" class="p-5 space-y-2">
                         <div class="flex gap-x-1 items-center text-sm">
@@ -330,23 +391,59 @@ const isLoading = ref<string | boolean>(false)
                         </div>
                         <div class="flex gap-x-1 items-center text-sm">
                             <div class="">{{ trans('Billing Cycle') }}:</div>
-                            <div class="text-gray-500 capitalize">{{ data.rental_agreement.stats?.data.billing_cycle }}</div>
+                            <div class="text-gray-500 capitalize">{{ data.rental_agreement.stats?.data.billing_cycle }}
+                            </div>
                         </div>
                         <div class="flex gap-x-1 items-center text-sm">
                             <div class="">{{ trans('Pallet Limit') }}:</div>
-                            <div class="text-gray-500">{{ data.rental_agreement.stats?.data.pallets_limit || `(${trans('No limit')})` }}</div>
+                            <div class="text-gray-500">{{ data.rental_agreement.stats?.data.pallets_limit ||
+                                `(${trans('No limit')})` }}</div>
                         </div>
                     </div>
-            
+
                     <div v-else class="text-center py-16">
                         <div class="text-gray-500 text-xs mb-1">The rental agreement is not created yet.</div>
-                        <Link :href="route(data.rental_agreement.createRoute.name, data.rental_agreement.createRoute.parameters)" @start="() => isLoadingButtonRentalAgreement = true" @cancel="() => isLoadingButtonRentalAgreement = false">
-                            <Button type="secondary" label="Create Rental Agreement" :loading="isLoadingButtonRentalAgreement"/>
+                        <Link
+                            :href="route(data.rental_agreement.createRoute.name, data.rental_agreement.createRoute.parameters)"
+                            @start="() => isLoadingButtonRentalAgreement = true"
+                            @cancel="() => isLoadingButtonRentalAgreement = false">
+                        <Button type="secondary" label="Create Rental Agreement"
+                            :loading="isLoadingButtonRentalAgreement" />
                         </Link>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</template>
 
+
+        <div v-if="data.status == 'pending_approval'" class="w-full max-w-lg space-y-4 justify-self-end">
+            <div class="p-4 border rounded-lg shadow-md bg-white">
+                <div class="w-full  flex flex-col items-center justify-center text-center">
+                    <h3 class="text-lg font-semibold">Pending Application</h3>
+                    <p class="text-sm text-gray-600">This application is currently awaiting approval.</p>
+                </div>
+                <div class="mt-4">
+                    <Link
+                        :href="route('grp.models.fulfilment-customer.update', { fulfilmentCustomer: route().params.fulfilmentCustomer })"
+                        method="patch" :data="{ status: 'approved' }">
+                    <Button label="Approve Aplication" full>
+                    </Button>
+                    </Link>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <Dialog v-model:visible="visible" modal header="Edit Information" :style="{ width: '50rem' }">
+        <CustomerDataForm ref="_CustomerDataForm" :data="data.additional_data"/>
+        <div class="flex justify-end">
+            <Link
+                :href="route('grp.models.fulfilment-customer.update', { fulfilmentCustomer: route().params.fulfilmentCustomer })"
+                method="patch" :data="{ data: _CustomerDataForm?.form.data() ?_CustomerDataForm.form.data() : data.additional_data  }">
+                <Button label="save" type="save" @click="() => console.log(_CustomerDataForm.form.data())" />
+            </Link>
+        </div>
+    </Dialog>
+</template>
