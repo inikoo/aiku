@@ -115,8 +115,8 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
 
     Route::prefix('spaces')->as('.spaces.')->group(function () {
         Route::get('', [IndexSpaces::class, 'inFulfilmentCustomer'])->name('index');
-        Route::get('{space}', [ShowSpace::class, 'inFulfilmentCustomer'])->name('show');
         Route::get('create', CreateSpace::class)->name('create');
+        Route::get('{space}', [ShowSpace::class, 'inFulfilmentCustomer'])->name('show');
     });
 
     Route::prefix('invoices')->as('.invoices.')->group(function () {
