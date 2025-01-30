@@ -36,6 +36,8 @@ use Illuminate\Support\Carbon;
  * @property mixed $item_id
  * @property mixed $start_date
  * @property mixed $end_date
+ * @property mixed $pallet_delivery_id
+ * @property mixed $pallet_return_id
  */
 class RecurringBillTransactionsResource extends JsonResource
 {
@@ -51,19 +53,23 @@ class RecurringBillTransactionsResource extends JsonResource
             $desc_title = $pallet->reference;
 
             $desc_model = __('Storage');
-            $desc_route = [
-                'name' => 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
-                'parameters'    => [
-                    'organisation'         => $request->route()->originalParameters()['organisation'],
-                    'fulfilment'           => $request->route()->originalParameters()['fulfilment'],
-                    'fulfilmentCustomer'   => $request->route()->originalParameters()['fulfilmentCustomer'],
-                    'pallet'               => $pallet->slug
-                ]
-            ];
+                        $desc_route = [
+                            'name' => 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
+                            'parameters'    => [
+                                'organisation'         => $request->route()->originalParameters()['organisation'],
+                                'fulfilment'           => $request->route()->originalParameters()['fulfilment'],
+                                'fulfilmentCustomer'   => $pallet->fulfilmentCustomer->slug,
+                                'pallet'               => $pallet->slug
+                            ]
+                        ];
 
         } else {
-            $palletDelivery = PalletDelivery::where('recurring_bill_id', $this->recurring_bill_id)->first();
-            $palletReturn = PalletReturn::where('recurring_bill_id', $this->recurring_bill_id)->first();
+            $palletDelivery=null;
+            if($this->pallet_delivery_id){
+                $palletDelivery = PalletDelivery::find($this->pallet_delivery_id);
+            }
+
+
 
             if ($palletDelivery) {
                 $desc_title = $palletDelivery->reference;
@@ -73,11 +79,16 @@ class RecurringBillTransactionsResource extends JsonResource
                     'parameters'    => [
                         'organisation'         => $request->route()->originalParameters()['organisation'],
                         'fulfilment'           => $request->route()->originalParameters()['fulfilment'],
-                        'fulfilmentCustomer'   => $request->route()->originalParameters()['fulfilmentCustomer'],
+                        'fulfilmentCustomer'   => $palletDelivery->fulfilmentCustomer->slug,
                         'palletDelivery'       => $palletDelivery->slug
                     ]
                 ];
-            } elseif ($palletReturn) {
+            }
+            $palletReturn=null;
+            if($this->pallet_return_id){
+                $palletReturn = PalletReturn::find($this->pallet_return_id);
+            }
+            if ($palletReturn) {
                 $desc_title = $palletReturn->reference;
                 $desc_model = __('Pallet Return');
                 $desc_route = [
@@ -85,7 +96,7 @@ class RecurringBillTransactionsResource extends JsonResource
                     'parameters'    => [
                         'organisation'         => $request->route()->originalParameters()['organisation'],
                         'fulfilment'           => $request->route()->originalParameters()['fulfilment'],
-                        'fulfilmentCustomer'   => $request->route()->originalParameters()['fulfilmentCustomer'],
+                        'fulfilmentCustomer'   => $palletReturn->fulfilmentCustomer->slug,
                         'palletReturn'       => $palletReturn->slug
                     ]
                 ];
