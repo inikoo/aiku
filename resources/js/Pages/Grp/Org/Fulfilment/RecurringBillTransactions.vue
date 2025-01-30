@@ -23,19 +23,15 @@ const locale = inject('locale', aikuLocaleStructure)
 <template>
     <Table :resource="data" :name="tab" class="mt-5" :is-check-box="false">
         <template #cell(description)="{ item }">
-            <div v-if="item.description?.a || item.description?.b || item.description?.c">
-                <span v-if="item.description?.a">{{ item.description.a }}:</span>
-                <Link v-if="item.description?.b" :href="item.description.b?.id ? route('grp.org.fulfilments.show.crm.customers.show.pallets.show', {
-                    organisation: route().params.organisation,
-                    fulfilment: route().params.fulfilment,
-                    fulfilmentCustomer: route().params.fulfilmentCustomer,
-                    pallet: item.description.b?.slug
-                }) : '#'" class="primaryLink">
-                    {{ item.description.b?.reference }}
+            <div v-if="item.description?.model || item.description?.title || item.description?.after_title">
+                <span v-if="item.description?.model">{{ item.description.model }}:</span>
+                <Link v-if="item.description?.title" :href="item.description.route?.name ? route(item.description.route?.name, item.description.route?.parameters) : '#'" class="primaryLink">
+                    {{ item.description.title }}
                 </Link>
                 
-                <div v-if="item.description.c" class="text-gray-400 italic text-xs">({{ item.description.c }})</div>
+                <div v-if="item.description.after_title" class="text-gray-400 italic text-xs">({{ item.description.after_title }})</div>
             </div>
+            
             <div v-else>
 
             </div>
@@ -43,7 +39,7 @@ const locale = inject('locale', aikuLocaleStructure)
 
         <template #cell(asset_price)="{ item }">
             {{ locale.currencyFormat(item.currency_code, item.asset_price || 0) }}/{{ item.unit_label }}
-            <Tag v-if="item['discount'] > 0" :theme="17">
+            <Tag v-if="item['discount'] > 0" :theme="17" noHoverColor>
                 <template #label>
                     <font-awesome-icon icon="fal fa-tag" class="text-xs text-emerald-700"/>
                     {{ item['discount'] }}%

@@ -41,35 +41,64 @@ class RecurringBillTransactionsResource extends JsonResource
 {
     public function toArray($request): array
     {
-        $desc_a = '';
-        $desc_b = '';
-        $desc_c = '';
+        $desc_model = '';
+        $desc_title = '';
+        $desc_after_title = '';
+        $desc_route = null;
+
         if ($this->item_type == 'Pallet') {
             $pallet = Pallet::find($this->item_id);
-            $desc_b = $pallet;
+            $desc_title = $pallet->reference;
 
-            $desc_a = __('Storage');
+            $desc_model = __('Storage');
+            $desc_route = [
+                'name' => 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
+                'parameters'    => [
+                    'organisation'         => $request->route()->originalParameters()['organisation'],
+                    'fulfilment'           => $request->route()->originalParameters()['fulfilment'],
+                    'fulfilmentCustomer'   => $request->route()->originalParameters()['fulfilmentCustomer'],
+                    'pallet'               => $pallet->slug
+                ]
+            ];
 
         } else {
             $palletDelivery = PalletDelivery::where('recurring_bill_id', $this->recurring_bill_id)->first();
             $palletReturn = PalletReturn::where('recurring_bill_id', $this->recurring_bill_id)->first();
 
             if ($palletDelivery) {
-                $desc_b = $palletDelivery;
-                $desc_a = __('Pallet Delivery');
+                $desc_title = $palletDelivery->reference;
+                $desc_model = __('Pallet Delivery');
+                $desc_route = [
+                    'name' => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show',
+                    'parameters'    => [
+                        'organisation'         => $request->route()->originalParameters()['organisation'],
+                        'fulfilment'           => $request->route()->originalParameters()['fulfilment'],
+                        'fulfilmentCustomer'   => $request->route()->originalParameters()['fulfilmentCustomer'],
+                        'palletDelivery'       => $palletDelivery->slug
+                    ]
+                ];
             } elseif ($palletReturn) {
-                $desc_b = $palletReturn;
-                $desc_a = __('Pallet Return');
+                $desc_title = $palletReturn->reference;
+                $desc_model = __('Pallet Return');
+                $desc_route = [
+                    'name' => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show',
+                    'parameters'    => [
+                        'organisation'         => $request->route()->originalParameters()['organisation'],
+                        'fulfilment'           => $request->route()->originalParameters()['fulfilment'],
+                        'fulfilmentCustomer'   => $request->route()->originalParameters()['fulfilmentCustomer'],
+                        'palletReturn'       => $palletReturn->slug
+                    ]
+                ];
             }
         }
 
         if ($this->start_date) {
-            $desc_c .= Carbon::parse($this->start_date)->format('d M Y') . '-';
+            $desc_after_title .= Carbon::parse($this->start_date)->format('d M Y') . '-';
         }
         if ($this->end_date) {
-            $desc_c .= Carbon::parse($this->end_date)->format('d M Y') . ')';
+            $desc_after_title .= Carbon::parse($this->end_date)->format('d M Y');
         } else {
-            $desc_c .= __('ongoing');
+            $desc_after_title .= __('ongoing');
         }
 
         $unitAbbreviation = Abbreviate::run($this->asset_unit);
@@ -94,9 +123,10 @@ class RecurringBillTransactionsResource extends JsonResource
             'discount'           => (int) $this->discount,
             // 'description'        => $description,
             'description'         => [
-                'a' => $desc_a,
-                'b' => $desc_b,
-                'c' => $desc_c,
+                'model' => $desc_model,
+                'title' => $desc_title,
+                'route' => $desc_route,
+                'after_title' => $desc_after_title,
             ]
 
         ];
