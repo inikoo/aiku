@@ -36,7 +36,7 @@ trait WithGetRecurringBillEndDate
 
             if ($daysUntilEndOfMonth < 7) {
                 return Carbon::now()->addDays(7)->endOfMonth()->startOfDay();
-            }else{
+            } else {
                 return Carbon::now()->endOfMonth()->startOfDay();
             }
 

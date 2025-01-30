@@ -45,7 +45,7 @@ import { notify } from '@kyvg/vue3-notification'
 import PureMultiselectInfiniteScroll from '@/Components/Pure/PureMultiselectInfiniteScroll.vue'
 import ModalConfirmationDelete from '@/Components/Utils/ModalConfirmationDelete.vue'
 import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue";
-
+import UploadAttachment from '@/Components/Upload/UploadAttachment.vue'
 
 library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faPaperclip, faEnvelope, faPhone,faExclamationTriangle, faConciergeBell, faCube, faCalendarDay, faPencil, faUndoAlt)
 
@@ -58,6 +58,10 @@ const props = defineProps<{
     services?: TableTS
     physical_goods?: TableTS
     attachments?: TableTS
+    attachmentRoutes: {
+        attachRoute: routeType
+        detachRoute: routeType
+    }
     data?: {
         data: PalletDelivery
     }
@@ -287,6 +291,9 @@ const changePalletType=(form,fieldName,value)=>{
 
 // console.log(currentTab.value)
 
+
+const isModalUploadFileOpen = ref(false)
+
 </script>
 
 <template>
@@ -307,7 +314,7 @@ const changePalletType=(form,fieldName,value)=>{
             />
             <div v-else></div>
         </template>
-
+        
         <!-- Button: delete Delivery -->
         <template #button-delete-delivery="{ action }">
             <div>
@@ -519,7 +526,7 @@ const changePalletType=(form,fieldName,value)=>{
                                     full
                                 />
                             </div>
-
+                            
                             <!-- Loading: fetching service list -->
                             <div v-if="isLoadingData === 'addService'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
                                 <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin text-5xl' fixed-width aria-hidden='true' />
@@ -612,7 +619,17 @@ const changePalletType=(form,fieldName,value)=>{
                     </template>
                 </Popover>
             </div>
-
+           
+        </template>
+        
+        <template #other>
+            <Button
+                v-if="currentTab === 'attachments'"
+                @click="() => isModalUploadFileOpen = true"
+                :label="trans('Attach file')"
+                icon="fal fa-upload"
+                type="secondary"
+            />
         </template>
     </PageHeading>
 
@@ -633,7 +650,7 @@ const changePalletType=(form,fieldName,value)=>{
                 <div class="flex-shrink-0">
                     <font-awesome-icon :icon="['fad', 'exclamation-triangle']" class="text-lg"
                         aria-hidden="true"
-
+                        
                     />
                 </div>
                 <div class="ml-3">
@@ -680,6 +697,7 @@ const changePalletType=(form,fieldName,value)=>{
             :storedItemsRoute="storedItemsRoute"
             :rentalRoute="rentalRoute"
             :rentalList="props.rental_lists"
+            :detachRoute="attachmentRoutes.detachRoute"
         />
     </div>
 
@@ -693,6 +711,17 @@ const changePalletType=(form,fieldName,value)=>{
         progressDescription="Adding Pallet Deliveries"
         :upload_spreadsheet
         :additionalDataToSend="interest.pallets_storage ? ['stored_items'] : undefined"
+    />
+
+    <UploadAttachment
+        v-model="isModalUploadFileOpen"
+        scope="attachment"
+        :title="{
+            label: 'Upload your file',
+            information: 'The list of column file: customer_reference, notes, stored_items'
+        }"
+        progressDescription="Adding Pallet Deliveries"
+        :attachmentRoutes
     />
 
     <!--     <pre>{{ props.services.data?.[0]?.reference }}</pre>

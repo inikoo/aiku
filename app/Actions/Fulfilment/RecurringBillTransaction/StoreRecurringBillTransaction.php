@@ -108,9 +108,12 @@ class StoreRecurringBillTransaction extends OrgAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
+        $date = now();
         if (!$this->has('start_date')) {
-            $date = now();
             $this->set('start_date', $date);
+        }
+        if (!$this->has('end_date')) {
+            $this->set('end_date', $date);
         }
     }
 

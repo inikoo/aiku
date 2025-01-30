@@ -713,8 +713,8 @@ class ShowPalletDelivery extends OrgAction
                     : Inertia::lazy(fn () => FulfilmentTransactionsResource::collection(IndexPhysicalGoodInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PHYSICAL_GOODS->value))),
 
                 PalletDeliveryTabsEnum::ATTACHMENTS->value => $this->tab == PalletDeliveryTabsEnum::ATTACHMENTS->value ?
-                    fn () => AttachmentsResource::collection(IndexAttachments::run($palletDelivery))
-                    : Inertia::lazy(fn () => AttachmentsResource::collection(IndexAttachments::run($palletDelivery))),
+                    fn () => AttachmentsResource::collection(IndexAttachments::run($palletDelivery, PalletDeliveryTabsEnum::ATTACHMENTS->value))
+                    : Inertia::lazy(fn () => AttachmentsResource::collection(IndexAttachments::run($palletDelivery, PalletDeliveryTabsEnum::ATTACHMENTS->value))),
 
             ]
         )->table(
@@ -732,7 +732,7 @@ class ShowPalletDelivery extends OrgAction
                 $palletDelivery,
                 prefix: PalletDeliveryTabsEnum::PHYSICAL_GOODS->value
             )
-        );
+        )->table(IndexAttachments::make()->tableStructure(PalletDeliveryTabsEnum::ATTACHMENTS->value));
     }
 
     public function jsonResponse(PalletDelivery $palletDelivery): PalletDeliveryResource
