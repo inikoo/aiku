@@ -12,6 +12,7 @@ use App\Enums\EnumHelperTrait;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\RecurringBill;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -131,7 +132,7 @@ enum PalletReturnStateEnum: string
         ];
     }
 
-    public static function count(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery $parent, $forElements = false): array
+    public static function count(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery|RecurringBill $parent, $forElements = false): array
     {
         if ($parent instanceof FulfilmentCustomer) {
             $stats = $parent;

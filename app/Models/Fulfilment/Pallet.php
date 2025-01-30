@@ -277,7 +277,6 @@ class Pallet extends Model implements Auditable
         return $this->belongsTo(RecurringBill::class, 'current_recurring_bill_id');
     }
 
-
     public function rentalAgreementClause(): BelongsTo
     {
         return $this->belongsTo(RentalAgreementClause::class);

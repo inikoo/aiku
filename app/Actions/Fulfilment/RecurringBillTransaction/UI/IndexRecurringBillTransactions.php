@@ -45,6 +45,7 @@ class IndexRecurringBillTransactions extends OrgAction
             ->defaultSort('recurring_bill_transactions.id')
             ->select([
                 'recurring_bill_transactions.id',
+                'recurring_bill_transactions.recurring_bill_id',
                 'recurring_bill_transactions.asset_id',
                 'recurring_bill_transactions.net_amount',
                 'recurring_bill_transactions.gross_amount',

@@ -10,6 +10,8 @@ namespace App\Http\Resources\Fulfilment;
 
 use App\Actions\Utils\Abbreviate;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\PalletReturn;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Carbon;
 
@@ -48,17 +50,26 @@ class RecurringBillTransactionsResource extends JsonResource
 
             $desc_a = __('Storage');
 
-            if ($this->start_date) {
-                $desc_c .= Carbon::parse($this->start_date)->format('d M Y') . '-';
-            }
-            
-            if ($this->end_date) {
-                $desc_c .= Carbon::parse($this->end_date)->format('d M Y') . ')';
-            } else {
-                $desc_c .= __('ongoing');
-            }
+        } else {
+            $palletDelivery = PalletDelivery::where('recurring_bill_id', $this->recurring_bill_id)->first();
+            $palletReturn = PalletReturn::where('recurring_bill_id', $this->recurring_bill_id)->first();
 
+            if ($palletDelivery) {
+                $desc_b = $palletDelivery;
+                $desc_a = __('Pallet Delivery');
+            } elseif ($palletReturn) {
+                $desc_b = $palletReturn;
+                $desc_a = __('Pallet Return');
+            }
+        }
 
+        if ($this->start_date) {
+            $desc_c .= Carbon::parse($this->start_date)->format('d M Y') . '-';
+        }
+        if ($this->end_date) {
+            $desc_c .= Carbon::parse($this->end_date)->format('d M Y') . ')';
+        } else {
+            $desc_c .= __('ongoing');
         }
 
         $unitAbbreviation = Abbreviate::run($this->asset_unit);

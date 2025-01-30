@@ -27,6 +27,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\RecurringBill;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -47,7 +48,7 @@ class IndexPalletDeliveries extends OrgAction
     use WithFulfilmentCustomerSubNavigation;
 
 
-    private Fulfilment|Warehouse|FulfilmentCustomer|Group $parent;
+    private Fulfilment|Warehouse|FulfilmentCustomer|Group|RecurringBill $parent;
 
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
@@ -87,7 +88,7 @@ class IndexPalletDeliveries extends OrgAction
         return $this->handle($group);
     }
 
-    protected function getElementGroups(Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn|Group $parent): array
+    protected function getElementGroups(Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn|Group|RecurringBill $parent): array
     {
         return [
             'state' => [
@@ -106,7 +107,7 @@ class IndexPalletDeliveries extends OrgAction
         ];
     }
 
-    public function handle(Fulfilment|Warehouse|FulfilmentCustomer|Group $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Fulfilment|Warehouse|FulfilmentCustomer|Group|RecurringBill $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -130,6 +131,8 @@ class IndexPalletDeliveries extends OrgAction
             $queryBuilder->whereNotIn('pallet_deliveries.state', [PalletDeliveryStateEnum::IN_PROCESS, PalletDeliveryStateEnum::SUBMITTED]);
         } elseif ($parent instanceof Group) {
             $queryBuilder->where('pallet_deliveries.group_id', $parent->id);
+        } elseif ($parent instanceof RecurringBill) {
+            $queryBuilder->where('pallet_deliveries.recurring_bill_id', $parent->id);
         } else {
             $queryBuilder->where('pallet_deliveries.fulfilment_customer_id', $parent->id);
         }
@@ -153,13 +156,16 @@ class IndexPalletDeliveries extends OrgAction
             'fulfilments.slug as fulfilment_slug',
         );
 
-        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
+
+        if(!$parent instanceof RecurringBill) {
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $queryBuilder->whereElementGroup(
+                    key: $key,
+                    allowedElements: array_keys($elementGroup['elements']),
+                    engine: $elementGroup['engine'],
+                    prefix: $prefix
+                );
+            }   
         }
 
         if ($parent instanceof Fulfilment || $parent instanceof Warehouse) {
@@ -176,7 +182,7 @@ class IndexPalletDeliveries extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Fulfilment|Warehouse|FulfilmentCustomer|Group $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Fulfilment|Warehouse|FulfilmentCustomer|Group|RecurringBill $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
@@ -206,6 +212,11 @@ class IndexPalletDeliveries extends OrgAction
                             'description' => __('This warehouse has not received any pallet deliveries yet'),
                             'count'       => $parent->stats->number_pallet_deliveries
                         ],
+                        'RecurringBill' => [
+                            'title'       => __('No pallet deliveries found for this recurring bill'),
+                            'description' => __('This recurring bill has no any pallet deliveries yet'),
+                            'count'       => $parent->stats->number_pallet_deliveries
+                        ],
                         'FulfilmentCustomer' => [
                             'title'       => __($hasRentalAgreementActive ?
                                 __('We did not find any deliveries for this customer')
@@ -232,12 +243,14 @@ class IndexPalletDeliveries extends OrgAction
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
 
-            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-                $table->elementGroup(
-                    key: $key,
-                    label: $elementGroup['label'],
-                    elements: $elementGroup['elements']
-                );
+            if(!$parent instanceof RecurringBill) {
+                foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                    $table->elementGroup(
+                        key: $key,
+                        label: $elementGroup['label'],
+                        elements: $elementGroup['elements']
+                    );
+                }            
             }
 
             if ($parent instanceof Fulfilment) {
