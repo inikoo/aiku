@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\RecurringBill\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\RecurringBillTransaction\UI\IndexRecurringBillTransactions;
 use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\Helpers\History\UI\IndexHistory;
@@ -17,6 +18,7 @@ use App\Actions\OrgAction;
 use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
 use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
+use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\Http\Resources\Fulfilment\RecurringBillResource;
 use App\Http\Resources\Fulfilment\RecurringBillTransactionsResource;
 use App\Http\Resources\Helpers\CurrencyResource;
@@ -271,6 +273,10 @@ class ShowRecurringBill extends OrgAction
                     fn () => RecurringBillTransactionsResource::collection(IndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))
                     : Inertia::lazy(fn () => RecurringBillTransactionsResource::collection(IndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))),
 
+                RecurringBillTabsEnum::PALLET_DELIVERIES->value => $this->tab == RecurringBillTabsEnum::PALLET_DELIVERIES->value ?
+                    fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($recurringBill, RecurringBillTabsEnum::PALLET_DELIVERIES->value))
+                    : Inertia::lazy(fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($recurringBill, RecurringBillTabsEnum::PALLET_DELIVERIES->value))),
+
                 RecurringBillTabsEnum::HISTORY->value => $this->tab == RecurringBillTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($recurringBill))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($recurringBill)))
@@ -279,6 +285,11 @@ class ShowRecurringBill extends OrgAction
             IndexRecurringBillTransactions::make()->tableStructure(
                 $recurringBill,
                 prefix: RecurringBillTabsEnum::TRANSACTIONS->value
+            )
+        )->table(
+            IndexPalletDeliveries::make()->tableStructure(
+                $recurringBill,
+                prefix: RecurringBillTabsEnum::PALLET_DELIVERIES->value
             )
         )
             ->table(IndexHistory::make()->tableStructure(prefix: RecurringBillTabsEnum::HISTORY->value));

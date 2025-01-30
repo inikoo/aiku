@@ -35,6 +35,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faWaveSine } from '@far'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { trans } from 'laravel-vue-i18n'
+import TablePalletDeliveries from '@/Components/Tables/Grp/Org/Fulfilment/TablePalletDeliveries.vue'
 library.add(faWaveSine)
 
 
@@ -45,6 +46,7 @@ const props = defineProps<{
     // showcase: {}
     // pallets: {}
     transactions: {}
+    pallet_deliveries: {}
     status_rb: string
     updateRoute: routeType
     timeline_rb: {
@@ -72,6 +74,7 @@ const component = computed(() => {
     const components: Component = {
         transactions: RecurringBillTransactions,
         history: TableHistories,
+        pallet_deliveries: TablePalletDeliveries
         // pallets: TablePallets
     }
 
