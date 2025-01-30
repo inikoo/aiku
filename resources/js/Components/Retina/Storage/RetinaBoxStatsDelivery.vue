@@ -3,7 +3,7 @@ import { trans } from "laravel-vue-i18n"
 import BoxStatPallet from "@/Components/Pallet/BoxStatPallet.vue"
 import DatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
-import { useFormatTime, useDaysLeftFromToday } from '@/Composables/useFormatTime'
+import { useFormatTime, retinaUseDaysLeftFromToday } from '@/Composables/useFormatTime'
 import { notify } from '@kyvg/vue3-notification'
 import { router } from '@inertiajs/vue3'
 
@@ -96,7 +96,7 @@ const disableBeforeToday = (date: Date) => {
                 <Popover v-if="data_pallet.state === 'in_process'" position="">
                     <template #button>
                         <div v-if="data_pallet.estimated_delivery_date"
-                            v-tooltip="useDaysLeftFromToday(data_pallet.estimated_delivery_date)"
+                            v-tooltip="retinaUseDaysLeftFromToday(data_pallet.estimated_delivery_date)"
                             class="group text-sm text-gray-500">
                             {{ useFormatTime(data_pallet.estimated_delivery_date) }}
                             <FontAwesomeIcon icon='fal fa-pencil' size="sm"
@@ -104,7 +104,7 @@ const disableBeforeToday = (date: Date) => {
                         </div>
 
                         <div v-else class="text-sm text-gray-500 hover:text-gray-600 underline">
-                            {{ trans('Set estimated date') }}
+                            {{ trans('Set estimated delivery') }}
                         </div>
                     </template>
 

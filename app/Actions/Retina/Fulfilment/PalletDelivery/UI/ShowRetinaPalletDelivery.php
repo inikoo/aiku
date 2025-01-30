@@ -220,16 +220,14 @@ class ShowRetinaPalletDelivery extends RetinaAction
                     'next'     => $this->getNext($palletDelivery, $request),
                 ],
                 'pageHead'    => [
-                    'title' => $palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS
+                    'model' => $palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS
                         ? __('New pallet delivery')
                         : __('Pallet delivery'),
                     'icon'  => [
                         'icon'  => ['fal', 'fa-truck'],
                         'title' => $palletDelivery->reference
                     ],
-                    'afterTitle'   => [
-                        'label'     => $palletDelivery->reference,
-                    ],
+                    'title'   => $palletDelivery->reference,
 
                     'actions' => $actions,
 

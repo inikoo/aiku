@@ -65,6 +65,7 @@ const props = defineProps<{
     }
     box_stats: BoxStats
     notes_data: PDRNotes[]
+    public_notes: any
     pallet_limits?: {
         status: string
         message: string
@@ -625,6 +626,11 @@ const typePallet = [
                 :loading="isLoading === 'submitPallet'" />
         </template>
     </PageHeading>
+
+    <!-- Box: Public Notes -->
+    <div v-if="public_notes" class="bg-pink-500 text-white font-bold p-4 rounded flex justify-between items-center">
+        <span class="flex-grow">{{ public_notes || 'public Notes'}}</span>
+    </div>
 
     <!-- Section: Pallet Warning -->
     <div v-if="pallet_limits?.status">
