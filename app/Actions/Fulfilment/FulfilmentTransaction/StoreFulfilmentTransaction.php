@@ -52,10 +52,8 @@ class StoreFulfilmentTransaction extends OrgAction
         /** @var FulfilmentTransaction $fulfilmentTransaction */
         $fulfilmentTransaction = $parent->transactions()->create($modelData);
 
-        if($parent instanceof PalletDelivery && $parent->state == PalletDeliveryStateEnum::BOOKED_IN)
-        {
-            if($parent->recurringBill && $parent->recurringBill->status == RecurringBillStatusEnum::CURRENT)
-            {
+        if ($parent instanceof PalletDelivery && $parent->state == PalletDeliveryStateEnum::BOOKED_IN) {
+            if ($parent->recurringBill && $parent->recurringBill->status == RecurringBillStatusEnum::CURRENT) {
                 StoreRecurringBillTransaction::make()->action($parent->recurringBill, $fulfilmentTransaction, [
                     'start_date' => now(),
                     'end_date'   => now(),

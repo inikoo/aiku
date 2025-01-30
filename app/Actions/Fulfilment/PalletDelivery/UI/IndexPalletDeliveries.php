@@ -48,7 +48,7 @@ class IndexPalletDeliveries extends OrgAction
     use WithFulfilmentCustomerSubNavigation;
 
 
-    private Fulfilment|Warehouse|FulfilmentCustomer|Group $parent;
+    private Fulfilment|Warehouse|FulfilmentCustomer|Group|RecurringBill $parent;
 
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
@@ -213,9 +213,9 @@ class IndexPalletDeliveries extends OrgAction
                             'count'       => $parent->stats->number_pallet_deliveries
                         ],
                         'RecurringBill' => [
-                            'title'       => __('No pallet deliveries found for this bill'),
-                            'description' => __('This bill has not associated with any pallet deliveries yet'),
-                            'count'       => $parent->palletDeliveries->count()
+                            'title'       => __('No pallet deliveries found for this recurring bill'),
+                            'description' => __('This recurring bill has no any pallet deliveries yet'),
+                            'count'       => $parent->stats->number_pallet_deliveries
                         ],
                         'FulfilmentCustomer' => [
                             'title'       => __($hasRentalAgreementActive ?
