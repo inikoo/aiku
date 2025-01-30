@@ -20,38 +20,11 @@ class GetGuestShowcase
 {
     use AsObject;
 
+
     public function handle(Guest $guest)
     {
         // dd($guest);
         $user = $guest->getUser();
-
-        $jobPositionsOrganisationsData = [];
-        foreach ($guest->group->organisations as $organisation) {
-            $jobPositionsOrganisationData                       = GetUserOrganisationScopeJobPositionsData::run($user, $organisation);
-            $jobPositionsOrganisationsData[$organisation->slug] = $jobPositionsOrganisationData;
-        }
-
-
-
-        $organisations = $user->group->organisations;
-        $orgIds = $user->getOrganisations()->pluck('id')->toArray();
-
-        $reviewData    = $organisations->mapWithKeys(function ($organisation) use ($user, $orgIds) {
-            return [
-                $organisation->slug => [
-                    'is_employee' => in_array($organisation->id, $orgIds),
-                    'number_job_positions' => $organisation->humanResourcesStats->number_job_positions,
-                    'job_positions'        => $organisation->jobPositions->mapWithKeys(function ($jobPosition) {
-                        return [
-                            $jobPosition->slug => [
-                                'job_position' => $jobPosition->name,
-                                'number_roles' => $jobPosition->stats->number_roles
-                            ]
-                        ];
-                    })
-                ]
-            ];
-        })->toArray();
 
         return [
             'data' => [
@@ -61,9 +34,13 @@ class GetGuestShowcase
             'email'                   => $guest->email,
             'about'                   => $guest->about,
             'contact_name'            => $guest->contact_name,
-
-            'authorizedOrganisations' => $jobPositionsOrganisationsData,
-            'reviewData'              => $reviewData,
+            'authorizedOrganisations' => $user->authorisedOrganisations->map(function ($organisation) {
+                return [
+                    'slug' => $organisation->slug,
+                    'name' => $organisation->name,
+                    'type' => $organisation->type,
+                ];
+            }),
             // 'permissions'             => $guest->getAllPermissions()->pluck('name')->toArray(),
             'last_active_at'          => $guest->stats->last_active_at,
             'last_login'              => [
