@@ -51,7 +51,7 @@ class RecurringBillTransactionsResource extends JsonResource
             if ($this->start_date) {
                 $desc_c .= Carbon::parse($this->start_date)->format('d M Y') . '-';
             }
-            
+
             if ($this->end_date) {
                 $desc_c .= Carbon::parse($this->end_date)->format('d M Y') . ')';
             } else {

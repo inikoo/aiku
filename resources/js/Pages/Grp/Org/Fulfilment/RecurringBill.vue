@@ -35,6 +35,8 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faWaveSine } from '@far'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { trans } from 'laravel-vue-i18n'
+import TablePalletDeliveries from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletDeliveries.vue"
+import TablePalletReturns from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturns.vue"
 library.add(faWaveSine)
 
 
@@ -45,6 +47,8 @@ const props = defineProps<{
     // showcase: {}
     // pallets: {}
     transactions: {}
+    pallet_deliveries: {}
+    pallet_returns: {}
     status_rb: string
     updateRoute: routeType
     timeline_rb: {
@@ -72,6 +76,8 @@ const component = computed(() => {
     const components: Component = {
         transactions: RecurringBillTransactions,
         history: TableHistories,
+        pallet_deliveries: TablePalletDeliveries,
+        pallet_returns: TablePalletReturns,
         // pallets: TablePallets
     }
 
@@ -217,7 +223,7 @@ const isLoading = ref(false)
                                     full
                                 />
                             </div>
-                            
+
                             <div v-if="isLoadingData === 'addService'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
                                 <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin text-5xl' fixed-width aria-hidden='true' />
                             </div>
@@ -314,7 +320,7 @@ const isLoading = ref(false)
                         </div>
                     </div>
                 </div>
-                
+
                 <component
                     v-if="compareAsc(new Date(timeline_rb.end_date), new Date()) === 1 && status_rb === 'current'" class=""
                     :is="consolidateRoute?.name ? Link : 'div'"
@@ -326,7 +332,7 @@ const isLoading = ref(false)
                     <Button label="Consolidate now" :loading="isLoading" />
                 </component>
             </div>
-            
+
             <div class="sm:pl-6 pr-0">
                 <StartEndDate
                     :startDate="timeline_rb.start_date"
@@ -337,7 +343,7 @@ const isLoading = ref(false)
             </div>
 
         </div>
-        
+
     </div>
 
     <BoxStatsRecurringBills :boxStats="box_stats" :currency="currency" />
