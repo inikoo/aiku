@@ -191,7 +191,7 @@ console.log(props.data)
 		<!-- Column: Action -->
 		<template #cell(actions)="{ item }">
 			<Button
-				v-if="!item.is_auto_assign && state === 'in_process'"
+				v-if="canDelete(item)"
 				@click="() => onDeleteTransaction(item.id)"
 				:loading="isLoading === 'buttonReset' + item.id"
 				icon="fal fa-trash-alt"
