@@ -126,7 +126,7 @@ onBeforeMount(() => {
 const onSavedAgreement = (updateAll: boolean) => {
     props.form.transform((data) => ({
         ...data,
-        update_all: updateAll,
+       /*  update_all: updateAll, */
     }))
     .post(route(props.updateRoute.name, props.updateRoute.parameters), { preserveScroll: true })
 }
