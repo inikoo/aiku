@@ -23,10 +23,11 @@ import RightSideBar from "@/Layouts/Grp/RightSideBar.vue"
 // import StackedComponents from "@/Layouts/Grp/StackedComponents.vue"
 import Breadcrumbs from "@/Components/Navigation/Breadcrumbs.vue"
 import Notification from '@/Components/Utils/Notification.vue'
+import { faParking } from '@fal' // Pallet
 import { faTachometerAltFast, faGlobe } from '@fal'
 import { faSearch, faBell } from '@far'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faSearch, faBell, faTachometerAltFast, faGlobe)
+library.add(faSearch, faBell, faTachometerAltFast, faGlobe, faParking)
 
 provide('layout', useLayoutStore())
 provide('locale', useLocaleStore())

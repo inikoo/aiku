@@ -12,6 +12,7 @@ use App\Actions\Utils\Abbreviate;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\Space;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Carbon;
 
@@ -47,7 +48,7 @@ class RecurringBillTransactionsResource extends JsonResource
         $desc_title = '';
         $desc_after_title = '';
         $desc_route = null;
-
+        // dump($this);
         if ($this->item_type == 'Pallet') {
             $pallet = Pallet::find($this->item_id);
             $desc_title = $pallet->reference;
@@ -63,31 +64,24 @@ class RecurringBillTransactionsResource extends JsonResource
                 ]
             ];
 
-        } else {
-            $palletDelivery = null;
-            if ($this->pallet_delivery_id) {
+        } else if ($this->pallet_delivery_id) {
                 $palletDelivery = PalletDelivery::find($this->pallet_delivery_id);
-            }
+                if ($palletDelivery) {
+                    $desc_title = $palletDelivery->reference;
+                    $desc_model = __('Pallet Delivery');
+                    $desc_route = [
+                        'name' => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show',
+                        'parameters'    => [
+                            'organisation'         => $request->route()->originalParameters()['organisation'],
+                            'fulfilment'           => $request->route()->originalParameters()['fulfilment'],
+                            'fulfilmentCustomer'   => $palletDelivery->fulfilmentCustomer->slug,
+                            'palletDelivery'       => $palletDelivery->slug
+                        ]
+                    ];
+                }
 
-
-
-            if ($palletDelivery) {
-                $desc_title = $palletDelivery->reference;
-                $desc_model = __('Pallet Delivery');
-                $desc_route = [
-                    'name' => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show',
-                    'parameters'    => [
-                        'organisation'         => $request->route()->originalParameters()['organisation'],
-                        'fulfilment'           => $request->route()->originalParameters()['fulfilment'],
-                        'fulfilmentCustomer'   => $palletDelivery->fulfilmentCustomer->slug,
-                        'palletDelivery'       => $palletDelivery->slug
-                    ]
-                ];
-            }
-            $palletReturn = null;
-            if ($this->pallet_return_id) {
-                $palletReturn = PalletReturn::find($this->pallet_return_id);
-            }
+        } else if ($this->pallet_return_id) {
+            $palletReturn = PalletReturn::find($this->pallet_return_id);
             if ($palletReturn) {
                 $desc_title = $palletReturn->reference;
                 $desc_model = __('Pallet Return');
@@ -101,7 +95,22 @@ class RecurringBillTransactionsResource extends JsonResource
                     ]
                 ];
             }
-        }
+        } else if ($this->item_type === 'Space') {
+            $space = Space::find($this->item_id);
+            if($space) {
+                $desc_model = __('Space (parking)');
+                $desc_title = $space->reference;
+                $desc_route = [
+                    'name' => 'grp.org.fulfilments.show.crm.customers.show.spaces.show',
+                    'parameters'    => [
+                        'organisation'          => $request->route()->originalParameters()['organisation'],
+                        'fulfilment'            => $request->route()->originalParameters()['fulfilment'],
+                        'fulfilmentCustomer'    => $space->fulfilmentCustomer->slug,
+                        'space'                 => $space->slug
+                    ]
+                ];
+            }
+        };
 
         if ($this->start_date) {
             $desc_after_title .= Carbon::parse($this->start_date)->format('d M Y') . '-';

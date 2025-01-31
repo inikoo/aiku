@@ -26,6 +26,7 @@ use App\Actions\Fulfilment\Pallet\UI\EditPallet;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInStoredItem;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
+use App\Actions\Fulfilment\PalletDelivery\UI\EditPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\ExportPalletReturnPallet;
@@ -38,6 +39,7 @@ use App\Actions\Fulfilment\RecurringBill\UI\ShowRecurringBill;
 use App\Actions\Fulfilment\RentalAgreement\UI\CreateRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UI\EditRentalAgreement;
 use App\Actions\Fulfilment\Space\UI\CreateSpace;
+use App\Actions\Fulfilment\Space\UI\EditSpace;
 use App\Actions\Fulfilment\Space\UI\IndexSpaces;
 use App\Actions\Fulfilment\Space\UI\ShowSpace;
 use App\Actions\Fulfilment\StoredItem\UI\EditStoredItem;
@@ -91,6 +93,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     Route::prefix('pallet-deliveries')->as('.pallet_deliveries.')->group(function () {
         Route::get('', [IndexPalletDeliveries::class, 'inFulfilmentCustomer'])->name('index');
         Route::get('{palletDelivery}', [ShowPalletDelivery::class, 'inFulfilmentCustomer'])->name('show');
+        Route::get('{palletDelivery}/edit', [EditPalletDelivery::class, 'inFulfilmentCustomer'])->name('edit');
         Route::get('{palletDelivery}/pallets/{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('pallets.show');
 
         Route::get('{palletDelivery}/pallets-histories', [IndexRecentUploads::class, 'inPalletDelivery'])->name('pallets.uploads.history');
@@ -117,6 +120,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
         Route::get('', [IndexSpaces::class, 'inFulfilmentCustomer'])->name('index');
         Route::get('create', CreateSpace::class)->name('create');
         Route::get('{space}', [ShowSpace::class, 'inFulfilmentCustomer'])->name('show');
+        Route::get('{space}/edit', EditSpace::class)->name('edit');
     });
 
     Route::prefix('invoices')->as('.invoices.')->group(function () {

@@ -16,6 +16,7 @@ use App\Actions\Fulfilment\Pallet\UI\IndexLostPallets;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Fulfilment\Pallet\UI\IndexReturnedPallets;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
+use App\Actions\Fulfilment\PalletDelivery\UI\EditPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
@@ -62,6 +63,7 @@ Route::get('/pallets/{pallet}/edit', [EditPallet::class, 'inFulfilment'])->name(
 
 Route::get('deliveries', IndexPalletDeliveries::class)->name('pallet-deliveries.index');
 Route::get('deliveries/{palletDelivery}', ShowPalletDelivery::class)->name('pallet-deliveries.show');
+Route::get('deliveries/{palletDelivery}/edit', EditPalletDelivery::class)->name('pallet-deliveries.edit');
 
 Route::get('returns', IndexPalletReturns::class)->name('pallet-returns.index');
 Route::get('returns/{palletReturn}', ShowPalletReturn::class)->name('pallet-returns.show');
