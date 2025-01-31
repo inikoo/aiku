@@ -4,6 +4,7 @@ import Popover from '@/Components/Popover.vue'
 import { router } from '@inertiajs/vue3'
 import DatePicker from '@vuepic/vue-datepicker'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
+import { formatInTimeZone } from 'date-fns-tz'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faArrowRight } from '@far'
@@ -12,9 +13,10 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { notify } from '@kyvg/vue3-notification'
 import { routeType } from '@/types/route'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { trans } from 'laravel-vue-i18n'
 library.add(faArrowRight, faExclamationTriangle, faPencil)
+
     
 const props = defineProps<{
     startDate: string
@@ -54,6 +56,12 @@ const onChangeEstimateDate = async (newDate: Date, close: Function) => {
         onFinish: () => isLoadingSetEstimatedDate.value = false,
     })
 }
+
+
+// Date: to UTC instead follow local machine
+const formattedEndDate = computed(() => {
+    return formatInTimeZone(new Date(props.endDate), 'UTC', 'MMMM do, yyyy');
+})
 </script>
 
 <template>
@@ -80,15 +88,14 @@ const onChangeEstimateDate = async (newDate: Date, close: Function) => {
             </div>
             <div class="font-medium">
                 <div v-if="isEndDateNotEditable">
-                    <div>{{ useFormatTime(endDate)}}</div>
-                    {{ endDate }}
+                    <div>{{ formattedEndDate }}</div>
                 </div>
                 
                 <Popover v-else position="right-0">
                     <template #button>
                         <div class="flex flex-nowrap text-left items-center gap-x-1">
                             <Transition name="spin-to-down">
-                                <div :key="endDate">{{ useFormatTime(endDate)}}</div>
+                                <div :key="formattedEndDate">{{ formattedEndDate }}</div>
                             </Transition>
                             <div class="px-1 flex items-center py-1 hover:text-gray-700">
                                 <FontAwesomeIcon icon='fal fa-pencil' class='text-xs' fixed-width aria-hidden='true' />
