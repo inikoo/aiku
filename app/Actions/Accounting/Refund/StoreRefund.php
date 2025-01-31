@@ -28,9 +28,8 @@ class StoreRefund extends OrgAction
     public function handle(Invoice $invoice, array $modelData): Invoice
     {
 
-
-
-        $reference = $invoice->reference . '-refund-' . rand(000, 999);
+        $count = $invoice->refunds->count() + 1;
+        $reference = $invoice->reference . '-refund-' . $count;
 
         data_set($modelData, 'reference', $reference);
         data_set($modelData, 'type', InvoiceTypeEnum::REFUND);

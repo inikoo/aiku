@@ -20,6 +20,8 @@ const props = defineProps<{
 	tab?: string
 }>()
 
+const locale = useLocaleStore();
+
 function spaceRoute(space) {
 	console.log(space)
 	switch (route().current()) {
@@ -39,6 +41,7 @@ function spaceRoute(space) {
 
 <template>
 	<Table :resource="data" :name="tab" class="mt-5">
+	
 		<template #cell(reference)="{ item: space }">
 			<Link :href="spaceRoute(space)" class="primaryLink">
 				{{ space["reference"] }}
@@ -52,5 +55,16 @@ function spaceRoute(space) {
 		<template #cell(end_at)="{ item: space }">
 			{{ useFormatTime(space["end_at"]) }}
 		</template>
+		<template #cell(rental)="{ item: space }">
+			<span v-tooltip="space.rental_name">
+				{{ space["rental"] }}
+			</span>
+		</template>
+		<!-- <template #cell(start_at)="{ item: space }">
+			{{ useFormatTime( space["start_at"], { localeCode: locale.language.code, formatTime: "aiku" }) }}
+		</template>
+		<template #cell(end_at)="{ item: space }">
+			{{ useFormatTime( space["end_at"], { localeCode: locale.language.code, formatTime: "aiku" }) }}
+		</template> -->
 	</Table>
 </template>

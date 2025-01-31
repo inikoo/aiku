@@ -80,6 +80,7 @@ class UpdatePalletDelivery extends OrgAction
             'customer_reference'        => ['sometimes', 'nullable', 'string', Rule::unique('pallet_deliveries', 'customer_reference')
                 ->ignore($this->palletDelivery->id)],
             'customer_notes'            => ['sometimes', 'nullable', 'string', 'max:4000'],
+            'received_at' => ['sometimes', 'date', 'gte:confirmed_at'],
             'estimated_delivery_date'   => ['sometimes', 'date'],
             'current_recurring_bill_id' => [
                 'sometimes',
