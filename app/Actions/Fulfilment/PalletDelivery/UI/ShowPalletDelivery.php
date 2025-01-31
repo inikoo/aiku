@@ -319,6 +319,19 @@ class ShowPalletDelivery extends OrgAction
                 ],
                 PalletDeliveryStateEnum::RECEIVED => [
                     [
+                        'type'    => 'button',
+                        'style'   => 'edit',
+                        'tooltip' => __('Edit'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'get',
+                            'name'       => 'grp.models.pallet-delivery.confirm',
+                            'parameters' => [
+                                'palletDelivery' => $palletDelivery->slug
+                            ]
+                        ]
+                    ],
+                    [
                         'type'   => 'buttonGroup',
                         'key'    => 'upload-add',
                         'button' => [
@@ -477,7 +490,7 @@ class ShowPalletDelivery extends OrgAction
                 PalletDeliveryStateEnum::IN_PROCESS,
                 PalletDeliveryStateEnum::SUBMITTED
             ])) {
-                $actions = array_merge([$pdfButton], $actions);
+                $actions = array_merge( $actions, [$pdfButton]);
             } else {
                 $actions = array_merge([[
                     'type'    => 'button',
