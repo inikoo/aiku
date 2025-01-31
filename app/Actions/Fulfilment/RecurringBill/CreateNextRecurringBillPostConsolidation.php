@@ -32,7 +32,7 @@ class CreateNextRecurringBillPostConsolidation extends OrgAction
      */
     public function handle(RecurringBill $previousRecurringBill): ?RecurringBill
     {
-        $newRecurringBill = null;
+        $newRecurringBill   = null;
         $fulfilmentCustomer = $previousRecurringBill->fulfilmentCustomer;
 
         if (!$fulfilmentCustomer->current_recurring_bill_id) {
@@ -41,19 +41,20 @@ class CreateNextRecurringBillPostConsolidation extends OrgAction
                 ->exists();
 
             $hasSpaces = $fulfilmentCustomer->spaces()
-                ->where('status', SpaceStateEnum::RENTING)
+                ->where('state', SpaceStateEnum::RENTING)
                 ->exists();
 
             if ($hasStoringPallet || $hasSpaces) {
+
                 $newRecurringBill = StoreRecurringBill::make()->action(
                     rentalAgreement: $fulfilmentCustomer->rentalAgreement,
-                    modelData: ['start_date' => now()->tomorrow()->startOfDay()],
+                    modelData: [
+                        'start_date' => now()->tomorrow()->startOfDay()
+                    ],
                     strict: true
                 );
 
                 $this->update($fulfilmentCustomer, ['current_recurring_bill_id' => $newRecurringBill->id]);
-
-
             }
         }
 
