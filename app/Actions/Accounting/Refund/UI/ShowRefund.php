@@ -173,7 +173,7 @@ class ShowRefund extends OrgAction
 
         $actions = [];
 
-        if ($refund->in_process) {
+        if ($refund->in_process && (!app()->environment('production'))) {
             $actions[] = [
                 'type'  => 'button',
                 'style' => 'delete',
@@ -201,6 +201,8 @@ class ShowRefund extends OrgAction
             ];
         }
 
+
+
         return Inertia::render(
             'Org/Accounting/InvoiceRefund',
             [
@@ -221,7 +223,7 @@ class ShowRefund extends OrgAction
                         'icon'  => ['fas', 'fa-hand-holding-usd'],
                         'title' => $refund->reference
                     ],
-                    // 'actions' => $actions
+                    'actions' => $actions
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
