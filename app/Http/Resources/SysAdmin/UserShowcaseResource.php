@@ -28,7 +28,7 @@ class UserShowcaseResource extends JsonResource
     {
         /** @var User $user */
         $user = $this;
-    
+
         $jobPositionsOrganisationsData = [];
         foreach ($user->group->organisations as $organisation) {
             $jobPositionsOrganisationData                       = GetUserOrganisationScopeJobPositionsData::run($user->resource, $organisation);
@@ -60,7 +60,7 @@ class UserShowcaseResource extends JsonResource
                             'positions'   => ['data' => JobPositionResource::collection($organisation->jobPositions)],
                             'shops'       => \App\Http\Resources\Catalogue\ShopResource::collection($organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get()),
                             'fulfilments' => ['data' => ShopResource::collection($organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get())],
-                            'warehouses'  => ['data'=> WarehouseResource::collection($organisation->warehouses)],
+                            'warehouses'  => ['data' => WarehouseResource::collection($organisation->warehouses)],
                         ]
                     ];
                 })->toArray(),
