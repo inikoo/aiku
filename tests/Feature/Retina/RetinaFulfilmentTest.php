@@ -154,6 +154,43 @@ beforeEach(function () {
 
     $this->webUser  = createWebUser($this->customer);
 
+    $palletRental = StoreRental::make()->action(
+       $this->fulfilment->shop,
+        [
+            'price' => 100,
+            'unit'  => RentalUnitEnum::WEEK->value,
+            'code'  => 'R00002',
+            'name'  => 'Rental Asset B',
+            'auto_assign_asset'      => 'Pallet',
+            'auto_assign_asset_type' => PalletTypeEnum::PALLET->value
+        ]
+    );
+    $this->palletRental = $palletRental;
+    $oversizeRental = StoreRental::make()->action(
+       $this->fulfilment->shop,
+        [
+            'price' => 100,
+            'unit'  => RentalUnitEnum::WEEK->value,
+            'code'  => 'R00003',
+            'name'  => 'Rental Asset C',
+            'auto_assign_asset'      => 'Pallet',
+            'auto_assign_asset_type' => PalletTypeEnum::OVERSIZE->value
+        ]
+    );
+    $this->oversizeRental = $oversizeRental;
+    $boxRental = StoreRental::make()->action(
+       $this->fulfilment->shop,
+        [
+            'price' => 100,
+            'unit'  => RentalUnitEnum::WEEK->value,
+            'code'  => 'R00004',
+            'name'  => 'Rental Asset D',
+            'auto_assign_asset'      => 'Pallet',
+            'auto_assign_asset_type' => PalletTypeEnum::BOX->value
+        ]
+    );
+    $this->boxRental = $boxRental;
+
     Config::set(
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Retina')]

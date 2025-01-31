@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Models\Fulfilment\RecurringBillTransaction;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Throwable;
@@ -53,6 +54,17 @@ class DeleteRecurringBillTransaction extends OrgAction
         $this->initialisationFromFulfilment($recurringBillTransaction->fulfilment, []);
 
 
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function asController(RecurringBillTransaction $recurringBillTransaction, ActionRequest $request): void
+    {
+        $this->precursor = null;
+        $this->initialisationFromFulfilment($recurringBillTransaction->fulfilment, []);
+
+        $this->handle($recurringBillTransaction);
     }
 
     public function getCommandSignature(): string

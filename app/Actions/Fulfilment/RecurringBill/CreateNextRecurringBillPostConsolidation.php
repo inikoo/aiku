@@ -16,6 +16,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRecurringBills;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateRecurringBills;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
+use App\Enums\Fulfilment\Space\SpaceStateEnum;
 use App\Models\Fulfilment\RecurringBill;
 
 class CreateNextRecurringBillPostConsolidation extends OrgAction
@@ -32,23 +33,31 @@ class CreateNextRecurringBillPostConsolidation extends OrgAction
     public function handle(RecurringBill $previousRecurringBill): ?RecurringBill
     {
         $newRecurringBill = null;
-        if (!$previousRecurringBill->fulfilmentCustomer->current_recurring_bill_id) {
-            $hasStoringPallet = $previousRecurringBill->fulfilmentCustomer->pallets()
+        $fulfilmentCustomer = $previousRecurringBill->fulfilmentCustomer;
+
+        if (!$fulfilmentCustomer->current_recurring_bill_id) {
+            $hasStoringPallet = $fulfilmentCustomer->pallets()
                 ->where('status', PalletStatusEnum::STORING)
                 ->exists();
 
-            if ($hasStoringPallet) {
+            $hasSpaces = $fulfilmentCustomer->spaces()
+                ->where('status', SpaceStateEnum::RENTING)
+                ->exists();
+
+            if ($hasStoringPallet || $hasSpaces) {
                 $newRecurringBill = StoreRecurringBill::make()->action(
-                    rentalAgreement: $previousRecurringBill->fulfilmentCustomer->rentalAgreement,
-                    modelData: ['start_date' => now()],
+                    rentalAgreement: $fulfilmentCustomer->rentalAgreement,
+                    modelData: ['start_date' => now()->tomorrow()->startOfDay()],
                     strict: true
                 );
 
-                $this->update($previousRecurringBill->fulfilmentCustomer, ['current_recurring_bill_id' => $newRecurringBill->id]);
+                $this->update($fulfilmentCustomer, ['current_recurring_bill_id' => $newRecurringBill->id]);
 
 
             }
         }
+
+
         if ($newRecurringBill) {
             RecurringBillHydrateTransactions::dispatch($newRecurringBill);
         }
@@ -56,7 +65,7 @@ class CreateNextRecurringBillPostConsolidation extends OrgAction
         GroupHydrateRecurringBills::dispatch($previousRecurringBill->group);
         OrganisationHydrateRecurringBills::dispatch($previousRecurringBill->organisation);
         FulfilmentHydrateRecurringBills::dispatch($previousRecurringBill->fulfilment);
-        FulfilmentCustomerHydrateRecurringBills::dispatch($previousRecurringBill->fulfilmentCustomer);
+        FulfilmentCustomerHydrateRecurringBills::dispatch($fulfilmentCustomer);
 
         return $newRecurringBill;
     }

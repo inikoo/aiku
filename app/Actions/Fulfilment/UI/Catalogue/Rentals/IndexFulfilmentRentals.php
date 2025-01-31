@@ -44,7 +44,7 @@ class IndexFulfilmentRentals extends OrgAction
                 ),
 
                 'engine' => function ($query, $elements) {
-                    $query->whereIn('state', $elements);
+                    $query->whereIn('assets.state', $elements);
                 }
 
             ],

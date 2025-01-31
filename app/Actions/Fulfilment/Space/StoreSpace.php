@@ -20,9 +20,9 @@ use App\Models\Fulfilment\Space;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
-use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Redirect;
 
 class StoreSpace extends OrgAction
 {
@@ -104,11 +104,11 @@ class StoreSpace extends OrgAction
 
     public function htmlResponse(Space $space): Response
     {
-        return Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.spaces.index', [
+        return Redirect::route('grp.org.fulfilments.show.crm.customers.show.spaces.index', [
             'organisation'       => $space->organisation->slug,
             'fulfilment'         => $space->fulfilment->slug,
             'fulfilmentCustomer' => $space->fulfilmentCustomer->slug
-        ]));
+        ]);
     }
 
     public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Space

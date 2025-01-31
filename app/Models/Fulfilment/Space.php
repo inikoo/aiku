@@ -94,6 +94,7 @@ class Space extends Model implements Auditable
         return SlugOptions::create()
             ->generateSlugsFrom('reference')
             ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(128);
     }
 

@@ -17,14 +17,14 @@ enum SpaceTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case OVERVIEW                       = 'overview';
+    case SHOWCASE                       = 'showcase';
 
     public function blueprint(): array
     {
         return match ($this) {
-            SpaceTabsEnum::OVERVIEW => [
-                'title' => __('dashboard'),
-                'icon'  => 'fal fa-tachometer-alt-fast',
+            SpaceTabsEnum::SHOWCASE => [
+                'title' => __('Showcase'),
+                'icon'  => 'fas fa-info-circle',
             ],
         };
     }

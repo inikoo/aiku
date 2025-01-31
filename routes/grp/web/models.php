@@ -98,8 +98,11 @@ use App\Actions\Fulfilment\PalletReturnItem\UndoPickingPalletFromReturn;
 use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\UpdateRecurringBilling;
 use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
+use App\Actions\Fulfilment\RecurringBillTransaction\UpdateRecurringBillTransaction;
+use App\Actions\Fulfilment\RecurringBillTransaction\DeleteRecurringBillTransaction;
 use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
 use App\Actions\Fulfilment\Space\StoreSpace;
+use App\Actions\Fulfilment\Space\UpdateSpace;
 use App\Actions\Fulfilment\StoredItem\DeleteStoredItem;
 use App\Actions\Fulfilment\StoredItem\MoveStoredItem;
 use App\Actions\Fulfilment\StoredItem\ResetAuditStoredItemToPallet;
@@ -340,6 +343,9 @@ Route::name('recurring-bill.')->prefix('recurring-bill/{recurringBill:id}')->gro
     Route::post('transaction/{historicAsset:id}', StoreRecurringBillTransaction::class)->name('transaction.store')->withoutScopedBindings();
 });
 
+Route::patch('recurring-bill-transaction/{recurringBillTransaction:id}', UpdateRecurringBillTransaction::class)->name('recurring_bill_transaction.update');
+Route::delete('recurring-bill-transaction/{recurringBillTransaction:id}', DeleteRecurringBillTransaction::class)->name('recurring_bill_transaction.delete');
+
 Route::name('product.')->prefix('product')->group(function () {
     Route::post('/product/', StoreProduct::class)->name('store');
     Route::post('/{product:id}/tags', [StoreTag::class, 'inProduct'])->name('tag.store');
@@ -486,11 +492,11 @@ Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function
 });
 
 Route::post('fulfilment-customer-note/{fulfilmentCustomer}', StoreFulfilmentCustomerNote::class)->name('fulfilment_customer_note.store');
-Route::post('fulfilment-customer-space/{fulfilmentCustomer:id}', StoreSpace::class)->name('fulfilment_customer_space.store');
 
-
-
-
+Route::prefix('fulfilment-customer-space/{fulfilmentCustomer:id}')->as('fulfilment_customer_space.')->group(function () {
+    Route::post('', StoreSpace::class)->name('store');
+    Route::patch('spaces/{space:id}', UpdateSpace::class)->name('update')->withoutScopedBindings();
+});
 
 Route::post('group/{group:id}/organisation', StoreOrganisation::class)->name('organisation.store');
 
