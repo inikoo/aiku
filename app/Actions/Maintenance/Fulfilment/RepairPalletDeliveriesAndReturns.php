@@ -17,6 +17,7 @@ use App\Actions\Fulfilment\RecurringBillTransaction\CalculateRecurringBillTransa
 use App\Actions\Fulfilment\RecurringBillTransaction\CalculateRecurringBillTransactionTemporalQuantity;
 use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
 use App\Actions\Fulfilment\RecurringBillTransaction\UpdateRecurringBillTransaction;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
@@ -36,11 +37,15 @@ class RepairPalletDeliveriesAndReturns
      */
     public function handle(): void
     {
+        $this->fixPalletDispatchedAt();
+
         $this->fixPalletDeliveryRecurringBill();
         $this->fixPalletDeliveryTransactionsRecurringBill();
+
         $this->palletsStartDate();
         $this->palletsEndDate();
-        //exit;
+        $this->palletsValidateStartEndDate();
+
         $this->fixPalletReturnRecurringBill();
         $this->fixPalletReturnTransactionsRecurringBill();
         $this->fixNonRentalRecurringBillTransactions();
@@ -56,6 +61,63 @@ class RepairPalletDeliveriesAndReturns
             }
 
             CalculateRecurringBillTotals::make()->action($recurringBill);
+        }
+    }
+
+    public function palletsValidateStartEndDate(): void
+    {
+        /** @var RecurringBill $recurringBill */
+        foreach (RecurringBill::where('status', RecurringBillStatusEnum::CURRENT)->get() as $recurringBill) {
+            $transactions = $recurringBill->transactions()->where('item_type', 'Pallet')->get();
+
+            /** @var RecurringBillTransaction $transaction */
+            foreach ($transactions as $transaction) {
+                $currentStartDay = $transaction->start_date->startOfDay();
+                $currentEndDay   = $transaction->end_date ? $transaction->end_date->startOfDay() : null;
+
+                if ($currentEndDay and $currentEndDay->isBefore($currentStartDay)) {
+                    print 'Pallet: '.$transaction->id.' end date is before start date '.$currentStartDay->format('Y-m-d').' -> '.$currentEndDay->format('Y-m-d')."\n";
+                }
+            }
+        }
+    }
+
+    public function fixPalletDispatchedAt(): void
+    {
+        $pallets = Pallet::where('state', PalletStateEnum::DISPATCHED)->get();
+        /** @var Pallet $pallet */
+        foreach ($pallets as $pallet) {
+            $palletReturn = $pallet->palletReturn;
+            if (!$palletReturn and !$pallet->dispatched_at) {
+                //  print 'Pallet: '.$pallet->id.' dont have pallet return!!'."\n";
+                continue;
+            }
+
+            if (!$pallet->dispatched_at or $palletReturn->dispatched_at or $palletReturn->dispatched_at->ne($pallet->dispatched_at)) {
+                $palletDate = 'no date';
+                if ($pallet->dispatched_at) {
+                    $palletDate = $pallet->dispatched_at->format('Y-m-d');
+                }
+
+                $palledReturnDate = 'no date';
+                if ($palletReturn->dispatched_at) {
+                    $palledReturnDate = $palletReturn->dispatched_at->format('Y-m-d');
+                }
+
+                if ($palletDate == 'no date' and $palledReturnDate != 'no date') {
+                    print 'Pallet: Dispatch mismatch '.$pallet->id.' '.$palletDate.' -> '.$palledReturnDate."\n";
+
+
+                    $pallet->update(['dispatched_at' => $palletReturn->dispatched_at]);
+                }
+                if ($palletDate != 'no date' and $palledReturnDate == 'no date') {
+                    print 'Pallet: Big error Dispatch mismatch '.$pallet->id.' '.$palletDate.' -> '.$palledReturnDate."\n";
+                } elseif ($palletReturn->dispatched_at->ne($pallet->dispatched_at)) {
+                    print 'Pallet: Dispatch mismatch '.$pallet->id.' '.$palletDate.' -> '.$palledReturnDate."\n";
+                    // $palletReturn->update(['dispatched_at' => $pallet->dispatched_at]);
+
+                }
+            }
         }
     }
 
@@ -78,7 +140,6 @@ class RepairPalletDeliveriesAndReturns
                 if ($originalStartDate->ne($currentStartDay)) {
                     print 'PSD: '.$transaction->id.'  '.$originalStartDate->format('Y-m-d').' -> '.$currentStartDay->format('Y-m-d')."\n";
                     $transaction->update(['start_date' => $currentStartDay]);
-
                 }
             }
         }
@@ -96,22 +157,22 @@ class RepairPalletDeliveriesAndReturns
                 $pallet = $transaction->item;
                 if ($pallet->dispatched_at) {
                     if (!$transaction->end_date) {
-                        print 'PED: '.$transaction->id.' add end day'.$transaction->end_date->format('Y-m-d')."\n";
+                        print 'PED: '.$transaction->id.' add end day '.$pallet->dispatched_at->format('Y-m-d')."\n";
+                        $transaction->update(['end_date' => $pallet->dispatched_at]);
                     } else {
                         $currentEndDay     = $transaction->end_date->startOfDay();
                         $originalStartDate = $currentEndDay;
-                        if ($pallet->received_at->startOfDay()->ne($currentEndDay)) {
+                        if ($pallet->dispatched_at->startOfDay()->ne($currentEndDay)) {
                             $currentEndDay = $pallet->dispatched_at->startOfDay();
                         }
 
                         if ($originalStartDate->ne($currentEndDay)) {
                             print 'PED: '.$transaction->id.' '.$originalStartDate->format('Y-m-d').' -> '.$currentEndDay->format('Y-m-d')."\n";
-                        }else{
-                            print 'PED: '.$transaction->id.' FYI '.$transaction->end_date->format('Y-m-d')."\n";
                         }
                     }
                 } elseif ($transaction->end_date) {
                     print 'PED: '.$transaction->id.' remove end day '.$transaction->end_date->format('Y-m-d')."\n";
+                    $transaction->update(['end_date' => null]);
                 }
             }
         }
