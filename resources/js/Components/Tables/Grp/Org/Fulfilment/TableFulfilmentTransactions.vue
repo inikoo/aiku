@@ -5,29 +5,28 @@
   -->
 
 <script setup lang="ts">
-import { Link, router } from "@inertiajs/vue3"
+import { router } from "@inertiajs/vue3"
 import Table from "@/Components/Table/Table.vue"
-import Icon from "@/Components/Icon.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faRobot, faBadgePercent, faTag, faUserRobot, faPlus, faMinus} from '@fal'
+import { faRobot, faBadgePercent, faTag, faUserRobot, faPlus, faMinus, faUndoAlt } from '@far'
 import { useLocaleStore } from '@/Stores/locale'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { inject, ref } from "vue"
-import InputNumber from "@/Components/Pure/PureInputNumber.vue"
-import PureInput from '@/Components/Pure/PureInput.vue'
+import InputNumber from 'primevue/inputnumber';
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import { routeType } from '@/types/route'
 import Tag from '@/Components/Tag.vue'
-import State from 'pusher-js/types/src/core/http/state'
+import NumberWithButtonSave from "@/Components/NumberWithButtonSave.vue"
 
-library.add(faRobot, faPlus, faMinus)
+
+library.add(faRobot, faPlus, faMinus, faUndoAlt)
 
 const props = defineProps<{
-    data: {}
-    state: string
-    tab?: string
-    can_edit_transactions? : boolean
+	data: {}
+	state: string
+	tab?: string
+	can_edit_transactions?: boolean
 }>()
 
 const layout = inject("layout", layoutStructure)
@@ -53,8 +52,8 @@ const emits = defineEmits<{
 // Section: Quantity
 const isLoading = ref<string | boolean>(false)
 const onUpdateQuantity = (idFulfilmentTransaction: number, value: number) => {
-    console.log(idFulfilmentTransaction,'loasding',value);
-    
+	console.log(idFulfilmentTransaction, 'loasding', value);
+
 	const routeUpdate = <routeType>{}
 	if (layout.app.name === "Aiku") {
 		routeUpdate.name = "grp.models.fulfilment-transaction.update"
@@ -63,7 +62,7 @@ const onUpdateQuantity = (idFulfilmentTransaction: number, value: number) => {
 		routeUpdate.name = "retina.models.fulfilment-transaction.update"
 		routeUpdate.parameters = { fulfilmentTransaction: idFulfilmentTransaction }
 	}
-	router.patch(
+	/* router.patch(
 		route(routeUpdate.name, routeUpdate.parameters),
 		{
 			quantity: value,
@@ -72,7 +71,12 @@ const onUpdateQuantity = (idFulfilmentTransaction: number, value: number) => {
 			onStart: () => (isLoading.value = "quantity" + idFulfilmentTransaction),
 			onFinish: () => (isLoading.value = false),
 		}
-	)
+	) */
+	value.patch(route(routeUpdate.name, routeUpdate.parameters),{
+		preserveScroll: true,
+		onStart: () => (isLoading.value = "quantity" + idFulfilmentTransaction),
+		onFinish: () => (isLoading.value = false),
+	})
 }
 const onDeleteTransaction = (idFulfilmentTransaction: number) => {
 	const routeDelete = <routeType>{}
@@ -84,32 +88,33 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
 		routeDelete.parameters = { fulfilmentTransaction: idFulfilmentTransaction }
 	}
 	router.delete(route(routeDelete.name, routeDelete.parameters), {
+		preserveScroll: true,
 		onStart: () => (isLoading.value = "buttonReset" + idFulfilmentTransaction),
 		onFinish: () => (isLoading.value = false),
 	})
 }
 
-const canDelete = (item) =>{
-    if(item.is_auto_assign) return false
-    else if(!item.is_auto_assign && props.state === 'in_process')return true
-    else if(!item.is_auto_assign && props.can_edit_transactions)return true
+const userCanEdit = (item) => {
+	if (item.is_auto_assign) return false
+	else if (!item.is_auto_assign && props.state === 'in_process') return true
+	else if (!item.is_auto_assign && props.can_edit_transactions) return true
 }
 
-console.log(props.data)
 </script>
 
 <template>
-    <!-- <pre>{{ data.data[0] }}</pre> -->
-    <Table :key="tab" :resource="data" :name="tab" class="mt-5">
-        <!-- Column: Code -->
-        <template #cell(code)="{ item }">
-            {{ item.code || '-' }} <FontAwesomeIcon v-if="item.is_auto_assign" :icon="faUserRobot" />
-        </template>
+	<!-- <pre>{{ data.data[0] }}</pre> -->
+	<Table :key="tab" :resource="data" :name="tab" class="mt-5">
+		<!-- Column: Code -->
+		<template #cell(code)="{ item }">
+			{{ item.code || '-' }}
+			<FontAwesomeIcon v-if="item.is_auto_assign" :icon="faUserRobot" />
+		</template>
 
 		<!-- Column: Name -->
 		<template #cell(name)="{ item }">
 			{{ item["name"] }} ({{
-				useLocaleStore().currencyFormat(item["currency_code"], item["price"])
+			useLocaleStore().currencyFormat(item["currency_code"], item["price"])
 			}}/{{ item["unit_abbreviation"] }})
 			<Tag v-if="item['discount'] > 0" :theme="17">
 				<template #label>
@@ -121,7 +126,7 @@ console.log(props.data)
 
 		<!-- Column: Quantity -->
 		<!--  <template #cell(quantity)="{ item }">
-            <div v-if="canDelete(item)" class="w-32 ml-auto">
+            <div v-if="userCanEdit(item)" class="w-32 ml-auto">
                 <PureInput
                     :modelValue="item.quantity"
                     @onEnter="(e: number) => item.is_auto_assign ? false : onUpdateQuantity(item.id, e)"
@@ -129,7 +134,7 @@ console.log(props.data)
                     :isLoading="isLoading === 'quantity' + item.id"
                     type="number"
                     align="right"
-                    :readonly="!canDelete(item)"
+                    :readonly="!userCanEdit(item)"
                     v-tooltip="item.is_auto_assign ? `Auto assign, can't change quantity.` : undefined"
                 />
             </div>
@@ -138,48 +143,13 @@ console.log(props.data)
         </template> -->
 
 		<template #cell(quantity)="{ item }">
-			<div v-if="canDelete(item)"  class="custom-input-number">
-				<!--     <PureInput
-                    :modelValue="item.quantity"
-                    @onEnter="(e: number) => item.is_auto_assign ? false : onUpdateQuantity(item.id, e)"
-                    @blur="(e: string) => item.is_auto_assign ? false : e == item.quantity ? false : onUpdateQuantity(item.id, e)"
-                    :isLoading="isLoading === 'quantity' + item.id"
-                    type="number"
-                    align="right"
-                    :readonly="item.is_auto_assign"
-                    v-tooltip="item.is_auto_assign ? `Auto assign, can't change quantity.` : undefined"
-                /> -->
-				<InputNumber
-					v-model="item.quantity"
-					showButtons
-                   @update:modelValue="(value) => item.is_auto_assign ? false : onUpdateQuantity(item.id, value)"
-                    inputClass="w-14 text-center"
-					buttonLayout="horizontal"
-					style="width: 100%"
-                    :readonly="!canDelete(item)"
-                    v-tooltip="item.is_auto_assign ? `Auto assign, can't change quantity.` : undefined"
-					:min="0" >
-					<template #incrementicon>
-						<FontAwesomeIcon
-							size="sm"
-							icon="far fa-plus"
-							class="text-black"
-							fixed-width 
-                            @click="item.is_auto_assign ? false : onUpdateQuantity(item.id, item.quantity + 1)"/>
-					</template>
-					<template #decrementicon>
-						<FontAwesomeIcon
-							size="sm"
-							icon="far fa-minus"
-							class="text-black"
-							fixed-width
-                            @click="item.is_auto_assign ? false : onUpdateQuantity(item.id, item.quantity - 1)" />
-					</template>
-				</InputNumber>
-			</div>
-
-			<div v-else>
-				{{ item.quantity }}
+			<div class="flex justify-end">
+				<div v-if="userCanEdit(item)">
+					<NumberWithButtonSave v-model="item.quantity"  @onSave="(e)=>onUpdateQuantity(item.id, e)"/>
+				</div>
+				<div v-else>
+					{{ item.quantity }}
+				</div>
 			</div>
 		</template>
 
@@ -190,21 +160,20 @@ console.log(props.data)
 
 		<!-- Column: Action -->
 		<template #cell(actions)="{ item }">
-			<Button
-				v-if="canDelete(item)"
-				@click="() => onDeleteTransaction(item.id)"
-				:loading="isLoading === 'buttonReset' + item.id"
-				icon="fal fa-trash-alt"
-				type="negative"
+			<Button v-if="userCanEdit(item)" @click="() => onDeleteTransaction(item.id)"
+				:loading="isLoading === 'buttonReset' + item.id" icon="fal fa-trash-alt" type="negative"
 				v-tooltip="'Unselect this field'" />
 		</template>
 	</Table>
 </template>
 
-<style>
-.custom-input-number :deep(.p-inputnumber) {
-	--p-inputnumber-button-width: 35px;
-	height: 35px;
+<style scoped>
+::v-deep(.p-inputnumber) {
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.3s;
+}
+::v-deep(.p-inputnumber:focus-within) {
+    border-bottom: 2px solid #4b5563; /* gray-500 */
 }
 
 .cursor-not-allowed {
@@ -230,6 +199,7 @@ console.log(props.data)
 	from {
 		transform: rotate(0deg);
 	}
+
 	to {
 		transform: rotate(360deg);
 	}
@@ -239,14 +209,21 @@ console.log(props.data)
 	0% {
 		stroke-dashoffset: 125.6;
 	}
+
 	50% {
 		stroke-dashoffset: 62.8;
 		transform: rotate(45deg);
 	}
+
 	100% {
 		stroke-dashoffset: 125.6;
 		transform: rotate(360deg);
 	}
 }
 
+.custom-input-number :deep(.p-inputnumber) {
+	--p-inputnumber-button-width: 35px;
+	height: 35px;
+}
 </style>
+

@@ -86,11 +86,11 @@ const submitCrop = () => {
     isOpenModalCrop.value = false
 }
 
-const stencilProps =  (props.fieldData?.options.minAspectRatio && props.fieldData?.options.maxAspectRatio) ? 
+const stencilProps =  (props.fieldData?.options?.minAspectRatio && props.fieldData?.options?.maxAspectRatio) ? 
     {
-    minAspectRatio : props.fieldData?.options.minAspectRatio,
-    maxAspectRatio : props.fieldData?.options.maxAspectRatio
-    } : {aspectRatio : props.fieldData?.options.aspectRatio ? props.fieldData?.options.aspectRatio : 1/1}
+    minAspectRatio : props.fieldData?.options?.minAspectRatio,
+    maxAspectRatio : props.fieldData?.options?.maxAspectRatio
+    } : {aspectRatio : props.fieldData?.options?.aspectRatio ? props.fieldData?.options?.aspectRatio : 1/1}
 
 watch(isOpenModalCrop, (value) => {
     _cropper.value?.refresh()

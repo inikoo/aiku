@@ -15,14 +15,14 @@ enum RentalUnitEnum: string
     use EnumHelperTrait;
 
     case DAY   = 'day';
-    case WEEK  = 'week';
+    // case WEEK  = 'week';
     case MONTH = 'month';
 
     public static function labels(): array
     {
         return [
             'day'   => __('day'),
-            'week'  => __('week'),
+            // 'week'  => __('week'),
             'month' => __('month'),
         ];
     }
@@ -31,7 +31,7 @@ enum RentalUnitEnum: string
     {
         return [
             'day'   => 'd',
-            'week'  => 'w',
+            // 'week'  => 'w',
             'month' => 'm'
         ];
     }
