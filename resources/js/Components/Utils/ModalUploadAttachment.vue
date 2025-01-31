@@ -38,15 +38,19 @@ const props = defineProps<{
 	}
 	additionalDataToSend?: string[]
 	attachmentRoutes?: object
+	options?: {
+		name: string
+		code: string
+	}[]
 }>()
 
 const model = defineModel()
 
-const typeEmployee = ref([
-	{ name: "Other", code: "Other" },
-	{ name: "CV", code: "CV" },
-	{ name: "Contract", code: "Contract" },
-])
+const typeEmployee = props.options?.length ? props.options :  [
+	{ name: trans("Other"), code: "Other" },
+	{ name: trans("CV"), code: "CV" },
+	{ name: trans("Contract"), code: "Contract" },
+]
 
 // const emits = defineEmits();
 
@@ -140,7 +144,7 @@ const closeModal = () => {
 
 <template>
 	<Modal :isOpen="model" @onClose="() => closeModal()" :closeButton="true" width="w-[500px]">
-		<div class="flex flex-col justify-between overflow-y-auto pb-4 px-3">
+		<div class="flex flex-col justify-between pb-4 px-3">
 			<div>
 				<!-- Title -->
 				<div class="flex justify-center py-2 text-gray-600 font-medium mb-3">
@@ -153,7 +157,7 @@ const closeModal = () => {
 
 				<!-- Section: Upload box -->
 				<div class="grid gap-x-3 px-1">
-					<div class="mb-2 card flex justify-end">
+					<div class="mb-2 w-full flex justify-end">
 						<Select
 							v-model="selectedType"
 							:options="typeEmployee"
@@ -173,7 +177,7 @@ const closeModal = () => {
 						@dragover.prevent
 						@dragenter.prevent
 						@dragleave.prevent
-						class="relative max-w-full flex items-center justify-center rounded-lg border border-dashed border-gray-700/25 px-6 py-3 bg-gray-400/10"
+						class="overflow-hidden relative w-full max-w-full flex items-center justify-center rounded-lg border border-dashed border-gray-700/25 px-6 py-3 bg-gray-400/10"
 						:class="[
 							{ 'hover:bg-gray-400/20': !isLoadingUpload },
 							errorMessage ? 'errorShake' : '',
@@ -181,11 +185,11 @@ const closeModal = () => {
 						<!-- Section: Upload area -->
 						<div
 							v-if="selectedFile"
-							class="text-gray-500 flex flex-col items-center gap-y-2">
-							<div class="flex items-center gap-x-1">
+							class="text-gray-500 flex flex-col items-center gap-y-2 w-full">
+							<div class="max-w-lg w-full text-center mx-auto overflow-hidden text-ellipsis">
 								<FontAwesomeIcon
 									icon="fal fa-file"
-									class="mx-auto h-5 w-5 text-gray-300"
+									class="h-5 w-5 text-gray-300"
 									aria-hidden="true" />
 								{{ selectedFile?.name }}
 							</div>
@@ -211,7 +215,7 @@ const closeModal = () => {
 								<div
 									v-if="isDraggedFile"
 									class="text-2xl text-gray-500 h-full flex justify-center items-center">
-									Drop your file here
+									{{ trans("Drop your file here") }}
 								</div>
 							</label>
 

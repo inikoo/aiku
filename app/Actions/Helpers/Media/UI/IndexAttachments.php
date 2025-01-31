@@ -88,6 +88,7 @@ class IndexAttachments extends OrgAction
                 ->withEmptyState(
                     [
                         'title' => $noResults,
+                        'count' => 0,
                     ]
                 );
 

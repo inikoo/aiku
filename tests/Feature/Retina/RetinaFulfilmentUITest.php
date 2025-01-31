@@ -165,7 +165,7 @@ test('show pallet delivery (pallet tab)', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', 'New pallet delivery')
+                        ->where('title', $this->palletDelivery->slug)
                         ->etc()
             )
             ->has('tabs');

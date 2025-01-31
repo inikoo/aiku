@@ -27,4 +27,30 @@ enum RecurringBillStatusEnum: string
         ];
     }
 
+    public static function statusIcon(): array
+    {
+        return [
+            'current'   => [
+                'tooltip' => __('Current'),
+                'icon'    => 'fal fa-check-circle',
+                'class'   => 'text-green-500',
+                'color'   => 'green',
+                'app'     => [
+                    'name' => 'check-circle',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'former'    => [
+                'tooltip' => __('Former'),
+                'icon'    => 'fal fa-times-circle',
+                'class'   => 'text-red-500',
+                'color'   => 'red',
+                'app'     => [
+                    'name' => 'times-circle',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+        ];
+    }
+
 }

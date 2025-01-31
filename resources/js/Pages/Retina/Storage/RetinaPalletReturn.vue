@@ -160,6 +160,7 @@ const onSubmitAddService = (data: Action, closedPopover: Function) => {
             onSuccess: () => {
                 closedPopover()
                 formAddService.reset()
+                handleTabUpdate('services')
             },
             onError: (errors) => {
                 console.error('Error during form submission:', errors)
@@ -205,6 +206,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                 closedPopover()
                 formAddPhysicalGood.reset()
                 isLoadingButton.value = false
+                handleTabUpdate('physical_goods')
             },
             onError: (errors) => {
                 isLoadingButton.value = false
@@ -314,7 +316,7 @@ const isModalUploadOpen = ref(false)
 
         <!-- Button: Add services -->
         <template #button-group-add-service="{ action }">
-            <div class="relative" v-if="currentTab === 'services'">
+            <div class="relative" v-if="currentTab === 'sesasrvices'">
                 <Popover>
                     <template #button="{ open }">
                         <Button
@@ -391,7 +393,7 @@ const isModalUploadOpen = ref(false)
 
         <!-- Button: Add physical good (single) -->
         <template #button-group-add-physical-good="{ action }">
-            <div class="relative" v-if="currentTab === 'physical_goods'">
+            <div class="relative" v-if="currentTab === 'phssssysical_goods'">
                 <Popover>
                     <template #button="{ open }">
                         <Button

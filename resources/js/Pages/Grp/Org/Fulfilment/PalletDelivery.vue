@@ -102,6 +102,11 @@ const props = defineProps<{
 
     physical_good_lists?: []
     physical_good_list_route: routeType
+
+    option_attach_file?: {
+		name: string
+		code: string
+	}[]
 }>()
 
 
@@ -632,7 +637,7 @@ const isModalUploadFileOpen = ref(false)
                 type="secondary"
             />
         </template>
-    </PageHeading>
+    </PageHeading> 
 
     <!-- Section: Pallet Warning -->
     <div v-if="pallet_limits?.status">
@@ -700,7 +705,17 @@ const isModalUploadFileOpen = ref(false)
             :rentalList="props.rental_lists"
             :detachRoute="attachmentRoutes.detachRoute"
             :can_edit_transactions="can_edit_transactions"
-        />
+        >
+            <template #button-empty-state-attachments="{ action }">
+                <Button
+                    v-if="currentTab === 'attachments'"
+                    @click="() => isModalUploadFileOpen = true"
+                    :label="trans('Attach file')"
+                    icon="fal fa-upload"
+                    type="secondary"
+                />
+            </template>
+        </component>
     </div>
 
     <UploadExcel
@@ -724,6 +739,7 @@ const isModalUploadFileOpen = ref(false)
         }"
         progressDescription="Adding Pallet Deliveries"
         :attachmentRoutes
+        :options="props.option_attach_file"
     />
 
     <!--     <pre>{{ props.services.data?.[0]?.reference }}</pre>
