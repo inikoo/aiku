@@ -5,6 +5,7 @@ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue';
 const props = withDefaults(defineProps<{
   width?: string | number | null | any
   position?: string
+  disabled?: boolean
 }>(), {
   width: 'w-fit',
   position: 'right-0'
@@ -13,7 +14,7 @@ const props = withDefaults(defineProps<{
 </script>
 
 <template>
-  <Popover :popover-placement="'bottom-start'" class="focus-visible:ring-0">
+  <Popover :popover-placement="'bottom-start'" class="focus-visible:ring-0" disabled>
     <PopoverButton tabindex="-1" v-slot="{ open, close }"  class="focus-visible:ring-0 w-full">
       <slot name="button" :open="open" :close="close"></slot>
     </PopoverButton> 

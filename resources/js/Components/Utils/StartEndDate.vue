@@ -78,13 +78,13 @@ const formattedEndDate = computed(() => {
         </div>
 
         <div
-            class="lg:col-span-5 px-4 py-2 rounded-md ring-1 ring-black/20 flex flex-col"
-            :class="[ isEndDateToday ? 'bg-red-100 text-gray-500' : 'bg-black/10']"
+            class="lg:col-span-5 px-4 py-2 rounded-md ring-1 ring-black/20 flex flex-col bg-black/10"
+            :xxclass="[ isEndDateToday ? 'bg-red-100 text-gray-500' : 'bg-black/10']"
             
         >
             <div class="flex justify-between text-xs">
                 <div class="text-xs text-gray-500">{{ trans("End date") }}</div>
-                <FontAwesomeIcon v-if="isEndDateToday" v-tooltip="isEndDateToday ? trans('Today is the end date') : undefined" icon='fal fa-exclamation-triangle' class='text-sm text-red-500' fixed-width aria-hidden='true' />
+                <!-- <FontAwesomeIcon v-if="isEndDateToday" v-tooltip="isEndDateToday ? trans('Today is the end date') : undefined" icon='fal fa-exclamation-triangle' class='text-sm text-red-500' fixed-width aria-hidden='true' /> -->
             </div>
             <div class="font-medium">
                 <div v-if="isEndDateNotEditable">

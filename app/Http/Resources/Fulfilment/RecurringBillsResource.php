@@ -31,6 +31,7 @@ class RecurringBillsResource extends JsonResource
         return [
             'id'                       => $this->id,
             'slug'                     => $this->slug,
+            'status_icon'             => $this->status->statusIcon()[$this->status->value],
             'reference'                => $this->reference,
             'customer_name'            => $this->customer_name,
             'fulfilment_customer_slug' => $this->fulfilment_customer_slug,

@@ -107,8 +107,6 @@ class IndexPalletsInCustomer extends OrgAction
         //        }
 
 
-        $query->whereNotNull('pallets.slug');
-
         $query->leftjoin('locations', 'pallets.location_id', '=', 'locations.id');
 
         $query->defaultSort('pallets.id')

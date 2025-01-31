@@ -259,7 +259,7 @@ const onUpdateCustomerReference = () => {
 						aria-hidden="true" />
 				</dt>
 
-                <Popover v-if="dataPalletDelivery.state" position="" style="z-index: 20">
+                <Popover v-if="dataPalletDelivery.state === 'in_process'  || dataPalletDelivery.state === 'submitted' || dataPalletDelivery.state === 'confirmed'" position="" style="z-index: 20">
                     <template #button>
                         <div v-if="dataPalletDelivery.estimated_delivery_date"
                             v-tooltip="useDaysLeftFromToday(dataPalletDelivery.estimated_delivery_date)"
@@ -290,15 +290,8 @@ const onUpdateCustomerReference = () => {
                     </template>
                 </Popover>
 
-
-				<div v-else>
-					<dd class="text-gray-500">
-						{{
-							dataPalletDelivery.estimated_delivery_date
-								? useFormatTime(dataPalletDelivery?.estimated_delivery_date)
-								: "Not Set"
-						}}
-					</dd>
+				<div v-else class=" text-gray-400">
+					{{ trans('Estimated date is not set') }}
 				</div>
 			</div>
 
