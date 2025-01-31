@@ -63,6 +63,7 @@ class IndexSpaces extends OrgAction
             abort(419);
         }
         $query->leftjoin('rentals', 'spaces.rental_id', '=', 'rentals.id');
+        $query->leftjoin('currencies', 'rentals.currency_id', '=', 'currencies.id');
         $query->leftjoin('recurring_bills', 'spaces.current_recurring_bill_id', '=', 'recurring_bills.id');
 
         return $query->defaultSort('spaces.reference')
@@ -76,6 +77,9 @@ class IndexSpaces extends OrgAction
                 'rentals.slug as rental_slug',
                 'rentals.name as rental_name',
                 'rentals.code as rental_code',
+                'rentals.price as rental_price',
+                'rentals.unit as rental_unit',
+                'currencies.symbol as currency_symbol',
             ])
             ->allowedSorts(['id', 'reference', 'state', 'start_at', 'end_at'])
             ->allowedFilters([$globalSearch])
@@ -107,7 +111,7 @@ class IndexSpaces extends OrgAction
 
             $table->column(key: 'state', label: __('state'), sortable: true, canBeHidden: false, searchable: true);
             $table->column(key: 'reference', label: __('reference'), sortable: false, canBeHidden: false, searchable: false);
-            $table->column(key: 'rental_name', label: __('rental'), sortable: true, canBeHidden: false, searchable: true);
+            $table->column(key: 'rental', label: __('rental'), sortable: true, canBeHidden: false, searchable: true);
             $table->column(key: 'start_at', label: __('start'), sortable: true, canBeHidden: false, searchable: true);
             $table->column(key: 'end_at', label: __('end'), sortable: true, canBeHidden: false, searchable: true);
 
