@@ -11,6 +11,7 @@ namespace App\Actions\Fulfilment\Space\UI;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
+use App\Enums\Billables\Rental\RentalStateEnum;
 use App\Enums\Billables\Rental\RentalTypeEnum;
 use App\Models\Billables\Rental;
 use App\Models\Fulfilment\Fulfilment;
@@ -77,7 +78,7 @@ class CreateSpace extends OrgAction
                                         'type'     => 'select',
                                         'required' => true,
                                         'label'    => __('rental'),
-                                        'options'  => Options::forModels(Rental::where('type', RentalTypeEnum::SPACE->value))
+                                        'options'  => Options::forModels(Rental::where('type', RentalTypeEnum::SPACE->value)->where('fulfilment_id', $fulfilmentCustomer->fulfilment_id)->where('state', RentalStateEnum::ACTIVE))
                                     ],
                                     'exclude_weekend' => [
                                         'type'     => 'toggle',
