@@ -10,7 +10,6 @@
 
 namespace App\Actions\Maintenance\Fulfilment;
 
-use App\Actions\Fulfilment\RecurringBill\CalculateRecurringBillTemporalAggregates;
 use App\Actions\Fulfilment\RecurringBill\CalculateRecurringBillTotals;
 use App\Actions\Fulfilment\RecurringBillTransaction\CalculateRecurringBillTransactionAmounts;
 use App\Actions\Fulfilment\RecurringBillTransaction\CalculateRecurringBillTransactionCurrencyExchangeRates;
@@ -18,11 +17,12 @@ use App\Actions\Fulfilment\RecurringBillTransaction\CalculateRecurringBillTransa
 use App\Actions\Fulfilment\RecurringBillTransaction\CalculateRecurringBillTransactionTemporalQuantity;
 use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
 use App\Actions\Fulfilment\RecurringBillTransaction\UpdateRecurringBillTransaction;
-use App\Actions\Fulfilment\UpdateCurrentRecurringBillsTemporalAggregates;
 use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\RecurringBill;
+use App\Models\Fulfilment\RecurringBillTransaction;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Throwable;
@@ -38,12 +38,14 @@ class RepairPalletDeliveriesAndReturns
     {
         $this->fixPalletDeliveryRecurringBill();
         $this->fixPalletDeliveryTransactionsRecurringBill();
+        $this->palletsStartDate();
+        $this->palletsEndDate();
+        //exit;
         $this->fixPalletReturnRecurringBill();
         $this->fixPalletReturnTransactionsRecurringBill();
         $this->fixNonRentalRecurringBillTransactions();
         /** @var RecurringBill $recurringBill */
         foreach (RecurringBill::where('status', RecurringBillStatusEnum::CURRENT)->get() as $recurringBill) {
-
             $transactions = $recurringBill->transactions()->get();
 
             foreach ($transactions as $transaction) {
@@ -54,13 +56,65 @@ class RepairPalletDeliveriesAndReturns
             }
 
             CalculateRecurringBillTotals::make()->action($recurringBill);
-
         }
-
-
-
-
     }
+
+    public function palletsStartDate(): void
+    {
+        /** @var RecurringBill $recurringBill */
+        foreach (RecurringBill::where('status', RecurringBillStatusEnum::CURRENT)->get() as $recurringBill) {
+            $transactions = $recurringBill->transactions()->where('item_type', 'Pallet')->get();
+
+            /** @var RecurringBillTransaction $transaction */
+            foreach ($transactions as $transaction) {
+                $currentStartDay   = $transaction->start_date->startOfDay();
+                $originalStartDate = $currentStartDay;
+                /** @var Pallet $pallet */
+                $pallet = $transaction->item;
+                if ($pallet->received_at and $pallet->received_at->startOfDay()->isAfter($currentStartDay)) {
+                    $currentStartDay = $pallet->received_at->startOfDay();
+                }
+
+                if ($originalStartDate->ne($currentStartDay)) {
+                    print 'PSD: '.$transaction->id.'  '.$originalStartDate->format('Y-m-d').' -> '.$currentStartDay->format('Y-m-d')."\n";
+                }
+            }
+        }
+    }
+
+    public function palletsEndDate(): void
+    {
+        /** @var RecurringBill $recurringBill */
+        foreach (RecurringBill::where('status', RecurringBillStatusEnum::CURRENT)->get() as $recurringBill) {
+            $transactions = $recurringBill->transactions()->where('item_type', 'Pallet')->get();
+
+            /** @var RecurringBillTransaction $transaction */
+            foreach ($transactions as $transaction) {
+                /** @var Pallet $pallet */
+                $pallet = $transaction->item;
+                if ($pallet->dispatched_at) {
+                    if (!$transaction->end_date) {
+                        print 'PED: '.$transaction->id.' add end day'.$transaction->end_date->format('Y-m-d')."\n";
+                    } else {
+                        $currentEndDay     = $transaction->end_date->startOfDay();
+                        $originalStartDate = $currentEndDay;
+                        if ($pallet->received_at->startOfDay()->ne($currentEndDay)) {
+                            $currentEndDay = $pallet->dispatched_at->startOfDay();
+                        }
+
+                        if ($originalStartDate->ne($currentEndDay)) {
+                            print 'PED: '.$transaction->id.' '.$originalStartDate->format('Y-m-d').' -> '.$currentEndDay->format('Y-m-d')."\n";
+                        }else{
+                            print 'PED: '.$transaction->id.' FYI '.$transaction->end_date->format('Y-m-d')."\n";
+                        }
+                    }
+                } elseif ($transaction->end_date) {
+                    print 'PED: '.$transaction->id.' remove end day '.$transaction->end_date->format('Y-m-d')."\n";
+                }
+            }
+        }
+    }
+
 
     public function fixNonRentalRecurringBillTransactions(): void
     {
@@ -81,7 +135,6 @@ class RepairPalletDeliveriesAndReturns
                                 'quantity' => $fulfilmentTransaction->quantity
                             ]
                         );
-
                     }
                 }
             });

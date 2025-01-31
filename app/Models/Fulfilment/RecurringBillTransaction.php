@@ -74,7 +74,9 @@ class RecurringBillTransaction extends Model
     protected $table = 'recurring_bill_transactions';
 
     protected $casts = [
-        'data' => 'array'
+        'data' => 'array',
+        'start_date' => 'datetime',
+        'end_date'   => 'datetime',
     ];
 
     protected $attributes = [
