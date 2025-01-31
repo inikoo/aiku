@@ -370,11 +370,11 @@ class ShowPalletDelivery extends OrgAction
                     ],
                     [
                         'type'    => 'button',
-                        'style'   => 'primary',
+                        'style'   => 'tertiary',
                         'icon'    => 'fal fa-undo-alt',
                         'tooltip' => __('Revert to Confirmed'),
                         'label'   => __('Revert to Confirmed'),
-                        'key'     => 'action',
+                        'key'     => 'revert',
                         'route'   => [
                             'method'     => 'post',
                             'name'       => 'grp.models.pallet-delivery.confirm',
