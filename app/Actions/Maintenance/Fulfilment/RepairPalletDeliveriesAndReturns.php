@@ -42,7 +42,7 @@ class RepairPalletDeliveriesAndReturns
         $this->fixPalletReturnTransactionsRecurringBill();
         $this->fixNonRentalRecurringBillTransactions();
         /** @var RecurringBill $recurringBill */
-        foreach (RecurringBill::where('status', RecurringBillStatusEnum::CURRENT)->where('id',67)->get() as $recurringBill) {
+        foreach (RecurringBill::where('status', RecurringBillStatusEnum::CURRENT)->get() as $recurringBill) {
 
             $transactions = $recurringBill->transactions()->get();
 
