@@ -12,6 +12,7 @@ use App\Actions\Accounting\Invoice\Search\InvoiceRecordSearch;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateInvoices;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateSales;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
+use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Helpers\TaxCategory\GetTaxCategory;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInvoices;
@@ -22,6 +23,7 @@ use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithOrderExchanges;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
+use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\RecurringBill;
@@ -46,6 +48,20 @@ class StoreInvoice extends OrgAction
      */
     public function handle(Customer|Order|RecurringBill $parent, array $modelData): Invoice
     {
+
+        if (!Arr::has($modelData, 'reference')) {
+
+            data_set(
+                $modelData,
+                'reference',
+                GetSerialReference::run(
+                    container: $this->shop,
+                    modelType: SerialReferenceModelEnum::INVOICE
+                )
+            );
+
+        }
+
         if (class_basename($parent) == 'Customer') {
             $modelData['customer_id'] = $parent->id;
         } elseif (class_basename($parent) == 'RecurringBill') {
@@ -150,6 +166,7 @@ class StoreInvoice extends OrgAction
     {
         $rules = [
             'reference'       => [
+                'sometimes',
                 'required',
                 'max:64',
                 'string',

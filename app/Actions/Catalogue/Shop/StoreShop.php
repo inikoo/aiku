@@ -159,6 +159,14 @@ class StoreShop extends OrgAction
                 ]
             );
 
+            $shop->serialReferences()->create(
+                [
+                    'model'           => SerialReferenceModelEnum::INVOICE,
+                    'organisation_id' => $organisation->id,
+                    'format'          => 'inv-'.$shop->slug.'-%04d'
+                ]
+            );
+
 
             if ($shop->type == ShopTypeEnum::FULFILMENT) {
                 $fulfilment = StoreFulfilment::make()->make()->action(

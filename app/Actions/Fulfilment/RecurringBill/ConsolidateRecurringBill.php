@@ -39,7 +39,6 @@ class ConsolidateRecurringBill extends OrgAction
 
 
             $invoiceData = [
-                'reference'       => $recurringBill->reference,
                 'currency_id'     => $recurringBill->currency_id,
                 'type'            => InvoiceTypeEnum::INVOICE,
                 'net_amount'      => $recurringBill->net_amount,
@@ -74,7 +73,7 @@ class ConsolidateRecurringBill extends OrgAction
             'previous_recurring_bill_id' => $recurringBill->id
         ]);
 
-        CreateNextRecurringBillPostConsolidation::dispatch($recurringBill);
+        CreateNextRecurringBillPostConsolidation::run($recurringBill);
 
 
         return $invoice;
