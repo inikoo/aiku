@@ -57,10 +57,10 @@ class UserShowcaseResource extends JsonResource
                 'options'           => Organisation::get()->flatMap(function (Organisation $organisation) {
                     return [
                         $organisation->slug => [
-                            'positions'   => JobPositionResource::collection($organisation->jobPositions),
+                            'positions'   => ['data' => JobPositionResource::collection($organisation->jobPositions)],
                             'shops'       => \App\Http\Resources\Catalogue\ShopResource::collection($organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get()),
-                            'fulfilments' => ShopResource::collection($organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
-                            'warehouses'  => WarehouseResource::collection($organisation->warehouses),
+                            'fulfilments' => ['data' => ShopResource::collection($organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get())],
+                            'warehouses'  => ['data'=> WarehouseResource::collection($organisation->warehouses)],
                         ]
                     ];
                 })->toArray(),
