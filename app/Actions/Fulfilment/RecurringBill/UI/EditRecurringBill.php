@@ -25,6 +25,7 @@ class EditRecurringBill extends OrgAction
             'EditModel',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $recurringBill,
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
@@ -81,10 +82,11 @@ class EditRecurringBill extends OrgAction
         return $this->handle($recurringBill, $request);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(RecurringBill $recurringBill, string $routeName, array $routeParameters): array
     {
         return array_merge(
             ShowRecurringBill::make()->getBreadcrumbs(
+                recurringBill: $recurringBill,
                 routeName: $routeName,
                 routeParameters: $routeParameters,
             ),
