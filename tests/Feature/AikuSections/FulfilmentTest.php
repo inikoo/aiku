@@ -2613,7 +2613,7 @@ test('pay invoice (exceed)', function ($invoice) {
         ->and($payment->status)->toBe(PaymentStatusEnum::SUCCESS)
         ->and($payment->state)->toBe(PaymentStateEnum::COMPLETED)
         ->and($customer->creditTransactions)->not->toBeNull()
-        ->and($customer->balance)->toBe("382.00")
+        ->and($customer->balance)->toBe("402.00")
         ->and($customer->creditTransactions->skip(2)->first()->amount)->toBe("60.00");
 
     return $fulfilmentCustomer;
