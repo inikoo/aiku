@@ -56,7 +56,7 @@ const props = defineProps<{
                         <FontAwesomeIcon icon='fal fa-user' size="xs" class='pl-1 text-gray-400' fixed-width
                             aria-hidden='true' />
                     </dt>
-                    <dd class="text-base text-gray-500">{{ boxStats.customer.data.customer.contact_name }}</dd>
+                    <Link :href="route('grp.org.fulfilments.show.crm.customers.show', [route().params.organisation, route().params.fulfilment, boxStats.customer.data.slug ])" class="text-base text-gray-500 secondaryLink">{{ boxStats.customer.data.customer.contact_name }}</Link>
                 </div>
 
                 <!-- Field: Company name -->

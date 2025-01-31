@@ -51,7 +51,7 @@ trait WithFulfilmentCustomerSubNavigation
                     'icon'    => 'fal fa-parking',
                     'tooltip' => __("Customer's Spaces"),
                 ],
-                'number' => 0 //TODO: Need Stat and Hydrators
+                'number' => $fulfilmentCustomer->number_spaces
 
             ];
 
