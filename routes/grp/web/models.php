@@ -98,6 +98,8 @@ use App\Actions\Fulfilment\PalletReturnItem\UndoPickingPalletFromReturn;
 use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\UpdateRecurringBilling;
 use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
+use App\Actions\Fulfilment\RecurringBillTransaction\UpdateRecurringBillTransaction;
+use App\Actions\Fulfilment\RecurringBillTransaction\DeleteRecurringBillTransaction;
 use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
 use App\Actions\Fulfilment\Space\StoreSpace;
 use App\Actions\Fulfilment\Space\UpdateSpace;
@@ -340,6 +342,9 @@ Route::name('recurring-bill.')->prefix('recurring-bill/{recurringBill:id}')->gro
     Route::patch('consolidate', ConsolidateRecurringBill::class)->name('consolidate');
     Route::post('transaction/{historicAsset:id}', StoreRecurringBillTransaction::class)->name('transaction.store')->withoutScopedBindings();
 });
+
+Route::patch('recurring-bill-transaction/{recurringBillTransaction:id}', UpdateRecurringBillTransaction::class)->name('recurring_bill_transaction.update');
+Route::delete('recurring-bill-transaction/{recurringBillTransaction:id}', DeleteRecurringBillTransaction::class)->name('recurring_bill_transaction.delete');
 
 Route::name('product.')->prefix('product')->group(function () {
     Route::post('/product/', StoreProduct::class)->name('store');

@@ -4,18 +4,65 @@ import { FieldOrderSummary } from '@/types/Pallet'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 import { Links, Meta, Table as TableTS } from '@/types/Table'
-import { faRobot, faBadgePercent, faTag } from '@fal'
+import { faRobot, faBadgePercent, faTag, faTrashAlt } from '@fal'
 import Table from "@/Components/Table/Table.vue"
 import { inject } from 'vue'
 import Tag from '@/Components/Tag.vue'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { Link, router } from "@inertiajs/vue3"
-library.add(faTag)
+import NumberWithButtonSave from "@/Components/NumberWithButtonSave.vue"
+import { layoutStructure } from '@/Composables/useLayoutStructure'
+import { ref } from 'vue'
+import Button from '@/Components/Elements/Buttons/Button.vue'
+library.add(faTag,faTrashAlt)
 
 const props = defineProps<{
     data: TableTS
     tab?: string
+    status?:string
 }>()
+const layout = inject("layout", layoutStructure)
+
+const onUpdateQuantity = (id:Number,fulfilment_transaction_id: number, value: number) => {
+	/* console.log(idFulfilmentTransaction, 'loasding', value); */
+
+	const routeUpdate = <routeType>{}
+    if (fulfilment_transaction_id) {
+        if (layout.app.name === "Aiku") {
+            routeUpdate.name = "grp.models.fulfilment-transaction.update"
+            routeUpdate.parameters = { fulfilmentTransaction: fulfilment_transaction_id }
+        } else {
+            routeUpdate.name = "retina.models.fulfilment-transaction.update"
+            routeUpdate.parameters = { fulfilmentTransaction: fulfilment_transaction_id }
+        }
+    }else {
+        routeUpdate.name = "grp.models.recurring_bill_transaction.update"
+        routeUpdate.parameters = { recurringBillTransaction: id }
+    }
+	value.patch(route(routeUpdate.name, routeUpdate.parameters),{})
+}
+
+const isLoading = ref<string | boolean>(false)
+const onDeleteTransaction = (id:Number, fulfilment_transaction_id: number) => {
+	const routeDelete = <routeType>{}
+    if(fulfilment_transaction_id){
+        if (layout.app.name === "Aiku") {
+		routeDelete.name = "grp.models.fulfilment-transaction.delete"
+		routeDelete.parameters = { fulfilmentTransaction: fulfilment_transaction_id }
+	} else {
+		routeDelete.name = "retina.models.fulfilment-transaction.delete"
+		routeDelete.parameters = { fulfilmentTransaction: fulfilment_transaction_id }
+	}
+    }else{
+        routeDelete.name = "grp.models.recurring_bill_transaction.delete"
+        routeDelete.parameters = { recurringBillTransaction: id }
+    }
+	
+	router.delete(route(routeDelete.name, routeDelete.parameters), {
+		onStart: () => (isLoading.value = "buttonReset" + id),
+		onFinish: () => (isLoading.value = false),
+	})
+}
 
 const locale = inject('locale', aikuLocaleStructure)
 </script>
@@ -38,6 +85,17 @@ const locale = inject('locale', aikuLocaleStructure)
             </div>
         </template>
 
+        <template #cell(quantity)="{ item }">
+			<div class="flex justify-end">
+				<div v-if="status == 'current'">
+					<NumberWithButtonSave v-model="item.quantity"   @onSave="(e)=>onUpdateQuantity(item.id,item.fulfilment_transaction_id, e)"/>
+				</div>
+				<div v-else>
+					{{ item.quantity }}
+				</div>
+			</div>
+		</template>
+
         <template #cell(asset_price)="{ item }">
             {{ locale.currencyFormat(item.currency_code, item.asset_price || 0) }}/{{ item.unit_label }}
             <Tag v-if="item['discount'] > 0" :theme="17" noHoverColor>
@@ -51,5 +109,12 @@ const locale = inject('locale', aikuLocaleStructure)
         <template #cell(total)="{ item }">
             {{ locale.currencyFormat(item.currency_code, item.total || 0) }}
         </template>
+
+        <!-- Column: Action -->
+		<template #cell(actions)="{ item }">
+			<Button  @click="() => onDeleteTransaction(item.id,item.fulfilment_transaction_id)"
+				:loading="isLoading === 'buttonReset' + item.id" icon="fal fa-trash-alt" type="negative"
+				v-tooltip="'Unselect this field'" />
+		</template>
     </Table>
 </template>

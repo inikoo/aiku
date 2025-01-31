@@ -9,6 +9,7 @@
 namespace App\Actions\Accounting\Invoice\UI;
 
 use App\Actions\Accounting\Invoice\WithInvoicesSubNavigation;
+use App\Actions\Accounting\Refund\UI\IndexRefunds;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
@@ -21,6 +22,7 @@ use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\Accounting\Invoice\InvoicePayStatusEnum;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
+use App\Enums\UI\Accounting\InvoicesTabsEnum;
 use App\Http\Resources\Accounting\InvoicesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Invoice;
@@ -299,7 +301,28 @@ class IndexInvoices extends OrgAction
         $routeName       = $request->route()->getName();
         $routeParameters = $request->route()->originalParameters();
 
-        return Inertia::render(
+        $data = [];
+
+        if ($this->tab && !app()->environment('production')) {
+            $data = [
+                'tabs' => [
+                            'current'    => $this->tab,
+                            'navigation' => InvoicesTabsEnum::navigation(),
+                        ],
+                        InvoicesTabsEnum::INVOICES->value => $this->tab == InvoicesTabsEnum::INVOICES->value
+                            ? fn () => InvoicesResource::collection($invoices)
+                            : Inertia::lazy(fn () => InvoicesResource::collection($invoices)),
+                        InvoicesTabsEnum::REFUNDS->value => $this->tab == InvoicesTabsEnum::REFUNDS->value
+                            ? fn () => InvoicesResource::collection(IndexRefunds::run($this->parent, InvoicesTabsEnum::REFUNDS->value))
+                            : Inertia::lazy(fn () => InvoicesResource::collection(IndexRefunds::run($this->parent, InvoicesTabsEnum::REFUNDS->value))),
+            ];
+        } else {
+            $data = [
+                'data' => InvoicesResource::collection($invoices),
+            ];
+        }
+
+        $inertiaRender =  Inertia::render(
             'Org/Accounting/Invoices',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
@@ -317,11 +340,18 @@ class IndexInvoices extends OrgAction
                     'subNavigation' => $subNavigation,
                     'actions'       => $actions
                 ],
-                'data'        => InvoicesResource::collection($invoices),
 
-
+                ...$data
             ]
-        )->table($this->tableStructure($this->parent));
+        );
+
+        if ($this->tab && !app()->environment('production')) {
+            $inertiaRender->table($this->tableStructure(parent: $this->parent, prefix: InvoicesTabsEnum::INVOICES->value))
+                ->table(IndexRefunds::make()->tableStructure(parent: $this->parent, prefix: InvoicesTabsEnum::REFUNDS->value));
+        } else {
+            $inertiaRender = $inertiaRender->table($this->tableStructure(parent: $this->parent));
+        }
+        return $inertiaRender;
     }
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
@@ -414,9 +444,9 @@ class IndexInvoices extends OrgAction
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $fulfilmentCustomer;
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(InvoicesTabsEnum::values());
 
-        return $this->handle($fulfilmentCustomer);
+        return $this->handle($fulfilmentCustomer, InvoicesTabsEnum::INVOICES->value);
     }
 
 

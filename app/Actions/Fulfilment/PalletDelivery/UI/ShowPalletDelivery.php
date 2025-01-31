@@ -493,7 +493,7 @@ class ShowPalletDelivery extends OrgAction
                 PalletDeliveryStateEnum::IN_PROCESS,
                 PalletDeliveryStateEnum::SUBMITTED
             ])) {
-                $actions = array_merge( $actions, [$pdfButton]);
+                $actions = array_merge($actions, [$pdfButton]);
             } else {
                 $actions = array_merge([[
                     'type'    => 'button',
