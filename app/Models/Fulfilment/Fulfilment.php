@@ -142,6 +142,11 @@ class Fulfilment extends Model
         return $this->morphToMany(AikuSection::class, 'model', 'aiku_scoped_sections');
     }
 
+    public function spaces(): HasMany
+    {
+        return $this->hasMany(Space::class);
+    }
+
 
 
 }
