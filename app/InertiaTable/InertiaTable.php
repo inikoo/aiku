@@ -13,7 +13,7 @@ class InertiaTable
 {
     private string $name          = 'default';
     private string $pageName      = 'page';
-    private array $perPageOptions = [10, 25, 50, 100, 250];
+    private array $perPageOptions = [10, 25, 50, 100, 250, 500, 1000];
     private Request $request;
     private Collection $columns;
     private Collection $searchInputs;

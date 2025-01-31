@@ -32,9 +32,12 @@ import { useFormatTime } from '@/Composables/useFormatTime'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheckSquare, faCheck, faSquare} from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import axios from 'axios'
+import { layoutStructure } from '@/Composables/useLayoutStructure'
 library.add(faCheckSquare, faCheck, faSquare)
 
 const locale = inject('locale', aikuLocaleStructure)
+const layout = inject('layout', layoutStructure)
 
 const props = defineProps(
     {
@@ -360,6 +363,21 @@ function onPerPageChange(value) {
     queryBuilderData.value.cursor = null
     queryBuilderData.value.perPage = value
     queryBuilderData.value.page = 1
+
+    axios.patch(
+        route("grp.models.user.update", layout.user?.id),
+        {
+            settings: {
+                records_per_page: value,
+            },
+        }
+    )
+    .then((response) => {
+        console.log('success');
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
 }
 
 function findDataKey(dataKey, key) {

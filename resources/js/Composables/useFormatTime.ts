@@ -15,8 +15,6 @@ export interface OptionsTime {
 export const useFormatTime = (dateIso: string | Date | undefined, OptionsTime?: OptionsTime) => {
     if (!dateIso) return '-'  // If the provided data date is null
 
-    // console.log(OptionsTime)
-
     let tempLocaleCode = OptionsTime?.localeCode === 'zh-Hans' ? 'zhCN' : OptionsTime?.localeCode ?? 'enGB'
     let tempDateIso = new Date(dateIso)
 
