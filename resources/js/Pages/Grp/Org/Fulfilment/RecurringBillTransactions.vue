@@ -39,7 +39,9 @@ const onUpdateQuantity = (id:Number,fulfilment_transaction_id: number, value: nu
         routeUpdate.name = "grp.models.recurring_bill_transaction.update"
         routeUpdate.parameters = { recurringBillTransaction: id }
     }
-	value.patch(route(routeUpdate.name, routeUpdate.parameters),{})
+	value.patch(route(routeUpdate.name, routeUpdate.parameters),{
+        preserveScroll: true,
+    })
 }
 
 const isLoading = ref<string | boolean>(false)
@@ -59,6 +61,7 @@ const onDeleteTransaction = (id:Number, fulfilment_transaction_id: number) => {
     }
 	
 	router.delete(route(routeDelete.name, routeDelete.parameters), {
+        preserveScroll: true,
 		onStart: () => (isLoading.value = "buttonReset" + id),
 		onFinish: () => (isLoading.value = false),
 	})
@@ -87,7 +90,7 @@ const locale = inject('locale', aikuLocaleStructure)
 
         <template #cell(quantity)="{ item }">
 			<div class="flex justify-end">
-				<div v-if="status == 'current'">
+				<div v-if="status == 'current' &&  (item.data.type !== 'Pallet' && item.data.type !== 'Space')">
 					<NumberWithButtonSave v-model="item.quantity"   @onSave="(e)=>onUpdateQuantity(item.id,item.fulfilment_transaction_id, e)"/>
 				</div>
 				<div v-else>
@@ -112,7 +115,7 @@ const locale = inject('locale', aikuLocaleStructure)
 
         <!-- Column: Action -->
 		<template #cell(actions)="{ item }">
-			<Button  @click="() => onDeleteTransaction(item.id,item.fulfilment_transaction_id)"
+			<Button v-if="item.data.type !== 'Pallet' && item.data.type !== 'Space'" @click="() => onDeleteTransaction(item.id,item.fulfilment_transaction_id)"
 				:loading="isLoading === 'buttonReset' + item.id" icon="fal fa-trash-alt" type="negative"
 				v-tooltip="'Unselect this field'" />
 		</template>
