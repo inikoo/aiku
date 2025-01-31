@@ -135,7 +135,7 @@ class IndexRetinaSpaces extends RetinaAction
 
 
         return Inertia::render(
-            'Space/Spaces',
+            'Space/RetinaSpaces',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
@@ -147,7 +147,7 @@ class IndexRetinaSpaces extends RetinaAction
                     'afterTitle' => $afterTitle,
                     'iconRight' => $iconRight,
                     'icon' => $icon,
-                    'subNavigation' => $subNavigation,
+                   /*  'subNavigation' => $subNavigation,
                     'actions' => [
                         [
                             'type' => 'button',
@@ -158,7 +158,7 @@ class IndexRetinaSpaces extends RetinaAction
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]
-                    ],
+                    ], */
                 ],
                 'data' => SpacesResource::collection($spaces)
             ]
