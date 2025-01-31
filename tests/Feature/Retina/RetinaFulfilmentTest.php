@@ -155,7 +155,7 @@ beforeEach(function () {
     $this->webUser  = createWebUser($this->customer);
 
     $palletRental = StoreRental::make()->action(
-       $this->fulfilment->shop,
+        $this->fulfilment->shop,
         [
             'price' => 100,
             'unit'  => RentalUnitEnum::WEEK->value,
@@ -167,7 +167,7 @@ beforeEach(function () {
     );
     $this->palletRental = $palletRental;
     $oversizeRental = StoreRental::make()->action(
-       $this->fulfilment->shop,
+        $this->fulfilment->shop,
         [
             'price' => 100,
             'unit'  => RentalUnitEnum::WEEK->value,
@@ -179,7 +179,7 @@ beforeEach(function () {
     );
     $this->oversizeRental = $oversizeRental;
     $boxRental = StoreRental::make()->action(
-       $this->fulfilment->shop,
+        $this->fulfilment->shop,
         [
             'price' => 100,
             'unit'  => RentalUnitEnum::WEEK->value,
