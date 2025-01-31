@@ -141,6 +141,7 @@ class RecurringBillTransactionsResource extends JsonResource
             'quantity'           =>   (int) $this->quantity * $this->temporal_quantity,
             'total'              => $this->net_amount,
             'discount'           => (int) $this->discount,
+            'fulfilment_transaction_id' => $this->fulfilment_transaction_id,
             // 'description'        => $description,
             'description'         => [
                 'model' => $desc_model,

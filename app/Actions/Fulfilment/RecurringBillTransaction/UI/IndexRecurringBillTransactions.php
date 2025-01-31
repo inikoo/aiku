@@ -17,6 +17,7 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
 
 class IndexRecurringBillTransactions extends OrgAction
 {
@@ -112,6 +113,10 @@ class IndexRecurringBillTransactions extends OrgAction
                 ->column(key: 'quantity', label: __('quantity'))
                 ->column(key: 'total', label: __('net'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
                 ->defaultSort('id');
+                if ($recurringBill->status == RecurringBillStatusEnum::CURRENT) {
+                    $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true);
+                }
+               
         };
     }
 
