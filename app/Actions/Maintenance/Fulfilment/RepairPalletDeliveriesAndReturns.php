@@ -77,6 +77,8 @@ class RepairPalletDeliveriesAndReturns
 
                 if ($originalStartDate->ne($currentStartDay)) {
                     print 'PSD: '.$transaction->id.'  '.$originalStartDate->format('Y-m-d').' -> '.$currentStartDay->format('Y-m-d')."\n";
+                    $transaction->update(['start_date' => $currentStartDay]);
+
                 }
             }
         }
