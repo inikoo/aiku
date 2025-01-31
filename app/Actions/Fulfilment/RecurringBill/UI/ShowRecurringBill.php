@@ -157,7 +157,12 @@ class ShowRecurringBill extends OrgAction
                 ],
                 'timeline_rb'      => [
                     'start_date' => $recurringBill->start_date,
-                    'end_date' => $recurringBill->end_date
+                    'end_date' => $recurringBill->end_date,
+                    'is_display_consolidate_button' => now()
+                        ->betweenIncluded(
+                            $recurringBill->start_date->subDay()->format('Y-m-d'),
+                            $recurringBill->end_date->addDay()->format('Y-m-d')
+                        )
                 ],
                 'consolidateRoute' => [
                     'name'       => 'grp.models.recurring-bill.consolidate',
