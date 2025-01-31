@@ -33,7 +33,7 @@ function spaceRoute(space) {
 				space.slug,
 			])
 		default:
-			return []
+			return null
 	}
 }
 
@@ -42,21 +42,29 @@ function spaceRoute(space) {
 <template>
 	<Table :resource="data" :name="tab" class="mt-5">
 	
-		<template #cell(referencex)="{ item: space }">
+		<template #cell(reference)="{ item: space }">
 			<Link :href="spaceRoute(space)" class="primaryLink">
 				{{ space["reference"] }}
 			</Link>
+		</template>
+
+		<template #cell(start_at)="{ item: space }">
+			{{ useFormatTime(space["start_at"]) }}
+		</template>
+
+		<template #cell(end_at)="{ item: space }">
+			{{ useFormatTime(space["end_at"]) }}
 		</template>
 		<template #cell(rental)="{ item: space }">
 			<span v-tooltip="space.rental_name">
 				{{ space["rental"] }}
 			</span>
 		</template>
-		<template #cell(start_at)="{ item: space }">
+		<!-- <template #cell(start_at)="{ item: space }">
 			{{ useFormatTime( space["start_at"], { localeCode: locale.language.code, formatTime: "aiku" }) }}
 		</template>
 		<template #cell(end_at)="{ item: space }">
 			{{ useFormatTime( space["end_at"], { localeCode: locale.language.code, formatTime: "aiku" }) }}
-		</template>
+		</template> -->
 	</Table>
 </template>

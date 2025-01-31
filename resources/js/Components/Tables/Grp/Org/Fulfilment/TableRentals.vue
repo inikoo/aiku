@@ -41,7 +41,7 @@ function rentalRoute(rental: {}) {
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- Column: Code -->
         <template #cell(code)="{ item: rental }">
-            <Link :href="rentalRoute(rental)" class="primaryLink">
+            <Link v-if="rentalRoute(rental)" :href="rentalRoute(rental)" class="primaryLink">
                 {{ rental['code'] }}
             </Link>
         </template>

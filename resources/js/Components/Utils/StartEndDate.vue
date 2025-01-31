@@ -13,6 +13,7 @@ import { useFormatTime } from '@/Composables/useFormatTime'
 import { notify } from '@kyvg/vue3-notification'
 import { routeType } from '@/types/route'
 import { ref } from 'vue'
+import { trans } from 'laravel-vue-i18n'
 library.add(faArrowRight, faExclamationTriangle, faPencil)
     
 const props = defineProps<{
@@ -58,7 +59,7 @@ const onChangeEstimateDate = async (newDate: Date, close: Function) => {
 <template>
     <div class="relative grid lg:grid-cols-11 gap-y-1.5 xl:min-w-[400px] w-full text-gray-600">
         <div class="bg-black/10 lg:col-span-5 px-4 py-2 rounded-md ring-1 ring-black/20 flex flex-col">
-            <div class="text-xs text-gray-500">Start date</div>
+            <div class="text-xs text-gray-500">{{ trans("Start date") }}</div>
             <div class="font-medium">
                 {{ useFormatTime(startDate)}}
             </div>
@@ -74,12 +75,13 @@ const onChangeEstimateDate = async (newDate: Date, close: Function) => {
             
         >
             <div class="flex justify-between text-xs">
-                <div class="text-xs text-gray-500">End date</div>
-                <FontAwesomeIcon v-if="isEndDateToday" v-tooltip="isEndDateToday ? 'Today is the end date' : undefined" icon='fal fa-exclamation-triangle' class='text-sm text-red-500' fixed-width aria-hidden='true' />
+                <div class="text-xs text-gray-500">{{ trans("End date") }}</div>
+                <FontAwesomeIcon v-if="isEndDateToday" v-tooltip="isEndDateToday ? trans('Today is the end date') : undefined" icon='fal fa-exclamation-triangle' class='text-sm text-red-500' fixed-width aria-hidden='true' />
             </div>
             <div class="font-medium">
                 <div v-if="isEndDateNotEditable">
                     <div>{{ useFormatTime(endDate)}}</div>
+                    {{ endDate }}
                 </div>
                 
                 <Popover v-else position="right-0">

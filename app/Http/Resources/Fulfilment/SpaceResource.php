@@ -9,6 +9,7 @@
 
 namespace App\Http\Resources\Fulfilment;
 
+use App\Models\Fulfilment\RecurringBill;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -24,8 +25,12 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class SpaceResource extends JsonResource
 {
+    public static $wrap = null;
+
     public function toArray($request): array
     {
+        // dd($this->current_recurring_bill_id);
+        $recurringBill = RecurringBill::find($this->current_recurring_bill_id);
 
         return [
             'id'                         => $this->id,
@@ -35,9 +40,11 @@ class SpaceResource extends JsonResource
             'state_label'                => $this->state->labels()[$this->state->value],
             'start_at'                   => $this->start_at,
             'end_at'                     => $this->end_at,
-            'rental_slug'                => $this->rental_slug,
-            'rental_name'                => $this->rental_name,
-            'rental_code'                => $this->rental_code,
+            // 'rental_slug'                => $this->rental_slug,
+            'exclude_weekend'            => $this->exclude_weekend,
+            'rental'                     => $this->rental,
+            'recurring_bill'             => RecurringBillResource::make($recurringBill ?? null),
+            // 'rental_code'                => $this->rental_code,
         ];
     }
 }
