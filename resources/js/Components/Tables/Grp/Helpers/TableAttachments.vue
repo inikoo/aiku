@@ -169,5 +169,10 @@ const confirmDelete = (event, media_id: number, id: number) => {
                 </ConfirmPopup>
             </div>
         </template>
+
+        <template #button-empty-state="{ action }">
+            <slot name="button-empty-state-attachments" :action="action">
+            </slot>
+        </template>
     </Table>
 </template>

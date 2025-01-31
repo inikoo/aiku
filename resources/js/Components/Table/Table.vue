@@ -675,24 +675,26 @@ const isLoading = ref<string | boolean>(false)
             v-if="queryBuilderProps.emptyState?.count === 0 && compResourceMeta.total === 0">
             <EmptyState :data="queryBuilderProps.emptyState">
                 <template #button-empty-state>
-                    <!-- <pre>{{ Object.values(queryBuilderProps.emptyState?.action).length }}</pre> -->
-                    <div> <!-- div to replace in case v-if empty  -->
-                        <Link v-if="Object.values(queryBuilderProps.emptyState?.action || {}).length"
-                            as="div"
-                            :href="queryBuilderProps.emptyState?.action?.route?.name ? route(queryBuilderProps.emptyState?.action.route.name, queryBuilderProps.emptyState?.action.route.parameters) : '#'"
-                            :method="queryBuilderProps.emptyState?.action?.route?.method"
-                            class="mt-4 block"
-                            @start="() => isLoading = 'loadingEmptyState'"
-                            @finish="() => isLoading = false"
-                        >
-                            <Button
-                                :style="queryBuilderProps.emptyState?.action.style"
-                                :icon="queryBuilderProps.emptyState?.action.icon"
-                                :label="queryBuilderProps.emptyState?.action.tooltip"
-                                :loading="isLoading === 'loadingEmptyState'"
-                            />
-                        </Link>
-                    </div>
+                    <slot name="button-empty-state" :action="queryBuilderProps.emptyState?.action">
+                        <!-- <pre>{{ Object.values(queryBuilderProps.emptyState?.action).length }}</pre> -->
+                        <div> <!-- div to replace in case v-if empty  -->
+                            <Link v-if="Object.values(queryBuilderProps.emptyState?.action || {}).length"
+                                as="div"
+                                :href="queryBuilderProps.emptyState?.action?.route?.name ? route(queryBuilderProps.emptyState?.action.route.name, queryBuilderProps.emptyState?.action.route.parameters) : '#'"
+                                :method="queryBuilderProps.emptyState?.action?.route?.method"
+                                class="mt-4 block"
+                                @start="() => isLoading = 'loadingEmptyState'"
+                                @finish="() => isLoading = false"
+                            >
+                                <Button
+                                    :style="queryBuilderProps.emptyState?.action.style"
+                                    :icon="queryBuilderProps.emptyState?.action.icon"
+                                    :label="queryBuilderProps.emptyState?.action.tooltip"
+                                    :loading="isLoading === 'loadingEmptyState'"
+                                />
+                            </Link>
+                        </div>
+                    </slot>
                 </template>
             </EmptyState>
 
