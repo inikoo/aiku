@@ -60,8 +60,13 @@ const form = useForm({
                             <!-- Input -->
                             <div
                                 class="text-center tabular-nums border border-transparent hover:border-dashed hover:border-gray-300 group-focus:border-dashed group-focus:border-gray-300">
-                                <InputNumber v-model="form.quantity" buttonLayout="horizontal" :min="0"
-                                    style="width: 100%" :inputStyle="{
+                                <InputNumber 
+                                    v-model="form.quantity" 
+                                    @update:model-value="(e)=>form.quantity=e"
+                                    buttonLayout="horizontal" 
+                                    :min="0"
+                                    style="width: 100%" 
+                                    :inputStyle="{
                                         padding: '0px',
                                         width: '50px',
                                         color: 'gray',
