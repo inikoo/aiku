@@ -113,10 +113,10 @@ class IndexRecurringBillTransactions extends OrgAction
                 ->column(key: 'quantity', label: __('quantity'))
                 ->column(key: 'total', label: __('net'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
                 ->defaultSort('id');
-                if ($recurringBill->status == RecurringBillStatusEnum::CURRENT) {
-                    $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true);
-                }
-               
+            if ($recurringBill->status == RecurringBillStatusEnum::CURRENT) {
+                $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true);
+            }
+
         };
     }
 

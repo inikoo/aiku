@@ -344,7 +344,7 @@ Route::name('recurring-bill.')->prefix('recurring-bill/{recurringBill:id}')->gro
 });
 
 Route::patch('recurring-bill-transaction/{recurringBillTransaction:id}', UpdateRecurringBillTransaction::class)->name('recurring_bill_transaction.update');
-Route::patch('recurring-bill-transaction/{recurringBillTransaction:id}', DeleteRecurringBillTransaction::class)->name('recurring_bill_transaction.delete');
+Route::delete('recurring-bill-transaction/{recurringBillTransaction:id}', DeleteRecurringBillTransaction::class)->name('recurring_bill_transaction.delete');
 
 Route::name('product.')->prefix('product')->group(function () {
     Route::post('/product/', StoreProduct::class)->name('store');

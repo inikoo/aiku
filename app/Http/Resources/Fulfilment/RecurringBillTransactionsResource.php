@@ -64,23 +64,23 @@ class RecurringBillTransactionsResource extends JsonResource
                 ]
             ];
 
-        } else if ($this->pallet_delivery_id) {
-                $palletDelivery = PalletDelivery::find($this->pallet_delivery_id);
-                if ($palletDelivery) {
-                    $desc_title = $palletDelivery->reference;
-                    $desc_model = __('Pallet Delivery');
-                    $desc_route = [
-                        'name' => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show',
-                        'parameters'    => [
-                            'organisation'         => $request->route()->originalParameters()['organisation'],
-                            'fulfilment'           => $request->route()->originalParameters()['fulfilment'],
-                            'fulfilmentCustomer'   => $palletDelivery->fulfilmentCustomer->slug,
-                            'palletDelivery'       => $palletDelivery->slug
-                        ]
-                    ];
-                }
+        } elseif ($this->pallet_delivery_id) {
+            $palletDelivery = PalletDelivery::find($this->pallet_delivery_id);
+            if ($palletDelivery) {
+                $desc_title = $palletDelivery->reference;
+                $desc_model = __('Pallet Delivery');
+                $desc_route = [
+                    'name' => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show',
+                    'parameters'    => [
+                        'organisation'         => $request->route()->originalParameters()['organisation'],
+                        'fulfilment'           => $request->route()->originalParameters()['fulfilment'],
+                        'fulfilmentCustomer'   => $palletDelivery->fulfilmentCustomer->slug,
+                        'palletDelivery'       => $palletDelivery->slug
+                    ]
+                ];
+            }
 
-        } else if ($this->pallet_return_id) {
+        } elseif ($this->pallet_return_id) {
             $palletReturn = PalletReturn::find($this->pallet_return_id);
             if ($palletReturn) {
                 $desc_title = $palletReturn->reference;
@@ -95,9 +95,9 @@ class RecurringBillTransactionsResource extends JsonResource
                     ]
                 ];
             }
-        } else if ($this->item_type === 'Space') {
+        } elseif ($this->item_type === 'Space') {
             $space = Space::find($this->item_id);
-            if($space) {
+            if ($space) {
                 $desc_model = __('Space (parking)');
                 $desc_title = $space->reference;
                 $desc_route = [

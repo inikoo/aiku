@@ -11,7 +11,6 @@ namespace App\Actions\Fulfilment\PalletDelivery\UI;
 use App\Actions\OrgAction;
 use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
-use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentTransaction;
