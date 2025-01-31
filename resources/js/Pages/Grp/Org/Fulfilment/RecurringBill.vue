@@ -320,8 +320,9 @@ const isLoading = ref(false)
                     </div>
                 </div>
 
+<!--                    v-if="compareAsc(new Date(timeline_rb.end_date), new Date()) === 1 && status_rb === 'current'" class=""-->
                 <component
-                    v-if="compareAsc(new Date(timeline_rb.end_date), new Date()) === 1 && status_rb === 'current'" class=""
+                    v-if="timeline_rb.is_display_consolidate_button && status_rb === 'current'" class=""
                     :is="consolidateRoute?.name ? Link : 'div'"
                     :href="consolidateRoute?.name ? route(consolidateRoute.name, consolidateRoute.parameters) : '#'"
                     @start="() => isLoading = true"

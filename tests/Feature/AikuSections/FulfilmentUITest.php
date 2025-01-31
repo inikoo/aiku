@@ -1117,6 +1117,7 @@ test('UI show Recurring Bill', function () {
 });
 
 test('UI edit recurring bill', function () {
+    $this->withoutExceptionHandling();
     $response = get(route('grp.org.fulfilments.show.operations.recurring_bills.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->recurringBill->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page

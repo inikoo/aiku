@@ -41,7 +41,7 @@ class CreateNextRecurringBillPostConsolidation extends OrgAction
                 ->exists();
 
             $hasSpaces = $fulfilmentCustomer->spaces()
-                ->where('status', SpaceStateEnum::RENTING)
+                ->where('state', SpaceStateEnum::RENTING)
                 ->exists();
 
             if ($hasStoringPallet || $hasSpaces) {

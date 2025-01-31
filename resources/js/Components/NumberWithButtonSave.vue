@@ -15,6 +15,7 @@ import { faSave as fadSave } from "@fad"
 import { faSave as falSave, faInfoCircle } from "@fal"
 import { faAsterisk, faQuestion, faSpinner } from "@fas"
 import { useForm } from "@inertiajs/vue3"
+import LoadingIcon from "./Utils/LoadingIcon.vue"
 
 library.add(
     faRobot,
@@ -86,8 +87,9 @@ const form = useForm({
                     :class="{ 'text-gray-400 cursor-not-allowed': !form.isDirty }"
                     :disabled="form.processing || !form.isDirty" type="submit">
                     <div name="fade">
-                        <FontAwesomeIcon v-if="form.processing" icon="fas fa-spinner" spin class="h-6"
-                            aria-hidden="true" />
+                        <LoadingIcon v-if="form.processing" icon="fas fa-spinner" spin class="h-6"
+                            aria-hidden="true"
+                        <FontAwesomeIcon  />
                         <span v-if="!form.processing">
                             <FontAwesomeIcon v-if="form.isDirty" @click="emits('onSave', form)"
                                 :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" icon="fad fa-save" class="h-6"
