@@ -10,6 +10,12 @@
 
 namespace App\Actions\Maintenance\Fulfilment;
 
+use App\Actions\Fulfilment\RecurringBill\CalculateRecurringBillTemporalAggregates;
+use App\Actions\Fulfilment\RecurringBill\CalculateRecurringBillTotals;
+use App\Actions\Fulfilment\RecurringBillTransaction\CalculateRecurringBillTransactionAmounts;
+use App\Actions\Fulfilment\RecurringBillTransaction\CalculateRecurringBillTransactionCurrencyExchangeRates;
+use App\Actions\Fulfilment\RecurringBillTransaction\CalculateRecurringBillTransactionDiscountPercentage;
+use App\Actions\Fulfilment\RecurringBillTransaction\CalculateRecurringBillTransactionTemporalQuantity;
 use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
 use App\Actions\Fulfilment\RecurringBillTransaction\UpdateRecurringBillTransaction;
 use App\Actions\Fulfilment\UpdateCurrentRecurringBillsTemporalAggregates;
@@ -35,7 +41,25 @@ class RepairPalletDeliveriesAndReturns
         $this->fixPalletReturnRecurringBill();
         $this->fixPalletReturnTransactionsRecurringBill();
         $this->fixNonRentalRecurringBillTransactions();
-        UpdateCurrentRecurringBillsTemporalAggregates::run();
+        /** @var RecurringBill $recurringBill */
+        foreach (RecurringBill::where('status', RecurringBillStatusEnum::CURRENT)->where('id',67)->get() as $recurringBill) {
+
+            $transactions = $recurringBill->transactions()->get();
+
+            foreach ($transactions as $transaction) {
+                $transaction = CalculateRecurringBillTransactionDiscountPercentage::make()->action($transaction);
+                $transaction = CalculateRecurringBillTransactionTemporalQuantity::run($transaction);
+                $transaction = CalculateRecurringBillTransactionAmounts::run($transaction);
+                CalculateRecurringBillTransactionCurrencyExchangeRates::run($transaction);
+            }
+
+            CalculateRecurringBillTotals::make()->action($recurringBill);
+
+        }
+
+
+
+
     }
 
     public function fixNonRentalRecurringBillTransactions(): void
