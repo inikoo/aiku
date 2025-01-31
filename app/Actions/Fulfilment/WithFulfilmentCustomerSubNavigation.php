@@ -51,7 +51,7 @@ trait WithFulfilmentCustomerSubNavigation
                     'icon'    => 'fal fa-parking',
                     'tooltip' => __("Customer's Spaces"),
                 ],
-                'number' => 0 //TODO: Need Stat and Hydrators
+                'number' => $fulfilmentCustomer->number_spaces
 
             ];
 
@@ -110,25 +110,6 @@ trait WithFulfilmentCustomerSubNavigation
                         'tooltip' => __("Customer's SKUs"),
                     ],
                     'number' => $fulfilmentCustomer->number_stored_items
-
-                ];
-
-            }
-
-            if ($fulfilmentCustomer->space_rental) {
-
-                $subNavigation[] = [
-                    'route' => [
-                        'name'      => 'grp.org.fulfilments.show.crm.customers.show.spaces.index',
-                        'parameters' => $request->route()->originalParameters()
-                    ],
-
-                    'label'     => __("Spaces"),
-                    'leftIcon'  => [
-                        'icon'    => 'fal fa-parking',
-                        'tooltip' => __("Customer's Spaces"),
-                    ],
-                    'number' => $fulfilmentCustomer->number_spaces
 
                 ];
 
