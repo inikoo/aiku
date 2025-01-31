@@ -35,18 +35,17 @@ class ShowSpace extends OrgAction
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, Space $space, ActionRequest $request): Space
     {
         $this->parent = $fulfilmentCustomer;
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(SpaceTabsEnum::values());
 
         return $this->handle($space);
     }
 
     public function htmlResponse(Space $space, ActionRequest $request): Response
     {
-        // dd($collection->stats);
         return Inertia::render(
             'Org/Fulfilment/Space',
             [
-                'title'       => __('purge'),
+                'title'       => __('Space'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
@@ -79,6 +78,7 @@ class ShowSpace extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => SpaceTabsEnum::navigation()
                 ],
+                'showcase'    => SpaceResource::make($space),
 
             ]
         );

@@ -44,5 +44,13 @@ function spaceRoute(space) {
 				{{ space["reference"] }}
 			</Link>
 		</template>
+
+		<template #cell(start_at)="{ item: space }">
+			{{ useFormatTime(space["start_at"]) }}
+		</template>
+
+		<template #cell(end_at)="{ item: space }">
+			{{ useFormatTime(space["end_at"]) }}
+		</template>
 	</Table>
 </template>
