@@ -162,7 +162,7 @@ class IndexRecurringBills extends OrgAction
                         ]
                     }
                 );
-            $table->column(key: 'status_icon', label: '', canBeHidden: false, sortable: false, searchable: false, icon: true);
+            $table->column(key: 'status_icon', label: '', canBeHidden: false, sortable: false, searchable: false, type: 'icon');
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             if ($parent instanceof Fulfilment) {
                 $table->column(key: 'customer_name', label: __('customer'), canBeHidden: false, sortable: true, searchable: true);
