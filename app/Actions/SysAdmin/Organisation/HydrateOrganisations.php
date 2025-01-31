@@ -131,7 +131,7 @@ class HydrateOrganisations extends HydrateModel
             OrganisationHydrateStoredItemAudits::run($organisation);
             OrganisationHydrateStoredItems::run($organisation);
             OrganisationHydrateRecurringBills::run($organisation);
-            OrganisationHydrateSpaces::dispatch($organisation);
+            OrganisationHydrateSpaces::run($organisation);
 
             OrganisationHydrateTopUps::run($organisation);
             OrganisationHydrateCreditTransactions::run($organisation);

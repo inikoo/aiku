@@ -168,7 +168,7 @@ class HydrateGroup extends HydrateModel
         GroupHydrateStoredItemAudits::run($group);
         GroupHydrateStoredItems::run($group);
         GroupHydrateRecurringBills::run($group);
-        GroupHydrateSpaces::dispatch($group);
+        GroupHydrateSpaces::run($group);
 
         GroupHydrateTopUps::run($group);
         GroupHydrateCreditTransactions::run($group);
