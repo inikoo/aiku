@@ -325,8 +325,11 @@ class ShowPalletDelivery extends OrgAction
                         'key'     => 'action',
                         'route'   => [
                             'method'     => 'get',
-                            'name'       => 'grp.models.pallet-delivery.confirm',
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.edit',
                             'parameters' => [
+                                'organisation'   => $palletDelivery->organisation->slug,
+                                'fulfilment'     => $palletDelivery->fulfilment->slug,
+                                'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
                                 'palletDelivery' => $palletDelivery->slug
                             ]
                         ]

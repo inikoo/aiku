@@ -26,6 +26,7 @@ use App\Actions\Fulfilment\Pallet\UI\EditPallet;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInStoredItem;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
+use App\Actions\Fulfilment\PalletDelivery\UI\EditPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\ExportPalletReturnPallet;
@@ -91,6 +92,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     Route::prefix('pallet-deliveries')->as('.pallet_deliveries.')->group(function () {
         Route::get('', [IndexPalletDeliveries::class, 'inFulfilmentCustomer'])->name('index');
         Route::get('{palletDelivery}', [ShowPalletDelivery::class, 'inFulfilmentCustomer'])->name('show');
+        Route::get('{palletDelivery}/edit', [EditPalletDelivery::class, 'inFulfilmentCustomer'])->name('edit');
         Route::get('{palletDelivery}/pallets/{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('pallets.show');
 
         Route::get('{palletDelivery}/pallets-histories', [IndexRecentUploads::class, 'inPalletDelivery'])->name('pallets.uploads.history');
