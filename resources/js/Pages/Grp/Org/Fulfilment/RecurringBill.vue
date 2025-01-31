@@ -311,7 +311,7 @@ const isLoading = ref(false)
                         <FontAwesomeIcon icon='far fa-wave-sine' class='' fixed-width aria-hidden='true' />
                     </div>
                     <div v-if="status_rb === 'current'" class="flex gap-x-1 text-xs italic text-green-700/70">
-                        <div>End date is</div>
+                        <div>Today is invoice day</div>
                         <div>
                             <Transition name="spin-to-down">
                                 <span :key="timeline_rb.end_date">{{ useDaysLeftFromToday(timeline_rb.end_date) }}</span>

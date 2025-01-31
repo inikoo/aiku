@@ -9,11 +9,12 @@ import Table from "@/Components/Table/Table.vue"
 import { RecurringBill } from "@/types/recurring_bill"
 import { Link } from "@inertiajs/vue3"
 import { Pallet } from "@/types/Pallet"
-import { faFileInvoiceDollar, faHandHoldingUsd } from "@fal"
+import { faCheckCircle, faFileInvoiceDollar, faHandHoldingUsd, faTimesCircle } from "@fal"
 import { useLocaleStore } from "@/Stores/locale"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { useFormatTime } from "@/Composables/useFormatTime"
-library.add(faFileInvoiceDollar, faHandHoldingUsd)
+import Icon from "@/Components/Icon.vue"
+library.add(faFileInvoiceDollar, faHandHoldingUsd, faCheckCircle, faTimesCircle)
 
 const props = defineProps<{
 	data: object
@@ -60,6 +61,10 @@ function fulfilmentCustomerRoute(bill) {
 
 <template>
 	<Table :resource="data" :name="tab" class="mt-5">
+		<template #cell(status_icon)="{ item: bill }">
+			<Icon :data="bill.status_icon" />
+		</template>
+
 		<template #cell(reference)="{ item: bill }">
 			<Link :href="recurringBillRoute(bill)" class="primaryLink">
 				{{ bill["reference"] }}

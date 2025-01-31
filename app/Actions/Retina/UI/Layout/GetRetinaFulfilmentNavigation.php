@@ -139,6 +139,15 @@ class GetRetinaFulfilmentNavigation
 
         ];
 
+        $groupNavigation['spaces'] = [
+            'label'   => __('Spaces'),
+            'icon'    => ['fal', 'fa-parking'],
+            'root'    => 'retina.fulfilment.spaces.',
+            'route'   => [
+                'name' => 'retina.fulfilment.spaces.index'
+            ],
+            'topMenu' => []
+        ];
 
         /*$groupNavigation['dropshipping'] = [
             'label'   => __('Dropshipping'),

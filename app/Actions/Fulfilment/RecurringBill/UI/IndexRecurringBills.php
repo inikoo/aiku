@@ -86,8 +86,8 @@ class IndexRecurringBills extends OrgAction
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('reference', $value)
-                    ->orWhereStartWith('slug', $value);
+                $query->whereAnyWordStartWith('recurring_bills.reference', $value)
+                    ->orWhereStartWith('recurring_bills.slug', $value);
             });
         });
 
@@ -119,6 +119,7 @@ class IndexRecurringBills extends OrgAction
             ->select([
                 'recurring_bills.id',
                 'recurring_bills.slug',
+                'recurring_bills.status',
                 'recurring_bills.reference',
                 'recurring_bills.start_date',
                 'recurring_bills.end_date',
@@ -129,7 +130,7 @@ class IndexRecurringBills extends OrgAction
                 'currencies.code as currency_code',
                 'currencies.symbol as currency_symbol',
             ])
-            ->allowedSorts(['reference','number_transactions','net_amount'])
+            ->allowedSorts(['reference','number_transactions','net_amount', 'start_date', 'end_date'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -161,6 +162,7 @@ class IndexRecurringBills extends OrgAction
                         ]
                     }
                 );
+            $table->column(key: 'status_icon', label: '', canBeHidden: false, sortable: false, searchable: false, type: 'icon');
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             if ($parent instanceof Fulfilment) {
                 $table->column(key: 'customer_name', label: __('customer'), canBeHidden: false, sortable: true, searchable: true);
