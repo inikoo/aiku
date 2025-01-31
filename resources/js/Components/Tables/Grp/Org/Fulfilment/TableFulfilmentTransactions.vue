@@ -73,6 +73,7 @@ const onUpdateQuantity = (idFulfilmentTransaction: number, value: number) => {
 		}
 	) */
 	value.patch(route(routeUpdate.name, routeUpdate.parameters),{
+		preserveScroll: true,
 		onStart: () => (isLoading.value = "quantity" + idFulfilmentTransaction),
 		onFinish: () => (isLoading.value = false),
 	})
@@ -87,6 +88,7 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
 		routeDelete.parameters = { fulfilmentTransaction: idFulfilmentTransaction }
 	}
 	router.delete(route(routeDelete.name, routeDelete.parameters), {
+		preserveScroll: true,
 		onStart: () => (isLoading.value = "buttonReset" + idFulfilmentTransaction),
 		onFinish: () => (isLoading.value = false),
 	})
