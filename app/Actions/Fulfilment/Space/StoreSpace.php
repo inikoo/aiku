@@ -8,10 +8,14 @@
 
 namespace App\Actions\Fulfilment\Space;
 
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateSpaces;
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateSpaces;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
 use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSpaces;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSpaces;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Billables\Rental\RentalTypeEnum;
 use App\Enums\Fulfilment\Space\SpaceStateEnum;
@@ -20,7 +24,6 @@ use App\Models\Fulfilment\Space;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
-use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Redirect;
@@ -50,6 +53,11 @@ class StoreSpace extends OrgAction
         data_set($modelData, 'state', $state);
         /** @var Space $space */
         $space = $fulfilmentCustomer->spaces()->create($modelData);
+
+        FulfilmentCustomerHydrateSpaces::dispatch($fulfilmentCustomer);
+        FulfilmentHydrateSpaces::dispatch($fulfilmentCustomer->fulfilment);
+        OrganisationHydrateSpaces::dispatch($fulfilmentCustomer->organisation);
+        GroupHydrateSpaces::dispatch($fulfilmentCustomer->group);
 
         if ($space->state === SpaceStateEnum::RENTING) {
 

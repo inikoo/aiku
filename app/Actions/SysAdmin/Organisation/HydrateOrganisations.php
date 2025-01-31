@@ -48,6 +48,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateServices;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgStocks;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePurges;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateRedirects;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSpaces;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateStoredItemAudits;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateStoredItems;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSubDepartments;
@@ -130,6 +131,7 @@ class HydrateOrganisations extends HydrateModel
             OrganisationHydrateStoredItemAudits::run($organisation);
             OrganisationHydrateStoredItems::run($organisation);
             OrganisationHydrateRecurringBills::run($organisation);
+            OrganisationHydrateSpaces::dispatch($organisation);
 
             OrganisationHydrateTopUps::run($organisation);
             OrganisationHydrateCreditTransactions::run($organisation);
