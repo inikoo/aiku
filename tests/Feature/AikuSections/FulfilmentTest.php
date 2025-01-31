@@ -224,7 +224,7 @@ test('get end date recurring bill (monthly)', function () {
     );
 
     expect($endDate)->toBeInstanceOf(Carbon::class)
-        ->and($endDate->toDateString())->toEqual(now()->copy()->addMonth()->day(9)->toDateString());
+        ->and($endDate->toDateString())->toEqual(now()->copy()->day(9)->addMonth()->toDateString());
 
     return $endDate;
 });
