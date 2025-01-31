@@ -632,7 +632,7 @@ const isModalUploadFileOpen = ref(false)
                 type="secondary"
             />
         </template>
-    </PageHeading>
+    </PageHeading> 
 
     <!-- Section: Pallet Warning -->
     <div v-if="pallet_limits?.status">
