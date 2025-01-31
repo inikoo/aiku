@@ -100,6 +100,7 @@ use App\Actions\Fulfilment\RecurringBill\UpdateRecurringBilling;
 use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
 use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
 use App\Actions\Fulfilment\Space\StoreSpace;
+use App\Actions\Fulfilment\Space\UpdateSpace;
 use App\Actions\Fulfilment\StoredItem\DeleteStoredItem;
 use App\Actions\Fulfilment\StoredItem\MoveStoredItem;
 use App\Actions\Fulfilment\StoredItem\ResetAuditStoredItemToPallet;
@@ -486,11 +487,11 @@ Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function
 });
 
 Route::post('fulfilment-customer-note/{fulfilmentCustomer}', StoreFulfilmentCustomerNote::class)->name('fulfilment_customer_note.store');
-Route::post('fulfilment-customer-space/{fulfilmentCustomer:id}', StoreSpace::class)->name('fulfilment_customer_space.store');
 
-
-
-
+Route::prefix('fulfilment-customer-space/{fulfilmentCustomer:id}')->as('fulfilment_customer_space.')->group(function () {
+    Route::post('', StoreSpace::class)->name('store');
+    Route::patch('spaces/{space:id}', UpdateSpace::class)->name('update')->withoutScopedBindings();
+});
 
 Route::post('group/{group:id}/organisation', StoreOrganisation::class)->name('organisation.store');
 
