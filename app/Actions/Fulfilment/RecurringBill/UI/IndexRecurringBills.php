@@ -86,8 +86,8 @@ class IndexRecurringBills extends OrgAction
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('reference', $value)
-                    ->orWhereStartWith('slug', $value);
+                $query->whereAnyWordStartWith('recurring_bills.reference', $value)
+                    ->orWhereStartWith('recurring_bills.slug', $value);
             });
         });
 
@@ -130,7 +130,7 @@ class IndexRecurringBills extends OrgAction
                 'currencies.code as currency_code',
                 'currencies.symbol as currency_symbol',
             ])
-            ->allowedSorts(['reference','number_transactions','net_amount'])
+            ->allowedSorts(['reference','number_transactions','net_amount', 'start_date', 'end_date'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
