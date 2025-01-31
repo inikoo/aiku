@@ -46,6 +46,7 @@ use App\Models\Dropshipping\Portfolio;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\RecurringBill;
+use App\Models\Fulfilment\Space;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
@@ -833,6 +834,11 @@ class Organisation extends Model implements HasMedia, Auditable
     public function outboxTestIntervals(): HasOne
     {
         return $this->hasOne(OrganisationOutboxTestIntervals::class);
+    }
+
+    public function spaces(): HasMany
+    {
+        return $this->hasMany(Space::class);
     }
 
 }

@@ -13,6 +13,7 @@ use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletDeliverie
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletReturns;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePallets;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateRecurringBills;
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateSpaces;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateStoredItemAudits;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateStoredItems;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateWarehouses;
@@ -35,6 +36,7 @@ class HydrateFulfilment extends HydrateModel
         FulfilmentHydrateRecurringBills::run($fulfilment);
         FulfilmentHydrateStoredItems::run($fulfilment);
         FulfilmentHydrateStoredItemAudits::run($fulfilment);
+        FulfilmentHydrateSpaces::run($fulfilment);
     }
 
     protected function getModel(string $slug): Fulfilment

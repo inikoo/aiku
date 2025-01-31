@@ -115,6 +115,25 @@ trait WithFulfilmentCustomerSubNavigation
 
             }
 
+            if ($fulfilmentCustomer->space_rental) {
+
+                $subNavigation[] = [
+                    'route' => [
+                        'name'      => 'grp.org.fulfilments.show.crm.customers.show.spaces.index',
+                        'parameters' => $request->route()->originalParameters()
+                    ],
+
+                    'label'     => __("Spaces"),
+                    'leftIcon'  => [
+                        'icon'    => 'fal fa-parking',
+                        'tooltip' => __("Customer's Spaces"),
+                    ],
+                    'number' => $fulfilmentCustomer->number_spaces
+
+                ];
+
+            }
+
             $subNavigation[] = [
                 'route' => [
                     'name'      => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.index',
