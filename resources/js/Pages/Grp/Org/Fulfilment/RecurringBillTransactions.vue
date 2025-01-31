@@ -25,9 +25,10 @@ const locale = inject('locale', aikuLocaleStructure)
         <template #cell(description)="{ item }">
             <div v-if="item.description?.model || item.description?.title || item.description?.after_title">
                 <span v-if="item.description?.model">{{ item.description.model }}:</span>
-                <Link v-if="item.description?.title" :href="item.description.route?.name ? route(item.description.route?.name, item.description.route?.parameters) : '#'" class="primaryLink">
+                <Link v-if="item.description?.title && item.description.route?.name" :href="route(item.description.route?.name, item.description.route?.parameters)" class="primaryLink">
                     {{ item.description.title }}
                 </Link>
+                <span v-else>&nbsp;{{ item.description.title }}</span>
                 
                 <div v-if="item.description.after_title" class="text-gray-400 italic text-xs">({{ item.description.after_title }})</div>
             </div>

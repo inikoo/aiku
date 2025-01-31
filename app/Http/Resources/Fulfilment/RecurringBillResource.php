@@ -24,6 +24,7 @@ class RecurringBillResource extends JsonResource
 
         return [
             "id"            => $recurringBill->id,
+            "reference"     => $recurringBill->reference,
             "slug"          => $recurringBill->slug,
             "order_summary" => [
                 [
