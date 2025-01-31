@@ -717,7 +717,7 @@ class ShowPalletReturn extends OrgAction
                     ]
                 ],
 
-                'can_edit_transactions'=>true,
+                'can_edit_transactions' => true,
 
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
                     fn () => PalletReturnItemsResource::collection(GetReturnPallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))

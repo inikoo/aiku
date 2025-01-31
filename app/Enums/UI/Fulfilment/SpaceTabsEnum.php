@@ -1,11 +1,11 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 30-01-2025-16h-38m
  * github: https://github.com/KirinZero0
  * copyright 2025
 */
-
 
 namespace App\Enums\UI\Fulfilment;
 

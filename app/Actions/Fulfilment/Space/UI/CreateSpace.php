@@ -33,62 +33,64 @@ class CreateSpace extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
-                'title' => __('new space'),
-                'pageHead' => [
-                    'title' => __('new space'),
-                    'icon' => [
-                        'icon' => ['fal', 'fa-user'],
+                'title'       => __('new space'),
+                'pageHead'    => [
+                    'title'   => __('new space'),
+                    'icon'    => [
+                        'icon'  => ['fal', 'fa-user'],
                         'title' => __('space')
                     ],
                     'actions' => [
                         [
-                            'type' => 'button',
+                            'type'  => 'button',
                             'style' => 'exitEdit',
                             'label' => __('cancel'),
                             'route' => [
-                                'name' => preg_replace('/create$/', 'index', $request->route()->getName()),
+                                'name'       => preg_replace('/create$/', 'index', $request->route()->getName()),
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]
                     ]
                 ],
-                'formData' => [
+                'formData'    => [
                     'blueprint' =>
                         [
                             [
-                                'title' => __('information'),
+                                'title'  => __('information'),
                                 'fields' => [
                                     'reference' => [
-                                        'type' => 'input',
+                                        'type'     => 'input',
                                         'required' => true,
-                                        'label' => __('reference')
+                                        'label'    => __('reference')
                                     ],
-                                    'exclude_weekend' => [
-                                        'type' => 'toggle',
+
+                                    'start_at'        => [
+                                        'type'     => 'date',
                                         'required' => true,
-                                        'value' => false,
-                                        'label' => __('exclude weekend')
+                                        'label'    => __('start rent at')
                                     ],
-                                    'start_at' => [
-                                        'type' => 'date',
-                                        'required' => true,
-                                        'label' => __('start rent at')
-                                    ],
-                                    'end_at' => [
-                                        'type' => 'date',
+                                    'end_at'          => [
+                                        'type'  => 'date',
                                         'label' => __('end rent at')
                                     ],
-                                    'rental_id' => [
-                                        'type' => 'select',
+                                    'rental_id'       => [
+                                        'type'     => 'select',
                                         'required' => true,
-                                        'label' => __('rental'),
-                                        'options' => Options::forModels(Rental::where('type', RentalTypeEnum::SPACE->value))
-                                    ]
+                                        'label'    => __('rental'),
+                                        'options'  => Options::forModels(Rental::where('type', RentalTypeEnum::SPACE->value))
+                                    ],
+                                    'exclude_weekend' => [
+                                        'type'     => 'toggle',
+                                        'required' => true,
+                                        'value'    => false,
+                                        'label'    => __('exclude weekend')
+                                    ],
+
                                 ]
                             ]
                         ],
-                    'route' => [
-                        'name' => 'grp.models.fulfilment_customer_space.store',
+                    'route'     => [
+                        'name'       => 'grp.models.fulfilment_customer_space.store',
                         'parameters' => [
                             'fulfilmentCustomer' => $fulfilmentCustomer->id
                         ]
@@ -113,7 +115,7 @@ class CreateSpace extends OrgAction
             ),
             [
                 [
-                    'type' => 'creatingModel',
+                    'type'          => 'creatingModel',
                     'creatingModel' => [
                         'label' => __('Creating space'),
                     ]

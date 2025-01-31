@@ -69,7 +69,7 @@ const props = defineProps<{
     }
     
     upload_spreadsheet: UploadPallet
-
+    can_edit_transactions: boolean,
     palletRoute: {
         index: routeType
         store: routeType
@@ -444,6 +444,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
         :state="timeline.state" 
         :key="timeline.state" 
         :tab="currentTab" 
+        :can_edit_transactions="can_edit_transactions"
         :route_checkmark="currentTab == 'pallets' ? routeStorePallet : route_check_stored_items" 
     />
 

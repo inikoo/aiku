@@ -52,6 +52,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\Fulfilment\RentalAgreementClause|null $clause
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
+ * @property-read \App\Models\Fulfilment\FulfilmentTransaction|null $fulfilmentTransaction
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read HistoricAsset $historicAsset
  * @property-read Model|\Eloquent|null $item
@@ -105,6 +106,11 @@ class RecurringBillTransaction extends Model
     public function clause(): BelongsTo
     {
         return $this->belongsTo(RentalAgreementClause::class, 'rental_agreement_clause_id');
+    }
+
+    public function fulfilmentTransaction(): BelongsTo
+    {
+        return $this->belongsTo(FulfilmentTransaction::class);
     }
 
 }

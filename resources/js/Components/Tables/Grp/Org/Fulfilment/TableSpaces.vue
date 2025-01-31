@@ -39,7 +39,7 @@ function spaceRoute(space) {
 
 <template>
 	<Table :resource="data" :name="tab" class="mt-5">
-		<template #cell(reference)="{ item: space }">
+		<template #cell(referencex)="{ item: space }">
 			<Link :href="spaceRoute(space)" class="primaryLink">
 				{{ space["reference"] }}
 			</Link>

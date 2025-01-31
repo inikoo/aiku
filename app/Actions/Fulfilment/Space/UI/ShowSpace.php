@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 30-01-2025-16h-35m
@@ -6,25 +7,15 @@
  * copyright 2025
 */
 
-
 namespace App\Actions\Fulfilment\Space\UI;
 
-use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
-use App\Actions\Ordering\PurgedOrder\UI\IndexPurgedOrders;
 use App\Actions\OrgAction;
 use App\Enums\UI\Fulfilment\SpaceTabsEnum;
-use App\Enums\UI\Ordering\PurgeTabsEnum;
 use App\Http\Resources\Fulfilment\SpaceResource;
-use App\Http\Resources\Fulfilment\SpacesResource;
-use App\Http\Resources\Ordering\PurgedOrdersResource;
-use App\Http\Resources\Ordering\PurgeResource;
-use App\Models\Catalogue\Collection;
-use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Space;
-use App\Models\Ordering\Purge;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;

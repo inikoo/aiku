@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 30-01-2025-15h-37m
@@ -37,6 +38,7 @@ class SpacesResource extends JsonResource
             'rental_slug'                => $this->rental_slug,
             'rental_name'                => $this->rental_name,
             'rental_code'                => $this->rental_code,
+            'rental'                => $this->rental_code . " ($this->currency_symbol$this->rental_price/$this->rental_unit)",
         ];
     }
 }

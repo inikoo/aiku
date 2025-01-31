@@ -40,8 +40,8 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
  * @property int $fulfilment_customer_id
  * @property int $fulfilment_id
  * @property RecurringBillStatusEnum|null $status
- * @property string $start_date
- * @property string|null $end_date
+ * @property \Illuminate\Support\Carbon $start_date
+ * @property \Illuminate\Support\Carbon|null $end_date
  * @property int $currency_id
  * @property string|null $grp_exchange
  * @property string|null $org_exchange
@@ -96,7 +96,9 @@ class RecurringBill extends Model implements Auditable
 
     protected $casts = [
         'data'   => 'array',
-        'status' => RecurringBillStatusEnum::class
+        'status' => RecurringBillStatusEnum::class,
+        'start_date' => 'datetime',
+        'end_date'   => 'datetime',
     ];
 
     protected $attributes = [
@@ -150,6 +152,7 @@ class RecurringBill extends Model implements Auditable
     {
         return $this->hasMany(RecurringBillTransaction::class);
     }
+
 
     public function stats(): HasOne
     {

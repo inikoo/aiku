@@ -17,7 +17,7 @@ export const useFormatTime = (dateIso: string | Date | undefined, OptionsTime?: 
 
     // console.log(OptionsTime)
 
-    let tempLocaleCode = OptionsTime?.localeCode === 'zh-Hans' ? 'zhCN' : OptionsTime?.localeCode ?? 'enUS'
+    let tempLocaleCode = OptionsTime?.localeCode === 'zh-Hans' ? 'zhCN' : OptionsTime?.localeCode ?? 'enGB'
     let tempDateIso = new Date(dateIso)
 
     if (OptionsTime?.formatTime === 'aiku') return format(tempDateIso, 'EEE, do MMM yy', { locale: localesCode[tempLocaleCode] })  // Sun, 1st Jan 23
