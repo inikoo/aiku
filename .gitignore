@@ -92,3 +92,9 @@ create_wowsbar_*
 /storage/media_test/
 /sync_aiku.sh
 /sync_aiku_no_download.sh
+
+**/caddy
+frankenphp
+frankenphp-worker.php
+rr
+.rr.yaml
