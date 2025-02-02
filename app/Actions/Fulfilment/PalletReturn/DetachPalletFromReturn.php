@@ -53,7 +53,7 @@ class DetachPalletFromReturn extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
     public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, Pallet $pallet, ActionRequest $request): bool

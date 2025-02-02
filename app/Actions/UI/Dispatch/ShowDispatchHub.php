@@ -30,7 +30,7 @@ class ShowDispatchHub extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("dispatching.{$this->organisation->id}.view");
+        return $request->user()->authTo("dispatching.{$this->organisation->id}.view");
     }
 
     public function asController(Organisation $organisation, Warehouse $warehouse): Organisation

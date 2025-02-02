@@ -254,17 +254,17 @@ class IndexOrders extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Customer or $this->parent instanceof CustomerClient) {
-            $this->canEdit = $request->user()->hasPermissionTo("crm.{$this->shop->id}.view");
+            $this->canEdit = $request->user()->authTo("crm.{$this->shop->id}.view");
 
-            return $request->user()->hasAnyPermission(["crm.{$this->shop->id}.view","accounting.{$this->shop->organisation_id}.view"]);
+            return $request->user()->authTo(["crm.{$this->shop->id}.view","accounting.{$this->shop->organisation_id}.view"]);
         }
         if ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         }
 
-        $this->canEdit = $request->user()->hasPermissionTo("orders.{$this->shop->id}.edit");
+        $this->canEdit = $request->user()->authTo("orders.{$this->shop->id}.edit");
 
-        return $request->user()->hasAnyPermission(["orders.{$this->shop->id}.view","accounting.{$this->shop->organisation_id}.view"]);
+        return $request->user()->authTo(["orders.{$this->shop->id}.view","accounting.{$this->shop->organisation_id}.view"]);
     }
 
     public function jsonResponse(LengthAwarePaginator $orders): AnonymousResourceCollection

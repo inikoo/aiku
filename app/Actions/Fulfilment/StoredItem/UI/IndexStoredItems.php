@@ -118,14 +118,14 @@ class IndexStoredItems extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         }
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view")
+                $request->user()->authTo("human-resources.{$this->organisation->id}.view")
             );
     }
 

@@ -37,7 +37,7 @@ class DeleteLocation extends OrgAction
         if ($this->asAction) {
             return true;
         }
-        return $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
+        return $request->user()->authTo("locations.{$this->warehouse->id}.edit");
     }
 
     public function asController(Location $location, ActionRequest $request): Location

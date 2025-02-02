@@ -48,10 +48,10 @@ class ShowOutbox extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Fulfilment) {
-            return    $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            return    $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
         }
 
-        return $request->user()->hasAnyPermission([
+        return $request->user()->authTo([
             'shop-admin.'.$this->shop->id,
             'marketing.'.$this->shop->id.'.view',
             'web.'.$this->shop->id.'.view',

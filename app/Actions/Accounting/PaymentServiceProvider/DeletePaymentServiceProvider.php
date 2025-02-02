@@ -31,7 +31,7 @@ class DeletePaymentServiceProvider
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("accounting.payment-service-providers.edit");
+        return $request->user()->authTo("accounting.payment-service-providers.edit");
     }
 
     public function asController(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): PaymentServiceProvider

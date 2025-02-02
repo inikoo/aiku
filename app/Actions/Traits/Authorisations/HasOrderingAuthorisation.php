@@ -33,24 +33,24 @@ trait HasOrderingAuthorisation
     private function viewAuthorisation(ActionRequest $request)
     {
         if ($this->scope instanceof Organisation) {
-            $this->canEdit      = $request->user()->hasPermissionTo("org-supervisor.{$this->organisation->id}");
-            $this->isSupervisor = $request->user()->hasPermissionTo("org-supervisor.{$this->organisation->id}");
+            $this->canEdit      = $request->user()->authTo("org-supervisor.{$this->organisation->id}");
+            $this->isSupervisor = $request->user()->authTo("org-supervisor.{$this->organisation->id}");
 
-            return $request->user()->hasPermissionTo("websites-view.{$this->organisation->id}");
+            return $request->user()->authTo("websites-view.{$this->organisation->id}");
         } else {
-            $this->canEdit      = $request->user()->hasPermissionTo("orders.{$this->shop->id}.edit");
-            $this->isSupervisor = $request->user()->hasPermissionTo("supervisor-orders.{$this->shop->id}");
+            $this->canEdit      = $request->user()->authTo("orders.{$this->shop->id}.edit");
+            $this->isSupervisor = $request->user()->authTo("supervisor-orders.{$this->shop->id}");
 
-            return $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
+            return $request->user()->authTo("orders.{$this->shop->id}.view");
         }
     }
 
     private function editAuthorisation(ActionRequest $request)
     {
         if ($this->scope instanceof Organisation) {
-            return $request->user()->hasPermissionTo("org-supervisor.{$this->organisation->id}");
+            return $request->user()->authTo("org-supervisor.{$this->organisation->id}");
         } else {
-            return $request->user()->hasPermissionTo("orders.{$this->shop->id}.edit");
+            return $request->user()->authTo("orders.{$this->shop->id}.edit");
         }
     }
 

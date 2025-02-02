@@ -32,9 +32,9 @@ class UpdateStockDeliveryItem extends OrgAction
         if ($this->asAction) {
             return true;
         }
-        $this->canEdit = $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
+        $this->canEdit = $request->user()->authTo("procurement.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view");
+        return $request->user()->authTo("procurement.{$this->organisation->id}.view");
     }
     public function rules(): array
     {

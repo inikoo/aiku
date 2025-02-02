@@ -116,9 +116,9 @@ class IndexMarketplaceAgents extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit        = $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view");
-        $this->canCreateAgent = $request->user()->hasPermissionTo("supply-chain.edit");
-        return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view");
+        $this->canEdit        = $request->user()->authTo("procurement.{$this->organisation->id}.view");
+        $this->canCreateAgent = $request->user()->authTo("supply-chain.edit");
+        return $request->user()->authTo("procurement.{$this->organisation->id}.view");
     }
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator

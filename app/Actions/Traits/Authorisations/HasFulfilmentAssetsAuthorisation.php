@@ -26,15 +26,15 @@ trait HasFulfilmentAssetsAuthorisation
         }
 
         if ($this->parent instanceof FulfilmentCustomer or $this->parent instanceof Fulfilment) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
         } elseif ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         } elseif ($this->parent instanceof Warehouse or $this->parent instanceof Location) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.edit");
+            $this->canEdit = $request->user()->authTo("fulfilment.{$this->warehouse->id}.edit");
 
-            return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.view");
+            return $request->user()->authTo("fulfilment.{$this->warehouse->id}.view");
         }
 
 

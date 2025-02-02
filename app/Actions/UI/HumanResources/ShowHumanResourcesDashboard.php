@@ -26,7 +26,7 @@ class ShowHumanResourcesDashboard
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
+        return $request->user()->authTo("human-resources.{$this->organisation->id}.view");
     }
 
 

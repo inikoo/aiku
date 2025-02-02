@@ -26,8 +26,8 @@ class EditPayment extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('accounting.edit');
-        return $request->user()->hasPermissionTo("accounting.view");
+        $this->canEdit = $request->user()->authTo('accounting.edit');
+        return $request->user()->authTo("accounting.view");
     }
 
     public function inOrganisation(Payment $payment, ActionRequest $request): Payment

@@ -44,7 +44,7 @@ class SetPalletAsNotReceived extends OrgAction
         if ($this->asAction) {
             return true;
         }
-        return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.edit");
+        return $request->user()->authTo("fulfilment.{$this->warehouse->id}.edit");
     }
 
 

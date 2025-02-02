@@ -14,10 +14,10 @@ trait WithOrderingAuthorisation
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo("orders.{$this->shop->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("orders.{$this->shop->id}.edit");
+        $this->canEdit   = $request->user()->authTo("orders.{$this->shop->id}.edit");
+        $this->canDelete = $request->user()->authTo("orders.{$this->shop->id}.edit");
 
-        return $request->user()->hasAnyPermission(
+        return $request->user()->authTo(
             [
                 "orders.{$this->shop->id}.view",
                 "accounting.{$this->shop->organisation_id}.view"

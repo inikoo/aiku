@@ -97,7 +97,7 @@ class CreatePaymentAccount extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Organisation) {
-            return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
+            return $request->user()->authTo("accounting.{$this->organisation->id}.view");
         } elseif ($this->parent instanceof Shop) {
             //todo think about it
             return false;

@@ -21,7 +21,7 @@ class CreateProspectsMailshot extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('crm.prospects.edit');
+        return $request->user()->authTo('crm.prospects.edit');
     }
 
     public function asController(ActionRequest $request): Response|RedirectResponse

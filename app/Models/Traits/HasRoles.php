@@ -9,11 +9,35 @@
 namespace App\Models\Traits;
 
 use App\Models\HumanResources\JobPosition;
+use Illuminate\Support\Facades\Cache;
 use Spatie\Permission\Traits\HasRoles as SpatieHasRoles;
 
 trait HasRoles
 {
     use SpatieHasRoles;
+
+
+    public function authTo(string|array $permission): bool
+    {
+        if (is_array($permission)) {
+            return Cache::remember(
+                'auth-user:'.$this->id.';can:'.implode('|', $permission),
+                604800,
+                function () use ($permission) {
+                    return $this->hasAnyPermission($permission);
+                }
+            );
+        }
+
+        return Cache::remember(
+            'auth-user:'.$this->id.';can:'.$permission,
+            604800,
+            function () use ($permission) {
+                return $this->hasPermissionTo($permission);
+            }
+        );
+    }
+
 
     public function assignJoBPositionRoles(JobPosition $jobPosition): void
     {
@@ -35,7 +59,6 @@ trait HasRoles
             }
         }
     }
-
 
 
 }

@@ -197,7 +197,7 @@ class IndexRefunds extends OrgAction
         $routeName = $request->route()->getName();
 
         if ($routeName == 'grp.org.fulfilments.show.crm.customers.show.invoices.show.refunds.index') {
-            return $request->user()->hasAnyPermission(
+            return $request->user()->authTo(
                 [
                     "fulfilment-shop.{$this->fulfilment->id}.view",
                     "accounting.{$this->fulfilment->organisation_id}.view"
@@ -210,15 +210,15 @@ class IndexRefunds extends OrgAction
 
 
         if ($this->parent instanceof Organisation) {
-            return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
+            return $request->user()->authTo("accounting.{$this->organisation->id}.view");
         } elseif ($this->parent instanceof Customer or $this->parent instanceof CustomerClient) {
-            return $request->user()->hasPermissionTo("crm.{$this->organisation->id}.view");
+            return $request->user()->authTo("crm.{$this->organisation->id}.view");
         } elseif ($this->parent instanceof Shop) {
-            return $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
+            return $request->user()->authTo("orders.{$this->shop->id}.view");
         } elseif ($this->parent instanceof FulfilmentCustomer or $this->parent instanceof Fulfilment) {
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
         } elseif ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         }
 
         return false;

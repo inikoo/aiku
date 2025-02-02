@@ -76,7 +76,7 @@ class CreateProduction extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("productions.{$this->organisation->id}.edit");
+        return $request->user()->authTo("productions.{$this->organisation->id}.edit");
     }
 
 

@@ -20,7 +20,7 @@ class ShowOrganisationOverviewHub extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('org-reports.'.$this->organisation->id);
+        return $request->user()->authTo('org-reports.'.$this->organisation->id);
     }
 
     public function asController(Organisation $organisation, ActionRequest $request): ActionRequest

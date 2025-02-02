@@ -32,7 +32,7 @@ class EditUser extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("sysadmin.view");
+        return $request->user()->authTo("sysadmin.view");
     }
 
     public function asController(User $user, ActionRequest $request): User

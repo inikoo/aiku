@@ -14,10 +14,10 @@ trait WithFulfilmentAuthorisation
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        $this->canEdit   = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        $this->canDelete = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
-        return $request->user()->hasAnyPermission(
+        return $request->user()->authTo(
             [
                 "fulfilment-shop.{$this->fulfilment->id}.view",
                 "accounting.{$this->fulfilment->organisation_id}.view"

@@ -28,7 +28,7 @@ class ToggleWebsiteStatus extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("supervisor-products.{$this->shop->id}");
+        return $request->user()->authTo("supervisor-products.{$this->shop->id}");
     }
 
     public function asController(Website $website, ActionRequest $request): Website

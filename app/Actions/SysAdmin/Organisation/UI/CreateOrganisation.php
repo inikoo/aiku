@@ -114,7 +114,7 @@ class CreateOrganisation extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('sysadmin.users.edit');
+        return $request->user()->authTo('sysadmin.users.edit');
     }
 
 

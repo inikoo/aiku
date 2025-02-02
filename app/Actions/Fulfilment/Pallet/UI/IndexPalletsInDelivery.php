@@ -176,9 +176,9 @@ class IndexPalletsInDelivery extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
+        $this->canEdit = $request->user()->authTo('org-supervisor.'.$this->organisation->id);
 
-        return $request->user()->hasAnyPermission(
+        return $request->user()->authTo(
             [
                 'org-supervisor.'.$this->organisation->id,
                 'warehouses-view.'.$this->organisation->id]

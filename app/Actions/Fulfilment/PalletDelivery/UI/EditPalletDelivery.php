@@ -29,7 +29,7 @@ class EditPalletDelivery extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.view");
+        return $request->user()->authTo("fulfilment.{$this->fulfilment->id}.view");
     }
 
     public function inFulfilmentCustomer(

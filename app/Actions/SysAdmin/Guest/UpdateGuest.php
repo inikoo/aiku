@@ -61,7 +61,7 @@ class UpdateGuest extends GrpAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo('sysadmin.edit');
+        return $request->user()->authTo('sysadmin.edit');
     }
 
     public function rules(): array

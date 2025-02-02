@@ -116,13 +116,13 @@ class IndexFulfilmentRentals extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         }
 
-        $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        $this->canEdit   = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        $this->canDelete = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
     }
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator

@@ -42,19 +42,19 @@ class ShowInvoice extends OrgAction
     {
 
         if ($this->parent instanceof Organisation) {
-            return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
+            return $request->user()->authTo("accounting.{$this->organisation->id}.view");
         } elseif ($this->parent instanceof Shop) {
             //todo think about it
             return false;
         } elseif ($this->parent instanceof Fulfilment) {
-            return $request->user()->hasAnyPermission(
+            return $request->user()->authTo(
                 [
                     "fulfilment-shop.{$this->fulfilment->id}.view",
                     "accounting.{$this->fulfilment->organisation_id}.view"
                 ]
             );
         } elseif ($this->parent instanceof FulfilmentCustomer) {
-            return $request->user()->hasAnyPermission(
+            return $request->user()->authTo(
                 [
                     "fulfilment-shop.{$this->fulfilment->id}.view",
                     "accounting.{$this->fulfilment->organisation_id}.view"

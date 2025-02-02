@@ -32,8 +32,8 @@ class ShowJobPosition extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo("org-admin.{$this->organisation->id}");
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+        $this->canEdit   = $request->user()->authTo("org-admin.{$this->organisation->id}");
+        return $request->user()->authTo("human-resources.{$this->organisation->id}.edit");
     }
 
     public function asController(Organisation $organisation, JobPosition $jobPosition, ActionRequest $request): JobPosition

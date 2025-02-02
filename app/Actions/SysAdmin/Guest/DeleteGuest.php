@@ -42,7 +42,7 @@ class DeleteGuest
         if ($this->isAction) {
             return true;
         }
-        return $request->user()->hasPermissionTo("sysadmin.edit");
+        return $request->user()->authTo("sysadmin.edit");
     }
 
     public function asController(Guest $guest, ActionRequest $request): Guest

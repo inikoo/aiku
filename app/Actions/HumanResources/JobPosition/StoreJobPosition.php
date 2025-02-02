@@ -41,7 +41,7 @@ class StoreJobPosition extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("org-supervisor.{$this->organisation->id}.human-resources");
+        return $request->user()->authTo("org-supervisor.{$this->organisation->id}.human-resources");
     }
 
 

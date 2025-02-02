@@ -78,9 +78,9 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
+        $this->canEdit = $request->user()->authTo("procurement.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view");
+        return $request->user()->authTo("procurement.{$this->organisation->id}.view");
     }
 
     public function jsonResponse(LengthAwarePaginator $orgSupplierProducts): AnonymousResourceCollection

@@ -101,7 +101,7 @@ class UpdateProspectQuery
             return true;
         }
 
-        return $request->user()->hasPermissionTo("crm.edit");
+        return $request->user()->authTo("crm.edit");
     }
 
     public function htmlResponse(Query $query): RedirectResponse

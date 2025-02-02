@@ -105,7 +105,7 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('procurement.view')
+                $request->user()->authTo('procurement.view')
             );
     }
 

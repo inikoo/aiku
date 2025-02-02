@@ -68,7 +68,7 @@ class UpdateAgent extends GrpAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("supply-chain.".$this->group->id.".edit");
+        return $request->user()->authTo("supply-chain.".$this->group->id.".edit");
     }
 
     public function rules(): array

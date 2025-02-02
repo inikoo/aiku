@@ -34,7 +34,7 @@ class UpdateDispatchedEmail extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("mail.edit");
+        return $request->user()->authTo("mail.edit");
     }
 
     public function rules(): array
