@@ -121,7 +121,7 @@ class EditAppointment extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('crm.edit');
+        return $request->user()->authTo('crm.edit');
     }
 
     public function asController(Shop $shop, Appointment $appointment, ActionRequest $request): Response

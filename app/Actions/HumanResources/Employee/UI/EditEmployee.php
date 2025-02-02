@@ -38,7 +38,7 @@ class EditEmployee extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+        return $request->user()->authTo("human-resources.{$this->organisation->id}.edit");
     }
 
     public function asController(Organisation $organisation, Employee $employee, ActionRequest $request): Employee

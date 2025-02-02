@@ -44,18 +44,18 @@ class ShowPallet extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof FulfilmentCustomer) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.stored-items.edit");
+            $this->canEdit = $request->user()->authTo("fulfilment.{$this->fulfilment->id}.stored-items.edit");
 
-            return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.stored-items.view");
+            return $request->user()->authTo("fulfilment.{$this->fulfilment->id}.stored-items.view");
         } elseif ($this->parent instanceof Warehouse) {
-            $this->canEdit       = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.edit");
-            $this->allowLocation = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.view");
-            return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.view");
+            $this->canEdit       = $request->user()->authTo("fulfilment.{$this->warehouse->id}.stored-items.edit");
+            $this->allowLocation = $request->user()->authTo("locations.{$this->warehouse->id}.view");
+            return $request->user()->authTo("fulfilment.{$this->warehouse->id}.stored-items.view");
         }
 
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->organisation->id}.stored-items.edit");
+        $this->canEdit = $request->user()->authTo("fulfilment.{$this->organisation->id}.stored-items.edit");
 
-        return $request->user()->hasPermissionTo("fulfilment.{$this->organisation->id}.stored-items.view");
+        return $request->user()->authTo("fulfilment.{$this->organisation->id}.stored-items.view");
     }
 
     /** @noinspection PhpUnusedParameterInspection */

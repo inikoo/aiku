@@ -27,9 +27,9 @@ class EditCustomer extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+        $this->canEdit = $request->user()->authTo("crm.{$this->shop->id}.edit");
 
-        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+        return $request->user()->authTo("crm.{$this->shop->id}.edit");
     }
 
 

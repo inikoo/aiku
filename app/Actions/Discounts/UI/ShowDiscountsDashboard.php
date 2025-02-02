@@ -21,7 +21,7 @@ class ShowDiscountsDashboard extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("discounts.{$this->shop->id}.view");
+        return $request->user()->authTo("discounts.{$this->shop->id}.view");
     }
 
 

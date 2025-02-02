@@ -33,7 +33,7 @@ class DeleteAgent extends GrpAction
         if ($this->asAction) {
             return true;
         }
-        return $request->user()->hasPermissionTo("procurement.edit");
+        return $request->user()->authTo("procurement.edit");
     }
 
     public function action(Agent $agent): Agent

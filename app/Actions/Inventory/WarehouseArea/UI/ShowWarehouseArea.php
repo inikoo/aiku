@@ -34,9 +34,9 @@ class ShowWarehouseArea extends OrgAction
         if ($this->maya) {
             return true; //Auth pls
         }
-        $this->canEdit   = $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.edit");
+        $this->canEdit   = $request->user()->authTo("inventory.{$this->warehouse->id}.edit");
 
-        return $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.view");
+        return $request->user()->authTo("inventory.{$this->warehouse->id}.view");
     }
 
     public function maya(Organisation $organisation, WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea

@@ -24,7 +24,7 @@ class ShowSupplyChainDashboard extends GrpAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("supply-chain.{$this->group->id}.view");
+        return $request->user()->authTo("supply-chain.{$this->group->id}.view");
     }
 
 

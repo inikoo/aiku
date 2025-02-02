@@ -24,7 +24,7 @@ class MarketingHub extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('marketing.view');
+        return $request->user()->authTo('marketing.view');
     }
 
 

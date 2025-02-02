@@ -45,7 +45,7 @@ class StoreShipper extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("dispatching.{$this->organisation->id}.edit");
+        return $request->user()->authTo("dispatching.{$this->organisation->id}.edit");
     }
 
     public function prepareForValidation(ActionRequest $request): void

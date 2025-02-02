@@ -81,7 +81,7 @@ class StoreClockingMachine extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+        return $request->user()->authTo("human-resources.{$this->organisation->id}.edit");
     }
 
 

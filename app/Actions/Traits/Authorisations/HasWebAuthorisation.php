@@ -25,20 +25,20 @@ trait HasWebAuthorisation
         }
 
         if ($this->scope instanceof Organisation) {
-            $this->canEdit      = $request->user()->hasPermissionTo("org-supervisor.{$this->organisation->id}");
-            $this->isSupervisor = $request->user()->hasPermissionTo("org-supervisor.{$this->organisation->id}");
-            return $request->user()->hasPermissionTo("websites-view.{$this->organisation->id}");
+            $this->canEdit      = $request->user()->authTo("org-supervisor.{$this->organisation->id}");
+            $this->isSupervisor = $request->user()->authTo("org-supervisor.{$this->organisation->id}");
+            return $request->user()->authTo("websites-view.{$this->organisation->id}");
         } elseif ($this->scope instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         } elseif ($this->scope instanceof Shop) {
-            $this->canEdit      = $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
-            $this->isSupervisor = $request->user()->hasPermissionTo("supervisor-web.{$this->shop->id}");
-            return $request->user()->hasPermissionTo("web.{$this->shop->id}.view");
+            $this->canEdit      = $request->user()->authTo("web.{$this->shop->id}.edit");
+            $this->isSupervisor = $request->user()->authTo("supervisor-web.{$this->shop->id}");
+            return $request->user()->authTo("web.{$this->shop->id}.view");
         } elseif ($this->scope instanceof Fulfilment) {
-            $this->canEdit      = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-            $this->isSupervisor = $request->user()->hasPermissionTo("supervisor-fulfilment-shop.{$this->fulfilment->id}");
+            $this->canEdit      = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            $this->isSupervisor = $request->user()->authTo("supervisor-fulfilment-shop.{$this->fulfilment->id}");
 
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
         }
 
         return false;

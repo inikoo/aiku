@@ -39,9 +39,9 @@ class ShowEmployee extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
+        $this->canEdit   = $request->user()->authTo("human-resources.{$this->organisation->id}.view");
 
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
+        return $request->user()->authTo("human-resources.{$this->organisation->id}.view");
     }
 
     public function asController(Organisation $organisation, Employee $employee, ActionRequest $request): Employee

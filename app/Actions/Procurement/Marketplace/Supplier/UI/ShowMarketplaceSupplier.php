@@ -30,9 +30,9 @@ class ShowMarketplaceSupplier extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo('procurement.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('procurement.edit');
-        return $request->user()->hasPermissionTo("procurement.view");
+        $this->canEdit   = $request->user()->authTo('procurement.edit');
+        $this->canDelete = $request->user()->authTo('procurement.edit');
+        return $request->user()->authTo("procurement.view");
     }
 
     public function asController(Supplier $supplier, ActionRequest $request): Supplier

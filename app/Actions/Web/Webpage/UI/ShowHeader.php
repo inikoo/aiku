@@ -141,14 +141,14 @@ class ShowHeader extends OrgAction
         }
 
         if ($this->scope instanceof Fulfilment) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
         }
 
-        $this->canEdit = $request->user()->hasPermissionTo("shops.{$this->shop->id}.edit");
+        $this->canEdit = $request->user()->authTo("shops.{$this->shop->id}.edit");
 
-        return $request->user()->hasPermissionTo("shops.{$this->shop->id}.view");
+        return $request->user()->authTo("shops.{$this->shop->id}.view");
 
     }
 

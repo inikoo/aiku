@@ -32,9 +32,9 @@ class ShowOfferCampaign extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("discounts.{$this->shop->id}.edit");
+        $this->canEdit = $request->user()->authTo("discounts.{$this->shop->id}.edit");
 
-        return $request->user()->hasPermissionTo("discounts.{$this->shop->id}.view");
+        return $request->user()->authTo("discounts.{$this->shop->id}.view");
     }
 
     public function asController(Organisation $organisation, Shop $shop, OfferCampaign $offerCampaign, ActionRequest $request): OfferCampaign

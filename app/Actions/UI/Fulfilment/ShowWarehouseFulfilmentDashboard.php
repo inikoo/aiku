@@ -20,7 +20,7 @@ class ShowWarehouseFulfilmentDashboard extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasAnyPermission(
+        return $request->user()->authTo(
             [
                 "fulfilment.{$this->warehouse->id}.view"
             ]

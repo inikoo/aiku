@@ -55,7 +55,7 @@ class DeleteStoredItem extends OrgAction
         if ($this->asAction) {
             return true;
         }
-        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
     public function asController(StoredItem $storedItem, ActionRequest $request): StoredItem

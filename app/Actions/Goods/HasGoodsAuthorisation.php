@@ -14,7 +14,7 @@ trait HasGoodsAuthorisation
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("goods.{$this->group->id}.edit");
-        return $request->user()->hasPermissionTo("goods.{$this->group->id}.view");
+        $this->canEdit = $request->user()->authTo("goods.{$this->group->id}.edit");
+        return $request->user()->authTo("goods.{$this->group->id}.view");
     }
 }

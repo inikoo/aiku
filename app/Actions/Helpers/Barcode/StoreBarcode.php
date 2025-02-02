@@ -32,7 +32,7 @@ class StoreBarcode extends GrpAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("goods.edit");
+        return $request->user()->authTo("goods.edit");
     }
 
     public function rules(): array

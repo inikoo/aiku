@@ -33,7 +33,7 @@ class UpdateUserStatus
         if ($this->asAction) {
             return true;
         }
-        return  $request->user()->hasPermissionTo('sysadmin.edit');
+        return  $request->user()->authTo('sysadmin.edit');
 
     }
 

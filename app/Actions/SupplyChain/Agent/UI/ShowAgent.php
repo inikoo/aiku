@@ -31,9 +31,9 @@ class ShowAgent extends GrpAction
     use WithAgentSubNavigation;
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('supply-chain.edit');
+        $this->canEdit = $request->user()->authTo('supply-chain.edit');
 
-        return $request->user()->hasPermissionTo('supply-chain.view');
+        return $request->user()->authTo('supply-chain.view');
     }
 
     public function handle(Agent $agent): Agent

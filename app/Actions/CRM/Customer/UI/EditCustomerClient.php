@@ -114,7 +114,7 @@ class EditCustomerClient extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         $shop = $request->route()->parameter('shop');
-        return $request->user()->hasPermissionTo("crm.{$shop->id}.edit");
+        return $request->user()->authTo("crm.{$shop->id}.edit");
     }
 
     public function asController(Organisation $organisation, Shop $shop, Customer $customer, CustomerClient $customerClient, ActionRequest $request): Response

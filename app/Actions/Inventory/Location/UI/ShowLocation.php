@@ -46,9 +46,9 @@ class ShowLocation extends OrgAction
             return true; //IDK for the auth, might come back here later
         }
 
-        $this->canEdit   = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
+        $this->canEdit   = $request->user()->authTo("locations.{$this->warehouse->id}.edit");
 
-        return $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.view");
+        return $request->user()->authTo("locations.{$this->warehouse->id}.view");
     }
 
     public function asController(Organisation $organisation, Warehouse $warehouse, Location $location, ActionRequest $request): Location

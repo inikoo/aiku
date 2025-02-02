@@ -50,14 +50,14 @@ class ShowCustomer extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Organisation) {
-            $this->canEdit = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
+            $this->canEdit = $request->user()->authTo("shops.{$this->organisation->id}.edit");
 
-            return $request->user()->hasPermissionTo("shops.{$this->organisation->id}.view");
+            return $request->user()->authTo("shops.{$this->organisation->id}.view");
         }
         if ($this->parent instanceof Shop) {
-            $this->canEdit = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+            $this->canEdit = $request->user()->authTo("crm.{$this->shop->id}.edit");
 
-            return $request->user()->hasAnyPermission(
+            return $request->user()->authTo(
                 [
                     "crm.{$this->shop->id}.view",
                     "accounting.{$this->shop->organisation_id}.view"

@@ -31,7 +31,7 @@ class DeleteWarehouse
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("inventory.edit");
+        return $request->user()->authTo("inventory.edit");
     }
 
     public function asController(Warehouse $warehouse, ActionRequest $request): Warehouse

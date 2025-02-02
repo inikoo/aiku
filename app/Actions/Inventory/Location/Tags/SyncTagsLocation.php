@@ -55,9 +55,9 @@ class SyncTagsLocation extends OrgAction
         if ($this->asAction) {
             return true;
         }
-        $this->canEdit = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
+        $this->canEdit = $request->user()->authTo("locations.{$this->warehouse->id}.edit");
 
-        return $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
+        return $request->user()->authTo("locations.{$this->warehouse->id}.edit");
     }
 
     public function rules(ActionRequest $request): array

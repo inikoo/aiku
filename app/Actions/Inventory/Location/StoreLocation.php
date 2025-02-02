@@ -70,7 +70,7 @@ class StoreLocation extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
+        return $request->user()->authTo("locations.{$this->warehouse->id}.edit");
     }
 
     public function rules(): array

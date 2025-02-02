@@ -23,7 +23,7 @@ class EditStockFamily extends GrpAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("goods.{$this->group->id}.edit");
+        return $request->user()->authTo("goods.{$this->group->id}.edit");
     }
 
     public function asController(StockFamily $stockFamily, ActionRequest $request): StockFamily

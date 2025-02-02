@@ -27,8 +27,8 @@ class EditClocking extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}");
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->slug}");
+        $this->canEdit = $request->user()->authTo("human-resources.{$this->organisation->slug}");
+        return $request->user()->authTo("human-resources.{$this->organisation->slug}");
     }
 
     public function inOrganisation(Organisation $organisation, Clocking $clocking, ActionRequest $request): Clocking

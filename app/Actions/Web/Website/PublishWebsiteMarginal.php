@@ -165,7 +165,7 @@ class PublishWebsiteMarginal extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("websites.edit");
+        return $request->user()->authTo("websites.edit");
     }
 
     public function prepareForValidation(ActionRequest $request): void

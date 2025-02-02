@@ -52,7 +52,7 @@ class StoreManufactureTask extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("productions_rd.{$this->production->id}.edit");
+        return $request->user()->authTo("productions_rd.{$this->production->id}.edit");
     }
 
     public function htmlResponse(ManufactureTask $manufactureTask): RedirectResponse

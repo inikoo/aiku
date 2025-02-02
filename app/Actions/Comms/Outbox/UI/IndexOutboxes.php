@@ -45,13 +45,13 @@ class IndexOutboxes extends OrgAction
     {
 
         if ($this->parent instanceof Fulfilment) {
-            return    $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            return    $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
         }
 
         if ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         }
-        return $request->user()->hasAnyPermission([
+        return $request->user()->authTo([
             'shop-admin.'.$this->shop->id,
             'marketing.'.$this->shop->id.'.view',
             'web.'.$this->shop->id.'.view',

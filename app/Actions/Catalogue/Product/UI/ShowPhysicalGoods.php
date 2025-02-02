@@ -35,17 +35,17 @@ class ShowPhysicalGoods extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Fulfilment) {
-            $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-            $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+            $this->canEdit   = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            $this->canDelete = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
         } elseif ($this->parent instanceof Organisation) {
-            $this->canEdit   = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
-            $this->canDelete = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
-            return $request->user()->hasPermissionTo("shops.{$this->organisation->id}.view");
+            $this->canEdit   = $request->user()->authTo("shops.{$this->organisation->id}.edit");
+            $this->canDelete = $request->user()->authTo("shops.{$this->organisation->id}.edit");
+            return $request->user()->authTo("shops.{$this->organisation->id}.view");
         } else {
-            $this->canEdit   = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
-            $this->canDelete = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
-            return $request->user()->hasPermissionTo("products.{$this->shop->id}.view");
+            $this->canEdit   = $request->user()->authTo("products.{$this->shop->id}.edit");
+            $this->canDelete = $request->user()->authTo("products.{$this->shop->id}.edit");
+            return $request->user()->authTo("products.{$this->shop->id}.view");
         }
 
 

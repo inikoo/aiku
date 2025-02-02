@@ -79,7 +79,7 @@ class CreateWarehouseAreas extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('inventory.warehouse-areas.edit');
+        return $request->user()->authTo('inventory.warehouse-areas.edit');
     }
 
 

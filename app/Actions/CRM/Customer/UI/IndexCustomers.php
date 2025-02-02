@@ -39,13 +39,13 @@ class IndexCustomers extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         }
 
-        $this->canEdit       = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
-        $this->canCreateShop = $request->user()->hasPermissionTo("org-admin.{$this->organisation->id}");
+        $this->canEdit       = $request->user()->authTo("crm.{$this->shop->id}.edit");
+        $this->canCreateShop = $request->user()->authTo("org-admin.{$this->organisation->id}");
 
-        return $request->user()->hasAnyPermission(["crm.{$this->shop->id}.view","accounting.{$this->shop->organisation_id}.view"]);
+        return $request->user()->authTo(["crm.{$this->shop->id}.view","accounting.{$this->shop->organisation_id}.view"]);
     }
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator

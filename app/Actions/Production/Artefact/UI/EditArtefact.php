@@ -33,9 +33,9 @@ class EditArtefact extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Organisation) {
-            $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
+            $this->canEdit = $request->user()->authTo('org-supervisor.'.$this->organisation->id);
 
-            return $request->user()->hasAnyPermission(
+            return $request->user()->authTo(
                 [
                     'productions-view.'.$this->organisation->id,
                     'org-supervisor.'.$this->organisation->id
@@ -43,9 +43,9 @@ class EditArtefact extends OrgAction
             );
         }
 
-        $this->canEdit = $request->user()->hasPermissionTo("productions_rd.{$this->production->id}.edit");
+        $this->canEdit = $request->user()->authTo("productions_rd.{$this->production->id}.edit");
 
-        return $request->user()->hasPermissionTo("productions_rd.{$this->production->id}.view");
+        return $request->user()->authTo("productions_rd.{$this->production->id}.view");
     }
 
 

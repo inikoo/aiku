@@ -32,7 +32,7 @@ class ShowAccountingDashboard extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->scope instanceof Organisation) {
-            return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
+            return $request->user()->authTo("accounting.{$this->organisation->id}.view");
         }
 
         return false;

@@ -94,7 +94,7 @@ class StoreFulfilment extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
+        return $request->user()->authTo('org-supervisor.'.$this->organisation->id);
     }
 
     public function rules(ActionRequest $request): array

@@ -94,7 +94,7 @@ class IndexPurgedOrders extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
+        return $request->user()->authTo("orders.{$this->shop->id}.view");
     }
 
 

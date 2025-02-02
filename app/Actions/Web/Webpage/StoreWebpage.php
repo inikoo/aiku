@@ -101,7 +101,7 @@ class StoreWebpage extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
+        return $request->user()->authTo("web.{$this->shop->id}.edit");
     }
 
     public function rules(): array

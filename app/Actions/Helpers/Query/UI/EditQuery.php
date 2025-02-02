@@ -25,7 +25,7 @@ class EditQuery extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("portfolio.edit");
+        return $request->user()->authTo("portfolio.edit");
 
     }
 

@@ -48,7 +48,7 @@ class DeleteProduct extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
+        return $request->user()->authTo("products.{$this->shop->id}.edit");
     }
 
     public function asController(Product $product, ActionRequest $request): Product

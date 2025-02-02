@@ -86,7 +86,7 @@ class UpdateOrganisation extends OrgAction
             return true;
         }
 
-        return $request->user()->hasAnyPermission(
+        return $request->user()->authTo(
             [
                 'organisations.edit',
                 'org-admin.'.$this->organisation->id

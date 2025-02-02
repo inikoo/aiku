@@ -30,8 +30,8 @@ class ShowDispatchedEmail extends InertiaAction
     }
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('mail.edit');
-        return $request->user()->hasPermissionTo('marketing.view');
+        $this->canEdit = $request->user()->authTo('mail.edit');
+        return $request->user()->authTo('marketing.view');
     }
 
     public function inOrganisation(DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail

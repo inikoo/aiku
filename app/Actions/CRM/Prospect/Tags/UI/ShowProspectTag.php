@@ -33,7 +33,7 @@ class ShowProspectTag extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('crm.prospects.view');
+        return $request->user()->authTo('crm.prospects.view');
     }
 
     public function handle(Tag $tag): Tag

@@ -26,7 +26,7 @@ class ShowEmailAddress extends GrpAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("group-overview");
+        return $request->user()->authTo("group-overview");
     }
 
     public function asController(EmailAddress $emailAddress, ActionRequest $request): EmailAddress

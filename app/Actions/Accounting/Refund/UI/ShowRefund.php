@@ -48,9 +48,9 @@ class ShowRefund extends OrgAction
 
         // dd($routeName);
         if ($routeName == 'grp.org.accounting.invoices.show.refunds.show') {
-            return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
+            return $request->user()->authTo("accounting.{$this->organisation->id}.view");
         } elseif ($routeName == 'grp.org.fulfilments.show.crm.customers.show.invoices.show.refunds.show') {
-            return $request->user()->hasAnyPermission(
+            return $request->user()->authTo(
                 [
                     "fulfilment-shop.{$this->fulfilment->id}.view",
                     "accounting.{$this->fulfilment->organisation_id}.view"
@@ -60,16 +60,16 @@ class ShowRefund extends OrgAction
 
 
         //        if ($this->parent instanceof Organisation) {
-        //            return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
+        //            return $request->user()->authTo("accounting.{$this->organisation->id}.view");
         //        } elseif ($this->parent instanceof Shop) {
         //            //todo think about it
         //            return false;
         //        } elseif ($this->parent instanceof Fulfilment) {
-        //            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+        //            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
         //        } elseif ($this->parent instanceof FulfilmentCustomer) {
-        //            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+        //            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
         //        }elseif ($this->parent instanceof Invoice) {
-        //            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+        //            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
         //        }
 
         return false;

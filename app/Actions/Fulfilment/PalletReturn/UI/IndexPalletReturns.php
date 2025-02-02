@@ -47,12 +47,12 @@ class IndexPalletReturns extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Fulfilment or $this->parent instanceof FulfilmentCustomer) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+            $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
 
         } elseif ($this->parent instanceof Warehouse) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.edit");
-            return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.view");
+            $this->canEdit = $request->user()->authTo("fulfilment.{$this->warehouse->id}.edit");
+            return $request->user()->authTo("fulfilment.{$this->warehouse->id}.view");
         }
 
         return false;

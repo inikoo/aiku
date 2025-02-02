@@ -36,7 +36,7 @@ class ShowOrgPostRoom extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasAnyPermission([
+        return $request->user()->authTo([
             'shop-admin.'.$this->shop->id,
             'marketing.'.$this->shop->id.'.view',
             'web.'.$this->shop->id.'.view',

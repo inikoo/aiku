@@ -70,9 +70,9 @@ class UpdateWebUser extends OrgAction
         }
 
         if ($this->shop->type == ShopTypeEnum::FULFILMENT) {
-            return $request->user()->hasPermissionTo("fulfilment.{$this->shop->fulfilment->id}.edit");
+            return $request->user()->authTo("fulfilment.{$this->shop->fulfilment->id}.edit");
         } else {
-            return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+            return $request->user()->authTo("crm.{$this->shop->id}.edit");
         }
     }
 

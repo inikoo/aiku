@@ -30,7 +30,7 @@ class DeleteSupplier extends GrpAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("supply-chain.edit");
+        return $request->user()->authTo("supply-chain.edit");
     }
 
     public function action(Supplier $supplier): Supplier

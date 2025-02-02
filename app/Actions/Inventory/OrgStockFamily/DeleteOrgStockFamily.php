@@ -58,7 +58,7 @@ class DeleteOrgStockFamily extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
+        return $request->user()->authTo("inventory.{$this->organisation->id}.edit");
     }
 
     /**

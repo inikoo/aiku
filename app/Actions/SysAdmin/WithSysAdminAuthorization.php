@@ -14,7 +14,7 @@ trait WithSysAdminAuthorization
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('sysadmin.edit');
-        return $request->user()->hasPermissionTo('sysadmin.view');
+        $this->canEdit = $request->user()->authTo('sysadmin.edit');
+        return $request->user()->authTo('sysadmin.view');
     }
 }

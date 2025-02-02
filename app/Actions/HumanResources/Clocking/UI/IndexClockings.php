@@ -138,9 +138,9 @@ class IndexClockings extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+        $this->canEdit = $request->user()->authTo("human-resources.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
+        return $request->user()->authTo("human-resources.{$this->organisation->id}.view");
     }
 
     public function jsonResponse(LengthAwarePaginator $clockings): AnonymousResourceCollection

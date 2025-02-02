@@ -34,10 +34,10 @@ class ShowPaymentServiceProvider extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
+        $this->canEdit   = $request->user()->authTo("accounting.{$this->organisation->id}.edit");
+        $this->canDelete = $request->user()->authTo("accounting.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
+        return $request->user()->authTo("accounting.{$this->organisation->id}.view");
     }
 
     public function asController(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): PaymentServiceProvider

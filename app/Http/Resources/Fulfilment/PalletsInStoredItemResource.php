@@ -60,7 +60,7 @@ class PalletsInStoredItemResource extends JsonResource
 
             'location'              => $pallet->location ? [
                                     'resource' => LocationResource::make($this->location),
-                                    'route'    => $request->user()->hasPermissionTo("locations.{$pallet->warehouse_id}.view") ? [
+                                    'route'    => $request->user()->authTo("locations.{$pallet->warehouse_id}.view") ? [
                                         'name'       => 'grp.org.warehouses.show.fulfilment.locations.show',
                                         'parameters' => [$pallet->organisation->slug, $pallet->warehouse->slug, $pallet->location->slug]
                                     ] : null

@@ -54,7 +54,7 @@ class UpdatePurchaseOrderStateToConfirmed extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
+        return $request->user()->authTo("procurement.{$this->organisation->id}.edit");
     }
 
     public function afterValidator(Validator $validator): void

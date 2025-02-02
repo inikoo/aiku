@@ -184,13 +184,13 @@ class IndexEmployees extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if (class_basename($this->parent) == 'Organisation') {
-            $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+            $this->canEdit = $request->user()->authTo("human-resources.{$this->organisation->id}.edit");
 
-            return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
+            return $request->user()->authTo("human-resources.{$this->organisation->id}.view");
         } elseif (class_basename($this->parent) == 'Group') {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         } else {
-            return $request->user()->hasPermissionTo('group-reports');
+            return $request->user()->authTo('group-reports');
         }
     }
 

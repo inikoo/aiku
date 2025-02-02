@@ -35,7 +35,7 @@ class ShowPostRoom extends GrpAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("group-overview");
+        return $request->user()->authTo("group-overview");
     }
 
 

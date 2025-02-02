@@ -91,7 +91,7 @@ class StoreWarehouse extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
+        return $request->user()->authTo("inventory.warehouses.edit");
     }
 
     public function rules(): array

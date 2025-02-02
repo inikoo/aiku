@@ -54,7 +54,7 @@ class StoreStockDelivery extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
+        return $request->user()->authTo("procurement.{$this->organisation->id}.edit");
     }
 
     public function rules(): array

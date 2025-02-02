@@ -21,7 +21,7 @@ class ShowMarketingDashboard extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("marketing.{$this->shop->id}.view");
+        return $request->user()->authTo("marketing.{$this->shop->id}.view");
     }
 
 

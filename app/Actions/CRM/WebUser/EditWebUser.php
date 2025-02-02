@@ -34,9 +34,9 @@ class EditWebUser extends OrgAction
     {
 
         if ($this->parent instanceof Fulfilment) {
-            return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.view");
+            return $request->user()->authTo("fulfilment.{$this->fulfilment->id}.view");
         } elseif ($this->parent instanceof Shop) {
-            return $request->user()->hasPermissionTo("crm.{$this->shop->id}.view");
+            return $request->user()->authTo("crm.{$this->shop->id}.view");
         }
 
         return false;

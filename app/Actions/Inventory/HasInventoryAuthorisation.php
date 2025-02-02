@@ -16,10 +16,10 @@ trait HasInventoryAuthorisation
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         }
 
-        $this->canEdit = $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
-        return $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.view");
+        $this->canEdit = $request->user()->authTo("inventory.{$this->organisation->id}.edit");
+        return $request->user()->authTo("inventory.{$this->organisation->id}.view");
     }
 }

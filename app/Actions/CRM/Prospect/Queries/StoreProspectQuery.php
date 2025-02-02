@@ -100,7 +100,7 @@ class StoreProspectQuery
             return true;
         }
 
-        return $request->user()->hasPermissionTo("crm.edit");
+        return $request->user()->authTo("crm.edit");
     }
 
     public function inShop(Shop $shop, ActionRequest $request): Query

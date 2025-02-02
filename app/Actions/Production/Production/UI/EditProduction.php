@@ -25,7 +25,7 @@ class EditProduction extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("supervisor.productions.{$this->production->id}");
+        return $request->user()->authTo("supervisor.productions.{$this->production->id}");
     }
 
     public function asController(Organisation $organisation, Production $production, ActionRequest $request): Production

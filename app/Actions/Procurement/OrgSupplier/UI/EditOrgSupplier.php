@@ -28,9 +28,9 @@ class EditOrgSupplier extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
+        $this->canEdit = $request->user()->authTo('procurement.edit');
 
-        return $request->user()->hasPermissionTo("procurement.view");
+        return $request->user()->authTo("procurement.view");
     }
 
     public function asController(Supplier $supplier, ActionRequest $request): Supplier

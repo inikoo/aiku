@@ -39,7 +39,7 @@ class StoreSupplierProduct extends GrpAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("supply-chain.edit");
+        return $request->user()->authTo("supply-chain.edit");
     }
 
     /**

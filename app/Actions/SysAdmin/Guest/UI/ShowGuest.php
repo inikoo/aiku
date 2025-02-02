@@ -38,9 +38,9 @@ class ShowGuest extends GrpAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo('sysadmin.users.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('sysadmin.users.edit');
-        return $request->user()->hasPermissionTo("sysadmin.view");
+        $this->canEdit   = $request->user()->authTo('sysadmin.users.edit');
+        $this->canDelete = $request->user()->authTo('sysadmin.users.edit');
+        return $request->user()->authTo("sysadmin.view");
     }
 
     public function htmlResponse(Guest $guest, ActionRequest $request): Response

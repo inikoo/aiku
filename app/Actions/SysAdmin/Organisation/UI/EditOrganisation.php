@@ -23,7 +23,7 @@ class EditOrganisation extends GrpAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("sysadmin.view");
+        return $request->user()->authTo("sysadmin.view");
     }
 
     public function asController(Organisation $organisation, ActionRequest $request): Organisation

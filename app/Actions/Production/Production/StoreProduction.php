@@ -77,7 +77,7 @@ class StoreProduction extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("inventory.productions.edit");
+        return $request->user()->authTo("inventory.productions.edit");
     }
 
     public function rules(): array

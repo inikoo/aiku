@@ -26,7 +26,7 @@ class EditPaymentServiceProvider extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
+        return $request->user()->authTo("accounting.{$this->organisation->id}.edit");
     }
 
     public function asController(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): PaymentServiceProvider

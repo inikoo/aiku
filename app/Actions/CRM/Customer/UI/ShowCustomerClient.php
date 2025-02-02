@@ -40,7 +40,7 @@ class ShowCustomerClient extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.view");
+        return $request->user()->authTo("crm.{$this->shop->id}.view");
     }
 
 

@@ -49,7 +49,7 @@ class UpdateOrgStock extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("inventory.orgStocks.edit");
+        return $request->user()->authTo("inventory.orgStocks.edit");
     }
 
     public function rules(): array

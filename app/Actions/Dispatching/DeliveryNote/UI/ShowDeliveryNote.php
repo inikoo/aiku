@@ -52,14 +52,14 @@ class ShowDeliveryNote extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Order) {
-            $this->canEdit      = $request->user()->hasPermissionTo("orders.{$this->shop->id}.edit");
-            return $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
+            $this->canEdit      = $request->user()->authTo("orders.{$this->shop->id}.edit");
+            return $request->user()->authTo("orders.{$this->shop->id}.view");
         } elseif ($this->parent instanceof Customer) {
-            $this->canEdit      = $request->user()->hasPermissionTo("orders.{$this->shop->id}.edit");
-            return $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
+            $this->canEdit      = $request->user()->authTo("orders.{$this->shop->id}.edit");
+            return $request->user()->authTo("orders.{$this->shop->id}.view");
         }
-        $this->canEdit      = $request->user()->hasPermissionTo("dispatching.{$this->warehouse->id}.edit");
-        return $request->user()->hasPermissionTo("dispatching.{$this->warehouse->id}.view");
+        $this->canEdit      = $request->user()->authTo("dispatching.{$this->warehouse->id}.edit");
+        return $request->user()->authTo("dispatching.{$this->warehouse->id}.view");
     }
 
     public function inOrganisation(DeliveryNote $deliveryNote): DeliveryNote
@@ -317,8 +317,8 @@ class ShowDeliveryNote extends OrgAction
     {
         $this->fillFromRequest($request);
 
-        $this->set('canEdit', $request->user()->hasPermissionTo('hr.edit'));
-        $this->set('canViewUsers', $request->user()->hasPermissionTo('users.view'));
+        $this->set('canEdit', $request->user()->authTo('hr.edit'));
+        $this->set('canViewUsers', $request->user()->authTo('users.view'));
     }
 
     #[Pure] public function jsonResponse(DeliveryNote $deliveryNote): DeliveryNoteResource

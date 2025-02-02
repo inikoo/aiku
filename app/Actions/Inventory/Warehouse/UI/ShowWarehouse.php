@@ -35,8 +35,8 @@ class ShowWarehouse extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.edit");
-        return $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.view");
+        $this->canEdit = $request->user()->authTo("inventory.{$this->warehouse->id}.edit");
+        return $request->user()->authTo("inventory.{$this->warehouse->id}.view");
 
     }
 

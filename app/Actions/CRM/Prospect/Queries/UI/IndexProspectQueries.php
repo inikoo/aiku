@@ -38,12 +38,12 @@ class IndexProspectQueries extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('crm.prospects.edit');
+        $this->canEdit = $request->user()->authTo('crm.prospects.edit');
 
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('crm.prospects.view')
+                $request->user()->authTo('crm.prospects.view')
             );
     }
 

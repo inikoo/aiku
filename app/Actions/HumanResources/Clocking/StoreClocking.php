@@ -132,7 +132,7 @@ class StoreClocking extends OrgAction
                 && $this->employee->state === EmployeeStateEnum::WORKING;
         }
 
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+        return $request->user()->authTo("human-resources.{$this->organisation->id}.edit");
     }
 
     public function rules(): array

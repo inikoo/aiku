@@ -27,21 +27,21 @@ class EditSubDepartment extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Organisation) {
-            $this->canEdit = $request->user()->hasAnyPermission(
+            $this->canEdit = $request->user()->authTo(
                 [
                     'org-supervisor.'.$this->organisation->id,
                 ]
             );
 
-            return $request->user()->hasAnyPermission(
+            return $request->user()->authTo(
                 [
                     'org-supervisor.'.$this->organisation->id,
                     'shops-view'.$this->organisation->id,
                 ]
             );
         } else {
-            $this->canEdit = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
-            return $request->user()->hasPermissionTo("products.{$this->shop->id}.view");
+            $this->canEdit = $request->user()->authTo("products.{$this->shop->id}.edit");
+            return $request->user()->authTo("products.{$this->shop->id}.view");
         }
     }
 

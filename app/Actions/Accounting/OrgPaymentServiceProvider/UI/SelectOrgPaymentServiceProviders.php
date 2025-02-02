@@ -118,8 +118,8 @@ class SelectOrgPaymentServiceProviders extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
-        return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
+        $this->canEdit = $request->user()->authTo("accounting.{$this->organisation->id}.edit");
+        return $request->user()->authTo("accounting.{$this->organisation->id}.view");
     }
 
     public function htmlResponse(LengthAwarePaginator $paymentServiceProviders, ActionRequest $request): Response

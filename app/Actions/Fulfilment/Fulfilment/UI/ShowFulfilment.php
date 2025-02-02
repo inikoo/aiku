@@ -451,8 +451,8 @@ class ShowFulfilment extends OrgAction
     {
         $this->fillFromRequest($request);
 
-        $this->set('canEdit', $request->user()->hasPermissionTo('hr.edit'));
-        $this->set('canViewUsers', $request->user()->hasPermissionTo('users.view'));
+        $this->set('canEdit', $request->user()->authTo('hr.edit'));
+        $this->set('canViewUsers', $request->user()->authTo('users.view'));
     }
 
     public function jsonResponse(Fulfilment $fulfilment): FulfilmentResource

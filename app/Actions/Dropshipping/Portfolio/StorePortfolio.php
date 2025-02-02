@@ -68,7 +68,7 @@ class StorePortfolio extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+        return $request->user()->authTo("crm.{$this->shop->id}.edit");
     }
 
 

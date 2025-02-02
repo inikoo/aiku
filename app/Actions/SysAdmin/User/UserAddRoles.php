@@ -45,7 +45,7 @@ class UserAddRoles
             return true;
         }
 
-        return $request->user()->hasPermissionTo("sysadmin.edit");
+        return $request->user()->authTo("sysadmin.edit");
     }
 
 

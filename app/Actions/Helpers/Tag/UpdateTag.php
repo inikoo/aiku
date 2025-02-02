@@ -52,7 +52,7 @@ class UpdateTag
             return true;
         }
 
-        return $request->user()->hasPermissionTo("crm.prospects.edit");
+        return $request->user()->authTo("crm.prospects.edit");
     }
 
     public function rules(): array

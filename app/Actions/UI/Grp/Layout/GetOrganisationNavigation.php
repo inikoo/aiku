@@ -26,7 +26,7 @@ class GetOrganisationNavigation
         $navigation = [];
 
 
-        if ($user->hasAnyPermission([ 'accounting.'.$organisation->id.'.view', 'org-supervisor.'.$organisation->id, 'shops-view.'.$organisation->id])) {
+        if ($user->authTo([ 'accounting.'.$organisation->id.'.view', 'org-supervisor.'.$organisation->id, 'shops-view.'.$organisation->id])) {
             $navigation['shops_index'] = [
                 'label'   => __('Shops'),
                 'scope'   => 'shops',
@@ -62,7 +62,7 @@ class GetOrganisationNavigation
         }
 
 
-        if ($user->hasAnyPermission(['org-supervisor.'.$organisation->id, 'fulfilments-view.'.$organisation->id])) {
+        if ($user->authTo(['org-supervisor.'.$organisation->id, 'fulfilments-view.'.$organisation->id])) {
             $navigation['fulfilments_index'] = [
                 'label'   => __('Fulfilment shops'),
                 'root'    => 'grp.org.fulfilments.index',
@@ -123,7 +123,7 @@ class GetOrganisationNavigation
 
 
 
-        if ($user->hasAnyPermission(['org-supervisor.'.$organisation->id, 'warehouses-view.'.$organisation->id])) {
+        if ($user->authTo(['org-supervisor.'.$organisation->id, 'warehouses-view.'.$organisation->id])) {
             $navigation['warehouses_index'] = [
                 'label'   => __('Warehouses'),
                 'scope'   => 'warehouses',
@@ -157,7 +157,7 @@ class GetOrganisationNavigation
             $navigation['warehouses_navigation'][$warehouse->slug] = GetWarehouseNavigation::run($warehouse, $user);
         }
 
-        if ($user->hasPermissionTo("procurement.$organisation->id.view")) {
+        if ($user->authTo("procurement.$organisation->id.view")) {
             $navigation['procurement'] = [
                 'root'    => 'grp.org.procurement',
                 'label'   => __('procurement'),
@@ -218,7 +218,7 @@ class GetOrganisationNavigation
             ];
         }
 
-        if ($user->hasPermissionTo("accounting.$organisation->id.view")) {
+        if ($user->authTo("accounting.$organisation->id.view")) {
             $navigation['accounting'] = [
                 'root'  => 'grp.org.accounting',
                 'scope' => 'shops',
@@ -298,7 +298,7 @@ class GetOrganisationNavigation
             ];
         }
 
-        if ($user->hasPermissionTo("human-resources.$organisation->id.view")) {
+        if ($user->authTo("human-resources.$organisation->id.view")) {
             $navigation['hr'] = [
                 'label'   => __('human resources'),
                 'icon'    => ['fal', 'fa-user-hard-hat'],
@@ -395,7 +395,7 @@ class GetOrganisationNavigation
         }
 
 
-        // if ($user->hasPermissionTo('org-overview.'.$organisation->id)) {
+        // if ($user->authTo('org-overview.'.$organisation->id)) {
         // }
         $navigation['overview'] = [
             'label'   => __('Overview'),
@@ -411,7 +411,7 @@ class GetOrganisationNavigation
             'topMenu' => []
         ];
 
-        if ($user->hasPermissionTo('org-reports.'.$organisation->id)) {
+        if ($user->authTo('org-reports.'.$organisation->id)) {
             $navigation['reports'] = [
                 'label'   => __('Reports'),
                 'tooltip' => __('Reports'),
@@ -432,7 +432,7 @@ class GetOrganisationNavigation
             ];
         }
 
-        if ($user->hasPermissionTo('org-supervisor.'.$organisation->id)) {
+        if ($user->authTo('org-supervisor.'.$organisation->id)) {
             $navigation['setting'] = [
                 "root"    => "grp.org.settings.",
                 "icon"    => ["fal", "fa-sliders-h"],

@@ -30,7 +30,7 @@ class ShowOrganisation extends GrpAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('sysadmin.edit');
+        return $request->user()->authTo('sysadmin.edit');
     }
 
     public function asController(Organisation $organisation, ActionRequest $request): Organisation

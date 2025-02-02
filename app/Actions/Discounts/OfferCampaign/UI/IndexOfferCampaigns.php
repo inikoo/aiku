@@ -118,11 +118,11 @@ class IndexOfferCampaigns extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         }
-        $this->canEdit = $request->user()->hasPermissionTo("discounts.{$this->parent->id}.edit");
+        $this->canEdit = $request->user()->authTo("discounts.{$this->parent->id}.edit");
 
-        return $request->user()->hasPermissionTo("discounts.{$this->parent->id}.view");
+        return $request->user()->authTo("discounts.{$this->parent->id}.view");
     }
 
     public function jsonResponse(LengthAwarePaginator $campaigns): AnonymousResourceCollection
