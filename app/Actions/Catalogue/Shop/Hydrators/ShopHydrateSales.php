@@ -65,8 +65,6 @@ class ShopHydrateSales
             doPreviousPeriods: $doPreviousIntervals
         );
 
-        print_r($stats);
-
         $shop->salesIntervals()->update($stats);
     }
 
