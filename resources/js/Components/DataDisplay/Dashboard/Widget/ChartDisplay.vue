@@ -139,31 +139,6 @@ const getStatusColor = (status: string) => {
 	}
 }
 
-const getIcon = (status?: string) => {
-	switch (status) {
-		case "success":
-			return "fas fa-check"
-		case "warning":
-			return "fas fa-exclamation"
-		case "danger":
-			return "fas fa-exclamation"
-		case "information":
-			return "fas fa-info"
-	}
-}
-
-const getIconColor = (status?: string) => {
-	switch (status) {
-		case "success":
-			return "bg-green-400 text-white"
-		case "warning":
-			return "bg-yellow-400 text-white"
-		case "danger":
-			return "bg-red-400 text-white"
-		case "information":
-			return "bg-gray-400 text-white"
-	}
-}
 
 const printLabelByType = (label?: string) => {
 	switch (props.widget.type) {
@@ -270,57 +245,6 @@ const setChartOptions = () => ({
 		</p>
 
 		<p class="text-base text-gray-500">{{ widget.description }}</p>
-
-		<!-- Visual Progress Bar -->
-		<div v-if="visual?.type === 'MeterGroup'" class="mt-3">
-			<ProgressDashboardCard
-				:progressBar="{
-					value: visual.value,
-					max: visual.max,
-					color: visual.color,
-					routeDashboard: visual.route,
-					right_label: visual.right_label,
-					label: visual.label,
-				}" />
-		</div>
-
-		<!-- Visual Percentage -->
-		<div v-if="visual?.type === 'percantage'" class="flex items-center space-x-2">
-			<!-- Percentage Value -->
-			<span class="text-base font-medium leading-none">
-				{{
-					visual?.value
-						? `${visual?.value > 0 ? "+" : ""}${visual?.value.toFixed(2)}%`
-						: `0.0%`
-				}}
-			</span>
-
-			<!-- FontAwesome Icon -->
-			<FontAwesomeIcon
-				v-if="visual?.value"
-				:icon="visual?.value < 0 ? 'fas fa-play' : 'fas fa-play'"
-				class="text-xl mt-1"
-				:class="
-					visual?.value < 0 ? 'text-red-500 rotate-90' : 'text-green-500 rotate-[-90deg]'
-				" />
-		</div>
-
-		<div v-if="visual?.type === 'number'" class="mt-2">
-			<span class="text-2xl font-bold leading-tight truncate">
-				<Link :href="NumberDashboard(visual.route)">
-					<CountUp
-						class="primaryLink w-10"
-						v-if="visual.type === 'number'"
-						:endVal="visual.value"
-						:duration="1.5"
-						:scrollSpyOnce="true"
-						:options="{
-                    formattingFn: (value: number) => locale.number(value)
-                }" />
-				</Link>
-			</span>
-		</div>
-		<div class="flex-grow"></div>
 		
 		<div>
 			<div v-if="visual && ['line', 'bar', 'pie', 'doughnut'].includes(visual.type)" class="mt-4 h-full flex items-end">
@@ -334,71 +258,23 @@ const setChartOptions = () => ({
 				</div>
 			</div>
 		</div>
-		<!-- <div v-else-if="visual?.type == 'pie'" class="flex-grow relative w-full h-full">
-			<Chart type="pie" :labels="'visual?.label'" :data="visual.value" class="w-full h-64" />
-		</div>
-
-		<div v-else-if="visual?.type == 'line'" class="flex-grow relative w-full h-full">
-			<Chart
-				type="line"
-				:labels="'visual?.label'"
-				:data="visual.value"
-				class="w-full h-full"
-				:options="setChartOptions" />
-		</div>
-
-		<div v-else-if="visual?.type == 'bar'" class="bottom-content">
-			<Chart
-				type="bar"
-				:labels="'visual?.label'"
-				:data="visual.value"
-				class="w-full h-full"
-				:options="setChartOptions" />
-		</div>
-
-		<div
-			v-else-if="visual?.type == 'doughnut'"
-			class="flex items-center justify-center w-full h-full">
-			<Chart
-				type="doughnut"
-				:labels="'visual?.label'"
-				:data="visual.value"
-				class="w-full h-64 justify-center"
-				:options="setChartOptions" />
-		</div> -->
-
-		<!-- <div v-if="visual?.type === 'chart'">
-			<ChartDashboardDynamic :labels="visual?.label" :dataset="visual.value" lineColor="#00D8FF" />
-		</div> -->
-
-		<!-- Conditional Red Exclamation Icon -->
-		<div
-			v-if="getIcon(widget.status)"
-			class="absolute bottom-0 right-0 transform translate-x-1/2 translate-y-1/2 rounded-full w-6 h-6 text-xs flex items-center justify-center shadow-md"
-			:class="getIconColor(widget.status)">
-			<FontAwesomeIcon
-				v-if="getIcon(widget.status)"
-				:icon="getIcon(widget.status)"
-				fixed-width
-				aria-hidden="true" />
-		</div>
 	</div>
 </template>
 <style scoped lang="scss">
 .chart-container {
-	flex-grow: 1; /* Fill remaining space in the widget */
-	position: relative; /* For absolute positioning of the canvas */
+	flex-grow: 1;
+	position: relative;
 }
 
 .chart-container canvas {
 	display: block;
 	width: 100%;
-	height: 100% !important; /* Ensure the canvas fills its container */
+	height: 100% !important;
 }
 
 .bottom-content {
 	display: flex;
-	align-items: flex-end; /* Align content to the bottom */
+	align-items: flex-end;
 	justify-content: center;
 	height: 100%;
 }

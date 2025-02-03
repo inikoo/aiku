@@ -12,6 +12,7 @@ import Image from '@/Components/Image.vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import { faEye, faEyeSlash } from "@fal";
+import PermissionsPictogram from '@/Components/DataDisplay/PermissionsPictogram.vue'
 
 const props = defineProps<{
   data: {
@@ -183,6 +184,10 @@ function toggleShowPins() {
         </div>
       </div>
 
-
     </div>
+      <div v-if="data?.permissions_pictogram" class="sm:col-span-2">
+          <PermissionsPictogram
+              :data_pictogram="data?.permissions_pictogram"
+          />
+      </div>
 </template>

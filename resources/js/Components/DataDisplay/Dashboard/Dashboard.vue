@@ -36,7 +36,7 @@ const tableDatas = computed(() => {
     const isShopOpen = props.dashboard.settings.db_settings.selected_shop_open === "open"; // Determine current shop state
 
     if (props.tableType === "org") {
-        return props.dashboard.table
+        return props.dashboard.table.sales
             .filter((item) => {
                 return isShopOpen ? item.state !== "closed" : true;
             })
@@ -52,8 +52,8 @@ const tableDatas = computed(() => {
                 currency: org.currency_code,
             }));
     } else {
-        return props.dashboard.table
-            .filter((org) => org.type !== "agent") // No change for non-`org` tableType
+        return props.dashboard.table.sales
+            .filter((org) => org.type !== "agent") 
             .map((org) => ({
                 name: org.name,
                 code: org.code,
