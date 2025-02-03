@@ -31,6 +31,7 @@ const props = defineProps<{
 }>()
 
 const layout = inject('layout', layoutStructure)
+const deliveryListError = inject('deliveryListError', [])
 const isLoadingSetEstimatedDate = ref<string | boolean>(false)
 
 
@@ -51,7 +52,13 @@ const onChangeEstimateDate = async (close: Function) => {
                         type: "error",
                     })
                 },
-                onSuccess: () => close(),
+                onSuccess: () => {
+                    const index = deliveryListError?.indexOf('estimated_delivery_date');
+                    if (index > -1) {
+                        deliveryListError?.splice(index, 1);
+                    }
+                    close()
+                },
                 onFinish: () => isLoadingSetEstimatedDate.value = false,
             })
     } catch (error) {
@@ -86,7 +93,7 @@ const disableBeforeToday = (date: Date) => {
                 <dd class="">{{ box_stats.delivery_state.tooltip }}</dd>
             </div>
 
-            <div class="flex items-center w-full flex-none gap-x-2">
+            <div class="flex items-center w-full flex-none gap-x-2" :class="deliveryListError.includes('estimated_delivery_date') ? 'errorShake' : ''">
                 <dt class="flex-none">
                     <span class="sr-only">{{ box_stats.delivery_state.tooltip }}</span>
                     <FontAwesomeIcon :icon="['fal', 'calendar-day']" :class='box_stats?.delivery_status?.class'
