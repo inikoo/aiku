@@ -185,9 +185,11 @@ function toggleShowPins() {
       </div>
 
     </div>
+    <div class="flex py-4 px-8 gap-x-8">
       <div v-if="data?.permissions_pictogram" class="sm:col-span-2">
           <PermissionsPictogram
               :data_pictogram="data?.permissions_pictogram"
           />
       </div>
+    </div>
 </template>
