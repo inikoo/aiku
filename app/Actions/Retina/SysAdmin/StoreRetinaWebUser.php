@@ -32,6 +32,7 @@ class StoreRetinaWebUser extends RetinaAction
 
     protected Customer $customer;
     protected Customer|FulfilmentCustomer $parent;
+    private bool $action = false;
 
     /**
      * @throws \Throwable
@@ -65,6 +66,10 @@ class StoreRetinaWebUser extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->action) {
+            return true;
+        }
+
         return $request->user()->is_root;
     }
 
@@ -120,10 +125,18 @@ class StoreRetinaWebUser extends RetinaAction
      */
     public function asController(ActionRequest $request): Webuser
     {
-
+        $customer       = $request->user()->customer;
+        $this->customer = $customer;
         $this->initialisation($request);
 
-        return $this->handle($this->customer, $this->validatedData);
+        return $this->handle($customer, $this->validatedData);
+    }
+
+    public function action(Customer $customer, array $modelData): Webuser
+    {
+        $this->action = true;
+        $this->initialisationFulfilmentActions($customer->fulfilmentCustomer, $modelData);
+        return $this->handle($customer, $this->validatedData);
     }
 
     public function htmlResponse(WebUser $webUser): Response
