@@ -163,7 +163,7 @@ class IndexFulfilmentCustomers extends OrgAction
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilment, tableName: 'fulfilment_customers');
+        return $this->handle($fulfilment, tableName: request()->route()->getName());
     }
 
     public function inPendingApproval(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
@@ -171,7 +171,7 @@ class IndexFulfilmentCustomers extends OrgAction
         $this->pending_approval = true;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilment, tableName: 'pending_approval_fulfilment_customers');
+        return $this->handle($fulfilment, tableName: request()->route()->getName());
     }
 
     public function jsonResponse(LengthAwarePaginator $customers): AnonymousResourceCollection
