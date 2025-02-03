@@ -8,6 +8,7 @@
 
 namespace App\Actions\SysAdmin\User;
 
+use App\Actions\SysAdmin\CleanUserCaches;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\HumanResources\JobPosition\JobPositionScopeEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
@@ -98,6 +99,7 @@ class SyncRolesFromJobPositions
 
 
         SetUserAuthorisedModels::run($user);
+        CleanUserCaches::make()->clearPermissionsCache($user);
 
 
         $user->refresh();
