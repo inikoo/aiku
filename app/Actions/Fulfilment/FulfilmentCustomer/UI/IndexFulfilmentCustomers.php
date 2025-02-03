@@ -56,7 +56,7 @@ class IndexFulfilmentCustomers extends OrgAction
         ];
     }
 
-    public function handle(Fulfilment $fulfilment, $prefix = null): LengthAwarePaginator
+    public function handle(Fulfilment $fulfilment, $prefix = null, $tableName = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -108,7 +108,7 @@ class IndexFulfilmentCustomers extends OrgAction
             ->leftJoin('currencies', 'shops.currency_id', 'currencies.id')
             ->allowedSorts(['reference', 'name', 'number_pallets', 'slug', 'number_pallets_status_storing', 'status', 'sales_all', 'sales_org_currency_all', 'sales_grp_currency_all', 'customers.created_at'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator(prefix: $prefix, tableName: $tableName)
             ->withQueryString();
     }
 
@@ -163,7 +163,7 @@ class IndexFulfilmentCustomers extends OrgAction
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilment);
+        return $this->handle($fulfilment, tableName: 'fulfilment_customers');
     }
 
     public function inPendingApproval(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
@@ -171,7 +171,7 @@ class IndexFulfilmentCustomers extends OrgAction
         $this->pending_approval = true;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilment);
+        return $this->handle($fulfilment, tableName: 'pending_approval_fulfilment_customers');
     }
 
     public function jsonResponse(LengthAwarePaginator $customers): AnonymousResourceCollection

@@ -9,6 +9,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
 {
@@ -137,9 +138,20 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
         return ['start' => $start, 'end' => $end];
     }
 
-    public function withPaginator($prefix, int $numberOfRecords = null): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function withPaginator($prefix, int $numberOfRecords = null, $tableName = null): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
-        $perPage = is_null($numberOfRecords) ? config('ui.table.records_per_page') : $numberOfRecords;
+        $userId = auth()->user()->id ?? null;
+
+        $keyRppCache = $tableName ? "ui-state-{$userId}-" . ($prefix ? "{$prefix}_" : "") . "{$tableName}-rpp" : null;
+
+        if ($numberOfRecords) {
+            $perPage = $numberOfRecords;
+        } elseif ($tableName) {
+            $perPage = Cache::get($keyRppCache) ?? config('ui.table.records_per_page');
+        } else {
+            $perPage = config('ui.table.records_per_page');
+        }
+
 
         $argumentName = ($prefix ? $prefix.'_' : '').'perPage';
         if (request()->has($argumentName)) {
@@ -152,6 +164,11 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
             } else {
                 $perPage = $inputtedPerPage;
             }
+
+            if ($tableName && $userId) {
+                Cache::forever($keyRppCache, $perPage);
+            }
+
         }
 
 
