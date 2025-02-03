@@ -20,6 +20,8 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { capitalize } from '@/Composables/capitalize'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import { trans } from 'laravel-vue-i18n'
+import Button from '@/Components/Elements/Buttons/Button.vue'
+import { set } from 'lodash'
 library.add(faChevronLeft, faChevronRight, faParachuteBox)
 
 
@@ -46,6 +48,7 @@ const props = defineProps<{
             }
         }
     }
+    numberOptions?: number  // number of the Shops that open or Fulfilments that open
     // icon: string
 
 }>()
@@ -220,6 +223,10 @@ const isLoadingNavigation = ref<string | boolean>(false)
                     <FontAwesomeIcon v-else-if="currentNavigation()?.value.type === 'dropshipping'" icon="fal fa-parachute-box " class='text-xs' fixed-width aria-hidden='true' v-tooltip="trans('Dropshipping')" />
                     <FontAwesomeIcon v-else-if="currentNavigation()?.type === 'shop'" icon="fal fa-store-alt " class='text-xs' fixed-width aria-hidden='true' v-tooltip="trans('Shop')" />
                 </Transition>
+
+                <div v-if="(numberOptions || 0) > 1" @click="() => set(layout, ['organisationsState', layout?.currentParams?.organisation, generateCurrentString(currentNavigation()?.type)], '')" class="text-red-300 hover:text-red-500 cursor-pointer hover:underline text-xxs w-fit px-0.5 py leading-[14px]">
+                    {{ trans("Unselect") }}
+                </div>
             </div>
 
             
@@ -238,6 +245,7 @@ const isLoadingNavigation = ref<string | boolean>(false)
                         <LoadingIcon v-if="isLoadingNavigation == 'prevNav'" />
                         <FontAwesomeIcon v-else icon='fas fa-chevron-left' class='' fixed-width aria-hidden='true' />
                     </component>
+                    
                     <component
                         :is="nextNavigation() ? Link : 'div'"
                         :href="routeArrow(nextNavigation())"

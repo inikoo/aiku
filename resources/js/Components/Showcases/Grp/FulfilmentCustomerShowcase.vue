@@ -138,6 +138,12 @@ const visible = ref(false)
 const _CustomerDataForm = ref()
 // const isModalAddress = ref(false)
 
+const sendUpdateInformation = () =>{
+    _CustomerDataForm?.value.form.patch(route(props.data.updateRoute.name,props.data.updateRoute.parameters),{
+        onSuccess: () => (visible.value = false)
+    })
+}
+
 </script>
 
 <template>
@@ -442,12 +448,12 @@ const _CustomerDataForm = ref()
     <Dialog v-model:visible="visible" modal header="Edit Information" :style="{ width: '50rem' }">
         <CustomerDataForm ref="_CustomerDataForm" :data="data.additional_data"/>
         <div class="flex justify-end">
-            <Link
+          <!--   <Link
                 :href="route(data.updateRoute.name,data.updateRoute.parameters)"
                 v-on:success="visible = false"
-                method="patch" :data="_CustomerDataForm?.form.data()">
-                <Button label="save" type="save" @click="() => console.log(_CustomerDataForm.form.data())" />
-            </Link>
+                method="patch" :data="_CustomerDataForm?.form.data()"> -->
+                <Button label="save" type="save" @click="() => sendUpdateInformation()" />
+        <!--     </Link> -->
         </div>
     </Dialog>
 </template>

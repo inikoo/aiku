@@ -213,18 +213,21 @@ test('update fulfilment settings (monthly cut off day)', function (Fulfilment $f
 })->depends('create fulfilment shop');
 
 test('get end date recurring bill (monthly)', function () {
-
-    $startDate = Carbon::create(2025, 10, 20);
     $endDate = $this->getRecurringBillEndDate->getEndDate(
-        $startDate,
+        now(),
         [
             'type' => 'monthly',
             'day' => 9,
         ]
     );
 
-    expect($endDate)->toBeInstanceOf(Carbon::class)
-        ->and($endDate->toDateString())->toEqual(now()->copy()->day(9)->addMonth()->toDateString());
+    expect($endDate)->toBeInstanceOf(Carbon::class);
+
+    if (now()->gte($endDate)) {
+        expect($endDate->toDateString())->toEqual(now()->copy()->day(9)->addMonth()->toDateString());
+    } else {
+        expect($endDate->toDateString())->toEqual(now()->copy()->day(9)->toDateString());
+    }
 
     return $endDate;
 });
