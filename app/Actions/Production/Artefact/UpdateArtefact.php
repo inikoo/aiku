@@ -41,7 +41,7 @@ class UpdateArtefact extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("productions_rd.{$this->production->id}.edit");
+        return $request->user()->authTo("productions_rd.{$this->production->id}.edit");
     }
 
     public function rules(): array

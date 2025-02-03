@@ -39,6 +39,10 @@ class UpdatePalletReturn extends OrgAction
      * @var true
      */
     private bool $action = false;
+    /**
+     * @var \App\Models\Fulfilment\PalletReturn
+     */
+    private PalletReturn $palletReturn;
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
@@ -85,13 +89,14 @@ class UpdatePalletReturn extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
     public function rules(): array
     {
         return [
-
+            'customer_reference'        => ['sometimes', 'nullable', 'string', Rule::unique('pallet_returns', 'customer_reference')
+                ->ignore($this->palletReturn->id)],
             'customer_notes'      => ['sometimes', 'nullable', 'string', 'max:5000'],
             'address'             => ['sometimes'],
             'delivery_address_id' => ['sometimes', Rule::exists('addresses', 'id')]
@@ -100,6 +105,7 @@ class UpdatePalletReturn extends OrgAction
 
     public function asController(Organisation $organisation, PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
+        $this->palletReturn = $palletReturn;
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
 
         return $this->handle($palletReturn, $this->validatedData);
@@ -108,6 +114,7 @@ class UpdatePalletReturn extends OrgAction
     public function action(PalletReturn $palletReturn, $modelData): PalletReturn
     {
         $this->action = true;
+        $this->palletReturn = $palletReturn;
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $modelData);
 
         return $this->handle($palletReturn, $this->validatedData);
@@ -124,7 +131,7 @@ class UpdatePalletReturn extends OrgAction
     //             'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
     //             'palletReturn'           => $palletReturn->slug
     //         ])),
-    //         default => Inertia::location(route('retina.fulfilment.storage.pallet-returns.show', [
+    //         default => Inertia::location(route('retina.fulfilment.storage.pallet_returns.show', [
     //             'palletReturn'         => $palletReturn->slug
     //         ]))
     //     };

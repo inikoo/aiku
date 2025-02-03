@@ -11,6 +11,7 @@ use App\Actions\Retina\CRM\StoreRetinaCustomerClient;
 use App\Actions\Retina\CRM\UpdateRetinaCustomerDeliveryAddress;
 use App\Actions\Retina\CRM\UpdateRetinaCustomerSettings;
 use App\Actions\Retina\Fulfilment\PalletDelivery\DeleteRetinaPalletDelivery;
+use App\Actions\Retina\Fulfilment\PalletReturn\DeleteRetinaPalletReturn;
 use App\Actions\Retina\Shopify\HandleRetinaApiDeleteProductFromShopify;
 use App\Actions\Retina\Shopify\StoreRetinaProductShopify;
 use App\Actions\Retina\Fulfilment\FulfilmentTransaction\DeleteRetinaFulfilmentTransaction;
@@ -63,6 +64,7 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
     Route::post('cancel', CancelRetinaPalletReturn::class)->name('cancel');
     Route::delete('pallet/{pallet:id}', DetachRetinaPalletFromReturn::class)->name('pallet.delete')->withoutScopedBindings();
     Route::post('transaction', [StoreRetinaFulfilmentTransaction::class, 'fromRetinaInPalletReturn'])->name('transaction.store');
+    Route::delete('/', DeleteRetinaPalletReturn::class)->name('delete');
 });
 
 

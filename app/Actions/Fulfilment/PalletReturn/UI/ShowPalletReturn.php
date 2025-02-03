@@ -281,6 +281,21 @@ class ShowPalletReturn extends OrgAction
                         ]
                     ]
                 ];
+            } else {
+                $actions = array_merge([[
+                    'type'    => 'button',
+                    'style'   => 'delete',
+                    'tooltip' => __('delete'),
+                    'label'   => __('delete'),
+                    'key'     => 'delete_return',
+                    'route'   => [
+                        'method'     => 'delete',
+                        'name'       => 'grp.models.pallet-return.delete',
+                        'parameters' => [
+                            'palletReturn' => $palletReturn->id
+                        ]
+                    ]
+                ]], $actions);
             }
         }
 
@@ -347,6 +362,38 @@ class ShowPalletReturn extends OrgAction
         } else {
             $downloadRoute = 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.stored-items.export';
         };
+
+        $recurringBillData = null;
+        if ($palletReturn->recurringBill) {
+            $recurringBill = $palletReturn->recurringBill;
+
+            if ($this->parent instanceof Fulfilment) {
+                $route = [
+                    'name' => 'grp.org.fulfilments.show.operations.recurring_bills.current.show',
+                    'parameters' => [
+                        'organisation' => $recurringBill->organisation->slug,
+                        'fulfilment' => $this->parent->slug,
+                        'recurringBill' => $recurringBill->slug
+                    ]
+                ];
+            } elseif ($this->parent instanceof FulfilmentCustomer) {
+                $route = [
+                    'name' => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show',
+                    'parameters' => [
+                        'organisation' => $recurringBill->organisation->slug,
+                        'fulfilment' => $this->parent->fulfilment->slug,
+                        'fulfilmentCustomer' => $this->parent->slug,
+                        'recurringBill' => $recurringBill->slug
+                    ]
+                ];
+            }
+            $recurringBillData = [
+                'reference' => $recurringBill->reference,
+                'status'    => $recurringBill->status,
+                'total_amount' => $recurringBill->total_amount,
+                'route'        => $route
+            ];
+        }
         // dd($palletReturn->deliveryAddress);
         return Inertia::render(
             'Org/Fulfilment/PalletReturn',
@@ -444,14 +491,14 @@ class ShowPalletReturn extends OrgAction
                                 'type'               => 'xlsx'
                             ]
                         ],
-                    ]
-                    // 'templates' => [
-                    //     'label' => 'Download Pallets & Stored Items (.xlsx)',
-                    //     'route' => [
-                    //         'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.stored-items.export',
-                    //         'parameters' => $request->route()->originalParameters()
-                    //     ]
-                    // ]
+                    ],
+                     /*'templates' => [
+                         'label' => 'Download Pallets & Stored Items (.xlsx)',
+                         'route' => [
+                             'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.stored-items.export',
+                             'parameters' => $request->route()->originalParameters()
+                         ]
+                     ]*/
                 ],
 
                 'palletRoute' => [
@@ -490,12 +537,13 @@ class ShowPalletReturn extends OrgAction
                 ],
                 'data'             => PalletReturnResource::make($palletReturn),
                 'box_stats'        => [
+                    'recurring_bill'      => $recurringBillData,
                     'fulfilment_customer'          => array_merge(
                         FulfilmentCustomerResource::make($palletReturn->fulfilmentCustomer)->getArray(),
                         [
                             'address'      => [
                                 'value'   => $palletReturn->is_collection ?
-                                    [] :
+                                    null :
                                     AddressResource::make($palletReturn->deliveryAddress),
                                 'options' => [
                                     'countriesAddressData' => GetAddressData::run()
@@ -506,58 +554,28 @@ class ShowPalletReturn extends OrgAction
                                         'countriesAddressData' => GetAddressData::run()
                                     ],
                                 ],
-                                // 'address_list'                   => AddressResource::make($palletReturn->deliveryAddress),
                                 'pinned_address_id'              => $palletReturn->fulfilmentCustomer->customer->delivery_address_id,
                                 'home_address_id'                => $palletReturn->fulfilmentCustomer->customer->address_id,
                                 'current_selected_address_id'    => $palletReturn->delivery_address_id,
-                                // 'selected_delivery_addresses_id' => $palletReturnDeliveryAddressIds,
-                                // 'routes_list'                    => [
-                                //     'pinned_route'                   => [
-                                //         'method'     => 'patch',
-                                //         'name'       => 'grp.models.customer.delivery-address.update',
-                                //         'parameters' => [
-                                //             'customer' => $palletReturn->fulfilmentCustomer->customer_id
-                                //         ]
-                                //     ],
-                                //     'delete_route'  => [
-                                //         'method'     => 'delete',
-                                //         'name'       => 'grp.models.fulfilment-customer.pallet-return-address.delete',
-                                //         'parameters' => [
-                                //             'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                                //             'palletReturn'       => $palletReturn->id
-                                //         ]
-                                //     ],
-                                //     'store_route' => [
-                                //         'method'      => 'post',
-                                //         'name'        => 'grp.models.fulfilment-customer.pellet-return-address.store',
-                                //         'parameters'  => [
-                                //             'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                                //             'palletReturn'       => $palletReturn->id
-                                //         ]
-                                //     ],
-                                // ]
                                 'routes_address' => [
                                     'store'  => [
                                         'method'     => 'post',
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-return-address.store',
+                                        'name'       => 'grp.models.pallet-return.address.store',
                                         'parameters' => [
-                                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
                                             'palletReturn'       => $palletReturn->id
                                         ]
                                     ],
                                     'delete'  => [
                                         'method'     => 'delete',
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-return-address.delete',
+                                        'name'       => 'grp.models.pallet-return.address.delete',
                                         'parameters' => [
-                                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
                                             'palletReturn'       => $palletReturn->id
                                         ]
                                     ],
                                     'update' => [
                                         'method'     => 'patch',
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-return-address.update',
+                                        'name'       => 'grp.models.pallet-return.address.update',
                                         'parameters' => [
-                                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
                                             'palletReturn'       => $palletReturn->id
                                         ]
                                     ]
@@ -698,6 +716,8 @@ class ShowPalletReturn extends OrgAction
                         $palletReturn->id
                     ]
                 ],
+
+                'can_edit_transactions' => true,
 
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
                     fn () => PalletReturnItemsResource::collection(GetReturnPallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))

@@ -28,37 +28,37 @@ const props = defineProps<{
 
 const dataCompany = [
     {
-        label: 'Contact name',
+        label: trans('Contact name'),
         key: 'contact',
         value: props.data.customer?.contact_name
     },
     {
-        label: 'Username',
+        label: trans('Username'),
         key: 'username',
         value: props.data.username
     },
     {
-        label: 'Email',
+        label: trans('Email'),
         key: 'email',
         value: props.data.customer?.email
     },
     {
-        label: 'Last login',
+        label: trans('Last login'),
         key: 'last_login',
         value: '-'
     },
     {
-        label: 'Created at',
+        label: trans('Created at'),
         key: 'created_At',
         value: useFormatTime(props.data.customer?.created_at)
     },
     {
-        label: 'Status',
+        label: trans('Status'),
         key: 'status',
         value: props.data.status
     },
     {
-        label: 'Location',
+        label: trans('Location'),
         key: 'location',
         value: props.data.customer?.location
     },
@@ -76,7 +76,7 @@ console.log(props)
         <div>
             <div class="text-xl font-bold mb-2">{{ trans('Web user details') }}</div>
             <div class="h-fit w-80 relative grid grid-cols-1 divide-y divide-gray-300 border border-gray-300 rounded-md">
-                <div v-for="(print, index) in dataCompany" class="py-2.5 px-4">
+                <div v-for="(print, index) in dataCompany" :key="index" class="py-2.5 px-4">
                     <div class="text-gray-400 text-xs">
                         {{ print.label }}
                     </div>

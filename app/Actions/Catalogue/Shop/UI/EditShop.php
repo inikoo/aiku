@@ -26,7 +26,7 @@ class EditShop extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasAnyPermission(['org-admin.'.$this->organisation->id, 'shop-admin.'.$this->shop->id]);
+        return $request->user()->authTo(['org-admin.'.$this->organisation->id, 'shop-admin.'.$this->shop->id]);
     }
 
     public function handle(Shop $shop): Shop

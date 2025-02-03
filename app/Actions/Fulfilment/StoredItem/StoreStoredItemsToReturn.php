@@ -113,7 +113,7 @@ class StoreStoredItemsToReturn extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
     public function rules(): array
@@ -184,7 +184,7 @@ class StoreStoredItemsToReturn extends OrgAction
                 'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
                 'palletReturn'           => $palletReturn->slug
             ]),
-            default => Redirect::route('retina.fulfilment.storage.pallet-returns.show', [
+            default => Redirect::route('retina.fulfilment.storage.pallet_returns.show', [
                 'palletReturn'     => $palletReturn->slug
             ])
         };

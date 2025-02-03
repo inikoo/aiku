@@ -8,24 +8,37 @@
 
 namespace App\Actions\CRM\WebUser\Retina;
 
-use App\Actions\OrgAction;
+use App\Actions\RetinaAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\CRM\WebUser;
-use App\Models\SysAdmin\Organisation;
+use App\Models\CRM\WebUserPasswordReset;
+use Hash;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateRetinaWebUserPassword extends OrgAction
+class UpdateRetinaWebUserPassword extends RetinaAction
 {
     use WithActionUpdate;
 
 
-    public function handle(WebUser $webUser, array $modelData): WebUser
+    public function handle(array $modelData): WebUser
     {
+        $webUserPasswordReset = WebUserPasswordReset::find($modelData['web_user_password_reset_id']);
+        $webUser              = $webUserPasswordReset->webUser;
+
+        $webUserPasswordReset->delete();
+        data_forget($modelData, 'web_user_password_reset_id');
+        data_forget($modelData, 'token');
+        data_set($modelData, 'password', Hash::make($modelData['password']));
+        data_set($modelData, 'auth_type', 'default');
         data_set($modelData, 'reset_password', false);
+
         return $this->update($webUser, $modelData, 'settings');
     }
 
@@ -33,29 +46,42 @@ class UpdateRetinaWebUserPassword extends OrgAction
     public function rules(): array
     {
         return [
-            'password' => ['required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+            'token'                      => ['required', 'string', 'min:24', 'max:28'],
+            'web_user_password_reset_id' => ['required', 'integer', Rule::exists('web_user_password_resets', 'id')->where('website_id', $this->website->id)],
+            'password'                   => ['required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)],
         ];
     }
 
-
-    public function asController(Organisation $organisation, ActionRequest $request): WebUser
+    public function afterValidator(Validator $validator, ActionRequest $request): void
     {
-        $this->initialisation($organisation, $request);
+        $webUserPasswordReset = WebUserPasswordReset::find($request->get('web_user_password_reset_id'));
 
-        return $this->handle($request->user(), $this->validatedData);
+        if (!$webUserPasswordReset) {
+            $validator->errors()->add('password', 'Token not found.');
+        } else {
+            if (!Hash::check($this->get('token'), $webUserPasswordReset->token)) {
+                $validator->errors()->add('password', 'Invalid token.');
+            }
+
+            if ($webUserPasswordReset->created_at->addMinutes(35)->isPast()) {
+                $validator->errors()->add('password', __('Token expired, the token is only valid for 30 minutes.'));
+            }
+        }
     }
 
-    public function action(WebUser $webUser, $objectData): WebUser
-    {
-        $this->asAction = true;
-        $this->initialisation($webUser->organisation, $objectData);
 
-        return $this->handle($webUser, $this->validatedData);
+    public function asController(ActionRequest $request): WebUser
+    {
+        $this->logoutInitialisation($request);
+
+        return $this->handle($this->validatedData);
     }
 
-    public function htmlResponse(): RedirectResponse
+
+    public function htmlResponse(WebUser $webUser): RedirectResponse
     {
         Session::put('reloadLayout', '1');
+        Auth::guard('retina')->login($webUser);
 
         return Redirect::route('retina.dashboard.show');
     }

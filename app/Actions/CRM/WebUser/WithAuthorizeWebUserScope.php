@@ -18,17 +18,17 @@ trait WithAuthorizeWebUserScope
     public function authorizeWebUserScope(ActionRequest $request): bool
     {
         if ($this->parent instanceof Customer) {
-            $this->canEdit   = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
-            $this->canDelete = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+            $this->canEdit   = $request->user()->authTo("crm.{$this->shop->id}.edit");
+            $this->canDelete = $request->user()->authTo("crm.{$this->shop->id}.edit");
 
-            return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+            return $request->user()->authTo("crm.{$this->shop->id}.edit");
         } elseif ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         } elseif ($this->parent instanceof FulfilmentCustomer) {
-            $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-            $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            $this->canEdit   = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            $this->canDelete = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
         }
 
         return false;

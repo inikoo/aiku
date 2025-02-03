@@ -19,6 +19,7 @@ use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -35,6 +36,10 @@ class UpdateRetinaPalletReturn extends RetinaAction
      * @var true
      */
     private bool $action = false;
+    /**
+     * @var \App\Models\Fulfilment\PalletReturn
+     */
+    private PalletReturn $palletReturn;
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
@@ -78,8 +83,7 @@ class UpdateRetinaPalletReturn extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->action)
-        {
+        if ($this->action) {
             return true;
         }
         return true;
@@ -88,6 +92,8 @@ class UpdateRetinaPalletReturn extends RetinaAction
     public function rules(): array
     {
         return [
+            'customer_reference'        => ['sometimes', 'nullable', 'string', Rule::unique('pallet_returns', 'customer_reference')
+                ->ignore($this->palletReturn->id)],
             'reference'      => ['sometimes', 'string', 'max:255'],
             'public_notes'   => ['sometimes', 'nullable', 'string', 'max:4000'],
             'internal_notes' => ['sometimes', 'nullable', 'string', 'max:4000'],
@@ -96,6 +102,7 @@ class UpdateRetinaPalletReturn extends RetinaAction
 
     public function asController(Organisation $organisation, PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
+        $this->palletReturn = $palletReturn;
         $this->initialisation($request);
 
         return $this->handle($palletReturn, $this->validatedData);
@@ -104,6 +111,7 @@ class UpdateRetinaPalletReturn extends RetinaAction
     public function action(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
         $this->action = true;
+        $this->palletReturn = $palletReturn;
         $this->initialisationFulfilmentActions($palletReturn->fulfilmentCustomer, $modelData);
         return $this->handle($palletReturn, $modelData);
     }

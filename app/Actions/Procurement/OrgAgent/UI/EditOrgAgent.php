@@ -29,9 +29,9 @@ class EditOrgAgent extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
+        $this->canEdit = $request->user()->authTo('procurement.edit');
 
-        return $request->user()->hasPermissionTo("procurement.view");
+        return $request->user()->authTo("procurement.view");
     }
 
     public function asController(Organisation $organisation, OrgAgent $orgAgent, ActionRequest $request): OrgAgent

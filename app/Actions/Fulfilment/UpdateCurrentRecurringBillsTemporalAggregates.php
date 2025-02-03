@@ -23,13 +23,9 @@ class UpdateCurrentRecurringBillsTemporalAggregates
     public function handle(): void
     {
         foreach (RecurringBill::where('status', RecurringBillStatusEnum::CURRENT)->get() as $recurringBill) {
-            CalculateRecurringBillTemporalAggregates::dispatch($recurringBill);
+            CalculateRecurringBillTemporalAggregates::run($recurringBill);
         }
-
-
     }
-
-
 
 
 }

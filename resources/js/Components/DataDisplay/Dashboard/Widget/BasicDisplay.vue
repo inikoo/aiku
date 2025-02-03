@@ -11,6 +11,7 @@ import ChartDashboardDynamic from "../../ChartDashboardDynamic.vue"
 import Chart from "primevue/chart"
 import ProgressDashboardCard from "../../ProgressDashboardCard.vue"
 import { Link } from "@inertiajs/vue3"
+import { layoutStructure } from "@/Composables/useLayoutStructure";
 library.add(faCheck, faExclamation, faInfo, faPlay)
 
 // Props for dynamic behavior
@@ -121,6 +122,7 @@ const widgets = {
 // }
 
 const locale = inject("locale", aikuLocaleStructure)
+const layoutStore = inject("layout", layoutStructure);
 
 const getStatusColor = (status: string) => {
 	switch (status) {
@@ -319,14 +321,17 @@ const setChartOptions = () => ({
 			</span>
 		</div>
 		<div class="flex-grow"></div>
-		<div v-if="visual && ['line', 'bar', 'pie', 'doughnut'].includes(visual.type)" class="mt-4 h-full flex items-end">
-			<div class="w-full h-full">
-				<Chart
-					:type="visual.type"
-					:labels="visual.label"
-					:data="visual.value"
-					:height="300"
-					:options="setChartOptions" />
+		
+		<div>
+			<div v-if="visual && ['line', 'bar', 'pie', 'doughnut'].includes(visual.type)" class="mt-4 h-full flex items-end">
+				<div class="w-full h-full">
+					<Chart
+						:type="visual.type"
+						:labels="visual.label"
+						:data="visual.value"
+						:height="300"
+						:options="setChartOptions" />
+				</div>
 			</div>
 		</div>
 		<!-- <div v-else-if="visual?.type == 'pie'" class="flex-grow relative w-full h-full">

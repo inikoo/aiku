@@ -30,7 +30,7 @@ class ShowIncomingHub extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("incoming.{$this->organisation->id}.view");
+        return $request->user()->authTo("incoming.{$this->organisation->id}.view");
     }
 
     public function asController(Organisation $organisation, Warehouse $warehouse): Organisation

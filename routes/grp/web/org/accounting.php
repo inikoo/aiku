@@ -26,6 +26,8 @@ use App\Actions\Accounting\PaymentServiceProvider\ExportPaymentServiceProviders;
 use App\Actions\Accounting\PaymentServiceProvider\UI\CreatePaymentServiceProvider;
 use App\Actions\Accounting\PaymentServiceProvider\UI\EditPaymentServiceProvider;
 use App\Actions\Accounting\PaymentServiceProvider\UI\RemovePaymentServiceProvider;
+use App\Actions\Accounting\Refund\UI\IndexRefunds;
+use App\Actions\Accounting\Refund\UI\ShowRefund;
 use App\Actions\Accounting\UI\IndexCustomerBalances;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use Illuminate\Support\Facades\Route;
@@ -70,11 +72,25 @@ Route::get('/payments/{payment}', [ShowPayment::class, 'inOrganisation'])->name(
 Route::get('/payments/{payment}/edit', [EditPayment::class, 'inOrganisation'])->name('payments.edit');
 Route::get('/invoices/{invoice}/export', PdfInvoice::class)->name('invoices.download');
 Route::get('/invoices/export', ExportInvoices::class)->name('invoices.export');
-Route::get('/invoices', [IndexInvoices::class, 'allOrganisation'])->name('invoices.index'); // need check in retina
-Route::get('/invoices/all', [IndexInvoices::class, 'allOrganisation'])->name('invoices.all_invoices.index');
-Route::get('/invoices/unpaid', [IndexInvoices::class, 'unpaidOrganisation'])->name('invoices.unpaid_invoices.index');
-Route::get('/invoices/{invoice}', [ShowInvoice::class, 'inOrganisation'])->name('invoices.show'); // need check in retina
-Route::get('/invoices/all/{invoice}', [ShowInvoice::class, 'inOrganisation'])->name('invoices.all_invoices.show');
-Route::get('/invoices/unpaid/{invoice}', [ShowInvoice::class, 'inOrganisation'])->name('invoices.unpaid_invoices.show');
+
+
+Route::get('/invoices', IndexInvoices::class)->name('invoices.index');
+Route::get('/invoices/{invoice}', ShowInvoice::class)->name('invoices.show');
+Route::get('/invoices/{invoice}/refunds', [IndexRefunds::class, 'inInvoiceInOrganisation'])->name('invoices.show.refunds.index');
+Route::get('/invoices/{invoice}/refunds/{refund}', [ShowRefund::class, 'inInvoiceInOrganisation'])->name('invoices.show.refunds.show');
+
+Route::get('/refunds', IndexRefunds::class)->name('refunds.index');
+
+Route::get('/invoices-unpaid', [IndexInvoices::class, 'unpaid'])->name('unpaid_invoices.index');
+Route::get('/invoices-paid', [IndexInvoices::class, 'paid'])->name('paid_invoices.index');
+
+
+
+
+//Route::get('/invoices/all/{invoice}', [ShowInvoice::class, 'inOrganisation'])->name('invoices.all_invoices.show');
+//Route::get('/invoices/all/{invoice}/refunds', [IndexRefunds::class, 'inInvoiceInOrganisation'])->name('invoices.show.refunds.index');
+//Route::get('/invoices/all/{invoice}/refunds/{refund}', [ShowRefund::class, 'inInvoiceInOrganisation'])->name('invoices.show.refunds.show');
+//
+//Route::get('/invoices/unpaid/{invoice}', [ShowInvoice::class, 'inOrganisation'])->name('invoices.unpaid_invoices.show');
 
 Route::get('/customer-balances', [IndexCustomerBalances::class, 'inOrganisation'])->name('balances.index');

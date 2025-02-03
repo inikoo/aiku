@@ -42,7 +42,7 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
 
     public function withFilterPeriod($column, ?string $prefix = null): static
     {
-        $periodType = array_key_first(request()->input(($prefix ? $prefix . '_' : '') . 'period') ?? []);
+        $periodType = array_key_first(request()->input(($prefix ? $prefix.'_' : '').'period') ?? []);
 
         if ($periodType) {
             $periodData = $this->validatePeriod($periodType, $prefix);
@@ -57,7 +57,10 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
 
     protected function validatePeriod(string $periodType, ?string $prefix = null): ?array
     {
-        $period = request()->input(($prefix ? $prefix . '_' : '') . 'period.'.$periodType);
+        $period = request()->input(($prefix ? $prefix.'_' : '').'period.'.$periodType);
+
+        $start = null;
+        $end   = null;
 
         switch ($periodType) {
             case 'day':
@@ -134,9 +137,9 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
         return ['start' => $start, 'end' => $end];
     }
 
-    public function withPaginator($prefix): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function withPaginator($prefix, int $numberOfRecords = null): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
-        $perPage = config('ui.table.records_per_page');
+        $perPage = is_null($numberOfRecords) ? config('ui.table.records_per_page') : $numberOfRecords;
 
         $argumentName = ($prefix ? $prefix.'_' : '').'perPage';
         if (request()->has($argumentName)) {

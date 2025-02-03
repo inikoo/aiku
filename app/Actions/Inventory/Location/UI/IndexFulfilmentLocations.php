@@ -10,7 +10,7 @@ namespace App\Actions\Inventory\Location\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
-use App\Actions\UI\Fulfilment\ShowFulfilmentDashboard;
+use App\Actions\UI\Fulfilment\ShowWarehouseFulfilmentDashboard;
 use App\Enums\UI\Inventory\WarehouseTabsEnum;
 use App\Http\Resources\Inventory\FulfilmentLocationsResource;
 use App\InertiaTable\InertiaTable;
@@ -147,7 +147,7 @@ class IndexFulfilmentLocations extends OrgAction
     public function getBreadcrumbs(array $routeParameters): array
     {
         return  array_merge(
-            ShowFulfilmentDashboard::make()->getBreadcrumbs($routeParameters),
+            ShowWarehouseFulfilmentDashboard::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'   => 'simple',

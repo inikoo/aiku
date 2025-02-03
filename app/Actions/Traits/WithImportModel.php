@@ -33,7 +33,7 @@ trait WithImportModel
         }
     }
 
-    public function runImport($file, $command): Upload
+    public function runImportForCommand($file, $command): Upload
     {
         return $this->handle($file);
     }
@@ -79,7 +79,7 @@ trait WithImportModel
         }
 
         $file = ConvertUploadedFile::run($filename);
-        $upload = $this->runImport($file, $command);
+        $upload = $this->runImportForCommand($file, $command);
 
         Storage::disk('local')->delete("tmp/".$newFileName);
 

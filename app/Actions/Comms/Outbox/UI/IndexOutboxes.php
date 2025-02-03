@@ -11,6 +11,7 @@ namespace App\Actions\Comms\Outbox\UI;
 use App\Actions\Comms\Traits\WithCommsSubNavigation;
 use App\Actions\Comms\UI\ShowCommsDashboard;
 use App\Actions\Fulfilment\Fulfilment\UI\EditFulfilment;
+use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\Web\Website\UI\ShowWebsite;
@@ -42,10 +43,15 @@ class IndexOutboxes extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+
+        if ($this->parent instanceof Fulfilment) {
+            return    $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
         }
-        return $request->user()->hasAnyPermission([
+
+        if ($this->parent instanceof Group) {
+            return $request->user()->authTo("group-overview");
+        }
+        return $request->user()->authTo([
             'shop-admin.'.$this->shop->id,
             'marketing.'.$this->shop->id.'.view',
             'web.'.$this->shop->id.'.view',
@@ -143,10 +149,8 @@ class IndexOutboxes extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $outboxes, ActionRequest $request): Response
     {
-        $subNavigation = null;
-        if ($this->parent instanceof Shop) {
-            $subNavigation = $this->getCommsNavigation($this->organisation, $this->shop);
-        }
+
+        $subNavigation = $this->getCommsNavigation($this->parent);
 
         return Inertia::render(
             'Comms/Outboxes',
@@ -274,6 +278,22 @@ class IndexOutboxes extends OrgAction
                         'name'       => 'grp.overview.comms-marketing.outboxes.index',
                     ]
                 )
+            ),
+            'grp.org.fulfilments.show.operations.comms.outboxes' =>
+            array_merge(
+                ShowFulfilment::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.fulfilments.show.operations.comms.outboxes',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('Outboxes')
+                        ]
+                    ]
+                ]
             ),
             default => []
         };

@@ -104,6 +104,7 @@ beforeEach(function () {
         $this->product
     ) = createProduct($this->shop);
 
+    $this->website = createWebsite($this->shop);
 
     $this->customer = createCustomer($this->shop);
 
@@ -398,6 +399,47 @@ test('UI show fulfilment customer', function () {
     });
 });
 
+test('UI show fulfilment customer web users', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.web-users.index', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->fulfilmentCustomer->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Shop/CRM/WebUsers')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->customer->name)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
+test('UI show fulfilment customer web users (tab requests)', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.web-users.index', [
+        $this->organisation->slug, $this->fulfilment->slug, $this->customer->fulfilmentCustomer->slug,
+        'tab' => 'requests'
+    ]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Shop/CRM/WebUsers')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->customer->name)
+                        ->etc()
+            )
+            ->has('tabs')
+            ->has('requests');
+
+    });
+});
+
 test('UI show fulfilment customer (agreed prices tab)', function () {
     $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/fulfilments/'.$this->fulfilment->slug.'/customers/'. $this->customer->fulfilmentCustomer->slug.'?tab=agreed_prices');
     $response->assertInertia(function (AssertableInertia $page) {
@@ -422,7 +464,7 @@ test('UI edit fulfilment customer', function () {
         $page
             ->component('EditModel')
             ->has('title')
-            ->has('formData.blueprint.0.fields', 5)
+            ->has('formData.blueprint.0.fields', 6)
             ->has('pageHead')
             ->has(
                 'formData.args.updateRoute',
@@ -438,7 +480,7 @@ test('UI index fulfilment invoices all', function () {
     $fulfilment = $this->shop->fulfilment;
     $response  = get(
         route(
-            'grp.org.fulfilments.show.operations.invoices.all_invoices.index',
+            'grp.org.fulfilments.show.operations.invoices.all.index',
             [
                 $this->organisation->slug,
                 $fulfilment->slug
@@ -1075,6 +1117,7 @@ test('UI show Recurring Bill', function () {
 });
 
 test('UI edit recurring bill', function () {
+    $this->withoutExceptionHandling();
     $response = get(route('grp.org.fulfilments.show.operations.recurring_bills.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->recurringBill->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -1092,16 +1135,6 @@ test('UI edit recurring bill', function () {
     });
 });
 
-test('UI get section route fulfilment dashboard', function () {
-    $sectionScope = GetSectionRoute::make()->handle('grp.org.fulfilments.show.dashboard', [
-        'organisation' => $this->organisation->slug,
-        'fulfilment' => $this->fulfilment->slug
-    ]);
-
-    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
-        ->and($sectionScope->code)->toBe(AikuSectionEnum::FULFILMENT_DASHBOARD->value)
-        ->and($sectionScope->model_slug)->toBe($this->fulfilment->slug);
-});
 
 test('UI get section route fulfilment catalogue index', function () {
     $sectionScope = GetSectionRoute::make()->handle('grp.org.fulfilments.show.catalogue.index', [

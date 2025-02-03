@@ -180,11 +180,11 @@ class IndexDeliveryNotes extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Customer || $this->parent instanceof Shop) {
-            return $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
+            return $request->user()->authTo("orders.{$this->shop->id}.view");
         } elseif ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         } else {
-            return $request->user()->hasPermissionTo("dispatching.{$this->warehouse->id}.view");
+            return $request->user()->authTo("dispatching.{$this->warehouse->id}.view");
         }
     }
 

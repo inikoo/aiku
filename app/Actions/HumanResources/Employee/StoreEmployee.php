@@ -114,13 +114,13 @@ class StoreEmployee extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+        return $request->user()->authTo("human-resources.{$this->organisation->id}.edit");
     }
 
 
     public function prepareForValidation(ActionRequest $request): void
     {
-        $this->preparePositionsForValidation();
+        $this->prepareJobPositionsForValidation();
         if (!$this->get('username')) {
             $this->set('username', null);
         }
@@ -186,7 +186,7 @@ class StoreEmployee extends OrgAction
                     ]
                 )
             ],
-            'password'                                => ['exclude_if:username,null', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+            'password'                                => ['exclude_if:username,null', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)],
             'reset_password'                          => ['exclude_if:username,null', 'sometimes', 'boolean'],
             'user_model_status'                       => ['exclude_if:username,null', 'sometimes', 'boolean'],
             'type'                                    => ['required', Rule::enum(EmployeeTypeEnum::class)]

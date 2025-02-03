@@ -102,7 +102,7 @@ class StoreSupplier extends GrpAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("procurement.".$this->group->id.".edit");
+        return $request->user()->authTo("procurement.".$this->group->id.".edit");
     }
 
     public function rules(): array

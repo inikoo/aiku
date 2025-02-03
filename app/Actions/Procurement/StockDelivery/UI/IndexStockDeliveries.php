@@ -89,8 +89,8 @@ class IndexStockDeliveries extends OrgAction
 
     // public function authorize(ActionRequest $request): bool
     // {
-    //     $this->canEdit = $request->user()->hasPermissionTo('incoming.'.$this->warehouse->id.'.edit');
-    //     return $request->user()->hasPermissionTo('incoming.'.$this->warehouse->id.'.view');
+    //     $this->canEdit = $request->user()->authTo('incoming.'.$this->warehouse->id.'.edit');
+    //     return $request->user()->authTo('incoming.'.$this->warehouse->id.'.view');
 
     // }
 

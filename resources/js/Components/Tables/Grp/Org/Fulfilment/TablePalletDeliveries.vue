@@ -77,6 +77,12 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
                     palletDelivery.fulfilment_slug,
                     palletDelivery.slug
                 ])
+        case 'retina.fulfilment.storage.pallet_deliveries.index':
+            return route(
+                'retina.fulfilment.storage.pallet_deliveries.show',
+                [
+                    palletDelivery.slug
+                ])
         default:
             return route(
                 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show',

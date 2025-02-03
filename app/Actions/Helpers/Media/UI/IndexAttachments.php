@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
+use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Media;
 use App\Models\HumanResources\Employee;
@@ -30,7 +31,7 @@ class IndexAttachments extends OrgAction
 {
     protected Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order $parent;
 
-    public function handle(Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order $parent, $prefix = null, $bucket = null): LengthAwarePaginator
+    public function handle(Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order|PalletDelivery $parent, $prefix = null, $bucket = null): LengthAwarePaginator
     {
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -87,6 +88,7 @@ class IndexAttachments extends OrgAction
                 ->withEmptyState(
                     [
                         'title' => $noResults,
+                        'count' => 0,
                     ]
                 );
 

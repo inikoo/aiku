@@ -44,6 +44,10 @@ Route::middleware(["retina-auth:retina", 'retina-prepare-account'])->group(funct
         ->name("json.")
         ->group(__DIR__."/json.php");
 
+    Route::prefix("helpers")
+        ->name("helpers.")
+        ->group(__DIR__."/helpers.php");
+
     Route::middleware(["retina-reset-pass"])->group(function () {
         Route::prefix("dashboard")
             ->name("dashboard.")

@@ -79,10 +79,10 @@ class StoreWebUser extends OrgAction
         }
 
         if ($this->parent instanceof FulfilmentCustomer) {
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
         }
 
-        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+        return $request->user()->authTo("crm.{$this->shop->id}.edit");
     }
 
     public function rules(): array
@@ -108,7 +108,7 @@ class StoreWebUser extends OrgAction
                 [
                     'sometimes',
                     'required',
-                    app()->isLocal() || app()->environment('testing') || !$this->strict ? Password::min(3) : Password::min(8)->uncompromised()
+                    app()->isLocal() || app()->environment('testing') || !$this->strict ? Password::min(3) : Password::min(8)
                 ],
 
         ];

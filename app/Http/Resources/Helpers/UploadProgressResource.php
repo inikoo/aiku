@@ -9,6 +9,7 @@
 namespace App\Http\Resources\Helpers;
 
 use App\Http\Resources\HasSelfCall;
+use App\Models\CRM\WebUser;
 use App\Models\Helpers\Upload;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -17,8 +18,8 @@ class UploadProgressResource extends JsonResource
 {
     use HasSelfCall;
 
-    public ?User $user;
-    public function __construct($resource, ?User $user)
+    public User|WebUser $user;
+    public function __construct($resource, User|WebUser $user)
     {
         parent::__construct($resource);
         $this->user = $user;
@@ -31,7 +32,15 @@ class UploadProgressResource extends JsonResource
 
         return [
             'action_type'  => 'Upload',
-            'action_id'    => $upload->id,
+            'action_id'         => $upload->id,
+            'id'                => $upload->id,
+            'type'              => $upload->model,
+            'original_filename' => $upload->original_filename,
+            'filename'          => $upload->filename,
+            'number_rows'       => $upload->number_rows,
+            'number_success'    => $upload->number_success,
+            'number_fails'      => $upload->number_fails,
+            'path'              => $upload->path,
             'start_at'     => $upload->created_at,
             'end_at'       => $upload->uploaded_at,
             'last_updated' => $upload->updated_at,

@@ -11,6 +11,7 @@ namespace App\Actions\Fulfilment\RecurringBill\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\RecurringBill\WithRecurringBillsSubNavigation;
+use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
@@ -34,16 +35,11 @@ class IndexRecurringBills extends OrgAction
 {
     use WithFulfilmentCustomerSubNavigation;
     use WithRecurringBillsSubNavigation;
+    use WithFulfilmentAuthorisation;
 
     private Fulfilment|FulfilmentCustomer $parent;
     private string $bucket;
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
-    }
 
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
@@ -87,10 +83,11 @@ class IndexRecurringBills extends OrgAction
 
     public function handle(Fulfilment|FulfilmentCustomer $parent, $prefix = null, $bucket = null): LengthAwarePaginator
     {
+
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('reference', $value)
-                    ->orWhereStartWith('slug', $value);
+                $query->whereAnyWordStartWith('recurring_bills.reference', $value)
+                    ->orWhereStartWith('recurring_bills.slug', $value);
             });
         });
 
@@ -111,6 +108,8 @@ class IndexRecurringBills extends OrgAction
         } else {
             $queryBuilder->where('recurring_bills.fulfilment_id', $parent->id);
         }
+        $queryBuilder->join('recurring_bill_stats', 'recurring_bill_stats.recurring_bill_id', '=', 'recurring_bills.id');
+
         $queryBuilder->join('fulfilment_customers', 'recurring_bills.fulfilment_customer_id', '=', 'fulfilment_customers.id');
         $queryBuilder->join('customers', 'fulfilment_customers.customer_id', '=', 'customers.id');
         $queryBuilder->join('currencies', 'recurring_bills.currency_id', '=', 'currencies.id');
@@ -120,16 +119,18 @@ class IndexRecurringBills extends OrgAction
             ->select([
                 'recurring_bills.id',
                 'recurring_bills.slug',
+                'recurring_bills.status',
                 'recurring_bills.reference',
                 'recurring_bills.start_date',
                 'recurring_bills.end_date',
                 'recurring_bills.net_amount',
+                'recurring_bill_stats.number_transactions',
                 'fulfilment_customers.slug as fulfilment_customer_slug',
                 'customers.name as customer_name',
                 'currencies.code as currency_code',
                 'currencies.symbol as currency_symbol',
             ])
-            ->allowedSorts(['reference'])
+            ->allowedSorts(['reference','number_transactions','net_amount', 'start_date', 'end_date'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -161,11 +162,14 @@ class IndexRecurringBills extends OrgAction
                         ]
                     }
                 );
+            $table->column(key: 'status_icon', label: '', canBeHidden: false, sortable: false, searchable: false, type: 'icon');
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             if ($parent instanceof Fulfilment) {
                 $table->column(key: 'customer_name', label: __('customer'), canBeHidden: false, sortable: true, searchable: true);
             }
-            $table->column(key: 'net_amount', label: __('net'), canBeHidden: false, sortable: true, searchable: true, type: 'currency')
+            $table
+                ->column(key: 'number_transactions', label: __('items'), canBeHidden: false, sortable: true, searchable: true, type: 'currency')
+                ->column(key: 'net_amount', label: __('net'), canBeHidden: false, sortable: true, searchable: true, type: 'currency')
                 ->column(key: 'start_date', label: __('start date'), canBeHidden: false, sortable: true, searchable: true, type: 'currency')
                 ->column(key: 'end_date', label: __('end date'), canBeHidden: false, sortable: true, searchable: true, type: 'currency');
         };
@@ -243,6 +247,7 @@ class IndexRecurringBills extends OrgAction
                 ],
             ];
         };
+
 
         return match ($routeName) {
             'grp.org.fulfilments.show.operations.recurring_bills.index' => array_merge(

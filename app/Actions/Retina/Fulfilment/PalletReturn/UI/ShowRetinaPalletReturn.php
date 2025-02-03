@@ -129,10 +129,71 @@ class ShowRetinaPalletReturn extends RetinaAction
         $showGrossAndDiscount = $palletReturn->gross_amount !== $palletReturn->net_amount;
 
         if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
-            $downloadRoute = 'retina.fulfilment.storage.pallet-returns.pallets.uploads.templates';
+            $downloadRoute = 'retina.fulfilment.storage.pallet_returns.pallets.uploads.templates';
         } else {
-            $downloadRoute = 'retina.fulfilment.storage.pallet-returns.stored-items.uploads.templates';
+            $downloadRoute = 'retina.fulfilment.storage.pallet_returns.stored-items.uploads.templates';
         };
+
+        $actions = $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
+            /*                 [
+                                 'type'      => 'button',
+                                 'style'     => 'tertiary',
+                                 'icon'      => 'fal fa-upload',
+                                 'label'     => __('upload'),
+                                 'tooltip'   => __('Upload file')
+                             ],*/
+            $palletReturn->pallets()->count() > 0 ? [
+                'type'    => 'button',
+                'style'   => 'save',
+                'tooltip' => __('submit'),
+                'label'   => __('submit'),
+                'key'     => 'action',
+                'route'   => [
+                    'method'     => 'post',
+                    'name'       => 'retina.models.pallet-return.submit',
+                    'parameters' => [
+                        'palletReturn'       => $palletReturn->id
+                    ]
+                ]
+            ] : [],
+        ] : [
+            $palletReturn->state != PalletReturnStateEnum::DISPATCHED && $palletReturn->state != PalletReturnStateEnum::CANCEL ? [
+                'type'    => 'button',
+                'style'   => 'negative',
+                'icon'    => 'fal fa-times',
+                'tooltip' => __('cancel'),
+                'label'   => __('cancel return'),
+                'key'     => 'action',
+                'route'   => [
+                    'method'     => 'post',
+                    'name'       => 'retina.models.pallet-return.cancel',
+                    'parameters' => [
+                        'palletReturn'       => $palletReturn->id
+                    ]
+                ]
+            ] : []
+        ];
+
+        if (in_array($palletReturn->state, [
+            PalletReturnStateEnum::IN_PROCESS,
+            PalletReturnStateEnum::SUBMITTED
+        ])) {
+            $actions = array_merge([[
+                'type'    => 'button',
+                'style'   => 'delete',
+                'tooltip' => __('delete'),
+                'label'   => __('delete'),
+                'key'     => 'delete_return',
+                'route'   => [
+                    'method'     => 'delete',
+                    'name'       => 'retina.models.pallet-return.delete',
+                    'parameters' => [
+                        'palletReturn' => $palletReturn->id
+                    ]
+                ]
+            ]], $actions);
+        }
+
         return Inertia::render(
             'Storage/RetinaPalletReturn',
             [
@@ -153,45 +214,7 @@ class ShowRetinaPalletReturn extends RetinaAction
                     ],
                     'afterTitle' => $afterTitle,
                     'model'     => __('pallet return'),
-                    'actions'   => $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
-       /*                 [
-                            'type'      => 'button',
-                            'style'     => 'tertiary',
-                            'icon'      => 'fal fa-upload',
-                            'label'     => __('upload'),
-                            'tooltip'   => __('Upload file')
-                        ],*/
-                        $palletReturn->pallets()->count() > 0 ? [
-                            'type'    => 'button',
-                            'style'   => 'save',
-                            'tooltip' => __('submit'),
-                            'label'   => __('submit'),
-                            'key'     => 'action',
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'retina.models.pallet-return.submit',
-                                'parameters' => [
-                                    'palletReturn'       => $palletReturn->id
-                                ]
-                            ]
-                        ] : [],
-                    ] : [
-                        $palletReturn->state != PalletReturnStateEnum::DISPATCHED && $palletReturn->state != PalletReturnStateEnum::CANCEL ? [
-                            'type'    => 'button',
-                            'style'   => 'negative',
-                            'icon'    => 'fal fa-times',
-                            'tooltip' => __('cancel'),
-                            'label'   => __('cancel return'),
-                            'key'     => 'action',
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'retina.models.pallet-return.cancel',
-                                'parameters' => [
-                                    'palletReturn'       => $palletReturn->id
-                                ]
-                            ]
-                        ] : []
-                    ],
+                    'actions'   => $actions
                 ],
 
                 'service_list_route'   => [
@@ -264,7 +287,7 @@ class ShowRetinaPalletReturn extends RetinaAction
                             ]
                         ],
                         'history' => [
-                            'name'       => 'retina.fulfilment.storage.pallet-returns.uploads.history',
+                            'name'       => 'retina.fulfilment.storage.pallet_returns.uploads.history',
                             'parameters' => [
                                 'palletReturn'     => $palletReturn->slug
                             ]
@@ -528,17 +551,17 @@ class ShowRetinaPalletReturn extends RetinaAction
         $palletReturn = PalletReturn::where('slug', $routeParameters['palletReturn'])->first();
 
         return match ($routeName) {
-            'retina.fulfilment.storage.pallet-returns.show' => array_merge(
+            'retina.fulfilment.storage.pallet_returns.show' => array_merge(
                 ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $palletReturn,
                     [
                         'index' => [
-                            'name'       => 'retina.fulfilment.storage.pallet-returns.index',
+                            'name'       => 'retina.fulfilment.storage.pallet_returns.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'retina.fulfilment.storage.pallet-returns.show',
+                            'name'       => 'retina.fulfilment.storage.pallet_returns.show',
                             'parameters' => $routeParameters
                         ]
                     ],

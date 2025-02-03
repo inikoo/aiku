@@ -17,7 +17,6 @@ use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
@@ -109,7 +108,7 @@ class AttachPalletsToReturn extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
     public function rules(): array
@@ -151,20 +150,20 @@ class AttachPalletsToReturn extends OrgAction
 
 
 
-    public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): RedirectResponse
+    public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): void
     {
-        $routeName = $request->route()->getName();
+        // $routeName = $request->route()->getName();
 
-        return match ($routeName) {
-            'grp.models.pallet-return.pallet.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.show', [
-                'organisation'           => $palletReturn->organisation->slug,
-                'fulfilment'             => $palletReturn->fulfilment->slug,
-                'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
-                'palletReturn'           => $palletReturn->slug
-            ]),
-            default => Redirect::route('retina.fulfilment.storage.pallet-returns.show', [
-                'palletReturn'     => $palletReturn->slug
-            ])
-        };
+        // return match ($routeName) {
+        //     'grp.models.pallet-return.pallet.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.show', [
+        //         'organisation'           => $palletReturn->organisation->slug,
+        //         'fulfilment'             => $palletReturn->fulfilment->slug,
+        //         'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
+        //         'palletReturn'           => $palletReturn->slug
+        //     ]),
+        //     default => Redirect::route('retina.fulfilment.storage.pallet_returns.show', [
+        //         'palletReturn'     => $palletReturn->slug
+        //     ])
+        // };
     }
 }

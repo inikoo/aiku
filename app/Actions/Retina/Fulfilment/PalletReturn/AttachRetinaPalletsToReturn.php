@@ -16,7 +16,6 @@ use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
@@ -135,10 +134,10 @@ class AttachRetinaPalletsToReturn extends RetinaAction
         return $this->handle($palletReturn, $this->validatedData);
     }
 
-    public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): RedirectResponse
+    public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): void
     {
-        return Redirect::route('retina.fulfilment.storage.pallet-returns.show', [
-            'palletReturn'     => $palletReturn->slug
-        ]);
+        // return Redirect::route('retina.fulfilment.storage.pallet_returns.show', [
+        //     'palletReturn'     => $palletReturn->slug
+        // ]);
     }
 }

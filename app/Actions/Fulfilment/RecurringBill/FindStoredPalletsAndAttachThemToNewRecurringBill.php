@@ -8,7 +8,7 @@
 
 namespace App\Actions\Fulfilment\RecurringBill;
 
-use App\Actions\Fulfilment\Pallet\UpdatePallet;
+use App\Actions\Fulfilment\RecurringBill\Hydrators\RecurringBillHydrateTransactions;
 use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -16,40 +16,104 @@ use App\Models\Fulfilment\RecurringBill;
 
 class FindStoredPalletsAndAttachThemToNewRecurringBill extends OrgAction
 {
-    public function handle(RecurringBill $recurringBill, RecurringBill $previousRecurringBill = null): RecurringBill
+    public function handle(RecurringBill $recurringBill): RecurringBill
     {
-        //todo this is probably wrong, do same as the fetch
-        $palletsInStoringState = $recurringBill->fulfilmentCustomer->pallets->where('state', PalletStateEnum::STORING);
+        $palletsInStoringState = $recurringBill->fulfilmentCustomer->pallets
+            ->whereIn('state', [
+                PalletStateEnum::RECEIVED,
+                PalletStateEnum::BOOKING_IN,
+                PalletStateEnum::BOOKED_IN,
+                PalletStateEnum::STORING,
+                PalletStateEnum::REQUEST_RETURN_IN_PROCESS,
+                PalletStateEnum::REQUEST_RETURN_SUBMITTED,
+                PalletStateEnum::REQUEST_RETURN_CONFIRMED,
+                PalletStateEnum::PICKING,
+                PalletStateEnum::PICKED,
+
+            ]);
         foreach ($palletsInStoringState as $pallet) {
-            if (!$pallet->storing_at) {
-                UpdatePallet::make()->action($pallet, [
-                    'storing_at'  => now(),
-                ]);
+            $startDate = $recurringBill->start_date;
+
+            if ($pallet->delivered_at && $pallet->delivered_at->greaterThan($startDate)) {
+                $startDate = $pallet->delivered_at;
             }
-            $startDate = $pallet->storing_at;
-            if ($previousRecurringBill) {
-                $startDate = $recurringBill->start_date;
-            }
+
+
+
             StoreRecurringBillTransaction::make()->action(
-                $recurringBill,
-                $pallet,
-                [
+                recurringBill: $recurringBill,
+                item: $pallet,
+                modelData: [
                     'start_date' => $startDate
-                ]
+                ],
+                skipHydrators: true
             );
+
+        }
+        CalculateRecurringBillTotals::run($recurringBill);
+        RecurringBillHydrateTransactions::run($recurringBill);
+
+        $palletsInStoringState = $recurringBill->fulfilmentCustomer->pallets
+            ->where('state', PalletStateEnum::LOST)
+            ->where('set_as_incident_at', '>', $recurringBill->start_date)
+            ->where('set_as_incident_at', '<', $recurringBill->end_date);
+        foreach ($palletsInStoringState as $pallet) {
+            $startDate = $recurringBill->start_date;
+            if ($pallet->delivered_at->greaterThan($startDate)) {
+                $startDate = $pallet->delivered_at;
+            }
+            $endDate = $pallet->set_as_incident_at;
+
+
+            StoreRecurringBillTransaction::make()->action(
+                recurringBill: $recurringBill,
+                item: $pallet,
+                modelData: [
+                    'start_date' => $startDate,
+                    'end_date'   => $endDate
+                ],
+                skipHydrators: true
+            );
+            CalculateRecurringBillTotals::run($recurringBill);
+            RecurringBillHydrateTransactions::run($recurringBill);
+        }
+
+        $palletsInStoringState = $recurringBill->fulfilmentCustomer->pallets
+            ->where('state', PalletStateEnum::DISPATCHED)
+            ->where('dispatched_at', '>', $recurringBill->start_date)
+            ->where('dispatched_at', '<', $recurringBill->end_date);
+        foreach ($palletsInStoringState as $pallet) {
+            $startDate = $recurringBill->start_date;
+            if ($pallet->delivered_at->greaterThan($startDate)) {
+                $startDate = $pallet->delivered_at;
+            }
+            $endDate = $pallet->dispatched_at;
+
+
+            StoreRecurringBillTransaction::make()->action(
+                recurringBill: $recurringBill,
+                item: $pallet,
+                modelData: [
+                    'start_date' => $startDate,
+                    'end_date'   => $endDate
+                ],
+                skipHydrators: true
+            );
+            CalculateRecurringBillTotals::run($recurringBill);
+            RecurringBillHydrateTransactions::run($recurringBill);
         }
 
         return $recurringBill;
     }
 
 
-    public function action(RecurringBill $recurringBill, RecurringBill $previousRecurringBill = null): RecurringBill
+    public function action(RecurringBill $recurringBill): RecurringBill
     {
         $this->asAction = true;
 
         $this->initialisationFromFulfilment($recurringBill->fulfilment, []);
 
-        return $this->handle($recurringBill, $previousRecurringBill);
+        return $this->handle($recurringBill);
     }
 
 

@@ -24,7 +24,7 @@ class WebsitesDashboard extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("websites.view");
+        return $request->user()->authTo("websites.view");
     }
 
 

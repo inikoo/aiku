@@ -12,6 +12,7 @@ namespace App\Actions\Catalogue\Shop;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateAssets;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateDeliveryNotes;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateOutboxes;
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateRentals;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateServices;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateSubDepartments;
 use App\Actions\HydrateModel;
@@ -66,6 +67,7 @@ class HydrateShops extends HydrateModel
         ShopHydrateCreditTransactions::run($shop);
         ShopHydrateCustomerBalances::run($shop);
         ShopHydrateInvoiceIntervals::run($shop);
+        ShopHydrateRentals::run($shop);
 
     }
 

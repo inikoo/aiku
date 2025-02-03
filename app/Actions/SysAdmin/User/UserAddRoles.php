@@ -24,14 +24,16 @@ class UserAddRoles
 
     private bool $trusted = false;
 
-    public function handle(User $user, array $roles): User
+    public function handle(User $user, array $roles, bool $setUserAuthorisedModels = true): User
     {
 
         foreach ($roles as $role) {
             $user->assignRole($role);
         }
 
-        SetUserAuthorisedModels::run($user);
+        if ($setUserAuthorisedModels) {
+            SetUserAuthorisedModels::run($user);
+        }
 
         return $user;
     }
@@ -43,7 +45,7 @@ class UserAddRoles
             return true;
         }
 
-        return $request->user()->hasPermissionTo("sysadmin.edit");
+        return $request->user()->authTo("sysadmin.edit");
     }
 
 

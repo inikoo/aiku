@@ -8,10 +8,14 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePallets;
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
 use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
 use App\Actions\Fulfilment\PalletDelivery\AutoAssignServicesToPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePallets;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateTransactions;
+use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
+use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydratePallets;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Fulfilment\PalletResource;
@@ -31,6 +35,13 @@ class DeletePallet extends OrgAction
         $this->update($pallet, ['customer_reference' => null]);
         $pallet->delete();
 
+        FulfilmentCustomerHydratePallets::dispatch($pallet->fulfilmentCustomer);
+        FulfilmentHydratePallets::dispatch($pallet->fulfilment);
+        WarehouseHydratePallets::dispatch($pallet->warehouse);
+        if ($pallet->location && $pallet->location->warehouseArea) {
+            WarehouseAreaHydratePallets::dispatch($pallet->location->warehouseArea);
+        }
+
         PalletDeliveryHydratePallets::run($pallet->palletDelivery);
         AutoAssignServicesToPalletDelivery::run($pallet->palletDelivery, $pallet);
         PalletDeliveryHydrateTransactions::run($pallet->palletDelivery);
@@ -49,7 +60,7 @@ class DeletePallet extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
     public function fromRetina(Pallet $pallet, ActionRequest $request): Pallet

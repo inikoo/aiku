@@ -87,6 +87,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property InvoicePayStatusEnum|null $pay_status
+ * @property bool $in_process Used for refunds only
+ * @property int|null $invoice_id For refunds link to original invoice
  * @property-read Address|null $address
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Address|null $billingAddress
@@ -99,8 +101,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Order|null $order
  * @property-read Collection<int, Order> $orders
  * @property-read Organisation $organisation
+ * @property-read Invoice|null $originalInvoice
  * @property-read Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read RecurringBill|null $recurringBill
+ * @property-read Collection<int, Invoice> $refunds
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
  * @property-read SalesChannel|null $salesChannel
  * @property-read Shop $shop
@@ -234,6 +238,16 @@ class Invoice extends Model implements Auditable
     public function salesChannel(): BelongsTo
     {
         return $this->belongsTo(SalesChannel::class);
+    }
+
+    public function originalInvoice(): BelongsTo
+    {
+        return $this->belongsTo(Invoice::class, 'invoice_id');
+    }
+
+    public function refunds(): HasMany
+    {
+        return $this->hasMany(Invoice::class, 'invoice_id');
     }
 
 }

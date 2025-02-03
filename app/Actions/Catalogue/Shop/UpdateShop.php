@@ -44,7 +44,7 @@ class UpdateShop extends OrgAction
             return true;
         }
 
-        return $request->user()->hasAnyPermission(['org-admin.'.$this->organisation->id, 'shop-admin.'.$this->shop->id]);
+        return $request->user()->authTo(['org-admin.'.$this->organisation->id, 'shop-admin.'.$this->shop->id]);
     }
 
     public function handle(Shop $shop, array $modelData): Shop

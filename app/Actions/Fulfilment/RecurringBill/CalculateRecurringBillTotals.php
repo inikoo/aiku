@@ -23,18 +23,18 @@ class CalculateRecurringBillTotals extends OrgAction
 
         $transactions = $recurringBill->transactions;
 
-        $taxRate      = $recurringBill->taxCategory->rate;
+        $taxRate = $recurringBill->taxCategory->rate;
 
 
-        $rentalNet    = $transactions->where('item_type', 'Pallet')->sum('net_amount');
-        $rentalGross  = $transactions->where('item_type', 'Pallet')->sum('gross_amount');
+        $rentalNet    = $transactions->whereIn('item_type', ['Pallet', 'StoredItem', 'Space'])->sum('net_amount');
+        $rentalGross  = $transactions->whereIn('item_type', ['Pallet', 'StoredItem', 'Space'])->sum('gross_amount');
         $goodsNet     = $transactions->where('item_type', 'Product')->sum('net_amount');
         $goodsGross   = $transactions->where('item_type', 'Product')->sum('gross_amount');
         $serviceNet   = $transactions->where('item_type', 'Service')->sum('net_amount');
         $serviceGross = $transactions->where('item_type', 'Service')->sum('gross_amount');
 
 
-        $netAmount   = $rentalNet   + $goodsNet + $serviceNet;
+        $netAmount   = $rentalNet + $goodsNet + $serviceNet;
         $grossAmount = $rentalGross + $goodsGross + $serviceGross;
         $taxAmount   = $netAmount * $taxRate;
         $totalAmount = $netAmount + $taxAmount;
@@ -60,9 +60,10 @@ class CalculateRecurringBillTotals extends OrgAction
 
     public function action(RecurringBill $recurringBill, int $hydratorsDelay = 0): RecurringBill
     {
-        $this->asAction = true;
+        $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromFulfilment($recurringBill->fulfilment, []);
+
         return $this->handle($recurringBill);
     }
 }

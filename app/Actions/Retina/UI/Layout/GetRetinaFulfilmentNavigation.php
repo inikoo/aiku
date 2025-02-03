@@ -42,9 +42,9 @@ class GetRetinaFulfilmentNavigation
                 [
                     'label' => __('returns'),
                     'icon'  => ['fal', 'fa-truck-ramp'],
-                    'root'  => 'retina.fulfilment.storage.pallet-returns.',
+                    'root'  => 'retina.fulfilment.storage.pallet_returns.',
                     'route' => [
-                        'name' => 'retina.fulfilment.storage.pallet-returns.index'
+                        'name' => 'retina.fulfilment.storage.pallet_returns.index'
                     ]
                 ]
             ];
@@ -120,9 +120,9 @@ class GetRetinaFulfilmentNavigation
         $groupNavigation['pricing'] = [
             'label'   => __('Pricing'),
             'icon'    => ['fal', 'fa-usd-circle'],
-            'root'    => 'retina.fulfilment.pricing',
+            'root'    => 'retina.fulfilment.pricing.',
             'route'   => [
-                'name' => 'retina.fulfilment.pricing'
+                'name' => 'retina.fulfilment.pricing.index'
             ],
             'topMenu' => [
 
@@ -130,7 +130,7 @@ class GetRetinaFulfilmentNavigation
                 [
                     'label' => __('Pricing'),
                     'icon'  => ['fal', 'fa-usd-circle'],
-                    'root'  => 'retina.fulfilment.pricing',
+                    'root'  => 'retina.fulfilment.pricing.',
                     'route' => [
                         'name' => 'retina.fulfilment.storage.pricing'
                     ]
@@ -139,6 +139,15 @@ class GetRetinaFulfilmentNavigation
 
         ];
 
+        $groupNavigation['spaces'] = [
+            'label'   => __('Spaces'),
+            'icon'    => ['fal', 'fa-parking'],
+            'root'    => 'retina.fulfilment.spaces.',
+            'route'   => [
+                'name' => 'retina.fulfilment.spaces.index'
+            ],
+            'topMenu' => []
+        ];
 
         /*$groupNavigation['dropshipping'] = [
             'label'   => __('Dropshipping'),

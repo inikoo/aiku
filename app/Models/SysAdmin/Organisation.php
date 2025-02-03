@@ -34,6 +34,7 @@ use App\Models\Comms\OrgPostRoom;
 use App\Models\Comms\Outbox;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
+use App\Models\CRM\WebUser;
 use App\Models\Discounts\Offer;
 use App\Models\Discounts\OfferCampaign;
 use App\Models\Dispatching\DeliveryNote;
@@ -45,6 +46,7 @@ use App\Models\Dropshipping\Portfolio;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\RecurringBill;
+use App\Models\Fulfilment\Space;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
@@ -232,6 +234,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, WarehouseArea> $warehouseAreas
  * @property-read LaravelCollection<int, Warehouse> $warehouses
  * @property-read \App\Models\SysAdmin\OrganisationWebStats|null $webStats
+ * @property-read LaravelCollection<int, WebUser> $webUsers
  * @property-read LaravelCollection<int, Webpage> $webpages
  * @property-read LaravelCollection<int, Website> $websites
  * @property-read LaravelCollection<int, Workplace> $workplaces
@@ -767,6 +770,11 @@ class Organisation extends Model implements HasMedia, Auditable
         return $this->hasMany(OrgPostRoom::class);
     }
 
+    public function webUsers(): HasMany
+    {
+        return $this->hasMany(WebUser::class);
+    }
+
     public function pickings(): HasMany
     {
         return $this->hasMany(Picking::class);
@@ -826,6 +834,11 @@ class Organisation extends Model implements HasMedia, Auditable
     public function outboxTestIntervals(): HasOne
     {
         return $this->hasOne(OrganisationOutboxTestIntervals::class);
+    }
+
+    public function spaces(): HasMany
+    {
+        return $this->hasMany(Space::class);
     }
 
 }

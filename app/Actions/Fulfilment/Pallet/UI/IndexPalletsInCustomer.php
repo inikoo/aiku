@@ -107,8 +107,6 @@ class IndexPalletsInCustomer extends OrgAction
         //        }
 
 
-        $query->whereNotNull('pallets.slug');
-
         $query->leftjoin('locations', 'pallets.location_id', '=', 'locations.id');
 
         $query->defaultSort('pallets.id')
@@ -135,7 +133,7 @@ class IndexPalletsInCustomer extends OrgAction
 
         return $query->allowedSorts(['customer_reference', 'reference', 'fulfilment_customer_name'])
             ->allowedFilters([$globalSearch, 'customer_reference', 'reference'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, 50)
             ->withQueryString();
     }
 

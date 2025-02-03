@@ -12,22 +12,28 @@ use App\Actions\Fulfilment\RecurringBill\CalculateRecurringBillTotals;
 use App\Actions\Fulfilment\RecurringBill\Hydrators\RecurringBillHydrateTransactions;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
+use App\Models\Catalogue\HistoricAsset;
 use App\Models\Fulfilment\FulfilmentTransaction;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\RecurringBillTransaction;
+use App\Models\Fulfilment\Space;
 use App\Models\Fulfilment\StoredItem;
+use Illuminate\Support\Arr;
+use Lorisleiva\Actions\ActionRequest;
 
 class StoreRecurringBillTransaction extends OrgAction
 {
-    public function handle(RecurringBill $recurringBill, Pallet|StoredItem|FulfilmentTransaction $item, array $modelData): RecurringBillTransaction
+    private bool $skipHydrators = false;
+
+    public function handle(RecurringBill $recurringBill, Space|Pallet|StoredItem|FulfilmentTransaction|HistoricAsset $item, array $modelData): RecurringBillTransaction
     {
         data_set($modelData, 'organisation_id', $recurringBill->organisation_id);
         data_set($modelData, 'group_id', $recurringBill->group_id);
         data_set($modelData, 'fulfilment_id', $recurringBill->fulfilment_id);
         data_set($modelData, 'fulfilment_customer_id', $recurringBill->fulfilment_customer_id);
         data_set($modelData, 'tax_category_id', $recurringBill->tax_category_id);
-        data_set($modelData, 'item_id', $item->id);
+
 
         if ($item instanceof FulfilmentTransaction) {
             if ($item->type == FulfilmentTransactionTypeEnum::SERVICE) {
@@ -41,7 +47,23 @@ class StoreRecurringBillTransaction extends OrgAction
 
             // todo add unit cost to the transaction
             $unitCost = $item->gross_amount / $item->quantity;
+            data_set($modelData, 'item_id', $item->historicAsset->model_id);
+        } elseif ($item instanceof HistoricAsset) {
+            $type            = $item->asset->model_type;
+            $assetId         = $item->asset->id;
+            $historicAssetId = $item->id;
+            $totalQuantity   = Arr::pull($modelData, 'quantity');
 
+            $unitCost = $item->price;
+            data_set($modelData, 'item_id', $item->model_id);
+        } elseif ($item instanceof Space) {
+            $type            = 'Space';
+            $assetId         = $item->rental->asset_id;
+            $historicAssetId = $item->rental->asset->current_historic_asset_id;
+            $totalQuantity   = 1;
+
+            $unitCost = $item->rental->price;
+            data_set($modelData, 'item_id', $item->id);
         } else {
             $type            = class_basename($item);
             $assetId         = $item->rental->asset_id;
@@ -57,8 +79,8 @@ class StoreRecurringBillTransaction extends OrgAction
                 $totalQuantity = 1;
             }
 
-            $unitCost    = $item->rental->price;
-
+            $unitCost = $item->rental->price;
+            data_set($modelData, 'item_id', $item->id);
         }
 
         data_set($modelData, 'item_type', $type);
@@ -80,28 +102,54 @@ class StoreRecurringBillTransaction extends OrgAction
         $recurringBillTransaction = CalculateRecurringBillTransactionAmounts::make()->action($recurringBillTransaction);
         $recurringBillTransaction = CalculateRecurringBillTransactionCurrencyExchangeRates::make()->action($recurringBillTransaction);
 
-        CalculateRecurringBillTotals::dispatch($recurringBill);
-
-        RecurringBillHydrateTransactions::dispatch($recurringBill)->delay($this->hydratorsDelay);
+        if (!$this->skipHydrators) {
+            CalculateRecurringBillTotals::run($recurringBill);
+            RecurringBillHydrateTransactions::run($recurringBill);
+        }
 
 
         return $recurringBillTransaction;
     }
 
+    public function prepareForValidation(ActionRequest $request): void
+    {
+        $date = now();
+        if (!$this->has('start_date')) {
+            $this->set('start_date', $date);
+        }
+        if (!$this->has('end_date')) {
+            $this->set('end_date', $date);
+        }
+    }
+
     public function rules(): array
     {
         return [
-            'start_date' => ['required', 'date'],
+            'start_date'                => ['required', 'date'],
+            'end_date'                  => ['sometimes', 'required', 'date', 'gte:start_date'],
+            'quantity'                  => ['sometimes', 'numeric'],
+            'pallet_delivery_id'        => ['sometimes', 'exists:pallet_deliveries,id'],
+            'pallet_return_id'          => ['sometimes', 'exists:pallet_returns,id'],
+            'fulfilment_transaction_id' => ['sometimes', 'exists:fulfilment_transactions,id'],
         ];
     }
 
-    public function action(RecurringBill $recurringBill, Pallet|StoredItem|FulfilmentTransaction $item, array $modelData, int $hydratorsDelay = 0): RecurringBillTransaction
+    public function action(RecurringBill $recurringBill, Space|Pallet|StoredItem|FulfilmentTransaction $item, array $modelData, int $hydratorsDelay = 0, bool $skipHydrators = false): RecurringBillTransaction
     {
-        $this->asAction = true;
+        $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
+        $this->skipHydrators  = $skipHydrators;
         $this->initialisationFromShop($recurringBill->fulfilment->shop, $modelData);
+
         return $this->handle($recurringBill, $item, $this->validatedData);
     }
 
+    public function asController(RecurringBill $recurringBill, HistoricAsset $historicAsset, ActionRequest $request): void
+    {
+
+        $this->initialisationFromFulfilment($recurringBill->fulfilment, $request);
+
+        $this->handle($recurringBill, $historicAsset, $this->validatedData);
+    }
 
 }

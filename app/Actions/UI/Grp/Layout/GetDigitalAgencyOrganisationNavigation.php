@@ -9,7 +9,9 @@
 
 namespace App\Actions\UI\Grp\Layout;
 
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\OrganisationAuthorisedModels;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -20,6 +22,48 @@ class GetDigitalAgencyOrganisationNavigation
     public function handle(User $user, Organisation $organisation): array
     {
         $navigation = [];
+
+        if ($user->hasAnyPermission(
+            [
+                'org-supervisor.'.$organisation->id,
+                'shops-view.'.$organisation->id
+            ]
+        )) {
+
+            $navigation['shops_index'] = [
+                'label'   => __('Shops'),
+                'scope'   => 'shops',
+                'icon'    => ['fal', 'fa-store-alt'],
+                'root'    => 'grp.org.shops.index',
+                'route'   => [
+                    'name'       => 'grp.org.shops.index',
+                    'parameters' => [$organisation->slug],
+                ],
+                'topMenu' => [
+                    'subSections' => [
+                        [
+                            'label'   => __('dashboard'),
+                            'tooltip' => __('Dashboard'),
+                        ]
+                    ]
+                ]
+
+            ];
+        }
+
+        $shops_navigation = [];
+        /** @var OrganisationAuthorisedModels $authorisedModel */
+        foreach (
+            $organisation->authorisedModels()->where('user_id', $user->id)->where('model_type', 'Shop')->get() as $authorisedModel
+        ) {
+            /** @var Shop $shop */
+            $shop                          = $authorisedModel->model;
+            $shops_navigation[$shop->slug] = [
+                'type'          => $shop->type,
+                'subNavigation' => GetShopNavigation::run($shop, $user)
+            ];
+        }
+
 
         if ($user->hasPermissionTo("accounting.$organisation->id.view")) {
             $navigation['accounting'] = [
@@ -80,7 +124,7 @@ class GetDigitalAgencyOrganisationNavigation
                             'icon'  => ['fal', 'fa-file-invoice-dollar'],
                             'root'  => 'grp.org.accounting.invoices.',
                             'route' => [
-                                'name'       => 'grp.org.accounting.invoices.all_invoices.index',
+                                'name'       => 'grp.org.accounting.invoices.index',
                                 'parameters' => [$organisation->slug],
 
                             ]
@@ -190,13 +234,10 @@ class GetDigitalAgencyOrganisationNavigation
                         ],
 
 
-
-
                     ]
                 ]
             ];
         }
-
 
         if ($user->hasPermissionTo('org-reports.'.$organisation->id)) {
             $navigation['reports'] = [

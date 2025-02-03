@@ -50,7 +50,7 @@ class StorePalletDelivery extends OrgAction
                 $modelData,
                 'tax_category_id',
                 GetTaxCategory::run(
-                    country: $this->organisation->country,
+                    country: $fulfilmentCustomer->organisation->country,
                     taxNumber: $fulfilmentCustomer->customer->taxNumber,
                     billingAddress: $fulfilmentCustomer->customer->address,
                     deliveryAddress: $fulfilmentCustomer->customer->address,
@@ -91,7 +91,7 @@ class StorePalletDelivery extends OrgAction
         }
 
         if ($this->hasRentalAgreement($this->fulfilmentCustomer)) {
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
         }
 
         return false;

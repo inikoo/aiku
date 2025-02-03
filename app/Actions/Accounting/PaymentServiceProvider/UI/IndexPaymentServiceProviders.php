@@ -84,7 +84,7 @@ class IndexPaymentServiceProviders extends GrpAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("group-reports");
+        return $request->user()->authTo("group-reports");
     }
 
 

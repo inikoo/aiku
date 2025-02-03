@@ -20,7 +20,9 @@ class GetUserOrganisationScopeJobPositionsData
     public function handle(User $user, Organisation $organisation): array
     {
 
-        $organisationsWhereUserIsEmployee = $user->getOrganisations()->pluck('id')->toArray();
+        $organisationsWhereUserIsEmployee = $user->employees()->pluck('employees.organisation_id')->toArray();
+
+
 
         if (in_array($organisation->id, $organisationsWhereUserIsEmployee)) {
             // get job positions data from the employee

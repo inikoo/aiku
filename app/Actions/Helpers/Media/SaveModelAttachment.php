@@ -10,6 +10,7 @@ namespace App\Actions\Helpers\Media;
 
 use App\Actions\OrgAction;
 use App\Models\CRM\Customer;
+use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Media;
 use App\Models\HumanResources\Employee;
@@ -24,7 +25,7 @@ class SaveModelAttachment extends OrgAction
 {
     use AsAction;
 
-    public function handle(Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order $model, array $modelData): Media
+    public function handle(Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order|PalletDelivery $model, array $modelData): Media
     {
         $filePath = Arr::pull($modelData, 'path');
 
@@ -37,6 +38,7 @@ class SaveModelAttachment extends OrgAction
                 [
                     'path'         => $filePath,
                     'originalName' => Arr::get($modelData, 'originalName'),
+                    'extension' => Arr::get($modelData, 'extension'),
                     'checksum'     => $checksum
                 ],
                 'attachment',
@@ -46,6 +48,7 @@ class SaveModelAttachment extends OrgAction
         }
 
         data_forget($modelData, 'originalName');
+        data_forget($modelData, 'extension');
 
         $pivotData = array_merge(
             $modelData,
@@ -84,6 +87,7 @@ class SaveModelAttachment extends OrgAction
             'scope'        => ['required', 'string'],
             'sub_scope'    => ['sometimes', 'string'],
             'caption'      => ['sometimes', 'nullable', 'string'],
+            'extension'    => ['sometimes', 'nullable', 'string'],
 
         ];
 
@@ -96,7 +100,7 @@ class SaveModelAttachment extends OrgAction
         return $rules;
     }
 
-    public function action(Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order $model, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Media
+    public function action(Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order|PalletDelivery $model, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Media
     {
         $this->asAction       = true;
         $this->strict         = $strict;

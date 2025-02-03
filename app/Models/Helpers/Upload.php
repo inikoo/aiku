@@ -8,6 +8,7 @@
 
 namespace App\Models\Helpers;
 
+use App\Models\CRM\WebUser;
 use App\Models\SysAdmin\User;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\InShop;
@@ -40,12 +41,16 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property string|null $source_id
  * @property int|null $web_user_id
+ * @property int|null $customer_id
+ * @property string|null $parent_type
+ * @property int|null $parent_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\UploadRecord> $records
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read User|null $user
+ * @property-read WebUser|null $webUser
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Upload newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Upload newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Upload query()
@@ -89,5 +94,10 @@ class Upload extends Model implements Auditable
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function webUser(): BelongsTo
+    {
+        return $this->belongsTo(WebUser::class);
     }
 }

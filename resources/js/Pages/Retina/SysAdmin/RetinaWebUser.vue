@@ -26,27 +26,27 @@
   
   const dataCompany = [
       {
-          label: 'Contact name',
+          label: trans('Contact name'),
           key: 'contact',
           value: props.data.contact_name ?? '-'
       },
       {
-          label: 'Username',
+          label: trans('Username'),
           key: 'username',
           value: props.data.username
       },
       {
-          label: 'Email',
+          label: trans('Email'),
           key: 'email',
           value: props.data.customer?.email
       },
       {
-          label: 'Last login',
+          label: trans('Last login'),
           key: 'last_login',
           value: props.data.last_login ?? '-'
       },
       {
-          label: 'Created at',
+          label: trans('Created at'),
           key: 'created_At',
           value: useFormatTime(props.data.customer?.created_at)
       },

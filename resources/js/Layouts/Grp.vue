@@ -23,10 +23,11 @@ import RightSideBar from "@/Layouts/Grp/RightSideBar.vue"
 // import StackedComponents from "@/Layouts/Grp/StackedComponents.vue"
 import Breadcrumbs from "@/Components/Navigation/Breadcrumbs.vue"
 import Notification from '@/Components/Utils/Notification.vue'
-import { faTachometerAltFast, faGlobe } from '@fal'
+import { faParking } from '@fal' // Pallet
+import { faTachometerAltFast, faGlobe, faParachuteBox } from '@fal'
 import { faSearch, faBell } from '@far'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faSearch, faBell, faTachometerAltFast, faGlobe)
+library.add(faSearch, faBell, faTachometerAltFast, faGlobe, faParachuteBox, faParking)
 
 provide('layout', useLayoutStore())
 provide('locale', useLocaleStore())
@@ -51,9 +52,9 @@ const sidebarOpen = ref(false)
 
         <!-- Section: Breadcrumbs -->
         <Breadcrumbs
-            class="bg-white fixed z-[19] w-full transition-all duration-200 ease-in-out"
+            class="bg-white fixed z-[19] transition-all duration-200 ease-in-out"
             :class="[
-                layout.leftSidebar.show ? 'left-0 md:left-48' : 'left-0 md:left-12',
+                layout.leftSidebar.show ? 'left-0 md:left-48 w-[calc(100%-192px)]' : 'left-0 md:left-12 w-[calc(100%-48px)]',
                 layout.app.environment === 'staging' ? 'top-11 lg:top-16' : 'top-11 lg:top-10'
             ]"
             :breadcrumbs="usePage().props.breadcrumbs ?? []" :navigation="usePage().props.navigation ?? []"

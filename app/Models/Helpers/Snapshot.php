@@ -36,7 +36,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property string|null $published_at
  * @property string|null $published_until
  * @property string $checksum
- * @property array $layout
+ * @property array<array-key, mixed> $layout
  * @property string|null $compiled_layout e.g. html in case of email builders
  * @property string|null $comment
  * @property bool $first_commit
@@ -119,7 +119,7 @@ class Snapshot extends Model
         return $this->hasMany(Slide::class);
     }
 
-    public function compiledLayout(): object|string
+    public function compiledLayout(): array|string
     {
         switch (class_basename($this->parent)) {
             case 'Banner':
@@ -131,9 +131,9 @@ class Snapshot extends Model
                 return $compiledLayout;
             case 'Website':
             case 'Webpage':
-                return $this->layout->html;
+                return $this->layout['html'];
             default:
-                return (object)[];
+                return [];
         }
     }
 }

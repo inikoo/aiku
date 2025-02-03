@@ -12,8 +12,10 @@ use App\Actions\Comms\Email\StoreEmail;
 use App\Actions\Comms\EmailOngoingRun\StoreEmailOngoingRun;
 use App\Actions\Comms\EmailOngoingRun\UpdateEmailOngoingRun;
 use App\Actions\Comms\Outbox\UpdateOutbox;
+use App\Enums\Comms\Email\EmailBuilderEnum;
 use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunStatusEnum;
 use App\Enums\Comms\EmailTemplate\EmailTemplateStateEnum;
+use App\Enums\Comms\Outbox\OutboxBuilderEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
@@ -27,7 +29,7 @@ use Illuminate\Support\Arr;
 
 trait WithOutboxBuilder
 {
-    public function getDefaultBuilder(OutboxCodeEnum $case, Organisation|Shop|Fulfilment|Website $model): ?string
+    public function getDefaultBuilder(OutboxCodeEnum $case, Organisation|Shop|Fulfilment|Website $model): ?OutboxBuilderEnum
     {
         $builder = $case->defaultBuilder();
         if (!$builder and $case != OutboxCodeEnum::TEST) {
@@ -36,6 +38,14 @@ trait WithOutboxBuilder
                 'default_outbox_builder',
                 config('app.default_outbox_builder')
             );
+        }
+
+        if (is_string($builder)) {
+            match ($builder) {
+                'unlayer' => $builder = OutboxBuilderEnum::UNLAYER,
+                'beefree' => $builder = OutboxBuilderEnum::BEEFREE,
+                default => null
+            };
         }
 
         return $builder;
@@ -71,7 +81,13 @@ trait WithOutboxBuilder
                         'snapshot_state'        => SnapshotStateEnum::LIVE,
                         'snapshot_published_at' => $model->created_at,
                         'snapshot_recyclable'   => false,
-                        'snapshot_first_commit' => true
+                        'snapshot_first_commit' => true,
+                        'builder'               => match ($this->getDefaultBuilder($case, $model)) {
+                            OutboxBuilderEnum::UNLAYER => EmailBuilderEnum::UNLAYER,
+                            OutboxBuilderEnum::BEEFREE => EmailBuilderEnum::BEEFREE,
+                            OutboxBuilderEnum::BLADE => EmailBuilderEnum::BLADE,
+                            default => null
+                        }
                     ],
                     strict: false
                 );

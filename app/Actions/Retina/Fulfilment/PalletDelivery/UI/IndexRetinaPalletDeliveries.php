@@ -8,11 +8,13 @@
 
 namespace App\Actions\Retina\Fulfilment\PalletDelivery\UI;
 
-use App\Actions\Catalogue\HasRentalAgreement;
 use App\Actions\Retina\Fulfilment\UI\ShowRetinaStorageDashboard;
+use App\Actions\Retina\Helpers\Upload\UI\IndexRetinaPalletUploads;
 use App\Actions\RetinaAction;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Enums\UI\Fulfilment\PalletDeliveriesTabsEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
+use App\Http\Resources\Helpers\PalletUploadsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
@@ -26,8 +28,6 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexRetinaPalletDeliveries extends RetinaAction
 {
-    use HasRentalAgreement;
-
     protected function getElementGroups(FulfilmentCustomer $fulfilmentCustomer): array
     {
         return [
@@ -49,7 +49,7 @@ class IndexRetinaPalletDeliveries extends RetinaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(PalletDeliveriesTabsEnum::values());
 
         return $this->handle($this->customer->fulfilmentCustomer);
     }
@@ -108,7 +108,6 @@ class IndexRetinaPalletDeliveries extends RetinaAction
             ->withQueryString();
     }
 
-
     public function tableStructure(FulfilmentCustomer $fulfilmentCustomer, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($fulfilmentCustomer, $modelOperations, $prefix) {
@@ -137,14 +136,31 @@ class IndexRetinaPalletDeliveries extends RetinaAction
         };
     }
 
-    public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $deliveries, ActionRequest $request): Response
     {
+        $actions = [];
+
+        $navigation = PalletDeliveriesTabsEnum::navigation();
+
+
+        $actions = [
+                [
+                    'type'  => 'button',
+                    'style' => 'create',
+                    'label' => __('New Delivery'),
+                    'fullLoading'   => true,
+                    'route' => [
+                        'method'     => 'post',
+                        'name'       => 'retina.models.pallet-delivery.store',
+                        'parameters' => []
+                    ]
+                ]
+            ];
+
         return Inertia::render(
             'Storage/RetinaPalletDeliveries',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                ),
+                'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('pallet deliveries'),
                 'pageHead'    => [
                     'title'   => __('Deliveries'),
@@ -152,45 +168,43 @@ class IndexRetinaPalletDeliveries extends RetinaAction
                         'icon'  => ['fal', 'fa-truck'],
                         'title' => __('delivery')
                     ],
-                    'actions' => [
-                        [
-                            'type'  => 'button',
-                            'style' => 'create',
-                            'label' => __('New Delivery'),
-                            'route' => [
-                                'method'     => 'post',
-                                'name'       => 'retina.models.pallet-delivery.store',
-                                'parameters' => []
-                            ]
-                        ]
-                    ]
+                    'actions' => $actions
                 ],
-                'data'        => PalletDeliveriesResource::collection($customers),
+                'data'        => PalletDeliveriesResource::collection($deliveries),
+                'tabs' => [
+                    'current'    => $this->tab,
+                    'navigation' => $navigation
+                ],
 
+                PalletDeliveriesTabsEnum::DELIVERIES->value => $this->tab == PalletDeliveriesTabsEnum::DELIVERIES->value ?
+                    fn () => PalletDeliveriesResource::collection($deliveries)
+                    : Inertia::lazy(fn () => PalletDeliveriesResource::collection($deliveries)),
+
+                PalletDeliveriesTabsEnum::UPLOADS->value => $this->tab == PalletDeliveriesTabsEnum::UPLOADS->value ?
+                    fn () => PalletUploadsResource::collection(IndexRetinaPalletUploads::run($this->webUser, PalletDeliveriesTabsEnum::UPLOADS->value))
+                    : Inertia::lazy(fn () => PalletUploadsResource::collection(IndexRetinaPalletUploads::run($this->webUser, PalletDeliveriesTabsEnum::UPLOADS->value))),
             ]
-        )->table($this->tableStructure($this->customer->fulfilmentCustomer));
+        )->table($this->tableStructure(fulfilmentCustomer: $this->customer->fulfilmentCustomer, prefix: PalletDeliveriesTabsEnum::DELIVERIES->value))
+        ->table(IndexRetinaPalletUploads::make()->tableStructure(prefix:PalletDeliveriesTabsEnum::UPLOADS->value));
     }
 
-    public function getBreadcrumbs(string $routeName): array
+    public function getBreadcrumbs(): array
     {
-        return match ($routeName) {
-            'retina.fulfilment.storage.pallet_deliveries.index' =>
-            array_merge(
-                ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+        return array_merge(
+            ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+            [
                 [
-                    [
-                        'type'   => 'simple',
-                        'simple' => [
-                            'route' => [
-                                'name' => 'retina.fulfilment.storage.pallet_deliveries.index',
-                            ],
-                            'label' => __('Pallet Deliveries'),
-                            'icon'  => 'fal fa-bars',
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => [
+                            'name' => 'retina.fulfilment.storage.pallet_deliveries.index',
                         ],
+                        'label' => __('Deliveries'),
+                        'icon'  => 'fal fa-bars',
+                    ],
 
-                    ]
                 ]
-            ),
-        };
+            ]
+        );
     }
 }

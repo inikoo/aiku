@@ -6,7 +6,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Actions\Helpers\Upload\HistoryUploads;
+use App\Actions\Helpers\Upload\UI\IndexRecentUploads;
 use App\Actions\HumanResources\Calendar\IndexCalendars;
 use App\Actions\HumanResources\Calendar\ShowCalendar;
 use App\Actions\HumanResources\Clocking\UI\CreateClocking;
@@ -21,6 +21,7 @@ use App\Actions\HumanResources\ClockingMachine\UI\ShowClockingMachine;
 use App\Actions\HumanResources\Employee\DownloadEmployeesTemplate;
 use App\Actions\HumanResources\Employee\ExportEmployees;
 use App\Actions\HumanResources\Employee\ExportEmployeeTimesheets;
+use App\Actions\HumanResources\Employee\GeneratePinEmployee;
 use App\Actions\HumanResources\Employee\UI\CreateEmployee;
 use App\Actions\HumanResources\Employee\UI\EditEmployee;
 use App\Actions\HumanResources\Employee\UI\IndexEmployees;
@@ -43,12 +44,14 @@ Route::prefix('employees')->as('employees.')->group(function () {
     Route::get('', IndexEmployees::class)->name('index');
     Route::get('create', CreateEmployee::class)->name('create');
     Route::get('export', ExportEmployees::class)->name('export');
-    Route::get('history-uploads', [HistoryUploads::class, 'inEmployee'])->name('history-uploads');
+    Route::get('history-uploads', [IndexRecentUploads::class, 'inEmployee'])->name('history-uploads');
     Route::get('template', DownloadEmployeesTemplate::class)->name('uploads.templates');
 
     Route::prefix('{employee}')->group(function () {
         Route::get('', ShowEmployee::class)->name('show');
         Route::get('edit', EditEmployee::class)->name('edit');
+
+        Route::get('pin', GeneratePinEmployee::class)->name('generate-pin');
 
         Route::as('show.')->group(function () {
             Route::get('/positions', [IndexJobPositions::class,'inEmployee'])->name('positions.index');

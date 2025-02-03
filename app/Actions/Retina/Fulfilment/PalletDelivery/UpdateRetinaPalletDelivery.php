@@ -30,6 +30,10 @@ class UpdateRetinaPalletDelivery extends RetinaAction
     use WithActionUpdate;
 
     private bool $action = false;
+    /**
+     * @var \App\Models\Fulfilment\PalletDelivery
+     */
+    private PalletDelivery $palletDelivery;
 
     public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
     {
@@ -70,6 +74,8 @@ class UpdateRetinaPalletDelivery extends RetinaAction
         }
 
         return [
+            'customer_reference'        => ['sometimes', 'nullable', 'string', Rule::unique('pallet_deliveries', 'customer_reference')
+                ->ignore($this->palletDelivery->id)],
             'customer_notes'            => ['sometimes', 'nullable', 'string', 'max:4000'],
             'estimated_delivery_date'   => ['sometimes', 'date'],
             'current_recurring_bill_id' => [
@@ -86,6 +92,7 @@ class UpdateRetinaPalletDelivery extends RetinaAction
         /** @var FulfilmentCustomer $fulfilmentCustomer */
         $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
         $this->fulfilment   = $fulfilmentCustomer->fulfilment;
+        $this->palletDelivery = $palletDelivery;
 
         $this->initialisation($request);
 
@@ -96,6 +103,7 @@ class UpdateRetinaPalletDelivery extends RetinaAction
     public function action(PalletDelivery $palletDelivery, $modelData): PalletDelivery
     {
         $this->action = true;
+        $this->palletDelivery = $palletDelivery;
         $this->initialisationFulfilmentActions($palletDelivery->fulfilmentCustomer, $modelData);
 
         return $this->handle($palletDelivery, $this->validatedData);

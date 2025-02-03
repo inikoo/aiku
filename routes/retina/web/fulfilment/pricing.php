@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', 'dashboard');
 
-Route::get('', IndexRetinaPricing::class);
+Route::get('dashboard', IndexRetinaPricing::class)->name('.index');
 Route::get('/services', IndexRetinaServices::class)->name('.services');
 Route::get('/rentals', IndexRetinaRentals::class)->name('.rentals');
 Route::get('/goods', IndexRetinaGoods::class)->name('.goods');

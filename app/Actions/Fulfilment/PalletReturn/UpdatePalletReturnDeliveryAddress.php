@@ -14,31 +14,23 @@ use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
-use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdatePalletReturnDeliveryAddress extends OrgAction
 {
-    public function handle(FulfilmentCustomer $fulfilmentcustomer, PalletReturn $palletReturn, array $modelData): void
+    public function handle(PalletReturn $palletReturn, array $modelData): void
     {
-        if (Arr::get($modelData, 'is_collection', true)) {
-            $addressData = Arr::get($modelData, 'address');
+        $addressData = Arr::get($modelData, 'address');
+        if ($addressData) {
             $countryCode = Country::find($addressData['country_id'])->code;
             data_set($addressData, 'country_code', $countryCode);
-            $label = isset($addressData['label']) ? $addressData['label'] : null;
+            unset($addressData['id']);
             unset($addressData['label']);
             unset($addressData['can_edit']);
             unset($addressData['can_delete']);
-            $updatedAddress     = UpdateAddress::run(Address::find(Arr::get($addressData, 'id')), $addressData);
-            $pivotData['label'] = $label;
-            $palletReturn->addresses()->updateExistingPivot(
-                $updatedAddress->id,
-                $pivotData
-            );
-        } else {
-            DeletePalletReturnAddress::run($palletReturn, Address::find($fulfilmentcustomer->palletReturn->delivery_address_id));
+            UpdateAddress::run($palletReturn->deliveryAddress, $addressData);
         }
     }
 
@@ -46,7 +38,6 @@ class UpdatePalletReturnDeliveryAddress extends OrgAction
     {
         return [
             'address'             => ['sometimes'],
-            'is_collection'       => ['sometimes', 'boolean'],
         ];
     }
 
@@ -57,34 +48,24 @@ class UpdatePalletReturnDeliveryAddress extends OrgAction
         }
 
         if ($this->scope instanceof FulfilmentCustomer) {
-            return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+            return $request->user()->authTo("crm.{$this->shop->id}.edit");
         } else {
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
         }
         return false;
     }
 
-    public function asController(FulfilmentCustomer $fulfilmentcustomer, PalletReturn $palletReturn, ActionRequest $request): void
+    public function asController(PalletReturn $palletReturn, ActionRequest $request): void
     {
-        $this->scope = $fulfilmentcustomer;
-        $this->initialisationFromShop($fulfilmentcustomer->shop, $request);
-
-        $this->handle($fulfilmentcustomer, $palletReturn, $this->validatedData);
+        $this->scope = $palletReturn->customer;
+        $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
+        $this->handle($palletReturn, $this->validatedData);
     }
 
-    // public function fromFulfilmentFulfilmentCustomer(FulfilmentFulfilmentCustomer $fulfilmentFulfilmentCustomer, ActionRequest $request): void
-    // {
-    //     $this->scope = $fulfilmentFulfilmentCustomer;
-    //     $this->initialisationFromFulfilment($fulfilmentFulfilmentCustomer->fulfilment, $request);
-
-    //     $this->handle($fulfilmentFulfilmentCustomer->fulfilmentcustomer, $this->validatedData);
-    // }
-
-    public function action(FulfilmentCustomer $fulfilmentcustomer, PalletReturn $palletReturn, $modelData): void
+    public function action(PalletReturn $palletReturn, $modelData): void
     {
         $this->asAction = true;
-        $this->initialisationFromShop($fulfilmentcustomer->shop, $modelData);
-
-        $this->handle($fulfilmentcustomer, $palletReturn, $this->validatedData);
+        $this->initialisationFromFulfilment($palletReturn->fulfilment, $modelData);
+        $this->handle($palletReturn, $this->validatedData);
     }
 }

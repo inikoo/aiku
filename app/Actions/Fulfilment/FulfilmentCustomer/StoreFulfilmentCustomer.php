@@ -46,7 +46,7 @@ class StoreFulfilmentCustomer extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
     public function rules(): array
@@ -86,7 +86,7 @@ class StoreFulfilmentCustomer extends OrgAction
                 [
                     'sometimes',
                     'required',
-                    app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()
+                    app()->isLocal() || app()->environment('testing') ? null : Password::min(8)
                 ],
 
         ];

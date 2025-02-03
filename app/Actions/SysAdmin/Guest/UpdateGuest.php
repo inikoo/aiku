@@ -61,7 +61,7 @@ class UpdateGuest extends GrpAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo('sysadmin.edit');
+        return $request->user()->authTo('sysadmin.edit');
     }
 
     public function rules(): array
@@ -124,7 +124,7 @@ class UpdateGuest extends GrpAction
             $rules['password'] = [
                 'sometimes',
                 'required',
-                app()->isLocal() || app()->environment('testing') ? 'min:8' : Password::min(8)->uncompromised(),
+                app()->isLocal() || app()->environment('testing') ? 'min:8' : Password::min(8),
             ];
         }
 

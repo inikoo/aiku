@@ -50,7 +50,11 @@ trait WithLogRequest
 
     public function getLocation(string $ip): false|array|null
     {
-        if ($position = Location::get($ip == '127.0.0.1' ? '103.121.18.96' : $ip)) {
+        if (in_array($ip, ['127.0.0.1', '::1', 'localhost'])) {
+            return ['localhost'];
+        }
+
+        if ($position = Location::get($ip)) {
             return [
                 $position->countryCode,
                 $position->countryName,

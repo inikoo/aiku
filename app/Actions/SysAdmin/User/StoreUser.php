@@ -88,7 +88,7 @@ class StoreUser extends GrpAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("sysadmin.edit");
+        return $request->user()->authTo("sysadmin.edit");
     }
 
 
@@ -104,7 +104,7 @@ class StoreUser extends GrpAction
                 ),
                 Rule::notIn(['export', 'create'])
             ],
-            'password'          => ['required', app()->isLocal() || app()->environment('testing') || !$this->strict ? Password::min(3) : Password::min(8)->uncompromised()],
+            'password'          => ['required', app()->isLocal() || app()->environment('testing') || !$this->strict ? Password::min(3) : Password::min(8)],
             'reset_password'    => ['sometimes', 'boolean'],
             'email'             => [
                 'sometimes',

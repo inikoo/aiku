@@ -159,7 +159,7 @@ class StoreCustomer extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+        return $request->user()->authTo("crm.{$this->shop->id}.edit");
     }
 
     private function getCommsBaseValues(): array
@@ -239,7 +239,7 @@ class StoreCustomer extends OrgAction
                 [
                     'sometimes',
                     'required',
-                    app()->isLocal() || app()->environment('testing') ? Password::min(3) : Password::min(8)->uncompromised()
+                    app()->isLocal() || app()->environment('testing') ? Password::min(3) : Password::min(8)
                 ],
 
         ];

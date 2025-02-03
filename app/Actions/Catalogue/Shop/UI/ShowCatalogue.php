@@ -34,10 +34,10 @@ class ShowCatalogue extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
+        $this->canEdit   = $request->user()->authTo("products.{$this->shop->id}.edit");
+        $this->canDelete = $request->user()->authTo("products.{$this->shop->id}.edit");
 
-        return $request->user()->hasPermissionTo("products.{$this->shop->id}.view");
+        return $request->user()->authTo("products.{$this->shop->id}.view");
     }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Shop

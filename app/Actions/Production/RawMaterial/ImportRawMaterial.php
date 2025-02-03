@@ -8,17 +8,12 @@
 
 namespace App\Actions\Production\RawMaterial;
 
-use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Helpers\Upload\ImportUpload;
 use App\Actions\Helpers\Upload\StoreUpload;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithImportModel;
 use App\Http\Resources\Helpers\UploadsResource;
-use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\Pallet;
-use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Helpers\Upload;
-use App\Models\Inventory\Warehouse;
 use App\Models\Production\Production;
 use App\Models\Production\RawMaterial;
 use Illuminate\Support\Facades\Storage;
@@ -69,20 +64,4 @@ class ImportRawMaterial extends OrgAction
         return UploadsResource::make($upload)->getArray();
     }
 
-    // public function runImport($file, $command): Upload
-    // {
-    //     if ($palletDeliverySlug = $command->argument('palletDelivery')) {
-    //         $palletDelivery = PalletDelivery::where('slug', $palletDeliverySlug)->first();
-    //     } else {
-    //         $warehouse          = Warehouse::where('slug', $command->argument('warehouse'))->first();
-    //         $fulfilmentCustomer = FulfilmentCustomer::where('slug', $command->argument('fulfilmentCustomer'))->first();
-    //         $palletDelivery     = StorePalletDelivery::run($fulfilmentCustomer, [
-    //             'warehouse_id' => $warehouse->id,
-    //         ]);
-    //     }
-
-    //     return $this->handle($palletDelivery, $file);
-    // }
-
-    // public string $commandSignature = 'pallet:import {--g|g_drive} {filename} {fulfilmentCustomer?} {warehouse?} {palletDelivery?}';
 }

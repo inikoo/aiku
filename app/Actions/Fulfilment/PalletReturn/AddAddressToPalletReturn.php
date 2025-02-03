@@ -13,42 +13,29 @@ namespace App\Actions\Fulfilment\PalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Search\PalletReturnRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Actions\Traits\WithModelAddressActions;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Models\CRM\WebUser;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Helpers\Address;
 use App\Rules\ValidAddress;
 use Lorisleiva\Actions\ActionRequest;
 
 class AddAddressToPalletReturn extends OrgAction
 {
     use WithActionUpdate;
-    use WithModelAddressActions;
 
-    public function handle(FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, array $modelData): PalletReturn
+    public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        if($modelData == []){
-            $address = $fulfilmentCustomer->customer->address->toArray();
-            $palletReturn = $this->addAddressToModelFromArray(
-                model: $palletReturn,
-                addressData: $address,
-                scope: 'delivery',
-                updateLocation: false,
-                updateAddressField:false
-            );
-        }else {
-            $palletReturn = $this->addAddressToModelFromArray(
-                model: $palletReturn,
-                addressData: $modelData['delivery_address'],
-                scope: 'delivery',
-                updateLocation: false,
-                updateAddressField:false
-            );
-        }
-
+        $addressData = $modelData['delivery_address'];
+        unset($addressData['can_edit']);
+        unset($addressData['can_delete']);
+        data_set($addressData, 'group_id', $palletReturn->group_id);
+        $add = Address::create($addressData);
         $palletReturn->refresh();
-        $palletReturn->update(['delivery_address_id' =>  null]);
+        $palletReturn->update([
+            'delivery_address_id' => $add->id,
+            'is_collection' => false
+        ]);
         PalletReturnRecordSearch::dispatch($palletReturn);
 
         return $palletReturn;
@@ -65,7 +52,7 @@ class AddAddressToPalletReturn extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
     public function rules(): array
@@ -76,14 +63,14 @@ class AddAddressToPalletReturn extends OrgAction
     }
 
 
-    public function asController(FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, ActionRequest $request): PalletReturn
+    public function asController(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
 
-        return $this->handle($fulfilmentCustomer,$palletReturn, $this->validatedData);
+        return $this->handle($palletReturn, $this->validatedData);
     }
 
-    public function action(FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, array $modelData, int $hydratorsDelay = 0, bool $strict = true): PalletReturn
+    public function action(PalletReturn $palletReturn, array $modelData, int $hydratorsDelay = 0, bool $strict = true): PalletReturn
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
@@ -91,19 +78,8 @@ class AddAddressToPalletReturn extends OrgAction
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $modelData);
 
 
-        return $this->handle($fulfilmentCustomer,$palletReturn, $this->validatedData);
+        return $this->handle($palletReturn, $this->validatedData);
     }
-
-    public function fromRetina(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
-    {
-        $customer = $request->user()->customer;
-        $palletReturn = $request->user()->customer->palletReturn;
-
-        $this->initialisation($request->get('website')->organisation, $request);
-
-        return $this->handle($customer, $palletReturn, $this->validatedData);
-    }
-
 
     public function jsonResponse(PalletReturn $palletReturn): PalletReturnResource
     {

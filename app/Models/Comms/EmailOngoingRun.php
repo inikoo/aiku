@@ -116,14 +116,16 @@ class EmailOngoingRun extends Model
         return $this->hasMany(EmailBulkRun::class);
     }
 
-    public function sender()
+    public function sender(): string
     {
         if (app()->environment('production')) {
             /** @var Shop $parent */
             $parent = $this->shop;
-            $sender = $parent->senderEmail->email_address;
+            //todo we need to set up sender and very SES etc
+            //            $sender = $parent->senderEmail->email_address;
+            $sender = $parent->email;
         } else {
-            $sender = config('mail.devel.sender_email_address');
+            $sender = config('app.email_address_in_non_production_env');
         }
 
         return $sender;

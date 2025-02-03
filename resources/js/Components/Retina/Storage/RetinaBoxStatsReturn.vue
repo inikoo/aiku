@@ -23,6 +23,7 @@ import ModalAddress from '@/Components/Utils/ModalAddress.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faBuilding, faIdCardAlt, faMapMarkerAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import PalletEditCustomerReference from "@/Components/Pallet/PalletEditCustomerReference.vue"
 library.add(faBuilding, faIdCardAlt, faMapMarkerAlt)
 
 
@@ -96,7 +97,7 @@ console.log('fff', props.box_stats)
                     <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.reference }}</dd>
+                <dd class=" text-gray-500">{{ box_stats.fulfilment_customer.customer.reference }}</dd>
             </div>
 
             <!-- Field: Contact name -->
@@ -107,7 +108,7 @@ console.log('fff', props.box_stats)
                     <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.contact_name }}</dd>
+                <dd class=" text-gray-500">{{ box_stats.fulfilment_customer.customer.contact_name }}</dd>
             </div>
 
 
@@ -119,7 +120,7 @@ console.log('fff', props.box_stats)
                     <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.company_name }}</dd>
+                <dd class=" text-gray-500">{{ box_stats.fulfilment_customer.customer.company_name }}</dd>
             </div>
             
             <!-- Field: Delivery Address -->
@@ -130,7 +131,7 @@ console.log('fff', props.box_stats)
                         aria-hidden='true' />
                 </dt>
 
-                <dd v-if="box_stats.fulfilment_customer.address.value" class="text-xs text-gray-500">
+                <dd v-if="box_stats.fulfilment_customer.address.value" class=" text-gray-500">
                     <div class="relative px-2 py-1 ring-1 ring-gray-300 rounded bg-gray-50">
                         <span class="" v-html="box_stats.fulfilment_customer.address.value.formatted_address" />
 
@@ -141,7 +142,7 @@ console.log('fff', props.box_stats)
                     </div>
                 </dd>
                 
-                <div v-else @click="() => isModalAddress = true" class="leading-6 text-xs inline whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                <div v-else @click="() => isModalAddress = true" class="leading-6  inline whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
                     Setup delivery address
                 </div>
             </div>
@@ -149,8 +150,17 @@ console.log('fff', props.box_stats)
 
 
         <!-- Box: Notes -->
-        <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class="pb-2 pt-6 px-3"
+        <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class="pb-2 pt-2 px-3"
             :tooltip="trans('Notes')" :percentage="0">
+            <!-- Customer reference -->
+            <div class="mb-1">
+                <PalletEditCustomerReference
+                    :dataPalletDelivery="data_pallet"
+                    :updateRoute="updateRoute.route"
+					:disabled="data_pallet?.state !== 'in_process' && data_pallet?.state !== 'submitted'"
+                />
+            </div>
+
             <div class="grid gap-y-3 mb-3">
                 <RetinaBoxNote
                     :noteData="notes_data.return"
@@ -169,7 +179,7 @@ console.log('fff', props.box_stats)
                             size="xs"
                             fixed-width aria-hidden='true' />
                     </dt>
-                    <dd class="text-xs">{{ box_stats?.delivery_status?.tooltip }}</dd>
+                    <dd class="">{{ box_stats?.delivery_state?.tooltip }}</dd>
                 </div>
             </div>
         </BoxStatPallet>

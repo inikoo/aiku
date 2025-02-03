@@ -51,7 +51,7 @@ class UpdateOffer extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("discounts.{$this->shop->id}.edit");
+        return $request->user()->authTo("discounts.{$this->shop->id}.edit");
     }
 
     public function rules(): array

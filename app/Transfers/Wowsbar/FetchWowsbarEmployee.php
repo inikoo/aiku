@@ -20,7 +20,8 @@ class FetchWowsbarEmployee extends FetchWowsbar
         if ($this->wowModelData) {
             $this->parseModel();
             $this->parseUserFromEmployee();
-            $this->parseJobPositions();
+            // Do not parse job positions, use aiku UI instead
+            //$this->parseJobPositions();
         }
 
 

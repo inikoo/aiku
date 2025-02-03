@@ -38,7 +38,7 @@ class EditEmployee extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+        return $request->user()->authTo("human-resources.{$this->organisation->id}.edit");
     }
 
     public function asController(Organisation $organisation, Employee $employee, ActionRequest $request): Employee
@@ -155,7 +155,7 @@ class EditEmployee extends OrgAction
                     'organisation_list' => $organisationList,
                     'updatePseudoJobPositionsRoute'       => [
                         'method'     => 'patch',
-                        'name'       => 'grp.models.user.permissions.update',
+                        'name'       => 'grp.models.user.group_permissions.update',
                         'parameters' => [
                             'user'  => $user?->id
                         ]
@@ -230,6 +230,10 @@ class EditEmployee extends OrgAction
                 'pin' => [
                     'type'  => 'pin',
                     'label' => __('pin'),
+                    'route_generate'    => [
+                        'name'     => 'grp.org.hr.employees.generate-pin',
+                        'parameters'    => [$employee->organisation->slug, $employee->slug]
+                    ],
                     'value' => $employee->pin
                 ],
             ]

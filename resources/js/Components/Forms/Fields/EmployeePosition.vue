@@ -109,46 +109,82 @@ const props = defineProps<{
             }
         }
         updateOrganisationPermissionsRoute: routeType
+        updateEmployeeJobPositionsRoute: routeType
         updateJobPositionsRoute: routeType
         is_in_organisation: boolean
+        current_organisation?: {  // the organisation of the employee
+            id: number
+            name: string
+            slug: string
+        }
     }
     saveButton?: boolean
     organisationId?: number
     isGroupAdminSelected?: boolean
 }>()
 
-// console.log('cccc', props.form?.organisations?.[props.fieldName])
-// console.log('vvv', props.form?.[props.fieldName])
+
 const abcdef = {
     [props.fieldName]: props.form?.organisations?.[props.fieldName] || props.form?.[props.fieldName] || 'fffff'
 }
-// console.log('pppp', props.form.organisations)
 const newForm = props.saveButton ? useForm(abcdef || {}) : reactive(props.form)
-// console.log('bbbb', newForm)
 const onSubmitNewForm = () => {
-    console.log('Employee submit route name:', props.fieldData.updateJobPositionsRoute.name)
-    console.log('Employee submit route:', route(props.fieldData.updateJobPositionsRoute.name, {...props.fieldData.updateJobPositionsRoute.parameters, organisation: props.fieldData.is_in_organisation ? undefined : props.organisationId}))
-    newForm
-    .transform((data) => ({
-        permissions: data[props.fieldName]
-    }))
-    .submit(
-        props.fieldData.updateJobPositionsRoute.method || 'patch',
-        route(props.fieldData.updateJobPositionsRoute.name, {...props.fieldData.updateJobPositionsRoute.parameters, organisation: props.fieldData.is_in_organisation ? undefined : props.organisationId}),
-        {
-            preserveScroll: true,
-            onSuccess: () => notify({
-                title: trans('Success'),
-                text: trans('Successfully update the permissions'),
-                type: 'success',
-            }),
-            onError: () => notify({
-                title: trans('Something went wrong'),
-                text: trans('Failed to update the permissions'),
-                type: 'error',
-            })
-        }
-    )
+    // console.log('Employee submit route name:', props.fieldData.updateEmployeeJobPositionsRoute)
+    // console.log('Employee submit route:', route(props.fieldData.updateJobPositionsRoute.name, {...props.fieldData.updateJobPositionsRoute.parameters, organisation: props.fieldData.is_in_organisation ? undefined : props.organisationId}))
+    // console.log('xxxx', props.fieldData.current_organisation.slug == props.fieldName)
+
+    // const selectedRoute = props.fieldData.current_organisation.slug == props.fieldName
+    //     ? 'updateEmployeeJobPositionsRoute'
+    //     : props.fieldData.updateJobPositionsRoute.name, {...props.fieldData.updateJobPositionsRoute.parameters, organisation: props.fieldData.is_in_organisation ? undefined : props.organisationId}
+
+    if (props.fieldData.current_organisation?.slug == props.fieldName){
+        console.log('.')
+        // If user is employeed in this organisation
+        newForm
+        .transform((data) => ({
+            permissions: data[props.fieldName]
+        }))
+        .submit(
+            props.fieldData.updateEmployeeJobPositionsRoute.method || 'patch',
+            route(props.fieldData.updateEmployeeJobPositionsRoute.name, {...props.fieldData.updateEmployeeJobPositionsRoute.parameters, organisation: props.fieldData.is_in_organisation ? undefined : props.organisationId}),
+            {
+                preserveScroll: true,
+                onSuccess: () => notify({
+                    title: trans('Success'),
+                    text: trans('Successfully update the permissions'),
+                    type: 'success',
+                }),
+                onError: () => notify({
+                    title: trans('Something went wrong'),
+                    text: trans('Failed to update the permissions'),
+                    type: 'error',
+                })
+            }
+        )
+    } else {
+        console.log(',')
+        newForm
+        .transform((data) => ({
+            permissions: data[props.fieldName]
+        }))
+        .submit(
+            props.fieldData.updateJobPositionsRoute.method || 'patch',
+            route(props.fieldData.updateJobPositionsRoute.name, {...props.fieldData.updateJobPositionsRoute.parameters, organisation: props.fieldData.is_in_organisation ? undefined : props.organisationId}),
+            {
+                preserveScroll: true,
+                onSuccess: () => notify({
+                    title: trans('Success'),
+                    text: trans('Successfully update the permissions'),
+                    type: 'success',
+                }),
+                onError: () => notify({
+                    title: trans('Something went wrong'),
+                    text: trans('Failed to update the permissions'),
+                    type: 'error',
+                })
+            }
+        )
+    }
 }
 
 
@@ -232,6 +268,7 @@ const optionsJob = reactive<optionsJob>({
             {
                 slug: "shop-admin",
                 label: trans("Shop Administrator"),
+                optionsType: ['shops'],
                 number_employees: props.options.positions.data.find(position => position.slug == 'shop_admin')?.number_employees || 0,
             }
         ],
@@ -344,13 +381,6 @@ const optionsJob = reactive<optionsJob>({
                 label: trans("Supervisor"),
                 optionsType: ['warehouses'],
                 number_employees: props.options.positions.data.find(position => position.slug == 'wah-m')?.number_employees || 0,
-            },
-            {
-                slug: "wah-sk",
-                grade: "clerk",
-                label: trans("Stock Keeper"),
-                optionsType: ['warehouses'],
-                number_employees: props.options.positions.data.find(position => position.slug == 'wah-sk')?.number_employees || 0,
             },
             {
                 slug: "wah-sc",
@@ -778,6 +808,5 @@ watch(() => newForm, () => {
 
     </div>
 
-    Newform
-    <pre>{{ newForm[fieldName] }}</pre>
+
 </template>

@@ -58,7 +58,12 @@ class GetReturnPallets extends OrgAction
             });
         });
 
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
+
         $query = QueryBuilder::for(Pallet::class);
+
 
         $query->where('fulfilment_customer_id', $palletReturn->fulfilment_customer_id);
 
@@ -115,7 +120,7 @@ class GetReturnPallets extends OrgAction
 
 
         return $query->allowedSorts(['customer_reference', 'reference', 'fulfilment_customer_name'])
-            ->allowedFilters([$globalSearch, 'customer_reference', 'reference'])
+            ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
@@ -126,10 +131,10 @@ class GetReturnPallets extends OrgAction
             return true;
         }
 
-        $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        $this->canEdit   = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        $this->canDelete = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
     }
 
     public function jsonResponse(LengthAwarePaginator $pallets): AnonymousResourceCollection
@@ -195,7 +200,7 @@ class GetReturnPallets extends OrgAction
             }
 
 
-            $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
+            $table->column(key: 'actions', label: 'actions', canBeHidden: false, searchable: true);
 
 
             $table->defaultSort('reference');

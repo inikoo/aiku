@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Inertia\Middleware;
 use Tightenco\Ziggy\Ziggy;
+use Illuminate\Support\Arr;
 
 class HandleRetinaInertiaRequests extends Middleware
 {
@@ -26,11 +27,10 @@ class HandleRetinaInertiaRequests extends Middleware
     {
         /** @var WebUser $webUser */
         $webUser = $request->user();
-
+        $all = $request->all()['website'] ?? null;
         $firstLoadOnlyProps = [];
 
         if (!$request->inertia() or Session::get('reloadLayout')) {
-
             $firstLoadOnlyProps          = GetRetinaFirstLoadProps::run($request, $webUser);
             $firstLoadOnlyProps['ziggy'] = function () use ($request) {
                 return array_merge((new Ziggy())->toArray(), [
@@ -38,6 +38,16 @@ class HandleRetinaInertiaRequests extends Middleware
                 ]);
             };
         }
+
+        $website                           = $request->get('website');
+        $firstLoadOnlyProps['environment'] = app()->environment();
+        // dd($website->published_layout);
+
+        $headerLayout = Arr::get($website->published_layout, 'header');
+        $isHeaderActive = Arr::get($headerLayout, 'status');
+
+        $footerLayout = Arr::get($website->published_layout, 'footer');
+        $isFooterActive = Arr::get($footerLayout, 'status');
 
         return array_merge(
             $firstLoadOnlyProps,
@@ -52,7 +62,15 @@ class HandleRetinaInertiaRequests extends Middleware
                 'ziggy' => [
                     'location' => $request->url(),
                 ],
-                'iris' => WebsiteIrisResource::make($request->get('website'))->getArray()
+                // "layout" =>   [
+                //
+                // ],
+                'iris' => [
+                'header' => array_merge($isHeaderActive == 'active' ? Arr::get($website->published_layout, 'header') : []),
+                    'footer' => array_merge($isFooterActive == 'active' ? Arr::get($website->published_layout, 'footer') : []),
+                    'menu'   => Arr::get($website->published_layout, 'menu'),
+                    "website" => WebsiteIrisResource::make($request->get('website'))->getArray()
+                ]
 
             ],
             parent::share($request),

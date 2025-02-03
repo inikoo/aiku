@@ -66,7 +66,7 @@ class UpdateRetinaWebUser extends RetinaAction
                 ),
             ],
             'contact_name' => ['sometimes', 'string', 'max:255'],
-            'password'     => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? Password::min(3) : Password::min(8)->uncompromised()],
+            'password'     => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? Password::min(3) : Password::min(8)],
         ];
     }
 

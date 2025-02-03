@@ -59,7 +59,7 @@ class ImportShopProspects
 
     public string $commandSignature = 'shop:import-prospects {shop} {--g|g_drive} {filename}';
 
-    public function runImport($file, $command): Upload
+    public function runImportForCommand($file, $command): Upload
     {
         $shop = Shop::where('slug', $command->argument('shop'))->firstOrFail();
 

@@ -15,7 +15,7 @@ use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
-use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\ReceivePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Inventory\Location\StoreLocation;
@@ -153,6 +153,43 @@ beforeEach(function () {
     $this->location = $location;
 
     $this->webUser  = createWebUser($this->customer);
+
+    $palletRental = StoreRental::make()->action(
+        $this->fulfilment->shop,
+        [
+            'price' => 100,
+            'unit'  => RentalUnitEnum::WEEK->value,
+            'code'  => 'R00002',
+            'name'  => 'Rental Asset B',
+            'auto_assign_asset'      => 'Pallet',
+            'auto_assign_asset_type' => PalletTypeEnum::PALLET->value
+        ]
+    );
+    $this->palletRental = $palletRental;
+    $oversizeRental = StoreRental::make()->action(
+        $this->fulfilment->shop,
+        [
+            'price' => 100,
+            'unit'  => RentalUnitEnum::WEEK->value,
+            'code'  => 'R00003',
+            'name'  => 'Rental Asset C',
+            'auto_assign_asset'      => 'Pallet',
+            'auto_assign_asset_type' => PalletTypeEnum::OVERSIZE->value
+        ]
+    );
+    $this->oversizeRental = $oversizeRental;
+    $boxRental = StoreRental::make()->action(
+        $this->fulfilment->shop,
+        [
+            'price' => 100,
+            'unit'  => RentalUnitEnum::WEEK->value,
+            'code'  => 'R00004',
+            'name'  => 'Rental Asset D',
+            'auto_assign_asset'      => 'Pallet',
+            'auto_assign_asset_type' => PalletTypeEnum::BOX->value
+        ]
+    );
+    $this->boxRental = $boxRental;
 
     Config::set(
         'inertia.testing.page_paths',
@@ -339,7 +376,9 @@ test('Import Pallet (xlsx) for Pallet Delivery', function (PalletDelivery $palle
 
     expect($palletDelivery->stats->number_pallets)->toBe(10);
 
-    $upload = ImportRetinaPallet::run($palletDelivery, $file);
+    $upload = ImportRetinaPallet::run($palletDelivery, $file, [
+        'with_stored_item' => false
+    ]);
     $palletDelivery->refresh();
     expect($upload)->toBeInstanceOf(Upload::class)
         ->and($upload->number_rows)->toBe(1)
@@ -379,7 +418,7 @@ test('Process Pallet Delivery (from aiku)', function (PalletDelivery $palletDeli
         ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::CONFIRMED);
 
 
-    $palletDelivery = ReceivedPalletDelivery::make()->action($palletDelivery);
+    $palletDelivery = ReceivePalletDelivery::make()->action($palletDelivery);
 
     expect($palletDelivery)->toBeInstanceOf(PalletDelivery::class)
         ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::RECEIVED);
@@ -415,7 +454,7 @@ test('Update Retina Pallet to PalletDelivery', function (PalletDelivery $palletD
     );
 
     $pallet->refresh();
-    
+
     expect($pallet)->toBeInstanceOf(Pallet::class)
         ->and($pallet->reference)->toBe('000001-diam-p0001')
         ->and($pallet->customer_reference)->toBe('bruh-01');
@@ -492,13 +531,13 @@ test('Attach Pallet to Retina Pallet Return', function (PalletReturn $palletRetu
         [
             'pallets' => [2,3]
         ]
-        );
-        
-        $palletReturn->refresh();
+    );
 
-        expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
-            ->and($palletReturn->stats->number_pallets)->toBe(2);
-            
+    $palletReturn->refresh();
+
+    expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($palletReturn->stats->number_pallets)->toBe(2);
+
     return $palletReturn;
 })->depends('import pallets in return (xlsx)');
 
@@ -508,13 +547,13 @@ test('Detach Pallet to Retina Pallet Return', function (PalletReturn $palletRetu
         $palletReturn,
         $pallet,
         []
-        );
-        
+    );
+
     $palletReturn->refresh();
 
     expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
         ->and($palletReturn->stats->number_pallets)->toBe(1);
-            
+
     return $palletReturn;
 })->depends('Attach Pallet to Retina Pallet Return');
 
@@ -525,13 +564,13 @@ test('Add Transaction to Retina Pallet Return', function (PalletReturn $palletRe
             'quantity' => 10,
             'historic_asset_id' => $this->product->current_historic_asset_id
         ]
-        );
-        
-        $fulfilmentTransaction->refresh();
-        $palletReturn->refresh();
-        expect($fulfilmentTransaction)->toBeInstanceOf(FulfilmentTransaction::class)
-            ->and(intval($fulfilmentTransaction->quantity))->toBe(10)
-            ->and($palletReturn->stats->number_physical_goods)->toBe(1);
+    );
+
+    $fulfilmentTransaction->refresh();
+    $palletReturn->refresh();
+    expect($fulfilmentTransaction)->toBeInstanceOf(FulfilmentTransaction::class)
+        ->and(intval($fulfilmentTransaction->quantity))->toBe(10)
+        ->and($palletReturn->stats->number_physical_goods)->toBe(1);
 
     return $fulfilmentTransaction;
 })->depends('Attach Pallet to Retina Pallet Return');
@@ -596,12 +635,12 @@ test('Attach Stored Item to Retina Pallet Return (with stored item)', function (
                 ]
             ]
         ]
-        );
-        
-        $palletReturn->refresh();
+    );
 
-        expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
-            ->and($palletReturn->stats->number_stored_items)->toBe(1);
-            
+    $palletReturn->refresh();
+
+    expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($palletReturn->stats->number_stored_items)->toBe(1);
+
     return $palletReturn;
 })->depends('Create Retina Pallet Return (with stored item)');

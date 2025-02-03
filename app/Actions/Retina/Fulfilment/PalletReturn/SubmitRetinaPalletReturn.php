@@ -23,7 +23,6 @@ use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\PalletReturn;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\ActionRequest;
@@ -40,7 +39,7 @@ class SubmitRetinaPalletReturn extends RetinaAction
     {
         $modelData[PalletReturnStateEnum::SUBMITTED->value.'_at'] = now();
         $modelData['state'] = PalletReturnStateEnum::SUBMITTED;
-        
+
         foreach ($palletReturn->pallets as $pallet) {
             UpdatePallet::run($pallet, [
                 'reference' => GetSerialReference::run(
@@ -74,8 +73,7 @@ class SubmitRetinaPalletReturn extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->action)
-        {
+        if ($this->action) {
             return true;
         }
         return true;

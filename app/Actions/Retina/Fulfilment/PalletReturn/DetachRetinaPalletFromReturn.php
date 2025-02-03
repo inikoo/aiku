@@ -49,8 +49,7 @@ class DetachRetinaPalletFromReturn extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->action)
-        {
+        if ($this->action) {
             return true;
         }
         return true;

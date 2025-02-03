@@ -27,10 +27,10 @@ class ShowAppointment extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo('crm.customers.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('crm.customers.edit');
+        $this->canEdit   = $request->user()->authTo('crm.customers.edit');
+        $this->canDelete = $request->user()->authTo('crm.customers.edit');
 
-        return $request->user()->hasPermissionTo("crm.customers.view");
+        return $request->user()->authTo("crm.customers.view");
     }
 
     public function asController(Shop $shop, Appointment $appointment, ActionRequest $request): Appointment

@@ -52,7 +52,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_pallets_with_stored_items_state_not_received
  * @property int $number_pallets_state_storing
  * @property int $number_pallets_with_stored_items_state_storing
- * @property int $number_pallets_state_request_return
+ * @property int $number_pallets_state_request_return_in_process
  * @property int $number_pallets_with_stored_items_state_request_return
  * @property int $number_pallets_state_picking
  * @property int $number_pallets_with_stored_items_state_picking
@@ -111,6 +111,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_recurring_bills_status_former
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int $number_pallets_state_request_return_submitted
+ * @property int $number_pallets_state_request_return_confirmed
  * @property-read \App\Models\SysAdmin\Group $group
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupFulfilmentStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupFulfilmentStats newQuery()

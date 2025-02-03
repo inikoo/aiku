@@ -75,7 +75,7 @@ class IndexRetinaPallets extends RetinaAction
             ->select('pallets.*', 'rentals.code as rental_code', 'rentals.name as rental_name')
             ->allowedSorts(['customer_reference', 'reference','state','rental_code'])
             ->allowedFilters([$globalSearch, 'customer_reference'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, 100)
             ->withQueryString();
     }
 
@@ -123,6 +123,22 @@ class IndexRetinaPallets extends RetinaAction
 
     public function htmlResponse(LengthAwarePaginator $pallets, ActionRequest $request): Response
     {
+        $actions = [];
+
+        if (!app()->environment('production')) {
+            $actions = [
+                [
+                    'type'  => 'button',
+                    'style' => 'create',
+                    'label' => __('New Delivery'),
+                    'route' => [
+                        'method'     => 'post',
+                        'name'       => 'retina.models.pallet-delivery.store',
+                        'parameters' => []
+                    ]
+                ]
+            ];
+        }
         return Inertia::render(
             'Storage/RetinaPallets',
             [
@@ -133,18 +149,7 @@ class IndexRetinaPallets extends RetinaAction
                 'pageHead'    => [
                     'title'   => __('pallets'),
                     'icon'    => ['fal', 'fa-pallet'],
-                    'actions' => [
-                        [
-                            'type'  => 'button',
-                            'style' => 'create',
-                            'label' => __('New Delivery'),
-                            'route' => [
-                                'method'     => 'post',
-                                'name'       => 'retina.models.pallet-delivery.store',
-                                'parameters' => []
-                            ]
-                        ]
-                    ]
+                    'actions' => $actions
                 ],
                 'data'        => RetinaPalletsResource::collection($pallets),
             ]

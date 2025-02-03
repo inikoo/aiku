@@ -99,7 +99,7 @@ class StorePalletReturn extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
 
@@ -194,7 +194,7 @@ class StorePalletReturn extends OrgAction
                 'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
                 'palletReturn'       => $palletReturn->slug
             ])),
-            default => Inertia::location(route('retina.fulfilment.storage.pallet-returns.show', [
+            default => Inertia::location(route('retina.fulfilment.storage.pallet_returns.show', [
                 'palletReturn' => $palletReturn->slug
             ]))
         };

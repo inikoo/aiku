@@ -3,7 +3,7 @@ import { trans } from "laravel-vue-i18n"
 import BoxStatPallet from "@/Components/Pallet/BoxStatPallet.vue"
 import DatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
-import { useFormatTime, useDaysLeftFromToday } from '@/Composables/useFormatTime'
+import { useFormatTime, retinaUseDaysLeftFromToday } from '@/Composables/useFormatTime'
 import { notify } from '@kyvg/vue3-notification'
 import { router } from '@inertiajs/vue3'
 
@@ -18,6 +18,7 @@ import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import RetinaBoxNote from "@/Components/Retina/Storage/RetinaBoxNote.vue"
 import OrderSummary from "@/Components/Summary/OrderSummary.vue"
+import PalletEditCustomerReference from "@/Components/Pallet/PalletEditCustomerReference.vue"
 
 
 const props = defineProps<{
@@ -30,6 +31,7 @@ const props = defineProps<{
 }>()
 
 const layout = inject('layout', layoutStructure)
+const deliveryListError = inject('deliveryListError', [])
 const isLoadingSetEstimatedDate = ref<string | boolean>(false)
 
 
@@ -50,7 +52,13 @@ const onChangeEstimateDate = async (close: Function) => {
                         type: "error",
                     })
                 },
-                onSuccess: () => close(),
+                onSuccess: () => {
+                    const index = deliveryListError?.indexOf('estimated_delivery_date');
+                    if (index > -1) {
+                        deliveryListError?.splice(index, 1);
+                    }
+                    close()
+                },
                 onFinish: () => isLoadingSetEstimatedDate.value = false,
             })
     } catch (error) {
@@ -74,18 +82,18 @@ const disableBeforeToday = (date: Date) => {
 <template>
     <div class="h-min grid md:grid-cols-4 border-b border-gray-200 divide-y md:divide-y-0 divide-x divide-gray-200">
         <!-- Box: Status -->
-        <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class=" pb-2 py-5 px-3"
+        <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class=" pb-2 py-2 px-3"
             :tooltip="trans('Detail')" :label="capitalize(data_pallet.state)" icon="fal fa-truck-couch">
-            <div class="flex items-center w-full flex-none gap-x-2 mb-2">
+            <div class="flex items-center w-full flex-none gap-x-2 mb-2" :class="box_stats.delivery_state.class">
                 <dt class="flex-none">
                     <span class="sr-only">{{ box_stats.delivery_state.tooltip }}</span>
-                    <FontAwesomeIcon :icon='box_stats.delivery_state.icon' :class='box_stats.delivery_state.class'
+                    <FontAwesomeIcon :icon='box_stats.delivery_state.icon'
                         fixed-width aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.delivery_state.tooltip }}</dd>
+                <dd class="">{{ box_stats.delivery_state.tooltip }}</dd>
             </div>
 
-            <div class="flex items-center w-full flex-none gap-x-2">
+            <div class="flex items-center w-full flex-none gap-x-2" :class="deliveryListError.includes('estimated_delivery_date') ? 'errorShake' : ''">
                 <dt class="flex-none">
                     <span class="sr-only">{{ box_stats.delivery_state.tooltip }}</span>
                     <FontAwesomeIcon :icon="['fal', 'calendar-day']" :class='box_stats?.delivery_status?.class'
@@ -95,15 +103,15 @@ const disableBeforeToday = (date: Date) => {
                 <Popover v-if="data_pallet.state === 'in_process'" position="">
                     <template #button>
                         <div v-if="data_pallet.estimated_delivery_date"
-                            v-tooltip="useDaysLeftFromToday(data_pallet.estimated_delivery_date)"
-                            class="group text-xs text-gray-500">
+                            v-tooltip="retinaUseDaysLeftFromToday(data_pallet.estimated_delivery_date)"
+                            class="group text-sm text-gray-500">
                             {{ useFormatTime(data_pallet.estimated_delivery_date) }}
                             <FontAwesomeIcon icon='fal fa-pencil' size="sm"
                                 class='text-gray-400 group-hover:text-gray-600' fixed-width aria-hidden='true' />
                         </div>
 
-                        <div v-else class="text-xs text-gray-500 hover:text-gray-600 underline">
-                            {{ trans('Set estimated date') }}
+                        <div v-else class="text-sm text-gray-500 hover:text-gray-600 underline">
+                            {{ trans('Set estimated delivery') }}
                         </div>
                     </template>
 
@@ -119,7 +127,7 @@ const disableBeforeToday = (date: Date) => {
                 </Popover>
 
                 <div v-else>
-                    <dd class="text-xs text-gray-500">{{ data_pallet.estimated_delivery_date ?
+                    <dd class="text-sm text-gray-500">{{ data_pallet.estimated_delivery_date ?
                         useFormatTime(data_pallet.estimated_delivery_date) : 'Not Set' }}</dd>
                 </div>
 
@@ -128,8 +136,17 @@ const disableBeforeToday = (date: Date) => {
 
 
         <!-- Box: Notes -->
-        <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class="pb-2 pt-6 px-3"
+        <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class="pb-2 pt-2 px-3"
             :tooltip="trans('Notes')" :percentage="0">
+            <!-- Customer reference -->
+            <div class="mb-1">
+                <PalletEditCustomerReference
+                    :dataPalletDelivery="data_pallet"
+                    :updateRoute="updateRoute.route"
+					:disabled="data_pallet?.state !== 'in_process' && data_pallet?.state !== 'submitted'"
+                />
+            </div>
+
             <div class="grid gap-y-3">
                 <RetinaBoxNote
                     v-for="(note, index) in notes_data"
@@ -159,7 +176,7 @@ const disableBeforeToday = (date: Date) => {
 
                 <!-- <div class="mt-6">
                     <button type="submit"
-                        class="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50">Checkout</button>
+                        class="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-3 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50">Checkout</button>
                 </div> -->
             </section>
         </BoxStatPallet>

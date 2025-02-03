@@ -57,9 +57,9 @@ class LaunchWebsite extends OrgAction
         }
 
         if ($this->parent instanceof Shop) {
-            return $request->user()->hasPermissionTo("supervisor-web.{$this->shop->id}");
+            return $request->user()->authTo("supervisor-web.{$this->shop->id}");
         } elseif ($this->parent instanceof Fulfilment) {
-            return $request->user()->hasPermissionTo("supervisor-fulfilment-shop.{$this->fulfilment->id}");
+            return $request->user()->authTo("supervisor-fulfilment-shop.{$this->fulfilment->id}");
         }
 
         return false;

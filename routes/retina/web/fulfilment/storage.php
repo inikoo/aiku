@@ -6,7 +6,7 @@
  * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-use App\Actions\Helpers\Upload\HistoryUploads;
+use App\Actions\Helpers\Upload\UI\IndexRecentUploads;
 use App\Actions\Retina\Fulfilment\Pallet\DownloadRetinaPalletsTemplate;
 use App\Actions\Retina\Fulfilment\Pallet\UI\EditRetinaPallet;
 use App\Actions\Retina\Fulfilment\Pallet\UI\IndexRetinaPallets;
@@ -32,16 +32,16 @@ Route::prefix('pallet-deliveries')->as('pallet_deliveries.')->group(function () 
     Route::get('{palletDelivery}', ShowRetinaPalletDelivery::class)->name('show');
     Route::get('{palletDelivery}/pallets/{pallet}', [ShowRetinaPallet::class, 'inPalletDelivery'])->name('pallets.show');
     Route::get('{palletDelivery}/pallets-templates', DownloadRetinaPalletsTemplate::class)->name('pallets.uploads.templates');
-    Route::get('{palletDelivery}/pallets-histories', [HistoryUploads::class, 'inPalletRetina'])->name('pallets.uploads.history');
+    Route::get('{palletDelivery}/pallets-histories', [IndexRecentUploads::class, 'inPalletRetina'])->name('pallets.uploads.history');
 });
 
-Route::prefix('pallet-returns')->as('pallet-returns.')->group(function () {
+Route::prefix('pallet-returns')->as('pallet_returns.')->group(function () {
     Route::get('', IndexRetinaPalletReturns::class)->name('index');
     Route::get('{palletReturn}', ShowRetinaPalletReturn::class)->name('show');
     Route::get('{palletReturn}/pallets/{pallet}', [ShowRetinaPallet::class, 'inPalletReturn'])->name('pallets.show');
     Route::get('{fulfilmentCustomer}/stored-items-templates', ExportRetinaPalletReturnStoredItem::class)->name('stored-items.uploads.templates');
     Route::get('{fulfilmentCustomer}/pallets-templates', ExportRetinaPalletReturnPallet::class)->name('pallets.uploads.templates');
-    Route::get('{palletReturn}/upload-histories', [HistoryUploads::class, 'inPalletReturnRetina'])->name('uploads.history');
+    Route::get('{palletReturn}/upload-histories', [IndexRecentUploads::class, 'inPalletReturnRetina'])->name('uploads.history');
 });
 
 Route::get('pallets', IndexRetinaPallets::class)->name('pallets.index');

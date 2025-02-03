@@ -6,23 +6,22 @@
 
 <script setup lang="ts">
 import { inject, ref } from 'vue'
-// import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheck, faPlus, faMinus } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { Head } from '@inertiajs/vue3'
 import LayoutIris from '@/Layouts/Iris.vue'
 import { getIrisComponent } from '@/Composables/getIrisComponents'
 
-// import { usePage } from '@inertiajs/vue3'
-
-// import "https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap"
-
 const props = defineProps<{
+  head: {
+    title: string,
+    description: string,
+    keywords: string,
+  },
   data: any,
   header: any,
   blocks: any,
 }>()
-console.log('sdsd', props)
 defineOptions({ layout: LayoutIris })
 library.add(faCheck, faPlus, faMinus)
 
@@ -30,32 +29,32 @@ const layout = inject('layout', {})
 const isPreviewLoggedIn = ref(layout.iris.user_auth)
 
 const showWebpage = (activityItem) => {
-  if (activityItem?.web_block?.layout && activityItem.show) {
-    if (isPreviewLoggedIn.value && activityItem.visibility.in) return true
-    else if (!isPreviewLoggedIn.value && activityItem.visibility.out) return true
-    else return false
-  } else return false
+    if (activityItem?.web_block?.layout && activityItem.show) {
+        if (isPreviewLoggedIn.value && activityItem.visibility.in) return true
+        else return !isPreviewLoggedIn.value && activityItem.visibility.out;
+    } else return false
 }
-
-
 
 </script>
 
 <template>
-
   <Head>
-    <title>{{ data.name }}</title>
-    <meta property="og:title" :content="data.name " />
-    <meta name="description" :content="data.name ">
-    <meta property="og:image"
-      content="https://socialsharepreview.com/api/image-proxy?url=https%3A%2F%2Fwww.zelolab.com%2Fwp-content%2Fuploads%2F2022%2F12%2Fhow-to-create-and-set-up-a-social-share-preview-image-on-your-website.jpg" />
+    <title>{{head.title}}</title>
+    <meta name="description" content="head.description">
+    <meta name="keywords" content="head.keywords">
   </Head>
+
+  <Head :title="title" />
+
   <div class="bg-white">
     <template v-if="props.blocks?.web_blocks?.length">
       <div v-for="(activityItem, activityItemIdx) in props.blocks.web_blocks" :key="'block' + activityItem.id"
         class="w-full">
-        <component :is="getIrisComponent(activityItem.type)" :key="activityItemIdx"
-          :fieldValue="activityItem.web_block.layout.data.fieldValue" v-show="showWebpage(activityItem)" />
+        <component
+            v-if="showWebpage(activityItem)"
+            :is="getIrisComponent(activityItem.type)"
+            :key="activityItemIdx"
+            :fieldValue="activityItem.web_block.layout.data.fieldValue" />
       </div>
     </template>
 

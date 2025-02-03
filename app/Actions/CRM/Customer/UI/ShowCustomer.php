@@ -50,14 +50,19 @@ class ShowCustomer extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Organisation) {
-            $this->canEdit   = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
+            $this->canEdit = $request->user()->authTo("shops.{$this->organisation->id}.edit");
 
-            return $request->user()->hasPermissionTo("shops.{$this->organisation->id}.view");
+            return $request->user()->authTo("shops.{$this->organisation->id}.view");
         }
         if ($this->parent instanceof Shop) {
-            $this->canEdit   = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+            $this->canEdit = $request->user()->authTo("crm.{$this->shop->id}.edit");
 
-            return $request->user()->hasPermissionTo("crm.{$this->shop->id}.view");
+            return $request->user()->authTo(
+                [
+                    "crm.{$this->shop->id}.view",
+                    "accounting.{$this->shop->organisation_id}.view"
+                ]
+            );
         }
 
         return false;
@@ -79,12 +84,12 @@ class ShowCustomer extends OrgAction
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)
             ->withTab($customer->shop->type == ShopTypeEnum::DROPSHIPPING ? CustomerDropshippingTabsEnum::values() : CustomerTabsEnum::values());
+
         return $this->handle($customer);
     }
 
     public function htmlResponse(Customer $customer, ActionRequest $request): Response
     {
-
         $tabs = $customer->shop->type == ShopTypeEnum::DROPSHIPPING ? CustomerDropshippingTabsEnum::class : CustomerTabsEnum::class;
 
         $webUsersMeta = $this->getWebUserMeta($customer, $request);
@@ -101,7 +106,7 @@ class ShowCustomer extends OrgAction
 
         if ($request->route()->getName() == 'customers.show') {
             $shopMeta = [
-                'route'     => ['shops.show', $customer->shop->slug],
+                'route'    => ['shops.show', $customer->shop->slug],
                 'name'     => $customer->shop->code,
                 'leftIcon' => [
                     'icon'    => 'fal fa-store-alt',
@@ -114,23 +119,23 @@ class ShowCustomer extends OrgAction
         return Inertia::render(
             'Org/Shop/CRM/Customer',
             [
-                'title'       => __('customer'),
-                'breadcrumbs' => $this->getBreadcrumbs(
+                'title'            => __('customer'),
+                'breadcrumbs'      => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'  => [
+                'navigation'       => [
                     'previous' => $this->getPrevious($customer, $request),
                     'next'     => $this->getNext($customer, $request),
                 ],
-                'pageHead'    => [
+                'pageHead'         => [
                     'title'         => $customer->name,
                     'icon'          => [
                         'icon'  => ['fal', 'fa-user'],
                         'title' => __('customer')
                     ],
                     'afterTitle'    => [
-                        'label' => '#' . $customer->reference,
+                        'label' => '#'.$customer->reference,
                     ],
                     'meta'          => array_filter([
                         $shopMeta,
@@ -152,33 +157,32 @@ class ShowCustomer extends OrgAction
                 ],
                 'attachmentRoutes' => [
                     'attachRoute' => [
-                        'name' => 'grp.models.customer.attachment.attach',
+                        'name'       => 'grp.models.customer.attachment.attach',
                         'parameters' => [
                             'customer' => $customer->id,
                         ]
                     ],
                     'detachRoute' => [
-                        'name' => 'grp.models.customer.attachment.detach',
+                        'name'       => 'grp.models.customer.attachment.detach',
                         'parameters' => [
                             'customer' => $customer->id,
                         ],
-                        'method' => 'delete'
+                        'method'     => 'delete'
                     ]
                 ],
-                'tabs'        => [
+                'tabs'             => [
                     'current'    => $this->tab,
                     'navigation' => $tabs::navigation()
 
                 ],
-                'accounting'  => [
+                'accounting'       => [
                     'balance'             => $customer->balance,
                     'credit_transactions' => $customer->stats->number_credit_transactions
                 ],
 
-                $tabs::SHOWCASE->value => $this->tab == $tabs::SHOWCASE->value ?
+                $tabs::SHOWCASE->value    => $this->tab == $tabs::SHOWCASE->value ?
                     fn () => GetCustomerShowcase::run($customer)
                     : Inertia::lazy(fn () => GetCustomerShowcase::run($customer)),
-
 
 
                 /*
@@ -190,10 +194,10 @@ class ShowCustomer extends OrgAction
                 // $tabs::DISPATCHED_EMAILS->value => $this->tab == $tabs::DISPATCHED_EMAILS->value ?
                 //     fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($customer))
                 //     : Inertia::lazy(fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($customer))),
-                $tabs::FAVOURITES->value => $this->tab == $tabs::FAVOURITES->value ?
+                $tabs::FAVOURITES->value  => $this->tab == $tabs::FAVOURITES->value ?
                     fn () => CustomerFavouritesResource::collection(IndexCustomerFavourites::run($customer))
                     : Inertia::lazy(fn () => CustomerFavouritesResource::collection(IndexCustomerFavourites::run($customer))),
-                $tabs::REMINDERS->value => $this->tab == $tabs::REMINDERS->value ?
+                $tabs::REMINDERS->value   => $this->tab == $tabs::REMINDERS->value ?
                     fn () => CustomerBackInStockRemindersResource::collection(IndexCustomerBackInStockReminders::run($customer))
                     : Inertia::lazy(fn () => CustomerBackInStockRemindersResource::collection(IndexCustomerBackInStockReminders::run($customer))),
                 $tabs::ATTACHMENTS->value => $this->tab == $tabs::ATTACHMENTS->value ?
@@ -203,12 +207,11 @@ class ShowCustomer extends OrgAction
 
             ]
         )->table(IndexOrders::make()->tableStructure($customer))
-        //    ->table(IndexDropshippingRetinaProducts::make()->tableStructure($customer))
-        ->table(IndexCustomerFavourites::make()->tableStructure($customer, $tabs::FAVOURITES->value))
-        ->table(IndexCustomerBackInStockReminders::make()->tableStructure($customer, $tabs::REMINDERS->value))
-        ->table(IndexAttachments::make()->tableStructure($tabs::ATTACHMENTS->value))
-        ->table(IndexDispatchedEmails::make()->tableStructure($customer));
-
+            //    ->table(IndexDropshippingRetinaProducts::make()->tableStructure($customer))
+            ->table(IndexCustomerFavourites::make()->tableStructure($customer, $tabs::FAVOURITES->value))
+            ->table(IndexCustomerBackInStockReminders::make()->tableStructure($customer, $tabs::REMINDERS->value))
+            ->table(IndexAttachments::make()->tableStructure($tabs::ATTACHMENTS->value))
+            ->table(IndexDispatchedEmails::make()->tableStructure($customer));
     }
 
 

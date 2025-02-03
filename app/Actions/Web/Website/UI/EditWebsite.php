@@ -116,6 +116,16 @@ class EditWebsite extends OrgAction
                     'value'    => Arr::get($website->settings, "google_tag_id"),
                     'required' => false,
                 ],
+                "image" => [
+                    "type"  => "image_crop_square",
+                    "label" => __("logo"),
+                    "value" => $website->imageSources(320, 320),
+                    'options' => [
+                        "minAspectRatio" => 1 / 1,
+                        "maxAspectRatio" => 12 / 4,
+                     /*    'aspectRatio' =>  12/4 */
+                    ]
+                ],
             ]
         ];
 

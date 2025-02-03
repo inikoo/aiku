@@ -126,7 +126,7 @@ onBeforeMount(() => {
 const onSavedAgreement = (updateAll: boolean) => {
     props.form.transform((data) => ({
         ...data,
-        update_all: updateAll,
+       /*  update_all: updateAll, */
     }))
     .post(route(props.updateRoute.name, props.updateRoute.parameters), { preserveScroll: true })
 }
@@ -165,10 +165,10 @@ const onSavedAgreement = (updateAll: boolean) => {
 
                     <div class="">
                         <LoadingIcon v-if="form.processing" class="text-[23px]" />
-                        <Popover v-else-if="form.isDirty && updateRoute?.name">
-                            <template #button="{ open }">
-                                <FontAwesomeIcon icon="fad fa-save" class="h-8" :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" aria-hidden="true" />
-                            </template>
+                        <!-- <Popover v-else-if="form.isDirty && updateRoute?.name">
+                            <template #button="{ open }"> -->
+                                <FontAwesomeIcon @click="() => onSavedAgreement(false)" v-else-if="form.isDirty && updateRoute?.name" icon="fad fa-save" class="h-8" :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" aria-hidden="true" />
+                            <!-- </template>
                             
                             <template #content="{ close: closed }">
                                 <div class="max-w-min">
@@ -183,9 +183,8 @@ const onSavedAgreement = (updateAll: boolean) => {
                                     </div>
                                 </div>
                             </template>
-                        </Popover>
+                        </Popover> -->
                         <FontAwesomeIcon v-else icon="fal fa-save" class="h-8 text-gray-300" aria-hidden="true" />
-                        <!-- <pre>{{ form }}</pre> -->
                     </div>
                 </div>
                 

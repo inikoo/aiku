@@ -8,6 +8,7 @@
 
 use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Accounting\Invoice\UI\ShowInvoice;
+use App\Actions\Accounting\Refund\UI\IndexRefunds;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\Pallet\UI\EditPallet;
 use App\Actions\Fulfilment\Pallet\UI\IndexDamagedPallets;
@@ -15,6 +16,7 @@ use App\Actions\Fulfilment\Pallet\UI\IndexLostPallets;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Fulfilment\Pallet\UI\IndexReturnedPallets;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
+use App\Actions\Fulfilment\PalletDelivery\UI\EditPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
@@ -61,6 +63,7 @@ Route::get('/pallets/{pallet}/edit', [EditPallet::class, 'inFulfilment'])->name(
 
 Route::get('deliveries', IndexPalletDeliveries::class)->name('pallet-deliveries.index');
 Route::get('deliveries/{palletDelivery}', ShowPalletDelivery::class)->name('pallet-deliveries.show');
+Route::get('deliveries/{palletDelivery}/edit', EditPalletDelivery::class)->name('pallet-deliveries.edit');
 
 Route::get('returns', IndexPalletReturns::class)->name('pallet-returns.index');
 Route::get('returns/{palletReturn}', ShowPalletReturn::class)->name('pallet-returns.show');
@@ -80,12 +83,22 @@ Route::prefix('recurring_bills')->as('recurring_bills')->group(function () {
 });
 
 Route::prefix('invoices')->as('invoices')->group(function () {
-    Route::get('', [IndexInvoices::class, 'allFulfilment'])->name('.index'); // need check in retina
-    Route::get('/all', [IndexInvoices::class, 'allFulfilment'])->name('.all_invoices.index');
-    Route::get('/unpaid', [IndexInvoices::class, 'unpaidFulfilment'])->name('.unpaid_invoices.index');
-    Route::get('/paid', [IndexInvoices::class, 'paidFulfilment'])->name('.paid_invoices.index');
+    Route::get('', [IndexInvoices::class, 'inFulfilment'])->name('.all.index');
+
+    Route::get('/unpaid-invoices', [IndexInvoices::class, 'unpaidInFulfilment'])->name('.unpaid_invoices.index');
+    Route::get('/paid-invoices', [IndexInvoices::class, 'paidInFulfilment'])->name('.paid_invoices.index');
+    Route::get('/refunds', [IndexRefunds::class,'inFulfilment'])->name('.refunds.index');
 
     Route::get('/{invoice}', [ShowInvoice::class, 'inFulfilment'])->name('.show'); // need check in retina
-    Route::get('/all/{invoice}', [ShowInvoice::class, 'inFulfilment'])->name('.all_invoices.show');
-    Route::get('/unpaid/{invoice}', [ShowInvoice::class, 'inFulfilment'])->name('.unpaid_invoices.show');
+    // Route::get('/all/{invoice}', [ShowInvoice::class, 'inFulfilment'])->name('.all_invoices.show');
+    // Route::get('/unpaid/{invoice}', [ShowInvoice::class, 'inFulfilment'])->name('.unpaid_invoices.show');
+
+
 });
+
+
+
+
+Route::prefix("comms")
+    ->name("comms.")
+    ->group(__DIR__."/comms.php");

@@ -10,6 +10,7 @@ namespace App\Imports;
 
 use App\Enums\Helpers\Import\UploadRecordStatusEnum;
 use App\Events\UploadExcelProgressEvent;
+use App\Events\UploadRetinaExcelProgressEvent;
 use App\Models\Helpers\Upload;
 use App\Models\Helpers\UploadRecord;
 use Illuminate\Support\Arr;
@@ -120,6 +121,8 @@ trait WithImport
 
         if ($this->upload->user) {
             UploadExcelProgressEvent::dispatch($this->upload, $this->upload->user);
+        } elseif ($this->upload->webUser) {
+            UploadRetinaExcelProgressEvent::dispatch($this->upload, $this->upload->webUser);
         }
     }
 

@@ -40,6 +40,7 @@ class PalletReturnResource extends JsonResource
 
         return [
             'id'                    => $palletReturn->id,
+            'customer_reference'    => $palletReturn->customer_reference,
             'reference'             => $palletReturn->reference,
             'state'                 => $palletReturn->state,
             'is_collection'         => $palletReturn->is_collection,

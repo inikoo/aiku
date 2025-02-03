@@ -95,13 +95,15 @@ class ShowRetinaPalletDelivery extends RetinaAction
                 [
                     'type'   => 'buttonGroup',
                     'key'    => 'upload-add',
-                    'button' => [
-                        [
+                    'button' => array_values(
+                        array_filter(
+                            [
+                        !app()->environment('production') ? [
                             'type'  => 'button',
                             'style' => 'secondary',
                             'icon'  => ['fal', 'fa-upload'],
                             'label' => 'upload',
-                        ],
+                        ] : null,
                         [
                             'type'  => 'button',
                             'style' => 'secondary',
@@ -118,7 +120,7 @@ class ShowRetinaPalletDelivery extends RetinaAction
                             'type'  => 'button',
                             'style' => 'secondary',
                             'icon'  => 'fal fa-plus',
-                            'label' => __('add pallet'),
+                            'label' => __('pallet'),
                             'route' => [
                                 'name'       => 'retina.models.pallet-delivery.pallet.store',
                                 'parameters' => [
@@ -130,7 +132,7 @@ class ShowRetinaPalletDelivery extends RetinaAction
                             'type'  => 'button',
                             'style' => 'secondary',
                             'icon'  => 'fal fa-plus',
-                            'label' => __('add service'),
+                            'label' => __('service'),
                             'route' => [
                                 'name'       => 'retina.models.pallet-delivery.transaction.store',
                                 'parameters' => [
@@ -142,7 +144,7 @@ class ShowRetinaPalletDelivery extends RetinaAction
                             'type'  => 'button',
                             'style' => 'secondary',
                             'icon'  => 'fal fa-plus',
-                            'label' => __('add physical good'),
+                            'label' => __('physical good'),
                             'route' => [
                                 'name'       => 'retina.models.pallet-delivery.transaction.store',
                                 'parameters' => [
@@ -150,15 +152,18 @@ class ShowRetinaPalletDelivery extends RetinaAction
                                 ]
                             ]
                         ],
-                    ]
+                    ],
+                            fn ($button) => $button !== null // Filter out null values
+                        )
+                    )
                 ],
                 [
                     'type'     => 'button',
                     'icon'     => 'fad fa-save',
-                    'tooltip'  => __('Submit Delivery'),
+                    'tooltip'  => $palletsInDelivery == 0 ? __('Add pallet before submit') : (!($palletDelivery->estimated_delivery_date) ? __('Select estimated date before submit') : __('Submit Delivery')),
                     'label'    => __('submit'),
-                    'disabled' => $palletsInDelivery == 0,
-                    'key'      => 'action',
+                    'disabled' => $palletsInDelivery == 0 || !($palletDelivery->estimated_delivery_date),
+                    'key'      => 'submit',
                     'route'    => [
                         'method'     => 'post',
                         'name'       => 'retina.models.pallet-delivery.submit',
@@ -194,7 +199,7 @@ class ShowRetinaPalletDelivery extends RetinaAction
                 'style'   => 'delete',
                 'tooltip' => __('delete'),
                 'label'   => __('delete'),
-                'key'     => 'action',
+                'key'     => 'delete_delivery',
                 'route'   => [
                     'method'     => 'delete',
                     'name'       => 'retina.models.pallet-delivery.delete',
@@ -215,16 +220,14 @@ class ShowRetinaPalletDelivery extends RetinaAction
                     'next'     => $this->getNext($palletDelivery, $request),
                 ],
                 'pageHead'    => [
-                    'title' => $palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS
+                    'model' => $palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS
                         ? __('New pallet delivery')
                         : __('Pallet delivery'),
                     'icon'  => [
                         'icon'  => ['fal', 'fa-truck'],
                         'title' => $palletDelivery->reference
                     ],
-                    'afterTitle'   => [
-                        'label'     => $palletDelivery->reference,
-                    ],
+                    'title'   => $palletDelivery->reference,
 
                     'actions' => $actions,
 

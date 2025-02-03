@@ -23,7 +23,7 @@ class RemovePaymentServiceProvider extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("inventory.edit");
+        return $request->user()->authTo("inventory.edit");
     }
 
     public function asController(PaymentServiceProvider $warehouse, ActionRequest $request): PaymentServiceProvider

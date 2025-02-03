@@ -58,7 +58,7 @@ class StoreShop extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("org-admin.{$this->organisation->id}");
+        return $request->user()->authTo("org-admin.{$this->organisation->id}");
     }
 
     /**
@@ -156,6 +156,14 @@ class StoreShop extends OrgAction
                     'model'           => SerialReferenceModelEnum::PURGE,
                     'organisation_id' => $organisation->id,
                     'format'          => 'purge-'.$shop->slug.'-%04d'
+                ]
+            );
+
+            $shop->serialReferences()->create(
+                [
+                    'model'           => SerialReferenceModelEnum::INVOICE,
+                    'organisation_id' => $organisation->id,
+                    'format'          => 'inv-'.$shop->slug.'-%04d'
                 ]
             );
 

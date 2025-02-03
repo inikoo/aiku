@@ -100,7 +100,7 @@ class UpdateStock extends GrpAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("goods.{$this->group->id}.view");
+        return $request->user()->authTo("goods.{$this->group->id}.view");
     }
 
     public function rules(): array

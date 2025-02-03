@@ -494,7 +494,7 @@ test('UI show ordering backlog', function () {
         $page
             ->component('Ordering/OrdersBacklog')
             ->where('title', 'orders backlog')
-            ->has('breadcrumbs', 3)
+            ->has('breadcrumbs', 4)
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page

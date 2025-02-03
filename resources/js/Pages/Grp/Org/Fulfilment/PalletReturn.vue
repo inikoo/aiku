@@ -43,6 +43,7 @@ import PureMultiselectInfiniteScroll from '@/Components/Pure/PureMultiselectInfi
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt, faNarwhal, faUndo } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import ModalConfirmationDelete from "@/Components/Utils/ModalConfirmationDelete.vue"
 library.add(faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt, faNarwhal, faUndo )
 
 const props = defineProps<{
@@ -68,7 +69,7 @@ const props = defineProps<{
     }
     
     upload_spreadsheet: UploadPallet
-
+    can_edit_transactions: boolean,
     palletRoute: {
         index: routeType
         store: routeType
@@ -149,6 +150,7 @@ const onSubmitAddService = (data: Action, closedPopover: Function) => {
             onSuccess: () => {
                 closedPopover()
                 formAddService.reset()
+                handleTabUpdate('services')
             },
             onError: (errors) => {
                 notify({
@@ -195,6 +197,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                 closedPopover()
                 formAddPhysicalGood.reset()
                 isLoadingButton.value = false
+                handleTabUpdate('physical_goods')
             },
             onError: (errors) => {
                 isLoadingButton.value = false
@@ -225,6 +228,30 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
             <div v-else></div>
         </template>
 
+        <!-- Button: delete Return -->
+        <template #button-delete-return="{ action }">
+            <div>
+                <ModalConfirmationDelete
+                    :routeDelete="action.route"
+                    isFullLoading
+                >
+                    <template #default="{ isOpenModal, changeModel }">
+
+                        <Button
+                            @click="() => changeModel()"
+                            :style="action.style"
+                            :label="action.label"
+                            :icon="action.icon"
+                            :iconRight="action.iconRight"
+                            :key="`ActionButton${action.label}${action.style}`"
+                            :tooltip="action.tooltip"
+                        />
+
+                    </template>
+                </ModalConfirmationDelete>
+            </div>
+        </template>
+
         <!-- Button: Add Pallet -->
         <template #button-group-add-pallet="{ action }">
             <Button
@@ -241,8 +268,8 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
         </template>
 
         <!-- Button: Add service (single) -->
-        <template #button-group-add-service="{ action }">
-            <Popover v-if="currentTab === 'services'">
+        <template #button-group-add-service="{ action }" >
+            <Popover>
                 <template #button="{ open }">
                     <Button
                         @click="() => open ? false : onOpenModalAddService()"
@@ -310,13 +337,12 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                     </div>
                 </template>
             </Popover>
-            <div v-else />
         </template>
 
 
         <!-- Button: Add physical good (single) -->
         <template #button-group-add-physical-good="{ action }">
-            <div class="relative" v-if="currentTab === 'physical_goods'">
+            <div class="relative ml-2" >
                 <Popover>
                     <template #button="{ open }">
                         <Button
@@ -394,7 +420,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                     </template>
                 </Popover>
             </div>
-            <div v-else></div>
+       
         </template>
     </PageHeading>
 
@@ -418,6 +444,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
         :state="timeline.state" 
         :key="timeline.state" 
         :tab="currentTab" 
+        :can_edit_transactions="can_edit_transactions"
         :route_checkmark="currentTab == 'pallets' ? routeStorePallet : route_check_stored_items" 
     />
 

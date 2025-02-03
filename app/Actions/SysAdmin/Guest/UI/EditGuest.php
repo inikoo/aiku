@@ -31,8 +31,8 @@ class EditGuest extends GrpAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('sysadmin.edit');
-        return $request->user()->hasPermissionTo("sysadmin.view");
+        $this->canEdit = $request->user()->authTo('sysadmin.edit');
+        return $request->user()->authTo("sysadmin.view");
     }
 
     public function asController(Guest $guest, ActionRequest $request): Guest
@@ -48,10 +48,23 @@ class EditGuest extends GrpAction
     public function htmlResponse(Guest $guest, ActionRequest $request): Response
     {
         $user = $guest->getUser();
+
+        $jobPositionsOrganisationsData = [];
+        foreach ($this->group->organisations as $organisation) {
+            $jobPositionsOrganisationData                       = GetUserOrganisationScopeJobPositionsData::run($user, $organisation);
+            $jobPositionsOrganisationsData[$organisation->slug] = $jobPositionsOrganisationData;
+        }
+
+
+
+        $permissionsGroupData = GetUserGroupScopeJobPositionsData::run($user);
         $organisations = $user->group->organisations;
-        $reviewData    = $organisations->mapWithKeys(function ($organisation) {
+        $orgIds = $user->getOrganisations()->pluck('id')->toArray();
+
+        $reviewData    = $organisations->mapWithKeys(function ($organisation) use ($user, $orgIds) {
             return [
                 $organisation->slug => [
+                    'is_employee' => in_array($organisation->id, $orgIds),
                     'number_job_positions' => $organisation->humanResourcesStats->number_job_positions,
                     'job_positions'        => $organisation->jobPositions->mapWithKeys(function ($jobPosition) {
                         return [
@@ -64,12 +77,6 @@ class EditGuest extends GrpAction
                 ]
             ];
         })->toArray();
-        $permissionsGroupData = GetUserGroupScopeJobPositionsData::run($user, $this->group);
-        $jobPositionsOrganisationsData = [];
-        foreach ($this->group->organisations as $organisation) {
-            $jobPositionsOrganisationData = GetUserOrganisationScopeJobPositionsData::run($user, $organisation);
-            $jobPositionsOrganisationsData[] = $jobPositionsOrganisationData;
-        }
 
         $organisationList = OrganisationsResource::collection($organisations);
 
@@ -154,7 +161,7 @@ class EditGuest extends GrpAction
                                 ],
                             ]
                         ],
-                        "permissions_shop_organisation" => [
+                        "permissions" => [
                             "label"   => __(" Permissions"),
                             "title"   => __("Permissions"),
                             "icon"    => "fa-light fa-user-lock",
@@ -166,42 +173,39 @@ class EditGuest extends GrpAction
                                     "type"              => "permissions",
                                     "review"            => $reviewData,
                                     'organisation_list' => $organisationList,
-                                    'updateRoute'       => [
+                                    "current_organisation"  => $user->getOrganisation(),
+                                    'updatePseudoJobPositionsRoute'       => [
                                         'method'     => 'patch',
-                                        "name"       => "grp.models.user.permissions.update",
+                                        "name"       => "grp.models.user.group_permissions.update",
                                         'parameters' => [
                                             'user' => $user->id
                                         ]
                                     ],
+                                    'updateJobPositionsRoute'       => [
+                                        'method'     => 'patch',
+                                        "name"       => "grp.models.user.organisation_pseudo_job_positions.update",
+                                        'parameters' => [
+                                            'user' => $user->id,
+                                            'organisation' => null // fill in the organisation id in the frontend
+                                        ]
+                                    ],
 
 
-                                    'options' => Organisation::get()->flatMap(function (Organisation $organisation) {
+                                    'options'           => Organisation::get()->flatMap(function (Organisation $organisation) {
                                         return [
                                             $organisation->slug => [
                                                 'positions'   => JobPositionResource::collection($organisation->jobPositions),
-                                                'shops'       => ShopResource::collection($organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get()),
+                                                'shops'       => \App\Http\Resources\Catalogue\ShopResource::collection($organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get()),
                                                 'fulfilments' => ShopResource::collection($organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
                                                 'warehouses'  => WarehouseResource::collection($organisation->warehouses),
                                             ]
                                         ];
                                     })->toArray(),
-                                    'value'   => [
-                                        'group' => $permissionsGroupData,
-                                        'organisations' =>  $jobPositionsOrganisationsData,
+                                    'value'             => [
+                                        'group'         => $permissionsGroupData,
+                                        'organisations' => $jobPositionsOrganisationsData,
                                     ],
 
-    //                                "value"             => $user->pseudoJobPositions->flatMap(function (JobPosition $jobPosition) {
-    //                                    return [
-    //                                        $jobPosition->organisation->slug => [
-    //                                            $jobPosition->code => match (array_key_first($jobPosition->pivot->scopes)) {
-    //                                                class_basename(Shop::class) => [
-    //                                                    'shops' => $jobPosition->organisation->shops->whereIn('id', Arr::get($jobPosition->pivot->scopes, class_basename(Shop::class)))->pluck('slug')
-    //                                                ],
-    //                                                default => null
-    //                                            }
-    //                                        ]
-    //                                    ];
-    //                                }),
                                     "fullComponentArea" => true,
                                 ],
                             ],

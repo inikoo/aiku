@@ -12,14 +12,11 @@ use App\Actions\Retina\Fulfilment\UI\ShowRetinaStorageDashboard;
 use App\Actions\RetinaAction;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -29,10 +26,6 @@ class IndexRetinaPalletReturns extends RetinaAction
 {
     private FulfilmentCustomer $parent;
 
-    /*    public function authorize(ActionRequest $request): bool
-        {
-            return $request->user()->hasPermissionTo("fulfilment.{$this->customer->fulfilmentCustomer->id}.view");
-        }*/
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
@@ -42,13 +35,11 @@ class IndexRetinaPalletReturns extends RetinaAction
         return $this->handle($this->customer->fulfilmentCustomer, 'pallet_returns');
     }
 
-    public function handle(FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
+    public function handle(FulfilmentCustomer $fulfilmentCustomer, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereStartWith('reference', $value)
-                    ->orWhereStartWith('customer_reference', $value)
-                    ->orWhereStartWith('slug', $value);
+                $query->whereStartWith('reference', $value);
             });
         });
 
@@ -57,10 +48,10 @@ class IndexRetinaPalletReturns extends RetinaAction
         }
 
         $queryBuilder = QueryBuilder::for(PalletReturn::class);
-        $queryBuilder->where('pallet_returns.fulfilment_customer_id', $parent->id);
+        $queryBuilder->where('pallet_returns.fulfilment_customer_id', $fulfilmentCustomer->id);
 
         return $queryBuilder
-            ->defaultSort('reference')
+            ->defaultSort('reference', 'state', 'type', 'date')
             ->allowedSorts(['reference'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -80,128 +71,85 @@ class IndexRetinaPalletReturns extends RetinaAction
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
-                ->withEmptyState(
-                    $parent instanceof Fulfilment ? [
-                        'title'       => __("You don't have any customer yet") . ' 😭',
-                        'description' => __("Dont worry soon you will be pretty busy"),
-                        'count'       => $parent->shop->crmStats->number_customers,
-                        'action'      => [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new customer'),
-                            'label'   => __('customer'),
-                            'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.customers.create',
-                                'parameters' => [$parent->organisation->slug, $parent->slug]
-                            ]
-                        ]
-                    ] : null
-                )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
-                ->column(key: 'type', label: __('type'), type: 'icon', canBeHidden: false, sortable: false, searchable: false)
+                ->column(key: 'type', label: __('type'), canBeHidden: false, type: 'icon')
                 ->column(key: 'reference', label: __('reference number'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'customer reference', label: __('return name'), canBeHidden: false, sortable: false, searchable: true)
                 ->column(key: 'pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
-    public function jsonResponse(LengthAwarePaginator $customers): AnonymousResourceCollection
-    {
-        return PalletReturnsResource::collection($customers);
-    }
 
-    public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $palletReturns, ActionRequest $request): Response
     {
-        $container = [
-            'icon'    => ['fal', 'fa-pallet-alt'],
-            'tooltip' => __('Customer Fulfilment'),
-            'label'   => Str::possessive($this->customer->fulfilmentCustomer->slug)
-        ];
+
+        $fulfilmentCustomer = $this->customer->fulfilmentCustomer;
+
+        $actions = [];
+
+        if (!app()->environment('production')) {
+            $actions = [
+                $fulfilmentCustomer->number_pallets_status_storing ? [
+                    'type'    => 'button',
+                    'style'   => 'create',
+                    'tooltip' => $fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? __('Create new return (whole pallet)') : __('Create new return'),
+                    'label'   => $fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? __('Return (whole pallet)') : __('Return'),
+                    'route'   => [
+                        'method'     => 'post',
+                        'name'       => 'retina.models.pallet-return.store',
+                        'parameters' => []
+                    ]
+                ] : false,
+                $this->customer->fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? [
+                    'type'    => 'button',
+                    'style'   => 'create',
+                    'tooltip' => __('Create new return (Selected SKUs)'),
+                    'label'   => __('Return (Selected SKUs)'),
+                    'route'   => [
+                        'method'     => 'post',
+                        'name'       => 'retina.models.pallet-return-stored-items.store',
+                        'parameters' => []
+                    ]
+                ] : false,
+            ];
+        }
 
         return Inertia::render(
             'Storage/RetinaPalletReturns',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                    $request->route()->originalParameters()
-                ),
+                'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'    => __('returns'),
                 'pageHead' => [
                     'title'     => __('returns'),
-                    // 'container' => $container,
-                    'model'     => __('Storage'),
                     'icon' => [
                         'icon'  => ['fal', 'fa-truck-ramp'],
                         'title' => __('return')
                     ],
-                    'actions'       => [
-                        match (class_basename($this->parent)) {
-                            'FulfilmentCustomer' =>
-                                $this->customer->fulfilmentCustomer->number_pallets_status_storing ? [
-                                    'type'    => 'button',
-                                    'style'   => 'create',
-                                    'tooltip' => !$this->parent->number_stored_items_status_storing ? __('Create new return (whole pallet)') : __('Create new return'),
-                                    'label'   => !$this->parent->number_stored_items_status_storing ? __('Return (whole pallet)') : __('Return'),
-                                    'route'   => [
-                                        'method'     => 'post',
-                                        'name'       => 'retina.models.pallet-return.store',
-                                        'parameters' => []
-                                    ]
-                                ] : false,
-
-                            default => null
-                        },
-                        match (class_basename($this->parent)) {
-                            'FulfilmentCustomer' =>
-                            !$this->parent->number_stored_items_status_storing ? [
-                                'type'    => 'button',
-                                'style'   => 'create',
-                                'tooltip' => __('Create new return (stored items)'),
-                                'label'   => __('Return (Stored items)'),
-                                'route'   => [
-                                    'method'     => 'post',
-                                    'name'       => 'retina.models.pallet-return-stored-items.store',
-                                    'parameters' => []
-                                ]
-                            ] : false,
-
-                            default => null
-                        }
-                    ]
+                    'actions'       => $actions
                 ],
-                'data' => PalletReturnsResource::collection($customers),
+                'data' => PalletReturnsResource::collection($palletReturns),
 
             ]
         )->table($this->tableStructure($this->parent, prefix: 'pallet_returns'));
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(): array
     {
-        $headCrumb = function (array $routeParameters = []) {
-            return [
+        return array_merge(
+            ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+            [
                 [
                     'type'   => 'simple',
                     'simple' => [
-                        'route' => $routeParameters,
-                        'label' => __('Pallet Returns'),
-                        'icon'  => 'fal fa-bars'
+                        'route' => [
+                            'name' => 'retina.fulfilment.storage.pallet_returns.index',
+                        ],
+                        'label' => __('Returns'),
+                        'icon'  => 'fal fa-bars',
                     ],
-                ],
-            ];
-        };
 
-
-        return match ($routeName) {
-
-            'retina.fulfilment.storage.pallet-returns.index', 'retina.fulfilment.storage.pallet-returns.show' => array_merge(
-                ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
-                $headCrumb(
-                    [
-                        'name'       => 'retina.fulfilment.storage.pallet-returns.index',
-                        'parameters' => []
-                    ]
-                )
-            ),
-        };
+                ]
+            ]
+        );
     }
+
 }

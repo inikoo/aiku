@@ -11,10 +11,10 @@ import { Invoice } from "@/types/invoice"
 import { useLocaleStore } from '@/Stores/locale'
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faFileInvoiceDollar, faHandHoldingUsd } from '@fal'
+import { faFileInvoiceDollar, faCircle,faCheckCircle,faQuestionCircle } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import Icon from '@/Components/Icon.vue'
-library.add(faFileInvoiceDollar, faHandHoldingUsd)
+library.add(faFileInvoiceDollar, faCircle,faCheckCircle,faQuestionCircle)
 
 
 const props = defineProps<{
@@ -31,7 +31,7 @@ function invoiceRoute(invoice: Invoice) {
             return route(
                 'shops.show.invoices.show',
                 [invoice.slug, invoice.slug])
-        case 'grp.org.fulfilments.show.operations.invoices.index':
+        case 'grp.org.fulfilments.show.operations.invoices.all.index':
             return route(
                 'grp.org.fulfilments.show.operations.invoices.show',
                 [route().params['organisation'], route().params['fulfilment'], invoice.slug])
@@ -47,15 +47,11 @@ function invoiceRoute(invoice: Invoice) {
             return route(
                 'grp.org.accounting.invoices.unpaid_invoices.show',
                 [route().params['organisation'], invoice.slug])
-        case 'grp.org.accounting.invoices.all_invoices.index':
+        case 'grp.org.accounting.invoices.index':
             return route(
-                'grp.org.accounting.invoices.all_invoices.show',
+                'grp.org.accounting.invoices.show',
                 [route().params['organisation'], invoice.slug])
-        case 'grp.org.fulfilments.show.operations.invoices.all_invoices.index':
-            return route(
-                'grp.org.fulfilments.show.operations.invoices.all_invoices.show',
-                [route().params['organisation'], route().params['fulfilment'], invoice.slug])
-                case 'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.index':
+        case 'grp.org.fulfilments.show.operations.unpaid_invoices.index':
             return route(
                 'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.show',
                 [route().params['organisation'], route().params['fulfilment'], invoice.slug])

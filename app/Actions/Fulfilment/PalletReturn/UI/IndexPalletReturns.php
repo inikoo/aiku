@@ -11,16 +11,21 @@ namespace App\Actions\Fulfilment\PalletReturn\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
+use App\Actions\Helpers\Upload\UI\IndexPalletReturnItemUploads;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Enums\UI\Fulfilment\PalletReturnsTabsEnum;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
+use App\Http\Resources\Helpers\PalletReturnItemUploadsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\RecurringBill;
 use App\Models\Inventory\Warehouse;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -37,17 +42,17 @@ class IndexPalletReturns extends OrgAction
     use WithFulfilmentCustomerSubNavigation;
 
 
-    private Fulfilment|Warehouse|FulfilmentCustomer $parent;
+    private Fulfilment|Warehouse|FulfilmentCustomer|RecurringBill $parent;
 
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Fulfilment or $this->parent instanceof FulfilmentCustomer) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+            $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
 
         } elseif ($this->parent instanceof Warehouse) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.edit");
-            return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.view");
+            $this->canEdit = $request->user()->authTo("fulfilment.{$this->warehouse->id}.edit");
+            return $request->user()->authTo("fulfilment.{$this->warehouse->id}.view");
         }
 
         return false;
@@ -57,7 +62,7 @@ class IndexPalletReturns extends OrgAction
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $fulfilment;
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletReturnsTabsEnum::values());
 
         return $this->handle($fulfilment);
     }
@@ -66,7 +71,7 @@ class IndexPalletReturns extends OrgAction
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $fulfilmentCustomer;
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletReturnsTabsEnum::values());
 
         return $this->handle($fulfilmentCustomer);
     }
@@ -75,12 +80,12 @@ class IndexPalletReturns extends OrgAction
     public function inWarehouse(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $warehouse;
-        $this->initialisationFromWarehouse($warehouse, $request);
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletReturnsTabsEnum::values());
 
         return $this->handle($warehouse);
     }
 
-    protected function getElementGroups(Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn $parent): array
+    protected function getElementGroups(Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn|RecurringBill $parent): array
     {
         return [
             'state' => [
@@ -99,7 +104,7 @@ class IndexPalletReturns extends OrgAction
         ];
     }
 
-    public function handle(Fulfilment|Warehouse|FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Fulfilment|Warehouse|FulfilmentCustomer|RecurringBill $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -119,6 +124,8 @@ class IndexPalletReturns extends OrgAction
             $queryBuilder->where('pallet_returns.fulfilment_id', $parent->id);
         } elseif ($parent instanceof Warehouse) {
             $queryBuilder->where('pallet_returns.warehouse_id', $parent->id);
+        } elseif ($parent instanceof RecurringBill) {
+            $queryBuilder->where('pallet_returns.recurring_bill_id', $parent->id);
         } else {
             $queryBuilder->where('pallet_returns.fulfilment_customer_id', $parent->id);
         }
@@ -144,7 +151,7 @@ class IndexPalletReturns extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Fulfilment|Warehouse|FulfilmentCustomer $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Fulfilment|Warehouse|FulfilmentCustomer|RecurringBill $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
@@ -175,6 +182,11 @@ class IndexPalletReturns extends OrgAction
                             'description' => __('This warehouse has not received any pallet returns yet'),
                             'count'       => $parent->stats->number_pallet_returns
                         ],
+                        'RecurringBill' => [
+                            'title'       => __('No pallet returns found for this recurring bill'),
+                            'description' => __('This recurring bill has no any pallet returns yet'),
+                            'count'       => $parent->stats->number_pallet_returns
+                        ],
                         'FulfilmentCustomer' => [
                             'title'       => __('No pallet returns found for this customer'),
                             'description' => __('This customer has not received any pallet returns yet'),
@@ -185,18 +197,22 @@ class IndexPalletReturns extends OrgAction
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
                 ->column(key: 'type', label: __('type'), type: 'icon', canBeHidden: false, sortable: false, searchable: false)
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'customer reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'customer_reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
-    public function jsonResponse(LengthAwarePaginator $customers): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $returns): AnonymousResourceCollection
     {
-        return PalletReturnsResource::collection($customers);
+        return PalletReturnsResource::collection($returns);
     }
 
-    public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $returns, ActionRequest $request): Response
     {
+        $navigation = PalletReturnsTabsEnum::navigation();
+        if ($this->parent instanceof Group || $this->parent instanceof Warehouse) {
+            unset($navigation[PalletReturnsTabsEnum::UPLOADS->value]);
+        }
         $subNavigation = [];
 
         $icon      = ['fal', 'fa-sign-out-alt'];
@@ -276,10 +292,24 @@ class IndexPalletReturns extends OrgAction
                         }
                     ]
                 ],
-                'data'        => PalletReturnsResource::collection($customers),
+                'data'        => PalletReturnsResource::collection($returns),
+
+                'tabs' => [
+                    'current'    => $this->tab,
+                    'navigation' => $navigation
+                ],
+
+                PalletReturnsTabsEnum::RETURNS->value => $this->tab == PalletReturnsTabsEnum::RETURNS->value ?
+                    fn () => PalletReturnsResource::collection($returns)
+                    : Inertia::lazy(fn () => PalletReturnsResource::collection($returns)),
+
+                PalletReturnsTabsEnum::UPLOADS->value => $this->tab == PalletReturnsTabsEnum::UPLOADS->value ?
+                    fn () => PalletReturnItemUploadsResource::collection(IndexPalletReturnItemUploads::run($this->parent, PalletReturnsTabsEnum::UPLOADS->value))
+                    : Inertia::lazy(fn () => PalletReturnItemUploadsResource::collection(IndexPalletReturnItemUploads::run($this->parent, PalletReturnsTabsEnum::UPLOADS->value))),
 
             ]
-        )->table($this->tableStructure($this->parent));
+        )->table($this->tableStructure(parent: $this->parent, prefix: PalletReturnsTabsEnum::RETURNS->value))
+        ->table(IndexPalletReturnItemUploads::make()->tableStructure(prefix:PalletReturnsTabsEnum::UPLOADS->value));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

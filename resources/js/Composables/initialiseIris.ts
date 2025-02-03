@@ -23,10 +23,10 @@ export const initialiseIrisApp = () => {
     //     loadLanguageAsync(usePage().props.localeData.language.code)
     // }
 
-    
+
     watchEffect(() => {
         // Set App theme
-        if (usePage().props.layout?.app_theme) {
+        if (usePage().props.layout?.app_theme) {       
             layout.app.theme = usePage().props.layout?.app_theme
         }
 

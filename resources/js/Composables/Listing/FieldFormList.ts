@@ -19,9 +19,10 @@ import Toggle from '@/Components/Forms/Fields/Toggle.vue'
 import Textarea from "@/Components/Forms/Fields/Textarea.vue"
 import TextEditor from "@/Components/Forms/Fields/TextEditor.vue"
 
+import ImageCropSquare from '@/Components/Forms/Fields/ImageCropSquare.vue'
+import Avatar from '@/Components/Forms/Fields/Avatar.vue'
 import Theme from '@/Components/Forms/Fields/Theme.vue'
 import ColorMode from '@/Components/Forms/Fields/ColorMode.vue'
-import Avatar from '@/Components/Forms/Fields/Avatar.vue'
 import Checkbox from '@/Components/Forms/Fields/Checkbox.vue'
 import AppTheme from '@/Components/Forms/Fields/AppTheme.vue'
 import Action from '@/Components/Forms/Fields/Action.vue'
@@ -45,6 +46,7 @@ const MailshotRecipient = defineAsyncComponent(() => import('@/Components/Forms/
 
 
 export const componentsList: {[key: string]: Component} = {
+    'image_crop_square': ImageCropSquare,
     'input': Input,
     'inputWithAddOn': InputWithAddOn,
     'phone': Phone,

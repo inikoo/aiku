@@ -14,7 +14,7 @@ export const initialiseApp = () => {
     // Declaring here cuz some component failing retrieve on first load (EmployeePosition.vue)
     layout.currentParams = route().v().params
 
-    const storageLayout = JSON.parse(localStorage.getItem('layout') ?? '{}')  // Get layout from localStorage
+    const storageLayout = JSON.parse(localStorage.getItem('layout') || '{}')  // Get layout from localStorage
     layout.organisationsState = storageLayout  // { 'awa' : { currentShop: 'bali', currentWarehouse: 'ed' }, ... }
 
     const echoPersonal = useEchoGrpPersonal()
@@ -141,6 +141,7 @@ export const initialiseApp = () => {
         }
         if (usePage().props.layout?.digital_agency) {
             layout.digital_agency = usePage().props.layout.digital_agency
+            console.log('%c digital_agency', 'background: red; color: white', usePage().props.layout.digital_agency)
         }
 
 

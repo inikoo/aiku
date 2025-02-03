@@ -39,6 +39,18 @@ class RetinaAction
     protected array $validatedData;
 
 
+    public function registerInitialisation(Fulfilment $fulfilment, ActionRequest $request): static
+    {
+        $this->fulfilment    = $fulfilment;
+        $this->shop          = $this->fulfilment->shop;
+        $this->organisation  = $this->shop->organisation;
+        $this->website       = $request->get('website');
+        $this->fillFromRequest($request);
+        $this->validatedData = $this->validateAttributes();
+
+        return $this;
+    }
+
     public function initialisation(ActionRequest $request): static
     {
         $this->webUser       = $request->user();
@@ -67,6 +79,23 @@ class RetinaAction
 
         return $this;
     }
+
+    public function logoutInitialisation(ActionRequest $request): static
+    {
+
+        $this->website       = $request->get('website');
+
+        $this->shop          = $this->website->shop;
+        $this->fulfilment    = $this->shop->fulfilment;
+        $this->organisation  = $this->shop->organisation;
+
+        $this->fillFromRequest($request);
+
+        $this->validatedData = $this->validateAttributes();
+
+        return $this;
+    }
+
 
 
 }

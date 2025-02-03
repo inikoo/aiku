@@ -87,6 +87,10 @@ class PalletReturnItemsResource extends JsonResource
                 'name'       => 'grp.models.pallet-return-item.undo-picking',
                 'parameters' => [$this->id]
             ],
+            'undoConfirmedRoute' => [
+                'name'       => 'grp.models.pallet-return-item.undo-confirmed',
+                'parameters' => [$this->id]
+            ],
             'notPickedRoute' => [
                 'method'     => 'patch',
                 'name'       => 'grp.models.pallet-return-item.not-picked',
@@ -150,6 +154,16 @@ class PalletReturnItemsResource extends JsonResource
                 default => [
                     'name'       => 'grp.models.pallet.stored-items.update',
                     'parameters' => [$this->id]
+                ]
+            },
+            'updatePalletRoute'           => match (request()->routeIs('retina.*')) {
+                true => [
+                    'name'       => 'retina.models.pallet.update',
+                    'parameters' => $this->pallet_id
+                ],
+                default => [
+                    'name'       => 'grp.models.pallet.update',
+                    'parameters' => $this->pallet_id
                 ]
             },
         ];

@@ -28,8 +28,8 @@ class IndexAgents extends GrpAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('supply-chain.edit');
-        return $request->user()->hasPermissionTo('supply-chain.view');
+        $this->canEdit = $request->user()->authTo('supply-chain.edit');
+        return $request->user()->authTo('supply-chain.view');
     }
 
     protected function getElementGroups(Group $group): array

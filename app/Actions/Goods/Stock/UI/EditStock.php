@@ -24,8 +24,8 @@ class EditStock extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('inventory.stocks.edit');
-        return $request->user()->hasPermissionTo("inventory.stocks.view");
+        $this->canEdit = $request->user()->authTo('inventory.stocks.edit');
+        return $request->user()->authTo("inventory.stocks.view");
     }
 
     public function inOrganisation(Stock $stock, ActionRequest $request): Stock

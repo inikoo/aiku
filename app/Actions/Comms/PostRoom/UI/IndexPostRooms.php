@@ -67,7 +67,7 @@ class IndexPostRooms extends GrpAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("group-overview");
+        return $request->user()->authTo("group-overview");
     }
 
     public function asController(ActionRequest $request): LengthAwarePaginator

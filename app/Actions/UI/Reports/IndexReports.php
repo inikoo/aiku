@@ -31,7 +31,7 @@ class IndexReports extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('org-reports.' . $this->organisation->id);
+        return $request->user()->authTo('org-reports.' . $this->organisation->id);
     }
 
 

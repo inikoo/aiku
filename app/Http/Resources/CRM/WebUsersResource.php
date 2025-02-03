@@ -9,7 +9,6 @@
 namespace App\Http\Resources\CRM;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use Carbon\Carbon;
 
 /**
  * @property mixed $slug
@@ -24,38 +23,16 @@ class WebUsersResource extends JsonResource
 {
     public function toArray($request): array
     {
-
-
         return [
             'slug'        => $this->slug,
             'username'    => $this->username,
-            'image'         => $this->imageSources(48, 48),
-            'location'      => null,
-            'status'       => $this->status,
-            'status_icon'        => match ($this->status) {
-                true => [
-                    'tooltip' => __('active'),
-                    'icon'    => 'fal fa-check',
-                    'class'   => 'text-green-500'
-                ],
-                default => [
-                    'tooltip' => __('suspended'),
-                    'icon'    => 'fal fa-times',
-                    'class'   => 'text-red-500'
-                ]
-            },
-            'contact_name'       => $this->contact_name,
-            'is_root'     => $this->is_root,
-            'root_icon'   => $this->is_root ? [
-                'tooltip' => __('Root User'),
-                'icon'    => 'fal fa-crown',
-                'class'   => 'text-yellow-500'
-
-            ] : null,
+            'email'       => $this->email,
             'created_at'  => $this->created_at,
-            'last_active' => $this->last_active
-                                ? Carbon::parse($this->last_active)->diffForHumans()
-                                : ''
-            ];
+            'organisation_name' => $this->organisation_name,
+            'organisation_slug' => $this->organisation_slug,
+            'shop_name' => $this->shop_name,
+            'shop_slug' => $this->shop_slug,
+            'shop_code' => $this->shop_code,
+        ];
     }
 }

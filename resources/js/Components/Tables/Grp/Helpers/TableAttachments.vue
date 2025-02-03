@@ -131,19 +131,18 @@ const confirmDelete = (event, media_id: number, id: number) => {
         </template>
         <template #cell(action)="{ item: attachment }">
             <div class="flex gap-x-2">
-                <Link :href="mediaRoute(attachment)">
+                <a target='_blank' :href="mediaRoute(attachment)">
                     <Button
                         type="tertiary"
                         icon="fal fa-download"
                         v-tooltip="trans('Download attachment')"
                     />
-                </Link>
-
+                </a>
 
                 <!-- <Link
                     v-if="detachRoute?.name"
                     :href="route(detachRoute?.name, {...detachRoute?.parameters, attachment: attachment.media_id})" :method="detachRoute?.method"
-                    
+
                     preserve-scroll
                     as="div"
                 > -->
@@ -154,7 +153,7 @@ const confirmDelete = (event, media_id: number, id: number) => {
                     :loading="isLoading.includes(attachment.id)"
                     v-tooltip="trans('Delete attachment')"
                 />
-                
+
                 <!-- </Link> -->
                 <ConfirmPopup group="headless">
                     <template #container="{ message, acceptCallback, rejectCallback }">
@@ -168,6 +167,11 @@ const confirmDelete = (event, media_id: number, id: number) => {
                     </template>
                 </ConfirmPopup>
             </div>
+        </template>
+
+        <template #button-empty-state="{ action }">
+            <slot name="button-empty-state-attachments" :action="action">
+            </slot>
         </template>
     </Table>
 </template>

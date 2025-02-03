@@ -22,9 +22,9 @@ class CreateStock extends GrpAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof StockFamily) {
-            return $request->user()->hasPermissionTo("goods.{$this->parent->group->id}.create");
+            return $request->user()->authTo("goods.{$this->parent->group->id}.create");
         }
-        return $request->user()->hasPermissionTo("goods.{$this->parent->id}.create");
+        return $request->user()->authTo("goods.{$this->parent->id}.create");
     }
 
     public function asController(ActionRequest $request): Response

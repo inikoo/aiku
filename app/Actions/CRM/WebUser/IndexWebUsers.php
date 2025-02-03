@@ -15,6 +15,8 @@ use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\Web\Website\UI\ShowWebsite;
+use App\Enums\UI\CRM\WebUserTabsEnum;
+use App\Http\Resources\CRM\WebUserRequestsResource;
 use App\Http\Resources\CRM\WebUsersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
@@ -57,7 +59,6 @@ class IndexWebUsers extends OrgAction
         $queryBuilder = QueryBuilder::for(WebUser::class);
         $queryBuilder->leftJoin('organisations', 'web_users.organisation_id', '=', 'organisations.id')
                 ->leftJoin('shops', 'web_users.shop_id', '=', 'shops.id');
-
         if ($parent instanceof Customer) {
             $queryBuilder->where('customer_id', $parent->id);
         } elseif ($parent instanceof FulfilmentCustomer) {
@@ -87,9 +88,9 @@ class IndexWebUsers extends OrgAction
                 'organisations.name as organisation_name',
                 'organisations.slug as organisation_slug',
                 ])
-            ->allowedSorts(['email', 'username'])
+            ->allowedSorts(['email', 'username', 'created_at', 'organisation_name', 'shop_name', 'shop_code'])
             ->allowedFilters([$globalSearch])
-            ->paginate($this->perPage ?? config('ui.table.records_per_page'))
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
@@ -141,7 +142,6 @@ class IndexWebUsers extends OrgAction
                 'label' => __('Web users')
             ];
         }
-
         return Inertia::render(
             'Org/Shop/CRM/WebUsers',
             [
@@ -168,10 +168,26 @@ class IndexWebUsers extends OrgAction
                         ] : false
                     ]
                 ],
+                'tabs'                                              => [
+                    'current'    => $this->tab,
+                    'navigation' => WebUserTabsEnum::navigation(),
+                ],
+                WebUserTabsEnum::WEB_USERS->value => $this->tab == WebUserTabsEnum::WEB_USERS->value ?
+                fn () => WebUsersResource::collection($webUsers)
+                : Inertia::lazy(fn () => WebUsersResource::collection($webUsers)),
+
+                WebUserTabsEnum::REQUESTS->value => $this->tab == WebUserTabsEnum::REQUESTS->value ?
+                fn () => WebUserRequestsResource::collection(IndexWebUserRequests::run($this->parent, WebUserTabsEnum::REQUESTS->value))
+                : Inertia::lazy(fn () => WebUserRequestsResource::collection(IndexWebUserRequests::run($this->parent, WebUserTabsEnum::REQUESTS->value))),
+
                 'data'        => WebUsersResource::collection($webUsers),
 
             ]
-        )->table($this->tableStructure($this->parent));
+        )->table(
+            $this->tableStructure(parent: $this->parent, prefix: WebUserTabsEnum::WEB_USERS->value)
+        )->table(
+            IndexWebUserRequests::make()->tableStructure(parent: $this->parent, prefix: WebUserTabsEnum::REQUESTS->value)
+        );
     }
 
     public function tableStructure(Group|Shop|Organisation|Customer|FulfilmentCustomer|Website $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
@@ -183,6 +199,7 @@ class IndexWebUsers extends OrgAction
                     ->pageName($prefix.'Page');
             }
             $table
+                ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
                     match (class_basename($parent)) {
@@ -223,7 +240,6 @@ class IndexWebUsers extends OrgAction
                         default => null
                     }
                 )
-                ->withGlobalSearch()
                 ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true);
             if ($parent instanceof Group) {
                 $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
@@ -239,9 +255,9 @@ class IndexWebUsers extends OrgAction
     public function inGroup(ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = group();
-        $this->initialisationFromGroup($this->parent, $request);
+        $this->initialisationFromGroup($this->parent, $request)->withTab(WebUserTabsEnum::values());
 
-        return $this->handle(parent: $this->parent);
+        return $this->handle(parent: $this->parent, prefix: WebUserTabsEnum::WEB_USERS->value);
     }
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
@@ -249,25 +265,25 @@ class IndexWebUsers extends OrgAction
         $this->parent = $organisation;
         $this->initialisation($organisation, $request);
 
-        return $this->handle($this->parent);
+        return $this->handle(parent: $this->parent, prefix: WebUserTabsEnum::WEB_USERS->value);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inWebsite(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $website;
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(WebUserTabsEnum::values());
 
-        return $this->handle(parent: $website);
+        return $this->handle(parent: $website, prefix: WebUserTabsEnum::WEB_USERS->value);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $fulfilmentCustomer;
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(WebUserTabsEnum::values());
 
-        return $this->handle(parent: $fulfilmentCustomer);
+        return $this->handle(parent: $fulfilmentCustomer, prefix: WebUserTabsEnum::WEB_USERS->value);
     }
 
     public function asController(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): LengthAwarePaginator
@@ -275,7 +291,7 @@ class IndexWebUsers extends OrgAction
         $this->parent = $customer;
         $this->initialisationFromShop($shop, $request);
 
-        return $this->handle(parent: $customer);
+        return $this->handle(parent: $customer, prefix: WebUserTabsEnum::WEB_USERS->value);
     }
 
 

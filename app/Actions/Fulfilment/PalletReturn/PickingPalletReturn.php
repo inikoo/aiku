@@ -70,7 +70,7 @@ class PickingPalletReturn extends OrgAction
         if ($this->asAction) {
             return true;
         }
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
     public function jsonResponse(PalletReturn $palletReturn): JsonResource

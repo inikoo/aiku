@@ -11,6 +11,7 @@ namespace App\Actions\Helpers\Media;
 
 use App\Actions\OrgAction;
 use App\Models\CRM\Customer;
+use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Media;
 use App\Models\HumanResources\Employee;
@@ -23,16 +24,17 @@ use Lorisleiva\Actions\ActionRequest;
 
 class AttachAttachmentToModel extends OrgAction
 {
-    private Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order $parent;
+    private Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order|PalletDelivery $parent;
 
-    public function handle(Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order $model, array $modelData): Media
+    public function handle(Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order|PalletDelivery $model, array $modelData): Media
     {
         $file           = $modelData['attachment'];
         $attachmentData = [
             'path'         => $file->getPathName(),
             'originalName' => $file->getClientOriginalName(),
             'scope'        => $modelData['scope'],
-            'caption'      => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)
+            'caption'      => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+            'extension'    => $file->getClientOriginalExtension()
         ];
 
         return SaveModelAttachment::make()->action($model, $attachmentData);
@@ -122,5 +124,13 @@ class AttachAttachmentToModel extends OrgAction
         $this->initialisation($order->organisation, $request);
 
         return $this->handle($order, $this->validatedData);
+    }
+
+    public function inPalletDelivery(PalletDelivery $palletDelivery, ActionRequest $request): Media
+    {
+        $this->parent = $palletDelivery;
+        $this->initialisation($palletDelivery->organisation, $request);
+
+        return $this->handle($palletDelivery, $this->validatedData);
     }
 }

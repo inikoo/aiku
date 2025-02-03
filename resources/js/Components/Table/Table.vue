@@ -27,9 +27,12 @@ import { useFormatTime } from '@/Composables/useFormatTime'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheckSquare, faCheck, faSquare} from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import axios from 'axios'
+import { layoutStructure } from '@/Composables/useLayoutStructure'
 library.add(faCheckSquare, faCheck, faSquare)
 
 const locale = inject('locale', aikuLocaleStructure)
+const layout = inject('layout', layoutStructure)
 
 const props = defineProps(
     {
@@ -341,7 +344,7 @@ function changeSearchInputValue(key, value) {
 
 const changeGlobalSearchValue = debounce((value?: string) => {
     changeSearchInputValue('global', value);
-}, 1000)
+}, 400)
 
 // function changeFilterValue(key, value) {
 //     const intKey = findDataKey('filters', key);
@@ -355,6 +358,21 @@ function onPerPageChange(value) {
     queryBuilderData.value.cursor = null
     queryBuilderData.value.perPage = value
     queryBuilderData.value.page = 1
+
+    axios.patch(
+        route("grp.models.user.update", layout.user?.id),
+        {
+            settings: {
+                records_per_page: value,
+            },
+        }
+    )
+    .then((response) => {
+        console.log('success');
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
 }
 
 function findDataKey(dataKey, key) {
@@ -652,24 +670,26 @@ const isLoading = ref<string | boolean>(false)
             v-if="queryBuilderProps.emptyState?.count === 0 && compResourceMeta.total === 0">
             <EmptyState :data="queryBuilderProps.emptyState">
                 <template #button-empty-state>
-                    <!-- <pre>{{ Object.values(queryBuilderProps.emptyState?.action).length }}</pre> -->
-                    <div> <!-- div to replace in case v-if empty  -->
-                        <Link v-if="Object.values(queryBuilderProps.emptyState?.action || {}).length"
-                            as="div"
-                            :href="queryBuilderProps.emptyState?.action?.route?.name ? route(queryBuilderProps.emptyState?.action.route.name, queryBuilderProps.emptyState?.action.route.parameters) : '#'"
-                            :method="queryBuilderProps.emptyState?.action?.route?.method"
-                            class="mt-4 block"
-                            @start="() => isLoading = 'loadingEmptyState'"
-                            @finish="() => isLoading = false"
-                        >
-                            <Button
-                                :style="queryBuilderProps.emptyState?.action.style"
-                                :icon="queryBuilderProps.emptyState?.action.icon"
-                                :label="queryBuilderProps.emptyState?.action.tooltip"
-                                :loading="isLoading === 'loadingEmptyState'"
-                            />
-                        </Link>
-                    </div>
+                    <slot name="button-empty-state" :action="queryBuilderProps.emptyState?.action">
+                        <!-- <pre>{{ Object.values(queryBuilderProps.emptyState?.action).length }}</pre> -->
+                        <div> <!-- div to replace in case v-if empty  -->
+                            <Link v-if="Object.values(queryBuilderProps.emptyState?.action || {}).length"
+                                as="div"
+                                :href="queryBuilderProps.emptyState?.action?.route?.name ? route(queryBuilderProps.emptyState?.action.route.name, queryBuilderProps.emptyState?.action.route.parameters) : '#'"
+                                :method="queryBuilderProps.emptyState?.action?.route?.method"
+                                class="mt-4 block"
+                                @start="() => isLoading = 'loadingEmptyState'"
+                                @finish="() => isLoading = false"
+                            >
+                                <Button
+                                    :style="queryBuilderProps.emptyState?.action.style"
+                                    :icon="queryBuilderProps.emptyState?.action.icon"
+                                    :label="queryBuilderProps.emptyState?.action.tooltip"
+                                    :loading="isLoading === 'loadingEmptyState'"
+                                />
+                            </Link>
+                        </div>
+                    </slot>
                 </template>
             </EmptyState>
 

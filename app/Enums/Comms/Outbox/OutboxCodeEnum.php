@@ -216,7 +216,7 @@ enum OutboxCodeEnum: string
         };
     }
 
-    public function defaultBuilder(): ?string
+    public function defaultBuilder(): ?OutboxBuilderEnum
     {
         return match ($this) {
             OutboxCodeEnum::NEW_CUSTOMER,
@@ -224,7 +224,7 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::DELIVERY_NOTE_UNDISPATCHED,
             OutboxCodeEnum::INVOICE_DELETED,
             OutboxCodeEnum::NEW_ORDER
-            => OutboxBuilderEnum::BLADE->value,
+            => OutboxBuilderEnum::BLADE,
             default => null
         };
     }

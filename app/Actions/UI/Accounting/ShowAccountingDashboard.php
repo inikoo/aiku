@@ -32,7 +32,7 @@ class ShowAccountingDashboard extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->scope instanceof Organisation) {
-            return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
+            return $request->user()->authTo("accounting.{$this->organisation->id}.view");
         }
 
         return false;
@@ -179,7 +179,7 @@ class ShowAccountingDashboard extends OrgAction
                                     'name'  => __('invoices'),
                                     'icon'  => ['fal', 'fa-file-invoice-dollar'],
                                     'route'  => [
-                                        'name'       => 'grp.org.accounting.invoices.all_invoices.index',
+                                        'name'       => 'grp.org.accounting.invoices.index',
                                         'parameters' => $parameters
                                     ],
                                     'index' => [

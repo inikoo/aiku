@@ -8,10 +8,13 @@
 
 namespace App\Http\Resources\Fulfilment;
 
-use App\Models\Billables\Service;
-use App\Models\Catalogue\Product;
+use App\Actions\Utils\Abbreviate;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\Space;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $asset_id
@@ -27,66 +30,100 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $id
  * @property mixed $is_auto_assign
  * @property mixed $historic_assets_id
+ * @property mixed $temporal_quantity
+ * @property mixed $item_type
+ * @property mixed $net_amount
+ * @property mixed $discount
+ * @property mixed $item_id
+ * @property mixed $start_date
+ * @property mixed $end_date
+ * @property mixed $pallet_delivery_id
+ * @property mixed $pallet_return_id
  */
 class RecurringBillTransactionsResource extends JsonResource
 {
     public function toArray($request): array
     {
-        if ($this->asset_type == 'service') {
-            $unitAbbreviation = 's';
-            $unitLabel        = __('service');
-        } else {
-            $unitAbbreviation = 'u';
-            $unitLabel        = __('unit');
-        }
-
-        $item_name = '';
-        $item_slug = '';
-        $route = [];
+        $desc_model = '';
+        $desc_title = '';
+        $desc_after_title = '';
+        $desc_route = null;
+        // dump($this);
         if ($this->item_type == 'Pallet') {
             $pallet = Pallet::find($this->item_id);
-            if ($pallet) {
-                $item_name = $pallet->customer_reference;
-                $item_slug = $pallet->slug;
-                $route = [
-                    'name' => 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
-                    'parameters' => [
-                        'organisation' => $this->organisation_slug,
-                        'fulfilment' => $this->fulfilment_slug,
-                        'fulfilmentCustomer' => $this->fulfilment_customer_slug,
-                        'pallet'    => $item_slug
+            $desc_title = $pallet->reference;
+
+            $desc_model = __('Storage');
+            $desc_route = [
+                'name' => 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
+                'parameters'    => [
+                    'organisation'         => $request->route()->originalParameters()['organisation'],
+                    'fulfilment'           => $request->route()->originalParameters()['fulfilment'],
+                    'fulfilmentCustomer'   => $pallet->fulfilmentCustomer->slug,
+                    'pallet'               => $pallet->slug
+                ]
+            ];
+
+        } elseif ($this->pallet_delivery_id) {
+            $palletDelivery = PalletDelivery::find($this->pallet_delivery_id);
+            if ($palletDelivery) {
+                $desc_title = $palletDelivery->reference;
+                $desc_model = __('Pallet Delivery');
+                $desc_route = [
+                    'name' => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show',
+                    'parameters'    => [
+                        'organisation'         => $request->route()->originalParameters()['organisation'],
+                        'fulfilment'           => $request->route()->originalParameters()['fulfilment'],
+                        'fulfilmentCustomer'   => $palletDelivery->fulfilmentCustomer->slug,
+                        'palletDelivery'       => $palletDelivery->slug
                     ]
                 ];
             }
-        } elseif ($this->item_type == 'Service') {
-            $service = Service::find($this->item_id);
-            if ($service) {
-                $item_name = $service->name;
-                $item_slug = $service->slug;
-                $route = [
-                    'name' => 'grp.org.fulfilments.show.catalogue.services.show',
-                    'parameters' => [
-                        'organisation' => $this->organisation_slug,
-                        'fulfilment' => $this->fulfilment_slug,
-                        'service' => $item_slug
+
+        } elseif ($this->pallet_return_id) {
+            $palletReturn = PalletReturn::find($this->pallet_return_id);
+            if ($palletReturn) {
+                $desc_title = $palletReturn->reference;
+                $desc_model = __('Pallet Return');
+                $desc_route = [
+                    'name' => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show',
+                    'parameters'    => [
+                        'organisation'         => $request->route()->originalParameters()['organisation'],
+                        'fulfilment'           => $request->route()->originalParameters()['fulfilment'],
+                        'fulfilmentCustomer'   => $palletReturn->fulfilmentCustomer->slug,
+                        'palletReturn'       => $palletReturn->slug
                     ]
                 ];
             }
-        } elseif ($this->item_type == 'Product') {
-            $product = Product::find($this->item_id);
-            if ($product) {
-                $item_name = $product->name;
-                $item_slug = $product->slug;
-                $route = [
-                    'name' => 'grp.org.fulfilments.show.catalogue.outers.show',
-                    'parameters' => [
-                        'organisation' => $this->organisation_slug,
-                        'fulfilment' => $this->fulfilment_slug,
-                        'product' => $item_slug
+        } elseif ($this->item_type === 'Space') {
+            $space = Space::find($this->item_id);
+            if ($space) {
+                $desc_model = __('Space (parking)');
+                $desc_title = $space->reference;
+                $desc_route = [
+                    'name' => 'grp.org.fulfilments.show.crm.customers.show.spaces.show',
+                    'parameters'    => [
+                        'organisation'          => $request->route()->originalParameters()['organisation'],
+                        'fulfilment'            => $request->route()->originalParameters()['fulfilment'],
+                        'fulfilmentCustomer'    => $space->fulfilmentCustomer->slug,
+                        'space'                 => $space->slug
                     ]
                 ];
             }
+        };
+
+        if ($this->start_date) {
+            $desc_after_title .= Carbon::parse($this->start_date)->format('d M Y') . '-';
         }
+        if ($this->end_date) {
+            $desc_after_title .= Carbon::parse($this->end_date)->format('d M Y');
+        } else {
+            $desc_after_title .= __('ongoing');
+        }
+
+        $unitAbbreviation = Abbreviate::run($this->asset_unit);
+
+
         return [
             'id'                 => $this->id,
             'type'               => $this->item_type,
@@ -96,32 +133,27 @@ class RecurringBillTransactionsResource extends JsonResource
             'asset_code'         => $this->asset_code,
             'asset_price'        => $this->asset_price,
             'asset_name'         => $this->asset_name,
-            'asset_price'        => $this->asset_price,
             'asset_unit'         => $this->asset_unit,
             'asset_units'        => $this->asset_units,
             'currency_code'      => $this->currency_code,
             'unit_abbreviation'  => $unitAbbreviation,
-            'unit_label'         => $unitLabel,
-            'quantity'           => (int) $this->quantity,
+            'unit_label'         => $this->asset_unit,
+            'quantity'           =>   (int) $this->quantity * $this->temporal_quantity,
             'total'              => $this->net_amount,
             'discount'           => (int) $this->discount,
-
-            'fulfilment_customer_slug' => $this->fulfilment_customer_slug,
-            'fulfilment_slug'   => $this->fulfilment_slug,
-            'organisation_slug' => $this->organisation_slug,
-
-            'item_name'          => $item_name,
-            'item_slug'          => $item_slug,
-
-            'route'              => $route
-            // 'historic_assets_id'=> $this->historic_assets_id
-
-
+            'fulfilment_transaction_id' => $this->fulfilment_transaction_id,
+            // 'description'        => $description,
+            'description'         => [
+                'model' => $desc_model,
+                'title' => $desc_title,
+                'route' => $desc_route,
+                'after_title' => $desc_after_title,
+            ]
 
         ];
     }
 
-    public function typeIcon($type)
+    public function typeIcon($type): ?array
     {
         if ($type == 'Pallet') {
             return [

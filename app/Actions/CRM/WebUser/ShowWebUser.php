@@ -19,7 +19,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
-use Arr;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -86,9 +86,14 @@ class ShowWebUser extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
+                'navigation'           => [
+                    'previous' => $this->getPrevious($webUser, $request),
+                    'next'     => $this->getNext($webUser, $request),
+                ],
                 'pageHead'    => [
                     'model'         => $model,
                     'title'         => $webUser->username,
+                    'noCapitalise'  => true,
                     'subNavigation' => $subNavigation,
                     'icon'              => 'fal fa-user',
                     'iconRight' => $iconRight,
@@ -195,6 +200,47 @@ class ShowWebUser extends OrgAction
 
 
             default => []
+        };
+    }
+
+    public function getPrevious(WebUser $webUser, ActionRequest $request): ?array
+    {
+        $previous = WebUser::where('slug', '<', $webUser->slug)
+            ->where('web_users.customer_id', $webUser->customer_id)
+            ->orderBy('slug', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+    }
+
+    public function getNext(WebUser $webUser, ActionRequest $request): ?array
+    {
+        $next = WebUser::where('slug', '>', $webUser->slug)
+            ->where('web_users.customer_id', $webUser->customer_id)
+            ->orderBy('slug')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?WebUser $webUser, string $routeName): ?array
+    {
+        if (!$webUser) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'grp.org.fulfilments.show.crm.customers.show.web-users.show' => [
+                'label' => $webUser->username,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation' => $webUser->organisation->slug,
+                        'fulfilment'      => $webUser->shop->fulfilment->slug,
+                        'fulfilmentCustomer' => $webUser->customer->fulfilmentCustomer->slug,
+                        'webUser' => $webUser->slug
+                    ]
+
+                ]
+            ],
         };
     }
 

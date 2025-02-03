@@ -62,6 +62,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property string|null $source_alt_id to be used in no products transactions
+ * @property int|null $invoice_transaction_id For refunds link to original invoice transaction
+ * @property bool $in_process Used for refunds only
  * @property-read Asset|null $asset
  * @property-read Currency|null $currency
  * @property-read \App\Models\CRM\Customer $customer
@@ -76,6 +78,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read Transaction|null $transaction
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, InvoiceTransaction> $transactionRefunds
  * @method static Builder<static>|InvoiceTransaction newModelQuery()
  * @method static Builder<static>|InvoiceTransaction newQuery()
  * @method static Builder<static>|InvoiceTransaction onlyTrashed()
@@ -157,5 +160,10 @@ class InvoiceTransaction extends Model
     public function offerComponents(): BelongsToMany
     {
         return $this->belongsToMany(OfferComponent::class, 'invoice_transaction_has_offer_components');
+    }
+
+    public function transactionRefunds(): HasMany
+    {
+        return $this->hasMany(InvoiceTransaction::class, 'invoice_transaction_id');
     }
 }

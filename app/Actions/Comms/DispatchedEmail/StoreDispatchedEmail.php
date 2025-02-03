@@ -20,6 +20,7 @@ use App\Models\Comms\EmailOngoingRun;
 use App\Models\Comms\Mailshot;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
+use App\Models\CRM\WebUser;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -30,7 +31,7 @@ class StoreDispatchedEmail extends OrgAction
     use WithNoStrictRules;
 
 
-    public function handle(EmailOngoingRun|EmailBulkRun|Mailshot $parent, Customer|Prospect|User $recipient, array $modelData): DispatchedEmail
+    public function handle(EmailOngoingRun|EmailBulkRun|Mailshot $parent, WebUser|Customer|Prospect|User $recipient, array $modelData): DispatchedEmail
     {
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
@@ -56,7 +57,7 @@ class StoreDispatchedEmail extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("mail.edit");
+        return $request->user()->authTo("mail.edit");
     }
 
     public function rules(): array

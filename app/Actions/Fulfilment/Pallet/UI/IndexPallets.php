@@ -125,9 +125,9 @@ class IndexPallets extends OrgAction
         $query->leftJoin('locations', 'locations.id', 'pallets.location_id');
         $query->addSelect('locations.code as location_code', 'locations.slug as location_slug');
 
-        return $query->allowedSorts(['organisation_name','customer_reference', 'reference', 'fulfilment_customer_name'])
+        return $query->allowedSorts(['organisation_name', 'customer_reference', 'reference', 'fulfilment_customer_name'])
             ->allowedFilters([$globalSearch, 'customer_reference', 'reference'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, 50)
             ->withQueryString();
     }
 
@@ -189,10 +189,8 @@ class IndexPallets extends OrgAction
     }
 
 
-
     public function htmlResponse(LengthAwarePaginator $pallets, ActionRequest $request): Response
     {
-
         $subNavigation = null;
         if (!($this->parent instanceof Group)) {
             $subNavigation = $this->getPalletsInWarehouseSubNavigation($this->parent, $request);
@@ -238,6 +236,7 @@ class IndexPallets extends OrgAction
     {
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
+
         return $this->handle($fulfilment, 'pallets');
     }
 
@@ -256,6 +255,7 @@ class IndexPallets extends OrgAction
                 ]
             ];
         };
+
         return match ($routeName) {
             'grp.overview.fulfilment.pallets.index' =>
             array_merge(

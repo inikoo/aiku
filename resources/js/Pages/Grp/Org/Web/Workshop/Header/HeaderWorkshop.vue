@@ -56,12 +56,12 @@ const props = defineProps<{
 
 provide('route_list', props.route_list)
 const usedTemplates = ref({ 
-    header : props.data.data.header,
-    topBar : props.data.data.topBar
+    header : props?.data?.data?.header,
+    topBar : props?.data?.data?.topBar
 })
 const isLoading = ref(false)
 const comment = ref('')
-const status = ref(props.status)
+const status = ref(!props.status)
 const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
 const iframeSrc = route('grp.websites.header.preview', [route().params['website']])

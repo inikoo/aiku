@@ -24,9 +24,9 @@ class EditProduct extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('shops.products.edit');
+        $this->canEdit = $request->user()->authTo('shops.products.edit');
 
-        return $request->user()->hasPermissionTo("shops.products.edit");
+        return $request->user()->authTo("shops.products.edit");
     }
 
     public function inOrganisation(Asset $product, ActionRequest $request): Asset

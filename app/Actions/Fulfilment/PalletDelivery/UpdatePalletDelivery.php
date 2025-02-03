@@ -31,6 +31,10 @@ class UpdatePalletDelivery extends OrgAction
 
     public Customer $customer;
     private bool $action = false;
+    /**
+     * @var \App\Models\Fulfilment\PalletDelivery
+     */
+    private PalletDelivery $palletDelivery;
 
     public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
     {
@@ -58,7 +62,7 @@ class UpdatePalletDelivery extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
     public function rules(): array
@@ -73,7 +77,10 @@ class UpdatePalletDelivery extends OrgAction
         }
 
         return [
+            'customer_reference'        => ['sometimes', 'nullable', 'string', Rule::unique('pallet_deliveries', 'customer_reference')
+                ->ignore($this->palletDelivery->id)],
             'customer_notes'            => ['sometimes', 'nullable', 'string', 'max:4000'],
+            'received_at' => ['sometimes', 'date', 'gte:confirmed_at'],
             'estimated_delivery_date'   => ['sometimes', 'date'],
             'current_recurring_bill_id' => [
                 'sometimes',
@@ -98,6 +105,7 @@ class UpdatePalletDelivery extends OrgAction
 
     public function asController(Organisation $organisation, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
+        $this->palletDelivery = $palletDelivery;
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
 
         return $this->handle($palletDelivery, $this->validatedData);
@@ -106,6 +114,7 @@ class UpdatePalletDelivery extends OrgAction
     public function action(PalletDelivery $palletDelivery, $modelData): PalletDelivery
     {
         $this->action = true;
+        $this->palletDelivery = $palletDelivery;
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, $modelData);
 
         return $this->handle($palletDelivery, $this->validatedData);

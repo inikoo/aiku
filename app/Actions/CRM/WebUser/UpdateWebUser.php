@@ -70,9 +70,9 @@ class UpdateWebUser extends OrgAction
         }
 
         if ($this->shop->type == ShopTypeEnum::FULFILMENT) {
-            return $request->user()->hasPermissionTo("fulfilment.{$this->shop->fulfilment->id}.edit");
+            return $request->user()->authTo("fulfilment.{$this->shop->fulfilment->id}.edit");
         } else {
-            return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+            return $request->user()->authTo("crm.{$this->shop->id}.edit");
         }
     }
 
@@ -108,7 +108,7 @@ class UpdateWebUser extends OrgAction
             ],
             'contact_name' => ['sometimes'],
             'data'       => ['sometimes', 'array'],
-            'password'   => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') || !$this->strict ? Password::min(3) : Password::min(8)->uncompromised()],
+            'password'   => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') || !$this->strict ? Password::min(3) : Password::min(8)],
             'is_root'    => ['sometimes', 'boolean']
         ];
 

@@ -19,8 +19,18 @@ class DetectWebsiteFromDomain
     /**
      * @throws \App\Exceptions\IrisWebsiteNotFound
      */
-    public function handle($domain): Website
+    public function handle($domain): ?Website
     {
+
+        if (app()->environment('staging')) {
+            $domain = str_replace('canary.', '', $domain);
+        }
+        $domain = str_replace('www.', '', $domain);
+
+        if ($domain == config('app.domain') ||  $domain == 'app.'.config('app.domain')) {
+            return null;
+        }
+
         if (app()->environment('local')) {
             if ($domain == 'fulfilment.test') {
                 $domain = config('app.local.retina_fulfilment_domain');
@@ -30,10 +40,7 @@ class DetectWebsiteFromDomain
                 $domain = config('app.local.retina_b2b_domain');
             }
         }
-        if (app()->environment('staging')) {
-            $domain = str_replace('canary.', '', $domain);
-        }
-        $domain = str_replace('www.', '', $domain);
+
 
         /** @var Website $website */
         $website = Website::where('domain', $domain)->first();

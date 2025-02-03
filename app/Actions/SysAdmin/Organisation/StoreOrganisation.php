@@ -12,6 +12,7 @@ use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvi
 use App\Actions\GrpAction;
 use App\Actions\Helpers\Currency\SetCurrencyHistoricFields;
 use App\Actions\Procurement\OrgPartner\StoreOrgPartner;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOrganisations;
 use App\Actions\SysAdmin\Group\Seeders\SeedAikuScopedSections;
 use App\Actions\SysAdmin\Organisation\Seeders\SeedJobPositions;
 use App\Actions\SysAdmin\Organisation\Seeders\SeedOrganisationOutboxes;
@@ -132,17 +133,11 @@ class StoreOrganisation extends GrpAction
             $organisation->outboxTestIntervals()->create();
 
 
-            if ($organisation->type == OrganisationTypeEnum::SHOP) {
+            if ($organisation->type == OrganisationTypeEnum::SHOP || $organisation->type == OrganisationTypeEnum::DIGITAL_AGENCY) {
                 $organisation->crmStats()->create();
-                $organisation->orderingStats()->create();
-                $organisation->salesIntervals()->create();
-                $organisation->orderingIntervals()->create();
-                $organisation->orderHandlingStats()->create();
-                $organisation->mailshotsIntervals()->create();
-                $organisation->fulfilmentStats()->create();
                 $organisation->catalogueStats()->create();
-                $organisation->manufactureStats()->create();
                 $organisation->discountsStats()->create();
+                $organisation->mailshotsIntervals()->create();
 
                 $paymentServiceProvider = PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::ACCOUNT)->first();
 
@@ -161,6 +156,19 @@ class StoreOrganisation extends GrpAction
                 }
             }
 
+            if ($organisation->type == OrganisationTypeEnum::SHOP) {
+
+                $organisation->orderingStats()->create();
+                $organisation->salesIntervals()->create();
+                $organisation->orderingIntervals()->create();
+                $organisation->orderHandlingStats()->create();
+                $organisation->fulfilmentStats()->create();
+                $organisation->manufactureStats()->create();
+
+
+
+            }
+
             $organisation->serialReferences()->create(
                 [
                     'model'           => SerialReferenceModelEnum::PURCHASE_ORDER,
@@ -177,6 +185,7 @@ class StoreOrganisation extends GrpAction
             );
 
             SeedAikuScopedSections::make()->seedOrganisationAikuScopedSection($organisation);
+            GroupHydrateOrganisations::dispatch($group);
 
             return $organisation;
         });
