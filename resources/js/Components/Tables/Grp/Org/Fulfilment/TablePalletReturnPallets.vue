@@ -219,22 +219,26 @@ onBeforeMount(() => {
         <!-- Column: Pallet Reference -->
 
 		<template #cell(customer_reference)="{ item }">
-            <div v-if="state == 'in_process'" class="w-full">
+            <div class="w-full">
 				<FieldEditableTable
                     :data="item"
                     @onSave="onSaved"
                     fieldName="customer_reference"
 					placeholder="Enter customer reference"
                 />
+                <!-- <span v-if="item.notes" class="text-gray-400 text-xs">
+					<FontAwesomeIcon v-tooltip="trans('note')" icon='fal fa-sticky-note' class='text-gray-400' fixed-width aria-hidden='true' />
+					{{ item.notes }}
+				</span> -->
 			</div>
-			<div v-else class="space-x-1 space-y-2">
+			<!-- <div v-else class="space-x-1 space-y-2">
 				<span v-if="item.customer_reference" class="font-medium">{{ item.customer_reference }}</span>
 				<span v-if="item.notes" class="text-gray-400 text-xs">
 					<FontAwesomeIcon v-tooltip="trans('note')" icon='fal fa-sticky-note' class='text-gray-400' fixed-width aria-hidden='true' />
 					{{ item.notes }}
 				</span>
                 <span v-else class="text-gray-400 text-xs">-</span>
-			</div>
+			</div> -->
 		</template>
 
         <!-- Column: Rental -->
