@@ -33,10 +33,10 @@ const isOrganisation = ref(false)
 		}) */
 
 const tableDatas = computed(() => {
-    const isShopOpen = props.dashboard.settings.db_settings.selected_shop_open === "open"; // Determine current shop state
+    const isShopOpen = props.dashboard.settings.db_settings.selected_shop_open === "open";
 
     if (props.tableType === "org") {
-        return props.dashboard.table.sales
+        return props.dashboard.table
             .filter((item) => {
                 return isShopOpen ? item.state !== "closed" : true;
             })

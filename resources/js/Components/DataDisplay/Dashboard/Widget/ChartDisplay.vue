@@ -203,7 +203,7 @@ const setChartOptions = () => ({
 </script>
 
 <template>
-	<div :class="['rounded-lg p-6 shadow-md relative h-full', getStatusColor(widget.status)]">
+	<div  v-if="layoutStore.app.environment === 'local'" :class="['rounded-lg p-6 shadow-md relative h-full', getStatusColor(widget.status)]">
 		<p
 			class="text-4xl font-bold leading-tight truncate">
 			<!-- v-tooltip="printLabelByType(widget?.value)" -->
