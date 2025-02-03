@@ -156,6 +156,16 @@ class PalletReturnItemsResource extends JsonResource
                     'parameters' => [$this->id]
                 ]
             },
+            'updatePalletRoute'           => match (request()->routeIs('retina.*')) {
+                true => [
+                    'name'       => 'retina.models.pallet.update',
+                    'parameters' => $this->pallet_id
+                ],
+                default => [
+                    'name'       => 'grp.models.pallet.update',
+                    'parameters' => $this->pallet_id
+                ]
+            },
         ];
     }
 }
