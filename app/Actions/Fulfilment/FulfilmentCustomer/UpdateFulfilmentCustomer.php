@@ -119,9 +119,9 @@ class UpdateFulfilmentCustomer extends OrgAction
             'dropshipping'      => ['sometimes', 'boolean'],
             'space_rental'      => ['sometimes', 'boolean'],
             'address'           => ['sometimes'],
-            'product'           => ['sometimes', 'string'],
-            'shipment_per_week' => ['sometimes', 'string'],
-            'size_and_weight'   => ['sometimes', 'string'],
+            'product'           => ['sometimes', 'required', 'string'],
+            'shipment_per_week' => ['sometimes', 'required', 'string'],
+            'size_and_weight'   => ['sometimes', 'required', 'string'],
         ];
     }
 
