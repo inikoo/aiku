@@ -102,6 +102,8 @@ const props = defineProps<{
     tab: string
 }>()
 
+console.log(props)
+
 const locale = inject('locale', aikuLocaleStructure)
 const layout = inject('layout', layoutStructure)
 
@@ -414,16 +416,17 @@ const _CustomerDataForm = ref()
             </div>
         </div>
 
-
         <div v-if="data.status == 'pending_approval'" class="w-full max-w-lg space-y-4 justify-self-end">
             <div class="p-4 border rounded-lg shadow-md bg-white">
                 <div class="w-full  flex flex-col items-center justify-center text-center">
                     <h3 class="text-lg font-semibold">Pending Application</h3>
                     <p class="text-sm text-gray-600">This application is currently awaiting approval.</p>
                 </div>
+                
                 <div class="mt-4">
+                    {{ route(data.updateRoute.name,data.updateRoute.parameters) }}
                     <Link
-                        :href="route('grp.models.fulfilment-customer.update', { fulfilmentCustomer: route().params.fulfilmentCustomer })"
+                        :href="route(data.updateRoute.name,data.updateRoute.parameters)"
                         method="patch" :data="{ status: 'approved' }">
                     <Button label="Approve Aplication" full>
                     </Button>
@@ -439,7 +442,7 @@ const _CustomerDataForm = ref()
         <CustomerDataForm ref="_CustomerDataForm" :data="data.additional_data"/>
         <div class="flex justify-end">
             <Link
-                :href="route('grp.models.fulfilment-customer.update', { fulfilmentCustomer: route().params.fulfilmentCustomer })"
+                :href="route(data.updateRoute.name,data.updateRoute.parameters)"
                 method="patch" :data="{ data: _CustomerDataForm?.form.data() ?_CustomerDataForm.form.data() : data.additional_data  }">
                 <Button label="save" type="save" @click="() => console.log(_CustomerDataForm.form.data())" />
             </Link>
