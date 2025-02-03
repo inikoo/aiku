@@ -177,6 +177,7 @@ class ShowFulfilmentCustomer extends OrgAction
                     'navigation' => $navigation
                 ],
 
+
                 FulfilmentCustomerTabsEnum::SHOWCASE->value => $this->tab == FulfilmentCustomerTabsEnum::SHOWCASE->value ?
                     fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)
                     : Inertia::lazy(fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)),

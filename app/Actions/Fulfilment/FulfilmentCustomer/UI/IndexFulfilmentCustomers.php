@@ -11,6 +11,8 @@ namespace App\Actions\Fulfilment\FulfilmentCustomer\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\WithFulfilmentCustomersSubNavigation;
+use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatusEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomersResource;
 use App\InertiaTable\InertiaTable;
@@ -29,6 +31,12 @@ use App\Services\QueryBuilder;
 class IndexFulfilmentCustomers extends OrgAction
 {
     use WithFulfilmentAuthorisation;
+    use WithFulfilmentCustomersSubNavigation;
+
+    /**
+     * @var array|\ArrayAccess|mixed
+     */
+    private bool $pending_approval = false;
 
     protected function getElementGroups(Fulfilment $parent): array
     {
@@ -64,6 +72,10 @@ class IndexFulfilmentCustomers extends OrgAction
 
         $queryBuilder = QueryBuilder::for(FulfilmentCustomer::class);
         $queryBuilder->where('fulfilment_customers.fulfilment_id', $fulfilment->id);
+
+        if ($this->pending_approval) {
+            $queryBuilder->where('customers.status', CustomerStatusEnum::PENDING_APPROVAL->value);
+        }
 
         foreach ($this->getElementGroups($fulfilment) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
@@ -109,12 +121,14 @@ class IndexFulfilmentCustomers extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            foreach ($this->getElementGroups($fulfilment) as $key => $elementGroup) {
-                $table->elementGroup(
-                    key: $key,
-                    label: $elementGroup['label'],
-                    elements: $elementGroup['elements']
-                );
+            if (!$this->pending_approval) {
+                foreach ($this->getElementGroups($fulfilment) as $key => $elementGroup) {
+                    $table->elementGroup(
+                        key: $key,
+                        label: $elementGroup['label'],
+                        elements: $elementGroup['elements']
+                    );
+                }
             }
 
             $table
@@ -152,6 +166,14 @@ class IndexFulfilmentCustomers extends OrgAction
         return $this->handle($fulfilment);
     }
 
+    public function inPendingApproval(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->pending_approval = true;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilment);
+    }
+
     public function jsonResponse(LengthAwarePaginator $customers): AnonymousResourceCollection
     {
         return FulfilmentCustomersResource::collection($customers);
@@ -177,6 +199,7 @@ class IndexFulfilmentCustomers extends OrgAction
             ];
         }
 
+        $navigation = $this->getSubNavigation($this->fulfilment, $request);
 
         return Inertia::render(
             'Org/Fulfilment/FulfilmentCustomers',
@@ -191,10 +214,10 @@ class IndexFulfilmentCustomers extends OrgAction
                         'icon'    => ['fal', 'fa-user'],
                         'tooltip' => $this->fulfilment->shop->name.' '.__('customers')
                     ],
-                    'actions' => $actions
+                    'actions' => $actions,
+                    'subNavigation' => $navigation
                 ],
-                'data'        => FulfilmentCustomersResource::collection($customers),
-
+                'data'        => FulfilmentCustomersResource::collection($customers)
             ]
         )->table($this->tableStructure($this->fulfilment));
     }

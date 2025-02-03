@@ -32,6 +32,7 @@ import { Address, AddressManagement } from '@/types/PureComponent/Address'
 import CountUp from 'vue-countup-v3'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import CustomerDataForm from '@/Components/CustomerDataForm.vue'
+import { RuleType } from 'v-calendar/dist/types/src/utils/date/rules.js'
 library.add(faWallet, faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard, faLongArrowRight)
 
 const props = defineProps<{
@@ -97,10 +98,13 @@ const props = defineProps<{
             product : String,
             size_and_weight : string,
             shipments_per_week : string
-        }
+        },
+        approveRoute : routeType
     },
     tab: string
 }>()
+
+console.log(props)
 
 const locale = inject('locale', aikuLocaleStructure)
 const layout = inject('layout', layoutStructure)
@@ -133,6 +137,12 @@ const isLoading = ref<string | boolean>(false)
 const visible = ref(false)
 const _CustomerDataForm = ref()
 // const isModalAddress = ref(false)
+
+const sendUpdateInformation = () =>{
+    _CustomerDataForm?.value.form.patch(route(props.data.updateRoute.name,props.data.updateRoute.parameters),{
+        onSuccess: () => (visible.value = false)
+    })
+}
 
 </script>
 
@@ -414,16 +424,16 @@ const _CustomerDataForm = ref()
             </div>
         </div>
 
-
         <div v-if="data.status == 'pending_approval'" class="w-full max-w-lg space-y-4 justify-self-end">
             <div class="p-4 border rounded-lg shadow-md bg-white">
                 <div class="w-full  flex flex-col items-center justify-center text-center">
                     <h3 class="text-lg font-semibold">Pending Application</h3>
                     <p class="text-sm text-gray-600">This application is currently awaiting approval.</p>
                 </div>
+                
                 <div class="mt-4">
                     <Link
-                        :href="route('grp.models.fulfilment-customer.update', { fulfilmentCustomer: route().params.fulfilmentCustomer })"
+                        :href="route(data.approveRoute.name,data.approveRoute.parameters)"
                         method="patch" :data="{ status: 'approved' }">
                     <Button label="Approve Aplication" full>
                     </Button>
@@ -438,11 +448,12 @@ const _CustomerDataForm = ref()
     <Dialog v-model:visible="visible" modal header="Edit Information" :style="{ width: '50rem' }">
         <CustomerDataForm ref="_CustomerDataForm" :data="data.additional_data"/>
         <div class="flex justify-end">
-            <Link
-                :href="route('grp.models.fulfilment-customer.update', { fulfilmentCustomer: route().params.fulfilmentCustomer })"
-                method="patch" :data="{ data: _CustomerDataForm?.form.data() ?_CustomerDataForm.form.data() : data.additional_data  }">
-                <Button label="save" type="save" @click="() => console.log(_CustomerDataForm.form.data())" />
-            </Link>
+          <!--   <Link
+                :href="route(data.updateRoute.name,data.updateRoute.parameters)"
+                v-on:success="visible = false"
+                method="patch" :data="_CustomerDataForm?.form.data()"> -->
+                <Button label="save" type="save" @click="() => sendUpdateInformation()" />
+        <!--     </Link> -->
         </div>
     </Dialog>
 </template>

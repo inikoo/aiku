@@ -142,20 +142,19 @@ class UpdateRentalAgreement extends OrgAction
                 ]
             );
 
-            if($rentalAgreement->fulfilmentCustomer->currentRecurringBill)
-            {
-                    foreach (RecurringBill::where('status', RecurringBillStatusEnum::CURRENT)->where('id', $rentalAgreement->fulfilmentCustomer->currentRecurringBill->id)->get() as $recurringBill) {
-        
-                        $transactions = $recurringBill->transactions()->get();
-        
-                        foreach ($transactions as $transaction) {
-                            $transaction = CalculateRecurringBillTransactionDiscountPercentage::make()->action($transaction);
-                            $transaction = CalculateRecurringBillTransactionTemporalQuantity::run($transaction);
-                            $transaction = CalculateRecurringBillTransactionAmounts::run($transaction);
-                            CalculateRecurringBillTransactionCurrencyExchangeRates::run($transaction);
-                        }
-        
-                        CalculateRecurringBillTotals::make()->action($recurringBill);
+            if ($rentalAgreement->fulfilmentCustomer->currentRecurringBill) {
+                foreach (RecurringBill::where('status', RecurringBillStatusEnum::CURRENT)->where('id', $rentalAgreement->fulfilmentCustomer->currentRecurringBill->id)->get() as $recurringBill) {
+
+                    $transactions = $recurringBill->transactions()->get();
+
+                    foreach ($transactions as $transaction) {
+                        $transaction = CalculateRecurringBillTransactionDiscountPercentage::make()->action($transaction);
+                        $transaction = CalculateRecurringBillTransactionTemporalQuantity::run($transaction);
+                        $transaction = CalculateRecurringBillTransactionAmounts::run($transaction);
+                        CalculateRecurringBillTransactionCurrencyExchangeRates::run($transaction);
+                    }
+
+                    CalculateRecurringBillTotals::make()->action($recurringBill);
 
                 }
 
