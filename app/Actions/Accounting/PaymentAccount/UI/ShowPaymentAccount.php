@@ -159,6 +159,57 @@ class ShowPaymentAccount extends OrgAction
                 //             prefix: 'payments'
                 //         )
                 //     )),
+                'overview'      => [
+                    'dashboard' => [
+                        // 'interval_options'  => $this->getIntervalOptions(),
+                        // 'settings' => [
+                        //     'db_settings'   => $userSettings,
+                        //     'key_currency'  =>  'grp',
+                        //     'options_currency'  => [
+                        //         [
+                        //             'value' => 'grp',
+                        //             'label' => $group->currency->symbol,
+                        //         ],
+                        //         [
+                        //             'value' => 'org',
+                        //             'label' => $orgCurrenciesSymbol,
+                        //         ]
+                        //     ]
+                        // ],
+                        'table' => [],
+                        'widgets' => [
+                            'column_count'    => 4,
+                            'components' => []
+                        ]
+                    ]
+                ],
+                'stats'      => [
+                    'dashboard' => [
+                        // 'interval_options'  => $this->getIntervalOptions(),
+                        // 'settings' => [
+                        //     'db_settings'   => $userSettings,
+                        //     'key_currency'  =>  'grp',
+                        //     'options_currency'  => [
+                        //         [
+                        //             'value' => 'grp',
+                        //             'label' => $group->currency->symbol,
+                        //         ],
+                        //         [
+                        //             'value' => 'org',
+                        //             'label' => $orgCurrenciesSymbol,
+                        //         ]
+                        //     ]
+                        // ],
+                        'table' => [],
+                        'widgets' => [
+                            'column_count'    => 4,
+                            'components' => []
+                        ]
+                    ]
+                ],
+                // PaymentAccountTabsEnum::OVERVIEW->value  => $this->tab == PaymentAccountTabsEnum::OVERVIEW->value ?
+                //     fn () => HistoryResource::collection(IndexHistory::run($paymentAccount))
+                //     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($paymentAccount))),
                 PaymentAccountTabsEnum::HISTORY->value  => $this->tab == PaymentAccountTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($paymentAccount))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($paymentAccount)))
