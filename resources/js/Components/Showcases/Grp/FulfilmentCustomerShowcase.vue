@@ -32,6 +32,7 @@ import { Address, AddressManagement } from '@/types/PureComponent/Address'
 import CountUp from 'vue-countup-v3'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import CustomerDataForm from '@/Components/CustomerDataForm.vue'
+import { RuleType } from 'v-calendar/dist/types/src/utils/date/rules.js'
 library.add(faWallet, faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard, faLongArrowRight)
 
 const props = defineProps<{
@@ -97,7 +98,8 @@ const props = defineProps<{
             product : String,
             size_and_weight : string,
             shipments_per_week : string
-        }
+        },
+        approveRoute : routeType
     },
     tab: string
 }>()
@@ -135,6 +137,12 @@ const isLoading = ref<string | boolean>(false)
 const visible = ref(false)
 const _CustomerDataForm = ref()
 // const isModalAddress = ref(false)
+
+const sendUpdateInformation = () =>{
+    _CustomerDataForm?.value.form.patch(route(props.data.updateRoute.name,props.data.updateRoute.parameters),{
+        onSuccess: () => (visible.value = false)
+    })
+}
 
 </script>
 
@@ -424,9 +432,8 @@ const _CustomerDataForm = ref()
                 </div>
                 
                 <div class="mt-4">
-                    {{ route(data.updateRoute.name,data.updateRoute.parameters) }}
                     <Link
-                        :href="route(data.updateRoute.name,data.updateRoute.parameters)"
+                        :href="route(data.approveRoute.name,data.approveRoute.parameters)"
                         method="patch" :data="{ status: 'approved' }">
                     <Button label="Approve Aplication" full>
                     </Button>
@@ -441,11 +448,12 @@ const _CustomerDataForm = ref()
     <Dialog v-model:visible="visible" modal header="Edit Information" :style="{ width: '50rem' }">
         <CustomerDataForm ref="_CustomerDataForm" :data="data.additional_data"/>
         <div class="flex justify-end">
-            <Link
+          <!--   <Link
                 :href="route(data.updateRoute.name,data.updateRoute.parameters)"
-                method="patch" :data="{ data: _CustomerDataForm?.form.data() ?_CustomerDataForm.form.data() : data.additional_data  }">
-                <Button label="save" type="save" @click="() => console.log(_CustomerDataForm.form.data())" />
-            </Link>
+                v-on:success="visible = false"
+                method="patch" :data="_CustomerDataForm?.form.data()"> -->
+                <Button label="save" type="save" @click="() => sendUpdateInformation()" />
+        <!--     </Link> -->
         </div>
     </Dialog>
 </template>
