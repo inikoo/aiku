@@ -177,12 +177,6 @@ class ShowFulfilmentCustomer extends OrgAction
                     'navigation' => $navigation
                 ],
 
-                'approveRoute' => [
-                    'name' => 'grp.models.customer.approve',
-                    'parameters' => [
-                        'customer' => $fulfilmentCustomer->customer_id
-                    ]
-                ],
 
                 FulfilmentCustomerTabsEnum::SHOWCASE->value => $this->tab == FulfilmentCustomerTabsEnum::SHOWCASE->value ?
                     fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)
