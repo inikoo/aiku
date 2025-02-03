@@ -133,6 +133,7 @@ class UpdatePallet extends OrgAction
             'received_at'        => ['sometimes','nullable',  'date'],
             'booked_in_at'       => ['sometimes', 'nullable', 'date'],
             'storing_at'         => ['sometimes', 'nullable', 'date'],
+            'dispatched_at'      => ['sometimes', 'nullable', 'date'],
             'reference'          => [
                 'sometimes',
                 'nullable',
