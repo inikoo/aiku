@@ -74,6 +74,7 @@ class RetinaAction
         $this->customer     = $fulfilmentCustomer->customer;
         $this->shop         = $this->fulfilment->shop;
         $this->organisation = $this->fulfilment->organisation;
+        $this->webUser      = $this->customer->webUsers()->first();
         $this->setRawAttributes($modelData);
         $this->validatedData = $this->validateAttributes();
 

@@ -23,6 +23,8 @@ class UpdateRetinaCustomer extends RetinaAction
     use WithActionUpdate;
     use WithModelAddressActions;
 
+    private bool $action = false;
+
     public function handle(Customer $customer, array $modelData): Customer
     {
         return UpdateCustomer::run($customer, $modelData);
@@ -30,6 +32,10 @@ class UpdateRetinaCustomer extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->action) {
+            return true;
+        }
+
         return $this->customer->id = $request->route()->parameter('customer')->id and $request->user()->is_root;
     }
 
@@ -49,6 +55,13 @@ class UpdateRetinaCustomer extends RetinaAction
     {
         $this->initialisation($request);
 
+        return $this->handle($customer, $this->validatedData);
+    }
+
+    public function action(Customer $customer, array $modelData): Customer
+    {
+        $this->action = true;
+        $this->initialisationFulfilmentActions($customer->fulfilmentCustomer, $modelData);
         return $this->handle($customer, $this->validatedData);
     }
 

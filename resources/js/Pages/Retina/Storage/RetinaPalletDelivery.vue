@@ -3,7 +3,7 @@ import { Head, useForm, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
-import { computed, ref, watch, inject } from "vue"
+import { computed, ref, watch, inject, provide } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import Timeline from '@/Components/Utils/Timeline.vue'
@@ -31,13 +31,13 @@ import ModalConfirmationDelete from '@/Components/Utils/ModalConfirmationDelete.
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faFilePdf, faTruckCouch, faPallet, faCalendarDay, faConciergeBell, faCube, faSortSizeUp, faBox, faPencil } from '@fal'
+import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faFilePdf, faTruckCouch, faPallet, faCalendarDay, faConciergeBell, faCube, faSortSizeUp, faBox, faPencil, faPaperclip } from '@fal'
 import { Action } from '@/types/Action'
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
 import axios from 'axios'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import { notify } from '@kyvg/vue3-notification'
-library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faFilePdf, faTruckCouch, faPallet, faCalendarDay, faConciergeBell, faCube, faSortSizeUp, faBox, faPencil)
+library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faFilePdf, faTruckCouch, faPallet, faCalendarDay, faConciergeBell, faCube, faSortSizeUp, faBox, faPencil, faPaperclip)
 
 const props = defineProps<{
     title: string
@@ -122,6 +122,10 @@ const onAddMultiplePallet = (data: {route: routeType}, closedPopover: Function) 
             closedPopover()
             formMultiplePallet.reset('number_pallets','type')
             isLoading.value = false
+            const index = deliveryListError.value?.indexOf('number_pallets');
+            if (index > -1) {
+                deliveryListError.value?.splice(index, 1);
+            }  // Delete the error
         },
         onError: (errors) => {
             isLoading.value = false
@@ -157,6 +161,10 @@ const onAddPallet = (data: {route: routeType}, closedPopover: Function) => {
             formAddPallet.reset('notes', 'customer_reference','type')
             isLoading.value = false
             handleTabUpdate('pallets')
+            const index = deliveryListError.value?.indexOf('number_pallets');
+            if (index > -1) {
+                deliveryListError.value?.splice(index, 1);
+            }  // Delete the error
         },
         onError: (errors) => {
             isLoading.value = false
@@ -169,6 +177,11 @@ const onSubmitPallet = async (action: routeType) => {
     router.post(route(action.name, action.parameters), {}, {
         onError: (e) => {
             console.warn('Error on Submit', e)
+            notify({
+                title: trans('Something went wrong.'),
+                text: e?.message,
+                type: 'error',
+            })
         },
         onSuccess: (e) => {
             console.log('on success', e)
@@ -292,6 +305,33 @@ const typePallet = [
     { label : 'Oversize', value : 'oversize'}
 ]
 
+// To set error
+const deliveryListError = ref<string[]>([])
+provide('deliveryListError', deliveryListError.value)
+const onClickDisabledSubmit = () => {
+    if (props.data?.data?.number_pallets < 1) {
+        if (!deliveryListError.value?.includes('number_pallets')) {
+            deliveryListError.value?.push('number_pallets');
+        }
+    } else {
+        const index = deliveryListError.value?.indexOf('number_pallets');
+        if (index > -1) {
+            deliveryListError.value?.splice(index, 1);
+        }
+    }
+
+    if (!props.data?.data?.estimated_delivery_date) {
+        if (!deliveryListError.value?.includes('estimated_delivery_date')) {
+            deliveryListError.value?.push('estimated_delivery_date');
+        }
+    } else {
+        const index = deliveryListError.value?.indexOf('estimated_delivery_date');
+        if (index > -1) {
+            deliveryListError.value?.splice(index, 1);
+        }
+    }
+}
+
 </script>
 
 <template>
@@ -338,7 +378,7 @@ const typePallet = [
 
         <!-- Button: Add multiple pallets -->
         <template #button-group-multiple="{ action }">
-            <Popover v-if="currentTab === 'pallets'" position="-right-32" class="md:relative h-full">
+            <Popover v-if="currentTab === 'pallets'" position="-right-32" class="md:relative h-full" :class="deliveryListError.includes('number_pallets') ? 'errorShake' : ''">
                 <template #button>
                     <Button
                         :style="action.style"
@@ -401,7 +441,7 @@ const typePallet = [
 
         <!-- Button: Add pallet (single) -->
         <template #button-group-pallet="{ action }">
-            <div v-if="currentTab !== 'cccccccpallets'" class="md:relative">
+            <div v-if="currentTab !== 'cccccccpallets'" class="md:relative" :class="deliveryListError.includes('number_pallets') ? 'errorShake' : ''">
                 <Popover>
                     <template #button>
                         <Button :style="action.style" :label="action.label" :icon="action.icon"
@@ -620,13 +660,20 @@ const typePallet = [
 
         <!-- Button: Submit -->
         <template #button-submit="{ action }">
-            <Button
-                @click="onSubmitPallet(action.route)"
-                v-bind="action"
-                :loading="isLoading === 'submitPallet'" />
+            <div class="relative">
+                <Button
+                    @click="onSubmitPallet(action.route)"
+                    v-bind="action"
+                    :loading="isLoading === 'submitPallet'"
+                />
+
+                <div v-if="action.disabled" v-tooltip="action.tooltip" @click="() => onClickDisabledSubmit()" class="cursor-pointer absolute inset-0">
+
+                </div>
+            </div>
         </template>
     </PageHeading>
-
+    
     <!-- Box: Public Notes -->
     <div v-if="public_notes" class="bg-pink-500 text-white font-bold p-4 rounded flex justify-between items-center">
         <span class="flex-grow">{{ public_notes || 'public Notes'}}</span>

@@ -19,6 +19,7 @@ use App\Actions\Fulfilment\PalletDelivery\ReceivePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Inventory\Location\StoreLocation;
+use App\Actions\Retina\CRM\StoreRetinaCustomerClient;
 use App\Actions\Retina\Fulfilment\FulfilmentTransaction\StoreRetinaFulfilmentTransaction;
 use App\Actions\Retina\Fulfilment\Pallet\ImportRetinaPallet;
 use App\Actions\Retina\Fulfilment\Pallet\StoreRetinaPalletFromDelivery;
@@ -37,6 +38,9 @@ use App\Actions\Retina\Fulfilment\PalletReturn\SubmitRetinaPalletReturn;
 use App\Actions\Retina\Fulfilment\PalletReturn\UpdateRetinaPalletReturn;
 use App\Actions\Retina\Fulfilment\StoredItem\StoreRetinaStoredItem;
 use App\Actions\Retina\Fulfilment\StoredItem\SyncRetinaStoredItemToPallet;
+use App\Actions\Retina\SysAdmin\StoreRetinaWebUser;
+use App\Actions\Retina\SysAdmin\UpdateRetinaCustomer;
+use App\Actions\Retina\SysAdmin\UpdateRetinaWebUser;
 use App\Actions\Retina\UI\Profile\UpdateRetinaProfile;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
@@ -54,13 +58,16 @@ use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Billables\Rental;
 use App\Models\Billables\Service;
+use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
+use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\FulfilmentTransaction;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\RentalAgreement;
 use App\Models\Fulfilment\StoredItem;
+use App\Models\Helpers\Address;
 use App\Models\Helpers\Upload;
 use App\Models\Inventory\Location;
 use Illuminate\Http\UploadedFile;
@@ -644,3 +651,80 @@ test('Attach Stored Item to Retina Pallet Return (with stored item)', function (
 
     return $palletReturn;
 })->depends('Create Retina Pallet Return (with stored item)');
+
+test('Update Retina Customer', function () {
+    $customer = UpdateRetinaCustomer::make()->action(
+        $this->fulfilmentCustomer->customer,
+        [
+            'contact_name' => 'Jowko'
+        ]
+    );
+
+    $customer->refresh();
+
+    expect($customer)->toBeInstanceOf(Customer::class)
+        ->and($customer->contact_name)->toBe('Jowko');
+
+    return $customer;
+});
+
+test('Store retina customer client', function () {
+    $customerClient = StoreRetinaCustomerClient::make()->action(
+        $this->fulfilmentCustomer->customer,
+        [
+            'reference' => 'ref1',
+            'contact_name' => 'Jowki',
+            'company_name' => 'Jowki.inc',
+            'email' => 'jowki@jowki.com',
+            'phone' => '123456789',
+            'address' => Address::factory()->definition(),
+            'status' => true
+        ]
+    );
+
+    $customerClient->refresh();
+
+    expect($customerClient)->toBeInstanceOf(CustomerClient::class)
+        ->and($customerClient->reference)->toBe('ref1')
+        ->and($customerClient->contact_name)->toBe('Jowki')
+        ->and($customerClient->company_name)->toBe('Jowki.inc');
+
+    return $customerClient;
+});
+
+test('Store retina web user', function () {
+    $webUser = StoreRetinaWebUser::make()->action(
+        $this->fulfilmentCustomer->customer,
+        [
+            'contact_name' => 'Jowkiwi',
+            'username' => 'jowkisii',
+            'email' => 'jowki@jowki.com',
+            'password' => 'jokoooo'
+        ]
+    );
+
+    $webUser->refresh();
+
+    expect($webUser)->toBeInstanceOf(WebUser::class)
+        ->and($webUser->contact_name)->toBe('Jowkiwi')
+        ->and($webUser->username)->toBe('jowkisii')
+        ->and($webUser->email)->toBe('jowki@jowki.com');
+
+    return $webUser;
+});
+
+test('update retina web user', function (WebUser $webUser) {
+    $webUser = UpdateRetinaWebUser::make()->action(
+        $webUser,
+        [
+            'username' => 'jowkowsi',
+        ]
+    );
+
+    $webUser->refresh();
+
+    expect($webUser)->toBeInstanceOf(WebUser::class)
+        ->and($webUser->username)->toBe('jowkowsi');
+
+    return $webUser;
+})->depends('Store retina web user');

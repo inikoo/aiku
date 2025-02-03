@@ -58,7 +58,7 @@ class UserShowcaseResource extends JsonResource
                     return [
                         $organisation->slug => [
                             'positions'   => ['data' => JobPositionResource::collection($organisation->jobPositions)],
-                            'shops'       => \App\Http\Resources\Catalogue\ShopResource::collection($organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get()),
+                            'shops'       => ['data' => \App\Http\Resources\Catalogue\ShopResource::collection($organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get())],
                             'fulfilments' => ['data' => ShopResource::collection($organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get())],
                             'warehouses'  => ['data' => WarehouseResource::collection($organisation->warehouses)],
                         ]
