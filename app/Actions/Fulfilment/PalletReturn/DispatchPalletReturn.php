@@ -54,7 +54,8 @@ class DispatchPalletReturn extends OrgAction
             foreach ($pallets as $pallet) {
                 $pallet = UpdatePallet::make()->action($pallet, [
                     'state'  => PalletStateEnum::DISPATCHED,
-                    'status' => PalletStatusEnum::RETURNED
+                    'status' => PalletStatusEnum::RETURNED,
+                    'dispatched_at' => now()
                 ]);
 
 
