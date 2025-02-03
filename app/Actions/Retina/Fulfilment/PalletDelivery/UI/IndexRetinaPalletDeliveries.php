@@ -104,7 +104,7 @@ class IndexRetinaPalletDeliveries extends RetinaAction
             ->defaultSort('reference')
             ->allowedSorts(['reference', 'customer_reference', 'number_pallets'])
             ->allowedFilters([$globalSearch,AllowedFilter::exact('state')])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

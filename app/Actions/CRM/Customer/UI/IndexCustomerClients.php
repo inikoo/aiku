@@ -94,7 +94,7 @@ class IndexCustomerClients extends OrgAction
             ->leftJoin('customers', 'customers.id', 'customer_id')
             ->allowedSorts(['reference', 'name', 'created_at'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

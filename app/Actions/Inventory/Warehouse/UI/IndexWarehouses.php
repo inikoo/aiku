@@ -127,7 +127,7 @@ class IndexWarehouses extends OrgAction
             ->leftJoin('organisations', 'warehouses.organisation_id', 'organisations.id')
             ->allowedSorts(['code', 'name', 'number_warehouse_areas', 'number_locations'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

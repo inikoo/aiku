@@ -120,7 +120,7 @@ class IndexRawMaterials extends OrgAction
             ->leftJoin('productions', 'raw_materials.production_id', 'productions.id')
             ->allowedSorts(['code'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

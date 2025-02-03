@@ -76,7 +76,7 @@ class IndexMailshots extends OrgAction
             })
             ->allowedSorts(['mailshots.state', 'mailshots.data'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

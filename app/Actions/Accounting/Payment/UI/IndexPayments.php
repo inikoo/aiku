@@ -111,7 +111,7 @@ class IndexPayments extends OrgAction
             })
             ->allowedSorts(['reference', 'status', 'date'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

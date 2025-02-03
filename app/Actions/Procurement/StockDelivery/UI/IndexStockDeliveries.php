@@ -67,7 +67,7 @@ class IndexStockDeliveries extends OrgAction
             ->select(['slug', 'reference'])
             ->allowedSorts(['reference'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

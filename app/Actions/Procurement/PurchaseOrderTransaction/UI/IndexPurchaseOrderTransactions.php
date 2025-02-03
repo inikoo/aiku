@@ -44,7 +44,7 @@ class IndexPurchaseOrderTransactions extends OrgAction
 
         return $query->defaultSort('purchase_order_transactions.id')
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

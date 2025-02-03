@@ -75,7 +75,7 @@ class IndexFulfilments extends OrgAction
             ->leftJoin('fulfilment_stats', 'fulfilment_stats.fulfilment_id', '=', 'fulfilments.id')
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

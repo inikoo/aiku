@@ -97,7 +97,7 @@ class IndexPortfolios extends OrgAction
             ->leftJoin('products', 'products.id', 'product_id')
             ->allowedSorts(['reference', 'created_at'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

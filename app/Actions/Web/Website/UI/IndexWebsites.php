@@ -123,7 +123,7 @@ class IndexWebsites extends OrgAction
             ->leftJoin('organisations', 'websites.organisation_id', 'organisations.id')
             ->allowedSorts([ 'code', 'name','domain','state'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

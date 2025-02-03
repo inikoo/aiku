@@ -98,7 +98,7 @@ class IndexBanners extends OrgAction
             ->defaultSort('-date')
             ->allowedSorts(['name', 'date', 'number_views', 'organisation_name', 'shop_name'])
             ->allowedFilters([$globalSearch, $stateFilter])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

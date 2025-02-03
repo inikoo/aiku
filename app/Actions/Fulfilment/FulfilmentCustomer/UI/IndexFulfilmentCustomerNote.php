@@ -60,7 +60,7 @@ class IndexFulfilmentCustomerNote
             ->defaultSort('-audits.created_at')
             ->allowedSorts(['created_at'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

@@ -178,7 +178,7 @@ class IndexFamilies extends OrgAction
             ->leftjoin('product_categories as departments', 'departments.id', 'product_categories.department_id')
             ->allowedSorts(['code', 'name', 'shop_code', 'department_code','number_current_products'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
