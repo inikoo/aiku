@@ -10,7 +10,6 @@ namespace App\Actions\Catalogue\Shop\Hydrators;
 
 use App\Actions\Traits\WithIntervalsAggregators;
 use App\Models\Accounting\Invoice;
-use App\Models\Accounting\InvoiceTransaction;
 use App\Models\Catalogue\Shop;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;

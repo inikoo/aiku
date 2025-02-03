@@ -41,6 +41,7 @@ use App\Actions\Comms\Outbox\PublishOutbox;
 use App\Actions\Comms\Outbox\ToggleOutbox;
 use App\Actions\Comms\Outbox\UpdateWorkshopOutbox;
 use App\Actions\CRM\Customer\AddDeliveryAddressToCustomer;
+use App\Actions\CRM\Customer\ApproveCustomer;
 use App\Actions\CRM\Customer\DeleteCustomerDeliveryAddress;
 use App\Actions\CRM\Customer\DeletePortfolio;
 use App\Actions\CRM\Customer\StoreCustomer;
@@ -492,6 +493,7 @@ Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function
 });
 
 Route::post('fulfilment-customer-note/{fulfilmentCustomer}', StoreFulfilmentCustomerNote::class)->name('fulfilment_customer_note.store');
+Route::patch('customer/{customer:id}/approve', ApproveCustomer::class)->name('customer.approve');
 
 Route::prefix('fulfilment-customer-space/{fulfilmentCustomer:id}')->as('fulfilment_customer_space.')->group(function () {
     Route::post('', StoreSpace::class)->name('store');
