@@ -106,6 +106,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
         Route::get('{palletReturn}', [ShowPalletReturn::class, 'inFulfilmentCustomer'])->name('show');
         Route::get('{palletReturn}/pallets/{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('pallets.show');
 
+        Route::get('{palletReturn}/pallets-histories', [IndexRecentUploads::class, 'inPalletReturn'])->name('pallets.uploads.history');
         Route::get('pallets-stored-items/export', ExportPalletReturnStoredItem::class)->name('pallets.stored-items.export');
         Route::get('pallets/export', ExportPalletReturnPallet::class)->name('pallets.export');
         Route::get('{palletReturn}/pallets-templates', [DownloadPalletsTemplate::class, 'inReturn'])->name('pallets.uploads.templates');
