@@ -50,79 +50,32 @@ class ShowOrganisationOverviewHub extends OrgAction
                     ],
                     'title'     => __('overview'),
                 ],
-                'dashboard' => [
+                'dashboard_stats' => [
                     'setting' => [
                         "currency_chosen" => 'usd' // | pounds | dollar
                     ],
-                    'columns' => [
-                        [
-                            'widgets' => [
-                                [
-                                    'type' => 'overview_table',
-                                    'data' => GetOrganisationOverview::run($this->organisation)
-                                ]
-                            ]
-                        ],
-                        [
-                            'widgets' => [
-                                [
-                                    'label' => __('the nutrition store'),
-                                    'data' => [
-                                        [
-                                            'label' => __('total orders today'),
-                                            'value' => 275,
-                                            'type' => 'card_currency_success'
-                                        ],
-                                        [
-                                            'label' => __('sales today'),
-                                            'value' => 2345,
-                                            'type' => 'card_currency'
-                                        ]
-                                    ],
-                                    'type' => 'multi_card',
-                                ],
-                                [
-                                    'label' => __('the yoga store'),
-                                    'data' => [
-                                        [
-                                            'label' => __('ad spend this week'),
-                                            'value' => 46,
-                                            'type' => 'card_percentage'
-                                        ],
-                                        [
-                                            'label' => __('sales today'),
-                                            'value' => 2345,
-                                            'type' => 'card_currency'
-                                        ]
-                                    ],
-                                    'type' => 'multi_card',
-                                ],
-                                [
-                                    'label' => __('ad spend this week'),
-                                    'value' => 2345,
-                                    'type' => 'card_currency',
-                                ],
-                                [
-                                    'label' => __('card abandonment rate'),
-                                    'value' => 45,
-                                    'type' => 'card_percentage',
-                                ],
-                                [
-                                    'label' => __('the yoga store'),
-                                    'data' => [
-                                        'label' => __('Total newsletter subscribers'),
-                                        'value' => 55700,
-                                        'progress_bar' => [
-                                            'value' => 55,
-                                            'max' => 100,
-                                            'color' => 'success',
-                                        ],
-                                    ],
-                                    'type' => 'card_progress_bar',
-                                ],
+                    'widgets' => [
+                        'column_count' => 2,
+                        'components' => [
+                            [
+                                'col_span' => 1,
+                                'row_span' => 10,
+                                'type' => 'overview_display',
+                                'data' => GetOrganisationOverview::run($this->organisation)
                             ],
+                            [
+                                'col_span' => 1,
+                                'type' => 'operation_display',
+
+                            ],
+                            [
+                                'col_span' => 1,
+                                'type' => 'operation_display',
+
+                            ]
+
                         ]
-                    ]
+                    ],
                 ],
             ]
         );
