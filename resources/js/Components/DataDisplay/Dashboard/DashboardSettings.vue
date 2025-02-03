@@ -200,6 +200,7 @@ const updateShop = (shop_scope: string) => {
 						? 'bg-indigo-500 text-white font-medium'
 						: 'text-gray-500 hover:text-gray-700 hover:bg-gray-100',
 				]"
+				v-tooltip="interval.label"
 				class="relative flex-1 rounded-full py-2 px-4 text-center text-sm cursor-pointer select-none transition duration-200">
 				<span :class="isLoadingInterval == interval.value ? 'opacity-0' : ''">{{
 					interval.value

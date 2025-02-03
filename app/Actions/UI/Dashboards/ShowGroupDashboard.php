@@ -137,6 +137,7 @@ class ShowGroupDashboard extends OrgAction
             $dashboard['total'] = $total;
 
             $dashboard['widgets']['components'][] = $this->getWidget(
+                type: 'chart_display',
                 data: [
                     'status' => $total['total_sales'] < 0 ? 'danger' : '',
                     'value' => $total['total_sales'],
@@ -155,6 +156,7 @@ class ShowGroupDashboard extends OrgAction
             );
 
             $dashboard['widgets']['components'][] = $this->getWidget(
+                type: 'chart_display',
                 data: [
                     'value' => $total['total_invoices'],
                     'type' => 'number',
@@ -188,6 +190,7 @@ class ShowGroupDashboard extends OrgAction
             );
 
             $dashboard['widgets']['components'][] = $this->getWidget(
+                type: 'chart_display',
                 data: [
                     'value' => $total['total_invoices'],
                     'type' => 'number',
@@ -221,6 +224,7 @@ class ShowGroupDashboard extends OrgAction
             );
 
             $dashboard['widgets']['components'][] = $this->getWidget(
+                type: 'chart_display',
                 data: [
                     'value' => $total['total_invoices'],
                     'type' => 'number',

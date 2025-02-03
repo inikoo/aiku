@@ -166,6 +166,7 @@ class ShowOrganisationDashboard extends OrgAction
         $dashboard['total'] = $total;
 
         $dashboard['widgets']['components'][] = $this->getWidget(
+            type: 'chart_display',
             data: [
                 'status'        => $total['total_sales'] < 0 ? 'danger' : '',
                 'value'         => $total['total_sales'],
@@ -184,13 +185,14 @@ class ShowOrganisationDashboard extends OrgAction
         );
 
         $dashboard['widgets']['components'][] = $this->getWidget(
+            type: 'chart_display',
             data: [
                 'value'       => $total['total_invoices'],
                 'type'        => 'number',
                 'description' => __('Total invoices')
             ],
             visual: [
-                'type'  => 'bar',
+                'type'  => 'pie',
                 'value' => [
                     'labels'         => Arr::get($visualData, 'invoices_data.labels'),
                     'currency_codes' => Arr::get($visualData, 'invoices_data.currency_codes'),

@@ -28,21 +28,16 @@ class GetEmployeeShowcase
     public function handle(Employee $employee): array
     {
         $user = $employee->getUser();
-
-        $jobPositionsOrganisationsData = [];
-        foreach ($employee->group->organisations as $organisation) {
-            $jobPositionsOrganisationData                       = GetUserOrganisationScopeJobPositionsData::run($user, $organisation);
-            $jobPositionsOrganisationsData[$organisation->slug] = $jobPositionsOrganisationData;
-        }
-
-
-
-        $permissionsGroupData = GetUserGroupScopeJobPositionsData::run($user);
-        return [
-            'employee' => EmployeeResource::make($employee),
-            'pin'      => $employee->pin,
-
-            'permissions_pictogram' => [
+        $pictogram = [];
+        if($user) {
+            $jobPositionsOrganisationsData = [];
+            foreach ($employee->group->organisations as $organisation) {
+                $jobPositionsOrganisationData                       = GetUserOrganisationScopeJobPositionsData::run($user, $organisation);
+                $jobPositionsOrganisationsData[$organisation->slug] = $jobPositionsOrganisationData;
+            }
+    
+            $permissionsGroupData = GetUserGroupScopeJobPositionsData::run($user);
+            $pictogram = [
                 'organisation_list' => OrganisationsResource::collection($user->group->organisations),
                 "current_organisation"  => $user->getOrganisation(),
                 'options'           => Organisation::get()->flatMap(function (Organisation $organisation) {
@@ -57,7 +52,18 @@ class GetEmployeeShowcase
                 })->toArray(),
                 'group' => $permissionsGroupData,
                 'organisations' => $jobPositionsOrganisationsData
-            ],
+            ];
+        }
+
+
+
+
+        $permissionsGroupData = GetUserGroupScopeJobPositionsData::run($user);
+        return [
+            'employee' => EmployeeResource::make($employee),
+            'pin'      => $employee->pin,
+
+            'permissions_pictogram' => $pictogram
         ];
     }
 }

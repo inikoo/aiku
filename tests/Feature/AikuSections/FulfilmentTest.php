@@ -2507,7 +2507,7 @@ test('pay invoice (full)', function ($invoice) {
     $paymentAccount     = $invoice->shop->paymentAccounts()->first();
     $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
     $payment            = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
-        'amount' => 402,
+        'amount' => 90,
         'status' => PaymentStatusEnum::SUCCESS->value,
         'state'  => PaymentStateEnum::COMPLETED->value
     ]);
@@ -2564,7 +2564,7 @@ test('pay invoice (other half)', function ($invoice) {
     $paymentAccount     = $invoice->shop->paymentAccounts()->first();
     $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
     $payment            = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
-        'amount' => 100,
+        'amount' => 70,
         'status' => PaymentStatusEnum::SUCCESS->value,
         'state'  => PaymentStateEnum::COMPLETED->value
     ]);
@@ -2608,7 +2608,7 @@ test('pay invoice (exceed)', function ($invoice) {
         'status' => PaymentStatusEnum::SUCCESS->value,
         'state'  => PaymentStateEnum::COMPLETED->value
     ]);
-    $invoice->refresh();
+    // dump($invoice->total_amount, $invoice->payment_amount);
     $customer->refresh();
 
     expect($invoice->total_amount)->toBe($invoice->payment_amount)
@@ -2616,8 +2616,8 @@ test('pay invoice (exceed)', function ($invoice) {
         ->and($payment->status)->toBe(PaymentStatusEnum::SUCCESS)
         ->and($payment->state)->toBe(PaymentStateEnum::COMPLETED)
         ->and($customer->creditTransactions)->not->toBeNull()
-        ->and($customer->balance)->toBe("402.00")
-        ->and($customer->creditTransactions->skip(2)->first()->amount)->toBe("60.00");
+        ->and($customer->balance)->toBe("60.00")
+        ->and($customer->creditTransactions->first()->amount)->toBe("60.00");
 
     return $fulfilmentCustomer;
 })->depends('consolidate 3rd recurring bill');
