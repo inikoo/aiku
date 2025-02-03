@@ -28,6 +28,7 @@ import PureTextarea from "@/Components/Pure/PureTextarea.vue"
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 import { routeType } from "@/types/route"
 import { notify } from "@kyvg/vue3-notification";
+import FieldEditableTable from "@/Components/FieldEditableTable.vue"
 
 const layout = inject('layout', layoutStructure)
 
@@ -135,6 +136,54 @@ const setUpChecked = () => {
     }
 };
 
+const onSaved = async (pallet: { form: {} }, fieldName: string) => {
+	if (pallet[fieldName] != pallet.form.data()[fieldName]) {
+		pallet.form.processing = true
+		try {
+			await axios.patch(route(pallet.updatePalletRoute.name, pallet.updatePalletRoute.parameters), {
+				[fieldName]: pallet.form.data()[fieldName],
+			})
+			onSavedSuccess(pallet, fieldName)
+
+		} catch (error: any) {
+			onSavedError(error, pallet, fieldName)
+		}
+
+		setTimeout(() => {
+			pallet.form.wasSuccessful = false
+		}, 3000)
+	}
+}
+
+
+const onSavedSuccess = (pallet: { form: {} }, fieldName: string) => {
+	pallet.form.processing = false
+	pallet.form.wasSuccessful = true
+	pallet.form.hasErrors = false
+	pallet.form.clearErrors()
+	pallet[fieldName] = pallet.form.data()[fieldName]
+}
+
+const onSavedError = (error: {}, pallet: { form: {} }) => {
+	pallet.form.processing = false
+	pallet.form.wasSuccessful = false
+	pallet.form.hasErrors = true
+	if (error.response && error.response.data && error.response.data.errors) {
+		const errors = error.response.data.errors
+		const setErrors = {}
+		for (const er in errors) {
+			setErrors[er] = errors[er][0]
+		}
+		pallet.form.setError(setErrors)
+	} else {
+		if (error.response.data.message)
+			notify({
+				title: "Failed to update",
+				text: error.response.data.message,
+				type: "error",
+			})
+	}
+}
 
 onBeforeMount(() => {
     setUpChecked();
@@ -170,15 +219,26 @@ onBeforeMount(() => {
         <!-- Column: Pallet Reference -->
 
 		<template #cell(customer_reference)="{ item }">
-        
-			<div class="space-x-1 space-y-2">
+            <div class="w-full">
+				<FieldEditableTable
+                    :data="item"
+                    @onSave="onSaved"
+                    fieldName="customer_reference"
+					placeholder="Enter customer reference"
+                />
+                <!-- <span v-if="item.notes" class="text-gray-400 text-xs">
+					<FontAwesomeIcon v-tooltip="trans('note')" icon='fal fa-sticky-note' class='text-gray-400' fixed-width aria-hidden='true' />
+					{{ item.notes }}
+				</span> -->
+			</div>
+			<!-- <div v-else class="space-x-1 space-y-2">
 				<span v-if="item.customer_reference" class="font-medium">{{ item.customer_reference }}</span>
 				<span v-if="item.notes" class="text-gray-400 text-xs">
 					<FontAwesomeIcon v-tooltip="trans('note')" icon='fal fa-sticky-note' class='text-gray-400' fixed-width aria-hidden='true' />
 					{{ item.notes }}
 				</span>
                 <span v-else class="text-gray-400 text-xs">-</span>
-			</div>
+			</div> -->
 		</template>
 
         <!-- Column: Rental -->

@@ -159,7 +159,13 @@ class GetFulfilmentCustomerShowcase
                     'name'       => 'grp.org.fulfilments.show.crm.customers.show.webhook.fetch',
                     'parameters' => array_values($request->route()->originalParameters())
                 ],
-            ]
+            ],
+            'approveRoute' => [
+                'name' => 'grp.models.customer.approve',
+                'parameters' => [
+                    'customer' => $fulfilmentCustomer->customer_id
+                ]
+            ],
         ];
     }
 

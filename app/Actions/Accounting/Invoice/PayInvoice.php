@@ -8,6 +8,7 @@
 
 namespace App\Actions\Accounting\Invoice;
 
+use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydratePayments;
 use App\Actions\Accounting\Payment\StorePayment;
 use App\Actions\OrgAction;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
@@ -31,6 +32,7 @@ class PayInvoice extends OrgAction
             'reference' => Arr::get($modelData, 'reference')
         ]);
 
+        InvoiceHydratePayments::dispatch($invoice);
         return $payment;
     }
 

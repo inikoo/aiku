@@ -195,8 +195,8 @@ const isModalAddressCollection = ref(false)
                 <PalletEditCustomerReference
                     :dataPalletDelivery="dataPalletReturn"
                     :updateRoute
-					:disabled="dataPalletReturn?.state !== 'in_process' && dataPalletReturn?.state !== 'submit'"
                 />
+					<!-- :disabled="dataPalletReturn?.state !== 'in_process' && dataPalletReturn?.state !== 'submit'"-->
             </div>
 
 			<!-- Barcode -->
