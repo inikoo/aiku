@@ -178,10 +178,10 @@ const activeTab = ref(tabs.value[1].value)
 					<template #body="{ data }">
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
-								<div :key="data?.invoices?.amount || 0">
+								<div :key="data?.invoices || 0">
 									{{
 										locale.number(
-											data?.invoices?.amount || 0
+											data?.invoices || 0
 										)
 									}}
 								</div>

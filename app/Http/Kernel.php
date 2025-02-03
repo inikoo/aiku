@@ -115,7 +115,6 @@ class Kernel extends HttpKernel
             LogUserRequestMiddleware::class,
             HandleInertiaGrpRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
-            UserPaginationMiddleware::class,
         ],
 
         'web_errors' => [
