@@ -33,7 +33,8 @@ class AttachAttachmentToModel extends OrgAction
             'path'         => $file->getPathName(),
             'originalName' => $file->getClientOriginalName(),
             'scope'        => $modelData['scope'],
-            'caption'      => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)
+            'caption'      => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+            'extension'    => $file->getClientOriginalExtension()
         ];
 
         return SaveModelAttachment::make()->action($model, $attachmentData);
