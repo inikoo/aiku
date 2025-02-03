@@ -25,8 +25,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $recurring_bill_id
  * @property int $fulfilment_id
  * @property int $fulfilment_customer_id
- * @property string $start_date
- * @property string|null $end_date
+ * @property \Illuminate\Support\Carbon $start_date
+ * @property \Illuminate\Support\Carbon|null $end_date
  * @property string|null $item_type
  * @property int|null $item_id
  * @property int $asset_id
