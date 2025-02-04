@@ -12,7 +12,6 @@ namespace App\Actions\Traits;
 
 use App\Enums\DateIntervals\DateIntervalEnum;
 use App\Enums\EnumHelperTrait;
-use App\Enums\HasTabs;
 use Illuminate\Support\Arr;
 
 enum DashboardIntervalTabsEnum: string
