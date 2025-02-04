@@ -123,15 +123,8 @@ class IndexRetinaSpaces extends RetinaAction
     public function htmlResponse(LengthAwarePaginator $spaces, ActionRequest $request): Response
     {
         $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->fulfilmentCustomer, $request);
-        $icon = ['fal', 'fa-user'];
-        $title = $this->fulfilmentCustomer->customer->name;
-        $iconRight = [
-            'icon' => 'fal fa-parking',
-        ];
-        $afterTitle = [
-
-            'label' => __('Spaces')
-        ];
+        $icon = ['fal', 'fa-parking'];
+        $title = __('Spaces');
 
 
         return Inertia::render(
@@ -144,8 +137,6 @@ class IndexRetinaSpaces extends RetinaAction
                 'title' => $title,
                 'pageHead' => [
                     'title' => $title,
-                    'afterTitle' => $afterTitle,
-                    'iconRight' => $iconRight,
                     'icon' => $icon,
                    /*  'subNavigation' => $subNavigation,
                     'actions' => [

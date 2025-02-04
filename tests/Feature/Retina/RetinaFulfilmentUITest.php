@@ -529,3 +529,23 @@ test('index pricing (rentals)', function () {
 
     });
 });
+
+test('index spaces', function () {
+    // $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.fulfilment.spaces.index'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Space/RetinaSpaces')
+            ->has('title')
+            ->has('breadcrumbs', 1)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Spaces')
+                        ->etc()
+            )
+            ->has('data');
+
+    });
+});
