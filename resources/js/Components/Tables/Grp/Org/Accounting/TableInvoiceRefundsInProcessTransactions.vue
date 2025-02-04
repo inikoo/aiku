@@ -132,10 +132,10 @@ const localeCode = navigator.language
                     <FontAwesomeIcon v-else icon="fal fa-save" class="h-8 text-gray-300" aria-hidden="true" />
                 </div>
 
-                <div class="mt-2">
+                <div v-if="item.delete_route" class="mt-2">
                     <ButtonWithLink
-                        v-if="item.delete_route"
-                        :route="item.delete_route"
+                        :key="item.code"
+                        :routeTarget="item.delete_route"
                         :label="trans('Delete')"
                         type="delete"
                     />
