@@ -21,7 +21,9 @@ use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Retina\CRM\DeleteRetinaCustomerDeliveryAddress;
 use App\Actions\Retina\CRM\StoreRetinaCustomerClient;
 use App\Actions\Retina\CRM\UpdateRetinaCustomerDeliveryAddress;
+use App\Actions\Retina\Fulfilment\FulfilmentTransaction\DeleteRetinaFulfilmentTransaction;
 use App\Actions\Retina\Fulfilment\FulfilmentTransaction\StoreRetinaFulfilmentTransaction;
+use App\Actions\Retina\Fulfilment\FulfilmentTransaction\UpdateRetinaFulfilmentTransaction;
 use App\Actions\Retina\Fulfilment\Pallet\DeleteRetinaPallet;
 use App\Actions\Retina\Fulfilment\Pallet\ImportRetinaPallet;
 use App\Actions\Retina\Fulfilment\Pallet\StoreRetinaMultiplePalletsFromDelivery;
@@ -66,6 +68,7 @@ use App\Models\Billables\Service;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Dropshipping\CustomerClient;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\FulfilmentTransaction;
 use App\Models\Fulfilment\Pallet;
@@ -376,18 +379,42 @@ test('Update Retina Pallet Delivery', function (PalletDelivery $palletDelivery) 
 })->depends('Create Retina Pallet Delivery');
 
 test('Store Retina Fulfilment Transaction in Pallet Delivery', function (PalletDelivery $palletDelivery) {
-    StoreRetinaFulfilmentTransaction::make()->action($palletDelivery, [
+    $fulfilmentTransaction = StoreRetinaFulfilmentTransaction::make()->action($palletDelivery, [
         'historic_asset_id' => $this->product->current_historic_asset_id,
         'quantity'          => 5
     ]);
 
     $palletDelivery->refresh();
-
+    $fulfilmentTransaction->refresh();
     expect($palletDelivery)->toBeInstanceOf(PalletDelivery::class)
         ->and($palletDelivery->stats->number_physical_goods)->toBe(1);
 
-    return $palletDelivery;
+    return $fulfilmentTransaction;
 })->depends('Create Retina Pallet Delivery');
+
+test('Update Retina Fulfilment Transaction in Pallet Delivery', function (FulfilmentTransaction $fulfilmentTransaction) {
+    $fulfilmentTransaction = UpdateRetinaFulfilmentTransaction::make()->action($fulfilmentTransaction, [
+        'quantity'          => 7
+    ]);
+
+    $fulfilmentTransaction->refresh();
+
+    expect($fulfilmentTransaction)->toBeInstanceOf(FulfilmentTransaction::class)
+        ->and(intval($fulfilmentTransaction->quantity))->toBe(7);
+
+    return $fulfilmentTransaction;
+})->depends('Store Retina Fulfilment Transaction in Pallet Delivery');
+
+test('Delete Retina Fulfilment Transaction in Pallet Delivery', function (FulfilmentTransaction $fulfilmentTransaction) {
+    $parent = $fulfilmentTransaction->parent;
+    DeleteRetinaFulfilmentTransaction::make()->action($fulfilmentTransaction);
+
+    $parent->refresh();
+    expect($parent)->toBeInstanceOf(PalletDelivery::class)
+        ->and($parent->stats->number_physical_goods)->toBe(0);
+
+    return $parent;
+})->depends('Update Retina Fulfilment Transaction in Pallet Delivery');
 
 test('Import Pallet (xlsx) for Pallet Delivery', function (PalletDelivery $palletDelivery) {
     Storage::fake('local');
