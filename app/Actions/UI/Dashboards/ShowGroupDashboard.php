@@ -310,8 +310,6 @@ class ShowGroupDashboard extends OrgAction
             ]
         );
 
-        dd($dashboard);
-
         return $dashboard;
     }
 
