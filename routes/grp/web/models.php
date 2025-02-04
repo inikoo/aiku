@@ -651,10 +651,10 @@ Route::name('email.')->prefix('email/')->group(function () {
     });
 });
 Route::name('services.')->prefix('serivices/')->group(function () {
-        Route::patch('{service:id}/update', UpdateService::class)->name('update');
+    Route::patch('{service:id}/update', UpdateService::class)->name('update');
 });
 Route::name('rentals.')->prefix('rentals/')->group(function () {
-        Route::patch('{rental:id}/update', UpdateRental::class)->name('update');
+    Route::patch('{rental:id}/update', UpdateRental::class)->name('update');
 });
 
 require __DIR__."/models/inventory/warehouse.php";

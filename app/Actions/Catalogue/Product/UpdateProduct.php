@@ -74,7 +74,7 @@ class UpdateProduct extends OrgAction
             return true;
         }
 
-        return true; //TODO: Auth 
+        return true; //TODO: Auth
     }
 
     public function rules(): array

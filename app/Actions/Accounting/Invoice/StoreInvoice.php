@@ -60,7 +60,6 @@ class StoreInvoice extends OrgAction
                     modelType: SerialReferenceModelEnum::INVOICE
                 )
             );
-
         }
 
         if (class_basename($parent) == 'Customer') {
