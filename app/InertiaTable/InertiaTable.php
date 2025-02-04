@@ -23,7 +23,7 @@ class InertiaTable
     private string $defaultSort = '';
 
     private array $title = [];
-    private array $betweenDates = ['created_at', 'updated_at'];
+    private array $betweenDates = [];
 
     private Collection $emptyState;
     private Collection $modelOperations;
@@ -104,7 +104,7 @@ class InertiaTable
 
     public function betweenDates(array $betweenDates): self
     {
-        $this->betweenDates = array_merge($this->betweenDates, $betweenDates);
+        $this->betweenDates = array_merge(['created_at', 'updated_at'], $betweenDates);
 
         return $this;
     }

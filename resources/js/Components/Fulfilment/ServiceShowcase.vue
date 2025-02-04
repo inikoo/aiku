@@ -38,9 +38,9 @@ const stats = [
 
 
 <template>
-    <pre>{{ data }}</pre>
-    <div class="grid md:grid-cols-4 gap-x-1 gap-y-4">
-        <div class="p-5 space-y-5 grid grid-cols-1 md:grid-cols-1 max-w-[500px]">
+    <!-- <pre>{{ data }}</pre> -->
+    <div class="grid gap-x-1 gap-y-4">
+        <div class="p-5 space-y-5 w-full max-w-[500px]">
 
             <!-- Order summary -->
             <section aria-labelledby="summary-heading"

@@ -15,9 +15,11 @@ class CalculateRecurringBillTransactionAmounts extends OrgAction
 {
     public function handle(RecurringBillTransaction $recurringBillTransaction): RecurringBillTransaction
     {
+        if (!$recurringBillTransaction->temporal_quantity) {
+            $recurringBillTransaction->temporal_quantity = 1;
+        }
         $grossAmount = $recurringBillTransaction->unit_cost * $recurringBillTransaction->quantity * $recurringBillTransaction->temporal_quantity;
-
-
+        
         $recurringBillTransaction->update([
             'gross_amount' => $grossAmount,
             'net_amount'   => $grossAmount * (1 - $recurringBillTransaction->discount_percentage),

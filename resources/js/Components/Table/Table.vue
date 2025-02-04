@@ -802,11 +802,9 @@ const isLoading = ref<string | boolean>(false)
                         </div> -->
 
                         <!-- Filter: date between -->
-                        <div class="w-fit flex gap-x-2">
-                        <!-- <pre>{{ queryBuilderProps?.period_filter }}</pre> -->
+                        <div v-if="queryBuilderProps?.betweenDates?.length" class="w-fit flex gap-x-2">
                             <TableBetweenFilter
-                                :periodList="queryBuilderProps.period_filter"
-                                @periodChanged="(data) => queryBuilderData.periodFilter = data"
+                                :optionsList="queryBuilderProps?.betweenDates"
                                 :tableName="props.name"
                             />
                         </div>

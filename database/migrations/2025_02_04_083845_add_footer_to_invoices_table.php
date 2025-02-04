@@ -12,8 +12,8 @@ return new class () extends Migration {
      */
     public function up()
     {
-        Schema::table('services', function (Blueprint $table) {
-            $table->string('edit_type')->nullable();
+        Schema::table('invoices', function (Blueprint $table) {
+            $table->text('footer')->nullable();
         });
     }
 
@@ -24,8 +24,8 @@ return new class () extends Migration {
      */
     public function down()
     {
-        Schema::table('services', function (Blueprint $table) {
-            $table->dropColumn('edit_type');
+        Schema::table('invoices', function (Blueprint $table) {
+            $table->dropColumn('footer');
         });
     }
 };
