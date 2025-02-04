@@ -38,6 +38,7 @@ class SaveModelAttachment extends OrgAction
                 [
                     'path'         => $filePath,
                     'originalName' => Arr::get($modelData, 'originalName'),
+                    'extension' => Arr::get($modelData, 'extension'),
                     'checksum'     => $checksum
                 ],
                 'attachment',
@@ -47,6 +48,7 @@ class SaveModelAttachment extends OrgAction
         }
 
         data_forget($modelData, 'originalName');
+        data_forget($modelData, 'extension');
 
         $pivotData = array_merge(
             $modelData,
@@ -85,6 +87,7 @@ class SaveModelAttachment extends OrgAction
             'scope'        => ['required', 'string'],
             'sub_scope'    => ['sometimes', 'string'],
             'caption'      => ['sometimes', 'nullable', 'string'],
+            'extension'    => ['sometimes', 'nullable', 'string'],
 
         ];
 

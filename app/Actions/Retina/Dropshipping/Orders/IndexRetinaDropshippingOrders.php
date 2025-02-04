@@ -55,7 +55,7 @@ class IndexRetinaDropshippingOrders extends RetinaAction
                     'navigation' => ProductTabsEnum::navigation()
                 ],
 
-                'orders' => OrdersResource::collection(IndexOrders::run($shopifyUser, 'orders'))
+                'orders' => OrdersResource::collection(IndexOrders::run($shopifyUser, 'orders', 'all'))
             ]
         )->table(IndexOrders::make()->tableStructure($shopifyUser, 'orders'));
     }

@@ -92,4 +92,9 @@ class FulfilmentTransaction extends Model
     {
         return $this->belongsTo(RentalAgreementClause::class, 'rental_agreement_clause_id');
     }
+
+    public function fulfilmentCustomer(): BelongsTo
+    {
+        return $this->belongsTo(FulfilmentCustomer::class);
+    }
 }

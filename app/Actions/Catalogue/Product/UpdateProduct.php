@@ -74,7 +74,7 @@ class UpdateProduct extends OrgAction
             return true;
         }
 
-        return $request->user()->authTo("products.{$this->shop->id}.edit");
+        return true; //TODO: Auth 
     }
 
     public function rules(): array

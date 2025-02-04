@@ -113,6 +113,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int $number_pallets_state_request_return_submitted
  * @property int $number_pallets_state_request_return_confirmed
+ * @property int $number_spaces
+ * @property int $number_spaces_state_reserved
+ * @property int $number_spaces_state_renting
+ * @property int $number_spaces_state_finished
  * @property-read \App\Models\SysAdmin\Group $group
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupFulfilmentStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupFulfilmentStats newQuery()

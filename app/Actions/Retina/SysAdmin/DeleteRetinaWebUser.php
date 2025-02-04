@@ -21,7 +21,8 @@ class DeleteRetinaWebUser extends RetinaAction
 {
     use WithActionUpdate;
 
-    public function handle(WebUser $webUser, array $deletedData = [], bool $skipHydrate = false): WebUser
+    private bool $action = false;
+    public function handle(WebUser $webUser, array $deletedData = [], bool $skipHydrate = false): void
     {
         $webUser->delete();
         $webUser = $this->update($webUser, $deletedData, ['data']);
@@ -29,7 +30,15 @@ class DeleteRetinaWebUser extends RetinaAction
         if (!$skipHydrate) {
             CustomerHydrateWebUsers::dispatch($webUser->customer);
         }
-        return $webUser;
+    }
+
+    public function authorize(ActionRequest $request)
+    {
+        if ($this->action) {
+            return true;
+        }
+
+        return false;
     }
 
     public function htmlResponse(): RedirectResponse
@@ -37,12 +46,20 @@ class DeleteRetinaWebUser extends RetinaAction
         return Redirect::route('retina.sysadmin.web-users.index');
     }
 
-    public function asController(WebUser $webUser, ActionRequest $request): Webuser
+    public function asController(WebUser $webUser, ActionRequest $request): void
     {
 
         $this->initialisation($request);
 
-        return $this->handle($webUser);
+        $this->handle($webUser);
+    }
+
+    public function action(WebUser $webUser): void
+    {
+        $this->action = true;
+        $this->initialisationFulfilmentActions($webUser->customer->fulfilmentCustomer, []);
+
+        $this->handle($webUser);
     }
 
 }

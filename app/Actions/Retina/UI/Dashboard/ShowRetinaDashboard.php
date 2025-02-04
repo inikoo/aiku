@@ -39,7 +39,6 @@ class ShowRetinaDashboard
                 'type'   => 'simple',
                 'simple' => [
                     'icon'  => 'fal fa-home',
-                    'label' => $label,
                     'route' => [
                         'name' => 'retina.dashboard.show'
                     ]

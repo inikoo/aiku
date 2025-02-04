@@ -116,6 +116,7 @@ class IndexEmployees extends OrgAction
 
         return $queryBuilder
             ->defaultSort('slug')
+            ->withBetweenDates('employees', ['employment_start_at'])
             ->allowedSorts(['slug', 'state', 'contact_name', 'job_title', 'worker_number'])
             ->allowedFilters([$globalSearch, 'slug', 'contact_name', 'state'])
             ->withPaginator($prefix, tableName: request()->route()->getName())
@@ -130,6 +131,8 @@ class IndexEmployees extends OrgAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
+
+            $table->betweenDates(['employment_start_at']);
 
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                 $table->elementGroup(

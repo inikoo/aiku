@@ -103,6 +103,7 @@ class IndexRefunds extends OrgAction
                 'invoices.created_at',
                 'invoices.updated_at',
                 'invoices.slug',
+                'invoices.invoice_id',
                 'currencies.code as currency_code',
                 'currencies.symbol as currency_symbol',
                 'shops.name as shop_name',

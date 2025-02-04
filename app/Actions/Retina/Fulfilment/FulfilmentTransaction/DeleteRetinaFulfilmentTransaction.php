@@ -24,17 +24,17 @@ class DeleteRetinaFulfilmentTransaction extends RetinaAction
 
 
     private Pallet $palletDeliveryTransaction;
-
-    public function handle(FulfilmentTransaction $palletDeliveryTransaction): void
+    private bool $action = false;
+    public function handle(FulfilmentTransaction $fulfilmentTransaction): void
     {
-        $palletDeliveryTransaction->delete();
+        $fulfilmentTransaction->delete();
 
-        if ($palletDeliveryTransaction->parent_type == 'PalletDelivery') {
-            PalletDeliveryHydrateTransactions::run($palletDeliveryTransaction->parent);
-            CalculatePalletDeliveryNet::run($palletDeliveryTransaction->parent);
+        if ($fulfilmentTransaction->parent_type == 'PalletDelivery') {
+            PalletDeliveryHydrateTransactions::run($fulfilmentTransaction->parent);
+            CalculatePalletDeliveryNet::run($fulfilmentTransaction->parent);
         } else {
-            PalletReturnHydrateTransactions::run($palletDeliveryTransaction->parent);
-            CalculatePalletReturnNet::run($palletDeliveryTransaction->parent);
+            PalletReturnHydrateTransactions::run($fulfilmentTransaction->parent);
+            CalculatePalletReturnNet::run($fulfilmentTransaction->parent);
         }
     }
 
@@ -42,6 +42,13 @@ class DeleteRetinaFulfilmentTransaction extends RetinaAction
     public function asController(FulfilmentTransaction $fulfilmentTransaction, ActionRequest $request): void
     {
         $this->initialisation($request);
+
+        $this->handle($fulfilmentTransaction);
+    }
+
+    public function action(FulfilmentTransaction $fulfilmentTransaction): void
+    {
+        $this->initialisationFulfilmentActions($fulfilmentTransaction->fulfilmentCustomer, []);
 
         $this->handle($fulfilmentTransaction);
     }

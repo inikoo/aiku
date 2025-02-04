@@ -34,6 +34,7 @@ import { faCheckSquare, faCheck, faSquare} from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import axios from 'axios'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
+import TableBetweenFilter from '@/Components/Table/TableBetweenFilter.vue'
 library.add(faCheckSquare, faCheck, faSquare)
 
 const locale = inject('locale', aikuLocaleStructure)
@@ -799,6 +800,14 @@ const isLoading = ref<string | boolean>(false)
                                     :filters="queryBuilderProps.filters" :on-filter-change="changeFilterValue" />
                             </slot>
                         </div> -->
+
+                        <!-- Filter: date between -->
+                        <div v-if="queryBuilderProps?.betweenDates?.length" class="w-fit flex gap-x-2">
+                            <TableBetweenFilter
+                                :optionsList="queryBuilderProps?.betweenDates"
+                                :tableName="props.name"
+                            />
+                        </div>
 
                         <!-- Filter: Period -->
                         <div v-if="queryBuilderProps?.period_filter?.length" class="w-fit flex gap-x-2">

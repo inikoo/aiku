@@ -43,8 +43,8 @@ if (props.tabs) {
   currentTab = ref(props.tabs.current);
   component = computed(() => {
       const components = {
-          refunds: TableRefunds,
-          invoices: TableInvoices
+        invoices: TableInvoices,
+        refunds: TableRefunds,
       };
       return components[currentTab.value];
   });

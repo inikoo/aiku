@@ -42,7 +42,6 @@ const activeTab = ref(tabs.value[1].value)
 <template>
 	<div class="bg-white mb-2 text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
 		<div class="mt-2">
-			{{ activeTab }}
 			<Tabs :value="activeTab">
 				<TabList>
 					<Tab v-for="tab in tabs" :key="tab.title" :value="tab.value">{{

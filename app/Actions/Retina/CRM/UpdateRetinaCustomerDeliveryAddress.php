@@ -17,7 +17,7 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateRetinaCustomerDeliveryAddress extends RetinaAction
 {
     use WithActionUpdate;
-
+    private bool $action = false;
     public function handle(Customer $customer, array $modelData): Customer
     {
         if (isset($modelData['delivery_address_id'])) {
@@ -41,6 +41,13 @@ class UpdateRetinaCustomerDeliveryAddress extends RetinaAction
         $customer = $request->user()->customer;
 
         $this->initialisation($request);
+
+        return $this->handle($customer, $this->validatedData);
+    }
+
+    public function action(Customer $customer, array $modelData): Customer
+    {
+        $this->initialisationFulfilmentActions($customer->fulfilmentCustomer, $modelData); // TODO: Raul please do the permission for the web user($request);
 
         return $this->handle($customer, $this->validatedData);
     }

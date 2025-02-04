@@ -83,6 +83,7 @@ class UpdateStoredItem extends OrgAction
                 )
 
             ],
+            'name'      => ['sometimes',  'max:250', 'string'],
             'state'     => ['sometimes', 'required', Rule::enum(StoredItemStateEnum::class)],
         ];
     }

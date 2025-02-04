@@ -11,14 +11,17 @@
 namespace App\Actions\Traits;
 
 use App\Enums\DateIntervals\DateIntervalEnum;
+use Illuminate\Support\Arr;
 
 trait WithDashboard
 {
+    protected ?string $tabDashboardInterval                = null;
+
     public function getIntervalOptions(): array
     {
         return collect(DateIntervalEnum::cases())->map(function ($interval) {
             return [
-                'label'      => __($interval->name),
+                'label'      => __(strtolower(str_replace('_', ' ', $interval->name))),
                 'labelShort' => __($interval->value),
                 'value'      => $interval->value
             ];
@@ -59,6 +62,19 @@ trait WithDashboard
             'visual' => $visual,
             'data' => $data
         ];
+    }
+
+    public function withTabDashboardInterval(array $tabs): static
+    {
+        $tab =  $this->get('tab_dashboard_interval', Arr::first($tabs));
+
+        if (!in_array($tab, $tabs)) {
+            abort(404);
+        }
+
+        $this->tabDashboardInterval = $tab;
+
+        return $this;
     }
 
     public function calculatePercentageIncrease($thisYear, $lastYear): ?float

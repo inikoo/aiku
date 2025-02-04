@@ -132,6 +132,9 @@ const onCreateStore = () => {
                         <div class="text-xs text-gray-500">({{ trans("Manage product") }})</div>
                     </div>
                 </div>
+                <div class="w-full flex justify-end">
+                    <Button @click="() => isModalOpen = 'woocommerce'" label="Create" type="primary" full/>
+                </div>
             </div>
         </div>
     </div>

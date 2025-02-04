@@ -191,6 +191,7 @@ class ShowRefund extends OrgAction
                 'type'  => 'button',
                 'style' => 'create',
                 'label' => __('Finalise refund'),
+                'key'   => 'finalise_refund',
                 'route' => [
                     'method'     => 'post',
                     'name'       => '',
