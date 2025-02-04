@@ -11,6 +11,7 @@ const props = defineProps<{
 		table?: {}[]
 		total?: {}[]
 		widgets?: {}[]
+		current?: string
 	}
 	checked?: boolean
 	tableType?: string
@@ -85,7 +86,7 @@ const toggleCurrency = () => {
 		data: null
 	},
 ] */
-const dashboardTable = props.dashboard.table
+
 </script>
 
 <template>
@@ -101,12 +102,12 @@ const dashboardTable = props.dashboard.table
 
 		<DashboardTable
 			v-if="props.dashboard?.table"
-			:dashboardTable
+			:dashboardTable="props.dashboard.table"
 			
 			:locale="locale"
 			:tableType="props.tableType"
 			:totalAmount="props.dashboard.total"
-
+			:current="props.dashboard.current"
 			
 			:selectedDateOption="props.dashboard.settings.selected_interval" />
 

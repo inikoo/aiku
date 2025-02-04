@@ -62,6 +62,7 @@ class ShowGroupDashboard extends OrgAction
                     ]
                 ]
             ],
+            'current' => $this->tabDashboardInterval,
             'table' => [
                 [
                     'tab_label' => __('sales'),

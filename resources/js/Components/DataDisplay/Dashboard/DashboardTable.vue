@@ -23,6 +23,7 @@ const props = defineProps<{
 	}
 	selectedDateOption: String
 	tableType?: string
+	current?: string
 	dashboardTable: {
 		tab_label: string
 		tab_slug: string
@@ -32,15 +33,15 @@ const props = defineProps<{
 }>()
 
 
-
 function ShopDashboard(shop: any) {
 	return route(shop?.route?.name, shop?.route?.parameters)
 }
 
+const activeIndexTab = ref(props.current)
+
 const selectedTab = computed(() => {
 	return props.dashboardTable.find((tab) => tab.tab_slug === activeIndexTab.value)
 })
-const activeIndexTab = ref(props.dashboardTable[0].tab_slug)
 function useTabChangeDashboard(tab_slug: string) {
     if (tab_slug === activeIndexTab.value) {
         return;
@@ -57,6 +58,7 @@ function useTabChangeDashboard(tab_slug: string) {
         }
     });
 }
+console.log(selectedTab,'asdasdas');
 
 </script>
 
