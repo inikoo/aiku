@@ -29,13 +29,13 @@ class GetEmployeeShowcase
     {
         $user = $employee->getUser();
         $pictogram = [];
-        if($user) {
+        if ($user) {
             $jobPositionsOrganisationsData = [];
             foreach ($employee->group->organisations as $organisation) {
                 $jobPositionsOrganisationData                       = GetUserOrganisationScopeJobPositionsData::run($user, $organisation);
                 $jobPositionsOrganisationsData[$organisation->slug] = $jobPositionsOrganisationData;
             }
-    
+
             $permissionsGroupData = GetUserGroupScopeJobPositionsData::run($user);
             $pictogram = [
                 'organisation_list' => OrganisationsResource::collection($user->group->organisations),

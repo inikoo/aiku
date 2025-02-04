@@ -106,7 +106,7 @@ const submitUpload = async () => {
 				props.attachmentRoutes?.attachRoute?.parameters
 			),
 			{
-				attachment: selectedFile.value,
+				attachments: [selectedFile.value],
 				scope: selectedType.value.code,
 			},
 			{

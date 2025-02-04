@@ -13,6 +13,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Validation\ValidationException;
 
 class ResetPasswordNotification extends Notification implements ShouldQueue
 {
@@ -35,8 +36,12 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
     public function toMail(WebUser|User $notifiable): MailMessage
     {
         /** @var Outbox $outbox */
-        $outbox = $notifiable->shop->outboxes()->where('type', OutboxCodeEnum::PASSWORD_REMINDER->value)
+        $outbox = $notifiable->shop?->outboxes()->where('type', OutboxCodeEnum::PASSWORD_REMINDER->value)
             ->first();
+
+        if (!$outbox) {
+            throw ValidationException::withMessages(['outbox' => 'No outboxes in this shop']);
+        }
 
         $data = $outbox->emailTemplate->published_layout;
 
