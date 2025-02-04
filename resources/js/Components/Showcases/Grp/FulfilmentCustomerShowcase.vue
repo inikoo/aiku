@@ -120,12 +120,12 @@ const optionRadio = [
     },
     {
         value: 'items_storage',
-        label: trans('Customer\'s SKU')
-    },
-    {
-        value: 'dropshipping',
         label: trans('Dropshipping')
     },
+/*    {
+        value: 'dropshipping',
+        label: trans('Dropshipping')
+    },*/
     {
         value: 'space_rental',
         label: trans('Space (Parking)')
@@ -430,7 +430,7 @@ const sendUpdateInformation = () =>{
                     <h3 class="text-lg font-semibold">Pending Application</h3>
                     <p class="text-sm text-gray-600">This application is currently awaiting approval.</p>
                 </div>
-                
+
                 <div class="mt-4">
                     <Link
                         :href="route(data.approveRoute.name,data.approveRoute.parameters)"

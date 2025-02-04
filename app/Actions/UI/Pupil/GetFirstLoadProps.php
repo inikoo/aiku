@@ -9,7 +9,7 @@
 namespace App\Actions\UI\Pupil;
 
 use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
-use App\Actions\UI\Retina\Layout\GetLayout;
+use App\Actions\Retina\UI\Layout\GetRetinaLayout;
 use App\Http\Resources\Helpers\LanguageResource;
 use App\Models\CRM\WebUser;
 use App\Models\Helpers\Language;
@@ -41,7 +41,7 @@ class GetFirstLoadProps
                     'languageOptions' => GetLanguagesOptions::make()->translated(),
                 ],
 
-            'layout'      => GetLayout::run($request, $webUser),
+            'layout'      => GetRetinaLayout::run($request, $webUser),
             'environment' => app()->environment(),
         ];
     }

@@ -116,6 +116,7 @@ class IndexEmployees extends OrgAction
 
         return $queryBuilder
             ->defaultSort('slug')
+            ->withBetweenFilter('employees', 'created_at')
             ->allowedSorts(['slug', 'state', 'contact_name', 'job_title', 'worker_number'])
             ->allowedFilters([$globalSearch, 'slug', 'contact_name', 'state'])
             ->withPaginator($prefix)
