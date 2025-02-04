@@ -6,10 +6,9 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\Pupil;
+namespace App\Actions\Pupil;
 
 use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
-use App\Actions\Retina\UI\Layout\GetRetinaLayout;
 use App\Http\Resources\Helpers\LanguageResource;
 use App\Models\CRM\WebUser;
 use App\Models\Helpers\Language;
@@ -17,7 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Lorisleiva\Actions\Concerns\AsObject;
 
-class GetFirstLoadProps
+class GetPupilFirstLoadProps
 {
     use AsObject;
 
@@ -41,7 +40,8 @@ class GetFirstLoadProps
                     'languageOptions' => GetLanguagesOptions::make()->translated(),
                 ],
 
-            'layout'      => GetRetinaLayout::run($request, $webUser),
+            //todo @artha is layout needed here?
+            //'layout'      => GetLayout::run($request, $webUser),
             'environment' => app()->environment(),
         ];
     }

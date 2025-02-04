@@ -80,7 +80,7 @@ class EditProfile
                                 "placeholder"   => __('Enter up to 50 characters')
                             ],
                             "image" => [
-                                "type"  => "avatar",
+                                "type"  => "image_crop_square",
                                 "label" => __("Logo"),
                                 "value" => $user->imageSources(320, 320)
                             ],

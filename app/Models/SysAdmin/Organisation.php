@@ -224,6 +224,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, ShippingZoneSchema> $shippingZoneSchemas
  * @property-read LaravelCollection<int, ShippingZone> $shippingZones
  * @property-read LaravelCollection<int, Shop> $shops
+ * @property-read LaravelCollection<int, Space> $spaces
  * @property-read \App\Models\SysAdmin\OrganisationStats|null $stats
  * @property-read LaravelCollection<int, Subscription> $subscriptions
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Task> $tasks

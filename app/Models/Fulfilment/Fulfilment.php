@@ -52,6 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Rental> $rentals
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SerialReference> $serialReferences
  * @property-read Shop $shop
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Space> $spaces
  * @property-read \App\Models\Fulfilment\FulfilmentStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $warehouses
  * @property-read Shop|null $website
