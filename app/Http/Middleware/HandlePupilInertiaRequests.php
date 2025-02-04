@@ -8,7 +8,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Actions\UI\Pupil\GetFirstLoadProps;
+use App\Actions\Retina\UI\GetPupilFirstLoadProps;
 use App\Http\Resources\UI\LoggedShopifyUserResource;
 use App\Models\CRM\WebUser;
 use Illuminate\Http\Request;
@@ -30,7 +30,7 @@ class HandlePupilInertiaRequests extends Middleware
 
         if (!$request->inertia() or Session::get('reloadLayout')) {
 
-            $firstLoadOnlyProps          = GetFirstLoadProps::run($request, $webUser);
+            $firstLoadOnlyProps          = GetPupilFirstLoadProps::run($request, $webUser);
             $firstLoadOnlyProps['ziggy'] = function () use ($request) {
                 return array_merge((new Ziggy())->toArray(), [
                     'location' => $request->url(),
