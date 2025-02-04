@@ -17,6 +17,7 @@ import { faSave as falSave, faExclamationCircle, faMinus, faPlus } from '@fal'
 import { faSave } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
+import ButtonWithLink from '@/Components/Elements/Buttons/ButtonWithLink.vue'
 library.add(faSave, falSave, faExclamationCircle, faMinus, faPlus)
 
 defineProps<{
@@ -82,7 +83,7 @@ const localeCode = navigator.language
                 </div>
             </template>
 
-            <template v-if="false" #cell(action)="{ item, proxyItem }">
+            <template #cell(action)="{ item, proxyItem }">
                 <pre>{{ item.data }}</pre>
                 <!-- <pre>new: {{ item.new_refund_amount }}</pre>
                 ------<br> -->
@@ -129,6 +130,15 @@ const localeCode = navigator.language
                     <LoadingIcon v-if="isLoadingQuantity.includes(item.rowIndex)" class="h-8" />
                     <FontAwesomeIcon v-else-if="get(proxyItem, ['new_refund_amount'], null) ? proxyItem.new_refund_amount !== (proxyItem.refund_amount || 0) : false" @click="() => onClickQuantity(item.refund_route, item.rowIndex, get(proxyItem, ['new_refund_amount'], 0))" icon="fad fa-save" class="h-8 cursor-pointer" :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" aria-hidden="true" />
                     <FontAwesomeIcon v-else icon="fal fa-save" class="h-8 text-gray-300" aria-hidden="true" />
+                </div>
+
+                <div class="mt-2">
+                    <ButtonWithLink
+                        v-if="item.delete_route"
+                        :route="item.delete_route"
+                        :label="trans('Delete')"
+                        type="delete"
+                    />
                 </div>
 
             </template>
