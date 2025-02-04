@@ -133,6 +133,10 @@ class ShowGroupDashboard extends OrgAction
                     $visualData['invoices_data']['labels'][] = $organisation->code;
                     $visualData['invoices_data']['currency_codes'][] = $currencyCode;
                     $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
+
+                    $visualData['refunds_data']['labels'][] = $organisation->code;
+                    $visualData['refunds_data']['currency_codes'][] = $currencyCode;
+                    $visualData['refunds_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['refunds']['amount'];
                 }
                 return $responseData;
             })->toArray();
@@ -188,6 +192,10 @@ class ShowGroupDashboard extends OrgAction
                     $visualData['invoices_data']['labels'][] = $shop->code;
                     $visualData['invoices_data']['currency_codes'][] = $currencyCode;
                     $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
+
+                    $visualData['refunds_data']['labels'][] = $shop->code;
+                    $visualData['refunds_data']['currency_codes'][] = $currencyCode;
+                    $visualData['refunds_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['refunds']['amount'];
                 }
                 return $responseData;
             })->toArray();
@@ -231,14 +239,14 @@ class ShowGroupDashboard extends OrgAction
                     'datasets'    => [
                         [
                             'label' => __('Invoices'),
-                            'data'  => $visualData['invoices_data']['datasets'][0]['data'],
+                            'data'  => $visualData['refunds_data']['datasets'][0]['data'],
                             'backgroundColor' => '#4e73df',
                             'borderColor' => '#4e73df',
                             'borderWidth' => 1
                         ],
                         [
                             'label' => __('Refunds'),
-                            'data'  => $visualData['invoices_data']['datasets'][0]['data'],
+                            'data'  => $visualData['refunds_data']['datasets'][0]['data'],
                             'backgroundColor' => '#e74a3b',
                             'borderColor' => '#e74a3b',
                             'borderWidth' => 1

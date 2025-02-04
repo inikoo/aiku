@@ -63,7 +63,7 @@ trait WithDashboard
     }
 
     /**
-     * @param string $type = 'basic'
+     * @param string $type = 'basic' | 'chart_display'
      * @param int $colSpan = 1
      * @param int $rowSpan = 1
      * @param array $route [
@@ -78,9 +78,19 @@ trait WithDashboard
      *      'currency_code' => string
      * ]
      * @param array $visual [
-     *      'type' => 'percentage'|'progress'|'number',
-     *      'value' => float|int,
-     *      'label' => string,
+     *      'type' => 'pie'|'bar'|'line'|'doughnut',
+     *      'value' => [
+     *         'labels' => array,
+     *         'currency_codes' => array,
+     *         'datasets' => [
+     *             [
+     *                  'label' => string,
+     *                  'data' => array,
+     *                  'backgroundColor' => array,
+     *                  'borderColor' => array
+     *              ]
+     *          ]
+     *       ]
      * ]
      *
      * @return array
