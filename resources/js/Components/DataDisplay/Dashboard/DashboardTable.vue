@@ -11,8 +11,7 @@ import Tabs from "primevue/tabs"
 import TabList from "primevue/tablist"
 import Tab from "primevue/tab"
 import { Link } from "@inertiajs/vue3"
-import { useTabChange } from "@/Composables/tab-change"
-
+import { router } from "@inertiajs/vue3"
 
 const props = defineProps<{
 	tableData: {}[]
@@ -42,7 +41,22 @@ const selectedTab = computed(() => {
 	return props.dashboardTable.find((tab) => tab.tab_slug === activeIndexTab.value)
 })
 const activeIndexTab = ref(props.dashboardTable[0].tab_slug)
-console.log(selectedTab,'tabs');
+function useTabChangeDashboard(tab_slug: string) {
+    if (tab_slug === activeIndexTab.value) {
+        return;
+    }
+
+    router.reload({
+        data: { tab_dashboard_interval: tab_slug },  
+        only: ['dashboardTable'], 
+        onSuccess: () => {
+            activeIndexTab.value = tab_slug; 
+        },
+        onError: (error) => {
+            console.error("Error reloading dashboard:", error);
+        }
+    });
+}
 
 </script>
 
@@ -51,7 +65,7 @@ console.log(selectedTab,'tabs');
 		<div class="mt-2">
 			<Tabs :value="activeIndexTab">
 				<TabList>
-					<Tab v-for="tab in dashboardTable" @click="() => activeIndexTab = tab.tab_slug" :key="tab.tab_slug" :value="tab.tab_slug">{{
+					<Tab v-for="tab in dashboardTable" @click="() => useTabChangeDashboard(tab.tab_slug)" :key="tab.tab_slug" :value="tab.tab_slug">{{
 						tab.tab_label
 					}}</Tab>
 				</TabList>
