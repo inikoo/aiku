@@ -49,7 +49,7 @@ function useTabChangeDashboard(tab_slug: string) {
 
     router.reload({
         data: { tab_dashboard_interval: tab_slug },  
-        only: ['dashboardTable'], 
+        // only: ['dashboard_stats'], 
         onSuccess: () => {
             activeIndexTab.value = tab_slug; 
         },

@@ -97,21 +97,22 @@ class ShowGroupDashboard extends OrgAction
         $visualData = [];
 
         if ($this->tabDashboardInterval == DashboardIntervalTabsEnum::SALES->value) {
-
             $total['total_sales'] = $organisations->sum(fn ($organisation) => $organisation->salesIntervals->{"sales_grp_currency_$selectedInterval"} ?? 0);
-            $dashboard['table'][0]['data'] =
-                $this->tabDashboardInterval == DashboardIntervalTabsEnum::SALES->value ?
-                    $this->getSales($group, $selectedInterval, $selectedCurrency, $organisations, $dashboard, $visualData, $total) :
-                Inertia::lazy(fn () => $this->getSales($group, $selectedInterval, $selectedCurrency, $organisations, $dashboard, $visualData, $total));
-
+            $dashboard['table'][0]['data'] = $this->getSales($group, $selectedInterval, $selectedCurrency, $organisations, $dashboard, $visualData, $total);
         } elseif ($this->tabDashboardInterval == DashboardIntervalTabsEnum::SHOPS->value) {
             $shops = $group->shops->whereIn('organisation_id', $organisations->pluck('id')->toArray());
             $total['total_sales'] = $shops->sum(fn ($shop) => $shop->salesIntervals->{"sales_grp_currency_$selectedInterval"} ?? 0);
-
-            $dashboard['table'][1]['data'] = $this->tabDashboardInterval == DashboardIntervalTabsEnum::SHOPS->value ?
-                $this->getShops($group, $shops, $selectedInterval, $dashboard, $selectedCurrency, $visualData, $total) :
-                Inertia::lazy(fn () => $this->getShops($group, $shops, $selectedInterval, $dashboard, $selectedCurrency, $visualData, $total));
+            $dashboard['table'][1]['data'] = $this->getShops($group, $shops, $selectedInterval, $dashboard, $selectedCurrency, $visualData, $total);
         }
+        // dd($dashboard);
+
+        // $dashboard['table'][0]['data'] = $this->tabDashboardInterval == DashboardIntervalTabsEnum::SALES->value ?
+        //         $this->getSales($group, $selectedInterval, $selectedCurrency, $organisations, $dashboard, $visualData, $total) :
+        //         Inertia::lazy(fn () => $this->getSales($group, $selectedInterval, $selectedCurrency, $organisations, $dashboard, $visualData, $total));
+
+        // $dashboard['table'][1]['data'] = $this->tabDashboardInterval == DashboardIntervalTabsEnum::SHOPS->value ?
+        //     $this->getShops($group, $shops, $selectedInterval, $dashboard, $selectedCurrency, $visualData, $total) :
+        //     Inertia::lazy(fn () => $this->getShops($group, $shops, $selectedInterval, $dashboard, $selectedCurrency, $visualData, $total));
 
         $dashboard['total'] = $total;
 
@@ -185,15 +186,15 @@ class ShowGroupDashboard extends OrgAction
                     //TODO: new datasets
                     'datasets'    => [
                         [
-                            'label' => __('Fist Data'),
-                            'data'  => [420,740,660,50,40,1000],
+                            'label' => __('Invoices'),
+                            'data'  => $visualData['refunds_data']['datasets'][0]['data'],
                             'backgroundColor' => '#4e73df',
                             'borderColor' => '#4e73df',
                             'borderWidth' => 1
                         ],
                         [
-                            'label' => __('Second Data'),
-                            'data'  => [100,200,550,150,140,1000],
+                            'label' => __('Refunds'),
+                            'data'  => $visualData['refunds_data']['datasets'][0]['data'],
                             'backgroundColor' => '#e74a3b',
                             'borderColor' => '#e74a3b',
                             'borderWidth' => 1
@@ -213,13 +214,13 @@ class ShowGroupDashboard extends OrgAction
             visual: [
                 'type' => 'pie',
                 'value' => [
-                    'labels' => ['A', 'B', 'C'],
+                    'labels' => ['invoices', 'refunds'],
                     'currency_codes' => $visualData['invoices_data']['currency_codes'],
                     /* 'datasets'    => $visualData['invoices_data']['datasets'] */
                     //TODO: new datasets
                     'datasets'    => [
                         [
-                            'data' => [540, 325, 702],
+                            'data' => [$total['total_invoices'], $total['total_refunds']],
                             'backgroundColor' => '#00ffff',
                             'borderColor' => '#ff7f00',
                             'borderWidth' => 1
@@ -228,6 +229,8 @@ class ShowGroupDashboard extends OrgAction
                 ],
             ]
         );
+
+        // dd($dashboard);
 
         return $dashboard;
     }
