@@ -142,7 +142,8 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
     {
         $userId = auth()->user()->id ?? null;
 
-        $keyRppCache = $tableName ? "ui-state-{$userId}-" . ($prefix ? "{$prefix}_" : "") . "{$tableName}-rpp" : null;
+        // ui_state-user:YYYY;rrp-table:XXXXXXX
+        $keyRppCache = $tableName ? "ui_state-user:{$userId};rrp-table:" . ($prefix ? "{$prefix}." : "") . "{$tableName}" : null;
 
         if ($numberOfRecords) {
             $perPage = $numberOfRecords;
@@ -166,7 +167,7 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
             }
 
             if ($tableName && $userId) {
-                Cache::forever($keyRppCache, $perPage);
+                Cache::put($keyRppCache, $perPage, now()->addMonth(6));
             }
 
         }
