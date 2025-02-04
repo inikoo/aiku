@@ -66,7 +66,22 @@ class ShowGroupDashboard extends OrgAction
                 'current' => $this->tabDashboardInterval,
                 'navigation'  => DashboardIntervalTabsEnum::navigation()
             ], */
-            'table' => DashboardIntervalTabsEnum::navigation()[$this->tabDashboardInterval],
+            'table' => [
+                [
+                    'tab_label' => __('sales'),
+                    'tab_slug'  => 'sales',
+                    'tab_icon'  => 'fas fa-chart-line',
+                    'type'     => 'table',
+                    'data' => null
+                ],
+                [
+                    'tab_label' => __('shops'),
+                    'tab_slug'  => 'shops',
+                    'tab_icon'  => 'fal fa-shopping-cart',
+                    'type'     => 'table',
+                    'data' => null
+                ]
+            ],
             'widgets' => [
                 'column_count'    => 4,
                 'components' => []
@@ -87,7 +102,7 @@ class ShowGroupDashboard extends OrgAction
         if ($this->tabDashboardInterval == DashboardIntervalTabsEnum::SALES->value) {
             $total['total_sales'] = $organisations->sum(fn ($organisation) => $organisation->salesIntervals->{"sales_grp_currency_$selectedInterval"} ?? 0);
 
-            $dashboard['table']['data'] = $organisations->map(function (Organisation $organisation) use ($selectedInterval, $group, &$dashboard, $selectedCurrency, &$visualData, &$total) {
+            $dashboard['table'][0]['data'] = $organisations->map(function (Organisation $organisation) use ($selectedInterval, $group, &$dashboard, $selectedCurrency, &$visualData, &$total) {
                 $keyCurrency = $dashboard['settings']['key_currency'];
                 $currencyCode = $selectedCurrency === $keyCurrency ? $group->currency->code : $organisation->currency->code;
                 $salesCurrency = 'sales_'.$selectedCurrency.'_currency';
@@ -146,7 +161,7 @@ class ShowGroupDashboard extends OrgAction
             $shops = $group->shops->whereIn('organisation_id', $organisations->pluck('id')->toArray());
             $total['total_sales'] = $shops->sum(fn ($shop) => $shop->salesIntervals->{"sales_grp_currency_$selectedInterval"} ?? 0);
 
-            $dashboard['table']['data'] = $shops->map(function (Shop $shop) use ($selectedInterval, $group, &$dashboard, $selectedCurrency, &$visualData, &$total) {
+            $dashboard['table'][1]['data'] = $shops->map(function (Shop $shop) use ($selectedInterval, $group, &$dashboard, $selectedCurrency, &$visualData, &$total) {
                 $keyCurrency = $dashboard['settings']['key_currency'];
                 $currencyCode = $selectedCurrency === $keyCurrency ? $group->currency->code : $shop->organisation->currency->code;
                 $salesCurrency = 'sales_'.$selectedCurrency.'_currency';
