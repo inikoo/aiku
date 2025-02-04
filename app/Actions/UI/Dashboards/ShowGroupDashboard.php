@@ -60,17 +60,19 @@ class ShowGroupDashboard extends OrgAction
                     ]
                 ]
             ],
+            'tabs' => [
+                'current' => $this->tabDashboardInterval,
+                'navigation'  => ['sales', 'profile']
+            ],
             'table' => [
-                'tabs' => [
-                    'current' => $this->tabDashboardInterval,
-                    'navigation'  => ['sales', 'profile']
-                ],
+
             ],
             'widgets' => [
                 'column_count'    => 4,
                 'components' => []
             ]
         ];
+
 
         $selectedCurrency = Arr::get($userSettings, 'selected_currency_in_grp', 'grp');
         $total = [
@@ -79,10 +81,7 @@ class ShowGroupDashboard extends OrgAction
             'total_refunds'  => 0,
         ];
 
-        $visualData = [
-            'sales' => [],
-            'invoices' => [],
-        ];
+        $visualData = [];
 
         if ($this->tabDashboardInterval == 'sales') {
             $dashboard['table'][$this->tabDashboardInterval] = $organisations->map(function (Organisation $organisation) use ($selectedInterval, $group, &$dashboard, $selectedCurrency, &$visualData, &$total) {
@@ -134,6 +133,7 @@ class ShowGroupDashboard extends OrgAction
                 }
                 return $responseData;
             })->toArray();
+
             $dashboard['total'] = $total;
 
             $dashboard['widgets']['components'][] = $this->getWidget(
@@ -248,6 +248,8 @@ class ShowGroupDashboard extends OrgAction
                     ],
                 ]
             );
+        } else {
+            $dashboard['table'][$this->tabDashboardInterval] = ['test'];
         }
 
         return $dashboard;
