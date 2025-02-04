@@ -16,7 +16,7 @@ class PalletReturnsResource extends JsonResource
     {
         /** @var \App\Models\Fulfilment\PalletReturn $palletReturn */
         $palletReturn = $this;
-
+        
         return [
             'id'                    => $palletReturn->id,
             'slug'                  => $palletReturn->slug,
@@ -31,7 +31,7 @@ class PalletReturnsResource extends JsonResource
             'number_pallets'        => $palletReturn->stats->number_pallets,
             'number_services'       => $palletReturn->stats->number_services,
             'number_physical_goods' => $palletReturn->stats->number_physical_goods,
-            'dispatched_date'       => $palletReturn->dispatched_at
+            'dispatched_at'         => $palletReturn->dispatched_at
         ];
     }
 }
