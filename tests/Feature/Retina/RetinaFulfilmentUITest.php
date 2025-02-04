@@ -441,3 +441,11 @@ test('index stored item audits', function () {
     });
 });
 
+test('show dropshipping dashboard', function () {
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.dropshipping.platform.dashboard'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page->component('Dropshipping/DropshippingDashboard');
+    });
+});
+
