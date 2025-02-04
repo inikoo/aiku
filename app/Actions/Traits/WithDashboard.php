@@ -27,15 +27,23 @@ enum DashboardIntervalTabsEnum: string
     {
         return match ($this) {
             DashboardIntervalTabsEnum::SALES => [
-                'title' => __('sales'),
-                'icon'  => 'fas fa-chart-line',
+                'tab_label' => __('sales'),
+                'tab_slug'  => 'sales',
+                'tab_icon'  => 'fas fa-chart-line',
+                'type'     => 'table',
+                'data' => null
             ],
             DashboardIntervalTabsEnum::SHOPS => [
-                'title' => __('shops'),
-                'icon'  => 'fal fa-shopping-cart',
+                'tab_label' => __('shops'),
+                'tab_slug'  => 'sales',
+                'tab_icon'  => 'fal fa-shopping-cart',
+                'type'     => 'table',
+                'data' => null
             ],
         };
     }
+
+
 }
 
 
