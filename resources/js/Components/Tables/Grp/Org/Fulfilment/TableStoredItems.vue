@@ -10,6 +10,7 @@ import Table from '@/Components/Table/Table.vue';
 import { ref } from 'vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import Icon from "@/Components/Icon.vue"
+import Tag from "@/Components/Tag.vue"
 
 const props = defineProps<{
     data?: {}
@@ -69,6 +70,20 @@ function storedItemRoute(storedItem) {
             </div>
         </template>
 
-       
+        <template #cell(pallets)="{ item: pallet }">
+            <div v-if="pallet.pallets.length" class="flex flex-wrap gap-x-1 gap-y-1.5">
+                <Tag v-for="item of pallet.pallets" :theme="item.id"
+                    :label="`${item.reference} (${item.quantity})`" :closeButton="false" :stringToColor="true">
+                    <template #label>
+                        <div class="whitespace-nowrap text-xs">
+                            {{ item["reference"] }} 
+                        </div>
+                    </template>
+                </Tag>
+            </div>
+            <div v-else class="text-gray-400 text-xs italic">
+                No items in this pallet
+            </div>
+        </template>
     </Table>
 </template>
