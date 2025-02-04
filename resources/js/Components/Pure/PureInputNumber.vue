@@ -21,6 +21,7 @@ const props = withDefaults(defineProps<{
     step?: string
     prefix?: string
     pattern?: string
+    disabled?: boolean
 }>(), {
     step: "any",
     pattern : "[0-9]*"
@@ -78,7 +79,7 @@ defineExpose({
 </script>
 
 <template>
-    <div class="bg-white w-full flex group relative ring-1 ring-gray-300 focus-within:ring-2 focus-within:ring-gray-500 rounded-md overflow-hidden p-[2px]">
+    <div class="bg-white w-full flex group relative ring-1 ring-gray-300 focus-within:ring-2 focus-within:ring-gray-500 rounded-md overflow-hidden">
         <div :class="{ 'relative w-full': true, 'flex': prefix, 'pr-6': suffix }">
             <slot v-if="prefix" name="prefix">
                 <div
@@ -101,8 +102,9 @@ defineExpose({
                 :min="minValue" 
                 :max="maxValue" 
                 :required="required"
+                :disabled
                 :step="step"
-                class=" [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none remove-arrows-input bg-transparent block w-full text-gray-600 sm:text-sm placeholder:text-gray-400 border-transparent focus:ring-0 focus:ring-gray-500 focus:outline-0 focus:border-transparent read-only:bg-gray-100 read-only:ring-0 read-only:ring-transparent read-only:focus:border-transparent read-only:focus:border-gray-300 read-only:text-gray-500" 
+                class="disabled:bg-gray-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none remove-arrows-input block w-full text-gray-600 sm:text-sm placeholder:text-gray-400 border-transparent focus:ring-0 focus:ring-gray-500 focus:outline-0 focus:border-transparent disabled:ring-0 disabled:ring-transparent disabled:focus:border-transparent disabled:focus:border-gray-300 disabled:text-gray-500" 
             />
 
             <slot v-if="suffix" name="suffix">
