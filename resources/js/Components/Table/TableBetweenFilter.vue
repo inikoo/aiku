@@ -8,18 +8,14 @@ import VueDatePicker from '@vuepic/vue-datepicker'
 import DatePicker from 'primevue/datepicker'
 import { debounce } from 'lodash'
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
+import LoadingIcon from '../Utils/LoadingIcon.vue'
 
 
 library.add(faChevronDown, faCheckSquare, faSquare, faCalendarAlt)
 
-interface Period {
-    type: string  // 'quarter'
-    label: string  // 'Quarter'
-    date: string  // '2024Q3'
-}
 
 const props = defineProps<{
-    periodList: Period[]
+    optionsList: string[]
     tableName: string
 }>()
 
@@ -33,6 +29,7 @@ const formattedDateRange = (date: string[] | Date[]) => {
         return `${year}${month}${day}`;
     }).join('-')
 }
+const isLoadingReload = ref(false)
 
 // Watch the datepicker
 const dateFilterValue = ref([new Date(), new Date()])
@@ -40,6 +37,12 @@ watch(dateFilterValue, (newValue) => {
     router.reload(
         {
             data: { [`between[${selectedPeriodType.value}]`]: formattedDateRange(newValue) },  // Sent to url parameter (?tab=showcase, ?tab=menu)
+            onStart: () => {
+                isLoadingReload.value = true
+            },
+            onFinish: () => {
+                isLoadingReload.value = false
+            },
             onSuccess: () => {
                 // console.log('success');
             },
@@ -50,8 +53,8 @@ watch(dateFilterValue, (newValue) => {
     )
 })
 
-// Watch the multiselect
-const selectedPeriodType = ref('')
+// Section: multiselect
+const selectedPeriodType = ref(props.optionsList?.[0])
 watch(selectedPeriodType, (newValue, oldValue) => {
     const oldBetween = oldValue ? {
         [`between[${oldValue}]`]: null
@@ -63,6 +66,12 @@ watch(selectedPeriodType, (newValue, oldValue) => {
                 data: {
                     ...oldBetween,
                     [`between[${newValue}]`]: formattedDateRange(dateFilterValue.value),
+                },
+                onStart: () => {
+                    isLoadingReload.value = true
+                },
+                onFinish: () => {
+                    isLoadingReload.value = false
                 },
                 onSuccess: () => {
                 },
@@ -125,9 +134,10 @@ onBeforeMount(() => {
             <div class="w-40 text-xs" >
                 <PureMultiselect
                     v-model="selectedPeriodType"
-                    :options="['created_at', 'updated_at']"
+                    :options="optionsList"
                     required
                     caret
+                    :isLoading="isLoadingReload"
                 />
             </div>
 
@@ -140,8 +150,9 @@ onBeforeMount(() => {
                 >
                     <template #trigger>
                         <div class="h-9 w-9 bg-gray-500 hover:bg-gray-700 rounded flex justify-center items-center">
-                            <FontAwesomeIcon icon='fal fa-calendar-alt' class='cursor-pointer text-gray-200 '
+                            <FontAwesomeIcon v-if="!isLoadingReload" icon='fal fa-calendar-alt' class='cursor-pointer text-gray-200 '
                                 fixed-width aria-hidden='true' />
+                            <LoadingIcon v-else />
                         </div>
                     </template>
                 </VueDatePicker>
