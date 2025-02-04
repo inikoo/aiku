@@ -302,9 +302,9 @@
 <br>
 <br>
 
-@if(Arr::exists($shop->data,'invoice_footer'))
+@if($shop->invoice_footer)
 <div style="text-align: center; font-style: italic;">
-    {{Arr::get($shop->data,'invoice_footer')}}
+    {!! $shop->invoice_footer !!}
 </div>
 @endif
 

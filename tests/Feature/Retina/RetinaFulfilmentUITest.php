@@ -91,7 +91,7 @@ beforeEach(function () {
     ConfirmPalletDelivery::make()->action($this->palletDelivery);
 
     $this->pallet->refresh();
-    
+
     $palletReturn = PalletReturn::first();
     if (!$palletReturn) {
         data_set($storeData, 'warehouse_id', $this->warehouse->id);
