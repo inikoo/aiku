@@ -18,31 +18,9 @@ use Illuminate\Support\Arr;
 enum DashboardIntervalTabsEnum: string
 {
     use EnumHelperTrait;
-    use HasTabs;
 
     case SALES      = 'sales';
     case SHOPS      = 'shops';
-
-    public function blueprint(): array
-    {
-        return match ($this) {
-            DashboardIntervalTabsEnum::SALES => [
-                'tab_label' => __('sales'),
-                'tab_slug'  => 'sales',
-                'tab_icon'  => 'fas fa-chart-line',
-                'type'     => 'table',
-                'data' => null
-            ],
-            DashboardIntervalTabsEnum::SHOPS => [
-                'tab_label' => __('shops'),
-                'tab_slug'  => 'sales',
-                'tab_icon'  => 'fal fa-shopping-cart',
-                'type'     => 'table',
-                'data' => null
-            ],
-        };
-    }
-
 
 }
 
