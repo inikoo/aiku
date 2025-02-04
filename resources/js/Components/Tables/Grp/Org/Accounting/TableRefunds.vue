@@ -23,6 +23,7 @@ defineProps<{
 const locale = useLocaleStore();
 
 console.log(route().current())
+
 function refundRoute(invoice: Invoice) {
     switch (route().current()) {
         case 'grp.org.fulfilments.show.crm.customers.show.invoices.show.refunds.index':
@@ -35,7 +36,22 @@ function refundRoute(invoice: Invoice) {
                   route().params["invoice"],
                   invoice.slug
                 ])
-
+        case 'grp.org.fulfilments.show.crm.customers.show.invoices.index':
+            if (invoice.parent_invoice?.slug) {
+                return route(
+                    'grp.org.fulfilments.show.crm.customers.show.invoices.show.refunds.show',
+                    [
+                      route().params["organisation"],
+                      route().params["fulfilment"],
+                      route().params["fulfilmentCustomer"],
+                      invoice.parent_invoice?.slug,
+                      invoice.slug
+                    ])
+            } else {
+                return null
+            }
+        default:
+            return null
     }
 }
 
@@ -43,10 +59,15 @@ function refundRoute(invoice: Invoice) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(reference)="{ item: invoice }">
-            <Link :href="refundRoute(invoice)" class="primaryLink py-0.5">
-            {{ invoice.reference }}
+        <template #cell(reference)="{ item: refund }">
+            <Link v-if="refundRoute(refund)" :href="refundRoute(refund)" class="primaryLink py-0.5">
+                {{ refund.slug }}
             </Link>
+
+            <div v-else>
+                {{ refund.slug }}
+            </div>
+            
         </template>
 
     
@@ -59,16 +80,16 @@ function refundRoute(invoice: Invoice) {
         </template>
 
         <!-- Column: Net -->
-        <template #cell(net_amount)="{ item: invoice }">
+        <template #cell(net_amount)="{ item: refund }">
             <div class="text-gray-500">
-                {{ useLocaleStore().currencyFormat(invoice.currency_code, invoice.net_amount) }}
+                {{ useLocaleStore().currencyFormat(refund.currency_code, refund.net_amount) }}
             </div>
         </template>
 
         <!-- Column: Total -->
-        <template #cell(total_amount)="{ item: invoice }">
-            <div :class="invoice.total_amount >= 0 ? 'text-gray-500' : 'text-red-400'">
-                {{ useLocaleStore().currencyFormat(invoice.currency_code, invoice.total_amount) }}
+        <template #cell(total_amount)="{ item: refund }">
+            <div :class="refund.total_amount >= 0 ? 'text-gray-500' : 'text-red-400'">
+                {{ useLocaleStore().currencyFormat(refund.currency_code, refund.total_amount) }}
             </div>
         </template>
 

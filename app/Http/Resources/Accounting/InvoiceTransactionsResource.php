@@ -35,7 +35,7 @@ class InvoiceTransactionsResource extends JsonResource
                 'parameters' => [
                     'invoiceTransaction' => $this->id,
                 ]
-            ]
+            ],
         ];
     }
 }
