@@ -43,7 +43,7 @@ function ShopDashboard(shop: any) {
 	return route(shop?.route?.name, shop?.route?.parameters)
 }
 
-const computedTab = computed(() => {
+const selectedTab = computed(() => {
 	return props.dashboardTable.find((tab) => tab.tab_slug === activeTab.value)
 })
 
@@ -53,7 +53,6 @@ const activeTab = ref(tabs.value[1].value)
 <template>
 	<div class="bg-white mb-2 text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
 		<div class="mt-2">
-			{{ activeTab }}
 			<Tabs :value="activeTab">
 				<TabList>
 					<Tab v-for="tab in dashboardTable" @click="() => activeTab = tab.tab_slug" :key="tab.tab_slug" :value="tab.tab_slug">{{
@@ -62,7 +61,7 @@ const activeTab = ref(tabs.value[1].value)
 				</TabList>
 			</Tabs>
 		
-			<DataTable v-if="computedTab.type === 'table'" :value="computedTab.data" removableSort >
+			<DataTable v-if="selectedTab.type === 'table'" :value="selectedTab.data" removableSort >
 				<Column sortable field="code" >
 					<template #header>
 						<div class="flex items-center justify-between">

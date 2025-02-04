@@ -62,12 +62,25 @@ class ShowGroupDashboard extends OrgAction
                     ]
                 ]
             ],
-            'tabs' => [
+           /*  'tabs' => [
                 'current' => $this->tabDashboardInterval,
                 'navigation'  => DashboardIntervalTabsEnum::navigation()
-            ],
+            ], */
             'table' => [
-
+                [
+                    'tab_label' => "Overview",
+                    'tab_slug' => "overview",
+                    'tab_icon' => "fal fa-chart-line", 
+                    'type' => "table",  // 
+                    'data' => null
+                ],
+                [
+                    'tab_label' => "Profile",
+                    'tab_slug' => "profile",
+                    'tab_icon' => "fal fa-chart-line", 
+                    'type' => "xxx",  // 
+                    'data' =>  null
+                ],
             ],
             'widgets' => [
                 'column_count'    => 4,
