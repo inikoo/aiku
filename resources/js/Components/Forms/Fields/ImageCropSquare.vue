@@ -98,8 +98,8 @@ watch(isOpenModalCrop, (value) => {
 </script>
 
 <template>
-    <div class=" w-fit">      
-        <Modal :isOpen="isOpenModalCrop" @close="isOpenModalCrop = false" width="max-w-xl w-full">
+    <div class="w-fit">      
+        <Modal :isOpen="isOpenModalCrop" @close="isOpenModalCrop = false" width="max-w-xl w-full" :zIndex="999">
             <div class="w-full h-[300px] relative bg-gray-700">
                 <Cropper
                     :key="numbKey"
