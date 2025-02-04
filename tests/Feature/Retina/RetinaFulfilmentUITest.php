@@ -449,3 +449,83 @@ test('show dropshipping dashboard', function () {
     });
 });
 
+test('index pricing', function () {
+    // $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.fulfilment.pricing.index'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaStoragePricing')
+            ->has('title')
+            ->has('breadcrumbs', 2)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Prices')
+                        ->etc()
+            )
+            ->has('currency')
+            ->has('assets');
+
+    });
+});
+
+test('index pricing (goods)', function () {
+    // $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.fulfilment.pricing.goods'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Pricing/RetinaGoods')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'goods')
+                        ->etc()
+            )
+            ->has('data');
+
+    });
+});
+
+test('index pricing (services)', function () {
+    // $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.fulfilment.pricing.services'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Pricing/RetinaServices')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'services')
+                        ->etc()
+            )
+            ->has('data');
+
+    });
+});
+
+test('index pricing (rentals)', function () {
+    // $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.fulfilment.pricing.rentals'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Pricing/RetinaRentals')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'rentals')
+                        ->etc()
+            )
+            ->has('data');
+
+    });
+});
