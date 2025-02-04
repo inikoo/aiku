@@ -188,6 +188,7 @@ class UpdateShop extends OrgAction
             'shopify_access_token'     => ['sometimes', 'string'],
             'registration_number'      => ['sometimes', 'string'],
             'vat_number'               => ['sometimes', 'string'],
+            'invoice_footer'           => ['sometimes', 'string'],
             'image'       => [
                 'sometimes',
                 'nullable',

@@ -264,7 +264,7 @@ const isModalAddressCollection = ref(false)
 						{{ boxStats?.recurring_bill?.reference }}
 					</Link>
 				</div>
-				<OrderSummary :order_summary="boxStats.order_summary" />
+				<OrderSummary :order_summary="boxStats.order_summary" :currency_code="boxStats.order_summary.currency.data.code" />
 			</section>
 		</BoxStatPallet>
 	</div>

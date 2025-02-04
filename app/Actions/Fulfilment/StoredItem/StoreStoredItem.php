@@ -79,13 +79,14 @@ class StoreStoredItem extends OrgAction
     {
         return [
             'reference'    => ['required', 'max:128',  new AlphaDashDotSpaceSlashParenthesisPlus(),
-             new IUnique(
-                 table: 'stored_items',
-                 extraConditions: [
-                     ['column' => 'fulfilment_customer_id', 'value' => $this->fulfilmentCustomer->id],
-                 ]
-             )
-            ]
+                new IUnique(
+                    table: 'stored_items',
+                    extraConditions: [
+                        ['column' => 'fulfilment_customer_id', 'value' => $this->fulfilmentCustomer->id],
+                    ]
+                )
+            ],
+            'name'                     => ['sometimes', 'max:250', 'string'],
         ];
     }
 
