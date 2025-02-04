@@ -400,3 +400,44 @@ test('index web users', function () {
 
     });
 });
+
+test('index stored items', function () {
+    // $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.fulfilment.itemised_storage.stored_items.index'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaStoredItems')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'SKUs')
+                        ->etc()
+            )
+            ->has('data');
+
+    });
+});
+
+test('index stored item audits', function () {
+    // $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.fulfilment.itemised_storage.stored_items_audits.index'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaStoredItemsAudits')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'stored item audits')
+                        ->etc()
+            )
+            ->has('data');
+
+    });
+});
+
