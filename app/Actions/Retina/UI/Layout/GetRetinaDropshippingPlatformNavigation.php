@@ -15,7 +15,7 @@ class GetRetinaDropshippingPlatformNavigation
 {
     use AsAction;
 
-    public function handle(WebUser $webUser, $request): array
+    public function handle(WebUser $webUser): array
     {
         $platformNavigation = [];
 

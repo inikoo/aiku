@@ -15,12 +15,12 @@ class GetRetinaDropshippingNavigation
 {
     use AsAction;
 
-    public function handle(WebUser $webUser, $request): array
+    public function handle(WebUser $webUser): array
     {
         $customer = $webUser->customer;
         $groupNavigation = [];
 
-        $groupNavigation['dashboard'] = [
+        /*$groupNavigation['dashboard'] = [
             'label' => __('Dashboard'),
             'icon' => ['fal', 'fa-tachometer-alt'],
             'root' => 'retina.dashboard.',
@@ -30,7 +30,7 @@ class GetRetinaDropshippingNavigation
             'topMenu' => [
 
             ]
-        ];
+        ];*/
 
         $groupNavigation['platform'] = [
             'label' => __('Channels'),
@@ -48,7 +48,7 @@ class GetRetinaDropshippingNavigation
         ) {
             $platforms_navigation[$platform->slug] = [
                 'type'          => $platform->type,
-                'subNavigation' => GetRetinaDropshippingPlatformNavigation::run($webUser, $request)
+                'subNavigation' => GetRetinaDropshippingPlatformNavigation::run($webUser)
             ];
         }
 
