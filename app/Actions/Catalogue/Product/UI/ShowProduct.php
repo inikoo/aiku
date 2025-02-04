@@ -195,14 +195,14 @@ class ShowProduct extends OrgAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
-                        $this->canDelete ? [
-                            'type'  => 'button',
-                            'style' => 'delete',
-                            'route' => [
-                                'name'       => 'shops.show.products.remove',
-                                'parameters' => $request->route()->originalParameters()
-                            ]
-                        ] : false,
+                        // $this->canDelete ? [
+                        //     'type'  => 'button',
+                        //     'style' => 'delete',
+                        //     'route' => [
+                        //         'name'       => 'shops.show.products.remove',
+                        //         'parameters' => $request->route()->originalParameters()
+                        //     ]
+                        // ] : false,
                     ]
                 ],
                 'tabs'        => [
