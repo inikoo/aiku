@@ -33,29 +33,25 @@ const props = defineProps<{
 }>()
 
 
-const tabs = ref([
-	{ title: "Home", value: "home" },
-	{ title: "Profile", value: "profile" },
-	{ title: "Settings", value: "settings" },
-])
 
 function ShopDashboard(shop: any) {
 	return route(shop?.route?.name, shop?.route?.parameters)
 }
 
 const selectedTab = computed(() => {
-	return props.dashboardTable.find((tab) => tab.tab_slug === activeTab.value)
+	return props.dashboardTable.find((tab) => tab.tab_slug === activeIndexTab.value)
 })
+const activeIndexTab = ref(props.dashboardTable[0].tab_slug)
+console.log(selectedTab,'tabs');
 
-const activeTab = ref(tabs.value[1].value)
 </script>
 
 <template>
-	<div class="bg-white mb-2 text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
+	<div class="bg-white mb-2 text-gray-800 rounded-lg p-4 shadow-md border border-gray-200">
 		<div class="mt-2">
-			<Tabs :value="activeTab">
+			<Tabs :value="activeIndexTab">
 				<TabList>
-					<Tab v-for="tab in dashboardTable" @click="() => activeTab = tab.tab_slug" :key="tab.tab_slug" :value="tab.tab_slug">{{
+					<Tab v-for="tab in dashboardTable" @click="() => activeIndexTab = tab.tab_slug" :key="tab.tab_slug" :value="tab.tab_slug">{{
 						tab.tab_label
 					}}</Tab>
 				</TabList>
@@ -187,7 +183,7 @@ const activeTab = ref(tabs.value[1].value)
 								<div :key="data?.invoices || 0">
 									{{
 										locale.number(
-											data?.invoices || 0
+											data?.interval_percentages?.invoices?.amount || 0
 										)
 									}}
 								</div>
@@ -289,14 +285,14 @@ const activeTab = ref(tabs.value[1].value)
 								<div
 									v-tooltip="
 										useLocaleStore().currencyFormat(
-											data.currency,
+											data.currency_code,
 											data.interval_percentages?.sales?.amount || 0
 										)
 									"
 									:key="data.interval_percentages?.sales?.amount">
 									{{
 										useLocaleStore().CurrencyShort(
-											data.currency,
+											data.currency_code,
 											data.interval_percentages?.sales?.amount || 0
 										)
 									}}

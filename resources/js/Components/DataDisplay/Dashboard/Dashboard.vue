@@ -32,7 +32,7 @@ const isOrganisation = ref(false)
             return true;
 		}) */
 
-const tableDatas = computed(() => {
+/* const tableDatas = computed(() => {
     const isShopOpen = props.dashboard.settings.db_settings.selected_shop_open === "open";
 
     if (props.tableType === "org") {
@@ -52,7 +52,7 @@ const tableDatas = computed(() => {
                 currency: org.currency_code,
             }));
     } else {
-        return props.dashboard.table.sales
+        return props.dashboard.table
             .filter((org) => org.type !== "agent") 
             .map((org) => ({
                 name: org.name,
@@ -65,13 +65,13 @@ const tableDatas = computed(() => {
                 currency: org.currency_code,
             }));
     }
-});
+}); */
 
 const toggleCurrency = () => {
 	isOrganisation.value = !isOrganisation.value
 }
 
-const dashboardTable = [
+/* const dashboardTable = [
 	{
 		tab_label: "Overview",
 		tab_slug: "overview",
@@ -84,7 +84,8 @@ const dashboardTable = [
 		type: "xxx",  // 
 		data: null
 	},
-]
+] */
+const dashboardTable = props.dashboard.table
 </script>
 
 <template>
@@ -101,10 +102,12 @@ const dashboardTable = [
 		<DashboardTable
 			v-if="props.dashboard?.table"
 			:dashboardTable
-			:tableData="tableDatas"
+			
 			:locale="locale"
 			:tableType="props.tableType"
 			:totalAmount="props.dashboard.total"
+
+			
 			:selectedDateOption="props.dashboard.settings.selected_interval" />
 
 		<DashboardWidget v-if="props.dashboard?.widgets" :widgetsData="dashboard.widgets" />

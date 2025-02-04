@@ -24,7 +24,7 @@ import { get } from "lodash"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import { useGetCurrencySymbol } from "@/Composables/useCurrency"
 import Tag from "@/Components/Tag.vue"
-import { faFolderOpen, faSeedling, faTimesCircle, faTriangle } from "@fal"
+import { faCog, faFolderOpen, faSeedling, faTimesCircle, faTriangle } from "@fal"
 import { faArrowDown, faArrowUp } from "@fad"
 import Select from "primevue/select"
 import tippy from "tippy.js"
@@ -40,7 +40,7 @@ import TabPanels from "primevue/tabpanels"
 import TabPanel from "primevue/tabpanel"
 import Dashboard from "@/Components/DataDisplay/Dashboard/Dashboard.vue"
 
-library.add(faTriangle, faChevronDown, faSeedling, faTimesCircle, faFolderOpen, faPlay)
+library.add(faTriangle, faChevronDown, faSeedling, faTimesCircle, faFolderOpen, faPlay, faCog)
 
 const props = defineProps<{
 	groupStats: {
