@@ -78,23 +78,9 @@ class IndexPortfolios extends OrgAction
         }
         */
 
-
         return $queryBuilder
             ->defaultSort('portfolios.reference')
-            ->select([
-                'portfolios.reference',
-                'portfolios.status',
-                'portfolios.id',
-                'portfolios.organisation_id',
-                'portfolios.shop_id',
-                'portfolios.customer_id',
-                'portfolios.type',
-                'products.code as product_code',
-                'products.name as product_name',
-                'products.slug as slug',
-                'portfolios.created_at'
-            ])
-            ->leftJoin('products', 'products.id', 'product_id')
+            ->with('item')
             ->allowedSorts(['reference', 'created_at'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)

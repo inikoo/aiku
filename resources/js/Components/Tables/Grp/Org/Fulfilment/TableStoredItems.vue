@@ -76,7 +76,7 @@ function storedItemRoute(storedItem) {
                     :label="`${item.reference} (${item.quantity})`" :closeButton="false" :stringToColor="true">
                     <template #label>
                         <div class="whitespace-nowrap text-xs">
-                            {{ item["reference"] }} (<span class="font-light">{{ item["quantity"] }}</span>)
+                            {{ item["reference"] }} 
                         </div>
                     </template>
                 </Tag>

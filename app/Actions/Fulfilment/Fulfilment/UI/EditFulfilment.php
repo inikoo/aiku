@@ -167,8 +167,7 @@ class EditFulfilment extends OrgAction
                             'icon'   => 'fa-light fa-shoe-prints',
                             'fields' => [
                                 'invoice_footer'  => [
-                                    'type'        => 'editor',
-                                    'full'      => true,
+                                    'type'        => 'textEditor',
                                     'label'       => __('invoice footer'),
                                     'value'       => $fulfilment->shop->invoice_footer
                                 ],

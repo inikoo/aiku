@@ -16,7 +16,7 @@ class PalletReturnsResource extends JsonResource
     {
         /** @var \App\Models\Fulfilment\PalletReturn $palletReturn */
         $palletReturn = $this;
-        
+
         return [
             'id'                    => $palletReturn->id,
             'slug'                  => $palletReturn->slug,
