@@ -32,6 +32,7 @@ set('keep_releases', 1000);
 
 set('shared_dirs', ['storage', 'private']);
 set('shared_files', [
+    'rr',
     '.env',
     '.env.testing',
     '.user.ini',
