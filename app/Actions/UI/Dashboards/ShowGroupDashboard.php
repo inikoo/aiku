@@ -9,6 +9,7 @@
 namespace App\Actions\UI\Dashboards;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\DashboardIntervalTabsEnum;
 use App\Actions\Traits\WithDashboard;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\SysAdmin\Group;
@@ -62,7 +63,7 @@ class ShowGroupDashboard extends OrgAction
             ],
             'tabs' => [
                 'current' => $this->tabDashboardInterval,
-                'navigation'  => ['sales', 'profile']
+                'navigation'  => DashboardIntervalTabsEnum::navigation()
             ],
             'table' => [
 
@@ -258,7 +259,7 @@ class ShowGroupDashboard extends OrgAction
     public function asController(ActionRequest $request): Response
     {
         $group = group();
-        $this->initialisationFromGroup($group, $request)->withTabDashboardInterval(['sales', 'profile']);
+        $this->initialisationFromGroup($group, $request)->withTabDashboardInterval();
         return $this->handle($group);
     }
 

@@ -11,7 +11,33 @@
 namespace App\Actions\Traits;
 
 use App\Enums\DateIntervals\DateIntervalEnum;
+use App\Enums\EnumHelperTrait;
+use App\Enums\HasTabs;
 use Illuminate\Support\Arr;
+
+enum DashboardIntervalTabsEnum: string
+{
+    use EnumHelperTrait;
+    use HasTabs;
+
+    case SALES      = 'sales';
+    case ORDERS      = 'orders';
+
+    public function blueprint(): array
+    {
+        return match ($this) {
+            DashboardIntervalTabsEnum::SALES => [
+                'title' => __('sales'),
+                'icon'  => 'fas fa-chart-line',
+            ],
+            DashboardIntervalTabsEnum::ORDERS => [
+                'title' => __('orders'),
+                'icon'  => 'fal fa-shopping-cart'
+            ],
+        };
+    }
+}
+
 
 trait WithDashboard
 {
@@ -64,8 +90,9 @@ trait WithDashboard
         ];
     }
 
-    public function withTabDashboardInterval(array $tabs): static
+    public function withTabDashboardInterval(): static
     {
+        $tabs = DashboardIntervalTabsEnum::values();
         $tab =  $this->get('tab_dashboard_interval', Arr::first($tabs));
 
         if (!in_array($tab, $tabs)) {
