@@ -70,6 +70,21 @@ const tableDatas = computed(() => {
 const toggleCurrency = () => {
 	isOrganisation.value = !isOrganisation.value
 }
+
+const dashboardTable = [
+	{
+		tab_label: "Overview",
+		tab_slug: "overview",
+		type: "table",  // 
+		data: tableDatas.value
+	},
+	{
+		tab_label: "Profile",
+		tab_slug: "profile",
+		type: "xxx",  // 
+		data: null
+	},
+]
 </script>
 
 <template>
@@ -85,6 +100,7 @@ const toggleCurrency = () => {
 
 		<DashboardTable
 			v-if="props.dashboard?.table"
+			:dashboardTable
 			:tableData="tableDatas"
 			:locale="locale"
 			:tableType="props.tableType"

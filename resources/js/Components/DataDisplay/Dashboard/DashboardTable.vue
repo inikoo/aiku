@@ -24,6 +24,12 @@ const props = defineProps<{
 	}
 	selectedDateOption: String
 	tableType?: string
+	dashboardTable: {
+		tab_label: string
+		tab_slug: string
+		type: string  // 'table'
+		data: {}
+	}[]
 }>()
 
 
@@ -36,28 +42,33 @@ const tabs = ref([
 function ShopDashboard(shop: any) {
 	return route(shop?.route?.name, shop?.route?.parameters)
 }
+
+const computedTab = computed(() => {
+	return props.dashboardTable.find((tab) => tab.tab_slug === activeTab.value)
+})
+
 const activeTab = ref(tabs.value[1].value)
 </script>
 
 <template>
 	<div class="bg-white mb-2 text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
 		<div class="mt-2">
+			{{ activeTab }}
 			<Tabs :value="activeTab">
 				<TabList>
-					<Tab v-for="tab in tabs" :key="tab.title" :value="tab.value">{{
-						tab.title
+					<Tab v-for="tab in dashboardTable" @click="() => activeTab = tab.tab_slug" :key="tab.tab_slug" :value="tab.tab_slug">{{
+						tab.tab_label
 					}}</Tab>
 				</TabList>
 			</Tabs>
 		
-			<DataTable :value="tableData" removableSort >
+			<DataTable v-if="computedTab.type === 'table'" :value="computedTab.data" removableSort >
 				<Column sortable field="code" >
 					<template #header>
 						<div class="flex items-center justify-between">
 							<span class="font-bold">Code</span>
 						</div>
 					</template>
-
 					<template #body="{ data }" v-if="tableType == 'org'">
 						<div class="relative">
 							<Transition name="spin-to-down" mode="out-in">
@@ -79,7 +90,6 @@ const activeTab = ref(tabs.value[1].value)
 						</div>
 					</template>
 				</Column>
-
 				<!-- Refunds -->
 				<Column sortable headerClass="align-right" hidden>
 					<template #header>
@@ -103,7 +113,6 @@ const activeTab = ref(tabs.value[1].value)
 						</div>
 					</template>
 				</Column>
-
 				<!-- Refunds: Diff 1y -->
 				<Column
 					hidden
@@ -142,9 +151,9 @@ const activeTab = ref(tabs.value[1].value)
 															?.percentage > 0
 															? "+"
 															: ""
-												  }${data.interval_percentages?.refunds?.percentage.toFixed(
+													}${data.interval_percentages?.refunds?.percentage.toFixed(
 														2
-												  )}%`
+													)}%`
 												: `0.0%`
 										}}
 									</span>
@@ -166,7 +175,6 @@ const activeTab = ref(tabs.value[1].value)
 						</div>
 					</template>
 				</Column>
-
 				<!-- Invoice -->
 				<Column sortable field="invoices" class="overflow-hidden transition-all" headerClass="align-right">
 					<template #header>
@@ -188,7 +196,6 @@ const activeTab = ref(tabs.value[1].value)
 						</div>
 					</template>
 				</Column>
-
 				<!-- Invoice: Diff 1y -->
 				<Column
 					field="invoices_percentage"
@@ -234,9 +241,9 @@ const activeTab = ref(tabs.value[1].value)
 																	?.percentage > 0
 																	? "+"
 																	: ""
-														  }${data.interval_percentages.invoices?.percentage.toFixed(
+															}${data.interval_percentages.invoices?.percentage.toFixed(
 																2
-														  )}%`
+															)}%`
 														: `0.0%`
 												}}
 											</span>
@@ -265,7 +272,6 @@ const activeTab = ref(tabs.value[1].value)
 						</div>
 					</template>
 				</Column>
-
 				<!-- Sales -->
 				<Column
 					field="sales"
@@ -300,7 +306,6 @@ const activeTab = ref(tabs.value[1].value)
 						</div>
 					</template>
 				</Column>
-
 				<!-- Sales: Diff 1y -->
 				<Column
 					field="sales_percentage"
@@ -339,9 +344,9 @@ const activeTab = ref(tabs.value[1].value)
 														0
 															? "+"
 															: ""
-												  }${data.interval_percentages?.sales?.percentage.toFixed(
+													}${data.interval_percentages?.sales?.percentage.toFixed(
 														2
-												  )}%`
+													)}%`
 												: `0.0%`
 										}}
 									</span>
@@ -364,7 +369,6 @@ const activeTab = ref(tabs.value[1].value)
 						</div>
 					</template>
 				</Column>
-
 				<!-- Total -->
 				<ColumnGroup type="footer">
 					<Row>
@@ -374,12 +378,10 @@ const activeTab = ref(tabs.value[1].value)
 							:footer="totalAmount.total_refunds.toString()"
 							footerStyle="text-align:right" />
 						<Column hidden footer="" footerStyle="text-align:right" />
-
 						<Column
 							:footer="locale.number(Number(totalAmount.total_invoices.toString()))"
 							footerStyle="text-align:right" />
 						<Column footer="" footerStyle="text-align:right" />
-
 						<Column
 							v-tooltip="
 								useLocaleStore().currencyFormat(
@@ -398,6 +400,10 @@ const activeTab = ref(tabs.value[1].value)
 					</Row>
 				</ColumnGroup>
 			</DataTable>
+
+			<div v-else>
+				Type not found
+			</div>
 		</div>
 	</div>
 </template>
