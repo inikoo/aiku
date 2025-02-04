@@ -168,6 +168,7 @@ class EditFulfilment extends OrgAction
                             'fields' => [
                                 'invoice_footer'  => [
                                     'type'        => 'editor',
+                                    'full'      => true,
                                     'label'       => __('invoice footer'),
                                     'value'       => $fulfilment->shop->invoice_footer
                                 ],
