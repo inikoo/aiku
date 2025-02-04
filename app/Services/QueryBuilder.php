@@ -137,6 +137,24 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
         return ['start' => $start, 'end' => $end];
     }
 
+    public function withBetweenFilter(string $table, string $column, ?string $prefix = null): static
+    {
+        $argumentName = ($prefix ? $prefix . '_' : '') . 'between';
+
+        if (request()->has("$argumentName.$column")) {
+            $range = request()->input("$argumentName.$column");
+
+            $parts = explode('-', $range);
+
+            if (count($parts) === 2) {
+                [$start, $end] = $parts;
+                $this->whereBetween($table.'.'.$column, [$start, $end]);
+            }
+        }
+
+        return $this;
+    }
+
     public function withPaginator($prefix, int $numberOfRecords = null): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         $perPage = is_null($numberOfRecords) ? config('ui.table.records_per_page') : $numberOfRecords;
