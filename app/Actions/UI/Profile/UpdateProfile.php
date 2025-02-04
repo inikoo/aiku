@@ -25,12 +25,11 @@ class UpdateProfile extends GrpAction
     public function handle(User $user, array $modelData): User
     {
         $user = $this->processProfileAvatar($modelData, $user);
-
         if (Arr::exists($modelData, 'app_theme')) {
             $appTheme = Arr::pull($modelData, 'app_theme');
             $modelData['settings']['app_theme'] = $appTheme;
         }
-
+        data_forget($modelData, 'image');
         return $this->update($user, $modelData, ['settings']);
     }
 
