@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('stored_items', function (Blueprint $table) {
-            $table->text('description')->nullable();
+            $table->string('name')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('stored_items', function (Blueprint $table) {
-            $table->dropColumn('description');
+            $table->dropColumn('name');
         });
     }
 };
