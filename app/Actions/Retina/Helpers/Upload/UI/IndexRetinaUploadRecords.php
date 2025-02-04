@@ -52,7 +52,7 @@ class IndexRetinaUploadRecords extends RetinaAction
             ->defaultSort('upload_records.id')
             ->with('excel')
             ->allowedSorts(['uploads.original_filename', 'row_number', 'status', 'created_at'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

@@ -74,7 +74,7 @@ class IndexOfferCampaigns extends OrgAction
         return $query->
             allowedSorts(['code', 'name', 'state', 'number_current_offers'])
             ->allowedFilters([$globalSearch, 'code', 'name'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

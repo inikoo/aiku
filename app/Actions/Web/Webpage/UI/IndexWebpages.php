@@ -237,7 +237,7 @@ class IndexWebpages extends OrgAction
                 'websites.slug as website_slug'])
             ->allowedSorts(['code', 'type', 'level', 'url'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

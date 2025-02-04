@@ -75,7 +75,7 @@ class IndexProductions extends OrgAction
             ->leftJoin('production_stats', 'production_stats.production_id', 'productions.id')
             ->allowedSorts(['code', 'name', 'number_raw_materials', 'number_artefacts','number_manufacture_tasks'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

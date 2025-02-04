@@ -90,7 +90,7 @@ class IndexWebUsers extends OrgAction
                 ])
             ->allowedSorts(['email', 'username', 'created_at', 'organisation_name', 'shop_name', 'shop_code'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

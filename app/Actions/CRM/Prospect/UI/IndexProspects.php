@@ -151,7 +151,7 @@ class IndexProspects extends OrgAction
             ->defaultSort('prospects.name')
             ->allowedSorts(['name', 'email', 'phone', 'contact_website'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

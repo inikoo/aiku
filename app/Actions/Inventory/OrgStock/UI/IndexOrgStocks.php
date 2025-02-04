@@ -258,7 +258,7 @@ class IndexOrgStocks extends OrgAction
             ->leftJoin('org_stock_families', 'org_stocks.org_stock_family_id', 'org_stock_families.id')
             ->allowedSorts(['code', 'family_code', 'unit_value', 'discontinued_in_organisation_at', 'organisation_name'])
             ->allowedFilters([$globalSearch, AllowedFilter::exact('state')])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

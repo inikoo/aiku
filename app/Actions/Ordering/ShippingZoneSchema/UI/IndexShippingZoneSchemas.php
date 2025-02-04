@@ -84,7 +84,7 @@ class IndexShippingZoneSchemas extends OrgAction
 
         return $queryBuilder->allowedSorts(['name', 'status'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

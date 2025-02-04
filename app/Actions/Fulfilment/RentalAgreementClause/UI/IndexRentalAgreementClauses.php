@@ -70,7 +70,7 @@ class IndexRentalAgreementClauses extends OrgAction
             )
             ->allowedSorts(['id','asset_code','asset_type'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

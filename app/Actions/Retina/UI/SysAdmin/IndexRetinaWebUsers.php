@@ -61,7 +61,7 @@ class IndexRetinaWebUsers extends RetinaAction
             ->select(['web_users.slug','web_users.id', 'web_user_stats.last_device', 'web_user_stats.last_location', 'web_user_stats.last_os' ,'web_users.username', 'web_users.image_id','web_users.contact_name', 'web_users.status', 'web_users.is_root', 'web_user_stats.last_active_at as last_active'])
             ->allowedSorts(['web_users.status', 'username', 'contact_name', 'last_active'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

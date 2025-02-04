@@ -79,7 +79,7 @@ class IndexProspectTags extends OrgAction
         return $query
             ->allowedSorts(['label', 'number_prospects'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

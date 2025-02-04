@@ -73,7 +73,7 @@ class IndexMasterDepartments extends GrpAction
             ->where('master_product_categories.type', ProductCategoryTypeEnum::DEPARTMENT)
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

@@ -94,7 +94,7 @@ class IndexRetinaGoods extends RetinaAction
 
         return $queryBuilder->allowedSorts(['id','code','name','price'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

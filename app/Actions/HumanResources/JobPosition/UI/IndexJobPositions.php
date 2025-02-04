@@ -71,7 +71,7 @@ class IndexJobPositions extends OrgAction
             ->defaultSort('job_positions.code')
             ->allowedSorts(['job_positions.code', 'job_positions.name', 'number_employees_currently_working', 'share'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

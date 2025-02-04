@@ -57,7 +57,7 @@ class IndexOrgPartners extends OrgAction
                 ])
             ->allowedSorts(['code', 'organisations.name', 'email'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

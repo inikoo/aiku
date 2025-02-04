@@ -57,7 +57,7 @@ class IndexStoredItemsInWarehouse extends OrgAction
             ->defaultSort('reference')
             ->allowedSorts(['slug', 'state', 'reference'])
             ->allowedFilters([$globalSearch, 'slug', 'state'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

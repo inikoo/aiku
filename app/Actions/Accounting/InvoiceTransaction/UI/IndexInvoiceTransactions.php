@@ -86,7 +86,7 @@ class IndexInvoiceTransactions extends OrgAction
 
         return $queryBuilder->allowedSorts(['code', 'name', 'quantity', 'net_amount'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

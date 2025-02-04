@@ -70,7 +70,7 @@ class IndexExternalLinks extends OrgAction
             )
             ->allowedSorts(['url', 'number_websites_shown', 'number_webpages_shown', 'number_web_blocks_shown', 'number_websites_hidden', 'number_webpages_hidden', 'number_web_blocks_hidden', 'status'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
