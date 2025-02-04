@@ -9,12 +9,14 @@
 namespace App\Actions\Billables\Service\UI;
 
 use App\Actions\OrgAction;
+use App\Enums\Billables\Service\ServiceEditTypeEnum;
 use App\Models\Billables\Service;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
 
 class EditService extends OrgAction
 {
@@ -116,34 +118,27 @@ class EditService extends OrgAction
                                     'value'    => $service->unit,
                                     'readonly' => true
                                 ],
-                                'units' => [
-                                    'type'     => 'input',
-                                    'label'    => __('units'),
-                                    'value'    => $service->units,
-                                ],
                                 'price' => [
                                     'type'    => 'input',
                                     'label'   => __('price'),
                                     'required' => true,
                                     'value'   => $service->price
                                 ],
-                                // 'type' => [
-                                //     'type'          => 'select',
-                                //     'label'         => __('type'),
-                                //     'placeholder'   => 'Select a Asset Type',
-                                //     'options'       => Options::forEnum(AssetTypeEnum::class)->toArray(),
-                                //     'required'      => true,
-                                //     'mode'          => 'single',
-                                //     'value'         => $product->type
-                                // ]
+                                'fixed_price' => [
+                                    'type'    => 'toggle',
+                                    'label'   => __('fixed price'),
+                                    'value'   => false
+                                ]
                             ]
                         ]
 
                     ],
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'grp.models.product.update',
-                            'parameters' => $service->id
+                            'name'       => 'grp.models.services.update',
+                            'parameters' => [
+                                'service' => $service->id
+                            ]
 
                         ],
                     ]

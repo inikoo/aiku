@@ -282,7 +282,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
 
     Route::prefix('fulfilment/{fulfilment:id}/rentals')->name('fulfilment.rentals.')->group(function () {
         Route::post('/', StoreRental::class)->name('store');
-        Route::patch('{rental:id}', UpdateRental::class)->name('update')->withoutScopedBindings();
+        Route::patch('{rental:id}', [UpdateRental::class, 'inFulfilment'])->name('update')->withoutScopedBindings();
     });
 
     Route::prefix('fulfilment/{fulfilment:id}/services')->name('fulfilment.services.')->group(function () {
@@ -649,6 +649,12 @@ Route::name('email.')->prefix('email/')->group(function () {
     Route::name('snapshot.')->prefix('snapshot/{snapshot:id}')->group(function () {
         Route::patch('/update', UpdateEmailUnpublishedSnapshot::class)->name('update');
     });
+});
+Route::name('services.')->prefix('serivices/')->group(function () {
+        Route::patch('{service:id}/update', UpdateService::class)->name('update');
+});
+Route::name('rentals.')->prefix('rentals/')->group(function () {
+        Route::patch('{rental:id}/update', UpdateRental::class)->name('update');
 });
 
 require __DIR__."/models/inventory/warehouse.php";
