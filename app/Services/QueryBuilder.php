@@ -160,28 +160,6 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
         return $this;
     }
 
-    public function withBetweenDates(string $table, array $allowedColumns, ?string $prefix = null): static
-    {
-        $allowedColumns = array_merge($allowedColumns, ['created_at', 'updated_at']);
-        $argumentName = ($prefix ? $prefix . '_' : '') . 'between';
-
-        $filters = request()->input($argumentName, []);
-
-        foreach ($allowedColumns as $column) {
-            if (array_key_exists($column, $filters)) {
-                $range = $filters[$column];
-                $parts = explode('-', $range);
-
-                if (count($parts) === 2) {
-                    [$start, $end] = $parts;
-                    $this->whereBetween($table . '.' . $column, [$start, $end]);
-                }
-            }
-        }
-
-        return $this;
-    }
-
     public function withPaginator($prefix, int $numberOfRecords = null, $tableName = null): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         $userId = auth()->user()->id ?? null;
