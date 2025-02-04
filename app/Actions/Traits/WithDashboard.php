@@ -21,7 +21,7 @@ enum DashboardIntervalTabsEnum: string
     use HasTabs;
 
     case SALES      = 'sales';
-    case ORDERS      = 'orders';
+    case SHOPS      = 'shops';
 
     public function blueprint(): array
     {
@@ -30,9 +30,9 @@ enum DashboardIntervalTabsEnum: string
                 'title' => __('sales'),
                 'icon'  => 'fas fa-chart-line',
             ],
-            DashboardIntervalTabsEnum::ORDERS => [
-                'title' => __('orders'),
-                'icon'  => 'fal fa-shopping-cart'
+            DashboardIntervalTabsEnum::SHOPS => [
+                'title' => __('shops'),
+                'icon'  => 'fal fa-shopping-cart',
             ],
         };
     }
