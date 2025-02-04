@@ -130,6 +130,7 @@ const onCancel = () =>{
 }
 
 const onSaved = async () => {
+	onSaveNameForNewStoredItem()
 	let newData = []
 
 	if (props.form.oldData) {
@@ -151,6 +152,30 @@ const onSaved = async () => {
 	emits("onSave", finalData)
 }
 
+// Section: save name for new stored item
+const newStoredItemName = ref('')
+const errorNewStoredItemName = ref('')
+const onSaveNameForNewStoredItem = async () => {
+	if (!newStoredItem.value?.id && newStoredItemName.value) {
+		return
+	}
+
+	try {
+		const response: any = await axios.patch(
+			route('grp.models.stored-items.update', [newStoredItem.value?.id]),
+			{ name: newStoredItemName.value }
+		)
+	} catch (error: any) {
+		console.log(error)
+		errorNewStoredItemName.value = error?.response?.data?.message
+		
+		notify({
+			title: trans("Something went wrong."),
+			text: error.message ? error.message : trans('Failed to set name for new stored item'),
+			type: "error",
+		})
+	}
+}
 </script>
 
 <template>
@@ -246,15 +271,15 @@ const onSaved = async () => {
 			<label class="mt-1 block text-sm font-medium text-gray-700">{{ trans("Name") }}</label>
 			
 			<PureInput
-				v-model="form.name"
-				@update:modelValue="() => form.errors.name = ''"
-				:class="form.errors?.name ? 'errorShake' : ''"
+				v-model="newStoredItemName"
+				@update:modelValue="() => errorNewStoredItemName = ''"
+				:class="errorNewStoredItemName ? 'errorShake' : ''"
 				class="col-span-2"
 				:placeholder="trans('Customer\'s SKU name')"
 			/>
 		</div>
-		<p v-if="get(form, ['errors', 'name'])" class="mt-2 text-sm text-red-500">
-			{{ form.errors?.name }}
+		<p v-if="errorNewStoredItemName" class="mt-2 text-sm text-red-500">
+			{{ errorNewStoredItemName }}
 		</p>
 
 
