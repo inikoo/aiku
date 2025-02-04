@@ -137,18 +137,22 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
         return ['start' => $start, 'end' => $end];
     }
 
-    public function withBetweenFilter(string $table, string $column, ?string $prefix = null): static
+    public function withBetweenDates(string $table, array $allowedColumns, ?string $prefix = null): static
     {
+        $allowedColumns = array_merge($allowedColumns, ['created_at', 'updated_at']);
         $argumentName = ($prefix ? $prefix . '_' : '') . 'between';
 
-        if (request()->has("$argumentName.$column")) {
-            $range = request()->input("$argumentName.$column");
+        $filters = request()->input($argumentName, []);
 
-            $parts = explode('-', $range);
+        foreach ($allowedColumns as $column) {
+            if (array_key_exists($column, $filters)) {
+                $range = $filters[$column];
+                $parts = explode('-', $range);
 
-            if (count($parts) === 2) {
-                [$start, $end] = $parts;
-                $this->whereBetween($table.'.'.$column, [$start, $end]);
+                if (count($parts) === 2) {
+                    [$start, $end] = $parts;
+                    $this->whereBetween($table . '.' . $column, [$start, $end]);
+                }
             }
         }
 
