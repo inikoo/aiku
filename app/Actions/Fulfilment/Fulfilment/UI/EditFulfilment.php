@@ -163,6 +163,17 @@ class EditFulfilment extends OrgAction
                             ]
                         ],
                         [
+                            'label'  => __('invoices footer'),
+                            'icon'   => 'fa-light fa-shoe-prints',
+                            'fields' => [
+                                'invoice_footer'  => [
+                                    'type'        => 'editor',
+                                    'label'       => __('invoice footer'),
+                                    'value'       => $fulfilment->shop->invoice_footer
+                                ],
+                            ],
+                        ],
+                        [
                             'title'  => __('recurring bill settings'),
                             'icon'   => 'fa-light fa-flag-checkered',
                             'label'  => __('cut off day'),
