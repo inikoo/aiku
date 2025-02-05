@@ -16,7 +16,7 @@ import { useTruncate } from "@/Composables/useTruncate"
 import ToggleSwitch from "primevue/toggleswitch"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faChevronDown } from "@far"
-import { faPlay, faSortDown, faSortUp } from "@fas"
+import { faChartLine, faPlay, faSortDown, faSortUp } from "@fas"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { Head } from "@inertiajs/vue3"
 import { trans } from "laravel-vue-i18n"
@@ -24,7 +24,7 @@ import { get } from "lodash"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import { useGetCurrencySymbol } from "@/Composables/useCurrency"
 import Tag from "@/Components/Tag.vue"
-import { faFolderOpen, faSeedling, faTimesCircle, faTriangle } from "@fal"
+import { faCog, faFolderOpen, faSeedling, faTimesCircle, faTriangle } from "@fal"
 import { faArrowDown, faArrowUp } from "@fad"
 import Select from "primevue/select"
 import tippy from "tippy.js"
@@ -40,7 +40,7 @@ import TabPanels from "primevue/tabpanels"
 import TabPanel from "primevue/tabpanel"
 import Dashboard from "@/Components/DataDisplay/Dashboard/Dashboard.vue"
 
-library.add(faTriangle, faChevronDown, faSeedling, faTimesCircle, faFolderOpen, faPlay)
+library.add(faTriangle, faChevronDown, faSeedling, faTimesCircle, faFolderOpen, faPlay, faCog, faChartLine)
 
 const props = defineProps<{
 	groupStats: {

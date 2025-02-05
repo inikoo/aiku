@@ -128,12 +128,6 @@ class EditService extends OrgAction
                                     'value'    => $service->unit,
                                     'readonly' => true
                                 ],
-                                'units' => [
-                                    'type'     => 'input',
-                                    'label'    => __('units'),
-                                    'value'    => $service->units,
-                                    'readonly' => $disableUnits
-                                ],
                                 'price' => [
                                     'type'    => 'input',
                                     'label'   => __('price'),

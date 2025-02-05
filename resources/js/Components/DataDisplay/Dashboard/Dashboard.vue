@@ -11,6 +11,7 @@ const props = defineProps<{
 		table?: {}[]
 		total?: {}[]
 		widgets?: {}[]
+		current?: string
 	}
 	checked?: boolean
 	tableType?: string
@@ -32,7 +33,7 @@ const isOrganisation = ref(false)
             return true;
 		}) */
 
-const tableDatas = computed(() => {
+/* const tableDatas = computed(() => {
     const isShopOpen = props.dashboard.settings.db_settings.selected_shop_open === "open";
 
     if (props.tableType === "org") {
@@ -52,7 +53,7 @@ const tableDatas = computed(() => {
                 currency: org.currency_code,
             }));
     } else {
-        return props.dashboard.table.sales
+        return props.dashboard.table
             .filter((org) => org.type !== "agent") 
             .map((org) => ({
                 name: org.name,
@@ -65,11 +66,27 @@ const tableDatas = computed(() => {
                 currency: org.currency_code,
             }));
     }
-});
+}); */
 
 const toggleCurrency = () => {
 	isOrganisation.value = !isOrganisation.value
 }
+
+/* const dashboardTable = [
+	{
+		tab_label: "Overview",
+		tab_slug: "overview",
+		type: "table",  // 
+		data: tableDatas.value
+	},
+	{
+		tab_label: "Profile",
+		tab_slug: "profile",
+		type: "xxx",  // 
+		data: null
+	},
+] */
+
 </script>
 
 <template>
@@ -85,11 +102,13 @@ const toggleCurrency = () => {
 
 		<DashboardTable
 			v-if="props.dashboard?.table"
-			:tableData="tableDatas"
+			:dashboardTable="props.dashboard.table"
+			
 			:locale="locale"
 			:tableType="props.tableType"
 			:totalAmount="props.dashboard.total"
-			:selectedDateOption="props.dashboard.settings.selected_interval" />
+			:current="props.dashboard.current"
+			:settings="props.dashboard?.settings" />
 
 		<DashboardWidget v-if="props.dashboard?.widgets" :widgetsData="dashboard.widgets" />
 	</div>
