@@ -40,15 +40,15 @@ const activeTab = ref(tabs.value[1].value)
 </script>
 
 <template>
-	<div class="bg-white mb-2 text-gray-800 rounded-lg p-6 shadow-md border border-gray-200">
+	<div class="bg-white mb-2 text-gray-800 rounded-lg pl-2 pr-2 shadow-md border border-gray-200">
 		<div class="mt-2">
-			<Tabs :value="activeTab">
+			<!-- <Tabs :value="activeTab">
 				<TabList>
 					<Tab v-for="tab in tabs" :key="tab.title" :value="tab.value">{{
 						tab.title
 					}}</Tab>
 				</TabList>
-			</Tabs>
+			</Tabs> -->
 		
 			<DataTable :value="tableData" removableSort >
 				<Column sortable field="code" >
@@ -110,7 +110,7 @@ const activeTab = ref(tabs.value[1].value)
 					sortable
 					class="overflow-hidden transition-all"
 					headerClass="align-right"
-					headerStyle="text-align: green; width: 270px">
+					>
 					<template #header>
 						<div class="flex justify-end items-end">
 							<span class="font-semibold">
@@ -131,10 +131,10 @@ const activeTab = ref(tabs.value[1].value)
 									style="
 										display: flex;
 										align-items: center;
-										line-height: 1;
-										gap: 6px;
+										
+										
 									">
-									<span style="font-size: 16px; font-weight: 500; line-height: 1">
+									<span style="font-size: 16px; font-weight: 500; ">
 										{{
 											data.interval_percentages?.refunds?.percentage
 												? `${
@@ -218,14 +218,13 @@ const activeTab = ref(tabs.value[1].value)
 											style="
 												display: flex;
 												align-items: center;
-												line-height: 1;
-												gap: 6px;
+												
 											">
 											<span
 												style="
 													font-size: 16px;
 													font-weight: 500;
-													line-height: 1;
+
 												">
 												{{
 													data.interval_percentages?.invoices?.percentage
@@ -250,14 +249,14 @@ const activeTab = ref(tabs.value[1].value)
 														? 'fas fa-play'
 														: 'fas fa-play'
 												"
-												style="font-size: 20px; margin-top: 6px"
+												style="font-size: 20px;"
 												:class="
 													data.interval_percentages.invoices?.percentage <
 													0
 														? 'text-red-500 rotate-90'
 														: 'text-green-500 rotate-[-90deg]'
 												" />
-											<div v-else style="width: 20px; height: 20px"></div>
+											<div v-else style="width: 20px; "></div>
 										</div>
 									</Transition>
 								</div>
@@ -290,7 +289,7 @@ const activeTab = ref(tabs.value[1].value)
 									"
 									:key="data.interval_percentages?.sales?.amount">
 									{{
-										useLocaleStore().CurrencyShort(
+										useLocaleStore().currencyFormat(
 											data.currency,
 											data.interval_percentages?.sales?.amount || 0
 										)
@@ -328,10 +327,9 @@ const activeTab = ref(tabs.value[1].value)
 									style="
 										display: flex;
 										align-items: center;
-										line-height: 1;
-										gap: 6px;
+									
 									">
-									<span style="font-size: 16px; font-weight: 500; line-height: 1">
+									<span style="font-size: 16px; font-weight: 500;">
 										{{
 											data.interval_percentages?.sales?.percentage
 												? `${
@@ -352,13 +350,13 @@ const activeTab = ref(tabs.value[1].value)
 												? 'fas fa-play'
 												: 'fas fa-play'
 										"
-										style="font-size: 20px; margin-top: 6px"
+										style="font-size: 20px;"
 										:class="
 											data.interval_percentages.sales?.percentage < 0
 												? 'text-red-500 rotate-90'
 												: 'text-green-500 rotate-[-90deg]'
 										" />
-									<div v-else style="width: 20px; height: 20px"></div>
+									<div v-else style="width: 20px; "></div>
 								</div>
 							</Transition>
 						</div>
@@ -388,7 +386,7 @@ const activeTab = ref(tabs.value[1].value)
 								)
 							"
 							:footer="
-								useLocaleStore().CurrencyShort(
+								useLocaleStore().currencyFormat(
 									'GBP',
 									Number(totalAmount.total_sales)
 								)

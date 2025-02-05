@@ -9,6 +9,7 @@
 namespace App\Models\Accounting;
 
 use App\Models\Catalogue\Asset;
+use App\Models\Catalogue\HistoricAsset;
 use App\Models\Discounts\Offer;
 use App\Models\Discounts\OfferCampaign;
 use App\Models\Discounts\OfferComponent;
@@ -135,6 +136,11 @@ class InvoiceTransaction extends Model
     public function asset(): BelongsTo
     {
         return $this->belongsTo(Asset::class);
+    }
+
+    public function historicAsset(): BelongsTo
+    {
+        return $this->belongsTo(HistoricAsset::class);
     }
 
     public function currency(): BelongsTo
