@@ -205,10 +205,24 @@ class Website extends Model implements Auditable, HasMedia
         return $this->belongsTo(Media::class, 'logo_id');
     }
 
+    public function favicon(): BelongsTo
+    {
+        return $this->belongsTo(Media::class, 'favicon_id');
+    }
+
     public function imageSources($width = 0, $height = 0)
     {
         if ($this->logo) {
             $avatarThumbnail = $this->logo->getImage()->resize($width, $height);
+            return GetPictureSources::run($avatarThumbnail);
+        }
+        return null;
+    }
+
+    public function faviconSources($width = 0, $height = 0)
+    {
+        if ($this->logo) {
+            $avatarThumbnail = $this->favicon->getImage()->resize($width, $height);
             return GetPictureSources::run($avatarThumbnail);
         }
         return null;
