@@ -74,7 +74,7 @@ function useTabChangeDashboard(tab_slug: string) {
 					{{ tab.tab_label }}</Tab>
 				</TabList>
 			</Tabs> 
-		
+	
 			<DataTable v-if="selectedTab.type === 'table'" :value="selectedTab.data" removableSort >
 				<Column sortable field="code" >
 					<template #header>
@@ -82,7 +82,7 @@ function useTabChangeDashboard(tab_slug: string) {
 							<span class="font-bold">Code</span>
 						</div>
 					</template>
-					<template #body="{ data }" v-if="tableType == 'org'">
+					<template #body="{ data }" v-if="tableType == 'org' || current == 'shops'">
 						<div class="relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div :key="data.name">
@@ -94,6 +94,7 @@ function useTabChangeDashboard(tab_slug: string) {
 						</div>
 					</template>
 					<template #body="{ data }" v-else>
+					
 						<div class="relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div :key="data.code">
@@ -403,7 +404,7 @@ function useTabChangeDashboard(tab_slug: string) {
 								)
 							"
 							:footer="
-								useLocaleStore().currencyFormat(
+								useLocaleStore().CurrencyShort(
 									'GBP',
 									Number(totalAmount.total_sales),
 									props.settings.selected_amount
