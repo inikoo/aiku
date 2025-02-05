@@ -10,6 +10,7 @@
 namespace App\Actions\Retina\Spaces\UI;
 
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
+use App\Actions\Retina\UI\Dashboard\ShowRetinaDashboard;
 use App\Actions\RetinaAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Http\Resources\Fulfilment\SpacesResource;
@@ -132,7 +133,6 @@ class IndexRetinaSpaces extends RetinaAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->originalParameters()
                 ),
                 'title' => $title,
                 'pageHead' => [
@@ -167,17 +167,25 @@ class IndexRetinaSpaces extends RetinaAction
         return $this->handle(parent: $this->fulfilmentCustomer);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(string $routeName): array
     {
-        return [
-            [
-                'type' => 'simple',
-                'simple' => [
-                    'route' => $routeParameters,
-                    'label' => __('Spaces'),
-                    'icon' => 'fal fa-bars'
-                ],
-            ],
-        ];
+        return
+            array_merge(
+                ShowRetinaDashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'retina.fulfilment.spaces.index',
+                            ],
+                            'label' => __('Spaces'),
+                        ]
+                    ]
+                ]
+            );
+
+
+
     }
 }
