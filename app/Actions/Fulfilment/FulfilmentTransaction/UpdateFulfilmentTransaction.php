@@ -28,7 +28,7 @@ class UpdateFulfilmentTransaction extends OrgAction
             $fulfilmentTransaction->refresh();
             $netAmount = $fulfilmentTransaction->asset->price * $fulfilmentTransaction->quantity;
         }
-    
+        $fulfilmentTransaction =  $this->update($fulfilmentTransaction, $modelData, ['data']);
         $this->update(
             $fulfilmentTransaction,
             [
