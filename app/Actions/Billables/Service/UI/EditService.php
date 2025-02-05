@@ -66,7 +66,7 @@ class EditService extends OrgAction
         {
             $fixedPrice = true;
             $disableNet = true;
-        } else {
+        } elseif ($service->edit_type == ServiceEditTypeEnum::NET) {
             $fixedPrice = false;
             $disableNet = false;
         }
