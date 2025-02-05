@@ -12,8 +12,9 @@ return new class () extends Migration {
      */
     public function up()
     {
-        Schema::table('services', function (Blueprint $table) {
-            $table->boolean('is_public')->default(true);
+        Schema::table('pallet_returns', function (Blueprint $table) {
+            $table->unsignedBigInteger('shopify_user_id')->nullable();
+            $table->foreign('shopify_user_id')->references('id')->on('shopify_users')->onDelete('cascade');
         });
     }
 
@@ -24,8 +25,8 @@ return new class () extends Migration {
      */
     public function down()
     {
-        Schema::table('services', function (Blueprint $table) {
-            $table->dropColumn('is_public');
+        Schema::table('pallet_returns', function (Blueprint $table) {
+            $table->dropColumn('shopify_user_id');
         });
     }
 };

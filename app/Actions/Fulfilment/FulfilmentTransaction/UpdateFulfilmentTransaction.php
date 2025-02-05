@@ -11,6 +11,7 @@ namespace App\Actions\Fulfilment\FulfilmentTransaction;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\FulfilmentTransaction;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateFulfilmentTransaction extends OrgAction
@@ -19,33 +20,38 @@ class UpdateFulfilmentTransaction extends OrgAction
 
     public function handle(FulfilmentTransaction $fulfilmentTransaction, array $modelData): FulfilmentTransaction
     {
-        $fulfilmentTransaction =  $this->update($fulfilmentTransaction, $modelData, ['data']);
-
-        $fulfilmentTransaction->refresh();
-
-        $netAmount = $fulfilmentTransaction->asset->price * $fulfilmentTransaction->quantity;
-
+        if (Arr::exists($modelData, 'net_amount')) {
+            $netAmount = Arr::get($modelData, 'net_amount');
+            $quantity = $netAmount / $fulfilmentTransaction->asset->price;
+            data_set($modelData, 'quantity', $quantity);
+        } else {
+            $fulfilmentTransaction->refresh();
+            $netAmount = $fulfilmentTransaction->asset->price * $fulfilmentTransaction->quantity;
+        }
+    
         $this->update(
             $fulfilmentTransaction,
             [
-                'net_amount'              => $netAmount,
-                'gross_amount'            => $netAmount,
-                'grp_net_amount'          => $netAmount * $fulfilmentTransaction->grp_exchange,
-                'org_net_amount'          => $netAmount * $fulfilmentTransaction->org_exchange
-        ]
+                'net_amount'     => $netAmount,
+                'gross_amount'   => $netAmount,
+                'grp_net_amount' => $netAmount * $fulfilmentTransaction->grp_exchange,
+                'org_net_amount' => $netAmount * $fulfilmentTransaction->org_exchange
+            ]
         );
-
+    
         $fulfilmentTransaction->refresh();
-
-        SetClausesInFulfilmentTransaction::run($fulfilmentTransaction);
-
+    
+        if (!Arr::exists($modelData, 'net_amount')) {
+            SetClausesInFulfilmentTransaction::run($fulfilmentTransaction);
+        }
+    
         return $fulfilmentTransaction;
     }
-
     public function rules(): array
     {
         return [
-            'quantity' => ['required', 'numeric', 'min:0'],
+            'quantity' => ['sometimes', 'numeric', 'min:0'],
+            'net_amount' => ['sometimes', 'numeric', 'min:0'],
         ];
     }
 
