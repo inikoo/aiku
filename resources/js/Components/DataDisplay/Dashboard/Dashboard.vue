@@ -108,8 +108,7 @@ const toggleCurrency = () => {
 			:tableType="props.tableType"
 			:totalAmount="props.dashboard.total"
 			:current="props.dashboard.current"
-			
-			:selectedDateOption="props.dashboard.settings.selected_interval" />
+			:settings="props.dashboard?.settings" />
 
 		<DashboardWidget v-if="props.dashboard?.widgets" :widgetsData="dashboard.widgets" />
 	</div>

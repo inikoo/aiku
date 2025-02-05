@@ -24,6 +24,8 @@ const props = defineProps<{
 	selectedDateOption: String
 	tableType?: string
 	current?: string
+	settings: {
+	}
 	dashboardTable: {
 		tab_label: string
 		tab_slug: string
@@ -64,7 +66,7 @@ console.log(selectedTab,'asdasdas');
 
 <template>
 	<div class="bg-white mb-2 text-gray-800 rounded-lg p-4 shadow-md border border-gray-200">
-		<div class="mt-2">
+		<div class="">
 			<Tabs :value="activeIndexTab">
 				<TabList>
 					<Tab v-for="tab in dashboardTable" @click="() => useTabChangeDashboard(tab.tab_slug)" :key="tab.tab_slug" :value="tab.tab_slug">
@@ -309,7 +311,8 @@ console.log(selectedTab,'asdasdas');
 									{{
 										useLocaleStore().CurrencyShort(
 											data.currency_code,
-											data.interval_percentages?.sales?.amount || 0
+											data.interval_percentages?.sales?.amount || 0,
+											props.settings.selected_amount
 										)
 									}}
 								</div>
@@ -403,7 +406,8 @@ console.log(selectedTab,'asdasdas');
 							:footer="
 								useLocaleStore().CurrencyShort(
 									'GBP',
-									Number(totalAmount.total_sales)
+									Number(totalAmount.total_sales),
+									props.settings.selected_amount
 								)
 							"
 							footerStyle="text-align:right" />
