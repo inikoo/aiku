@@ -186,7 +186,8 @@ const updateAmountFormat = (amountFormat: string) => {
 						:modelValue="settings.selected_amount"
 						@update:modelValue="(e: string) => updateAmountFormat(e)"
 						class="mx-2"
-						:disabled="isLoadingCurrency" />
+						:disabled="isLoadingCurrency"
+						v-tooltip="'amount format'" />
 
 					<p
 						class="font-medium"
@@ -196,7 +197,7 @@ const updateAmountFormat = (amountFormat: string) => {
 								? ''
 								: 'opacity-50',
 						]">
-						Full amount
+						Full
 					</p>
 					<p
 						class="font-medium"
@@ -225,7 +226,8 @@ const updateAmountFormat = (amountFormat: string) => {
 						class="mx-2"
 						:disabled="isLoadingCurrency"
 						:trueValue="settings.options_currency[1].value"
-						:falseValue="settings.options_currency[0].value" />
+						:falseValue="settings.options_currency[0].value"
+						v-tooltip="'currency'" />
 
 					<p
 						class="font-medium"
