@@ -141,6 +141,7 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
     public function withBetweenDates(array $allowedColumns, ?string $prefix = null): static
     {
         $table =  $this->getModel()->getTable();
+
         $allowedColumns = array_merge($allowedColumns, ['created_at', 'updated_at']);
         $argumentName = ($prefix ? $prefix . '_' : '') . 'between';
 

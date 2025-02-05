@@ -61,9 +61,8 @@ class EditService extends OrgAction
     public function htmlResponse(Service $service, ActionRequest $request): Response
     {
 
-       
-        if ($service->edit_type == ServiceEditTypeEnum::QUANTITY)
-        {
+
+        if ($service->edit_type == ServiceEditTypeEnum::QUANTITY) {
             $fixedPrice = true;
             $disableNet = true;
         } elseif ($service->edit_type == ServiceEditTypeEnum::NET) {
@@ -71,8 +70,7 @@ class EditService extends OrgAction
             $disableNet = false;
         }
 
-        if($service->status == false || $service->state == ServiceStateEnum::DISCONTINUED)
-        {
+        if ($service->status == false || $service->state == ServiceStateEnum::DISCONTINUED) {
             $active = false;
         } else {
             $active = true;
