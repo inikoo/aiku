@@ -52,7 +52,8 @@ class AttachPalletToReturn extends OrgAction
         $pallet = UpdatePallet::make()->action($pallet, [
             'pallet_return_id' => $palletReturn->id,
             'status' => PalletStatusEnum::RETURNING,
-            'state'  => PalletStateEnum::REQUEST_RETURN_IN_PROCESS
+            'state'  => PalletStateEnum::REQUEST_RETURN_IN_PROCESS,
+            'requested_for_return_at' => now()
         ]);
 
 
