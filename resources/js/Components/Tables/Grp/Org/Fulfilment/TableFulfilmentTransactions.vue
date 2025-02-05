@@ -9,6 +9,7 @@ import { router } from "@inertiajs/vue3"
 import Table from "@/Components/Table/Table.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faRobot, faBadgePercent, faTag, faUserRobot, faPlus, faMinus, faUndoAlt } from '@far'
+import { faTrashAlt } from '@fal'
 import { useLocaleStore } from '@/Stores/locale'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Button from "@/Components/Elements/Buttons/Button.vue"
@@ -18,9 +19,11 @@ import { layoutStructure } from '@/Composables/useLayoutStructure'
 import { routeType } from '@/types/route'
 import Tag from '@/Components/Tag.vue'
 import NumberWithButtonSave from "@/Components/NumberWithButtonSave.vue"
+import ModalConfirmationDelete from "@/Components/Utils/ModalConfirmationDelete.vue"
+import { trans } from "laravel-vue-i18n"
 
 
-library.add(faRobot, faPlus, faMinus, faUndoAlt)
+library.add(faRobot, faPlus, faMinus, faUndoAlt, faTrashAlt)
 
 const props = defineProps<{
 	data: {}
@@ -51,10 +54,10 @@ const emits = defineEmits<{
 
 // Section: Quantity
 const isLoading = ref<string | boolean>(false)
-const onUpdateQuantity = (idFulfilmentTransaction: number, value: number) => {
-	console.log(idFulfilmentTransaction, 'loasding', value);
+const onUpdateQuantity = (idFulfilmentTransaction: number, form: {}) => {
+	console.log(idFulfilmentTransaction, 'loasding', form);
 
-	const routeUpdate = <routeType>{}
+	const routeUpdate = {}
 	if (layout.app.name === "Aiku") {
 		routeUpdate.name = "grp.models.fulfilment-transaction.update"
 		routeUpdate.parameters = { fulfilmentTransaction: idFulfilmentTransaction }
@@ -72,7 +75,7 @@ const onUpdateQuantity = (idFulfilmentTransaction: number, value: number) => {
 			onFinish: () => (isLoading.value = false),
 		}
 	) */
-	value.patch(route(routeUpdate.name, routeUpdate.parameters),{
+	form.patch(route(routeUpdate.name, routeUpdate.parameters),{
 		preserveScroll: true,
 		onStart: () => (isLoading.value = "quantity" + idFulfilmentTransaction),
 		onFinish: () => (isLoading.value = false),
@@ -103,7 +106,6 @@ const userCanEdit = (item) => {
 </script>
 
 <template>
-	<!-- <pre>{{ data.data[0] }}</pre> -->
 	<Table :key="tab" :resource="data" :name="tab" class="mt-5">
 		<!-- Column: Code -->
 		<template #cell(code)="{ item }">
@@ -160,9 +162,23 @@ const userCanEdit = (item) => {
 
 		<!-- Column: Action -->
 		<template #cell(actions)="{ item }">
-			<Button v-if="userCanEdit(item)" @click="() => onDeleteTransaction(item.id)"
+			<!-- <Button v-if="userCanEdit(item)" @click="() => onDeleteTransaction(item.id)"
 				:loading="isLoading === 'buttonReset' + item.id" icon="fal fa-trash-alt" type="negative"
-				v-tooltip="'Unselect this field'" />
+				v-tooltip="'Unselect this field'" /> -->
+			<ModalConfirmationDelete
+				:routeDelete="layout.app.name == 'Aiku' ? {name: 'grp.models.fulfilment-transaction.delete',  parameters: { fulfilmentTransaction: item.id }} : {name: 'retina.models.fulfilment-transaction.delete', parameters: { fulfilmentTransaction: item.id }}"
+			>
+				<template #default="{ isOpenModal, changeModel, isLoadingdelete }">
+					<Button v-if="userCanEdit(item)"
+						@click="changeModel"
+						:loading="isLoadingdelete"
+						icon="fal fa-trash-alt"
+						type="negative"
+						v-tooltip="trans('Unselect this field')"
+					/>
+				</template>
+
+			</ModalConfirmationDelete>
 		</template>
 	</Table>
 </template>
