@@ -38,7 +38,7 @@ class ShowGroupDashboard extends OrgAction
     public function getDashboardInterval(Group $group, array $userSettings): array
     {
         $selectedInterval = Arr::get($userSettings, 'selected_interval', 'all');
-        $selectedAmount = Arr::get($userSettings, 'selected_amount', false);
+        $selectedAmount = Arr::get($userSettings, 'selected_amount', true);
         $selectedCurrency = Arr::get($userSettings, 'selected_currency_in_grp', 'grp');
 
         $organisations = $group->organisations()->where('type', '!=', OrganisationTypeEnum::AGENT->value)->get();
