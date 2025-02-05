@@ -39,6 +39,7 @@ class UpdateWebsite extends OrgAction
         $website = $this->processWebsiteLogo($modelData, $website);
         $website = $this->processWebsiteFavicon($modelData, $website);
         data_forget($modelData, 'image');
+        data_forget($modelData, 'favicon');
 
         if (Arr::has($modelData, "google_tag_id")) {
             data_set($modelData, "settings.google_tag_id", Arr::pull($modelData, "google_tag_id"));
