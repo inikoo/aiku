@@ -126,6 +126,14 @@ class EditWebsite extends OrgAction
                      /*    'aspectRatio' =>  12/4 */
                     ]
                 ],
+                "favicon" => [
+                    "type"  => "image_crop_square",
+                    "label" => __("favicon"),
+                    "value" => $website->imageSources(320, 320),
+                    'options' => [
+                        'aspectRatio' =>  1/1
+                    ]
+                ],
             ]
         ];
 
