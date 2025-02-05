@@ -221,7 +221,7 @@ class Website extends Model implements Auditable, HasMedia
 
     public function faviconSources($width = 0, $height = 0)
     {
-        if ($this->logo) {
+        if ($this->favicon) {
             $avatarThumbnail = $this->favicon->getImage()->resize($width, $height);
             return GetPictureSources::run($avatarThumbnail);
         }
