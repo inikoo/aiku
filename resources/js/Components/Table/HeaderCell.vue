@@ -33,8 +33,8 @@ const props = defineProps<{
 }>()
 
 function onClick() {
-    if (props.cell.sortable) {
-        props.cell.onSort(props.cell.key)
+    if (props.cell?.sortable) {
+        props.cell?.onSort(props.cell?.key)
     }
 }
 
@@ -48,32 +48,32 @@ const isCellNumber = () => {
 </script>
 
 <template>
-    <!-- <pre>{{ cell.icon }}</pre> -->
-    <th v-show="!cell.hidden" class="font-normal"
+    <!-- <pre>{{ cell?.icon }}</pre> -->
+    <th v-show="!cell?.hidden" class="font-normal"
         :class="[
-            cell.type == 'avatar' || cell.type == 'icon' ? 'px-5 w-1' : 'px-6 w-auto',
-            cell.align === 'right' || isCellNumber() || cell.type == 'number' || cell.type == 'currency' || cell.type == 'date' ? 'text-right' : 'text-left'
+            cell?.type == 'avatar' || cell?.type == 'icon' ? 'px-5 w-1' : 'px-6 w-auto',
+            cell?.align === 'right' || isCellNumber() || cell?.type == 'number' || cell?.type == 'currency' || cell?.type == 'date' ? 'text-right' : 'text-left'
         ]"
     >
-        <component :is="cell.sortable ? 'button' : 'div'" class="py-1"
-            :dusk="cell.sortable ? `sort-${cell.key}` : null" @click.prevent="onClick">
+        <component :is="cell?.sortable ? 'button' : 'div'" class="py-1"
+            :dusk="cell?.sortable ? `sort-${cell?.key}` : null" @click.prevent="onClick">
             <!-- <slot name="pagehead" :data="{isCellNumber : isCellNumber, cell}"> -->
                 <div class="flex items-center justify-start"
-                    :class="{'justify-center': cell.type == 'avatar' || cell.type == 'icon', 'justify-end': isCellNumber()}">
+                    :class="{'justify-center': cell?.type == 'avatar' || cell?.type == 'icon', 'justify-end': isCellNumber()}">
                     
                     <!-- Label: object -->
-                    <div v-if="typeof cell.label === 'object'">
+                    <div v-if="typeof cell?.label === 'object'">
                         <FontAwesomeIcon
-                            v-if="cell.icon || cell.label.type === 'icon'"
-                            :icon="cell.icon || cell.label.data"
-                            v-tooltip="capitalize(cell.label.tooltip)"
+                            v-if="cell?.icon || cell?.label.type === 'icon'"
+                            :icon="cell?.icon || cell?.label.data"
+                            v-tooltip="capitalize(cell?.label.tooltip)"
                             aria-hidden="true"
                             size="lg"
                             fixed-width
                         />
 
-                        <div v-else-if="cell.label.type === 'text'"  v-tooltip="cell.label.tooltip">
-                            {{ cell.label.data || ''}}
+                        <div v-else-if="cell?.label.type === 'text'"  v-tooltip="cell?.label.tooltip">
+                            {{ cell?.label.data || ''}}
                         </div>
 
                         <div v-else class="text-gray-400 italic pl-5 pr-3">
@@ -81,14 +81,14 @@ const isCellNumber = () => {
                     </div>
                     
                     <!-- Label: simple and icon -->
-                    <div v-else class="capitalize text-xs md:text-sm lg:text-base w-full" v-tooltip="cell.tooltip"
-                        :class="[cell.type == 'number' || cell.type == 'currency' ? 'text-right pr-3' : '']"
+                    <div v-else class="capitalize text-xs md:text-sm lg:text-base w-full" v-tooltip="cell?.tooltip"
+                        :class="[cell?.type == 'number' || cell?.type == 'currency' ? 'text-right pr-3' : '']"
                     >
-                        <span class="hidden lg:inline">{{ cell.label || ''}}</span>
-                        <span class="inline lg:hidden">{{ cell.shortLabel || cell.label || ''}}</span>
+                        <span class="hidden lg:inline">{{ cell?.label || ''}}</span>
+                        <span class="inline lg:hidden">{{ cell?.shortLabel || cell?.label || ''}}</span>
                         <FontAwesomeIcon
-                            v-if="cell.icon"
-                            :icon="cell.icon"
+                            v-if="cell?.icon"
+                            :icon="cell?.icon"
                             aria-hidden="true"
                             size="lg"
                             fixed-width
@@ -96,17 +96,17 @@ const isCellNumber = () => {
                     </div>
 
                     <!-- Icon: arrow for sort -->
-                    <svg v-if="cell.sortable" aria-hidden="true" class="w-3 h-3 ml-2" :class="{
-                        'text-gray-400': !cell.sorted,
-                        'text-green-500': cell.sorted,
-                    }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" :sorted="cell.sorted">
-                        <path v-if="!cell.sorted" fill="currentColor"
+                    <svg v-if="cell?.sortable" aria-hidden="true" class="w-3 h-3 ml-2" :class="{
+                        'text-gray-400': !cell?.sorted,
+                        'text-green-500': cell?.sorted,
+                    }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" :sorted="cell?.sorted">
+                        <path v-if="!cell?.sorted" fill="currentColor"
                             d="M41 288h238c21.4 0 32.1 25.9 17 41L177 448c-9.4 9.4-24.6 9.4-33.9 0L24 329c-15.1-15.1-4.4-41 17-41zm255-105L177 64c-9.4-9.4-24.6-9.4-33.9 0L24 183c-15.1 15.1-4.4 41 17 41h238c21.4 0 32.1-25.9 17-41z" />
 
-                        <path v-if="cell.sorted === 'asc'" fill="currentColor"
+                        <path v-if="cell?.sorted === 'asc'" fill="currentColor"
                             d="M279 224H41c-21.4 0-32.1-25.9-17-41L143 64c9.4-9.4 24.6-9.4 33.9 0l119 119c15.2 15.1 4.5 41-16.9 41z" />
 
-                        <path v-if="cell.sorted === 'desc'" fill="currentColor"
+                        <path v-if="cell?.sorted === 'desc'" fill="currentColor"
                             d="M41 288h238c21.4 0 32.1 25.9 17 41L177 448c-9.4 9.4-24.6 9.4-33.9 0L24 329c-15.1-15.1-4.4-41 17-41z" />
                     </svg>
                 </div>

@@ -11,6 +11,7 @@
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
+use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Retina\Fulfilment\Pallet\StoreRetinaPalletFromDelivery;
 use App\Actions\Web\Website\LaunchWebsite;
@@ -24,6 +25,7 @@ use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\RentalAgreement;
 use Inertia\Testing\AssertableInertia;
 
@@ -104,6 +106,34 @@ beforeEach(function () {
     }
 
     $this->palletReturn = $palletReturn;
+
+    $rentalAgreement = RentalAgreement::where('fulfilment_customer_id', $this->customer->fulfilmentCustomer->id)->first();
+    if (!$rentalAgreement) {
+        data_set($storeData, 'billing_cycle', RentalAgreementBillingCycleEnum::MONTHLY);
+        data_set($storeData, 'state', RentalAgreementStateEnum::ACTIVE);
+        data_set($storeData, 'username', 'test');
+        data_set($storeData, 'email', 'test@aiku.io');
+
+
+
+        $rentalAgreement = StoreRentalAgreement::make()->action(
+            $this->customer->fulfilmentCustomer,
+            $storeData
+        );
+    }
+    $this->rentalAgreement = $rentalAgreement;
+
+    $recurringBill = RecurringBill::first();
+    if (!$recurringBill) {
+        data_set($storeData, 'start_date', now());
+
+        $recurringBill = StoreRecurringBill::make()->action(
+            $this->rentalAgreement,
+            $storeData
+        );
+    }
+
+    $this->recurringBill = $recurringBill;
 
     $this->webUser  = createWebUser($this->customer);
 
@@ -401,6 +431,46 @@ test('index web users', function () {
     });
 });
 
+test('create web user', function () {
+    // $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.sysadmin.web-users.create'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Create User')
+                        ->etc()
+            )
+            ->has('formData');
+
+    });
+});
+
+test('edit sysadmin settings', function () {
+    // $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.sysadmin.settings.edit'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('breadcrumbs', 2)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Account management')
+                        ->etc()
+            )
+            ->has('formData');
+
+    });
+});
+
 test('index stored items', function () {
     // $this->withoutExceptionHandling();
     actingAs($this->webUser, 'retina');
@@ -546,6 +616,56 @@ test('index spaces', function () {
                         ->etc()
             )
             ->has('data');
+
+    });
+});
+
+test('show billing dashboard', function () {
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.fulfilment.billing.dashboard'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page->component('Billing/RetinaBillingDashboard');
+    });
+});
+
+test('index invoices', function () {
+    // $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.fulfilment.billing.invoices.index'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Billing/RetinaInvoices')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Invoices')
+                        ->etc()
+            )
+            ->has('data');
+
+    });
+});
+
+test('show next bill', function () {
+    // $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.fulfilment.billing.next_recurring_bill'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Billing/RetinaRecurringBill')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->recurringBill->slug)
+                        ->etc()
+            )
+            ->has('currency')
+            ->has('box_stats')
+            ->has('tabs');
 
     });
 });

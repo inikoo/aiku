@@ -46,12 +46,13 @@ class StoredItemResource extends JsonResource
             'total_quantity' => $storedItem->pallets?->sum('pivot.quantity'),
             'max_quantity'   => $storedItem->pallets?->sum('pivot.quantity'),
 
-            'pallets'            => $storedItem->pallets->map(fn (Pallet $pallet) => [
-                'id'             => $pallet->id,
-                'reference'      => $pallet->reference,
-                'customer_reference'          => $pallet->customer_reference,
-                'state'          => $pallet->state,
-                'state_icon'     => $pallet->state->stateIcon()[$storedItem->state->value],
+            'pallets'                   => $storedItem->pallets->map(fn (Pallet $pallet) => [
+                'id'                    => $pallet->id,
+                'reference'             => $pallet->reference,
+                'quantity_stored_item'  => $pallet->storedItems->count(),
+                'customer_reference'    => $pallet->customer_reference,
+                'state'                 => $pallet->state,
+                'state_icon'            => $pallet->state->stateIcon()[$storedItem->state->value],
             ]),
 
             'deleteRoute'    => match (request()->routeIs('retina.*')) {

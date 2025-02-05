@@ -40,7 +40,7 @@ class HandleApiProductToShopify extends OrgAction
             $variants = [];
             $images   = [];
             foreach ($portfolioChunk as $portfolio) {
-                $product = $portfolio->product;
+                $product = $portfolio->item;
                 foreach ($product->productVariants as $variant) {
                     $existingOptions = Arr::pluck($variants, 'option1');
 
@@ -81,10 +81,10 @@ class HandleApiProductToShopify extends OrgAction
                     abort($response['status'], $response['body']);
                 }
 
-                $shopifyUser->products()->attach($product->id, [
+                $shopifyUser->products()->sync([$product->id => [
                     'shopify_product_id' => $response['body']['product']['id'],
                     'portfolio_id' => $portfolio->id
-                ]);
+                ]]);
 
                 $uploaded++;
 

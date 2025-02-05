@@ -101,7 +101,7 @@ class ShowRetinaProduct extends RetinaAction
 
             ]
         )->table(IndexOrders::make()->tableStructure($product->asset))
-            ->table(IndexCustomers::make()->tableStructure($product))
+            ->table(IndexCustomers::make()->tableStructure($product->shop))
             ->table(IndexMailshots::make()->tableStructure($product));
     }
 

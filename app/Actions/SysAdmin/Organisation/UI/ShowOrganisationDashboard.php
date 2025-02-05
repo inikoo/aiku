@@ -11,6 +11,7 @@ namespace App\Actions\SysAdmin\Organisation\UI;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithDashboard;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\UI\Organisation\OrgDashboardIntervalTabsEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
@@ -81,7 +82,16 @@ class ShowOrganisationDashboard extends OrgAction
                     ]
                 ]
             ],
-            'table'            => [],
+            'current' => $this->tabDashboardInterval,
+            'table' => [
+                [
+                    'tab_label' => __('Sales'),
+                    'tab_slug'  => 'sales',
+                    'tab_icon'  => 'fas fa-chart-line',
+                    'type'     => 'table',
+                    'data' => null
+                ],
+            ],
             'widgets'          => [
                 'column_count' => 4,
                 'components'   => []
@@ -95,12 +105,9 @@ class ShowOrganisationDashboard extends OrgAction
             'total_refunds'  => 0,
         ];
 
-        $visualData = [
-            'sales_data'    => [],
-            'invoices_data' => [],
-        ];
+        $visualData = [];
 
-        $dashboard['table'] = $shops->map(function (Shop $shop) use ($selectedInterval, $organisation, &$dashboard, $selectedCurrency, &$visualData, &$total) {
+        $dashboard['table'][0]['data'] = $shops->map(function (Shop $shop) use ($selectedInterval, $organisation, &$dashboard, $selectedCurrency, &$visualData, &$total) {
             $keyCurrency   = $dashboard['settings']['key_currency'];
             $currencyCode  = $selectedCurrency === $keyCurrency ? $organisation->currency->code : $shop->currency->code;
             $salesCurrency = 'sales_'.$selectedCurrency.'_currency';
@@ -165,6 +172,16 @@ class ShowOrganisationDashboard extends OrgAction
 
         $dashboard['total'] = $total;
 
+        $combinedGraphSales = array_map(null, $visualData['sales_data']['labels'], $visualData['sales_data']['currency_codes'], $visualData['sales_data']['datasets'][0]['data']);
+
+        usort($combinedGraphSales, function ($a, $b) {
+            return floatval($b[2]) <=> floatval($a[2]);
+        });
+
+        $visualData['sales_data']['labels'] = array_column($combinedGraphSales, 0);
+        $visualData['sales_data']['currency_codes'] = array_column($combinedGraphSales, 1);
+        $visualData['sales_data']['datasets'][0]['data'] = array_column($combinedGraphSales, 2);
+
         $dashboard['widgets']['components'][] = $this->getWidget(
             type: 'chart_display',
             data: [
@@ -183,6 +200,16 @@ class ShowOrganisationDashboard extends OrgAction
                 ],
             ]
         );
+
+        $combinedInvoices = array_map(null, $visualData['invoices_data']['labels'], $visualData['invoices_data']['currency_codes'], $visualData['invoices_data']['datasets'][0]['data']);
+
+        usort($combinedInvoices, function ($a, $b) {
+            return floatval($b[2]) <=> floatval($a[2]);
+        });
+
+        $visualData['invoices_data']['labels'] = array_column($combinedInvoices, 0);
+        $visualData['invoices_data']['currency_codes'] = array_column($combinedInvoices, 1);
+        $visualData['invoices_data']['datasets'][0]['data'] = array_column($combinedInvoices, 2);
 
         $dashboard['widgets']['components'][] = $this->getWidget(
             type: 'chart_display',
@@ -207,7 +234,7 @@ class ShowOrganisationDashboard extends OrgAction
 
     public function asController(Organisation $organisation, ActionRequest $request): Response
     {
-        $this->initialisation($organisation, $request);
+        $this->initialisation($organisation, $request)->withTabDashboardInterval(OrgDashboardIntervalTabsEnum::values());
 
         return $this->handle($organisation, $request);
     }
