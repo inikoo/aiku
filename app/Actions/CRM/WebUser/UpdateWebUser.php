@@ -41,7 +41,7 @@ class UpdateWebUser extends OrgAction
             data_set($modelData, 'auth_type', WebUserAuthTypeEnum::DEFAULT);
             data_set($modelData, 'data.legacy_password', null);
         }
-        
+
         data_forget($modelData, 'image');
 
         if ($webUser->is_root) {
