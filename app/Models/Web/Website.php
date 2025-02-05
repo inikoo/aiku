@@ -89,10 +89,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
+ * @property int|null $favicon_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read mixed $condition
  * @property-read Collection<int, Deployment> $deployments
  * @property-read Collection<int, \App\Models\Web\ExternalLink> $externalLinks
+ * @property-read Media|null $favicon
+ * @property-read \App\Models\Web\TFactory|null $use_factory
  * @property-read Group $group
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $images
  * @property-read Snapshot|null $liveSnapshot
@@ -205,10 +208,24 @@ class Website extends Model implements Auditable, HasMedia
         return $this->belongsTo(Media::class, 'logo_id');
     }
 
+    public function favicon(): BelongsTo
+    {
+        return $this->belongsTo(Media::class, 'favicon_id');
+    }
+
     public function imageSources($width = 0, $height = 0)
     {
         if ($this->logo) {
             $avatarThumbnail = $this->logo->getImage()->resize($width, $height);
+            return GetPictureSources::run($avatarThumbnail);
+        }
+        return null;
+    }
+
+    public function faviconSources($width = 0, $height = 0)
+    {
+        if ($this->favicon) {
+            $avatarThumbnail = $this->favicon->getImage()->resize($width, $height);
             return GetPictureSources::run($avatarThumbnail);
         }
         return null;

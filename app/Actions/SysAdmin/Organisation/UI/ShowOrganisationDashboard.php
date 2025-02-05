@@ -101,7 +101,9 @@ class ShowOrganisationDashboard extends OrgAction
         $selectedCurrency = Arr::get($userSettings, 'selected_currency_in_org', 'org');
         $total            = [
             'total_sales'    => $organisation->shops->sum(fn ($shop) => $shop->salesIntervals->{"sales_org_currency_$selectedInterval"} ?? 0),
+            'total_sales_percentages' => 0,
             'total_invoices' => 0,
+            'total_invoices_percentages' => 0,
             'total_refunds'  => 0,
         ];
 
@@ -147,6 +149,7 @@ class ShowOrganisationDashboard extends OrgAction
                 $visualData['sales_data']['labels'][]              = $shop->code;
                 $visualData['sales_data']['currency_codes'][]      = $currencyCode;
                 $visualData['sales_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['sales']['amount'];
+                $total['total_sales_percentages'] += $responseData['interval_percentages']['sales']['percentage'] ?? 0;
             }
 
             if ($shop->orderingIntervals !== null) {
@@ -160,6 +163,7 @@ class ShowOrganisationDashboard extends OrgAction
                     'refunds',
                     $selectedInterval,
                 );
+                $total['total_invoices_percentages'] += $responseData['interval_percentages']['invoices']['percentage'] ?? 0;
                 $total['total_invoices']                              += $responseData['interval_percentages']['invoices']['amount'];
                 $total['total_refunds']                               += $responseData['interval_percentages']['refunds']['amount'];
                 $visualData['invoices_data']['labels'][]              = $shop->code;
@@ -171,6 +175,16 @@ class ShowOrganisationDashboard extends OrgAction
         })->toArray();
 
         $dashboard['total'] = $total;
+
+        $combinedGraphSales = array_map(null, $visualData['sales_data']['labels'], $visualData['sales_data']['currency_codes'], $visualData['sales_data']['datasets'][0]['data']);
+
+        usort($combinedGraphSales, function ($a, $b) {
+            return floatval($b[2]) <=> floatval($a[2]);
+        });
+
+        $visualData['sales_data']['labels'] = array_column($combinedGraphSales, 0);
+        $visualData['sales_data']['currency_codes'] = array_column($combinedGraphSales, 1);
+        $visualData['sales_data']['datasets'][0]['data'] = array_column($combinedGraphSales, 2);
 
         $dashboard['widgets']['components'][] = $this->getWidget(
             type: 'chart_display',
@@ -191,6 +205,16 @@ class ShowOrganisationDashboard extends OrgAction
             ]
         );
 
+        $combinedInvoices = array_map(null, $visualData['invoices_data']['labels'], $visualData['invoices_data']['currency_codes'], $visualData['invoices_data']['datasets'][0]['data']);
+
+        usort($combinedInvoices, function ($a, $b) {
+            return floatval($b[2]) <=> floatval($a[2]);
+        });
+
+        $visualData['invoices_data']['labels'] = array_column($combinedInvoices, 0);
+        $visualData['invoices_data']['currency_codes'] = array_column($combinedInvoices, 1);
+        $visualData['invoices_data']['datasets'][0]['data'] = array_column($combinedInvoices, 2);
+
         $dashboard['widgets']['components'][] = $this->getWidget(
             type: 'chart_display',
             data: [
@@ -199,7 +223,7 @@ class ShowOrganisationDashboard extends OrgAction
                 'description' => __('Total invoices')
             ],
             visual: [
-                'type'  => 'pie',
+                'type'  => 'doughnut',
                 'value' => [
                     'labels'         => Arr::get($visualData, 'invoices_data.labels'),
                     'currency_codes' => Arr::get($visualData, 'invoices_data.currency_codes'),

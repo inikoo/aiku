@@ -45,7 +45,7 @@ const props = defineProps<{
         grant_type: string
     }
 }>()
-console.log(props)
+
 const mergeTags = ref([])
 const comment = ref('')
 const isLoading = ref(false)

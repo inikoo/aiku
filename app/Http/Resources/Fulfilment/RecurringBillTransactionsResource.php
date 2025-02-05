@@ -124,7 +124,7 @@ class RecurringBillTransactionsResource extends JsonResource
 
         $unitAbbreviation = Abbreviate::run($this->asset_unit);
         $editType = null;
-        if($this->item_type == 'Service') {
+        if ($this->item_type == 'Service') {
             $service = Service::find($this->item_id);
             $editType = $service->edit_type;
         }
@@ -143,7 +143,7 @@ class RecurringBillTransactionsResource extends JsonResource
             'currency_code'      => $this->currency_code,
             'unit_abbreviation'  => $unitAbbreviation,
             'unit_label'         => $this->asset_unit,
-            'quantity'           =>   (int) $this->quantity * $this->temporal_quantity,
+            'quantity'           => $this->quantity * $this->temporal_quantity,
             'total'              => $this->net_amount,
             'discount'           => (int) $this->discount,
             'edit_type'          => $editType,

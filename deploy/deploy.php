@@ -28,7 +28,7 @@ task('deploy:set-release', function () {
 
 
 
-set('keep_releases', 1000);
+set('keep_releases', 50);
 
 set('shared_dirs', ['storage', 'private']);
 set('shared_files', [

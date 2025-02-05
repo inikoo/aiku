@@ -15,6 +15,8 @@ import { layoutStructure } from '@/Composables/useLayoutStructure'
 import { ref } from 'vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { routeType } from '@/types/route'
+import InputNumber from 'primevue/inputnumber'
+import { set } from 'lodash'
 library.add(faTag,faTrashAlt)
 
 const props = defineProps<{
@@ -23,6 +25,27 @@ const props = defineProps<{
     status?:string
 }>()
 const layout = inject("layout", layoutStructure)
+
+const getRoute = (item: {}) => {
+    const routeUpdate = <routeType>{}
+
+    if (item?.fulfilment_transaction_id) {
+        if (layout.app.name === "Aiku") {
+            routeUpdate.name = "grp.models.fulfilment-transaction.update"
+            routeUpdate.parameters = { fulfilmentTransaction: item?.fulfilment_transaction_id }
+        } else {
+            routeUpdate.name = "retina.models.fulfilment-transaction.update"
+            routeUpdate.parameters = { fulfilmentTransaction: item?.fulfilment_transaction_id }
+        }
+    } else {
+        routeUpdate.name = "grp.models.recurring_bill_transaction.update"
+        routeUpdate.parameters = { recurringBillTransaction: item?.id }
+    }
+
+    routeUpdate.method = 'patch'
+
+    return routeUpdate
+}
 
 const onUpdateQuantity = (id:Number,fulfilment_transaction_id: number, value: number) => {
 	/* console.log(idFulfilmentTransaction, 'loasding', value); */
@@ -74,7 +97,7 @@ const locale = inject('locale', aikuLocaleStructure)
 <template>
     <Table :resource="data" :name="tab" class="mt-5" :is-check-box="false">
         <template #cell(description)="{ item }">
-            edit type : {{ item.edit_type }}
+            <!-- edit type : {{ item.edit_type }} -->
             <div v-if="item.description?.model || item.description?.title || item.description?.after_title">
                 <span v-if="item.description?.model">{{ item.description.model }}:</span>
                 <Link v-if="item.description?.title && item.description.route?.name" :href="route(item.description.route?.name, item.description.route?.parameters)" class="primaryLink">
@@ -92,11 +115,11 @@ const locale = inject('locale', aikuLocaleStructure)
 
         <template #cell(quantity)="{ item }">
 			<div class="flex justify-end">
-				<div v-if="status == 'current' &&  (item.data.type !== 'Pallet' && item.data.type !== 'Space')">
+				<div v-if="item.edit_type !== 'net' && status == 'current' &&  (item.data.type !== 'Pallet' && item.data.type !== 'Space')">
 					<NumberWithButtonSave v-model="item.quantity"   @onSave="(e)=>onUpdateQuantity(item.id,item.fulfilment_transaction_id, e)"/>
 				</div>
 				<div v-else>
-					{{ locale.number(item.quantity) }}
+					<Transition name="spin-to-right"><span :key="item.quantity">{{ locale.number(item.quantity) }} {{ item.asset_unit }}</span></Transition>
 				</div>
 			</div>
 		</template>
@@ -111,9 +134,27 @@ const locale = inject('locale', aikuLocaleStructure)
             </Tag>
         </template>
 
-        <template #cell(total)="{ item }">
-            <div class="relative ">
-                <Transition name="spin-to-right">
+        <template #cell(total)="{ item, proxyItem }">
+            <div class="relative">
+                <template v-if="item.edit_type === 'net'">
+                    <div class="w-72 float-right">
+                        <NumberWithButtonSave
+                            v-model="proxyItem.total"
+                            :saveOnForm="true"
+                            :routeSubmit="getRoute(item)"
+                            keySubmit="net_amount"
+                            :bindToTarget="{
+                                mode: 'currency',
+                                fluid: true,
+                                currency: item.currency_code,
+                                locale: 'en-US',
+                                step: 0.25
+                            }"
+                        />
+                    </div>
+                </template>
+
+                <Transition v-else name="spin-to-right">
                     <span :key="item.total">
                         {{ locale.currencyFormat(item.currency_code, item.total || 0) }}
                     </span>

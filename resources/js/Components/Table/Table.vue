@@ -365,20 +365,20 @@ function onPerPageChange(value) {
     queryBuilderData.value.perPage = value
     queryBuilderData.value.page = 1
 
-    axios.patch(
-        route("grp.models.user.update", layout.user?.id),
-        {
-            settings: {
-                records_per_page: value,
-            },
-        }
-    )
-    .then((response) => {
-        console.log('success');
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-    });
+    // axios.patch(
+    //     route("grp.models.user.update", layout.user?.id),
+    //     {
+    //         settings: {
+    //             records_per_page: value,
+    //         },
+    //     }
+    // )
+    // .then((response) => {
+    //     console.log('success');
+    // })
+    // .catch((error) => {
+    //     console.error('Error:', error);
+    // });
 }
 
 function findDataKey(dataKey, key) {
@@ -611,14 +611,16 @@ function sortBy(column) {
 function show(key) {
     const intKey = findDataKey('columns', key);
 
-    return !queryBuilderData.value.columns[intKey].hidden;
+    return !queryBuilderData?.value?.columns?.[intKey]?.hidden;
 }
 
 function header(key) {
     const intKey = findDataKey('columns', key);
     const columnData = clone(queryBuilderProps.value.columns[intKey]);
 
-    columnData.onSort = sortBy;
+    if (columnData?.onSort) {
+        columnData.onSort = sortBy;
+    }
 
     return columnData;
 }

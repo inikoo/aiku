@@ -11,10 +11,14 @@
         <link href="https://fonts.bunny.net/css?family=inter:100,200,300,400,500,600,700,800,900&display=swap" rel="stylesheet" />
 
         <!-- Favicon -->
-        <link rel="icon" type="image/png" sizes="16x16" href="{{ url('favicons/favicon-16x16.png') }}">
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ url('favicons/favicon-32x32.png') }}">
-        <link rel="icon" type="image/png" sizes="48x48" href="{{ url('favicons/favicon-48x48.png') }}">
-        <link rel="apple-touch-icon" sizes="180x180" href="{{ url('favicons/favicon-180x180.png') }}">
+        @if(request()->get('website'))
+        @cache('iris-favicon-'.request()->get('website')->id, 3600)
+            <link rel="icon" type="image/png" sizes="16x16" href="{{ request()->get('website')->faviconSources(16, 16)['original'] ?? url('favicons/iris-favicon-16x16.png') }}">
+            <link rel="icon" type="image/png" sizes="32x32" href="{{ request()->get('website')->faviconSources(32, 32)['original'] ?? url('favicons/iris-favicon-32x32.png') }}">
+            <link rel="icon" type="image/png" sizes="48x48" href="{{ request()->get('website')->faviconSources(48, 48)['original'] ?? url('favicons/iris-favicon.ico') }}">
+            <link rel="apple-touch-icon" sizes="180x180" href="{{ request()->get('website')->faviconSources(180, 180)['original'] ?? url('favicons/iris-apple-favicon-180x180.png') }}">
+        @endcache
+        @endif
 
         @if (config('app.env', 'production') === 'staging')
         <!-- == -->

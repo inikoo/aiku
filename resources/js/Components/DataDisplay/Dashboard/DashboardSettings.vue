@@ -35,7 +35,7 @@ const props = defineProps<{
 }>()
 
 const layout = inject("layout", layoutStructure)
-const isSectionVisible = ref(true)
+const isSectionVisible = ref(false)
 
 // Section: Interval
 const isLoadingInterval = ref<string | null>(null)

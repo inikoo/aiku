@@ -875,12 +875,10 @@ test('UI edit rental', function () {
             ->has(
                 'formData.args.updateRoute',
                 fn (AssertableInertia $page) => $page
-                        ->where('name', 'grp.models.org.fulfilment.rentals.update')
+                        ->where('name', 'grp.models.rentals.update')
                         ->where('parameters', [
-                            'organisation' => $this->rental->organisation_id,
-                                'fulfilment'   => $this->rental->fulfilment_id,
                                 'rental'       => $this->rental->id
-                        ]) //wrong route
+                        ])
             )
             ->has('breadcrumbs', 4);
     });
@@ -953,13 +951,15 @@ test('UI edit service', function () {
         $page
             ->component('EditModel')
             ->has('title')
-            ->has('formData.blueprint.0.fields', 6)
+            ->has('formData.blueprint.0.fields', 8)
             ->has('pageHead')
             ->has(
                 'formData.args.updateRoute',
                 fn (AssertableInertia $page) => $page
-                        ->where('name', 'grp.models.product.update')
-                        ->where('parameters', $this->rental->id) //wrong route
+                        ->where('name', 'grp.models.services.update')
+                        ->where('parameters', [
+                            'service'       => $this->service->id
+                    ])
             )
             ->has('breadcrumbs', 4);
     });
