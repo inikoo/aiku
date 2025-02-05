@@ -27,6 +27,7 @@ class FetchAuroraInvoices extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId, bool $forceWithTransactions = false): ?Invoice
     {
+
         $doTransactions = false;
         if (in_array('transactions', $this->with) or $forceWithTransactions or in_array('full', $this->with)) {
             $doTransactions = true;
@@ -39,8 +40,10 @@ class FetchAuroraInvoices extends FetchAuroraAction
 
 
         if ($invoice = Invoice::withTrashed()->where('source_id', $invoiceData['invoice']['source_id'])->first()) {
+
+
             try {
-                UpdateInvoice::make()->action(
+                $invoice = UpdateInvoice::make()->action(
                     invoice: $invoice,
                     modelData: $invoiceData['invoice'],
                     hydratorsDelay: 300,
@@ -86,24 +89,23 @@ class FetchAuroraInvoices extends FetchAuroraAction
         }
 
 
-        if ($invoice) {
-            if ($doTransactions) {
-                $this->fetchInvoiceTransactions($organisationSource, $invoice);
-                $this->fetchInvoiceNoProductTransactions($organisationSource, $invoice);
-                $sourceData = explode(':', $invoice->source_id);
 
-                DB::connection('aurora')->table('Invoice Dimension')
-                    ->where('Invoice Key', $sourceData[1])
-                    ->update(['aiku_all_id' => $invoice->id]);
-            }
+        if ($doTransactions) {
+            $this->fetchInvoiceTransactions($organisationSource, $invoice);
+            $this->fetchInvoiceNoProductTransactions($organisationSource, $invoice);
+            $sourceData = explode(':', $invoice->source_id);
 
-
-            if (in_array('payments', $this->with) or in_array('full', $this->with)) {
-                $this->fetchPayments($organisationSource, $invoice);
-            }
+            DB::connection('aurora')->table('Invoice Dimension')
+                ->where('Invoice Key', $sourceData[1])
+                ->update(['aiku_all_id' => $invoice->id]);
         }
 
-        return null;
+
+        if (in_array('payments', $this->with) or in_array('full', $this->with)) {
+            $this->fetchPayments($organisationSource, $invoice);
+        }
+
+        return $invoice;
     }
 
     private function fetchPayments($organisationSource, Invoice $invoice): void

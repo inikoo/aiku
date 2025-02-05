@@ -71,6 +71,10 @@ class FetchAuroraInvoice extends FetchAurora
             $metadata = [];
         }
 
+        $footer = Arr::get($metadata, 'store_message', '');
+        if (is_null($footer)) {
+            $footer = '';
+        }
 
         $this->parsedData['invoice'] = [
             'reference'        => $this->auroraModelData->{'Invoice Public ID'},
@@ -102,7 +106,7 @@ class FetchAuroraInvoice extends FetchAurora
             'tax_category_id' => $taxCategory->id,
             'fetched_at'      => now(),
             'last_fetched_at' => now(),
-            'footer'          => Arr::get($metadata, 'store_message', ''),
+            'footer'          => $footer
 
         ];
 
