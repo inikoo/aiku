@@ -15,6 +15,7 @@ use App\Models\Traits\InFulfilment;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
@@ -98,5 +99,10 @@ class FulfilmentTransaction extends Model
     public function fulfilmentCustomer(): BelongsTo
     {
         return $this->belongsTo(FulfilmentCustomer::class);
+    }
+
+    public function recurringBillTransaction(): HasOne
+    {
+        return $this->hasOne(RecurringBillTransaction::class);
     }
 }

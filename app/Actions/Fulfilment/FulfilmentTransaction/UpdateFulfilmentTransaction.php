@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\FulfilmentTransaction;
 
+use App\Actions\Fulfilment\RecurringBillTransaction\UpdateRecurringBillTransaction;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\FulfilmentTransaction;
@@ -18,7 +19,8 @@ class UpdateFulfilmentTransaction extends OrgAction
 {
     use WithActionUpdate;
 
-    public function handle(FulfilmentTransaction $fulfilmentTransaction, array $modelData): FulfilmentTransaction
+
+    public function handle(FulfilmentTransaction $fulfilmentTransaction, array $modelData, bool $isRecurringBillTransactionUpdated = false): FulfilmentTransaction
     {
         if (Arr::exists($modelData, 'net_amount')) {
             $netAmount = Arr::get($modelData, 'net_amount');
@@ -28,7 +30,13 @@ class UpdateFulfilmentTransaction extends OrgAction
             $fulfilmentTransaction->refresh();
             $netAmount = $fulfilmentTransaction->asset->price * $fulfilmentTransaction->quantity;
         }
-        $fulfilmentTransaction =  $this->update($fulfilmentTransaction, $modelData, ['data']);
+    
+        $fulfilmentTransaction = $this->update($fulfilmentTransaction, $modelData, ['data']);
+    
+        if ($fulfilmentTransaction->recurringBillTransaction && !$isRecurringBillTransactionUpdated) {
+            UpdateRecurringBillTransaction::make()->action($fulfilmentTransaction->recurringBillTransaction, $modelData, true);
+        }
+    
         $this->update(
             $fulfilmentTransaction,
             [
@@ -38,13 +46,13 @@ class UpdateFulfilmentTransaction extends OrgAction
                 'org_net_amount' => $netAmount * $fulfilmentTransaction->org_exchange
             ]
         );
-
+    
         $fulfilmentTransaction->refresh();
-
+    
         if (!Arr::exists($modelData, 'net_amount')) {
             SetClausesInFulfilmentTransaction::run($fulfilmentTransaction);
         }
-
+    
         return $fulfilmentTransaction;
     }
     public function rules(): array
@@ -69,13 +77,12 @@ class UpdateFulfilmentTransaction extends OrgAction
         $this->handle($fulfilmentTransaction, $this->validatedData);
     }
 
-    public function action(FulfilmentTransaction $palletDeliveryTransaction, array $modelData): FulfilmentTransaction
+    public function action(FulfilmentTransaction $palletDeliveryTransaction, array $modelData, bool $isRecurringBillTransactionUpdated = false): FulfilmentTransaction
     {
 
         $this->asAction       = true;
         $this->initialisationFromFulfilment($palletDeliveryTransaction->fulfilment, $modelData);
 
-        return $this->handle($palletDeliveryTransaction, $this->validatedData);
+        return $this->handle($palletDeliveryTransaction, $this->validatedData, $isRecurringBillTransactionUpdated);
     }
-
 }
