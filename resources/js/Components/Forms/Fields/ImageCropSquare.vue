@@ -127,7 +127,7 @@ watch(isOpenModalCrop, (value) => {
         </Modal>
 
         <!-- Avatar Button: Large view -->
-        <div class="bg-gray-100 relative overflow-hidden h-40 aspect-square rounded lg:inline-block ring-1 ring-gray-500 shadow"
+        <div class="bg-gray-100 relative overflow-hidden h-40 w-auto aspect-ratio rounded lg:inline-block ring-1 ring-gray-500 shadow"
             :class="form.errors[fieldName] ? 'errorShake' : ''"
         >
             <Image class="h-full rounded" :src="imgAfterCrop" alt="" />
