@@ -131,7 +131,7 @@ class EditWebsite extends OrgAction
                     "label" => __("favicon"),
                     "value" => $website->imageSources(320, 320),
                     'options' => [
-                        'aspectRatio' =>  1/1
+                        'aspectRatio' =>  1 / 1
                     ]
                 ],
             ]
