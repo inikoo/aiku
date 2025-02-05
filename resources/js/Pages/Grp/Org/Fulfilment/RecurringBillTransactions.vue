@@ -73,6 +73,7 @@ const locale = inject('locale', aikuLocaleStructure)
 <template>
     <Table :resource="data" :name="tab" class="mt-5" :is-check-box="false">
         <template #cell(description)="{ item }">
+            edit type : {{ item.edit_type }}
             <div v-if="item.description?.model || item.description?.title || item.description?.after_title">
                 <span v-if="item.description?.model">{{ item.description.model }}:</span>
                 <Link v-if="item.description?.title && item.description.route?.name" :href="route(item.description.route?.name, item.description.route?.parameters)" class="primaryLink">
