@@ -89,7 +89,7 @@ const form = useForm({
                     <div name="fade">
                         <LoadingIcon v-if="form.processing" icon="fas fa-spinner" spin class="h-6"
                             aria-hidden="true"
-                        <FontAwesomeIcon  />
+                        />
                         <span v-if="!form.processing">
                             <FontAwesomeIcon v-if="form.isDirty" @click="emits('onSave', form)"
                                 :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" icon="fad fa-save" class="h-6"
