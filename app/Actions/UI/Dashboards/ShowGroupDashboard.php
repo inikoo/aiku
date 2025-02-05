@@ -96,22 +96,22 @@ class ShowGroupDashboard extends OrgAction
             'total_refunds'  => 0,
         ];
 
-        $visualData = [];
-
         if ($this->tabDashboardInterval == GroupDashboardIntervalTabsEnum::SALES->value) {
             $total['total_sales'] = $organisations->sum(fn ($organisation) => $organisation->salesIntervals->{"sales_grp_currency_$selectedInterval"} ?? 0);
-            $dashboard['table'][0]['data'] = $this->getSales($group, $selectedInterval, $selectedCurrency, $organisations, $dashboard, $visualData, $total);
+            $dashboard['table'][0]['data'] = $this->getSales($group, $selectedInterval, $selectedCurrency, $organisations, $dashboard, $total);
         } elseif ($this->tabDashboardInterval == GroupDashboardIntervalTabsEnum::SHOPS->value) {
             $shops = $group->shops->whereIn('organisation_id', $organisations->pluck('id')->toArray());
             $total['total_sales'] = $shops->sum(fn ($shop) => $shop->salesIntervals->{"sales_grp_currency_$selectedInterval"} ?? 0);
-            $dashboard['table'][1]['data'] = $this->getShops($group, $shops, $selectedInterval, $dashboard, $selectedCurrency, $visualData, $total);
+            $dashboard['table'][1]['data'] = $this->getShops($group, $shops, $selectedInterval, $dashboard, $selectedCurrency, $total);
         }
 
         return $dashboard;
     }
 
-    public function getSales(Group $group, $selectedInterval, $selectedCurrency, $organisations, &$dashboard, &$visualData, &$total): array
+    public function getSales(Group $group, $selectedInterval, $selectedCurrency, $organisations, &$dashboard, &$total): array
     {
+        $visualData = [];
+
         $data =  $organisations->map(function (Organisation $organisation) use ($selectedInterval, $group, &$dashboard, $selectedCurrency, &$visualData, &$total) {
             $keyCurrency = $dashboard['settings']['key_currency'];
             $currencyCode = $selectedCurrency === $keyCurrency ? $group->currency->code : $organisation->currency->code;
@@ -137,6 +137,7 @@ class ShowGroupDashboard extends OrgAction
                     $salesCurrency,
                     $selectedInterval,
                 );
+                // visual sales
                 $visualData['sales_data']['labels'][] = $organisation->code;
                 $visualData['sales_data']['currency_codes'][] = $currencyCode;
                 $visualData['sales_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['sales']['amount'];
@@ -285,8 +286,10 @@ class ShowGroupDashboard extends OrgAction
         return $data;
     }
 
-    public function getShops(Group $group, $shops, $selectedInterval, &$dashboard, $selectedCurrency, &$visualData, &$total): array
+    public function getShops(Group $group, $shops, $selectedInterval, &$dashboard, $selectedCurrency, &$total): array
     {
+        $visualData = [];
+
         $data = $shops->map(function (Shop $shop) use ($selectedInterval, $group, &$dashboard, $selectedCurrency, &$visualData, &$total) {
             $keyCurrency = $dashboard['settings']['key_currency'];
             $currencyCode = $selectedCurrency === $keyCurrency ? $group->currency->code : $shop->organisation->currency->code;
@@ -305,7 +308,6 @@ class ShowGroupDashboard extends OrgAction
                 ]
             ];
 
-
             if ($shop->salesIntervals !== null) {
                 // data sales
                 $responseData['interval_percentages']['sales'] = $this->getIntervalPercentage(
@@ -313,6 +315,7 @@ class ShowGroupDashboard extends OrgAction
                     $salesCurrency,
                     $selectedInterval,
                 );
+
                 // visual sales
                 $visualData['sales_data']['labels'][] = $shop->code;
                 $visualData['sales_data']['currency_codes'][] = $currencyCode;
