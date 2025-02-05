@@ -11,7 +11,7 @@ use App\Models\Dropshipping\ShopifyUser;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Facades\Broadcast;
 
-Broadcast::channel('shopify.upload-product.{shopifyUserId}', function (ShopifyUser $user, int $shopifyUserId) {
+Broadcast::channel('shopify.upload-product.{shopifyUserId}', function (WebUser|ShopifyUser $user, int|string $shopifyUserId) {
     return true;
 });
 
@@ -35,8 +35,8 @@ Broadcast::channel('grp.live.users', function (User $user) {
     ];
 });
 
-Broadcast::channel('retina.{websiteID}.website', function (Webuser $webUser, int $websiteID) {
-    return $websiteID === $webUser->website_id;
+Broadcast::channel('retina.{websiteId}.website', function (Webuser $webUser, int $websiteId) {
+    return $websiteId === $webUser->website_id;
 });
 
 Broadcast::channel('retina.{customerID}.customer', function (Webuser $webUser, int $customerID) {
