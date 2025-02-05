@@ -31,11 +31,9 @@ class UpdateService extends OrgAction
 
     public function handle(Service $service, array $modelData): Service
     {
-        if (Arr::exists($modelData, 'fixed_price')) 
-        {
+        if (Arr::exists($modelData, 'fixed_price')) {
             $fixedPrice = Arr::pull($modelData, 'fixed_price');
-            if ($fixedPrice == true)
-            {
+            if ($fixedPrice == true) {
                 data_set($modelData, 'edit_type', ServiceEditTypeEnum::QUANTITY);
             } elseif ($fixedPrice == false) {
                 data_set($modelData, 'edit_type', ServiceEditTypeEnum::NET);
@@ -44,8 +42,7 @@ class UpdateService extends OrgAction
 
         if (Arr::exists($modelData, 'active')) {
             $active = Arr::pull($modelData, 'active');
-            if ($active == true)
-            {
+            if ($active == true) {
                 data_set($modelData, 'status', true);
                 data_set($modelData, 'state', ServiceStateEnum::ACTIVE);
             } elseif ($active == false) {
