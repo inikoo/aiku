@@ -365,20 +365,20 @@ function onPerPageChange(value) {
     queryBuilderData.value.perPage = value
     queryBuilderData.value.page = 1
 
-    axios.patch(
-        route("grp.models.user.update", layout.user?.id),
-        {
-            settings: {
-                records_per_page: value,
-            },
-        }
-    )
-    .then((response) => {
-        console.log('success');
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-    });
+    // axios.patch(
+    //     route("grp.models.user.update", layout.user?.id),
+    //     {
+    //         settings: {
+    //             records_per_page: value,
+    //         },
+    //     }
+    // )
+    // .then((response) => {
+    //     console.log('success');
+    // })
+    // .catch((error) => {
+    //     console.error('Error:', error);
+    // });
 }
 
 function findDataKey(dataKey, key) {

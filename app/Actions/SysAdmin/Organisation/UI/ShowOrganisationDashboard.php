@@ -172,6 +172,16 @@ class ShowOrganisationDashboard extends OrgAction
 
         $dashboard['total'] = $total;
 
+        $combinedGraphSales = array_map(null, $visualData['sales_data']['labels'], $visualData['sales_data']['currency_codes'], $visualData['sales_data']['datasets'][0]['data']);
+
+        usort($combinedGraphSales, function ($a, $b) {
+            return floatval($b[2]) <=> floatval($a[2]);
+        });
+
+        $visualData['sales_data']['labels'] = array_column($combinedGraphSales, 0);
+        $visualData['sales_data']['currency_codes'] = array_column($combinedGraphSales, 1);
+        $visualData['sales_data']['datasets'][0]['data'] = array_column($combinedGraphSales, 2);
+
         $dashboard['widgets']['components'][] = $this->getWidget(
             type: 'chart_display',
             data: [
@@ -190,6 +200,16 @@ class ShowOrganisationDashboard extends OrgAction
                 ],
             ]
         );
+
+        $combinedInvoices = array_map(null, $visualData['invoices_data']['labels'], $visualData['invoices_data']['currency_codes'], $visualData['invoices_data']['datasets'][0]['data']);
+
+        usort($combinedInvoices, function ($a, $b) {
+            return floatval($b[2]) <=> floatval($a[2]);
+        });
+
+        $visualData['invoices_data']['labels'] = array_column($combinedInvoices, 0);
+        $visualData['invoices_data']['currency_codes'] = array_column($combinedInvoices, 1);
+        $visualData['invoices_data']['datasets'][0]['data'] = array_column($combinedInvoices, 2);
 
         $dashboard['widgets']['components'][] = $this->getWidget(
             type: 'chart_display',
