@@ -7,16 +7,17 @@
  */
 
 
-use App\Actions\Transfers\Aurora\FetchAuroraCustomers;
-use App\Actions\Transfers\Aurora\FetchAuroraInvoices;
+use App\Actions\Transfers\Aurora\Api\ProcessAuroraCustomer;
+use App\Actions\Transfers\Aurora\Api\ProcessAuroraEmployee;
+use App\Actions\Transfers\Aurora\Api\ProcessAuroraInvoice;
 use Illuminate\Support\Facades\Route;
 
 Route::name('bk_api.')->group(function () {
     Route::middleware(['auth:sanctum', 'ability:aurora'])->group(function () {
         Route::name('fetch.')->prefix('{organisation}')->group(function () {
-            Route::post('invoice', FetchAuroraInvoices::class)->name('invoice');
-            Route::post('customer', FetchAuroraCustomers::class)->name('customer');
-            Route::post('employee', FetchAuroraCustomers::class)->name('employee');
+            Route::post('invoice', ProcessAuroraInvoice::class)->name('invoice');
+            Route::post('customer', ProcessAuroraCustomer::class)->name('customer');
+            Route::post('employee', ProcessAuroraEmployee::class)->name('employee');
         });
     });
 });
