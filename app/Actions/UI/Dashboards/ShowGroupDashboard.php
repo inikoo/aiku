@@ -50,8 +50,8 @@ class ShowGroupDashboard extends OrgAction
 
         $dashboard = [
             'interval_options'  => $this->getIntervalOptions(),
-            'selected_amount' => $selectedAmount,
             'settings' => [
+                'selected_amount' => $selectedAmount,
                 'db_settings'   => $userSettings,
                 'key_currency'  =>  'grp',
                 'options_currency'  => [
