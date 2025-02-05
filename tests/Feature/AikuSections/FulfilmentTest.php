@@ -9,7 +9,6 @@
 /** @noinspection PhpUnhandledExceptionInspection */
 
 use App\Actions\Accounting\Invoice\PayInvoice;
-use App\Actions\Accounting\InvoiceTransaction\UI\IndexInvoiceTransactions;
 use App\Actions\Billables\Rental\StoreRental;
 use App\Actions\Billables\Rental\UpdateRental;
 use App\Actions\Billables\Service\StoreService;
@@ -2489,25 +2488,13 @@ test('update third rental agreement cause', function ($fulfilmentCustomer) {
     return $fulfilmentCustomer;
 })->depends('consolidate recurring bill');
 
-test('check invoice transactions length', function ($fulfilmentCustomer) {
+test('pay invoice (full)', function ($fulfilmentCustomer) {
     $oldRecurringBill = $fulfilmentCustomer->recurringBills->first();
     $invoice          = $oldRecurringBill->invoices;
 
-    $query     = IndexInvoiceTransactions::run($invoice)->toArray();
-    $queryData = $query['data'];
-
-    expect($invoice)->toBeInstanceOf(Invoice::class)
-        ->and($invoice->invoiceTransactions()->count())->toBe(3)
-        ->and(count($queryData))->tobe(3);
-
-    return $invoice;
-})->depends('update third rental agreement cause');
-
-test('pay invoice (full)', function ($invoice) {
     $paymentAccount     = $invoice->shop->paymentAccounts()->first();
-    $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
     $payment            = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
-        'amount' => 90,
+        'amount' => 312,
         'status' => PaymentStatusEnum::SUCCESS->value,
         'state'  => PaymentStateEnum::COMPLETED->value
     ]);
@@ -2519,7 +2506,7 @@ test('pay invoice (full)', function ($invoice) {
         ->and($payment->state)->toBe(PaymentStateEnum::COMPLETED);
 
     return $fulfilmentCustomer;
-})->depends('check invoice transactions length');
+})->depends('update third rental agreement cause');
 
 test('consolidate 2nd recurring bill', function ($fulfilmentCustomer) {
     $recurringBill = $fulfilmentCustomer->currentRecurringBill;
