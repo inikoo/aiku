@@ -184,6 +184,7 @@ class IndexOrders extends OrgAction
             ])
             ->leftJoin('order_stats', 'orders.id', 'order_stats.order_id')
             ->allowedSorts(['reference', 'date'])
+            ->withBetweenDates(['date'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -215,6 +216,7 @@ class IndexOrders extends OrgAction
                 $stats = $parent->orderingStats;
             }
 
+            $table->betweenDates(['date']);
 
             $table
                 ->withGlobalSearch()
