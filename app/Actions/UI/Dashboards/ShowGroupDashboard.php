@@ -10,6 +10,7 @@ namespace App\Actions\UI\Dashboards;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithDashboard;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Enums\UI\Group\GroupDashboardIntervalTabsEnum;
 use App\Models\Catalogue\Shop;
@@ -215,12 +216,21 @@ class ShowGroupDashboard extends OrgAction
                 'code'      => $shop->code,
                 'type'      => $shop->type,
                 'currency_code'  => $currencyCode,
-                'route'     => [
-                    'name'       => 'grp.org.dashboard.show',
-                    'parameters' => [
-                        'shop' => $shop->slug,
+                'route'         => $shop->type == ShopTypeEnum::FULFILMENT
+                    ? [
+                        'name'       => 'grp.org.fulfilments.show.operations.dashboard',
+                        'parameters' => [
+                            'organisation' => $shop->organisation->slug,
+                            'fulfilment'   => $shop->slug
+                        ]
                     ]
-                ]
+                    : [
+                        'name'       => 'grp.org.shops.show.dashboard',
+                        'parameters' => [
+                            'organisation' => $shop->organisation->slug,
+                            'shop'         => $shop->slug
+                        ]
+                    ]
             ];
 
             if ($shop->salesIntervals !== null) {
