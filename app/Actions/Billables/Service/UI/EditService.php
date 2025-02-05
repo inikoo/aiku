@@ -110,7 +110,7 @@ class EditService extends OrgAction
                 'formData'    => [
                     'blueprint' => [
                         [
-                            'title'  => __('id'),
+                            'title'  => __('Edit Service'),
                             'fields' => [
                                 'in_public' => [
                                     'type'    => 'toggle',
