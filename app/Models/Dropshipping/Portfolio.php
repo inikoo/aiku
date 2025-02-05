@@ -28,7 +28,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property int $organisation_id
  * @property int|null $shop_id
  * @property int $customer_id
- * @property int $product_id
+ * @property int|null $item_id
  * @property string|null $reference This is the reference that the customer uses to identify the product
  * @property string $type
  * @property bool $status
@@ -41,12 +41,13 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property string|null $fetched_at
  * @property string|null $last_fetched_at
  * @property string|null $source_id
+ * @property string|null $item_type
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Customer $customer
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read Model|\Eloquent|null $item
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dropshipping\Platform> $platforms
- * @property-read Product $product
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read ShopifyUserHasProduct|null $shopifyPortfolio
  * @property-read \App\Models\Dropshipping\PortfolioStats|null $stats

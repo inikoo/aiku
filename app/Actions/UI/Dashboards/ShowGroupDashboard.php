@@ -115,6 +115,10 @@ class ShowGroupDashboard extends OrgAction
     {
         $visualData = [];
 
+
+
+
+
         $data =  $organisations->map(function (Organisation $organisation) use ($selectedInterval, $group, &$dashboard, $selectedCurrency, &$visualData, &$total) {
             $keyCurrency = $dashboard['settings']['key_currency'];
             $currencyCode = $selectedCurrency === $keyCurrency ? $group->currency->code : $organisation->currency->code;
@@ -223,7 +227,7 @@ class ShowGroupDashboard extends OrgAction
                 'description' => __('Total invoices')
             ],
             visual: [
-                'type'  => 'pie',
+                'type'  => 'doughnut',
                 'value' => [
                     'labels'         => Arr::get($visualData, 'invoices_data.labels'),
                     'currency_codes' => Arr::get($visualData, 'invoices_data.currency_codes'),
@@ -363,7 +367,7 @@ class ShowGroupDashboard extends OrgAction
                 'description' => __('Total invoices')
             ],
             visual: [
-                'type'  => 'pie',
+                'type'  => 'doughnut',
                 'value' => [
                     'labels'         => Arr::get($visualData, 'invoices_data.labels'),
                     'currency_codes' => Arr::get($visualData, 'invoices_data.currency_codes'),

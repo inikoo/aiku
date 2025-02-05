@@ -12,6 +12,7 @@ use App\Actions\Helpers\Media\SaveModelFavicon;
 use App\Models\Web\Website;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 
 trait WithFavicon
 {
@@ -31,6 +32,9 @@ trait WithFavicon
                 scope: 'favicon'
             );
         }
+
+        Cache::forget('iris-favicon-'.$model->id);
+
         return $model;
     }
 }

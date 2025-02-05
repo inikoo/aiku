@@ -8,7 +8,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Actions\Pupil\GetPupilFirstLoadProps;
 use App\Http\Resources\UI\LoggedShopifyUserResource;
 use App\Models\CRM\WebUser;
 use Illuminate\Http\Request;
