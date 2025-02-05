@@ -163,9 +163,9 @@ class ShowGroupDashboard extends OrgAction
                 $total['total_invoices'] += $responseData['interval_percentages']['invoices']['amount'];
                 $total['total_refunds'] += $responseData['interval_percentages']['refunds']['amount'];
 
-                // $visualData['invoices_data']['labels'][] = $organisation->code;
-                // $visualData['invoices_data']['currency_codes'][] = $currencyCode;
-                // $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
+                $visualData['invoices_data']['labels'][] = $organisation->code;
+                $visualData['invoices_data']['currency_codes'][] = $currencyCode;
+                $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
 
                 // $visualData['refunds_data']['labels'][] = $organisation->code;
                 // $visualData['refunds_data']['currency_codes'][] = $currencyCode;
@@ -201,6 +201,34 @@ class ShowGroupDashboard extends OrgAction
                     'labels'  => $visualData['sales_data']['labels'],
                     'currency_codes' => $visualData['sales_data']['currency_codes'],
                     'datasets'    => $visualData['sales_data']['datasets']
+                ],
+            ]
+        );
+
+        $combinedInvoices = array_map(null, $visualData['invoices_data']['labels'], $visualData['invoices_data']['currency_codes'], $visualData['invoices_data']['datasets'][0]['data']);
+
+        usort($combinedInvoices, function ($a, $b) {
+            return floatval($b[2]) <=> floatval($a[2]);
+        });
+
+        $visualData['invoices_data']['labels'] = array_column($combinedInvoices, 0);
+        $visualData['invoices_data']['currency_codes'] = array_column($combinedInvoices, 1);
+        $visualData['invoices_data']['datasets'][0]['data'] = array_column($combinedInvoices, 2);
+
+        $dashboard['widgets']['components'][] = $this->getWidget(
+            type: 'chart_display',
+            data: [
+                'value'       => $total['total_invoices'],
+                'type'        => 'number',
+                'description' => __('Total invoices')
+            ],
+            visual: [
+                'type'  => 'pie',
+                'value' => [
+                    'labels'         => Arr::get($visualData, 'invoices_data.labels'),
+                    'currency_codes' => Arr::get($visualData, 'invoices_data.currency_codes'),
+                    'datasets'       => Arr::get($visualData, 'invoices_data.datasets'),
+
                 ],
             ]
         );
@@ -274,9 +302,9 @@ class ShowGroupDashboard extends OrgAction
                 $total['total_refunds'] += $responseData['interval_percentages']['refunds']['amount'];
 
                 // visual data
-                // $visualData['invoices_data']['labels'][] = $shop->code;
-                // $visualData['invoices_data']['currency_codes'][] = $currencyCode;
-                // $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
+                $visualData['invoices_data']['labels'][] = $shop->code;
+                $visualData['invoices_data']['currency_codes'][] = $currencyCode;
+                $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
 
                 // $visualData['refunds_data']['labels'][] = $shop->code;
                 // $visualData['refunds_data']['currency_codes'][] = $currencyCode;
@@ -313,6 +341,34 @@ class ShowGroupDashboard extends OrgAction
                     'labels'  => $visualData['sales_data']['labels'],
                     'currency_codes' => $visualData['sales_data']['currency_codes'],
                     'datasets'    => $visualData['sales_data']['datasets']
+                ],
+            ]
+        );
+
+        $combinedInvoices = array_map(null, $visualData['invoices_data']['labels'], $visualData['invoices_data']['currency_codes'], $visualData['invoices_data']['datasets'][0]['data']);
+
+        usort($combinedInvoices, function ($a, $b) {
+            return floatval($b[2]) <=> floatval($a[2]);
+        });
+
+        $visualData['invoices_data']['labels'] = array_column($combinedInvoices, 0);
+        $visualData['invoices_data']['currency_codes'] = array_column($combinedInvoices, 1);
+        $visualData['invoices_data']['datasets'][0]['data'] = array_column($combinedInvoices, 2);
+
+        $dashboard['widgets']['components'][] = $this->getWidget(
+            type: 'chart_display',
+            data: [
+                'value'       => $total['total_invoices'],
+                'type'        => 'number',
+                'description' => __('Total invoices')
+            ],
+            visual: [
+                'type'  => 'pie',
+                'value' => [
+                    'labels'         => Arr::get($visualData, 'invoices_data.labels'),
+                    'currency_codes' => Arr::get($visualData, 'invoices_data.currency_codes'),
+                    'datasets'       => Arr::get($visualData, 'invoices_data.datasets'),
+
                 ],
             ]
         );
