@@ -61,15 +61,13 @@ class EditService extends OrgAction
     {
         $fixedPrice = false;
         $disableNet = false;
-        $disableUnits= false;
-        if ($service->edit_type == ServiceEditTypeEnum::QUANTITY)
-        {
+        $disableUnits = false;
+        if ($service->edit_type == ServiceEditTypeEnum::QUANTITY) {
             $fixedPrice = true;
             $disableNet = true;
-        } elseif ($service->edit_type == ServiceEditTypeEnum::NET)
-        {
+        } elseif ($service->edit_type == ServiceEditTypeEnum::NET) {
             $fixedPrice = false;
-            $disableUnits= true;
+            $disableUnits = true;
         }
 
         return Inertia::render(

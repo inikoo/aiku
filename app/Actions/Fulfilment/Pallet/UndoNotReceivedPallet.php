@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 03-02-2025-13h-48m
@@ -16,7 +17,6 @@
 namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryStateFromItems;
-use App\Actions\Inventory\Location\Hydrators\LocationHydratePallets;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
