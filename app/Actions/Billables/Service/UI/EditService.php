@@ -64,10 +64,10 @@ class EditService extends OrgAction
 
         if ($service->edit_type == ServiceEditTypeEnum::QUANTITY) {
             $fixedPrice = true;
-            $disableNet = true;
+            $disableNet = false;
         } elseif ($service->edit_type == ServiceEditTypeEnum::NET) {
             $fixedPrice = false;
-            $disableNet = false;
+            $disableNet = true;
         }
 
         if ($service->status == false || $service->state == ServiceStateEnum::DISCONTINUED) {
