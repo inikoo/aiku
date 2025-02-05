@@ -10,6 +10,7 @@ namespace App\Actions\Billables\Service\UI;
 
 use App\Actions\OrgAction;
 use App\Enums\Billables\Service\ServiceEditTypeEnum;
+use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Models\Billables\Service;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
@@ -59,17 +60,23 @@ class EditService extends OrgAction
      */
     public function htmlResponse(Service $service, ActionRequest $request): Response
     {
-        $fixedPrice = false;
-        $disableNet = false;
-        $disableUnits = false;
-        if ($service->edit_type == ServiceEditTypeEnum::QUANTITY) {
+
+       
+        if ($service->edit_type == ServiceEditTypeEnum::QUANTITY)
+        {
             $fixedPrice = true;
             $disableNet = true;
         } elseif ($service->edit_type == ServiceEditTypeEnum::NET) {
             $fixedPrice = false;
-            $disableUnits = true;
+            $disableNet = false;
         }
 
+        if($service->status == false || $service->state == ServiceStateEnum::DISCONTINUED)
+        {
+            $active = false;
+        } else {
+            $active = true;
+        }
         return Inertia::render(
             'EditModel',
             [
@@ -103,8 +110,18 @@ class EditService extends OrgAction
                 'formData'    => [
                     'blueprint' => [
                         [
-                            'title'  => __('id'),
+                            'title'  => __('Edit Service'),
                             'fields' => [
+                                'in_public' => [
+                                    'type'    => 'toggle',
+                                    'label'   => __('public'),
+                                    'value'   => $service->is_public
+                                ],
+                                'active' => [
+                                    'type'    => 'toggle',
+                                    'label'   => __('active'),
+                                    'value'   => $active
+                                ],
                                 'code' => [
                                     'type'     => 'input',
                                     'label'    => __('code'),
@@ -128,17 +145,18 @@ class EditService extends OrgAction
                                     'value'    => $service->unit,
                                     'readonly' => true
                                 ],
-                                'price' => [
-                                    'type'    => 'input',
-                                    'label'   => __('price'),
-                                    'value'   => $service->price,
-                                    'readonly' => $disableNet
-                                ],
                                 'fixed_price' => [
                                     'type'    => 'toggle',
                                     'label'   => __('fixed price'),
                                     'value'   => $fixedPrice
-                                ]
+                                ],
+                                'price' => [
+                                    'type'    => 'input',
+                                    'label'   => __('price'),
+                                    'value'   => $service->price,
+                                    'hidden' => $disableNet
+                                ],
+
                             ]
                         ]
 
