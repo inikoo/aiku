@@ -86,7 +86,6 @@ class IndexRetinaDropshippingPortfolio extends RetinaAction
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true);
-
             $table->column(key: 'tags', label: __('tags'), canBeHidden: false);
         };
     }
