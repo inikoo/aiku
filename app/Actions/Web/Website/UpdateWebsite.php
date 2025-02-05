@@ -10,6 +10,7 @@ namespace App\Actions\Web\Website;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
+use App\Actions\Traits\UI\WithFavicon;
 use App\Actions\Traits\UI\WithLogo;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Web\Website\Search\WebsiteRecordSearch;
@@ -28,6 +29,7 @@ class UpdateWebsite extends OrgAction
     use WithActionUpdate;
     use HasWebAuthorisation;
     use WithLogo;
+    use WithFavicon;
 
     private Website $website;
 
@@ -35,6 +37,7 @@ class UpdateWebsite extends OrgAction
     public function handle(Website $website, array $modelData): Website
     {
         $website = $this->processWebsiteLogo($modelData, $website);
+        $website = $this->processWebsiteFavicon($modelData, $website);
         data_forget($modelData, 'image');
 
         if (Arr::has($modelData, "google_tag_id")) {
@@ -104,6 +107,12 @@ class UpdateWebsite extends OrgAction
             'status'        => ['sometimes', 'boolean'],
             'google_tag_id' => ['sometimes', 'string'],
             'image'       => [
+                'sometimes',
+                'nullable',
+                File::image()
+                    ->max(12 * 1024)
+            ],
+            'favicon'       => [
                 'sometimes',
                 'nullable',
                 File::image()
