@@ -67,6 +67,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $contact_name
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\CRM\Customer $customer
+ * @property-read \App\Models\CRM\TFactory|null $use_factory
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images

@@ -98,6 +98,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Dispatching\DeliveryNoteItem> $deliveryNoteItems
  * @property-read Collection<int, Feedback> $feedbacks
  * @property-read Collection<int, Address> $fixedAddresses
+ * @property-read \App\Models\Dispatching\TFactory|null $use_factory
  * @property-read Group $group
  * @property-read Collection<int, Order> $orders
  * @property-read Organisation $organisation

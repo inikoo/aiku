@@ -21,6 +21,7 @@ import Tag from '@/Components/Tag.vue'
 import NumberWithButtonSave from "@/Components/NumberWithButtonSave.vue"
 import ModalConfirmationDelete from "@/Components/Utils/ModalConfirmationDelete.vue"
 import { trans } from "laravel-vue-i18n"
+import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 
 
 library.add(faRobot, faPlus, faMinus, faUndoAlt, faTrashAlt)
@@ -32,6 +33,7 @@ const props = defineProps<{
 	can_edit_transactions?: boolean
 }>()
 
+const locale = inject('locale', aikuLocaleStructure)
 const layout = inject("layout", layoutStructure)
 const emits = defineEmits<{
 	(e: "renderTableKey"): void
@@ -52,12 +54,9 @@ const emits = defineEmits<{
 //     }
 // }
 
-// Section: Quantity
-const isLoading = ref<string | boolean>(false)
-const onUpdateQuantity = (idFulfilmentTransaction: number, form: {}) => {
-	console.log(idFulfilmentTransaction, 'loasding', form);
+const getRouteUpdate = (idFulfilmentTransaction: number) => {
+    const routeUpdate = <routeType>{}
 
-	const routeUpdate = {}
 	if (layout.app.name === "Aiku") {
 		routeUpdate.name = "grp.models.fulfilment-transaction.update"
 		routeUpdate.parameters = { fulfilmentTransaction: idFulfilmentTransaction }
@@ -65,16 +64,18 @@ const onUpdateQuantity = (idFulfilmentTransaction: number, form: {}) => {
 		routeUpdate.name = "retina.models.fulfilment-transaction.update"
 		routeUpdate.parameters = { fulfilmentTransaction: idFulfilmentTransaction }
 	}
-	/* router.patch(
-		route(routeUpdate.name, routeUpdate.parameters),
-		{
-			quantity: value,
-		},
-		{
-			onStart: () => (isLoading.value = "quantity" + idFulfilmentTransaction),
-			onFinish: () => (isLoading.value = false),
-		}
-	) */
+
+    routeUpdate.method = 'patch'
+
+    return routeUpdate
+}
+
+// Section: Quantity
+const isLoading = ref<string | boolean>(false)
+const onUpdateQuantity = (idFulfilmentTransaction: number, form: {}) => {
+
+	const routeUpdate = getRouteUpdate(idFulfilmentTransaction)
+
 	form.patch(route(routeUpdate.name, routeUpdate.parameters),{
 		preserveScroll: true,
 		onStart: () => (isLoading.value = "quantity" + idFulfilmentTransaction),
@@ -126,39 +127,44 @@ const userCanEdit = (item) => {
 			</Tag>
 		</template>
 
-		<!-- Column: Quantity -->
-		<!--  <template #cell(quantity)="{ item }">
-            <div v-if="userCanEdit(item)" class="w-32 ml-auto">
-                <PureInput
-                    :modelValue="item.quantity"
-                    @onEnter="(e: number) => item.is_auto_assign ? false : onUpdateQuantity(item.id, e)"
-                    @blur="(e: string) => item.is_auto_assign ? false : e == item.quantity ? false : onUpdateQuantity(item.id, e)"
-                    :isLoading="isLoading === 'quantity' + item.id"
-                    type="number"
-                    align="right"
-                    :readonly="!userCanEdit(item)"
-                    v-tooltip="item.is_auto_assign ? `Auto assign, can't change quantity.` : undefined"
-                />
-            </div>
-
-            <div v-else>{{ item.quantity }}</div>
-        </template> -->
-
 		<template #cell(quantity)="{ item }">
 			<div class="flex justify-end">
-				<div v-if="userCanEdit(item)">
-					<NumberWithButtonSave v-model="item.quantity"  @onSave="(e)=>onUpdateQuantity(item.id, e)"/>
+				<div v-if="item.edit_type !== 'net' && userCanEdit(item)">
+					<NumberWithButtonSave v-model="item.quantity"   @onSave="(e)=>onUpdateQuantity(item.id, e)"/>
 				</div>
 				<div v-else>
-					{{ item.quantity }}
+					<Transition name="spin-to-right"><span :key="item.quantity">{{ locale.number(item.quantity) }} {{ item.asset_unit }}</span></Transition>
 				</div>
 			</div>
 		</template>
 
-		<!-- Column: Net -->
-		<template #cell(net_amount)="{ item }">
-			{{ useLocaleStore().currencyFormat(item.currency_code, item.total) }}
-		</template>
+		<template #cell(net_amount)="{ item, proxyItem }">
+            <div class="relative">
+                <template v-if="item.edit_type === 'net'">
+                    <div class="w-72 float-right">
+                        <NumberWithButtonSave
+                            v-model="proxyItem.total"
+                            :saveOnForm="true"
+                            :routeSubmit="getRouteUpdate(item.id)"
+                            keySubmit="net_amount"
+                            :bindToTarget="{
+                                mode: 'currency',
+                                fluid: true,
+                                currency: item.currency_code,
+                                locale: 'en-US',
+                                step: 0.25
+                            }"
+                        />
+                    </div>
+                </template>
+
+                <Transition v-else name="spin-to-right">
+                    <span :key="item.total">
+                        {{ locale.currencyFormat(item.currency_code, item.total || 0) }}
+                    </span>
+                </Transition>
+            </div>
+        </template>
 
 		<!-- Column: Action -->
 		<template #cell(actions)="{ item }">

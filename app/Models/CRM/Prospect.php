@@ -87,6 +87,7 @@ use Spatie\Tags\Tag;
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\CRM\Customer|null $customer
+ * @property-read \App\Models\CRM\TFactory|null $use_factory
  * @property-read Group $group
  * @property-read Organisation $organisation
  * @property Collection<int, Tag> $tags

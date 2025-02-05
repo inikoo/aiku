@@ -115,6 +115,10 @@ class ShowGroupDashboard extends OrgAction
     {
         $visualData = [];
 
+
+
+
+
         $data =  $organisations->map(function (Organisation $organisation) use ($selectedInterval, $group, &$dashboard, $selectedCurrency, &$visualData, &$total) {
             $keyCurrency = $dashboard['settings']['key_currency'];
             $currencyCode = $selectedCurrency === $keyCurrency ? $group->currency->code : $organisation->currency->code;
