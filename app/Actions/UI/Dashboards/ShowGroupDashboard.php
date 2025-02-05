@@ -9,9 +9,9 @@
 namespace App\Actions\UI\Dashboards;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\DashboardIntervalTabsEnum;
 use App\Actions\Traits\WithDashboard;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
+use App\Enums\UI\Group\GroupDashboardIntervalTabsEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -98,10 +98,10 @@ class ShowGroupDashboard extends OrgAction
 
         $visualData = [];
 
-        if ($this->tabDashboardInterval == DashboardIntervalTabsEnum::SALES->value) {
+        if ($this->tabDashboardInterval == GroupDashboardIntervalTabsEnum::SALES->value) {
             $total['total_sales'] = $organisations->sum(fn ($organisation) => $organisation->salesIntervals->{"sales_grp_currency_$selectedInterval"} ?? 0);
             $dashboard['table'][0]['data'] = $this->getSales($group, $selectedInterval, $selectedCurrency, $organisations, $dashboard, $visualData, $total);
-        } elseif ($this->tabDashboardInterval == DashboardIntervalTabsEnum::SHOPS->value) {
+        } elseif ($this->tabDashboardInterval == GroupDashboardIntervalTabsEnum::SHOPS->value) {
             $shops = $group->shops->whereIn('organisation_id', $organisations->pluck('id')->toArray());
             $total['total_sales'] = $shops->sum(fn ($shop) => $shop->salesIntervals->{"sales_grp_currency_$selectedInterval"} ?? 0);
             $dashboard['table'][1]['data'] = $this->getShops($group, $shops, $selectedInterval, $dashboard, $selectedCurrency, $visualData, $total);
@@ -468,7 +468,7 @@ class ShowGroupDashboard extends OrgAction
     public function asController(ActionRequest $request): Response
     {
         $group = group();
-        $this->initialisationFromGroup($group, $request)->withTabDashboardInterval();
+        $this->initialisationFromGroup($group, $request)->withTabDashboardInterval(GroupDashboardIntervalTabsEnum::values());
         return $this->handle($group);
     }
 

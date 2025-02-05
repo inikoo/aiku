@@ -11,18 +11,7 @@
 namespace App\Actions\Traits;
 
 use App\Enums\DateIntervals\DateIntervalEnum;
-use App\Enums\EnumHelperTrait;
 use Illuminate\Support\Arr;
-
-enum DashboardIntervalTabsEnum: string
-{
-    use EnumHelperTrait;
-
-    case SALES      = 'sales';
-    case SHOPS      = 'shops';
-
-}
-
 
 trait WithDashboard
 {
@@ -85,9 +74,8 @@ trait WithDashboard
         ];
     }
 
-    public function withTabDashboardInterval(): static
+    public function withTabDashboardInterval(array $tabs): static
     {
-        $tabs = DashboardIntervalTabsEnum::values();
         $tab =  $this->get('tab_dashboard_interval', Arr::first($tabs));
 
         if (!in_array($tab, $tabs)) {
