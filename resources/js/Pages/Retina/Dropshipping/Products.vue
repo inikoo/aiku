@@ -83,7 +83,7 @@ const getStatusLabel = (status: string) => {
 const realProducts = ref([])
 onMounted(async () => {
 
-    const xxx = window.Echo.join(`shopify.upload-product.${props.user.id}`).
+    const xxx = window.Echo.join(`shopify.upload-product.${props.user?.id}`).
     listen('.action-progress', (e) => {
         console.log('xxxxxxxxxxxxxx', e)
 
