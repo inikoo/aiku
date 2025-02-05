@@ -9,6 +9,7 @@
 namespace App\Actions\Billables\Service\UI;
 
 use App\Actions\OrgAction;
+use App\Enums\Billables\Service\ServiceEditTypeEnum;
 use App\Models\Billables\Service;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
@@ -58,6 +59,19 @@ class EditService extends OrgAction
      */
     public function htmlResponse(Service $service, ActionRequest $request): Response
     {
+        $fixedPrice = false;
+        $disableNet = false;
+        $disableUnits= false;
+        if ($service->edit_type == ServiceEditTypeEnum::QUANTITY)
+        {
+            $fixedPrice = true;
+            $disableNet = true;
+        } elseif ($service->edit_type == ServiceEditTypeEnum::NET)
+        {
+            $fixedPrice = false;
+            $disableUnits= true;
+        }
+
         return Inertia::render(
             'EditModel',
             [
@@ -116,16 +130,22 @@ class EditService extends OrgAction
                                     'value'    => $service->unit,
                                     'readonly' => true
                                 ],
+                                'units' => [
+                                    'type'     => 'input',
+                                    'label'    => __('units'),
+                                    'value'    => $service->units,
+                                    'readonly' => $disableUnits
+                                ],
                                 'price' => [
                                     'type'    => 'input',
                                     'label'   => __('price'),
-                                    'required' => true,
-                                    'value'   => $service->price
+                                    'value'   => $service->price,
+                                    'readonly' => $disableNet
                                 ],
                                 'fixed_price' => [
                                     'type'    => 'toggle',
                                     'label'   => __('fixed price'),
-                                    'value'   => false
+                                    'value'   => $fixedPrice
                                 ]
                             ]
                         ]
