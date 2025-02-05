@@ -48,7 +48,7 @@ class ShowRetinaProfile extends RetinaAction
                 'value' => $customer->about
             ],
             'image'        => [
-                'type'  => 'avatar',
+                'type'  => 'image_crop_square',
                 'label' => __('avatar'),
                 'value' => !blank($customer->image_id)
                     ? $customer->imageSources(320, 320)
