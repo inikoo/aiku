@@ -16,6 +16,7 @@ import { PalletDelivery } from "@/types/pallet-delivery"
 import Icon from "@/Components/Icon.vue"
 import { inject } from "vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
+import { useFormatTime } from "@/Composables/useFormatTime"
 
 library.add(faPlus)
 
@@ -88,7 +89,11 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
             <div class="tabular-nums">
                 {{ palletReturn.number_pallets }}
             </div>
+        </template>
 
+        <!-- Cell: Dispatched at -->
+        <template #cell(dispatched_at)="{ item: palletReturn }">
+            {{ useFormatTime(palletReturn.dispatched_at) }}
         </template>
 
         <template #buttonreturns="{ linkButton: linkButton }">

@@ -119,7 +119,7 @@ const locale = inject('locale', aikuLocaleStructure)
 					<NumberWithButtonSave v-model="item.quantity"   @onSave="(e)=>onUpdateQuantity(item.id,item.fulfilment_transaction_id, e)"/>
 				</div>
 				<div v-else>
-					{{ locale.number(item.quantity) }} {{ item.asset_unit }}
+					<Transition name="spin-to-right"><span :key="item.quantity">{{ locale.number(item.quantity) }} {{ item.asset_unit }}</span></Transition>
 				</div>
 			</div>
 		</template>
