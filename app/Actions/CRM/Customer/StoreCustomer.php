@@ -75,7 +75,6 @@ class StoreCustomer extends OrgAction
             data_set($modelData, 'reference', GetSerialReference::run(container: $shop, modelType: SerialReferenceModelEnum::CUSTOMER));
         }
 
-
         data_fill(
             $modelData,
             'status',
@@ -85,6 +84,14 @@ class StoreCustomer extends OrgAction
                 :
                 CustomerStatusEnum::APPROVED
         );
+
+        if ($shop->type === ShopTypeEnum::FULFILMENT) {
+            data_fill(
+                $modelData,
+                'status',
+                CustomerStatusEnum::PENDING_APPROVAL
+            );
+        }
 
         $emailSubscriptionsData = Arr::pull($modelData, 'email_subscriptions', []);
 
