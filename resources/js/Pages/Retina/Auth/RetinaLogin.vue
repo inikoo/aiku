@@ -80,7 +80,7 @@ onMounted(async () => {
 
     <div class="flex items-center justify-center bg-gray-50 px-6 py-12 lg:px-8">
     <div class="w-full max-w-sm bg-transparent">
-        <div class="text-center mb-6">
+        <!-- <div class="text-center mb-6">
             <div v-if="!usePage().props?.iris?.website?.logo" class="flex items-center justify-center gap-x-2">
                 <img class="h-12 w-auto" src="/art/logo-yellow.svg"
                     :alt="usePage().props.iris?.website?.name || 'App'" />
@@ -91,7 +91,7 @@ onMounted(async () => {
                 <Image class="h-12 w-auto" :src="usePage().props?.iris?.website?.logo"
                     :alt="usePage().props?.iris?.name || 'App'" />
             </div>
-        </div>
+        </div> -->
 
         <form class="space-y-6">
             <!-- Username Field -->

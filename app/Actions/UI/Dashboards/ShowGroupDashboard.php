@@ -134,7 +134,14 @@ class ShowGroupDashboard extends OrgAction
                     'parameters' => [
                         'organisation' => $organisation->slug,
                     ]
-                ]
+                ],
+                'route_invoice' => [
+                    'name'       => 'grp.org.accounting.invoices.index',
+                    'parameters' => [
+                        'organisation' => $organisation->slug,
+                        'between[date]' => $this->getDateIntervalFilter($selectedInterval)
+                    ]
+                ],
             ];
 
 
@@ -268,7 +275,14 @@ class ShowGroupDashboard extends OrgAction
                             'organisation' => $shop->organisation->slug,
                             'shop'         => $shop->slug
                         ]
+                    ],
+                'route_invoice' => [
+                    'name'       => 'grp.org.accounting.invoices.index',
+                    'parameters' => [
+                        'organisation' => $shop->organisation->slug,
+                        'between[date]' => $this->getDateIntervalFilter($selectedInterval)
                     ]
+                ],
             ];
 
             if ($shop->salesIntervals !== null) {
