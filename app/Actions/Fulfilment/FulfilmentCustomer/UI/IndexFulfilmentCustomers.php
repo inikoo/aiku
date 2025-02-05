@@ -75,6 +75,8 @@ class IndexFulfilmentCustomers extends OrgAction
 
         if ($this->pending_approval) {
             $queryBuilder->where('customers.status', CustomerStatusEnum::PENDING_APPROVAL->value);
+        } else {
+            $queryBuilder->where('customers.status', CustomerStatusEnum::APPROVED->value);
         }
 
         foreach ($this->getElementGroups($fulfilment) as $key => $elementGroup) {
