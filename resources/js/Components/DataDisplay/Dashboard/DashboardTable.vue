@@ -67,9 +67,9 @@ console.log(selectedTab,'asdasdas');
 		<div class="mt-2">
 			<Tabs :value="activeIndexTab">
 				<TabList>
-					<Tab v-for="tab in dashboardTable" @click="() => useTabChangeDashboard(tab.tab_slug)" :key="tab.tab_slug" :value="tab.tab_slug">{{
-						tab.tab_label
-					}}</Tab>
+					<Tab v-for="tab in dashboardTable" @click="() => useTabChangeDashboard(tab.tab_slug)" :key="tab.tab_slug" :value="tab.tab_slug">
+					<FontAwesomeIcon :icon='tab.tab_icon' class='' fixed-width aria-hidden='true' />
+					{{ tab.tab_label }}</Tab>
 				</TabList>
 			</Tabs>
 		

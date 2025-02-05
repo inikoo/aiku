@@ -16,7 +16,7 @@ import { useTruncate } from "@/Composables/useTruncate"
 import ToggleSwitch from "primevue/toggleswitch"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faChevronDown } from "@far"
-import { faPlay, faSortDown, faSortUp } from "@fas"
+import { faChartLine, faPlay, faSortDown, faSortUp } from "@fas"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { Head } from "@inertiajs/vue3"
 import { trans } from "laravel-vue-i18n"
@@ -40,7 +40,7 @@ import TabPanels from "primevue/tabpanels"
 import TabPanel from "primevue/tabpanel"
 import Dashboard from "@/Components/DataDisplay/Dashboard/Dashboard.vue"
 
-library.add(faTriangle, faChevronDown, faSeedling, faTimesCircle, faFolderOpen, faPlay, faCog)
+library.add(faTriangle, faChevronDown, faSeedling, faTimesCircle, faFolderOpen, faPlay, faCog, faChartLine)
 
 const props = defineProps<{
 	groupStats: {
