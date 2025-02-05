@@ -161,7 +161,7 @@ class IndexDepartments extends OrgAction
             ->where('product_categories.type', ProductCategoryTypeEnum::DEPARTMENT)
             ->allowedSorts(['code', 'name','shop_code','number_current_families','number_current_products'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

@@ -72,7 +72,7 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
             ])
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator(null)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

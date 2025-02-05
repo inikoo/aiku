@@ -83,7 +83,7 @@ class IndexPortfolios extends OrgAction
             ->with('item')
             ->allowedSorts(['reference', 'created_at'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

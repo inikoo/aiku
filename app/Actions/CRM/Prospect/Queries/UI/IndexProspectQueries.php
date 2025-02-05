@@ -84,7 +84,7 @@ class IndexProspectQueries extends InertiaAction
             ->defaultSort('queries.name')
             ->allowedSorts(['name'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

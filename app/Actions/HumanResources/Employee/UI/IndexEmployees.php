@@ -119,7 +119,7 @@ class IndexEmployees extends OrgAction
             ->withBetweenDates('employees', ['employment_start_at'])
             ->allowedSorts(['slug', 'state', 'contact_name', 'job_title', 'worker_number'])
             ->allowedFilters([$globalSearch, 'slug', 'contact_name', 'state'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

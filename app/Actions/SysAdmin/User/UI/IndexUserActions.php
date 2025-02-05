@@ -55,7 +55,7 @@ class IndexUserActions extends GrpAction
             ->defaultSort('created_at')
             ->allowedSorts(['ip_address','created_at', 'user_name', 'old_values', 'new_values','event'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

@@ -98,7 +98,7 @@ class IndexRetinaRentals extends RetinaAction
 
         return $queryBuilder->allowedSorts(['code','name','rental_price'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

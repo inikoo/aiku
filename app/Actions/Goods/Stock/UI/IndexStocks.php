@@ -176,7 +176,7 @@ class IndexStocks extends GrpAction
 
         return $queryBuilder->allowedSorts(['code', 'family_code', 'name'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

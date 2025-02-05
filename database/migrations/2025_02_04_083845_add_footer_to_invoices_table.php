@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 04 Feb 2025 16:06:47 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Tue, 04 Feb 2025 16:48:12 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
@@ -13,16 +13,16 @@ return new class () extends Migration {
 
     public function up(): void
     {
-        Schema::table('shops', function (Blueprint $table) {
-            $table->text('invoice_footer')->nullable();
+        Schema::table('invoices', function (Blueprint $table) {
+            $table->text('footer')->nullable();
         });
     }
 
 
     public function down(): void
     {
-        Schema::table('shops', function (Blueprint $table) {
-            $table->dropColumn('invoice_footer');
+        Schema::table('invoices', function (Blueprint $table) {
+            $table->dropColumn('footer');
         });
     }
 };

@@ -94,7 +94,7 @@ class IndexPaymentAccounts extends OrgAction
             ->leftJoin('payment_service_providers', 'payment_service_provider_id', 'payment_service_providers.id')
             ->allowedSorts(['code', 'name', 'number_payments','payment_service_provider_code'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

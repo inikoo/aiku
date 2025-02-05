@@ -71,7 +71,7 @@ class IndexStoredItemAuditDeltas extends OrgAction
 
         return $query->allowedSorts(['id', 'audited_at', 'original_quantity','audited_quantity', 'state', 'audit_type'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

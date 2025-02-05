@@ -73,7 +73,7 @@ class IndexOffers extends OrgAction
 
         return $query->allowedSorts(['id','code', 'name'])
             ->allowedFilters([$globalSearch, 'code', 'name'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
