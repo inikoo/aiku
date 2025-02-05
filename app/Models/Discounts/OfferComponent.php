@@ -55,6 +55,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property array<array-key, mixed> $source_data
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \App\Models\Discounts\TFactory|null $use_factory
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, InvoiceTransaction> $invoiceTransactions
  * @property-read \App\Models\Discounts\Offer $offer
