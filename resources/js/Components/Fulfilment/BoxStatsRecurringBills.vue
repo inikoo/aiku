@@ -23,6 +23,7 @@ import OrderSummary from '@/Components/Summary/OrderSummary.vue'
 library.add(faQuestionCircle, faIdCardAlt, faEnvelope, faPhone, faCalendarDay, faConciergeBell, faBuilding)
 
 const locale = inject('locale', aikuLocaleStructure)
+const layout = inject('layout', null)
 const props = defineProps<{
     boxStats: BoxStats
     currency?: object
@@ -49,7 +50,7 @@ const props = defineProps<{
                     <dd class="text-base text-gray-500">{{ boxStats.customer.data.customer.reference }}</dd>
                 </Link>     -->            
                 <!-- Field: Contact name -->
-                <div v-if="boxStats.customer.data.customer.contact_name"
+                <div v-if="boxStats.customer.data.customer.contact_name && layout?.app?.name != 'retina'"
                     class="flex items-center w-full flex-none gap-x-2">
                     <dt v-tooltip="'Contact name'" class="flex-none">
                         <span class="sr-only">Contact name</span>
