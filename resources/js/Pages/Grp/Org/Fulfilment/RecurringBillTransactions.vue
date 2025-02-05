@@ -14,6 +14,7 @@ import NumberWithButtonSave from "@/Components/NumberWithButtonSave.vue"
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import { ref } from 'vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
+import { routeType } from '@/types/route'
 library.add(faTag,faTrashAlt)
 
 const props = defineProps<{
@@ -95,7 +96,7 @@ const locale = inject('locale', aikuLocaleStructure)
 					<NumberWithButtonSave v-model="item.quantity"   @onSave="(e)=>onUpdateQuantity(item.id,item.fulfilment_transaction_id, e)"/>
 				</div>
 				<div v-else>
-					{{ item.quantity }}
+					{{ locale.number(item.quantity) }}
 				</div>
 			</div>
 		</template>
@@ -111,7 +112,13 @@ const locale = inject('locale', aikuLocaleStructure)
         </template>
 
         <template #cell(total)="{ item }">
-            {{ locale.currencyFormat(item.currency_code, item.total || 0) }}
+            <div class="relative ">
+                <Transition name="spin-to-right">
+                    <span :key="item.total">
+                        {{ locale.currencyFormat(item.currency_code, item.total || 0) }}
+                    </span>
+                </Transition>
+            </div>
         </template>
 
         <!-- Column: Action -->

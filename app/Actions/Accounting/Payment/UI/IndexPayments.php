@@ -110,6 +110,7 @@ class IndexPayments extends OrgAction
             ->when($parent, function ($query) use ($parent) {
             })
             ->allowedSorts(['reference', 'status', 'date'])
+            ->withBetweenDates(['date'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -144,6 +145,7 @@ class IndexPayments extends OrgAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
+            $table->betweenDates(['date']);
 
             if (!($parent instanceof Order || $parent instanceof Invoice)) {
                 foreach ($this->getElementGroups($parent) as $key => $elementGroup) {

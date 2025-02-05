@@ -69,7 +69,7 @@ export const initialiseRetinaApp = () => {
 
 
     // Echo: Website wide websocket
-    echoWebsite.subscribe(usePage().props.iris.id)  // Websockets: notification
+    echoWebsite.subscribe(usePage().props.iris.website.id)  // Websockets: notification
 
     if (usePage().props.localeData) {
         loadLanguageAsync(usePage().props.localeData.language.code)

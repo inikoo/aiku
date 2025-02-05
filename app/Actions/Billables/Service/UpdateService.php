@@ -54,6 +54,7 @@ class UpdateService extends OrgAction
             }
         }
 
+
         if (Arr::exists($modelData, 'state')) {
             $status = false;
             if (Arr::get($modelData, 'state') == ServiceStateEnum::ACTIVE) {
