@@ -95,7 +95,7 @@ const locale = inject('locale', aikuLocaleStructure)
 					<NumberWithButtonSave v-model="item.quantity"   @onSave="(e)=>onUpdateQuantity(item.id,item.fulfilment_transaction_id, e)"/>
 				</div>
 				<div v-else>
-					{{ item.quantity }}
+					{{ locale.number(item.quantity) }}
 				</div>
 			</div>
 		</template>

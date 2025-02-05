@@ -17,21 +17,12 @@ import { faAsterisk, faQuestion, faSpinner } from "@fas"
 import { useForm } from "@inertiajs/vue3"
 import LoadingIcon from "./Utils/LoadingIcon.vue"
 
-library.add(
-    faRobot,
-    faPlus,
-    faMinus,
-    faUndoAlt,
-    faAsterisk,
-    faQuestion,
-    falSave,
-    faInfoCircle,
-    fadSave,
-    faSpinner
-)
+library.add( faRobot, faPlus, faMinus, faUndoAlt, faAsterisk, faQuestion, falSave, faInfoCircle, fadSave, faSpinner )
 
 const props = defineProps<{
-    modelValue: Number
+    modelValue: number
+    min?: number
+    max?: number
 }>()
 
 const emits = defineEmits<{
@@ -42,12 +33,29 @@ const emits = defineEmits<{
 const form = useForm({
     quantity: props.modelValue,
 })
+
+const keyIconUndo = ref(0)
+
 </script>
 
 <template>
     <div class="relative">
         <div class="flex gap-x-2.5 items-center w-64 justify-end">
-            <div class="flex justify-center border border-gray-300 rounded gap-y-1 px-2">
+            <div class="flex justify-center border border-gray-300 rounded gap-y-1 px-1">
+                <!-- Button: Save -->
+                <button
+                    @click="() => (keyIconUndo++, form.reset('quantity'))"
+                    class="relative flex items-center justify-center p-2"
+                    :class="form.isDirty ? 'cursor-pointer hover:text-gray-800 disabled:text-gray-400' : 'text-gray-400'"
+                    :disabled="form.processing || !form.isDirty"
+                    type="submit">
+                    <div class="text-base flex items-center rounded-full hover:bg-gray-200 cursor-pointer">
+                        <Transition name="spin-to-left">
+                            <FontAwesomeIcon :key="keyIconUndo" icon='far fa-undo-alt' class='' fixed-width aria-hidden='true' />
+                        </Transition>
+                    </div>
+                </button>
+
                 <!-- Section: - and + -->
                 <div class="transition-all relative inline-flex items-center justify-center w-28">
                     <transition>
@@ -65,7 +73,8 @@ const form = useForm({
                                     v-model="form.quantity" 
                                     @update:model-value="(e)=>form.quantity=e"
                                     buttonLayout="horizontal" 
-                                    :min="0"
+                                    :min="min || 0"
+                                    :max="max || undefined"
                                     style="width: 100%" 
                                     :inputStyle="{
                                         padding: '0px',
@@ -83,17 +92,19 @@ const form = useForm({
                         </div>
                     </transition>
                 </div>
-                <div class="relative flex items-center justify-center p-2"
+
+                <!-- Button: Save -->
+                <button class="relative flex items-center justify-center p-2"
                     :class="{ 'text-gray-400': !form.isDirty }"
                     :disabled="form.processing || !form.isDirty" type="submit">
-                        <LoadingIcon v-if="form.processing" class="text-2xl" />
-                        <template v-else>
-                            <FontAwesomeIcon v-if="form.isDirty" @click="emits('onSave', form)"
-                                :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" icon="fad fa-save" fixed-width class=" cursor-pointer text-2xl"
-                                aria-hidden="true" />
-                            <FontAwesomeIcon v-else icon="fal fa-save" fixed-width class="text-2xl" aria-hidden="true" />
-                        </template>
-                </div>
+                    <LoadingIcon v-if="form.processing" class="text-2xl" />
+                    <template v-else>
+                        <FontAwesomeIcon v-if="form.isDirty" @click="emits('onSave', form)"
+                            :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" icon="fad fa-save" fixed-width class=" cursor-pointer text-2xl"
+                            aria-hidden="true" />
+                        <FontAwesomeIcon v-else icon="fal fa-save" fixed-width class="text-2xl" aria-hidden="true" />
+                    </template>
+                </button>
             </div>
         </div>
     </div>
