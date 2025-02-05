@@ -93,7 +93,9 @@ class ShowGroupDashboard extends OrgAction
 
         $total = [
             'total_sales'    => 0,
+            'total_sales_percentages' => 0,
             'total_invoices' => 0,
+            'total_invoices_percentages' => 0,
             'total_refunds'  => 0,
         ];
 
@@ -142,6 +144,7 @@ class ShowGroupDashboard extends OrgAction
                 $visualData['sales_data']['labels'][] = $organisation->code;
                 $visualData['sales_data']['currency_codes'][] = $currencyCode;
                 $visualData['sales_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['sales']['amount'];
+                $total['total_sales_percentages'] += $responseData['interval_percentages']['sales']['percentage'] ?? 0;
             }
 
             if ($organisation->orderingIntervals !== null) {
@@ -155,8 +158,11 @@ class ShowGroupDashboard extends OrgAction
                     'refunds',
                     $selectedInterval,
                 );
+                $total['total_invoices_percentages'] += $responseData['interval_percentages']['invoices']['percentage'] ?? 0;
+
                 $total['total_invoices'] += $responseData['interval_percentages']['invoices']['amount'];
                 $total['total_refunds'] += $responseData['interval_percentages']['refunds']['amount'];
+
                 // $visualData['invoices_data']['labels'][] = $organisation->code;
                 // $visualData['invoices_data']['currency_codes'][] = $currencyCode;
                 // $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
@@ -245,6 +251,7 @@ class ShowGroupDashboard extends OrgAction
                 $visualData['sales_data']['labels'][] = $shop->code;
                 $visualData['sales_data']['currency_codes'][] = $currencyCode;
                 $visualData['sales_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['sales']['amount'];
+                $total['total_sales_percentages'] += $responseData['interval_percentages']['sales']['percentage'] ?? 0;
             }
 
             if ($shop->orderingIntervals !== null) {
@@ -260,7 +267,10 @@ class ShowGroupDashboard extends OrgAction
                     'refunds',
                     $selectedInterval,
                 );
+
+                $total['total_invoices_percentages'] += $responseData['interval_percentages']['invoices']['percentage'] ?? 0;
                 $total['total_invoices'] += $responseData['interval_percentages']['invoices']['amount'];
+
                 $total['total_refunds'] += $responseData['interval_percentages']['refunds']['amount'];
 
                 // visual data
