@@ -38,7 +38,8 @@ class UndoPalletReturnItem extends OrgAction
 
         if ($palletReturnItem->type == 'Pallet' && $newPalletState) {
             UpdatePallet::run($palletReturnItem->pallet, [
-                'state' => $newPalletState
+                'state' => $newPalletState,
+                'requested_for_return_at' => null
             ]);
 
             $palletReturnItem = $this->update($palletReturnItem, $modelData, ['data']);
