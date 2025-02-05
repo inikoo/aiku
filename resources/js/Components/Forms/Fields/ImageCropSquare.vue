@@ -98,7 +98,7 @@ watch(isOpenModalCrop, (value) => {
 </script>
 
 <template>
-    <div class="w-fit">      
+    <div class="w-fit min-w-32">      
         <Modal :isOpen="isOpenModalCrop" @close="isOpenModalCrop = false" width="max-w-xl w-full" :zIndex="999">
             <div class="w-full h-[300px] relative bg-gray-700">
                 <Cropper
@@ -127,7 +127,7 @@ watch(isOpenModalCrop, (value) => {
         </Modal>
 
         <!-- Avatar Button: Large view -->
-        <div class="bg-gray-100 relative overflow-hidden h-40 w-auto aspect-ratio rounded lg:inline-block ring-1 ring-gray-500 shadow"
+        <div class="bg-gray-100 relative overflow-hidden h-40 min-w-32 w-auto aspect-ratio rounded lg:inline-block ring-1 ring-gray-500 shadow"
             :class="form.errors[fieldName] ? 'errorShake' : ''"
         >
             <Image class="h-full rounded" :src="imgAfterCrop" alt="" />

@@ -104,7 +104,7 @@ class InertiaTable
 
     public function betweenDates(array $betweenDates): self
     {
-        $this->betweenDates = array_merge(['created_at', 'updated_at'], $betweenDates);
+        $this->betweenDates = $betweenDates;
 
         return $this;
     }
