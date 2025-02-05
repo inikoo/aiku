@@ -223,7 +223,7 @@ class ShowGroupDashboard extends OrgAction
                 'description' => __('Total invoices')
             ],
             visual: [
-                'type'  => 'pie',
+                'type'  => 'doughnut',
                 'value' => [
                     'labels'         => Arr::get($visualData, 'invoices_data.labels'),
                     'currency_codes' => Arr::get($visualData, 'invoices_data.currency_codes'),
@@ -363,7 +363,7 @@ class ShowGroupDashboard extends OrgAction
                 'description' => __('Total invoices')
             ],
             visual: [
-                'type'  => 'pie',
+                'type'  => 'doughnut',
                 'value' => [
                     'labels'         => Arr::get($visualData, 'invoices_data.labels'),
                     'currency_codes' => Arr::get($visualData, 'invoices_data.currency_codes'),
