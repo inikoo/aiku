@@ -51,7 +51,7 @@ class IndexNotification
         $query = QueryBuilder::for($user->notifications());
 
         return $query->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

@@ -150,7 +150,7 @@ class IndexUsers extends OrgAction
             ->select(['users.username', 'users.email', 'users.contact_name', 'users.image_id', 'users.status'])
             ->allowedSorts(['username', 'email', 'contact_name'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

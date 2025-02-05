@@ -134,7 +134,7 @@ class IndexOrgStockMovements extends OrgAction
            ->leftJoin('org_stocks', 'org_stocks.id', 'org_stock_movements.org_stock_id')
            ->allowedSorts(['flow', 'type', 'class', 'quantity', 'org_amount', 'grp_amount','org_stock_name', 'organisation_name'])
            ->allowedFilters([$globalSearch])
-           ->withPaginator($prefix)
+           ->withPaginator($prefix, tableName: request()->route()->getName())
            ->withQueryString();
     }
 

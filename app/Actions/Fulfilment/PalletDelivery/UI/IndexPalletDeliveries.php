@@ -178,7 +178,7 @@ class IndexPalletDeliveries extends OrgAction
             ->defaultSort('reference')
             ->allowedSorts(['reference'])
             ->allowedFilters([$globalSearch,AllowedFilter::exact('state')])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

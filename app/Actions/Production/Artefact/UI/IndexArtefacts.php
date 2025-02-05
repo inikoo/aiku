@@ -118,7 +118,7 @@ class IndexArtefacts extends OrgAction
             ->leftJoin('productions', 'artefacts.production_id', 'productions.id')
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

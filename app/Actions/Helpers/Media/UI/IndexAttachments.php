@@ -63,7 +63,7 @@ class IndexAttachments extends OrgAction
 
         return $queryBuilder->allowedSorts(['caption', 'scope'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

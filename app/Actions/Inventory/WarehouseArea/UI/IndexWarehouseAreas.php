@@ -136,7 +136,7 @@ class IndexWarehouseAreas extends OrgAction
             })
             ->allowedSorts(['code', 'name', 'number_locations'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

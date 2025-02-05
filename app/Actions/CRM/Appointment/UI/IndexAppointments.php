@@ -82,7 +82,7 @@ class IndexAppointments extends InertiaAction
                 }
             })
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

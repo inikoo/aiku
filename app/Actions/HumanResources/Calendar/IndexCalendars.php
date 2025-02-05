@@ -45,7 +45,7 @@ class IndexCalendars extends OrgAction
             ->with('jobPositions')
             ->allowedSorts(['slug', 'state', 'contact_name','job_title'])
             ->allowedFilters([$globalSearch, 'slug', 'contact_name', 'state'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

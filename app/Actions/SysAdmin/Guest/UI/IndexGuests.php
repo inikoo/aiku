@@ -91,7 +91,7 @@ class IndexGuests extends GrpAction
             ->select(['guests.id', 'guests.slug', 'guests.code', 'guests.contact_name', 'guests.email', 'number_logins', 'last_login_at', 'number_failed_logins', 'last_failed_login_at'])
             ->allowedSorts(['code', 'contact_name', 'email', 'number_logins', 'last_login_at', 'number_failed_logins', 'last_failed_login_at'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

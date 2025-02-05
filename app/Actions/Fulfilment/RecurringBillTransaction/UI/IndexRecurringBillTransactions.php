@@ -80,7 +80,7 @@ class IndexRecurringBillTransactions extends OrgAction
 
 
         return $queryBuilder->allowedSorts(['id', 'asset_code'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

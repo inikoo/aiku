@@ -70,7 +70,7 @@ class IndexEmailBulkRuns extends OrgAction
             ])
             ->allowedSorts(['email_bulk_runs.subject', 'email_bulk_runs.state', 'shop_name', 'organisation_name'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

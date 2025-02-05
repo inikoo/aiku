@@ -51,7 +51,6 @@ class StoreInvoice extends OrgAction
         data_set($modelData, 'footer', $parent->shop?->invoice_footer);
 
         if (!Arr::has($modelData, 'reference')) {
-
             data_set(
                 $modelData,
                 'reference',
@@ -60,7 +59,6 @@ class StoreInvoice extends OrgAction
                     modelType: SerialReferenceModelEnum::INVOICE
                 )
             );
-
         }
 
         if (class_basename($parent) == 'Customer') {
@@ -187,7 +185,7 @@ class StoreInvoice extends OrgAction
             'goods_amount'    => ['sometimes', 'required', 'numeric'],
             'services_amount' => ['sometimes', 'required', 'numeric'],
             'tax_amount'      => ['required', 'numeric'],
-
+            'footer'          => ['sometimes', 'string'],
 
             'date'             => ['sometimes', 'date'],
             'tax_liability_at' => ['sometimes', 'date'],
@@ -200,6 +198,7 @@ class StoreInvoice extends OrgAction
                 })
             ],
         ];
+
 
         if (!$this->strict) {
             $rules['reference'] = [

@@ -538,7 +538,7 @@ test('index spaces', function () {
         $page
             ->component('Space/RetinaSpaces')
             ->has('title')
-            ->has('breadcrumbs', 1)
+            ->has('breadcrumbs', 2)
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
