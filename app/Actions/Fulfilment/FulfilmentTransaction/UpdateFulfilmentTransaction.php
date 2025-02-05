@@ -28,7 +28,7 @@ class UpdateFulfilmentTransaction extends OrgAction
             $fulfilmentTransaction->refresh();
             $netAmount = $fulfilmentTransaction->asset->price * $fulfilmentTransaction->quantity;
         }
-    
+        $fulfilmentTransaction =  $this->update($fulfilmentTransaction, $modelData, ['data']);
         $this->update(
             $fulfilmentTransaction,
             [
@@ -38,13 +38,13 @@ class UpdateFulfilmentTransaction extends OrgAction
                 'org_net_amount' => $netAmount * $fulfilmentTransaction->org_exchange
             ]
         );
-    
+
         $fulfilmentTransaction->refresh();
-    
+
         if (!Arr::exists($modelData, 'net_amount')) {
             SetClausesInFulfilmentTransaction::run($fulfilmentTransaction);
         }
-    
+
         return $fulfilmentTransaction;
     }
     public function rules(): array
