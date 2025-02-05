@@ -78,20 +78,12 @@ class StoreCustomer extends OrgAction
         data_fill(
             $modelData,
             'status',
-            Arr::get($shop->settings, 'registration_type', 'open') == 'approval-only'
+            ((Arr::get($shop->settings, 'registration_type', 'open') == 'approval-only') or ($shop->type === ShopTypeEnum::FULFILMENT))
                 ?
                 CustomerStatusEnum::PENDING_APPROVAL
                 :
                 CustomerStatusEnum::APPROVED
         );
-
-        if ($shop->type === ShopTypeEnum::FULFILMENT) {
-            data_fill(
-                $modelData,
-                'status',
-                CustomerStatusEnum::PENDING_APPROVAL
-            );
-        }
 
         $emailSubscriptionsData = Arr::pull($modelData, 'email_subscriptions', []);
 
