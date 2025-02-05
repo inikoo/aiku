@@ -60,7 +60,6 @@ function useTabChangeDashboard(tab_slug: string) {
         }
     });
 }
-console.log(selectedTab,'asdasdas');
 
 </script>
 
@@ -74,7 +73,7 @@ console.log(selectedTab,'asdasdas');
 					<FontAwesomeIcon :icon='tab.tab_icon' class='' fixed-width aria-hidden='true' />
 					{{ tab.tab_label }}</Tab>
 				</TabList>
-			</Tabs> -->
+			</Tabs> 
 		
 			<DataTable v-if="selectedTab.type === 'table'" :value="selectedTab.data" removableSort >
 				<Column sortable field="code" >
