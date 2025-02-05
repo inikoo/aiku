@@ -83,22 +83,17 @@ const form = useForm({
                         </div>
                     </transition>
                 </div>
-                <button class="relative flex items-center justify-center p-2 rounded-lg transition-all"
-                    :class="{ 'text-gray-400 cursor-not-allowed': !form.isDirty }"
+                <div class="relative flex items-center justify-center p-2"
+                    :class="{ 'text-gray-400': !form.isDirty }"
                     :disabled="form.processing || !form.isDirty" type="submit">
-                    <div name="fade">
-                        <LoadingIcon v-if="form.processing" icon="fas fa-spinner" spin class="h-6"
-                            aria-hidden="true"
-                        />
-                        <span v-if="!form.processing">
+                        <LoadingIcon v-if="form.processing" class="text-2xl" />
+                        <template v-else>
                             <FontAwesomeIcon v-if="form.isDirty" @click="emits('onSave', form)"
-                                :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" icon="fad fa-save" class="h-6"
+                                :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" icon="fad fa-save" fixed-width class=" cursor-pointer text-2xl"
                                 aria-hidden="true" />
-                            <FontAwesomeIcon v-else icon="fal fa-save" class="h-6" aria-hidden="true" />
-                        </span>
-
-                    </div>
-                </button>
+                            <FontAwesomeIcon v-else icon="fal fa-save" fixed-width class="text-2xl" aria-hidden="true" />
+                        </template>
+                </div>
             </div>
         </div>
     </div>
