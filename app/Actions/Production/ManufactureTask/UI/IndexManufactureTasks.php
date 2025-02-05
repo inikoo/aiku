@@ -120,7 +120,7 @@ class IndexManufactureTasks extends OrgAction
             ->leftJoin('productions', 'manufacture_tasks.production_id', 'productions.id')
             ->allowedSorts(['code', 'name', 'organisation_name'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

@@ -102,7 +102,7 @@ class IndexStoredItemPallets extends OrgAction
         return $query->defaultSort('pallets.id')
             ->allowedSorts(['customer_reference', 'pallets.reference'])
             ->allowedFilters([$globalSearch, 'customer_reference'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

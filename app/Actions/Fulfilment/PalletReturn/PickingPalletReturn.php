@@ -42,7 +42,8 @@ class PickingPalletReturn extends OrgAction
         foreach ($palletReturn->pallets as $pallet) {
             UpdatePallet::run($pallet, [
                 'state'  => PalletStateEnum::PICKING,
-                'status' => PalletStatusEnum::RETURNING
+                'status' => PalletStatusEnum::RETURNING,
+                'picking_at' => now()
             ]);
 
             $palletReturn->pallets()->syncWithoutDetaching([

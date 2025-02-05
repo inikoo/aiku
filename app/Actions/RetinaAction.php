@@ -30,8 +30,8 @@ class RetinaAction
     protected Website $website;
     protected Customer $customer;
     protected WebUser $webUser;
-    protected Fulfilment $fulfilment;
-    protected FulfilmentCustomer $fulfilmentCustomer;
+    protected ?Fulfilment $fulfilment;
+    protected ?FulfilmentCustomer $fulfilmentCustomer;
     protected Organisation $organisation;
     protected Shop $shop;
 

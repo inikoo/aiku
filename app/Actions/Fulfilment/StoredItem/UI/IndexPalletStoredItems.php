@@ -71,7 +71,7 @@ class IndexPalletStoredItems extends OrgAction
 
         return $queryBuilder->allowedSorts(['code','price','name','state'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator(null)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

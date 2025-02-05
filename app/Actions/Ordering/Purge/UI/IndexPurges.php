@@ -79,7 +79,7 @@ class IndexPurges extends OrgAction
             ])
             ->allowedSorts(['id', 'scheduled_at', 'state', 'type', 'estimated_number_orders', 'estimated_number_transactions', 'estimated_net_amount'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

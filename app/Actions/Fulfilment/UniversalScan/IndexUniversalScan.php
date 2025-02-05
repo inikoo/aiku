@@ -42,7 +42,7 @@ class IndexUniversalScan extends OrgAction
             ->defaultSort('universal_searches.id')
             ->allowedSorts(['id'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

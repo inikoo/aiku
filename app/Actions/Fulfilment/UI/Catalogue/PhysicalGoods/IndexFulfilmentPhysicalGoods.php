@@ -96,7 +96,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
 
         return $queryBuilder->allowedSorts(['id','code','name','price'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

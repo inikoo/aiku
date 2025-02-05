@@ -65,6 +65,7 @@ console.log(selectedTab,'asdasdas');
 </script>
 
 <template>
+
 	<div class="bg-white mb-2 text-gray-800 rounded-lg p-4 shadow-md border border-gray-200">
 		<div class="">
 			<Tabs :value="activeIndexTab">
@@ -73,7 +74,7 @@ console.log(selectedTab,'asdasdas');
 					<FontAwesomeIcon :icon='tab.tab_icon' class='' fixed-width aria-hidden='true' />
 					{{ tab.tab_label }}</Tab>
 				</TabList>
-			</Tabs>
+			</Tabs> -->
 		
 			<DataTable v-if="selectedTab.type === 'table'" :value="selectedTab.data" removableSort >
 				<Column sortable field="code" >
@@ -132,7 +133,7 @@ console.log(selectedTab,'asdasdas');
 					sortable
 					class="overflow-hidden transition-all"
 					headerClass="align-right"
-					headerStyle="text-align: green; width: 270px">
+					>
 					<template #header>
 						<div class="flex justify-end items-end">
 							<span class="font-semibold">
@@ -153,10 +154,10 @@ console.log(selectedTab,'asdasdas');
 									style="
 										display: flex;
 										align-items: center;
-										line-height: 1;
-										gap: 6px;
+										
+										
 									">
-									<span style="font-size: 16px; font-weight: 500; line-height: 1">
+									<span style="font-size: 16px; font-weight: 500; ">
 										{{
 											data.interval_percentages?.refunds?.percentage
 												? `${
@@ -238,14 +239,13 @@ console.log(selectedTab,'asdasdas');
 											style="
 												display: flex;
 												align-items: center;
-												line-height: 1;
-												gap: 6px;
+												
 											">
 											<span
 												style="
 													font-size: 16px;
 													font-weight: 500;
-													line-height: 1;
+
 												">
 												{{
 													data.interval_percentages?.invoices?.percentage
@@ -270,14 +270,14 @@ console.log(selectedTab,'asdasdas');
 														? 'fas fa-play'
 														: 'fas fa-play'
 												"
-												style="font-size: 20px; margin-top: 6px"
+												style="font-size: 20px;"
 												:class="
 													data.interval_percentages.invoices?.percentage <
 													0
 														? 'text-red-500 rotate-90'
 														: 'text-green-500 rotate-[-90deg]'
 												" />
-											<div v-else style="width: 20px; height: 20px"></div>
+											<div v-else style="width: 20px; "></div>
 										</div>
 									</Transition>
 								</div>
@@ -313,6 +313,7 @@ console.log(selectedTab,'asdasdas');
 											data.currency_code,
 											data.interval_percentages?.sales?.amount || 0,
 											props.settings.selected_amount
+
 										)
 									}}
 								</div>
@@ -347,10 +348,9 @@ console.log(selectedTab,'asdasdas');
 									style="
 										display: flex;
 										align-items: center;
-										line-height: 1;
-										gap: 6px;
+									
 									">
-									<span style="font-size: 16px; font-weight: 500; line-height: 1">
+									<span style="font-size: 16px; font-weight: 500;">
 										{{
 											data.interval_percentages?.sales?.percentage
 												? `${
@@ -371,13 +371,13 @@ console.log(selectedTab,'asdasdas');
 												? 'fas fa-play'
 												: 'fas fa-play'
 										"
-										style="font-size: 20px; margin-top: 6px"
+										style="font-size: 20px;"
 										:class="
 											data.interval_percentages.sales?.percentage < 0
 												? 'text-red-500 rotate-90'
 												: 'text-green-500 rotate-[-90deg]'
 										" />
-									<div v-else style="width: 20px; height: 20px"></div>
+									<div v-else style="width: 20px; "></div>
 								</div>
 							</Transition>
 						</div>
@@ -404,7 +404,7 @@ console.log(selectedTab,'asdasdas');
 								)
 							"
 							:footer="
-								useLocaleStore().CurrencyShort(
+								useLocaleStore().currencyFormat(
 									'GBP',
 									Number(totalAmount.total_sales),
 									props.settings.selected_amount

@@ -132,7 +132,7 @@ class IndexRecurringBills extends OrgAction
             ])
             ->allowedSorts(['reference','number_transactions','net_amount', 'start_date', 'end_date'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

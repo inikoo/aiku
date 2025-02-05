@@ -60,7 +60,7 @@ trait WithFulfilmentCustomerSubNavigation
         if ($fulfilmentCustomer->pallets_storage && $fulfilmentCustomer->rentalAgreement()->where('state', RentalAgreementStateEnum::ACTIVE)->exists()) {
 
 
-            if ($user->hasPermissionTo('fulfilment-customer.'.$fulfilmentCustomer->id.'.view')) {
+            if ($user->hasPermissionTo('fulfilment.'.$fulfilmentCustomer->fulfilment->id.'.view')) {
 
                 $subNavigation[] = [
                     'route' => [

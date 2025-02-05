@@ -57,7 +57,7 @@ class IndexProductBackInStockReminders extends OrgAction
             ])
             ->allowedSorts(['reference', 'contact_name'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

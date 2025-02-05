@@ -95,7 +95,7 @@ class IndexPhysicalGoodInPalletReturn extends OrgAction
 
         return $queryBuilder->allowedSorts([ 'name', 'code','quantity','net_amount'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

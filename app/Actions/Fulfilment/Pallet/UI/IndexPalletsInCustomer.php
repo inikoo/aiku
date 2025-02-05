@@ -125,15 +125,16 @@ class IndexPalletsInCustomer extends OrgAction
                 'locations.code as location_code',
                 'locations.slug as location_slug',
                 'pallets.fulfilment_customer_id',
+                'pallets.dispatched_at',
                 'pallets.warehouse_id',
                 'pallets.pallet_delivery_id',
                 'pallets.pallet_return_id'
             );
 
 
-        return $query->allowedSorts(['customer_reference', 'reference', 'fulfilment_customer_name'])
+        return $query->allowedSorts(['customer_reference', 'reference', 'dispatched_at', 'fulfilment_customer_name'])
             ->allowedFilters([$globalSearch, 'customer_reference', 'reference'])
-            ->withPaginator($prefix, 50)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -193,7 +194,10 @@ class IndexPalletsInCustomer extends OrgAction
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'customer_reference', label: __("Pallet reference (customer's), notes"), canBeHidden: false, sortable: true, searchable: true);
-
+            if ($prefix == FulfilmentCustomerPalletsTabsEnum::RETURNED->value) {
+                $table->column(key: 'dispatched_at', label: __('dispatched'), canBeHidden: false, sortable: true, searchable: true);
+                $table->column(key: 'location_code', label: __('location'), canBeHidden: false, sortable: true, searchable: true);
+            }
             if ($this->fulfilmentCustomer->items_storage) {
                 $table->column(key: 'stored_items', label: __("customer's sKUs"), canBeHidden: false);
             }

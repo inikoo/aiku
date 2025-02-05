@@ -74,7 +74,7 @@ class IndexWebUserRequests extends OrgAction
                 ])
             ->allowedSorts(['username', 'ip_address', 'date'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

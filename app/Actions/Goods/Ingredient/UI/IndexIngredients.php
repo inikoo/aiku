@@ -72,7 +72,7 @@ class IndexIngredients extends GrpAction
             ])
             ->allowedSorts(['name', 'number_trade_units', 'number_stocks', 'number_trade_units'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

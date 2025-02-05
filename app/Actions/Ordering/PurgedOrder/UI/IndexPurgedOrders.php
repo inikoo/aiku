@@ -57,7 +57,7 @@ class IndexPurgedOrders extends OrgAction
             ])
             ->allowedSorts(['id', 'status', 'purged_at', 'amount', 'number_transactions', 'order_reference'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

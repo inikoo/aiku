@@ -8,6 +8,7 @@
 
 namespace App\Models\Billables;
 
+use App\Enums\Billables\Service\ServiceEditTypeEnum;
 use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Models\Catalogue\InAssetModel;
 use App\Models\Fulfilment\RecurringBill;
@@ -83,11 +84,12 @@ class Service extends Model implements Auditable
     protected $guarded = [];
 
     protected $casts = [
-        'price'    => 'decimal:2',
-        'state'    => ServiceStateEnum::class,
-        'status'   => 'boolean',
-        'data'     => 'array',
-        'settings' => 'array',
+        'price'     => 'decimal:2',
+        'state'     => ServiceStateEnum::class,
+        'edit_type' => ServiceEditTypeEnum::class,
+        'status'    => 'boolean',
+        'data'      => 'array',
+        'settings'  => 'array',
     ];
 
     protected $attributes = [

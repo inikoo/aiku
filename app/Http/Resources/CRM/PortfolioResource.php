@@ -21,14 +21,14 @@ class PortfolioResource extends JsonResource
 
     public function toArray($request): array
     {
-        /** @var Customer $customer */
+        /** @var \App\Models\Dropshipping\Portfolio $portfolio */
         $portfolio = $this;
 
         return [
             'reference'              => $portfolio->reference,
-            'product_name'           => $portfolio->product_name,
-            'product_code'           => $portfolio->product_code,
-            'slug'                   => $portfolio->slug,
+            'product_name'           => $portfolio->item->name,
+            'product_code'           => $portfolio->item->code,
+            'slug'                   => $portfolio->item->slug,
             'type'                   => $portfolio->type,
             'created_at'             => $portfolio->created_at,
             'routes'                 => [

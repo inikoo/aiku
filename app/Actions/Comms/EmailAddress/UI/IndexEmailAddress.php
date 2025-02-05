@@ -58,7 +58,7 @@ class IndexEmailAddress extends GrpAction
         return $queryBuilder
             ->allowedSorts(['email', 'marketing', 'transactional', 'last_marketing_dispatch', 'last_transactional_dispatch', 'soft_bounced', 'hard_bounced'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

@@ -123,7 +123,7 @@ class IndexOrgSuppliers extends OrgAction
 
             ->allowedSorts(['code', 'name', 'agent_name', 'supplier_locations', 'number_org_supplier_products', 'number_purchase_orders'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

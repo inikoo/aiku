@@ -8,11 +8,15 @@
 
 
 use App\Actions\Reports\PostRoomRoutes;
+use App\Actions\Reports\ShowOrganisationSalesReport;
 use App\Actions\UI\Reports\IndexReports;
 use App\Stubs\UIDummies\IndexDummies;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', IndexReports::class)->name('index');
+
+
+Route::get('/sales', ShowOrganisationSalesReport::class)->name('sales');
 
 
 Route::name("sent_emails.")->prefix('sent-emails')

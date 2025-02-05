@@ -9,6 +9,7 @@
 
 namespace App\Actions\Retina\Fulfilment\Pallet;
 
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
 use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
 use App\Actions\Fulfilment\PalletDelivery\AutoAssignServicesToPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePallets;
@@ -24,6 +25,7 @@ use Lorisleiva\Actions\ActionRequest;
 class DeleteRetinaPallet extends RetinaAction
 {
     use WithActionUpdate;
+    private bool $action = false;
 
     public function handle(Pallet $pallet): Pallet
     {
@@ -32,6 +34,7 @@ class DeleteRetinaPallet extends RetinaAction
 
         PalletDeliveryHydratePallets::run($pallet->palletDelivery);
         AutoAssignServicesToPalletDelivery::run($pallet->palletDelivery, $pallet);
+        FulfilmentCustomerHydratePallets::dispatch($pallet->fulfilmentCustomer);
         PalletDeliveryHydrateTransactions::run($pallet->palletDelivery);
         PalletRecordSearch::dispatch($pallet);
         return $pallet;
@@ -39,7 +42,7 @@ class DeleteRetinaPallet extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->asAction) {
+        if ($this->action) {
             return true;
         }
 
@@ -58,6 +61,14 @@ class DeleteRetinaPallet extends RetinaAction
         $this->fulfilment   = $fulfilmentCustomer->fulfilment;
 
         $this->initialisation($request);
+        return $this->handle($pallet);
+    }
+
+    public function action(Pallet $pallet): Pallet
+    {
+        $this->action         = true;
+        $this->initialisationFulfilmentActions($pallet->fulfilmentCustomer, []);
+
         return $this->handle($pallet);
     }
 

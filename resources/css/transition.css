@@ -34,7 +34,7 @@
     opacity: 0;
 }
 
-/* Transition name="headlessui" */
+
 .spin-to-right-enter-from,
 .spin-to-right-leave-to {
     position: absolute;
@@ -58,6 +58,33 @@
     opacity: 100;
 }
 .spin-to-right-leave-to {
+    transform: rotate(270deg);
+    opacity: 0;
+}
+
+.spin-to-left-enter-from,
+.spin-to-left-leave-to {
+    position: absolute;
+}
+.spin-to-left-enter-active {
+    transition: all 0.2s ease-out;
+}
+.spin-to-left-enter-to {
+    transform: rotate(-270deg);
+    opacity: 0;
+}
+.spin-to-left-enter-from {
+    transform: rotate(0deg);
+    opacity: 100;
+}
+.spin-to-left-leave-active {
+    transition: all 0.15s ease-in;
+}
+.spin-to-left-leave-to {
+    transform: rotate(0deg);
+    opacity: 100;
+}
+.spin-to-left-leave-from {
     transform: rotate(270deg);
     opacity: 0;
 }

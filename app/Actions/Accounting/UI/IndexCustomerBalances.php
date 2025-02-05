@@ -85,7 +85,7 @@ class IndexCustomerBalances extends OrgAction
             ])
             ->allowedSorts(['id', 'name', 'slug','balance'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

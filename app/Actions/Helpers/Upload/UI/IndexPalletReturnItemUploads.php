@@ -66,7 +66,7 @@ class IndexPalletReturnItemUploads
         return $queryBuilder
             ->defaultSort('uploads.id')
             ->allowedSorts(['uploads.original_filename', 'number_rows', 'number_success', 'number_fails', 'created_at'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

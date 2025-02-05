@@ -72,7 +72,7 @@ class IndexWorkplaces extends OrgAction
             ->with('stats')
             ->allowedSorts(['slug','name'])
             ->allowedFilters([$globalSearch, 'slug', 'name', 'type'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

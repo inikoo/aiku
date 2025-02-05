@@ -9,6 +9,7 @@
 namespace App\Actions\Billables\Service\UI;
 
 use App\Actions\OrgAction;
+use App\Enums\Billables\Service\ServiceEditTypeEnum;
 use App\Models\Billables\Service;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
@@ -58,6 +59,19 @@ class EditService extends OrgAction
      */
     public function htmlResponse(Service $service, ActionRequest $request): Response
     {
+        $fixedPrice = false;
+        $disableNet = false;
+        $disableUnits= false;
+        if ($service->edit_type == ServiceEditTypeEnum::QUANTITY)
+        {
+            $fixedPrice = true;
+            $disableNet = true;
+        } elseif ($service->edit_type == ServiceEditTypeEnum::NET)
+        {
+            $fixedPrice = false;
+            $disableUnits= true;
+        }
+
         return Inertia::render(
             'EditModel',
             [
@@ -116,34 +130,27 @@ class EditService extends OrgAction
                                     'value'    => $service->unit,
                                     'readonly' => true
                                 ],
-                                'units' => [
-                                    'type'     => 'input',
-                                    'label'    => __('units'),
-                                    'value'    => $service->units,
-                                ],
                                 'price' => [
                                     'type'    => 'input',
                                     'label'   => __('price'),
-                                    'required' => true,
-                                    'value'   => $service->price
+                                    'value'   => $service->price,
+                                    'readonly' => $disableNet
                                 ],
-                                // 'type' => [
-                                //     'type'          => 'select',
-                                //     'label'         => __('type'),
-                                //     'placeholder'   => 'Select a Asset Type',
-                                //     'options'       => Options::forEnum(AssetTypeEnum::class)->toArray(),
-                                //     'required'      => true,
-                                //     'mode'          => 'single',
-                                //     'value'         => $product->type
-                                // ]
+                                'fixed_price' => [
+                                    'type'    => 'toggle',
+                                    'label'   => __('fixed price'),
+                                    'value'   => $fixedPrice
+                                ]
                             ]
                         ]
 
                     ],
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'grp.models.product.update',
-                            'parameters' => $service->id
+                            'name'       => 'grp.models.services.update',
+                            'parameters' => [
+                                'service' => $service->id
+                            ]
 
                         ],
                     ]

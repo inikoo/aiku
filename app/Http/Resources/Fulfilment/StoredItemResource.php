@@ -9,6 +9,7 @@
 namespace App\Http\Resources\Fulfilment;
 
 use App\Http\Resources\HasSelfCall;
+use App\Models\Fulfilment\Pallet;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -44,7 +45,16 @@ class StoredItemResource extends JsonResource
             'quantity'       => (int) $storedItem->pallets?->sum('pivot.quantity'),
             'total_quantity' => $storedItem->pallets?->sum('pivot.quantity'),
             'max_quantity'   => $storedItem->pallets?->sum('pivot.quantity'),
-            'pallet_name'    => $storedItem->pallets()->pluck('reference')->implode(', '),
+
+            'pallets'                   => $storedItem->pallets->map(fn (Pallet $pallet) => [
+                'id'                    => $pallet->id,
+                'reference'             => $pallet->reference,
+                'quantity_stored_item'  => $pallet->storedItems->count(),
+                'customer_reference'    => $pallet->customer_reference,
+                'state'                 => $pallet->state,
+                'state_icon'            => $pallet->state->stateIcon()[$storedItem->state->value],
+            ]),
+
             'deleteRoute'    => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.stored-item.delete',

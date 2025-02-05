@@ -75,7 +75,7 @@ class IndexOrgSupplierProducts extends OrgAction
             ->leftJoin('org_supplier_product_stats', 'org_supplier_product_stats.org_supplier_product_id', 'org_supplier_products.id')
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

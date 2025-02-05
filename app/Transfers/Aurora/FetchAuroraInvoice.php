@@ -12,6 +12,7 @@ use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Ordering\SalesChannel\SalesChannelTypeEnum;
 use App\Models\Helpers\Address;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -63,6 +64,13 @@ class FetchAuroraInvoice extends FetchAurora
             $salesChannel = $this->parseSalesChannel($this->organisation->id.':'.$this->auroraModelData->{'Invoice Source Key'});
         }
 
+        $metadata = $this->auroraModelData->{'Invoice Metadata'};
+        if ($metadata) {
+            $metadata = json_decode($metadata, true);
+        } else {
+            $metadata = [];
+        }
+
 
         $this->parsedData['invoice'] = [
             'reference'        => $this->auroraModelData->{'Invoice Public ID'},
@@ -93,7 +101,8 @@ class FetchAuroraInvoice extends FetchAurora
             'currency_id'     => $this->parseCurrencyID($this->auroraModelData->{'Invoice Currency'}),
             'tax_category_id' => $taxCategory->id,
             'fetched_at'      => now(),
-            'last_fetched_at' => now()
+            'last_fetched_at' => now(),
+            'footer'          => Arr::get($metadata, 'store_message', ''),
 
         ];
 
@@ -101,7 +110,6 @@ class FetchAuroraInvoice extends FetchAurora
         if ($salesChannel) {
             $this->parsedData['invoice']['sales_channel_id'] = $salesChannel->id;
         }
-
     }
 
 

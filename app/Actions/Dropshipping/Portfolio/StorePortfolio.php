@@ -61,7 +61,6 @@ class StorePortfolio extends OrgAction
         return $portfolio;
     }
 
-
     public function authorize(ActionRequest $request): bool
     {
         if ($this->asAction) {
@@ -71,11 +70,11 @@ class StorePortfolio extends OrgAction
         return $request->user()->authTo("crm.{$this->shop->id}.edit");
     }
 
-
     public function rules(): array
     {
         $rules = [
-            'product_id'    => ['required', Rule::Exists('products', 'id')->where('shop_id', $this->shop->id)],
+            'product_id'    => ['sometimes', 'required', Rule::exists('products', 'id')->where('shop_id', $this->shop->id)],
+            'stored_item_id'    => ['sometimes', 'required', Rule::exists('stored_items', 'id')],
             'reference'     => [
                 'sometimes',
                 'nullable',

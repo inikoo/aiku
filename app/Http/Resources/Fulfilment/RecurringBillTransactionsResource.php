@@ -9,6 +9,7 @@
 namespace App\Http\Resources\Fulfilment;
 
 use App\Actions\Utils\Abbreviate;
+use App\Models\Billables\Service;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
@@ -122,7 +123,11 @@ class RecurringBillTransactionsResource extends JsonResource
         }
 
         $unitAbbreviation = Abbreviate::run($this->asset_unit);
-
+        $editType = null;
+        if($this->item_type == 'Service') {
+            $service = Service::find($this->item_id);
+            $editType = $service->edit_type;
+        }
 
         return [
             'id'                 => $this->id,
@@ -141,6 +146,7 @@ class RecurringBillTransactionsResource extends JsonResource
             'quantity'           =>   (int) $this->quantity * $this->temporal_quantity,
             'total'              => $this->net_amount,
             'discount'           => (int) $this->discount,
+            'edit_type'          => $editType,
             'fulfilment_transaction_id' => $this->fulfilment_transaction_id,
             // 'description'        => $description,
             'description'         => [

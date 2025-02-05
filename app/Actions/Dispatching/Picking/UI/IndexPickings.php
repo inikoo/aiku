@@ -69,7 +69,7 @@ class IndexPickings extends OrgAction
             ])
             ->allowedSorts(['id', 'org_stock_code', 'org_stock_name', 'picker_name', 'packer_name', 'engine' ])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

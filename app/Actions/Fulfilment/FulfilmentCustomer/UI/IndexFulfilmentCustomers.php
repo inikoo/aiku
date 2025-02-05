@@ -108,7 +108,7 @@ class IndexFulfilmentCustomers extends OrgAction
             ->leftJoin('currencies', 'shops.currency_id', 'currencies.id')
             ->allowedSorts(['reference', 'name', 'number_pallets', 'slug', 'number_pallets_status_storing', 'status', 'sales_all', 'sales_org_currency_all', 'sales_grp_currency_all', 'customers.created_at'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator(prefix: $prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
