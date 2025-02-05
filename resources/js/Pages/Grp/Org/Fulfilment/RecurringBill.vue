@@ -5,7 +5,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue"
 
 import { useTabChange } from "@/Composables/tab-change"
 import { capitalize } from "@/Composables/capitalize"
-import { computed, defineAsyncComponent, ref } from 'vue'
+import { computed, defineAsyncComponent, inject, ref } from 'vue'
 import type { Component } from 'vue'
 import Popover from '@/Components/Popover.vue'
 import PureMultiselectInfiniteScroll from '@/Components/Pure/PureMultiselectInfiniteScroll.vue'
@@ -37,6 +37,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { trans } from 'laravel-vue-i18n'
 import TablePalletDeliveries from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletDeliveries.vue"
 import TablePalletReturns from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturns.vue"
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 library.add(faWaveSine)
 
 
@@ -66,7 +67,8 @@ const props = defineProps<{
     physical_good_list_route: routeType
 
 }>()
-console.log(props)
+
+const locale = inject('locale', aikuLocaleStructure)
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -173,6 +175,7 @@ const isLoading = ref(false)
 
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
+        <!-- Button: Add service -->
         <template #button-add-service="{ action }">
             <div class="relative">
                 <Popover>
@@ -195,7 +198,15 @@ const isLoading = ref(false)
                                     :placeholder="trans('Select Services')"
                                     valueProp="id"
                                     @optionsList="(options) => dataServiceList = options"
-                                />
+                                >
+                                    <template #singlelabel="{ value }">
+                                        <div class="w-full text-left pl-4">{{ value.name }} <span class="text-sm text-gray-400">({{ locale.currencyFormat(value.currency_code, value.price) }}/{{ value.unit }})</span></div>
+                                    </template>
+
+                                    <template #option="{ option, isSelected, isPointed }">
+                                        <div class="">{{ option.name }} <span class="text-sm text-gray-400">({{ locale.currencyFormat(option.currency_code, option.price) }}/{{ option.unit }})</span></div>
+                                    </template>
+                                </PureMultiselectInfiniteScroll>
 
                                 <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">
                                     {{ formAddService.errors.service_id }}
