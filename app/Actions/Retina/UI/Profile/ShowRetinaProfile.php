@@ -30,7 +30,6 @@ class ShowRetinaProfile extends RetinaAction
     {
         $customer = $webUser->customer;
 
-
         $personalInformationFields = [
             'contact_name' => [
                 'type'  => 'input',
@@ -48,9 +47,9 @@ class ShowRetinaProfile extends RetinaAction
                 'value' => $customer->about
             ],
             'image'        => [
-                'type'  => 'avatar',
+                'type'  => 'image_crop_square',
                 'label' => __('avatar'),
-                'value' => !blank($customer->image_id)
+                'value' => !blank($webUser->image_id)
                     ? $customer->imageSources(320, 320)
                     : [
                         'original' => '/retina-default-user.svg'

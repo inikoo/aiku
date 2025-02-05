@@ -32,7 +32,8 @@ const inputUsername = ref(null)
 
 onMounted(async () => {
     await nextTick()
-    inputUsername.value?.focus()
+    console.log('ff', inputUsername.value?._inputRef)
+    inputUsername.value?._inputRef?.focus()
 })
 
 
