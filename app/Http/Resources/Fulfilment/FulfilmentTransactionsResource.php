@@ -36,7 +36,6 @@ class FulfilmentTransactionsResource extends JsonResource
             $unitAbbreviation = 'u';
             $unitLabel        = __('unit');
         }
-
         return [
             'id'                => $this->id,
             'asset_slug'        => $this->asset_slug,
@@ -48,8 +47,9 @@ class FulfilmentTransactionsResource extends JsonResource
             'currency_code'     => $this->currency_code,
             'unit_abbreviation' => $unitAbbreviation,
             'unit_label'        => $unitLabel,
-            'quantity'          => (int) $this->quantity,
+            'quantity'          => $this->quantity,
             'total'             => $this->net_amount,
+            'edit_type'         => $this->edit_type ?? null,
             'is_auto_assign'    => $this->is_auto_assign,
             'discount'          => (int) $this->discount
             // 'historic_assets_id'=> $this->historic_assets_id

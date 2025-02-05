@@ -10,6 +10,7 @@ namespace App\Actions\UI\Dashboards;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithDashboard;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Enums\UI\Group\GroupDashboardIntervalTabsEnum;
 use App\Models\Catalogue\Shop;
@@ -156,18 +157,28 @@ class ShowGroupDashboard extends OrgAction
                 );
                 $total['total_invoices'] += $responseData['interval_percentages']['invoices']['amount'];
                 $total['total_refunds'] += $responseData['interval_percentages']['refunds']['amount'];
-                $visualData['invoices_data']['labels'][] = $organisation->code;
-                $visualData['invoices_data']['currency_codes'][] = $currencyCode;
-                $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
+                // $visualData['invoices_data']['labels'][] = $organisation->code;
+                // $visualData['invoices_data']['currency_codes'][] = $currencyCode;
+                // $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
 
-                $visualData['refunds_data']['labels'][] = $organisation->code;
-                $visualData['refunds_data']['currency_codes'][] = $currencyCode;
-                $visualData['refunds_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['refunds']['amount'];
+                // $visualData['refunds_data']['labels'][] = $organisation->code;
+                // $visualData['refunds_data']['currency_codes'][] = $currencyCode;
+                // $visualData['refunds_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['refunds']['amount'];
             }
             return $responseData;
         })->toArray();
 
         $dashboard['total'] = $total;
+
+        $combined = array_map(null, $visualData['sales_data']['labels'], $visualData['sales_data']['currency_codes'], $visualData['sales_data']['datasets'][0]['data']);
+
+        usort($combined, function ($a, $b) {
+            return floatval($b[2]) <=> floatval($a[2]);
+        });
+
+        $visualData['sales_data']['labels'] = array_column($combined, 0);
+        $visualData['sales_data']['currency_codes'] = array_column($combined, 1);
+        $visualData['sales_data']['datasets'][0]['data'] = array_column($combined, 2);
 
         $dashboard['widgets']['components'][] = $this->getWidget(
             type: 'chart_display',
@@ -184,101 +195,6 @@ class ShowGroupDashboard extends OrgAction
                     'labels'  => $visualData['sales_data']['labels'],
                     'currency_codes' => $visualData['sales_data']['currency_codes'],
                     'datasets'    => $visualData['sales_data']['datasets']
-                ],
-            ]
-        );
-
-
-        $dashboard['widgets']['components'][] = $this->getWidget(
-            type: 'chart_display',
-            data: [
-                'value' => $total['total_invoices'],
-                'type' => 'number',
-                'description'   => __('Total invoices')
-            ],
-            visual: [
-                'type' => 'bar',
-                'value' => [
-                    'labels'  => $visualData['invoices_data']['labels'],
-                    'currency_codes' => $visualData['invoices_data']['currency_codes'],
-                    /* 'datasets'    => $visualData['invoices_data']['datasets'] */
-                    //TODO: new datasets
-                    'datasets'    => [
-                        [
-                            'label' => __('Invoices'),
-                            'data'  => $visualData['refunds_data']['datasets'][0]['data'],
-                            'backgroundColor' => '#4e73df',
-                            'borderColor' => '#4e73df',
-                            'borderWidth' => 1
-                        ],
-                        [
-                            'label' => __('Refunds'),
-                            'data'  => $visualData['refunds_data']['datasets'][0]['data'],
-                            'backgroundColor' => '#e74a3b',
-                            'borderColor' => '#e74a3b',
-                            'borderWidth' => 1
-                        ]
-                    ]
-                ],
-            ]
-        );
-
-        $dashboard['widgets']['components'][] = $this->getWidget(
-            type: 'chart_display',
-            data: [
-                'value' => $total['total_invoices'],
-                'type' => 'number',
-                'description'   => __('Total invoices')
-            ],
-            visual: [
-                'type' => 'line',
-                'value' => [
-                    'labels'  => $visualData['invoices_data']['labels'],
-                    'currency_codes' => $visualData['invoices_data']['currency_codes'],
-                    /* 'datasets'    => $visualData['invoices_data']['datasets'] */
-                    //TODO: new datasets
-                    'datasets'    => [
-                        [
-                            'label' => __('Invoices'),
-                            'data'  => $visualData['refunds_data']['datasets'][0]['data'],
-                            'backgroundColor' => '#4e73df',
-                            'borderColor' => '#4e73df',
-                            'borderWidth' => 1
-                        ],
-                        [
-                            'label' => __('Refunds'),
-                            'data'  => $visualData['refunds_data']['datasets'][0]['data'],
-                            'backgroundColor' => '#e74a3b',
-                            'borderColor' => '#e74a3b',
-                            'borderWidth' => 1
-                        ]
-                    ]
-                ],
-            ]
-        );
-
-        $dashboard['widgets']['components'][] = $this->getWidget(
-            type: 'chart_display',
-            data: [
-                'value' => $total['total_invoices'],
-                'type' => 'number',
-                'description'   => __('Total invoices')
-            ],
-            visual: [
-                'type' => 'pie',
-                'value' => [
-                    'labels' => ['invoices', 'refunds'],
-                    'currency_codes' => $visualData['invoices_data']['currency_codes'],
-                    /* 'datasets'    => $visualData['invoices_data']['datasets'] */
-                    //TODO: new datasets
-                    'datasets'    => [
-                        [
-                            'data' => [$total['total_invoices'], $total['total_refunds']],
-                            'backgroundColor' => '#00ffff',
-                            'borderColor' => '#ff7f00',
-                            'borderWidth' => 1
-                        ]
-                    ]
                 ],
             ]
         );
@@ -300,12 +216,21 @@ class ShowGroupDashboard extends OrgAction
                 'code'      => $shop->code,
                 'type'      => $shop->type,
                 'currency_code'  => $currencyCode,
-                'route'     => [
-                    'name'       => 'grp.org.dashboard.show',
-                    'parameters' => [
-                        'shop' => $shop->slug,
+                'route'         => $shop->type == ShopTypeEnum::FULFILMENT
+                    ? [
+                        'name'       => 'grp.org.fulfilments.show.operations.dashboard',
+                        'parameters' => [
+                            'organisation' => $shop->organisation->slug,
+                            'fulfilment'   => $shop->slug
+                        ]
                     ]
-                ]
+                    : [
+                        'name'       => 'grp.org.shops.show.dashboard',
+                        'parameters' => [
+                            'organisation' => $shop->organisation->slug,
+                            'shop'         => $shop->slug
+                        ]
+                    ]
             ];
 
             if ($shop->salesIntervals !== null) {
@@ -339,18 +264,29 @@ class ShowGroupDashboard extends OrgAction
                 $total['total_refunds'] += $responseData['interval_percentages']['refunds']['amount'];
 
                 // visual data
-                $visualData['invoices_data']['labels'][] = $shop->code;
-                $visualData['invoices_data']['currency_codes'][] = $currencyCode;
-                $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
+                // $visualData['invoices_data']['labels'][] = $shop->code;
+                // $visualData['invoices_data']['currency_codes'][] = $currencyCode;
+                // $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
 
-                $visualData['refunds_data']['labels'][] = $shop->code;
-                $visualData['refunds_data']['currency_codes'][] = $currencyCode;
-                $visualData['refunds_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['refunds']['amount'];
+                // $visualData['refunds_data']['labels'][] = $shop->code;
+                // $visualData['refunds_data']['currency_codes'][] = $currencyCode;
+                // $visualData['refunds_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['refunds']['amount'];
             }
             return $responseData;
         })->toArray();
 
         $dashboard['total'] = $total;
+
+
+        $combined = array_map(null, $visualData['sales_data']['labels'], $visualData['sales_data']['currency_codes'], $visualData['sales_data']['datasets'][0]['data']);
+
+        usort($combined, function ($a, $b) {
+            return floatval($b[2]) <=> floatval($a[2]);
+        });
+
+        $visualData['sales_data']['labels'] = array_column($combined, 0);
+        $visualData['sales_data']['currency_codes'] = array_column($combined, 1);
+        $visualData['sales_data']['datasets'][0]['data'] = array_column($combined, 2);
 
         $dashboard['widgets']['components'][] = $this->getWidget(
             type: 'chart_display',
@@ -371,100 +307,6 @@ class ShowGroupDashboard extends OrgAction
             ]
         );
 
-
-        $dashboard['widgets']['components'][] = $this->getWidget(
-            type: 'chart_display',
-            data: [
-                'value' => $total['total_invoices'],
-                'type' => 'number',
-                'description'   => __('Total invoices')
-            ],
-            visual: [
-                'type' => 'bar',
-                'value' => [
-                    'labels'  => $visualData['invoices_data']['labels'],
-                    'currency_codes' => $visualData['invoices_data']['currency_codes'],
-                    /* 'datasets'    => $visualData['invoices_data']['datasets'] */
-                    //TODO: new datasets
-                    'datasets'    => [
-                        [
-                            'label' => __('Invoices'),
-                            'data'  => $visualData['refunds_data']['datasets'][0]['data'],
-                            'backgroundColor' => '#4e73df',
-                            'borderColor' => '#4e73df',
-                            'borderWidth' => 1
-                        ],
-                        [
-                            'label' => __('Refunds'),
-                            'data'  => $visualData['refunds_data']['datasets'][0]['data'],
-                            'backgroundColor' => '#e74a3b',
-                            'borderColor' => '#e74a3b',
-                            'borderWidth' => 1
-                        ]
-                    ]
-                ],
-            ]
-        );
-
-        $dashboard['widgets']['components'][] = $this->getWidget(
-            type: 'chart_display',
-            data: [
-                'value' => $total['total_invoices'],
-                'type' => 'number',
-                'description'   => __('Total invoices')
-            ],
-            visual: [
-                'type' => 'line',
-                'value' => [
-                    'labels'  => $visualData['invoices_data']['labels'],
-                    'currency_codes' => $visualData['invoices_data']['currency_codes'],
-                    /* 'datasets'    => $visualData['invoices_data']['datasets'] */
-                    //TODO: new datasets
-                    'datasets'    => [
-                        [
-                            'label' => __('Invoices'),
-                            'data'  => $visualData['refunds_data']['datasets'][0]['data'],
-                            'backgroundColor' => '#4e73df',
-                            'borderColor' => '#4e73df',
-                            'borderWidth' => 1
-                        ],
-                        [
-                            'label' => __('Refunds'),
-                            'data'  => $visualData['refunds_data']['datasets'][0]['data'],
-                            'backgroundColor' => '#e74a3b',
-                            'borderColor' => '#e74a3b',
-                            'borderWidth' => 1
-                        ]
-                    ]
-                ],
-            ]
-        );
-
-        $dashboard['widgets']['components'][] = $this->getWidget(
-            type: 'chart_display',
-            data: [
-                'value' => $total['total_invoices'],
-                'type' => 'number',
-                'description'   => __('Total invoices')
-            ],
-            visual: [
-                'type' => 'pie',
-                'value' => [
-                    'labels' => ['invoices', 'refunds'],
-                    'currency_codes' => $visualData['invoices_data']['currency_codes'],
-                    /* 'datasets'    => $visualData['invoices_data']['datasets'] */
-                    //TODO: new datasets
-                    'datasets'    => [
-                        [
-                            'data' => [$total['total_invoices'], $total['total_refunds']],
-                            'backgroundColor' => '#00ffff',
-                            'borderColor' => '#ff7f00',
-                            'borderWidth' => 1
-                        ]
-                    ]
-                ],
-            ]
-        );
 
         return $data;
     }

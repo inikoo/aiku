@@ -157,34 +157,11 @@ function NumberDashboard(shop: any) {
 const setChartOptions = () => ({
 	responsive: true,
 	maintainAspectRatio: false,
+    
 	plugins: {
-		legend: {
-			position: "top",
-			labels: {
-				font: {
-					size: 12,
-				},
-				color: "#666",
-			},
-		},
-	},
-	scales: {
-		x: {
-			ticks: {
-				color: "#666",
-			},
-			grid: {
-				display: false,
-			},
-		},
-		y: {
-			ticks: {
-				color: "#666",
-			},
-			grid: {
-				color: "#ddd",
-			},
-		},
+        legend: {
+            display: false,  
+        },
 	},
 })
 
@@ -254,7 +231,7 @@ const setChartOptions = () => ({
 						:labels="visual.label"
 						:data="visual.value"
 						:height="300"
-						:options="setChartOptions" />
+						:options="setChartOptions()" />
 				</div>
 			</div>
 		</div>
