@@ -45,13 +45,15 @@ class PalletReturnStoredItemsResource extends JsonResource
                 $query->where('slug', $param);
             }
         })->first();
+
         $palletReturnItemQuery = PalletReturnItem::where([['pallet_return_id', $palletReturn->id], ['stored_item_id', $this->id]])->get();
+
         return [
             'id'                                   => $this->id,
             'slug'                                 => $this->slug,
             'reference'                            => $this->reference,
-            'state'                                => $palletReturnItemQuery->first()?->state ?: $this->state,
-            'state_icon'                           => $palletReturnItemQuery->first()?->state->stateIcon()[$this->state->value] ?: $this->state->stateIcon()[$this->state->value],
+            'state'                                => $this->state,
+            'state_icon'                           => $this->state->stateIcon()[$this->state->value],
             'total_quantity'                       => intval($this->pallets->sum('pivot.quantity')),
             'quantity'                             => (int) $palletReturnItemQuery?->sum('quantity_ordered') ?: intval($this->pallets->sum('pivot.quantity')),
             'damaged_quantity'                     => intval($this->pallets->sum('pivot.damaged_quantity')),

@@ -36,7 +36,7 @@ import {
   faBars,
   faExclamationTriangle
 } from "@fas"
-import { faHeart, faExternalLink } from "@far"
+import { faHeart, faExternalLink, faLowVision } from "@far"
 import { faBoothCurtain } from "@fal"
 
 
@@ -50,7 +50,7 @@ library.add(
   faTimes,
   faPlusCircle,
   faBars,
-  faBoothCurtain
+  faLowVision
 )
 
 const props = defineProps<{
@@ -268,7 +268,7 @@ const onChangeNavigation = (setData) =>{
             <ScreenView @screenView="(e) => iframeClass = setIframeView(e)" />
             <div class="py-1 px-2 cursor-pointer" title="Desktop view" v-tooltip="'Preview'"
               @click="openFullScreenPreview">
-              <FontAwesomeIcon :icon="faBoothCurtain" aria-hidden="true" />
+              <FontAwesomeIcon :icon="faLowVision" aria-hidden="true" />
             </div>
           </div>
           <div class="flex items-center justify-center">

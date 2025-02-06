@@ -9,6 +9,7 @@
 namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
+use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovementFromPicking;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -52,7 +53,13 @@ class SetPalletInReturnAsPicked extends OrgAction
 
         if ($palletReturnItem->type == 'Pallet') {
             $pallet = UpdatePallet::run($palletReturnItem->pallet, $modelData);
+
+            foreach ($pallet->palletStoredItems as $palletStoredItem) {
+                StoreStoredItemMovementFromPicking::run($palletReturnItem, $palletStoredItem);
+            }
+
         } else {
+            // TODO: check this,  not working
             $storedItems = PalletReturnItem::where('pallet_return_id', $palletReturnItem->pallet_return_id)->where('stored_item_id', $palletReturnItem->stored_item_id)->get();
             foreach ($storedItems as $storedItem) {
                 $pallet = UpdatePallet::run($storedItem->pallet, $modelData);

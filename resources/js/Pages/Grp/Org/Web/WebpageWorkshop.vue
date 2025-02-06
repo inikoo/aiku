@@ -27,8 +27,9 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 
 import { routeType } from "@/types/route"
+import { faLowVision } from "@far"
 
-library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faBoothCurtain)
+library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faLowVision)
 
 const props = defineProps<{
 	title: string
@@ -406,7 +407,7 @@ watch(openedBlockSideEditor,(newValue)=>{
 						class="py-1 px-2 cursor-pointer"
 						v-tooltip="'Preview'"
 						@click="openFullScreenPreview">
-						<FontAwesomeIcon :icon="faBoothCurtain" fixed-width aria-hidden="true" />
+						<FontAwesomeIcon :icon="faLowVision" fixed-width aria-hidden="true" />
 					</div>
 				</div>
 
