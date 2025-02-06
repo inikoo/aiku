@@ -84,7 +84,9 @@ class RetinaLogin
         }
 
         $retinaHome = 'app/dashboard';
-        if ($request->get('website')->type == WebsiteTypeEnum::FULFILMENT) {
+        if ($ref = $request->get('ref')) {
+            $retinaHome = $ref;
+        } elseif ($request->get('website')->type == WebsiteTypeEnum::FULFILMENT) {
             $retinaHome = 'app/fulfilment/storage/dashboard';
         }
 

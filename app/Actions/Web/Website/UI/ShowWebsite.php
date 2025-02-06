@@ -117,7 +117,7 @@ class ShowWebsite extends OrgAction
                         ),
 
                 ],
-               /*  "layout" =>  GetWebsiteWorkshopLayout::run($this->scope, $website), */
+               "layout" =>  GetWebsiteWorkshopLayout::run($this->scope, $website),
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => WebsiteTabsEnum::navigation()
