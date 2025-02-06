@@ -55,7 +55,7 @@ export default {
 				},
 				{
 					key: ["container", "properties", "text"],
-					label: "Text",
+					label: "Text Styles & Fonts",
 					type: "textProperty",
 				},
 				{

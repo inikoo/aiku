@@ -20,13 +20,16 @@ class GetOrgSupplierShowcase
     {
 
         $supplier = $orgSupplier->supplier;
-
+        // dd($supplier);
         return [
             'contactCard' => [
+                'created_at'  => $supplier->created_at,
                 'company'  => $supplier->company_name,
                 'contact'  => $supplier->contact_name,
+                'location'  => $supplier->location,
                 'email'    => $supplier->email,
                 'phone'    => $supplier->phone,
+                'currency' => $supplier->currency,
                 'address'  => AddressResource::make($supplier->address)->getArray(),
                 'image_id' => $supplier->image_id
             ],
