@@ -8,6 +8,7 @@
 
 namespace App\Actions\Retina\UI\Layout;
 
+use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Models\CRM\WebUser;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -17,6 +18,7 @@ class GetRetinaFulfilmentNavigation
 
     public function handle(WebUser $webUser): array
     {
+        $canSee = true;
         $groupNavigation = [];
 
 
@@ -34,194 +36,129 @@ class GetRetinaFulfilmentNavigation
 
         ];
 
+        if ($webUser->customer->status === CustomerStatusEnum::APPROVED && $webUser->customer->fulfilmentCustomer->rentalAgreement) {
 
-        $additionalSubsections = [];
+            $additionalSubsections = [];
 
-        if ($webUser?->customer?->fulfilmentCustomer?->number_pallets_status_storing) {
-            $additionalSubsections = [
-                [
-                    'label' => __('returns'),
-                    'icon'  => ['fal', 'fa-truck-ramp'],
-                    'root'  => 'retina.fulfilment.storage.pallet_returns.',
-                    'route' => [
-                        'name' => 'retina.fulfilment.storage.pallet_returns.index'
+            if ($webUser?->customer?->fulfilmentCustomer?->number_pallets_status_storing) {
+                $additionalSubsections = [
+                    [
+                        'label' => __('returns'),
+                        'icon'  => ['fal', 'fa-truck-ramp'],
+                        'root'  => 'retina.fulfilment.storage.pallet_returns.',
+                        'route' => [
+                            'name' => 'retina.fulfilment.storage.pallet_returns.index'
+                        ]
                     ]
-                ]
-            ];
-        }
+                ];
+            }
 
 
 
-        $groupNavigation['storage'] = [
-            'label'   => __('Storage'),
-            'icon'    => ['fal', 'fa-pallet'],
-            'root'    => 'retina.fulfilment.storage.',
-            'route'   => [
-                'name' => 'retina.fulfilment.storage.dashboard'
-            ],
-            'topMenu' => [
-                'subSections' => [
-                    [
-                        'label' => __('pallets'),
-                        'icon'  => ['fal', 'fa-pallet'],
-                        'root'  => 'retina.fulfilment.storage.pallets.',
-                        'route' => [
-                            'name' => 'retina.fulfilment.storage.pallets.index'
-                        ]
-                    ],
-                    [
-                        'label' => __('deliveries'),
-                        'icon'  => ['fal', 'fa-truck'],
-                        'root'  => 'retina.fulfilment.storage.pallet_deliveries.',
-                        'route' => [
-                            'name' => 'retina.fulfilment.storage.pallet_deliveries.index'
-                        ]
-                    ],
-                    ...$additionalSubsections,
-
-
-                ]
-            ]
-        ];
-
-        if ($webUser->customer->fulfilmentCustomer->items_storage) {
-            $groupNavigation['stored_items'] = [
-                'label'   => __('Skus'),
-                'icon'    => ['fal', 'fa-barcode'],
-                'root'    => 'retina.fulfilment.itemised_storage.',
+            $groupNavigation['storage'] = [
+                'label'   => __('Storage'),
+                'icon'    => ['fal', 'fa-pallet'],
+                'root'    => 'retina.fulfilment.storage.',
                 'route'   => [
-                    'name' => 'retina.fulfilment.itemised_storage.stored_items.index'
+                    'name' => 'retina.fulfilment.storage.dashboard'
                 ],
                 'topMenu' => [
                     'subSections' => [
-
                         [
-                            'label' => __('SKUs'),
-                            'icon'  => ['fal', 'fa-barcode'],
-                            'root'  => 'retina.fulfilment.itemised_storage.stored_items.',
+                            'label' => __('pallets'),
+                            'icon'  => ['fal', 'fa-pallet'],
+                            'root'  => 'retina.fulfilment.storage.pallets.',
                             'route' => [
-                                'name' => 'retina.fulfilment.itemised_storage.stored_items.index'
+                                'name' => 'retina.fulfilment.storage.pallets.index'
                             ]
                         ],
                         [
-                            'label' => __('Audits'),
-                            'icon'  => ['fal', 'fa-ballot-check'],
-                            'root'  => 'retina.fulfilment.itemised_storage.stored_items_audits.index',
+                            'label' => __('deliveries'),
+                            'icon'  => ['fal', 'fa-truck'],
+                            'root'  => 'retina.fulfilment.storage.pallet_deliveries.',
                             'route' => [
-                                'name' => 'retina.fulfilment.itemised_storage.stored_items_audits.index'
+                                'name' => 'retina.fulfilment.storage.pallet_deliveries.index'
                             ]
-                        ]
+                        ],
+                        ...$additionalSubsections,
+
 
                     ]
                 ]
             ];
 
-            if (!app()->isProduction()) {
-                $groupNavigation = array_merge($groupNavigation, GetRetinaDropshippingNavigation::run($webUser));
-            }
-        }
+            if ($webUser->customer->fulfilmentCustomer->items_storage) {
+                $groupNavigation['stored_items'] = [
+                    'label'   => __('Skus'),
+                    'icon'    => ['fal', 'fa-barcode'],
+                    'root'    => 'retina.fulfilment.itemised_storage.',
+                    'route'   => [
+                        'name' => 'retina.fulfilment.itemised_storage.stored_items.index'
+                    ],
+                    'topMenu' => [
+                        'subSections' => [
 
-        $groupNavigation['pricing'] = [
-            'label'   => __('Pricing'),
-            'icon'    => ['fal', 'fa-usd-circle'],
-            'root'    => 'retina.fulfilment.pricing.',
-            'route'   => [
-                'name' => 'retina.fulfilment.pricing.index'
-            ],
-            'topMenu' => [
+                            [
+                                'label' => __('SKUs'),
+                                'icon'  => ['fal', 'fa-barcode'],
+                                'root'  => 'retina.fulfilment.itemised_storage.stored_items.',
+                                'route' => [
+                                    'name' => 'retina.fulfilment.itemised_storage.stored_items.index'
+                                ]
+                            ],
+                            [
+                                'label' => __('Audits'),
+                                'icon'  => ['fal', 'fa-ballot-check'],
+                                'root'  => 'retina.fulfilment.itemised_storage.stored_items_audits.index',
+                                'route' => [
+                                    'name' => 'retina.fulfilment.itemised_storage.stored_items_audits.index'
+                                ]
+                            ]
 
-
-                [
-                    'label' => __('Pricing'),
-                    'icon'  => ['fal', 'fa-usd-circle'],
-                    'root'  => 'retina.fulfilment.pricing.',
-                    'route' => [
-                        'name' => 'retina.fulfilment.storage.pricing'
+                        ]
                     ]
+                ];
+
+                if (!app()->isProduction()) {
+                    $groupNavigation = array_merge($groupNavigation, GetRetinaDropshippingNavigation::run($webUser));
+                }
+            }
+
+            $groupNavigation['pricing'] = [
+                'label'   => __('Pricing'),
+                'icon'    => ['fal', 'fa-usd-circle'],
+                'root'    => 'retina.fulfilment.pricing.',
+                'route'   => [
+                    'name' => 'retina.fulfilment.pricing.index'
                 ],
-            ]
+                'topMenu' => [
 
-        ];
-
-        $groupNavigation['spaces'] = [
-            'label'   => __('Spaces'),
-            'icon'    => ['fal', 'fa-parking'],
-            'root'    => 'retina.fulfilment.spaces.',
-            'route'   => [
-                'name' => 'retina.fulfilment.spaces.index'
-            ],
-            'topMenu' => []
-        ];
-
-        /*$groupNavigation['dropshipping'] = [
-            'label'   => __('Dropshipping'),
-            'icon'    => ['fal', 'fa-hand-holding-box'],
-            'route'   => [
-                'name' => 'retina.sysadmin.dashboard'
-            ],
-            'topMenu' => [
-                'subSections' => [
-                    [
-                        'label' => __('users'),
-                        'icon'  => ['fal', 'fa-terminal'],
-                        'root'  => 'retina.sysadmin.users.',
-                        'route' => [
-                            'name' => 'retina.sysadmin.web-users.index',
-
-                        ]
-                    ],
 
                     [
-                        'label' => __('system settings'),
-                        'icon'  => ['fal', 'fa-cog'],
-                        'root'  => 'retina.sysadmin.settings.',
+                        'label' => __('Pricing'),
+                        'icon'  => ['fal', 'fa-usd-circle'],
+                        'root'  => 'retina.fulfilment.pricing.',
                         'route' => [
-                            'name' => 'retina.sysadmin.settings.edit',
-
+                            'name' => 'retina.fulfilment.storage.pricing'
                         ]
                     ],
                 ]
-            ]
-        ];*/
 
-        $groupNavigation['billing'] = [
-            'label'   => __('billing'),
-            'icon'    => ['fal', 'fa-file-invoice-dollar'],
-            'root'    => 'retina.fulfilment.billing.',
-            'route'   => [
-                'name' => 'retina.fulfilment.billing.dashboard'
-            ],
-            'topMenu' => [
-                'subSections' => [
-                    [
-                        'label' => __('next bill'),
-                        'icon'  => ['fal', 'fa-receipt'],
-                        'root'  => 'retina.fulfilment.billing.next_recurring_bill',
-                        'route' => [
-                            'name' => 'retina.fulfilment.billing.next_recurring_bill',
+            ];
 
-                        ]
-                    ],
+            $groupNavigation['spaces'] = [
+                'label'   => __('Spaces'),
+                'icon'    => ['fal', 'fa-parking'],
+                'root'    => 'retina.fulfilment.spaces.',
+                'route'   => [
+                    'name' => 'retina.fulfilment.spaces.index'
+                ],
+                'topMenu' => []
+            ];
 
-                    [
-                        'label' => __('invoices'),
-                        'icon'  => ['fal', 'fa-file-invoice-dollar'],
-                        'root'  => 'retina.fulfilment.billing.invoices.',
-                        'route' => [
-                            'name' => 'retina.fulfilment.billing.invoices.index',
-
-                        ]
-                    ],
-                ]
-            ]
-        ];
-
-
-        if ($webUser->is_root) {
-            $groupNavigation['sysadmin'] = [
-                'label'   => __('manage account'),
-                'icon'    => ['fal', 'fa-users-cog'],
-                'root'    => 'retina.sysadmin.',
+            /*$groupNavigation['dropshipping'] = [
+                'label'   => __('Dropshipping'),
+                'icon'    => ['fal', 'fa-hand-holding-box'],
                 'route'   => [
                     'name' => 'retina.sysadmin.dashboard'
                 ],
@@ -229,8 +166,8 @@ class GetRetinaFulfilmentNavigation
                     'subSections' => [
                         [
                             'label' => __('users'),
-                            'icon'  => ['fal', 'fa-user-circle'],
-                            'root'  => 'retina.sysadmin.web-users.',
+                            'icon'  => ['fal', 'fa-terminal'],
+                            'root'  => 'retina.sysadmin.users.',
                             'route' => [
                                 'name' => 'retina.sysadmin.web-users.index',
 
@@ -238,7 +175,7 @@ class GetRetinaFulfilmentNavigation
                         ],
 
                         [
-                            'label' => __('account settings'),
+                            'label' => __('system settings'),
                             'icon'  => ['fal', 'fa-cog'],
                             'root'  => 'retina.sysadmin.settings.',
                             'route' => [
@@ -248,30 +185,97 @@ class GetRetinaFulfilmentNavigation
                         ],
                     ]
                 ]
-            ];
-            /*            $groupNavigation['dropshipping'] = [
-                            'label'   => __('Dropshipping'),
-                            'icon'    => ['fal', 'fa-parachute-box'],
-                            'root'    => 'retina.dropshipping.',
-                            'route'   => [
-                                'name' => 'retina.dropshipping.dashboard'
-                            ],
-                            'topMenu' => [
-                                'subSections' => [
-                                    [
-                                        'label' => __('Products'),
-                                        'icon'  => ['fal', 'fa-cube'],
-                                        'root'  => 'retina.dropshipping.products.',
-                                        'route' => [
-                                            'name' => 'retina.dropshipping.products.index',
+            ];*/
 
-                                        ]
-                                    ],
-                                ]
+            $groupNavigation['billing'] = [
+                'label'   => __('billing'),
+                'icon'    => ['fal', 'fa-file-invoice-dollar'],
+                'root'    => 'retina.fulfilment.billing.',
+                'route'   => [
+                    'name' => 'retina.fulfilment.billing.dashboard'
+                ],
+                'topMenu' => [
+                    'subSections' => [
+                        [
+                            'label' => __('next bill'),
+                            'icon'  => ['fal', 'fa-receipt'],
+                            'root'  => 'retina.fulfilment.billing.next_recurring_bill',
+                            'route' => [
+                                'name' => 'retina.fulfilment.billing.next_recurring_bill',
+
                             ]
-                        ];*/
-        }
+                        ],
 
+                        [
+                            'label' => __('invoices'),
+                            'icon'  => ['fal', 'fa-file-invoice-dollar'],
+                            'root'  => 'retina.fulfilment.billing.invoices.',
+                            'route' => [
+                                'name' => 'retina.fulfilment.billing.invoices.index',
+
+                            ]
+                        ],
+                    ]
+                ]
+            ];
+
+
+            if ($webUser->is_root) {
+                $groupNavigation['sysadmin'] = [
+                    'label'   => __('manage account'),
+                    'icon'    => ['fal', 'fa-users-cog'],
+                    'root'    => 'retina.sysadmin.',
+                    'route'   => [
+                        'name' => 'retina.sysadmin.dashboard'
+                    ],
+                    'topMenu' => [
+                        'subSections' => [
+                            [
+                                'label' => __('users'),
+                                'icon'  => ['fal', 'fa-user-circle'],
+                                'root'  => 'retina.sysadmin.web-users.',
+                                'route' => [
+                                    'name' => 'retina.sysadmin.web-users.index',
+
+                                ]
+                            ],
+
+                            [
+                                'label' => __('account settings'),
+                                'icon'  => ['fal', 'fa-cog'],
+                                'root'  => 'retina.sysadmin.settings.',
+                                'route' => [
+                                    'name' => 'retina.sysadmin.settings.edit',
+
+                                ]
+                            ],
+                        ]
+                    ]
+                ];
+                /*            $groupNavigation['dropshipping'] = [
+                                'label'   => __('Dropshipping'),
+                                'icon'    => ['fal', 'fa-parachute-box'],
+                                'root'    => 'retina.dropshipping.',
+                                'route'   => [
+                                    'name' => 'retina.dropshipping.dashboard'
+                                ],
+                                'topMenu' => [
+                                    'subSections' => [
+                                        [
+                                            'label' => __('Products'),
+                                            'icon'  => ['fal', 'fa-cube'],
+                                            'root'  => 'retina.dropshipping.products.',
+                                            'route' => [
+                                                'name' => 'retina.dropshipping.products.index',
+
+                                            ]
+                                        ],
+                                    ]
+                                ]
+                            ];*/
+            }
+
+        }
 
         return $groupNavigation;
     }

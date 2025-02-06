@@ -9,6 +9,7 @@
 namespace App\Actions\Fulfilment\Fulfilment\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
+use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatusEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -48,9 +49,14 @@ class FulfilmentHydrateCustomers
             enum: FulfilmentCustomerStatusEnum::class,
             models: FulfilmentCustomer::class,
             where: function ($q) use ($fulfilment) {
-                $q->where('fulfilment_id', $fulfilment->id);
+                $q->where('fulfilment_id', $fulfilment->id)
+                ->where('status', '!=', FulfilmentCustomerStatusEnum::ACTIVE->value); // exclude active customers cause the active should be already approved
             }
         ));
+
+        $stats['number_customers_status_active'] = $fulfilment->fulfilmentCustomers()->where('status', FulfilmentCustomerStatusEnum::ACTIVE->value)->whereHas('customer', function ($query) {
+            $query->where('status', CustomerStatusEnum::APPROVED->value);
+        })->count();
 
         $fulfilment->stats()->update($stats);
     }
