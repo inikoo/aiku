@@ -99,7 +99,7 @@ class RetinaAction
         return $this;
     }
 
-    public function authorize(ActionRequest $request)
+    public function authorize(ActionRequest $request): bool
     {
         // Define the segments or route names that should always be accessible
         $publicRoutes = ['login', 'register', 'profile', 'logout', 'home', 'dashboard', 'password'];

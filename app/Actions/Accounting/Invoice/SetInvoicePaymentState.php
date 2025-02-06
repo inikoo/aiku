@@ -29,16 +29,16 @@ class SetInvoicePaymentState extends OrgAction
 
     protected function handle(Invoice $invoice): Invoice
     {
-        $runningPaymentsAmount = 0;
         $payStatus             = InvoicePayStatusEnum::UNPAID;
         $paymentAt             = null;
+        $runningPaymentsAmount = 0;
 
         /** @var Payment $payment */
         foreach (
             $invoice->payments()->where('payments.status', PaymentStatusEnum::SUCCESS)->get() as $payment
         ) {
             $runningPaymentsAmount += $payment->amount;
-            if ($runningPaymentsAmount >= $invoice->total_amount) {
+            if ($payStatus == InvoicePayStatusEnum::UNPAID && $runningPaymentsAmount >= $invoice->total_amount) {
                 $payStatus = InvoicePayStatusEnum::PAID;
                 $paymentAt = $payment->date;
             }
@@ -47,8 +47,9 @@ class SetInvoicePaymentState extends OrgAction
 
         $invoice->update(
             [
-                'pay_status' => $payStatus,
-                'paid_at'    => $paymentAt
+                'pay_status'     => $payStatus,
+                'paid_at'        => $paymentAt,
+                'payment_amount' => $runningPaymentsAmount
             ]
         );
 

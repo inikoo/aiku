@@ -13,16 +13,13 @@
   import { computed, defineAsyncComponent, inject, ref, watch } from "vue"
   import type { Component } from "vue"
   import { useTabChange } from "@/Composables/tab-change"
-  import AddressSelector from "@/Components/DataDisplay/AddressSelector.vue"
   import ModelDetails from "@/Components/ModelDetails.vue"
   import TablePayments from "@/Components/Tables/Grp/Org/Accounting/TablePayments.vue"
-  import OperationsInvoiceShowcase from "@/Components/Tables/Grp/Org/Accounting/TableInvoiceTransactions.vue"
   import Button from '@/Components/Elements/Buttons/Button.vue'
   import Tabs from "@/Components/Navigation/Tabs.vue"
   import { capitalize } from "@/Composables/capitalize"
   import { trans } from 'laravel-vue-i18n'
   import BoxStatPallet from '@/Components/Pallet/BoxStatPallet.vue'
-  import { Calculation, ProductTransaction } from '@/types/Invoices'
   import { routeType } from '@/types/route'
   import OrderSummary from '@/Components/Summary/OrderSummary.vue'
   import { FieldOrderSummary } from '@/types/Pallet'
@@ -35,27 +32,16 @@
   import { faCheck } from '@far'
   library.add(faCheck, faIdCardAlt, faMapMarkedAlt, faPhone, faFolder, faCube, faChartLine, faCreditCard, faClock, faFileInvoice, faPercent, faCalendarAlt, faBuilding, faDollarSign, faFilePdf, faMapMarkerAlt, faPencil, faMoneyBillAlt)
   
-  const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
+
   
-  
-  // import { useLocaleStore } from '@/Stores/locale'
   import { useFormatTime } from '@/Composables/useFormatTime'
   import { PageHeading as TSPageHeading } from '@/types/PageHeading'
   import TableInvoiceTransactions from "@/Components/Tables/Grp/Org/Accounting/TableInvoiceTransactions.vue";
-  import { Address } from '@/types/PureComponent/Address'
-  import { Icon } from '@/types/Utils/Icon'
-  // import AddressLocation from '@/Components/Elements/Info/AddressLocation.vue'
-  import Modal from '@/Components/Utils/Modal.vue'
-  import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
-  import PureInputNumber from '@/Components/Pure/PureInputNumber.vue'
-  import PureTextarea from '@/Components/Pure/PureTextarea.vue'
-  import PureInput from '@/Components/Pure/PureInput.vue'
+
   import { InvoiceResource } from '@/types/invoice'
-  import axios from 'axios'
-  import { notify } from '@kyvg/vue3-notification'
+
   import NeedToPay from '@/Components/Utils/NeedToPay.vue'
 import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
-  // const locale = useLocaleStore()
   const locale = inject('locale', aikuLocaleStructure)
   
   
@@ -325,59 +311,5 @@ import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
       <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
       <component :is="component" :data="props[currentTab]" :tab="currentTab" />
   
-   <!--    <Modal :isOpen="isOpenModalPayment" @onClose="isOpenModalPayment = false" width="w-[600px]">
-          <div class="isolate bg-white px-6 lg:px-8">
-              <div class="mx-auto max-w-2xl text-center">
-                  <h2 class="text-lg font-bold tracking-tight sm:text-2xl">{{ trans('Invoice Payment') }}</h2>
-                  <p class="text-xs leading-5 text-gray-400">
-                      {{ trans('Information about payment from customer') }}
-                  </p>
-              </div>
-  
-              <div class="mt-7 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
-                  <div class="col-span-2">
-                      <label for="first-name" class="block text-sm font-medium leading-6">
-                          <span class="text-red-500">*</span> {{ trans('Select payment method') }}
-                      </label>
-                      <div class="mt-1">
-                          <PureMultiselect
-                              v-model="paymentData.payment_method"
-                              :options="listPaymentMethod"
-                              :isLoading="isLoadingFetch"
-                              label="name"
-                              valueProp="id"
-                              required
-                              caret
-                          />
-                      </div>
-                  </div>
-  
-                  <div class="col-span-2">
-                      <label for="last-name" class="block text-sm font-medium leading-6">{{ trans('Payment amount') }}</label>
-                      <div class="mt-1">
-                          <PureInputNumber v-model="paymentData.payment_amount" />
-                      </div>
-                      <div class="space-x-1">
-                          <span class="text-xxs text-gray-500">{{ trans('Need to pay') }}: {{ locale.currencyFormat(props.invoice.currency_code || 'usd', Number(box_stats.information.pay_amount)) }}</span>
-                          <Button @click="() => paymentData.payment_amount = box_stats.information.pay_amount" :disabled="paymentData.payment_amount === box_stats.information.pay_amount" type="tertiary" label="Pay all" size="xxs" />
-                      </div>
-                  </div>
-  
-                  <div class="col-span-2">
-                      <label for="last-name" class="block text-sm font-medium leading-6">{{ trans('Reference') }}</label>
-                      <div class="mt-1">
-                          <PureInput v-model="paymentData.payment_reference" placeholder="#000000"/>
-                      </div>
-                  </div>
-  
-              </div>
-  
-              <div class="mt-6 mb-4 relative">
-                  <Button @click="() => onSubmitPayment()" label="Submit" :disabled="!(!!paymentData.payment_method)" :loading="isLoadingPayment" full />
-                  <Transition name="spin-to-down">
-                      <p v-if="errorPaymentMethod" class="absolute text-red-500 italic text-sm mt-1">*{{ errorPaymentMethod }}</p>
-                  </Transition>
-              </div>
-          </div>
-      </Modal> -->
+
   </template>
