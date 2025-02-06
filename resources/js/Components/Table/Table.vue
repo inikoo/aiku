@@ -481,7 +481,7 @@ function generateNewQueryString() {
     const queryStringData = qs.parse(location.search.substring(1))
     const prefix = props.name === 'default' ? '' : props.name + '_'
 
-    // To exclude filter, columns, cursor, and sort that received from the URL
+    // To exclude 'filter', 'columns', 'cursor', and 'sort' that received from the URL
     forEach(['filter', 'columns', 'cursor', 'sort'], (key) => {
         delete queryStringData[prefix + key];
     });

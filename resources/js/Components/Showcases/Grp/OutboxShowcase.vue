@@ -16,8 +16,11 @@ import { faExpand } from "@fal";
 import ScreenView from "@/Components/ScreenView.vue"
 import { setIframeView } from "@/Composables/Workshop"
 import EmptyState from "@/Components/Utils/EmptyState.vue";
-import { faPaperPlane, faVirus, faInboxIn, faExclamationTriangle, faInbox, faMousePointer, faEnvelopeOpen, faHandPaper, faDumpster} from '@fal'
-library.add(faPaperPlane, faVirus, faInboxIn, faExclamationTriangle, faInbox, faMousePointer, faEnvelopeOpen, faHandPaper, faDumpster)
+import { faPaperPlane, faVirus, faInboxIn, faExclamationTriangle, faInbox, faMousePointer, faEnvelopeOpen, faHandPaper, faDumpster, faDraftingCompass} from '@fal'
+import { Link } from "@inertiajs/vue3"
+import Button from "@/Components/Elements/Buttons/Button.vue"
+import { trans } from "laravel-vue-i18n"
+library.add(faPaperPlane, faVirus, faInboxIn, faExclamationTriangle, faInbox, faMousePointer, faEnvelopeOpen, faHandPaper, faDumpster, faDraftingCompass)
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement);
 
@@ -25,46 +28,71 @@ library.add(faInboxOut);
 
 const props = defineProps<{
     data: {
+        outbox: {
+            slug: string
+        }
         stats: Array<any>
         compiled_layout: HtmlHTMLAttributes
         state: String
         builder: String
     };
 }>();
-console.log('asdasd', props)
+// console.log('asdasd', props)
 const previewOpen = ref(false)
 const iframeClass = ref('w-full h-full')
-const totalValue = (props.data.stats.map((item) => item.value || 0)).reduce((acc, val) => acc + val, 0);
-const dataSet = {
-    labels: (props.data.stats.map((item) => item.label)),
-    datasets: [
-        {
-            backgroundColor: (props.data.stats.map((item) => item.color)),
-            data: (props.data.stats.map((item) => item.value || 0)),
-        },
-    ],
-};
+// const totalValue = (props.data.stats.map((item) => item.value || 0)).reduce((acc, val) => acc + val, 0);
+// const dataSet = {
+//     labels: (props.data.stats.map((item) => item.label)),
+//     datasets: [
+//         {
+//             backgroundColor: (props.data.stats.map((item) => item.color)),
+//             data: (props.data.stats.map((item) => item.value || 0)),
+//         },
+//     ],
+// };
 
-
+const isLoadingVisit = ref(false)
 </script>
 
 <template>
-    <div class="card p-4">
+    <div v-if="data.state === 'in_process'">
+        <EmptyState :data="{
+            title: trans('Outbox is still in process'),
+            description: trans('You can edit it in workshop')
+        }">
+            <template #button-empty-state>
+                <Link :href="route('grp.org.fulfilments.show.operations.comms.outboxes.workshop', { organisation: route().params?.organisation, fulfilment: route().params?.fulfilment, outbox: data.outbox?.slug })" @start="() => isLoadingVisit = true" class="mt-4 block w-fit mx-auto">
+                    <Button
+                        label="workshop"
+                        type="secondary"
+                        icon="fal fa-drafting-compass"
+                        :loading="isLoadingVisit"
+                    />
+                </Link>
+            </template>
+        </EmptyState>
+    </div>
+
+    <div v-else class="card p-4">
         <!-- Stats Section -->
         <div class="grid grid-cols-4 md:grid-cols-4 gap-2">
             <div class="md:col-span-4 grid sm:grid-cols-1 md:grid-cols-6 gap-2 h-auto mb-3">
-                <div v-for="item in data.stats" :key="item.key" :class="item.class"
-                    class="bg-gradient-to-tr flex flex-col justify-between px-6 py-2 rounded-lg shadow-lg sm:h-auto">
+                <div v-for="item in data.stats" :key="item.key"
+                    :style="{ 
+                        backgroundColor: item.color + '44',
+                        border: `1px solid ${item.color}`
+                    }"
+                    class="flex flex-col justify-between px-6 py-2 rounded-lg shadow-lg sm:h-auto">
                     <div class="flex justify-between items-center mb-2">
                         <div>
                             <div class="text-lg font-semibold capitalize">{{ item.label }}</div>
                         </div>
-                        <div class="rounded-full bg-white/20 p-2">
+                        <div class="rounded-full p-2">
                             <FontAwesomeIcon :icon="item.icon" class="text-xl" />
                         </div>
                     </div>
                     <div>
-                        <div class="text-2xl font-bold">{{ item.value }}</div>
+                        <div class="text-2xl font-bold">{{ item.value || 0}}</div>
                     </div>
                 </div>
             </div>
@@ -115,6 +143,10 @@ const dataSet = {
             -->
         </div>
     </div>
+    
+    
+
+    <!-- <pre>{{ props }}</pre> -->
 
 
     <Modal :isOpen="previewOpen" @onClose="previewOpen = false">

@@ -115,10 +115,6 @@ class ShowGroupDashboard extends OrgAction
     {
         $visualData = [];
 
-
-
-
-
         $data =  $organisations->map(function (Organisation $organisation) use ($selectedInterval, $group, &$dashboard, $selectedCurrency, &$visualData, &$total) {
             $keyCurrency = $dashboard['settings']['key_currency'];
             $currencyCode = $selectedCurrency === $keyCurrency ? $group->currency->code : $organisation->currency->code;
@@ -142,6 +138,14 @@ class ShowGroupDashboard extends OrgAction
                         'between[date]' => $this->getDateIntervalFilter($selectedInterval)
                     ]
                 ],
+                'route_refund' => [
+                    'name'       => 'grp.org.accounting.refunds.index',
+                    'parameters' => [
+                        'organisation' => $organisation->slug,
+                        'between[date]' => $this->getDateIntervalFilter($selectedInterval)
+                    ]
+                ],
+
             ];
 
 
@@ -178,9 +182,9 @@ class ShowGroupDashboard extends OrgAction
                 $visualData['invoices_data']['currency_codes'][] = $currencyCode;
                 $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
 
-                // $visualData['refunds_data']['labels'][] = $organisation->code;
-                // $visualData['refunds_data']['currency_codes'][] = $currencyCode;
-                // $visualData['refunds_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['refunds']['amount'];
+                $visualData['refunds_data']['labels'][] = $organisation->code;
+                $visualData['refunds_data']['currency_codes'][] = $currencyCode;
+                $visualData['refunds_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['refunds']['amount'];
             }
             return $responseData;
         })->toArray();
@@ -324,9 +328,9 @@ class ShowGroupDashboard extends OrgAction
                 $visualData['invoices_data']['currency_codes'][] = $currencyCode;
                 $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
 
-                // $visualData['refunds_data']['labels'][] = $shop->code;
-                // $visualData['refunds_data']['currency_codes'][] = $currencyCode;
-                // $visualData['refunds_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['refunds']['amount'];
+                $visualData['refunds_data']['labels'][] = $shop->code;
+                $visualData['refunds_data']['currency_codes'][] = $currencyCode;
+                $visualData['refunds_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['refunds']['amount'];
             }
             return $responseData;
         })->toArray();
