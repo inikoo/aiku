@@ -61,6 +61,7 @@ use App\Models\Goods\Stock;
 use App\Models\Goods\StockFamily;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
+use App\Models\Helpers\CountryOrderingInterval;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\Query;
 use App\Models\Helpers\Upload;
@@ -98,6 +99,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -928,6 +930,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function spaces(): HasMany
     {
         return $this->hasMany(Space::class);
+    }
+
+    public function countryOrderingIntervals(): MorphMany
+    {
+        return $this->morphMany(CountryOrderingInterval::class, 'model');
     }
 
 }

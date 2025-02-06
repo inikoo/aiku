@@ -43,6 +43,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Goods\MasterShop;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
+use App\Models\Helpers\CountryOrderingInterval;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\InvoiceTransactionHasFeedback;
 use App\Models\Helpers\Query;
@@ -666,6 +667,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function outboxPushIntervals(): HasOne
     {
         return $this->hasOne(ShopOutboxPushIntervals::class);
+    }
+
+    public function countryOrderingIntervals(): MorphMany
+    {
+        return $this->morphMany(CountryOrderingInterval::class, 'model');
     }
 
 }

@@ -49,6 +49,7 @@ use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\Space;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
+use App\Models\Helpers\CountryOrderingInterval;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\Feedback;
 use App\Models\Helpers\Language;
@@ -841,6 +842,11 @@ class Organisation extends Model implements HasMedia, Auditable
     public function spaces(): HasMany
     {
         return $this->hasMany(Space::class);
+    }
+
+    public function countryOrderingIntervals(): MorphMany
+    {
+        return $this->morphMany(CountryOrderingInterval::class, 'model');
     }
 
 }
