@@ -5,12 +5,12 @@
   -->
 
   <script setup lang="ts">
-  import { Head, router } from '@inertiajs/vue3'
+  import { Head } from '@inertiajs/vue3'
   
   import PageHeading from '@/Components/Headings/PageHeading.vue'
   import { Link } from '@inertiajs/vue3'
   
-  import { computed, defineAsyncComponent, inject, ref, watch } from "vue"
+  import { computed, inject, ref, watch } from "vue"
   import type { Component } from "vue"
   import { useTabChange } from "@/Composables/tab-change"
   import ModelDetails from "@/Components/ModelDetails.vue"
