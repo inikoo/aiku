@@ -7,7 +7,7 @@ import {
     faMapMarkerAlt, faCopy,
     faPersonDolly, faBoxFull,
     faBan, faArrowUp,
-    faBuilding, faMale
+    faBuilding, faMale, faMapMarkedAlt, faCalendarPlus, faMoneyBillWaveAlt
 } from '@fal'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
@@ -15,8 +15,11 @@ import ComponentImage from '@/Components/Image.vue'
 import { useCopyText } from '@/Composables/useCopyText'
 import AddressLocation from '@/Components/Elements/Info/AddressLocation.vue'
 import { Agent } from '@/types/Grp/Agent'
+import { useFormatTime } from '@/Composables/useFormatTime'
+import { inject } from 'vue'
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
-library.add(faEnvelope, faPhone, faPersonDolly, faBoxFull, faCopy, faBan, faArrowUp, faMapMarkerAlt, faMale, faBuilding)
+library.add(faEnvelope, faPhone, faPersonDolly, faBoxFull, faCopy, faBan, faArrowUp, faMapMarkerAlt, faMale, faMapMarkedAlt, faCalendarPlus, faMoneyBillWaveAlt, faBuilding)
 
 const props = defineProps<{
     data: Agent
@@ -25,7 +28,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div class="grid md:grid-flow-col w-fit mx-auto md:mx-0 border border-gray-300 md:border-0 rounded-lg md:rounded-none py-4 md:py-0 px-4 md:px-4">
+    <div class="grid md:grid-flow-col w-fit mx-auto md:mx-0 border border-gray-300 md:border rounded-lg py-4 md:py-3 px-2">
         <!-- Images -->
         <div v-if="props.data?.photo"
             class="mb-4 md:mb-0 relative place-self-center md:place-self-start rounded-md h-40 w-40 shadow overflow-hidden grid justify-center text-xs items-center">
@@ -61,6 +64,18 @@ const props = defineProps<{
                     </div>
                 </div>
 
+                <!-- Currency -->
+                <div v-if="props.data?.currency" class="grid grid-flow-col justify-start items-center">
+                    <FontAwesomeIcon v-tooltip="trans('Currency')" fixed-width icon="fal fa-money-bill-wave-alt" class="mr-4 text-gray-400" aria-hidden="true" />
+                    {{ props.data?.currency?.symbol }}/{{ props.data?.currency?.code }}/{{ props.data?.currency?.name }}
+                </div>
+
+                <!-- Created at -->
+                <div v-if="props.data?.created_at" class="grid grid-flow-col justify-start items-center">
+                    <FontAwesomeIcon v-tooltip="trans('Created at')" fixed-width icon="fal fa-calendar-plus" class="mr-4 text-gray-400" aria-hidden="true" />
+                    {{ useFormatTime(props.data?.created_at) }}
+                </div>
+
                 <!-- Contact website -->
                 <div v-if="props.data?.website" class="grid grid-flow-col justify-start items-center">
                     <FontAwesomeIcon fixed-width icon="fal fa-male" class="mr-4 text-gray-400" aria-hidden="true" />
@@ -77,7 +92,7 @@ const props = defineProps<{
                 <div v-if="data?.email && props.data?.email.length != 0"
                     class="grid grid-flow-col justify-start items-center">
                     <FontAwesomeIcon fixed-width icon="fal fa-envelope" class="mr-4 text-gray-400" aria-hidden="true" />
-                    <a :href="`mailto:${props.data?.email}`" class="hover:text-indigo-500">{{ props.data?.email }}</a>
+                    <a :href="`mailto:${props.data?.email}`" class="hover:text-indigo-500 hover:underline">{{ props.data?.email }}</a>
                     <div class="group cursor-pointer px-1.5 flex justify-center text-xl "
                         @click="useCopyText(props.data?.email)">
                         <FontAwesomeIcon icon="fal fa-copy"
@@ -90,7 +105,7 @@ const props = defineProps<{
                 <div v-if="data?.phone && props.data?.phone.length != 0"
                     class="grid grid-flow-col justify-start items-center">
                     <FontAwesomeIcon fixed-width icon="fal fa-phone" class="mr-4 text-gray-400" aria-hidden="true" />
-                    {{ props.data?.phone }}
+                    <a :href="`tel:${props.data?.email}`" class="hover:text-indigo-500 hover:underline">{{ props.data?.phone }}</a>
                     <div class="group cursor-pointer px-1.5 flex justify-center text-xl "
                         @click="useCopyText(props.data?.phone)">
                         <FontAwesomeIcon icon="fal fa-copy"
@@ -107,9 +122,20 @@ const props = defineProps<{
                         <AddressLocation :data="data?.location" />
                     </div>
                 </div>
+
+                <!-- Formatted address -->
+                <div v-if="data?.address" class="grid grid-flow-col gap-x-3 justify-start items-center">
+                    <div class="self-start">
+                        <FontAwesomeIcon fixed-width icon="fal fa-map-marked-alt" class="text-gray-400" aria-hidden="true" />
+                    </div>
+                    <div v-html="data.address?.formatted_address">
+                        
+                    </div>
+                </div>
             </div>
 
         </div>
+        <!-- <pre>{{ data }}</pre> -->
     </div>
 </template>
 

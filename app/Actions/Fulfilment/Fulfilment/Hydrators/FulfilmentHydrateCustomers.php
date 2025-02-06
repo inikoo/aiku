@@ -9,7 +9,6 @@
 namespace App\Actions\Fulfilment\Fulfilment\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatusEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -41,9 +40,6 @@ class FulfilmentHydrateCustomers
             'number_customers_interest_pallets_storage' => $fulfilment->fulfilmentCustomers()->where('pallets_storage', true)->count(),
             'number_customers_interest_items_storage'   => $fulfilment->fulfilmentCustomers()->where('items_storage', true)->count(),
             'number_customers_interest_dropshipping'    => $fulfilment->fulfilmentCustomers()->where('dropshipping', true)->count(),
-            'number_customers_status_pending_approval' => $fulfilment->fulfilmentCustomers->filter(function ($fulfilmentCustomer) {
-                return $fulfilmentCustomer->customer->status == CustomerStatusEnum::PENDING_APPROVAL;
-            })->count(),
         ];
 
         $stats = array_merge($stats, $this->getEnumStats(

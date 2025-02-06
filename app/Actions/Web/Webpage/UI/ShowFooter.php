@@ -105,6 +105,7 @@ class ShowFooter extends OrgAction
                     ]
                 ],
 
+                'domain' => $website->domain,
                 'data' => GetWebsiteWorkshopFooter::run($website),
                 'webBlockTypes' => WebBlockTypesResource::collection(
                     $this->organisation->group->webBlockTypes()->where('fixed', false)->where('scope', 'website')->get()

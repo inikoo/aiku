@@ -24,6 +24,15 @@ export const aikuLocaleStructure = {
     number: (number: number) => {
         return new Intl.NumberFormat('en').format(number)
     },
+    currencySymbol: (currencyCode: string) => {
+		if(!currencyCode) return '-'
+		
+		return new Intl.NumberFormat('en', {
+			style: 'currency',
+			currency: currencyCode,
+			currencyDisplay: 'symbol'
+		}).formatToParts(123).find(part => part.type === 'currency')?.value || '';
+	},
     currencyFormat: (currencyCode: string, amount: number) => {
         // return new Intl.NumberFormat('en', { style: 'currency', currency: currencyCode || 'usd' }).format(amount || 0)
     }

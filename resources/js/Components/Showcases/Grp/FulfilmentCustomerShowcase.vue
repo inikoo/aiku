@@ -33,6 +33,7 @@ import CountUp from 'vue-countup-v3'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import CustomerDataForm from '@/Components/CustomerDataForm.vue'
 import { RuleType } from 'v-calendar/dist/types/src/utils/date/rules.js'
+import { faCheckCircle, faTimesCircle } from '@fas'
 library.add(faWallet, faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard, faLongArrowRight)
 
 const props = defineProps<{
@@ -95,11 +96,11 @@ const props = defineProps<{
         }
         status: string
         additional_data: {
-            product : String,
-            size_and_weight : string,
-            shipments_per_week : string
+            product: String,
+            size_and_weight: string,
+            shipments_per_week: string
         },
-        approveRoute : routeType
+        approveRoute: routeType
     },
     tab: string
 }>()
@@ -122,10 +123,10 @@ const optionRadio = [
         value: 'items_storage',
         label: trans('Dropshipping')
     },
-/*    {
-        value: 'dropshipping',
-        label: trans('Dropshipping')
-    },*/
+    /*    {
+            value: 'dropshipping',
+            label: trans('Dropshipping')
+        },*/
     {
         value: 'space_rental',
         label: trans('Space (Parking)')
@@ -138,8 +139,8 @@ const visible = ref(false)
 const _CustomerDataForm = ref()
 // const isModalAddress = ref(false)
 
-const sendUpdateInformation = () =>{
-    _CustomerDataForm?.value.form.patch(route(props.data.updateRoute.name,props.data.updateRoute.parameters),{
+const sendUpdateInformation = () => {
+    _CustomerDataForm?.value.form.patch(route(props.data.updateRoute.name, props.data.updateRoute.parameters), {
         onSuccess: () => (visible.value = false)
     })
 }
@@ -207,7 +208,7 @@ const sendUpdateInformation = () =>{
                                         <a :href="`mailto:${data.fulfilment_customer.customer?.email}`"
                                             v-tooltip="'Click to send email'"
                                             class="text-gray-500 hover:text-gray-700">{{
-                                            data.fulfilment_customer.customer?.email }}</a>
+                                                data.fulfilment_customer.customer?.email }}</a>
                                     </div>
 
                                     <!-- Field: Phone -->
@@ -220,7 +221,7 @@ const sendUpdateInformation = () =>{
                                         <a :href="`tel:${data.fulfilment_customer.customer?.phone}`"
                                             v-tooltip="'Click to make a phone call'"
                                             class="text-gray-500 hover:text-gray-700">{{
-                                            data.fulfilment_customer.customer?.phone }}</a>
+                                                data.fulfilment_customer.customer?.phone }}</a>
                                     </div>
 
                                     <!-- Field: Address -->
@@ -248,7 +249,7 @@ const sendUpdateInformation = () =>{
                     </div>
                 </div>
                 <!-- </Transition> -->
-                <div  class="col-span-2 grid">
+                <div class="col-span-2 grid">
                     <div class="w-full">
                         <div class="rounded-lg shadow-lg ring-1 ring-gray-300 bg-white p-6">
                             <div class="flex justify-between items-center mb-4">
@@ -259,17 +260,20 @@ const sendUpdateInformation = () =>{
                                 class="relative px-5 py-2 ring-1 ring-gray-300 rounded-lg bg-gray-50 shadow-sm space-y-2">
                                 <!-- Field: Product -->
                                 <div class="text-gray-600">
-                                    <strong class="text-gray-500">Product:</strong> {{ get(data,["additional_data","product"]," - ") }}
+                                    <strong class="text-gray-500">Product:</strong> {{
+                                        get(data, ["additional_data", "product"], " - ") }}
                                 </div>
 
                                 <!-- Field: Size and Weight -->
-                                <div  class="text-gray-600">
-                                    <strong class="text-gray-500">Size & Weight:</strong> {{ get(data,['additional_data','size_and_weight']," - ") }}
+                                <div class="text-gray-600">
+                                    <strong class="text-gray-500">Size & Weight:</strong> {{
+                                        get(data, ['additional_data', 'size_and_weight'], " - ") }}
                                 </div>
 
                                 <!-- Field: Shipments Per Week -->
                                 <div class="text-gray-600">
-                                    <strong class="text-gray-500">Shipments Per Week:</strong> {{ get(data,['additional_data','shipments_per_week']," - ") }}
+                                    <strong class="text-gray-500">Shipments Per Week:</strong> {{
+                                        get(data, ['additional_data', 'shipments_per_week'], " - ") }}
                                 </div>
                             </div>
                         </div>
@@ -383,7 +387,7 @@ const sendUpdateInformation = () =>{
                     <div class="border-b border-gray-300 py-2 px-2 pl-4 flex items-center justify-between">
                         <div class="">{{ trans('Rental Agreement') }} <span
                                 v-if="data.rental_agreement.stats?.data?.reference" class="text-gray-400 text-sm">#{{
-                                data.rental_agreement.stats?.data?.reference }}</span></div>
+                                    data.rental_agreement.stats?.data?.reference }}</span></div>
                         <Link v-if="data.rental_agreement.stats"
                             :href="route(data.rental_agreement.stats?.data?.route.name, data.rental_agreement.stats?.data?.route.parameters)"
                             @start="() => isLoadingButtonRentalAgreement = true"
@@ -424,36 +428,40 @@ const sendUpdateInformation = () =>{
             </div>
         </div>
 
-        <div v-if="data.status == 'pending_approval'" class="w-full max-w-lg space-y-4 justify-self-end">
-            <div class="p-4 border rounded-lg shadow-md bg-white">
-                <div class="w-full  flex flex-col items-center justify-center text-center">
-                    <h3 class="text-lg font-semibold">Pending Application</h3>
+        <div v-if="data.status === 'pending_approval'" class="w-full max-w-lg justify-self-end">
+            <div class="p-5 border rounded-lg shadow-md bg-white">
+                <div class="flex flex-col items-center text-center gap-2">
+                    <h3 class="text-lg font-semibold text-gray-800">Pending Application</h3>
                     <p class="text-sm text-gray-600">This application is currently awaiting approval.</p>
                 </div>
 
-                <div class="mt-4">
-                    <Link
-                        :href="route(data.approveRoute.name,data.approveRoute.parameters)"
-                        method="patch" :data="{ status: 'approved' }">
-                    <Button label="Approve Aplication" full>
+                <div class="mt-5 flex flex-col gap-3">
+                    <Link :href="route(data.approveRoute.name, data.approveRoute.parameters)" method="patch"
+                        :data="{ status: 'approved' }">
+                    <Button label="Approve Application" :icon="faCheckCircle" full>
+                    </Button>
+                    </Link>
+
+                    <Link :href="route(data.approveRoute.name, data.approveRoute.parameters)" method="patch"
+                        :data="{ status: 'rejected' }">
+                    <Button label="Reject Application" type="dashed" :icon="faTimesCircle" severity="danger" full>
                     </Button>
                     </Link>
                 </div>
             </div>
         </div>
-
     </div>
 
 
     <Dialog v-model:visible="visible" modal header="Edit Information" :style="{ width: '50rem' }">
-        <CustomerDataForm ref="_CustomerDataForm" :data="data.additional_data"/>
+        <CustomerDataForm ref="_CustomerDataForm" :data="data.additional_data" />
         <div class="flex justify-end">
-          <!--   <Link
+            <!--   <Link
                 :href="route(data.updateRoute.name,data.updateRoute.parameters)"
                 v-on:success="visible = false"
                 method="patch" :data="_CustomerDataForm?.form.data()"> -->
-                <Button label="save" type="save" @click="() => sendUpdateInformation()" />
-        <!--     </Link> -->
+            <Button label="save" type="save" @click="() => sendUpdateInformation()" />
+            <!--     </Link> -->
         </div>
     </Dialog>
 </template>

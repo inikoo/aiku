@@ -8,7 +8,6 @@
 
 namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
-use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -25,9 +24,6 @@ class OrganisationHydrateFulfilmentCustomers
             'number_customers_interest_dropshipping'    => $organisation->fulfilmentCustomers()->where('dropshipping', true)->count(),
             'number_customers_with_stored_items' => $organisation->fulfilmentCustomers()->where('number_stored_items', '>', 0)->count(),
             'number_customers_with_pallets'      => $organisation->fulfilmentCustomers()->where('number_pallets', '>', 0)->count(),
-            'number_customers_status_pending_approval' => $organisation->fulfilmentCustomers->filter(function ($fulfilmentCustomer) {
-                return $fulfilmentCustomer->customer->status == CustomerStatusEnum::PENDING_APPROVAL;
-            })->count()
         ];
 
         $organisation->fulfilmentStats()->update($stats);
