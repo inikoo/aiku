@@ -42,6 +42,11 @@ function ShopInvoiceDashboard(shop: any) {
 	
 	return route(shop?.route_invoice?.name, shop?.route_invoice?.parameters)
 }
+
+function ShopRefundDashboard(shop: any) {
+	return route(shop?.route_refund?.name, shop?.route_invoice?.parameters)
+}
+
 const activeIndexTab = ref(props.current)
 
 const selectedTab = computed(() => {
@@ -114,7 +119,7 @@ function useTabChangeDashboard(tab_slug: string) {
 					</template>
 				</Column>
 				<!-- Refunds -->
-				<Column sortable headerClass="align-right" hidden>
+				<Column sortable headerClass="align-right">
 					<template #header>
 						<div class="flex justify-end items-end">
 							<span class="font-bold">Refunds</span>
@@ -123,7 +128,16 @@ function useTabChangeDashboard(tab_slug: string) {
 					<template #body="{ data }">
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
-								<div :key="data.interval_percentages?.refunds?.amount || 0">
+                                <div :key="data?.refunds || 0">
+									<Link :href="ShopRefundDashboard(data)" class="primaryLink">
+										{{
+											locale.number(
+												data?.interval_percentages?.refunds?.amount || 0
+											)
+										}}
+									</Link>
+								</div>
+								<!-- <div :key="data.interval_percentages?.refunds?.amount || 0">
 									<span>
 										{{
 											locale.number(
@@ -131,7 +145,7 @@ function useTabChangeDashboard(tab_slug: string) {
 											)
 										}}
 									</span>
-								</div>
+								</div> -->
 							</Transition>
 						</div>
 					</template>
@@ -383,7 +397,6 @@ function useTabChangeDashboard(tab_slug: string) {
 					<Row>
 						<Column footer="Total"> Total </Column>
 						<Column
-							hidden
 							:footer="totalAmount.total_refunds.toString()"
 							footerStyle="text-align:right" />
 						<Column hidden footer="" footerStyle="text-align:right" />
