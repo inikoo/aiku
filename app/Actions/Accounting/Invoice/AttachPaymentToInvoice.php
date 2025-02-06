@@ -41,6 +41,8 @@ class AttachPaymentToInvoice extends OrgAction
             data_set($modelData, 'payment_id', $payment->id);
             StoreCreditTransaction::run($invoice->customer, $modelData);
         }
+        SetInvoicePaymentState::run($invoice);
+
     }
 
     public function rules(): array
