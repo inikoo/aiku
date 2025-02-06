@@ -26,11 +26,11 @@ import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faIcons, faMoneyBill, faUpload, faDownload, faThLarge } from '@fas';
 import { faLineColumns } from '@far';
-import { faExternalLink } from '@fal';
+import { faBoothCurtain, faExternalLink } from '@fal';
 import { library } from '@fortawesome/fontawesome-svg-core'
 
 
-library.add(faExternalLink, faLineColumns, faIcons, faMoneyBill, faUpload, faThLarge)
+library.add(faExternalLink, faLineColumns, faIcons, faMoneyBill, faUpload, faThLarge, faBoothCurtain)
 
 const props = defineProps<{
     pageHead: TSPageHeading
@@ -42,6 +42,7 @@ const props = defineProps<{
     autosaveRoute: routeType
     webBlockTypes: Object
     uploadImageRoute: routeType
+    domain: string
 }>()
 const status = ref(!props.status)
 const previewMode = ref(false)
@@ -147,6 +148,10 @@ const sendToIframe = (data: any) => {
     _iframe.value?.contentWindow.postMessage(data, '*')
 }
 
+const openWebsite = () => {
+  window.open('https://'+ props.domain, "_blank")
+}
+
 const panelOpen = ref()
 const handleIframeMessage = (event: MessageEvent) => {
     if (event.origin !== window.location.origin) return;
@@ -206,12 +211,22 @@ onMounted(() => {
     <div class="h-[84vh] grid grid-flow-row-dense grid-cols-4">
         <div v-if="usedTemplates" class="col-span-1 bg-[#F9F9F9] flex flex-col h-full border-r border-gray-300">
             <div class="h-full">
-                <SideEditor 
-                    v-model="usedTemplates.data.fieldValue" 
-                    :blueprint="getBlueprint(usedTemplates.code)" 
-                    :panel-open="panelOpen" 
-                    :uploadImageRoute="uploadImageRoute"
-                />
+                <div class="w-full overflow-y-auto">
+                    <div class="px-3 py-0.5 sticky top-0 bg-gray-50 z-20 text-lg font-semibold flex items-center justify-end gap-3 border-b border-gray-300">
+                        <div class="py-1 px-2 cursor-pointer" title="template" v-tooltip="'Template'"
+                                @click="isModalOpen = true">
+                                <FontAwesomeIcon :icon="faThLarge" aria-hidden='true' />
+                            </div>
+                    </div>
+                    <div class="">
+                    <SideEditor 
+                        v-model="usedTemplates.data.fieldValue" 
+                        :blueprint="getBlueprint(usedTemplates.code)" 
+                        :panel-open="panelOpen" 
+                        :uploadImageRoute="uploadImageRoute"
+                    />
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -223,7 +238,7 @@ onMounted(() => {
                             <ScreenView @screenView="(e) => iframeClass = setIframeView(e)" />
                             <div class="py-1 px-2 cursor-pointer" title="Desktop view" v-tooltip="'Preview'"
                                 @click="openFullScreenPreview">
-                                <FontAwesomeIcon :icon='faExternalLink' aria-hidden='true' />
+                                <FontAwesomeIcon :icon='faBoothCurtain' aria-hidden='true' />
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
@@ -239,9 +254,9 @@ onMounted(() => {
                                 </span>
                             </Switch>
 
-                            <div class="py-1 px-2 cursor-pointer" title="template" v-tooltip="'Template'"
-                                @click="isModalOpen = true">
-                                <FontAwesomeIcon :icon="faThLarge" aria-hidden='true' />
+                          
+                            <div class="py-1 px-2 cursor-pointer" title="go to website" @click="openWebsite" >
+                                <FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" />
                             </div>
                         </div>
                     </div>
