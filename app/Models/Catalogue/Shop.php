@@ -45,6 +45,7 @@ use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\InvoiceTransactionHasFeedback;
+use App\Models\Helpers\Language;
 use App\Models\Helpers\Query;
 use App\Models\Helpers\SerialReference;
 use App\Models\Helpers\TaxNumber;
@@ -400,6 +401,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function country(): BelongsTo
     {
         return $this->belongsTo(Country::class);
+    }
+
+    public function language(): BelongsTo
+    {
+        return $this->belongsTo(Language::class);
     }
 
     public function timezone(): BelongsTo

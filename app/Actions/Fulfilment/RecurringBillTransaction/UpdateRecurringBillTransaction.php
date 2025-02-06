@@ -27,22 +27,22 @@ class UpdateRecurringBillTransaction extends OrgAction
             $quantity = $netAmount / $recurringBillTransaction->unit_cost;
             data_set($modelData, 'quantity', $quantity);
         }
-    
+
         $recurringBillTransaction = $this->update($recurringBillTransaction, $modelData, ['data']);
-    
+
         if ($recurringBillTransaction->fulfilmentTransaction && !$isFulfilmentTransactionUpdated) {
             UpdateFulfilmentTransaction::make()->action($recurringBillTransaction->fulfilmentTransaction, $modelData, true);
         }
-    
+
         if (!Arr::exists($modelData, 'net_amount')) {
             $recurringBillTransaction = CalculateRecurringBillTransactionDiscountPercentage::make()->action($recurringBillTransaction, $this->hydratorsDelay);
             $recurringBillTransaction = CalculateRecurringBillTransactionTemporalQuantity::make()->action($recurringBillTransaction);
             $recurringBillTransaction = CalculateRecurringBillTransactionAmounts::make()->action($recurringBillTransaction);
             $recurringBillTransaction = CalculateRecurringBillTransactionCurrencyExchangeRates::make()->action($recurringBillTransaction);
         }
-    
+
         CalculateRecurringBillTotals::run($recurringBillTransaction->recurringBill);
-    
+
         return $recurringBillTransaction;
     }
 

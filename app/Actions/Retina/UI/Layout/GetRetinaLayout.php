@@ -9,6 +9,7 @@
 namespace App\Actions\Retina\UI\Layout;
 
 use App\Http\Resources\CRM\CustomersResource;
+use App\Http\Resources\Fulfilment\FulfilmentResource;
 use App\Http\Resources\SysAdmin\Group\GroupResource;
 use App\Models\CRM\WebUser;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -20,6 +21,7 @@ class GetRetinaLayout
 
     public function handle($request, ?WebUser $webUser): array
     {
+        /** @var \App\Models\Web\Website $website */
         $website    = $request->get('website');
         if (!$webUser) {
             return [
@@ -28,7 +30,15 @@ class GetRetinaLayout
             ];
         }
 
+        $additionalData = [];
+        if ($fulfilment = $website->shop?->fulfilment) {
+            $additionalData = [
+                'fulfilment' => FulfilmentResource::make($fulfilment)
+            ];
+        }
+
         return [
+            ...$additionalData,
             'website'  => GroupResource::make($request->get('website'))->getArray(),
             'customer' => CustomersResource::make($webUser->customer)->getArray(),
             'app_theme' => Arr::get($website->published_layout, 'theme.color', []),
