@@ -28,21 +28,7 @@ import SupplierShowcase from "@/Components/Showcases/Grp/SupplierShowcase.vue";
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 import { capitalize } from "@/Composables/capitalize"
 import TableOrgSupplierProducts from '@/Components/Tables/Grp/Org/Procurement/TableOrgSupplierProducts.vue';
-library.add(
-    faInventory,
-    faWarehouse,
-    faMapSigns,
-    faMoneyBill,
-    faHandReceiving,
-    faPoop,
-    faClipboard,
-    faTruck,
-    faCameraRetro,
-    faPaperclip,
-    faPaperPlane,
-    faClock,
-    faPersonDolly
-);
+library.add( faInventory, faWarehouse, faMapSigns, faMoneyBill, faHandReceiving, faPoop, faClipboard, faTruck, faCameraRetro, faPaperclip, faPaperPlane, faClock, faPersonDolly );
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
@@ -62,8 +48,8 @@ const props = defineProps<{
     history?: object,
 }>()
 
-let currentTab = ref(props.tabs.current);
-const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+const currentTab = ref(props.tabs.current)
+const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
 
