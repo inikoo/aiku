@@ -294,7 +294,7 @@ const sendUpdateInformation = () => {
         </div>
 
         <!-- Section: Radiobox, Recurring bills balance, Rental agreement-->
-        <div v-if="data.status != 'pending_approval'" class="w-full max-w-lg space-y-4 justify-self-end">
+        <div v-if="data.status == 'approved'" class="w-full max-w-lg space-y-4 justify-self-end">
             <div v-if="data.balance.current > 0"
                 class="bg-indigo-50 border border-indigo-300 text-gray-700 flex flex-col justify-between px-4 py-5 sm:p-6 rounded-lg tabular-nums">
                 <div class="w-full flex justify-between items-center">
