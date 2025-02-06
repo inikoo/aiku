@@ -92,7 +92,7 @@ trait WithFulfilmentCustomerSubNavigation
                     'icon'    => 'fal fa-pallet',
                     'tooltip' => __('Pallets'),
                 ],
-                'number' => $fulfilmentCustomer->number_pallets
+                'number' => $fulfilmentCustomer->number_pallets_status_storing
 
             ];
 
