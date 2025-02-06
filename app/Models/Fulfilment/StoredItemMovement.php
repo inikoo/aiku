@@ -8,6 +8,7 @@
 
 namespace App\Models\Fulfilment;
 
+use App\Enums\Fulfilment\StoredItemMovement\StoredItemMovementTypeEnum;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -29,4 +30,8 @@ use Illuminate\Database\Eloquent\Model;
 class StoredItemMovement extends Model
 {
     protected $guarded = [];
+
+    protected $casts   = [
+        'type'    => StoredItemMovementTypeEnum::class,
+    ];
 }

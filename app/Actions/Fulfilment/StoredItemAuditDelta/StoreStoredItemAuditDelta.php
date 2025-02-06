@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\StoredItemAuditDelta;
 
 use App\Actions\Fulfilment\StoredItemAudit\Hydrators\StoredItemAuditHydrateDeltas;
 use App\Actions\OrgAction;
+use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
 use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaTypeEnum;
@@ -22,6 +23,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreStoredItemAuditDelta extends OrgAction
 {
+    use WithActionUpdate;
+
     public function handle(StoredItemAudit $storedItemAudit, array $modelData): StoredItemAuditDelta
     {
         data_set($modelData, 'group_id', $storedItemAudit->group_id);
@@ -63,7 +66,9 @@ class StoreStoredItemAuditDelta extends OrgAction
 
 
         $storedItemAuditDelta = $storedItemAudit->deltas()->create($modelData);
+
         StoredItemAuditHydrateDeltas::run($storedItemAudit);
+
 
         return $storedItemAuditDelta;
     }

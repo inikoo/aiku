@@ -8,9 +8,13 @@
 
 namespace App\Actions\Fulfilment\StoredItemAudit;
 
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItemAudits;
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItems;
+use App\Actions\Fulfilment\PalletStoredItem\SetPalletStoredItemQuantity;
 use App\Actions\Fulfilment\StoredItem\AttachStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItem\DetachStoredItemToPallet;
-use App\Actions\Fulfilment\StoredItem\UpdateStoredItemToPallet;
+use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovement;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
@@ -18,6 +22,7 @@ use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
 use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaTypeEnum;
 use App\Http\Resources\Fulfilment\StoredItemAuditsResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\PalletStoredItem;
 use App\Models\Fulfilment\StoredItemAudit;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -44,11 +49,21 @@ class CompleteStoredItemAudit extends OrgAction
             } elseif ($storedItemAuditDelta->audited_quantity == 0) {
                 DetachStoredItemToPallet::run($pallet, $storedItemAuditDelta->storedItem);
             } else {
-                UpdateStoredItemToPallet::run($pallet, $storedItemAuditDelta->storedItem, $storedItemAuditDelta->audited_quantity);
+                $palletStoredItem = PalletStoredItem::where('pallet_id', $storedItemAuditDelta->pallet_id)->where('stored_item_id', $storedItemAuditDelta->stored_item_id)->first();
+                $palletStoredItem = $this->update($palletStoredItem, [
+                    'in_process' => false
+                ]);
+                $palletStoredItem->refresh();
+                StoreStoredItemMovement::run($storedItemAuditDelta);
+                SetPalletStoredItemQuantity::run($palletStoredItem);
             }
         }
 
         $modelData['state'] = StoredItemAuditStateEnum::COMPLETED;
+
+        FulfilmentCustomerHydratePallets::dispatch($this->fulfilmentCustomer);
+        FulfilmentCustomerHydrateStoredItems::dispatch($this->fulfilmentCustomer);
+        FulfilmentCustomerHydrateStoredItemAudits::dispatch($this->fulfilmentCustomer);
 
         return $this->update($storedItemAudit, $modelData, ['data']);
     }

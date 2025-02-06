@@ -205,6 +205,11 @@ class Pallet extends Model implements Auditable
         return $this->hasMany(MovementPallet::class);
     }
 
+    public function palletStoredItems(): HasMany
+    {
+        return $this->hasMany(PalletStoredItem::class);
+    }
+
     public function storedItems(): BelongsToMany
     {
         return $this->belongsToMany(StoredItem::class, 'pallet_stored_items')->withPivot('quantity')->withTimestamps();
