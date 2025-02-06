@@ -200,7 +200,6 @@ onBeforeMount(() => {
 
         <!-- Column: Type Icon -->
 		<template #cell(type_icon)="{ item: palletDelivery }">
-
             <div class="space-x-1 space-y-1">
                 <!-- Icon: Type -->
                 <div v-if="layout.app.name == 'retina'" class="px-3">
@@ -218,7 +217,7 @@ onBeforeMount(() => {
 
         <!-- Column: Pallet Reference -->
 
-		<template #cell(customer_reference)="{ item }">
+		<template #cell(customer_reference_fix_this)="{ item }">
             <div class="w-full">
 				<FieldEditableTable
                     :data="item"
