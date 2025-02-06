@@ -37,6 +37,11 @@ function ShopDashboard(shop: any) {
 	return route(shop?.route?.name, shop?.route?.parameters)
 }
 
+function ShopInvoiceDashboard(shop: any) {
+	console.log(shop.route_invoice,'hahahahaha');
+	
+	return route(shop?.route_invoice?.name, shop?.route_invoice?.parameters)
+}
 const activeIndexTab = ref(props.current)
 
 const selectedTab = computed(() => {
@@ -198,7 +203,23 @@ function useTabChangeDashboard(tab_slug: string) {
 							<span class="font-bold">Invoices</span>
 						</div>
 					</template>
-					<template #body="{ data }">
+					<template #body="{ data }" v-if="current == 'shops'">
+						<div class="flex justify-end relative">
+							<Transition name="spin-to-down" mode="out-in">
+								<div :key="data?.invoices || 0">
+									<Link :href="ShopInvoiceDashboard(data)" class="primaryLink">
+										{{
+											locale.number(
+												data?.interval_percentages?.invoices?.amount || 0
+											)
+										}}
+									</Link>
+								</div>
+							</Transition>
+						</div>
+					</template>
+					
+					<template #body="{ data }" v-else>
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div :key="data?.invoices || 0">
