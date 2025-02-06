@@ -104,7 +104,7 @@ class ShowMenu extends OrgAction
                         'website' => $website->id
                     ]
                 ],
-
+                'domain' => $website->domain,
                 'data' => GetWebsiteWorkshopMenu::run($website),
                 'webBlockTypes' => WebBlockTypesResource::collection(
                     $this->organisation->group->webBlockTypes()->where('fixed', false)->where('scope', 'website')->get()

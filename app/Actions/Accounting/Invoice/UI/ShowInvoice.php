@@ -15,6 +15,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\UI\Accounting\InvoiceTabsEnum;
 use App\Http\Resources\Accounting\InvoiceResource;
 use App\Http\Resources\Accounting\InvoiceTransactionsResource;
@@ -168,8 +169,9 @@ class ShowInvoice extends OrgAction
             $actions[] =
                 [
                     'type' => 'button',
-                    'style' => 'primary',
+                    'style' => 'tertiary',
                     'label' => __('send invoice'),
+                    'key'   => 'send-invoice',
                     'route' => [
                         'method' => 'post',
                         'name' => 'grp.models.invoice.send_invoice',
@@ -305,6 +307,17 @@ class ShowInvoice extends OrgAction
                 ],
 
                 'invoice' => InvoiceResource::make($invoice),
+                'outbox'    => [
+                    'state'     => $invoice->shop->outboxes()->where('code', OutboxCodeEnum::SEND_INVOICE_TO_CUSTOMER->value)->first()?->state->value,
+                    'workshop_route'    => [
+                        'name'          => 'grp.org.fulfilments.show.operations.comms.outboxes.workshop',
+                        'parameters'    => [
+                            'organisation'          => $invoice->organisation->slug,
+                            'fulfilment'            => $invoice->customer->fulfilmentCustomer->fulfilment->slug,
+                            'outbox'                => 'send-invoice-to-awf-aw',
+                        ]
+                    ]
+                ],
 
 
                 InvoiceTabsEnum::ITEMS->value => $this->tab == InvoiceTabsEnum::ITEMS->value ?

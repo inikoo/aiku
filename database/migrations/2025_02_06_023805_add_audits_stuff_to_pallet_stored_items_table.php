@@ -1,21 +1,18 @@
 <?php
 
-/*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 06 Feb 2025 10:26:46 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2025, Raul A Perusquia Flores
- */
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up(): void
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
     {
-        Schema::table('stored_items', function (Blueprint $table) {
-            $table->decimal('total_quantity')->default(0)->comment('Total stock of the item in the warehouse');
-            $table->unsignedInteger('number_pallets')->nullable()->index();
+        Schema::table('pallet_stored_items', function (Blueprint $table) {
             $table->unsignedInteger('number_audits')->default(0);
             $table->dateTimeTz('last_audit_at')->nullable();
             $table->unsignedInteger('last_stored_item_audit_delta_id')->nullable()->index();
@@ -25,11 +22,20 @@ return new class () extends Migration {
         });
     }
 
-
-    public function down(): void
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
     {
-        Schema::table('stored_items', function (Blueprint $table) {
-            $table->dropColumn('total_quantity');
+        Schema::table('pallet_stored_items', function (Blueprint $table) {
+            $table->dropForeign(['last_stored_item_audit_id']);
+            $table->dropForeign(['last_stored_item_audit_delta_id']);
+            $table->dropColumn('number_audits');
+            $table->dropColumn('last_audit_at');
+            $table->dropColumn('last_stored_item_audit_id');
+            $table->dropColumn('last_stored_item_audit_delta_id');
         });
     }
 };
