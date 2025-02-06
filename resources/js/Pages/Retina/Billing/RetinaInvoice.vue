@@ -103,73 +103,16 @@ import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
   })
   
   
-  
-  // Section: Payment invoice
-  const listPaymentMethod = ref([])
-  const isLoadingFetch = ref(false)
-/*   const fetchPaymentMethod = async () => {
-      try {
-          isLoadingFetch.value = true
-          const { data } = await axios.get(route(props.box_stats.information.routes.fetch_payment_accounts.name, props.box_stats.information.routes.fetch_payment_accounts.parameters))
-          listPaymentMethod.value = data.data
-      } catch (error) {
-        console.error(error)
-          notify({
-              title: trans('Something went wrong'),
-              text: trans('Failed to fetch payment method list'),
-              type: 'error',
-          })
-      }
-      finally {
-          isLoadingFetch.value = false
-      }
-  } */
+
   
   const paymentData = ref({
       payment_method: null as number | null,
       payment_amount: 0 as number | null,
       payment_reference: ''
   })
-  const isOpenModalPayment = ref(false)
-  const isLoadingPayment = ref(false)
+
   const errorPaymentMethod = ref<null | unknown>(null)
-/*   const onSubmitPayment = () => {
-      try {
-          router[props.box_stats.information.routes.submit_payment.method || 'post'](
-              route(props.box_stats.information.routes.submit_payment.name, {
-                  ...props.box_stats.information.routes.submit_payment.parameters,
-                  paymentAccount: paymentData.value.payment_method
-              }),
-              {
-                  amount: paymentData.value.payment_amount,
-                  reference: paymentData.value.payment_reference,
-                  status: 'success',
-                  state: 'completed',
-              },
-              {
-                  onStart: () => isLoadingPayment.value = true,
-                  onFinish: () => {
-                      isLoadingPayment.value = false,
-                      isOpenModalPayment.value = false,
-                      notify({
-                          title: trans('Success'),
-                          text: 'Successfully add payment invoice',
-                          type: 'success',
-                      })
-                  },
-                  onSuccess: () => {
-                      paymentData.value.payment_method = null,
-                      paymentData.value.payment_amount = 0,
-                      paymentData.value.payment_reference = ''
-                  }
-              }
-          )
-          
-      } catch (error: unknown) {
-          errorPaymentMethod.value = error
-      }
-  }
-   */
+
   watch(paymentData, () => {
       if (errorPaymentMethod.value) {
           errorPaymentMethod.value = null
