@@ -22,7 +22,7 @@ import ToggleSwitch from 'primevue/toggleswitch';
 import { routeType } from "@/types/route"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 
-import { faPresentation, faCube, faText, faPaperclip, faRectangleWide, faDotCircle, faSignInAlt, faHeart as falHeart, faExternalLink } from "@fal"
+import { faPresentation, faCube, faText, faPaperclip, faRectangleWide, faDotCircle, faSignInAlt, faHeart as falHeart, faExternalLink, faBoothCurtain } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faHeading, faHeart, faSignIn } from '@far'
@@ -32,7 +32,7 @@ import { trans } from 'laravel-vue-i18n'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue';
 import Toggle from '@/Components/Pure/Toggle.vue'
 
-library.add(faBrowser, faPresentation, faCube, faText, faHeart, faPaperclip, faRectangleWide, faDotCircle, faSignInAlt, falHeart)
+library.add(faBrowser, faPresentation, faCube, faText, faHeart, faPaperclip, faRectangleWide, faDotCircle, faSignInAlt, falHeart, faBoothCurtain)
 
 const props = defineProps<{
     pageHead: TSPageHeading
@@ -52,6 +52,7 @@ const props = defineProps<{
         uploaded_images_list: routeType
         stock_images_list: routeType
     }
+    domain: string
 }>()
 
 provide('route_list', props.route_list)
@@ -188,6 +189,10 @@ const openFullScreenPreview = () => {
 }
 const handleIframeError = () => {
     console.error('Failed to load iframe content.');
+}
+
+const openWebsite = () => {
+  window.open('https://'+ props.domain, "_blank")
 }
 
 watch(usedTemplates, (newVal) => {
@@ -327,7 +332,7 @@ onMounted(() => {
                         <ScreenView @screenView="(e)=> iframeClass = setIframeView(e)" />
                         <div class="py-1 px-2 cursor-pointer" title="Desktop view" v-tooltip="'Preview'"
                             @click="openFullScreenPreview">
-                            <FontAwesomeIcon :icon='faExternalLink' aria-hidden='true' />
+                            <FontAwesomeIcon :icon='faBoothCurtain' aria-hidden='true' />
                         </div>
                     </div>
 
@@ -336,6 +341,9 @@ onMounted(() => {
                         <Toggle v-model="isPreviewLoggedIn"
                             @update:modelValue="(newVal) => sendToIframe({key: 'isPreviewLoggedIn', value: newVal})" />
                         <span :class="isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged in</span>
+                        <div class="py-1 px-2 cursor-pointer" title="go to website" @click="openWebsite" >
+                            <FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" />
+                        </div>
                     </div>
                 </div>
 
