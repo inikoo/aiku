@@ -18,6 +18,7 @@ use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Web\ExternalLink\UI\IndexExternalLinks;
 use App\Actions\Web\HasWorkshopAction;
 use App\Actions\Web\Website\GetWebsiteCloudflareAnalytics;
+use App\Actions\Web\Website\GetWebsiteWorkshopLayout;
 use App\Enums\UI\Web\WebsiteTabsEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Http\Resources\CRM\WebUsersResource;
@@ -116,12 +117,13 @@ class ShowWebsite extends OrgAction
                         ),
 
                 ],
+               "layout" =>  GetWebsiteWorkshopLayout::run($this->scope, $website),
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => WebsiteTabsEnum::navigation()
                 ],
 
-                WebsiteTabsEnum::SHOWCASE->value => $this->tab == WebsiteTabsEnum::SHOWCASE->value ? WebsiteResource::make($website)->getArray() : Inertia::lazy(fn () => WebsiteResource::make($website)->getArray()),
+                WebsiteTabsEnum::SHOWCASE->value => $this->tab == WebsiteTabsEnum::SHOWCASE->value ? array_merge(WebsiteResource::make($website)->getArray(), ['layout' => GetWebsiteWorkshopLayout::run($this->parent, $website)['routeList']]) : Inertia::lazy(fn () => WebsiteResource::make($website)->getArray()),
 
                 WebsiteTabsEnum::WEB_USERS->value     => $this->tab == WebsiteTabsEnum::WEB_USERS->value
                     ?

@@ -22,7 +22,9 @@ const isLoading = ref(false)
 
 const submit = () => {
     isLoading.value = true
-    form.post(route('retina.login.store'), {
+    form.post(route('retina.login.store', {
+        ref: route().params?.['ref']
+    }), {
         onError: () => isLoading.value = false,
         onFinish: () => form.reset('password'),
     })
@@ -43,7 +45,7 @@ onMounted(async () => {
 
     <Head title="Login" />
     <!--    <h1 class="text-center text-2xl font-bold text-slate-800">Login</h1>
-    
+
     <form class="space-y-6 mt-7">
         <div class="">
             <label for="login" class="block text-sm font-medium text-gray-700">{{ trans('Username') }}</label>

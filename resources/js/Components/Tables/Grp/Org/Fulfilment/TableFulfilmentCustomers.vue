@@ -14,6 +14,8 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { useFormatTime } from "@/Composables/useFormatTime";
 import { useLocaleStore } from "@/Stores/locale";
 import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue";
+import Button from '@/Components/Elements/Buttons/Button.vue'
+import { faCheckCircle, faTimesCircle } from '@fas'
 
 
 library.add(faCheck, faTimes)
@@ -67,6 +69,16 @@ function customerRoute(customer: FulfilmentCustomer) {
       </template>
       <template #cell(sales_all)="{ item: customer }">
         <div class="text-gray-500">{{ useLocaleStore().currencyFormat( customer.currency_code, customer.sales_all)  }}</div>
+      </template>
+      <template #cell(action)="{ item: customer }">
+        <div class="flex gap-4">
+          <Link :href="route('grp.models.customer.approve', {customer : customer.id })" method="patch" :data="{ status: 'approved' }">
+               <Button label="Approved" :icon="faCheckCircle" size="xs"></Button>
+          </Link>
+          <Link :href="route('grp.models.customer.approve', {customer : customer.id })" method="patch" :data="{ status: 'rejected' }">
+            <Button label="rejected" :icon="faTimesCircle" type="delete" size="xs"></Button>
+          </Link>
+        </div>
       </template>
     </Table>
 </template>

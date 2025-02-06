@@ -31,11 +31,12 @@ import { useFormatTime } from '@/Composables/useFormatTime'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheckSquare, faCheck, faSquare} from '@fal'
+import { faCheckSquare as fasCheckSquare} from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import axios from 'axios'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import TableBetweenFilter from '@/Components/Table/TableBetweenFilter.vue'
-library.add(faCheckSquare, faCheck, faSquare)
+library.add(faCheckSquare, faCheck, faSquare, fasCheckSquare)
 
 const locale = inject('locale', aikuLocaleStructure)
 const layout = inject('layout', layoutStructure)
@@ -618,7 +619,7 @@ function header(key) {
     const intKey = findDataKey('columns', key);
     const columnData = clone(queryBuilderProps.value.columns[intKey]);
 
-    if (columnData?.onSort) {
+    if (columnData) {
         columnData.onSort = sortBy;
     }
 
@@ -905,22 +906,29 @@ const isLoading = ref<string | boolean>(false)
                             <tbody class="bg-white divide-y divide-gray-200">
                                 <slot name="body" :show="show">
                                     <template v-for="(item, key) in compResourceData" :key="`table-${name}-row-${key}`">
-                                        <tr class="" :class="[{
-                                            'bg-gray-50': striped && key % 2,
-                                        },
-                                        striped ? 'hover:bg-gray-100' : 'hover:bg-gray-50'
-                                        ]">
+                                        <tr class=""
+                                            :class="[
+                                                {
+                                                    'bg-gray-50': striped && key % 2,
+                                                },
+                                                selectRow[item[checkboxKey]]
+                                                    ? 'bg-green-100/70'
+                                                    : striped ? 'bg-gray-200 hover:bg-gray-300' : 'hover:bg-gray-50'
+                                            ]"
+                                        >
                                             <!-- Column: Check box -->
-                                            <td v-if="isCheckBox" key="checkbox" class="h-full flex justify-center">
+                                            <td v-if="isCheckBox" key="checkbox" class="">
+                                                <!-- 
                                                 <div v-if="selectRow[item[checkboxKey]]"
                                                     class="absolute inset-0 bg-lime-500/10 -z-10" />
-                                                <FontAwesomeIcon v-if="selectRow[item[checkboxKey]] === true"
+                                                -->
+                                                <FontAwesomeIcon v-if="selectRow[item[checkboxKey]]"
                                                     @click="onSelectCheckbox(item)"
-                                                    icon='fal fa-check-square' class='p-2 cursor-pointer' fixed-width
+                                                    icon='fas fa-check-square' class='text-green-500 p-2 cursor-pointer text-lg mx-auto block' fixed-width
                                                     aria-hidden='true' />
                                                 <FontAwesomeIcon v-else
                                                     @click="onSelectCheckbox(item)"
-                                                    icon='fal fa-square' class='p-2 cursor-pointer' fixed-width
+                                                    icon='fal fa-square' class='text-gray-400 hover:text-gray-700 p-2 cursor-pointer text-lg mx-auto block' fixed-width
                                                     aria-hidden='true' />
                                             </td>
 

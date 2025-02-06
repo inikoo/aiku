@@ -44,6 +44,7 @@ class StoredItemResource extends JsonResource
             'state_icon'     => $storedItem->state->stateIcon()[$storedItem->state->value],
             'quantity'       => (int) $storedItem->pallets?->sum('pivot.quantity'),
             'total_quantity' => $storedItem->pallets?->sum('pivot.quantity'),
+            'name'          => $storedItem->name,
             'max_quantity'   => $storedItem->pallets?->sum('pivot.quantity'),
 
             'pallets'                   => $storedItem->pallets->map(fn (Pallet $pallet) => [

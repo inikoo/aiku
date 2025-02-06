@@ -22,7 +22,7 @@ use App\Models\Comms\Email;
 use App\Models\Comms\Outbox;
 use Lorisleiva\Actions\ActionRequest;
 
-class SendInvoiceEmail extends OrgAction
+class SendInvoiceEmailToCustomer extends OrgAction
 {
     use WithActionUpdate;
     use WithNoStrictRules;
@@ -48,12 +48,19 @@ class SendInvoiceEmail extends OrgAction
 
         $emailHtmlBody = $outbox->emailOngoingRun->email->liveSnapshot->compiled_layout;
 
+        $baseUrl = 'https://fulfilment.test';
+        if (app()->isProduction()) {
+            $baseUrl = 'https://'.$invoice->shop->website->domain;
+        }
+
+        $invoiceUrl =  $baseUrl.'/app/fulfilment/billing/invoices/'.$invoice->slug;
+
         return $this->sendEmailWithMergeTags(
             $dispatchedEmail,
             $outbox->emailOngoingRun->sender(),
             $outbox->name,
             $emailHtmlBody,
-            ''
+            invoiceUrl: $baseUrl.'/app/login?ref='.$invoiceUrl
         );
     }
 

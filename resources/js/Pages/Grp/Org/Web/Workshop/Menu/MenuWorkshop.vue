@@ -22,7 +22,7 @@ import { useConfirm } from "primevue/useconfirm";
 import ConfirmPopup from 'primevue/confirmpopup';
 import { routeType } from "@/types/route"
 import { PageHeading as TSPageHeading } from "@/types/PageHeading"
-
+import Image from '@/Components/Image.vue'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import {
@@ -36,7 +36,8 @@ import {
   faBars,
   faExclamationTriangle
 } from "@fas"
-import { faHeart, faExternalLink } from "@far"
+import { faHeart, faExternalLink, faLowVision } from "@far"
+import { faBoothCurtain } from "@fal"
 
 
 library.add(
@@ -48,7 +49,8 @@ library.add(
   faChevronDown,
   faTimes,
   faPlusCircle,
-  faBars
+  faBars,
+  faLowVision
 )
 
 const props = defineProps<{
@@ -58,6 +60,7 @@ const props = defineProps<{
   data: {}
   autosaveRoute: routeType
   webBlockTypes: Object
+  domain: string
 }>()
 
 const Navigation = ref(props.data.menu)
@@ -78,6 +81,7 @@ const addNavigation = () => {
     type: "single",
   })
 }
+console.log(props,'datass');
 
 const deleteNavigation = (index: Number) => {
   selectedNav.value = null
@@ -148,6 +152,10 @@ const openFullScreenPreview = () => {
   window.open(iframeSrc.value, "_blank")
 }
 
+const openWebsite = () => {
+  window.open('https://'+ props.domain, "_blank")
+}
+
 const handleIframeError = () => {
   console.error('Failed to load iframe content.');
 }
@@ -205,10 +213,30 @@ const onChangeNavigation = (setData) =>{
 
   <div v-if="Navigation?.data?.fieldValue" class="h-[85vh] grid grid-flow-row-dense grid-cols-4">
     <div class="col-span-1 bg-slate-200 px-3 py-2 flex flex-col h-full">
-      <div class="flex justify-between">
-        <div class="font-bold text-sm">Navigations:</div>
-        <Button type="create" label="Add Navigation" size="xs"
-          v-if="Navigation?.data?.fieldValue?.navigation?.length < 8" @click="addNavigation"></Button>
+      <div class="flex justify-between items-center">
+        <div class="font-bold text-sm">
+          Navigations:
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <Button
+            v-if="Navigation?.data?.fieldValue?.navigation?.length < 8"
+            type="create"
+            label="Add Navigation"
+            size="xs"
+            @click="addNavigation"
+          />
+
+          <button
+            type="button"
+            aria-label="Open Template"
+            title="Template"
+            class="px-1 rounded hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            @click="isModalOpen = true"
+          >
+            <FontAwesomeIcon icon="fas fa-th-large" aria-hidden="true" />
+          </button>
+        </div>
       </div>
       <draggable :list="Navigation?.data.fieldValue.navigation" ghost-class="ghost" group="column" itemKey="id"
         class="mt-2 space-y-1" :animation="200">
@@ -240,7 +268,7 @@ const onChangeNavigation = (setData) =>{
             <ScreenView @screenView="(e) => iframeClass = setIframeView(e)" />
             <div class="py-1 px-2 cursor-pointer" title="Desktop view" v-tooltip="'Preview'"
               @click="openFullScreenPreview">
-              <FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" />
+              <FontAwesomeIcon :icon="faLowVision" aria-hidden="true" />
             </div>
           </div>
           <div class="flex items-center justify-center">
@@ -253,8 +281,8 @@ const onChangeNavigation = (setData) =>{
               <span aria-hidden="true" :class="previewMode ? 'translate-x-3' : 'translate-x-0'"
                 class="pointer-events-none inline-block h-full w-1/2 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out" />
             </Switch>
-            <div class="py-1 px-2 cursor-pointer" title="template" @click="isModalOpen = true">
-              <FontAwesomeIcon icon="fas fa-th-large" aria-hidden="true" />
+            <div class="py-1 px-2 cursor-pointer" title="go to website"  @click="openWebsite">
+              <FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" />
             </div>
           </div>
         </div>
@@ -291,7 +319,18 @@ const onChangeNavigation = (setData) =>{
 
   <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false">
     <HeaderListModal :onSelectBlock :webBlockTypes="webBlockTypes.data.filter((item) => item.component == 'menu')"
-      :currentTopbar="usedTemplates" />
+      :currentTopbar="usedTemplates">
+      <template #image="{ block }">
+        <div class="group/template relative min-h-16 max-h-52 w-full aspect-[4/1] overflow-hidden flex items-center bg-gray-100 justify-center border border-gray-300 hover:border-indigo-500 rounded">
+          <div class="w-auto shadow-md">
+            <Image :src="block.screenshot" class="object-contain" />
+          </div>
+          <div class="hidden group-hover/template:flex absolute inset-0 bg-black/20 justify-center items-center">
+            <Button @click="() => onSelectBlock(block)" label="Select this template" />
+          </div>
+        </div>
+      </template>
+    </HeaderListModal>
   </Modal>
 
   <ConfirmPopup>

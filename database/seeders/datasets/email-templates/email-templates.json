@@ -197,5 +197,15 @@
     "arguments": [
       "delivery_note"
     ]
-  }
+  },{
+    "outboxes": [
+        "send_invoice_to_customer"
+    ],
+    "name": "Send invoice to customer",
+    "content": "beefree_send_invoice_to_customer.json",
+    "builder": "beefree",
+    "arguments": [
+        "invoice"
+    ]
+}
 ]

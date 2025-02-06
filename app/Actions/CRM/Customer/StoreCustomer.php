@@ -205,9 +205,13 @@ class StoreCustomer extends OrgAction
                     ]
                 ),
             ],
+            // TODO: Make less
+//            'phone'                    => [
+//                'nullable',
+//                $this->strict ? new Phone() : 'string:32',
+//            ],
             'phone'                    => [
-                'nullable',
-                $this->strict ? new Phone() : 'string:255',
+                'nullable', 'string:32'
             ],
             'identity_document_number' => ['sometimes', 'nullable', 'string'],
             'contact_website'          => ['sometimes', 'nullable', 'active_url'],

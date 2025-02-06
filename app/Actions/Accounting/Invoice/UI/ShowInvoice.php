@@ -15,6 +15,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\UI\Accounting\InvoiceTabsEnum;
 use App\Http\Resources\Accounting\InvoiceResource;
 use App\Http\Resources\Accounting\InvoiceTransactionsResource;
@@ -307,7 +308,7 @@ class ShowInvoice extends OrgAction
 
                 'invoice' => InvoiceResource::make($invoice),
                 'outbox'    => [
-                    'state'     => 'in-process',
+                    'state'     => $invoice->shop->outboxes()->where('code', OutboxCodeEnum::SEND_INVOICE_TO_CUSTOMER->value)->first()?->state->value,
                     'workshop_route'    => [
                         'name'          => 'grp.org.fulfilments.show.operations.comms.outboxes.workshop',
                         'parameters'    => [

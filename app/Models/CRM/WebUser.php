@@ -17,6 +17,7 @@ use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasEmail;
 use App\Models\Traits\HasImage;
+use App\Models\Traits\HasRoles;
 use App\Models\Traits\InCustomer;
 use App\Models\Traits\IsUserable;
 use App\Models\Web\Website;
@@ -101,6 +102,7 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
     use HasEmail;
     use HasImage;
     use InCustomer;
+    use HasRoles;
 
     protected $casts = [
 
