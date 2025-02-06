@@ -2,11 +2,12 @@
 import { trans } from 'laravel-vue-i18n'
 import CountUp from 'vue-countup-v3'
 import { Pie } from 'vue-chartjs'
-import { useLocaleStore } from "@/Stores/locale"
+import { useLayoutStore } from "@/Stores/layout"
 import TableStoredItemEdit from '@/Components/StoredItemMovement/TableStoredItemEdit.vue'
 import { ref } from 'vue'
 import { Link, router } from "@inertiajs/vue3"
 import { notify } from "@kyvg/vue3-notification"
+import Message from 'primevue/message';
 
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from 'chart.js'
 
@@ -29,7 +30,7 @@ const props = defineProps<{
         route_update_stored_item : routeType
     }
 }>()
-
+const environment = useLayoutStore().app.environment
 const isLoading = ref(false)
 const _editTable = ref(null)
 const totalQty = props.data.pallets.reduce((total, item) => total + item.quantity, 0)
@@ -73,6 +74,8 @@ const onChangeStoredItem = (data) => {
             }
         })
 }
+
+
 </script>
 
 <template>
@@ -111,7 +114,8 @@ const onChangeStoredItem = (data) => {
         </div>
 
         <!-- Mini Table -->
-        <div class="flex flex-col col-span-4 gap-x-5 border border-gray-100 shadow rounded-md px-5 py-3 text-gray-500">
+        <div v-if="environment != 'production'" class="flex flex-col col-span-4 gap-x-5 border border-gray-100 shadow rounded-md px-5 py-3 text-gray-500">
+            <Message  severity="warn">!!! this Component is hidden in production</Message>
             <TableStoredItemEdit 
                 :data="data.pallets" 
                 :route_pallets="data.route_pallets" 
