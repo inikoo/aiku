@@ -22,6 +22,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $source
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int $number_audits
+ * @property string|null $last_audit_at
+ * @property int|null $last_stored_item_audit_delta_id
+ * @property int|null $last_stored_item_audit_id
+ * @property bool $in_process
  * @property-read \App\Models\Fulfilment\Pallet $pallet
  * @property-read \App\Models\Fulfilment\StoredItem $storedItem
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletStoredItem newModelQuery()

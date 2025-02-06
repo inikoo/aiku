@@ -21,6 +21,12 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $moved_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $pallet_id
+ * @property int|null $stored_item_audit_id
+ * @property int|null $stored_item_audit_delta_id
+ * @property int|null $pallet_delivery_id
+ * @property int|null $pallet_return_id
+ * @property int|null $pallet_return_item_id
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StoredItemMovement newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StoredItemMovement newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StoredItemMovement query()
