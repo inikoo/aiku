@@ -24,23 +24,23 @@ enum OutboxMergeTagsEnum: string
     {
         return [
             [
-                'label' => __('Username'),
+                'name' => __('Username'),
                 'value' => '[Username]'
             ],
             [
-                'label' => __('Customer Name'),
+                'name' => __('Customer Name'),
                 'value' => '[Customer Name]'
             ],
             [
-                'label' => __('Invoice URL'),
+                'name' => __('Invoice URL'),
                 'value' => '[Invoice_Url]'
             ],
             [
-                'label' => __('Reset Password URL'),
+                'name' => __('Reset Password URL'),
                 'value' => '[Reset_Password_URL]'
             ],
             [
-                'label' => __('Unsubscribe'),
+                'name' => __('Unsubscribe'),
                 'value' => '[Unsubscribe]'
             ],
         ];
