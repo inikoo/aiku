@@ -141,7 +141,7 @@ class ShowFulfilment extends OrgAction
                             visual: [
                                 'label' => __('Pending Approval Customers'),
                                 'type'  => 'number_with_label',
-                                'value' => $fulfilment->stats->number_customers_status_pending_approval ?? 0,
+                                'value' => $fulfilment->shop->crmStats->number_customers_status_pending_approval,
                                 'route' => [
                                     'name'       => 'grp.org.fulfilments.show.crm.customers.pending_approval.index',
                                     'parameters' => [

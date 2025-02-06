@@ -44,6 +44,8 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt, faNarwhal, faUndo } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import ModalConfirmationDelete from "@/Components/Utils/ModalConfirmationDelete.vue"
+import { inject } from "vue"
+import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 library.add(faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt, faNarwhal, faUndo )
 
 const props = defineProps<{
@@ -84,6 +86,7 @@ const props = defineProps<{
     routeStorePallet : routeType
 }>()
 
+const locale = inject('locale', aikuLocaleStructure)
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -302,7 +305,15 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                                 :fetchRoute="props.service_list_route"
                                 :placeholder="trans('Select Services')"
                                 valueProp="id"
-                            />
+                            >
+                                <template #singlelabel="{ value }">
+                                    <div class="w-full text-left pl-4">{{ value.name }} <span class="text-sm text-gray-400">({{ locale.currencyFormat(value.currency_code, value.price) }}/{{ value.unit }})</span></div>
+                                </template>
+
+                                <template #option="{ option, isSelected, isPointed }">
+                                    <div class="">{{ option.name }} <span class="text-sm text-gray-400">({{ locale.currencyFormat(option.currency_code, option.price) }}/{{ option.unit }})</span></div>
+                                </template>
+                            </PureMultiselectInfiniteScroll>
                             
                             <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">
                                 {{ formAddService.errors.service_id }}

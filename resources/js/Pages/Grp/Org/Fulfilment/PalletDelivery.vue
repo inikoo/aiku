@@ -9,7 +9,7 @@ import { Head, useForm } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
-import { computed, ref, watch } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
 import type { Component } from 'vue'
 import { useTabChange } from "@/Composables/tab-change"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
@@ -46,6 +46,7 @@ import PureMultiselectInfiniteScroll from '@/Components/Pure/PureMultiselectInfi
 import ModalConfirmationDelete from '@/Components/Utils/ModalConfirmationDelete.vue'
 import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue";
 import UploadAttachment from '@/Components/Upload/UploadAttachment.vue'
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
 library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faPaperclip, faEnvelope, faPhone,faExclamationTriangle, faConciergeBell, faCube, faCalendarDay, faPencil, faUndoAlt)
 
@@ -109,7 +110,7 @@ const props = defineProps<{
 	}[]
 }>()
 
-
+const locale = inject('locale', aikuLocaleStructure)
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -505,7 +506,15 @@ const isModalUploadFileOpen = ref(false)
                                     :placeholder="trans('Select Services')"
                                     valueProp="id"
                                     @optionsList="(options) => dataServiceList = options"
-                                />
+                                >
+                                    <template #singlelabel="{ value }">
+                                        <div class="w-full text-left pl-4">{{ value.name }} <span class="text-sm text-gray-400">({{ locale.currencyFormat(value.currency_code, value.price) }}/{{ value.unit }})</span></div>
+                                    </template>
+
+                                    <template #option="{ option, isSelected, isPointed }">
+                                        <div class="">{{ option.name }} <span class="text-sm text-gray-400">({{ locale.currencyFormat(option.currency_code, option.price) }}/{{ option.unit }})</span></div>
+                                    </template>
+                                </PureMultiselectInfiniteScroll>
 
                                 <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">
                                     {{ formAddService.errors.service_id }}
