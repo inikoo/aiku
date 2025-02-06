@@ -43,7 +43,7 @@ const props = defineProps<{
     webBlockTypes: Object
     uploadImageRoute: routeType
 }>()
-const status = ref(props.status)
+const status = ref(!props.status)
 const previewMode = ref(false)
 const isModalOpen = ref(false)
 const usedTemplates = ref(isArray(props.data.data) ? null : props.data.data)
