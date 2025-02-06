@@ -284,11 +284,11 @@ onMounted(() => {
 
             </Publish>
         </template>
-        <!-- <template #other>
+        <template #other>
             <div class="py-1 px-2 cursor-pointer" v-tooltip="'go to website'" @click="openWebsite" >
                 <FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" />
             </div>
-        </template> -->
+        </template>
     </PageHeading>
     <div class="h-[84vh] flex">
         <div v-if="usedTemplates" class="col-span-2 bg-[#F9F9F9] flex flex-col h-full border-r border-gray-300">
@@ -346,9 +346,9 @@ onMounted(() => {
                         <Toggle v-model="isPreviewLoggedIn"
                             @update:modelValue="(newVal) => sendToIframe({key: 'isPreviewLoggedIn', value: newVal})" />
                         <span :class="isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged in</span>
-                        <div class="py-1 px-2 cursor-pointer" v-tooltip="'go to website'" @click="openWebsite" >
+                        <!-- <div class="py-1 px-2 cursor-pointer" v-tooltip="'go to website'" @click="openWebsite" >
                             <FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" />
-                        </div>
+                        </div> -->
                     </div>
                 </div>
 
