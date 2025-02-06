@@ -321,11 +321,10 @@ const setChartOptions = () => ({
 			</span>
 		</div>
 		<div v-if="visual?.type === 'number_with_label'" class="mt-2">
-			<span class="text-4xl font-bold leading-tight truncate">
+			<span class="text-4xl font-bold leading-tight truncate ">
 				<Link :href="NumberDashboard(visual.route)">
 					<CountUp
-						class="primaryLink inline-block"
-						
+						:class="'primaryLink inline-block ' + visual?.class"
 						:endVal="visual.value"
 						:duration="1.5"
 						:scrollSpyOnce="true"
