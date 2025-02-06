@@ -42,7 +42,7 @@ use Illuminate\Support\Carbon;
  * @property mixed $pallet_return_id
  * @property mixed $fulfilment_transaction_id
  */
-class RecurringBillTransactionsResource extends JsonResource
+class RetinaRecurringBillTransactionsResource extends JsonResource
 {
     public function toArray($request): array
     {
@@ -57,15 +57,16 @@ class RecurringBillTransactionsResource extends JsonResource
                 $desc_title = $pallet->reference;
 
                 $desc_model = __('Storage');
-                $desc_route = [
-                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
-                    'parameters' => [
-                        'organisation'       => $request->route()->originalParameters()['organisation'],
-                        'fulfilment'         => $request->route()->originalParameters()['fulfilment'],
-                        'fulfilmentCustomer' => $pallet->fulfilmentCustomer->slug,
-                        'pallet'             => $pallet->slug
-                    ]
-                ];
+                //todo put retina route
+//                $desc_route = [
+//                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
+//                    'parameters' => [
+//                        'organisation'       => $request->route()->originalParameters()['organisation'],
+//                        'fulfilment'         => $request->route()->originalParameters()['fulfilment'],
+//                        'fulfilmentCustomer' => $pallet->fulfilmentCustomer->slug,
+//                        'pallet'             => $pallet->slug
+//                    ]
+//                ];
             }
 
         } elseif ($this->pallet_delivery_id) {
@@ -73,15 +74,16 @@ class RecurringBillTransactionsResource extends JsonResource
             if ($palletDelivery) {
                 $desc_title = $palletDelivery->reference;
                 $desc_model = __('Pallet Delivery');
-                $desc_route = [
-                    'name' => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show',
-                    'parameters'    => [
-                        'organisation'         => $request->route()->originalParameters()['organisation'],
-                        'fulfilment'           => $request->route()->originalParameters()['fulfilment'],
-                        'fulfilmentCustomer'   => $palletDelivery->fulfilmentCustomer->slug,
-                        'palletDelivery'       => $palletDelivery->slug
-                    ]
-                ];
+                //todo put retina route
+//                $desc_route = [
+//                    'name' => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show',
+//                    'parameters'    => [
+//                        'organisation'         => $request->route()->originalParameters()['organisation'],
+//                        'fulfilment'           => $request->route()->originalParameters()['fulfilment'],
+//                        'fulfilmentCustomer'   => $palletDelivery->fulfilmentCustomer->slug,
+//                        'palletDelivery'       => $palletDelivery->slug
+//                    ]
+//                ];
             }
 
         } elseif ($this->pallet_return_id) {
@@ -89,30 +91,32 @@ class RecurringBillTransactionsResource extends JsonResource
             if ($palletReturn) {
                 $desc_title = $palletReturn->reference;
                 $desc_model = __('Pallet Return');
-                $desc_route = [
-                    'name' => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show',
-                    'parameters'    => [
-                        'organisation'         => $request->route()->originalParameters()['organisation'],
-                        'fulfilment'           => $request->route()->originalParameters()['fulfilment'],
-                        'fulfilmentCustomer'   => $palletReturn->fulfilmentCustomer->slug,
-                        'palletReturn'       => $palletReturn->slug
-                    ]
-                ];
+                //todo put retina route
+//                $desc_route = [
+//                    'name' => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show',
+//                    'parameters'    => [
+//                        'organisation'         => $request->route()->originalParameters()['organisation'],
+//                        'fulfilment'           => $request->route()->originalParameters()['fulfilment'],
+//                        'fulfilmentCustomer'   => $palletReturn->fulfilmentCustomer->slug,
+//                        'palletReturn'       => $palletReturn->slug
+//                    ]
+//                ];
             }
         } elseif ($this->item_type === 'Space') {
             $space = Space::find($this->item_id);
             if ($space) {
                 $desc_model = __('Space (parking)');
                 $desc_title = $space->reference;
-                $desc_route = [
-                    'name' => 'grp.org.fulfilments.show.crm.customers.show.spaces.show',
-                    'parameters'    => [
-                        'organisation'          => $request->route()->originalParameters()['organisation'],
-                        'fulfilment'            => $request->route()->originalParameters()['fulfilment'],
-                        'fulfilmentCustomer'    => $space->fulfilmentCustomer->slug,
-                        'space'                 => $space->slug
-                    ]
-                ];
+                //todo put retina route
+//                $desc_route = [
+//                    'name' => 'grp.org.fulfilments.show.crm.customers.show.spaces.show',
+//                    'parameters'    => [
+//                        'organisation'          => $request->route()->originalParameters()['organisation'],
+//                        'fulfilment'            => $request->route()->originalParameters()['fulfilment'],
+//                        'fulfilmentCustomer'    => $space->fulfilmentCustomer->slug,
+//                        'space'                 => $space->slug
+//                    ]
+//                ];
             }
         }
 
@@ -168,10 +172,6 @@ class RecurringBillTransactionsResource extends JsonResource
             return [
                 'tooltip' => __('Pallet'),
                 'icon'    => 'fal fa-pallet',
-                // 'app'     => [
-                //     'name' => 'bell',
-                //     'type' => 'font-awesome-5'
-                // ]
             ];
         } else {
             return null;
