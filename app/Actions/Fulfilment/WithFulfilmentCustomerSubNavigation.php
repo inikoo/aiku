@@ -109,7 +109,7 @@ trait WithFulfilmentCustomerSubNavigation
                         'icon'    => 'fal fa-narwhal',
                         'tooltip' => __("Customer's SKUs"),
                     ],
-                    'number' => $fulfilmentCustomer->number_stored_items
+                    'number' => $fulfilmentCustomer->number_stored_items_state_active
 
                 ];
 
