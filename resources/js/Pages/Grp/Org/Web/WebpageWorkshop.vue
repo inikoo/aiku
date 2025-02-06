@@ -22,13 +22,13 @@ import { Root, Daum } from "@/types/webBlockTypes"
 import { Root as RootWebpage } from "@/types/webpageTypes"
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading"
 
-import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faExternalLink, } from "@fal"
+import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faExternalLink, faBoothCurtain, } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 
 import { routeType } from "@/types/route"
 
-library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars)
+library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faBoothCurtain)
 
 const props = defineProps<{
 	title: string
@@ -93,7 +93,9 @@ const isSavingBlock = ref(false)
 const cancelTokens = ref<Record<string, Function>>({}) // A map to store cancel tokens by block id
 // Object to store individual debounce timers for each block
 const debounceTimers = ref({})
-
+const openWebsite = () => {
+  window.open('https://'+ props.webpage.domain + '/' + props.webpage.url, "_blank")
+}
 const debounceSaveWorkshop = (block) => {
 	// If the debounce timer exists, cancel it
 	if (debounceTimers.value[block.id]) {
@@ -404,7 +406,7 @@ watch(openedBlockSideEditor,(newValue)=>{
 						class="py-1 px-2 cursor-pointer"
 						v-tooltip="'Preview'"
 						@click="openFullScreenPreview">
-						<FontAwesomeIcon :icon="faExternalLink" fixed-width aria-hidden="true" />
+						<FontAwesomeIcon :icon="faBoothCurtain" fixed-width aria-hidden="true" />
 					</div>
 				</div>
 
@@ -414,7 +416,9 @@ watch(openedBlockSideEditor,(newValue)=>{
 						v-model="isPreviewLoggedIn"
 						@update:model-value="(e)=> sendToIframe({ key: 'isPreviewLoggedIn', value: e })"
 					/>
-
+					<div class="py-1 px-2 cursor-pointer" title="go to website" @click="openWebsite" >
+						<FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" />
+					</div>
 					<!-- <div class="h-6 w-px bg-gray-400 mx-2"></div> -->
 
 					<!-- <ButtonPreviewEdit
