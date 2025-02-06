@@ -265,29 +265,56 @@ class ShowGroupDashboard extends OrgAction
                 'code'      => $shop->code,
                 'type'      => $shop->type,
                 'currency_code'  => $currencyCode,
-                'route'         => $shop->type == ShopTypeEnum::FULFILMENT
-                    ? [
-                        'name'       => 'grp.org.fulfilments.show.operations.dashboard',
-                        'parameters' => [
-                            'organisation' => $shop->organisation->slug,
-                            'fulfilment'   => $shop->slug
-                        ]
-                    ]
-                    : [
-                        'name'       => 'grp.org.shops.show.dashboard',
-                        'parameters' => [
-                            'organisation' => $shop->organisation->slug,
-                            'shop'         => $shop->slug
-                        ]
-                    ],
-                'route_invoice' => [
-                    'name'       => 'grp.org.accounting.invoices.index',
+                'route'         => [
+                    'name'       => 'grp.org.shops.show.dashboard',
                     'parameters' => [
                         'organisation' => $shop->organisation->slug,
+                        'shop'         => $shop->slug
+                    ]
+                ],
+                'route_invoice' => [
+                    'name'       => 'grp.org.shops.show.ordering.invoices.index',
+                    'parameters' => [
+                        'organisation' => $shop->organisation->slug,
+                        'shop' => $shop->slug,
+                        'between[date]' => $this->getDateIntervalFilter($selectedInterval)
+                    ]
+                ],
+                'route_refund' => [
+                    'name'       => 'grp.org.shops.show.ordering.refunds.index',
+                    'parameters' => [
+                        'organisation' => $shop->organisation->slug,
+                        'shop'        => $shop->slug,
                         'between[date]' => $this->getDateIntervalFilter($selectedInterval)
                     ]
                 ],
             ];
+
+            if ($shop->type == ShopTypeEnum::FULFILMENT) {
+                $responseData['route'] = [
+                    'name'       => 'grp.org.fulfilments.show.operations.dashboard',
+                    'parameters' => [
+                        'organisation' => $shop->organisation->slug,
+                        'fulfilment'   => $shop->slug
+                    ]
+                ];
+                $responseData['route_invoice'] = [
+                    'name'       => 'grp.org.fulfilments.show.operations.invoices.all.index',
+                    'parameters' => [
+                        'organisation' => $shop->organisation->slug,
+                        'fulfilment'   => $shop->slug,
+                        'between[date]' => $this->getDateIntervalFilter($selectedInterval)
+                    ]
+                ];
+                $responseData['route_refund'] = [
+                    'name'       => 'grp.org.fulfilments.show.operations.invoices.refunds.index',
+                    'parameters' => [
+                        'organisation' => $shop->organisation->slug,
+                        'fulfilment'   => $shop->slug,
+                        'between[date]' => $this->getDateIntervalFilter($selectedInterval)
+                    ]
+                ];
+            }
 
             if ($shop->salesIntervals !== null) {
                 // data sales
