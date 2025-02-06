@@ -132,8 +132,9 @@ class ShowFulfilment extends OrgAction
                                 'route'       => [
                                     'name'       => 'grp.org.fulfilments.show.crm.customers.index',
                                     'parameters' => [
-                                        $fulfilment->organisation->slug,
-                                        $fulfilment->slug
+                                        'organisation' => $fulfilment->organisation->slug,
+                                        'fulfilment' => $fulfilment->slug,
+                                        'elements[status]' => 'active'
                                     ]
                                 ]
                             ],
