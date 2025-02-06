@@ -115,10 +115,6 @@ class ShowGroupDashboard extends OrgAction
     {
         $visualData = [];
 
-
-
-
-
         $data =  $organisations->map(function (Organisation $organisation) use ($selectedInterval, $group, &$dashboard, $selectedCurrency, &$visualData, &$total) {
             $keyCurrency = $dashboard['settings']['key_currency'];
             $currencyCode = $selectedCurrency === $keyCurrency ? $group->currency->code : $organisation->currency->code;
@@ -142,6 +138,14 @@ class ShowGroupDashboard extends OrgAction
                         'between[date]' => $this->getDateIntervalFilter($selectedInterval)
                     ]
                 ],
+                'route_refund' => [
+                    'name'       => 'grp.org.accounting.refunds.index',
+                    'parameters' => [
+                        'organisation' => $organisation->slug,
+                        'between[date]' => $this->getDateIntervalFilter($selectedInterval)
+                    ]
+                ],
+
             ];
 
 
@@ -178,9 +182,9 @@ class ShowGroupDashboard extends OrgAction
                 $visualData['invoices_data']['currency_codes'][] = $currencyCode;
                 $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
 
-                // $visualData['refunds_data']['labels'][] = $organisation->code;
-                // $visualData['refunds_data']['currency_codes'][] = $currencyCode;
-                // $visualData['refunds_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['refunds']['amount'];
+                $visualData['refunds_data']['labels'][] = $organisation->code;
+                $visualData['refunds_data']['currency_codes'][] = $currencyCode;
+                $visualData['refunds_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['refunds']['amount'];
             }
             return $responseData;
         })->toArray();
@@ -261,29 +265,56 @@ class ShowGroupDashboard extends OrgAction
                 'code'      => $shop->code,
                 'type'      => $shop->type,
                 'currency_code'  => $currencyCode,
-                'route'         => $shop->type == ShopTypeEnum::FULFILMENT
-                    ? [
-                        'name'       => 'grp.org.fulfilments.show.operations.dashboard',
-                        'parameters' => [
-                            'organisation' => $shop->organisation->slug,
-                            'fulfilment'   => $shop->slug
-                        ]
-                    ]
-                    : [
-                        'name'       => 'grp.org.shops.show.dashboard',
-                        'parameters' => [
-                            'organisation' => $shop->organisation->slug,
-                            'shop'         => $shop->slug
-                        ]
-                    ],
-                'route_invoice' => [
-                    'name'       => 'grp.org.accounting.invoices.index',
+                'route'         => [
+                    'name'       => 'grp.org.shops.show.dashboard',
                     'parameters' => [
                         'organisation' => $shop->organisation->slug,
+                        'shop'         => $shop->slug
+                    ]
+                ],
+                'route_invoice' => [
+                    'name'       => 'grp.org.shops.show.ordering.invoices.index',
+                    'parameters' => [
+                        'organisation' => $shop->organisation->slug,
+                        'shop' => $shop->slug,
+                        'between[date]' => $this->getDateIntervalFilter($selectedInterval)
+                    ]
+                ],
+                'route_refund' => [
+                    'name'       => 'grp.org.shops.show.ordering.refunds.index',
+                    'parameters' => [
+                        'organisation' => $shop->organisation->slug,
+                        'shop'        => $shop->slug,
                         'between[date]' => $this->getDateIntervalFilter($selectedInterval)
                     ]
                 ],
             ];
+
+            if ($shop->type == ShopTypeEnum::FULFILMENT) {
+                $responseData['route'] = [
+                    'name'       => 'grp.org.fulfilments.show.operations.dashboard',
+                    'parameters' => [
+                        'organisation' => $shop->organisation->slug,
+                        'fulfilment'   => $shop->slug
+                    ]
+                ];
+                $responseData['route_invoice'] = [
+                    'name'       => 'grp.org.fulfilments.show.operations.invoices.all.index',
+                    'parameters' => [
+                        'organisation' => $shop->organisation->slug,
+                        'fulfilment'   => $shop->slug,
+                        'between[date]' => $this->getDateIntervalFilter($selectedInterval)
+                    ]
+                ];
+                $responseData['route_refund'] = [
+                    'name'       => 'grp.org.fulfilments.show.operations.invoices.refunds.index',
+                    'parameters' => [
+                        'organisation' => $shop->organisation->slug,
+                        'fulfilment'   => $shop->slug,
+                        'between[date]' => $this->getDateIntervalFilter($selectedInterval)
+                    ]
+                ];
+            }
 
             if ($shop->salesIntervals !== null) {
                 // data sales
@@ -324,9 +355,9 @@ class ShowGroupDashboard extends OrgAction
                 $visualData['invoices_data']['currency_codes'][] = $currencyCode;
                 $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
 
-                // $visualData['refunds_data']['labels'][] = $shop->code;
-                // $visualData['refunds_data']['currency_codes'][] = $currencyCode;
-                // $visualData['refunds_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['refunds']['amount'];
+                $visualData['refunds_data']['labels'][] = $shop->code;
+                $visualData['refunds_data']['currency_codes'][] = $currencyCode;
+                $visualData['refunds_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['refunds']['amount'];
             }
             return $responseData;
         })->toArray();

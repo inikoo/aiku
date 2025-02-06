@@ -9,7 +9,10 @@ import DatePicker from 'primevue/datepicker'
 import { debounce } from 'lodash'
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
 import LoadingIcon from '../Utils/LoadingIcon.vue'
-
+import { trans } from 'laravel-vue-i18n'
+import Select from 'primevue/select'
+import { useFormatTime } from '@/Composables/useFormatTime'
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 
 library.add(faChevronDown, faCheckSquare, faSquare, faCalendarAlt)
 
@@ -19,6 +22,7 @@ const props = defineProps<{
     tableName: string
 }>()
 
+// Method: convert Date to '20250206-20250223'
 const formattedDateRange = (date: string[] | Date[]) => {
     return date?.map(dateString => {
         const date = dateString ? new Date(dateString) : new Date();
@@ -123,41 +127,78 @@ onBeforeMount(() => {
 </script>
 
 <template>
-    <div class="border border-gray-300 flex rounded-md">
-        <div cl="(period, idxPeriod) in dateFilter"
-            :key="'datePickerPeriod' + 'idxPeriod'"
-            class="px-3 py-1 cursor-pointer capitalize flex items-center gap-x-2"
-            :xxstyle="{
-                // backgroundColor: selectedPeriodType === dateFilter[0].type ? layout?.app?.theme[4] + '22' : '' 
-            }"
-        >
-            <div class="w-40 text-xs" >
-                <PureMultiselect
-                    v-model="selectedPeriodType"
-                    :options="optionsList"
-                    required
-                    caret
-                    :isLoading="isLoadingReload"
-                />
-            </div>
-
-            <div class="w-fit">
-                <VueDatePicker
-                    v-model="dateFilterValue"
-                    range
-                    auto-apply
-                    :enableTimePicker="false"
+    <div class="flex rounded-md">
+        <Popover v-slot="{ open }" class="relative">
+            <PopoverButton
+                :class="open ? '' : ''"
+                v-tooltip="trans('Filter by dates')"
+                class="group inline-flex items-center rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
+            >
+                <div class="h-9 w-9 rounded flex justify-center items-center"
+                    :class="true ? 'border border-gray-300 hover:bg-gray-300 text-gray-600 hover:text-xgray-200' : 'bg-gray-600 hover:bg-gray-700 text-white'"
                 >
-                    <template #trigger>
-                        <div class="h-9 w-9 bg-gray-500 hover:bg-gray-700 rounded flex justify-center items-center">
-                            <FontAwesomeIcon v-if="!isLoadingReload" icon='fal fa-calendar-alt' class='cursor-pointer text-gray-200 '
-                                fixed-width aria-hidden='true' />
-                            <LoadingIcon v-else />
-                        </div>
-                    </template>
-                </VueDatePicker>
-            </div>
+                    <FontAwesomeIcon v-if="!isLoadingReload" icon='fal fa-calendar-alt' class='cursor-pointer'
+                        fixed-width aria-hidden='true' />
+                    <LoadingIcon v-else />
+                </div>
+            </PopoverButton>
 
-        </div>
+            <Transition name="headlessui" >
+                <PopoverPanel
+                    class="bg-gray-50 border border-gray-300 rounded-md absolute right-0 z-10 mt-3 w-fit transform px-4 pt-4 pb-6"
+                >
+                    <div class="flex items-center gap-x-3 mb-3">
+                        <Select
+                            v-model="selectedPeriodType"
+                            :options="optionsList"
+                            :placeholder="trans('Dates range')"
+                            class="w-64"
+                        />
+
+                        <div @click="() => {}" class="text-red-400 hover:text-red-600 cursor-pointer">
+                            {{ trans("Reset filter by dates") }}
+                        </div>
+                    </div>
+                    
+                    <VueDatePicker
+                        v-model="dateFilterValue"
+                        range
+                        multi-calendars
+                        inline 
+                        auto-apply
+                        :enableTimePicker="false"
+                    >
+                        <template #trigger>
+                            <!-- <div class="h-9 w-9 bg-gray-500 hover:bg-gray-700 rounded flex justify-center items-center">
+                                <FontAwesomeIcon v-if="!isLoadingReload" icon='fal fa-calendar-alt' class='cursor-pointer text-gray-200 '
+                                    fixed-width aria-hidden='true' />
+                                <LoadingIcon v-else />
+                            </div> -->
+                        </template>
+
+                        <!-- <template #action-extra="{  }">
+                            
+                        </template> -->
+                    </VueDatePicker>
+
+                    <div class="grid grid-cols-2 text-sm mt-3">
+                        <!-- cccccccccccccccccccccccccc -->
+                        <div class="text-left px-1.5">
+                            <div class="text-gray-400">{{ trans("Since") }}</div>
+                            <div class="">
+                                {{ useFormatTime(dateFilterValue[0])}}
+                            </div>
+                        </div>
+
+                        <div class="justify-self-end text-right px-1.5">
+                            <div class="text-gray-400">{{ trans("Until") }}</div>
+                            <div class="">
+                                {{ useFormatTime(dateFilterValue[1])}}
+                            </div>
+                        </div>
+                    </div>
+                </PopoverPanel>
+            </Transition>
+        </Popover>
     </div>
 </template>
