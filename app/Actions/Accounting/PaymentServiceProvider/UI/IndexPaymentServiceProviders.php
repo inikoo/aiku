@@ -61,7 +61,7 @@ class IndexPaymentServiceProviders extends GrpAction
             ->with('media')
             ->allowedSorts(['code', 'number_payment_accounts', 'number_payments','name'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

@@ -157,34 +157,11 @@ function NumberDashboard(shop: any) {
 const setChartOptions = () => ({
 	responsive: true,
 	maintainAspectRatio: false,
+    
 	plugins: {
-		legend: {
-			position: "top",
-			labels: {
-				font: {
-					size: 12,
-				},
-				color: "#666",
-			},
-		},
-	},
-	scales: {
-		x: {
-			ticks: {
-				color: "#666",
-			},
-			grid: {
-				display: false,
-			},
-		},
-		y: {
-			ticks: {
-				color: "#666",
-			},
-			grid: {
-				color: "#ddd",
-			},
-		},
+        legend: {
+            display: false,  
+        },
 	},
 })
 
@@ -203,7 +180,7 @@ const setChartOptions = () => ({
 </script>
 
 <template>
-	<div  v-if="layoutStore.app.environment === 'local'" :class="['rounded-lg p-6 shadow-md relative h-full', getStatusColor(widget.status)]">
+	<div :class="['rounded-lg p-6 shadow-md relative h-full', getStatusColor(widget.status)]">
 		<p
 			class="text-4xl font-bold leading-tight truncate">
 			<!-- v-tooltip="printLabelByType(widget?.value)" -->
@@ -254,7 +231,7 @@ const setChartOptions = () => ({
 						:labels="visual.label"
 						:data="visual.value"
 						:height="300"
-						:options="setChartOptions" />
+						:options="setChartOptions()" />
 				</div>
 			</div>
 		</div>

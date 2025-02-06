@@ -23,6 +23,7 @@ class UpdateRetinaWebUser extends RetinaAction
     use WithActionUpdate;
 
     private WebUser $webUserToUpdate;
+    private bool $action = false;
 
     public function handle(WebUser $webUser, array $modelData): WebUser
     {
@@ -31,6 +32,9 @@ class UpdateRetinaWebUser extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->action) {
+            return true;
+        }
         return $this->customer->id == $request->route()->parameter('webUser')->customer_id and $request->user()->is_root;
     }
 
@@ -75,6 +79,14 @@ class UpdateRetinaWebUser extends RetinaAction
         $this->webUserToUpdate = $webUser;
         $this->initialisation($request);
 
+        return $this->handle($webUser, $this->validatedData);
+    }
+
+    public function action(WebUser $webUser, array $modelData): Webuser
+    {
+        $this->action = true;
+        $this->webUserToUpdate = $webUser;
+        $this->initialisationFulfilmentActions($webUser->customer->fulfilmentCustomer, $modelData);
         return $this->handle($webUser, $this->validatedData);
     }
 }

@@ -28,7 +28,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPalletStoredItems extends OrgAction
 {
-    public function handle(Group|FulfilmentCustomer|Pallet|Warehouse $parent): LengthAwarePaginator
+    public function handle(Group|FulfilmentCustomer|Pallet|Warehouse $parent, $prefix = null): LengthAwarePaginator
     {
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -71,7 +71,7 @@ class IndexPalletStoredItems extends OrgAction
 
         return $queryBuilder->allowedSorts(['code','price','name','state'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator(null)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

@@ -51,6 +51,7 @@ use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\Platform;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\Space;
 use App\Models\Goods\Ingredient;
@@ -161,6 +162,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, ExternalLink> $externalLinks
  * @property-read \App\Models\SysAdmin\GroupFulfilmentStats|null $fulfilmentStats
  * @property-read LaravelCollection<int, Fulfilment> $fulfilments
+ * @property-read \App\Models\SysAdmin\TFactory|null $use_factory
  * @property-read \App\Models\SysAdmin\GroupGoodsStats|null $goodsStats
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Guest> $guests
  * @property-read \App\Models\SysAdmin\GroupHumanResourcesStats|null $humanResourcesStats
@@ -227,6 +229,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, ShippingZoneSchema> $shippingZoneSchemas
  * @property-read LaravelCollection<int, ShippingZone> $shippingZones
  * @property-read LaravelCollection<int, Shop> $shops
+ * @property-read LaravelCollection<int, Space> $spaces
  * @property-read \App\Models\SysAdmin\GroupStats|null $stats
  * @property-read LaravelCollection<int, StockFamily> $stockFamilies
  * @property-read LaravelCollection<int, Stock> $stocks
@@ -916,6 +919,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function outboxPushIntervals(): HasOne
     {
         return $this->hasOne(GroupOutboxPushIntervals::class);
+    }
+
+    public function fulfilmentCustomers(): HasMany
+    {
+        return $this->hasMany(FulfilmentCustomer::class);
     }
 
     public function outboxTestIntervals(): HasOne

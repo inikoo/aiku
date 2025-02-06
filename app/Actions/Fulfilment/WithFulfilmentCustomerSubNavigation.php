@@ -60,7 +60,7 @@ trait WithFulfilmentCustomerSubNavigation
         if ($fulfilmentCustomer->pallets_storage && $fulfilmentCustomer->rentalAgreement()->where('state', RentalAgreementStateEnum::ACTIVE)->exists()) {
 
 
-            if ($user->hasPermissionTo('fulfilment-customer.'.$fulfilmentCustomer->id.'.view')) {
+            if ($user->hasPermissionTo('fulfilment.'.$fulfilmentCustomer->fulfilment->id.'.view')) {
 
                 $subNavigation[] = [
                     'route' => [
@@ -92,7 +92,7 @@ trait WithFulfilmentCustomerSubNavigation
                     'icon'    => 'fal fa-pallet',
                     'tooltip' => __('Pallets'),
                 ],
-                'number' => $fulfilmentCustomer->number_pallets
+                'number' => $fulfilmentCustomer->number_pallets_status_storing
 
             ];
 
@@ -109,7 +109,7 @@ trait WithFulfilmentCustomerSubNavigation
                         'icon'    => 'fal fa-narwhal',
                         'tooltip' => __("Customer's SKUs"),
                     ],
-                    'number' => $fulfilmentCustomer->number_stored_items
+                    'number' => $fulfilmentCustomer->number_stored_items_state_active
 
                 ];
 

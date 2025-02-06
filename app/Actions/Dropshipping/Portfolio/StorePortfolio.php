@@ -16,12 +16,15 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePortfolios;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePortfolios;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Catalogue\Portfolio\PortfolioTypeEnum;
+use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\Portfolio;
+use App\Models\Fulfilment\StoredItem;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
@@ -42,6 +45,16 @@ class StorePortfolio extends OrgAction
         data_set($modelData, 'organisation_id', $customer->organisation_id);
         data_set($modelData, 'shop_id', $customer->organisation_id);
 
+        if (Arr::get($modelData, 'product_id')) {
+            data_set($modelData, 'item_id', Arr::pull($modelData, 'product_id'));
+            data_set($modelData, 'item_type', class_basename(Product::class));
+        }
+
+        if (Arr::get($modelData, 'stored_item_id')) {
+            data_set($modelData, 'item_id', Arr::pull($modelData, 'stored_item_id'));
+            data_set($modelData, 'item_type', class_basename(StoredItem::class));
+        }
+
         $portfolio = DB::transaction(function () use ($customer, $modelData) {
             /** @var Portfolio $portfolio */
             $portfolio = $customer->portfolios()->create($modelData);
@@ -61,7 +74,6 @@ class StorePortfolio extends OrgAction
         return $portfolio;
     }
 
-
     public function authorize(ActionRequest $request): bool
     {
         if ($this->asAction) {
@@ -71,11 +83,11 @@ class StorePortfolio extends OrgAction
         return $request->user()->authTo("crm.{$this->shop->id}.edit");
     }
 
-
     public function rules(): array
     {
         $rules = [
-            'product_id'    => ['required', Rule::Exists('products', 'id')->where('shop_id', $this->shop->id)],
+            'product_id'    => ['sometimes', 'required', Rule::exists('products', 'id')->where('shop_id', $this->shop->id)],
+            'stored_item_id'    => ['sometimes', 'required', Rule::exists('stored_items', 'id')],
             'reference'     => [
                 'sometimes',
                 'nullable',

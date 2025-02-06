@@ -56,6 +56,7 @@ class UpdateFulfilmentCustomer extends OrgAction
                 );
             }
         }
+
         foreach ($modelData as $key => $value) {
             data_set(
                 $modelData,
@@ -120,7 +121,7 @@ class UpdateFulfilmentCustomer extends OrgAction
             'space_rental'      => ['sometimes', 'boolean'],
             'address'           => ['sometimes'],
             'product'           => ['sometimes', 'required', 'string'],
-            'shipment_per_week' => ['sometimes', 'required', 'string'],
+            'shipments_per_week' => ['sometimes', 'required', 'string'],
             'size_and_weight'   => ['sometimes', 'required', 'string'],
         ];
     }

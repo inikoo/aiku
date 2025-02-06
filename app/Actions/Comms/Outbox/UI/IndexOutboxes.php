@@ -115,7 +115,7 @@ class IndexOutboxes extends OrgAction
             ->leftJoin('outbox_intervals', 'outbox_intervals.outbox_id', 'outboxes.id')
             ->allowedSorts(['name', 'runs', 'number_mailshots', 'dispatched_emails_lw', 'opened_emails_lw', 'unsubscribed_lw'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
     public function tableStructure($parent, $prefix = null): Closure

@@ -45,6 +45,7 @@ use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\InvoiceTransactionHasFeedback;
+use App\Models\Helpers\Language;
 use App\Models\Helpers\Query;
 use App\Models\Helpers\SerialReference;
 use App\Models\Helpers\TaxNumber;
@@ -128,6 +129,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
+ * @property string|null $invoice_footer
  * @property-read \App\Models\Catalogue\ShopAccountingStats|null $accountingStats
  * @property-read Address|null $address
  * @property-read LaravelCollection<int, Address> $addresses
@@ -154,10 +156,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\ShopDropshippingStat|null $dropshippingStats
  * @property-read LaravelCollection<int, InvoiceTransactionHasFeedback> $feedbackBridges
  * @property-read Fulfilment|null $fulfilment
+ * @property-read \App\Models\Catalogue\TFactory|null $use_factory
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
  * @property-read LaravelCollection<int, Invoice> $invoices
+ * @property-read Language $language
  * @property-read LaravelCollection<int, Mailshot> $mailshots
  * @property-read \App\Models\Catalogue\ShopMailshotsIntervals|null $mailshotsIntervals
  * @property-read MasterShop|null $masterShop
@@ -398,6 +402,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function country(): BelongsTo
     {
         return $this->belongsTo(Country::class);
+    }
+
+    public function language(): BelongsTo
+    {
+        return $this->belongsTo(Language::class);
     }
 
     public function timezone(): BelongsTo

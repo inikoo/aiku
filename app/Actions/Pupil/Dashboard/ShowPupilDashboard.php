@@ -8,7 +8,7 @@
  *
 */
 
-namespace App\Actions\UI\Pupil\Dashboard;
+namespace App\Actions\Pupil\Dashboard;
 
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -16,7 +16,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowDashboard
+class ShowPupilDashboard
 {
     use AsAction;
 

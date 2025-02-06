@@ -66,7 +66,7 @@ class FetchAuroraInvoiceTransaction extends FetchAurora
                 'fetched_at'      => now(),
                 'last_fetched_at' => now(),
                 'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Order Transaction Fact Key'},
-
+                'date'            => $this->auroraModelData->{'Invoice Date'},
             ];
         } else {
             print "Warning Asset Key missing in transaction >".$this->auroraModelData->{'Order Transaction Fact Key'}."\n";

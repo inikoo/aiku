@@ -137,7 +137,8 @@ class IndexInvoices extends OrgAction
 
         return $queryBuilder->allowedSorts(['number', 'pay_status', 'total_amount', 'net_amount', 'date', 'customer_name', 'reference'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withBetweenDates(['date'])
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -150,6 +151,7 @@ class IndexInvoices extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
+            $table->betweenDates(['date']);
 
             $noResults = __("No invoices found");
             if ($parent instanceof Customer) {
@@ -339,7 +341,7 @@ class IndexInvoices extends OrgAction
                     'iconRight'     => $iconRight,
                     'icon'          => $icon,
                     'subNavigation' => $subNavigation,
-                    'actions'       => $actions
+                    'actions'       => $actions,
                 ],
 
                 ...$data

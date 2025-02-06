@@ -19,6 +19,7 @@ use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
+use Lorisleiva\Actions\ActionRequest;
 
 class UpdateInvoice extends OrgAction
 {
@@ -74,6 +75,7 @@ class UpdateInvoice extends OrgAction
             'payment_amount'   => ['sometimes', 'numeric'],
             'date'             => ['sometimes', 'date'],
             'tax_liability_at' => ['sometimes', 'date'],
+            'footer'           => ['sometimes', 'string'],
             'billing_address'  => ['sometimes', 'required', new ValidAddress()],
             'sales_channel_id'   => [
                 'sometimes',
@@ -96,6 +98,14 @@ class UpdateInvoice extends OrgAction
         }
 
         return $rules;
+    }
+
+    public function asController(Invoice $invoice, ActionRequest $request): Invoice
+    {
+        $this->invoice = $invoice;
+        $this->initialisationFromShop($invoice->shop, $request);
+
+        return $this->handle($invoice, $this->validatedData);
     }
 
     public function action(Invoice $invoice, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Invoice

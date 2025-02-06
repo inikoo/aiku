@@ -21,31 +21,31 @@ class UpdateRetinaFulfilmentTransaction extends RetinaAction
     /**
      * @var true
      */
-    private bool $asAction;
+    private bool $action = false;
 
-    public function handle(FulfilmentTransaction $palletDeliveryTransaction, array $modelData): FulfilmentTransaction
+    public function handle(FulfilmentTransaction $fulfilmentTransaction, array $modelData): FulfilmentTransaction
     {
-        $palletDeliveryTransaction =  $this->update($palletDeliveryTransaction, $modelData, ['data']);
+        $fulfilmentTransaction =  $this->update($fulfilmentTransaction, $modelData, ['data']);
 
-        $palletDeliveryTransaction->refresh();
+        $fulfilmentTransaction->refresh();
 
-        $netAmount = $palletDeliveryTransaction->asset->price * $palletDeliveryTransaction->quantity;
+        $netAmount = $fulfilmentTransaction->asset->price * $fulfilmentTransaction->quantity;
 
         $this->update(
-            $palletDeliveryTransaction,
+            $fulfilmentTransaction,
             [
             'net_amount'              => $netAmount,
             'gross_amount'            => $netAmount,
-            'grp_net_amount'          => $netAmount * $palletDeliveryTransaction->grp_exchange,
-            'org_net_amount'          => $netAmount * $palletDeliveryTransaction->org_exchange
+            'grp_net_amount'          => $netAmount * $fulfilmentTransaction->grp_exchange,
+            'org_net_amount'          => $netAmount * $fulfilmentTransaction->org_exchange
         ]
         );
 
-        $palletDeliveryTransaction->refresh();
+        $fulfilmentTransaction->refresh();
 
-        SetClausesInFulfilmentTransaction::run($palletDeliveryTransaction);
+        SetClausesInFulfilmentTransaction::run($fulfilmentTransaction);
 
-        return $palletDeliveryTransaction;
+        return $fulfilmentTransaction;
     }
 
     public function rules(): array
@@ -60,5 +60,12 @@ class UpdateRetinaFulfilmentTransaction extends RetinaAction
         $this->initialisation($request);
 
         return $this->handle($fulfilmentTransaction, $this->validatedData);
+    }
+
+    public function action(FulfilmentTransaction $fulfilmentTransaction, array $modelData): FulfilmentTransaction
+    {
+        $this->action = true;
+        $this->initialisationFulfilmentActions($fulfilmentTransaction->fulfilmentCustomer, $modelData);
+        return $this->handle($fulfilmentTransaction, $modelData);
     }
 }

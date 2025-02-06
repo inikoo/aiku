@@ -36,6 +36,10 @@ class StoreRetinaProductShopify extends RetinaAction
                     'type' => PortfolioTypeEnum::SHOPIFY->value,
                 ]);
 
+                $shopifyUser->products()->attach($product, [
+                    'portfolio_id' => $portfolio->id
+                ]);
+
                 HandleApiProductToShopify::dispatch($shopifyUser, [$portfolio->id]);
             }
         });

@@ -8,26 +8,40 @@
 
 namespace App\Actions\Fulfilment\RecurringBillTransaction;
 
+use App\Actions\Fulfilment\FulfilmentTransaction\UpdateFulfilmentTransaction;
 use App\Actions\Fulfilment\RecurringBill\CalculateRecurringBillTotals;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\RecurringBillTransaction;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateRecurringBillTransaction extends OrgAction
 {
     use WithActionUpdate;
 
-    public function handle(RecurringBillTransaction $recurringBillTransaction, array $modelData): RecurringBillTransaction
+    public function handle(RecurringBillTransaction $recurringBillTransaction, array $modelData, bool $isFulfilmentTransactionUpdated = false): RecurringBillTransaction
     {
+        if (Arr::exists($modelData, 'net_amount')) {
+            $netAmount = Arr::get($modelData, 'net_amount');
+            $quantity = $netAmount / $recurringBillTransaction->unit_cost;
+            data_set($modelData, 'quantity', $quantity);
+        }
+
         $recurringBillTransaction = $this->update($recurringBillTransaction, $modelData, ['data']);
-        $recurringBillTransaction = CalculateRecurringBillTransactionDiscountPercentage::make()->action($recurringBillTransaction, $this->hydratorsDelay);
-        $recurringBillTransaction = CalculateRecurringBillTransactionTemporalQuantity::make()->action($recurringBillTransaction);
-        $recurringBillTransaction = CalculateRecurringBillTransactionAmounts::make()->action($recurringBillTransaction);
-        $recurringBillTransaction = CalculateRecurringBillTransactionCurrencyExchangeRates::make()->action($recurringBillTransaction);
+
+        if ($recurringBillTransaction->fulfilmentTransaction && !$isFulfilmentTransactionUpdated) {
+            UpdateFulfilmentTransaction::make()->action($recurringBillTransaction->fulfilmentTransaction, $modelData, true);
+        }
+
+        if (!Arr::exists($modelData, 'net_amount')) {
+            $recurringBillTransaction = CalculateRecurringBillTransactionDiscountPercentage::make()->action($recurringBillTransaction, $this->hydratorsDelay);
+            $recurringBillTransaction = CalculateRecurringBillTransactionTemporalQuantity::make()->action($recurringBillTransaction);
+            $recurringBillTransaction = CalculateRecurringBillTransactionAmounts::make()->action($recurringBillTransaction);
+            $recurringBillTransaction = CalculateRecurringBillTransactionCurrencyExchangeRates::make()->action($recurringBillTransaction);
+        }
 
         CalculateRecurringBillTotals::run($recurringBillTransaction->recurringBill);
-
 
         return $recurringBillTransaction;
     }
@@ -35,7 +49,8 @@ class UpdateRecurringBillTransaction extends OrgAction
     public function rules(): array
     {
         return [
-            'quantity' => ['required', 'numeric', 'min:0'],
+            'quantity' => ['sometimes', 'numeric', 'min:0'],
+            'net_amount' => ['sometimes', 'numeric', 'min:0'],
         ];
     }
 
@@ -48,12 +63,12 @@ class UpdateRecurringBillTransaction extends OrgAction
         $this->handle($recurringBillTransaction, $this->validatedData);
     }
 
-    public function action(RecurringBillTransaction $recurringBillTransaction, array $modelData): RecurringBillTransaction
+    public function action(RecurringBillTransaction $recurringBillTransaction, array $modelData, bool $isFulfilmentTransactionUpdated = false): RecurringBillTransaction
     {
         $this->asAction = true;
         $this->initialisationFromFulfilment($recurringBillTransaction->fulfilment, $modelData);
 
-        return $this->handle($recurringBillTransaction, $this->validatedData);
+        return $this->handle($recurringBillTransaction, $this->validatedData, $isFulfilmentTransactionUpdated);
     }
 
 }

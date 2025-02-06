@@ -4,7 +4,7 @@ import Icon from "@/Components/Icon.vue";
 import PureInputNumber from '@/Components/Pure/PureInputNumber.vue';
 import { ref, watch, onBeforeMount,reactive, inject} from 'vue';
 import { notify } from "@kyvg/vue3-notification";
-import { debounce } from 'lodash';
+import { debounce, set } from 'lodash';
 import { Link, router } from "@inertiajs/vue3"
 import Popover from '@/Components/Popover.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
@@ -102,7 +102,8 @@ const SetSelected = () => {
         {
             preserveScroll: true,
             onSuccess: () => {},
-            onError: () => {
+            onError: (e) => {
+                console.log('Failed to save', e);
                 notify({
                     title: 'Something went wrong.',
                     text: 'Failed to save',
@@ -121,7 +122,7 @@ const onChangeCheked = (value) => {
 // Debounce the changeValueQty function
 const changeValueQty = debounce(() => {
     SetSelected();
-}, 500);
+}, 1000);
 
 /* watch(selectedRow, () => {
     SetSelected();
@@ -142,15 +143,31 @@ onBeforeMount(() => {
         </template>
 
         <template #cell(state)="{ item: palletDelivery }">
-            <Icon :data="palletDelivery['state_icon']" class="px-1" />
+            <Icon :key="palletDelivery['state_icon']?.icon" :data="palletDelivery['state_icon']" class="px-1" />
         </template>
 
-        <template #cell(quantity)="{ item: item }">
+        <template #cell(quantity)="{ item, proxyItem }">
             <div class="w-full flex justify-end">
-                <div class="flex min-w-8 max-w-32 justify-end">
-                    <PureInputNumber v-if="item.is_checked && state == 'in_process'" v-model="item.data.quantity"
-                        :maxValue="item.total_quantity" :minValue="1" @update:modelValue="changeValueQty" />
-                    <div v-if="state != 'in_process'" class="py-3">{{ item.data.quantity }}</div>
+                <div class="flex flex-col min-w-8 max-w-32">
+                    <template v-if="state == 'in_process'">
+                        <PureInputNumber
+                            v-if="item.is_checked"
+                            :modelValue="item.data.quantity"
+                            :maxValue="item.total_quantity"
+                            :minValue="1"
+                            @update:modelValue="(e) => e ? (set(proxyItem, 'error_quantity', false), changeValueQty(e)) : set(proxyItem, 'error_quantity', true)"  
+                        />
+                        <PureInputNumber
+                            v-else
+                            :modelValue="0"
+                            disabled
+                            v-tooltip="trans('Check the row to edit')"
+                        />
+
+                        <p v-if="proxyItem.error_quantity" class="mt-1 text-left text-xs text-red-500 italic">*{{ trans('Quantity can\'t empty') }}</p>
+                    </template>
+                    
+                    <div v-else class="py-3">{{ item.data.quantity }}</div>
                 </div>
             </div>
         </template>

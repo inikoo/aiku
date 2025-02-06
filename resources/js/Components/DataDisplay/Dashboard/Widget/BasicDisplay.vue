@@ -306,10 +306,10 @@ const setChartOptions = () => ({
 		</div>
 
 		<div v-if="visual?.type === 'number'" class="mt-2">
-			<span class="text-2xl font-bold leading-tight truncate">
+			<span class="text-4xl font-bold leading-tight truncate">
 				<Link :href="NumberDashboard(visual.route)">
 					<CountUp
-						class="primaryLink w-10"
+						class="primaryLink inline-block"
 						v-if="visual.type === 'number'"
 						:endVal="visual.value"
 						:duration="1.5"
@@ -319,6 +319,22 @@ const setChartOptions = () => ({
                 }" />
 				</Link>
 			</span>
+		</div>
+		<div v-if="visual?.type === 'number_with_label'" class="mt-2">
+			<span class="text-4xl font-bold leading-tight truncate">
+				<Link :href="NumberDashboard(visual.route)">
+					<CountUp
+						class="primaryLink inline-block"
+						
+						:endVal="visual.value"
+						:duration="1.5"
+						:scrollSpyOnce="true"
+						:options="{
+                    formattingFn: (value: number) => locale.number(value)
+                }" />
+				</Link>
+			</span>
+				<p class="text-base text-gray-500">{{ visual.label }}</p>
 		</div>
 		<div class="flex-grow"></div>
 		

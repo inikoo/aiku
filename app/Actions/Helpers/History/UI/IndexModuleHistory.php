@@ -53,7 +53,7 @@ class IndexModuleHistory
             ->defaultSort('audits.created_at')
             ->allowedSorts(['auditable_id', 'auditable_type', 'user_type', 'url'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

@@ -24,7 +24,7 @@ class RedirectIfAuthenticated
 
             if (Auth::guard($guard)->check()) {
                 if ($guard == 'retina') {
-                    $redirectTo = '/app/dashboard';
+                    $redirectTo = $request->query('ref') ?? '/app/dashboard';
                 } else {
                     $redirectTo = RouteServiceProvider::HOME;
                 }

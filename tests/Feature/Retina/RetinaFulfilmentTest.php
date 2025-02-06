@@ -13,14 +13,20 @@ use App\Actions\Billables\Rental\StoreRental;
 use App\Actions\Billables\Service\StoreService;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
-use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ReceivePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Inventory\Location\StoreLocation;
+use App\Actions\Retina\CRM\DeleteRetinaCustomerDeliveryAddress;
+use App\Actions\Retina\CRM\StoreRetinaCustomerClient;
+use App\Actions\Retina\CRM\UpdateRetinaCustomerDeliveryAddress;
+use App\Actions\Retina\Fulfilment\FulfilmentTransaction\DeleteRetinaFulfilmentTransaction;
 use App\Actions\Retina\Fulfilment\FulfilmentTransaction\StoreRetinaFulfilmentTransaction;
+use App\Actions\Retina\Fulfilment\FulfilmentTransaction\UpdateRetinaFulfilmentTransaction;
+use App\Actions\Retina\Fulfilment\Pallet\DeleteRetinaPallet;
 use App\Actions\Retina\Fulfilment\Pallet\ImportRetinaPallet;
+use App\Actions\Retina\Fulfilment\Pallet\StoreRetinaMultiplePalletsFromDelivery;
 use App\Actions\Retina\Fulfilment\Pallet\StoreRetinaPalletFromDelivery;
 use App\Actions\Retina\Fulfilment\Pallet\UpdateRetinaPallet;
 use App\Actions\Retina\Fulfilment\PalletDelivery\Pdf\PdfRetinaPalletDelivery;
@@ -37,6 +43,11 @@ use App\Actions\Retina\Fulfilment\PalletReturn\SubmitRetinaPalletReturn;
 use App\Actions\Retina\Fulfilment\PalletReturn\UpdateRetinaPalletReturn;
 use App\Actions\Retina\Fulfilment\StoredItem\StoreRetinaStoredItem;
 use App\Actions\Retina\Fulfilment\StoredItem\SyncRetinaStoredItemToPallet;
+use App\Actions\Retina\SysAdmin\AddRetinaDeliveryAddressToFulfilmentCustomer;
+use App\Actions\Retina\SysAdmin\DeleteRetinaWebUser;
+use App\Actions\Retina\SysAdmin\StoreRetinaWebUser;
+use App\Actions\Retina\SysAdmin\UpdateRetinaCustomer;
+use App\Actions\Retina\SysAdmin\UpdateRetinaWebUser;
 use App\Actions\Retina\UI\Profile\UpdateRetinaProfile;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
@@ -54,13 +65,17 @@ use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Billables\Rental;
 use App\Models\Billables\Service;
+use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
+use App\Models\Dropshipping\CustomerClient;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\FulfilmentTransaction;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\RentalAgreement;
 use App\Models\Fulfilment\StoredItem;
+use App\Models\Helpers\Address;
 use App\Models\Helpers\Upload;
 use App\Models\Inventory\Location;
 use Illuminate\Http\UploadedFile;
@@ -289,7 +304,7 @@ test('Sync Stored Item to Pallet', function (Pallet $pallet) {
 })->depends('Add Retina Pallet to PalletDelivery');
 
 test('Add Retina Mutiple Pallets to Pallet Delivery', function (PalletDelivery $palletDelivery) {
-    StoreMultiplePalletsFromDelivery::make()->action($palletDelivery, [
+    StoreRetinaMultiplePalletsFromDelivery::make()->action($palletDelivery, [
         'number_pallets' => 9,
         'type'           => PalletTypeEnum::PALLET
     ]);
@@ -298,6 +313,18 @@ test('Add Retina Mutiple Pallets to Pallet Delivery', function (PalletDelivery $
 
     expect($palletDelivery)->toBeInstanceOf(PalletDelivery::class)
         ->and($palletDelivery->fulfilmentCustomer->number_pallets)->toBe(10);
+
+    return $palletDelivery;
+})->depends('Create Retina Pallet Delivery');
+
+test('Delete Retina Pallet', function (PalletDelivery $palletDelivery) {
+    $pallet = $palletDelivery->pallets()->skip(1)->first();
+    DeleteRetinaPallet::make()->action($pallet);
+
+    $palletDelivery->refresh();
+
+    expect($palletDelivery)->toBeInstanceOf(PalletDelivery::class)
+        ->and($palletDelivery->fulfilmentCustomer->number_pallets)->toBe(9);
 
     return $palletDelivery;
 })->depends('Create Retina Pallet Delivery');
@@ -351,18 +378,42 @@ test('Update Retina Pallet Delivery', function (PalletDelivery $palletDelivery) 
 })->depends('Create Retina Pallet Delivery');
 
 test('Store Retina Fulfilment Transaction in Pallet Delivery', function (PalletDelivery $palletDelivery) {
-    StoreRetinaFulfilmentTransaction::make()->action($palletDelivery, [
+    $fulfilmentTransaction = StoreRetinaFulfilmentTransaction::make()->action($palletDelivery, [
         'historic_asset_id' => $this->product->current_historic_asset_id,
         'quantity'          => 5
     ]);
 
     $palletDelivery->refresh();
-
+    $fulfilmentTransaction->refresh();
     expect($palletDelivery)->toBeInstanceOf(PalletDelivery::class)
         ->and($palletDelivery->stats->number_physical_goods)->toBe(1);
 
-    return $palletDelivery;
+    return $fulfilmentTransaction;
 })->depends('Create Retina Pallet Delivery');
+
+test('Update Retina Fulfilment Transaction in Pallet Delivery', function (FulfilmentTransaction $fulfilmentTransaction) {
+    $fulfilmentTransaction = UpdateRetinaFulfilmentTransaction::make()->action($fulfilmentTransaction, [
+        'quantity'          => 7
+    ]);
+
+    $fulfilmentTransaction->refresh();
+
+    expect($fulfilmentTransaction)->toBeInstanceOf(FulfilmentTransaction::class)
+        ->and(intval($fulfilmentTransaction->quantity))->toBe(7);
+
+    return $fulfilmentTransaction;
+})->depends('Store Retina Fulfilment Transaction in Pallet Delivery');
+
+test('Delete Retina Fulfilment Transaction in Pallet Delivery', function (FulfilmentTransaction $fulfilmentTransaction) {
+    $parent = $fulfilmentTransaction->parent;
+    DeleteRetinaFulfilmentTransaction::make()->action($fulfilmentTransaction);
+
+    $parent->refresh();
+    expect($parent)->toBeInstanceOf(PalletDelivery::class)
+        ->and($parent->stats->number_physical_goods)->toBe(0);
+
+    return $parent;
+})->depends('Update Retina Fulfilment Transaction in Pallet Delivery');
 
 test('Import Pallet (xlsx) for Pallet Delivery', function (PalletDelivery $palletDelivery) {
     Storage::fake('local');
@@ -374,7 +425,7 @@ test('Import Pallet (xlsx) for Pallet Delivery', function (PalletDelivery $palle
 
     Storage::fake('local')->put($tmpPath, $file);
 
-    expect($palletDelivery->stats->number_pallets)->toBe(10);
+    expect($palletDelivery->stats->number_pallets)->toBe(9);
 
     $upload = ImportRetinaPallet::run($palletDelivery, $file, [
         'with_stored_item' => false
@@ -384,7 +435,7 @@ test('Import Pallet (xlsx) for Pallet Delivery', function (PalletDelivery $palle
         ->and($upload->number_rows)->toBe(1)
         ->and($upload->number_success)->toBe(1)
         ->and($upload->number_fails)->toBe(0)
-        ->and($palletDelivery->stats->number_pallets)->toBe(11);
+        ->and($palletDelivery->stats->number_pallets)->toBe(10);
 
 
     return $palletDelivery;
@@ -529,7 +580,7 @@ test('Attach Pallet to Retina Pallet Return', function (PalletReturn $palletRetu
     $palletReturn = AttachRetinaPalletsToReturn::make()->action(
         $palletReturn,
         [
-            'pallets' => [2,3]
+            'pallets' => [3,4]
         ]
     );
 
@@ -644,3 +695,144 @@ test('Attach Stored Item to Retina Pallet Return (with stored item)', function (
 
     return $palletReturn;
 })->depends('Create Retina Pallet Return (with stored item)');
+
+test('Update Retina Customer', function () {
+    $customer = UpdateRetinaCustomer::make()->action(
+        $this->fulfilmentCustomer->customer,
+        [
+            'contact_name' => 'Jowko'
+        ]
+    );
+
+    $customer->refresh();
+
+    expect($customer)->toBeInstanceOf(Customer::class)
+        ->and($customer->contact_name)->toBe('Jowko');
+
+    return $customer;
+});
+
+test('Store retina delivery address to fulfilment customer', function () {
+    $fulfilmentCustomer = AddRetinaDeliveryAddressToFulfilmentCustomer::make()->action(
+        $this->fulfilmentCustomer,
+        [
+            'delivery_address' => Address::factory()->definition()
+        ]
+    );
+
+    $fulfilmentCustomer->refresh();
+
+    expect($fulfilmentCustomer)->toBeInstanceOf(FulfilmentCustomer::class)
+        ->and($fulfilmentCustomer->customer->addresses()->count())->toBe(2)
+        ->and($fulfilmentCustomer->customer->deliveryAddress)->not->toBeNull();
+
+    return $fulfilmentCustomer;
+});
+
+test('Update retina customer delivery address', function () {
+    $customer = UpdateRetinaCustomerDeliveryAddress::make()->action(
+        $this->fulfilmentCustomer->customer,
+        [
+            'delivery_address_id' => 6
+        ]
+    );
+
+    $customer->refresh();
+
+    expect($customer)->toBeInstanceOf(Customer::class)
+        ->and($customer->delivery_address_id)->toBe(6);
+
+    return $customer;
+});
+
+test('Delete retina customer delivery address', function () {
+    $customer = UpdateRetinaCustomerDeliveryAddress::make()->action(
+        $this->fulfilmentCustomer->customer,
+        [
+            'delivery_address_id' => 5
+        ]
+    );
+
+    $customer = DeleteRetinaCustomerDeliveryAddress::make()->action(
+        $this->fulfilmentCustomer->customer,
+        $this->fulfilmentCustomer->customer->addresses()->skip(1)->first()
+    );
+
+    $customer->refresh();
+
+    expect($customer)->toBeInstanceOf(Customer::class)
+        ->and($customer->addresses()->count())->toBe(1);
+
+    return $customer;
+});
+
+test('Store retina customer client', function () {
+    $customerClient = StoreRetinaCustomerClient::make()->action(
+        $this->fulfilmentCustomer->customer,
+        [
+            'reference' => 'ref1',
+            'contact_name' => 'Jowki',
+            'company_name' => 'Jowki.inc',
+            'email' => 'jowki@jowki.com',
+            'phone' => '123456789',
+            'address' => Address::factory()->definition(),
+            'status' => true
+        ]
+    );
+
+    $customerClient->refresh();
+
+    expect($customerClient)->toBeInstanceOf(CustomerClient::class)
+        ->and($customerClient->reference)->toBe('ref1')
+        ->and($customerClient->contact_name)->toBe('Jowki')
+        ->and($customerClient->company_name)->toBe('Jowki.inc');
+
+    return $customerClient;
+});
+
+test('Store retina web user', function () {
+    $webUser = StoreRetinaWebUser::make()->action(
+        $this->fulfilmentCustomer->customer,
+        [
+            'contact_name' => 'Jowkiwi',
+            'username' => 'jowkisii',
+            'email' => 'jowki@jowki.com',
+            'password' => 'jokoooo'
+        ]
+    );
+
+    $webUser->refresh();
+
+    expect($webUser)->toBeInstanceOf(WebUser::class)
+        ->and($webUser->contact_name)->toBe('Jowkiwi')
+        ->and($webUser->username)->toBe('jowkisii')
+        ->and($webUser->email)->toBe('jowki@jowki.com');
+
+    return $webUser;
+});
+
+test('update retina web user', function (WebUser $webUser) {
+    $webUser = UpdateRetinaWebUser::make()->action(
+        $webUser,
+        [
+            'username' => 'jowkowsi',
+        ]
+    );
+
+    $webUser->refresh();
+
+    expect($webUser)->toBeInstanceOf(WebUser::class)
+        ->and($webUser->username)->toBe('jowkowsi');
+
+    return $webUser;
+})->depends('Store retina web user');
+
+test('delete retina web user', function (WebUser $webUser) {
+    expect($webUser->customer->stats->number_web_users)->toBe(2);
+    DeleteRetinaWebUser::make()->action(
+        $webUser
+    );
+    $webUser->customer->refresh();
+    expect($webUser->customer->stats->number_web_users)->toBe(1);
+
+})->depends('update retina web user');

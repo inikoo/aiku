@@ -103,6 +103,7 @@ class IndexRefunds extends OrgAction
                 'invoices.created_at',
                 'invoices.updated_at',
                 'invoices.slug',
+                'invoices.invoice_id',
                 'currencies.code as currency_code',
                 'currencies.symbol as currency_symbol',
                 'shops.name as shop_name',
@@ -128,7 +129,8 @@ class IndexRefunds extends OrgAction
 
         return $queryBuilder->allowedSorts(['number', 'pay_status', 'total_amount', 'net_amount', 'date', 'customer_name', 'reference'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withBetweenDates(['date'])
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -185,7 +187,7 @@ class IndexRefunds extends OrgAction
                 $table->column(key: 'shop_name', label: __('shop'), canBeHidden: false, searchable: true);
             }
 
-
+            $table->betweenDates(['date']);
             $table->column(key: 'total_amount', label: __('total'), canBeHidden: false, sortable: true, searchable: true, type: 'number')
                 ->defaultSort('-date');
         };

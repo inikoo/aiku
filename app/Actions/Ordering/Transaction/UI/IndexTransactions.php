@@ -82,7 +82,7 @@ class IndexTransactions extends OrgAction
             ])
             ->allowedSorts(['asset_code', 'asset_name', 'net_amount', 'quantity_ordered'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

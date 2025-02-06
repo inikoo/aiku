@@ -75,7 +75,7 @@ class IndexProspectMailshots extends InertiaAction
             ->defaultSort('mailshots.slug')
             ->allowedSorts(['slug', 'subject', 'date'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

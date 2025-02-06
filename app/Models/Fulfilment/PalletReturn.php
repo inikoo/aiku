@@ -82,6 +82,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $is_collection
  * @property int|null $invoice_id
  * @property int|null $recurring_bill_id
+ * @property int|null $shopify_user_id
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
  * @property-read Currency $currency

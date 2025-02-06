@@ -33,6 +33,7 @@ class StoreRetinaCustomerClient extends RetinaAction
     use WithNoStrictRules;
 
     protected Customer $customer;
+    private bool $action = false;
     /**
      * @throws \Throwable
      */
@@ -69,7 +70,7 @@ class StoreRetinaCustomerClient extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->asAction) {
+        if ($this->action) {
             return true;
         }
 
@@ -130,6 +131,13 @@ class StoreRetinaCustomerClient extends RetinaAction
         $this->customer = $customer;
         $this->initialisation($request);
 
+        return $this->handle($customer, $this->validatedData);
+    }
+
+    public function action(Customer $customer, array $modelData): CustomerClient
+    {
+        $this->action = true;
+        $this->initialisationFulfilmentActions($customer->fulfilmentCustomer, $modelData);
         return $this->handle($customer, $this->validatedData);
     }
 

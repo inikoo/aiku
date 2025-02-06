@@ -13,11 +13,7 @@ import BoxAuditStoredItems from '@/Components/Box/BoxAuditStoredItems.vue'
 
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import TableStoredItemsAudits from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemsAudits.vue"
 
-import DataTable from "primevue/datatable"
-import Column from "primevue/column"
-import Tag from "@/Components/Tag.vue"
 
 import { Pallet, PalletDelivery } from '@/types/Pallet'
 import { routeType } from "@/types/route"
@@ -25,19 +21,7 @@ import { routeType } from "@/types/route"
 import { faStickyNote, faCheckCircle as falCheckCircle, faUndo, faArrowToLeft, faTrashAlt } from '@fal'
 import { faCheckCircle } from '@fad'
 import { faPlus, faMinus, faStar } from '@fas'
-import Table from '@/Components/Table/Table.vue'
-import { useFormatTime } from '@/Composables/useFormatTime'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import Icon from '@/Components/Icon.vue'
-import StoredItemsProperty from '@/Components/StoredItemsProperty.vue'
-import Button from '@/Components/Elements/Buttons/Button.vue'
-import { trans } from 'laravel-vue-i18n'
 import { reactive, ref } from 'vue'
-import { debounce, get, set } from 'lodash'
-import InputNumber from 'primevue/inputnumber'
-import { notify } from '@kyvg/vue3-notification'
-import CreateStoredItems from '@/Components/CreateStoredItems.vue'
-import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import { Table as TableTS } from '@/types/Table'
 import TableStoredItemAuditDeltas from '@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemAuditDeltas.vue'
 import TableEditStoredItemAuditDeltas from '@/Components/Tables/Grp/Org/Fulfilment/TableEditStoredItemAuditDeltas.vue'

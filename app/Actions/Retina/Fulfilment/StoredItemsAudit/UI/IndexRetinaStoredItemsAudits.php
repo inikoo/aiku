@@ -59,7 +59,7 @@ class IndexRetinaStoredItemsAudits extends RetinaAction
 
         return $query->allowedSorts(['state', 'reference','date','amount','tax_amount','total_amount','number_pallets','number_stored_items','number_added_stored_items','number_edited_stored_items','number_removed_stored_items'])
             ->allowedFilters([$globalSearch,  'reference'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
 
     }

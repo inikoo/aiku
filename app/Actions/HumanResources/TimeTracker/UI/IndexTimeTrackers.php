@@ -65,7 +65,7 @@ class IndexTimeTrackers extends OrgAction
                 ]
             )
             ->allowedSorts(['starts_at'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

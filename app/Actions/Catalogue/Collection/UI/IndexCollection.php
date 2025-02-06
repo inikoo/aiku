@@ -116,7 +116,7 @@ class IndexCollection extends OrgAction
 
         return $queryBuilder
             ->allowedSorts(['code', 'name'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

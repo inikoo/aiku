@@ -8,11 +8,14 @@
 
 use App\Actions\SysAdmin\User\UI\ConnectMayaWithCredentials;
 use App\Actions\SysAdmin\User\UI\ConnectMayaWithQRCode;
+use App\Actions\SysAdmin\User\UI\LogoutMayaApp;
 use App\Actions\SysAdmin\User\UpdateFcmTokenUser;
 use Illuminate\Support\Facades\Route;
 
 Route::name('maya.')->group(function () {
     Route::middleware(['auth:sanctum', 'bind_group'])->group(function () {
+        Route::post('logout', LogoutMayaApp::class)->name('logout');
+
         Route::prefix("profile")
             ->name("profile.")
             ->group(__DIR__."/profile.php");

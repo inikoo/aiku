@@ -26,6 +26,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmailAddresses;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmailsBulkRuns;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateFamilies;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateFulfilmentCustomers;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateGuests;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInvoiceIntervals;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateMasterShops;
@@ -169,6 +170,7 @@ class HydrateGroup extends HydrateModel
         GroupHydrateStoredItems::run($group);
         GroupHydrateRecurringBills::run($group);
         GroupHydrateSpaces::run($group);
+        GroupHydrateFulfilmentCustomers::run($group);
 
         GroupHydrateTopUps::run($group);
         GroupHydrateCreditTransactions::run($group);

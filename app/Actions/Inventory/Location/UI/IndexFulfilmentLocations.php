@@ -83,7 +83,7 @@ class IndexFulfilmentLocations extends OrgAction
             ->leftJoin('warehouse_areas', 'locations.warehouse_area_id', 'warehouse_areas.id')
             ->allowedSorts(['code', 'number_pallets'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

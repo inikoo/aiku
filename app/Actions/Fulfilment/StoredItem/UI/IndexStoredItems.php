@@ -68,7 +68,7 @@ class IndexStoredItems extends OrgAction
             })
             ->allowedSorts(['slug', 'state'])
             ->allowedFilters([$globalSearch, 'slug', 'state'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -102,9 +102,10 @@ class IndexStoredItems extends OrgAction
                         default => []
                     }
                 )
-                ->column(key: 'state', label: __('Delivery State'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'state', label: '', canBeHidden: false, sortable: false, searchable: false, type: 'icon')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'customer_name', label: __('Customer Name'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'customer_name', label: __('Customer Name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'pallets', label: __("Pallets"), canBeHidden: false);
             if (class_basename($parent) == 'Group') {
                 $table->column(key: 'organisation_name', label: __('Organisation'), canBeHidden: false, sortable: true, searchable: true);
             }

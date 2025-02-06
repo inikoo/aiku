@@ -124,7 +124,8 @@ class IndexDeliveryNotes extends OrgAction
             ->leftJoin('delivery_note_stats', 'delivery_notes.id', 'delivery_note_stats.delivery_note_id')
             ->allowedSorts(['reference', 'date', 'number_items', 'customer_name', 'type', 'weight'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withBetweenDates(['date'])
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -138,6 +139,7 @@ class IndexDeliveryNotes extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
+            $table->betweenDates(['date']);
 
             $noResults = __("No delivery notes found");
             if ($parent instanceof Customer) {

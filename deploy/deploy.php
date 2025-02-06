@@ -28,10 +28,11 @@ task('deploy:set-release', function () {
 
 
 
-set('keep_releases', 1000);
+set('keep_releases', 50);
 
 set('shared_dirs', ['storage', 'private']);
 set('shared_files', [
+    'rr',
     '.env',
     '.env.testing',
     '.user.ini',
@@ -74,5 +75,6 @@ task('deploy', [
     'deploy:build',
     'deploy:publish',
     'artisan:horizon:terminate',
-    'artisan:pulse:restart'
+    'artisan:pulse:restart',
+   // 'artisan:octane:reload'
 ]);

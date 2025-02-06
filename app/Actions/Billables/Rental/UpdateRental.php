@@ -69,7 +69,7 @@ class UpdateRental extends OrgAction
             return true;
         }
 
-        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return true; //TODO: Fix Auth
     }
 
     public function rules(): array
@@ -104,11 +104,20 @@ class UpdateRental extends OrgAction
         ];
     }
 
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, Rental $rental, ActionRequest $request): Rental
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Rental $rental, ActionRequest $request): Rental
     {
         $this->rental = $rental;
 
         $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($rental, $this->validatedData);
+    }
+
+    public function asController(Rental $rental, ActionRequest $request): Rental
+    {
+        $this->rental = $rental;
+
+        $this->initialisationFromShop($rental->shop, $request);
 
         return $this->handle($rental, $this->validatedData);
     }

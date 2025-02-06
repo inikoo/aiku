@@ -8,6 +8,7 @@
 
 namespace App\Models\Billables;
 
+use App\Enums\Billables\Service\ServiceEditTypeEnum;
 use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Models\Catalogue\InAssetModel;
 use App\Models\Fulfilment\RecurringBill;
@@ -52,9 +53,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property string|null $historic_source_id
+ * @property ServiceEditTypeEnum|null $edit_type
+ * @property bool $is_public
  * @property-read \App\Models\Catalogue\Asset|null $asset
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\Helpers\Currency $currency
+ * @property-read \App\Models\Billables\TFactory|null $use_factory
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\Catalogue\HistoricAsset|null $historicAsset
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricAsset> $historicAssets
@@ -83,11 +87,12 @@ class Service extends Model implements Auditable
     protected $guarded = [];
 
     protected $casts = [
-        'price'    => 'decimal:2',
-        'state'    => ServiceStateEnum::class,
-        'status'   => 'boolean',
-        'data'     => 'array',
-        'settings' => 'array',
+        'price'     => 'decimal:2',
+        'state'     => ServiceStateEnum::class,
+        'edit_type' => ServiceEditTypeEnum::class,
+        'status'    => 'boolean',
+        'data'      => 'array',
+        'settings'  => 'array',
     ];
 
     protected $attributes = [

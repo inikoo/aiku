@@ -89,6 +89,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property InvoicePayStatusEnum|null $pay_status
  * @property bool $in_process Used for refunds only
  * @property int|null $invoice_id For refunds link to original invoice
+ * @property string|null $footer
  * @property-read Address|null $address
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Address|null $billingAddress
@@ -96,6 +97,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Customer $customer
  * @property-read Collection<int, Feedback> $feedbacks
  * @property-read Collection<int, Address> $fixedAddresses
+ * @property-read \App\Models\Accounting\TFactory|null $use_factory
  * @property-read Group $group
  * @property-read Collection<int, \App\Models\Accounting\InvoiceTransaction> $invoiceTransactions
  * @property-read Order|null $order

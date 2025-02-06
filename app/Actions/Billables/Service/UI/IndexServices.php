@@ -115,7 +115,7 @@ class IndexServices extends OrgAction
 
         return $queryBuilder->allowedSorts(['code','price','name','state'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

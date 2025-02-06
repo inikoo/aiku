@@ -91,7 +91,7 @@ class IndexAgents extends GrpAction
             ->select(['organisations.code', 'agents.name', 'agents.slug', 'number_suppliers', 'number_supplier_products', 'location'])
             ->allowedFilters([$globalSearch])
             ->allowedSorts(['code', 'name', 'number_suppliers', 'number_supplier_products'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

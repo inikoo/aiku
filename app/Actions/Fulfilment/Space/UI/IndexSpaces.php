@@ -83,7 +83,7 @@ class IndexSpaces extends OrgAction
             ])
             ->allowedSorts(['id', 'reference', 'state', 'start_at', 'end_at'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

@@ -63,7 +63,7 @@ class IndexMasterShops extends GrpAction
             )
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

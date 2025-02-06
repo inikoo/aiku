@@ -23,6 +23,7 @@ class InertiaTable
     private string $defaultSort = '';
 
     private array $title = [];
+    private array $betweenDates = [];
 
     private Collection $emptyState;
     private Collection $modelOperations;
@@ -101,6 +102,12 @@ class InertiaTable
         return $this;
     }
 
+    public function betweenDates(array $betweenDates): self
+    {
+        $this->betweenDates = $betweenDates;
+
+        return $this;
+    }
 
     public function perPageOptions(array $perPageOptions): self
     {
@@ -147,7 +154,8 @@ class InertiaTable
             'emptyState'                      => $this->emptyState,
             'labelRecord'                     => $this->labelRecord,
             'title'                           => $this->title,
-            'footerRows'                      => $this->footerRows
+            'footerRows'                      => $this->footerRows,
+            'betweenDates'                    => $this->betweenDates
         ];
     }
 

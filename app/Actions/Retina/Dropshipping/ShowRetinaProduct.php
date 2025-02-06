@@ -66,14 +66,14 @@ class ShowRetinaProduct extends RetinaAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
-                        $this->canDelete ? [
-                            'type' => 'button',
-                            'style' => 'delete',
-                            'route' => [
-                                'name' => 'shops.show.products.remove',
-                                'parameters' => $request->route()->originalParameters()
-                            ]
-                        ] : false
+                        // $this->canDelete ? [
+                        //     'type' => 'button',
+                        //     'style' => 'delete',
+                        //     'route' => [
+                        //         'name' => 'shops.show.products.remove',
+                        //         'parameters' => $request->route()->originalParameters()
+                        //     ]
+                        // ] : false
                     ]
                 ],
                 'tabs' => [
@@ -101,7 +101,7 @@ class ShowRetinaProduct extends RetinaAction
 
             ]
         )->table(IndexOrders::make()->tableStructure($product->asset))
-            ->table(IndexCustomers::make()->tableStructure($product))
+            ->table(IndexCustomers::make()->tableStructure($product->shop))
             ->table(IndexMailshots::make()->tableStructure($product));
     }
 

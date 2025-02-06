@@ -86,7 +86,7 @@ class IndexTimesheets extends OrgAction
             ->defaultSort('date')
             ->allowedSorts(['date', 'subject_name', 'working_duration', 'breaks_duration'])
             ->allowedFilters([$globalSearch, 'subject_name'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

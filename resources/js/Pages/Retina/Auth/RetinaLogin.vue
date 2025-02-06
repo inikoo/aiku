@@ -22,7 +22,9 @@ const isLoading = ref(false)
 
 const submit = () => {
     isLoading.value = true
-    form.post(route('retina.login.store'), {
+    form.post(route('retina.login.store', {
+        ref: route().params?.['ref']
+    }), {
         onError: () => isLoading.value = false,
         onFinish: () => form.reset('password'),
     })
@@ -32,7 +34,8 @@ const inputUsername = ref(null)
 
 onMounted(async () => {
     await nextTick()
-    inputUsername.value?.focus()
+    console.log('ff', inputUsername.value?._inputRef)
+    inputUsername.value?._inputRef?.focus()
 })
 
 
@@ -42,7 +45,7 @@ onMounted(async () => {
 
     <Head title="Login" />
     <!--    <h1 class="text-center text-2xl font-bold text-slate-800">Login</h1>
-    
+
     <form class="space-y-6 mt-7">
         <div class="">
             <label for="login" class="block text-sm font-medium text-gray-700">{{ trans('Username') }}</label>
@@ -79,7 +82,7 @@ onMounted(async () => {
 
     <div class="flex items-center justify-center bg-gray-50 px-6 py-12 lg:px-8">
     <div class="w-full max-w-sm bg-transparent">
-        <div class="text-center mb-6">
+        <!-- <div class="text-center mb-6">
             <div v-if="!usePage().props?.iris?.website?.logo" class="flex items-center justify-center gap-x-2">
                 <img class="h-12 w-auto" src="/art/logo-yellow.svg"
                     :alt="usePage().props.iris?.website?.name || 'App'" />
@@ -90,7 +93,7 @@ onMounted(async () => {
                 <Image class="h-12 w-auto" :src="usePage().props?.iris?.website?.logo"
                     :alt="usePage().props?.iris?.name || 'App'" />
             </div>
-        </div>
+        </div> -->
 
         <form class="space-y-6">
             <!-- Username Field -->

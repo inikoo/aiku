@@ -92,7 +92,7 @@ class IndexAbandonedCartMailshots extends OrgAction
 
             ->allowedSorts(['state', 'date'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

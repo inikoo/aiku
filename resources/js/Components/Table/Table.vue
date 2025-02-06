@@ -29,6 +29,7 @@ import { faCheckSquare, faCheck, faSquare} from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import axios from 'axios'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
+import TableBetweenFilter from '@/Components/Table/TableBetweenFilter.vue'
 library.add(faCheckSquare, faCheck, faSquare)
 
 const locale = inject('locale', aikuLocaleStructure)
@@ -359,20 +360,20 @@ function onPerPageChange(value) {
     queryBuilderData.value.perPage = value
     queryBuilderData.value.page = 1
 
-    axios.patch(
-        route("grp.models.user.update", layout.user?.id),
-        {
-            settings: {
-                records_per_page: value,
-            },
-        }
-    )
-    .then((response) => {
-        console.log('success');
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-    });
+    // axios.patch(
+    //     route("grp.models.user.update", layout.user?.id),
+    //     {
+    //         settings: {
+    //             records_per_page: value,
+    //         },
+    //     }
+    // )
+    // .then((response) => {
+    //     console.log('success');
+    // })
+    // .catch((error) => {
+    //     console.error('Error:', error);
+    // });
 }
 
 function findDataKey(dataKey, key) {
@@ -475,7 +476,7 @@ function generateNewQueryString() {
     const queryStringData = qs.parse(location.search.substring(1))
     const prefix = props.name === 'default' ? '' : props.name + '_'
 
-    // To exclude filter, columns, cursor, and sort that received from the URL
+    // To exclude 'filter', 'columns', 'cursor', and 'sort' that received from the URL
     forEach(['filter', 'columns', 'cursor', 'sort'], (key) => {
         delete queryStringData[prefix + key];
     });
@@ -605,14 +606,16 @@ function sortBy(column) {
 function show(key) {
     const intKey = findDataKey('columns', key);
 
-    return !queryBuilderData.value.columns[intKey].hidden;
+    return !queryBuilderData?.value?.columns?.[intKey]?.hidden;
 }
 
 function header(key) {
     const intKey = findDataKey('columns', key);
     const columnData = clone(queryBuilderProps.value.columns[intKey]);
 
-    columnData.onSort = sortBy;
+    if (columnData?.onSort) {
+        columnData.onSort = sortBy;
+    }
 
     return columnData;
 }
@@ -794,6 +797,14 @@ const isLoading = ref<string | boolean>(false)
                                     :filters="queryBuilderProps.filters" :on-filter-change="changeFilterValue" />
                             </slot>
                         </div> -->
+
+                        <!-- Filter: date between -->
+                        <div v-if="queryBuilderProps?.betweenDates?.length" class="w-fit flex gap-x-2">
+                            <TableBetweenFilter
+                                :optionsList="queryBuilderProps?.betweenDates"
+                                :tableName="props.name"
+                            />
+                        </div>
 
                         <!-- Filter: Period -->
                         <div v-if="queryBuilderProps?.period_filter?.length" class="w-fit flex gap-x-2">

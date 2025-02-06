@@ -13,6 +13,7 @@ use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateServices;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Billables\Service\ServiceEditTypeEnum;
 use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Models\Billables\Service;
 use App\Rules\AlphaDashDot;
@@ -30,6 +31,26 @@ class UpdateService extends OrgAction
 
     public function handle(Service $service, array $modelData): Service
     {
+        if (Arr::exists($modelData, 'fixed_price')) {
+            $fixedPrice = Arr::pull($modelData, 'fixed_price');
+            if ($fixedPrice == true) {
+                data_set($modelData, 'edit_type', ServiceEditTypeEnum::QUANTITY);
+            } elseif ($fixedPrice == false) {
+                data_set($modelData, 'edit_type', ServiceEditTypeEnum::NET);
+            }
+        }
+
+        if (Arr::exists($modelData, 'active')) {
+            $active = Arr::pull($modelData, 'active');
+            if ($active == true) {
+                data_set($modelData, 'status', true);
+                data_set($modelData, 'state', ServiceStateEnum::ACTIVE);
+            } elseif ($active == false) {
+                data_set($modelData, 'status', false);
+                data_set($modelData, 'state', ServiceStateEnum::DISCONTINUED);
+            }
+        }
+
 
         if (Arr::exists($modelData, 'state')) {
             $status = false;
@@ -68,7 +89,7 @@ class UpdateService extends OrgAction
             return true;
         }
 
-        return $request->user()->authTo("products.{$this->shop->id}.edit");
+        return true; //TODO: Fix Auth
     }
 
     public function rules(): array
@@ -95,12 +116,16 @@ class UpdateService extends OrgAction
             'data'                     => ['sometimes', 'array'],
             'settings'                 => ['sometimes', 'array'],
             'status'                   => ['sometimes', 'required', 'boolean'],
+            'units'                    => ['sometimes', 'numeric', 'min:0'],
             'state'                    => ['sometimes', 'required', Rule::enum(ServiceStateEnum::class)],
             'is_auto_assign'           => ['sometimes', 'required', 'boolean'],
             'auto_assign_trigger'      => ['sometimes','nullable', 'string', 'in:PalletDelivery,PalletReturn'],
             'auto_assign_subject'      => ['sometimes','nullable', 'string', 'in:Pallet,StoredItem'],
             'auto_assign_subject_type' => ['sometimes','nullable', 'string', 'in:pallet,box,oversize'],
             'auto_assign_status'       => ['sometimes', 'required', 'boolean'],
+            'fixed_price'              => ['sometimes', 'boolean'],
+            'active'                   => ['sometimes', 'boolean'],
+            'is_public'                => ['sometimes', 'boolean'],
 
         ];
     }

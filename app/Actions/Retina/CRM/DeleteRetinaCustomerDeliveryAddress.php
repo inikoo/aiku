@@ -50,4 +50,13 @@ class DeleteRetinaCustomerDeliveryAddress extends RetinaAction
 
         return $this->handle($customer, $address);
     }
+
+    public function action(Customer $customer, Address $address): Customer
+    {
+        $this->address = $address;
+
+        $this->initialisationFulfilmentActions($customer->fulfilmentCustomer, []);
+
+        return $this->handle($customer, $address);
+    }
 }

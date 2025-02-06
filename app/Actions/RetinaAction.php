@@ -30,8 +30,8 @@ class RetinaAction
     protected Website $website;
     protected Customer $customer;
     protected WebUser $webUser;
-    protected Fulfilment $fulfilment;
-    protected FulfilmentCustomer $fulfilmentCustomer;
+    protected ?Fulfilment $fulfilment;
+    protected ?FulfilmentCustomer $fulfilmentCustomer;
     protected Organisation $organisation;
     protected Shop $shop;
 
@@ -74,6 +74,7 @@ class RetinaAction
         $this->customer     = $fulfilmentCustomer->customer;
         $this->shop         = $this->fulfilment->shop;
         $this->organisation = $this->fulfilment->organisation;
+        $this->webUser      = $this->customer->webUsers()->first();
         $this->setRawAttributes($modelData);
         $this->validatedData = $this->validateAttributes();
 

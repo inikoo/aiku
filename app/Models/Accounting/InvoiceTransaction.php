@@ -9,6 +9,7 @@
 namespace App\Models\Accounting;
 
 use App\Models\Catalogue\Asset;
+use App\Models\Catalogue\HistoricAsset;
 use App\Models\Discounts\Offer;
 use App\Models\Discounts\OfferCampaign;
 use App\Models\Discounts\OfferComponent;
@@ -69,6 +70,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\CRM\Customer $customer
  * @property-read \Illuminate\Database\Eloquent\Collection<int, InvoiceTransactionHasFeedback> $feedbackBridges
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read HistoricAsset|null $historicAsset
  * @property-read \App\Models\Accounting\Invoice|null $invoice
  * @property-read Model|\Eloquent $item
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Offer> $offer
@@ -135,6 +137,11 @@ class InvoiceTransaction extends Model
     public function asset(): BelongsTo
     {
         return $this->belongsTo(Asset::class);
+    }
+
+    public function historicAsset(): BelongsTo
+    {
+        return $this->belongsTo(HistoricAsset::class);
     }
 
     public function currency(): BelongsTo

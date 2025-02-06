@@ -160,6 +160,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, FulfilmentCustomer> $fulfilmentCustomers
  * @property-read \App\Models\SysAdmin\OrganisationFulfilmentStats|null $fulfilmentStats
  * @property-read LaravelCollection<int, Fulfilment> $fulfilments
+ * @property-read \App\Models\SysAdmin\TFactory|null $use_factory
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\OrganisationHumanResourcesStats|null $humanResourcesStats
  * @property-read Media|null $image
@@ -224,6 +225,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, ShippingZoneSchema> $shippingZoneSchemas
  * @property-read LaravelCollection<int, ShippingZone> $shippingZones
  * @property-read LaravelCollection<int, Shop> $shops
+ * @property-read LaravelCollection<int, Space> $spaces
  * @property-read \App\Models\SysAdmin\OrganisationStats|null $stats
  * @property-read LaravelCollection<int, Subscription> $subscriptions
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Task> $tasks

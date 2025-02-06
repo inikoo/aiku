@@ -74,6 +74,7 @@ use App\Actions\Fulfilment\Pallet\SetPalletRental;
 use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\Pallet\UndoBookedInPallet;
+use App\Actions\Fulfilment\Pallet\UndoNotReceivedPallet;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
 use App\Actions\Fulfilment\PalletDelivery\CancelPalletDelivery;
@@ -282,7 +283,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
 
     Route::prefix('fulfilment/{fulfilment:id}/rentals')->name('fulfilment.rentals.')->group(function () {
         Route::post('/', StoreRental::class)->name('store');
-        Route::patch('{rental:id}', UpdateRental::class)->name('update')->withoutScopedBindings();
+        Route::patch('{rental:id}', [UpdateRental::class, 'inFulfilment'])->name('update')->withoutScopedBindings();
     });
 
     Route::prefix('fulfilment/{fulfilment:id}/services')->name('fulfilment.services.')->group(function () {
@@ -422,7 +423,7 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
     Route::delete('stored-items/reset', ResetAuditStoredItemToPallet::class)->name('stored-items.audit.reset');
     Route::patch('book-in', BookInPallet::class)->name('book_in');
     Route::patch('not-received', SetPalletAsNotReceived::class)->name('not-received');
-    Route::patch('undo-not-received', UndoBookedInPallet::class)->name('undo-not-received');
+    Route::patch('undo-not-received', UndoNotReceivedPallet::class)->name('undo-not-received');
     Route::patch('undo-booked-in', UndoBookedInPallet::class)->name('undo_book_in');
 
     Route::patch('damaged', SetPalletAsDamaged::class)->name('damaged');
@@ -649,6 +650,12 @@ Route::name('email.')->prefix('email/')->group(function () {
     Route::name('snapshot.')->prefix('snapshot/{snapshot:id}')->group(function () {
         Route::patch('/update', UpdateEmailUnpublishedSnapshot::class)->name('update');
     });
+});
+Route::name('services.')->prefix('serivices/')->group(function () {
+    Route::patch('{service:id}/update', UpdateService::class)->name('update');
+});
+Route::name('rentals.')->prefix('rentals/')->group(function () {
+    Route::patch('{rental:id}/update', UpdateRental::class)->name('update');
 });
 
 require __DIR__."/models/inventory/warehouse.php";

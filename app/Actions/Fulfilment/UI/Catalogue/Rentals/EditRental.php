@@ -144,10 +144,8 @@ class EditRental extends OrgAction
                     // Make sure to change the FulfilmentUITest after fixing this
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'grp.models.org.fulfilment.rentals.update',
+                            'name'       => 'grp.models.rentals.update',
                             'parameters' => [
-                                'organisation' => $rental->organisation_id,
-                                'fulfilment'   => $rental->fulfilment_id,
                                 'rental'       => $rental->id
                             ]
 

@@ -15,6 +15,7 @@ use App\Models\Traits\InFulfilment;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
@@ -46,10 +47,13 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property-read Asset $asset
  * @property-read \App\Models\Fulfilment\RentalAgreementClause|null $clause
  * @property-read \App\Models\Fulfilment\Fulfilment|null $fulfilment
+ * @property-read \App\Models\Fulfilment\FulfilmentCustomer|null $fulfilmentCustomer
+ * @property-read \App\Models\Fulfilment\TFactory|null $use_factory
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read HistoricAsset $historicAsset
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read Model|\Eloquent $parent
+ * @property-read \App\Models\Fulfilment\RecurringBillTransaction|null $recurringBillTransaction
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FulfilmentTransaction newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FulfilmentTransaction newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FulfilmentTransaction query()
@@ -91,5 +95,15 @@ class FulfilmentTransaction extends Model
     public function clause(): BelongsTo
     {
         return $this->belongsTo(RentalAgreementClause::class, 'rental_agreement_clause_id');
+    }
+
+    public function fulfilmentCustomer(): BelongsTo
+    {
+        return $this->belongsTo(FulfilmentCustomer::class);
+    }
+
+    public function recurringBillTransaction(): HasOne
+    {
+        return $this->hasOne(RecurringBillTransaction::class);
     }
 }

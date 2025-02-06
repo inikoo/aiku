@@ -2,6 +2,26 @@
 <head>
     <title>{{ $invoice->slug }}</title>
     <style>
+        @page {
+            size: 8.27in 11.69in; /* <length>{1,2} | auto | portrait | landscape */
+            /* 'em' 'ex' and % are not allowed; length values are width height */
+            margin-top: 15%; /* <any of the usual CSS values for margins> */
+            /*(% of page-box width for LR, of height for TB) */
+            margin-bottom: 13%;
+            margin-right: 8%;
+            margin-left: 8%;
+            margin-header: 1mm; /* <any of the usual CSS values for margins> */
+            margin-footer: 5mm; /* <any of the usual CSS values for margins> */
+            marks: 'cross'; /*crop | cross | none*/
+            header: myheader;
+            footer: myfooter;
+            /* background: ...
+            background-image: ...
+            background-position ...
+            background-repeat ...
+            background-color ...
+            background-gradient: ... */
+        }
         body {
             font-family: sans-serif;
             font-size: 10pt;
@@ -93,10 +113,10 @@
                     {{$shop->address->address_line_1}}
                 </div>
                 <div style="font-size:7pt">
-                {{$shop->address->address_line_2}}
+                    {{$shop->address->address_line_2}}
                 </div>
                 <div style="font-size:7pt">
-                {{$shop->address->locality}} {{$shop->address->postal_code}}
+                    {{$shop->address->locality}} {{$shop->address->postal_code}}
                 </div>
                 <div style="font-size:7pt">
                     www.{{$shop->website->domain}}
@@ -113,8 +133,6 @@
 
 <sethtmlpageheader name="myheader" value="on" show-this-page="1"/>
 <sethtmlpagefooter name="myfooter" value="on"/>
-
-<br><br><br><br><br>
 
 <table width="100%" style="margin-top: 40px">
     <tr>
@@ -147,27 +165,29 @@
                     ({{ $invoice->customer['reference'] }})
                 </div>
                 <div class=" {if !$customer->get('Customer Main Plain Mobile')}hide{/if}">
-                    <span class="address_label">{{ __('Mobile') }}:</span> <span class="address_value">{{ $invoice->customer['phone'] }}</span>
+                    <span class="address_label">{{ __('Mobile') }}:</span> <span
+                        class="address_value">{{ $invoice->customer['phone'] }}</span>
                 </div>
 
                 <div class=" {if !$customer->get('Customer Main Plain Telephone')}hide{/if}">
-                    <span class="address_label">{{ __('Phone') }}:</span> <span class="address_value">{{ $invoice->customer['phone'] }}</span>
+                    <span class="address_label">{{ __('Phone') }}:</span> <span
+                        class="address_value">{{ $invoice->customer['phone'] }}</span>
                 </div>
             </div>
         </td>
-<!--        <td width="50%" style="vertical-align:bottom;border: 0mm solid #888888;text-align: right">
+        <!--        <td width="50%" style="vertical-align:bottom;border: 0mm solid #888888;text-align: right">
 
-            <div style="text-align:right;">
-                <b>1 box</b>
-            </div>
-            <div style="text-align: right">Weight: <b>2Kg</b></div>
+                    <div style="text-align:right;">
+                        <b>1 box</b>
+                    </div>
+                    <div style="text-align: right">Weight: <b>2Kg</b></div>
 
-            <div style="text-align: right">
-                Courier: <b> <span
-                        id="formatted_consignment">XIWSKU</span></b>
-            </div>
+                    <div style="text-align: right">
+                        Courier: <b> <span
+                                id="formatted_consignment">XIWSKU</span></b>
+                    </div>
 
-        </td>-->
+                </td>-->
     </tr>
 </table>
 <table width="100%" style="font-family: sans-serif;" cellpadding="10">
@@ -207,7 +227,7 @@
         <td style="width:14%;text-align:left">{{ __('Code') }}</td>
 
         <td style="text-align:left" colspan="2">{{ __('Description') }}</td>
-{{--        <td style="text-align:left;width:20% ">Discount</td>--}}
+        {{--        <td style="text-align:left;width:20% ">Discount</td>--}}
         <td style="text-align:left;width:20% ">{{ __('Price') }}</td>
 
         <td style="text-align:left">{{ __('Qty') }}</td>
@@ -218,19 +238,25 @@
     <tbody>
 
     @foreach($transactions as $transaction)
-    <tr class="@if($loop->last) last @endif">
-        <td style="text-align:left">{{ $transaction->asset['code'] }}</td>
+        <tr class="@if($loop->last) last @endif">
+            <td style="text-align:left">{{ $transaction->historicAsset?->code }}</td>
 
-        <td style="text-align:left" colspan="2">
-            {{ $transaction->asset['name'] }}
-        </td>
-{{--        <td style="text-align:left">{{ $transaction->discounts_amount }}</td>--}}
-        <td style="text-align:left">{{ $invoice->currency->symbol . $transaction->asset['price'] }}</td>
+            <td style="text-align:left" colspan="2">
+                @if($transaction->historicAsset)
+                    {{ $transaction->historicAsset?->name }}
+                @endif
+            </td>
 
-        <td style="text-align:right">{{ (int) $transaction->quantity }}</td>
+            <td style="text-align:left">
+                @if($transaction->historicAsset)
+                    {{ $invoice->currency->symbol . ' ' . optional($transaction->historicAsset)->price }}
+                @endif
+            </td>
 
-        <td style="text-align:right">{{ $invoice->currency->symbol . $transaction->net_amount }}</td>
-    </tr>
+            <td style="text-align:right">{{ (int) $transaction->quantity }}</td>
+
+            <td style="text-align:right">{{ $invoice->currency->symbol . $transaction->net_amount }}</td>
+        </tr>
     @endforeach
 
     </tbody>
@@ -285,32 +311,32 @@
 
     <tbody>
     @foreach($invoice->payments as $payment)
-    <tr class="@if($loop->last) last @endif">
-        <td style="text-align:left">
-            {{ $payment->paymentAccount['name'] }}
-        </td>
-        <td style="text-align:right">
-            {{ $payment->updated_at->format('F j, Y H:i a') }}
-        </td>
-        <td style="text-align:left">{{ $payment->state->labels()[$payment->state->value] }}</td>
-        <td style="text-align:left">{{ $payment->reference }}</td>
-        <td style="text-align:right">{{ $invoice->currency->symbol . $payment->amount }}</td>
-    </tr>
+        <tr class="@if($loop->last) last @endif">
+            <td style="text-align:left">
+                {{ $payment->paymentAccount['name'] }}
+            </td>
+            <td style="text-align:right">
+                {{ $payment->updated_at->format('F j, Y H:i a') }}
+            </td>
+            <td style="text-align:left">{{ $payment->state->labels()[$payment->state->value] }}</td>
+            <td style="text-align:left">{{ $payment->reference }}</td>
+            <td style="text-align:right">{{ $invoice->currency->symbol . $payment->amount }}</td>
+        </tr>
     @endforeach
     </tbody>
 </table>
 <br>
 <br>
 
-@if(Arr::exists($shop->data,'invoice_footer'))
-<div style="text-align: center; font-style: italic;">
-    {{Arr::get($shop->data,'invoice_footer')}}
-</div>
+@if($invoice->footer)
+    <div style="text-align: center; font-style: italic;">
+        {!! $invoice->footer !!}
+    </div>
 @endif
 
 <htmlpagefooter name="myfooter">
     <div
-        style="border-top: 1px solid #000000; font-size: 9pt; text-align: center; padding-top: 3mm; margin-top: 120px"></div>
+        style="border-top: 1px solid #000000; font-size: 9pt; text-align: center; padding-top: 5mm; margin-top: 5mm;"></div>
     <table width="100%">
         <tr>
         <tr>
@@ -318,10 +344,10 @@
                 <small>
                     {{$shop->name}}<br>
                     @if(Arr::exists($shop->data,'vat_number'))
-                     {{__('VAT Number')}}:<b>{{Arr::get($shop->data,'vat_number')}}</b><br>
+                        {{__('VAT Number')}}:<b>{{Arr::get($shop->data,'vat_number')}}</b><br>
                     @endif
                     @if(Arr::exists($shop->data,'registration_number'))
-                    {{__('Registration Number')}}: {{Arr::get($shop->data,'registration_number')}}
+                        {{__('Registration Number')}}: {{Arr::get($shop->data,'registration_number')}}
                     @endif
                 </small>
             </td>

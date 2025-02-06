@@ -151,7 +151,7 @@ class IndexStockFamilies extends GrpAction
             ->leftJoin('stock_family_stats', 'stock_family_stats.stock_family_id', 'stock_families.id')
             ->allowedSorts(['code', 'name', 'number_current_stocks'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
