@@ -42,13 +42,24 @@ class RepairPalletDeliveriesAndReturns
         $this->fixPalletDeliveryRecurringBill();
         $this->fixPalletDeliveryTransactionsRecurringBill();
 
+        print "palletsStartDate\n";
         $this->palletsStartDate();
+        print "palletsEndDate\n";
         $this->palletsEndDate();
+
+
+        print "palletsValidateStartEndDate x\n";
         $this->palletsValidateStartEndDate();
 
-        $this->fixPalletReturnRecurringBill();
+        print "fixPalletReturnTransactionsRecurringBill\n";
+
         $this->fixPalletReturnTransactionsRecurringBill();
+
+        print "fixNonRentalRecurringBillTransactions\n";
         $this->fixNonRentalRecurringBillTransactions();
+
+
+        print "last fix\n";
         /** @var RecurringBill $recurringBill */
         foreach (RecurringBill::where('status', RecurringBillStatusEnum::CURRENT)->get() as $recurringBill) {
             $transactions = $recurringBill->transactions()->get();
@@ -60,9 +71,10 @@ class RepairPalletDeliveriesAndReturns
                 CalculateRecurringBillTransactionCurrencyExchangeRates::run($transaction);
             }
 
-            CalculateRecurringBillTotals::make()->action($recurringBill);
+            CalculateRecurringBillTotals::dispatch($recurringBill);
         }
     }
+
 
     public function palletsValidateStartEndDate(): void
     {
@@ -160,19 +172,20 @@ class RepairPalletDeliveriesAndReturns
                         print 'PED: '.$transaction->id.' add end day '.$pallet->dispatched_at->format('Y-m-d')."\n";
                         $transaction->update(['end_date' => $pallet->dispatched_at]);
                     } else {
-                        $currentEndDay     = $transaction->end_date->startOfDay();
-                        $originalStartDate = $currentEndDay;
+                        $currentEndDay   = $transaction->end_date->startOfDay();
+                        $originalEndDate = $currentEndDay;
                         if ($pallet->dispatched_at->startOfDay()->ne($currentEndDay)) {
                             $currentEndDay = $pallet->dispatched_at->startOfDay();
                         }
 
-                        if ($originalStartDate->ne($currentEndDay)) {
-                            print 'PED: '.$transaction->id.' '.$originalStartDate->format('Y-m-d').' -> '.$currentEndDay->format('Y-m-d')."\n";
+                        if ($originalEndDate->ne($currentEndDay)) {
+                            print 'PEDx: '.$transaction->id.' '.$originalEndDate->format('Y-m-d').' -> '.$currentEndDay->format('Y-m-d')."\n";
+                            $transaction->update(['end_date' => $pallet->dispatched_at]);
                         }
                     }
                 } elseif ($transaction->end_date) {
-                    print 'PED: '.$transaction->id.' remove end day '.$transaction->end_date->format('Y-m-d')."\n";
-                    $transaction->update(['end_date' => null]);
+                    //    print 'PED: '.$transaction->id.' remove end day '.$transaction->end_date->format('Y-m-d')."\n";
+                    $transaction->update(['end_date' => $recurringBill->end_date]);
                 }
             }
         }
@@ -271,20 +284,6 @@ class RepairPalletDeliveriesAndReturns
         }
     }
 
-    public function fixPalletReturnRecurringBill(): void
-    {
-        $palletReturns = PalletReturn::whereNull('recurring_bill_id')->get();
-        /** @var PalletReturn $palletReturn */
-        foreach ($palletReturns as $palletReturn) {
-            if ($receivedDate = $palletReturn->dispatched_at and $palletReturn->fulfilmentCustomer->currentRecurringBill) {
-                $currentRecurringBill = $palletReturn->fulfilmentCustomer->currentRecurringBill;
-                if ($receivedDate->isAfter($currentRecurringBill->start_date)) {
-                    print "Fix Pallet Return CRB: $palletReturn->id\n";
-                    $palletReturn->update(['recurring_bill_id' => $currentRecurringBill->id]);
-                }
-            }
-        }
-    }
 
     public function getCommandSignature(): string
     {
