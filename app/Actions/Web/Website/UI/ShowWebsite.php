@@ -18,7 +18,9 @@ use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Web\ExternalLink\UI\IndexExternalLinks;
 use App\Actions\Web\HasWorkshopAction;
 use App\Actions\Web\Website\GetWebsiteCloudflareAnalytics;
+use App\Actions\Web\Website\GetWebsiteWorkshopLayout;
 use App\Enums\UI\Web\WebsiteTabsEnum;
+use App\Enums\UI\Web\WebsiteWorkshopTabsEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Http\Resources\CRM\WebUsersResource;
 use App\Http\Resources\History\HistoryResource;
@@ -116,6 +118,7 @@ class ShowWebsite extends OrgAction
                         ),
 
                 ],
+               /*  "layout" =>  GetWebsiteWorkshopLayout::run($this->scope, $website), */
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => WebsiteTabsEnum::navigation()
