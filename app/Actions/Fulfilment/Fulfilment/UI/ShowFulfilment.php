@@ -49,6 +49,15 @@ class ShowFulfilment extends OrgAction
 
     private function getDashboard(Fulfilment $fulfilment): array
     {
+
+        $classApprovalVisual = 'text-black';
+
+        if ($fulfilment->shop->crmStats->number_customers_status_pending_approval > 5) {
+            $classApprovalVisual = 'text-red-500';
+        } elseif ($fulfilment->shop->crmStats->number_customers_status_pending_approval == 0) {
+            $classApprovalVisual = 'text-green-500';
+        }
+
         return [
 
 
@@ -141,6 +150,7 @@ class ShowFulfilment extends OrgAction
                             visual: [
                                 'label' => __('Pending Approval Customers'),
                                 'type'  => 'number_with_label',
+                                'class' => $classApprovalVisual,
                                 'value' => $fulfilment->shop->crmStats->number_customers_status_pending_approval,
                                 'route' => [
                                     'name'       => 'grp.org.fulfilments.show.crm.customers.pending_approval.index',
