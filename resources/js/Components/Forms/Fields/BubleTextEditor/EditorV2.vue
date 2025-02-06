@@ -73,7 +73,7 @@ import {
     faExternalLink,
     faTimesCircle,
 } from "@far"
-import { faTint } from "@fas"
+import { faEraser, faTint } from "@fas"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 import TiptapLinkCustomDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapCustomLinkDialog.vue"
@@ -651,6 +651,11 @@ const setVariabel = (value) => {
                             </svg>
                         </TiptapToolbarButton>
                     </TiptapToolbarGroup>
+
+                    <TiptapToolbarButton
+                            @click="editorInstance?.chain().focus().unsetAllMarks().run()" label="Unset Style">
+                            <FontAwesomeIcon :icon="faEraser" class="h-5 w-5" />
+                    </TiptapToolbarButton>
 
                 </section>
             </div>
