@@ -341,7 +341,7 @@ class IndexInvoices extends OrgAction
                     'iconRight'     => $iconRight,
                     'icon'          => $icon,
                     'subNavigation' => $subNavigation,
-                    'actions'       => $actions
+                    'actions'       => $actions,
                 ],
 
                 ...$data
