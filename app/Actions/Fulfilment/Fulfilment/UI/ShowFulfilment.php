@@ -111,7 +111,7 @@ class ShowFulfilment extends OrgAction
                             ],
                             visual: [
                                 'label' => __('Bills'),
-                                'type'  => 'number',
+                                'type'  => 'number_with_label',
                                 'value' => $fulfilment->stats->number_recurring_bills_status_current,
                                 'route' => [
                                     'name'       => 'grp.org.fulfilments.show.operations.recurring_bills.current.index',
@@ -136,7 +136,19 @@ class ShowFulfilment extends OrgAction
                                         $fulfilment->slug
                                     ]
                                 ]
-                            ]
+                            ],
+                            visual: [
+                                'label' => __('Pending Approval Customers'),
+                                'type'  => 'number_with_label',
+                                'value' => $fulfilment->stats->number_recurring_bills_status_current,
+                                'route' => [
+                                    'name'       => 'grp.org.fulfilments.show.crm.customers.pending_approval.index',
+                                    'parameters' => [
+                                        $fulfilment->organisation->slug,
+                                        $fulfilment->slug
+                                    ]
+                                ]
+                            ],
                         ),
 
                         //                            $this->getWidget(
