@@ -4,6 +4,8 @@ import { trans } from 'laravel-vue-i18n';
 
 // Mendapatkan data customer dari props
 const customer = usePage().props.layout.customer;
+const fulfilment = usePage().props.layout.fulfilment;
+console.log(usePage().props)
 </script>
 
 <template>
@@ -68,20 +70,19 @@ const customer = usePage().props.layout.customer;
         <div class="mb-6">
           <h4 class="text-sm font-medium text-gray-500">{{trans("Email")}}</h4>
           <p class="mt-2 text-lg font-semibold text-[#0F1626] hover:text-gray-500">
-            <a :href="'mailto:' + 'info@aw-fulfilment.co.uk'" class="hover:underline">info@aw-fulfilment.co.uk</a>
+            <a :href="'mailto:' + 'info@aw-fulfilment.co.uk'" class="hover:underline">{{fulfilment.email}}</a>
           </p>
         </div>
         <div class="mb-6">
           <h4 class="text-sm font-medium text-gray-500">{{trans("Phone")}}</h4>
           <p class="mt-2 text-lg font-semibold text-[#0F1626] hover:text-gray-500">
-            +44 (0)1142 729 165
+            {{fulfilment.phone}}
           </p>
         </div>
         <div class="mb-6">
           <h4 class="text-sm font-medium text-gray-500">{{trans("Office Address")}}</h4>
-          <p class="mt-2 text-lg font-semibold text-gray-900">
-            Ancient Wisdom Marketing Ltd. Affinity Park, Europa Drive Sheffield, S9 1XT
-          </p>
+          <div v-html="fulfilment?.address?.formatted_address" class="mt-2 text-lg font-semibold text-gray-900"/>
+          
         </div>
       </div>
     </div>

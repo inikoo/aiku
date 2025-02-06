@@ -8,6 +8,10 @@
 
 namespace App\Http\Resources\Fulfilment;
 
+use App\Http\Resources\Helpers\AddressResource;
+use App\Http\Resources\Helpers\CountryResource;
+use App\Http\Resources\Helpers\CurrencyResource;
+use App\Http\Resources\Helpers\LanguageResource;
 use App\Models\Fulfilment\Fulfilment;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -22,7 +26,17 @@ class FulfilmentResource extends JsonResource
             'slug'    => $fulfilment->slug,
             'code'    => $fulfilment->shop->code,
             'name'    => $fulfilment->shop->name,
+            'company_name'    => $fulfilment->shop->company_name,
+            'contact_name'    => $fulfilment->shop->contact_name,
+            'email'    => $fulfilment->shop->email,
+            'phone'    => $fulfilment->shop->phone,
+            'address'    => AddressResource::make($fulfilment->shop->address),
             'state'   => $fulfilment->shop->state,
+            'country'   => CountryResource::make($fulfilment->shop->country),
+            'currency'   => CurrencyResource::make($fulfilment->shop->currency),
+            'language'   => LanguageResource::make($fulfilment->shop->language),
+            'settings'   => $fulfilment->settings,
+            'data'   => $fulfilment->shop->data,
         ];
     }
 }
