@@ -164,6 +164,20 @@ class ShowInvoice extends OrgAction
                         ]
                     ],
                 ];
+
+            $actions[] =
+                [
+                    'type' => 'button',
+                    'style' => 'primary',
+                    'label' => __('send invoice'),
+                    'route' => [
+                        'method' => 'post',
+                        'name' => 'grp.models.invoice.send_invoice',
+                        'parameters' => [
+                            'invoice' => $invoice->id
+                        ]
+                    ]
+                ];
         }
 
         $actions[] = [

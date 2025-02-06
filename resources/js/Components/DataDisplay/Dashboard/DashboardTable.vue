@@ -203,7 +203,7 @@ function useTabChangeDashboard(tab_slug: string) {
 							<span class="font-bold">Invoices</span>
 						</div>
 					</template>
-					<template #body="{ data }" v-if="current == 'shops'">
+					<template #body="{ data }">
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div :key="data?.invoices || 0">
@@ -214,20 +214,6 @@ function useTabChangeDashboard(tab_slug: string) {
 											)
 										}}
 									</Link>
-								</div>
-							</Transition>
-						</div>
-					</template>
-					
-					<template #body="{ data }" v-else>
-						<div class="flex justify-end relative">
-							<Transition name="spin-to-down" mode="out-in">
-								<div :key="data?.invoices || 0">
-									{{
-										locale.number(
-											data?.interval_percentages?.invoices?.amount || 0
-										)
-									}}
 								</div>
 							</Transition>
 						</div>

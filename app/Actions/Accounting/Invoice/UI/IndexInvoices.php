@@ -39,6 +39,7 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -299,6 +300,26 @@ class IndexInvoices extends OrgAction
                 'icon'  => ['fal', 'fa-user'],
                 'title' => __('customer')
             ];
+        } else {
+            $query = request()->query();
+            $allowed = ['date', 'created_at', 'updated_at'];
+            $rangeDate = null;
+            foreach ($allowed as $key) {
+                if (isset($query['between'][$key])) {
+                    $rangeDate = $query['between'][$key];
+                    break;
+                }
+            }
+            if ($rangeDate) {
+                $dates = explode('-', $rangeDate);
+                if (count($dates) == 2) {
+                    $startDate = Carbon::createFromFormat('Ymd', $dates[0])->format('d M Y');
+                    $endDate = Carbon::createFromFormat('Ymd', $dates[1])->format('d M Y');
+                    $afterTitle = [
+                        'label' => __(':start - :end', ['start' => $startDate, 'end' => $endDate])
+                    ];
+                }
+            }
         }
 
         $routeName       = $request->route()->getName();
@@ -341,7 +362,7 @@ class IndexInvoices extends OrgAction
                     'iconRight'     => $iconRight,
                     'icon'          => $icon,
                     'subNavigation' => $subNavigation,
-                    'actions'       => $actions
+                    'actions'       => $actions,
                 ],
 
                 ...$data

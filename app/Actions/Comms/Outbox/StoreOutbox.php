@@ -14,6 +14,7 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOutboxes;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOutboxes;
 use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Comms\Outbox\OutboxBuilderEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
@@ -40,6 +41,9 @@ class StoreOutbox extends OrgAction
 
         if ($parent instanceof Shop) {
             data_set($modelData, 'shop_id', $parent->id);
+            if ($parent->type == ShopTypeEnum::FULFILMENT) {
+                data_set($modelData, 'fulfilment_id', $parent->fulfilment->id);
+            }
         } elseif ($parent instanceof Website) {
             data_set($modelData, 'shop_id', $parent->shop_id);
             data_set($modelData, 'website_id', $parent->id);
