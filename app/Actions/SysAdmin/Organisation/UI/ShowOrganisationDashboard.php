@@ -139,9 +139,10 @@ class ShowOrganisationDashboard extends OrgAction
                         ]
                 ],
                 'route_invoice' => [
-                    'name'       => 'grp.org.accounting.invoices.index',
+                    'name'       => 'grp.org.shops.show.ordering.invoices.index',
                     'parameters' => [
                         'organisation' => $organisation->slug,
+                        'shop'        => $shop->slug,
                         'between[date]' => $this->getDateIntervalFilter($selectedInterval)
                     ]
                 ],
