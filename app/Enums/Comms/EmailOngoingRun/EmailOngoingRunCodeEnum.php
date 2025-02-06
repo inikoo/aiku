@@ -38,5 +38,6 @@ enum EmailOngoingRunCodeEnum: string
     case REORDER_REMINDER = 'reorder_reminder';
     case OOS_NOTIFICATION = 'oos_notification';
 
+    case SEND_INVOICE_TO_CUSTOMER = 'send_invoice_to_customer';
 
 }
