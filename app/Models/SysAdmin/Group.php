@@ -51,6 +51,7 @@ use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\Platform;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\Space;
 use App\Models\Goods\Ingredient;
@@ -918,6 +919,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function outboxPushIntervals(): HasOne
     {
         return $this->hasOne(GroupOutboxPushIntervals::class);
+    }
+
+    public function fulfilmentCustomers(): HasMany
+    {
+        return $this->hasMany(FulfilmentCustomer::class);
     }
 
     public function outboxTestIntervals(): HasOne
