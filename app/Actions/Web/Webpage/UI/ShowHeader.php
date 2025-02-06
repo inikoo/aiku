@@ -138,6 +138,7 @@ class ShowHeader extends OrgAction
                     ],
                 ],
                 'state' => $isHeaderActive ?? true,
+                'domain' => $website->domain,
                 'data' => GetWebsiteWorkshopHeader::run($website),
                 'web_block_types' => WebBlockTypesResource::collection(
                     $this->organisation->group->webBlockTypes()->where('fixed', false)->where('scope', 'website')->orderBy('id', 'asc')->get()
