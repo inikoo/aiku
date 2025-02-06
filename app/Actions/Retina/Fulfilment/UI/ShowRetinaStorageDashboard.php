@@ -71,7 +71,7 @@ class ShowRetinaStorageDashboard extends RetinaAction
         $stats = [];
 
         $stats['pallets'] = [
-            'label'         => __('Palleta'),
+            'label'         => __('Pallets'),
             'count'         => $fulfilmentCustomer->number_pallets_status_storing,
             'description'   => __('in warehouse'),
         ];
@@ -99,7 +99,7 @@ class ShowRetinaStorageDashboard extends RetinaAction
         }
 
         $stats['pallet_returns'] = [
-            'label' => __('Pallet Returna'),
+            'label' => __('Pallet Returns'),
             'count' => $fulfilmentCustomer->number_pallet_returns
         ];
         foreach (PalletReturnStateEnum::cases() as $case) {
