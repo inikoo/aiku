@@ -168,8 +168,9 @@ class ShowInvoice extends OrgAction
             $actions[] =
                 [
                     'type' => 'button',
-                    'style' => 'primary',
+                    'style' => 'tertiary',
                     'label' => __('send invoice'),
+                    'key'   => 'send-invoice',
                     'route' => [
                         'method' => 'post',
                         'name' => 'grp.models.invoice.send_invoice',
@@ -305,6 +306,17 @@ class ShowInvoice extends OrgAction
                 ],
 
                 'invoice' => InvoiceResource::make($invoice),
+                'outbox'    => [
+                    'state'     => 'in-process',
+                    'workshop_route'    => [
+                        'name'          => 'grp.org.fulfilments.show.operations.comms.outboxes.workshop',
+                        'parameters'    => [
+                            'organisation'          => $invoice->organisation->slug,
+                            'fulfilment'            => $invoice->customer->fulfilmentCustomer->fulfilment->slug,
+                            'outbox'                => 'send-invoice-to-awf-aw',
+                        ]
+                    ]
+                ],
 
 
                 InvoiceTabsEnum::ITEMS->value => $this->tab == InvoiceTabsEnum::ITEMS->value ?
