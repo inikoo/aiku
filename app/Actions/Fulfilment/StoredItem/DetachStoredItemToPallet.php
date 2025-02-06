@@ -24,7 +24,7 @@ class DetachStoredItemToPallet extends OrgAction
     protected FulfilmentCustomer $fulfilmentCustomer;
     protected Fulfilment $fulfilment;
 
-    public function handle(Pallet $pallet, StoredItem $storedItem, int $quantity): void
+    public function handle(Pallet $pallet, StoredItem $storedItem): void
     {
         $pallet->storedItems()->detach([$storedItem->id]);
     }

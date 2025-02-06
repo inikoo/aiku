@@ -42,9 +42,8 @@ class ShowOutboxWorkshop extends OrgAction
             ]);
         }
 
-        return $outbox->emailOngoingRun->email;
+        return $outbox->emailOngoingRun?->email;
     }
-
 
     /**
      * @throws \Illuminate\Validation\ValidationException
