@@ -54,6 +54,7 @@ class MoveStoredItem extends OrgAction
                 ]
             ]);
             StoredItemRecordSearch::dispatch($storedItem);
+            // TODO: Fix this action and call store stored item movement here (in and out)
         }
     }
 

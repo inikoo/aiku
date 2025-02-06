@@ -49,11 +49,11 @@ class StoredItemResource extends JsonResource
 
             'pallets'                   => $storedItem->pallets->map(fn (Pallet $pallet) => [
                 'id'                    => $pallet->id,
-                'reference'             => $pallet->reference,
+                'reference'             => $pallet->reference ?? __('To be delivered'),
                 'quantity_stored_item'  => $pallet->storedItems->count(),
                 'customer_reference'    => $pallet->customer_reference,
                 'state'                 => $pallet->state,
-                'state_icon'            => $pallet->state->stateIcon()[$storedItem->state->value],
+                'state_icon'            => $pallet->state->stateIcon()[$pallet->state->value],
             ]),
 
             'deleteRoute'    => match (request()->routeIs('retina.*')) {
