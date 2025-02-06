@@ -10,11 +10,13 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import { useCopyText } from '@/Composables/useCopyText'
 import { faExternalLink, faLink, faPencil } from '@fal'
 import { ref } from 'vue'
+import { Link } from '@inertiajs/vue3'
 import { library } from "@fortawesome/fontawesome-svg-core"
 library.add(faExternalLink, faLink)
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { trans } from 'laravel-vue-i18n'
+import { data } from '@/Components/CMS/Website/Product/ProductTemplates/Product1/Descriptor'
 
 const props = defineProps<{
     data: {
@@ -25,44 +27,44 @@ const props = defineProps<{
         status: string
         created_at: string
         updated_at: string
-    }
+        layout: string
+    },
 }>()
 
-
+console.log(props.data)
 const links = ref([
-    { label: "Edit Header", url: "/", icon: faPencil },
-    { label: "Edit Menu", url: "/about", icon: faPencil },
-    { label: "Edit Webpages", url: "/services", icon: faPencil },
-    { label: "Edit Footer", url: "/contact", icon: faPencil }
+    { label: "Edit Header", url: route(props.data.layout.headerRoute.name, props.data.layout.headerRoute.parameters), icon: faPencil },
+    { label: "Edit Menu", url: route(props.data.layout.menuRoute.name, props.data.layout.menuRoute.parameters), icon: faPencil },
+    { label: "Edit Footer", url: route(props.data.layout.footerRoute.name, props.data.layout.footerRoute.parameters), icon: faPencil }
 ]);
 
 </script>
-
 <template>
-    <!-- <div class="px-6 py-24 sm:py-20 lg:px-8">
-        {{ data.url }}
-        <a :href="data.url" target="_blank">
-            <FontAwesomeIcon class="ml-3" icon="fal fa-external-link" aria-hidden="true" />
-        </a>
-    </div> -->
-
-    <!-- Box: Url (copy button) -->
+    <!-- Box: Url and Buttons in a single row -->
     <div class="px-6 py-12 lg:px-8">
-        <div class="bg-white border border-gray-300 flex items-center justify-between gap-x-3 rounded-md md:w-96">
-            <a :href="data.url" target="_blank" class="pl-4 md:pl-5 inline-block text-xxs md:text-base text-gray-400">{{
-                data.url }}</a>
-            <Button :style="'tertiary'" class="" @click="useCopyText(data.url)"
-                v-tooltip="trans('Copy url to clipboard')">
-                <FontAwesomeIcon icon='fal fa-link' class='text-gray-500' aria-hidden='true' />
-            </Button>
-        </div>
-        <div class="px-6 py-12 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div v-for="(item, index) in links" :key="index">
-           
-                <Button full  :icon="item.icon" :label="item.label">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- URL Box -->
+            <div
+                class="bg-white border border-gray-300 h-fit flex items-center justify-between gap-x-3 rounded-md md:w-96">
+                <a :href="props.data.url" target="_blank"
+                    class="pl-4 md:pl-5 inline-block text-xxs md:text-base text-gray-400">{{ props.data.url }}</a>
+                <Button :style="'tertiary'" class="" @click="useCopyText(props.data.url)"
+                    v-tooltip="trans('Copy url to clipboard')">
+                    <FontAwesomeIcon icon='fal fa-link' class='text-gray-500' aria-hidden='true' />
                 </Button>
+            </div>
+
+
+            <!-- Buttons Card (in the right part of the grid) -->
+            <div class="bg-white flex justify-end">
+                <div class="w-64 border border-gray-300 rounded-md p-2">
+                    <div v-for="(item, index) in links" :key="index" class="p-2">
+                        <Link :href="item.url">
+                        <Button full :icon="item.icon" :label="item.label" class="text-sm py-1 px-3" />
+                        </Link>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
 </template>
