@@ -40,7 +40,6 @@ class FulfilmentHydrateCustomers
             'number_customers_interest_pallets_storage' => $fulfilment->fulfilmentCustomers()->where('pallets_storage', true)->count(),
             'number_customers_interest_items_storage'   => $fulfilment->fulfilmentCustomers()->where('items_storage', true)->count(),
             'number_customers_interest_dropshipping'    => $fulfilment->fulfilmentCustomers()->where('dropshipping', true)->count(),
-
         ];
 
         $stats = array_merge($stats, $this->getEnumStats(

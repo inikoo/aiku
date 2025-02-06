@@ -59,8 +59,10 @@ const props = defineProps<{
     web_users?: object
     external_links?: {},
     analytics: object
+    layout:object
 }>()
 
+console.log(props)
 let currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
 

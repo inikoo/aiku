@@ -52,6 +52,7 @@ const iframeClass = ref('w-full h-full')
 // };
 
 const isLoadingVisit = ref(false)
+
 </script>
 
 <template>
@@ -78,11 +79,8 @@ const isLoadingVisit = ref(false)
         <div class="grid grid-cols-4 md:grid-cols-4 gap-2">
             <div class="md:col-span-4 grid sm:grid-cols-1 md:grid-cols-6 gap-2 h-auto mb-3">
                 <div v-for="item in data.stats" :key="item.key"
-                    :style="{ 
-                        backgroundColor: item.color + '44',
-                        border: `1px solid ${item.color}`
-                    }"
-                    class="flex flex-col justify-between px-6 py-2 rounded-lg shadow-lg sm:h-auto">
+                 
+                    class="flex flex-col justify-between px-6 py-2 rounded-lg border sm:h-auto">
                     <div class="flex justify-between items-center mb-2">
                         <div>
                             <div class="text-lg font-semibold capitalize">{{ item.label }}</div>

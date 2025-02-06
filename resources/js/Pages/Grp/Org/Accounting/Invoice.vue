@@ -213,7 +213,7 @@ const isModalSendInvoice = ref(false)
         </template>
 
         <!-- Button: delete Refund -->
-        <template v-if="outbox.state === 'in-process'" #button-send-invoice="{ action }">
+        <template v-if="outbox.state === 'in_process'" #button-send-invoice="{ action }">
             <Button
                 @click="() => isModalSendInvoice = true"
                 :style="action.style"

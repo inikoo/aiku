@@ -24,15 +24,25 @@ trait WithInvoicesExport
 
             $totalNet = $totalItemsNet + $totalShipping;
 
+            $config = [
+                'title'                  => 'hello'.$invoice->reference,
+                'margin_left'            => 8,
+                'margin_right'           => 8,
+                'margin_top'             => 2,
+                'margin_bottom'          => 2,
+                'auto_page_break'        => true,
+                'auto_page_break_margin' => 10
+            ];
+
             $filename = $invoice->slug . '-' . now()->format('Y-m-d');
             $pdf      = PDF::loadView('invoices.templates.pdf.invoice', [
                 'shop'          => $invoice->shop,
                 'invoice'       => $invoice,
                 'transactions'  => $invoice->invoiceTransactions,
                 'totalNet'      => $totalNet
-            ]);
+            ], [], $config);
 
-            return response($pdf->output(), 200)
+            return response($pdf->stream(), 200)
                 ->header('Content-Type', 'application/pdf')
                 ->header('Content-Disposition', 'inline; filename="' . $filename . '.pdf"');
         } catch (Exception $e) {
