@@ -104,7 +104,7 @@ class ShowOutbox extends OrgAction
                     'type'  => 'button',
                     'style' => 'secondary',
                     'label' => __('workshop'),
-                    'icon'  => ["fal", "fa-drafting-compass"],
+                    'icon'  => 'fal fa-drafting-compass',
                     'route' => [
                         'name'       => preg_replace('/show$/', 'workshop', $request->route()->getName()),
                         'parameters' => array_values($request->route()->originalParameters())
@@ -136,6 +136,7 @@ class ShowOutbox extends OrgAction
                 ),
                 'pageHead'    => [
                     'title'   => $outbox->name,
+                    'model'   => __('Outbox'),
                     'icon'    =>
                         [
                             'icon'  => ['fal', 'fa-inbox-out'],
