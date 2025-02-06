@@ -334,7 +334,7 @@ const setChartOptions = () => ({
                 }" />
 				</Link>
 			</span>
-				<p class="text-base text-gray-500">{{ visual.description }}</p>
+				<p class="text-base text-gray-500">{{ visual.label }}</p>
 		</div>
 		<div class="flex-grow"></div>
 		
