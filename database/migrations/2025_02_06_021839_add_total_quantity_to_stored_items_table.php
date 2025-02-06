@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Thu, 06 Feb 2025 10:26:46 Malaysia Time, Kuala Lumpur, Malaysia
@@ -9,8 +10,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-
+return new class () extends Migration {
     public function up(): void
     {
         Schema::table('stored_items', function (Blueprint $table) {
