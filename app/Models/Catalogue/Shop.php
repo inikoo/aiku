@@ -161,6 +161,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
  * @property-read LaravelCollection<int, Invoice> $invoices
+ * @property-read Language $language
  * @property-read LaravelCollection<int, Mailshot> $mailshots
  * @property-read \App\Models\Catalogue\ShopMailshotsIntervals|null $mailshotsIntervals
  * @property-read MasterShop|null $masterShop
