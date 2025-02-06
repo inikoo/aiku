@@ -26,6 +26,7 @@ enum OutboxCodeEnum: string
     case NEW_ORDER = 'new_order';
     case ABANDONED_CART = 'abandoned_cart';
     case DELIVERY_CONFIRMATION = 'delivery_confirmation';
+    case SEND_INVOICE_TO_CUSTOMER = 'send_invoice_to_customer';
     case REORDER_REMINDER = 'reorder_reminder';
     case MARKETING = 'marketing';
     case NEWSLETTER = 'newsletter';
@@ -63,7 +64,8 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::ORDER_CONFIRMATION,
             OutboxCodeEnum::RENTAL_AGREEMENT,
             OutboxCodeEnum::PALLET_DELIVERY_PROCESSED,
-            OutboxCodeEnum::PALLET_RETURN_DISPATCHED
+            OutboxCodeEnum::PALLET_RETURN_DISPATCHED,
+            OutboxCodeEnum::SEND_INVOICE_TO_CUSTOMER
             => OutboxTypeEnum::CUSTOMER_NOTIFICATION,
 
             OutboxCodeEnum::BASKET_LOW_STOCK,
@@ -110,6 +112,7 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::PALLET_DELIVERY_PROCESSED => 'Pallet delivery processed',
             OutboxCodeEnum::PALLET_RETURN_DISPATCHED => 'Pallet return dispatched',
             OutboxCodeEnum::INVITE => 'Invite',
+            OutboxCodeEnum::SEND_INVOICE_TO_CUSTOMER => 'Send invoice to customer',
         };
     }
 
@@ -141,6 +144,7 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::PALLET_DELIVERY_PROCESSED => 'Pallet delivery processed',
             OutboxCodeEnum::PALLET_RETURN_DISPATCHED => 'Pallet return dispatched',
             OutboxCodeEnum::INVITE => 'Invite',
+            OutboxCodeEnum::SEND_INVOICE_TO_CUSTOMER => 'Send invoice to customer',
         };
     }
 
@@ -162,7 +166,8 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::INVOICE_DELETED,
             OutboxCodeEnum::NEWSLETTER,
             OutboxCodeEnum::MARKETING,
-            OutboxCodeEnum::INVITE
+            OutboxCodeEnum::INVITE,
+            OutboxCodeEnum::SEND_INVOICE_TO_CUSTOMER,
             => ['Fulfilment', 'Shop'],
 
             OutboxCodeEnum::RENTAL_AGREEMENT,
@@ -176,6 +181,7 @@ enum OutboxCodeEnum: string
     public function shopTypes(): array
     {
         return match ($this) {
+            OutboxCodeEnum::SEND_INVOICE_TO_CUSTOMER,
             OutboxCodeEnum::INVOICE_DELETED,
             OutboxCodeEnum::MARKETING,
             OutboxCodeEnum::NEWSLETTER,
@@ -251,6 +257,7 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::NEW_CUSTOMER_PUSH,
             OutboxCodeEnum::REORDER_REMINDER,
             OutboxCodeEnum::OOS_NOTIFICATION,
+            OutboxCodeEnum::SEND_INVOICE_TO_CUSTOMER
 
             => 'EmailOngoingRun',
             OutboxCodeEnum::MARKETING,
@@ -280,6 +287,7 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::RENTAL_AGREEMENT,
             OutboxCodeEnum::PALLET_DELIVERY_PROCESSED,
             OutboxCodeEnum::PALLET_RETURN_DISPATCHED,
+            OutboxCodeEnum::SEND_INVOICE_TO_CUSTOMER
             => EmailOngoingRunTypeEnum::TRANSACTIONAL,
             OutboxCodeEnum::BASKET_LOW_STOCK,
             OutboxCodeEnum::REORDER_REMINDER,
@@ -308,7 +316,8 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::ORDER_CONFIRMATION,
             OutboxCodeEnum::RENTAL_AGREEMENT,
             OutboxCodeEnum::PALLET_DELIVERY_PROCESSED,
-            OutboxCodeEnum::PALLET_RETURN_DISPATCHED
+            OutboxCodeEnum::PALLET_RETURN_DISPATCHED,
+            OutboxCodeEnum::SEND_INVOICE_TO_CUSTOMER
             => PostRoomCodeEnum::CUSTOMER_NOTIFICATION,
 
             OutboxCodeEnum::DELIVERY_NOTE_DISPATCHED,
