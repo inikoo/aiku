@@ -165,12 +165,11 @@ const editorInstance = useEditor({
 
                                     // Check if workshop URL exists
                                     if (attrs.workshop) {
-                                        // Show a custom popup/modal with options
                                         CustomLinkConfirm.value = true
                                         attrsCustomLink.value = attrs
                                     } else {
-                                        // No workshop, just open the regular URL
-                                        window.open(attrs.href, "_blank")
+                                      /*   window.open(attrs.href, "_blank") */
+                                      console.log(attrs.href)
                                     }
                                     return true
                                 }
@@ -342,7 +341,7 @@ const setVariabel = (value) => {
 
 <template>
     <div id="tiptap" class="divide-y divide-gray-400">
-        <BubbleMenu ref="_bubbleMenu" class="w-[858px]" :editor="editorInstance" :tippy-options="{ duration: 100 }"
+        <BubbleMenu ref="_bubbleMenu" class="w-[900px]" :editor="editorInstance" :tippy-options="{ duration: 100 }"
             v-if="editorInstance && !showDialog">
             <div class="bg-gray-100 rounded-xl border border-gray-300 divide-y divide-gray-400 isolate">
                 <section id="tiptap-toolbar" class="flex items-center divide-x divide-gray-400">
