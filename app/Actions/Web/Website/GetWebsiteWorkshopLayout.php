@@ -41,6 +41,14 @@ class GetWebsiteWorkshopLayout
                             'website'      => $website->slug,
                         ]
                     ],
+                    'webpageRoute'  => [
+                        'name'       => 'grp.org.fulfilments.show.web.webpages.index',
+                        'parameters' => [
+                            'organisation' => $website->organisation->slug,
+                            'fulfilment'         => $website->shop->slug,
+                            'website'      => $website->slug,
+                        ]
+                    ],
                     'menuRoute'          => [
                         'name'       => 'grp.org.fulfilments.show.web.websites.workshop.menu',
                         'parameters' => [
