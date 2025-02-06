@@ -8,6 +8,7 @@
 
 namespace App\Actions\CRM\Customer;
 
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCrmStats;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
@@ -21,7 +22,9 @@ class ApproveCustomer extends OrgAction
 
     public function handle(Customer $customer, array $modelData): Customer
     {
-        return $this->update($customer, $modelData);
+        $customer = $this->update($customer, $modelData);
+        ShopHydrateCrmStats::run($customer->shop);
+        return $customer;
     }
 
     public function rules(): array
