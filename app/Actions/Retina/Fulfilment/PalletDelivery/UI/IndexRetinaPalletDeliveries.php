@@ -129,7 +129,8 @@ class IndexRetinaPalletDeliveries extends RetinaAction
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
-                ->column(key: 'reference', label: __('reference number'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'reference', label: __('Id'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'customer_reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'amount', label: __('Amount'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_pallets', label: __('total pallets'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'date', label: __('Date'), canBeHidden: false, sortable: true, searchable: true);
@@ -138,7 +139,6 @@ class IndexRetinaPalletDeliveries extends RetinaAction
 
     public function htmlResponse(LengthAwarePaginator $deliveries, ActionRequest $request): Response
     {
-        $actions = [];
 
         $navigation = PalletDeliveriesTabsEnum::navigation();
 
