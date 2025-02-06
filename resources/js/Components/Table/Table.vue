@@ -618,7 +618,7 @@ function header(key) {
     const intKey = findDataKey('columns', key);
     const columnData = clone(queryBuilderProps.value.columns[intKey]);
 
-    if (columnData?.onSort) {
+    if (columnData) {
         columnData.onSort = sortBy;
     }
 
