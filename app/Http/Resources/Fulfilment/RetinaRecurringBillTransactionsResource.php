@@ -133,7 +133,7 @@ class RetinaRecurringBillTransactionsResource extends JsonResource
         $editType = null;
         if ($this->item_type == 'Service') {
             $service = Service::find($this->item_id);
-            $editType = $service->edit_type;
+            $editType = $service->edit_type ?? null;
         }
 
         return [

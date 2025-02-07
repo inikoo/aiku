@@ -47,7 +47,7 @@ class ShowRetinaProfile extends RetinaAction
                 'value' => $customer->about
             ],
             'image'        => [
-                'type'  => 'image_crop_square',
+                'type'  => 'avatar',
                 'label' => __('avatar'),
                 'value' => !blank($webUser->image_id)
                     ? $customer->imageSources(320, 320)
@@ -117,7 +117,7 @@ class ShowRetinaProfile extends RetinaAction
             ];
         }
 
-        $sections["language"] = [
+       /*  $sections["language"] = [
             "label"  => __("Language"),
             "icon"   => "fal fa-language",
             "fields" => [
@@ -129,7 +129,7 @@ class ShowRetinaProfile extends RetinaAction
                     "required" => true,
                 ],
             ],
-        ];
+        ]; */
 
         $currentSection = "properties";
         if ($request->has("section") and Arr::has($sections, $request->get("section"))) {
