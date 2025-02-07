@@ -19,6 +19,7 @@ import { useFormatTime, useDaysLeftFromToday } from '@/Composables/useFormatTime
 import { routeType } from "@/types/route"
 import { notify } from "@kyvg/vue3-notification"
 import { trans } from "laravel-vue-i18n"
+import { useLocaleStore } from "@/Stores/locale";
 
 library.add(faPlus, faCheckDouble, faShare, faCross)
 
@@ -29,6 +30,7 @@ const props = defineProps<{
 
 const openModal = ref(false)
 const loading = ref(false)
+const locale = useLocaleStore();
 
 function palletDeliveryRoute(palletDelivery: PalletDelivery) {
 
@@ -121,7 +123,9 @@ const onClickReceived = (receivedRoute: routeType) => {
                 :loading="isLoading == 'received'"
             />
         </template>
-
+        <template #cell(date)="{ item: customer }">
+            <div class="text-gray-500 text-right">{{ useFormatTime(customer["date"], { localeCode: locale.language.code, formatTime: "aiku" }) }}</div>
+        </template>
     </Table>
 
     <Modal :isOpen="openModal" @onClose="openModal = false" width="w-2/4">
