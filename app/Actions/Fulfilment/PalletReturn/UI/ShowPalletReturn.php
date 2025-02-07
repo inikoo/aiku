@@ -12,6 +12,7 @@ use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\PalletReturn\AddAddressToPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Json\GetReturnPallets;
+use App\Actions\Fulfilment\PalletReturn\Json\GetReturnPalletsWithStoredItems;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemsInReturn;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
@@ -724,8 +725,8 @@ class ShowPalletReturn extends OrgAction
                     : Inertia::lazy(fn () => PalletReturnItemsResource::collection(GetReturnPallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))),
 
                 PalletReturnTabsEnum::STORED_ITEMS->value => $this->tab == PalletReturnTabsEnum::STORED_ITEMS->value ?
-                    fn () => PalletReturnStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn, PalletReturnTabsEnum::STORED_ITEMS->value)) //todo idk if this is right
-                    : Inertia::lazy(fn () => PalletReturnStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn, PalletReturnTabsEnum::STORED_ITEMS->value))), //todo idk if this is right
+                    fn () => PalletReturnItemsResource::collection(GetReturnPallets::run($palletReturn, PalletReturnTabsEnum::STORED_ITEMS->value)) //todo idk if this is right
+                    : Inertia::lazy(fn () => PalletReturnItemsResource::collection(GetReturnPallets::run($palletReturn, PalletReturnTabsEnum::STORED_ITEMS->value))), //todo idk if this is right
 
                 PalletReturnTabsEnum::SERVICES->value => $this->tab == PalletReturnTabsEnum::SERVICES->value ?
                     fn () => FulfilmentTransactionsResource::collection(IndexServiceInPalletReturn::run($palletReturn))

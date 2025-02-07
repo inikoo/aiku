@@ -44,7 +44,7 @@ class ShowRetinaInvoice extends RetinaAction
 
     public function htmlResponse(Invoice $invoice, ActionRequest $request): Response
     {
-        $toPayAmount   = round($invoice->total_amount - $invoice->payment_amount,2);
+        $toPayAmount   = round($invoice->total_amount - $invoice->payment_amount, 2);
 
 
 
