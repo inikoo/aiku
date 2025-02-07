@@ -232,7 +232,7 @@
 
         <td style="text-align:left">{{ __('Qty') }}</td>
 
-        <td style="width:10%;text-align:right">{{ __('Amount') }}</td>
+        <td style="width:14%;text-align:right">{{ __('Amount') }}</td>
     </tr>
     </thead>
     <tbody>
@@ -306,7 +306,7 @@
         <td style="text-align:right">{{ __('Date') }}</td>
         <td style="text-align:left">{{ __('Status') }}</td>
         <td style="text-align:left">{{ __('Reference') }}</td>
-        <td style="text-align:right">{{ __('Amount') }}</td>
+        <td style="text-align:right; width:14%;">{{ __('Amount') }}</td>
     </tr>
 
     <tbody>
