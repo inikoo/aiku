@@ -61,4 +61,9 @@ class PalletReturnItem extends Model
     {
         return $this->belongsTo(PalletReturn::class);
     }
+
+    public function palletStoredItem(): BelongsTo
+    {
+        return $this->belongsTo(PalletStoredItem::class);
+    }
 }

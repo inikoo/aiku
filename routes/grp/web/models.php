@@ -63,6 +63,7 @@ use App\Actions\Fulfilment\FulfilmentTransaction\DeleteFulfilmentTransaction;
 use App\Actions\Fulfilment\FulfilmentTransaction\StoreFulfilmentTransaction;
 use App\Actions\Fulfilment\FulfilmentTransaction\UpdateFulfilmentTransaction;
 use App\Actions\Fulfilment\Pallet\AttachPalletsToReturn;
+use App\Actions\Fulfilment\Pallet\AttachPalletsWithStoredItemsToReturn;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\DeletePallet;
 use App\Actions\Fulfilment\Pallet\ImportPalletReturnItem;
@@ -399,7 +400,7 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
     Route::post('transaction', [StoreFulfilmentTransaction::class,'inPalletReturn'])->name('transaction.store');
     Route::post('pallet', AttachPalletsToReturn::class)->name('pallet.store');
     //todo this new action
-    Route::post('stored-item', StoreStoredItemsToReturn::class)->name('stored_item.store');
+    Route::post('stored-item', AttachPalletsWithStoredItemsToReturn::class)->name('stored_item.store');
     Route::post('stored-item-upload', [ImportPalletReturnItem::class, 'fromGrp'])->name('stored-item.upload');
 
     // This is wrong ImportPalletsInPalletDelivery is used when creating a pallet delivery
