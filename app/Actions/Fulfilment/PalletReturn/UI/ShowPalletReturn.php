@@ -29,6 +29,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Actions\Helpers\Country\UI\GetAddressData;
+use App\Actions\Retina\Fulfilment\PalletReturn\Json\GetRetinaReturnStoredItems;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
 use App\Http\Resources\Fulfilment\PalletReturnStoredItemsResource;
 use App\Http\Resources\Helpers\CurrencyResource;
@@ -725,8 +726,8 @@ class ShowPalletReturn extends OrgAction
                     : Inertia::lazy(fn () => PalletReturnItemsResource::collection(GetReturnPallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))),
 
                 PalletReturnTabsEnum::STORED_ITEMS->value => $this->tab == PalletReturnTabsEnum::STORED_ITEMS->value ?
-                    fn () => PalletReturnItemsResource::collection(GetReturnPallets::run($palletReturn, PalletReturnTabsEnum::STORED_ITEMS->value)) //todo idk if this is right
-                    : Inertia::lazy(fn () => PalletReturnItemsResource::collection(GetReturnPallets::run($palletReturn, PalletReturnTabsEnum::STORED_ITEMS->value))), //todo idk if this is right
+                    fn () => PalletReturnItemsResource::collection(GetReturnPalletsWithStoredItems::run($palletReturn, PalletReturnTabsEnum::STORED_ITEMS->value)) //todo idk if this is right
+                    : Inertia::lazy(fn () => PalletReturnItemsResource::collection(GetReturnPalletsWithStoredItems::run($palletReturn, PalletReturnTabsEnum::STORED_ITEMS->value))), //todo idk if this is right
 
                 PalletReturnTabsEnum::SERVICES->value => $this->tab == PalletReturnTabsEnum::SERVICES->value ?
                     fn () => FulfilmentTransactionsResource::collection(IndexServiceInPalletReturn::run($palletReturn))
@@ -743,7 +744,7 @@ class ShowPalletReturn extends OrgAction
                 prefix: PalletReturnTabsEnum::PALLETS->value
             )
         )->table(
-            IndexStoredItemsInReturn::make()->tableStructure(
+            GetReturnPalletsWithStoredItems::make()->tableStructure(
                 $palletReturn,
                 request: $request,
                 prefix: PalletReturnTabsEnum::STORED_ITEMS->value
