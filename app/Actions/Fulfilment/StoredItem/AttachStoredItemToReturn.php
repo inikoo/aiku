@@ -12,6 +12,7 @@ namespace App\Actions\Fulfilment\StoredItem;
 use App\Actions\OrgAction;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\Fulfilment\PalletStoredItem;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
@@ -20,23 +21,34 @@ class AttachStoredItemToReturn extends OrgAction
 {
     private PalletStoredItem $palletStoredItem;
 
-    public function handle(PalletReturn $palletReturn, PalletStoredItem $palletStoredItem, array $modelData): PalletReturn
+    public function handle(PalletReturn $palletReturn, PalletStoredItem $palletStoredItem, array $modelData)
     {
         $quantityOrdered = Arr::pull($modelData, 'quantity_ordered');
         if ($quantityOrdered == 0) {
             $palletReturn->storedItems()->detach($palletStoredItem->storedItem->id);
         } else {
-            $palletReturn->storedItems()->syncWithoutDetaching(
-                $palletStoredItem->storedItem->id,
-                [
-                    'type'                 => 'StoredItem',
-                    'pallet_id'            => $palletStoredItem->pallet_id,
-                    'pallet_stored_item_id' => $palletStoredItem->id,
-                    'quantity_ordered'      => $quantityOrdered
-                ]
-            );
+
+            if ($palletReturnItem = PalletReturnItem::where('pallet_return_id', $palletReturn->id)->where('pallet_stored_item_id', $palletStoredItem->id)->first()) {
+                $palletReturnItem->update([
+                    'quantity_ordered' => $quantityOrdered
+                ]);
+
+            } else {
+                $palletReturn->storedItems()->attach(
+                    [
+                        $palletStoredItem->storedItem->id => [
+                        'type'                 => 'StoredItem',
+                        'pallet_id'            => $palletStoredItem->pallet_id,
+                        'pallet_stored_item_id' => $palletStoredItem->id,
+                        'quantity_ordered'      => $quantityOrdered
+                        ]
+                    ]
+                );
+            }
+
+
+
         }
-        return $palletReturn;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -55,12 +67,12 @@ class AttachStoredItemToReturn extends OrgAction
         ];
     }
 
-    public function asController(PalletReturn $palletReturn, PalletStoredItem $palletStoredItem, ActionRequest $request): PalletReturn
+    public function asController(PalletReturn $palletReturn, PalletStoredItem $palletStoredItem, ActionRequest $request)
     {
         $this->palletStoredItem = $palletStoredItem;
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
 
-        return $this->handle($palletReturn, $palletStoredItem, $this->validatedData);
+        $this->handle($palletReturn, $palletStoredItem, $this->validatedData);
     }
 
     // public function fromRetina(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
