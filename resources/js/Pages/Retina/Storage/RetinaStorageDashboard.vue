@@ -11,6 +11,7 @@ import { capitalize } from '@/Composables/capitalize'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from 'chart.js'
 import { useLocaleStore } from "@/Stores/locale"
 import { PalletCustomer, FulfilmentCustomerStats } from '@/types/Pallet'
+import { Link } from "@inertiajs/vue3"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheckCircle, faInfoCircle, faExclamationTriangle } from '@fal'
@@ -77,6 +78,11 @@ const options = {
     }
 }
 
+function routePallet(storageData: any, key: string) {
+    if (storageData[key].route) {
+        return route(storageData[key].route.name, storageData[key].route.parameters)
+    }
+}
 </script>
 
 <template>
@@ -155,10 +161,12 @@ const options = {
                                     class="flex flex-col gap-x-2 gap-y-3 leading-none items-baseline text-2xl font-semibold text-org-500">
                                     <!-- In Total -->
                                     <div class="flex gap-x-2 items-end">
-                                        <CountUp :endVal="storageData.pallets.count" :duration="1.5"
-                                            :scrollSpyOnce="true" :options="{
-                                            formattingFn: (value: number) => locale.number(value)
-                                        }" />
+                                        <Link :href="routePallet(storageData, 'pallets')">
+                                            <CountUp :endVal="storageData.pallets.count" :duration="1.5"
+                                                :scrollSpyOnce="true" :options="{
+                                                formattingFn: (value: number) => locale.number(value)
+                                            }" />
+                                        </Link>
                                         <span class="text-sm font-medium leading-4 text-gray-400 ">
                                             {{ storageData.pallets.description }}
                                         </span>
@@ -208,10 +216,12 @@ const options = {
                                     class="flex flex-col gap-x-2 gap-y-3 leading-none items-baseline text-2xl font-semibold text-org-500">
                                     <!-- In Total -->
                                     <div class="flex gap-x-2 items-end">
-                                        <CountUp :endVal="storageData.pallet_deliveries.count" :duration="1.5"
-                                            :scrollSpyOnce="true" :options="{
-                                            formattingFn: (value: number) => locale.number(value)
-                                        }" />
+                                        <Link :href="routePallet(storageData, 'pallet_deliveries')">
+                                            <CountUp :endVal="storageData.pallet_deliveries.count" :duration="1.5"
+                                                :scrollSpyOnce="true" :options="{
+                                                formattingFn: (value: number) => locale.number(value)
+                                            }" />
+                                        </Link>
                                         <span class="text-sm font-medium leading-4 text-gray-500 ">
                                             {{ storageData.pallet_deliveries.description }}
                                         </span>
@@ -232,10 +242,12 @@ const options = {
                                     class="flex flex-col gap-x-2 gap-y-3 leading-none items-baseline text-2xl font-semibold text-org-500">
                                     <!-- In Total -->
                                     <div class="flex gap-x-2 items-end">
-                                        <CountUp :endVal="storageData.pallet_returns.count" :duration="1.5"
-                                            :scrollSpyOnce="true" :options="{
-                                            formattingFn: (value: number) => locale.number(value)
-                                        }" />
+                                        <Link :href="routePallet(storageData, 'pallet_returns')">
+                                            <CountUp :endVal="storageData.pallet_returns.count" :duration="1.5"
+                                                :scrollSpyOnce="true" :options="{
+                                                formattingFn: (value: number) => locale.number(value)
+                                            }" />
+                                        </Link>
                                         <span class="text-sm font-medium leading-4 text-gray-500 ">{{
                                             storageData.pallet_returns.description }}</span>
                                     </div>
