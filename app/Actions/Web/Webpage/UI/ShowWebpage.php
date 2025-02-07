@@ -212,6 +212,24 @@ class ShowWebpage extends OrgAction
         }
 
 
+
+        if($this->scope instanceof Fulfilment) {
+            $subNavigationRoot='grp.org.fulfilments.show.web.webpages';
+        } else{
+            $subNavigationRoot='grp.org.shops.show.web.webpages';
+        }
+        $subNavigationRoot.='';
+
+        //todo remove next line this one after fix
+        $subNavigationRoot='';
+
+//        if($webpage->type == WebpageTypeEnum::STOREFRONT) {
+//            $subNavigationRoot='grp.org.shops.show.web.webpages.index.type.catalogue';
+//        } else {
+//            $subNavigationRoot='grp.org.shops.show.web.webpages.index.type.operations';
+//        }
+//
+
         return Inertia::render(
             'Org/Web/Webpage',
             [
@@ -237,7 +255,7 @@ class ShowWebpage extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => WebpageTabsEnum::navigation()
                 ],
-                'root_active'   => 'grp.org.fulfilments.show.web.webpages.index.type.operations',  // TODO @raul: make dynamic between structure/content/info/operations/all
+                'root_active'   => $subNavigationRoot,
 
                 WebpageTabsEnum::SHOWCASE->value => $this->tab == WebpageTabsEnum::SHOWCASE->value ?
                     fn () => WebpageResource::make($webpage)->getArray()
