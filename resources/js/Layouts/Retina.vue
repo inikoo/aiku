@@ -160,7 +160,10 @@ const isStaging = layout.app.environment === 'staging'
 }
 
 .secondaryLink {
-    background: v-bind('`linear-gradient(to top, ${layout.app.theme[4]}, ${layout.app.theme[4] + "AA"})`');
+    background: v-bind('`linear-gradient(to top, ${layout.app.theme[6]}, ${layout.app.theme[6] + "AA"})`');
+    &:hover, &:focus {
+        color: v-bind('`${layout.app.theme[7]}`');
+    }
 
     @apply focus:ring-0 focus:outline-none focus:border-none
     bg-no-repeat [background-position:0%_100%]
