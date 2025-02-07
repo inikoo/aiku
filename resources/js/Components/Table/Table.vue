@@ -924,7 +924,7 @@ const isLoading = ref<string | boolean>(false)
                                                 <div v-if="selectRow[item[checkboxKey]]"
                                                     class="absolute inset-0 bg-lime-500/10 -z-10" />
                                                 -->
-                                                <FontAwesomeIcon v-if="selectRow[item[checkboxKey]]"
+                                                <FontAwesomeIcon v-if="item.is_checked || selectRow[item[checkboxKey]]"
                                                     @click="onSelectCheckbox(item)"
                                                     icon='fas fa-check-square' class='text-green-500 p-2 cursor-pointer text-lg mx-auto block' fixed-width
                                                     aria-hidden='true' />
