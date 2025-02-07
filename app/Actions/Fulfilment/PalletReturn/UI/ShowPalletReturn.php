@@ -30,7 +30,6 @@ use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
 use App\Http\Resources\Fulfilment\PalletReturnItemsWithStoredItemsResource;
 use App\Http\Resources\Helpers\CurrencyResource;
-use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
@@ -83,11 +82,8 @@ class ShowPalletReturn extends OrgAction
 
 
         $navigation = PalletReturnTabsEnum::navigation($palletReturn);
-        $buttonSubmit = [
 
-        ];
 
-        // dd($palletReturn->stats);
         if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
             unset($navigation[PalletReturnTabsEnum::STORED_ITEMS->value]);
             $buttonSubmit = [
