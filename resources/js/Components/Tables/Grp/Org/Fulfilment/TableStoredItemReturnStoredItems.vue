@@ -177,12 +177,12 @@ onBeforeMount(() => {
                             v-model="pallet_stored_item.selected_quantity"
                             saveOnForm
                             :routeSubmit="{
-                                name: pallet_stored_item.updateRoute.name,
+                                name: pallet_stored_item.syncRoute.name,
                                 parameters: {
-                                    ...pallet_stored_item.updateRoute.parameters,
+                                    ...pallet_stored_item.syncRoute.parameters,
                                     palletReturn: palletReturn.id
                                 },
-                                method: pallet_stored_item.updateRoute.method
+                                method: pallet_stored_item.syncRoute.method
                             }"
                             keySubmit="quantity_ordered"
                             :bindToTarget="{
