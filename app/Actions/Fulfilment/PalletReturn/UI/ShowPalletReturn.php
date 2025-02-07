@@ -263,27 +263,12 @@ class ShowPalletReturn extends OrgAction
                 ] : [],
             ];
 
-            if (!in_array($palletReturn->state, [
+            if (in_array($palletReturn->state, [
                 PalletReturnStateEnum::IN_PROCESS,
                 PalletReturnStateEnum::SUBMITTED
             ])) {
-                $actions[] = [
-                    // 'type'          => 'button',
-                    // 'style'         => 'tertiary',
-                    // 'icon'          => 'fal fa-file-export',
-                    // 'id'            => 'pdf-export',
-                    // 'label'         => 'PDF',
-                    // 'key'           => 'PDF',
-                    // 'target'        => '_blank',
-                    // 'route'         => [
-                    //     'name'       => 'grp.models.pallet-return.pdf',
-                    //     'parameters' => [
-                    //         'palletReturn'       => $palletReturn->id
-                    //     ]
-                    // ]
-                    // TODO: Hidden (not delete if hardcoded in FE)
-                ];
-            } else {
+
+
                 $actions = array_merge([[
                     'type'    => 'button',
                     'style'   => 'delete',
