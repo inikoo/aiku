@@ -213,22 +213,22 @@ class ShowWebpage extends OrgAction
 
 
 
-        if($this->scope instanceof Fulfilment) {
-            $subNavigationRoot='grp.org.fulfilments.show.web.webpages';
-        } else{
-            $subNavigationRoot='grp.org.shops.show.web.webpages';
+        if ($this->scope instanceof Fulfilment) {
+            $subNavigationRoot = 'grp.org.fulfilments.show.web.webpages';
+        } else {
+            $subNavigationRoot = 'grp.org.shops.show.web.webpages';
         }
-        $subNavigationRoot.='';
+        $subNavigationRoot .= '';
 
         //todo remove next line this one after fix
-        $subNavigationRoot='';
+        $subNavigationRoot = '';
 
-//        if($webpage->type == WebpageTypeEnum::STOREFRONT) {
-//            $subNavigationRoot='grp.org.shops.show.web.webpages.index.type.catalogue';
-//        } else {
-//            $subNavigationRoot='grp.org.shops.show.web.webpages.index.type.operations';
-//        }
-//
+        //        if($webpage->type == WebpageTypeEnum::STOREFRONT) {
+        //            $subNavigationRoot='grp.org.shops.show.web.webpages.index.type.catalogue';
+        //        } else {
+        //            $subNavigationRoot='grp.org.shops.show.web.webpages.index.type.operations';
+        //        }
+        //
 
         return Inertia::render(
             'Org/Web/Webpage',
