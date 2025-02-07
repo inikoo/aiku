@@ -17,6 +17,7 @@ class HistoryResource extends JsonResource
     public function toArray($request): array|Arrayable|JsonSerializable
     {
         return [
+            'id'           => $this['id'],
             'ip_address'           => $this['ip_address'],
             'datetime'             => $this['created_at'],
             'url'                  => $this['url'],
