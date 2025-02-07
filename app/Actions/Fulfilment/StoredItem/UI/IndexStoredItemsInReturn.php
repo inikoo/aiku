@@ -77,8 +77,12 @@ class IndexStoredItemsInReturn extends OrgAction
         $queryBuilder = QueryBuilder::for(StoredItem::class);
 
         // $queryBuilder->where('stored_items.state', StoredItemStateEnum::ACTIVE->value);
+        $queryBuilder->leftjoin('pallet_return_items', 'stored_items.id', '=', 'pallet_return_items.stored_item_id');
+        $queryBuilder->leftjoin('pallet_returns', 'pallet_returns.id', '=', 'pallet_return_items.pallet_return_id');
+        $queryBuilder->leftjoin('pallet_stored_items', 'stored_items.id', '=', 'pallet_stored_items.stored_item_id');
+        $queryBuilder->leftjoin('pallets', 'pallets.id', '=', 'pallet_stored_items.pallet_id');
 
-        $queryBuilder->with(['pallets', 'palletReturns']);
+        // $queryBuilder->with(['pallets', 'palletReturns']);
         $queryBuilder->where('stored_items.fulfilment_customer_id', $parent->fulfilment_customer_id);
 
         if ($parent->state === PalletReturnStateEnum::IN_PROCESS) {
@@ -91,12 +95,31 @@ class IndexStoredItemsInReturn extends OrgAction
                 );
             }
         } else {
-            $queryBuilder->whereHas('palletReturns', function ($query) use ($parent) {
-                $query->where('pallet_return_id', $parent->id);
-            });
+            $queryBuilder->where('pallet_returns.id', $parent->id);
         }
 
+        $queryBuilder->distinct('stored_items.id');
+
         $queryBuilder->defaultSort('stored_items.id');
+
+        $queryBuilder->select([
+            'stored_items.id',
+            'stored_items.reference',
+            'stored_items.slug',
+            'stored_items.name',
+            'stored_items.total_quantity',
+            'pallet_returns.id as pallet_return_id',
+            \DB::raw('COALESCE(SUM(pallet_return_items.quantity_ordered), 0) AS total_quantity_ordered'),
+        ]);
+
+        $queryBuilder->groupBy([
+            'stored_items.id',
+            'stored_items.reference',
+            'stored_items.slug',
+            'stored_items.name',
+            'stored_items.total_quantity',
+            'pallet_returns.id'
+        ]);
 
         return $queryBuilder->allowedSorts(['reference', 'code', 'price', 'name', 'state'])
             ->allowedFilters([$globalSearch])
@@ -150,13 +173,10 @@ class IndexStoredItemsInReturn extends OrgAction
             $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'total_quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'pallet_stored_items', label: __('Pallets'), canBeHidden: false, sortable: true, searchable: true);
 
-            if ($palletReturn->state === PalletReturnStateEnum::IN_PROCESS) {
-                $table->column(key: 'total_quantity', label: __('total quantity'), canBeHidden: false, sortable: true, searchable: true);
-            }
-
-            $table->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true);
-
+            $table->column(key: 'total_quantity_ordered', label: __('requested quantity'), canBeHidden: false, sortable: true, searchable: true);
             if ($palletReturn->state === PalletReturnStateEnum::PICKING) {
 
                 $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true);
