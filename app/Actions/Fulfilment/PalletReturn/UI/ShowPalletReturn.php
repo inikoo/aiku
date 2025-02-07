@@ -122,8 +122,40 @@ class ShowPalletReturn extends OrgAction
                 'disabled' => ($palletReturn->storedItems()->count() > 0 ? false : true) || ($palletReturn->delivery_address_id === null && $palletReturn->collection_address_id === null)
             ];
         }
-
-
+        if($palletReturn->type == PalletReturnTypeEnum::PALLET){
+            $pickingAllaction = [
+                'type'    => 'button',
+                'style'   => 'save',
+                'tooltip' => __('Set all pending as picked'),
+                'label'   => __('pick all'),
+                'key'     => 'pick all',
+                'route'   => [
+                    'method'     => 'post',
+                    'name'       => 'grp.models.fulfilment-customer.pallet-return.picked',
+                    'parameters' => [
+                        'organisation'       => $palletReturn->organisation->slug,
+                        'fulfilment'         => $palletReturn->fulfilment->slug,
+                        'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
+                        'palletReturn'       => $palletReturn->id
+                    ]
+                ]
+                    ];
+        } else {
+            $pickingAllaction = [
+                'type'    => 'button',
+                'style'   => 'save',
+                'tooltip' => __('Set all pending as picked'),
+                'label'   => __('pick all*'),
+                'key'     => 'pick all',
+                'route'   => [
+                    'method'     => 'post',
+                    'name'       => 'grp.models.pallet-return.pick_all_with_stored_items',
+                    'parameters' => [
+                        'palletReturn'       => $palletReturn->id
+                    ]
+                ]
+                    ];
+        }
 
         if ($this->canEdit) {
             $actions = $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
@@ -205,23 +237,8 @@ class ShowPalletReturn extends OrgAction
                         ]
                     ]
                 ] : [],
-                $palletReturn->state == PalletReturnStateEnum::PICKING ? [
-                    'type'    => 'button',
-                    'style'   => 'save',
-                    'tooltip' => __('Set all pending as picked'),
-                    'label'   => __('pick all'),
-                    'key'     => 'pick all',
-                    'route'   => [
-                        'method'     => 'post',
-                        'name'       => 'grp.models.fulfilment-customer.pallet-return.picked',
-                        'parameters' => [
-                            'organisation'       => $palletReturn->organisation->slug,
-                            'fulfilment'         => $palletReturn->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                            'palletReturn'       => $palletReturn->id
-                        ]
-                    ]
-                ] : [],
+                $palletReturn->state == PalletReturnStateEnum::PICKING ? 
+                $pickingAllaction : [],
                 $palletReturn->state == PalletReturnStateEnum::PICKED ? [
                     'type'    => 'button',
                     'style'   => 'save',
