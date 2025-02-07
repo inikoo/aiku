@@ -44,7 +44,7 @@ class SetInvoicePaymentState extends OrgAction
             }
         }
 
-        if($payStatus==InvoicePayStatusEnum::UNPAID && $invoice->created_at->diffInYears(now())>1){
+        if ($payStatus == InvoicePayStatusEnum::UNPAID && $invoice->created_at->diffInYears(now()) > 1) {
             $payStatus = InvoicePayStatusEnum::UNKNOWN;
         }
 

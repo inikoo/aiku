@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property int $stored_item_id
  * @property int|null $location_id
- * @property string $type
+ * @property StoredItemMovementTypeEnum $type
  * @property string $quantity
  * @property string $moved_at
  * @property \Illuminate\Support\Carbon|null $created_at

@@ -9,7 +9,7 @@
 namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
-use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovementFromPicking;
+use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovementFromPickingAFullPallet;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -55,7 +55,7 @@ class SetPalletInReturnAsPicked extends OrgAction
             $pallet = UpdatePallet::run($palletReturnItem->pallet, $modelData);
 
             foreach ($pallet->palletStoredItems as $palletStoredItem) {
-                StoreStoredItemMovementFromPicking::run($palletReturnItem, $palletStoredItem);
+                StoreStoredItemMovementFromPickingAFullPallet::run($palletReturnItem, $palletStoredItem);
             }
 
         } else {

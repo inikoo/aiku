@@ -16,7 +16,7 @@ use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\Fulfilment\PalletStoredItem;
 use App\Models\Fulfilment\StoredItemMovement;
 
-class StoreStoredItemMovementFromPicking extends OrgAction
+class StoreStoredItemMovementFromPickingAFullPallet extends OrgAction
 {
     public function handle(PalletReturnItem $palletReturnItem, PalletStoredItem $palletStoredItem): ?StoredItemMovement
     {
