@@ -353,6 +353,11 @@ watch(openedBlockSideEditor,(newValue)=>{
 		<template #afterTitle v-if="isSavingBlock">
 			<LoadingIcon v-tooltip="trans('Saving..')" />
 		</template>
+		<template #other>
+            <div class=" px-2 cursor-pointer" v-tooltip="'go to website'" @click="openWebsite" >
+                <FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" size="xl" />
+            </div>
+        </template>
 	</PageHeading>
 
 	<div class="flex gap-x-2">
@@ -417,9 +422,7 @@ watch(openedBlockSideEditor,(newValue)=>{
 						v-model="isPreviewLoggedIn"
 						@update:model-value="(e)=> sendToIframe({ key: 'isPreviewLoggedIn', value: e })"
 					/>
-					<div class="py-1 px-2 cursor-pointer" title="go to website" @click="openWebsite" >
-						<FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" />
-					</div>
+					
 					<!-- <div class="h-6 w-px bg-gray-400 mx-2"></div> -->
 
 					<!-- <ButtonPreviewEdit

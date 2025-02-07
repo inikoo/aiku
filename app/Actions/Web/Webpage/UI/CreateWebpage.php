@@ -8,24 +8,35 @@
 
 namespace App\Actions\Web\Webpage\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
+use App\Enums\Web\Webpage\WebpageSubTypeEnum;
+use App\Enums\Web\Webpage\WebpageTypeEnum;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
 
-class CreateWebpage extends InertiaAction
+class CreateWebpage extends OrgAction
 {
+    protected Fulfilment|Website|Webpage $parent;
+
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->parent instanceof Fulfilment) {
+            return $request->user()->authTo("fulfilment-shop.{$this->parent->id}.edit");
+        }
+
         return $request->user()->authTo('websites.edit');
     }
 
-
     public function asController(Website $website, ActionRequest $request): Webpage
     {
-        $this->initialisation($request);
+        $this->initialisation($website->organisation, $request);
+
         return $website->storefront;
     }
 
@@ -36,10 +47,16 @@ class CreateWebpage extends InertiaAction
         return $webpage;
     }
 
-    public function htmlResponse(Webpage $parent, ActionRequest $request): Response
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): Website
     {
+        $this->parent = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
+        return $website;
+    }
 
+    public function htmlResponse(Webpage|Website $parent, ActionRequest $request): Response
+    {
         return Inertia::render(
             'CreateModel',
             [
@@ -80,31 +97,47 @@ class CreateWebpage extends InertiaAction
                             'title'  => __('Id'),
                             'icon'   => ['fal', 'fa-fingerprint'],
                             'fields' => [
-
                                 'code' => [
                                     'type'     => 'input',
                                     'label'    => __('code'),
                                     'value'    => '',
                                     'required' => true,
                                 ],
-
+                                'title' => [
+                                    'type'     => 'input',
+                                    'label'    => __('title'),
+                                    'value'    => '',
+                                    'required' => true,
+                                ],
+                                'type' => [
+                                    'type'     => 'select',
+                                    'label'    => __('type'),
+                                    'options'  => Options::forEnum(WebpageTypeEnum::class),
+                                    'value'    => '',
+                                    'required' => true,
+                                ],
+                                'sub_type' => [
+                                    'type'     => 'select',
+                                    'label'    => __('sub type'),
+                                    'options'  => Options::forEnum(WebpageSubTypeEnum::class),
+                                    'value'    => '',
+                                    'required' => true,
+                                ],
                                 'url' => [
                                     'type'      => 'inputWithAddOn',
                                     'label'     => __('url'),
                                     'leftAddOn' => [
-                                        'label' => 'https://'.$parent->website->domain.'/'
+                                        'label' => 'https://'.($parent instanceof Webpage ? $parent->website->domain : $parent->domain).'/'
                                     ],
                                     'value'     => '',
                                     'required'  => true,
                                 ],
                             ]
                         ]
-
-
                     ],
                     'route'     => [
-                        'name'       => 'org.models.webpage.store',
-                        'parameters' => [$parent->id]
+                        'name'       => 'grp.models.fulfilment.webpage.store',
+                        'parameters' => [$this->fulfilment->id, $parent->id]
                     ],
 
 
