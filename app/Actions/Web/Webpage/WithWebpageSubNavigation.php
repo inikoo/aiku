@@ -153,7 +153,7 @@ trait WithWebpageSubNavigation
             ],
             [
 
-                "label"    => __("Structure"),
+                "label"    => __("Structure (coming soon)"),
 
                 "route"    => [
                     "name"       => "grp.org.fulfilments.show.web.webpages.tree",
