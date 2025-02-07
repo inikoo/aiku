@@ -22,6 +22,9 @@ const props = defineProps<{
     state: any;
     key: any;
     route_checkmark: routeType;
+    palletReturn: {
+        id: number
+    }
 }>();
 
 const layout = inject('layout', layoutStructure)
@@ -138,6 +141,7 @@ onBeforeMount(() => {
 
 <template>
     <!-- {{ selectedRow }} -->
+      {{ palletReturn.id }}
     <Table :resource="data" :name="'stored_items'" class="mt-5" :xxisCheckBox="state == 'in_process' ? true : false"
         @onSelectRow="onChangeCheked" ref="_table" :selectedRow="selectedRow">
         
@@ -170,10 +174,17 @@ onBeforeMount(() => {
                     <div class="flex items-center flex-nowrap gap-x-2">
                         <div v-tooltip="trans('Available quantity')" class="text-base">{{ pallet_stored_item.available_quantity }}</div>
                         <NumberWithButtonSave
-                            v-model="pallet_stored_item.quantity"
+                            v-model="pallet_stored_item.selected_quantity"
                             saveOnForm
-                            :routeSubmit="pallet_stored_item.updateRoute"
-                            keySubmit="net_amount"
+                            :routeSubmit="{
+                                name: pallet_stored_item.updateRoute.name,
+                                parameters: {
+                                    ...pallet_stored_item.updateRoute.parameters,
+                                    palletReturn: palletReturn.id
+                                },
+                                method: pallet_stored_item.updateRoute.method
+                            }"
+                            keySubmit="quantity_ordered"
                             :bindToTarget="{
                                 step: 1,
                                 max: pallet_stored_item.max_quantity
