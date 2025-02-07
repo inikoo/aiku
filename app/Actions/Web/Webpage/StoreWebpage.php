@@ -25,6 +25,7 @@ use App\Models\Web\Website;
 use App\Models\Web\Webpage;
 use App\Rules\AlphaDashSlash;
 use App\Rules\IUnique;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -45,6 +46,14 @@ class StoreWebpage extends OrgAction
      */
     public function handle(Website|Webpage $parent, array $modelData): Webpage
     {
+        if (!Arr::exists($modelData, 'type')) {
+            $modelData['type'] = WebpageTypeEnum::CONTENT;
+        }
+
+        if (!Arr::exists($modelData, 'sub_type')) {
+            $modelData['sub_type'] = WebpageSubTypeEnum::CONTENT;
+        }
+
         data_set($modelData, 'url', '', overwrite: false);
         data_set($modelData, 'shop_id', $parent->shop_id);
 
@@ -101,9 +110,9 @@ class StoreWebpage extends OrgAction
     {
         return Inertia::location(route('grp.org.fulfilments.show.web.webpages.show', [
             'organisation' => $this->fulfilment->organisation->slug,
-            'fulfilment' => $this->fulfilment->slug,
-            'website' => $webpage->website->slug,
-            'webpage' => $webpage->slug
+            'fulfilment'   => $this->fulfilment->slug,
+            'website'      => $webpage->website->slug,
+            'webpage'      => $webpage->slug
         ]));
     }
 
@@ -152,8 +161,8 @@ class StoreWebpage extends OrgAction
                     ]
                 ),
             ],
-            'sub_type'    => ['required', Rule::enum(WebpageSubTypeEnum::class)],
-            'type'        => ['required', Rule::enum(WebpageTypeEnum::class)],
+            'sub_type'    => ['sometimes', Rule::enum(WebpageSubTypeEnum::class)],
+            'type'        => ['sometimes', Rule::enum(WebpageTypeEnum::class)],
             'state'       => ['sometimes', Rule::enum(WebpageStateEnum::class)],
             'is_fixed'    => ['sometimes', 'boolean'],
             'ready_at'    => ['sometimes', 'date'],
@@ -186,7 +195,7 @@ class StoreWebpage extends OrgAction
         }
 
         if (!$this->strict) {
-            $rules = $this->noStrictStoreRules($rules);
+            $rules                   = $this->noStrictStoreRules($rules);
             $rules['migration_data'] = ['sometimes', 'array'];
         }
 
@@ -195,9 +204,10 @@ class StoreWebpage extends OrgAction
 
     public function inFulfilment(Fulfilment $fulfilment, Website $website, ActionRequest $request): Webpage
     {
-        $this->parent = $website;
+        $this->parent  = $website;
         $this->website = $website;
         $this->initialisationFromFulfilment($fulfilment, $request);
+
         return $this->handle($website, $this->validatedData);
     }
 
