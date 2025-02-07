@@ -162,7 +162,9 @@ function routePallet(storageData: any, key: string) {
                                     <!-- In Total -->
                                     <div class="flex gap-x-2 items-end">
                                         <Link :href="routePallet(storageData, 'pallets')">
-                                            <CountUp :endVal="storageData.pallets.count" :duration="1.5"
+                                            <CountUp
+                                            class="primaryLink inline-block"
+                                             :endVal="storageData.pallets.count" :duration="1.5"
                                                 :scrollSpyOnce="true" :options="{
                                                 formattingFn: (value: number) => locale.number(value)
                                             }" />
@@ -217,7 +219,9 @@ function routePallet(storageData: any, key: string) {
                                     <!-- In Total -->
                                     <div class="flex gap-x-2 items-end">
                                         <Link :href="routePallet(storageData, 'pallet_deliveries')">
-                                            <CountUp :endVal="storageData.pallet_deliveries.count" :duration="1.5"
+                                            <CountUp 
+                                            class="primaryLink inline-block"
+                                             :endVal="storageData.pallet_deliveries.count" :duration="1.5"
                                                 :scrollSpyOnce="true" :options="{
                                                 formattingFn: (value: number) => locale.number(value)
                                             }" />
@@ -243,7 +247,9 @@ function routePallet(storageData: any, key: string) {
                                     <!-- In Total -->
                                     <div class="flex gap-x-2 items-end">
                                         <Link :href="routePallet(storageData, 'pallet_returns')">
-                                            <CountUp :endVal="storageData.pallet_returns.count" :duration="1.5"
+                                            <CountUp
+                                            class="primaryLink inline-block"
+                                             :endVal="storageData.pallet_returns.count" :duration="1.5"
                                                 :scrollSpyOnce="true" :options="{
                                                 formattingFn: (value: number) => locale.number(value)
                                             }" />
