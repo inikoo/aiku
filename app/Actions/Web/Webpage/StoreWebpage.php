@@ -20,12 +20,14 @@ use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Web\Website;
 use App\Models\Web\Webpage;
 use App\Rules\AlphaDashSlash;
 use App\Rules\IUnique;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -95,10 +97,24 @@ class StoreWebpage extends OrgAction
         return $webpage;
     }
 
+    public function htmlResponse(Webpage $webpage)
+    {
+        return Inertia::location(route('grp.org.fulfilments.show.web.webpages.show', [
+            'organisation' => $this->fulfilment->organisation->slug,
+            'fulfilment' => $this->fulfilment->slug,
+            'website' => $webpage->website->slug,
+            'webpage' => $webpage->slug
+        ]));
+    }
+
     public function authorize(ActionRequest $request): bool
     {
         if ($this->asAction) {
             return true;
+        }
+
+        if (!blank($this->fulfilment)) {
+            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
         }
 
         return $request->user()->authTo("web.{$this->shop->id}.edit");
@@ -177,6 +193,13 @@ class StoreWebpage extends OrgAction
         return $rules;
     }
 
+    public function inFulfilment(Fulfilment $fulfilment, Website $website, ActionRequest $request): Webpage
+    {
+        $this->parent = $website;
+        $this->website = $website;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+        return $this->handle($website, $this->validatedData);
+    }
 
     /**
      * @throws \Throwable

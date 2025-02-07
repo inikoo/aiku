@@ -183,6 +183,7 @@ use App\Actions\Web\ModelHasWebBlocks\UpdateModelHasWebBlocks;
 use App\Actions\Web\ModelHasWebBlocks\UploadImagesToModelHasWebBlocks;
 use App\Actions\Web\Webpage\PublishWebpage;
 use App\Actions\Web\Webpage\ReorderWebBlocks;
+use App\Actions\Web\Webpage\StoreWebpage;
 use App\Actions\Web\Webpage\UpdateWebpage;
 use App\Actions\Web\Website\AutosaveWebsiteMarginal;
 use App\Actions\Web\Website\LaunchWebsite;
@@ -486,6 +487,8 @@ Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function
     Route::post('fulfilment-customer', StoreFulfilmentCustomer::class)->name('fulfilment_customer.store');
     Route::patch('website/{website:id}', [UpdateWebsite::class, 'inFulfilment'])->name('website.update')->withoutScopedBindings();
 
+    Route::post('website/{website:id}/webpage', [StoreWebpage::class, 'inFulfilment'])->name('webpage.store')->withoutScopedBindings();
+
     Route::name('outboxes.')->prefix('outboxes/{outbox:id}')->group(function () {
         Route::patch('toggle', ToggleOutbox::class)->name('toggle')->withoutScopedBindings();
         Route::post('publish', PublishOutbox::class)->name('publish')->withoutScopedBindings();
@@ -529,6 +532,7 @@ Route::name('website.')->prefix('website/{website:id}')->group(function () {
     Route::post('images/footer', [UploadImagesToWebsite::class, 'footer'])->name('footer.images.store');
     Route::post('images/favicon', [UploadImagesToWebsite::class, 'favicon'])->name('favicon.images.store');
 });
+
 Route::name('webpage.')->prefix('webpage/{webpage:id}')->group(function () {
     Route::post('publish', PublishWebpage::class)->name('publish');
     Route::post('web-block', StoreModelHasWebBlock::class)->name('web_block.store');
