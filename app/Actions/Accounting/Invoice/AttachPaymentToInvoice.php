@@ -18,7 +18,7 @@ class AttachPaymentToInvoice extends OrgAction
 {
     public function handle(Invoice $invoice, Payment $payment, array $modelData): void
     {
-        $paymentAmount = $invoice->payment_amount + $modelData['amount'];
+        $paymentAmount = (is_null($invoice->payment_amount) ? 0 : $invoice->payment_amount) + $modelData['amount'];
         $invoice->payments()->attach($payment, [
             'amount' => $paymentAmount,
         ]);
@@ -31,7 +31,7 @@ class AttachPaymentToInvoice extends OrgAction
             UpdateInvoice::make()->action($invoice, [
                 'payment_amount' => $paymentAmount
             ]);
-        };
+        }
 
         data_forget($modelData, 'reference');
         if ($paymentAmount > $invoice->total_amount) {
@@ -41,6 +41,7 @@ class AttachPaymentToInvoice extends OrgAction
             data_set($modelData, 'payment_id', $payment->id);
             StoreCreditTransaction::run($invoice->customer, $modelData);
         }
+        SetInvoicePaymentState::run($invoice);
     }
 
     public function rules(): array

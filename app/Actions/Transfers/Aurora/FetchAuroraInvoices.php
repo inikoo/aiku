@@ -8,6 +8,7 @@
 
 namespace App\Actions\Transfers\Aurora;
 
+use App\Actions\Accounting\Invoice\SetInvoicePaymentState;
 use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\Invoice\UpdateInvoice;
 use App\Models\Accounting\Invoice;
@@ -140,8 +141,7 @@ class FetchAuroraInvoices extends FetchAuroraAction
 
 
         $invoice->payments()->sync($modelHasPayments);
-
-
+        SetInvoicePaymentState::run($invoice);
 
         try {
             DB::table('payments')->whereIn('source_id', $paymentsToDelete)->delete();

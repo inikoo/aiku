@@ -9,6 +9,7 @@
 namespace App\Http\Resources\Fulfilment;
 
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Models\Fulfilment\Pallet;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -36,6 +37,7 @@ class PalletReturnItemsResource extends JsonResource
 {
     public function toArray($request): array
     {
+        $pallet = Pallet::find($this->pallet_id);
         return [
             'id'                               => $this->id,
             'pallet_id'                        => $this->pallet_id,
@@ -58,11 +60,11 @@ class PalletReturnItemsResource extends JsonResource
             'location_code'                    => $this->location_code,
             'location_id'                      => $this->location_id,
             'is_checked'                       => (bool) $this->pallet_return_id,
-            'stored_items'                     => $this->storedItems->map(fn ($storedItem) => [
+            'stored_items'                     => $pallet->storedItems->map(fn ($storedItem) => [
                 'reference' => $storedItem->reference,
                 'quantity'  => (int)$storedItem->pivot->quantity,
             ]),
-            'stored_items_quantity' => (int)$this->storedItems()->sum('quantity'),
+            'stored_items_quantity' => (int)$pallet->storedItems()->sum('quantity'),
             'syncRoute'             => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet.pallet-return-item.update',

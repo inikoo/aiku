@@ -5,7 +5,6 @@ import { trans } from 'laravel-vue-i18n';
 // Mendapatkan data customer dari props
 const customer = usePage().props.layout.customer;
 const fulfilment = usePage().props.layout.fulfilment;
-console.log(usePage().props)
 </script>
 
 <template>
@@ -25,7 +24,7 @@ console.log(usePage().props)
     <div
       class="col-span-2 bg-white rounded-lg shadow-xl overflow-hidden border hover:shadow-2xl transition-shadow duration-300">
       <div class="px-6 py-4 border-b border-gray-200">
-        <h3 class="text-xl font-semibold text-gray-900">{{trans("Customer Details")}}</h3>
+        <h3 class="text-xl font-semibold text-gray-900">{{trans("My Details")}}</h3>
         <p class="mt-1 text-sm text-gray-500">{{trans("Company and contact information.")}}</p>
       </div>
       <div class="p-6 grid grid-cols-2 gap-4">

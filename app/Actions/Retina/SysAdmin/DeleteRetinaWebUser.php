@@ -32,14 +32,7 @@ class DeleteRetinaWebUser extends RetinaAction
         }
     }
 
-    public function authorize(ActionRequest $request)
-    {
-        if ($this->action) {
-            return true;
-        }
 
-        return false;
-    }
 
     public function htmlResponse(): RedirectResponse
     {

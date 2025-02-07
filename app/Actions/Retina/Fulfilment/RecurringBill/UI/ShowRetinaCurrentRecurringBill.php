@@ -8,11 +8,11 @@
 
 namespace App\Actions\Retina\Fulfilment\RecurringBill\UI;
 
+use App\Actions\Fulfilment\RecurringBill\UI\ShowRecurringBill;
 use App\Actions\Retina\Billing\UI\ShowRetinaBillingDashboard;
 use App\Actions\RetinaAction;
 use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;
-use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
-use App\Http\Resources\Fulfilment\RecurringBillTransactionsResource;
+use App\Http\Resources\Fulfilment\RetinaRecurringBillTransactionsResource;
 use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\StoredItem;
@@ -44,8 +44,6 @@ class ShowRetinaCurrentRecurringBill extends RetinaAction
         unset($navigation[RecurringBillTabsEnum::HISTORY->value]);
 
 
-        $showGrossAndDiscount = $recurringBill->gross_amount !== $recurringBill->net_amount;
-
         return Inertia::render(
             'Billing/RetinaRecurringBill',
             [
@@ -65,84 +63,16 @@ class ShowRetinaCurrentRecurringBill extends RetinaAction
                     'end_date'   => $recurringBill->end_date
                 ],
                 'status_rb'   => $recurringBill->status,
-                'currency'                => CurrencyResource::make($recurringBill->currency),
-                'box_stats'   => [
-                    'customer'      => FulfilmentCustomerResource::make($recurringBill->fulfilmentCustomer),
-                    'stats'         => [
-                        'number_pallets'      => $recurringBill->stats->number_transactions_type_pallets,
-                        'number_stored_items' => $recurringBill->stats->number_transactions_type_stored_items,
-                    ],
-                    'order_summary' => [
-                        [
-                            [
-                                'label'       => __('Pallets'),
-                                'price_base'  => __('Multiple'),
-                                'price_total' => $recurringBill->rental_amount
-                            ],
-                            [
-                                'label'       => __('Services'),
-                                'price_base'  => __('Multiple'),
-                                'price_total' => $recurringBill->services_amount
-                            ],
-                            [
-                                'label'       => __('Products'),
-                                'price_base'  => __('Multiple'),
-                                'price_total' => $recurringBill->goods_amount
-                            ],
-                        ],
-                        $showGrossAndDiscount ? [
-                            [
-                                'label'       => __('Gross'),
-                                'information' => '',
-                                'price_total' => $recurringBill->gross_amount
-                            ],
-                            [
-                                'label'       => __('Discounts'),
-                                'information' => '',
-                                'price_total' => $recurringBill->discount_amount
-                            ],
-                        ] : [],
-                        $showGrossAndDiscount
-                            ? [
-                            [
-                                'label'       => __('Net'),
-                                'information' => '',
-                                'price_total' => $recurringBill->net_amount
-                            ],
-                            [
-                                'label'       => __('Tax').' '.$recurringBill->taxCategory->rate * 100 .'%',
-                                'information' => '',
-                                'price_total' => $recurringBill->tax_amount
-                            ],
-                        ]
-                            : [
-                            [
-                                'label'       => __('Net'),
-                                'information' => '',
-                                'price_total' => $recurringBill->net_amount
-                            ],
-                            [
-                                'label'       => __('Tax').' '.$recurringBill->taxCategory->rate * 100 .'%',
-                                'information' => '',
-                                'price_total' => $recurringBill->tax_amount
-                            ],
-                        ],
-                        [
-                            [
-                                'label'       => __('Total'),
-                                'price_total' => $recurringBill->total_amount
-                            ],
-                        ],
-                    ],
-                ],
+                'currency'    => CurrencyResource::make($recurringBill->currency),
+                'box_stats'   => ShowRecurringBill::make()->getRecurringBillBoxStats($recurringBill),
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => $navigation,
                 ],
 
                 RecurringBillTabsEnum::TRANSACTIONS->value => $this->tab == RecurringBillTabsEnum::TRANSACTIONS->value ?
-                    fn () => RecurringBillTransactionsResource::collection(RetinaIndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))
-                    : Inertia::lazy(fn () => RecurringBillTransactionsResource::collection(RetinaIndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))),
+                    fn () => RetinaRecurringBillTransactionsResource::collection(RetinaIndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))
+                    : Inertia::lazy(fn () => RetinaRecurringBillTransactionsResource::collection(RetinaIndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))),
 
             ]
         )->table(
@@ -152,7 +82,6 @@ class ShowRetinaCurrentRecurringBill extends RetinaAction
             )
         );
     }
-
 
 
     public function getBreadcrumbs(): array

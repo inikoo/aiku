@@ -89,7 +89,6 @@ class ShowRecurringBill extends OrgAction
 
     public function htmlResponse(RecurringBill $recurringBill, ActionRequest $request): Response
     {
-        $showGrossAndDiscount = $recurringBill->gross_amount !== $recurringBill->net_amount;
 
         $actions = [];
 
@@ -172,90 +171,7 @@ class ShowRecurringBill extends OrgAction
                     'method'     => 'patch'
                 ],
                 'status_rb'        => $recurringBill->status,
-                'box_stats'        => [
-                    'customer'      => FulfilmentCustomerResource::make($recurringBill->fulfilmentCustomer),
-                    'stats'         => [
-                        'number_pallets'      => $recurringBill->stats->number_transactions_type_pallets,
-                        'number_stored_items' => $recurringBill->stats->number_transactions_type_stored_items,
-                    ],
-                    'order_summary' => [
-                        // [
-                        //     [
-                        //         "label"         => __("total"),
-                        //         'price_gross'   => $recurringBill->gross_amount,
-                        //         'price_net'     => $recurringBill->net_amount,
-                        //         "price_total"   => $recurringBill->total_amount,
-                        //         // "information" => 777777,
-                        //     ],
-                        // ],
-                        [
-                            [
-                                'label'       => __('Pallets'),
-                                'price_base'  => __('Multiple'),
-                                'price_total' => $recurringBill->rental_amount
-                            ],
-                            [
-                                'label'       => __('Services'),
-                                'price_base'  => __('Multiple'),
-                                'price_total' => $recurringBill->services_amount
-                            ],
-                            [
-                                'label'       => __('Products'),
-                                'price_base'  => __('Multiple'),
-                                'price_total' => $recurringBill->goods_amount
-                            ],
-                            // [
-                            //     'label'         => __("Customer'S SKUs"),
-                            //     'quantity'      => $recurringBill->stats->number_transactions_type_stored_items ?? 0,
-                            //     'price_base'    => __('Multiple'),
-                            //     'price_total'   => 1111111
-                            // ],
-                        ],
-                        $showGrossAndDiscount ? [
-                            [
-                                'label'       => __('Gross'),
-                                'information' => '',
-                                'price_total' => $recurringBill->gross_amount
-                            ],
-                            [
-                                'label'       => __('Discounts'),
-                                'information' => '',
-                                'price_total' => $recurringBill->discount_amount
-                            ],
-                        ] : [],
-                        $showGrossAndDiscount
-                            ? [
-                            [
-                                'label'       => __('Net'),
-                                'information' => '',
-                                'price_total' => $recurringBill->net_amount
-                            ],
-                            [
-                                'label'       => __('Tax').' '.$recurringBill->taxCategory->rate * 100 .'%',
-                                'information' => '',
-                                'price_total' => $recurringBill->tax_amount
-                            ],
-                        ]
-                            : [
-                            [
-                                'label'       => __('Net'),
-                                'information' => '',
-                                'price_total' => $recurringBill->net_amount
-                            ],
-                            [
-                                'label'       => __('Tax').' '.$recurringBill->taxCategory->rate * 100 .'%',
-                                'information' => '',
-                                'price_total' => $recurringBill->tax_amount
-                            ],
-                        ],
-                        [
-                            [
-                                'label'       => __('Total'),
-                                'price_total' => $recurringBill->total_amount
-                            ],
-                        ],
-                    ],
-                ],
+                'box_stats'        => $this->getRecurringBillBoxStats($recurringBill),
 
                 'service_list_route'       => [
                     'name'       => 'grp.json.fulfilment.recurring-bill.services.index',
@@ -309,6 +225,70 @@ class ShowRecurringBill extends OrgAction
             ->table(IndexPalletReturns::make()->tableStructure($recurringBill, prefix: RecurringBillTabsEnum::PALLET_RETURNS->value));
     }
 
+
+    public function getRecurringBillBoxStats(RecurringBill $recurringBill): array
+    {
+        $showGrossAndDiscount = $recurringBill->gross_amount !== $recurringBill->net_amount;
+
+        return [
+            'customer'      => FulfilmentCustomerResource::make($recurringBill->fulfilmentCustomer),
+            'stats'         => [
+                'number_pallets'      => $recurringBill->stats->number_transactions_type_pallets,
+                'number_stored_items' => $recurringBill->stats->number_transactions_type_stored_items,
+            ],
+            'order_summary' => [
+
+                [
+                    [
+                        'label'       => __('Pallets'),
+                        'price_base'  => __('Multiple'),
+                        'price_total' => $recurringBill->rental_amount
+                    ],
+                    [
+                        'label'       => __('Services'),
+                        'price_base'  => __('Multiple'),
+                        'price_total' => $recurringBill->services_amount
+                    ],
+                    [
+                        'label'       => __('Products'),
+                        'price_base'  => __('Multiple'),
+                        'price_total' => $recurringBill->goods_amount
+                    ],
+
+                ],
+                $showGrossAndDiscount ? [
+                    [
+                        'label'       => __('Gross'),
+                        'information' => '',
+                        'price_total' => $recurringBill->gross_amount
+                    ],
+                    [
+                        'label'       => __('Discounts'),
+                        'information' => '',
+                        'price_total' => $recurringBill->discount_amount
+                    ],
+                ] : [],
+                [
+                    [
+                        'label'       => __('Net'),
+                        'information' => '',
+                        'price_total' => $recurringBill->net_amount
+                    ],
+                    [
+                        'label'       => __('Tax').' '.$recurringBill->taxCategory->rate * 100 .'%',
+                        'information' => '',
+                        'price_total' => $recurringBill->tax_amount
+                    ],
+                ],
+                [
+                    [
+                        'label'       => __('Total'),
+                        'price_total' => $recurringBill->total_amount
+                    ],
+                ],
+            ],
+        ];
+    }
 
     public function jsonResponse(RecurringBill $recurringBill): RecurringBillResource
     {

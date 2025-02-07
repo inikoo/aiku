@@ -44,8 +44,9 @@ class ShowRetinaInvoice extends RetinaAction
 
     public function htmlResponse(Invoice $invoice, ActionRequest $request): Response
     {
-        $payAmount   = $invoice->total_amount - $invoice->payment_amount;
-        $roundedDiff = round($payAmount, 2);
+        $toPayAmount   = round($invoice->total_amount - $invoice->payment_amount, 2);
+
+
 
         return Inertia::render(
             'Billing/RetinaInvoice',
@@ -136,7 +137,6 @@ class ShowRetinaInvoice extends RetinaAction
                         'company_name' => $invoice->customer->company_name,
                         'location'     => $invoice->customer->location,
                         'phone'        => $invoice->customer->phone,
-                        // 'address'      => AddressResource::collection($invoice->customer->addresses),
                     ],
                     'information' => [
                         'recurring_bill'    => [
@@ -145,7 +145,7 @@ class ShowRetinaInvoice extends RetinaAction
                         'routes'         => [
                         ],
                         'paid_amount'    => $invoice->payment_amount,
-                        'pay_amount'     => $roundedDiff
+                        'pay_amount'     => $toPayAmount
                     ]
                 ],
 
@@ -165,8 +165,6 @@ class ShowRetinaInvoice extends RetinaAction
         )->table(IndexRetinaPayments::make()->tableStructure($invoice, [], InvoiceTabsEnum::PAYMENTS->value))
             ->table(IndexRetinaInvoiceTransactions::make()->tableStructure($invoice, InvoiceTabsEnum::ITEMS->value));
     }
-
-
 
 
     public function getBreadcrumbs(Invoice $invoice, string $routeName, array $routeParameters, string $suffix = ''): array
@@ -250,7 +248,6 @@ class ShowRetinaInvoice extends RetinaAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation' => $invoice->organisation->slug,
                         'invoice'      => $invoice->slug
                     ]
 
