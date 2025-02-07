@@ -78,16 +78,15 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
                 //         'palletStoredItem'   => $palletStoredItem->id
                 //     ]
                 // ],
-                'syncRoute' => $palletStoredItem->palletReturnItem
-                    ? [
+                'syncRoute' => 
+                    [
                         'name'       => 'grp.models.pallet-return.stored_item.store',
                         'parameters' => [
                             'palletReturn'       => $this->pallet_return_id,
                             'palletStoredItem'   => $palletStoredItem->id
                         ],
                         'method'    => 'post'
-                    ]
-                    : null,
+                    ],
                 'location' => [
                     'slug'   => $palletStoredItem->pallet->location->slug,
                     'code'   => $palletStoredItem->pallet->location->code
