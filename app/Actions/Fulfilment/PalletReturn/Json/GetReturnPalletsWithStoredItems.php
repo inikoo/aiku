@@ -198,7 +198,7 @@ class GetReturnPalletsWithStoredItems extends OrgAction
 
 
             $table->column(key: 'customer_reference', label: $customersReferenceLabel, canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'stored_items', label: __('Stored items'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'pallet_stored_items', label: __('Stored items'), canBeHidden: false, sortable: true, searchable: true);
 
             if (!$request->user() instanceof WebUser) {
                 $table->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true);

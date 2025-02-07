@@ -152,9 +152,9 @@ onBeforeMount(() => {
         </template>
         
         <!-- Column: Stored items -->
-        <template #cell(stored_items)="{ item: value }">
+        <template #cell(pallet_stored_items)="{ item: value }">
             <div class="grid gap-y-1">
-                <div v-for="storedItem in value.stored_items" :key="storedItem.id" class="rounded p-1 flex justify-between gap-x-4 items-center">
+                <div v-for="storedItem in value.pallet_stored_items" :key="storedItem.id" class="rounded p-1 flex justify-between gap-x-4 items-center">
                     <!-- <Tag :label="storedItem.reference" stringToColor>
                         <template #label>
                             <div class="">

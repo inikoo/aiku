@@ -78,6 +78,7 @@ use App\Actions\Fulfilment\Pallet\UndoBookedInPallet;
 use App\Actions\Fulfilment\Pallet\UndoNotReceivedPallet;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
+use App\Actions\Fulfilment\Pallet\UpdatePalletWithStoredItemsInReturn;
 use App\Actions\Fulfilment\PalletDelivery\CancelPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\DeletePalletDelivery;
@@ -110,7 +111,6 @@ use App\Actions\Fulfilment\Space\UpdateSpace;
 use App\Actions\Fulfilment\StoredItem\DeleteStoredItem;
 use App\Actions\Fulfilment\StoredItem\MoveStoredItem;
 use App\Actions\Fulfilment\StoredItem\ResetAuditStoredItemToPallet;
-use App\Actions\Fulfilment\StoredItem\StoreStoredItemsToReturn;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemPallet;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPalletAudit;
@@ -411,6 +411,10 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
 
 
 
+});
+
+Route::name('pallet-return-item.')->prefix('pallet-return-item/{palletReturnItem:id}')->group(function () {
+    Route::patch('update', UpdatePalletWithStoredItemsInReturn::class)->name('update');
 });
 
 Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {

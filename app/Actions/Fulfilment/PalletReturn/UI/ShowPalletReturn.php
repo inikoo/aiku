@@ -29,9 +29,8 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Actions\Helpers\Country\UI\GetAddressData;
-use App\Actions\Retina\Fulfilment\PalletReturn\Json\GetRetinaReturnStoredItems;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
-use App\Http\Resources\Fulfilment\PalletReturnStoredItemsResource;
+use App\Http\Resources\Fulfilment\PalletReturnItemsWithStoredItemsResource;
 use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
@@ -81,6 +80,7 @@ class ShowPalletReturn extends OrgAction
 
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response
     {
+        dump(PalletReturnItemsWithStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn, PalletReturnTabsEnum::STORED_ITEMS->value))->toArray($request));
         //todo this should be $palletReturn->type
         //$type='StoredItem';
         $actions = [];
@@ -269,26 +269,26 @@ class ShowPalletReturn extends OrgAction
                 PalletReturnStateEnum::SUBMITTED
             ])) {
                 $actions[] = [
-                    'type'          => 'button',
-                    'style'         => 'tertiary',
-                    'icon'          => 'fal fa-file-export',
-                    'id'            => 'pdf-export',
-                    'label'         => 'PDF',
-                    'key'           => 'PDF',
-                    'target'        => '_blank',
-                    'route'         => [
-                        'name'       => 'grp.models.pallet-return.pdf',
-                        'parameters' => [
-                            'palletReturn'       => $palletReturn->id
-                        ]
-                    ]
+                    // 'type'          => 'button',
+                    // 'style'         => 'tertiary',
+                    // 'icon'          => 'fal fa-file-export',
+                    // 'id'            => 'pdf-export',
+                    // 'label'         => 'PDF',
+                    // 'key'           => 'PDF',
+                    // 'target'        => '_blank',
+                    // 'route'         => [
+                    //     'name'       => 'grp.models.pallet-return.pdf',
+                    //     'parameters' => [
+                    //         'palletReturn'       => $palletReturn->id
+                    //     ]
+                    // ]
+                    // TODO: Hidden (not delete if hardcoded in FE)
                 ];
             } else {
                 $actions = array_merge([[
                     'type'    => 'button',
                     'style'   => 'delete',
                     'tooltip' => __('delete'),
-                    'label'   => __('delete'),
                     'key'     => 'delete_return',
                     'route'   => [
                         'method'     => 'delete',
@@ -350,7 +350,7 @@ class ShowPalletReturn extends OrgAction
 
         if ($palletReturn->type == PalletReturnTypeEnum::STORED_ITEM) {
             $afterTitle = [
-                'label' => '('.__("Customer's sKUs").')'
+                'label' => '('.__("Customer's SKUs").')'
                 ];
         } else {
             $afterTitle = [
@@ -412,7 +412,7 @@ class ShowPalletReturn extends OrgAction
                 'pageHead' => [
                     // 'container' => $container,
                     'title'     => $palletReturn->reference,
-                    'model'     => __('pallet return'),
+                    'model'     => __('return'),
                     'afterTitle' => $afterTitle,
                     'icon'      => [
                         'icon'  => ['fal', 'fa-truck-couch'],
@@ -726,8 +726,8 @@ class ShowPalletReturn extends OrgAction
                     : Inertia::lazy(fn () => PalletReturnItemsResource::collection(GetReturnPallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))),
 
                 PalletReturnTabsEnum::STORED_ITEMS->value => $this->tab == PalletReturnTabsEnum::STORED_ITEMS->value ?
-                    fn () => PalletReturnItemsResource::collection(GetReturnPalletsWithStoredItems::run($palletReturn, PalletReturnTabsEnum::STORED_ITEMS->value)) //todo idk if this is right
-                    : Inertia::lazy(fn () => PalletReturnItemsResource::collection(GetReturnPalletsWithStoredItems::run($palletReturn, PalletReturnTabsEnum::STORED_ITEMS->value))), //todo idk if this is right
+                    fn () => PalletReturnItemsWithStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn, PalletReturnTabsEnum::STORED_ITEMS->value)) //todo idk if this is right
+                    : Inertia::lazy(fn () => PalletReturnItemsWithStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn, PalletReturnTabsEnum::STORED_ITEMS->value))), //todo idk if this is right
 
                 PalletReturnTabsEnum::SERVICES->value => $this->tab == PalletReturnTabsEnum::SERVICES->value ?
                     fn () => FulfilmentTransactionsResource::collection(IndexServiceInPalletReturn::run($palletReturn))
@@ -744,7 +744,7 @@ class ShowPalletReturn extends OrgAction
                 prefix: PalletReturnTabsEnum::PALLETS->value
             )
         )->table(
-            GetReturnPalletsWithStoredItems::make()->tableStructure(
+            IndexStoredItemsInReturn::make()->tableStructure(
                 $palletReturn,
                 request: $request,
                 prefix: PalletReturnTabsEnum::STORED_ITEMS->value
