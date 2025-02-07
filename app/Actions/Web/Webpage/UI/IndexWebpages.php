@@ -104,7 +104,19 @@ class IndexWebpages extends OrgAction
         $this->bucket = 'content';
         $this->scope  = $shop;
         $this->parent = $website;
-        $this->initialisationFromShop($website->shop, $request);
+        $this->initialisationFromShop($shop, $request);
+
+
+        return $this->handle(parent: $this->parent, bucket: $this->bucket);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function contentInFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'content';
+        $this->scope  = $fulfilment;
+        $this->parent = $website;
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
 
         return $this->handle(parent: $this->parent, bucket: $this->bucket);
@@ -117,6 +129,18 @@ class IndexWebpages extends OrgAction
         $this->scope  = $shop;
         $this->parent = $website;
         $this->initialisationFromShop($website->shop, $request);
+
+
+        return $this->handle(parent: $this->parent, bucket: $this->bucket);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function infoInFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'info';
+        $this->scope  = $fulfilment;
+        $this->parent = $website;
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
 
         return $this->handle(parent: $this->parent, bucket: $this->bucket);
@@ -141,6 +165,18 @@ class IndexWebpages extends OrgAction
         $this->scope  = $shop;
         $this->parent = $website;
         $this->initialisationFromShop($website->shop, $request);
+
+
+        return $this->handle(parent: $this->parent, bucket: $this->bucket);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function operationsInFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'operations';
+        $this->scope  = $fulfilment;
+        $this->parent = $website;
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
 
         return $this->handle(parent: $this->parent, bucket: $this->bucket);
@@ -228,20 +264,28 @@ class IndexWebpages extends OrgAction
 
         return $queryBuilder
             ->defaultSort('webpages.level')
-            ->select(['webpages.code', 'webpages.id', 'webpages.type', 'webpages.slug', 'webpages.level', 'webpages.sub_type', 'webpages.url',
+            ->select([
+                'webpages.code',
+                'webpages.id',
+                'webpages.type',
+                'webpages.slug',
+                'webpages.level',
+                'webpages.sub_type',
+                'webpages.url',
                 'organisations.slug as organisation_slug',
                 'shops.slug as shop_slug',
                 'shops.name as shop_name',
                 'organisations.name as organisation_name',
                 'websites.domain as website_url',
-                'websites.slug as website_slug'])
+                'websites.slug as website_slug'
+            ])
             ->allowedSorts(['code', 'type', 'level', 'url'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
-    public function tableStructure(Group|Organisation|Website|Webpage $parent, ?array $modelOperations = null, $prefix = null, $bucket = null): Closure
+    public function tableStructure(Group|Organisation|Website|Webpage $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
@@ -272,11 +316,7 @@ class IndexWebpages extends OrgAction
                             'count'       => $parent->webStats->number_webpages,
 
                         ],
-                        'Website' => [
-                            'title' => __("No webpages found"),
-                            'count' => $parent->webStats->number_webpages,
-                        ],
-                        'Group' => [
+                        'Website', 'Group' => [
                             'title' => __("No webpages found"),
                             'count' => $parent->webStats->number_webpages,
                         ],
@@ -289,7 +329,7 @@ class IndexWebpages extends OrgAction
                 ->column(key: 'url', label: __('url'), canBeHidden: false, sortable: true, searchable: true);
             if ($parent instanceof Group) {
                 $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
-                        ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+                    ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
             }
             $table->defaultSort('level');
         };
@@ -303,6 +343,7 @@ class IndexWebpages extends OrgAction
     public function htmlResponse(LengthAwarePaginator $webpages, ActionRequest $request): Response
     {
         $subNavigation = [];
+
 
         if ($this->parent instanceof Website) {
             $subNavigation = $this->getWebpageNavigation($this->parent);
@@ -432,9 +473,7 @@ class IndexWebpages extends OrgAction
             ),
             'grp.overview.web.webpages.index' =>
             array_merge(
-                ShowGroupOverviewHub::make()->getBreadcrumbs(
-                    $routeParameters
-                ),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'       => $routeName,
