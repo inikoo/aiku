@@ -141,6 +141,7 @@ onBeforeMount(() => {
 
 <template>
     <!-- {{ selectedRow }} -->
+    <!-- <pre>{{ palletReturn.state }}</pre> -->
     <Table :resource="data" :name="'stored_items'" class="mt-5" :xxisCheckBox="state == 'in_process' ? true : false"
         @onSelectRow="onChangeCheked" ref="_table" :selectedRow="selectedRow">
         
@@ -173,6 +174,7 @@ onBeforeMount(() => {
                     <div class="flex items-center flex-nowrap gap-x-2">
                         <div v-tooltip="trans('Available quantity')" class="text-base">{{ pallet_stored_item.available_quantity }}</div>
                         <NumberWithButtonSave
+                            noUndoButton
                             v-model="pallet_stored_item.selected_quantity"
                             saveOnForm
                             :routeSubmit="{
@@ -188,7 +190,20 @@ onBeforeMount(() => {
                                 step: 1,
                                 max: pallet_stored_item.max_quantity
                             }"
-                        />
+                        >
+                            <template v-if="palletReturn.state === 'picking'" #save="{ isProcessing, isDirty, onSaveViaForm }">
+                                <Button
+                                    @click="() => onSaveViaForm()"
+                                    icon="fal fa-save"
+                                    :label="trans('pick')"
+                                    size="xs"
+                                    :disabled="!isDirty"
+                                    type="secondary"
+                                    :loading="isProcessing"
+                                    class="py-0"
+                                />
+                            </template>
+                        </NumberWithButtonSave>
                     </div>
                     
                 </div>

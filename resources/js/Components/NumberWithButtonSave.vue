@@ -28,6 +28,7 @@ const props = defineProps<{
     saveOnForm?: boolean
     routeSubmit?: routeType
     allowZero?: boolean
+    noUndoButton?: boolean
     keySubmit?: string
     bindToTarget?: {
         max?: number
@@ -71,7 +72,7 @@ defineOptions({
     <div class="relative w-full">
         <div class="flex items-center justify-center border border-gray-300 rounded gap-y-1 px-1 py-0.5">
             <!-- Button: Save -->
-            <button
+            <button v-if="!noUndoButton"
                 @click="() => (keyIconUndo++, form.reset('quantity'))"
                 v-tooltip="trans('Reset value')"
                 class="relative flex items-center justify-center px-1 py-1.5 "
@@ -126,13 +127,15 @@ defineOptions({
             <button class="relative flex items-center justify-center px-1 py-0.5 text-sm"
                 :class="{ 'text-gray-400': !form.isDirty }"
                 :disabled="form.processing || !form.isDirty" type="submit">
-                <LoadingIcon v-if="form.processing" class="text-xl" />
-                <template v-else>
-                    <FontAwesomeIcon v-if="form.isDirty" @click="saveOnForm ? onSaveViaForm() : emits('onSave', form)"
-                        :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" icon="fad fa-save" fixed-width class=" cursor-pointer text-xl"
-                        aria-hidden="true" />
-                    <FontAwesomeIcon v-else icon="fal fa-save" fixed-width class="text-xl" aria-hidden="true" />
-                </template>
+                <slot name="save" :isProcessing="form.processing" :isDirty="form.isDirty" :onSaveViaForm="onSaveViaForm">
+                    <LoadingIcon v-if="form.processing" class="text-xl" />
+                    <template v-else>
+                        <FontAwesomeIcon v-if="form.isDirty" @click="saveOnForm ? onSaveViaForm() : emits('onSave', form)"
+                            :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" icon="fad fa-save" fixed-width class=" cursor-pointer text-xl"
+                            aria-hidden="true" />
+                        <FontAwesomeIcon v-else icon="fal fa-save" fixed-width class="text-xl" aria-hidden="true" />
+                    </template>
+                </slot>
             </button>
         </div>
     </div>

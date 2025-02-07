@@ -67,7 +67,7 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
             'pallet_stored_items'              => $storedItem->palletStoredItems->map(fn ($palletStoredItem) => [
                 'id'        => $palletStoredItem->id,
                 'reference' => $palletStoredItem->pallet->reference,
-                'selected_quantity'     => (int) $palletStoredItem->palletReturnItem?->quantity_ordered ?? 0,  // TODO Kirin
+                'selected_quantity'     => (int) $palletStoredItem->palletReturnItem?->quantity_ordered ?? 0,
                 'available_quantity'    => (int) $palletStoredItem->quantity,
                 'max_quantity'          => (int) $palletStoredItem->quantity,
                 'pallet_return_item_id' => $palletStoredItem->palletReturnItem->id ?? null,
