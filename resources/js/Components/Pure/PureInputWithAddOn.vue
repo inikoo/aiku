@@ -38,6 +38,7 @@ defineOptions({
                     <span v-if="leftAddOn.label" class="leading-none">{{ leftAddOn.label }}</span>
                 </div>
             </div>
+
             <input
                 v-model="model"
                 v-bind="$attrs"

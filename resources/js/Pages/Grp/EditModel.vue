@@ -177,7 +177,7 @@ function connectToPlatform(routeName, parameters) {
                                         : 'text-gray-400',
                                 ]"
                                 :icon="sectionData.icon" />
-                            <span class="capitalize truncate">{{ sectionData.label }}</span>
+                            <span class="truncate">{{ sectionData.label }}</span>
                             <!-- {{ tabActive }} -- {{ key == currentTab }} -->
                         </div>
                     </template>

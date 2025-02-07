@@ -9,6 +9,7 @@
 namespace App\Actions\Web\Webpage\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Models\Fulfilment\Fulfilment;
@@ -22,16 +23,11 @@ use Spatie\LaravelOptions\Options;
 
 class CreateWebpage extends OrgAction
 {
+    use HasWebAuthorisation;
+
     protected Fulfilment|Website|Webpage $parent;
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->parent instanceof Fulfilment) {
-            return $request->user()->authTo("fulfilment-shop.{$this->parent->id}.edit");
-        }
 
-        return $request->user()->authTo('websites.edit');
-    }
 
     public function asController(Website $website, ActionRequest $request): Webpage
     {
@@ -47,9 +43,11 @@ class CreateWebpage extends OrgAction
         return $webpage;
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): Website
     {
-        $this->parent = $fulfilment;
+        $this->scope  = $fulfilment;
+        $this->parent = $website;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $website;
@@ -123,12 +121,18 @@ class CreateWebpage extends OrgAction
                                     'value'    => '',
                                     'required' => true,
                                 ],
+//                                'url' => [
+//                                    'type'      => 'inputWithAddOn',
+//                                    'label'     => __('url'),
+//                                    'leftAddOn' => [
+//                                        'label' => 'https://'.($parent instanceof Webpage ? $parent->website->domain : $parent->domain).'/'
+//                                    ],
+//                                    'value'     => '',
+//                                    'required'  => true,
+//                                ],
                                 'url' => [
-                                    'type'      => 'inputWithAddOn',
-                                    'label'     => __('url'),
-                                    'leftAddOn' => [
-                                        'label' => 'https://'.($parent instanceof Webpage ? $parent->website->domain : $parent->domain).'/'
-                                    ],
+                                    'type'      => 'input',
+                                    'label'     => __('url'). ' https://'.($parent instanceof Webpage ? $parent->website->domain : $parent->domain).'/',
                                     'value'     => '',
                                     'required'  => true,
                                 ],

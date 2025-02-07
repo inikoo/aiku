@@ -67,6 +67,7 @@ class IndexWebpages extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): LengthAwarePaginator
     {
+        $this->bucket = 'all';
         $this->scope  = $fulfilment;
         $this->parent = $website;
         $this->initialisationFromFulfilment($fulfilment, $request);
@@ -285,9 +286,9 @@ class IndexWebpages extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Group|Organisation|Website|Webpage $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Group|Organisation|Website|Webpage $parent, ?array $modelOperations = null, $prefix = null, string $bucket = ''): Closure
     {
-        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $bucket) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -323,9 +324,11 @@ class IndexWebpages extends OrgAction
                         default => null
                     }
                 )
-                ->column(key: 'level', label: '', icon: 'fal fa-sort-amount-down-alt', tooltip: __('Level'), canBeHidden: false, sortable: true, type: 'icon')
-                ->column(key: 'type', label: '', icon: 'fal fa-shapes', tooltip: __('Type'), canBeHidden: false, type: 'icon')
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'level', label: '', icon: 'fal fa-sort-amount-down-alt', tooltip: __('Level'), canBeHidden: false, sortable: true, type: 'icon');
+            if ($bucket == 'all') {
+                $table->column(key: 'type', label: '', icon: 'fal fa-shapes', tooltip: __('Type'), canBeHidden: false, type: 'icon');
+            }
+            $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'url', label: __('url'), canBeHidden: false, sortable: true, searchable: true);
             if ($parent instanceof Group) {
                 $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
@@ -364,7 +367,7 @@ class IndexWebpages extends OrgAction
                         'title' => __('webpage')
                     ],
                     'subNavigation' => $subNavigation,
-                    'actions' => [
+                    'actions'       => [
                         [
                             'type'  => 'button',
                             'style' => 'create',
@@ -379,7 +382,7 @@ class IndexWebpages extends OrgAction
                 'data'        => WebpagesResource::collection($webpages),
 
             ]
-        )->table($this->tableStructure($this->parent));
+        )->table($this->tableStructure(parent: $this->parent, bucket: $this->bucket));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
@@ -493,7 +496,11 @@ class IndexWebpages extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.fulfilments.show.web.webpages.index' =>
+            'grp.org.fulfilments.show.web.webpages.index',
+            'grp.org.fulfilments.show.web.webpages.index.type.content',
+            'grp.org.fulfilments.show.web.webpages.index.type.info',
+            'grp.org.fulfilments.show.web.webpages.index.type.operations'
+            =>
             array_merge(
                 ShowWebsite::make()->getBreadcrumbs(
                     'Fulfilment',
@@ -507,6 +514,7 @@ class IndexWebpages extends OrgAction
                     $suffix
                 )
             ),
+
             default => []
         };
     }
