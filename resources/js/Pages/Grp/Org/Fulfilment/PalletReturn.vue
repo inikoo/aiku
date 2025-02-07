@@ -457,6 +457,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
         :tab="currentTab" 
         :can_edit_transactions="can_edit_transactions"
         :route_checkmark="currentTab == 'pallets' ? routeStorePallet : route_check_stored_items" 
+        :palletReturn="data?.data"
     />
 
     <!-- Modal: Add Pallet -->
