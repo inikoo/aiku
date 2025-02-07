@@ -12,7 +12,6 @@ use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\PalletReturn\AddAddressToPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Json\GetReturnPallets;
-use App\Actions\Fulfilment\PalletReturn\Json\GetReturnPalletsWithStoredItems;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemsInReturn;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;

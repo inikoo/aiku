@@ -16,6 +16,9 @@ import Footer from "@/Components/Footer/Footer.vue"
 import { useLayoutStore } from "@/Stores/layout"
 import { useLocaleStore } from "@/Stores/locale"
 
+import "@/Composables/Icon/NavigationImportIcon"
+
+
 
 import TopBar from "@/Layouts/Grp/TopBar.vue"
 import LeftSideBar from "@/Layouts/Grp/LeftSideBar.vue"

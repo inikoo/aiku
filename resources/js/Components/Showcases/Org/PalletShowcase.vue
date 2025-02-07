@@ -57,10 +57,10 @@ const blueprint = {
         label: 'Customer',
         value: props.data.data.customer || '-'
     },
-    // customer_reference: {
-    //     label: "Customer's pallet",
-    //     value: props.data.data.customer_reference || '-'
-    // },
+    customer_reference: {
+        label: "Customer's reference",
+        value: props.data.data.customer_reference || '-'
+    },
     location: {
         label: 'Location',
         value: props.data.data.location || '-'
@@ -156,10 +156,11 @@ const printBarcodePallet = (id: string, code: string) => {
                     <span v-else class="text-gray-400 italic">No items in this pallet.</span>
                 </dd>
             </div>
-            <!-- <div class="border-t border-gray-200 pt-4">
+
+            <div class="border-t border-gray-200 pt-4">
                 <dt class="font-medium">{{ blueprint.customer_reference.label }}</dt>
                 <dd class="mt-2 text-sm text-gray-500 text-justify">{{ blueprint.customer_reference.value }}</dd>
-            </div> -->
+            </div>
 
             <div class="border-t border-gray-200 pt-4">
                 <dt class="font-medium">{{ blueprint.location.label }}</dt>
@@ -178,7 +179,7 @@ const printBarcodePallet = (id: string, code: string) => {
                 <dd class="mt-2 text-sm text-gray-500 text-justify">State:
                     <Tag :class="'capitalize'" :label="data.data.state" ></Tag>
                 </dd>
-                <dd class="mt-2 text-sm text-gray-500 text-justify">Status : 
+                <dd class="mt-2 text-sm text-gray-500 text-justify">Status :
                     <Tag label="" :class="'text-white'"
                         :style="{ backgroundColor: data.data.status_icon.color }" >
 
@@ -193,7 +194,7 @@ const printBarcodePallet = (id: string, code: string) => {
             </div>
         </dl>
 
-   
+
 
         <div class="col-span-2 lg:col-span-1  lg:order-2">
         <div class="flex flex-col items-center gap-6">
@@ -222,9 +223,9 @@ const printBarcodePallet = (id: string, code: string) => {
               </div>
             </div>
           </div>
-  
+
           <!-- Customer Reference -->
-          <div class="relative w-full border  rounded-lg p-4 shadow-sm bg-gray-50 group">
+<!--          <div class="relative w-full border  rounded-lg p-4 shadow-sm bg-gray-50 group">
             <div class="text-sm font-medium text-center mb-2">Customer Reference</div>
             <div class="relative">
               <div v-if="props.data.data.customer_reference" class="relative hover:bg-black/30 rounded-lg p-2">
@@ -237,8 +238,8 @@ const printBarcodePallet = (id: string, code: string) => {
                   <FontAwesomeIcon :icon="faEmptySet" class="text-3xl" />
                 </div>
               </div>
-  
-              <!-- Hover Buttons -->
+
+              &lt;!&ndash; Hover Buttons &ndash;&gt;
               <div
                 class="absolute inset-0 flex items-center gap-3 justify-center opacity-0 group-hover:opacity-100 group-hover:visible transition duration-300">
                 <Link
@@ -248,11 +249,11 @@ const printBarcodePallet = (id: string, code: string) => {
                   @click="() => printBarcodePallet('customerReferenceBarcode', props.data.data.customer_reference)" />
               </div>
             </div>
-          </div>
+          </div>-->
         </div>
       </div>
 
-  
+
     </div>
 </template>
 

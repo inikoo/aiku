@@ -24,6 +24,7 @@ class HistoryResource extends JsonResource
             'organisation'         => $this['organisation_slug'],
             'old_values'           => $this['old_values'],
             'new_values'           => $this['new_values'],
+            'value'                => '',
             'event'                => $this['event'],
             'auditable_id'         => $this['auditable_id'],
             'auditable_type'       => $this['auditable_type'],
@@ -31,7 +32,7 @@ class HistoryResource extends JsonResource
             'user_type'            => $this['user_type'],
             'slug'                 => $this['slug'],
             'user_agent'           => $this['user_agent'],
-            'user_name'            => $this['user_name'] ?? 'Command Line',
+            'user_name'            => $this->user?->contact_name ?? __('System'),
             'tags'                 => $this['tags']
         ];
     }
