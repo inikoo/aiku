@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3'
 import { capitalize } from "@/Composables/capitalize"
-import { computed, ref } from "vue"
+import { computed, inject, onMounted, onUnmounted, ref } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
 
 import ModelDetails from "@/Components/ModelDetails.vue"
@@ -24,6 +24,7 @@ import WebpageShowcase from "@/Components/Showcases/Org/WebpageShowcase.vue"
 import WebpageAnalytics from "@/Components/DataDisplay/WebpageAnalytics.vue"
 import TableSnapshots from "@/Components/Tables/TableSnapshots.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { layoutStructure } from '@/Composables/useLayoutStructure'
 
 library.add(faChartLine, faClock, faUsersClass, faAnalytics, faDraftingCompass, faSlidersH, faRoad, faLayerGroup, faBrowser, faLevelDown, faShapes, faSortAmountDownAlt, faExternalLink)
 
@@ -34,6 +35,7 @@ const props = defineProps<{
         current: string
         navigation: object
     }
+    root_active?: string  // To manipulate the route active (SubNavigation)
     webpages?: object
     changelog?: object
     showcase?: any
@@ -60,6 +62,16 @@ const component = computed(() => {
     }
 
     return components[currentTab.value]
+})
+
+const layout = inject('layout', layoutStructure)
+
+onMounted(() => {
+    layout.root_active = props.root_active
+})
+
+onUnmounted(() => {
+    layout.root_active = null
 })
 
 </script>
