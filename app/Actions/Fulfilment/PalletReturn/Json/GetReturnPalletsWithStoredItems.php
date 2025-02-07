@@ -86,7 +86,8 @@ class GetReturnPalletsWithStoredItems extends OrgAction
         $query->leftJoin('locations', 'locations.id', 'pallets.location_id');
         $query->leftJoin('pallet_stored_items', 'pallet_stored_items.pallet_id', 'pallets.id');
 
-        $query->whereNotNull('pallet_stored_items.id');
+        $query->whereNotNull('pallet_stored_items.id')
+            ->distinct('pallets.id');
 
         if ($palletReturn->state === PalletReturnStateEnum::IN_PROCESS) {
             foreach ($this->getElementGroups($palletReturn) as $key => $elementGroup) {
