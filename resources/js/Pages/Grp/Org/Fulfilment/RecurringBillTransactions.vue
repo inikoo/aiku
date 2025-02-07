@@ -113,6 +113,7 @@ const locale = inject('locale', aikuLocaleStructure)
             </div>
         </template>
 
+        <!-- Column: asset code -->
         <template #cell(asset_code)="{ item }">
 			<div>
                 {{ item.asset_code }} <br>
@@ -120,6 +121,7 @@ const locale = inject('locale', aikuLocaleStructure)
             </div>
 		</template>
 
+        <!-- Column: quantity -->
         <template #cell(quantity)="{ item }">
 			<div class="flex justify-end">
 				<div v-if="item.edit_type !== 'net' && status == 'current' &&  (item.data.type !== 'Pallet' && item.data.type !== 'Space')">
@@ -131,6 +133,7 @@ const locale = inject('locale', aikuLocaleStructure)
 			</div>
 		</template>
 
+        <!-- Column: asset price -->
         <template #cell(asset_price)="{ item }">
             {{ locale.currencyFormat(item.currency_code, item.asset_price || 0) }}/{{ item.unit_label }}
             <Tag v-if="item['discount'] > 0" :theme="17" noHoverColor>

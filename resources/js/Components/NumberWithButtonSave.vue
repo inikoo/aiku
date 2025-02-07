@@ -28,7 +28,9 @@ const props = defineProps<{
     saveOnForm?: boolean
     routeSubmit?: routeType
     keySubmit?: string
-    bindToTarget?: {}
+    bindToTarget?: {
+        max?: number
+    }
 }>()
 
 const emits = defineEmits<{
@@ -57,6 +59,10 @@ const onSaveViaForm = () => {
 }
 
 const keyIconUndo = ref(0)
+
+defineOptions({
+    inheritAttrs: false
+})
 
 </script>
 
@@ -107,8 +113,9 @@ const keyIconUndo = ref(0)
                         v-bind="bindToTarget"
                     />
                 </div>
+                
                 <!-- Button: Plus -->
-                <div @click="() => form.quantity++"
+                <div @click="() => bindToTarget?.max > form.quantity ? form.quantity++ : false"
                     class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-1 py-1.5 text-xs justify-self-center">
                     <FontAwesomeIcon icon="fas fa-plus" fixed-width aria-hidden="true" />
                 </div>
