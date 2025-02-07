@@ -138,14 +138,27 @@ onBeforeMount(() => {
     <Table :resource="data" :name="'stored_items'" class="mt-5" :isCheckBox="state == 'in_process' ? true : false"
         @onSelectRow="onChangeCheked" ref="_table" :selectedRow="selectedRow">
         
+        <!-- Column: Type icon -->
+        <template #cell(type_icon)="{ item: value }">
+            <Icon :data="value['type_icon']" class="px-1" />
+        </template>
+        
+        <!-- Column: Reference -->
         <template #cell(reference)="{ item: value }">
             {{ value.reference }}
         </template>
-
-        <template #cell(state)="{ item: palletDelivery }">
-            <Icon :key="palletDelivery['state_icon']?.icon" :data="palletDelivery['state_icon']" class="px-1" />
+        
+        <!-- Column: Stored items -->
+        <template #cell(stored_items)="{ item: value }">
+            {{ value.stored_items }}
         </template>
 
+        <!-- Column: State -->
+        <template #cell(state)="{ item: palletReturn }">
+            <Icon :key="palletReturn['state_icon']?.icon" :data="palletReturn['state_icon']" class="px-1" />
+        </template>
+
+        <!-- Column: Quantity -->
         <template #cell(quantity)="{ item, proxyItem }">
             <div class="w-full flex justify-end">
                 <div class="flex flex-col min-w-8 max-w-32">
@@ -172,6 +185,7 @@ onBeforeMount(() => {
             </div>
         </template>
 
+        <!-- Column: Actions -->
         <template #cell(actions)="{ item: pallet }" v-if="props.state == 'in_process' || props.state == 'picking'">
             <div v-if="props.state == 'picking' && layout.app.name == 'Aiku'" class="flex gap-x-2 relative">
                 <Link v-if="pallet.state === 'picking'" as="div"
