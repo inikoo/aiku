@@ -45,6 +45,12 @@ Route::prefix('pallet-returns')->as('pallet_returns.')->group(function () {
 });
 
 Route::get('pallets', IndexRetinaPallets::class)->name('pallets.index');
+Route::get('pallets/storing', [IndexRetinaPallets::class, 'storing'])->name('pallets.storing_pallets.index');
+Route::get('pallets/returned', [IndexRetinaPallets::class, 'returned'])->name('pallets.returned_pallets.index');
+Route::get('pallets/incidents', [IndexRetinaPallets::class, 'incidents'])->name('pallets.incidents_pallets.index');
+Route::get('pallets/in_process', [IndexRetinaPallets::class, 'inProcess'])->name('pallets.in_process_pallets.index');
+
+
 Route::get('pallets/{pallet}', ShowRetinaPallet::class)->name('pallets.show');
 Route::get('pallets/{pallet}/edit', EditRetinaPallet::class)->name('pallets.edit');
 Route::get('stored-items', IndexRetinaStoredItems::class)->name('stored-items.index');
