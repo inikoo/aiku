@@ -52,7 +52,7 @@ class CalculateRecurringBillTotals extends OrgAction
         GroupHydrateRecurringBills::dispatch($recurringBill->group)->delay($this->hydratorsDelay);
         OrganisationHydrateRecurringBills::dispatch($recurringBill->organisation)->delay($this->hydratorsDelay);
         FulfilmentCustomerHydrateRecurringBills::dispatch($recurringBill->fulfilmentCustomer)->delay($this->hydratorsDelay);
-        // FulfilmentHydrateRecurringBills::dispatch($recurringBill->fulfilment)->delay($this->hydratorsDelay);
+        FulfilmentHydrateRecurringBills::dispatch($recurringBill->fulfilment)->delay($this->hydratorsDelay);
 
 
         return $recurringBill;
