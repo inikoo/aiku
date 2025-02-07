@@ -5,8 +5,9 @@ import JsonViewer from 'vue-json-viewer'
 import { faPlus, faMinus } from "@fas"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { faArrowRight } from '@fal';
 
-library.add(faPlus,faMinus)
+library.add(faPlus,faMinus, faArrowRight)
 
 defineProps<{
     data: object,
@@ -38,6 +39,27 @@ const onCloseExpand = (data) => {
     index.value = null
 }
 
+const getKeys = (oldValues: any, newValues: any): string[] => {
+  const keys = new Set([
+    ...Object.keys(oldValues || {}),
+    ...Object.keys(newValues || {})
+  ]);
+  return Array.from(keys);
+};
+
+const formatKey = (key: string): string => {
+  return key
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, char => char.toUpperCase());
+};
+
+const formatValue = (value: any) => {
+    
+  if (typeof value === 'boolean') {
+    return value ? 'Active' : 'Inactive';
+  }
+  return value;
+};
 </script>
 
 <template>
@@ -56,12 +78,23 @@ const onCloseExpand = (data) => {
             <span>{{ formatDate(user.datetime) }}</span>
         </template>
 
-        <template #cell(old_values)="{ item: history }">
-            <JsonViewer :value="history['old_values']" copyable sort />
-        </template>
-
-        <template #cell(new_values)="{ item: history }">
-            <JsonViewer :value="history['new_values']" copyable sort />
+        <template #cell(values)="{ item: user }">
+      <!--   {{ user.old_values }} - {{ user.new_values }} - {{ user.id }} -->
+            <div class="space-y-2">
+                <div
+                v-for="key in getKeys(user.old_values, user.new_values)"
+                :key="key"
+                class="flex items-center space-x-2 text-sm"
+                >
+              
+                <span class="font-bold text-gray-700">{{ formatKey(key) }}:</span>
+              
+                <span class="text-gray-600">{{ formatValue(user.old_values[key]) }}</span>
+                <FontAwesomeIcon :icon="faArrowRight" aria-hidden="true" size="xs" />
+             
+                <span class="text-gray-800">{{ formatValue(user.new_values[key]) }}</span>
+                </div>
+            </div>
         </template>
 
         <template #expandRow="{ item: data }">

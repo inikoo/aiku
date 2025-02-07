@@ -22,6 +22,9 @@ const props = defineProps<{
     state: any;
     key: any;
     route_checkmark: routeType;
+    palletReturn: {
+        id: number
+    }
 }>();
 
 const layout = inject('layout', layoutStructure)
@@ -138,7 +141,8 @@ onBeforeMount(() => {
 
 <template>
     <!-- {{ selectedRow }} -->
-    <Table :resource="data" :name="'stored_items'" class="mt-5" :isCheckBox="state == 'in_process' ? true : false"
+      {{ palletReturn.id }}
+    <Table :resource="data" :name="'stored_items'" class="mt-5" :xxisCheckBox="state == 'in_process' ? true : false"
         @onSelectRow="onChangeCheked" ref="_table" :selectedRow="selectedRow">
         
         <!-- Column: Type icon -->
@@ -154,29 +158,44 @@ onBeforeMount(() => {
         <!-- Column: Stored items -->
         <template #cell(pallet_stored_items)="{ item: value }">
             <div class="grid gap-y-1">
-                <div v-for="storedItem in value.pallet_stored_items" :key="storedItem.id" class="rounded p-1 flex justify-between gap-x-4 items-center">
-                    <!-- <Tag :label="storedItem.reference" stringToColor>
+                <div v-for="pallet_stored_item in value.pallet_stored_items" :key="pallet_stored_item.id" class="rounded p-1 flex justify-between gap-x-4 items-center">
+                    <!-- <Tag :label="pallet_stored_item.reference" stringToColor>
                         <template #label>
                             <div class="">
-                                {{ storedItem.reference }} ({{ storedItem.quantity }})
+                                {{ pallet_stored_item.reference }} ({{ pallet_stored_item.quantity }})
                             </div>
                         </template>
                     </Tag> -->
                     <div>
-                        {{ storedItem.reference }}
+                        {{ pallet_stored_item.reference }}
+                        <span v-if="pallet_stored_item.location?.code" v-tooltip="trans('Location code of the pallet')" class="text-gray-400">({{ pallet_stored_item.location?.code }})</span>
                     </div>
 
-                    <div>
+                    <div class="flex items-center flex-nowrap gap-x-2">
+                        <div v-tooltip="trans('Available quantity')" class="text-base">{{ pallet_stored_item.available_quantity }}</div>
                         <NumberWithButtonSave
-                            v-model="storedItem.quantity"
+                            v-model="pallet_stored_item.selected_quantity"
                             saveOnForm
-                            :routeSubmit="'getRoute(item)'"
-                            keySubmit="net_amount"
+                            :routeSubmit="{
+                                name: pallet_stored_item.updateRoute.name,
+                                parameters: {
+                                    ...pallet_stored_item.updateRoute.parameters,
+                                    palletReturn: palletReturn.id
+                                },
+                                method: pallet_stored_item.updateRoute.method
+                            }"
+                            keySubmit="quantity_ordered"
                             :bindToTarget="{
-                                step: 1
+                                step: 1,
+                                max: pallet_stored_item.max_quantity
                             }"
                         />
                     </div>
+                    
+                    <br>
+                    <pre>{{ pallet_stored_item }}</pre>
+
+
 
                 </div>
             </div>

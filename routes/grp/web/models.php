@@ -108,6 +108,7 @@ use App\Actions\Fulfilment\RecurringBillTransaction\DeleteRecurringBillTransacti
 use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
 use App\Actions\Fulfilment\Space\StoreSpace;
 use App\Actions\Fulfilment\Space\UpdateSpace;
+use App\Actions\Fulfilment\StoredItem\AttachStoredItemToReturn;
 use App\Actions\Fulfilment\StoredItem\DeleteStoredItem;
 use App\Actions\Fulfilment\StoredItem\MoveStoredItem;
 use App\Actions\Fulfilment\StoredItem\ResetAuditStoredItemToPallet;
@@ -400,7 +401,7 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
     Route::post('transaction', [StoreFulfilmentTransaction::class,'inPalletReturn'])->name('transaction.store');
     Route::post('pallet', AttachPalletsToReturn::class)->name('pallet.store');
     //todo this new action
-    Route::post('stored-item', AttachPalletsWithStoredItemsToReturn::class)->name('stored_item.store');
+    Route::post('stored-item/{palletStoredItem:id}', AttachStoredItemToReturn::class)->name('stored_item.store')->withoutScopedBindings();
     Route::post('stored-item-upload', [ImportPalletReturnItem::class, 'fromGrp'])->name('stored-item.upload');
 
     // This is wrong ImportPalletsInPalletDelivery is used when creating a pallet delivery
