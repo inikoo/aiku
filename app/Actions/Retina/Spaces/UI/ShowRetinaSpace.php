@@ -11,6 +11,7 @@ namespace App\Actions\Retina\Spaces\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
+use App\Actions\RetinaAction;
 use App\Enums\UI\Fulfilment\SpaceTabsEnum;
 use App\Http\Resources\Fulfilment\SpaceResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -23,19 +24,17 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowRetinaSpace extends OrgAction
+class ShowRetinaSpace extends RetinaAction
 {
-    private Fulfilment|Organisation|Group|FulfilmentCustomer $parent;
-
     public function handle(Space $space): Space
     {
         return $space;
     }
 
-    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, Space $space, ActionRequest $request): Space
+    public function asController(Space $space, ActionRequest $request): Space
     {
-        $this->parent = $fulfilmentCustomer;
-        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(SpaceTabsEnum::values());
+
+        $this->initialisation($request)->withTab(SpaceTabsEnum::values());
 
         return $this->handle($space);
     }
@@ -43,7 +42,7 @@ class ShowRetinaSpace extends OrgAction
     public function htmlResponse(Space $space, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Fulfilment/Space',
+            'Space/Space',
             [
                 'title'       => __('Space'),
                 'breadcrumbs' => $this->getBreadcrumbs(
@@ -116,27 +115,23 @@ class ShowRetinaSpace extends OrgAction
 
 
         return match ($routeName) {
-            'grp.org.fulfilments.show.crm.customers.show.spaces.show' =>
+            'retina.fulfilment.spaces.show' =>
             array_merge(
-                ShowFulfilmentCustomer::make()->getBreadcrumbs(
-                    Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])
+                IndexRetinaSpaces::make()->getBreadcrumbs(
+                    $routeName
                 ),
                 $headCrumb(
                     $space,
                     [
                         'index' => [
-                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.spaces.index',
-                            'parameters' => Arr::only(
-                                $routeParameters,
-                                ['organisation', 'fulfilment', 'fulfilmentCustomer']
-                            )
+                            'name'       => 'retina.fulfilment.spaces.index',
+                            'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.spaces.show',
-                            'parameters' => Arr::only(
-                                $routeParameters,
-                                ['organisation', 'fulfilment', 'fulfilmentCustomer', 'space']
-                            )
+                            'name'       => 'retina.fulfilment.spaces.show',
+                            'parameters' => [
+                                'space' => $space->slug
+                            ]
                         ]
                     ],
                     $suffix
@@ -166,14 +161,11 @@ class ShowRetinaSpace extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.fulfilments.show.crm.customers.show.spaces.show' => [
+            'retina.fulfilment.spaces.show' => [
                 'label' => $space->reference,
                 'route' => [
                     'name'      => $routeName,
                     'parameters' => [
-                        'organisation'       => $space->organisation->slug,
-                        'fulfilment'         => $space->fulfilment->slug,
-                        'fulfilmentCustomer' => $space->fulfilmentCustomer->slug,
                         'space'              => $space->slug
                     ]
 

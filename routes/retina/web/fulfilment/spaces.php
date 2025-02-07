@@ -8,5 +8,7 @@
 
 
 use App\Actions\Retina\Spaces\UI\IndexRetinaSpaces;
+use App\Actions\Retina\Spaces\UI\ShowRetinaSpace;
 
 Route::get('', IndexRetinaSpaces::class)->name('index');
+Route::get('{space}', ShowRetinaSpace::class)->name('show');
