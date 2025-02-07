@@ -69,6 +69,13 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
                 'reference' => $palletStoredItem->pallet->reference,
                 'quantity'  => (int)$palletStoredItem->quantity,
                 'pallet_return_item_id' => $palletStoredItem->palletReturnItem->id ?? null,
+                'storeRoute' => [
+                    'name'       => 'grp.models.pallet-return.stored_item.store',
+                    'parameters' => [
+                        'palletReturn'       => $this->pallet_return_id,
+                        'palletStoredItem'   => $palletStoredItem->id
+                    ]
+                ],
                 'updateRoute' => $palletStoredItem->palletReturnItem
                 ? [
                     'name'       => 'grp.models.pallet-return-item.update',
