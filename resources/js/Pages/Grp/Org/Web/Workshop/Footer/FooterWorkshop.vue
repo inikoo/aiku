@@ -206,6 +206,11 @@ onMounted(() => {
                     </div>
                 </template></Publish>
         </template>
+        <template #other>
+            <div class=" px-2 cursor-pointer" v-tooltip="'go to website'" @click="openWebsite" >
+                <FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" size="xl" />
+            </div>
+        </template>
     </PageHeading>
 
     <div class="h-[84vh] grid grid-flow-row-dense grid-cols-4">
@@ -255,9 +260,7 @@ onMounted(() => {
                             </Switch>
 
                           
-                            <div class="py-1 px-2 cursor-pointer" title="go to website" @click="openWebsite" >
-                                <FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" />
-                            </div>
+                           
                         </div>
                     </div>
 

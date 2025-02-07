@@ -38,10 +38,18 @@ class RetinaIndexRecurringBillTransactions extends OrgAction
             ->defaultSort('recurring_bill_transactions.id')
             ->select([
                 'recurring_bill_transactions.id',
+                'recurring_bill_transactions.recurring_bill_id',
                 'recurring_bill_transactions.asset_id',
                 'recurring_bill_transactions.net_amount',
                 'recurring_bill_transactions.gross_amount',
                 'recurring_bill_transactions.item_type',
+                'recurring_bill_transactions.item_id',
+                'recurring_bill_transactions.start_date',
+                'recurring_bill_transactions.end_date',
+
+                'recurring_bill_transactions.pallet_delivery_id',
+                'recurring_bill_transactions.pallet_return_id',
+
                 'assets.type as asset_type',
                 'recurring_bill_transactions.historic_asset_id',
                 'assets.slug as asset_slug',
@@ -84,8 +92,9 @@ class RetinaIndexRecurringBillTransactions extends OrgAction
 
             $table
                 ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'description', label: __('description'))
                 ->column(key: 'asset_code', label: __('rental code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'asset_name', label: __('rental name'), canBeHidden: false, sortable: true, searchable: true)
+                // ->column(key: 'asset_name', label: __('rental name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'asset_price', label: __('base price'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'total', label: __('net'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')

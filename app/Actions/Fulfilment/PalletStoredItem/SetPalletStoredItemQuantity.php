@@ -11,6 +11,7 @@ namespace App\Actions\Fulfilment\PalletStoredItem;
 
 use App\Actions\Fulfilment\StoredItem\SetStoredItemQuantity;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaTypeEnum;
 use App\Enums\Fulfilment\StoredItemMovement\StoredItemMovementTypeEnum;
 use App\Models\Fulfilment\PalletStoredItem;
 use App\Models\Fulfilment\StoredItemAuditDelta;
@@ -47,14 +48,31 @@ class SetPalletStoredItemQuantity
             return 0;
         }
 
-        $quantity = $delta->audited_quantity;
+        
+        if($delta->audit_type == StoredItemAuditDeltaTypeEnum::DELIVERY) {
+            $quantityMovements = DB::table('stored_item_movements')->where('pallet_id', $palletStoredItem->pallet_id)
+            ->where('stored_item_id', $palletStoredItem->stored_item_id)
+            ->whereNotIn('type', [StoredItemMovementTypeEnum::AUDIT_ADDITION, StoredItemMovementTypeEnum::AUDIT_SUBTRACTION])
+            ->sum('quantity');
 
-        $quantityMovements = DB::table('stored_item_movements')->where('pallet_id', $palletStoredItem->pallet_id)
-                        ->where('stored_item_id', $palletStoredItem->stored_item_id)
-                        ->whereNotIn('type', [StoredItemMovementTypeEnum::AUDIT_ADDITION, StoredItemMovementTypeEnum::AUDIT_SUBTRACTION])
-                        ->sum('quantity');
+            $deltaQuantity = $delta->audited_quantity;
 
-        $quantity = $quantity + $quantityMovements;
+            if($quantityMovements == $deltaQuantity) {
+                $quantity = $deltaQuantity;
+            }
+        } else {
+            $quantityMovements = DB::table('stored_item_movements')->where('pallet_id', $palletStoredItem->pallet_id)
+            ->where('stored_item_id', $palletStoredItem->stored_item_id)
+            ->sum('quantity');
+            
+            $deltaQuantity = $delta->audited_quantity;
+
+            if($quantityMovements == $deltaQuantity) {
+                $quantity = $deltaQuantity;
+            }
+        }
+
+
 
         $this->update(
             $palletStoredItem,
