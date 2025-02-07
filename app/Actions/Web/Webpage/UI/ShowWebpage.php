@@ -237,6 +237,7 @@ class ShowWebpage extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => WebpageTabsEnum::navigation()
                 ],
+                'root_active'   => 'grp.org.fulfilments.show.web.webpages.index.type.operations',  // TODO @raul: make dynamic between structure/content/info/operations/all
 
                 WebpageTabsEnum::SHOWCASE->value => $this->tab == WebpageTabsEnum::SHOWCASE->value ?
                     fn () => WebpageResource::make($webpage)->getArray()

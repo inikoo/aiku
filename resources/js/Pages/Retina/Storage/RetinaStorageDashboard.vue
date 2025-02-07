@@ -79,8 +79,10 @@ const options = {
 }
 
 function routePallet(storageData: any, key: string) {
+    console.log(storageData, key , 'this key');
+    
     if (storageData[key].route) {
-        return route(storageData[key].route.name, storageData[key].route.parameters)
+        return route(storageData[key].route.name)
     }
 }
 </script>

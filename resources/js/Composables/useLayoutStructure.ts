@@ -45,6 +45,7 @@ export const layoutStructure = {
             show: false
         }
     },
+    root_active: null as string | null,
     stackedComponents: [] as StackedComponent[],
     user: {} as {
         id: number,

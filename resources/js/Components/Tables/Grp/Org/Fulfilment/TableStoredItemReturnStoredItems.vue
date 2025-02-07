@@ -13,6 +13,8 @@ import { routeType } from "@/types/route"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import PureTextarea from "@/Components/Pure/PureTextarea.vue"
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
+import Tag from '@/Components/Tag.vue'
+import NumberWithButtonSave from '@/Components/NumberWithButtonSave.vue'
 
 const props = defineProps<{
     data?: { data: any[] };
@@ -135,6 +137,7 @@ onBeforeMount(() => {
 </script>
 
 <template>
+    <!-- {{ selectedRow }} -->
     <Table :resource="data" :name="'stored_items'" class="mt-5" :isCheckBox="state == 'in_process' ? true : false"
         @onSelectRow="onChangeCheked" ref="_table" :selectedRow="selectedRow">
         
@@ -149,8 +152,34 @@ onBeforeMount(() => {
         </template>
         
         <!-- Column: Stored items -->
-        <template #cell(stored_items)="{ item: value }">
-            {{ value.stored_items }}
+        <template #cell(pallet_stored_items)="{ item: value }">
+            <div class="grid gap-y-1">
+                <div v-for="storedItem in value.pallet_stored_items" :key="storedItem.id" class="rounded p-1 flex justify-between gap-x-4 items-center">
+                    <!-- <Tag :label="storedItem.reference" stringToColor>
+                        <template #label>
+                            <div class="">
+                                {{ storedItem.reference }} ({{ storedItem.quantity }})
+                            </div>
+                        </template>
+                    </Tag> -->
+                    <div>
+                        {{ storedItem.reference }}
+                    </div>
+
+                    <div>
+                        <NumberWithButtonSave
+                            v-model="storedItem.quantity"
+                            saveOnForm
+                            :routeSubmit="'getRoute(item)'"
+                            keySubmit="net_amount"
+                            :bindToTarget="{
+                                step: 1
+                            }"
+                        />
+                    </div>
+
+                </div>
+            </div>
         </template>
 
         <!-- Column: State -->
