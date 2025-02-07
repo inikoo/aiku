@@ -67,14 +67,27 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
             'pallet_stored_items'              => $storedItem->palletStoredItems->map(fn ($palletStoredItem) => [
                 'id'        => $palletStoredItem->id,
                 'reference' => $palletStoredItem->pallet->reference,
-                'quantity'  => (int)$palletStoredItem->quantity,
+                'selected_quantity'     => (int) 0,  // TODO Kirin
+                'available_quantity'    => (int) $palletStoredItem->quantity,
+                'max_quantity'          => (int) $palletStoredItem->quantity,
                 'pallet_return_item_id' => $palletStoredItem->palletReturnItem->id ?? null,
+                'storeRoute' => [
+                    'name'       => 'grp.models.pallet-return.stored_item.store',
+                    'parameters' => [
+                        'palletReturn'       => $this->pallet_return_id,
+                        'palletStoredItem'   => $palletStoredItem->id
+                    ]
+                ],
                 'updateRoute' => $palletStoredItem->palletReturnItem
                 ? [
                     'name'       => 'grp.models.pallet-return-item.update',
                     'parameters' => [$palletStoredItem->palletReturnItem->id]
                 ]
                 : null,
+                'location' => [
+                    'slug'   => $palletStoredItem->pallet->location->slug,
+                    'code'   => $palletStoredItem->pallet->location->code
+                ]
             ]),
             'total_quantity' => (int)$this->total_quantity,
             // 'syncRoute'             => match (request()->routeIs('retina.*')) {

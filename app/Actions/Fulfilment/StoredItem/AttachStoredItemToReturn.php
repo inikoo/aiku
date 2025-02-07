@@ -1,118 +1,97 @@
 <?php
 
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 15 Aug 2024 16:54:48 Central Indonesia Time, Bali Office, Indonesia
- * Copyright (c) 2024, Raul A Perusquia Flores
- */
+ * author Arya Permana - Kirin
+ * created on 07-02-2025-10h-24m
+ * github: https://github.com/KirinZero0
+ * copyright 2025
+*/
 
 namespace App\Actions\Fulfilment\StoredItem;
 
+use App\Actions\Fulfilment\PalletReturn\AutoAssignServicesToPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
-use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateStoredItems;
 use App\Actions\OrgAction;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
+use App\Models\CRM\WebUser;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
-use App\Models\Fulfilment\PalletReturnItem;
+use App\Models\Fulfilment\PalletStoredItem;
 use App\Models\Fulfilment\StoredItem;
 use Illuminate\Support\Arr;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Redirect;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsCommand;
 
 class AttachStoredItemToReturn extends OrgAction
 {
-    use AsCommand;
+    private PalletStoredItem $palletStoredItem;
 
-    private PalletReturn $parent;
-
-    public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
+    public function handle(PalletReturn $palletReturn, PalletStoredItem $palletStoredItem, array $modelData): PalletReturn
     {
-        $reference  = Arr::get($modelData, 'reference');
-        $storedItem = StoredItem::where('reference', $reference)
-                    ->where('fulfilment_customer_id', $palletReturn->fulfilment_customer_id)
-                    ->first();
-        $allocatedQuantity         = 0;
-        $pallets                   = $storedItem->pallets;
-        $requiredQuantity          = Arr::get($modelData, 'quantity');
-
-        $existingPalletReturnItems = PalletReturnItem::where('pallet_return_id', $palletReturn->id)
-            ->where('stored_item_id', $storedItem->id)
-            ->exists();
-
-        if ($existingPalletReturnItems) {
-            $this->deleteItems($palletReturn, $storedItem, $allocatedQuantity);
+        $quantityOrdered = Arr::pull($modelData, 'quantity_ordered');
+        if($quantityOrdered == 0)
+        {
+            $palletReturn->storedItems()->detach($palletStoredItem->storedItem->id);
+        } else {
+            $palletReturn->storedItems()->attach(
+                $palletStoredItem->storedItem->id,
+                [
+                    'type'                 => 'StoredItem',
+                    'pallet_id'            => $palletStoredItem->pallet_id,
+                    'pallet_stored_item_id' => $palletStoredItem->id,
+                    'quantity_ordered'      => $quantityOrdered
+                ]
+            );
         }
-
-        foreach ($pallets as $pallet) {
-            $palletStoredItemQty = $pallet->storedItems
-                ->where('pivot.stored_item_id', $storedItem->id)
-                ->first()->pivot->quantity ?? 0;
-
-            if ($allocatedQuantity < $requiredQuantity) {
-                $quantityToUse = min($palletStoredItemQty, $requiredQuantity - $allocatedQuantity);
-                $this->attach($palletReturn, $pallet, $storedItem, $quantityToUse);
-                $allocatedQuantity += $quantityToUse;
-            }
-        }
-
-        $palletReturn->refresh();
-
-        PalletReturnHydratePallets::run($palletReturn);
-        PalletReturnHydrateStoredItems::run($palletReturn);
-
-
+        
         return $palletReturn;
     }
 
-    private function attach(PalletReturn $palletReturn, Pallet $pallet, StoredItem $storedItem, $quantityToUse): void
+    public function authorize(ActionRequest $request): bool
     {
-        $storedItem->palletReturns()->attach($palletReturn->id, [
-            'stored_item_id'       => $storedItem->id,
-            'pallet_id'            => $pallet->id,
-            'pallet_stored_item_id' => $pallet->pivot->id,
-            'quantity_ordered'     => $quantityToUse,
-            'type'                 => 'StoredItem'
-        ]);
-
-
-
-    }
-
-    protected function deleteItems(PalletReturn $palletReturn, StoredItem $storedItem, $allocatedQuantity): void
-    {
-        $existingPivotItems = PalletReturnItem::where('pallet_return_id', $palletReturn->id)
-            ->where('stored_item_id', $storedItem->id)
-            ->get();
-
-        foreach ($existingPivotItems as $pivotItem) {
-            $pivotItem->delete();
+        if ($this->asAction) {
+            return true;
         }
+
+        return $request->user()->authTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
     public function rules(): array
     {
         return [
-            'quantity'  => ['required', 'numeric', 'min:0'],
-            'reference' => [
-                'required',
-                'string',
-                Rule::exists('stored_items', 'reference')->where(function ($query) {
-                    $query->where('fulfilment_customer_id', $this->parent->fulfilment_customer_id);
-                })
-            ],
+            'quantity_ordered' => ['required', 'numeric', 'min:0', 'max:'.$this->palletStoredItem->quantity]
         ];
     }
 
+    public function asController(PalletReturn $palletReturn, PalletStoredItem $palletStoredItem, ActionRequest $request): PalletReturn
+    {
+        $this->palletStoredItem = $palletStoredItem;
+        $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
 
-    public function action(PalletReturn $palletReturn, array $modelData, int $hydratorsDelay = 0): PalletReturn
+        return $this->handle($palletReturn, $palletStoredItem,  $this->validatedData);
+    }
+
+    // public function fromRetina(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
+    // {
+    //     /** @var FulfilmentCustomer $fulfilmentCustomer */
+    //     $this->parent       = $palletReturn;
+    //     $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
+    //     $this->fulfilment   = $fulfilmentCustomer->fulfilment;
+
+    //     $this->initialisation($request->get('website')->organisation, $request);
+    //     return $this->handle($palletReturn, $this->validatedData);
+    // }
+
+    public function action(PalletReturn $palletReturn, PalletStoredItem $palletStoredItem, array $modelData, int $hydratorsDelay = 0): PalletReturn
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->parent         = $palletReturn;
+        $this->palletStoredItem = $palletStoredItem;
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $modelData);
 
-        return $this->handle($palletReturn, $this->validatedData);
+        return $this->handle($palletReturn, $palletStoredItem, $this->validatedData);
     }
-
-
 }
