@@ -59,7 +59,6 @@ const props = defineProps<{
     web_users?: object
     external_links?: {},
     analytics: object
-    layout:object
 }>()
 
 console.log(props)
