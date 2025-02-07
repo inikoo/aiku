@@ -285,8 +285,8 @@ onMounted(() => {
             </Publish>
         </template>
         <template #other>
-            <div class="py-1 px-2 cursor-pointer" v-tooltip="'go to website'" @click="openWebsite" >
-                <FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" />
+            <div class=" px-2 cursor-pointer" v-tooltip="'go to website'" @click="openWebsite" >
+                <FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" size="xl" />
             </div>
         </template>
     </PageHeading>
