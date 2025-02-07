@@ -9,21 +9,12 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
-use App\Actions\Fulfilment\PalletReturn\AutoAssignServicesToPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
 use App\Actions\OrgAction;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
-use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\PalletStoredItem;
-use App\Models\Fulfilment\StoredItem;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsCommand;
 
 class AttachStoredItemToReturn extends OrgAction
 {
@@ -32,8 +23,7 @@ class AttachStoredItemToReturn extends OrgAction
     public function handle(PalletReturn $palletReturn, PalletStoredItem $palletStoredItem, array $modelData): PalletReturn
     {
         $quantityOrdered = Arr::pull($modelData, 'quantity_ordered');
-        if($quantityOrdered == 0)
-        {
+        if ($quantityOrdered == 0) {
             $palletReturn->storedItems()->detach($palletStoredItem->storedItem->id);
         } else {
             $palletReturn->storedItems()->attach(
@@ -46,7 +36,7 @@ class AttachStoredItemToReturn extends OrgAction
                 ]
             );
         }
-        
+
         return $palletReturn;
     }
 
@@ -71,7 +61,7 @@ class AttachStoredItemToReturn extends OrgAction
         $this->palletStoredItem = $palletStoredItem;
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
 
-        return $this->handle($palletReturn, $palletStoredItem,  $this->validatedData);
+        return $this->handle($palletReturn, $palletStoredItem, $this->validatedData);
     }
 
     // public function fromRetina(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
