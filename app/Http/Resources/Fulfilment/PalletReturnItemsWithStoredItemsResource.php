@@ -75,6 +75,10 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
                     'parameters' => [$palletStoredItem->palletReturnItem->id]
                 ]
                 : null,
+                'location' => [
+                    'slug'   => $palletStoredItem->pallet->location->slug,
+                    'code'   => $palletStoredItem->pallet->location->code
+                ]
             ]),
             'total_quantity' => (int)$this->total_quantity,
             // 'syncRoute'             => match (request()->routeIs('retina.*')) {
