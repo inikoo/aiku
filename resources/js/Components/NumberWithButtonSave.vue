@@ -27,6 +27,7 @@ const props = defineProps<{
     max?: number
     saveOnForm?: boolean
     routeSubmit?: routeType
+    allowZero?: boolean
     keySubmit?: string
     bindToTarget?: {
         max?: number
@@ -87,9 +88,9 @@ defineOptions({
             <!-- Section: - and + -->
             <div class="transition-all relative inline-flex items-center justify-center" :class="bindToTarget?.fluid ? 'w-full' : 'w-28'">
                 <!-- Button: Minus -->
-                <div @click="form.quantity = form.quantity > 0 ? form.quantity - 1 : 1"
+                <div @click="form.quantity = form.quantity > 0 ? form.quantity - 1 : 0"
                     class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-1 py-1.5 text-xs justify-self-center">
-                    <FontAwesomeIcon icon="fas fa-minus" fixed-width aria-hidden="true" />
+                    <FontAwesomeIcon icon="fas fa-minus" :class="form.quantity < 1 ? 'text-gray-400' : ''" fixed-width aria-hidden="true" />
                 </div>
 
                 <!-- Input -->

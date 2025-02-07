@@ -141,7 +141,6 @@ onBeforeMount(() => {
 
 <template>
     <!-- {{ selectedRow }} -->
-      {{ palletReturn.id }}
     <Table :resource="data" :name="'stored_items'" class="mt-5" :xxisCheckBox="state == 'in_process' ? true : false"
         @onSelectRow="onChangeCheked" ref="_table" :selectedRow="selectedRow">
         
@@ -192,11 +191,6 @@ onBeforeMount(() => {
                         />
                     </div>
                     
-                    <br>
-                    <pre>{{ pallet_stored_item }}</pre>
-
-
-
                 </div>
             </div>
         </template>
