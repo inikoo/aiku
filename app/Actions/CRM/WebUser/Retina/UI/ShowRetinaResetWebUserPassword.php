@@ -36,6 +36,7 @@ class ShowRetinaResetWebUserPassword extends RetinaAction
             [
             'token' => $modelData['token'],
             'webUserPasswordResetID' => $webUserPasswordReset->id,
+            'username' => $webUserPasswordReset->webUser->username
         ]
         );
     }

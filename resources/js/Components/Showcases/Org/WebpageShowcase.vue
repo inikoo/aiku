@@ -40,12 +40,8 @@ const iframeSrc =
 </script>
 
 <template>
-    <div class="px-6 py-24 sm:py-20 lg:px-8">
+    <div class="px-6 py-0 sm:py-5 lg:px-8">
         <div class="grid grid-cols-2">
-            <div>
-                <!-- <pre>{{ data }}</pre> -->
-            </div>
-
             <BrowserView
                 :tab="{
                     icon: data.typeIcon,
@@ -86,6 +82,11 @@ const iframeSrc =
                     </div> -->
                 </template>
             </BrowserView>
+            <div>
+                <!-- <pre>{{ data }}</pre> -->
+            </div>
+
+           
         </div>
 
     </div>

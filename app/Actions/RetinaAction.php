@@ -102,7 +102,7 @@ class RetinaAction
     public function authorize(ActionRequest $request): bool
     {
         // Define the segments or route names that should always be accessible
-        $publicRoutes = ['login', 'register', 'profile', 'logout', 'home', 'dashboard', 'password'];
+        $publicRoutes = ['login', 'register', 'profile', 'logout', 'home', 'dashboard', 'password', 'reset-password'];
 
         // Option 1: Check if the route's name is in the list.
         if ($request->route() && in_array($request->route()->getName(), $publicRoutes, true)) {
@@ -111,7 +111,7 @@ class RetinaAction
 
         // Option 2: Alternatively, check if the URL path contains any of these segments.
         foreach ($publicRoutes as $segment) {
-            if (Str::contains($request->path(), $segment)) {
+            if (Str::contains($request->path(), $segment) or Str::contains($request->route()->getName(), $segment)) {
                 return true;
             }
         }
