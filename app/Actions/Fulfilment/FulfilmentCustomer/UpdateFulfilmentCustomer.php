@@ -75,7 +75,8 @@ class UpdateFulfilmentCustomer extends OrgAction
 
         $fulfilmentCustomer = $this->update($fulfilmentCustomer, $modelData, ['data']);
 
-        if ($fulfilmentCustomer->wasChanged()) {
+        $attributes = ['pallets_storage', 'items_storage', 'dropshipping', 'space_rental'];
+        if (collect($attributes)->contains(fn ($attr) => $fulfilmentCustomer->wasChanged($attr))) {
             $fulfilmentCustomer->customer->auditEvent    = 'update';
             $fulfilmentCustomer->customer->isCustomEvent = true;
 
