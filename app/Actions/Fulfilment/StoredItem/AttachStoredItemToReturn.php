@@ -36,7 +36,7 @@ class AttachStoredItemToReturn extends OrgAction
         {
             $palletReturn->storedItems()->detach($palletStoredItem->storedItem->id);
         } else {
-            $palletReturn->storedItems()->attach(
+            $palletReturn->storedItems()->syncWithoutDetaching(
                 $palletStoredItem->storedItem->id,
                 [
                     'type'                 => 'StoredItem',
@@ -46,7 +46,6 @@ class AttachStoredItemToReturn extends OrgAction
                 ]
             );
         }
-        
         return $palletReturn;
     }
 

@@ -414,10 +414,6 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
 
 });
 
-Route::name('pallet-return-item.')->prefix('pallet-return-item/{palletReturnItem:id}')->group(function () {
-    Route::patch('update', UpdatePalletWithStoredItemsInReturn::class)->name('update');
-});
-
 Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
     Route::delete('', DeletePallet::class)->name('delete');
     Route::patch('', UpdatePallet::class)->name('update');
@@ -440,7 +436,7 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
 });
 
 Route::name('pallet-return-item.')->prefix('pallet-return-item/{palletReturnItem}')->group(function () {
-    Route::patch('', SetPalletInReturnAsPicked::class)->name('update');
+    Route::patch('', SetPalletInReturnAsPicked::class)->name('set_as_picked');
     Route::patch('not-picked', NotPickedPalletFromReturn::class)->name('not-picked');
     Route::patch('undo-picking', UndoPickingPalletFromReturn::class)->name('undo-picking');
     Route::patch('undo', UndoPalletReturnItem::class)->name('undo-confirmed');

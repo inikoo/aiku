@@ -78,22 +78,16 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
                 //         'palletStoredItem'   => $palletStoredItem->id
                 //     ]
                 // ],
-                'updateRoute' => $palletStoredItem->palletReturnItem
+                'syncRoute' => $palletStoredItem->palletReturnItem
                     ? [
-                        'name'       => 'grp.models.pallet-return-item.update',
-                        'parameters' => [
-                            'palletReturnItem'  => $palletStoredItem->palletReturnItem->id
-                        ],
-                        'method'    => 'patch'
-                    ]
-                    : [
                         'name'       => 'grp.models.pallet-return.stored_item.store',
                         'parameters' => [
                             'palletReturn'       => $this->pallet_return_id,
                             'palletStoredItem'   => $palletStoredItem->id
                         ],
                         'method'    => 'post'
-                    ],
+                    ]
+                    : null,
                 'location' => [
                     'slug'   => $palletStoredItem->pallet->location->slug,
                     'code'   => $palletStoredItem->pallet->location->code
