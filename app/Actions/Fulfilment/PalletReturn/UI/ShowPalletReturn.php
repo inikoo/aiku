@@ -10,7 +10,6 @@ namespace App\Actions\Fulfilment\PalletReturn\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
-use App\Actions\Fulfilment\PalletReturn\AddAddressToPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Json\GetReturnPallets;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemsInReturn;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
@@ -28,7 +27,6 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Actions\Helpers\Country\UI\GetAddressData;
-use App\Actions\Retina\Fulfilment\PalletReturn\Json\GetRetinaReturnStoredItems;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
 use App\Http\Resources\Fulfilment\PalletReturnItemsWithStoredItemsResource;
 use App\Http\Resources\Helpers\CurrencyResource;
@@ -36,7 +34,6 @@ use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -130,14 +127,8 @@ class ShowPalletReturn extends OrgAction
             ];
         }
 
-        // if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
-        //     $this->tab = PalletReturnTabsEnum::PALLETS->value;
-        // } else {
-        //     $this->tab = PalletReturnTabsEnum::STORED_ITEMS->value;
-        // }
 
 
-        // dd($palletReturn->storedItems()->count());
         if ($this->canEdit) {
             $actions = $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
                 [
@@ -151,19 +142,7 @@ class ShowPalletReturn extends OrgAction
                     'type'   => 'buttonGroup',
                     'key'    => 'upload-add',
                     'button' => [
-                       /*  [
-                            'type'    => 'button',
-                            'style'   => 'secondary',
-                            'icon'    => 'fal fa-plus',
-                            'label'   => __('add Stored Item'), */
-                            // 'tooltip' => __('Add single service'),
-                            // 'route'   => [
-                            //     'name'       => 'grp.models.pallet-return.transaction.store',
-                            //     'parameters' => [
-                            //         'palletReturn' => $palletReturn->id
-                            //     ]
-                            // ]
-                       /*  ], */
+
                         [
                             'type'    => 'button',
                             'style'   => 'secondary',
@@ -285,52 +264,6 @@ class ShowPalletReturn extends OrgAction
             }
         }
 
-
-
-        // $addresses = $palletReturn->fulfilmentCustomer->customer->addresses;
-        // $addresses = $palletReturn->addresses;
-
-        // $processedAddresses = $addresses->map(function ($address) {
-        //     if (!DB::table('model_has_addresses')->where('address_id', $address->id)->where('model_type', '=', 'PalletReturn')->exists()) {
-
-        //         return $address->setAttribute('can_delete', false)
-        //             ->setAttribute('can_edit', true);
-        //     }
-
-
-        //     return $address->setAttribute('can_delete', true)
-        //                     ->setAttribute('can_edit', true);
-        // });
-
-        // if($addresses->count() == 0){
-        //     AddAddressToPalletReturn::run($palletReturn->fulfilmentCustomer, $palletReturn, []);
-        // }
-
-        // $customerAddressId              = $palletReturn->fulfilmentCustomer->customer->address->id;
-        // $customerDeliveryAddressId      = $palletReturn->fulfilmentCustomer->customer->deliveryAddress->id;
-        // $palletReturnDeliveryAddressIds = PalletReturn::where('fulfilment_customer_id', $palletReturn->fulfilment_customer_id)
-        //                                     ->pluck('delivery_address_id')
-        //                                     ->unique()
-        //                                     ->toArray();
-
-        // $forbiddenAddressIds = array_merge(
-        //     $palletReturnDeliveryAddressIds,
-        //     [$customerAddressId, $customerDeliveryAddressId]
-        // );
-
-        // $processedAddresses->each(function ($address) use ($forbiddenAddressIds) {
-        //     if (in_array($address->id, $forbiddenAddressIds, true)) {
-        //         $address->setAttribute('can_delete', false)
-        //                 ->setAttribute('can_edit', true);
-        //     }
-        // });
-
-        // $deliveryAddress = $palletReturn->deliveryAddress;
-
-        // $addressCollection = AddressResource::collection($processedAddresses);
-        // dd($palletReturn->fulfilmentCustomer->customer->address_id);
-        // dd($addressCollection);
-        // dd($palletReturnDeliveryAddressIds);
 
         if ($palletReturn->type == PalletReturnTypeEnum::STORED_ITEM) {
             $afterTitle = [
