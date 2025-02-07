@@ -323,6 +323,17 @@ class IndexWebpages extends OrgAction
                         'title' => __('webpage')
                     ],
                     'subNavigation' => $subNavigation,
+                    'actions' => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'create',
+                            'label' => __('webpage'),
+                            'route' => [
+                                'name'       => 'grp.org.fulfilments.show.web.webpages.create',
+                                'parameters' => array_values($request->route()->originalParameters())
+                            ],
+                        ]
+                    ]
                 ],
                 'data'        => WebpagesResource::collection($webpages),
 
