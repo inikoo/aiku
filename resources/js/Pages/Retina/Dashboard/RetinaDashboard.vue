@@ -5,7 +5,6 @@ import { trans } from 'laravel-vue-i18n';
 // Mendapatkan data customer dari props
 const customer = usePage().props.layout.customer;
 const fulfilment = usePage().props.layout.fulfilment;
-console.log(usePage().props)
 </script>
 
 <template>

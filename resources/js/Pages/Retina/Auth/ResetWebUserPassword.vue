@@ -22,7 +22,11 @@ const props=defineProps({
   token: {
     type: String,
   },
+  username : {
+    type : String
+  }
 });
+
 
 const isPasswordSame = ref(false)
 const repeatPassword = ref('')
@@ -51,7 +55,9 @@ watchEffect(() => {
             <div class="text-center font-semibold text-xl">
                 {{ trans("Reset your password") }}
             </div>
-
+            <div class="text-center font-semibold text-lg">
+                {{ trans("Username ") }} {{ username  }}
+            </div>
             <div class="flex flex-col gap-y-4">
                 <div class="">
                     <label for="password">{{ trans('New Password') }}</label>
