@@ -53,7 +53,7 @@ class RecurringBillTransactionsResource extends JsonResource
         // dump($this);
         if ($this->item_type == 'Pallet') {
             $pallet = Pallet::find($this->item_id);
-            if($pallet) {
+            if ($pallet) {
                 $desc_title = $pallet->reference;
 
                 $desc_model = __('Storage');
