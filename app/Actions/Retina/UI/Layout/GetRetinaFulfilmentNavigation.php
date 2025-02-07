@@ -69,7 +69,7 @@ class GetRetinaFulfilmentNavigation
                             'icon'  => ['fal', 'fa-pallet'],
                             'root'  => 'retina.fulfilment.storage.pallets.',
                             'route' => [
-                                'name' => 'retina.fulfilment.storage.pallets.index'
+                                'name' => 'retina.fulfilment.storage.pallets.storing_pallets.index'
                             ]
                         ],
                         [
