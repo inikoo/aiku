@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -119,6 +120,11 @@ class StoredItem extends Model implements Auditable
     public function pallets(): BelongsToMany
     {
         return $this->belongsToMany(Pallet::class, 'pallet_stored_items')->withPivot('quantity', 'id');
+    }
+
+    public function palletStoredItems(): HasMany
+    {
+        return $this->hasMany(PalletStoredItem::class);
     }
 
     public function palletReturns(): BelongsToMany

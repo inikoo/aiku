@@ -31,7 +31,7 @@ class ShowWebpagesTree extends OrgAction
     public function htmlResponse(Website $website, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Devel/Dummy',
+            'Org/Web/Structure',
             [
 
                 'title'    => __('dummy'),

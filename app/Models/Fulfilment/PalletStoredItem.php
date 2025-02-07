@@ -10,6 +10,7 @@ namespace App\Models\Fulfilment;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * App\Models\Fulfilment\PalletStoredItem
@@ -46,5 +47,10 @@ class PalletStoredItem extends Model
     public function storedItem(): BelongsTo
     {
         return $this->belongsTo(StoredItem::class);
+    }
+
+    public function palletReturnItem(): HasOne
+    {
+        return $this->hasOne(PalletReturnItem::class);
     }
 }

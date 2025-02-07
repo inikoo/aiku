@@ -74,6 +74,9 @@ class ShowRetinaStorageDashboard extends RetinaAction
             'label'         => __('Pallets'),
             'count'         => $fulfilmentCustomer->number_pallets_status_storing,
             'description'   => __('in warehouse'),
+            'route'         =>[
+                'name' => 'retina.fulfilment.storage.pallets.index'
+            ]
         ];
 
         foreach (PalletStateEnum::cases() as $case) {
@@ -87,7 +90,10 @@ class ShowRetinaStorageDashboard extends RetinaAction
 
         $stats['pallet_deliveries'] = [
             'label' => __('Pallet Deliveries'),
-            'count' => $fulfilmentCustomer->number_pallet_deliveries
+            'count' => $fulfilmentCustomer->number_pallet_deliveries,
+            'route' =>[
+                'name' => 'retina.fulfilment.storage.pallet_deliveries.index'
+            ]
         ];
         foreach (PalletDeliveryStateEnum::cases() as $case) {
             $stats['pallet_deliveries']['cases'][$case->value] = [
@@ -100,7 +106,10 @@ class ShowRetinaStorageDashboard extends RetinaAction
 
         $stats['pallet_returns'] = [
             'label' => __('Pallet Returns'),
-            'count' => $fulfilmentCustomer->number_pallet_returns
+            'count' => $fulfilmentCustomer->number_pallet_returns,
+            'route' =>[
+                'name' => 'retina.fulfilment.storage.pallet_returns.index'
+            ]
         ];
         foreach (PalletReturnStateEnum::cases() as $case) {
             $stats['pallet_returns']['cases'][$case->value] = [
