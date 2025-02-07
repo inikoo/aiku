@@ -47,8 +47,9 @@ const links = ref([
             <div
                 class="bg-white  h-fit flex items-center cursor-pointer gap-x-3  md:w-96">
                 <a :href="props.data.url" target="_blank"
-                    class="pl-4 md:pl-5 inline-block text-xxs md:text-base text-gray-400">{{ props.data.url }}</a>
-                    <FontAwesomeIcon :icon="faExternalLink" class='text-gray-500' v-tooltip="'Go To Website'" aria-hidden='true' />
+                    class="pl-4 md:pl-5 inline-block text-xxs md:text-base text-gray-400">{{ props.data.url }}
+                    <FontAwesomeIcon :icon="faExternalLink" class='pl-1 text-gray-500' v-tooltip="'Go To Website'" aria-hidden='true' />
+                </a>
                <!--  <Button :style="'tertiary'" class="" @click="useCopyText(props.data.url)"
                     v-tooltip="trans('Copy url to clipboard')">
                 </Button> -->
