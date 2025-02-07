@@ -78,6 +78,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\CRM\WebUserPasswordReset> $passwordResets
  * @property-read Collection<int, \Spatie\Permission\Models\Permission> $permissions
+ * @property-read Collection<int, \Spatie\Permission\Models\Role> $roles
  * @property-read Shop|null $shop
  * @property-read \App\Models\CRM\WebUserStats|null $stats
  * @property-read Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
@@ -90,8 +91,10 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder<static>|WebUser onlyTrashed()
  * @method static Builder<static>|WebUser permission($permissions, $without = false)
  * @method static Builder<static>|WebUser query()
+ * @method static Builder<static>|WebUser role($roles, $guard = null, $without = false)
  * @method static Builder<static>|WebUser withTrashed()
  * @method static Builder<static>|WebUser withoutPermission($permissions)
+ * @method static Builder<static>|WebUser withoutRole($roles, $guard = null)
  * @method static Builder<static>|WebUser withoutTrashed()
  * @mixin Eloquent
  */
