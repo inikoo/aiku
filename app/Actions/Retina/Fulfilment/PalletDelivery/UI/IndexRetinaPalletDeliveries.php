@@ -133,7 +133,7 @@ class IndexRetinaPalletDeliveries extends RetinaAction
                 ->column(key: 'customer_reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'amount', label: __('Amount'), canBeHidden: false, sortable: true, searchable: true, type: 'currency')
                 ->column(key: 'number_pallets', label: __('total pallets'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'date', label: __('Date'), canBeHidden: false, sortable: true, searchable: true,  align: 'right');
+                ->column(key: 'date', label: __('Date'), canBeHidden: false, sortable: true, searchable: true, align: 'right');
         };
     }
 

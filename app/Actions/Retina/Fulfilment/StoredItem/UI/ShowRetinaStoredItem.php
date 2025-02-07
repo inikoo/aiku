@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 07-02-2025-11h-34m
@@ -8,23 +9,16 @@
 
 namespace App\Actions\Retina\Fulfilment\StoredItem\UI;
 
-use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\StoredItem\UI\GetStoredItemShowcase;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemPallets;
 use App\Actions\Helpers\History\UI\IndexHistory;
-use App\Actions\OrgAction;
 use App\Actions\Retina\Fulfilment\StoredItems\UI\IndexRetinaStoredItems;
 use App\Actions\RetinaAction;
-use App\Actions\UI\Fulfilment\ShowWarehouseFulfilmentDashboard;
 use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\History\HistoryResource;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItem;
-use App\Models\Inventory\Warehouse;
-use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -36,7 +30,7 @@ class ShowRetinaStoredItem extends RetinaAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        return true; //TODO: @raul Permission 
+        return true; //TODO: @raul Permission
     }
 
     public function asController(StoredItem $storedItem, ActionRequest $request): StoredItem

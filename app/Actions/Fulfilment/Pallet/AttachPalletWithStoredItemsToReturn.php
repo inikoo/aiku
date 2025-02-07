@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 07-02-2025-10h-04m
@@ -44,7 +45,7 @@ class AttachPalletWithStoredItemsToReturn extends OrgAction
 
     private function attach(PalletReturn $palletReturn, Pallet $pallet): void
     {
-        foreach($pallet->storedItems as $storedItem) {
+        foreach ($pallet->storedItems as $storedItem) {
             $palletReturn->storedItems()->attach($storedItem->id, [
                 'type'                 => 'StoredItem',
                 'pallet_id'            => $pallet->id,
