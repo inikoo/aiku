@@ -15,6 +15,7 @@ use App\Actions\UI\WithInertia;
 use App\Actions\Web\ExternalLink\UI\IndexExternalLinks;
 use App\Actions\Web\HasWorkshopAction;
 use App\Actions\Web\Webpage\GetWebpageGoogleCloud;
+use App\Actions\Web\Webpage\WithWebpageSubNavigation;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\UI\Web\WebpageTabsEnum;
@@ -43,6 +44,7 @@ class ShowWebpage extends OrgAction
     use WithInertia;
     use HasWorkshopAction;
     use HasWebAuthorisation;
+    use WithWebpageSubNavigation;
 
 
     private Website $parent;
@@ -70,6 +72,14 @@ class ShowWebpage extends OrgAction
 
     public function htmlResponse(Webpage $webpage, ActionRequest $request): Response
     {
+
+        $subNavigation = [];
+
+
+        if ($this->parent instanceof Website) {
+            $subNavigation = $this->getWebpageNavigation($this->parent);
+        }
+
         $actions = $this->workshopActions($request);
 
         if ($webpage->sub_type == WebpageSubTypeEnum::BLOG) {
@@ -220,6 +230,7 @@ class ShowWebpage extends OrgAction
                         'icon'  => 'fal fa-browser'
                     ],
                     'actions' => $actions,
+                    'subNavigation' => $subNavigation,
                 ],
 
                 'tabs' => [

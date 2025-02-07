@@ -20,6 +20,7 @@ use App\Actions\Web\Webpage\UI\ShowFooter;
 use App\Actions\Web\Webpage\UI\ShowHeader;
 use App\Actions\Web\Webpage\UI\ShowMenu;
 use App\Actions\Web\Webpage\UI\ShowWebpage;
+use App\Actions\Web\Webpage\UI\ShowWebpagesTree;
 use App\Actions\Web\Webpage\UI\ShowWebpageWorkshop;
 use App\Actions\Web\Website\UI\CreateWebsite;
 use App\Actions\Web\Website\UI\EditWebsite;
@@ -41,9 +42,9 @@ Route::name('websites.')->group(function () {
             Route::name('workshop')->prefix('workshop')
                 ->group(function () {
                     Route::get('', [ShowWebsiteWorkshop::class, 'inFulfilment'])->name('');
-                    Route::get('preview', [ShowWebsiteWorkshopPreview::class,'inFulfilment'])->name('.preview');
-                    Route::get('footer', [ShowFooter::class,'inFulfilment'])->name('.footer');
-                    Route::get('header', [ShowHeader::class,'inFulfilment'])->name('.header');
+                    Route::get('preview', [ShowWebsiteWorkshopPreview::class, 'inFulfilment'])->name('.preview');
+                    Route::get('footer', [ShowFooter::class, 'inFulfilment'])->name('.footer');
+                    Route::get('header', [ShowHeader::class, 'inFulfilment'])->name('.header');
                     Route::get('menu', [ShowMenu::class, 'inFulfilment'])->name('.menu');
                 });
         });
@@ -51,7 +52,15 @@ Route::name('websites.')->group(function () {
 
 Route::prefix('{website}/webpages')->name('webpages.')->group(function () {
     Route::get('', [IndexWebpages::class, 'inFulfilment'])->name('index');
-    Route::get('create', [CreateWebpage::class,'inFulfilment'])->name('create');
+
+    Route::get('tree', [ShowWebpagesTree::class, 'inFulfilment'])->name('tree');
+    Route::get('/type/content', [IndexWebpages::class, 'contentInFulfilment'])->name('index.type.content');
+    Route::get('/type/info', [IndexWebpages::class, 'infoInFulfilment'])->name('index.type.info');
+
+    Route::get('/type/operations', [IndexWebpages::class, 'operationsInFulfilment'])->name('index.type.operations');
+
+
+    Route::get('create', [CreateWebpage::class, 'inFulfilment'])->name('create');
 
     Route::prefix('{webpage}')
         ->group(function () {
@@ -63,8 +72,8 @@ Route::prefix('{website}/webpages')->name('webpages.')->group(function () {
 });
 
 Route::prefix('{website}/web-users')->name('web_users.')->group(function () {
-    Route::get('', [IndexWebUsers::class,'inFulfilment'])->name('index');
-    Route::get('{webUser}', [ShowWebUser::class,'inFulfilment'])->name('show');
+    Route::get('', [IndexWebUsers::class, 'inFulfilment'])->name('index');
+    Route::get('{webUser}', [ShowWebUser::class, 'inFulfilment'])->name('show');
 });
 
 Route::prefix('{website}/banners')->name('banners.')->group(function () {
