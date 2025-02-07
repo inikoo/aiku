@@ -62,16 +62,16 @@ const keyIconUndo = ref(0)
 
 <template>
     <div class="relative w-full">
-        <div class="flex items-center justify-center border border-gray-300 rounded gap-y-1 px-1">
+        <div class="flex items-center justify-center border border-gray-300 rounded gap-y-1 px-1 py-0.5">
             <!-- Button: Save -->
             <button
                 @click="() => (keyIconUndo++, form.reset('quantity'))"
                 v-tooltip="trans('Reset value')"
-                class="relative flex items-center justify-center p-2"
-                :class="form.isDirty ? 'cursor-pointer hover:text-gray-800 disabled:text-gray-400' : 'text-gray-400'"
+                class="relative flex items-center justify-center px-1 py-1.5 "
+                :class="form.isDirty ? 'cursor-pointer hover:text-gray-800 disabled:text-gray-400 hover:bg-gray-200 rounded' : 'text-gray-400'"
                 :disabled="form.processing || !form.isDirty"
                 type="submit">
-                <div class="text-base flex items-center rounded-full hover:bg-gray-200 cursor-pointer">
+                <div class="text-sm flex items-center">
                     <Transition name="spin-to-left">
                         <FontAwesomeIcon :key="keyIconUndo" icon='far fa-undo-alt' class='' fixed-width aria-hidden='true' />
                     </Transition>
@@ -88,7 +88,7 @@ const keyIconUndo = ref(0)
 
                 <!-- Input -->
                 <div
-                    class="text-center tabular-nums border border-transparent hover:border-dashed hover:border-gray-300 group-focus:border-dashed group-focus:border-gray-300">
+                    class="mx-1 text-center tabular-nums border border-dashed border-gray-300 group-focus:border-solid group-focus:border-gray-300">
                     <InputNumber 
                         v-model="form.quantity" 
                         @update:model-value="(e)=>form.quantity=e"
@@ -99,9 +99,10 @@ const keyIconUndo = ref(0)
                         :inputStyle="{
                             padding: '0px',
                             width: bindToTarget?.fluid ? undefined : '50px',
-                            color: 'gray',
+                            color: '#374151',
                             border: 'none',
                             textAlign: 'center',
+                            background: 'transparent',
                         }"
                         v-bind="bindToTarget"
                     />
@@ -114,29 +115,18 @@ const keyIconUndo = ref(0)
             </div>
 
             <!-- Button: Save -->
-            <button class="relative flex items-center justify-center p-2"
+            <button class="relative flex items-center justify-center px-1 py-0.5 text-sm"
                 :class="{ 'text-gray-400': !form.isDirty }"
                 :disabled="form.processing || !form.isDirty" type="submit">
-                <LoadingIcon v-if="form.processing" class="text-2xl" />
+                <LoadingIcon v-if="form.processing" class="text-xl" />
                 <template v-else>
                     <FontAwesomeIcon v-if="form.isDirty" @click="saveOnForm ? onSaveViaForm() : emits('onSave', form)"
-                        :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" icon="fad fa-save" fixed-width class=" cursor-pointer text-2xl"
+                        :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" icon="fad fa-save" fixed-width class=" cursor-pointer text-xl"
                         aria-hidden="true" />
-                    <FontAwesomeIcon v-else icon="fal fa-save" fixed-width class="text-2xl" aria-hidden="true" />
+                    <FontAwesomeIcon v-else icon="fal fa-save" fixed-width class="text-xl" aria-hidden="true" />
                 </template>
             </button>
         </div>
     </div>
 </template>
 
-<style scoped>
-::v-deep(.p-inputnumber) {
-    border-bottom: 2px solid transparent;
-    transition: border-color 0.3s;
-}
-
-::v-deep(.p-inputnumber:focus-within) {
-    border-bottom: 2px solid #4b5563;
-    /* gray-500 */
-}
-</style>
