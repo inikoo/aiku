@@ -157,7 +157,7 @@ class Pallet extends Model implements Auditable
         'status',
         'state',
         'type',
-        'notes',
+        'notes'
     ];
 
     public function getRouteKeyName(): string
