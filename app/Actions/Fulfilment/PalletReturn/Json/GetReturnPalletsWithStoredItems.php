@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 07-02-2025-09h-36m
@@ -64,12 +65,11 @@ class GetReturnPalletsWithStoredItems extends OrgAction
 
         $query = QueryBuilder::for(Pallet::class);
 
-
         $query->where('fulfilment_customer_id', $palletReturn->fulfilment_customer_id);
 
         $query->where(function ($query) use ($palletReturn) {
             $query->where('pallets.pallet_return_id', $palletReturn->id)
-                ->orWhereNull('pallets.pallet_return_id');
+            ->orWhereNull('pallets.pallet_return_id');
         });
 
         if ($palletReturn->state !== PalletReturnStateEnum::DISPATCHED) {
@@ -84,6 +84,9 @@ class GetReturnPalletsWithStoredItems extends OrgAction
 
         $query->leftJoin('pallet_return_items', 'pallet_return_items.pallet_id', 'pallets.id');
         $query->leftJoin('locations', 'locations.id', 'pallets.location_id');
+        $query->leftJoin('pallet_stored_items', 'pallet_stored_items.pallet_id', 'pallets.id');
+
+        $query->whereNotNull('pallet_stored_items.id');
 
         if ($palletReturn->state === PalletReturnStateEnum::IN_PROCESS) {
             foreach ($this->getElementGroups($palletReturn) as $key => $elementGroup) {
