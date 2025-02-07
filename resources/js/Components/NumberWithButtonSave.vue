@@ -13,13 +13,13 @@ import InputNumber from "primevue/inputnumber"
 import { ref } from "vue"
 import { faSave as fadSave } from "@fad"
 import { faSave as falSave, faInfoCircle } from "@fal"
-import { faAsterisk, faQuestion, faSpinner } from "@fas"
+import { faAsterisk, faQuestion, faSpinner, faMinus as fasMinus, faPlus as fasPlus } from "@fas"
 import { useForm } from "@inertiajs/vue3"
 import LoadingIcon from "./Utils/LoadingIcon.vue"
 import { routeType } from "@/types/route"
 import { trans } from "laravel-vue-i18n"
 
-library.add( faRobot, faPlus, faMinus, faUndoAlt, faAsterisk, faQuestion, falSave, faInfoCircle, fadSave, faSpinner )
+library.add( faRobot, faPlus, faMinus, faUndoAlt, faAsterisk, faQuestion, falSave, faInfoCircle, fadSave, faSpinner, fasMinus, fasPlus )
 
 const props = defineProps<{
     modelValue: number

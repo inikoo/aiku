@@ -113,6 +113,13 @@ const locale = inject('locale', aikuLocaleStructure)
             </div>
         </template>
 
+        <template #cell(asset_code)="{ item }">
+			<div>
+                {{ item.asset_code }} <br>
+                <span class="text-gray-400">({{ item.asset_name }})</span>
+            </div>
+		</template>
+
         <template #cell(quantity)="{ item }">
 			<div class="flex justify-end">
 				<div v-if="item.edit_type !== 'net' && status == 'current' &&  (item.data.type !== 'Pallet' && item.data.type !== 'Space')">

@@ -905,7 +905,9 @@ const isLoading = ref<string | boolean>(false)
 
                             <tbody class="bg-white divide-y divide-gray-200">
                                 <slot name="body" :show="show">
-                                    <template v-for="(item, key) in compResourceData" :key="`table-${name}-row-${key}`">
+                                    <template v-for="(item, key) in compResourceData"
+                                        :key="`table-${name}-row-${key}-${item[checkboxKey]}-${item.id}-${item.slug}`"
+                                    >
                                         <tr class=""
                                             :class="[
                                                 {

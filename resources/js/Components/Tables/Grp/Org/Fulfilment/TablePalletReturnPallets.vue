@@ -217,7 +217,7 @@ onBeforeMount(() => {
 
         <!-- Column: Pallet Reference -->
 
-		<template #cell(customer_reference_fix_this)="{ item }">
+		<template #cell(customer_reference)="{ item }">
             <div class="w-full">
 				<FieldEditableTable
                     :data="item"
