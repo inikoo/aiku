@@ -45,13 +45,13 @@ const links = ref([
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- URL Box -->
             <div
-                class="bg-white border border-gray-300 h-fit flex items-center justify-between gap-x-3 rounded-md md:w-96">
+                class="bg-white  h-fit flex items-center cursor-pointer gap-x-3  md:w-96">
                 <a :href="props.data.url" target="_blank"
                     class="pl-4 md:pl-5 inline-block text-xxs md:text-base text-gray-400">{{ props.data.url }}</a>
-                <Button :style="'tertiary'" class="" @click="useCopyText(props.data.url)"
+                    <FontAwesomeIcon :icon="faExternalLink" class='text-gray-500' v-tooltip="'Go To Website'" aria-hidden='true' />
+               <!--  <Button :style="'tertiary'" class="" @click="useCopyText(props.data.url)"
                     v-tooltip="trans('Copy url to clipboard')">
-                    <FontAwesomeIcon icon='fal fa-link' class='text-gray-500' aria-hidden='true' />
-                </Button>
+                </Button> -->
             </div>
 
 
