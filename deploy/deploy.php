@@ -27,6 +27,8 @@ task('deploy:set-release', function () {
 });
 
 
+desc('Reloads the frankenphp octane server');
+task('artisan:octane:reload:frankenphp', artisan('octane:reload  --server=frankenphp'));
 
 set('keep_releases', 50);
 
@@ -77,5 +79,5 @@ task('deploy', [
     'deploy:publish',
     'artisan:horizon:terminate',
     'artisan:pulse:restart',
-    'artisan:octane:reload'
+    'artisan:octane:reload:frankenphp',
 ]);
