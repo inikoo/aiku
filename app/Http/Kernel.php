@@ -146,7 +146,7 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             SubstituteBindings::class,
             HandleIrisInertiaRequests::class,
-            AddLinkHeadersForPreloadedAssets::class,
+            //AddLinkHeadersForPreloadedAssets::class,
             LogWebUserRequestMiddleware::class
         ],
         'retina'      => [
@@ -159,7 +159,7 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             SubstituteBindings::class,
             HandleRetinaInertiaRequests::class,
-            AddLinkHeadersForPreloadedAssets::class,
+            //AddLinkHeadersForPreloadedAssets::class,
             LogWebUserRequestMiddleware::class
         ],
         'pupil'      => [
