@@ -32,6 +32,7 @@ set('keep_releases', 50);
 
 set('shared_dirs', ['storage', 'private']);
 set('shared_files', [
+    'frankenphp',
     'rr',
     '.env',
     '.env.testing',
@@ -76,5 +77,5 @@ task('deploy', [
     'deploy:publish',
     'artisan:horizon:terminate',
     'artisan:pulse:restart',
-   // 'artisan:octane:reload'
+    'artisan:octane:reload  --server=frankenphp'
 ]);
