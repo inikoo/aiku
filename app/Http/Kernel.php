@@ -8,6 +8,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\AddIrisLinkHeadersForPreloadedAssets;
 use App\Http\Middleware\AddSentryBrowserProfilingHeader;
 use App\Http\Middleware\ApiBindGroupInstance;
 use App\Http\Middleware\HandlePupilInertiaRequests;
@@ -113,7 +114,7 @@ class Kernel extends HttpKernel
             SetLocale::class,
             LogUserRequestMiddleware::class,
             HandleInertiaGrpRequests::class,
-            AddLinkHeadersForPreloadedAssets::class,
+            //AddIrisLinkHeadersForPreloadedAssets::class,
         ],
 
         'web_errors' => [
@@ -134,7 +135,7 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             SubstituteBindings::class,
             HandleAikuPublicInertiaRequests::class,
-            AddLinkHeadersForPreloadedAssets::class,
+            //AddIrisLinkHeadersForPreloadedAssets::class,
         ],
         'iris'        => [
             DetectWebsite::class,
@@ -146,7 +147,7 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             SubstituteBindings::class,
             HandleIrisInertiaRequests::class,
-            //AddLinkHeadersForPreloadedAssets::class,
+           // AddIrisLinkHeadersForPreloadedAssets::class,
             LogWebUserRequestMiddleware::class
         ],
         'retina'      => [
@@ -159,7 +160,7 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             SubstituteBindings::class,
             HandleRetinaInertiaRequests::class,
-            //AddLinkHeadersForPreloadedAssets::class,
+            //AddIrisLinkHeadersForPreloadedAssets::class,
             LogWebUserRequestMiddleware::class
         ],
         'pupil'      => [
@@ -170,7 +171,7 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             SubstituteBindings::class,
             HandlePupilInertiaRequests::class,
-            AddLinkHeadersForPreloadedAssets::class,
+            //AddIrisLinkHeadersForPreloadedAssets::class,
             SameSiteSession::class
         ],
 
