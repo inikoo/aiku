@@ -77,5 +77,5 @@ task('deploy', [
     'deploy:publish',
     'artisan:horizon:terminate',
     'artisan:pulse:restart',
-    'artisan:octane:reload  --server=frankenphp'
+    'artisan:octane:reload'
 ]);
