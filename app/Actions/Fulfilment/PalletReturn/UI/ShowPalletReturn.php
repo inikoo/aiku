@@ -122,7 +122,7 @@ class ShowPalletReturn extends OrgAction
                 'disabled' => ($palletReturn->storedItems()->count() > 0 ? false : true) || ($palletReturn->delivery_address_id === null && $palletReturn->collection_address_id === null)
             ];
         }
-        if($palletReturn->type == PalletReturnTypeEnum::PALLET){
+        if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
             $pickingAllaction = [
                 'type'    => 'button',
                 'style'   => 'save',
@@ -237,7 +237,7 @@ class ShowPalletReturn extends OrgAction
                         ]
                     ]
                 ] : [],
-                $palletReturn->state == PalletReturnStateEnum::PICKING ? 
+                $palletReturn->state == PalletReturnStateEnum::PICKING ?
                 $pickingAllaction : [],
                 $palletReturn->state == PalletReturnStateEnum::PICKED ? [
                     'type'    => 'button',

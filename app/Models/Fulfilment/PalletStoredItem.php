@@ -29,6 +29,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property int|null $last_stored_item_audit_id
  * @property bool $in_process
  * @property-read \App\Models\Fulfilment\Pallet $pallet
+ * @property-read \App\Models\Fulfilment\PalletReturnItem|null $palletReturnItem
  * @property-read \App\Models\Fulfilment\StoredItem $storedItem
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletStoredItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletStoredItem newQuery()

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 07-02-2025-16h-48m
@@ -18,14 +19,11 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletReturns;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletReturns;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
-use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\PalletReturnItem;
-use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -42,11 +40,11 @@ class PickedPalletReturnWithStoredItems extends OrgAction
 
         $palletReturn = $this->update($palletReturn, $modelData);
 
-            foreach ($palletReturn->storedItems as $storedItem) {
-                SetPalletReturnWithStoredItemAsPicked::run($storedItem);
-                // $palletReturnItem = PalletReturnItem::find($storedItem->pivot->id);
-                // SetPalletInReturnAsPicked::make()->action($palletReturnItem, []);
-            }
+        foreach ($palletReturn->storedItems as $storedItem) {
+            SetPalletReturnWithStoredItemAsPicked::run($storedItem);
+            // $palletReturnItem = PalletReturnItem::find($storedItem->pivot->id);
+            // SetPalletInReturnAsPicked::make()->action($palletReturnItem, []);
+        }
 
         GroupHydratePalletReturns::dispatch($palletReturn->group);
         OrganisationHydratePalletReturns::dispatch($palletReturn->organisation);

@@ -29,7 +29,7 @@ class HandlePupilInertiaRequests extends Middleware
 
         if (!$request->inertia() or Session::get('reloadLayout')) {
 
-            $firstLoadOnlyProps          = GetPupilFirstLoadProps::run($request, $webUser);
+            $firstLoadOnlyProps          = GetFirstLoadProps::run($request, $webUser);
             $firstLoadOnlyProps['ziggy'] = function () use ($request) {
                 return array_merge((new Ziggy())->toArray(), [
                     'location' => $request->url(),
