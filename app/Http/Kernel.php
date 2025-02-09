@@ -135,7 +135,7 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             SubstituteBindings::class,
             HandleAikuPublicInertiaRequests::class,
-            //AddIrisLinkHeadersForPreloadedAssets::class,
+            AddLinkHeadersForPreloadedAssets::class,
         ],
         'iris'        => [
             DetectWebsite::class,
@@ -147,7 +147,7 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             SubstituteBindings::class,
             HandleIrisInertiaRequests::class,
-           // AddIrisLinkHeadersForPreloadedAssets::class,
+            AddIrisLinkHeadersForPreloadedAssets::class,
             LogWebUserRequestMiddleware::class
         ],
         'retina'      => [
@@ -160,7 +160,7 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             SubstituteBindings::class,
             HandleRetinaInertiaRequests::class,
-            //AddIrisLinkHeadersForPreloadedAssets::class,
+            AddIrisLinkHeadersForPreloadedAssets::class,
             LogWebUserRequestMiddleware::class
         ],
         'pupil'      => [
