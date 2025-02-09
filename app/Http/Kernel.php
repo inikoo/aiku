@@ -8,9 +8,10 @@
 
 namespace App\Http;
 
-use App\Http\Middleware\AddIrisLinkHeadersForPreloadedAssets;
 use App\Http\Middleware\AddSentryBrowserProfilingHeader;
 use App\Http\Middleware\ApiBindGroupInstance;
+use App\Http\Middleware\CorneaAuthenticate;
+use App\Http\Middleware\HandleCorneaInertiaRequests;
 use App\Http\Middleware\HandlePupilInertiaRequests;
 use App\Http\Middleware\RetinaPreparingAccount;
 use App\Http\Middleware\SameSiteSession;
@@ -114,7 +115,7 @@ class Kernel extends HttpKernel
             SetLocale::class,
             LogUserRequestMiddleware::class,
             HandleInertiaGrpRequests::class,
-            //AddIrisLinkHeadersForPreloadedAssets::class,
+            AddLinkHeadersForPreloadedAssets::class,
         ],
         'web_errors' => [
             EncryptCookies::class,
@@ -133,7 +134,7 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             SubstituteBindings::class,
             HandleAikuPublicInertiaRequests::class,
-            //AddLinkHeadersForPreloadedAssets::class,
+            AddLinkHeadersForPreloadedAssets::class,
         ],
         'iris'        => [
             DetectWebsite::class,
@@ -145,7 +146,7 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             SubstituteBindings::class,
             HandleIrisInertiaRequests::class,
-            AddIrisLinkHeadersForPreloadedAssets::class,
+            AddLinkHeadersForPreloadedAssets::class,
             LogWebUserRequestMiddleware::class
         ],
         'retina'      => [
@@ -158,7 +159,7 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             SubstituteBindings::class,
             HandleRetinaInertiaRequests::class,
-            AddIrisLinkHeadersForPreloadedAssets::class,
+            AddLinkHeadersForPreloadedAssets::class,
             LogWebUserRequestMiddleware::class
         ],
         'pupil'      => [
@@ -169,8 +170,19 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             SubstituteBindings::class,
             HandlePupilInertiaRequests::class,
-            //AddIrisLinkHeadersForPreloadedAssets::class,
+            AddLinkHeadersForPreloadedAssets::class,
             SameSiteSession::class
+        ],
+
+        'cornea'      => [
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+            SubstituteBindings::class,
+            HandleCorneaInertiaRequests::class,
+            //AddLinkHeadersForPreloadedAssets::class,
         ],
 
         //==== Other Middleware Groups
@@ -200,6 +212,7 @@ class Kernel extends HttpKernel
     protected $routeMiddleware = [
         'auth'                   => Authenticate::class,
         'retina-auth'            => RetinaAuthenticate::class,
+        'cornea-auth'            => CorneaAuthenticate::class,
         'iris-auth'              => IrisAuthenticate::class,
         'auth.basic'             => AuthenticateWithBasicAuth::class,
         'auth.session'           => AuthenticateSession::class,
