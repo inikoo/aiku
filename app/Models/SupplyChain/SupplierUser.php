@@ -13,6 +13,7 @@ use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\InGroup;
 use App\Models\Traits\IsUserable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -66,6 +67,7 @@ class SupplierUser extends Authenticatable implements HasMedia, Auditable
     use IsUserable;
     use HasImage;
     use InGroup;
+    use HasFactory;
 
     protected $casts = [
         'data'            => 'array',
