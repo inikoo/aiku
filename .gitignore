@@ -97,4 +97,4 @@ create_wowsbar_*
 frankenphp
 frankenphp-worker.php
 rr
-.rr,yaml
+/.rr.yaml
