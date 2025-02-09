@@ -116,7 +116,6 @@ class Kernel extends HttpKernel
             HandleInertiaGrpRequests::class,
             //AddIrisLinkHeadersForPreloadedAssets::class,
         ],
-
         'web_errors' => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
@@ -126,7 +125,6 @@ class Kernel extends HttpKernel
             BindGroupInstance::class,
             SetLocale::class,
         ],
-
         'aiku-public' => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
@@ -135,7 +133,7 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             SubstituteBindings::class,
             HandleAikuPublicInertiaRequests::class,
-            AddLinkHeadersForPreloadedAssets::class,
+            //AddLinkHeadersForPreloadedAssets::class,
         ],
         'iris'        => [
             DetectWebsite::class,
