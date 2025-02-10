@@ -69,22 +69,29 @@ class IndexStoredItemsInReturn extends OrgAction
                 $query->whereAnyWordStartWith('stored_items.reference', $value);
             });
         });
-
+    
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
-
-        $queryBuilder = QueryBuilder::for(StoredItem::class);
-
-        // $queryBuilder->where('stored_items.state', StoredItemStateEnum::ACTIVE->value);
-        $queryBuilder->leftjoin('pallet_return_items', 'stored_items.id', '=', 'pallet_return_items.stored_item_id');
-        $queryBuilder->leftjoin('pallet_returns', 'pallet_returns.id', '=', 'pallet_return_items.pallet_return_id');
-        $queryBuilder->leftjoin('pallet_stored_items', 'stored_items.id', '=', 'pallet_stored_items.stored_item_id');
-        $queryBuilder->leftjoin('pallets', 'pallets.id', '=', 'pallet_stored_items.pallet_id');
-
-        // $queryBuilder->with(['pallets', 'palletReturns']);
-        $queryBuilder->where('stored_items.fulfilment_customer_id', $parent->fulfilment_customer_id);
-
+    
+        $queryBuilder = QueryBuilder::for(StoredItem::class)
+            ->leftJoin('pallet_return_items', function ($join) use ($parent) {
+                $join->on('stored_items.id', '=', 'pallet_return_items.stored_item_id')
+                        ->where('pallet_return_items.pallet_return_id', '=', $parent->id);
+            })
+            ->leftJoin('pallet_returns', function ($join) use ($parent) {
+                $join->on('pallet_returns.id', '=', 'pallet_return_items.pallet_return_id')
+                        ->where('pallet_returns.id', '=', $parent->id);
+            })
+            ->leftJoin('pallet_stored_items', function ($join) {
+                $join->on('stored_items.id', '=', 'pallet_stored_items.stored_item_id');
+            })
+            ->leftJoin('pallets', function ($join) {
+                $join->on('pallets.id', '=', 'pallet_stored_items.pallet_id');
+            })
+            ->where('stored_items.fulfilment_customer_id', $parent->fulfilment_customer_id)
+            ->where('stored_items.total_quantity', '>', 0);
+    
         if ($parent->state === PalletReturnStateEnum::IN_PROCESS) {
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                 $queryBuilder->whereElementGroup(
@@ -97,30 +104,30 @@ class IndexStoredItemsInReturn extends OrgAction
         } else {
             $queryBuilder->where('pallet_returns.id', $parent->id);
         }
-
-        $queryBuilder->distinct('stored_items.id');
-
-        $queryBuilder->defaultSort('stored_items.id');
-
-        $queryBuilder->select([
-            'stored_items.id',
-            'stored_items.reference',
-            'stored_items.slug',
-            'stored_items.name',
-            'stored_items.total_quantity',
-            'pallet_returns.id as pallet_return_id',
-            \DB::raw('COALESCE(SUM(pallet_return_items.quantity_ordered), 0) AS total_quantity_ordered'),
-        ]);
-
-        $queryBuilder->groupBy([
-            'stored_items.id',
-            'stored_items.reference',
-            'stored_items.slug',
-            'stored_items.name',
-            'stored_items.total_quantity',
-            'pallet_returns.id'
-        ]);
-
+    
+        $queryBuilder->distinct('stored_items.id')
+            ->defaultSort('stored_items.id')
+            ->select([
+                'stored_items.id',
+                'stored_items.reference',
+                'stored_items.slug',
+                'stored_items.name',
+                'stored_items.total_quantity',
+                'pallet_returns.id as pallet_return_id',
+                \DB::raw('(SELECT COALESCE(SUM(quantity_ordered), 0) 
+                FROM pallet_return_items pri 
+                WHERE pri.stored_item_id = stored_items.id 
+                AND pri.pallet_return_id = '.$parent->id.') AS total_quantity_ordered'),
+            ])
+            ->groupBy([
+                'stored_items.id',
+                'stored_items.reference',
+                'stored_items.slug',
+                'stored_items.name',
+                'stored_items.total_quantity',
+                'pallet_returns.id'
+            ]);
+    
         return $queryBuilder->allowedSorts(['reference', 'code', 'price', 'name', 'state'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())

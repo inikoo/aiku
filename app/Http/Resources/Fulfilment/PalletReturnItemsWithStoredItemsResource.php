@@ -40,7 +40,7 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
     public function toArray($request): array
     {
         $storedItem = StoredItem::find($this->id);
-        // dd($storedItem);
+        // dump($this->palletReturns);
         return [
             'id'                               => $this->id,
             'slug'                             => $this->slug,
@@ -65,19 +65,22 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
             // 'location_id'                      => $this->location_id,
             'is_checked'                       => (bool) $this->pallet_return_id,
             'pallet_stored_items'              => $storedItem->palletStoredItems->map(fn ($palletStoredItem) => [
-                'id'        => $palletStoredItem->id,
-                'reference' => $palletStoredItem->pallet->reference ?? null,
-                'selected_quantity'     => (int) $palletStoredItem->palletReturnItem?->quantity_ordered ?? 0,
-                'available_quantity'    => (int) $palletStoredItem->quantity,
-                'max_quantity'          => (int) $palletStoredItem->quantity,
-                'pallet_return_item_id' => $palletStoredItem->palletReturnItem->id ?? null,
-                // 'storeRoute' => [
-                //     'name'       => 'grp.models.pallet-return.stored_item.store',
-                //     'parameters' => [
-                //         'palletReturn'       => $this->pallet_return_id,
-                //         'palletStoredItem'   => $palletStoredItem->id
-                //     ]
-                // ],
+                'id'                            => $palletStoredItem->id,
+                'reference'                     => $palletStoredItem->pallet->reference ?? null,
+                'selected_quantity'             => (int) optional(
+                    $palletStoredItem->palletReturnItems
+                        ->where('pallet_return_id', $this->pallet_return_id)
+                        ->first()
+                )->quantity_ordered ?? 0,
+                'available_quantity'            => (int) $palletStoredItem->quantity,
+                'max_quantity'                  => (int) $palletStoredItem->quantity,
+                'available_to_pick_quantity'    => (int) 0,   // TODO: need this for state pick
+                'picked_quantity'               => (int) 0,   // TODO: need this for state pick
+                'pallet_return_item_id'         => optional(
+                    $palletStoredItem->palletReturnItems
+                        ->where('pallet_return_id', $this->pallet_return_id)
+                        ->first()
+                )->id ?? null,
                 'syncRoute' =>
                     [
                         'name'       => 'grp.models.pallet-return.stored_item.store',
@@ -93,109 +96,6 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
                 ] : null
             ]),
             'total_quantity' => (int)$this->total_quantity,
-            // 'syncRoute'             => match (request()->routeIs('retina.*')) {
-            //     true => [
-            //         'name'       => 'retina.models.pallet.pallet-return-item.update',
-            //         'parameters' => $this->id
-            //     ],
-            //     default => [
-            //         'name'       => 'grp.models.pallet.pallet-return-item.sync',
-            //         'parameters' => $this->id
-            //     ]
-            // },
-            // 'updateRoute'           => match (request()->routeIs('retina.*')) {
-            //     true => [
-            //         'name'       => 'retina.models.pallet-return-item.update',
-            //         'parameters' => $this->id
-            //     ],
-            //     default => [
-            //         'name'       => 'grp.models.pallet-return-item.update',
-            //         'parameters' => $this->id
-            //     ]
-            // },
-            // 'undoPickingRoute' => [
-            //     'name'       => 'grp.models.pallet-return-item.undo-picking',
-            //     'parameters' => [$this->id]
-            // ],
-            // 'undoConfirmedRoute' => [
-            //     'name'       => 'grp.models.pallet-return-item.undo-confirmed',
-            //     'parameters' => [$this->id]
-            // ],
-            // 'notPickedRoute' => [
-            //     'method'     => 'patch',
-            //     'name'       => 'grp.models.pallet-return-item.not-picked',
-            //     'parameters' => [$this->id]
-            // ],
-            // 'deleteRoute' => match (request()->routeIs('retina.*')) {
-            //     true => [
-            //         'name'       => 'retina.models.pallet.delete',
-            //         'parameters' => $this->id
-            //     ],
-            //     default => [
-            //         'name'       => 'grp.models.pallet.delete',
-            //         'parameters' => $this->id
-            //     ]
-            // },
-            // 'deleteFromDeliveryRoute' => match (request()->routeIs('retina.*')) {
-            //     true => [
-            //         'name'       => 'retina.models.pallet-delivery.pallet.delete',
-            //         'parameters' => [$this->pallet_delivery_id, $this->id]
-            //     ],
-            //     default => [
-            //         'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.delete',
-            //         'parameters' => [$this->fulfilment_customer_id, $this->pallet_delivery_id, $this->id]
-            //     ]
-            // },
-            // 'deleteFromReturnRoute' => match (request()->routeIs('retina.*')) {
-            //     true => [
-            //         'name'       => 'retina.models.pallet-return.pallet.delete',
-            //         'parameters' => [$this->pallet_return_id, $this->pallet_id]
-            //     ],
-            //     default => [
-            //         'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.delete',
-            //         'parameters' => [$this->fulfilment_customer_id, $this->pallet_return_id, $this->pallet_id]
-            //     ]
-            // },
-            // 'notReceivedRoute' => [
-            //     'name'       => 'grp.models.pallet.not-received',
-            //     'parameters' => [$this->id]
-            // ],
-            // 'undoNotReceivedRoute' => [
-            //     'name'       => 'grp.models.pallet.undo-not-received',
-            //     'parameters' => [$this->id]
-            // ],
-            // 'bookInRoute' => [
-            //     'name'       => 'grp.models.pallet.book_in',
-            //     'parameters' => [$this->id]
-            // ],
-            // 'undoBookInRoute' => [
-            //     'name'       => 'grp.models.pallet.undo_book_in',
-            //     'parameters' => [$this->id]
-            // ],
-            // 'updateLocationRoute' => [
-            //     'name'       => 'grp.models.warehouse.pallets.location.update',
-            //     'parameters' => [$this->warehouse_id, $this->id]
-            // ],
-            // 'storeStoredItemRoute' => match (request()->routeIs('retina.*')) {
-            //     true => [
-            //         'name'       => 'retina.models.pallet.stored-items.update',
-            //         'parameters' => [$this->id]
-            //     ],
-            //     default => [
-            //         'name'       => 'grp.models.pallet.stored-items.update',
-            //         'parameters' => [$this->id]
-            //     ]
-            // },
-            // 'updatePalletRoute'           => match (request()->routeIs('retina.*')) {
-            //     true => [
-            //         'name'       => 'retina.models.pallet.update',
-            //         'parameters' => $this->pallet_id
-            //     ],
-            //     default => [
-            //         'name'       => 'grp.models.pallet.update',
-            //         'parameters' => $this->pallet_id
-            //     ]
-            // },
         ];
     }
 }

@@ -10,6 +10,7 @@
 namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
+use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovementFromPicking;
 use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovementFromPickingAFullPallet;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -29,45 +30,12 @@ class SetPalletReturnWithStoredItemAsPicked extends OrgAction
     use WithActionUpdate;
 
 
-    private PalletReturnItem $pallet;
+    private PalletReturnItem $palletReturnItem;
 
     public function handle(PalletReturnItem $palletReturnItem): PalletReturnItem
     {
-        $modelData = [];
-        data_set($modelData, 'picking_location_id', $palletReturnItem->pallet->location_id);
-        data_set($modelData, 'state', PalletReturnItemStateEnum::PICKED);
-
-        if ($palletReturnItem->type == 'Pallet') {
-            $this->update($palletReturnItem, $modelData);
-        } else {
-            $storedItems = PalletReturnItem::where('pallet_return_id', $palletReturnItem->pallet_return_id)->where('stored_item_id', $palletReturnItem->stored_item_id)->get();
-            foreach ($storedItems as $storedItem) {
-                $this->update($storedItem, $modelData);
-            }
-        }
-
-        $modelData = [];
-        data_set($modelData, 'state', PalletStateEnum::PICKED);
-        data_set($modelData, 'status', PalletStatusEnum::RETURNING);
-        data_set($modelData, 'picked_at', now());
-
-        if ($palletReturnItem->type == 'Pallet') {
-            $pallet = UpdatePallet::run($palletReturnItem->pallet, $modelData);
-
-            foreach ($pallet->palletStoredItems as $palletStoredItem) {
-                StoreStoredItemMovementFromPickingAFullPallet::run($palletReturnItem, $palletStoredItem);
-            }
-
-        } else {
-            // TODO: check this,  not working
-            $storedItems = PalletReturnItem::where('pallet_return_id', $palletReturnItem->pallet_return_id)->where('stored_item_id', $palletReturnItem->stored_item_id)->get();
-            foreach ($storedItems as $storedItem) {
-                $pallet = UpdatePallet::run($storedItem->pallet, $modelData);
-            }
-        }
-
-        PalletRecordSearch::dispatch($pallet);
-
+        StoreStoredItemMovementFromPicking::run($palletReturnItem, $palletReturnItem->palletStoredItem);
+        
         return $palletReturnItem;
     }
 
@@ -94,7 +62,7 @@ class SetPalletReturnWithStoredItemAsPicked extends OrgAction
 
     public function asController(PalletReturnItem $palletReturnItem, ActionRequest $request): PalletReturnItem
     {
-        $this->pallet = $palletReturnItem;
+        $this->palletReturnItem = $palletReturnItem;
         $this->initialisationFromFulfilment($palletReturnItem->palletReturn->fulfilment, $request);
 
         return $this->handle($palletReturnItem);
