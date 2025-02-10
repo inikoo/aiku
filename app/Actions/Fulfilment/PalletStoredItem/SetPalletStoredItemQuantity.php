@@ -48,7 +48,6 @@ class SetPalletStoredItemQuantity
             return 0;
         }
 
-
         if ($delta->audit_type == StoredItemAuditDeltaTypeEnum::DELIVERY) {
             $quantityMovements = DB::table('stored_item_movements')->where('pallet_id', $palletStoredItem->pallet_id)
             ->where('stored_item_id', $palletStoredItem->stored_item_id)
@@ -56,23 +55,24 @@ class SetPalletStoredItemQuantity
             ->sum('quantity');
 
             $deltaQuantity = $delta->audited_quantity;
-
             if ($quantityMovements == $deltaQuantity) {
                 $quantity = $deltaQuantity;
+            } else {
+                $quantity = $quantityMovements;
             }
+
         } else {
             $quantityMovements = DB::table('stored_item_movements')->where('pallet_id', $palletStoredItem->pallet_id)
             ->where('stored_item_id', $palletStoredItem->stored_item_id)
             ->sum('quantity');
 
             $deltaQuantity = $delta->audited_quantity;
-
             if ($quantityMovements == $deltaQuantity) {
                 $quantity = $deltaQuantity;
+            } else {
+                $quantity = $quantityMovements;
             }
         }
-
-
 
         $this->update(
             $palletStoredItem,

@@ -83,7 +83,7 @@ class ShowPalletReturn extends OrgAction
 
         $navigation = PalletReturnTabsEnum::navigation($palletReturn);
 
-        
+
 
         if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
             unset($navigation[PalletReturnTabsEnum::STORED_ITEMS->value]);
@@ -93,7 +93,7 @@ class ShowPalletReturn extends OrgAction
             if ($palletReturn->pallets()->count() < 1) {
                 $tooltipSubmit = __('Select pallet before submit');
                 $isDisabled = true;
-            } else if ($palletReturn->delivery_address_id === null && $palletReturn->collection_address_id === null) {
+            } elseif ($palletReturn->delivery_address_id === null && $palletReturn->collection_address_id === null) {
                 $tooltipSubmit = __('Select address before submit');
                 $isDisabled = true;
             } else {
@@ -125,7 +125,7 @@ class ShowPalletReturn extends OrgAction
             if ($palletReturn->pallets()->count() < 1) {
                 $tooltipSubmit = __('Select stored item before submit');
                 $isDisabled = true;
-            } else if ($palletReturn->delivery_address_id === null && $palletReturn->collection_address_id === null) {
+            } elseif ($palletReturn->delivery_address_id === null && $palletReturn->collection_address_id === null) {
                 $tooltipSubmit = __('Select address before submit');
                 $isDisabled = true;
             } else {

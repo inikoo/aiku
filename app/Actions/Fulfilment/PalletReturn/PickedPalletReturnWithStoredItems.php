@@ -25,6 +25,7 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\PalletReturnItem;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 
 class PickedPalletReturnWithStoredItems extends OrgAction
@@ -34,28 +35,28 @@ class PickedPalletReturnWithStoredItems extends OrgAction
 
     public function handle(PalletReturn $palletReturn, array $modelData = []): PalletReturn
     {
-        dd($palletReturn->storedItems);
-        $modelData[PalletReturnStateEnum::PICKED->value.'_at']   = now();
-        $modelData['state']                                      = PalletReturnStateEnum::PICKED;
-
-        $palletReturn = $this->update($palletReturn, $modelData);
-
-        foreach ($palletReturn->storedItems as $storedItem) {
-            SetPalletReturnWithStoredItemAsPicked::run($storedItem);
-            // $palletReturnItem = PalletReturnItem::find($storedItem->pivot->id);
-            // SetPalletInReturnAsPicked::make()->action($palletReturnItem, []);
-        }
-
-        GroupHydratePalletReturns::dispatch($palletReturn->group);
-        OrganisationHydratePalletReturns::dispatch($palletReturn->organisation);
-        WarehouseHydratePalletReturns::dispatch($palletReturn->warehouse);
-        FulfilmentCustomerHydratePalletReturns::dispatch($palletReturn->fulfilmentCustomer);
-        FulfilmentHydratePalletReturns::dispatch($palletReturn->fulfilment);
-
-        SendPalletReturnNotification::run($palletReturn);
-        PalletReturnRecordSearch::dispatch($palletReturn);
-
-        return $palletReturn;
+        return DB::transaction(function () use ($palletReturn, $modelData) {
+            $modelData[PalletReturnStateEnum::PICKED->value . '_at'] = now();
+            $modelData['state'] = PalletReturnStateEnum::PICKED;
+    
+            $palletReturn = $this->update($palletReturn, $modelData);
+    
+            foreach ($palletReturn->storedItems as $storedItem) {
+                $palletReturnItem = PalletReturnItem::find($storedItem->pivot->id);
+                SetPalletReturnWithStoredItemAsPicked::run($palletReturnItem);
+            }
+    
+            GroupHydratePalletReturns::dispatch($palletReturn->group);
+            OrganisationHydratePalletReturns::dispatch($palletReturn->organisation);
+            WarehouseHydratePalletReturns::dispatch($palletReturn->warehouse);
+            FulfilmentCustomerHydratePalletReturns::dispatch($palletReturn->fulfilmentCustomer);
+            FulfilmentHydratePalletReturns::dispatch($palletReturn->fulfilment);
+    
+            SendPalletReturnNotification::run($palletReturn);
+            PalletReturnRecordSearch::dispatch($palletReturn);
+    
+            return $palletReturn;
+        });
     }
 
     public function authorize(ActionRequest $request): bool
