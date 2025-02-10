@@ -70,9 +70,9 @@ defineOptions({
     inheritAttrs: false
 })
 
-watch(model, () => {
-    form.quantity = model.value
-})
+// watch(model, () => {
+//     form.quantity = model.value
+// })
 
 
 const onClickMinusButton = () => {

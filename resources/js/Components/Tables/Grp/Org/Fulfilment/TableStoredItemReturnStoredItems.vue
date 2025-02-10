@@ -172,9 +172,9 @@ onBeforeMount(() => {
                         <span v-else class="text-gray-400 italic">({{ trans('No reference') }})</span>
                         <span v-if="pallet_stored_item.location?.code" v-tooltip="trans('Location code of the pallet')" class="text-gray-400"> ({{ pallet_stored_item.location?.code }})</span>
                         <div v-if="palletReturn.state === 'picking'"
-                            @click="() => pallet_stored_item.picked_quantity = pallet_stored_item.quantity_in_pallet"
+                            @xxclick="() => pallet_stored_item.picked_quantity = pallet_stored_item.quantity_in_pallet"
                             v-tooltip="trans('Total Customer\'s SKU in this pallet')"
-                            class="text-gray-400 tabular-nums cursor-pointer hover:text-gray-600">
+                            class="text-gray-400 tabular-nums xcursor-pointer xhover:text-gray-600">
                             {{ trans("Stocks in pallet") }}: {{ pallet_stored_item.quantity_in_pallet }}
                         </div>
                     </div>
@@ -240,6 +240,7 @@ onBeforeMount(() => {
                             </template>
                         </NumberWithButtonSave>
                     </div>
+                    <!-- {{ pallet_stored_item.pallet_return_item_id }} -->
                     
                 </div>
             </div>
