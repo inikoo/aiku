@@ -11,6 +11,7 @@ namespace App\Actions\Fulfilment\StoredItemAuditDelta;
 
 use App\Actions\Fulfilment\PalletStoredItem\SetPalletStoredItemQuantity;
 use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovement;
+use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovementFromDelivery;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
@@ -37,12 +38,15 @@ class StoreStoredItemAuditDeltaFromDelivery extends OrgAction
         data_set($modelData, 'is_stored_item_new_in_pallet', true);
         data_set($modelData, 'pallet_id', $palletStoredItem->pallet_id);
         data_set($modelData, 'stored_item_id', $palletStoredItem->stored_item_id);
-        data_set($modelData, 'audited_quantity', $palletStoredItem->quantity);
-
+        data_set($modelData, 'audited_quantity', 0);
 
         $storedItemAuditDelta = StoredItemAuditDelta::create($modelData);
 
-        StoreStoredItemMovement::run($storedItemAuditDelta);
+        StoreStoredItemMovementFromDelivery::run($storedItemAuditDelta,
+            [
+                'quantity'=>$palletStoredItem->quantity
+
+            ]);
 
         $palletStoredItem = $this->update($palletStoredItem, [
             'number_audits' => $palletStoredItem->number_audits + 1,

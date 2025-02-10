@@ -25,6 +25,7 @@ class SetPalletStoredItemQuantity
     use AsCommand;
 
     public string $commandSignature = 'pallet_stored_item:set_quantity {palletStoredItem?}';
+
     public function handle(PalletStoredItem $palletStoredItem)
     {
         $quantity = $this->processQuantity($palletStoredItem);
@@ -33,6 +34,7 @@ class SetPalletStoredItemQuantity
 
         return $quantity;
     }
+
     public function processQuantity(PalletStoredItem $palletStoredItem)
     {
         if ($palletStoredItem->in_process) {
@@ -40,45 +42,28 @@ class SetPalletStoredItemQuantity
         }
 
         $delta = StoredItemAuditDelta::where('pallet_id', $palletStoredItem->pallet_id)
-                ->where('stored_item_id', $palletStoredItem->stored_item_id)
-                ->latest()
-                ->first();
+            ->where('stored_item_id', $palletStoredItem->stored_item_id)
+            ->latest()
+            ->first();
 
         if (!$delta) {
             return 0;
         }
 
-        if ($delta->audit_type == StoredItemAuditDeltaTypeEnum::DELIVERY) {
-            $quantityMovements = DB::table('stored_item_movements')->where('pallet_id', $palletStoredItem->pallet_id)
+        $quantity = $delta->audited_quantity;
+
+        $quantityMovements = DB::table('stored_item_movements')->where('pallet_id', $palletStoredItem->pallet_id)
             ->where('stored_item_id', $palletStoredItem->stored_item_id)
             ->whereNotIn('type', [StoredItemMovementTypeEnum::AUDIT_ADDITION, StoredItemMovementTypeEnum::AUDIT_SUBTRACTION])
             ->sum('quantity');
 
-            $deltaQuantity = $delta->audited_quantity;
-            if ($quantityMovements == $deltaQuantity) {
-                $quantity = $deltaQuantity;
-            } else {
-                $quantity = $quantityMovements;
-            }
-
-        } else {
-            $quantityMovements = DB::table('stored_item_movements')->where('pallet_id', $palletStoredItem->pallet_id)
-            ->where('stored_item_id', $palletStoredItem->stored_item_id)
-            ->sum('quantity');
-
-            $deltaQuantity = $delta->audited_quantity;
-            if ($quantityMovements == $deltaQuantity) {
-                $quantity = $deltaQuantity;
-            } else {
-                $quantity = $quantityMovements;
-            }
-        }
+        $quantity=$quantity+$quantityMovements;
 
         $this->update(
             $palletStoredItem,
             [
-            'quantity' => $quantity
-        ]
+                'quantity' => $quantity
+            ]
         );
 
         $palletStoredItem->refresh();
@@ -96,6 +81,7 @@ class SetPalletStoredItemQuantity
             foreach ($palletStoredItems as $palletStoredItem) {
                 $this->handle($palletStoredItem);
             }
+
             return 0;
         }
         $this->handle($palletStoredItem);

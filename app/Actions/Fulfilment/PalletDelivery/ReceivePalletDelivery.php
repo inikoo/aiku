@@ -80,9 +80,7 @@ class ReceivePalletDelivery extends OrgAction
             }
 
             foreach ($pallet->palletStoredItems as $palletStoredItem) {
-                // $palletStoredItem->update([
-                //     'in_process' => false
-                // ]);
+
                 StoreStoredItemAuditDeltaFromDelivery::run(
                     $palletDelivery,
                     $palletStoredItem,

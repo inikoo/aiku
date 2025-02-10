@@ -14,26 +14,21 @@ use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaTypeEnum;
 use App\Enums\Fulfilment\StoredItemMovement\StoredItemMovementTypeEnum;
 use App\Models\Fulfilment\StoredItemAuditDelta;
 use App\Models\Fulfilment\StoredItemMovement;
+use Illuminate\Support\Arr;
 
-class StoreStoredItemMovement extends OrgAction
+class StoreStoredItemMovementFromDelivery extends OrgAction
 {
-    public function handle(StoredItemAuditDelta $storedItemAuditDelta): ?StoredItemMovement
+    public function handle(StoredItemAuditDelta $storedItemAuditDelta, array $modelData): ?StoredItemMovement
     {
+
+        $quantity=Arr::pull($modelData, 'quantity', 0);
+
         data_set($modelData, 'stored_item_id', $storedItemAuditDelta->stored_item_id);
         data_set($modelData, 'pallet_id', $storedItemAuditDelta->pallet_id);
-
-        if ($storedItemAuditDelta->audit_type == StoredItemAuditDeltaTypeEnum::NO_CHANGE) {
-            return null;
-        }
         data_set($modelData, 'stored_item_audit_id', $storedItemAuditDelta->stored_item_audit_id);
         data_set($modelData, 'stored_item_audit_delta_id', $storedItemAuditDelta->id);
-        $type = match($storedItemAuditDelta->audit_type) {
-            StoredItemAuditDeltaTypeEnum::ADDITION,StoredItemAuditDeltaTypeEnum::SET_UP => StoredItemMovementTypeEnum::AUDIT_ADDITION,
-            StoredItemAuditDeltaTypeEnum::SUBTRACTION => StoredItemMovementTypeEnum::AUDIT_SUBTRACTION,
-            StoredItemAuditDeltaTypeEnum::DELIVERY => StoredItemMovementTypeEnum::RECEIVED,
-        };
-        data_set($modelData, 'type', $type);
-        $quantity = $storedItemAuditDelta->audited_quantity - $storedItemAuditDelta->original_quantity;
+
+        data_set($modelData, 'type', StoredItemMovementTypeEnum::RECEIVED);
         data_set($modelData, 'quantity', $quantity);
         data_set($modelData, 'moved_at', now());
 
