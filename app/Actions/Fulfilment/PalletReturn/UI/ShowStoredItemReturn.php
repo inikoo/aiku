@@ -78,10 +78,23 @@ class ShowStoredItemReturn extends OrgAction
         $navigation = PalletReturnTabsEnum::navigation($palletReturn);
         unset($navigation[PalletReturnTabsEnum::PALLETS->value]);
         $this->tab = $request->get('tab', array_key_first($navigation));
+
+        $tooltipSubmit = '';
+        $isDisabled = false;
+        if ($palletReturn->pallets()->count() < 1) {
+            $tooltipSubmit = __('Select stored item before submit');
+            $isDisabled = true;
+        } elseif ($palletReturn->delivery_address_id === null && $palletReturn->collection_address_id === null) {
+            $tooltipSubmit = __('Select address before submit');
+            $isDisabled = true;
+        } else {
+            $tooltipSubmit = __('Submit');
+        }
+
         $buttonSubmit = [
             'type'    => 'button',
             'style'   => 'save',
-            'tooltip' => $palletReturn->storedItems()->count() > 0 ? __('Submit') . ' (' . $palletReturn->storedItems()->count() . ')' : __('Select stored items before submit'),
+            'tooltip' => $tooltipSubmit,
             'label'   => __('Submit') . ' (' . $palletReturn->storedItems()->count() . ')',
             'key'     => 'submit',
             'route'   => [
@@ -92,7 +105,7 @@ class ShowStoredItemReturn extends OrgAction
                     'palletReturn'       => $palletReturn->id
                 ]
             ],
-            'disabled' => ($palletReturn->storedItems()->count() > 0 ? false : true) || ($palletReturn->delivery_address_id === null && $palletReturn->collection_address_id === null)
+            'disabled' => $isDisabled
         ];
         if ($this->canEdit) {
             $actions = $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
@@ -205,6 +218,21 @@ class ShowStoredItemReturn extends OrgAction
                 ] : [],
             ];
 
+            $pdfButton    = [
+                'type'   => 'button',
+                'style'  => 'tertiary',
+                'label'  => 'PDF',
+                'target' => '_blank',
+                'icon'   => 'fal fa-file-pdf',
+                'key'    => 'action',
+                'route'  => [
+                    'name'       => 'grp.models.pallet-return.pdf',
+                    'parameters' => [
+                        'palletReturn' => $palletReturn->id
+                    ]
+                ]
+            ];
+
             if (in_array($palletReturn->state, [
                 PalletReturnStateEnum::IN_PROCESS,
                 PalletReturnStateEnum::SUBMITTED
@@ -224,6 +252,8 @@ class ShowStoredItemReturn extends OrgAction
                         ]
                     ]
                 ]], $actions);
+            } else {
+                $actions = array_merge($actions, [$pdfButton]);
             }
         }
 

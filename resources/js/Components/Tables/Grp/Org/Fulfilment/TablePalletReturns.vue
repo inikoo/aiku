@@ -105,9 +105,17 @@ function storedItemReturnRoute(palletReturn: PalletDelivery) {
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- Column: Reference -->
         <template #cell(reference)="{ item: palletReturn }">
-            <Link :href="palletReturn.type === 'pallet' ? palletReturnRoute(palletReturn) : storedItemReturnRoute(palletReturn)"  class="primaryLink">
+            <Link v-if="palletReturn.type === 'pallet'" :href="palletReturnRoute(palletReturn)" class="primaryLink">
                 {{ palletReturn['reference'] }}
             </Link>
+
+            <Link v-else-if="palletReturn.type === 'stored_item'" :href="storedItemReturnRoute(palletReturn)" class="primaryLink">
+                {{ palletReturn['reference'] }}
+            </Link>
+
+            <div v-else>
+                {{ palletReturn.reference }}
+            </div>
         </template>
 
         <!-- Column: State -->
