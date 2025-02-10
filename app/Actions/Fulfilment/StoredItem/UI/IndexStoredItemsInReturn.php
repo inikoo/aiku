@@ -113,6 +113,7 @@ class IndexStoredItemsInReturn extends OrgAction
                 'stored_items.name',
                 'stored_items.total_quantity',
                 'pallet_returns.id as pallet_return_id',
+                'pallet_returns.state as pallet_return_state',
                 \DB::raw('(SELECT COALESCE(SUM(quantity_ordered), 0) 
                 FROM pallet_return_items pri 
                 WHERE pri.stored_item_id = stored_items.id 
@@ -179,8 +180,8 @@ class IndexStoredItemsInReturn extends OrgAction
             $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'total_quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'pallet_stored_items', label: __('Pallets'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'total_quantity', label: __('Current stock'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'pallet_stored_items', label: __('Pallets [location]'), canBeHidden: false, sortable: true, searchable: true);
 
             $table->column(key: 'total_quantity_ordered', label: __('requested quantity'), canBeHidden: false, sortable: true, searchable: true);
             if ($palletReturn->state === PalletReturnStateEnum::PICKING) {
