@@ -87,9 +87,9 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
                         ],
                         'method'    => 'post'
                     ],
-                'location' => $palletStoredItem->pallet->location ? [
-                    'slug'   => $palletStoredItem->pallet->location->slug,
-                    'code'   => $palletStoredItem->pallet->location->code
+                'location' => isset($palletStoredItem->pallet, $palletStoredItem->pallet->location) ? [
+                    'slug' => $palletStoredItem->pallet->location->slug ?? null,
+                    'code' => $palletStoredItem->pallet->location->code ?? null
                 ] : null
             ]),
             'total_quantity' => (int)$this->total_quantity,
