@@ -13,8 +13,10 @@ use App\Actions\RetinaAction;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Http\Resources\Catalogue\DropshippingPortfolioResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\CRM\Customer;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Dropshipping\ShopifyUser;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItem;
 use App\Services\QueryBuilder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -24,6 +26,9 @@ use Lorisleiva\Actions\ActionRequest;
 
 class IndexRetinaDropshippingPortfolio extends RetinaAction
 {
+    protected FulfilmentCustomer|Customer $parent;
+    protected ShopifyUser $shopifyUser;
+
     public function handle(ShopifyUser $shopifyUser, $prefix = null): LengthAwarePaginator
     {
         $query = QueryBuilder::for(Portfolio::class);
@@ -31,12 +36,14 @@ class IndexRetinaDropshippingPortfolio extends RetinaAction
         $query->where('customer_id', $shopifyUser->customer_id);
         $query->with(['item']);
 
-        if ($shopifyUser->customer->fulfilmentCustomer) {
+        if ($fulfilmentCustomer = $shopifyUser->customer->fulfilmentCustomer) {
+            $this->parent = $fulfilmentCustomer;
+
             $query->where('item_type', class_basename(StoredItem::class));
         }
 
         return $query->withPaginator($prefix, tableName: request()->route()->getName())
-        ->withQueryString();
+            ->withQueryString();
     }
 
     public function authorize(ActionRequest $request): bool
@@ -49,6 +56,7 @@ class IndexRetinaDropshippingPortfolio extends RetinaAction
         $this->initialisation($request);
 
         $shopifyUser = $request->user()->customer->shopifyUser;
+        $this->shopifyUser = $shopifyUser;
 
         return $this->handle($shopifyUser);
     }
@@ -65,13 +73,13 @@ class IndexRetinaDropshippingPortfolio extends RetinaAction
                     'icon' => 'fal fa-cube',
                     'actions' => [
                         [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'label'   => 'Sync Items',
-                            'route'   => [
-                                'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
+                            'type' => 'button',
+                            'style' => 'create',
+                            'label' => 'Sync Items',
+                            'route' => [
+                                'name' => 'retina.models.dropshipping.shopify_user.product.sync',
                                 'parameters' => [
-                                    'palletDelivery' => 3
+                                    'shopifyUser' => $this->shopifyUser->id
                                 ]
                             ]
                         ],
@@ -104,9 +112,13 @@ class IndexRetinaDropshippingPortfolio extends RetinaAction
                     'count' => 0
                 ]);
 
-            $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
+
+            if ($this->parent instanceof Customer) {
+                $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+            }
+
+            $table->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'tags', label: __('tags'), canBeHidden: false);
         };
     }

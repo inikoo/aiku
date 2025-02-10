@@ -131,9 +131,9 @@ onUnmounted(() => {
             <Icon :data="product.state"> </Icon>
         </template>
 
-        <template #cell(code)="{ item: product }">
+        <template #cell(slug)="{ item: product }">
             <Link :href="productRoute(product)" class="primaryLink">
-                {{ product['code'] }}
+                {{ product['slug'] }}
             </Link>
         </template>
 

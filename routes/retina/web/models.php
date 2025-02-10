@@ -6,6 +6,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Dropshipping\Shopify\Product\GetApiProductsFromShopify;
 use App\Actions\Retina\CRM\DeleteRetinaCustomerDeliveryAddress;
 use App\Actions\Retina\CRM\StoreRetinaCustomerClient;
 use App\Actions\Retina\CRM\UpdateRetinaCustomerDeliveryAddress;
@@ -108,6 +109,8 @@ Route::post('customer-client', StoreRetinaCustomerClient::class)->name('customer
 Route::name('dropshipping.')->prefix('dropshipping')->group(function () {
     Route::post('shopify-user/{shopifyUser:id}/products', StoreRetinaProductShopify::class)->name('shopify_user.product.store')->withoutScopedBindings();
     Route::delete('shopify-user/{shopifyUser:id}/products/{product}', HandleRetinaApiDeleteProductFromShopify::class)->name('shopify_user.product.delete')->withoutScopedBindings();
+
+    Route::get('shopify-user/{shopifyUser:id}/sync-products', GetApiProductsFromShopify::class)->name('shopify_user.product.sync')->withoutScopedBindings();
 });
 
 Route::name('web-users.')->prefix('web-users')->group(function () {
