@@ -1,9 +1,3 @@
-<!--
-  - Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
-  - Created: Wed, 22 Feb 2023 10:36:47 Central European Standard Time, Malaga, Spain
-  - Copyright (c) 2023, Inikoo LTD
-  -->
-
   <script setup lang="ts">
   import { Head } from '@inertiajs/vue3'
   
@@ -105,19 +99,7 @@ import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
   
 
   
-  const paymentData = ref({
-      payment_method: null as number | null,
-      payment_amount: 0 as number | null,
-      payment_reference: ''
-  })
 
-  const errorPaymentMethod = ref<null | unknown>(null)
-
-  watch(paymentData, () => {
-      if (errorPaymentMethod.value) {
-          errorPaymentMethod.value = null
-      }
-  })
   </script>
   
   
@@ -136,7 +118,7 @@ import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
   
       <div class="grid grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">
           <!-- Box: Customer -->
-          <BoxStatPallet class=" py-2 px-3" icon="fal fa-user">
+          <BoxStatPallet class="gap-y-2 py-2 px-3" icon="fal fa-user">
   
               <!-- Field: Registration Number -->
               <!-- <Link as="a" v-if="box_stats?.customer.reference" :href="route(box_stats?.customer.route.name, box_stats?.customer.route.parameters)"
@@ -146,7 +128,7 @@ import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
                       <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
                           aria-hidden='true' />
                   </dt>
-                  <dd class="text-xs text-gray-500">#{{ box_stats?.customer.reference }}</dd>
+                  <dd class="text-base text-gray-500">#{{ box_stats?.customer.reference }}</dd>
               </Link>
    -->
               <!-- Field: Contact name -->
@@ -156,7 +138,7 @@ import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
                       <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width
                           aria-hidden='true' />
                   </dt>
-                  <dd class="text-xs text-gray-500">{{ box_stats?.customer.contact_name }}</dd>
+                  <dd class="text-base text-gray-500">{{ box_stats?.customer.contact_name }}</dd>
               </div>
   
               <!-- Field: Company name -->
@@ -166,7 +148,7 @@ import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
                       <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width
                           aria-hidden='true' />
                   </dt>
-                  <dd class="text-xs text-gray-500">{{ box_stats?.customer.company_name }}</dd>
+                  <dd class="text-base text-gray-500">{{ box_stats?.customer.company_name }}</dd>
               </div>
   
               <!-- Field: Phone -->
@@ -176,7 +158,7 @@ import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
                       <FontAwesomeIcon icon='fal fa-phone' size="xs" class='text-gray-400' fixed-width
                           aria-hidden='true' />
                   </dt>
-                  <dd class="text-xs text-gray-500">{{ box_stats?.customer.phone }}</dd>
+                  <dd class="text-base text-gray-500">{{ box_stats?.customer.phone }}</dd>
               </div>
   
               <!-- Field: Address -->
@@ -187,13 +169,13 @@ import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
                           aria-hidden='true' />
                   </dt>
   
-                  <dd class="text-xs text-gray-500 w-full">
+                  <dd class="text-base text-gray-500 w-full">
                       <div v-if="invoice.address" class="relative bg-gray-50 border border-gray-300 rounded px-2 py-1">
                           <div v-html="invoice.address.formatted_address" />
                       </div>
   
                       <div v-else class="text-gray-400 italic">
-                          No address
+                          {{ trans("No address") }}
                       </div>
                   </dd>
               </div>
@@ -201,7 +183,7 @@ import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
   
           <!-- Section: Detail -->
           <BoxStatPallet class="py-2 px-3">
-              <div class="mt-1">
+              <div class="mt-1 space-y-1.5">
                   <div v-tooltip="'Recurring bill'"
                       class="w-fit flex items-center flex-none gap-x-2">
                       <dt class="flex-none">
@@ -210,7 +192,7 @@ import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
                       <component :is="box_stats.information.recurring_bill?.route?.name ? Link : 'div'"
                           as="dd"
                           :href="box_stats.information.recurring_bill?.route?.name ? route(box_stats.information.recurring_bill?.route?.name, box_stats.information.recurring_bill.route.parameters) : ''"
-                          class="text-xs text-gray-500"
+                          class="text-base text-gray-500"
                           :class="box_stats.information.recurring_bill?.route?.name ? 'cursor-pointer primaryLink' : ''">
                           {{ box_stats.information.recurring_bill?.reference || '-' }} 
                       </component>
@@ -221,7 +203,7 @@ import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
                       <dt class="flex-none">
                           <FontAwesomeIcon icon='fal fa-calendar-alt' fixed-width aria-hidden='true' class="text-gray-500" />
                       </dt>
-                      <dd class="text-xs text-gray-500" :class='"ff"'>
+                      <dd class="text-base text-gray-500" :class='"ff"'>
                           {{ useFormatTime(props.invoice.date) }}
                       </dd>
                   </div>
