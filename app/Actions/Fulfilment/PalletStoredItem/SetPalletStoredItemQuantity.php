@@ -51,11 +51,12 @@ class SetPalletStoredItemQuantity
         }
 
         $quantity = $delta->audited_quantity;
+        // dd($quantity);
 
         $quantityMovements = DB::table('stored_item_movements')->where('pallet_id', $palletStoredItem->pallet_id)
             ->where('stored_item_id', $palletStoredItem->stored_item_id)
             ->whereNotIn('type', [StoredItemMovementTypeEnum::AUDIT_ADDITION, StoredItemMovementTypeEnum::AUDIT_SUBTRACTION])
-            ->where('moved_at', '>', $delta->audited_at)
+            ->where('moved_at', '>=', $delta->audited_at)
             ->sum('quantity');
 
         $quantity=$quantity+$quantityMovements;

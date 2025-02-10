@@ -26,7 +26,7 @@ class SetStoredItemQuantity extends OrgAction
         foreach($storedItem->pallets as $pallet) {
             $quantity =+ $pallet->pivot->quantity;
         }
-        
+
         $storedItem = $this->update($storedItem, [
             'total_quantity' => $quantity
         ]);
