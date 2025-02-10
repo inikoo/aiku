@@ -88,7 +88,7 @@ class ShowPalletReturn extends OrgAction
         if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
             unset($navigation[PalletReturnTabsEnum::STORED_ITEMS->value]);
 
-            $tooltipSubmit = '';
+
             $isDisabled = false;
             if ($palletReturn->pallets()->count() < 1) {
                 $tooltipSubmit = __('Select pallet before submit');
@@ -120,7 +120,7 @@ class ShowPalletReturn extends OrgAction
             unset($navigation[PalletReturnTabsEnum::PALLETS->value]);
             $this->tab = $request->get('tab', array_key_first($navigation));
 
-            $tooltipSubmit = '';
+           
             $isDisabled = false;
             if ($palletReturn->pallets()->count() < 1) {
                 $tooltipSubmit = __('Select stored item before submit');
@@ -150,7 +150,7 @@ class ShowPalletReturn extends OrgAction
             ];
         }
         if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
-            $pickingAllaction = [
+            $pickingAllocation = [
                 'type'    => 'button',
                 'style'   => 'save',
                 'tooltip' => __('Set all pending as picked'),
@@ -168,7 +168,7 @@ class ShowPalletReturn extends OrgAction
                 ]
                     ];
         } else {
-            $pickingAllaction = [
+            $pickingAllocation = [
                 'type'    => 'button',
                 'style'   => 'save',
                 'tooltip' => __('Set all pending as picked'),
@@ -265,7 +265,7 @@ class ShowPalletReturn extends OrgAction
                     ]
                 ] : [],
                 $palletReturn->state == PalletReturnStateEnum::PICKING ?
-                $pickingAllaction : [],
+                $pickingAllocation : [],
                 $palletReturn->state == PalletReturnStateEnum::PICKED ? [
                     'type'    => 'button',
                     'style'   => 'save',
