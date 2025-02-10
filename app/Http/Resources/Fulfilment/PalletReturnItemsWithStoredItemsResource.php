@@ -64,6 +64,7 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
             // 'location_code'                    => $this->location_code,
             // 'location_id'                      => $this->location_id,
             'is_checked'                       => (bool) $this->pallet_return_id,
+            'pallet_return_state'              => $this->pallet_return_state ?? null,
             'pallet_stored_items'              => $storedItem->palletStoredItems->map(fn ($palletStoredItem) => [
                 'id'                            => $palletStoredItem->id,
                 'reference'                     => $palletStoredItem->pallet->reference ?? null,
@@ -74,8 +75,16 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
                 )->quantity_ordered ?? 0,
                 'available_quantity'            => (int) $palletStoredItem->quantity,
                 'max_quantity'                  => (int) $palletStoredItem->quantity,
-                'available_to_pick_quantity'    => (int) 0,   // TODO: need this for state pick
-                'picked_quantity'               => (int) 0,   // TODO: need this for state pick
+                'available_to_pick_quantity'    => (int) optional(
+                    $palletStoredItem->palletReturnItems
+                        ->where('pallet_return_id', $this->pallet_return_id)
+                        ->first()
+                )->quantity_ordered ?? 0,
+                'picked_quantity'               => (int) optional(
+                    $palletStoredItem->palletReturnItems
+                        ->where('pallet_return_id', $this->pallet_return_id)
+                        ->first()
+                )->quantity_picked ?? 0,
                 'pallet_return_item_id'         => optional(
                     $palletStoredItem->palletReturnItems
                         ->where('pallet_return_id', $this->pallet_return_id)

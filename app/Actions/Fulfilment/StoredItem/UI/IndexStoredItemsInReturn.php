@@ -114,6 +114,7 @@ class IndexStoredItemsInReturn extends OrgAction
                 'stored_items.name',
                 'stored_items.total_quantity',
                 'pallet_returns.id as pallet_return_id',
+                'pallet_returns.state as pallet_return_state',
                 \DB::raw('(SELECT COALESCE(SUM(quantity_ordered), 0) 
                 FROM pallet_return_items pri 
                 WHERE pri.stored_item_id = stored_items.id 
