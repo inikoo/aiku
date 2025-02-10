@@ -65,6 +65,7 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
                     'quantity_in_pallet'         => (int) $palletStoredItem->quantity,
                     'available_to_pick_quantity' => (int) ($palletReturnItem->quantity_ordered ?? 0),
                     'picked_quantity'            => (int) ($palletReturnItem->quantity_picked ?? 0),
+                    'state'                      => $palletReturnItem->state,
                     'pallet_return_item_id'      => $palletReturnItem->id ?? null,
 
                     'syncRoute' => [
