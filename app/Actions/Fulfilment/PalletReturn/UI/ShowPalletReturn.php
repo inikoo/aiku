@@ -83,13 +83,27 @@ class ShowPalletReturn extends OrgAction
 
         $navigation = PalletReturnTabsEnum::navigation($palletReturn);
 
+        
 
         if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
             unset($navigation[PalletReturnTabsEnum::STORED_ITEMS->value]);
+
+            $tooltipSubmit = '';
+            $isDisabled = false;
+            if ($palletReturn->pallets()->count() < 1) {
+                $tooltipSubmit = __('Select pallet before submit');
+                $isDisabled = true;
+            } else if ($palletReturn->delivery_address_id === null && $palletReturn->collection_address_id === null) {
+                $tooltipSubmit = __('Select address before submit');
+                $isDisabled = true;
+            } else {
+                $tooltipSubmit = __('Submit');
+            }
+
             $buttonSubmit = [
                 'type'    => 'button',
                 'style'   => 'save',
-                'tooltip' => $palletReturn->pallets()->count() > 0 ? __('Submit') . ' (' . $palletReturn->stats->number_pallets . ')' : __('Select pallet before submit'),
+                'tooltip' => $tooltipSubmit,
                 'label'   => __('Submit') . ' (' . $palletReturn->stats->number_pallets . ')',
                 'key'     => 'submit',
                 'route'   => [
@@ -100,15 +114,28 @@ class ShowPalletReturn extends OrgAction
                         'palletReturn'       => $palletReturn->id
                     ]
                 ],
-                'disabled' => ($palletReturn->pallets()->count() > 0 ? false : true) || ($palletReturn->delivery_address_id === null && $palletReturn->collection_address_id === null)
+                'disabled' => $isDisabled
             ];
         } else {
             unset($navigation[PalletReturnTabsEnum::PALLETS->value]);
             $this->tab = $request->get('tab', array_key_first($navigation));
+
+            $tooltipSubmit = '';
+            $isDisabled = false;
+            if ($palletReturn->pallets()->count() < 1) {
+                $tooltipSubmit = __('Select stored item before submit');
+                $isDisabled = true;
+            } else if ($palletReturn->delivery_address_id === null && $palletReturn->collection_address_id === null) {
+                $tooltipSubmit = __('Select address before submit');
+                $isDisabled = true;
+            } else {
+                $tooltipSubmit = __('Submit');
+            }
+
             $buttonSubmit = [
                 'type'    => 'button',
                 'style'   => 'save',
-                'tooltip' => $palletReturn->storedItems()->count() > 0 ? __('Submit') . ' (' . $palletReturn->storedItems()->count() . ')' : __('Select stored items before submit'),
+                'tooltip' => $tooltipSubmit,
                 'label'   => __('Submit') . ' (' . $palletReturn->storedItems()->count() . ')',
                 'key'     => 'submit',
                 'route'   => [
@@ -119,7 +146,7 @@ class ShowPalletReturn extends OrgAction
                         'palletReturn'       => $palletReturn->id
                     ]
                 ],
-                'disabled' => ($palletReturn->storedItems()->count() > 0 ? false : true) || ($palletReturn->delivery_address_id === null && $palletReturn->collection_address_id === null)
+                'disabled' => $isDisabled
             ];
         }
         if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
