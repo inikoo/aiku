@@ -180,8 +180,8 @@ class IndexStoredItemsInReturn extends OrgAction
             $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'total_quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'pallet_stored_items', label: __('Pallets'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'total_quantity', label: __('Current stock'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'pallet_stored_items', label: __('Pallets [location]'), canBeHidden: false, sortable: true, searchable: true);
 
             $table->column(key: 'total_quantity_ordered', label: __('requested quantity'), canBeHidden: false, sortable: true, searchable: true);
             if ($palletReturn->state === PalletReturnStateEnum::PICKING) {

@@ -170,7 +170,7 @@ onBeforeMount(() => {
                     <div>
                         <span v-if="pallet_stored_item.reference">{{ pallet_stored_item.reference }}</span>
                         <span v-else class="text-gray-400 italic">({{ trans('No reference') }})</span>
-                        <span v-if="pallet_stored_item.location?.code" v-tooltip="trans('Location code of the pallet')" class="text-gray-400"> ({{ pallet_stored_item.location?.code }})</span>
+                        <span v-if="pallet_stored_item.location?.code" v-tooltip="trans('Location code of the pallet')" class="text-gray-400"> [{{ pallet_stored_item.location?.code }}]</span>
                         <div v-if="palletReturn.state === 'picking'"
                             @xxclick="() => pallet_stored_item.picked_quantity = pallet_stored_item.quantity_in_pallet"
                             v-tooltip="trans('Total Customer\'s SKU in this pallet')"
@@ -207,9 +207,9 @@ onBeforeMount(() => {
 
                         <!-- Picking: input number -->
                         <NumberWithButtonSave
-                            v-else-if="palletReturn.state === 'picking'"
+                            v-else-if="palletReturn.state === 'picking' && pallet_stored_item.state !== 'picked'"
                             noUndoButton
-                            v-model="pallet_stored_item.picked_quantity"
+                            v-model="pallet_stored_item.selected_quantity"
                             saveOnForm
                             :routeSubmit="pallet_stored_item.updateRoute"
                             keySubmit="quantity_picked"
@@ -228,6 +228,7 @@ onBeforeMount(() => {
                         >
                             <template #save="{ isProcessing, isDirty, onSaveViaForm }">
                                 <Button
+                                    v-if="pallet_stored_item.selected_quantity > 0"
                                     @click="() => onSaveViaForm()"
                                     icon="fal fa-save"
                                     :label="trans('pick')"
@@ -237,6 +238,7 @@ onBeforeMount(() => {
                                     :loading="isProcessing"
                                     class="py-0"
                                 />
+                                <div v-else />
                             </template>
                         </NumberWithButtonSave>
                     </div>
