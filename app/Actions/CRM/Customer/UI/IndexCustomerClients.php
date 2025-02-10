@@ -8,17 +8,23 @@
 
 namespace App\Actions\CRM\Customer\UI;
 
+use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
+use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Http\Resources\CRM\CustomerClientResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
 use App\Models\Catalogue\Shop;
 use App\Models\Dropshipping\CustomerClient;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -27,15 +33,10 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexCustomerClients extends OrgAction
 {
     use WithCustomerSubNavigation;
+    use WithFulfilmentCustomerSubNavigation;
+    use WithFulfilmentAuthorisation;
 
-    private Customer $parent;
-
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->authTo("crm.{$this->shop->id}.edit");
-
-        return $request->user()->authTo("crm.{$this->shop->id}.view");
-    }
+    private Customer|FulfilmentCustomer $parent;
 
     public function asController(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): LengthAwarePaginator
     {
@@ -45,7 +46,15 @@ class IndexCustomerClients extends OrgAction
         return $this->handle($customer);
     }
 
-    public function handle(Customer $parent, $prefix = null): LengthAwarePaginator
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $fulfilmentCustomer;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilmentCustomer->customer);
+    }
+
+    public function handle(Customer|FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -121,14 +130,17 @@ class IndexCustomerClients extends OrgAction
                                 'style'   => 'create',
                                 'tooltip' => __('new client'),
                                 'label'   => __('client'),
-                                'route'   => [
-                                    'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.create',
-                                    'parameters' => [
-                                        'organisation' => $parent->organisation->slug,
-                                        'shop'         => $parent->shop->slug,
-                                        'customer'     => $parent->slug
-                                    ]
-                                ]
+                                'route'   => match ($parent) {
+                                    class_basename(Customer::class) => [
+                                        'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.create',
+                                        'parameters' => request()->route()->originalParameters()
+                                    ],
+                                    class_basename(FulfilmentCustomer::class) => [
+                                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.customer-clients.index',
+                                        'parameters' => request()->route()->originalParameters()
+                                    ],
+                                    default => null
+                                }
                             ]
                         ],
                         default => null
@@ -147,13 +159,16 @@ class IndexCustomerClients extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $customerClients, ActionRequest $request): Response
     {
-        $scope = $this->parent;
-
-        $subNavigation = $this->getCustomerDropshippingSubNavigation($this->parent, $request);
-
+        if ($this->parent instanceof FulfilmentCustomer) {
+            $scope = $this->parent->customer;
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($scope->fulfilmentCustomer, $request);
+        } else {
+            $scope = $this->parent;
+            $subNavigation = $this->getCustomerDropshippingSubNavigation($scope, $request);
+        }
 
         $icon       = ['fal', 'fa-user'];
-        $title      = $this->parent->name;
+        $title      = $scope->name;
         $iconRight  = [
             'icon'  => ['fal', 'fa-user-friends'],
             'title' => __('customer client')
@@ -228,6 +243,18 @@ class IndexCustomerClients extends OrgAction
                     [
                         'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.index',
                         'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            'grp.org.fulfilments.show.crm.customers.show.customer-clients.index' =>
+            array_merge(
+                ShowFulfilmentCustomer::make()->getBreadcrumbs(
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.customer-clients.index',
+                        'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])
                     ]
                 )
             ),

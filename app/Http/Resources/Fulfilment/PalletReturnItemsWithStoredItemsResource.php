@@ -10,7 +10,6 @@
 namespace App\Http\Resources\Fulfilment;
 
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
-use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\StoredItem;
 use Illuminate\Http\Resources\Json\JsonResource;
 

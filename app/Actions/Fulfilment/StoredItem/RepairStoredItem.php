@@ -23,13 +23,13 @@ class RepairStoredItem
     protected function handle(StoredItem $storedItem): StoredItem
     {
 
-        $delta = StoredItemAuditDelta::where('stored_item_id', $storedItem->id)
+        $storedItemsDelta = StoredItemAuditDelta::where('stored_item_id', $storedItem->id)
             ->latest()
             ->first();
 
-        if (!$delta) {
-            print "No delta found -> {$storedItem->id}; ref: {$storedItem->reference}\n";
-            return $storedItem;
+        if (!$storedItemsDelta) {
+            print "No storedItemsDelta found -> {$storedItem->id}; ref: {$storedItem->reference}\n";
+
         } else {
             print "Delta found -> {$storedItem->id}; ref: {$storedItem->reference}\n";
         }
@@ -39,7 +39,7 @@ class RepairStoredItem
 
     public string $commandSignature = 'stored_items:debug_delta';
 
-    public function asCommand($command)
+    public function asCommand($command): void
     {
         $storedItems = StoredItem::all();
 
