@@ -17,6 +17,7 @@ use App\Actions\Retina\Fulfilment\PalletReturn\ExportRetinaPalletReturnPallet;
 use App\Actions\Retina\Fulfilment\PalletReturn\ExportRetinaPalletReturnStoredItem;
 use App\Actions\Retina\Fulfilment\PalletReturn\UI\IndexRetinaPalletReturns;
 use App\Actions\Retina\Fulfilment\PalletReturn\UI\ShowRetinaPalletReturn;
+use App\Actions\Retina\Fulfilment\PalletReturn\UI\ShowRetinaStoredItemReturn;
 use App\Actions\Retina\Fulfilment\StoredItems\UI\IndexRetinaStoredItems;
 use App\Actions\Retina\Fulfilment\StoredItemsAudit\UI\IndexRetinaStoredItemsAudits;
 use App\Actions\Retina\Fulfilment\StoredItemsAudit\UI\ShowRetinaStoredItemAudit;
@@ -38,6 +39,7 @@ Route::prefix('pallet-deliveries')->as('pallet_deliveries.')->group(function () 
 Route::prefix('pallet-returns')->as('pallet_returns.')->group(function () {
     Route::get('', IndexRetinaPalletReturns::class)->name('index');
     Route::get('{palletReturn}', ShowRetinaPalletReturn::class)->name('show');
+    Route::get('{palletReturn}/with-stored-items', ShowRetinaStoredItemReturn::class)->name('with-stored-items.show');
     Route::get('{palletReturn}/pallets/{pallet}', [ShowRetinaPallet::class, 'inPalletReturn'])->name('pallets.show');
     Route::get('{fulfilmentCustomer}/stored-items-templates', ExportRetinaPalletReturnStoredItem::class)->name('stored-items.uploads.templates');
     Route::get('{fulfilmentCustomer}/pallets-templates', ExportRetinaPalletReturnPallet::class)->name('pallets.uploads.templates');

@@ -66,7 +66,7 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
             'is_checked'                       => (bool) $this->pallet_return_id,
             'pallet_stored_items'              => $storedItem->palletStoredItems->map(fn ($palletStoredItem) => [
                 'id'        => $palletStoredItem->id,
-                'reference' => $palletStoredItem->pallet->reference,
+                'reference' => $palletStoredItem->pallet->reference ?? null,
                 'selected_quantity'     => (int) $palletStoredItem->palletReturnItem?->quantity_ordered ?? 0,
                 'available_quantity'    => (int) $palletStoredItem->quantity,
                 'max_quantity'          => (int) $palletStoredItem->quantity,
@@ -87,10 +87,10 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
                         ],
                         'method'    => 'post'
                     ],
-                'location' => [
+                'location' => $palletStoredItem->pallet->location ? [
                     'slug'   => $palletStoredItem->pallet->location->slug,
                     'code'   => $palletStoredItem->pallet->location->code
-                ]
+                ] : null
             ]),
             'total_quantity' => (int)$this->total_quantity,
             // 'syncRoute'             => match (request()->routeIs('retina.*')) {

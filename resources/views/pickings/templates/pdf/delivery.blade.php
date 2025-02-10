@@ -9,6 +9,27 @@
 <head>
     <title>{{ $filename }}</title>
     <style>
+        @page {
+            size: 8.27in 11.69in; /* <length>{1,2} | auto | portrait | landscape */
+            /* 'em' 'ex' and % are not allowed; length values are width height */
+            margin-top: 15%; /* <any of the usual CSS values for margins> */
+            /*(% of page-box width for LR, of height for TB) */
+            margin-bottom: 13%;
+            margin-right: 8%;
+            margin-left: 8%;
+            margin-header: 1mm; /* <any of the usual CSS values for margins> */
+            margin-footer: 5mm; /* <any of the usual CSS values for margins> */
+            marks: 'cross'; /*crop | cross | none*/
+            header: myheader;
+            footer: myfooter;
+            /* background: ...
+            background-image: ...
+            background-position ...
+            background-repeat ...
+            background-color ...
+            background-gradient: ... */
+        }
+
         body {
             font-family: sans-serif;
             font-size: 10pt;
