@@ -16,6 +16,12 @@ import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 import Tag from '@/Components/Tag.vue'
 import NumberWithButtonSave from '@/Components/NumberWithButtonSave.vue'
 
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faCheck, faUndoAlt } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import ButtonWithLink from '@/Components/Elements/Buttons/ButtonWithLink.vue'
+library.add(faCheck, faUndoAlt)
+
 const props = defineProps<{
     data?: { data: any[] };
     tab?: string;
@@ -211,8 +217,16 @@ onBeforeMount(() => {
                             noUndoButton
                             v-model="pallet_stored_item.selected_quantity"
                             saveOnForm
-                            :routeSubmit="pallet_stored_item.updateRoute"
-                            keySubmit="quantity_picked"
+                            :routeSubmit="
+                                pallet_stored_item.pallet_return_item_id
+                                    ? pallet_stored_item.updateRoute
+                                    : pallet_stored_item.newPickRoute
+                            "
+                            :keySubmit="
+                                pallet_stored_item.pallet_return_item_id
+                                    ? 'quantity_picked'
+                                    : 'quantity_ordered'
+                            "
                             :bindToTarget="{
                                 step: 1,
                                 min: 0,
@@ -238,11 +252,36 @@ onBeforeMount(() => {
                                     :loading="isProcessing"
                                     class="py-0"
                                 />
-                                <div v-else />
+                                <Button
+                                    v-else
+                                    @click="() => onSaveViaForm()"
+                                    icon="fal fa-save"
+                                    :label="trans('pick')"
+                                    size="xs"
+                                    :xdisabled="!isDirty"
+                                    type="secondary"
+                                    :loading="isProcessing"
+                                    class="py-0"
+                                />
                             </template>
                         </NumberWithButtonSave>
+
+                        <div v-else class="flex flex-nowrap gap-x-1 items-center">
+                            <!-- <ButtonWithLink
+                                v-if="pallet_stored_item.state == 'picked'"
+                                icon="fal fa-undo-alt"
+                                :label="trans('Undo pick')"
+                                size="xs"
+                                type="tertiary"
+                                :key="2"
+                                class="py-0 mr-1"
+                                :routeTarget="undefined"
+                            /> -->
+                            {{ pallet_stored_item.selected_quantity }}
+                            <FontAwesomeIcon v-if="pallet_stored_item.state == 'picked'" v-tooltip="trans('Picked')" icon='fal fa-check' class='text-green-500' fixed-width aria-hidden='true' />
+                        </div>
                     </div>
-                    <!-- {{ pallet_stored_item.pallet_return_item_id }} -->
+                    <!-- {{ pallet_stored_item.pallet_return_item_id ? pallet_stored_item.updateRoute.name : pallet_stored_item.newPickRoute.name }} -->
                     
                 </div>
             </div>
