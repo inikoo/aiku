@@ -389,7 +389,7 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
 
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
 
-    Route::patch('pick-all-with-stored-items', PickedPalletReturnWithStoredItems::class)->name('pick_all_with_stored_items');
+    Route::post('pick-all-with-stored-items', PickedPalletReturnWithStoredItems::class)->name('pick_all_with_stored_items');
     Route::post('address', AddAddressToPalletReturn::class)->name('address.store');
     Route::patch('address/update', UpdatePalletReturnDeliveryAddress::class)->name('address.update');
     Route::delete('address/delete', DeletePalletReturnAddress::class)->name('address.delete');
