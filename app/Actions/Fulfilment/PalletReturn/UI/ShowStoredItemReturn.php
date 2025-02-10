@@ -205,6 +205,21 @@ class ShowStoredItemReturn extends OrgAction
                 ] : [],
             ];
 
+            $pdfButton    = [
+                'type'   => 'button',
+                'style'  => 'tertiary',
+                'label'  => 'PDF',
+                'target' => '_blank',
+                'icon'   => 'fal fa-file-pdf',
+                'key'    => 'action',
+                'route'  => [
+                    'name'       => 'grp.models.pallet-return.pdf',
+                    'parameters' => [
+                        'palletReturn' => $palletReturn->id
+                    ]
+                ]
+            ];
+
             if (in_array($palletReturn->state, [
                 PalletReturnStateEnum::IN_PROCESS,
                 PalletReturnStateEnum::SUBMITTED
@@ -224,6 +239,8 @@ class ShowStoredItemReturn extends OrgAction
                         ]
                     ]
                 ]], $actions);
+            } else {
+                $actions = array_merge($actions, [$pdfButton]);
             }
         }
 

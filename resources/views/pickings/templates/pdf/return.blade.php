@@ -157,7 +157,7 @@
                 @if($return->type === \App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum::PALLET)
                     {{ __('Return (Whole Pallets)') }}
                 @else
-                    {{ __('Return (Whole Stored Items)') }}
+                    {{ __('Return (Customer\'s SKU)') }}
                 @endif
             </h1>
         </td>
@@ -240,22 +240,22 @@
         </tbody>
     </table>
 @else
-    <p>{{ __('Stored Items') }}</p>
+    <p>{{ __('Customer\'s SKU') }}</p>
     <table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse;" cellpadding="8">
         <thead>
         <tr>
-            <td style="width:20%; text-align:left">{{ __('Reference') }}</td>
-            <td style="width:50%; text-align:left">{{ __('Reference (Customer\'s)') }}</td>
-            <td style="text-align:right">{{ __('Notes') }}</td>
+            <td style="width:20%; text-align:left">{{ __('Name') }}</td>
+            <td style="width:50%; text-align:left">{{ __('Reference') }}</td>
+            <td style="text-align:right">{{ __('Quantity') }}</td>
         </tr>
         </thead>
         <tbody>
 
         @foreach($return->storedItems as $storedItem)
             <tr class="@if($loop->last) last @endif">
+                <td style="text-align:left">{{ $storedItem->name }}</td>
                 <td style="text-align:left">{{ $storedItem->reference }}</td>
-                <td style="text-align:left">{{ $storedItem->customer_reference }}</td>
-                <td style="text-align:left">{{ $storedItem->notes }}</td>
+                <td style="text-align:left">{{ $storedItem->quantity }}</td>
             </tr>
         @endforeach
 

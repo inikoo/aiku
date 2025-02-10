@@ -292,7 +292,6 @@ class ShowPalletReturn extends OrgAction
             }
         }
 
-
         if ($palletReturn->type == PalletReturnTypeEnum::STORED_ITEM) {
             $afterTitle = [
                 'label' => '('.__("Customer's SKUs").')'
