@@ -24,6 +24,7 @@ const props = defineProps<{
     route_checkmark: routeType;
     palletReturn: {
         id: number
+        state: string
     }
 }>();
 
@@ -173,8 +174,9 @@ onBeforeMount(() => {
                     </div>
 
                     <div class="flex items-center flex-nowrap gap-x-2">
-                        <div v-tooltip="trans('Available quantity')" class="text-base">{{ pallet_stored_item.available_quantity }}</div>
+                        <div v-if="palletReturn.state === 'in-process'" v-tooltip="trans('Available quantity')" class="text-base">{{ pallet_stored_item.available_quantity }}</div>
                         <NumberWithButtonSave
+                            v-if="palletReturn.state === 'in-process'"
                             noUndoButton
                             v-model="pallet_stored_item.selected_quantity"
                             saveOnForm
@@ -192,7 +194,36 @@ onBeforeMount(() => {
                                 max: pallet_stored_item.max_quantity
                             }"
                         >
-                            <template v-if="palletReturn.state === 'picking'" #save="{ isProcessing, isDirty, onSaveViaForm }">
+                        </NumberWithButtonSave>
+
+                        <NumberWithButtonSave
+                            v-else-if="palletReturn.state === 'picking'"
+                            noUndoButton
+                            v-model="pallet_stored_item.picked_quantity"
+                            saveOnForm
+                            :routeSubmit="{
+                                name: pallet_stored_item.syncRoute.name,
+                                parameters: {
+                                    ...pallet_stored_item.syncRoute.parameters,
+                                    palletReturn: palletReturn.id
+                                },
+                                method: pallet_stored_item.syncRoute.method
+                            }"
+                            keySubmit="quantity_ordered"
+                            :bindToTarget="{
+                                step: 1,
+                                xmin: -5,
+                                xmax: pallet_stored_item.available_to_pick_quantity
+                            }"
+                            :colorTheme="
+                                pallet_stored_item.available_to_pick_quantity == pallet_stored_item.picked_quantity
+                                    ? '#374151'
+                                    : pallet_stored_item.available_to_pick_quantity > pallet_stored_item.picked_quantity
+                                        ? '#22c55e'
+                                        : '#ff0000'    
+                            "
+                        >
+                            <template #save="{ isProcessing, isDirty, onSaveViaForm }">
                                 <Button
                                     @click="() => onSaveViaForm()"
                                     icon="fal fa-save"

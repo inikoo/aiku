@@ -32,7 +32,10 @@ const props = defineProps<{
     keySubmit?: string
     bindToTarget?: {
         max?: number
+        min?: number
+        step?: number
     }
+    colorTheme?: string  // '#374151'
 }>()
 
 const emits = defineEmits<{
@@ -66,6 +69,27 @@ defineOptions({
     inheritAttrs: false
 })
 
+
+const onClickMinusButton = () => {
+    console.log('props.bindToTarget?.min', props.bindToTarget?.min);
+    
+    // Check if the quantity is less than or equal to the minimum value and prevent decrease
+    if ((props.bindToTarget?.min !== undefined && form.quantity <= props.bindToTarget?.min) || 
+        (props.min !== undefined && form.quantity <= props.min)) {
+        return false; // Prevent decreasing when the quantity is at or below the min value
+    } else {
+        form.quantity--; // Decrease the quantity if it's above the minimum
+    }
+}
+const onClickPlusButton = () => {
+    // Prevent increase when quantity is at or exceeds max value (including max being 0)
+    if ((props.bindToTarget?.max !== undefined && form.quantity >= props.bindToTarget?.max) || 
+        (props.max !== undefined && form.quantity >= props.max)) {
+        return false; // Prevent increase if quantity is at or exceeds max value
+    } else {
+        form.quantity++; // Increase quantity if it's less than the max
+    }
+}
 </script>
 
 <template>
@@ -89,14 +113,18 @@ defineOptions({
             <!-- Section: - and + -->
             <div class="transition-all relative inline-flex items-center justify-center" :class="bindToTarget?.fluid ? 'w-full' : 'w-28'">
                 <!-- Button: Minus -->
-                <div @click="form.quantity = form.quantity > 0 ? form.quantity - 1 : 0"
+                <div @click="() => onClickMinusButton()"
                     class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-1 py-1.5 text-xs justify-self-center">
                     <FontAwesomeIcon icon="fas fa-minus" :class="form.quantity < 1 ? 'text-gray-400' : ''" fixed-width aria-hidden="true" />
                 </div>
 
                 <!-- Input -->
                 <div
-                    class="mx-1 text-center tabular-nums border border-dashed border-gray-300 group-focus:border-solid group-focus:border-gray-300">
+                    class="mx-1 text-center tabular-nums rounded-md"
+                    :style="{
+                        border: `1px dashed ${(colorTheme ? colorTheme + '55' : null) || '#374151'}`,
+                    }"
+                >
                     <InputNumber 
                         v-model="form.quantity" 
                         @update:model-value="(e)=>form.quantity=e"
@@ -107,17 +135,17 @@ defineOptions({
                         :inputStyle="{
                             padding: '0px',
                             width: bindToTarget?.fluid ? undefined : '50px',
-                            color: '#374151',
+                            color: colorTheme ?? '#374151',
                             border: 'none',
                             textAlign: 'center',
-                            background: 'transparent',
+                            background: (colorTheme ? colorTheme + '22' : null ) ?? 'transparent',
                         }"
                         v-bind="bindToTarget"
                     />
                 </div>
                 
                 <!-- Button: Plus -->
-                <div @click="() => bindToTarget?.max > form.quantity ? form.quantity++ : false"
+                <div @click="() => onClickPlusButton()"
                     class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-1 py-1.5 text-xs justify-self-center">
                     <FontAwesomeIcon icon="fas fa-plus" fixed-width aria-hidden="true" />
                 </div>
