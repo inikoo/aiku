@@ -145,8 +145,6 @@
 <sethtmlpageheader name="myheader" value="on" show-this-page="1"/>
 <sethtmlpagefooter name="myfooter" value="on"/>
 
-<br><br><br><br><br>
-
 <table width="100%" style="margin-top: 40px">
     <tr>
         <td>
@@ -209,10 +207,6 @@
     </tbody>
 
 </table>
-
-<br>
-<br>
-<br>
 
 <htmlpagefooter name="myfooter">
     <div
