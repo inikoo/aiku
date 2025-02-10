@@ -12,7 +12,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemInReturnOptionEnum;
-use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Http\Resources\Fulfilment\PalletReturnStoredItemsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -69,11 +68,11 @@ class IndexStoredItemsInReturn extends OrgAction
                 $query->whereAnyWordStartWith('stored_items.reference', $value);
             });
         });
-    
+
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
-    
+
         $queryBuilder = QueryBuilder::for(StoredItem::class)
             ->leftJoin('pallet_return_items', function ($join) use ($parent) {
                 $join->on('stored_items.id', '=', 'pallet_return_items.stored_item_id')
@@ -91,7 +90,7 @@ class IndexStoredItemsInReturn extends OrgAction
             })
             ->where('stored_items.fulfilment_customer_id', $parent->fulfilment_customer_id)
             ->where('stored_items.total_quantity', '>', 0);
-    
+
         if ($parent->state === PalletReturnStateEnum::IN_PROCESS) {
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                 $queryBuilder->whereElementGroup(
@@ -104,7 +103,7 @@ class IndexStoredItemsInReturn extends OrgAction
         } else {
             $queryBuilder->where('pallet_returns.id', $parent->id);
         }
-    
+
         $queryBuilder->distinct('stored_items.id')
             ->defaultSort('stored_items.id')
             ->select([
@@ -128,7 +127,7 @@ class IndexStoredItemsInReturn extends OrgAction
                 'stored_items.total_quantity',
                 'pallet_returns.id'
             ]);
-    
+
         return $queryBuilder->allowedSorts(['reference', 'code', 'price', 'name', 'state'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())

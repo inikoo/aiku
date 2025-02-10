@@ -11,7 +11,6 @@ namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletReturns;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletReturns;
-use App\Actions\Fulfilment\Pallet\SetPalletInReturnAsPicked;
 use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\Search\PalletReturnRecordSearch;
 use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovementFromPicking;
@@ -38,22 +37,21 @@ class PickedPalletReturnWithStoredItems extends OrgAction
 
     public function handle(PalletReturn $palletReturn, array $modelData = []): PalletReturn
     {
-        if ($palletReturn->type != PalletReturnTypeEnum::STORED_ITEM)
-        {
+        if ($palletReturn->type != PalletReturnTypeEnum::STORED_ITEM) {
             abort(419);
-        } 
+        }
         return DB::transaction(function () use ($palletReturn, $modelData) {
             $modelData[PalletReturnStateEnum::PICKED->value . '_at'] = now();
             $modelData['state'] = PalletReturnStateEnum::PICKED;
-    
+
             $palletReturn = $this->update($palletReturn, $modelData);
-    
+
 
             foreach ($palletReturn->storedItems as $storedItem) {
 
-                
+
                 $palletReturnItem = PalletReturnItem::find($storedItem->pivot->id);
-                if($palletReturnItem->state == PalletReturnItemStateEnum::PICKING) {
+                if ($palletReturnItem->state == PalletReturnItemStateEnum::PICKING) {
                     $quantityPicked = $palletReturnItem->quantity_ordered;
                     $palletReturnItem->update([
                         'quantity_picked' => $quantityPicked
@@ -61,7 +59,7 @@ class PickedPalletReturnWithStoredItems extends OrgAction
                     StoreStoredItemMovementFromPicking::run($palletReturnItem, [
                         'quantity' => $quantityPicked
                     ]);
-                    
+
                 }
 
 
@@ -72,10 +70,10 @@ class PickedPalletReturnWithStoredItems extends OrgAction
             WarehouseHydratePalletReturns::dispatch($palletReturn->warehouse);
             FulfilmentCustomerHydratePalletReturns::dispatch($palletReturn->fulfilmentCustomer);
             FulfilmentHydratePalletReturns::dispatch($palletReturn->fulfilment);
-    
+
             SendPalletReturnNotification::run($palletReturn);
             PalletReturnRecordSearch::dispatch($palletReturn);
-    
+
             return $palletReturn;
         });
     }

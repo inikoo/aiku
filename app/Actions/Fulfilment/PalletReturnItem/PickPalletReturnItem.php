@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 10-02-2025-13h-08m
@@ -8,16 +9,11 @@
 
 namespace App\Actions\Fulfilment\PalletReturnItem;
 
-use App\Actions\Fulfilment\PalletReturn\SetPalletReturnWithStoredItemAsPicked;
 use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovementFromPicking;
 use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Billables\Rental\RentalTypeEnum;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturnItem;
-use App\Models\Fulfilment\Space;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class PickPalletReturnItem extends OrgAction
@@ -28,7 +24,7 @@ class PickPalletReturnItem extends OrgAction
     public function handle(PalletReturnItem $palletReturnItem, array $modelData): PalletReturnItem
     {
         $this->update($palletReturnItem, $modelData);
-        StoreStoredItemMovementFromPicking::run($palletReturnItem,[
+        StoreStoredItemMovementFromPicking::run($palletReturnItem, [
             'quantity' => $modelData['quantity_picked']
         ]);
         return $palletReturnItem;
