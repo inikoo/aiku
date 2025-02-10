@@ -84,7 +84,7 @@ class ShowStoredItemReturn extends OrgAction
         if ($palletReturn->pallets()->count() < 1) {
             $tooltipSubmit = __('Select stored item before submit');
             $isDisabled = true;
-        } else if ($palletReturn->delivery_address_id === null && $palletReturn->collection_address_id === null) {
+        } elseif ($palletReturn->delivery_address_id === null && $palletReturn->collection_address_id === null) {
             $tooltipSubmit = __('Select address before submit');
             $isDisabled = true;
         } else {
