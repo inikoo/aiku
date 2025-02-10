@@ -167,8 +167,9 @@ onBeforeMount(() => {
                         </template>
                     </Tag> -->
                     <div>
-                        {{ pallet_stored_item.reference }}
-                        <span v-if="pallet_stored_item.location?.code" v-tooltip="trans('Location code of the pallet')" class="text-gray-400">({{ pallet_stored_item.location?.code }})</span>
+                        <span v-if="pallet_stored_item.reference">{{ pallet_stored_item.reference }}</span>
+                        <span v-else class="text-gray-400 italic">({{ trans('No reference') }})</span>
+                        <span v-if="pallet_stored_item.location?.code" v-tooltip="trans('Location code of the pallet')" class="text-gray-400"> ({{ pallet_stored_item.location?.code }})</span>
                     </div>
 
                     <div class="flex items-center flex-nowrap gap-x-2">
