@@ -51,7 +51,7 @@ class IndexRetinaPalletDeliveries extends RetinaAction
     {
         $this->initialisation($request)->withTab(PalletDeliveriesTabsEnum::values());
 
-        return $this->handle($this->customer->fulfilmentCustomer);
+        return $this->handle($this->customer->fulfilmentCustomer, PalletDeliveriesTabsEnum::DELIVERIES->value);
     }
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, $prefix = null): LengthAwarePaginator
@@ -102,7 +102,7 @@ class IndexRetinaPalletDeliveries extends RetinaAction
 
         return $queryBuilder
             ->defaultSort('reference')
-            ->allowedSorts(['reference', 'customer_reference', 'number_pallets'])
+            ->allowedSorts(['reference', 'customer_reference', 'number_pallets', 'date'])
             ->allowedFilters([$globalSearch,AllowedFilter::exact('state')])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
