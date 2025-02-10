@@ -99,6 +99,7 @@ use App\Actions\Fulfilment\PalletReturnItem\NotPickedPalletFromReturn;
 use App\Actions\Fulfilment\PalletReturnItem\SyncPalletReturnItem;
 use App\Actions\Fulfilment\PalletReturnItem\UndoPalletReturnItem;
 use App\Actions\Fulfilment\PalletReturnItem\UndoPickingPalletFromReturn;
+use App\Actions\Fulfilment\PalletReturnItem\UpdatePalletReturnItem;
 use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\UpdateRecurringBilling;
 use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
@@ -437,6 +438,7 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
 
 Route::name('pallet-return-item.')->prefix('pallet-return-item/{palletReturnItem}')->group(function () {
     Route::patch('', SetPalletInReturnAsPicked::class)->name('set_as_picked');
+    Route::patch('update', UpdatePalletReturnItem::class)->name('update');
     Route::patch('not-picked', NotPickedPalletFromReturn::class)->name('not-picked');
     Route::patch('undo-picking', UndoPickingPalletFromReturn::class)->name('undo-picking');
     Route::patch('undo', UndoPalletReturnItem::class)->name('undo-confirmed');

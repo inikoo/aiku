@@ -174,9 +174,9 @@ onBeforeMount(() => {
                     </div>
 
                     <div class="flex items-center flex-nowrap gap-x-2">
-                        <div v-if="palletReturn.state === 'in-process'" v-tooltip="trans('Available quantity')" class="text-base">{{ pallet_stored_item.available_quantity }}</div>
+                        <div v-if="palletReturn.state === 'in_process'" v-tooltip="trans('Available quantity')" class="text-base">{{ pallet_stored_item.available_quantity }}</div>
                         <NumberWithButtonSave
-                            v-if="palletReturn.state === 'in-process'"
+                            v-if="palletReturn.state === 'in_process'"
                             noUndoButton
                             v-model="pallet_stored_item.selected_quantity"
                             saveOnForm
