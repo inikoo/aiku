@@ -51,7 +51,7 @@ class IndexRetinaPalletDeliveries extends RetinaAction
     {
         $this->initialisation($request)->withTab(PalletDeliveriesTabsEnum::values());
 
-        return $this->handle($this->customer->fulfilmentCustomer);
+        return $this->handle($this->customer->fulfilmentCustomer, PalletDeliveriesTabsEnum::DELIVERIES->value);
     }
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, $prefix = null): LengthAwarePaginator
