@@ -38,7 +38,7 @@ class SetPalletInReturnAsPicked extends OrgAction
             $modelData = [];
             data_set($modelData, 'picking_location_id', $palletReturnItem->pallet->location_id);
             data_set($modelData, 'state', PalletReturnItemStateEnum::PICKED);
-        
+
             if ($palletReturnItem->type == 'Pallet') {
                 $this->update($palletReturnItem, $modelData);
             } else {
@@ -49,15 +49,15 @@ class SetPalletInReturnAsPicked extends OrgAction
                     $this->update($storedItem, $modelData);
                 }
             }
-        
+
             $modelData = [];
             data_set($modelData, 'state', PalletStateEnum::PICKED);
             data_set($modelData, 'status', PalletStatusEnum::RETURNING);
             data_set($modelData, 'picked_at', now());
-        
+
             if ($palletReturnItem->type == 'Pallet') {
                 $pallet = UpdatePallet::run($palletReturnItem->pallet, $modelData);
-        
+
                 foreach ($pallet->palletStoredItems as $palletStoredItem) {
                     StoreStoredItemMovementFromPickingAFullPallet::run($palletReturnItem, $palletStoredItem);
                 }
@@ -70,9 +70,9 @@ class SetPalletInReturnAsPicked extends OrgAction
                     $pallet = UpdatePallet::run($storedItem->pallet, $modelData);
                 }
             }
-        
+
             PalletRecordSearch::dispatch($pallet);
-        
+
             return $palletReturnItem;
         });
     }

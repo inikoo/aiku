@@ -9,14 +9,9 @@
 
 namespace App\Actions\Fulfilment\PalletReturn;
 
-use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
 use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovementFromPicking;
-use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovementFromPickingAFullPallet;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
-use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
-use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Http\Resources\Fulfilment\PalletReturnItemResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -35,7 +30,7 @@ class SetPalletReturnWithStoredItemAsPicked extends OrgAction
     public function handle(PalletReturnItem $palletReturnItem): PalletReturnItem
     {
         StoreStoredItemMovementFromPicking::run($palletReturnItem, $palletReturnItem->palletStoredItem);
-        
+
         return $palletReturnItem;
     }
 

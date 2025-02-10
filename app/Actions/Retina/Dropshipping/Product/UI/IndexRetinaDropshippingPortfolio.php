@@ -13,7 +13,9 @@ use App\Actions\RetinaAction;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Http\Resources\Catalogue\DropshippingPortfolioResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Dropshipping\Portfolio;
 use App\Models\Dropshipping\ShopifyUser;
+use App\Models\Fulfilment\StoredItem;
 use App\Services\QueryBuilder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
@@ -24,11 +26,17 @@ class IndexRetinaDropshippingPortfolio extends RetinaAction
 {
     public function handle(ShopifyUser $shopifyUser, $prefix = null): LengthAwarePaginator
     {
-        $query = QueryBuilder::for($shopifyUser->customer->portfolios());
+        $query = QueryBuilder::for(Portfolio::class);
 
+        $query->where('customer_id', $shopifyUser->customer_id);
         $query->with(['item']);
 
-        return $query->withPaginator($prefix);
+        if ($shopifyUser->customer->fulfilmentCustomer) {
+            $query->where('item_type', class_basename(StoredItem::class));
+        }
+
+        return $query->withPaginator($prefix, tableName: request()->route()->getName())
+        ->withQueryString();
     }
 
     public function authorize(ActionRequest $request): bool
@@ -54,7 +62,20 @@ class IndexRetinaDropshippingPortfolio extends RetinaAction
                 'title' => __('My Portfolio'),
                 'pageHead' => [
                     'title' => __('My Portfolio'),
-                    'icon' => 'fal fa-cube'
+                    'icon' => 'fal fa-cube',
+                    'actions' => [
+                        [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'label'   => 'Sync Items',
+                            'route'   => [
+                                'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
+                                'parameters' => [
+                                    'palletDelivery' => 3
+                                ]
+                            ]
+                        ],
+                    ]
                 ],
                 'tabs' => [
                     'current' => $this->tab,

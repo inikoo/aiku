@@ -13,6 +13,8 @@ use App\Actions\Accounting\Invoice\UI\ShowInvoice;
 use App\Actions\Accounting\Refund\UI\IndexRefunds;
 use App\Actions\Accounting\Refund\UI\ShowRefund;
 use App\Actions\CRM\Customer\UI\EditCustomer;
+use App\Actions\CRM\Customer\UI\IndexCustomerClients;
+use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\CRM\WebUser\CreateWebUser;
 use App\Actions\CRM\WebUser\EditWebUser;
 use App\Actions\CRM\WebUser\IndexWebUsers;
@@ -142,7 +144,10 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
         });
     });
 
-
+    Route::prefix('customer-clients')->as('.customer-clients')->group(function () {
+        Route::get('', [IndexCustomerClients::class, 'inFulfilmentCustomer'])->name('.index');
+        Route::get('{customerClient}', [ShowCustomerClient::class, 'inFulfilmentCustomer'])->name('.show');
+    });
 
     Route::get('/stored-item-audits', [IndexStoredItemAudits::class, 'inFulfilmentCustomer'])->name('.stored-item-audits.index');
     Route::get('/stored-item-audits/create', [CreateStoredItemAudit::class, 'inFulfilmentCustomer'])->name('.stored-item-audits.create');

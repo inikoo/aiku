@@ -11,7 +11,6 @@ namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletReturns;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletReturns;
-use App\Actions\Fulfilment\Pallet\SetPalletInReturnAsPicked;
 use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\Search\PalletReturnRecordSearch;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletReturns;
@@ -38,23 +37,23 @@ class PickedPalletReturnWithStoredItems extends OrgAction
         return DB::transaction(function () use ($palletReturn, $modelData) {
             $modelData[PalletReturnStateEnum::PICKED->value . '_at'] = now();
             $modelData['state'] = PalletReturnStateEnum::PICKED;
-    
+
             $palletReturn = $this->update($palletReturn, $modelData);
-    
+
             foreach ($palletReturn->storedItems as $storedItem) {
                 $palletReturnItem = PalletReturnItem::find($storedItem->pivot->id);
                 SetPalletReturnWithStoredItemAsPicked::run($palletReturnItem);
             }
-    
+
             GroupHydratePalletReturns::dispatch($palletReturn->group);
             OrganisationHydratePalletReturns::dispatch($palletReturn->organisation);
             WarehouseHydratePalletReturns::dispatch($palletReturn->warehouse);
             FulfilmentCustomerHydratePalletReturns::dispatch($palletReturn->fulfilmentCustomer);
             FulfilmentHydratePalletReturns::dispatch($palletReturn->fulfilment);
-    
+
             SendPalletReturnNotification::run($palletReturn);
             PalletReturnRecordSearch::dispatch($palletReturn);
-    
+
             return $palletReturn;
         });
     }

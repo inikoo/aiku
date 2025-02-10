@@ -113,6 +113,21 @@ trait WithFulfilmentCustomerSubNavigation
 
                 ];
 
+                if (!app()->isProduction()) {
+                    $subNavigation[] = [
+                        'route' => [
+                            'name'      => 'grp.org.fulfilments.show.crm.customers.show.customer-clients.index',
+                            'parameters' => $request->route()->originalParameters()
+                        ],
+
+                        'label'     => __("Clients"),
+                        'leftIcon'  => [
+                            'icon'    => 'fal fa-users',
+                            'tooltip' => __("Customer's Clients"),
+                        ],
+                        'number' => $fulfilmentCustomer->number_stored_items_state_active
+                    ];
+                }
             }
 
             $subNavigation[] = [
