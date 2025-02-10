@@ -22,6 +22,7 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 
 class SetPalletInReturnAsPicked extends OrgAction
@@ -33,42 +34,47 @@ class SetPalletInReturnAsPicked extends OrgAction
 
     public function handle(PalletReturnItem $palletReturnItem): PalletReturnItem
     {
-        $modelData = [];
-        data_set($modelData, 'picking_location_id', $palletReturnItem->pallet->location_id);
-        data_set($modelData, 'state', PalletReturnItemStateEnum::PICKED);
-
-        if ($palletReturnItem->type == 'Pallet') {
-            $this->update($palletReturnItem, $modelData);
-        } else {
-            $storedItems = PalletReturnItem::where('pallet_return_id', $palletReturnItem->pallet_return_id)->where('stored_item_id', $palletReturnItem->stored_item_id)->get();
-            foreach ($storedItems as $storedItem) {
-                $this->update($storedItem, $modelData);
+        return DB::transaction(function () use ($palletReturnItem) {
+            $modelData = [];
+            data_set($modelData, 'picking_location_id', $palletReturnItem->pallet->location_id);
+            data_set($modelData, 'state', PalletReturnItemStateEnum::PICKED);
+        
+            if ($palletReturnItem->type == 'Pallet') {
+                $this->update($palletReturnItem, $modelData);
+            } else {
+                $storedItems = PalletReturnItem::where('pallet_return_id', $palletReturnItem->pallet_return_id)
+                    ->where('stored_item_id', $palletReturnItem->stored_item_id)
+                    ->get();
+                foreach ($storedItems as $storedItem) {
+                    $this->update($storedItem, $modelData);
+                }
             }
-        }
-
-        $modelData = [];
-        data_set($modelData, 'state', PalletStateEnum::PICKED);
-        data_set($modelData, 'status', PalletStatusEnum::RETURNING);
-        data_set($modelData, 'picked_at', now());
-
-        if ($palletReturnItem->type == 'Pallet') {
-            $pallet = UpdatePallet::run($palletReturnItem->pallet, $modelData);
-
-            foreach ($pallet->palletStoredItems as $palletStoredItem) {
-                StoreStoredItemMovementFromPickingAFullPallet::run($palletReturnItem, $palletStoredItem);
+        
+            $modelData = [];
+            data_set($modelData, 'state', PalletStateEnum::PICKED);
+            data_set($modelData, 'status', PalletStatusEnum::RETURNING);
+            data_set($modelData, 'picked_at', now());
+        
+            if ($palletReturnItem->type == 'Pallet') {
+                $pallet = UpdatePallet::run($palletReturnItem->pallet, $modelData);
+        
+                foreach ($pallet->palletStoredItems as $palletStoredItem) {
+                    StoreStoredItemMovementFromPickingAFullPallet::run($palletReturnItem, $palletStoredItem);
+                }
+            } else {
+                // TODO: check this, not working
+                $storedItems = PalletReturnItem::where('pallet_return_id', $palletReturnItem->pallet_return_id)
+                    ->where('stored_item_id', $palletReturnItem->stored_item_id)
+                    ->get();
+                foreach ($storedItems as $storedItem) {
+                    $pallet = UpdatePallet::run($storedItem->pallet, $modelData);
+                }
             }
-
-        } else {
-            // TODO: check this,  not working
-            $storedItems = PalletReturnItem::where('pallet_return_id', $palletReturnItem->pallet_return_id)->where('stored_item_id', $palletReturnItem->stored_item_id)->get();
-            foreach ($storedItems as $storedItem) {
-                $pallet = UpdatePallet::run($storedItem->pallet, $modelData);
-            }
-        }
-
-        PalletRecordSearch::dispatch($pallet);
-
-        return $palletReturnItem;
+        
+            PalletRecordSearch::dispatch($pallet);
+        
+            return $palletReturnItem;
+        });
     }
 
     public function authorize(ActionRequest $request): bool

@@ -64,29 +64,29 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
             // 'location_code'                    => $this->location_code,
             // 'location_id'                      => $this->location_id,
             'is_checked'                       => (bool) $this->pallet_return_id,
-            'pallet_stored_items'              => $storedItem->palletStoredItems->map(fn ($palletStoredItem) => [
+            'pallet_stored_items' => $storedItem->palletStoredItems->map(fn ($palletStoredItem) => [
                 'id'        => $palletStoredItem->id,
                 'reference' => $palletStoredItem->pallet->reference ?? null,
-                'selected_quantity'     => (int) $palletStoredItem->palletReturnItem?->quantity_ordered ?? 0,
-                'available_quantity'    => (int) $palletStoredItem->quantity,
-                'max_quantity'          => (int) $palletStoredItem->quantity,
-                'pallet_return_item_id' => $palletStoredItem->palletReturnItem->id ?? null,
-                // 'storeRoute' => [
-                //     'name'       => 'grp.models.pallet-return.stored_item.store',
-                //     'parameters' => [
-                //         'palletReturn'       => $this->pallet_return_id,
-                //         'palletStoredItem'   => $palletStoredItem->id
-                //     ]
-                // ],
-                'syncRoute' =>
-                    [
-                        'name'       => 'grp.models.pallet-return.stored_item.store',
-                        'parameters' => [
-                            'palletReturn'       => $this->pallet_return_id,
-                            'palletStoredItem'   => $palletStoredItem->id
-                        ],
-                        'method'    => 'post'
+                'selected_quantity' => (int) optional(
+                    $palletStoredItem->palletReturnItems
+                        ->where('pallet_return_id', $this->pallet_return_id)
+                        ->first()
+                )->quantity_ordered ?? 0,
+                'available_quantity' => (int) $palletStoredItem->quantity,
+                'max_quantity'       => (int) $palletStoredItem->quantity,
+                'pallet_return_item_id' => optional(
+                    $palletStoredItem->palletReturnItems
+                        ->where('pallet_return_id', $this->pallet_return_id)
+                        ->first()
+                )->id ?? null,
+                'syncRoute' => [
+                    'name'       => 'grp.models.pallet-return.stored_item.store',
+                    'parameters' => [
+                        'palletReturn'     => $this->pallet_return_id,
+                        'palletStoredItem' => $palletStoredItem->id
                     ],
+                    'method' => 'post'
+                ],
                 'location' => isset($palletStoredItem->pallet, $palletStoredItem->pallet->location) ? [
                     'slug' => $palletStoredItem->pallet->location->slug ?? null,
                     'code' => $palletStoredItem->pallet->location->code ?? null
