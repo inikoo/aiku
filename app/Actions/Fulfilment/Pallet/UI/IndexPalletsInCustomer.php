@@ -256,8 +256,8 @@ class IndexPalletsInCustomer extends OrgAction
             $actions[] = [
                 'type'    => 'button',
                 'style'   => 'create',
-                'tooltip' => __('Create new return (stored items)'),
-                'label'   => __('Return (Stored items)'),
+                'tooltip' => __('Create new return (Customer SKUs)'),
+                'label'   => __('Return (Customer SKUs)'),
                 'fullLoading'   => true,
                 'route'   => [
                     'method'     => 'post',

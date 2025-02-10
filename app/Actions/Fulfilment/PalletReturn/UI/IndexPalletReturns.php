@@ -15,6 +15,7 @@ use App\Actions\Helpers\Upload\UI\IndexPalletReturnItemUploads;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Enums\UI\Fulfilment\PalletReturnsTabsEnum;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\Http\Resources\Helpers\PalletReturnItemUploadsResource;
@@ -241,6 +242,39 @@ class IndexPalletReturns extends OrgAction
             $iconRight    = ['fal', 'fa-sign-out-alt'];
         }
 
+
+        $actions = [];
+
+        if ($this->parent->number_pallets_status_storing) {
+            $actions[] = [
+                'type'    => 'button',
+                'style'   => 'create',
+                'tooltip' => $this->parent->items_storage ? __('Create new return (whole pallet)') : __('Create new return'),
+                'label'   => $this->parent->items_storage ? __('Return (whole pallet) ') : __('Return'),
+                'fullLoading'   => true,
+                'route'   => [
+                    'method'     => 'post',
+                    'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
+                    'parameters' => [$this->parent->id]
+                ]
+            ];
+        }
+        if ($this->parent->items_storage) {
+
+            $actions[] = [
+                'type'    => 'button',
+                'style'   => 'create',
+                'tooltip' => __('Create new return (Customer SKUs)'),
+                'label'   => __('Return (Customer SKUs)'),
+                'fullLoading'   => true,
+                'route'   => [
+                    'method'     => 'post',
+                    'name'       => 'grp.models.fulfilment-customer.pallet-return-stored-items.store',
+                    'parameters' => [$this->parent->id]
+                ]
+            ];
+        }
+
         return Inertia::render(
             'Org/Fulfilment/PalletReturns',
             [
@@ -256,42 +290,7 @@ class IndexPalletReturns extends OrgAction
                     'iconRight'     => $iconRight,
                     'icon'          => $icon,
                     'subNavigation' => $subNavigation,
-                    'actions'       => [
-                        match (class_basename($this->parent)) {
-                            'FulfilmentCustomer' =>
-                                $this->parent->number_pallets_status_storing ? [
-                                    'type'    => 'button',
-                                    'style'   => 'create',
-                                    'tooltip' => $this->parent->items_storage ? __('Create new return (whole pallet)') : __('Create new return'),
-                                    'label'   => $this->parent->items_storage ? __('Return (whole pallet).') : __('Return'),
-                                    'fullLoading'   => true,
-                                    'route'   => [
-                                        'method'     => 'post',
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
-                                        'parameters' => [$this->parent->id]
-                                    ]
-                                ] : false,
-
-                            default => null
-                        },
-                        match (class_basename($this->parent)) {
-                            'FulfilmentCustomer' =>
-                            $this->parent->items_storage  ? [
-                                'type'    => 'button',
-                                'style'   => 'create',
-                                'tooltip' => __('Create new return (Customer SKUs)'),
-                                'label'   => __('Return (Customer SKUs)'),
-                                'fullLoading'   => true,
-                                'route'   => [
-                                    'method'     => 'post',
-                                    'name'       => 'grp.models.fulfilment-customer.pallet-return-stored-items.store',
-                                    'parameters' => [$this->parent->id]
-                                ]
-                            ] : false,
-
-                            default => null
-                        }
-                    ]
+                    'actions'       =>$actions
                 ],
                 'data'        => PalletReturnsResource::collection($returns),
 
