@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-
+import { useAttrs } from 'vue'
 const model = defineModel()
 
 const props = defineProps<{
@@ -18,6 +18,7 @@ const props = defineProps<{
     isError?: boolean
 }>()
 
+const { value, ...attrs } = useAttrs()
 defineOptions({
     inheritAttrs: false
 })
@@ -41,7 +42,7 @@ defineOptions({
 
             <input
                 v-model="model"
-                v-bind="$attrs"
+                v-bind="attrs"
                 type="text"
                 class="h-full w-full border-transparent focus:border-transparent bg-transparent py-1.5 px-2 placeholder:text-gray-400 read-only:text-gray-600 focus:ring-0 sm:text-sm sm:leading-6"
                 :placeholder="placeholder || 'Enter value'"
