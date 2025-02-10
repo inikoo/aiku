@@ -53,6 +53,8 @@ class GetEmployeeShowcase
                 'group' => $permissionsGroupData,
                 'organisations' => $jobPositionsOrganisationsData
             ];
+        } else {
+            $pictogram = null;
         }
 
 
