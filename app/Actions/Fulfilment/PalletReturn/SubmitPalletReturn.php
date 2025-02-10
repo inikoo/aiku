@@ -21,6 +21,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletReturns
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
@@ -39,9 +40,9 @@ class SubmitPalletReturn extends OrgAction
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
+         //TODO: Delet this/use in retina
         $modelData['submitted_at'] = now();
-        $modelData['confirmed_at'] = now();
-        $modelData['state']                                       = PalletReturnStateEnum::CONFIRMED;
+        $modelData['state']                                       = PalletReturnStateEnum::SUBMITTED;
 
 
         foreach ($palletReturn->pallets as $pallet) {
@@ -50,13 +51,13 @@ class SubmitPalletReturn extends OrgAction
                     container: $palletReturn->fulfilmentCustomer,
                     modelType: SerialReferenceModelEnum::PALLET
                 ),
-                'state'     => PalletStateEnum::REQUEST_RETURN_CONFIRMED,
+                'state'     => PalletStateEnum::REQUEST_RETURN_SUBMITTED,
                 'status'    => PalletStatusEnum::RETURNING
             ]);
 
             $palletReturn->pallets()->syncWithoutDetaching([
                 $pallet->id => [
-                    'state' => $modelData['state']
+                    'state' => PalletReturnItemStateEnum::SUBMITTED
                 ]
             ]);
         }

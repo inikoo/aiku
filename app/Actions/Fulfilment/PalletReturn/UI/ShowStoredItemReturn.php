@@ -88,14 +88,14 @@ class ShowStoredItemReturn extends OrgAction
             $tooltipSubmit = __('Select address before submit');
             $isDisabled = true;
         } else {
-            $tooltipSubmit = __('Submit');
+            $tooltipSubmit = __('Confirm');
         }
 
         $buttonSubmit = [
             'type'    => 'button',
             'style'   => 'save',
             'tooltip' => $tooltipSubmit,
-            'label'   => __('Submit') . ' (' . $palletReturn->storedItems()->count() . ')',
+            'label'   => __('Confirm') . ' (' . $palletReturn->storedItems()->count() . ')',
             'key'     => 'submit',
             'route'   => [
                 'method'     => 'post',
@@ -187,21 +187,21 @@ class ShowStoredItemReturn extends OrgAction
                         ]
                     ]
                 ] : [],
-                $palletReturn->state == PalletReturnStateEnum::PICKING ?
-                [
-                'type'    => 'button',
-                'style'   => 'save',
-                'tooltip' => __('Set all pending as picked'),
-                'label'   => __('pick all*'),
-                'key'     => 'pick all',
-                'route'   => [
-                    'method'     => 'post',
-                    'name'       => 'grp.models.pallet-return.pick_all_with_stored_items',
-                    'parameters' => [
-                        'palletReturn'       => $palletReturn->id
-                        ]
-                    ]
-                ] : [],
+                // $palletReturn->state == PalletReturnStateEnum::PICKING ?
+                // [
+                // 'type'    => 'button',
+                // 'style'   => 'save',
+                // 'tooltip' => __('Set all pending as picked'),
+                // 'label'   => __('pick all*'),
+                // 'key'     => 'pick all',
+                // 'route'   => [
+                //     'method'     => 'post',
+                //     'name'       => 'grp.models.pallet-return.pick_all_with_stored_items',
+                //     'parameters' => [
+                //         'palletReturn'       => $palletReturn->id
+                //         ]
+                //     ]
+                // ] : [],
                 $palletReturn->state == PalletReturnStateEnum::PICKED ? [
                     'type'    => 'button',
                     'style'   => 'save',

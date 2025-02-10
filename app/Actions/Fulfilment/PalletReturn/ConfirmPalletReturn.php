@@ -20,6 +20,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletReturns
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -46,7 +47,7 @@ class ConfirmPalletReturn extends OrgAction
 
             $palletReturn->pallets()->syncWithoutDetaching([
                 $pallet->id => [
-                    'state' => PalletStateEnum::REQUEST_RETURN_CONFIRMED
+                    'state' => PalletReturnItemStateEnum::CONFIRMED
                 ]
             ]);
         }
