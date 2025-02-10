@@ -18,7 +18,7 @@ use App\Models\Fulfilment\Space;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdatePalletReturnItem extends OrgAction
+class PickPalletReturnItem extends OrgAction
 {
     use WithFulfilmentAuthorisation;
     use WithActionUpdate;
@@ -32,7 +32,6 @@ class UpdatePalletReturnItem extends OrgAction
     {
         return [
             'quantity_picked'       => ['sometimes', 'numeric', 'min:0'],
-            'quantity_dispatched'   => ['sometimes', 'numeric', 'min:0'],
         ];
     }
 
