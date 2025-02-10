@@ -105,7 +105,6 @@ class PalletImport implements ToCollection, WithHeadingRow, SkipsOnFailure, With
             ],
             'notes'              => ['nullable'],
             'type'               => ['nullable'],
-            'stored_item'        => ['nullable'],
         ];
     }
 }

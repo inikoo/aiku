@@ -8,6 +8,8 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
+use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateStoredItems;
+use App\Actions\Fulfilment\StoredItem\Hydrators\StoreItemHydratePallets;
 use App\Actions\OrgAction;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -27,5 +29,7 @@ class DetachStoredItemToPallet extends OrgAction
     public function handle(Pallet $pallet, StoredItem $storedItem): void
     {
         $pallet->storedItems()->detach([$storedItem->id]);
+        PalletHydrateStoredItems::dispatch($pallet);
+        StoreItemHydratePallets::dispatch($storedItem);
     }
 }

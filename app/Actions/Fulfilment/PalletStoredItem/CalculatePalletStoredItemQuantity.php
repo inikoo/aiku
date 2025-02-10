@@ -9,36 +9,42 @@
 
 namespace App\Actions\Fulfilment\PalletStoredItem;
 
-use App\Actions\Fulfilment\StoredItem\SetStoredItemQuantity;
-use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaTypeEnum;
+use App\Actions\Fulfilment\StoredItem\SetStoredItemQuantityFromPalletStoreItems;
 use App\Enums\Fulfilment\StoredItemMovement\StoredItemMovementTypeEnum;
 use App\Models\Fulfilment\PalletStoredItem;
 use App\Models\Fulfilment\StoredItemAuditDelta;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Lorisleiva\Actions\Concerns\AsCommand;
+use Lorisleiva\Actions\Concerns\AsAction;
 
-class SetPalletStoredItemQuantity
+class CalculatePalletStoredItemQuantity
 {
-    use WithActionUpdate;
-    use AsCommand;
+    use AsAction;
 
     public string $commandSignature = 'pallet_stored_item:set_quantity {palletStoredItem?}';
 
-    public function handle(PalletStoredItem $palletStoredItem)
+    public function handle(PalletStoredItem $palletStoredItem): PalletStoredItem
     {
         $quantity = $this->processQuantity($palletStoredItem);
+        $palletStoredItem->update(
+            [
+                'quantity' => $quantity
+            ]
+        );
 
-        SetStoredItemQuantity::run($palletStoredItem->storedItem);
+        $palletStoredItem->refresh();
 
-        return $quantity;
+        SetStoredItemQuantityFromPalletStoreItems::run($palletStoredItem->storedItem);
+
+        return $palletStoredItem;
     }
 
     public function processQuantity(PalletStoredItem $palletStoredItem)
     {
+
+
         if ($palletStoredItem->in_process) {
-            return $palletStoredItem->quantity;
+            return 0;
         }
 
         $delta = StoredItemAuditDelta::where('pallet_id', $palletStoredItem->pallet_id)
@@ -50,8 +56,9 @@ class SetPalletStoredItemQuantity
             return 0;
         }
 
-        $quantity = $delta->audited_quantity;
-        // dd($quantity);
+        $auditedQuantity = $delta->audited_quantity;
+
+
 
         $quantityMovements = DB::table('stored_item_movements')->where('pallet_id', $palletStoredItem->pallet_id)
             ->where('stored_item_id', $palletStoredItem->stored_item_id)
@@ -59,18 +66,7 @@ class SetPalletStoredItemQuantity
             ->where('moved_at', '>=', $delta->audited_at)
             ->sum('quantity');
 
-        $quantity=$quantity+$quantityMovements;
-
-        $this->update(
-            $palletStoredItem,
-            [
-                'quantity' => $quantity
-            ]
-        );
-
-        $palletStoredItem->refresh();
-
-        return $quantity;
+        return $auditedQuantity + $quantityMovements;
     }
 
     public function asCommand(Command $command): int

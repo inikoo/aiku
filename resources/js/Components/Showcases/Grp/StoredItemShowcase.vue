@@ -10,6 +10,7 @@ import { notify } from "@kyvg/vue3-notification"
 import Message from 'primevue/message';
 
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from 'chart.js'
+import { routeType } from "@/types/route";
 
 ChartJS.register(ArcElement, Tooltip, Legend, Colors)
 
@@ -114,8 +115,8 @@ const onChangeStoredItem = (data) => {
         </div>
 
         <!-- Mini Table -->
-        <div v-if="environment != 'production'" class="flex flex-col col-span-4 gap-x-5 border border-gray-100 shadow rounded-md px-5 py-3 text-gray-500">
-            <Message  severity="warn">!!! this Component is hidden in production</Message>
+        <div  class="flex flex-col col-span-4 gap-x-5 border border-gray-100 shadow rounded-md px-5 py-3 text-gray-500">
+
             <TableStoredItemEdit 
                 :data="data.pallets" 
                 :route_pallets="data.route_pallets" 

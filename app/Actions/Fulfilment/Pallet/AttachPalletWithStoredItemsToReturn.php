@@ -89,7 +89,7 @@ class AttachPalletWithStoredItemsToReturn extends OrgAction
         return $this->handle($palletReturn, $this->validatedData);
     }
 
-    public function prepareForValidation()
+    public function prepareForValidation(): void
     {
         $reference = $this->get('reference');
 

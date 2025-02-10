@@ -11,10 +11,10 @@ namespace App\Actions\Fulfilment\StoredItemAudit;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItemAudits;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItems;
-use App\Actions\Fulfilment\PalletStoredItem\SetPalletStoredItemQuantity;
+use App\Actions\Fulfilment\PalletStoredItem\CalculatePalletStoredItemQuantity;
 use App\Actions\Fulfilment\StoredItem\AttachStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItem\DetachStoredItemToPallet;
-use App\Actions\Fulfilment\StoredItem\SetStoredItemQuantity;
+use App\Actions\Fulfilment\StoredItem\SetStoredItemQuantityFromPalletStoreItems;
 use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovement;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -48,11 +48,11 @@ class CompleteStoredItemAudit extends OrgAction
             if ($storedItemAuditDelta->audit_type === StoredItemAuditDeltaTypeEnum::SET_UP) {
                 AttachStoredItemToPallet::run($pallet, $storedItemAuditDelta->storedItem, $storedItemAuditDelta->audited_quantity);
                 $palletStoredItem = PalletStoredItem::where('pallet_id', $storedItemAuditDelta->pallet_id)->where('stored_item_id', $storedItemAuditDelta->stored_item_id)->first();
-                SetPalletStoredItemQuantity::run($palletStoredItem);
+                CalculatePalletStoredItemQuantity::run($palletStoredItem);
             } elseif ($storedItemAuditDelta->audited_quantity == 0) {
                 $storedItem = $storedItemAuditDelta->storedItem;
                 DetachStoredItemToPallet::run($pallet, $storedItem);
-                SetStoredItemQuantity::run($storedItem);
+                SetStoredItemQuantityFromPalletStoreItems::run($storedItem);
             } else {
                 $palletStoredItem = PalletStoredItem::where('pallet_id', $storedItemAuditDelta->pallet_id)->where('stored_item_id', $storedItemAuditDelta->stored_item_id)->first();
                 $palletStoredItem = $this->update($palletStoredItem, [
@@ -60,7 +60,7 @@ class CompleteStoredItemAudit extends OrgAction
                 ]);
                 $palletStoredItem->refresh();
                 StoreStoredItemMovement::run($storedItemAuditDelta);
-                SetPalletStoredItemQuantity::run($palletStoredItem);
+                CalculatePalletStoredItemQuantity::run($palletStoredItem);
             }
         }
 
