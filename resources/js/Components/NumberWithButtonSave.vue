@@ -71,8 +71,6 @@ defineOptions({
 
 
 const onClickMinusButton = () => {
-    console.log('props.bindToTarget?.min', props.bindToTarget?.min);
-    
     // Check if the quantity is less than or equal to the minimum value and prevent decrease
     if ((props.bindToTarget?.min !== undefined && form.quantity <= props.bindToTarget?.min) || 
         (props.min !== undefined && form.quantity <= props.min)) {
@@ -122,7 +120,7 @@ const onClickPlusButton = () => {
                 <div
                     class="mx-1 text-center tabular-nums rounded-md"
                     :style="{
-                        border: `1px dashed ${(colorTheme ? colorTheme + '55' : null) || '#374151'}`,
+                        border: `1px dashed ${(colorTheme ? colorTheme : null) || '#374151'}55`,
                     }"
                 >
                     <InputNumber 

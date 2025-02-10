@@ -171,10 +171,15 @@ onBeforeMount(() => {
                         <span v-if="pallet_stored_item.reference">{{ pallet_stored_item.reference }}</span>
                         <span v-else class="text-gray-400 italic">({{ trans('No reference') }})</span>
                         <span v-if="pallet_stored_item.location?.code" v-tooltip="trans('Location code of the pallet')" class="text-gray-400"> ({{ pallet_stored_item.location?.code }})</span>
+                        <div v-if="palletReturn.state === 'picking'" v-tooltip="trans('Total Customer\'s SKU in this pallet')" class="text-gray-400 tabular-nums">
+                            {{ trans("Stocks in pallet") }}: {{ pallet_stored_item.quantity_in_pallet }}
+                        </div>
                     </div>
 
                     <div class="flex items-center flex-nowrap gap-x-2">
                         <div v-if="palletReturn.state === 'in_process'" v-tooltip="trans('Available quantity')" class="text-base">{{ pallet_stored_item.available_quantity }}</div>
+                        <!-- <div v-else-if="palletReturn.state === 'picking'" v-tooltip="trans('Quantity of Customer\'s SKU that should be picked')" class="text-base">{{ pallet_stored_item.selected_quantity }}</div> -->
+
                         <NumberWithButtonSave
                             v-if="palletReturn.state === 'in_process'"
                             noUndoButton
@@ -191,34 +196,29 @@ onBeforeMount(() => {
                             keySubmit="quantity_ordered"
                             :bindToTarget="{
                                 step: 1,
+                                min: 0,
                                 max: pallet_stored_item.max_quantity
                             }"
                         >
                         </NumberWithButtonSave>
 
+                        <!-- Picking: input number -->
                         <NumberWithButtonSave
                             v-else-if="palletReturn.state === 'picking'"
                             noUndoButton
                             v-model="pallet_stored_item.picked_quantity"
                             saveOnForm
-                            :routeSubmit="{
-                                name: pallet_stored_item.syncRoute.name,
-                                parameters: {
-                                    ...pallet_stored_item.syncRoute.parameters,
-                                    palletReturn: palletReturn.id
-                                },
-                                method: pallet_stored_item.syncRoute.method
-                            }"
-                            keySubmit="quantity_ordered"
+                            :routeSubmit="pallet_stored_item.updateRoute"
+                            keySubmit="quantity_picked"
                             :bindToTarget="{
                                 step: 1,
-                                xmin: -5,
-                                xmax: pallet_stored_item.available_to_pick_quantity
+                                min: 0,
+                                max: pallet_stored_item.quantity_in_pallet
                             }"
                             :colorTheme="
-                                pallet_stored_item.available_to_pick_quantity == pallet_stored_item.picked_quantity
+                                pallet_stored_item.selected_quantity == pallet_stored_item.picked_quantity
                                     ? '#374151'
-                                    : pallet_stored_item.available_to_pick_quantity > pallet_stored_item.picked_quantity
+                                    : pallet_stored_item.selected_quantity < pallet_stored_item.picked_quantity
                                         ? '#22c55e'
                                         : '#ff0000'    
                             "

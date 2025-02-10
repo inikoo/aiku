@@ -40,14 +40,14 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
     public function toArray($request): array
     {
         $storedItem = StoredItem::find($this->id);
-
+        // dd($this->pallet_return_state === PalletStateEnum::PICKING->value);
         return [
             'id'                     => $this->id,
             'slug'                   => $this->slug,
             'reference'              => $this->reference,
             'name'                   => $this->name,
             'total_quantity_ordered' => (int) ($this->total_quantity_ordered ?? 0),
-            'is_checked'             => (bool) $this->pallet_return_id,
+            'is_checked'             => (bool) $this->pallet_return_state === PalletStateEnum::IN_PROCESS->value ? $this->pallet_return_id : false,
             'pallet_return_state'    => $this->pallet_return_state ?? null,
             'pallet_stored_items'    => $storedItem->palletStoredItems->map(function ($palletStoredItem) {
                 // Cache palletReturnItem once per iteration
@@ -56,7 +56,8 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
                     ->first();
 
                 return [
-                    'id'                         => $palletStoredItem->id,
+                    'ordered_quantity'              => (int) $palletStoredItem->quantity_ordered,
+                'id'                         => $palletStoredItem->id,
                     'reference'                  => $palletStoredItem->pallet->reference ?? null,
                     'selected_quantity'          => (int) ($palletReturnItem->quantity_ordered ?? 0),
                     'available_quantity'         => (int) $palletStoredItem->quantity,
