@@ -41,19 +41,17 @@ class PickedPalletReturn extends OrgAction
 
         $palletReturn = $this->update($palletReturn, $modelData);
 
-        if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
-            $unpickedPallets = $palletReturn->pallets->filter(fn ($pallet) => $pallet->pivot->state !== PalletReturnItemStateEnum::PICKED->value);
-            foreach ($unpickedPallets as $pallet) {
-                $palletReturnItem = PalletReturnItem::find($pallet->pivot->id);
-                SetPalletInReturnAsPicked::make()->action($palletReturnItem, []);
-            }
-        } else {
-            foreach ($palletReturn->storedItems as $storedItem) {
-                $palletReturnItem = PalletReturnItem::find($storedItem->pivot->id);
-                SetPalletInReturnAsPicked::make()->action($palletReturnItem, []);
-            }
+        if ($palletReturn->type != PalletReturnTypeEnum::PALLET)
+        {
+            abort(419);
+        } 
+        $unpickedPallets = $palletReturn->pallets->filter(fn ($pallet) => $pallet->pivot->state !== PalletReturnItemStateEnum::PICKED->value);
+        foreach ($unpickedPallets as $pallet) {
+            $palletReturnItem = PalletReturnItem::find($pallet->pivot->id);
+            SetPalletInReturnAsPicked::make()->action($palletReturnItem, []);
         }
 
+        
         GroupHydratePalletReturns::dispatch($palletReturn->group);
         OrganisationHydratePalletReturns::dispatch($palletReturn->organisation);
         WarehouseHydratePalletReturns::dispatch($palletReturn->warehouse);

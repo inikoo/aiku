@@ -172,7 +172,7 @@ onBeforeMount(() => {
                         <span v-else class="text-gray-400 italic">({{ trans('No reference') }})</span>
                         <span v-if="pallet_stored_item.location?.code" v-tooltip="trans('Location code of the pallet')" class="text-gray-400"> ({{ pallet_stored_item.location?.code }})</span>
                         <div v-if="palletReturn.state === 'picking'" v-tooltip="trans('Total Customer\'s SKU in this pallet')" class="text-gray-400 tabular-nums">
-                            {{ trans("Stocks in pallet") }}: {{ pallet_stored_item.quantity_in_pallet }}
+                            {{ trans("Stocks in pallet") }}: {{ pallet_stored_item.max_quantity }}
                         </div>
                     </div>
 
@@ -213,7 +213,7 @@ onBeforeMount(() => {
                             :bindToTarget="{
                                 step: 1,
                                 min: 0,
-                                max: pallet_stored_item.quantity_in_pallet
+                                max: pallet_stored_item.max_quantity
                             }"
                             :colorTheme="
                                 pallet_stored_item.selected_quantity == pallet_stored_item.picked_quantity

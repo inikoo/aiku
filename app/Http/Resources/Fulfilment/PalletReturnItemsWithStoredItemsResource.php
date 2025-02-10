@@ -57,7 +57,7 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
 
                 return [
                     'ordered_quantity'              => (int) $palletStoredItem->quantity_ordered,
-                'id'                         => $palletStoredItem->id,
+                    'id'                         => $palletStoredItem->id,
                     'reference'                  => $palletStoredItem->pallet->reference ?? null,
                     'selected_quantity'          => (int) ($palletReturnItem->quantity_ordered ?? 0),
                     'available_quantity'         => (int) $palletStoredItem->quantity,

@@ -8,6 +8,8 @@
 
 namespace App\Actions\Fulfilment\PalletReturnItem;
 
+use App\Actions\Fulfilment\PalletReturn\SetPalletReturnWithStoredItemAsPicked;
+use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovementFromPicking;
 use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -25,7 +27,11 @@ class PickPalletReturnItem extends OrgAction
 
     public function handle(PalletReturnItem $palletReturnItem, array $modelData): PalletReturnItem
     {
-        return $this->update($palletReturnItem, $modelData);
+        $this->update($palletReturnItem, $modelData);
+        StoreStoredItemMovementFromPicking::run($palletReturnItem,[
+            'quantity' => $modelData['quantity_picked']
+        ]);
+        return $palletReturnItem;
     }
 
     public function rules(): array
