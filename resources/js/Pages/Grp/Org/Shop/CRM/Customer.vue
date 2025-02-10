@@ -27,8 +27,8 @@ const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChan
 import UploadAttachment from '@/Components/Upload/UploadAttachment.vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faCodeCommit, faGlobe, faGraduationCap, faMoneyBill, faPaperclip, faPaperPlane, faStickyNote, faTags, faCube, faCodeBranch, faShoppingCart, faHeart } from '@fal'
-library.add( faStickyNote, faGlobe, faMoneyBill, faGraduationCap, faTags, faCodeCommit, faPaperclip, faPaperPlane, faCube, faCodeBranch, faShoppingCart, faHeart )
+import { faCodeCommit, faUsers, faGlobe, faGraduationCap, faMoneyBill, faPaperclip, faPaperPlane, faStickyNote, faTags, faCube, faCodeBranch, faShoppingCart, faHeart } from '@fal'
+library.add( faStickyNote, faUsers, faGlobe, faMoneyBill, faGraduationCap, faTags, faCodeCommit, faPaperclip, faPaperPlane, faCube, faCodeBranch, faShoppingCart, faHeart )
 
 
 const props = defineProps<{
@@ -77,7 +77,7 @@ const component = computed(() => {
         <template #other>
             <Button v-if="currentTab === 'attachments'" @click="() => isModalUploadOpen = true" label="Attach" icon="upload"/>
         </template>
-    </PageHeading>  
+    </PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" :detachRoute="attachmentRoutes.detachRoute" />
 

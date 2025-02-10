@@ -96,10 +96,11 @@ use App\Actions\Fulfilment\PalletReturn\PickedPalletReturnWithStoredItems;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturnDeliveryAddress;
 use App\Actions\Fulfilment\PalletReturnItem\NotPickedPalletFromReturn;
+use App\Actions\Fulfilment\PalletReturnItem\PickNewPalletReturnItem;
+use App\Actions\Fulfilment\PalletReturnItem\PickPalletReturnItem;
 use App\Actions\Fulfilment\PalletReturnItem\SyncPalletReturnItem;
 use App\Actions\Fulfilment\PalletReturnItem\UndoPalletReturnItem;
 use App\Actions\Fulfilment\PalletReturnItem\UndoPickingPalletFromReturn;
-use App\Actions\Fulfilment\PalletReturnItem\UpdatePalletReturnItem;
 use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\UpdateRecurringBilling;
 use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
@@ -403,6 +404,7 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
     Route::post('pallet', AttachPalletsToReturn::class)->name('pallet.store');
     //todo this new action
     Route::post('pallet-stored-item/{palletStoredItem:id}', AttachStoredItemToReturn::class)->name('stored_item.store')->withoutScopedBindings();
+    Route::post('pallet-stored-item/pick/{palletStoredItem:id}', PickNewPalletReturnItem::class)->name('pallet_return_item.new_pick')->withoutScopedBindings();
     Route::post('stored-item-upload', [ImportPalletReturnItem::class, 'fromGrp'])->name('stored-item.upload');
 
     // This is wrong ImportPalletsInPalletDelivery is used when creating a pallet delivery
@@ -438,7 +440,7 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
 
 Route::name('pallet-return-item.')->prefix('pallet-return-item/{palletReturnItem}')->group(function () {
     Route::patch('', SetPalletInReturnAsPicked::class)->name('set_as_picked');
-    Route::patch('update', UpdatePalletReturnItem::class)->name('update');
+    Route::patch('update', PickPalletReturnItem::class)->name('update');
     Route::patch('not-picked', NotPickedPalletFromReturn::class)->name('not-picked');
     Route::patch('undo-picking', UndoPickingPalletFromReturn::class)->name('undo-picking');
     Route::patch('undo', UndoPalletReturnItem::class)->name('undo-confirmed');
