@@ -96,6 +96,7 @@ use App\Actions\Fulfilment\PalletReturn\PickedPalletReturnWithStoredItems;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturnDeliveryAddress;
 use App\Actions\Fulfilment\PalletReturnItem\NotPickedPalletFromReturn;
+use App\Actions\Fulfilment\PalletReturnItem\PickPalletReturnItem;
 use App\Actions\Fulfilment\PalletReturnItem\SyncPalletReturnItem;
 use App\Actions\Fulfilment\PalletReturnItem\UndoPalletReturnItem;
 use App\Actions\Fulfilment\PalletReturnItem\UndoPickingPalletFromReturn;
@@ -438,7 +439,7 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
 
 Route::name('pallet-return-item.')->prefix('pallet-return-item/{palletReturnItem}')->group(function () {
     Route::patch('', SetPalletInReturnAsPicked::class)->name('set_as_picked');
-    Route::patch('update', UpdatePalletReturnItem::class)->name('update');
+    Route::patch('update', PickPalletReturnItem::class)->name('update');
     Route::patch('not-picked', NotPickedPalletFromReturn::class)->name('not-picked');
     Route::patch('undo-picking', UndoPickingPalletFromReturn::class)->name('undo-picking');
     Route::patch('undo', UndoPalletReturnItem::class)->name('undo-confirmed');
