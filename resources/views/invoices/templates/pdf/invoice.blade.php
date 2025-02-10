@@ -22,6 +22,7 @@
             background-color ...
             background-gradient: ... */
         }
+
         body {
             font-family: sans-serif;
             font-size: 10pt;

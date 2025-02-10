@@ -9,6 +9,27 @@
 <head>
     <title>{{ $filename }}</title>
     <style>
+        @page {
+            size: 8.27in 11.69in; /* <length>{1,2} | auto | portrait | landscape */
+            /* 'em' 'ex' and % are not allowed; length values are width height */
+            margin-top: 15%; /* <any of the usual CSS values for margins> */
+            /*(% of page-box width for LR, of height for TB) */
+            margin-bottom: 13%;
+            margin-right: 8%;
+            margin-left: 8%;
+            margin-header: 1mm; /* <any of the usual CSS values for margins> */
+            margin-footer: 5mm; /* <any of the usual CSS values for margins> */
+            marks: 'cross'; /*crop | cross | none*/
+            header: myheader;
+            footer: myfooter;
+            /* background: ...
+            background-image: ...
+            background-position ...
+            background-repeat ...
+            background-color ...
+            background-gradient: ... */
+        }
+
         body {
             font-family: sans-serif;
             font-size: 10pt;
@@ -115,7 +136,7 @@
 
             <td style="text-align: right;">
                 <div>
-                    <barcode code="{{ 'par-'.$return->slug }}" type="C128B" class="barcode" />
+                    <barcode code="{{ 'par-'.$return->slug }}" type="C128B" class="barcode"/>
                 </div>
                 <div>
                     <b>{{ 'par-'.$return->slug }}</b>
@@ -129,19 +150,21 @@
 <sethtmlpageheader name="myheader" value="on" show-this-page="1"/>
 <sethtmlpagefooter name="myfooter" value="on"/>
 
-<br><br><br><br><br>
-
 <table width="100%" style="margin-top: 40px">
     <tr>
         <td>
             <h1>
-                Pallet Return
+                @if($return->type === \App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum::PALLET)
+                    {{ __('Return (Whole Pallets)') }}
+                @else
+                    {{ __('Return (Whole Stored Items)') }}
+                @endif
             </h1>
         </td>
         <td style="text-align: right">
             @if($return->state == \App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum::DISPATCHED)
                 <div>
-                    Dispatched Date: <b>{{ $return->dispatched_at->format('j F Y') }}</b>
+                    {{ __('Dispatched Date') }}: <b>{{ $return->dispatched_at->format('j F Y') }}</b>
                 </div>
             @endif
         </td>
@@ -152,27 +175,29 @@
         <td width="50%" style="vertical-align:bottom;border: 0mm solid #888888;">
             <div>
                 <div>
-                    Customer: <b>{{ $customer->name }}</b>
+                    {{ __('Customer') }}: <b>{{ $customer->name }}</b>
                     ({{ $customer->reference }})
                 </div>
                 @if($customer->phone)
                     <div>
-                        <span class="address_label">Phone:</span> <span class="address_value">{{ $customer->phone }}</span>
+                        <span class="address_label">Phone:</span> <span
+                            class="address_value">{{ $customer->phone }}</span>
                     </div>
                 @endif
             </div>
         </td>
         <td width="50%" style="vertical-align:bottom;border: 0mm solid #888888;text-align: right">
             <div style="text-align:right;">
-                State: <b>{{ $return->state->labels()[$return->state->value] }}</b>
+                {{ __('State') }}: <b>{{ $return->state->labels()[$return->state->value] }}</b>
             </div>
         </td>
     </tr>
 </table>
+
 <table width="100%" style="font-family: sans-serif;" cellpadding="10">
     <tr>
         <td width="45%" style="border: 0.1mm solid #888888;">
-            <span style="font-size: 7pt; color: #555555; font-family: sans-serif;">Delivery address:</span>
+            <span style="font-size: 7pt; color: #555555; font-family: sans-serif;">{{ __('Delivery address') }}:</span>
             <div>
                 {{ $return->deliveryAddress?->address_line_1 }}
             </div>
@@ -191,84 +216,52 @@
     </tr>
 </table>
 <br>
-
-
-<p>Pallets</p>
-<table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse;" cellpadding="8">
-    <thead>
-    <tr>
-        <td style="width:20%; text-align:left">Reference</td>
-        <td style="width:50%; text-align:left">Pallet Reference (Customer's)</td>
-        <td style="text-align:right">Notes</td>
-    </tr>
-    </thead>
-    <tbody>
-
-    @foreach($return->pallets as $pallet)
-        <tr class="@if($loop->last) last @endif">
-            <td style="text-align:left">{{ $pallet->reference }}</td>
-            <td style="text-align:left">{{ $pallet->customer_reference }}</td>
-            <td style="text-align:left">{{ $pallet->notes }}</td>
+<br>
+@if($return->type === \App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum::PALLET)
+    <p>{{ __('Pallets') }}</p>
+    <table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse;" cellpadding="8">
+        <thead>
+        <tr>
+            <td style="width:20%; text-align:left">{{ __('Reference') }}</td>
+            <td style="width:50%; text-align:left">{{ __('Pallet Reference (Customer\'s)') }}</td>
+            <td style="text-align:right">{{ __('Notes') }}</td>
         </tr>
-    @endforeach
+        </thead>
+        <tbody>
 
-    </tbody>
+        @foreach($return->pallets as $pallet)
+            <tr class="@if($loop->last) last @endif">
+                <td style="text-align:left">{{ $pallet->reference }}</td>
+                <td style="text-align:left">{{ $pallet->customer_reference }}</td>
+                <td style="text-align:left">{{ $pallet->notes }}</td>
+            </tr>
+        @endforeach
 
-</table>
-<br>
-<br>
-
-<p>Services</p>
-<table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse;" cellpadding="8">
-    <thead>
-    <tr>
-        <td style="width:20%; text-align:left">Code</td>
-        <td style="width:50%; text-align:left">Service Name</td>
-        <td style="text-align:right">Price</td>
-    </tr>
-    </thead>
-    <tbody>
-
-    @foreach($return->services() as $service)
-        <tr class="@if($loop->last) last @endif">
-            <td style="text-align:left">{{ $service->asset->code }}</td>
-            <td style="text-align:left">{{ $service->asset->name }}</td>
-            <td style="text-align:left">{{ $return->currency?->symbol . $service->net_amount }}</td>
+        </tbody>
+    </table>
+@else
+    <p>{{ __('Stored Items') }}</p>
+    <table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse;" cellpadding="8">
+        <thead>
+        <tr>
+            <td style="width:20%; text-align:left">{{ __('Reference') }}</td>
+            <td style="width:50%; text-align:left">{{ __('Reference (Customer\'s)') }}</td>
+            <td style="text-align:right">{{ __('Notes') }}</td>
         </tr>
-    @endforeach
+        </thead>
+        <tbody>
 
-    </tbody>
+        @foreach($return->storedItems as $storedItem)
+            <tr class="@if($loop->last) last @endif">
+                <td style="text-align:left">{{ $storedItem->reference }}</td>
+                <td style="text-align:left">{{ $storedItem->customer_reference }}</td>
+                <td style="text-align:left">{{ $storedItem->notes }}</td>
+            </tr>
+        @endforeach
 
-</table>
-<br>
-<br>
-
-<p>Physical Goods</p>
-<table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse;" cellpadding="8">
-    <thead>
-    <tr>
-        <td style="width:20%; text-align:left">Code</td>
-        <td style="width:50%; text-align:left">Physical Good Name</td>
-        <td style="text-align:right">Price</td>
-    </tr>
-    </thead>
-    <tbody>
-
-    @foreach($return->products() as $physicalGood)
-        <tr class="@if($loop->last) last @endif">
-            <td style="text-align:left">{{ $physicalGood->code }}</td>
-            <td style="text-align:left">{{ $physicalGood->name }}</td>
-            <td style="text-align:left">{{ $physicalGood->currency?->symbol . $physicalGood->price }}</td>
-        </tr>
-    @endforeach
-
-    </tbody>
-
-</table>
-
-<br>
-<br>
-<br>
+        </tbody>
+    </table>
+@endif
 
 <htmlpagefooter name="myfooter">
     <div
@@ -277,13 +270,13 @@
         <tr>
         <tr>
             <td width="33%" style="color:#000;text-align: left;">
-                <small>{{ $shop->name }}<br> VAT Number:
+                <small>{{ $shop->name }}<br> {{ __('VAT Number') }}:
                     <b>{{ $shop->identity_document_number }}</b>
                     <br>
-                    Registration Number: {{ $shop->identity_document_number }}</small>
+                    {{ __('Registration Number') }}: {{ $shop->identity_document_number }}</small>
             </td>
             <td width="33%" style="color:#000;text-align: center">
-                Page 1 of 1
+                {{ __('Page') }} 1 {{ __('of') }} 1
             </td>
             <td width="34%" style="text-align: right;">
                 <small>{{ $shop->phone }}<br>
