@@ -221,7 +221,7 @@
                     {{ __('Registration Number') }}: {{ $shop->identity_document_number }}</small>
             </td>
             <td width="33%" style="color:#000;text-align: center">
-                {{ __('Page') }} 1 {{ __('of') }} 1
+                {{ __('Page') }} {PAGENO} {{ __('of') }} {nbpg}
             </td>
             <td width="34%" style="text-align: right;">
                 <small>{{ $shop->phone }}<br>
