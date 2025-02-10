@@ -118,7 +118,8 @@ class CreateWebpage extends OrgAction
 //                                ],
                                 'url' => [
                                     'type'      => 'inputWithAddOn',
-                                    'label'     => __('url'),
+                                    'label'     => __('URL'),
+                                    'label_no_capitalize' => true,
                                     'leftAddOn' => [
                                         'label' => 'https://'.($parent instanceof Webpage ? $parent->website->domain : $parent->domain).'/'
                                     ],
