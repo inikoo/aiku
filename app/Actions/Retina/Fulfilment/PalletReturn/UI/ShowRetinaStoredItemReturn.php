@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 10-02-2025-10h-03m
@@ -8,7 +9,6 @@
 
 namespace App\Actions\Retina\Fulfilment\PalletReturn\UI;
 
-use App\Actions\Fulfilment\PalletReturn\Json\GetReturnPallets;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPhysicalGoodInPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexServiceInPalletReturn;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemsInReturn;
@@ -20,7 +20,6 @@ use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
-use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\Http\Resources\Fulfilment\PalletReturnStoredItemsResource;
@@ -72,7 +71,7 @@ class ShowRetinaStoredItemReturn extends RetinaAction
         $afterTitle = [
             'label' => '('.__("Customer's sKUs").')'
             ];
-    
+
 
         $addresses = $palletReturn->fulfilmentCustomer->customer->addresses;
 

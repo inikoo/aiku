@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 10-02-2025-08h-58m
@@ -10,16 +11,13 @@ namespace App\Actions\Fulfilment\PalletReturn\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
-use App\Actions\Fulfilment\PalletReturn\Json\GetReturnPallets;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemsInReturn;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
-use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
-use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\Http\Resources\Helpers\AddressResource;
@@ -78,24 +76,24 @@ class ShowStoredItemReturn extends OrgAction
     {
         $actions = [];
         $navigation = PalletReturnTabsEnum::navigation($palletReturn);
-            unset($navigation[PalletReturnTabsEnum::PALLETS->value]);
-            $this->tab = $request->get('tab', array_key_first($navigation));
-            $buttonSubmit = [
-                'type'    => 'button',
-                'style'   => 'save',
-                'tooltip' => $palletReturn->storedItems()->count() > 0 ? __('Submit') . ' (' . $palletReturn->storedItems()->count() . ')' : __('Select stored items before submit'),
-                'label'   => __('Submit') . ' (' . $palletReturn->storedItems()->count() . ')',
-                'key'     => 'submit',
-                'route'   => [
-                    'method'     => 'post',
-                    'name'       => 'grp.models.fulfilment-customer.pallet-return.submit_and_confirm',
-                    'parameters' => [
-                        'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                        'palletReturn'       => $palletReturn->id
-                    ]
-                ],
-                'disabled' => ($palletReturn->storedItems()->count() > 0 ? false : true) || ($palletReturn->delivery_address_id === null && $palletReturn->collection_address_id === null)
-            ];
+        unset($navigation[PalletReturnTabsEnum::PALLETS->value]);
+        $this->tab = $request->get('tab', array_key_first($navigation));
+        $buttonSubmit = [
+            'type'    => 'button',
+            'style'   => 'save',
+            'tooltip' => $palletReturn->storedItems()->count() > 0 ? __('Submit') . ' (' . $palletReturn->storedItems()->count() . ')' : __('Select stored items before submit'),
+            'label'   => __('Submit') . ' (' . $palletReturn->storedItems()->count() . ')',
+            'key'     => 'submit',
+            'route'   => [
+                'method'     => 'post',
+                'name'       => 'grp.models.fulfilment-customer.pallet-return.submit_and_confirm',
+                'parameters' => [
+                    'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
+                    'palletReturn'       => $palletReturn->id
+                ]
+            ],
+            'disabled' => ($palletReturn->storedItems()->count() > 0 ? false : true) || ($palletReturn->delivery_address_id === null && $palletReturn->collection_address_id === null)
+        ];
         if ($this->canEdit) {
             $actions = $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
                 [
@@ -229,9 +227,9 @@ class ShowStoredItemReturn extends OrgAction
             }
         }
 
-            $afterTitle = [
-                'label' => '('.__("Customer's SKUs").')'
-                ];
+        $afterTitle = [
+            'label' => '('.__("Customer's SKUs").')'
+            ];
 
         $showGrossAndDiscount = $palletReturn->gross_amount !== $palletReturn->net_amount;
 
