@@ -63,6 +63,42 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
     }
 }
 
+function storedItemReturnRoute(palletReturn: PalletDelivery) {
+    switch (route().current()) {
+        case 'grp.org.warehouses.show.dispatching.pallet-returns.index':
+            return route(
+                'grp.org.warehouses.show.dispatching.pallet-return-with-stored-items.show',
+                [
+                    route().params['organisation'],
+                    route().params['warehouse'],
+                    palletReturn.slug
+                ]);
+        case 'grp.org.fulfilments.show.operations.pallet-returns.index':
+            return route(
+                'grp.org.fulfilments.show.operations.pallet-return-with-stored-items.show',
+                [
+                    route().params['organisation'],
+                    route().params['fulfilment'],
+                    palletReturn.slug
+                ]);
+        case 'retina.fulfilment.storage.pallet_returns.index':
+            return route(
+                'retina.fulfilment.storage.pallet_returns.with-stored-items.show',
+                [
+                    palletReturn.slug
+                ]);
+        default:
+            return route(
+                'grp.org.fulfilments.show.crm.customers.show.pallet_returns.with_stored_items.show',
+                [
+                    route().params['organisation'],
+                    route().params['fulfilment'],
+                    route().params['fulfilmentCustomer'],
+                    palletReturn.slug
+                ]);
+    }
+}
+
 </script>
 
 <template>

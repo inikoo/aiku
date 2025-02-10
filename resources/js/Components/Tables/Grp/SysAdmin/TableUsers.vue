@@ -25,9 +25,9 @@ const props = defineProps<{
 function userRoute(user: User) {
     switch (route().current()) {
         case "grp.sysadmin.users.index":
-            return route(
-                "grp.sysadmin.users.show",
-                [user.username])
+            return route( "grp.sysadmin.users.show", [user.username])
+        default:
+            return null
     }
 }
 
@@ -46,10 +46,14 @@ function userRoute(user: User) {
 
         <!-- Column: Username -->
         <template #cell(username)="{ item: user }">
-            <Link :href="userRoute(user)" class="primaryLink">
+            <Link v-if="userRoute(user)" :href="userRoute(user)" class="primaryLink">
                 <template v-if="user['username']">{{ user["username"] }}</template>
                 <span v-else class="italic">{{ trans("Not set") }}</span>
             </Link>
+            <div v-else>
+                <template v-if="user['username']">{{ user["username"] }}</template>
+                <span v-else class="italic">{{ trans("Not set") }}</span>
+            </div>
         </template>
 
         <!-- Column: Image -->

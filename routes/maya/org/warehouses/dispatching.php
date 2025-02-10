@@ -12,6 +12,7 @@ use App\Actions\Dispatching\Picking\UI\IndexPickings;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInReturn;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\UI\ShowStoredItemReturn;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemsInReturn;
 use App\Actions\UI\Dispatch\ShowDispatchHub;
 use Illuminate\Support\Facades\Route;
@@ -23,5 +24,6 @@ Route::get('delivery-notes/{deliveryNote:id}/items', IndexPickings::class)->name
 
 Route::get('fulfilment-returns', [IndexPalletReturns::class, 'inWarehouse'])->name('pallet-returns.index');
 Route::get('fulfilment-returns/{palletReturn:id}', [ShowPalletReturn::class, 'inWarehouse'])->name('pallet-returns.show')->withoutScopedBindings();
+Route::get('fulfilment-return-stored-items/{palletReturn:id}', [ShowStoredItemReturn::class, 'inWarehouse'])->name('pallet-return-with-stored-items.show')->withoutScopedBindings();
 Route::get('fulfilment-returns/{palletReturn:id}/pallets', IndexPalletsInReturn::class)->name('pallet-returns.pallets.index')->withoutScopedBindings();
 Route::get('fulfilment-returns/{palletReturn:id}/stored-items', IndexStoredItemsInReturn::class)->name('pallet-returns.stored-items.index')->withoutScopedBindings();

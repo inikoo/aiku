@@ -35,6 +35,7 @@ use App\Actions\Fulfilment\PalletReturn\ExportPalletReturnPallet;
 use App\Actions\Fulfilment\PalletReturn\ExportPalletReturnStoredItem;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\UI\ShowStoredItemReturn;
 use App\Actions\Fulfilment\RecurringBill\UI\EditRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\UI\IndexRecurringBills;
 use App\Actions\Fulfilment\RecurringBill\UI\ShowRecurringBill;
@@ -108,6 +109,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     Route::prefix('pallet-returns')->as('.pallet_returns.')->group(function () {
         Route::get('', [IndexPalletReturns::class, 'inFulfilmentCustomer'])->name('index');
         Route::get('{palletReturn}', [ShowPalletReturn::class, 'inFulfilmentCustomer'])->name('show');
+        Route::get('stored-item/{palletReturn}', [ShowStoredItemReturn::class, 'inFulfilmentCustomer'])->name('with_stored_items.show');
         Route::get('{palletReturn}/pallets/{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('pallets.show');
 
         Route::get('{palletReturn}/pallets-histories', [IndexRecentUploads::class, 'inPalletReturn'])->name('pallets.uploads.history');
