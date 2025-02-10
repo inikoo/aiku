@@ -276,11 +276,11 @@ class IndexPalletReturns extends OrgAction
                         },
                         match (class_basename($this->parent)) {
                             'FulfilmentCustomer' =>
-                            ($this->parent->items_storage &&   !app()->isProduction()) ? [
+                            $this->parent->items_storage  ? [
                                 'type'    => 'button',
                                 'style'   => 'create',
-                                'tooltip' => __('Create new return (Customer SKUs) hidden in prod'),
-                                'label'   => __('Return (Customer SKUs) hidden in prod'),
+                                'tooltip' => __('Create new return (Customer SKUs)'),
+                                'label'   => __('Return (Customer SKUs)'),
                                 'fullLoading'   => true,
                                 'route'   => [
                                     'method'     => 'post',
