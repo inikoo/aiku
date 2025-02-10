@@ -187,21 +187,21 @@ class ShowStoredItemReturn extends OrgAction
                         ]
                     ]
                 ] : [],
-                $palletReturn->state == PalletReturnStateEnum::PICKING ?
-                [
-                'type'    => 'button',
-                'style'   => 'save',
-                'tooltip' => __('Set all pending as picked'),
-                'label'   => __('pick all*'),
-                'key'     => 'pick all',
-                'route'   => [
-                    'method'     => 'post',
-                    'name'       => 'grp.models.pallet-return.pick_all_with_stored_items',
-                    'parameters' => [
-                        'palletReturn'       => $palletReturn->id
-                        ]
-                    ]
-                ] : [],
+                // $palletReturn->state == PalletReturnStateEnum::PICKING ?
+                // [
+                // 'type'    => 'button',
+                // 'style'   => 'save',
+                // 'tooltip' => __('Set all pending as picked'),
+                // 'label'   => __('pick all*'),
+                // 'key'     => 'pick all',
+                // 'route'   => [
+                //     'method'     => 'post',
+                //     'name'       => 'grp.models.pallet-return.pick_all_with_stored_items',
+                //     'parameters' => [
+                //         'palletReturn'       => $palletReturn->id
+                //         ]
+                //     ]
+                // ] : [],
                 $palletReturn->state == PalletReturnStateEnum::PICKED ? [
                     'type'    => 'button',
                     'style'   => 'save',
