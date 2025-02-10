@@ -10,7 +10,7 @@ import { faRobot, faPlus, faMinus, faUndoAlt } from "@far"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import InputNumber from "primevue/inputnumber"
-import { ref } from "vue"
+import { ref, watch } from "vue"
 import { faSave as fadSave } from "@fad"
 import { faSave as falSave, faInfoCircle } from "@fal"
 import { faAsterisk, faQuestion, faSpinner, faMinus as fasMinus, faPlus as fasPlus } from "@fas"
@@ -42,6 +42,7 @@ const emits = defineEmits<{
     (e: 'onSave', value: string | number): void
 }>()
 
+const model = defineModel()
 
 const form = useForm({
     quantity: props.modelValue,
@@ -67,6 +68,10 @@ const keyIconUndo = ref(0)
 
 defineOptions({
     inheritAttrs: false
+})
+
+watch(model, () => {
+    form.quantity = model.value
 })
 
 
