@@ -17,6 +17,7 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import { routeType } from '@/types/route'
 import InputNumber from 'primevue/inputnumber'
 import { set } from 'lodash'
+import { trans } from 'laravel-vue-i18n'
 library.add(faTag,faTrashAlt)
 
 const props = defineProps<{
@@ -127,9 +128,15 @@ const locale = inject('locale', aikuLocaleStructure)
 				<div v-if="item.edit_type !== 'net' && status == 'current' &&  (item.data.type !== 'Pallet' && item.data.type !== 'Space')">
 					<NumberWithButtonSave v-model="item.quantity"   @onSave="(e)=>onUpdateQuantity(item.id,item.fulfilment_transaction_id, e)"/>
 				</div>
-				<div v-else>
-					<!-- <Transition name="spin-to-right"><span :key="item.quantity">{{ locale.number(item.quantity) }} {{ item.asset_unit }}</span></Transition> -->
+				<div v-else-if="item.data.type == 'Pallet'">
+                    {{ locale.number(item.quantity) }} {{ item.quantity > 1 ? trans("days") : trans("day") }}
 				</div>
+				<div v-else-if="item.data.type == 'Product'">
+                    {{ locale.number(item.quantity) }} {{ item.quantity > 1 ? trans("pcs") : trans("pc") }}
+				</div>
+                <div v-else class="text-gray-500">
+                    
+                </div>
 			</div>
 		</template>
 

@@ -143,7 +143,7 @@ class ShopifyUser extends Authenticatable implements HasMedia, Auditable, IShopM
 
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class, 'shopify_user_has_products')
+        return $this->morphToMany(Product::class, 'product', 'shopify_user_has_products')
             ->withTimestamps();
     }
 

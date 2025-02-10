@@ -281,7 +281,7 @@ onBeforeMount(() => {
                             <FontAwesomeIcon v-if="pallet_stored_item.state == 'picked'" v-tooltip="trans('Picked')" icon='fal fa-check' class='text-green-500' fixed-width aria-hidden='true' />
                         </div>
                     </div>
-                    <!-- {{ pallet_stored_item.pallet_return_item_id ? pallet_stored_item.updateRoute.name : pallet_stored_item.newPickRoute.name }} -->
+                    <!-- {{ pallet_stored_item.pallet_return_item_id }} -->
                     
                 </div>
             </div>
