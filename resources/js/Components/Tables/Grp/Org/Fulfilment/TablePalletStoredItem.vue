@@ -73,6 +73,22 @@ function palletRoutes(pallet: Pallet) {
     }
 }
 
+const generateLinkStoredItems = (storedItem: {}) => {
+    switch (route().current()) {
+        case 'grp.org.fulfilments.show.crm.customers.show.stored-items.index':
+            return route(
+                'grp.org.fulfilments.show.crm.customers.show.stored-items.show',
+                {
+                    organisation: route().params['organisation'],
+                    fulfilment: route().params['fulfilment'],
+                    fulfilmentCustomer: route().params['fulfilmentCustomer'],
+                    storedItem: storedItem.stored_item_slug,
+                    tab: 'showcase'
+                });
+        default:
+            '#'
+    }
+}
 </script>
 
 <template>
@@ -86,7 +102,11 @@ function palletRoutes(pallet: Pallet) {
         <template #cell(state)="{ item: pallet }">
             <Icon :data="pallet['state_icon']" class="px-1" />
         </template>
-
+        <template #cell(reference)="{ item: pallet }">
+            <Link :href="generateLinkStoredItems(pallet)" class="primaryLink">
+                {{ pallet['reference'] }}
+            </Link>
+        </template>
 
         <template #cell(actions)="{ item: pallet }">
             <div>

@@ -8,6 +8,7 @@
 
 namespace App\Http\Resources\Fulfilment;
 
+use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Http\Resources\HasSelfCall;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -37,6 +38,7 @@ class ReturnStoredItemsResource extends JsonResource
             'stored_item_id'                 => $storedItem->stored_item_id,
             'reference'                      => $storedItem->stored_item_reference,
             'stored_item_slug'               => $storedItem->stored_item_slug,
+            'state_icon'                     => StoredItemStateEnum::from($storedItem->stored_item_state)->stateIcon()[$storedItem->stored_item_state],
             'stored_item_state'              => $storedItem->stored_item_state,
             'quantity'                       => (int) $storedItem->quantity,
             'damaged_quantity'               => $storedItem->damaged_quantity,

@@ -77,8 +77,6 @@ const generateLinkPallets = (storedItem: {}) => {
                 {{ value.number_pallets || 0 }}
             </Link>
         </template>
-        
-
 
     </Table>
 </template>
