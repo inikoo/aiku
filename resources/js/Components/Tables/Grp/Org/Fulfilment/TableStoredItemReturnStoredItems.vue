@@ -281,7 +281,7 @@ onMounted(() => {
                                 </template>
     
                                 <div v-else class="flex flex-nowrap gap-x-1 items-center">
-                                    <!-- <ButtonWithLink
+                                    <ButtonWithLink
                                         v-if="pallet_stored_item.state == 'picked'"
                                         icon="fal fa-undo-alt"
                                         :label="trans('Undo pick')"
@@ -289,8 +289,8 @@ onMounted(() => {
                                         type="tertiary"
                                         :key="2"
                                         class="py-0 mr-1"
-                                        :routeTarget="undefined"
-                                    /> -->
+                                        :routeTarget="pallet_stored_item.undoRoute"
+                                    />
                                     {{ pallet_stored_item.picked_quantity }}
                                     <FontAwesomeIcon v-if="pallet_stored_item.state == 'picked'" v-tooltip="trans('Picked')" icon='fal fa-check' class='text-green-500' fixed-width aria-hidden='true' />
                                 </div>
