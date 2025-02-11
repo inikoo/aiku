@@ -12,6 +12,7 @@ namespace App\Actions\Fulfilment\PalletReturn\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemsInReturn;
+use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
@@ -38,6 +39,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowStoredItemReturn extends OrgAction
 {
     use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentCustomerSubNavigation;
     private Warehouse|FulfilmentCustomer|Fulfilment $parent;
 
     public function handle(PalletReturn $palletReturn): PalletReturn
@@ -74,6 +76,11 @@ class ShowStoredItemReturn extends OrgAction
 
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response
     {
+        $subNavigation = [];
+        if ($this->parent instanceof FulfilmentCustomer) {
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+        }
+
         $actions = [];
         $navigation = PalletReturnTabsEnum::navigation($palletReturn);
         unset($navigation[PalletReturnTabsEnum::PALLETS->value]);
@@ -311,6 +318,7 @@ class ShowStoredItemReturn extends OrgAction
                 ],
                 'pageHead' => [
                     // 'container' => $container,
+                    'subNavigation' => $subNavigation,
                     'title'     => $palletReturn->reference,
                     'model'     => __('return'),
                     'afterTitle' => $afterTitle,

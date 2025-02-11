@@ -16,6 +16,7 @@ use App\Actions\Accounting\InvoiceTransaction\UI\IndexRefundTransactions;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\UI\Accounting\InvoiceRefundTabsEnum;
@@ -36,6 +37,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowRefund extends OrgAction
 {
     private Invoice|Organisation|Fulfilment|FulfilmentCustomer|Shop $parent;
+    use WithFulfilmentCustomerSubNavigation;
 
     public function handle(Invoice $refund): Invoice
     {
@@ -122,7 +124,7 @@ class ShowRefund extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inInvoiceInFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, Invoice $invoice, Invoice $refund, ActionRequest $request): Invoice
     {
-        $this->parent = $invoice;
+        $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(InvoiceRefundTabsEnum::values());
 
         return $this->handle($refund);
@@ -131,6 +133,11 @@ class ShowRefund extends OrgAction
 
     public function htmlResponse(Invoice $refund, ActionRequest $request): Response
     {
+        $subNavigation = [];
+        if ($this->parent instanceof FulfilmentCustomer) {
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+        }
+
         if ($refund->recurringBill()->exists()) {
             if ($this->parent instanceof Fulfilment) {
                 $recurringBillRoute = [
@@ -218,6 +225,7 @@ class ShowRefund extends OrgAction
                     'next'     => $this->getNext($refund, $request),
                 ],
                 'pageHead'    => [
+                    'subNavigation' => $subNavigation,
                     'model'   => __('invoice refund'),
                     'title'   => $refund->reference,
                     'icon'    => [
