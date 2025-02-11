@@ -189,7 +189,26 @@ onBeforeMount(() => {
     setUpChecked();
 });
 
+// Generate link to pallet
+const generateLinkPallet = (pallet: {}) => {
+    if (!pallet.slug) {
+        return null
+    }
 
+    switch (route().current()) {
+        case 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show':
+            return route(
+                'grp.org.fulfilments.show.crm.customers.show.pallets.show',
+                {
+                    organisation: route().params['organisation'],
+                    fulfilment: route().params['fulfilment'],
+                    fulfilmentCustomer: route().params['fulfilmentCustomer'],
+                    pallet: pallet.slug,
+                });
+        default:
+            null
+    }
+}
 </script>
 
 <template>
@@ -215,6 +234,16 @@ onBeforeMount(() => {
 
 		</template>
 
+
+        <!-- Column: Rental -->
+        <template #cell(reference)="{ item }">
+            <Link v-if="generateLinkPallet(item)" :href="generateLinkPallet(item)" class="primaryLink">
+                {{ item.reference }}
+            </Link>
+            <div v-else>
+                {{ item.reference || '-' }}
+            </div>
+        </template>
 
         <!-- Column: Rental -->
         <template #cell(rental)="{ item }">

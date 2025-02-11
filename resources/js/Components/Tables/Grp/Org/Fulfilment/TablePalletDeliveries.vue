@@ -106,7 +106,7 @@ function customerRoute(palletDelivery: PalletDelivery) {
                     palletDelivery.customer_slug
                 ])
                 default:
-        return ''
+        return null
     }
 }
 
@@ -173,11 +173,12 @@ const onClickReceived = (receivedRoute: routeType) => {
 
         <!-- Column: Customer -->
         <template #cell(customer_reference)="{ item: palletDelivery }">
-            <Link v-if="palletDelivery.customer_reference" :href="customerRoute(palletDelivery)" class="secondaryLink">
+            <Link v-if="customerRoute(palletDelivery)" :href="customerRoute(palletDelivery)" class="secondaryLink">
                 {{ palletDelivery.customer_reference }}
             </Link>
-            <div v-else class="text-gray-400">
-                -
+            
+            <div v-else class="text-gray-600">
+                {{ palletDelivery.customer_reference || '-'}}
             </div>
         </template>
 
