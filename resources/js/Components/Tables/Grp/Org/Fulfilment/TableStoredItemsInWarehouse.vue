@@ -41,6 +41,22 @@ function storedItemRoute(storedItem) {
     }
 }
 
+const generateLinkPallets = (storedItem: {}) => {
+    switch (route().current()) {
+        case 'grp.org.fulfilments.show.crm.customers.show.stored-items.index':
+            return route(
+                'grp.org.fulfilments.show.crm.customers.show.stored-items.show',
+                {
+                    organisation: route().params['organisation'],
+                    fulfilment: route().params['fulfilment'],
+                    fulfilmentCustomer: route().params['fulfilmentCustomer'],
+                    storedItem: storedItem.slug,
+                    tab: 'pallets'
+                });
+        default:
+            '#'
+    }
+}
 </script>
 
 <template>
@@ -49,11 +65,17 @@ function storedItemRoute(storedItem) {
             {{ tableKey }}
             <Link v-if="route().current() != 'retina.fulfilment.storage.pallet_returns.show'" :href="storedItemRoute(value)"
                 class="primaryLink">
-            {{ value.reference }}
+                {{ value.reference }}
             </Link>
         </template>
         <template #cell(state)="{ item: palletDelivery }">
                 <Icon  :data="palletDelivery['state_icon']" class="px-1" />
+        </template>
+
+        <template #cell(number_pallets)="{ item: value }">
+            <Link v-if="generateLinkPallets(value)" :href="generateLinkPallets(value)" class="primaryLink">
+                {{ value.number_pallets || 0 }}
+            </Link>
         </template>
         
 
