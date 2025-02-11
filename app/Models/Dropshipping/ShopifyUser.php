@@ -12,6 +12,7 @@ use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\PalletReturn;
 use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -142,15 +143,15 @@ class ShopifyUser extends Authenticatable implements HasMedia, Auditable, IShopM
             ->saveSlugsTo('slug');
     }
 
-    public function products(): MorphToMany
+    public function products(): BelongsToMany
     {
         return $this->morphToMany(Product::class, 'product', 'shopify_user_has_products')
             ->withTimestamps();
     }
 
-    public function orders(): BelongsToMany
+    public function orders(): MorphToMany
     {
-        return $this->belongsToMany(Order::class, 'shopify_user_has_fulfilments')
+        return $this->morphToMany(PalletReturn::class, 'model', 'shopify_user_has_fulfilments', 'model_id', 'model_id')
             ->withTimestamps();
     }
 }

@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dropshipping\Shopify\Fulfilment\Webhooks;
 
+use App\Actions\Dropshipping\Shopify\Fulfilment\StoreShopifyOrderFulfilment;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItemsToReturn;
 use App\Actions\OrgAction;
@@ -15,6 +16,8 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Models\Dropshipping\ShopifyUser;
 use App\Models\ShopifyUserHasProduct;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -27,41 +30,48 @@ class StoreFulfilmentFromShopify extends OrgAction
 
     public function handle(ShopifyUser $shopifyUser, array $modelData): void
     {
-        // $deliveryAddress        = Arr::get($modelData, 'destination');
-        // $countryDeliveryAddress = Country::where('code', Arr::get($deliveryAddress, 'country_code'))->first();
+        DB::transaction(function () use ($shopifyUser, $modelData) {
+            // $deliveryAddress        = Arr::get($modelData, 'destination');
+            // $countryDeliveryAddress = Country::where('code', Arr::get($deliveryAddress, 'country_code'))->first();
 
-        $shopifyProducts = collect($modelData['line_items']);
+            $shopifyProducts = collect($modelData['line_items']);
 
-        /*        $deliveryAddress = [
-                    'address_line_1'      => Arr::get($deliveryAddress, 'address1'),
-                    'address_line_2'      => Arr::get($deliveryAddress, 'address2'),
-                    'sorting_code'        => null,
-                    'postal_code'         => Arr::get($deliveryAddress, 'zip'),
-                    'dependent_locality'  => null,
-                    'locality'            => Arr::get($deliveryAddress, 'city'),
-                    'administrative_area' => Arr::get($deliveryAddress, 'province'),
-                    'country_code'        => Arr::get($deliveryAddress, 'country_code'),
-                    'country_id'          => $countryDeliveryAddress->id
-                ];*/
+            /*        $deliveryAddress = [
+                        'address_line_1'      => Arr::get($deliveryAddress, 'address1'),
+                        'address_line_2'      => Arr::get($deliveryAddress, 'address2'),
+                        'sorting_code'        => null,
+                        'postal_code'         => Arr::get($deliveryAddress, 'zip'),
+                        'dependent_locality'  => null,
+                        'locality'            => Arr::get($deliveryAddress, 'city'),
+                        'administrative_area' => Arr::get($deliveryAddress, 'province'),
+                        'country_code'        => Arr::get($deliveryAddress, 'country_code'),
+                        'country_id'          => $countryDeliveryAddress->id
+                    ];*/
 
-        $palletReturn = StorePalletReturn::make()->actionWithStoredItems($shopifyUser->customer->fulfilmentCustomer, [
-            'type' => PalletReturnTypeEnum::STORED_ITEM
-        ]);
+            $palletReturn = StorePalletReturn::make()->actionWithStoredItems($shopifyUser->customer->fulfilmentCustomer, [
+                'type' => PalletReturnTypeEnum::STORED_ITEM
+            ]);
 
-        $storedItems = [];
-        foreach ($shopifyProducts as $shopifyProduct) {
-            $shopifyUserHasProduct = ShopifyUserHasProduct::where('shopify_user_id', $shopifyUser->id)
-                ->where('shopify_product_id', $shopifyProduct['product_id'])
-                ->first();
+            $storedItems = [];
+            foreach ($shopifyProducts as $shopifyProduct) {
+                $shopifyUserHasProduct = ShopifyUserHasProduct::where('shopify_user_id', $shopifyUser->id)
+                    ->where('shopify_product_id', $shopifyProduct['product_id'])
+                    ->first();
 
-            $storedItems[$shopifyUserHasProduct->product->id] = [
-                'quantity' => $shopifyProduct['quantity']
-            ];
-        }
+                $storedItems[$shopifyUserHasProduct->product->id] = [
+                    'quantity' => $shopifyProduct['quantity']
+                ];
+            }
 
-        StoreStoredItemsToReturn::make()->action($palletReturn, [
-            'stored_items' => $storedItems
-        ]);
+            StoreStoredItemsToReturn::make()->action($palletReturn, [
+                'stored_items' => $storedItems
+            ]);
+
+            StoreShopifyOrderFulfilment::run($shopifyUser, $palletReturn, [
+                'shopify_order_id' => Arr::get($modelData, 'order_id'),
+                'shopify_fulfilment_id' => Arr::get($modelData, 'id')
+            ]);
+        });
     }
 
     public function asController(ShopifyUser $shopifyUser, ActionRequest $request): void

@@ -282,7 +282,7 @@ onMounted(() => {
     
                                 <div v-else class="flex flex-nowrap gap-x-1 items-center">
                                     <ButtonWithLink
-                                        v-if="pallet_stored_item.state == 'picked'"
+                                        v-if="palletReturn.state == 'picking' && pallet_stored_item.state == 'picked'"
                                         icon="fal fa-undo-alt"
                                         :label="trans('Undo pick')"
                                         size="xs"
