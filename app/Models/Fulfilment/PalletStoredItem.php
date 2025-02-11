@@ -8,6 +8,7 @@
 
 namespace App\Models\Fulfilment;
 
+use App\Enums\Fulfilment\PalletStoredItem\PalletStoredItemStateEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -39,6 +40,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class PalletStoredItem extends Model
 {
     protected $guarded = [];
+    protected $casts = [
+        'state'                   => PalletStoredItemStateEnum::class,
+    ];
 
     public function pallet(): BelongsTo
     {
