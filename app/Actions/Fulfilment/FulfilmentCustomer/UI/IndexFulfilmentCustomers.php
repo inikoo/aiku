@@ -157,7 +157,8 @@ class IndexFulfilmentCustomers extends OrgAction
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_pallets_status_storing', label: ['type' => 'text', 'data' => __('Pallets'), 'tooltip' => __('Number of pallets in warehouse')], canBeHidden: false, sortable: true)
-                ->column(key: 'sales_all', label: __('sales'), canBeHidden: false, sortable: true, searchable: true, type: 'number');
+                ->column(key: 'sales_all', label: __('sales'), canBeHidden: false, sortable: true, searchable: true, type: 'number')
+                ->column(key: 'interest', label: __('interest'), canBeHidden: false);
         };
     }
 

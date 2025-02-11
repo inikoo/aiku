@@ -80,5 +80,10 @@ function customerRoute(customer: FulfilmentCustomer) {
           </Link>
         </div>
       </template>
+      
+      <template #cell(interest)="{ item: customer }">
+        
+          <pre>{{ customer.interest }}</pre>
+      </template>
     </Table>
 </template>
