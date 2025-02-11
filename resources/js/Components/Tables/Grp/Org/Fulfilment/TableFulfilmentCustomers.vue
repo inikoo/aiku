@@ -16,6 +16,7 @@ import { useLocaleStore } from "@/Stores/locale";
 import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue";
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { faCheckCircle, faTimesCircle } from '@fas'
+import { trans } from 'laravel-vue-i18n'
 
 
 library.add(faCheck, faTimes)
@@ -79,6 +80,16 @@ function customerRoute(customer: FulfilmentCustomer) {
             <Button label="rejected" :icon="faTimesCircle" type="delete" size="xs"></Button>
           </Link>
         </div>
+      </template>
+      
+      <!-- Column: Interest -->
+      <template #cell(interest)="{ item: customer }">
+          <div class="flex gap-2 text-base text-gray-500">
+            <FontAwesomeIcon v-if="customer.interest?.pallets_storage" v-tooltip="trans('Pallet storage')" icon='fal fa-pallet' class='' fixed-width aria-hidden='true' />
+            <FontAwesomeIcon v-if="customer.interest?.items_storage" v-tooltip="trans('Dropshipping')" icon='fal fa-narwhal' class='' fixed-width aria-hidden='true' />
+            <!-- <FontAwesomeIcon v-if="customer.interest?.dropshipping" v-tooltip="trans('Dropshipping')" icon='fal fa-' class='' fixed-width aria-hidden='true' /> -->
+            <FontAwesomeIcon v-if="customer.interest?.space_rental" v-tooltip="trans('Space (parking)')" icon='fal fa-parking' class='' fixed-width aria-hidden='true' />
+          </div>
       </template>
     </Table>
 </template>

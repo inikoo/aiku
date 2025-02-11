@@ -90,6 +90,13 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
                         ],
                         'method'    => 'patch'
                     ],
+                    'undoRoute' => [
+                        'name'      => 'grp.models.pallet-return-item.undo-picking-stored-item',
+                        'parameters' => [
+                            'palletReturnItem' => $palletReturnItem->id ?? null
+                        ],
+                        'method'    => 'patch'
+                    ],
                     'location' => isset($palletStoredItem->pallet, $palletStoredItem->pallet->location) ? [
                         'slug' => $palletStoredItem->pallet->location->slug ?? null,
                         'code' => $palletStoredItem->pallet->location->code ?? null

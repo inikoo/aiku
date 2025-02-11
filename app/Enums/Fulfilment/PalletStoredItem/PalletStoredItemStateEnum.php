@@ -17,15 +17,17 @@ enum PalletStoredItemStateEnum: string
 
     case IN_PROCESS = 'in_process';
     case ACTIVE = 'active';
-    case HISTORIC = 'historic';
+    case RETURNED = 'returned';
+    case STORED_ITEMS_MOVED_OUT = 'stored_items_moved_out';
 
 
     public static function labels(): array
     {
         return [
-            'in_process'                => __('In process'),
-            'active'                    => __('Active'),
-            'historic'                  => __('Historic'),
+            'in_process'             => __('In process'),
+            'active'                 => __('Active'),
+            'returned'               => __('Returned'),
+            'stored_items_moved_out' => __('Stored items moved out')
         ];
     }
 }

@@ -61,7 +61,7 @@ class SetPalletInReturnAsPicked extends OrgAction
 
                 foreach ($pallet->palletStoredItems as $palletStoredItem) {
                     StoreStoredItemMovementFromPickingAFullPallet::run($palletReturnItem, $palletStoredItem);
-                    $this->update($palletStoredItem, ['state' => PalletStoredItemStateEnum::HISTORIC]); //PalletStoredItem State Changes
+                    $this->update($palletStoredItem, ['state' => PalletStoredItemStateEnum::RETURNED]); //PalletStoredItem State Changes
                 }
             } else {
                 // TODO: check this, not working

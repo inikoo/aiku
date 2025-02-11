@@ -30,8 +30,6 @@ class GetWebpageGoogleCloud extends OrgAction
     use WithNoStrictRules;
 
     private Website $website;
-    private bool $saveSecret = false;
-
     /**
      * @throws \Throwable
      */
@@ -42,7 +40,8 @@ class GetWebpageGoogleCloud extends OrgAction
         if (!$oauthClientSecret) {
             $oauthClientSecret = env("GOOGLE_OAUTH_CLIENT_SECRET");
             if (!$oauthClientSecret) {
-                dd("secret is empty \n");
+                debug("secret is empty \n");
+                return [];
             }
             data_set($settings, "gcp.oauthClientSecret", $oauthClientSecret);
             $webpage->group->update(['settings' => $settings]);
@@ -70,7 +69,6 @@ class GetWebpageGoogleCloud extends OrgAction
         }
         $websiteData = $webpage->website->data;
         $siteUrl = Arr::get($websiteData, 'gcp.siteUrl');
-
         if (!$siteUrl) {
             try {
                 $siteEntry = $service->sites->listSites()->getSiteEntry();
@@ -87,7 +85,7 @@ class GetWebpageGoogleCloud extends OrgAction
             } catch (ConnectException) {
                 return $this->getSiteUrl($webpage, $service, $retry - 1);
             } catch (Exception $e) {
-                dd($e);
+                debug($e);
             }
         }
         return $siteUrl;
@@ -120,7 +118,7 @@ class GetWebpageGoogleCloud extends OrgAction
         } catch (ConnectException) {
             return $this->getSearchAnalytics($webpage, $service, $siteUrl, $modelData, $retry - 1);
         } catch (Exception $e) {
-            dd($e);
+            debug($e);
         }
         return $res;
     }
@@ -154,37 +152,4 @@ class GetWebpageGoogleCloud extends OrgAction
 
         return $this->handle($webpage, $validatedData);
     }
-
-    public string $commandSignature = "gcp-webpage:search-result {webpage?} {--saveSecret}";
-
-    /**
-     * @throws \Exception
-     */
-    public function asCommand($command): int
-    {
-
-        $this->saveSecret = $command->option("saveSecret");
-
-        if ($command->argument("webpage")) {
-            try {
-                /** @var Webpage $webpage */
-                $webpage = Webpage::where("slug", $command->argument("webpage"))->firstOrFail();
-                dd($this->action($webpage, []));
-            } catch (Exception) {
-                $command->error("webpage not found");
-                exit();
-            }
-        } else {
-            if ($this->saveSecret) {
-                foreach (Webpage::orderBy('id')->get() as $webpage) {
-                    $this->action($webpage, []);
-                    $command->line("Webpage ".$webpage->url." saved");
-                }
-            }
-        }
-
-        return 0;
-    }
-
-
 }

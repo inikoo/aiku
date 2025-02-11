@@ -91,6 +91,10 @@ class IndexFulfilmentCustomers extends OrgAction
         return $queryBuilder
             ->defaultSort('-customers.created_at')
             ->select([
+                'pallets_storage',
+                'items_storage',
+                'dropshipping',
+                'space_rental',
                 'reference',
                 'fulfilment_customers.status',
                 'customers.id',
@@ -157,7 +161,8 @@ class IndexFulfilmentCustomers extends OrgAction
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_pallets_status_storing', label: ['type' => 'text', 'data' => __('Pallets'), 'tooltip' => __('Number of pallets in warehouse')], canBeHidden: false, sortable: true)
-                ->column(key: 'sales_all', label: __('sales'), canBeHidden: false, sortable: true, searchable: true, type: 'number');
+                ->column(key: 'sales_all', label: __('sales'), canBeHidden: false, sortable: true, searchable: true, type: 'number')
+                ->column(key: 'interest', label: __('interest'), canBeHidden: false);
         };
     }
 
@@ -212,6 +217,7 @@ class IndexFulfilmentCustomers extends OrgAction
                 'title'       => __('customers'),
                 'pageHead'    => [
                     'title'   => __('customers'),
+                    'model'   => __('Fulfilment'),
                     'icon'    => [
                         'icon'    => ['fal', 'fa-user'],
                         'tooltip' => $this->fulfilment->shop->name.' '.__('customers')

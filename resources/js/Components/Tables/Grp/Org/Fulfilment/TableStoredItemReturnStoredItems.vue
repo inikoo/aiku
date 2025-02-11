@@ -171,7 +171,7 @@ onMounted(() => {
         <template #cell(pallet_stored_items)="{ item: value, proxyItem }">
             <div class="grid gap-y-1">
                 <template v-for="pallet_stored_item in value.pallet_stored_items" :key="pallet_stored_item.id">
-                    <Teleport v-if="isMounted" :to="`#row-${value.id}`" :disabled="pallet_stored_item.selected_quantity > 0">
+                    <Teleport v-if="isMounted" :to="`#row-${value.id}`" :disabled="palletReturn.state == 'in_process' || pallet_stored_item.selected_quantity > 0">
                         <div class="rounded p-1 flex justify-between gap-x-4 items-center">
                             <!-- <Tag :label="pallet_stored_item.reference" stringToColor>
                                 <template #label>
@@ -219,6 +219,10 @@ onMounted(() => {
                                     }"
                                 >
                                 </NumberWithButtonSave>
+
+                                <div v-else-if="palletReturn.state === 'submitted'" class="flex flex-nowrap gap-x-1 items-center">
+                                    {{ pallet_stored_item.selected_quantity }}
+                                </div>
     
                                 <!-- Picking: input number -->
                                 <template v-else-if="palletReturn.state === 'picking' && pallet_stored_item.state !== 'picked'">
@@ -277,17 +281,17 @@ onMounted(() => {
                                 </template>
     
                                 <div v-else class="flex flex-nowrap gap-x-1 items-center">
-                                    <!-- <ButtonWithLink
-                                        v-if="pallet_stored_item.state == 'picked'"
+                                    <ButtonWithLink
+                                        v-if="palletReturn.state == 'picking' && pallet_stored_item.state == 'picked'"
                                         icon="fal fa-undo-alt"
                                         :label="trans('Undo pick')"
                                         size="xs"
                                         type="tertiary"
                                         :key="2"
                                         class="py-0 mr-1"
-                                        :routeTarget="undefined"
-                                    /> -->
-                                    {{ pallet_stored_item.selected_quantity }}
+                                        :routeTarget="pallet_stored_item.undoRoute"
+                                    />
+                                    {{ pallet_stored_item.picked_quantity }}
                                     <FontAwesomeIcon v-if="pallet_stored_item.state == 'picked'" v-tooltip="trans('Picked')" icon='fal fa-check' class='text-green-500' fixed-width aria-hidden='true' />
                                 </div>
     
@@ -300,18 +304,20 @@ onMounted(() => {
                 </template>
 
                 <!-- Section: area for pallet that have 0 selected quantity -->
-                <div>
+                <div v-if="palletReturn.state != 'in_process'">
                     <Collapse as="section" :when="get(proxyItem, ['is_open_collapsed'], false)" class="">
                         <div :id="`row-${value.id}`">
                             <!-- Something will teleport here -->
                         </div>
                     </Collapse>
-                    <Button v-if="!value.pallet_stored_items.every(val => {return val.selected_quantity > 0})" @click="() => set(proxyItem, ['is_open_collapsed'], !get(proxyItem, ['is_open_collapsed'], false))" type="dashed" full size="sm">
-                        <div class="py-1 text-gray-500">
-                            <FontAwesomeIcon icon='fal fa-arrow-down' class="transition-all" :class="get(proxyItem, ['is_open_collapsed'], false) ? 'rotate-180' : ''" fixed-width aria-hidden='true' />
-                            {{ get(proxyItem, ['is_open_collapsed'], false) ? 'Close' : 'Open hidden pallets' }}
-                        </div>
-                    </Button>
+                    <div class="w-full mt-2">
+                        <Button v-if="!value.pallet_stored_items.every(val => {return val.selected_quantity > 0})" @click="() => set(proxyItem, ['is_open_collapsed'], !get(proxyItem, ['is_open_collapsed'], false))" type="dashed" full size="sm">
+                            <div class="py-1 text-gray-500">
+                                <FontAwesomeIcon icon='fal fa-arrow-down' class="transition-all" :class="get(proxyItem, ['is_open_collapsed'], false) ? 'rotate-180' : ''" fixed-width aria-hidden='true' />
+                                {{ get(proxyItem, ['is_open_collapsed'], false) ? 'Close' : 'Open hidden pallets' }}
+                            </div>
+                        </Button>
+                    </div>
                 </div>
             </div>
         </template>
