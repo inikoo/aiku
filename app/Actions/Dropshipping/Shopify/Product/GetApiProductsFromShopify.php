@@ -10,9 +10,11 @@ namespace App\Actions\Dropshipping\Shopify\Product;
 
 use App\Actions\Dropshipping\Portfolio\StorePortfolio;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
+use App\Actions\Fulfilment\StoredItem\UpdateStoredItem;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\Portfolio\PortfolioTypeEnum;
+use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Models\Dropshipping\ShopifyUser;
 use App\Models\Fulfilment\StoredItem;
 use Illuminate\Console\Command;
@@ -62,6 +64,10 @@ class GetApiProductsFromShopify extends OrgAction
                         'shopify_product_id' => $product['id'],
                         'portfolio_id' => $portfolio->id
                     ]]);
+
+                    UpdateStoredItem::run($storedItem, [
+                        'state' => StoredItemStateEnum::ACTIVE
+                    ]);
                 }
             });
         }
