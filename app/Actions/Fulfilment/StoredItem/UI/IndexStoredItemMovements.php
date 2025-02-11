@@ -119,7 +119,7 @@ class IndexStoredItemMovements extends OrgAction
                 ->withModelOperations($modelOperations);
 
             $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
-            $table->column(key: 'description', label: __('description'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'description', label: __('parent'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'pallet_reference', label: __('pallet reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'location_code', label: __('Location'), canBeHidden: false, searchable: true);
 
