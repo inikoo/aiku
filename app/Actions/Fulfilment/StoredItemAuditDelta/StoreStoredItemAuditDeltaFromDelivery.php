@@ -55,7 +55,8 @@ class StoreStoredItemAuditDeltaFromDelivery extends OrgAction
             'last_audit_at' => now(),
             'last_stored_item_audit_delta_id' => $storedItemAuditDelta->id,
             'state'         => PalletStoredItemStateEnum::ACTIVE,
-            'in_process'    => false
+            'in_process'    => false,
+            'delivered_quantity' => $palletStoredItem->quantity
         ]);
 
         $palletStoredItem->refresh();
