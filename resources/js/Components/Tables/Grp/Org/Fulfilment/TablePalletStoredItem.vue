@@ -99,9 +99,15 @@ const generateLinkStoredItems = (storedItem: {}) => {
             </Link>
         </template>
 
+        <template #cell(stored_item_state)="{ item: pallet }">
+            {{ pallet.stored_item_state_icon }}
+            <Icon :data="pallet['stored_item_state_icon']" class="px-1" />
+        </template>
+
         <template #cell(state)="{ item: pallet }">
             <Icon :data="pallet['state_icon']" class="px-1" />
         </template>
+
         <template #cell(reference)="{ item: pallet }">
             <Link :href="generateLinkStoredItems(pallet)" class="primaryLink">
                 {{ pallet['reference'] }}
