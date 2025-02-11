@@ -36,7 +36,7 @@ class ReturnStoredItemsResource extends JsonResource
             'pallet_slug'                    => $storedItem->pallet_slug,
             'pallet_reference'               => $storedItem->pallet_reference ?? '',
             'stored_item_id'                 => $storedItem->stored_item_id,
-            'reference'                      => $storedItem->stored_item_reference,
+            'stored_item_reference'                      => $storedItem->stored_item_reference,
             'stored_item_slug'               => $storedItem->stored_item_slug,
             'state_icon'                     => StoredItemStateEnum::from($storedItem->stored_item_state)->stateIcon()[$storedItem->stored_item_state],
             'stored_item_state'              => $storedItem->stored_item_state,
