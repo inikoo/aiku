@@ -35,6 +35,18 @@ class GetWebpageGoogleCloud extends OrgAction
      */
     public function handle(Webpage $webpage, array $modelData): array
     {
+
+        $user = auth()->user();
+
+
+        $cacheKey = "ui_state-user:{$user->id};webpage:{$webpage->id};filter-webpage-analytics:" . md5(json_encode($modelData));
+
+        $cachedData = cache()->get($cacheKey);
+
+        if ($cachedData) {
+            return $cachedData;
+        }
+
         $settings = $webpage->group->settings;
         $oauthClientSecret = Arr::get($settings, 'gcp.oauthClientSecret');
         if (!$oauthClientSecret) {
@@ -59,7 +71,11 @@ class GetWebpageGoogleCloud extends OrgAction
             return [];
         }
 
-        return $this->getSearchAnalytics($webpage, $service, $siteUrl, $modelData);
+        $data = $this->getSearchAnalytics($webpage, $service, $siteUrl, $modelData);
+
+        cache()->put($cacheKey, $data, now()->addMinutes(5));
+
+        return $data;
     }
 
     private function getSiteUrl(Webpage $webpage, $service, $retry = 3): string

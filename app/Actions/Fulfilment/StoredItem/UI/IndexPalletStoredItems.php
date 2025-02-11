@@ -56,8 +56,9 @@ class IndexPalletStoredItems extends OrgAction
             });
         });
 
-
-
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
         $queryBuilder = QueryBuilder::for(PalletStoredItem::class);
         $queryBuilder->join('stored_items', 'pallet_stored_items.stored_item_id', '=', 'stored_items.id');
@@ -97,7 +98,7 @@ class IndexPalletStoredItems extends OrgAction
             ->defaultSort('pallet_reference');
 
 
-        return $queryBuilder->allowedSorts(['code','price','name','state', 'pallets_reference', 'slug'])
+        return $queryBuilder->allowedSorts(['stored_item_reference', 'quantity', 'code','price','name','state', 'pallet_reference', 'slug'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -138,7 +139,7 @@ class IndexPalletStoredItems extends OrgAction
                 )
                 ->column(key: 'state_icon', label: '', canBeHidden: false, sortable: false, searchable: false, type: 'icon')
                 ->column(key: 'pallet_reference', label: __('pallet'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'reference', label: __('stored item'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'stored_item_reference', label: __('stored item'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: '', label: __('Action'), canBeHidden: false, sortable: true, searchable: true)
                 // ->column(key: 'notes', label: __('Notes'), canBeHidden: false, sortable: true, searchable: true)
