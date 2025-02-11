@@ -91,6 +91,10 @@ class IndexFulfilmentCustomers extends OrgAction
         return $queryBuilder
             ->defaultSort('-customers.created_at')
             ->select([
+                'pallets_storage',
+                'items_storage',
+                'dropshipping',
+                'space_rental',
                 'reference',
                 'fulfilment_customers.status',
                 'customers.id',
