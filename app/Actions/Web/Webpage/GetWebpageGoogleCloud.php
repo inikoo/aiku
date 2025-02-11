@@ -39,7 +39,7 @@ class GetWebpageGoogleCloud extends OrgAction
     {
         $settings = $webpage->group->settings;
         $oauthClientSecret = Arr::get($settings, 'gcp.oauthClientSecret');
-        if (!$oauthClientSecret) {
+        if (!$oauthClientSecret || $this->saveSecret) {
             $oauthClientSecret = env("GOOGLE_OAUTH_CLIENT_SECRET");
             if (!$oauthClientSecret) {
                 dd("secret is empty \n");
@@ -70,7 +70,6 @@ class GetWebpageGoogleCloud extends OrgAction
         }
         $websiteData = $webpage->website->data;
         $siteUrl = Arr::get($websiteData, 'gcp.siteUrl');
-
         if (!$siteUrl) {
             try {
                 $siteEntry = $service->sites->listSites()->getSiteEntry();
@@ -87,7 +86,7 @@ class GetWebpageGoogleCloud extends OrgAction
             } catch (ConnectException) {
                 return $this->getSiteUrl($webpage, $service, $retry - 1);
             } catch (Exception $e) {
-                dd($e);
+                debug($e);
             }
         }
         return $siteUrl;
@@ -120,7 +119,7 @@ class GetWebpageGoogleCloud extends OrgAction
         } catch (ConnectException) {
             return $this->getSearchAnalytics($webpage, $service, $siteUrl, $modelData, $retry - 1);
         } catch (Exception $e) {
-            dd($e);
+            debug($e);
         }
         return $res;
     }
@@ -169,7 +168,7 @@ class GetWebpageGoogleCloud extends OrgAction
             try {
                 /** @var Webpage $webpage */
                 $webpage = Webpage::where("slug", $command->argument("webpage"))->firstOrFail();
-                dd($this->action($webpage, []));
+                $this->action($webpage, []);
             } catch (Exception) {
                 $command->error("webpage not found");
                 exit();
