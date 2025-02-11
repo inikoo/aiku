@@ -9,7 +9,7 @@
 
 namespace App\Actions\Fulfilment\StoredItemMovement;
 
-use App\Actions\Fulfilment\PalletStoredItem\CalculatePalletStoredItemQuantity;
+use App\Actions\Fulfilment\PalletStoredItem\RunPalletStoredItemQuantity;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Enums\Fulfilment\StoredItemMovement\StoredItemMovementTypeEnum;
@@ -43,7 +43,7 @@ class StoreStoredItemMovementFromPicking extends OrgAction
                 'state' => PalletReturnItemStateEnum::PICKED
             ]);
 
-            CalculatePalletStoredItemQuantity::run($palletStoredItem);
+            RunPalletStoredItemQuantity::run($palletStoredItem);
 
             return $storedItemMovement;
         });

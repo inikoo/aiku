@@ -28,16 +28,20 @@ class StoredItemsInWarehouseResource extends JsonResource
 
     public function toArray($request): array
     {
+        $totalQuantity = $this->total_quantity;
+        if (is_numeric($totalQuantity) && floor($totalQuantity) == $totalQuantity) {
+            $totalQuantity = (int) $totalQuantity;
+        };
 
         return [
-            'id'                => $this->id,
-            'reference'         => $this->reference,
-            'slug'              => $this->slug,
-            'state'             => $this->state,
-            'state_icon'        => $this->state->stateIcon()[$this->state->value],
-            'total_quantity'    => $this->total_quantity,
-            'name'              => $this->name,
-            'number_pallets'    => $this->number_pallets
+            'id'             => $this->id,
+            'reference'      => $this->reference,
+            'slug'           => $this->slug,
+            'state'          => $this->state,
+            'state_icon'     => $this->state->stateIcon()[$this->state->value],
+            'total_quantity' => $totalQuantity,
+            'name'           => $this->name,
+            'number_pallets' => $this->number_pallets
 
 
         ];

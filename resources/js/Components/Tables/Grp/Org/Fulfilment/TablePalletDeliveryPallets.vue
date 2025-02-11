@@ -213,6 +213,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 				:storedItemsRoute="storedItemsRoute"
                 :editable="props.state == 'in_process'"
                 @renderTable="() => emits('renderTableKey')"
+				prefixQuery="stored_items"
             />
 		</template>
 
