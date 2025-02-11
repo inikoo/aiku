@@ -106,9 +106,9 @@ class ShowStoredItem extends OrgAction
                         [
                             'type'    => 'button',
                             'style'   => 'edit',
-                            
+
                             'tooltip' => __('Edit stored items'),
-                         
+
                             'route'   => [
                                 'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                                 'parameters' => array_values($request->route()->originalParameters())

@@ -8,7 +8,9 @@
 
 namespace App\Http\Resources\Fulfilment;
 
-use App\Models\Billables\Rental;
+use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\StoredItemAudit;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -36,25 +38,50 @@ class StoredItemMovementsResource extends JsonResource
 {
     public function toArray($request): array
     {
-        $rental = Rental::find($this->rental_id) ?? null;
+        $desc_model = '';
+        $desc_title = '';
+        $desc_after_title = '';
+        $desc_route = null;
+
+        if ($this->stored_item_audit_reference) {
+            $storedItem = StoredItemAudit::where('reference', $this->stored_item_audit_reference)->first();
+            if ($storedItem) {
+                $desc_title = $storedItem->reference;
+                $desc_model = __('Stored Item Audit');
+            }
+        } elseif ($this->pallet_delivery_reference) {
+            $palletDelivery = PalletDelivery::where('reference', $this->pallet_delivery_reference)->first();
+            if ($palletDelivery) {
+                $desc_title = $palletDelivery->reference;
+                $desc_model = __('Stored Item Audit');
+            }
+        } elseif ($this->pallet_returns_reference) {
+            $palletReturn = PalletReturn::where('reference', $this->pallet_returns_reference)->first();
+            if ($palletReturn) {
+                $desc_title = $palletReturn->reference;
+                $desc_model = __('Stored Item Audit');
+            }
+        } else {
+            $desc_title = '-';
+            $desc_model = __('No Parent');
+        }
 
         return [
-            'id'                       => $this->id,
-            'slug'                     => $this->slug,
-            'reference'                => $this->reference,
-            'quantity'                => $this->quantity,
-            'pallet_reference'       => $this->pallet_reference,
-            'pallet_slug'       => $this->pallet_slug,
-            'type'                     => $this->type,
-            'location_slug'            => $this->location_slug,
-            'location_code'            => $this->location_code,
-            'parent'                => match (true) {
-                !empty($this->stored_item_audit_reference)   => $this->stored_item_audit_reference,
-                !empty($this->stored_item_audit_delta_id)      => $this->stored_item_audit_delta_id,
-                !empty($this->pallet_delivery_reference)       => $this->pallet_delivery_reference,
-                !empty($this->pallet_returns_reference)        => $this->pallet_returns_reference,
-                default                                       => null,
-            },
+            'id' => $this->id,
+            'slug' => $this->slug,
+            'reference' => $this->reference,
+            'quantity' => $this->quantity,
+            'pallet_reference' => $this->pallet_reference,
+            'pallet_slug' => $this->pallet_slug,
+            'type' => $this->type,
+            'location_slug' => $this->location_slug,
+            'location_code' => $this->location_code,
+            'description' => [
+                'model' => $desc_model,
+                'title' => $desc_title,
+                'route' => $desc_route,
+                'after_title' => $desc_after_title,
+            ]
         ];
     }
 }
