@@ -12,17 +12,43 @@ use App\Actions\Retina\UI\Dashboard\ShowRetinaDashboard;
 use App\Actions\RetinaAction;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Http\Resources\Fulfilment\RetinaDropshippingFulfilmentOrdersResources;
+use App\InertiaTable\InertiaTable;
 use App\Models\Dropshipping\ShopifyUser;
+use App\Models\ShopifyUserHasFulfilment;
+use App\Services\QueryBuilder;
+use Closure;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexRetinaDropshippingOrders extends RetinaAction
 {
-    public function handle(ShopifyUser $shopifyUser): ShopifyUser
+    public function handle(ShopifyUser $shopifyUser, $prefix = null): LengthAwarePaginator
     {
-        return $shopifyUser;
+        $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
+            $query->where(function ($query) use ($value) {
+                $query->whereAnyWordStartWith('pallets.reference', $value)
+                    ->orWhereWith('pallets.reference', $value);
+            });
+        });
+
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
+
+        $query = QueryBuilder::for(ShopifyUserHasFulfilment::class);
+
+        $query->where('shopify_user_has_fulfilments.shopify_user_id', $shopifyUser->id);
+        $query->with('model');
+        $query->defaultSort('id');
+
+        return $query->defaultSort('id')
+            ->allowedSorts(['id'])
+            ->allowedFilters([$globalSearch])
+            ->withPaginator($prefix, tableName: request()->route()->getName())
+            ->withQueryString();
     }
 
     public function authorize(ActionRequest $request): bool
@@ -30,7 +56,7 @@ class IndexRetinaDropshippingOrders extends RetinaAction
         return $request->user()->is_root;
     }
 
-    public function asController(ActionRequest $request): ShopifyUser
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
 
@@ -57,7 +83,37 @@ class IndexRetinaDropshippingOrders extends RetinaAction
 
                 'orders' => RetinaDropshippingFulfilmentOrdersResources::collection($orders)
             ]
-        )->table($this->tableStructure($shopifyUser, 'orders'));
+        )->table($this->tableStructure('orders'));
+    }
+
+    public function tableStructure($prefix = null, $modelOperations = []): Closure
+    {
+        return function (InertiaTable $table) use ($prefix, $modelOperations) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
+
+            $emptyStateData = [
+                'icons' => ['fal fa-pallet'],
+                'title' => __("No order exist"),
+                'count' => 0
+            ];
+
+            $table->withGlobalSearch()
+                ->withEmptyState($emptyStateData)
+                ->withModelOperations($modelOperations);
+
+            $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
+            $table->column(key: 'parent', label: __('parent'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'pallet_reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'fulfilment_customer_slug', label: __('Customer'), canBeHidden: false, searchable: true);
+            $table->column(key: 'location_code', label: __('Location'), canBeHidden: false, searchable: true);
+
+            $table->column(key: 'quantity', label: 'quantity', canBeHidden: false, searchable: true)
+                ->defaultSort('pallet_reference');
+        };
     }
 
     public function getBreadcrumbs(): array
