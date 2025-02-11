@@ -18,6 +18,7 @@ import Tabs from '@/Components/Navigation/Tabs.vue'
 import Table from '@/Components/Table/Table.vue'
 import TableStoredItemsAudits from '@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemsAudits.vue'
 import TableStoredItemsInWarehouse from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemsInWarehouse.vue";
+import TablePalletStoredItem from '@/Components/Tables/Grp/Org/Fulfilment/TablePalletStoredItem.vue'
 library.add(faNarwhal, faBallotCheck)
 
 const props = defineProps<{
@@ -41,7 +42,7 @@ const component = computed(() => {
 
     const components = {
         stored_items:TableStoredItemsInWarehouse,
-        pallet_stored_items: Table,
+        pallet_stored_items: TablePalletStoredItem,
         stored_item_audits: TableStoredItemsAudits
     };
     return components[currentTab.value];
