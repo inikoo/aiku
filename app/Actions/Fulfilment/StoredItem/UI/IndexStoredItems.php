@@ -42,16 +42,16 @@ class IndexStoredItems extends OrgAction
 
     public function handle(Group|FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
     {
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
+
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('slug', $value)
                 ->orWhereWith('reference', $value);
             });
         });
-
-        if ($prefix) {
-            InertiaTable::updateQueryBuilderParameters($prefix);
-        }
 
         return QueryBuilder::for(StoredItem::class)
             ->select(
@@ -71,7 +71,7 @@ class IndexStoredItems extends OrgAction
                     $query->where('stored_items.group_id', $parent->id);
                 }
             })
-            ->allowedSorts(['reference', 'state', 'total_quantity', 'name', 'number_pallets'])
+            ->allowedSorts(['reference', 'state', 'total_quantity', 'name', 'number_pallets', 'pallet_reference'])
             ->allowedFilters([$globalSearch, 'slug', 'state'])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -215,15 +215,15 @@ class IndexStoredItems extends OrgAction
                     : Inertia::lazy(fn () => StoredItemsInWarehouseResource::collection($storedItems)),
 
                 StoredItemsInWarehouseTabsEnum::PALLET_STORED_ITEMS->value => $this->tab == StoredItemsInWarehouseTabsEnum::PALLET_STORED_ITEMS->value ?
-                    fn () => ReturnStoredItemsResource::collection(IndexPalletStoredItems::run($this->parent))
-                    : Inertia::lazy(fn () => ReturnStoredItemsResource::collection(IndexPalletStoredItems::run($this->parent))),
+                    fn () => ReturnStoredItemsResource::collection(IndexPalletStoredItems::run(parent: $this->parent, prefix: StoredItemsInWarehouseTabsEnum::PALLET_STORED_ITEMS->value))
+                    : Inertia::lazy(fn () => ReturnStoredItemsResource::collection(IndexPalletStoredItems::run(parent: $this->parent, prefix: StoredItemsInWarehouseTabsEnum::PALLET_STORED_ITEMS->value))),
 
                 StoredItemsInWarehouseTabsEnum::STORED_ITEM_AUDITS->value => $this->tab == StoredItemsInWarehouseTabsEnum::STORED_ITEM_AUDITS->value ?
-                    fn () => StoredItemAuditsResource::collection(IndexStoredItemAudits::run($this->parent))
-                    : Inertia::lazy(fn () => StoredItemAuditsResource::collection(IndexStoredItemAudits::run($this->parent))),
+                    fn () => StoredItemAuditsResource::collection(IndexStoredItemAudits::run(parent: $this->parent, prefix: StoredItemsInWarehouseTabsEnum::STORED_ITEM_AUDITS->value))
+                    : Inertia::lazy(fn () => StoredItemAuditsResource::collection(IndexStoredItemAudits::run(parent: $this->parent, prefix: StoredItemsInWarehouseTabsEnum::STORED_ITEM_AUDITS->value))),
 
             ]
-        )->table($this->tableStructure($this->parent, prefix: StoredItemsInWarehouseTabsEnum::STORED_ITEMS->value))
+        )->table($this->tableStructure(parent: $this->parent, prefix: StoredItemsInWarehouseTabsEnum::STORED_ITEMS->value))
             ->table(IndexStoredItemAudits::make()->tableStructure(parent: $this->parent, prefix: StoredItemsInWarehouseTabsEnum::STORED_ITEM_AUDITS->value))
             ->table(
                 IndexPalletStoredItems::make()->tableStructure(

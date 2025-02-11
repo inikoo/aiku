@@ -10,11 +10,14 @@
 namespace App\Actions\Fulfilment\PalletReturnItem;
 
 use App\Actions\Fulfilment\PalletReturn\AutomaticallySetPalletReturnAsPickedIfAllItemsPicked;
+use App\Actions\Fulfilment\PalletStoredItem\SetPalletStoredItemStateToReturned;
 use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovementFromPicking;
 use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\PalletReturnItem;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 
 class PickPalletReturnItem extends OrgAction
@@ -25,12 +28,23 @@ class PickPalletReturnItem extends OrgAction
 
     public function handle(PalletReturnItem $palletReturnItem, array $modelData): PalletReturnItem
     {
-        $this->update($palletReturnItem, $modelData);
-        StoreStoredItemMovementFromPicking::run($palletReturnItem, [
-            'quantity' => $modelData['quantity_picked']
-        ]);
-        AutomaticallySetPalletReturnAsPickedIfAllItemsPicked::run($palletReturnItem->palletReturn);
-        return $palletReturnItem;
+        return DB::transaction(function () use ($palletReturnItem, $modelData) {
+            $quantity = Arr::get($modelData, 'quantity_picked');
+            $palletStoredItemQuant = $palletReturnItem->palletStoredItem->quantity;
+            $this->update($palletReturnItem, $modelData);
+        
+            StoreStoredItemMovementFromPicking::run($palletReturnItem, [
+                'quantity' => $quantity
+            ]);
+            
+            if ($quantity == $palletStoredItemQuant) {
+                SetPalletStoredItemStateToReturned::run($palletReturnItem->palletStoredItem);
+            }
+
+            AutomaticallySetPalletReturnAsPickedIfAllItemsPicked::run($palletReturnItem->palletReturn);
+        
+            return $palletReturnItem;
+        });
     }
 
     public function rules(): array
