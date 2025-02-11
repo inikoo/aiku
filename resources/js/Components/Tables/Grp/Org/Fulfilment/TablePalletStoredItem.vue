@@ -31,13 +31,14 @@ const props = defineProps<{
 
 function palletRoutes(pallet: Pallet) {
     switch (route().current()) {
-        case 'grp.org.fulfilments.show.operations.pallets.current.index':
+        case 'grp.org.fulfilments.show.crm.customers.show.stored-items.index':
             return route(
-                'grp.org.fulfilments.show.operations.pallets.current.show',
+                'grp.org.fulfilments.show.crm.customers.show.pallets.show',
                 [
                     route().params['organisation'],
                     route().params['fulfilment'],
-                    pallet['slug']
+                    route().params['fulfilmentCustomer'],
+                    pallet.pallet_slug
                 ])
         case 'grp.org.warehouses.show.inventory.pallets.current.index':
             return route(
@@ -45,7 +46,7 @@ function palletRoutes(pallet: Pallet) {
                 [
                     route().params['organisation'],
                     route().params['warehouse'],
-                    pallet['slug']
+                    pallet['pallet_slug']
                 ])
 
         case 'grp.org.warehouses.show.infrastructure.locations.show':
@@ -55,7 +56,7 @@ function palletRoutes(pallet: Pallet) {
                     route().params['organisation'],
                     route().params['warehouse'],
                     route().params['location'],
-                    pallet['slug']
+                    pallet['pallet_slug']
                 ])
         case 'grp.org.fulfilments.show.crm.customers.show':
             return route(
@@ -64,7 +65,7 @@ function palletRoutes(pallet: Pallet) {
                     route().params['organisation'],
                     route().params['fulfilment'],
                     route().params['fulfilmentCustomer'],
-                    pallet['slug']
+                    pallet['pallet_slug']
                 ])
 
         default:
@@ -76,9 +77,9 @@ function palletRoutes(pallet: Pallet) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(referencex)="{ item: pallet }">
+        <template #cell(pallet_reference)="{ item: pallet }">
             <Link :href="palletRoutes(pallet)" class="primaryLink">
-                {{ pallet['reference'] }}
+                {{ pallet['pallet_reference'] }}
             </Link>
         </template>
 
