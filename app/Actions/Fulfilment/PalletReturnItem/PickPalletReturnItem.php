@@ -32,17 +32,17 @@ class PickPalletReturnItem extends OrgAction
             $quantity = Arr::get($modelData, 'quantity_picked');
             $palletStoredItemQuant = $palletReturnItem->palletStoredItem->quantity;
             $this->update($palletReturnItem, $modelData);
-        
+
             StoreStoredItemMovementFromPicking::run($palletReturnItem, [
                 'quantity' => $quantity
             ]);
-            
+
             if ($quantity == $palletStoredItemQuant) {
                 SetPalletStoredItemStateToReturned::run($palletReturnItem->palletStoredItem);
             }
 
             AutomaticallySetPalletReturnAsPickedIfAllItemsPicked::run($palletReturnItem->palletReturn);
-        
+
             return $palletReturnItem;
         });
     }
