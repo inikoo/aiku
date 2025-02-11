@@ -34,7 +34,7 @@ class ShowStoredItemAudit extends OrgAction
     use HasFulfilmentAssetsAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
 
-    private Fulfilment|Location $parent;
+    private Fulfilment|Location|FulfilmentCustomer $parent;
 
     private bool $selectStoredPallets = false;
 
@@ -87,6 +87,9 @@ class ShowStoredItemAudit extends OrgAction
         }
 
 
+        if ($this->parent instanceof FulfilmentCustomer) {
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+        }
 
 
         $render = Inertia::render(
@@ -213,7 +216,7 @@ class ShowStoredItemAudit extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, StoredItemAudit $storedItemAudit, ActionRequest $request): StoredItemAudit
     {
-        $this->parent = $fulfilment;
+        $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($storedItemAudit);

@@ -14,6 +14,7 @@ use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\RecurringBillTransaction\UI\IndexRecurringBillTransactions;
 use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
+use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
@@ -41,13 +42,14 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowRecurringBill extends OrgAction
 {
     use WithFulfilmentAuthorisation;
-
+    use WithFulfilmentCustomerSubNavigation;
     private Fulfilment|FulfilmentCustomer $parent;
     private string $bucket;
 
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, RecurringBill $recurringBill, ActionRequest $request): RecurringBill
     {
+        $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(RecurringBillTabsEnum::values());
 
         return $this->handle($recurringBill);
@@ -56,6 +58,7 @@ class ShowRecurringBill extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, RecurringBill $recurringBill, ActionRequest $request): RecurringBill
     {
+        $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(RecurringBillTabsEnum::values());
 
         return $this->handle($recurringBill);
@@ -89,6 +92,12 @@ class ShowRecurringBill extends OrgAction
 
     public function htmlResponse(RecurringBill $recurringBill, ActionRequest $request): Response
     {
+
+        $subNavigation = [];
+        if ($this->parent instanceof FulfilmentCustomer) {
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+        }
+
 
         $actions = [];
 
@@ -140,6 +149,7 @@ class ShowRecurringBill extends OrgAction
                     'next'     => $this->getNext($recurringBill, $request),
                 ],
                 'pageHead'         => [
+                    'subNavigation' => $subNavigation,
                     'icon'    =>
                         [
                             'icon'  => 'fal fa-receipt',
