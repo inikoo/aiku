@@ -67,10 +67,10 @@ class DispatchPalletReturn extends OrgAction
                         ]
                     ]);
                 }
-                return $this->update($palletReturn, $modelData);
+                return $palletReturn;
             });          
         }
-
+        $this->update($palletReturn, $modelData);
         if ($palletReturn->fulfilmentCustomer->currentRecurringBill) {
             $recurringBill = $palletReturn->fulfilmentCustomer->currentRecurringBill;
 
