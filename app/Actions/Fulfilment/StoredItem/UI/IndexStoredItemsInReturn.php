@@ -88,8 +88,7 @@ class IndexStoredItemsInReturn extends OrgAction
             ->leftJoin('pallets', function ($join) {
                 $join->on('pallets.id', '=', 'pallet_stored_items.pallet_id');
             })
-            ->where('stored_items.fulfilment_customer_id', $parent->fulfilment_customer_id)
-            ->where('stored_items.total_quantity', '>', 0);
+            ->where('stored_items.fulfilment_customer_id', $parent->fulfilment_customer_id);
 
         if ($parent->state === PalletReturnStateEnum::IN_PROCESS) {
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
@@ -100,6 +99,7 @@ class IndexStoredItemsInReturn extends OrgAction
                     prefix: $prefix
                 );
             }
+            $queryBuilder->where('stored_items.total_quantity', '>', 0);
         } else {
             $queryBuilder->where('pallet_returns.id', $parent->id);
         }

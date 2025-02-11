@@ -9,7 +9,6 @@
 
 namespace App\Http\Resources\Fulfilment;
 
-use App\Http\Resources\Inventory\LocationResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -29,18 +28,16 @@ class RetinaDropshippingFulfilmentOrdersResources extends JsonResource
     public function toArray($request): array
     {
         return [
-            'id'                    => $this->id,
-            'reference'             => $this->reference,
-            'customer_reference'    => $this->customer_reference,
-            'slug'                  => $this->slug ?? null,
-            'location'              => LocationResource::make($this->location),
-            'state'                 => $this->state,
-            'status'                => $this->status,
-            'notes'                 => $this->notes ?? '',
-            'rental_id'             => $this->rental_id,
-            'status_label'          => $pallet->status->labels()[$pallet->status->value],
-            'status_icon'           => $pallet->status->statusIcon()[$pallet->status->value],
-            'items'                 => StoredItemResource::collection($this->storedItems ?? []),
+            'id' => $this->id,
+            'shopify_order_id' => $this->shopify_order_id,
+            'shopify_fulfilment_id' => $this->shopify_fulfilment_id,
+            'reference' => $this->model->reference,
+            'model' => class_basename($this->model),
+            'state' => $this->model->state,
+            'type' => $this->model->type,
+            'slug' => $this->model->slug,
+            'state_label'           => $this->model->state->labels()[$this->model->state->value],
+            'state_icon'            => $this->model->state->stateIcon()[$this->model->state->value],
         ];
     }
 }

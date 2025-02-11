@@ -50,7 +50,7 @@ class DispatchPalletReturn extends OrgAction
             ->whereNot('status', PalletStatusEnum::INCIDENT->value)
             ->get();
 
-        if($palletReturn->type == PalletReturnTypeEnum::PALLET) {
+        if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
             $palletReturn = DB::transaction(function () use ($palletReturn, $pallets, $modelData) {
                 /** @var Pallet $pallet */
                 foreach ($pallets as $pallet) {
@@ -59,18 +59,18 @@ class DispatchPalletReturn extends OrgAction
                         'status' => PalletStatusEnum::RETURNED,
                         'dispatched_at' => now()
                     ]);
-    
-    
+
+
                     $palletReturn->pallets()->syncWithoutDetaching([
                         $pallet->id => [
                             'state' => PalletReturnStateEnum::DISPATCHED
                         ]
                     ]);
                 }
-                return $this->update($palletReturn, $modelData);
+                return $palletReturn;
             });          
         }
-
+        $this->update($palletReturn, $modelData);
         if ($palletReturn->fulfilmentCustomer->currentRecurringBill) {
             $recurringBill = $palletReturn->fulfilmentCustomer->currentRecurringBill;
 
