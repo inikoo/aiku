@@ -47,29 +47,32 @@ class GetApiProductsFromShopify extends OrgAction
         }
 
         foreach ($response['body']['products'] as $product) {
-            DB::transaction(function () use ($product, $shopifyUser) {
-                if (!StoredItem::where('reference', $product['handle'])->exists()) {
-                    $storedItem = StoreStoredItem::make()->action($shopifyUser->customer->fulfilmentCustomer, [
-                        'reference' => $product['handle']
-                    ]);
+            foreach ($product['variants'] as $variant) {
+                DB::transaction(function () use ($variant, $product, $shopifyUser) {
+                    if (!StoredItem::where('reference', $product['handle'])->exists()) {
+                        $storedItem = StoreStoredItem::make()->action($shopifyUser->customer->fulfilmentCustomer, [
+                            'reference' => $product['handle']
+                        ]);
 
-                    $portfolio = StorePortfolio::make()->action($shopifyUser->customer, [
-                        'stored_item_id' => $storedItem->id,
-                        'type' => PortfolioTypeEnum::SHOPIFY
-                    ]);
+                        $portfolio = StorePortfolio::make()->action($shopifyUser->customer, [
+                            'stored_item_id' => $storedItem->id,
+                            'type' => PortfolioTypeEnum::SHOPIFY
+                        ]);
 
-                    $shopifyUser->products()->sync([$product->id => [
-                        'shopify_user_id' => $shopifyUser->id,
-                        'product_type' => class_basename($storedItem),
-                        'shopify_product_id' => $product['id'],
-                        'portfolio_id' => $portfolio->id
-                    ]]);
+                        $shopifyUser->products()->sync([$product->id => [
+                            'shopify_user_id' => $shopifyUser->id,
+                            'product_type' => class_basename($storedItem),
+                            'shopify_product_id' => $variant['product_id'],
+                            'portfolio_id' => $portfolio->id
+                        ]]);
 
-                    UpdateStoredItem::run($storedItem, [
-                        'state' => StoredItemStateEnum::ACTIVE
-                    ]);
-                }
-            });
+                        UpdateStoredItem::run($storedItem, [
+                            'state' => StoredItemStateEnum::SUBMITTED,
+                            'total_quantity' => $variant['inventory_quantity']
+                        ]);
+                    }
+                });
+            }
         }
     }
 

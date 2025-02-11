@@ -32,6 +32,7 @@ const props = defineProps<{
     }
     pallets?: {}
     showcase?: {}
+    movements?: {}
     history?: {}
     pageHead: {}
     palletRoute: {
