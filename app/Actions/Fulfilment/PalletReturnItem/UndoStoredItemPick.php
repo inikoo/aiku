@@ -9,9 +9,7 @@
 
 namespace App\Actions\Fulfilment\PalletReturnItem;
 
-use App\Actions\Fulfilment\PalletReturn\AutomaticallySetPalletReturnAsPickedIfAllItemsPicked;
 use App\Actions\Fulfilment\PalletStoredItem\RunPalletStoredItemQuantity;
-use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovementFromPicking;
 use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -37,7 +35,7 @@ class UndoStoredItemPick extends OrgAction
         $movement->delete();
 
         RunPalletStoredItemQuantity::run($palletReturnItem->palletStoredItem);
-        
+
         return $palletReturnItem;
     }
 

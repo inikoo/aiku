@@ -101,9 +101,9 @@ class ShowPalletReturn extends OrgAction
             if ($palletReturn->pallets()->count() < 1) {
                 $tooltipSubmit = __('Select pallet before submit');
                 $isDisabled = true;
-            // } elseif (!$palletReturn->is_collection && $palletReturn->delivery_address_id === null) {
-            //     $tooltipSubmit = __('Select address before submit');
-            //     $isDisabled = true;
+                // } elseif (!$palletReturn->is_collection && $palletReturn->delivery_address_id === null) {
+                //     $tooltipSubmit = __('Select address before submit');
+                //     $isDisabled = true;
             } else {
                 $tooltipSubmit = __('Submit');
             }
@@ -133,9 +133,9 @@ class ShowPalletReturn extends OrgAction
             if ($palletReturn->pallets()->count() < 1) {
                 $tooltipSubmit = __('Select Customer\'s SKU before submit');
                 $isDisabled = true;
-            // } elseif (!$palletReturn->is_collection && $palletReturn->delivery_address_id === null) {
-            //     $tooltipSubmit = __('Select address before submit');
-            //     $isDisabled = true;
+                // } elseif (!$palletReturn->is_collection && $palletReturn->delivery_address_id === null) {
+                //     $tooltipSubmit = __('Select address before submit');
+                //     $isDisabled = true;
             } else {
                 $tooltipSubmit = __('Submit');
             }
