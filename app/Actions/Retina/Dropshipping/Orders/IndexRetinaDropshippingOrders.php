@@ -105,14 +105,9 @@ class IndexRetinaDropshippingOrders extends RetinaAction
                 ->withEmptyState($emptyStateData)
                 ->withModelOperations($modelOperations);
 
-            $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
-            $table->column(key: 'parent', label: __('parent'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'pallet_reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'fulfilment_customer_slug', label: __('Customer'), canBeHidden: false, searchable: true);
-            $table->column(key: 'location_code', label: __('Location'), canBeHidden: false, searchable: true);
-
-            $table->column(key: 'quantity', label: 'quantity', canBeHidden: false, searchable: true)
-                ->defaultSort('pallet_reference');
+            $table ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
+            $table->column(key: 'model', label: __('model'), canBeHidden: false, searchable: true);
+            $table->column(key: 'reference', label: __('reference'), canBeHidden: false, searchable: true);
         };
     }
 
