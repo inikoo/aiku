@@ -10,6 +10,7 @@
 namespace App\Actions\Fulfilment\PalletStoredItem;
 
 use App\Actions\Fulfilment\StoredItem\SetStoredItemQuantityFromPalletStoreItems;
+use App\Enums\Fulfilment\PalletStoredItem\PalletStoredItemStateEnum;
 use App\Enums\Fulfilment\StoredItemMovement\StoredItemMovementTypeEnum;
 use App\Models\Fulfilment\PalletStoredItem;
 use App\Models\Fulfilment\StoredItemAuditDelta;
@@ -31,6 +32,11 @@ class RunPalletStoredItemQuantity
                 'quantity' => $quantity
             ]
         );
+
+        // TODO: Not Sure About this
+        if($palletStoredItem->quantity == 0) {
+            SetPalletStoredItemStateToReturned::run($palletStoredItem);
+        }
 
         $palletStoredItem->refresh();
 
