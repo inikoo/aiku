@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
+use App\Actions\Fulfilment\StoredItem\Hydrators\StoreItemHydrateAudits;
 use App\Actions\Fulfilment\StoredItem\Hydrators\StoreItemHydratePallets;
 use App\Actions\Traits\Hydrators\WithHydrateCommand;
 use App\Models\Fulfilment\StoredItem;
@@ -15,6 +16,7 @@ use App\Models\Fulfilment\StoredItem;
 class HydrateStoreItem
 {
     use WithHydrateCommand;
+
     public string $commandSignature = 'hydrate:stored_items {organisations?*} {--S|shop= shop slug} {--s|slug=}';
 
     public function __construct()
@@ -25,9 +27,8 @@ class HydrateStoreItem
     public function handle(StoredItem $storedItem): void
     {
         StoreItemHydratePallets::run($storedItem);
-
+        StoreItemHydrateAudits::run($storedItem);
     }
-
 
 
 }
