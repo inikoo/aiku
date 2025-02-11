@@ -82,7 +82,7 @@ const onChangeStoredItem = (data) => {
 <template>
     <div class="px-8 py-6 grid grid-cols-6 gap-x-4">
         <!-- Box: Pie chart -->
-        <div class="h-fit flex flex-col col-span-2 justify-between px-5 py-3 rounded-lg border border-gray-100 shadow tabular-nums">
+        <div v-if="false" class="h-fit flex flex-col col-span-2 justify-between px-5 py-3 rounded-lg border border-gray-100 shadow tabular-nums">
             <div class="sm:flex sm:items-center">
                 <div class="sm:flex-auto">
                     <h1 class="font-semibold leading-6">
