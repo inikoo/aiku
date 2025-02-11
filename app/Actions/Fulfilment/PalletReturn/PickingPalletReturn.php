@@ -21,6 +21,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
@@ -39,18 +40,20 @@ class PickingPalletReturn extends OrgAction
         $modelData[Str::replace('-', '_', PalletReturnStateEnum::PICKING->value).'_at']     = now();
         $modelData['state']                                                                 = PalletReturnStateEnum::PICKING;
 
-        foreach ($palletReturn->pallets as $pallet) {
-            UpdatePallet::run($pallet, [
-                'state'  => PalletStateEnum::PICKING,
-                'status' => PalletStatusEnum::RETURNING,
-                'picking_at' => now()
-            ]);
-
-            $palletReturn->pallets()->syncWithoutDetaching([
-                $pallet->id => [
-                    'state' => PalletStateEnum::PICKING
-                ]
-            ]);
+        if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
+            foreach ($palletReturn->pallets as $pallet) {
+                UpdatePallet::run($pallet, [
+                    'state'  => PalletStateEnum::PICKING,
+                    'status' => PalletStatusEnum::RETURNING,
+                    'picking_at' => now()
+                ]);
+    
+                $palletReturn->pallets()->syncWithoutDetaching([
+                    $pallet->id => [
+                        'state' => PalletStateEnum::PICKING
+                    ]
+                ]);
+            }
         }
 
         $palletReturn = $this->update($palletReturn, $modelData);

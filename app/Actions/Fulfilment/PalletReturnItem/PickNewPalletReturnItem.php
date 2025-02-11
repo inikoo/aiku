@@ -28,7 +28,7 @@ class PickNewPalletReturnItem extends OrgAction
     {
         DB::transaction(function () use ($modelData, $palletReturn, $palletStoredItem) {
             $quantityOrdered = Arr::pull($modelData, 'quantity_ordered');
-        
+
             $palletReturn->storedItems()->attach([
                 $palletStoredItem->storedItem->id => [
                     'type'                 => 'StoredItem',
@@ -42,7 +42,7 @@ class PickNewPalletReturnItem extends OrgAction
                 'pallet_return_id' => $palletReturn->id,
                 'pallet_id'   => $palletStoredItem->pallet->id,
             ])->first();
-        
+
             PickPalletReturnItem::run($palletReturnItem, [
                 'quantity_picked' => $quantityOrdered
             ]);
