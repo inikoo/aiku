@@ -8,7 +8,7 @@
 
 namespace App\Models\Fulfilment;
 
-use App\Enums\Fulfilment\Pallet\PalletStoredItemStateEnum;
+use App\Enums\Fulfilment\PalletStoredItem\PalletStoredItemStateEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;

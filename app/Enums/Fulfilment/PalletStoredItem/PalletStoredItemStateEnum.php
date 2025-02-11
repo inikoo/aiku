@@ -6,7 +6,7 @@
  * copyright 2025
 */
 
-namespace App\Enums\Fulfilment\Pallet;
+namespace App\Enums\Fulfilment\PalletStoredItem;
 
 use App\Enums\EnumHelperTrait;
 use App\Models\Fulfilment\Fulfilment;
