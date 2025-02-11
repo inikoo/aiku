@@ -10,7 +10,6 @@
 namespace App\Actions\Fulfilment\PalletStoredItem;
 
 use App\Actions\Fulfilment\StoredItem\SetStoredItemQuantityFromPalletStoreItems;
-use App\Enums\Fulfilment\PalletStoredItem\PalletStoredItemStateEnum;
 use App\Enums\Fulfilment\StoredItemMovement\StoredItemMovementTypeEnum;
 use App\Models\Fulfilment\PalletStoredItem;
 use App\Models\Fulfilment\StoredItemAuditDelta;

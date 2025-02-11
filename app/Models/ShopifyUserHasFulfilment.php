@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Dropshipping\ShopifyUser;
 use App\Models\Ordering\Order;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
@@ -33,8 +34,8 @@ class ShopifyUserHasFulfilment extends Pivot
         return $this->belongsTo(ShopifyUser::class);
     }
 
-    public function order(): BelongsTo
+    public function model(): MorphTo
     {
-        return $this->belongsTo(Order::class);
+        return $this->morphTo('model');
     }
 }

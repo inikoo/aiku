@@ -47,7 +47,7 @@ class PickingPalletReturn extends OrgAction
                     'status' => PalletStatusEnum::RETURNING,
                     'picking_at' => now()
                 ]);
-    
+
                 $palletReturn->pallets()->syncWithoutDetaching([
                     $pallet->id => [
                         'state' => PalletStateEnum::PICKING
