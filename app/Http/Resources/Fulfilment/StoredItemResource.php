@@ -33,6 +33,7 @@ class StoredItemResource extends JsonResource
 
         return [
             'id'             => $storedItem->id,
+            'created_at'     => $storedItem->created_at,
             'reference'      => $storedItem->reference,
             'slug'           => $storedItem->slug,
             'customer_name'  => $storedItem->fulfilmentCustomer?->customer['name'],
@@ -46,6 +47,8 @@ class StoredItemResource extends JsonResource
             'total_quantity' => $storedItem->pallets?->sum('pivot.quantity'),
             'name'          => $storedItem->name,
             'max_quantity'   => $storedItem->pallets?->sum('pivot.quantity'),
+            'last_audit_at'  => $storedItem->last_audit_at,
+            'last_stored_item_audit_id' => $storedItem->last_stored_item_audit_id,
 
             'pallets'                   => $storedItem->pallets->map(fn (Pallet $pallet) => [
                 'id'                    => $pallet->id,
