@@ -23,6 +23,7 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Osiset\ShopifyApp\Contracts\ShopModel as IShopModel;
 use Osiset\ShopifyApp\Traits\ShopModel;
@@ -141,7 +142,7 @@ class ShopifyUser extends Authenticatable implements HasMedia, Auditable, IShopM
             ->saveSlugsTo('slug');
     }
 
-    public function products(): BelongsToMany
+    public function products(): MorphToMany
     {
         return $this->morphToMany(Product::class, 'product', 'shopify_user_has_products')
             ->withTimestamps();
