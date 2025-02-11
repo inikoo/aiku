@@ -30,8 +30,6 @@ class GetWebpageGoogleCloud extends OrgAction
     use WithNoStrictRules;
 
     private Website $website;
-    private bool $saveSecret = false;
-
     /**
      * @throws \Throwable
      */
@@ -39,10 +37,11 @@ class GetWebpageGoogleCloud extends OrgAction
     {
         $settings = $webpage->group->settings;
         $oauthClientSecret = Arr::get($settings, 'gcp.oauthClientSecret');
-        if (!$oauthClientSecret || $this->saveSecret) {
+        if (!$oauthClientSecret) {
             $oauthClientSecret = env("GOOGLE_OAUTH_CLIENT_SECRET");
             if (!$oauthClientSecret) {
-                dd("secret is empty \n");
+                debug("secret is empty \n");
+                return [];
             }
             data_set($settings, "gcp.oauthClientSecret", $oauthClientSecret);
             $webpage->group->update(['settings' => $settings]);
@@ -153,37 +152,4 @@ class GetWebpageGoogleCloud extends OrgAction
 
         return $this->handle($webpage, $validatedData);
     }
-
-    public string $commandSignature = "gcp-webpage:search-result {webpage?} {--saveSecret}";
-
-    /**
-     * @throws \Exception
-     */
-    public function asCommand($command): int
-    {
-
-        $this->saveSecret = $command->option("saveSecret");
-
-        if ($command->argument("webpage")) {
-            try {
-                /** @var Webpage $webpage */
-                $webpage = Webpage::where("slug", $command->argument("webpage"))->firstOrFail();
-                $this->action($webpage, []);
-            } catch (Exception) {
-                $command->error("webpage not found");
-                exit();
-            }
-        } else {
-            if ($this->saveSecret) {
-                foreach (Webpage::orderBy('id')->get() as $webpage) {
-                    $this->action($webpage, []);
-                    $command->line("Webpage ".$webpage->url." saved");
-                }
-            }
-        }
-
-        return 0;
-    }
-
-
 }
