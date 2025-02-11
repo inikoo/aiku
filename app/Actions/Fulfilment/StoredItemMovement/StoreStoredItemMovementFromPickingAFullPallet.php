@@ -9,7 +9,7 @@
 
 namespace App\Actions\Fulfilment\StoredItemMovement;
 
-use App\Actions\Fulfilment\PalletStoredItem\CalculatePalletStoredItemQuantity;
+use App\Actions\Fulfilment\PalletStoredItem\RunPalletStoredItemQuantity;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\StoredItemMovement\StoredItemMovementTypeEnum;
 use App\Models\Fulfilment\PalletReturnItem;
@@ -32,7 +32,7 @@ class StoreStoredItemMovementFromPickingAFullPallet extends OrgAction
         data_set($modelData, 'moved_at', now());
 
         $storedItemMovement = StoredItemMovement::create($modelData);
-        CalculatePalletStoredItemQuantity::run($palletStoredItem);
+        RunPalletStoredItemQuantity::run($palletStoredItem);
         return $storedItemMovement;
     }
 }
