@@ -31,8 +31,8 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowStoredItem extends OrgAction
 {
-    private Warehouse|Organisation|FulfilmentCustomer|Fulfilment $parent;
     use WithFulfilmentCustomerSubNavigation;
+    private Warehouse|Organisation|FulfilmentCustomer|Fulfilment $parent;
 
     public function authorize(ActionRequest $request): bool
     {

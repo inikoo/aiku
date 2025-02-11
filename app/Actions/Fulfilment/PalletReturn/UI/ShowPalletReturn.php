@@ -128,7 +128,7 @@ class ShowPalletReturn extends OrgAction
             unset($navigation[PalletReturnTabsEnum::PALLETS->value]);
             $this->tab = $request->get('tab', array_key_first($navigation));
 
-           
+
             $isDisabled = false;
             if ($palletReturn->pallets()->count() < 1) {
                 $tooltipSubmit = __('Select stored item before submit');

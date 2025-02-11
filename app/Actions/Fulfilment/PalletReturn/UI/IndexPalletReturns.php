@@ -15,7 +15,6 @@ use App\Actions\Helpers\Upload\UI\IndexPalletReturnItemUploads;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
-use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Enums\UI\Fulfilment\PalletReturnsTabsEnum;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\Http\Resources\Helpers\PalletReturnItemUploadsResource;
@@ -290,7 +289,7 @@ class IndexPalletReturns extends OrgAction
                     'iconRight'     => $iconRight,
                     'icon'          => $icon,
                     'subNavigation' => $subNavigation,
-                    'actions'       =>$actions
+                    'actions'       => $actions
                 ],
                 'data'        => PalletReturnsResource::collection($returns),
 

@@ -91,7 +91,7 @@ class ShowPalletDelivery extends OrgAction
     }
 
     public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): Response
-    {        
+    {
         $subNavigation = [];
         if ($this->parent instanceof FulfilmentCustomer) {
             $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);

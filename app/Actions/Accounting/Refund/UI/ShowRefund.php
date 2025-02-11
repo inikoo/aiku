@@ -36,8 +36,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowRefund extends OrgAction
 {
-    private Invoice|Organisation|Fulfilment|FulfilmentCustomer|Shop $parent;
     use WithFulfilmentCustomerSubNavigation;
+    private Invoice|Organisation|Fulfilment|FulfilmentCustomer|Shop $parent;
 
     public function handle(Invoice $refund): Invoice
     {

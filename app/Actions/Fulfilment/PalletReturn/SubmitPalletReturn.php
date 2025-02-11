@@ -40,7 +40,7 @@ class SubmitPalletReturn extends OrgAction
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-         //TODO: Delet this/use in retina
+        //TODO: Delet this/use in retina
         $modelData['submitted_at'] = now();
         $modelData['state']                                       = PalletReturnStateEnum::SUBMITTED;
 

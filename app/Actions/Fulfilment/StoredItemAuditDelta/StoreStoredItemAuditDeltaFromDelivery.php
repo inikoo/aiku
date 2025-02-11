@@ -50,7 +50,6 @@ class StoreStoredItemAuditDeltaFromDelivery extends OrgAction
             ]
         );
 
-        // todo save $palletStoredItem->delivered_quantity here
         $palletStoredItem = $this->update($palletStoredItem, [
             'number_audits' => $palletStoredItem->number_audits + 1,
             'last_audit_at' => now(),
