@@ -99,7 +99,7 @@ class IndexRetinaStoredItemsInPalletDelivery extends RetinaAction
                                 'name'       => 'grp.org.hr.employees.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
-                            'label' => __("customer's sKUs")
+                            'label' => __("Customer's SKUs")
                         ]
                     ],
                 ],
@@ -128,7 +128,7 @@ class IndexRetinaStoredItemsInPalletDelivery extends RetinaAction
                         'route' => [
                             'name' => 'grp.fulfilment.stored-items.index'
                         ],
-                        'label' => __("customer's sKUs"),
+                        'label' => __("Customer's SKUs"),
                         'icon'  => 'fal fa-bars',
                     ],
 

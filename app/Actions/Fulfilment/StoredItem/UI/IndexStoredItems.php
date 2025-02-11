@@ -44,7 +44,8 @@ class IndexStoredItems extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereStartWith('slug', $value);
+                $query->whereStartWith('slug', $value)
+                ->orWhereWith('reference', $value);
             });
         });
 
@@ -268,7 +269,7 @@ class IndexStoredItems extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __("customer's sKUs"),
+                        'label' => __("Customer's SKUs"),
                         'icon'  => 'fal fa-bars',
                     ],
 
@@ -297,7 +298,7 @@ class IndexStoredItems extends OrgAction
                                 'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __("customer's sKUs"),
+                            'label' => __("Customer's SKUs"),
                             'icon'  => 'fal fa-bars',
                         ],
 

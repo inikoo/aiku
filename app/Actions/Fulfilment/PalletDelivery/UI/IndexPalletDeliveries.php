@@ -137,7 +137,7 @@ class IndexPalletDeliveries extends OrgAction
             $queryBuilder->where('pallet_deliveries.fulfilment_customer_id', $parent->id);
         }
 
-        $queryBuilder->leftJoin('organisations', 'pallet_deliveries.organisation_id', '=', 'pallet_deliveries.id')
+        $queryBuilder->leftJoin('organisations', 'pallet_deliveries.organisation_id', '=', 'organisations.id')
         ->leftJoin('fulfilments', 'pallet_deliveries.fulfilment_id', '=', 'fulfilments.id')
         ->leftJoin('shops', 'fulfilments.shop_id', '=', 'shops.id');
 
