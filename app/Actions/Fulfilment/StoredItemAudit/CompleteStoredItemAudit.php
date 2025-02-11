@@ -18,6 +18,7 @@ use App\Actions\Fulfilment\StoredItem\SetStoredItemQuantityFromPalletStoreItems;
 use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovement;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Fulfilment\PalletStoredItem\PalletStoredItemStateEnum;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
 use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaTypeEnum;
@@ -48,16 +49,30 @@ class CompleteStoredItemAudit extends OrgAction
             if ($storedItemAuditDelta->audit_type === StoredItemAuditDeltaTypeEnum::SET_UP) {
                 AttachStoredItemToPallet::run($pallet, $storedItemAuditDelta->storedItem, $storedItemAuditDelta->audited_quantity);
                 $palletStoredItem = PalletStoredItem::where('pallet_id', $storedItemAuditDelta->pallet_id)->where('stored_item_id', $storedItemAuditDelta->stored_item_id)->first();
+                $palletStoredItem = $this->update($palletStoredItem, [
+                    'in_process' => false,
+                    'state'      => PalletStoredItemStateEnum::ACTIVE
+                ]);
+                StoreStoredItemMovement::run($storedItemAuditDelta);
                 RunPalletStoredItemQuantity::run($palletStoredItem);
             } elseif ($storedItemAuditDelta->audited_quantity == 0) {
                 $storedItem = $storedItemAuditDelta->storedItem;
-                DetachStoredItemToPallet::run($pallet, $storedItem);
+                $palletStoredItem = PalletStoredItem::where('pallet_id', $storedItemAuditDelta->pallet_id)->where('stored_item_id', $storedItemAuditDelta->stored_item_id)->first();
+
+                $palletStoredItem = $this->update($palletStoredItem, [
+                    'in_process' => false,
+                    'state'      => PalletStoredItemStateEnum::STORED_ITEMS_MOVED_OUT
+                ]);
+
                 SetStoredItemQuantityFromPalletStoreItems::run($storedItem);
             } else {
                 $palletStoredItem = PalletStoredItem::where('pallet_id', $storedItemAuditDelta->pallet_id)->where('stored_item_id', $storedItemAuditDelta->stored_item_id)->first();
+
                 $palletStoredItem = $this->update($palletStoredItem, [
-                    'in_process' => false
+                    'in_process' => false,
+                    'state'      => PalletStoredItemStateEnum::ACTIVE
                 ]);
+
                 $palletStoredItem->refresh();
                 StoreStoredItemMovement::run($storedItemAuditDelta);
                 RunPalletStoredItemQuantity::run($palletStoredItem);
