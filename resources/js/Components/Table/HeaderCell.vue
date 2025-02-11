@@ -84,15 +84,16 @@ const isCellNumber = () => {
                     <div v-else class="capitalize text-xs md:text-sm lg:text-base w-full" v-tooltip="cell?.tooltip"
                         :class="[cell?.type == 'number' || cell?.type == 'currency' ? 'text-right pr-3' : '']"
                     >
-                        <span class="hidden lg:inline">{{ cell?.label || ''}}</span>
-                        <span class="inline lg:hidden">{{ cell?.shortLabel || cell?.label || ''}}</span>
                         <FontAwesomeIcon
                             v-if="cell?.icon"
                             :icon="cell?.icon"
                             aria-hidden="true"
-                            size="lg"
                             fixed-width
+                            class="text-gray-500 mr-2"
                         />
+                        <span class="hidden lg:inline">{{ cell?.label || ''}}</span>
+                        <span class="inline lg:hidden">{{ cell?.shortLabel || cell?.label || ''}}</span>
+                        
                     </div>
 
                     <!-- Icon: arrow for sort -->

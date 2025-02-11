@@ -15,6 +15,7 @@ use App\Actions\OrgAction;
 use App\Actions\UI\Fulfilment\ShowWarehouseFulfilmentDashboard;
 use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
+use App\Http\Resources\Fulfilment\StoredItemMovementsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -104,10 +105,10 @@ class ShowStoredItem extends OrgAction
 
                         [
                             'type'    => 'button',
-                            'style'   => 'secondary',
-                            'icon'    => 'fal fa-pencil',
+                            'style'   => 'edit',
+                            
                             'tooltip' => __('Edit stored items'),
-                            'label'   => __("customer's sKUs"),
+                         
                             'route'   => [
                                 'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                                 'parameters' => array_values($request->route()->originalParameters())
@@ -157,12 +158,17 @@ class ShowStoredItem extends OrgAction
                     fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem))
                     : Inertia::lazy(fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem))),
 
+                StoredItemTabsEnum::MOVEMENTS->value => $this->tab == StoredItemTabsEnum::MOVEMENTS->value ?
+                    fn () => StoredItemMovementsResource::collection(IndexStoredItemMovements::run($storedItem))
+                    : Inertia::lazy(fn () => StoredItemMovementsResource::collection(IndexStoredItemMovements::run($storedItem))),
+
                 StoredItemTabsEnum::HISTORY->value => $this->tab == StoredItemTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($storedItem))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($storedItem)))
 
             ]
         )->table(IndexHistory::make()->tableStructure(prefix: StoredItemTabsEnum::HISTORY->value))
+            ->table(IndexStoredItemMovements::make()->tableStructure(prefix: StoredItemTabsEnum::MOVEMENTS->value))
             ->table(IndexStoredItemPallets::make()->tableStructure($storedItem, 'pallets'));
     }
 

@@ -9,13 +9,13 @@
 namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
+use App\Actions\Fulfilment\PalletStoredItem\SetPalletStoredItemStateToReturned;
 use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovementFromPickingAFullPallet;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
-use App\Enums\Fulfilment\PalletStoredItem\PalletStoredItemStateEnum;
 use App\Http\Resources\Fulfilment\PalletReturnItemResource;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
@@ -61,7 +61,7 @@ class SetPalletInReturnAsPicked extends OrgAction
 
                 foreach ($pallet->palletStoredItems as $palletStoredItem) {
                     StoreStoredItemMovementFromPickingAFullPallet::run($palletReturnItem, $palletStoredItem);
-                    $this->update($palletStoredItem, ['state' => PalletStoredItemStateEnum::RETURNED]); //PalletStoredItem State Changes
+                    SetPalletStoredItemStateToReturned::run($palletStoredItem); //TODO: Review pls
                 }
             } else {
                 // TODO: check this, not working

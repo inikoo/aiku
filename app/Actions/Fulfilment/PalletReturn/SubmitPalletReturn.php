@@ -23,6 +23,7 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -44,22 +45,23 @@ class SubmitPalletReturn extends OrgAction
         $modelData['submitted_at'] = now();
         $modelData['state']                                       = PalletReturnStateEnum::SUBMITTED;
 
+        if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
+            foreach ($palletReturn->pallets as $pallet) {
+                UpdatePallet::run($pallet, [
+                    'reference' => GetSerialReference::run(
+                        container: $palletReturn->fulfilmentCustomer,
+                        modelType: SerialReferenceModelEnum::PALLET
+                    ),
+                    'state'     => PalletStateEnum::REQUEST_RETURN_SUBMITTED,
+                    'status'    => PalletStatusEnum::RETURNING
+                ]);
 
-        foreach ($palletReturn->pallets as $pallet) {
-            UpdatePallet::run($pallet, [
-                'reference' => GetSerialReference::run(
-                    container: $palletReturn->fulfilmentCustomer,
-                    modelType: SerialReferenceModelEnum::PALLET
-                ),
-                'state'     => PalletStateEnum::REQUEST_RETURN_SUBMITTED,
-                'status'    => PalletStatusEnum::RETURNING
-            ]);
-
-            $palletReturn->pallets()->syncWithoutDetaching([
-                $pallet->id => [
-                    'state' => PalletReturnItemStateEnum::SUBMITTED
-                ]
-            ]);
+                $palletReturn->pallets()->syncWithoutDetaching([
+                    $pallet->id => [
+                        'state' => PalletReturnItemStateEnum::SUBMITTED
+                    ]
+                ]);
+            }
         }
 
         $palletReturn = $this->update($palletReturn, $modelData);

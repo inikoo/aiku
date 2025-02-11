@@ -21,6 +21,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
@@ -49,25 +50,27 @@ class DispatchPalletReturn extends OrgAction
             ->whereNot('status', PalletStatusEnum::INCIDENT->value)
             ->get();
 
-        $palletReturn = DB::transaction(function () use ($palletReturn, $pallets, $modelData) {
-            /** @var Pallet $pallet */
-            foreach ($pallets as $pallet) {
-                $pallet = UpdatePallet::make()->action($pallet, [
-                    'state'  => PalletStateEnum::DISPATCHED,
-                    'status' => PalletStatusEnum::RETURNED,
-                    'dispatched_at' => now()
-                ]);
+        if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
+            $palletReturn = DB::transaction(function () use ($palletReturn, $pallets, $modelData) {
+                /** @var Pallet $pallet */
+                foreach ($pallets as $pallet) {
+                    $pallet = UpdatePallet::make()->action($pallet, [
+                        'state'  => PalletStateEnum::DISPATCHED,
+                        'status' => PalletStatusEnum::RETURNED,
+                        'dispatched_at' => now()
+                    ]);
 
 
-                $palletReturn->pallets()->syncWithoutDetaching([
-                    $pallet->id => [
-                        'state' => PalletReturnStateEnum::DISPATCHED
-                    ]
-                ]);
-            }
-            return $this->update($palletReturn, $modelData);
-        });
-
+                    $palletReturn->pallets()->syncWithoutDetaching([
+                        $pallet->id => [
+                            'state' => PalletReturnStateEnum::DISPATCHED
+                        ]
+                    ]);
+                }
+                return $palletReturn;
+            });          
+        }
+        $this->update($palletReturn, $modelData);
         if ($palletReturn->fulfilmentCustomer->currentRecurringBill) {
             $recurringBill = $palletReturn->fulfilmentCustomer->currentRecurringBill;
 
