@@ -11,7 +11,7 @@ namespace App\Actions\Fulfilment\StoredItemAudit;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItemAudits;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItems;
-use App\Actions\Fulfilment\PalletStoredItem\CalculatePalletStoredItemQuantity;
+use App\Actions\Fulfilment\PalletStoredItem\RunPalletStoredItemQuantity;
 use App\Actions\Fulfilment\StoredItem\AttachStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItem\DetachStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItem\SetStoredItemQuantityFromPalletStoreItems;
@@ -48,7 +48,7 @@ class CompleteStoredItemAudit extends OrgAction
             if ($storedItemAuditDelta->audit_type === StoredItemAuditDeltaTypeEnum::SET_UP) {
                 AttachStoredItemToPallet::run($pallet, $storedItemAuditDelta->storedItem, $storedItemAuditDelta->audited_quantity);
                 $palletStoredItem = PalletStoredItem::where('pallet_id', $storedItemAuditDelta->pallet_id)->where('stored_item_id', $storedItemAuditDelta->stored_item_id)->first();
-                CalculatePalletStoredItemQuantity::run($palletStoredItem);
+                RunPalletStoredItemQuantity::run($palletStoredItem);
             } elseif ($storedItemAuditDelta->audited_quantity == 0) {
                 $storedItem = $storedItemAuditDelta->storedItem;
                 DetachStoredItemToPallet::run($pallet, $storedItem);
@@ -60,7 +60,7 @@ class CompleteStoredItemAudit extends OrgAction
                 ]);
                 $palletStoredItem->refresh();
                 StoreStoredItemMovement::run($storedItemAuditDelta);
-                CalculatePalletStoredItemQuantity::run($palletStoredItem);
+                RunPalletStoredItemQuantity::run($palletStoredItem);
             }
         }
 

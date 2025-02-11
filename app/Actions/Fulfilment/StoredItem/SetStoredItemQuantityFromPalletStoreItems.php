@@ -18,7 +18,7 @@ class SetStoredItemQuantityFromPalletStoreItems extends OrgAction
     {
         $quantity = 0;
         foreach ($storedItem->pallets as $pallet) {
-            $quantity = +$pallet->pivot->quantity;
+            $quantity += $pallet->pivot->quantity;
         }
 
         $storedItem->update(

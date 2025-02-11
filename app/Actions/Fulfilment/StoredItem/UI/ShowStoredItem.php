@@ -9,6 +9,7 @@
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\UI\Fulfilment\ShowWarehouseFulfilmentDashboard;
@@ -30,6 +31,7 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowStoredItem extends OrgAction
 {
+    use WithFulfilmentCustomerSubNavigation;
     private Warehouse|Organisation|FulfilmentCustomer|Fulfilment $parent;
 
     public function authorize(ActionRequest $request): bool
@@ -75,6 +77,10 @@ class ShowStoredItem extends OrgAction
 
     public function htmlResponse(StoredItem $storedItem, ActionRequest $request): Response
     {
+        $subNavigation = [];
+        if ($this->parent instanceof FulfilmentCustomer) {
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+        }
         return Inertia::render(
             'Org/Fulfilment/StoredItem',
             [
@@ -90,6 +96,7 @@ class ShowStoredItem extends OrgAction
                             'icon'  => ['fal', 'fa-narwhal'],
                             'title' => __('stored item')
                         ],
+                    'subNavigation' => $subNavigation,
                     'model'  => 'stored item',
                     'title'  => $storedItem->slug,
                     'actions' => [
@@ -187,7 +194,7 @@ class ShowStoredItem extends OrgAction
                                 'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
-                            'label' => __("customer's sKUs")
+                            'label' => __("Customer's SKUs")
                         ],
                         'model' => [
                             'route' => [

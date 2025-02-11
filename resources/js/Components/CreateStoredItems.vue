@@ -35,6 +35,7 @@ const props = defineProps<{
 	form: {}
 	stored_items: {}[]
     title?: string
+    prefixQuery?: string   // from filter[global] to stored_items_filter[global]
 }>()
 
 const loadingAddStoredItem = ref(false)
@@ -199,6 +200,7 @@ const onSaveNameForNewStoredItem = async () => {
 					:valueProp="'id'"
 					:closeOnSelect="true"
 					:clearOnSearch="false"
+					:prefixQuery
 					:fieldName="'id'"
 					:createOption="false"
 					:onCreate="createStoredItems"

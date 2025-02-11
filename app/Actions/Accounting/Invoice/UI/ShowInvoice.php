@@ -12,6 +12,7 @@ use App\Actions\Accounting\InvoiceTransaction\UI\IndexInvoiceTransactions;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
@@ -32,6 +33,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowInvoice extends OrgAction
 {
+    use WithFulfilmentCustomerSubNavigation;
     private Organisation|Fulfilment|FulfilmentCustomer|Shop $parent;
 
     public function handle(Invoice $invoice): Invoice
@@ -103,6 +105,10 @@ class ShowInvoice extends OrgAction
 
     public function htmlResponse(Invoice $invoice, ActionRequest $request): Response
     {
+        $subNavigation = [];
+        if ($this->parent instanceof FulfilmentCustomer) {
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+        }
 
         if ($invoice->recurringBill()->exists()) {
             if ($this->parent instanceof Fulfilment) {
@@ -205,6 +211,7 @@ class ShowInvoice extends OrgAction
                     'next' => $this->getNext($invoice, $request),
                 ],
                 'pageHead' => [
+                    'subNavigation' => $subNavigation,
                     'model' => __('invoice'),
                     'title' => $invoice->reference,
                     'icon' => [

@@ -9,10 +9,11 @@
 
 namespace App\Actions\Fulfilment\StoredItemAuditDelta;
 
-use App\Actions\Fulfilment\PalletStoredItem\CalculatePalletStoredItemQuantity;
+use App\Actions\Fulfilment\PalletStoredItem\RunPalletStoredItemQuantity;
 use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovementFromDelivery;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Fulfilment\PalletStoredItem\PalletStoredItemStateEnum;
 use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
 use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaTypeEnum;
 use App\Models\Fulfilment\PalletDelivery;
@@ -53,11 +54,13 @@ class StoreStoredItemAuditDeltaFromDelivery extends OrgAction
             'number_audits' => $palletStoredItem->number_audits + 1,
             'last_audit_at' => now(),
             'last_stored_item_audit_delta_id' => $storedItemAuditDelta->id,
-            'in_process' => false
+            'state'         => PalletStoredItemStateEnum::ACTIVE,
+            'in_process'    => false,
+            'delivered_quantity' => $palletStoredItem->quantity
         ]);
 
         $palletStoredItem->refresh();
-        CalculatePalletStoredItemQuantity::run($palletStoredItem);
+        RunPalletStoredItemQuantity::run($palletStoredItem);
 
         return $storedItemAuditDelta;
     }
