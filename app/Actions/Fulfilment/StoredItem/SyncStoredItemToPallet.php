@@ -42,7 +42,8 @@ class SyncStoredItemToPallet extends OrgAction
         $pallet->storedItems()->sync(Arr::get($modelData, 'stored_item_ids', []));
 
         PalletHydrateStoredItems::dispatch($pallet);
-        foreach (Arr::get($modelData, 'stored_item_ids') as $storedItemId) {
+        // dd(Arr::get($modelData, 'stored_item_ids'));
+        foreach (Arr::get($modelData, 'stored_item_ids') as $storedItemId => $storedItemData) {
             $storedItem = StoredItem::find($storedItemId);
             StoreItemHydratePallets::dispatch($storedItem);
         }
