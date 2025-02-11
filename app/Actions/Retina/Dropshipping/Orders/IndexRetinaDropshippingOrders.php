@@ -8,12 +8,12 @@
 
 namespace App\Actions\Retina\Dropshipping\Orders;
 
-use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\Retina\UI\Dashboard\ShowRetinaDashboard;
 use App\Actions\RetinaAction;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
-use App\Http\Resources\Ordering\OrdersResource;
+use App\Http\Resources\Fulfilment\RetinaDropshippingFulfilmentOrdersResources;
 use App\Models\Dropshipping\ShopifyUser;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -39,7 +39,7 @@ class IndexRetinaDropshippingOrders extends RetinaAction
         return $this->handle($shopifyUser);
     }
 
-    public function htmlResponse(ShopifyUser $shopifyUser): Response
+    public function htmlResponse(LengthAwarePaginator $orders): Response
     {
         return Inertia::render(
             'Dropshipping/Orders',
@@ -55,9 +55,9 @@ class IndexRetinaDropshippingOrders extends RetinaAction
                     'navigation' => ProductTabsEnum::navigation()
                 ],
 
-                'orders' => OrdersResource::collection(IndexOrders::run($shopifyUser, 'orders', 'all'))
+                'orders' => RetinaDropshippingFulfilmentOrdersResources::collection($orders)
             ]
-        )->table(IndexOrders::make()->tableStructure($shopifyUser, 'orders'));
+        )->table($this->tableStructure($shopifyUser, 'orders'));
     }
 
     public function getBreadcrumbs(): array
