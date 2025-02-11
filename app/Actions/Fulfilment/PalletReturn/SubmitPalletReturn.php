@@ -45,7 +45,7 @@ class SubmitPalletReturn extends OrgAction
         $modelData['submitted_at'] = now();
         $modelData['state']                                       = PalletReturnStateEnum::SUBMITTED;
 
-        if($palletReturn->type == PalletReturnTypeEnum::PALLET) {
+        if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
             foreach ($palletReturn->pallets as $pallet) {
                 UpdatePallet::run($pallet, [
                     'reference' => GetSerialReference::run(
@@ -55,7 +55,7 @@ class SubmitPalletReturn extends OrgAction
                     'state'     => PalletStateEnum::REQUEST_RETURN_SUBMITTED,
                     'status'    => PalletStatusEnum::RETURNING
                 ]);
-    
+
                 $palletReturn->pallets()->syncWithoutDetaching([
                     $pallet->id => [
                         'state' => PalletReturnItemStateEnum::SUBMITTED

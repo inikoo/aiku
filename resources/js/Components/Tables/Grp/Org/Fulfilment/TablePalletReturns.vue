@@ -87,6 +87,12 @@ function storedItemReturnRoute(palletReturn: PalletDelivery) {
                 [
                     palletReturn.slug
                 ]);
+        case 'retina.dropshipping.orders.index':
+            return route(
+                'retina.fulfilment.storage.pallet_returns.with-stored-items.show',
+                [
+                    palletReturn.slug
+                ]);
         default:
             return route(
                 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.with_stored_items.show',
