@@ -17,11 +17,11 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class CalculatePalletStoredItemQuantity
+class RunPalletStoredItemQuantity
 {
     use AsAction;
 
-    public string $commandSignature = 'pallet_stored_item:set_quantity {palletStoredItem?}';
+    public string $commandSignature = 'pallet_stored_item:run_quantity {palletStoredItem?}';
 
     public function handle(PalletStoredItem $palletStoredItem): PalletStoredItem
     {

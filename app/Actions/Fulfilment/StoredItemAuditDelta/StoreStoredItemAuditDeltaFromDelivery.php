@@ -9,7 +9,7 @@
 
 namespace App\Actions\Fulfilment\StoredItemAuditDelta;
 
-use App\Actions\Fulfilment\PalletStoredItem\CalculatePalletStoredItemQuantity;
+use App\Actions\Fulfilment\PalletStoredItem\RunPalletStoredItemQuantity;
 use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovementFromDelivery;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -57,7 +57,7 @@ class StoreStoredItemAuditDeltaFromDelivery extends OrgAction
         ]);
 
         $palletStoredItem->refresh();
-        CalculatePalletStoredItemQuantity::run($palletStoredItem);
+        RunPalletStoredItemQuantity::run($palletStoredItem);
 
         return $storedItemAuditDelta;
     }

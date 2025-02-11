@@ -35,7 +35,7 @@ class StoredItemsInWarehouseResource extends JsonResource
             'slug'              => $this->slug,
             'state'             => $this->state,
             'state_icon'        => $this->state->stateIcon()[$this->state->value],
-            'total_quantity'    => $this->total_quantity,
+            'total_quantity'    => (int) $this->total_quantity,
             'name'              => $this->name,
             'number_pallets'    => $this->number_pallets
 

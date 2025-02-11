@@ -9,14 +9,14 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
-use App\Actions\Fulfilment\PalletStoredItem\CalculatePalletStoredItemQuantity;
+use App\Actions\Fulfilment\PalletStoredItem\RunPalletStoredItemQuantity;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\PalletStoredItem;
 use App\Models\Fulfilment\StoredItem;
 use Illuminate\Console\Command;
 
-class CalculateStoredItemQuantity extends OrgAction
+class RunStoredItemQuantity extends OrgAction
 {
     use WithActionUpdate;
 
@@ -25,7 +25,7 @@ class CalculateStoredItemQuantity extends OrgAction
         $quantity = 0;
         foreach ($storedItem->pallets as $pallet) {
             $palletStoredItem         = PalletStoredItem::find($pallet->pivot->id);
-            $palletStoredItem         = CalculatePalletStoredItemQuantity::run($palletStoredItem);
+            $palletStoredItem         = RunPalletStoredItemQuantity::run($palletStoredItem);
             $palletStoredItemQuantity = $palletStoredItem->quantity;
             $quantity                 = $quantity + $palletStoredItemQuantity;
             $command?->line(' >> '.$pallet->reference."\t\t".$palletStoredItemQuantity);
@@ -40,7 +40,7 @@ class CalculateStoredItemQuantity extends OrgAction
         return $storedItem;
     }
 
-    public string $commandSignature = 'stored_item:set_quantity {storedItem?}';
+    public string $commandSignature = 'stored_item:run_quantity {storedItem?}';
 
     public function asCommand(Command $command): int
     {
