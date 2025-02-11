@@ -13,8 +13,10 @@ use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\Fulfilment\PalletStoredItem;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 
 class PickNewPalletReturnItem extends OrgAction
@@ -24,21 +26,27 @@ class PickNewPalletReturnItem extends OrgAction
 
     public function handle(PalletReturn $palletReturn, PalletStoredItem $palletStoredItem, array $modelData)
     {
-        $quantityOrdered = Arr::pull($modelData, 'quantity_ordered');
-        $palletReturnItem =  $palletReturn->storedItems()->attach(
-            [
+        DB::transaction(function () use ($modelData, $palletReturn, $palletStoredItem) {
+            $quantityOrdered = Arr::pull($modelData, 'quantity_ordered');
+        
+            $palletReturn->storedItems()->attach([
                 $palletStoredItem->storedItem->id => [
-                'type'                 => 'StoredItem',
-                'pallet_id'            => $palletStoredItem->pallet_id,
-                'pallet_stored_item_id' => $palletStoredItem->id,
-                'quantity_ordered'      => $quantityOrdered
+                    'type'                 => 'StoredItem',
+                    'pallet_id'            => $palletStoredItem->pallet_id,
+                    'pallet_stored_item_id' => $palletStoredItem->id,
+                    'quantity_ordered'      => $quantityOrdered
                 ]
-            ]
-        );
+            ]);
 
-        PickPalletReturnItem::run($palletStoredItem, [
-            'quantity_picked' => $quantityOrdered
-        ]);
+            $palletReturnItem = PalletReturnItem::where([
+                'pallet_return_id' => $palletReturn->id,
+                'pallet_id'   => $palletStoredItem->pallet->id,
+            ])->first();
+        
+            PickPalletReturnItem::run($palletReturnItem, [
+                'quantity_picked' => $quantityOrdered
+            ]);
+        });
     }
 
     public function rules(): array
