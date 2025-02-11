@@ -33,11 +33,6 @@ class RunPalletStoredItemQuantity
             ]
         );
 
-        // TODO: Not Sure About this
-        if($palletStoredItem->quantity == 0) {
-            SetPalletStoredItemStateToReturned::run($palletStoredItem);
-        }
-
         $palletStoredItem->refresh();
 
         SetStoredItemQuantityFromPalletStoreItems::run($palletStoredItem->storedItem);
