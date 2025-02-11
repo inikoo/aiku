@@ -74,7 +74,7 @@ class PalletsResource extends JsonResource
                 'state'              => $storedItem->state,
                 'state_icon'         => $storedItem->state->stateIcon()[$storedItem->state->value],
                 'quantity'           => (int)$storedItem->pivot->quantity,
-                'delivered_quantity' => $storedItem->pivot->delivered_quantityc ?? null,
+                'delivered_quantity' => $storedItem->pivot->delivered_quantity ?? null,
             ]),
             'stored_items_quantity'    => (int)$this->storedItems()->sum('quantity'),
             'updateRoute'              => match (request()->routeIs('retina.*')) {
