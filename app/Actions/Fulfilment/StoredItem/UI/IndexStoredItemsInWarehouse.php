@@ -128,7 +128,7 @@ class IndexStoredItemsInWarehouse extends OrgAction
                                 'name'       => 'grp.org.hr.employees.create',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
-                            'label' => __("customer's sKUs")
+                            'label' => __("Customer's SKUs")
                         ]
                     ],
                 ],
@@ -178,7 +178,7 @@ class IndexStoredItemsInWarehouse extends OrgAction
                                 'warehouse'    => $routeParameters['warehouse'],
                             ]
                         ],
-                        'label' => __("Customer's sKUs"),
+                        'label' => __("Customer's SKUs"),
                         'icon'  => 'fal fa-bars',
                     ],
 

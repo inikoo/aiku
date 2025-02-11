@@ -194,7 +194,7 @@ class ShowStoredItem extends OrgAction
                                 'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
-                            'label' => __("customer's sKUs")
+                            'label' => __("Customer's SKUs")
                         ],
                         'model' => [
                             'route' => [
