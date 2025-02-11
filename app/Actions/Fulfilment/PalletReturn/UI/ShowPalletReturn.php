@@ -12,6 +12,7 @@ use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\PalletReturn\Json\GetReturnPallets;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemsInReturn;
+use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
@@ -40,6 +41,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowPalletReturn extends OrgAction
 {
     use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentCustomerSubNavigation;
     private Warehouse|FulfilmentCustomer|Fulfilment $parent;
 
     public function handle(PalletReturn $palletReturn): PalletReturn
@@ -78,6 +80,12 @@ class ShowPalletReturn extends OrgAction
     {
         //todo this should be $palletReturn->type
         //$type='StoredItem';
+
+        $subNavigation = [];
+        if ($this->parent instanceof FulfilmentCustomer) {
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+        }
+
         $actions = [];
 
 
@@ -120,7 +128,7 @@ class ShowPalletReturn extends OrgAction
             unset($navigation[PalletReturnTabsEnum::PALLETS->value]);
             $this->tab = $request->get('tab', array_key_first($navigation));
 
-           
+
             $isDisabled = false;
             if ($palletReturn->pallets()->count() < 1) {
                 $tooltipSubmit = __('Select stored item before submit');
@@ -382,6 +390,7 @@ class ShowPalletReturn extends OrgAction
                 ],
                 'pageHead' => [
                     // 'container' => $container,
+                    'subNavigation' => $subNavigation,
                     'title'     => $palletReturn->reference,
                     'model'     => __('return'),
                     'afterTitle' => $afterTitle,

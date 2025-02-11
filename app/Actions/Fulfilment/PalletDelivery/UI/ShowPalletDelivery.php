@@ -12,6 +12,7 @@ use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInDelivery;
 use App\Actions\Fulfilment\UI\Catalogue\Rentals\IndexFulfilmentRentals;
+use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
@@ -39,6 +40,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowPalletDelivery extends OrgAction
 {
     use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentCustomerSubNavigation;
 
     private Warehouse|FulfilmentCustomer|Fulfilment $parent;
 
@@ -90,6 +92,11 @@ class ShowPalletDelivery extends OrgAction
 
     public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): Response
     {
+        $subNavigation = [];
+        if ($this->parent instanceof FulfilmentCustomer) {
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+        }
+
         $palletStateReceivedCount = $palletDelivery->pallets()->where('state', PalletStateEnum::BOOKING_IN)->count();
         $palletNotInRentalCount   = $palletDelivery->pallets()->whereNull('rental_id')->count();
 
@@ -600,6 +607,7 @@ class ShowPalletDelivery extends OrgAction
                         'icon'  => ['fal', 'fa-truck-couch'],
                         'title' => $palletDelivery->reference
                     ],
+                    'subNavigation' => $subNavigation,
                     'model'     => __('pallet delivery'),
                     'iconRight' => $palletDelivery->state->stateIcon()[$palletDelivery->state->value],
                     'edit'      => $this->canEdit ? [

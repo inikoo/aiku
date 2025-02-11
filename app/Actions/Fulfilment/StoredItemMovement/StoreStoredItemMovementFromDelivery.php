@@ -10,7 +10,6 @@
 namespace App\Actions\Fulfilment\StoredItemMovement;
 
 use App\Actions\OrgAction;
-use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaTypeEnum;
 use App\Enums\Fulfilment\StoredItemMovement\StoredItemMovementTypeEnum;
 use App\Models\Fulfilment\StoredItemAuditDelta;
 use App\Models\Fulfilment\StoredItemMovement;
@@ -21,7 +20,7 @@ class StoreStoredItemMovementFromDelivery extends OrgAction
     public function handle(StoredItemAuditDelta $storedItemAuditDelta, array $modelData): ?StoredItemMovement
     {
 
-        $quantity=Arr::pull($modelData, 'quantity', 0);
+        $quantity = Arr::pull($modelData, 'quantity', 0);
 
         data_set($modelData, 'stored_item_id', $storedItemAuditDelta->stored_item_id);
         data_set($modelData, 'pallet_id', $storedItemAuditDelta->pallet_id);
