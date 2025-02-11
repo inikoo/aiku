@@ -559,9 +559,9 @@ class ShowPalletDelivery extends OrgAction
         $recurringBillData = null;
         if ($palletDelivery->recurringBill) {
             $recurringBill = $palletDelivery->recurringBill;
-
+            $recurringBillRoute=null;
             if ($this->parent instanceof Fulfilment) {
-                $route = [
+                $recurringBillRoute = [
                     'name' => 'grp.org.fulfilments.show.operations.recurring_bills.current.show',
                     'parameters' => [
                         'organisation' => $recurringBill->organisation->slug,
@@ -570,7 +570,7 @@ class ShowPalletDelivery extends OrgAction
                     ]
                 ];
             } elseif ($this->parent instanceof FulfilmentCustomer) {
-                $route = [
+                $recurringBillRoute = [
                     'name' => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show',
                     'parameters' => [
                         'organisation' => $recurringBill->organisation->slug,
@@ -580,12 +580,14 @@ class ShowPalletDelivery extends OrgAction
                     ]
                 ];
             }
-            $recurringBillData = [
-                'reference' => $recurringBill->reference,
-                'status'    => $recurringBill->status,
-                'total_amount' => $recurringBill->total_amount,
-                'route'        => $route
-            ];
+            if($recurringBillRoute) {
+                $recurringBillData = [
+                    'reference'    => $recurringBill->reference,
+                    'status'       => $recurringBill->status,
+                    'total_amount' => $recurringBill->total_amount,
+                    'route'        => $recurringBillRoute
+                ];
+            }
         }
 
         return Inertia::render(
