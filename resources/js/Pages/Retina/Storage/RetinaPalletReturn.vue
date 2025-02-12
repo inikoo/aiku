@@ -97,8 +97,6 @@ const props = defineProps<{
     route_check_stored_items : routeType
 }>()
 
-// console.log('box stats', props.box_stats)
-// console.log('notes data', props.notes_data)
 
 
 const layout = inject('layout', layoutStructure)

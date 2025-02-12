@@ -231,13 +231,7 @@ class ShowRetinaPalletReturn extends RetinaAction
                         'scope'          => $palletReturn->slug
                     ]
                 ],
-                'stored_item_list_route'   => [
-                    'name'       => 'retina.json.fulfilment.return.stored-items',
-                    'parameters' => [
-                        'fulfilment'     => $palletReturn->fulfilment->slug,
-                        'scope'          => $palletReturn->slug
-                    ]
-                ],
+
                 'stored_items_add_route'  => [
                         'name'       => 'retina.models.pallet-return.stored_item.store',
                         'parameters' => [
@@ -309,18 +303,7 @@ class ShowRetinaPalletReturn extends RetinaAction
                     ]
                 ],
 
-                'palletRoute' => [
-                    'index' => [
-                        'name'       => 'retina.json.fulfilment.return.pallets',
-                        'parameters' => []
-                    ],
-                    'store' => [
-                        'name'       => 'retina.models.pallet-return.pallet.store',
-                        'parameters' => [
-                            'palletReturn'       => $palletReturn->id
-                        ]
-                    ]
-                ],
+
 
                 'tabs' => [
                     'current'    => $this->tab,

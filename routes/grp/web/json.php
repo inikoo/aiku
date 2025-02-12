@@ -21,8 +21,6 @@ use App\Actions\Dispatching\Picking\Picker\Json\GetPickers;
 use App\Actions\Fulfilment\PalletDelivery\Json\GetFulfilmentPhysicalGoods;
 use App\Actions\Fulfilment\PalletDelivery\Json\GetFulfilmentServices;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexRecentPalletDeliveryUploads;
-use App\Actions\Fulfilment\PalletReturn\Json\GetReturnPallets;
-use App\Actions\Fulfilment\PalletReturn\Json\GetReturnStoredItems;
 use App\Actions\Helpers\Tag\GetTagOptions;
 use App\Actions\Procurement\OrgSupplierProducts\Json\GetOrgSupplierProducts;
 use App\Actions\Web\Website\GetWebsiteCloudflareUniqueVisitors;
@@ -35,10 +33,6 @@ Route::get('fulfilment/{fulfilment}/recurring-bill/{scope}/services', [GetFulfil
 Route::get('fulfilment/{fulfilment}/delivery/{scope}/physical-goods', [GetFulfilmentPhysicalGoods::class, 'inPalletDelivery'])->name('fulfilment.delivery.physical-goods.index');
 Route::get('fulfilment/{fulfilment}/return/{scope}/physical-goods', [GetFulfilmentPhysicalGoods::class, 'inPalletReturn'])->name('fulfilment.return.physical-goods.index');
 Route::get('fulfilment/{fulfilment}/recurring-bill/{scope}/physical-goods', [GetFulfilmentPhysicalGoods::class, 'inRecurringBill'])->name('fulfilment.recurring-bill.physical-goods.index');
-
-
-Route::get('fulfilment/{fulfilmentCustomer}/return/{palletReturn}/stored-items', GetReturnStoredItems::class)->name('fulfilment.return.stored-items');
-Route::get('fulfilment/{fulfilmentCustomer}/return/pallets', GetReturnPallets::class)->name('fulfilment.return.pallets');
 
 
 Route::get('tags', GetTagOptions::class)->name('tags');
