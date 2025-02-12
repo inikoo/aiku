@@ -131,6 +131,7 @@ const onClickPlusButton = () => {
                     <InputNumber 
                         v-model="form.quantity" 
                         @update:model-value="(e)=>form.quantity=e"
+                        @input="(e) => form.quantity = e.value"
                         buttonLayout="horizontal" 
                         :min="min || 0"
                         :max="max || undefined"
