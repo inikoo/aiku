@@ -248,32 +248,33 @@ const sendUpdateInformation = () => {
                         </div>
                     </div>
                 </div>
-                <!-- </Transition> -->
-                <div class="col-span-2 grid">
+
+                <!-- Information -->
+                <div v-if="get(data, ['additional_data', 'product'], false) || get(data, ['additional_data', 'size_and_weight'], false) || get(data, ['additional_data', 'shipments_per_week'], false)" class="col-span-2 grid">
                     <div class="w-full">
                         <div class="rounded-lg shadow-lg ring-1 ring-gray-300 bg-white p-6">
                             <div class="flex justify-between items-center mb-4">
                                 <h2 class="text-xl font-semibold text-gray-900">Information</h2>
-                                <Button label="edit" size="xs" @click="visible = true" />
+                                <!-- <Button label="edit" size="xs" @click="visible = true" /> -->
                             </div>
                             <div
                                 class="relative px-5 py-2 ring-1 ring-gray-300 rounded-lg bg-gray-50 shadow-sm space-y-2">
                                 <!-- Field: Product -->
                                 <div class="text-gray-600">
                                     <strong class="text-gray-500">Product:</strong> {{
-                                        get(data, ["additional_data", "product"], " - ") }}
+                                        get(data, ["additional_data", "product"], false) }}
                                 </div>
 
                                 <!-- Field: Size and Weight -->
                                 <div class="text-gray-600">
                                     <strong class="text-gray-500">Size & Weight:</strong> {{
-                                        get(data, ['additional_data', 'size_and_weight'], " - ") }}
+                                        get(data, ['additional_data', 'size_and_weight'], false) }}
                                 </div>
 
                                 <!-- Field: Shipments Per Week -->
                                 <div class="text-gray-600">
                                     <strong class="text-gray-500">Shipments Per Week:</strong> {{
-                                        get(data, ['additional_data', 'shipments_per_week'], " - ") }}
+                                        get(data, ['additional_data', 'shipments_per_week'], false) }}
                                 </div>
                             </div>
                         </div>
