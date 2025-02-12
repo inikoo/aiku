@@ -44,6 +44,7 @@ use App\Actions\CRM\Customer\AddDeliveryAddressToCustomer;
 use App\Actions\CRM\Customer\ApproveCustomer;
 use App\Actions\CRM\Customer\DeleteCustomerDeliveryAddress;
 use App\Actions\CRM\Customer\DeletePortfolio;
+use App\Actions\CRM\Customer\RejectCustomer;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\CRM\Customer\UpdateCustomerAddress;
@@ -508,6 +509,7 @@ Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function
 Route::post('fulfilment-customer-note/{fulfilmentCustomer}', StoreFulfilmentCustomerNote::class)->name('fulfilment_customer_note.store');
 Route::patch('fulfilment-customer/{fulfilmentCustomer:id}', UpdateFulfilmentCustomer::class)->name('fulfilment_customer.update');
 Route::patch('customer/{customer:id}/approve', ApproveCustomer::class)->name('customer.approve');
+Route::patch('customer/{customer:id}/reject', RejectCustomer::class)->name('customer.reject');
 
 Route::prefix('fulfilment-customer-space/{fulfilmentCustomer:id}')->as('fulfilment_customer_space.')->group(function () {
     Route::post('', StoreSpace::class)->name('store');
