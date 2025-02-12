@@ -27,7 +27,7 @@ Route::name('bk_api.')->group(function () {
             Route::post('customer-client', ProcessAuroraCustomerClient::class)->name('customer_client');
             Route::post('delivery-note', ProcessAuroraDeliveryNote::class)->name('delivery_note');
             Route::post('stock', ProcessAuroraStock::class)->name('stock');
-            Route::post('product', ProcessAuroraProduct::class)->name('stock');
+            Route::post('product', ProcessAuroraProduct::class)->name('product');
 
         });
     });
