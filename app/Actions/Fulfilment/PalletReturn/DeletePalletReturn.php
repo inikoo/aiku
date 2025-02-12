@@ -19,10 +19,12 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Event;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
+use OwenIt\Auditing\Events\AuditCustom;
 use Symfony\Component\HttpFoundation\Response;
 
 class DeletePalletReturn extends OrgAction
@@ -59,6 +61,21 @@ class DeletePalletReturn extends OrgAction
             $this->update($palletReturn, [
                 'delete_comment' => Arr::get($modelData, 'delete_comment')
             ]);
+
+            $fulfilmentCustomer = $this->fulfilmentCustomer;
+
+            $fulfilmentCustomer->customer->auditEvent    = 'delete';
+            $fulfilmentCustomer->customer->isCustomEvent = true;
+
+            $fulfilmentCustomer->customer->auditCustomOld = [
+                'return' => $palletReturn->reference
+            ];
+
+            $fulfilmentCustomer->customer->auditCustomNew = [
+                'return' => __('The return has been deleted.')
+            ];
+
+            Event::dispatch(AuditCustom::class, [$fulfilmentCustomer->customer]);
 
             $palletReturn->delete();
         } else {
