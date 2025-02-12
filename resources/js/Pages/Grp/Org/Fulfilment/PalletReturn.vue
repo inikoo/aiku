@@ -237,6 +237,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                 <ModalConfirmationDelete
                     :routeDelete="action.route"
                     isFullLoading
+                    isWithMessage
                 >
                     <template #default="{ isOpenModal, changeModel }">
 

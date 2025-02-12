@@ -91,15 +91,15 @@ onMounted(() => {
         })
     }
 
-    if (props.data.data.customer_reference) {
-        JsBarcode('#customerReferenceBarcode', props.data.data.customer_reference, {
-            lineColor: "rgb(41 37 36)",
-            width: 2,
-            height: 70,
-            background:"#F9FAFB",
-            displayValue: true
-        })
-    }
+    // if (props.data.data.customer_reference) {
+    //     JsBarcode('#customerReferenceBarcode', props.data.data.customer_reference, {
+    //         lineColor: "rgb(41 37 36)",
+    //         width: 2,
+    //         height: 70,
+    //         background:"#F9FAFB",
+    //         displayValue: true
+    //     })
+    // }
 })
 
 const printBarcodePallet = (id: string, code: string) => {

@@ -5,12 +5,14 @@ import { Link, router } from '@inertiajs/vue3'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faTimes, faExclamationTriangle } from '@fal'
+import { faAsterisk } from '@far'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { Icon } from '@/types/Utils/Icon'
 import { trans } from 'laravel-vue-i18n'
 import { routeType } from '@/types/route'
-import Button from '../Elements/Buttons/Button.vue'
-library.add(faTimes, faExclamationTriangle)
+import Button from '@/Components/Elements/Buttons/Button.vue'
+import PureTextarea from '@/Components/Pure/PureTextarea.vue'
+library.add(faTimes, faExclamationTriangle, faAsterisk)
 
 const props = defineProps<{
     description?: string
@@ -19,6 +21,11 @@ const props = defineProps<{
     noLabel?: string
     routeDelete?: routeType
     isFullLoading?: boolean
+    isWithMessage?: boolean
+    keyMessage?: string
+    message?: {
+        placeholder?: string
+    }
 }>()
 
 const emits = defineEmits<{
@@ -31,25 +38,34 @@ const isLoadingdelete = ref(false)
 const onClickDelete = () => {
     if (!props.routeDelete?.name) return
 
-    router[props.routeDelete?.method || 'delete'](
-        route(props.routeDelete.name, props.routeDelete.parameters),
-        {
-            onStart: () => {
-                isLoadingdelete.value = true
-            },
-            onSuccess: () => {
-                isOpenModal.value = false
-            },
-            onFinish: () => {
-                if (props.isFullLoading) {
+    const selectedMethod = props.routeDelete?.method || 'delete'
+    const body = selectedMethod !== 'delete' ? {
+        [props.keyMessage || 'delete_comment']: messageDelete.value
+    } : undefined
 
-                } else {
-                    isLoadingdelete.value = false
+    router[selectedMethod](
+        route(
+            props.routeDelete.name, props.routeDelete.parameters),
+            body,
+            {
+                onStart: () => {
+                    isLoadingdelete.value = true
+                },
+                onSuccess: () => {
+                    isOpenModal.value = false
+                },
+                onFinish: () => {
+                    if (props.isFullLoading) {
+
+                    } else {
+                        isLoadingdelete.value = false
+                    }
                 }
             }
-        }
     )
 }
+
+const messageDelete = ref('')
 </script>
 
 <template>
@@ -82,6 +98,7 @@ const onClickDelete = () => {
                                         <FontAwesomeIcon :icon='icon || "fal fa-times"' class='' fixed-width aria-hidden='true' />
                                     </button>
                                 </div>
+
                                 <div class="sm:flex sm:items-start">
                                     <div
                                         class="mx-auto flex size-12 shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:size-10">
@@ -96,26 +113,48 @@ const onClickDelete = () => {
                                                 {{ description || trans("The data will be permanently removed from our servers forever. This action cannot be undone.")}}
                                             </p>
                                         </div>
+
+                                        <div v-if="props.isWithMessage" class="mt-4">
+                                            <label for="" class="flex items-start text-sm text-gray-500 leading-none mb-1">
+                                                {{ trans("Description") }}
+                                                <FontAwesomeIcon icon='far fa-asterisk' class='text-red-500 h-2' size="xs" fixed-width aria-hidden='true' />
+                                            </label>
+
+                                            <PureTextarea
+                                                v-model="messageDelete"
+                                                :placeholder="props.message?.placeholder || trans('Enter the description')"
+                                                v-bind="props.message"
+                                            />
+                                        </div>
+                                        <div class="mt-5 sm:flex sm:flex-row-reverse gap-x-2">
+                                            <Button
+                                                :loading="isLoadingdelete"
+                                                @click="() => (onClickDelete(), emits('onYes'))"
+                                                type="red"
+                                                :label="trans('Delete')"
+                                                :disabled="isWithMessage ? !messageDelete : false"
+                                                icon="far fa-trash-alt"
+                                            />
+        
+                                            <!-- <button type="button"
+                                                class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-red-500 sm:ml-3 sm:w-auto"
+                                                @click="() => ">{{ trans("Yes, delete") }}</button> -->
+                                            <Button
+                                                type="tertiary"
+                                                icccon="far fa-arrow-left"
+                                                :label="trans('cancel')"
+                                                full
+                                                @click="() => (isOpenModal = false, emits('onNo'))"
+                                            />
+                                            <!-- <button type="button"
+                                                class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                                                >{{ trans("Cancel") }}</button> -->
+        
+                                        </div>
                                     </div>
-                                </div>
-
-                                <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse gap-x-2">
-                                    <Button :loading="isLoadingdelete" @click="() => (onClickDelete(), emits('onYes'))" type="red" label="Delete" icon="far fa-trash-alt" />
-
-                                    <!-- <button type="button"
-                                        class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-red-500 sm:ml-3 sm:w-auto"
-                                        @click="() => ">{{ trans("Yes, delete") }}</button> -->
-                                    <Button
-                                        type="tertiary"
-                                        icccon="far fa-arrow-left"
-                                        :label="trans('cancel')"
-                                        @click="() => (isOpenModal = false, emits('onNo'))"
-                                    />
-                                    <!-- <button type="button"
-                                        class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                                        >{{ trans("Cancel") }}</button> -->
 
                                 </div>
+
                             </DialogPanel>
                         </TransitionChild>
                     </div>
