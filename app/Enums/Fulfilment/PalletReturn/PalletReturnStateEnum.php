@@ -27,7 +27,7 @@ enum PalletReturnStateEnum: string
     case PICKING      = 'picking';
     case PICKED       = 'picked';
     case DISPATCHED   = 'dispatched';
-    case CONSOLIDATED = 'consolidated';
+    // case CONSOLIDATED = 'consolidated';
     case CANCEL       = 'cancel';
 
 
@@ -41,7 +41,7 @@ enum PalletReturnStateEnum: string
             'picked'       => __('Picked'),
             'dispatched'   => __('Dispatched'),
             'cancel'       => __('Cancel'),
-            'consolidated' => __('Consolidated')
+            // 'consolidated' => __('Consolidated')
         ];
     }
 
@@ -119,16 +119,16 @@ enum PalletReturnStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'consolidated'     => [
-                'tooltip' => __('Consolidated'),
-                'icon'    => 'fal fa-times',
-                'class'   => 'text-red-500',
-                'color'   => 'red',
-                'app'     => [
-                    'name' => 'times',
-                    'type' => 'font-awesome-5'
-                ]
-            ],
+            // 'consolidated'     => [
+            //     'tooltip' => __('Consolidated'),
+            //     'icon'    => 'fal fa-times',
+            //     'class'   => 'text-red-500',
+            //     'color'   => 'red',
+            //     'app'     => [
+            //         'name' => 'times',
+            //         'type' => 'font-awesome-5'
+            //     ]
+            // ],
         ];
     }
 
@@ -148,7 +148,7 @@ enum PalletReturnStateEnum: string
             'picked'       => $stats->number_pallet_returns_state_picked,
             'dispatched'   => $stats->number_pallet_returns_state_dispatched,
             'cancel'       => $stats->number_pallet_returns_state_cancel,
-            'consolidated' => $stats->number_pallet_returns_state_consolidated,
+            // 'consolidated' => $stats->number_pallet_returns_state_consolidated,
         ];
     }
 
@@ -183,10 +183,10 @@ enum PalletReturnStateEnum: string
                 'title'    => __("Pallet return :reference cancelled", ['reference' => $reference]),
                 'subtitle' => __('Pallet return has been cancelled')
             ],
-            'consolidated'     => [
-                'title'    => __("Pallet return :reference consolidated", ['reference' => $reference]),
-                'subtitle' => __('Pallet return has been consolidated')
-            ],
+            // 'consolidated'     => [
+            //     'title'    => __("Pallet return :reference consolidated", ['reference' => $reference]),
+            //     'subtitle' => __('Pallet return has been consolidated')
+            // ],
         ];
     }
 }

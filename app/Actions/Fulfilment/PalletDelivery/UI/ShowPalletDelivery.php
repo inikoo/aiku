@@ -137,12 +137,12 @@ class ShowPalletDelivery extends OrgAction
                                 'tooltip' => __('Upload pallets via spreadsheet'),
                             ],
                             [
-                                'type'    => 'button',
-                                'style'   => 'secondary',
-                                'icon'    => ['far', 'fa-layer-plus'],
-                                'label'   => 'multiple',
-                                'key'     => 'multiple',
-                                'route'   => [
+                                'type'  => 'button',
+                                'style' => 'secondary',
+                                'icon'  => ['far', 'fa-layer-plus'],
+                                'label' => 'multiple',
+                                'key'   => 'multiple',
+                                'route' => [
                                     'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
                                     'parameters' => [
                                         'palletDelivery' => $palletDelivery->id
@@ -335,10 +335,10 @@ class ShowPalletDelivery extends OrgAction
                             'method'     => 'get',
                             'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.edit',
                             'parameters' => [
-                                'organisation'   => $palletDelivery->organisation->slug,
-                                'fulfilment'     => $palletDelivery->fulfilment->slug,
+                                'organisation'       => $palletDelivery->organisation->slug,
+                                'fulfilment'         => $palletDelivery->fulfilment->slug,
                                 'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
-                                'palletDelivery' => $palletDelivery->slug
+                                'palletDelivery'     => $palletDelivery->slug
                             ]
                         ]
                     ],
@@ -503,20 +503,23 @@ class ShowPalletDelivery extends OrgAction
             ])) {
                 $actions = array_merge($actions, [$pdfButton]);
             } else {
-                $actions = array_merge([[
-                    'type'    => 'button',
-                    'style'   => 'delete',
-                    'tooltip' => __('delete'),
-                    'label'   => __('delete'),
-                    'key'     => 'delete_delivery',
-                    'route'   => [
-                        'method'     => 'patch',
-                        'name'       => 'grp.models.pallet-delivery.delete',
-                        'parameters' => [
-                            'palletDelivery' => $palletDelivery->id
+                $actions = array_merge([
+                    [
+                        'type'    => 'button',
+                        'style'   => 'delete',
+                        'tooltip' => __('delete'),
+                        'label'   => __('delete'),
+                        'key'     => 'delete_delivery',
+                        'ask_why' => true,
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.pallet-delivery.delete',
+                            'parameters' => [
+                                'palletDelivery' => $palletDelivery->id
+                            ]
                         ]
                     ]
-                ]], $actions);
+                ], $actions);
             }
         }
 
@@ -559,25 +562,25 @@ class ShowPalletDelivery extends OrgAction
 
         $recurringBillData = null;
         if ($palletDelivery->recurringBill) {
-            $recurringBill = $palletDelivery->recurringBill;
+            $recurringBill      = $palletDelivery->recurringBill;
             $recurringBillRoute = null;
             if ($this->parent instanceof Fulfilment) {
                 $recurringBillRoute = [
-                    'name' => 'grp.org.fulfilments.show.operations.recurring_bills.current.show',
+                    'name'       => 'grp.org.fulfilments.show.operations.recurring_bills.current.show',
                     'parameters' => [
-                        'organisation' => $recurringBill->organisation->slug,
-                        'fulfilment' => $this->parent->slug,
+                        'organisation'  => $recurringBill->organisation->slug,
+                        'fulfilment'    => $this->parent->slug,
                         'recurringBill' => $recurringBill->slug
                     ]
                 ];
             } elseif ($this->parent instanceof FulfilmentCustomer) {
                 $recurringBillRoute = [
-                    'name' => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show',
+                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show',
                     'parameters' => [
-                        'organisation' => $recurringBill->organisation->slug,
-                        'fulfilment' => $this->parent->fulfilment->slug,
+                        'organisation'       => $recurringBill->organisation->slug,
+                        'fulfilment'         => $this->parent->fulfilment->slug,
                         'fulfilmentCustomer' => $this->parent->slug,
-                        'recurringBill' => $recurringBill->slug
+                        'recurringBill'      => $recurringBill->slug
                     ]
                 ];
             }
@@ -605,26 +608,26 @@ class ShowPalletDelivery extends OrgAction
                 ],
                 'pageHead'    => [
                     // 'container' => $container,
-                    'title'     => $palletDelivery->reference,
-                    'icon'      => [
+                    'title'         => $palletDelivery->reference,
+                    'icon'          => [
                         'icon'  => ['fal', 'fa-truck-couch'],
                         'title' => $palletDelivery->reference
                     ],
                     'subNavigation' => $subNavigation,
-                    'model'     => __('pallet delivery'),
-                    'iconRight' => $palletDelivery->state->stateIcon()[$palletDelivery->state->value],
-                    'edit'      => $this->canEdit ? [
+                    'model'         => __('pallet delivery'),
+                    'iconRight'     => $palletDelivery->state->stateIcon()[$palletDelivery->state->value],
+                    'edit'          => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                             'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
-                    'actions' => $actions,
+                    'actions'       => $actions,
                 ],
 
                 'can_edit_transactions' => true,
 
-                'interest'  => [
+                'interest' => [
                     'pallets_storage' => $palletDelivery->fulfilmentCustomer->pallets_storage,
                     'items_storage'   => $palletDelivery->fulfilmentCustomer->items_storage,
                     'dropshipping'    => $palletDelivery->fulfilmentCustomer->dropshipping,
@@ -652,23 +655,23 @@ class ShowPalletDelivery extends OrgAction
                 ],
 
                 'upload_spreadsheet' => [
-                    'event'             => 'action-progress',
-                    'channel'           => 'grp.personal.' . $this->organisation->id,
-                    'required_fields'   => ['customer_reference', 'notes', 'stored_items', 'type'],
-                    'template'          => [
+                    'event'           => 'action-progress',
+                    'channel'         => 'grp.personal.'.$this->organisation->id,
+                    'required_fields' => ['customer_reference', 'notes', 'stored_items', 'type'],
+                    'template'        => [
                         'label' => 'Download template (.xlsx)',
                     ],
-                    'route' => [
-                        'upload'  => [
+                    'route'           => [
+                        'upload'   => [
                             'name'       => 'grp.models.pallet-delivery.pallet.upload',
                             'parameters' => [
                                 'palletDelivery' => $palletDelivery->id
                             ]
                         ],
-                        'history' => [
+                        'history'  => [
                             'name'       => 'grp.json.pallet_delivery.recent_uploads',
                             'parameters' => [
-                                'palletDelivery'     => $palletDelivery->id
+                                'palletDelivery' => $palletDelivery->id
                             ]
                         ],
                         'download' => [
@@ -685,18 +688,18 @@ class ShowPalletDelivery extends OrgAction
 
                 'attachmentRoutes' => [
                     'attachRoute' => [
-                        'name' => 'grp.models.pallet-delivery.attachment.attach',
+                        'name'       => 'grp.models.pallet-delivery.attachment.attach',
                         'parameters' => [
                             'palletDelivery' => $palletDelivery->id,
                         ],
-                        'method' => 'post'
+                        'method'     => 'post'
                     ],
                     'detachRoute' => [
-                        'name' => 'grp.models.pallet-delivery.attachment.detach',
+                        'name'       => 'grp.models.pallet-delivery.attachment.detach',
                         'parameters' => [
                             'palletDelivery' => $palletDelivery->id,
                         ],
-                        'method' => 'delete'
+                        'method'     => 'delete'
                     ]
                 ],
 
@@ -790,7 +793,7 @@ class ShowPalletDelivery extends OrgAction
                 'data'       => PalletDeliveryResource::make($palletDelivery),
                 'box_stats'  => [
                     'fulfilment_customer' => FulfilmentCustomerResource::make($palletDelivery->fulfilmentCustomer)->getArray(),
-                    'delivery_state'     => PalletDeliveryStateEnum::stateIcon()[$palletDelivery->state->value],
+                    'delivery_state'      => PalletDeliveryStateEnum::stateIcon()[$palletDelivery->state->value],
                     'recurring_bill'      => $recurringBillData,
                     'order_summary'       => [
                         [
@@ -816,47 +819,49 @@ class ShowPalletDelivery extends OrgAction
 
                         $showGrossAndDiscount ? [
                             [
-                                'label'         => __('Gross'),
-                                'information'   => '',
-                                'price_total'   => $palletDelivery->gross_amount
+                                'label'       => __('Gross'),
+                                'information' => '',
+                                'price_total' => $palletDelivery->gross_amount
                             ],
                             [
-                                'label'         => __('Discounts'),
-                                'information'   => '',
-                                'price_total'   => $palletDelivery->discount_amount
+                                'label'       => __('Discounts'),
+                                'information' => '',
+                                'price_total' => $palletDelivery->discount_amount
                             ],
                         ] : [],
-                        $showGrossAndDiscount ? [
+                        $showGrossAndDiscount
+                            ? [
                             [
-                                'label'         => __('Net'),
-                                'information'   => '',
-                                'price_total'   => $palletDelivery->net_amount
+                                'label'       => __('Net'),
+                                'information' => '',
+                                'price_total' => $palletDelivery->net_amount
                             ],
                             [
-                                'label'         => __('Tax').' '.$palletDelivery->taxCategory->rate * 100 . '%',
-                                'information'   => '',
-                                'price_total'   => $palletDelivery->tax_amount
+                                'label'       => __('Tax').' '.$palletDelivery->taxCategory->rate * 100 .'%',
+                                'information' => '',
+                                'price_total' => $palletDelivery->tax_amount
                             ],
-                        ] : [
+                        ]
+                            : [
                             [
-                                'label'         => __('Net'),
-                                'information'   => '',
-                                'price_total'   => $palletDelivery->net_amount
+                                'label'       => __('Net'),
+                                'information' => '',
+                                'price_total' => $palletDelivery->net_amount
                             ],
                             [
-                                'label'         => __('Tax').' '.$palletDelivery->taxCategory->rate * 100 . '%',
-                                'information'   => '',
-                                'price_total'   => $palletDelivery->tax_amount
+                                'label'       => __('Tax').' '.$palletDelivery->taxCategory->rate * 100 .'%',
+                                'information' => '',
+                                'price_total' => $palletDelivery->tax_amount
                             ],
                         ],
                         [
                             [
-                                'label'         => __('Total'),
-                                'price_total'   => $palletDelivery->total_amount
+                                'label'       => __('Total'),
+                                'price_total' => $palletDelivery->total_amount
                             ],
                         ],
 
-                        'currency'                => CurrencyResource::make($palletDelivery->currency),
+                        'currency' => CurrencyResource::make($palletDelivery->currency),
                         // // 'number_pallets'               => $palletDelivery->stats->number_pallets,
                         // // 'number_services'              => $palletDelivery->stats->number_services,
                         // // 'number_physical_goods'        => $palletDelivery->stats->number_physical_goods,
@@ -901,10 +906,10 @@ class ShowPalletDelivery extends OrgAction
                     ],
                 ],
 
-                'option_attach_file'   => [
+                'option_attach_file' => [
                     [
-                        'name'      => __('Other'),
-                        'code'      => 'Other'
+                        'name' => __('Other'),
+                        'code' => 'Other'
                     ]
                 ],
 

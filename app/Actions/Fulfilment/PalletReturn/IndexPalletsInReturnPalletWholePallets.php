@@ -9,7 +9,6 @@
 namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\OrgAction;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletsInPalletReturnWholePalletsOptionEnum;
