@@ -59,7 +59,7 @@ use App\Actions\Helpers\Upload\UI\IndexRecentUploads;
 //Route::get('', ShowFulfilmentCRMDashboard::class)->name('dashboard');
 
 Route::get('', IndexFulfilmentCustomers::class)->name('index');
-Route::get('pending-approval', IndexFulfilmentCustomersPendingApproval::class)->name('pending_approval.index');
+Route::get('pending-approval', [IndexFulfilmentCustomersPendingApproval::class, 'inPendingApproval'])->name('pending_approval.index');
 Route::get('create', CreateFulfilmentCustomer::class)->name('create');
 
 Route::get('{fulfilmentCustomer}/edit', [EditCustomer::class, 'inShop'])->name('edit');
