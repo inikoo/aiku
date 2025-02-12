@@ -201,7 +201,7 @@ class ShowRetinaPalletDelivery extends RetinaAction
                 'label'   => __('delete'),
                 'key'     => 'delete_delivery',
                 'route'   => [
-                    'method'     => 'delete',
+                    'method'     => 'patch',
                     'name'       => 'retina.models.pallet-delivery.delete',
                     'parameters' => [
                         'palletDelivery' => $palletDelivery->id

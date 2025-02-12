@@ -328,6 +328,7 @@ const isModalUploadFileOpen = ref(false)
                 <ModalConfirmationDelete
                     :routeDelete="action.route"
                     isFullLoading
+                    isWithMessage
                 >
                     <template #default="{ isOpenModal, changeModel }">
 
