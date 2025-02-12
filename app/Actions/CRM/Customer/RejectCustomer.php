@@ -9,6 +9,7 @@
 namespace App\Actions\CRM\Customer;
 
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCrmStats;
+use App\Actions\Comms\Email\SendCustomerRejectEmail;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\CRM\Customer\CustomerRejectReasonEnum;
@@ -28,6 +29,9 @@ class RejectCustomer extends OrgAction
 
         $customer = $this->update($customer, $modelData);
         ShopHydrateCrmStats::run($customer->shop);
+
+        SendCustomerRejectEmail::run($customer);
+
         return $customer;
     }
 
