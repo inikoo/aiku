@@ -72,7 +72,7 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
         if ($palletReturn->state !== PalletReturnStateEnum::DISPATCHED) {
             $query->where('pallets.status', '!=', PalletStatusEnum::RETURNED);
         } elseif ($palletReturn->state === PalletReturnStateEnum::IN_PROCESS) {
-            $query->where('pallets.state', PalletStatusEnum::STORING);
+            $query->where('pallets.status', PalletStatusEnum::STORING);
         }
 
         if ($palletReturn->state !== PalletReturnStateEnum::IN_PROCESS) {

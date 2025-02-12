@@ -67,7 +67,8 @@ class AttachPalletToReturn extends OrgAction
                 'required',
                 'string',
                 Rule::exists('pallets', 'reference')->where(function ($query) {
-                    $query->where('fulfilment_customer_id', $this->parent->fulfilment_customer_id);
+                    $query->where('fulfilment_customer_id', $this->parent->fulfilment_customer_id)
+                    ->where('status', PalletStatusEnum::STORING);
                 })
             ],
         ];

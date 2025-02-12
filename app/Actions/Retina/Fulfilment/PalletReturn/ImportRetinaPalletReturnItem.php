@@ -16,6 +16,7 @@ use App\Http\Resources\Helpers\UploadsResource;
 use App\Imports\Fulfilment\PalletReturnItemImport;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Helpers\Upload;
+use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\ActionRequest;
 
 class ImportRetinaPalletReturnItem extends RetinaAction
@@ -61,6 +62,15 @@ class ImportRetinaPalletReturnItem extends RetinaAction
     public function authorize(ActionRequest $request): bool
     {
         return true;
+    }
+
+    public function asController(PalletReturn $palletReturn, ActionRequest $request): Upload
+    {
+        $request->validate();
+        $file = $request->file('file');
+        Storage::disk('local')->put($this->tmpPath, $file);
+
+        return $this->handle($palletReturn, $file, $request->input('with_stored_item'));
     }
 
     public function prepareForValidation(ActionRequest $request): void

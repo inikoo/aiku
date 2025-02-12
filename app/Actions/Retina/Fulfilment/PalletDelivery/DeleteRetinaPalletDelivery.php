@@ -39,10 +39,10 @@ class DeleteRetinaPalletDelivery extends RetinaAction
         return Inertia::location(route('retina.fulfilment.storage.pallet_deliveries.index'));
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
-            'delete_comment' => ['sometimes', 'required']
+            'delete_comment' => ['sometimes', 'nullable']
         ];
     }
 
@@ -65,12 +65,4 @@ class DeleteRetinaPalletDelivery extends RetinaAction
         $this->handle($palletDelivery, $this->validatedData);
     }
 
-    public function action(PalletDelivery $palletDelivery, $modelData): void
-    {
-        $this->action = true;
-        $this->fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
-        $this->initialisationFulfilmentActions($this->fulfilmentCustomer, $modelData);
-
-        $this->handle($palletDelivery, $this->validatedData);
-    }
 }

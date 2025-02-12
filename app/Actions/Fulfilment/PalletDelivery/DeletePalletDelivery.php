@@ -16,10 +16,12 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Event;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
+use OwenIt\Auditing\Events\AuditCustom;
 use Symfony\Component\HttpFoundation\Response;
 
 class DeletePalletDelivery extends OrgAction
@@ -41,6 +43,21 @@ class DeletePalletDelivery extends OrgAction
             $this->update($palletDelivery, [
                 'delete_comment' => Arr::get($modelData, 'delete_comment')
             ]);
+
+            $fulfilmentCustomer = $this->fulfilmentCustomer;
+
+            $fulfilmentCustomer->customer->auditEvent    = 'delete';
+            $fulfilmentCustomer->customer->isCustomEvent = true;
+
+            $fulfilmentCustomer->customer->auditCustomOld = [
+                'delivery' => $palletDelivery->reference
+            ];
+
+            $fulfilmentCustomer->customer->auditCustomNew = [
+                'delivery' => __('The delivery has been deleted.')
+            ];
+
+            Event::dispatch(AuditCustom::class, [$fulfilmentCustomer->customer]);
 
             $palletDelivery->delete();
         } else {
