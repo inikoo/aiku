@@ -9,6 +9,7 @@
 namespace App\Models\CRM;
 
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCustomerInvoices;
+use App\Enums\CRM\Customer\CustomerRejectReasonEnum;
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\CRM\Customer\CustomerTradeStateEnum;
@@ -180,10 +181,12 @@ class Customer extends Model implements HasMedia, Auditable
         'state'                       => CustomerStateEnum::class,
         'status'                      => CustomerStatusEnum::class,
         'trade_state'                 => CustomerTradeStateEnum::class,
+        'rejected_reason'             => CustomerRejectReasonEnum::class,
         'last_submitted_order_at'     => 'datetime',
         'last_dispatched_delivery_at' => 'datetime',
         'last_invoiced_at'            => 'datetime',
         'fetched_at'                  => 'datetime',
+        'rejected_at'                 => 'datetime',
         'last_fetched_at'             => 'datetime',
     ];
 
