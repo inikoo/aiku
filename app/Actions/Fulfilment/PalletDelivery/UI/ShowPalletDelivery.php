@@ -92,6 +92,7 @@ class ShowPalletDelivery extends OrgAction
 
     public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): Response
     {
+        // dd($palletDelivery->fulfilmentCustomer->slug);
         $subNavigation = [];
         if ($this->parent instanceof FulfilmentCustomer) {
             $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
@@ -1047,15 +1048,27 @@ class ShowPalletDelivery extends OrgAction
 
     public function getPrevious(PalletDelivery $palletDelivery, ActionRequest $request): ?array
     {
-        $previous = PalletDelivery::where('id', '<', $palletDelivery->id)->orderBy('id', 'desc')->first();
+        if($this->parent instanceof FulfilmentCustomer){
+            $previous = PalletDelivery::where('fulfilment_customer_id', $this->parent->id)->where('id', '<', $palletDelivery->id)->orderBy('id', 'desc')->first();
+        } elseif ($this->parent instanceof Fulfilment) {
+            $previous = PalletDelivery::where('fulfilment_id', $this->parent->id)->where('id', '<', $palletDelivery->id)->orderBy('id', 'desc')->first();
+        } else {
+            $previous = PalletDelivery::where('id', '<', $palletDelivery->id)->orderBy('id', 'desc')->first();
+        }
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(PalletDelivery $palletDelivery, ActionRequest $request): ?array
     {
-        $next = PalletDelivery::where('id', '>', $palletDelivery->id)->orderBy('id')->first();
-
+        if($this->parent instanceof FulfilmentCustomer){
+            $next = PalletDelivery::where('fulfilment_customer_id', $this->parent->id)->where('id', '>', $palletDelivery->id)->orderBy('id')->first();
+        } elseif ($this->parent instanceof Fulfilment) {
+            $next = PalletDelivery::where('fulfilment_id', $this->parent->id)->where('id', '>', $palletDelivery->id)->orderBy('id')->first();
+        } else {
+            $next = PalletDelivery::where('id', '>', $palletDelivery->id)->orderBy('id')->first();
+        }
+        
         return $this->getNavigation($next, $request->route()->getName());
     }
 
@@ -1064,7 +1077,6 @@ class ShowPalletDelivery extends OrgAction
         if (!$palletDelivery) {
             return null;
         }
-
 
         return match (class_basename($this->parent)) {
             'Warehouse' => [

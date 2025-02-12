@@ -261,7 +261,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 					-
 				</div>
             </div>
-			<pre>{{ item.stored_items }}</pre>
+			<!-- <pre>{{ item.stored_items }}</pre> -->
 		</template>
 
 

@@ -96,17 +96,20 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
 }
 
 function customerRoute(palletDelivery: PalletDelivery) {
+    // console.log('pp', route().params, palletDelivery)
     switch (route().current()) {
         case 'grp.org.fulfilments.show.operations.pallet-deliveries.index':
-            return route(
-                'grp.org.fulfilments.show.crm.customers.show',
-                [
-                    route().params['organisation'],
-                    route().params['fulfilment'],
-                    palletDelivery.customer_slug
-                ])
-                default:
-        return null
+            if (palletDelivery?.customer_slug) {
+                return route(
+                    'grp.org.fulfilments.show.crm.customers.show',
+                    [
+                        route().params['organisation'],
+                        route().params['fulfilment'],
+                        palletDelivery.customer_slug
+                    ])
+            }
+        default:
+            return null
     }
 }
 
@@ -166,12 +169,15 @@ const onClickReceived = (receivedRoute: routeType) => {
 
         <!-- Column: Customer -->
         <template #cell(customer_name)="{ item: palletDelivery }">
-            <Link :href="customerRoute(palletDelivery)" class="secondaryLink">
+            <Link v-if="customerRoute(palletDelivery)" :href="customerRoute(palletDelivery)" class="secondaryLink">
                 {{ palletDelivery['customer_name'] }}
             </Link>
+            <div v-else>
+                {{ palletDelivery['customer_name'] || '-' }}
+            </div>
         </template>
 
-        <!-- Column: Customer -->
+        <!-- Column: Customer Reference -->
         <template #cell(customer_reference)="{ item: palletDelivery }">
             <Link v-if="customerRoute(palletDelivery)" :href="customerRoute(palletDelivery)" class="secondaryLink">
                 {{ palletDelivery.customer_reference }}

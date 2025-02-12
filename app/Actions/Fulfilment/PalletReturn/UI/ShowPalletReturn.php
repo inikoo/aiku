@@ -833,14 +833,26 @@ class ShowPalletReturn extends OrgAction
 
     public function getPrevious(PalletReturn $palletReturn, ActionRequest $request): ?array
     {
-        $previous = PalletReturn::where('id', '<', $palletReturn->id)->orderBy('id', 'desc')->first();
+        if($this->parent instanceof FulfilmentCustomer){
+            $previous = PalletReturn::where('fulfilment_customer_id', $this->parent->id)->where('id', '<', $palletReturn->id)->where('type', PalletReturnTypeEnum::PALLET)->orderBy('id', 'desc')->first();
+        } elseif ($this->parent instanceof Fulfilment) {
+            $previous = PalletReturn::where('fulfilment_id', $this->parent->id)->where('id', '<', $palletReturn->id)->where('type', PalletReturnTypeEnum::PALLET)->orderBy('id', 'desc')->first();
+        } else {
+            $previous = PalletReturn::where('id', '<', $palletReturn->id)->where('type', PalletReturnTypeEnum::PALLET)->orderBy('id', 'desc')->first();
+        }
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(PalletReturn $palletReturn, ActionRequest $request): ?array
     {
-        $next = PalletReturn::where('id', '>', $palletReturn->id)->orderBy('id')->first();
+        if ($this->parent instanceof FulfilmentCustomer) {
+            $next = PalletReturn::where('fulfilment_customer_id', $this->parent->id)->where('id', '>', $palletReturn->id)->where('type', PalletReturnTypeEnum::PALLET)->orderBy('id')->first();
+        } elseif ($this->parent instanceof Fulfilment) {
+            $next = PalletReturn::where('fulfilment_id', $this->parent->id)->where('id', '>', $palletReturn->id)->where('type', PalletReturnTypeEnum::PALLET)->orderBy('id')->first();
+        } else {
+            $next = PalletReturn::where('id', '>', $palletReturn->id)->where('type', PalletReturnTypeEnum::PALLET)->orderBy('id')->first();
+        }
 
         return $this->getNavigation($next, $request->route()->getName());
     }

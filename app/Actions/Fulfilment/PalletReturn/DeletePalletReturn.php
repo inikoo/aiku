@@ -14,6 +14,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
@@ -30,23 +31,33 @@ class DeletePalletReturn extends OrgAction
     use WithAttributes;
     use WithActionUpdate;
 
-    public Customer $customer;
     private bool $action = false;
     private FulfilmentCustomer $fulfilmentCustomer;
+    private PalletReturn $palletReturn;
+
 
     public function handle(PalletReturn $palletReturn): void
     {
         if (in_array($palletReturn->state, [PalletReturnStateEnum::IN_PROCESS, PalletReturnStateEnum::SUBMITTED])) {
-            foreach ($palletReturn->pallets as $pallet) {
-                UpdatePallet::run($pallet, [
-                    'state' => PalletStateEnum::STORING,
-                    'status' => PalletStatusEnum::STORING
-                ]);
-            }
+            if($palletReturn->type == PalletReturnTypeEnum::PALLET){
+                $palletIds = $palletReturn->pallets->pluck('id')->toArray();
+                foreach ($palletReturn->pallets as $pallet) {
+                    UpdatePallet::run($pallet, [
+                        'state' => PalletStateEnum::STORING,
+                        'status' => PalletStatusEnum::STORING,
+                        'pallet_return_id' => null
+                    ]);
 
+                }
+                $palletReturn->pallets()->detach($palletIds);
+            } elseif ($palletReturn->type == PalletReturnTypeEnum::STORED_ITEM) {
+                $storedItemIds = $palletReturn->storedItems->pluck('id')->toArray();
+                $palletReturn->storedItems()->detach($storedItemIds);
+            }
             $palletReturn->transactions()->delete();
-            $palletReturn->storedItems()->delete();
             $palletReturn->delete();
+        } else {
+            abort(401);
         }
     }
 
