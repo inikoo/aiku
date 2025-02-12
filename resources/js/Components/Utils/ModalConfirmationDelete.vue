@@ -43,26 +43,48 @@ const onClickDelete = () => {
         [props.keyMessage || 'delete_comment']: messageDelete.value
     } : undefined
 
-    router[selectedMethod](
-        route(
-            props.routeDelete.name, props.routeDelete.parameters),
-            body,
-            {
-                onStart: () => {
-                    isLoadingdelete.value = true
-                },
-                onSuccess: () => {
-                    isOpenModal.value = false
-                },
-                onFinish: () => {
-                    if (props.isFullLoading) {
-
-                    } else {
-                        isLoadingdelete.value = false
+    if (selectedMethod === 'delete') {
+        router.delete(
+            route(
+                props.routeDelete.name, props.routeDelete.parameters),
+                {
+                    onStart: () => {
+                        isLoadingdelete.value = true
+                    },
+                    onSuccess: () => {
+                        isOpenModal.value = false
+                    },
+                    onFinish: () => {
+                        if (props.isFullLoading) {
+    
+                        } else {
+                            isLoadingdelete.value = false
+                        }
                     }
                 }
-            }
-    )
+        )
+    } else {
+        router[selectedMethod](
+            route(
+                props.routeDelete.name, props.routeDelete.parameters),
+                body,
+                {
+                    onStart: () => {
+                        isLoadingdelete.value = true
+                    },
+                    onSuccess: () => {
+                        isOpenModal.value = false
+                    },
+                    onFinish: () => {
+                        if (props.isFullLoading) {
+    
+                        } else {
+                            isLoadingdelete.value = false
+                        }
+                    }
+                }
+        )
+    }
 }
 
 const messageDelete = ref('')
