@@ -32,8 +32,9 @@ trait WithProcessAurora
         $this->initialisation($organisation, $request);
         $validatedData = $this->validatedData;
 
-        if ($with = Arr::get($validatedData, 'with', '')) {
-            $with = explode(',', $with);
+        $with=[];
+        if ($withArgs = Arr::get($validatedData, 'with', '')) {
+            $with = explode(',', $withArgs);
         }
 
 
