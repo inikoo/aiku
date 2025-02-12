@@ -1,10 +1,10 @@
 <?php
+
 /*
- * author Arya Permana - Kirin
- * created on 12-02-2025-11h-33m
- * github: https://github.com/KirinZero0
- * copyright 2025
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 27 Jan 2024 20:05:22 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 namespace App\Actions\Fulfilment\FulfilmentCustomer\UI;
 
@@ -28,7 +28,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexRejectedFulfilmentCustomers extends OrgAction
+class IndexFulfilmentCustomersPendingApproval extends OrgAction
 {
     use WithFulfilmentAuthorisation;
     use WithFulfilmentCustomersSubNavigation;
@@ -36,6 +36,7 @@ class IndexRejectedFulfilmentCustomers extends OrgAction
     /**
      * @var array|\ArrayAccess|mixed
      */
+    private bool $pending_approval = false;
 
     protected function getElementGroups(Fulfilment $parent): array
     {
@@ -71,7 +72,12 @@ class IndexRejectedFulfilmentCustomers extends OrgAction
 
         $queryBuilder = QueryBuilder::for(FulfilmentCustomer::class);
         $queryBuilder->where('fulfilment_customers.fulfilment_id', $fulfilment->id);
-        $queryBuilder->where('customers.status', CustomerStatusEnum::REJECTED->value);
+
+        if ($this->pending_approval) {
+            $queryBuilder->where('customers.status', CustomerStatusEnum::PENDING_APPROVAL->value);
+        } else {
+            $queryBuilder->where('customers.status', CustomerStatusEnum::APPROVED->value);
+        }
 
         foreach ($this->getElementGroups($fulfilment) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
@@ -167,6 +173,14 @@ class IndexRejectedFulfilmentCustomers extends OrgAction
         return $this->handle($fulfilment);
     }
 
+    public function inPendingApproval(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->pending_approval = true;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilment);
+    }
+
     public function jsonResponse(LengthAwarePaginator $customers): AnonymousResourceCollection
     {
         return FulfilmentCustomersResource::collection($customers);
@@ -238,7 +252,7 @@ class IndexRejectedFulfilmentCustomers extends OrgAction
             ),
             $headCrumb(
                 [
-                    'name'       => 'grp.org.fulfilments.show.crm.customers.rejected.index',
+                    'name'       => 'grp.org.fulfilments.show.crm.customers.index',
                     'parameters' => $routeParameters
                 ]
             )

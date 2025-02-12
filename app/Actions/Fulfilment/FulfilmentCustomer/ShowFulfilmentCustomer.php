@@ -191,16 +191,16 @@ class ShowFulfilmentCustomer extends OrgAction
                     fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))),
 
-                FulfilmentCustomerTabsEnum::NOTE->value => $this->tab == FulfilmentCustomerTabsEnum::NOTE->value ?
-                    fn () => FulfilmentCustomerNoteResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))
-                    : Inertia::lazy(fn () => FulfilmentCustomerNoteResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))),
+//                FulfilmentCustomerTabsEnum::NOTE->value => $this->tab == FulfilmentCustomerTabsEnum::NOTE->value ?
+//                    fn () => FulfilmentCustomerNoteResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))
+//                    : Inertia::lazy(fn () => FulfilmentCustomerNoteResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))),
 
             ]
         )
             ->table(IndexStoredItems::make()->tableStructure($fulfilmentCustomer->storedItems))
             ->table(IndexRentalAgreementClauses::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::AGREED_PRICES->value))
-            ->table(IndexHistory::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::HISTORY->value))
-            ->table(IndexFulfilmentCustomerNote::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::NOTE->value));
+            ->table(IndexHistory::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::HISTORY->value));
+          //  ->table(IndexFulfilmentCustomerNote::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::NOTE->value));
     }
 
 
