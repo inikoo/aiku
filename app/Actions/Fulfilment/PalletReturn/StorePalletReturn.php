@@ -42,6 +42,7 @@ class StorePalletReturn extends OrgAction
     private bool $action = false;
 
     private bool $withStoredItems = false;
+    private bool $withDropshipping = false;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletReturn
     {
@@ -113,6 +114,8 @@ class StorePalletReturn extends OrgAction
 
         if ($this->withStoredItems) {
             $this->set('type', PalletReturnTypeEnum::STORED_ITEM);
+        } elseif ($this->withDropshipping) {
+            $this->set('type', PalletReturnTypeEnum::STORED_ITEM);
         } else {
             $this->set('type', PalletReturnTypeEnum::PALLET);
         }
@@ -162,6 +165,16 @@ class StorePalletReturn extends OrgAction
     {
         $this->action          = true;
         $this->withStoredItems = true;
+        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
+        $this->setRawAttributes($modelData);
+
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
+    }
+
+    public function actionWithDropshipping(FulfilmentCustomer $fulfilmentCustomer, $modelData): PalletReturn
+    {
+        $this->action          = true;
+        $this->withDropshipping = true;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
         $this->setRawAttributes($modelData);
 

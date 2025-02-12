@@ -48,8 +48,8 @@ class StoreFulfilmentFromShopify extends OrgAction
                         'country_id'          => $countryDeliveryAddress->id
                     ];*/
 
-            $palletReturn = StorePalletReturn::make()->actionWithStoredItems($shopifyUser->customer->fulfilmentCustomer, [
-                'type' => PalletReturnTypeEnum::STORED_ITEM
+            $palletReturn = StorePalletReturn::make()->actionWithDropshipping($shopifyUser->customer->fulfilmentCustomer, [
+                'type' => PalletReturnTypeEnum::DROPSHIPPING
             ]);
 
             $storedItems = [];

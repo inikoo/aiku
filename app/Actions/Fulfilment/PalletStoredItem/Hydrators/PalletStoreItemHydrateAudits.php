@@ -69,14 +69,7 @@ class PalletStoreItemHydrateAudits extends HydrateModel
 
         ];
 
-        //todo remove thi sis just to fix old errors;
-        if ($stats['number_audits'] > 0 and $palletStoredItem->in_process) {
-            $palletStoredItem->update(
-                [
-                    'in_process' => false
-                ]
-            );
-        }
+
 
         $palletStoredItem->update($stats);
     }
