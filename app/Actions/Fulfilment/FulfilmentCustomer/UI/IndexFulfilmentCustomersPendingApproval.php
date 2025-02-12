@@ -28,12 +28,15 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexFulfilmentCustomers extends OrgAction
+class IndexFulfilmentCustomersPendingApproval extends OrgAction
 {
     use WithFulfilmentAuthorisation;
     use WithFulfilmentCustomersSubNavigation;
 
-
+    /**
+     * @var array|\ArrayAccess|mixed
+     */
+    private bool $pending_approval = false;
 
     protected function getElementGroups(Fulfilment $parent): array
     {
@@ -70,12 +73,11 @@ class IndexFulfilmentCustomers extends OrgAction
         $queryBuilder = QueryBuilder::for(FulfilmentCustomer::class);
         $queryBuilder->where('fulfilment_customers.fulfilment_id', $fulfilment->id);
 
-        $queryBuilder->whereIn('customers.status', [
-            CustomerStatusEnum::APPROVED,
-            CustomerStatusEnum::BANNED
-
-        ]);
-
+        if ($this->pending_approval) {
+            $queryBuilder->where('customers.status', CustomerStatusEnum::PENDING_APPROVAL->value);
+        } else {
+            $queryBuilder->where('customers.status', CustomerStatusEnum::APPROVED->value);
+        }
 
         foreach ($this->getElementGroups($fulfilment) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
@@ -171,7 +173,13 @@ class IndexFulfilmentCustomers extends OrgAction
         return $this->handle($fulfilment);
     }
 
+    public function inPendingApproval(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->pending_approval = true;
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
+        return $this->handle($fulfilment);
+    }
 
     public function jsonResponse(LengthAwarePaginator $customers): AnonymousResourceCollection
     {
