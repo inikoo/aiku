@@ -15,7 +15,7 @@ return new class () extends Migration {
         Schema::table('customers', function (Blueprint $table) {
             $table->string('rejected_reason')->nullable();
             $table->string('rejected_notes')->nullable();
-            $table->string('rejected_at')->nullable();
+            $table->dateTimeTz('rejected_at')->nullable();
         });
     }
 
