@@ -72,14 +72,6 @@ const props = defineProps<{
     
     upload_spreadsheet: UploadPallet
     can_edit_transactions: boolean,
-    palletRoute: {
-        index: routeType
-        store: routeType
-    }
-    storedItemRoute: {
-        index: routeType
-        store: routeType
-    }
     box_stats: BoxStats
     notes_data: PDRNotes[]
     route_check_stored_items : routeType
@@ -461,36 +453,6 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
         :palletReturn="data?.data"
     />
 
-    <!-- Modal: Add Pallet -->
-    <Modal :isOpen="openModal" @onClose="openModal = false">
-        <div class="">
-            <TablePalletReturn
-				:dataRoute="palletRoute.index"
-                :saveRoute="palletRoute.store"
-				@onClose="() => openModal = false"
-				:descriptor="palletReturnDescriptor"
-			>
-                <template #column-stored_items="{data}">
-                    <div class="flex gap-x-1 flex-wrap">
-                        <template v-if="data.columnData.stored_items.length">
-                            <Tag v-for="item of data.columnData.stored_items"
-                                :label="`${item.reference} (${item.quantity})`"
-                                :closeButton="false"
-                                :stringToColor="true">
-                                <template #label>
-                                    <div class="whitespace-nowrap text-xs">
-                                        {{ item.reference }} (<span class="font-light">{{ item.quantity }}</span>)
-                                    </div>
-                                </template>
-                            </Tag>
-                        </template>
-                        <span v-else class="text-xs text-gray-400 italic">Have no stored items.</span>
-                    </div>
-                </template>
-
-            </TablePalletReturn>
-        </div>
-    </Modal>
 
     <UploadExcel
         v-model="isModalUploadOpen"

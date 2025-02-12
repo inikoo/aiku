@@ -2,31 +2,31 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 26 Jan 2024 18:40:36 Malaysia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2024, Raul A Perusquia Flores
+ * Created: Wed, 12 Feb 2025 14:08:16 Central Indonesia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Retina\Fulfilment\PalletReturn\Json;
+namespace App\Actions\Fulfilment\PalletReturn;
 
-use App\Actions\RetinaAction;
+use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemInReturnOptionEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Lorisleiva\Actions\ActionRequest;
-use App\Models\CRM\WebUser;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
-class GetRetinaReturnPallets extends RetinaAction
+class IndexPalletsInReturnPalletWholePallets extends OrgAction
 {
     protected function getElementGroups(PalletReturn $palletReturn): array
     {
@@ -58,7 +58,12 @@ class GetRetinaReturnPallets extends RetinaAction
             });
         });
 
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
+
         $query = QueryBuilder::for(Pallet::class);
+
 
         $query->where('fulfilment_customer_id', $palletReturn->fulfilment_customer_id);
 
@@ -90,6 +95,7 @@ class GetRetinaReturnPallets extends RetinaAction
                 );
             }
         }
+        $query->distinct('pallets.id');
 
         $query->defaultSort('pallets.id')
             ->select(
@@ -110,23 +116,26 @@ class GetRetinaReturnPallets extends RetinaAction
                 'pallets.pallet_delivery_id',
                 'pallets.pallet_return_id',
                 'locations.slug as location_slug',
-                'locations.slug as location_code'
+                'locations.code as location_code'
             );
 
 
         return $query->allowedSorts(['customer_reference', 'reference', 'fulfilment_customer_name'])
-            ->allowedFilters([$globalSearch, 'customer_reference', 'reference'])
+            ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->customer->id == $request->route()->parameter('fulfilmentCustomer')->customer_id) {
+        if ($request->user() instanceof WebUser) {
             return true;
         }
 
-        return false;
+        $this->canEdit   = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        $this->canDelete = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+
+        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
     }
 
     public function jsonResponse(LengthAwarePaginator $pallets): AnonymousResourceCollection
@@ -136,7 +145,7 @@ class GetRetinaReturnPallets extends RetinaAction
 
     public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
         return $this->handle($fulfilmentCustomer);
     }
@@ -179,7 +188,7 @@ class GetRetinaReturnPallets extends RetinaAction
             /* $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon'); */
 
 
-            $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'reference', label: __('pallet id'), canBeHidden: false, sortable: true, searchable: true);
 
 
             $customersReferenceLabel = __("Pallet reference (customer's), notes");
@@ -192,7 +201,7 @@ class GetRetinaReturnPallets extends RetinaAction
             }
 
 
-            $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
+            $table->column(key: 'actions', label: 'actions', canBeHidden: false, searchable: true);
 
 
             $table->defaultSort('reference');

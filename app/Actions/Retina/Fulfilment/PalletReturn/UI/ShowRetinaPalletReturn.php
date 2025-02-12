@@ -8,7 +8,7 @@
 
 namespace App\Actions\Retina\Fulfilment\PalletReturn\UI;
 
-use App\Actions\Fulfilment\PalletReturn\Json\GetReturnPallets;
+use App\Actions\Fulfilment\PalletReturn\IndexPalletsInReturnPalletWholePallets;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPhysicalGoodInPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexServiceInPalletReturn;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemsInReturn;
@@ -231,13 +231,7 @@ class ShowRetinaPalletReturn extends RetinaAction
                         'scope'          => $palletReturn->slug
                     ]
                 ],
-                'stored_item_list_route'   => [
-                    'name'       => 'retina.json.fulfilment.return.stored-items',
-                    'parameters' => [
-                        'fulfilment'     => $palletReturn->fulfilment->slug,
-                        'scope'          => $palletReturn->slug
-                    ]
-                ],
+
                 'stored_items_add_route'  => [
                         'name'       => 'retina.models.pallet-return.stored_item.store',
                         'parameters' => [
@@ -309,18 +303,7 @@ class ShowRetinaPalletReturn extends RetinaAction
                     ]
                 ],
 
-                'palletRoute' => [
-                    'index' => [
-                        'name'       => 'retina.json.fulfilment.return.pallets',
-                        'parameters' => []
-                    ],
-                    'store' => [
-                        'name'       => 'retina.models.pallet-return.pallet.store',
-                        'parameters' => [
-                            'palletReturn'       => $palletReturn->id
-                        ]
-                    ]
-                ],
+
 
                 'tabs' => [
                     'current'    => $this->tab,
@@ -480,8 +463,8 @@ class ShowRetinaPalletReturn extends RetinaAction
                 'data' => PalletReturnResource::make($palletReturn),
 
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
-                    fn () => PalletReturnItemsResource::collection(GetReturnPallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))
-                    : Inertia::lazy(fn () => PalletReturnItemsResource::collection(GetReturnPallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))),
+                    fn () => PalletReturnItemsResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))
+                    : Inertia::lazy(fn () => PalletReturnItemsResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))),
 
                 PalletReturnTabsEnum::STORED_ITEMS->value => $this->tab == PalletReturnTabsEnum::STORED_ITEMS->value ?
                     fn () => PalletReturnStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn))
@@ -496,7 +479,7 @@ class ShowRetinaPalletReturn extends RetinaAction
                     : Inertia::lazy(fn () => FulfilmentTransactionsResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn, PalletReturnTabsEnum::PHYSICAL_GOODS->value)))
             ]
         )->table(
-            GetReturnPallets::make()->tableStructure(
+            IndexPalletsInReturnPalletWholePallets::make()->tableStructure(
                 $palletReturn,
                 request: $request,
                 prefix: PalletReturnTabsEnum::PALLETS->value
