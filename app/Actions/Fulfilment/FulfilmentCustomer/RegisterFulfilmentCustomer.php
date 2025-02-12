@@ -35,7 +35,9 @@ class RegisterFulfilmentCustomer extends OrgAction
         $sizeAndWeight = Arr::pull($modelData, 'size_and_weight');
         $password = Arr::pull($modelData, 'password');
 
-        $customer = StoreCustomer::make()->action($fulfilment->shop, $modelData);
+        $customer = StoreCustomer::make()->action($fulfilment->shop, array_merge($modelData, [
+            'registered_at' => now()
+        ]));
 
 
         $webUser = StoreWebUser::make()->action($customer, [

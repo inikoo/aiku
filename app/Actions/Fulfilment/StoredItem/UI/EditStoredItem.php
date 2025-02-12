@@ -100,7 +100,7 @@ class EditStoredItem extends OrgAction
                                     'value'   => $storedItem->name,
                                     // 'required' => true
                                 ],
-                            ], 
+                            ],
                         ]
                     ],
                     'args' => [
