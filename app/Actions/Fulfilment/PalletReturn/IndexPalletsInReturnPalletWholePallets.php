@@ -12,11 +12,10 @@ use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
-use App\Enums\Fulfilment\StoredItem\StoredItemInReturnOptionEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletsInPalletReturnWholePalletsOptionEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\WebUser;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
 use App\Services\QueryBuilder;
@@ -34,15 +33,13 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
             'option' => [
                 'label'    => __('Option'),
                 'elements' => array_merge_recursive(
-                    StoredItemInReturnOptionEnum::labels(),
-                    StoredItemInReturnOptionEnum::count()
+                    PalletsInPalletReturnWholePalletsOptionEnum::labels(),
+                    PalletsInPalletReturnWholePalletsOptionEnum::count($palletReturn)
                 ),
                 'engine' => function ($query, $elements) use ($palletReturn) {
-                    if (in_array(StoredItemInReturnOptionEnum::SELECTED->value, $elements)) {
+
+                    if (in_array(PalletsInPalletReturnWholePalletsOptionEnum::SELECTED->value, $elements)) {
                         $query->where('pallet_return_items.pallet_return_id', $palletReturn->id);
-                    } elseif (in_array(StoredItemInReturnOptionEnum::UNSELECTED->value, $elements)) {
-                        $query->whereNull('pallets.pallet_return_id')
-                            ->where('pallets.state', PalletStateEnum::STORING);
                     }
                 }
             ],
@@ -75,7 +72,7 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
         if ($palletReturn->state !== PalletReturnStateEnum::DISPATCHED) {
             $query->where('pallets.status', '!=', PalletStatusEnum::RETURNED);
         } elseif ($palletReturn->state === PalletReturnStateEnum::IN_PROCESS) {
-            $query->where('pallets.state', PalletStatusEnum::STORING);
+            $query->where('pallets.status', PalletStatusEnum::STORING);
         }
 
         if ($palletReturn->state !== PalletReturnStateEnum::IN_PROCESS) {
@@ -95,7 +92,6 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
                 );
             }
         }
-        $query->distinct('pallets.id');
 
         $query->defaultSort('pallets.id')
             ->select(
@@ -143,12 +139,6 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
         return PalletsResource::collection($pallets);
     }
 
-    public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
-
-        return $this->handle($fulfilmentCustomer);
-    }
 
     public function tableStructure(PalletReturn $palletReturn, $request, $prefix = null, $modelOperations = []): Closure
     {

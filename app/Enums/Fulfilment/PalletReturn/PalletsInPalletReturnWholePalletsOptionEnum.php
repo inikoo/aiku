@@ -1,17 +1,16 @@
 <?php
-
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 25 Mar 2023 03:02:09 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Wed, 12 Feb 2025 14:43:50 Central Indonesia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Fulfilment\StoredItem;
+namespace App\Enums\Fulfilment\PalletReturn;
 
 use App\Enums\EnumHelperTrait;
 use App\Models\Fulfilment\PalletReturn;
 
-enum StoredItemInReturnOptionEnum: string
+enum PalletsInPalletReturnWholePalletsOptionEnum: string
 {
     use EnumHelperTrait;
 

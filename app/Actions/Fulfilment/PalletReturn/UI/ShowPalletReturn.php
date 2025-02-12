@@ -78,8 +78,6 @@ class ShowPalletReturn extends OrgAction
 
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response
     {
-        //todo this should be $palletReturn->type
-        //$type='StoredItem';
 
         $subNavigation = [];
         if ($this->parent instanceof FulfilmentCustomer) {
@@ -444,7 +442,7 @@ class ShowPalletReturn extends OrgAction
                 'upload_spreadsheet' => [
                     'event'             => 'action-progress',
                     'channel'           => 'grp.personal.' . $this->organisation->id,
-                    'required_fields'   => ['pallet_stored_item', 'pallet', 'stored_item', 'quantity'],
+                    'required_fields'   => ['reference'],
                     'template'          => [
                         'label' => 'Download template (.xlsx)',
                     ],
@@ -678,9 +676,6 @@ class ShowPalletReturn extends OrgAction
                     fn () => PalletReturnItemsResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))
                     : Inertia::lazy(fn () => PalletReturnItemsResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))),
 
-                PalletReturnTabsEnum::STORED_ITEMS->value => $this->tab == PalletReturnTabsEnum::STORED_ITEMS->value ?
-                    fn () => PalletReturnItemsWithStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn, PalletReturnTabsEnum::STORED_ITEMS->value)) //todo idk if this is right
-                    : Inertia::lazy(fn () => PalletReturnItemsWithStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn, PalletReturnTabsEnum::STORED_ITEMS->value))), //todo idk if this is right
 
                 PalletReturnTabsEnum::SERVICES->value => $this->tab == PalletReturnTabsEnum::SERVICES->value ?
                     fn () => FulfilmentTransactionsResource::collection(IndexServiceInPalletReturn::run($palletReturn))
