@@ -13,6 +13,7 @@ use App\Actions\Transfers\Aurora\Api\ProcessAuroraDeliveryNote;
 use App\Actions\Transfers\Aurora\Api\ProcessAuroraEmployee;
 use App\Actions\Transfers\Aurora\Api\ProcessAuroraInvoice;
 use App\Actions\Transfers\Aurora\Api\ProcessAuroraOrder;
+use App\Actions\Transfers\Aurora\Api\ProcessAuroraProduct;
 use App\Actions\Transfers\Aurora\Api\ProcessAuroraStock;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +27,7 @@ Route::name('bk_api.')->group(function () {
             Route::post('customer-client', ProcessAuroraCustomerClient::class)->name('customer_client');
             Route::post('delivery-note', ProcessAuroraDeliveryNote::class)->name('delivery_note');
             Route::post('stock', ProcessAuroraStock::class)->name('stock');
+            Route::post('product', ProcessAuroraProduct::class)->name('stock');
 
         });
     });
