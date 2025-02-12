@@ -338,7 +338,7 @@ const sendUpdateInformation = () => {
                     <div class="pl-2 leading-none text-lg" :style="{
                         borderLeft: `4px solid ${layout.app.theme[0]}`
                     }">
-                        <div class="block text-lg font-semibold">Recurring Bills</div>
+                        <div class="block text-lg font-semibold">{{ trans("Current Bill") }}</div>
                         <div class="text-sm flex items-center gap-x-1">
                             {{ locale.currencyFormat(data.recurring_bill.currency_code, data.recurring_bill.total || 0)
                             }}
@@ -348,7 +348,7 @@ const sendUpdateInformation = () => {
                     <!-- State Date & End Date -->
                     <div class="pl-1 mt-4 w-80 lg:w-96 grid grid-cols-9 gap-x-3">
                         <div class="col-span-4 text-sm">
-                            <div class="text-gray-400">Start date</div>
+                            <div class="text-gray-400">{{ trans("Start date") }}</div>
                             <div class="font-medium">{{ useFormatTime(data.recurring_bill.start_date) }}</div>
                         </div>
 
@@ -358,14 +358,14 @@ const sendUpdateInformation = () => {
                         </div>
 
                         <div class="col-span-4 text-sm">
-                            <div class="text-gray-400">End date</div>
+                            <div class="text-gray-400">{{ trans("End date") }}</div>
                             <div class="font-medium">{{ useFormatTime(data.recurring_bill.end_date) }}</div>
                         </div>
                     </div>
 
                     <div class="pl-1 mt-6 w-full flex items-end justify-between">
                         <div class="flex h-fit">
-                            <Tag :theme="data.recurring_bill.status === 'current' ? 3 : undefined" size="xxs">
+                            <!-- <Tag :theme="data.recurring_bill.status === 'current' ? 3 : undefined" size="xxs">
                                 <template #label>
                                     <FontAwesomeIcon v-if="data.recurring_bill.status === 'current'"
                                         icon='fas fa-circle' class='text-green-500 animate-pulse text-[7px]' fixed-width
@@ -373,7 +373,7 @@ const sendUpdateInformation = () => {
                                     <span class="capitalize">{{ data.recurring_bill.status === 'current' ? 'Active' :
                                         'Past' }}</span>
                                 </template>
-                            </Tag>
+                            </Tag> -->
                         </div>
 
                         <Link :href="route(data.recurring_bill.route.name, data.recurring_bill.route.parameters)"

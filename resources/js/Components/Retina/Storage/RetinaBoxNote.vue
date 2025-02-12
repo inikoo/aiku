@@ -96,7 +96,7 @@ const onSubmitNote = async () => {
 
     <Modal :isOpen="isModalOpen" @onClose="() => (isModalOpen = false, noteModalValue = noteData.note)">
 		<div class="min-h-72 max-h-96 px-2 overflow-auto">
-            <div class="text-xl font-semibold mb-2">{{ noteData.label }}'s note</div>
+            <div class="text-xl font-semibold mb-2">{{ noteData.label }}</div>
 			<div class="relative">
                 <div v-if="noteModalValue" @click="() => noteModalValue = ''" class="absolute top-1 right-1 text-red-400 hover:text-red-600 text-xxs cursor-pointer">
                     Clear

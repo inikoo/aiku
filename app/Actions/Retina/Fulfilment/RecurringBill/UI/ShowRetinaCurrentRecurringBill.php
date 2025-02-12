@@ -56,7 +56,8 @@ class ShowRetinaCurrentRecurringBill extends RetinaAction
                             'title' => __('recurring bill')
                         ],
                     'model' => __('Bill'),
-                    'title' => $recurringBill->slug
+                    'title' => $recurringBill->slug,
+                    'noCapitalise' => true
                 ],
                 'timeline_rb' => [
                     'start_date' => $recurringBill->start_date,
