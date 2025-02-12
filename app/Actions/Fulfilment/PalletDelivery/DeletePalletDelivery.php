@@ -37,6 +37,8 @@ class DeletePalletDelivery extends OrgAction
             $palletDelivery->pallets()->delete();
             $palletDelivery->transactions()->delete();
             $palletDelivery->delete();
+        } else {
+            abort(401);
         }
     }
 
