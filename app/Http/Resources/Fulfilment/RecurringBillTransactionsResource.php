@@ -146,7 +146,10 @@ class RecurringBillTransactionsResource extends JsonResource
             'currency_code'      => $this->currency_code,
             'unit_abbreviation'  => $unitAbbreviation,
             'unit_label'         => $this->asset_unit,
-            'quantity'           => $this->quantity * $this->temporal_quantity,
+            'quantity'           => match ($this->item_type) {
+                'Pallet', 'Space' => $this->temporal_quantity,
+                default => $this->quantity
+            },
             'total'              => $this->net_amount,
             'discount'           => (int) $this->discount,
             'edit_type'          => $editType,
