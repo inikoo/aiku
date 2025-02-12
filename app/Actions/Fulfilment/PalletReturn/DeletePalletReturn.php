@@ -47,7 +47,8 @@ class DeletePalletReturn extends OrgAction
                     UpdatePallet::run($pallet, [
                         'state' => PalletStateEnum::STORING,
                         'status' => PalletStatusEnum::STORING,
-                        'pallet_return_id' => null
+                        'pallet_return_id' => null,
+                        'requested_for_return_at' => null
                     ]);
 
                 }
