@@ -752,7 +752,7 @@ class ShowStoredItemReturn extends OrgAction
 
     public function getPrevious(PalletReturn $palletReturn, ActionRequest $request): ?array
     {
-        if($this->parent instanceof FulfilmentCustomer){
+        if ($this->parent instanceof FulfilmentCustomer) {
             $previous = PalletReturn::where('fulfilment_customer_id', $this->parent->id)->where('id', '<', $palletReturn->id)->where('type', PalletReturnTypeEnum::STORED_ITEM)->orderBy('id', 'desc')->first();
         } elseif ($this->parent instanceof Fulfilment) {
             $previous = PalletReturn::where('fulfilment_id', $this->parent->id)->where('id', '<', $palletReturn->id)->where('type', PalletReturnTypeEnum::STORED_ITEM)->orderBy('id', 'desc')->first();

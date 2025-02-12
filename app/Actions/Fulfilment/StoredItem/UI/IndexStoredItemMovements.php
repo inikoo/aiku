@@ -91,6 +91,10 @@ class IndexStoredItemMovements extends OrgAction
                 'pallet_returns.reference as pallet_returns_reference'
             );
 
+
+
+
+
         return $query->defaultSort('pallets.id')
             ->allowedSorts(['id', 'pallets.reference'])
             ->allowedFilters([$globalSearch])

@@ -13,7 +13,6 @@ use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithFulfilmentCustomersSubNavigation;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
-use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatusEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
@@ -28,11 +27,10 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexFulfilmentCustomers extends OrgAction
+class IndexFulfilmentCustomersRejected extends OrgAction
 {
     use WithFulfilmentAuthorisation;
     use WithFulfilmentCustomersSubNavigation;
-
 
 
     protected function getElementGroups(Fulfilment $parent): array
@@ -70,11 +68,8 @@ class IndexFulfilmentCustomers extends OrgAction
         $queryBuilder = QueryBuilder::for(FulfilmentCustomer::class);
         $queryBuilder->where('fulfilment_customers.fulfilment_id', $fulfilment->id);
 
-        $queryBuilder->whereIn('customers.status', [
-            CustomerStatusEnum::APPROVED,
-            CustomerStatusEnum::BANNED
 
-        ]);
+        $queryBuilder->where('customers.status', CustomerStatusEnum::REJECTED);
 
 
         foreach ($this->getElementGroups($fulfilment) as $key => $elementGroup) {
@@ -125,15 +120,7 @@ class IndexFulfilmentCustomers extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            if (!$this->pending_approval) {
-                foreach ($this->getElementGroups($fulfilment) as $key => $elementGroup) {
-                    $table->elementGroup(
-                        key: $key,
-                        label: $elementGroup['label'],
-                        elements: $elementGroup['elements']
-                    );
-                }
-            }
+
 
             $table
                 ->withModelOperations($modelOperations)
@@ -208,13 +195,13 @@ class IndexFulfilmentCustomers extends OrgAction
                 ),
                 'title'       => __('customers'),
                 'pageHead'    => [
-                    'title'   => __('customers'),
-                    'model'   => __('Fulfilment'),
-                    'icon'    => [
+                    'title'         => __('customers'),
+                    'model'         => __('Fulfilment'),
+                    'icon'          => [
                         'icon'    => ['fal', 'fa-user'],
                         'tooltip' => $this->fulfilment->shop->name.' '.__('customers')
                     ],
-                    'actions' => $actions,
+                    'actions'       => $actions,
                     'subNavigation' => $navigation
                 ],
                 'data'        => FulfilmentCustomersResource::collection($customers)

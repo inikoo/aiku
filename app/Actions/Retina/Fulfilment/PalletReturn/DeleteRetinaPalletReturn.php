@@ -29,14 +29,21 @@ class DeleteRetinaPalletReturn extends RetinaAction
     public Customer $customer;
     private bool $action = false;
 
-    public function handle(PalletReturn $palletReturn): void
+    public function handle(PalletReturn $palletReturn, array $modelData = []): void
     {
-        DeletePalletReturn::run($palletReturn);
+        DeletePalletReturn::run($palletReturn, $modelData);
     }
 
     public function htmlResponse(): Response
     {
         return Inertia::location(route('retina.fulfilment.storage.pallet_returns.index'));
+    }
+
+    public function rules()
+    {
+        return [
+            'delete_comment' => ['sometimes', 'required']
+        ];
     }
 
     public function authorize(ActionRequest $request): bool
@@ -55,7 +62,7 @@ class DeleteRetinaPalletReturn extends RetinaAction
         $this->fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
         $this->initialisation($request);
 
-        $this->handle($palletReturn);
+        $this->handle($palletReturn, $this->validatedData);
     }
 
     public function action(PalletReturn $palletReturn, $modelData): void
@@ -64,6 +71,6 @@ class DeleteRetinaPalletReturn extends RetinaAction
         $this->fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
         $this->initialisationFulfilmentActions($this->fulfilmentCustomer, $modelData);
 
-        $this->handle($palletReturn);
+        $this->handle($palletReturn, $this->validatedData);
     }
 }

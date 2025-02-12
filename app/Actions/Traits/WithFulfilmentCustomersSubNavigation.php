@@ -43,6 +43,19 @@ trait WithFulfilmentCustomersSubNavigation
             ]
         ];
 
+        $meta[] = [
+            'route'     => [
+                'name'       => 'grp.org.fulfilments.show.crm.customers.rejected.index',
+                'parameters' => $request->route()->originalParameters()
+            ],
+            'number'   => $fulfilment->shop->crmStats->number_customers_status_rejected,
+            'label'    => __('Rejected'),
+            'leftIcon' => [
+                'icon'    => 'fal fa-user',
+                'tooltip' => __('rejected')
+            ]
+        ];
+
         return $meta;
     }
 }

@@ -79,8 +79,7 @@ class StoredItemMovementsResource extends JsonResource
             if ($palletReturn) {
                 $desc_title = $palletReturn->reference;
                 $desc_model = __('Pallet Return');
-                if($palletReturn->type == PalletReturnTypeEnum::PALLET)
-                {
+                if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
                     $route = [
                         'name' => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show',
                         'parameters' => [
