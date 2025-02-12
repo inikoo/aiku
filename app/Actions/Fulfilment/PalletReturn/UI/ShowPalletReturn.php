@@ -442,7 +442,7 @@ class ShowPalletReturn extends OrgAction
                 'upload_spreadsheet' => [
                     'event'             => 'action-progress',
                     'channel'           => 'grp.personal.' . $this->organisation->id,
-                    'required_fields'   => ['pallet_stored_item', 'pallet', 'stored_item', 'quantity'],
+                    'required_fields'   => ['reference'],
                     'template'          => [
                         'label' => 'Download template (.xlsx)',
                     ],
