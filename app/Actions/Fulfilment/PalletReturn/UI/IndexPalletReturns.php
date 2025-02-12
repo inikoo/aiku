@@ -260,18 +260,21 @@ class IndexPalletReturns extends OrgAction
         }
         if ($this->parent->items_storage) {
 
-            $actions[] = [
-                'type'    => 'button',
-                'style'   => 'create',
-                'tooltip' => __('Create new return (Customer SKUs)'),
-                'label'   => __('Return (Customer SKUs)'),
-                'fullLoading'   => true,
-                'route'   => [
-                    'method'     => 'post',
-                    'name'       => 'grp.models.fulfilment-customer.pallet-return-stored-items.store',
-                    'parameters' => [$this->parent->id]
-                ]
-            ];
+            if($this->parent->number_stored_items > 0)
+            {
+                $actions[] = [
+                    'type'    => 'button',
+                    'style'   => 'create',
+                    'tooltip' => __('Create new return (Customer SKUs)'),
+                    'label'   => __('Return (Customer SKUs)'),
+                    'fullLoading'   => true,
+                    'route'   => [
+                        'method'     => 'post',
+                        'name'       => 'grp.models.fulfilment-customer.pallet-return-stored-items.store',
+                        'parameters' => [$this->parent->id]
+                    ]
+                ];
+            }
         }
 
         return Inertia::render(
