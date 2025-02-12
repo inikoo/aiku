@@ -81,6 +81,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_provoked_unsubscribe
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int $number_outboxes_type_send_invoice_to_customer
  * @property-read \App\Models\Catalogue\Shop $shop
  * @method static Builder<static>|ShopCommsStats newModelQuery()
  * @method static Builder<static>|ShopCommsStats newQuery()

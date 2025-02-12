@@ -105,6 +105,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $delete_comment
  * @property string|null $source_id
  * @property array<array-key, mixed> $migration_data
+ * @property string|null $registered_at
+ * @property string|null $rejected_reason
+ * @property string|null $rejected_notes
+ * @property string|null $rejected_at
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, \App\Models\CRM\Appointment> $appointments

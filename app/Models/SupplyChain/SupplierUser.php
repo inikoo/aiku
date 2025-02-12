@@ -54,6 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SupplyChain\Supplier $supplier
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
+ * @method static \Database\Factories\SupplyChain\SupplierUserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SupplierUser newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SupplierUser newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SupplierUser onlyTrashed()

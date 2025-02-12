@@ -28,7 +28,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexFulfilmentCustomers extends OrgAction
+class IndexFulfilmentCustomersApproved extends OrgAction
 {
     use WithFulfilmentAuthorisation;
     use WithFulfilmentCustomersSubNavigation;
@@ -70,11 +70,7 @@ class IndexFulfilmentCustomers extends OrgAction
         $queryBuilder = QueryBuilder::for(FulfilmentCustomer::class);
         $queryBuilder->where('fulfilment_customers.fulfilment_id', $fulfilment->id);
 
-        $queryBuilder->whereIn('customers.status', [
-            CustomerStatusEnum::APPROVED,
-            CustomerStatusEnum::BANNED
-
-        ]);
+        $queryBuilder->whereIn('customers.status', [CustomerStatusEnum::APPROVED]);
 
 
         foreach ($this->getElementGroups($fulfilment) as $key => $elementGroup) {

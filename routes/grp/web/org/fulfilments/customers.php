@@ -23,7 +23,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\FetchNewWebhookFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\CreateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\EditFulfilmentCustomer;
-use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomers;
+use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomersApproved;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomersPendingApproval;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomersRejected;
 use App\Actions\Fulfilment\Pallet\DownloadPalletsTemplate;
@@ -59,7 +59,7 @@ use App\Actions\Helpers\Upload\UI\IndexRecentUploads;
 
 //Route::get('', ShowFulfilmentCRMDashboard::class)->name('dashboard');
 
-Route::get('', IndexFulfilmentCustomers::class)->name('index');
+Route::get('', IndexFulfilmentCustomersApproved::class)->name('index');
 Route::get('pending-approval', IndexFulfilmentCustomersPendingApproval::class)->name('pending_approval.index');
 Route::get('rejected', IndexFulfilmentCustomersRejected::class)->name('rejected.index');
 Route::get('create', CreateFulfilmentCustomer::class)->name('create');

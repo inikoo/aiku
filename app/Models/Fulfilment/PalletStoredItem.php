@@ -29,8 +29,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null $last_stored_item_audit_delta_id
  * @property int|null $last_stored_item_audit_id
  * @property bool $in_process
+ * @property PalletStoredItemStateEnum $state
+ * @property string|null $delivered_quantity
  * @property-read \App\Models\Fulfilment\Pallet $pallet
- * @property-read \App\Models\Fulfilment\PalletReturnItem|null $palletReturnItem
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletReturnItem> $palletReturnItems
  * @property-read \App\Models\Fulfilment\StoredItem $storedItem
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletStoredItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletStoredItem newQuery()

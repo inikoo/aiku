@@ -13,8 +13,7 @@ use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithFulfilmentCustomersSubNavigation;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
-use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatusEnum;
-use App\Http\Resources\Fulfilment\FulfilmentCustomersResource;
+use App\Http\Resources\Fulfilment\FulfilmentCustomersRejectedResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -34,24 +33,6 @@ class IndexFulfilmentCustomersRejected extends OrgAction
     use WithFulfilmentCustomersSubNavigation;
 
 
-    protected function getElementGroups(Fulfilment $parent): array
-    {
-        return [
-            'status' => [
-                'label'    => __('Status'),
-                'elements' => array_merge_recursive(
-                    FulfilmentCustomerStatusEnum::labels(),
-                    FulfilmentCustomerStatusEnum::count($parent)
-                ),
-
-                'engine' => function ($query, $elements) {
-                    $query->whereIn('fulfilment_customers.status', $elements);
-                }
-
-            ]
-        ];
-    }
-
     public function handle(Fulfilment $fulfilment, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -68,45 +49,22 @@ class IndexFulfilmentCustomersRejected extends OrgAction
 
         $queryBuilder = QueryBuilder::for(FulfilmentCustomer::class);
         $queryBuilder->where('fulfilment_customers.fulfilment_id', $fulfilment->id);
-
-
         $queryBuilder->where('customers.status', CustomerStatusEnum::REJECTED);
 
 
-        foreach ($this->getElementGroups($fulfilment) as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
-        }
-
         return $queryBuilder
-            ->defaultSort('-customers.created_at')
+            ->defaultSort('-customers.rejected_at')
             ->select([
-                'pallets_storage',
-                'items_storage',
-                'dropshipping',
-                'space_rental',
                 'reference',
-                'fulfilment_customers.status',
-                'customers.id',
+                'rejected_at',
+                'rejected_reason',
+                'rejected_notes',
                 'customers.name',
+                'fulfilment_customers.id',
                 'fulfilment_customers.slug',
-                'number_pallets',
-                'number_pallets_status_storing',
-                'customer_stats.sales_all',
-                'customer_stats.sales_org_currency_all',
-                'customer_stats.sales_grp_currency_all',
-                'customers.location',
-                'currencies.code as currency_code',
             ])
             ->leftJoin('customers', 'customers.id', 'fulfilment_customers.customer_id')
-            ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
-            ->leftJoin('shops', 'customers.shop_id', 'shops.id')
-            ->leftJoin('currencies', 'shops.currency_id', 'currencies.id')
-            ->allowedSorts(['reference', 'name', 'number_pallets', 'slug', 'number_pallets_status_storing', 'status', 'sales_all', 'sales_org_currency_all', 'sales_grp_currency_all', 'customers.created_at'])
+            ->allowedSorts(['rejected_at', 'reference', 'name', 'rejected_at', 'rejected_reason'])
             ->allowedFilters([$globalSearch])
             ->withPaginator(prefix: $prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -122,33 +80,20 @@ class IndexFulfilmentCustomersRejected extends OrgAction
             }
 
 
-
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->withEmptyState(
                     [
-                        'title'       => __("You don't have any customer yet").' 😭',
-                        'description' => __("Dont worry soon you will be pretty busy"),
-                        'count'       => $fulfilment->shop->crmStats->number_customers,
-                        'action'      => [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new customer'),
-                            'label'   => __('customer'),
-                            'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.crm.customers.create',
-                                'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
-                            ]
-                        ]
+                        'title' => __("You don't have any rejected customers").' 🌟',
+                        'count' => $fulfilment->shop->crmStats->number_customers_status_rejected,
                     ]
                 )
-                ->column(key: 'status', label: '', icon: 'fal fa-yin-yang', canBeHidden: false, sortable: true, type: 'avatar')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_pallets_status_storing', label: ['type' => 'text', 'data' => __('Pallets'), 'tooltip' => __('Number of pallets in warehouse')], canBeHidden: false, sortable: true)
-                ->column(key: 'sales_all', label: __('sales'), canBeHidden: false, sortable: true, searchable: true, type: 'number')
-                ->column(key: 'interest', label: __('interest'), canBeHidden: false);
+                ->column(key: 'rejected_at', label: __('date'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'rejected_reason', label: __('reason'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'rejected_notes', label: __('rejection notes'));
         };
     }
 
@@ -160,31 +105,14 @@ class IndexFulfilmentCustomersRejected extends OrgAction
     }
 
 
-
     public function jsonResponse(LengthAwarePaginator $customers): AnonymousResourceCollection
     {
-        return FulfilmentCustomersResource::collection($customers);
+        return FulfilmentCustomersRejectedResource::collection($customers);
     }
 
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
     {
-        $actions = [];
 
-        if ($this->canEdit) {
-            $actions[] = [
-                'type'    => 'button',
-                'style'   => 'create',
-                'tooltip' => __('New Customer'),
-                'label'   => __('New Customer'),
-                'route'   => [
-                    'name'       => 'grp.org.fulfilments.show.crm.customers.create',
-                    'parameters' => [
-                        $this->fulfilment->organisation->slug,
-                        $this->fulfilment->slug
-                    ]
-                ]
-            ];
-        }
 
         $navigation = $this->getSubNavigation($this->fulfilment, $request);
 
@@ -194,18 +122,16 @@ class IndexFulfilmentCustomersRejected extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('customers'),
+                'title'       => __('rejected customer'),
                 'pageHead'    => [
-                    'title'         => __('customers'),
-                    'model'         => __('Fulfilment'),
+                    'title'         => __('rejected customers'),
                     'icon'          => [
                         'icon'    => ['fal', 'fa-user'],
-                        'tooltip' => $this->fulfilment->shop->name.' '.__('customers')
+                        'tooltip' => $this->fulfilment->shop->name.' '.__('rejected customers')
                     ],
-                    'actions'       => $actions,
                     'subNavigation' => $navigation
                 ],
-                'data'        => FulfilmentCustomersResource::collection($customers)
+                'data'        => FulfilmentCustomersRejectedResource::collection($customers)
             ]
         )->table($this->tableStructure($this->fulfilment));
     }

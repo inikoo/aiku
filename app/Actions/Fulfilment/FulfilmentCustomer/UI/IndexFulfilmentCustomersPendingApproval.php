@@ -13,8 +13,7 @@ use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithFulfilmentCustomersSubNavigation;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
-use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatusEnum;
-use App\Http\Resources\Fulfilment\FulfilmentCustomersResource;
+use App\Http\Resources\Fulfilment\FulfilmentCustomersPendingApprovalResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -33,28 +32,6 @@ class IndexFulfilmentCustomersPendingApproval extends OrgAction
     use WithFulfilmentAuthorisation;
     use WithFulfilmentCustomersSubNavigation;
 
-    /**
-     * @var array|\ArrayAccess|mixed
-     */
-    private bool $pending_approval = false;
-
-    protected function getElementGroups(Fulfilment $parent): array
-    {
-        return [
-            'status' => [
-                'label'    => __('Status'),
-                'elements' => array_merge_recursive(
-                    FulfilmentCustomerStatusEnum::labels(),
-                    FulfilmentCustomerStatusEnum::count($parent)
-                ),
-
-                'engine' => function ($query, $elements) {
-                    $query->whereIn('fulfilment_customers.status', $elements);
-                }
-
-            ]
-        ];
-    }
 
     public function handle(Fulfilment $fulfilment, $prefix = null): LengthAwarePaginator
     {
@@ -73,46 +50,26 @@ class IndexFulfilmentCustomersPendingApproval extends OrgAction
         $queryBuilder = QueryBuilder::for(FulfilmentCustomer::class);
         $queryBuilder->where('fulfilment_customers.fulfilment_id', $fulfilment->id);
 
-        if ($this->pending_approval) {
-            $queryBuilder->where('customers.status', CustomerStatusEnum::PENDING_APPROVAL->value);
-        } else {
-            $queryBuilder->where('customers.status', CustomerStatusEnum::APPROVED->value);
-        }
 
-        foreach ($this->getElementGroups($fulfilment) as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
-        }
+        $queryBuilder->where('customers.status', CustomerStatusEnum::PENDING_APPROVAL->value);
+
 
         return $queryBuilder
-            ->defaultSort('-customers.created_at')
+            ->defaultSort('registered_at')
             ->select([
-                'pallets_storage',
-                'items_storage',
-                'dropshipping',
-                'space_rental',
                 'reference',
                 'fulfilment_customers.status',
                 'customers.id',
                 'customers.name',
-                'fulfilment_customers.slug',
-                'number_pallets',
-                'number_pallets_status_storing',
-                'customer_stats.sales_all',
-                'customer_stats.sales_org_currency_all',
-                'customer_stats.sales_grp_currency_all',
                 'customers.location',
-                'currencies.code as currency_code',
+                'registered_at',
+                'fulfilment_customers.slug',
+                'customers.location',
+                'customers.phone',
+                'customers.email'
             ])
             ->leftJoin('customers', 'customers.id', 'fulfilment_customers.customer_id')
-            ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
-            ->leftJoin('shops', 'customers.shop_id', 'shops.id')
-            ->leftJoin('currencies', 'shops.currency_id', 'currencies.id')
-            ->allowedSorts(['reference', 'name', 'number_pallets', 'slug', 'number_pallets_status_storing', 'status', 'sales_all', 'sales_org_currency_all', 'sales_grp_currency_all', 'customers.created_at'])
+            ->allowedSorts(['registered_at', 'email','reference', 'name', 'registered_at', 'customers.phone'])
             ->allowedFilters([$globalSearch])
             ->withPaginator(prefix: $prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -127,42 +84,24 @@ class IndexFulfilmentCustomersPendingApproval extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            if (!$this->pending_approval) {
-                foreach ($this->getElementGroups($fulfilment) as $key => $elementGroup) {
-                    $table->elementGroup(
-                        key: $key,
-                        label: $elementGroup['label'],
-                        elements: $elementGroup['elements']
-                    );
-                }
-            }
 
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->withEmptyState(
                     [
-                        'title'       => __("You don't have any customer yet").' 😭',
-                        'description' => __("Dont worry soon you will be pretty busy"),
-                        'count'       => $fulfilment->shop->crmStats->number_customers,
-                        'action'      => [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new customer'),
-                            'label'   => __('customer'),
-                            'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.crm.customers.create',
-                                'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
-                            ]
-                        ]
+                        'title' => __("You don't have any customer for approval").' 😅',
+                        'count' => $fulfilment->shop->crmStats->number_customers_status_pending_approval,
+
                     ]
                 )
-                ->column(key: 'status', label: '', icon: 'fal fa-yin-yang', canBeHidden: false, sortable: true, type: 'avatar')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_pallets_status_storing', label: ['type' => 'text', 'data' => __('Pallets'), 'tooltip' => __('Number of pallets in warehouse')], canBeHidden: false, sortable: true)
-                ->column(key: 'sales_all', label: __('sales'), canBeHidden: false, sortable: true, searchable: true, type: 'number')
-                ->column(key: 'interest', label: __('interest'), canBeHidden: false);
+                ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'phone', label: __('phone'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'location', label: __('location'), canBeHidden: false, searchable: true)
+                ->column(key: 'registered_at', label: ['type' => 'text', 'data' => __('Date'), 'tooltip' => __('Registered at')], canBeHidden: false, sortable: true)
+                ->column(key: 'action', label: __('Actions'));
         };
     }
 
@@ -173,39 +112,14 @@ class IndexFulfilmentCustomersPendingApproval extends OrgAction
         return $this->handle($fulfilment);
     }
 
-    public function inPendingApproval(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->pending_approval = true;
-        $this->initialisationFromFulfilment($fulfilment, $request);
-
-        return $this->handle($fulfilment);
-    }
 
     public function jsonResponse(LengthAwarePaginator $customers): AnonymousResourceCollection
     {
-        return FulfilmentCustomersResource::collection($customers);
+        return FulfilmentCustomersPendingApprovalResource::collection($customers);
     }
 
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
     {
-        $actions = [];
-
-        if ($this->canEdit) {
-            $actions[] = [
-                'type'    => 'button',
-                'style'   => 'create',
-                'tooltip' => __('New Customer'),
-                'label'   => __('New Customer'),
-                'route'   => [
-                    'name'       => 'grp.org.fulfilments.show.crm.customers.create',
-                    'parameters' => [
-                        $this->fulfilment->organisation->slug,
-                        $this->fulfilment->slug
-                    ]
-                ]
-            ];
-        }
-
         $navigation = $this->getSubNavigation($this->fulfilment, $request);
 
         return Inertia::render(
@@ -214,18 +128,16 @@ class IndexFulfilmentCustomersPendingApproval extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('customers'),
+                'title'       => __('Pending Customer Approval'),
                 'pageHead'    => [
-                    'title'   => __('customers'),
-                    'model'   => __('Fulfilment'),
-                    'icon'    => [
+                    'title'         => __('Pending Customer Approval'),
+                    'icon'          => [
                         'icon'    => ['fal', 'fa-user'],
-                        'tooltip' => $this->fulfilment->shop->name.' '.__('customers')
+                        'tooltip' => $this->fulfilment->shop->name.' '.__('customers to approve')
                     ],
-                    'actions' => $actions,
                     'subNavigation' => $navigation
                 ],
-                'data'        => FulfilmentCustomersResource::collection($customers)
+                'data'        => FulfilmentCustomersPendingApprovalResource::collection($customers)
             ]
         )->table($this->tableStructure($this->fulfilment));
     }
