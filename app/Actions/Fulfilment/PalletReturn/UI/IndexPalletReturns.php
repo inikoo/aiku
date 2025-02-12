@@ -64,7 +64,7 @@ class IndexPalletReturns extends OrgAction
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletReturnsTabsEnum::values());
 
-        return $this->handle($fulfilment);
+        return $this->handle($fulfilment, PalletReturnsTabsEnum::RETURNS->value);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -73,7 +73,7 @@ class IndexPalletReturns extends OrgAction
         $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletReturnsTabsEnum::values());
 
-        return $this->handle($fulfilmentCustomer);
+        return $this->handle($fulfilmentCustomer, PalletReturnsTabsEnum::RETURNS->value);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -82,7 +82,7 @@ class IndexPalletReturns extends OrgAction
         $this->parent = $warehouse;
         $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletReturnsTabsEnum::values());
 
-        return $this->handle($warehouse);
+        return $this->handle($warehouse, PalletReturnsTabsEnum::RETURNS->value);
     }
 
     protected function getElementGroups(Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn|RecurringBill $parent): array
