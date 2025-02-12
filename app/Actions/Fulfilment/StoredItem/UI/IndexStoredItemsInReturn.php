@@ -37,29 +37,29 @@ class IndexStoredItemsInReturn extends OrgAction
     private bool $selectStoredPallets = false;
 
 
-//    protected function getElementGroups(PalletReturn $palletReturn): array
-//    {
-//        return [
-//            'option' => [
-//                'label'    => __('Option'),
-//                'elements' => array_merge_recursive(
-//                    StoredItemInReturnOptionEnum::labels(),
-//                    StoredItemInReturnOptionEnum::count()
-//                ),
-//                'engine' => function ($query, $elements) use ($palletReturn) {
-//                    if (in_array(StoredItemInReturnOptionEnum::SELECTED->value, $elements)) {
-//                        $query->whereHas('palletReturns', function ($query) use ($palletReturn) {
-//                            $query->where('pallet_return_id', $palletReturn->id);
-//                        });
-//                    } elseif (in_array(StoredItemInReturnOptionEnum::UNSELECTED->value, $elements)) {
-//                        $query->whereDoesntHave('palletReturns', function ($query) use ($palletReturn) {
-//                            $query->where('pallet_return_id', $palletReturn->id);
-//                        });
-//                    }
-//                }
-//            ],
-//        ];
-//    }
+    //    protected function getElementGroups(PalletReturn $palletReturn): array
+    //    {
+    //        return [
+    //            'option' => [
+    //                'label'    => __('Option'),
+    //                'elements' => array_merge_recursive(
+    //                    StoredItemInReturnOptionEnum::labels(),
+    //                    StoredItemInReturnOptionEnum::count()
+    //                ),
+    //                'engine' => function ($query, $elements) use ($palletReturn) {
+    //                    if (in_array(StoredItemInReturnOptionEnum::SELECTED->value, $elements)) {
+    //                        $query->whereHas('palletReturns', function ($query) use ($palletReturn) {
+    //                            $query->where('pallet_return_id', $palletReturn->id);
+    //                        });
+    //                    } elseif (in_array(StoredItemInReturnOptionEnum::UNSELECTED->value, $elements)) {
+    //                        $query->whereDoesntHave('palletReturns', function ($query) use ($palletReturn) {
+    //                            $query->where('pallet_return_id', $palletReturn->id);
+    //                        });
+    //                    }
+    //                }
+    //            ],
+    //        ];
+    //    }
 
     public function handle(PalletReturn $parent, $prefix = null): LengthAwarePaginator
     {
@@ -92,14 +92,14 @@ class IndexStoredItemsInReturn extends OrgAction
             ->where('stored_items.fulfilment_customer_id', $parent->fulfilment_customer_id);
 
         if ($parent->state === PalletReturnStateEnum::IN_PROCESS) {
-//            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-//                $queryBuilder->whereElementGroup(
-//                    key: $key,
-//                    allowedElements: array_keys($elementGroup['elements']),
-//                    engine: $elementGroup['engine'],
-//                    prefix: $prefix
-//                );
-//            }
+            //            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+            //                $queryBuilder->whereElementGroup(
+            //                    key: $key,
+            //                    allowedElements: array_keys($elementGroup['elements']),
+            //                    engine: $elementGroup['engine'],
+            //                    prefix: $prefix
+            //                );
+            //            }
             $queryBuilder->where('stored_items.total_quantity', '>', 0);
         } else {
             $queryBuilder->where('pallet_returns.id', $parent->id);
@@ -153,15 +153,15 @@ class IndexStoredItemsInReturn extends OrgAction
                 }*/
             ];
 
-//            if ($palletReturn->state === PalletReturnStateEnum::IN_PROCESS) {
-//                foreach ($this->getElementGroups($palletReturn) as $key => $elementGroup) {
-//                    $table->elementGroup(
-//                        key: $key,
-//                        label: $elementGroup['label'],
-//                        elements: $elementGroup['elements']
-//                    );
-//                }
-//            }
+            //            if ($palletReturn->state === PalletReturnStateEnum::IN_PROCESS) {
+            //                foreach ($this->getElementGroups($palletReturn) as $key => $elementGroup) {
+            //                    $table->elementGroup(
+            //                        key: $key,
+            //                        label: $elementGroup['label'],
+            //                        elements: $elementGroup['elements']
+            //                    );
+            //                }
+            //            }
 
             if ($palletReturn instanceof Fulfilment) {
                 $emptyStateData['description'] = __("There is no stored items this fulfilment shop");

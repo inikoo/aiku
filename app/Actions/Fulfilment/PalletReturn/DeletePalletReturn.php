@@ -72,7 +72,7 @@ class DeletePalletReturn extends OrgAction
             ];
 
             $fulfilmentCustomer->customer->auditCustomNew = [
-                'return' => __('The return has been deleted.')
+                'return' => __("The return has been deleted due to: $palletReturn->delete_comment.")
             ];
 
             Event::dispatch(AuditCustom::class, [$fulfilmentCustomer->customer]);

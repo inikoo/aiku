@@ -54,7 +54,7 @@ class DeletePalletDelivery extends OrgAction
             ];
 
             $fulfilmentCustomer->customer->auditCustomNew = [
-                'delivery' => __('The delivery has been deleted.')
+                'delivery' => __("The delivery has been deleted due to: $palletDelivery->delete_comment.")
             ];
 
             Event::dispatch(AuditCustom::class, [$fulfilmentCustomer->customer]);
