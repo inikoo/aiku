@@ -15,7 +15,6 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
-use App\Models\CRM\Customer;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\SysAdmin\Organisation;
@@ -39,7 +38,7 @@ class DeletePalletReturn extends OrgAction
     public function handle(PalletReturn $palletReturn): void
     {
         if (in_array($palletReturn->state, [PalletReturnStateEnum::IN_PROCESS, PalletReturnStateEnum::SUBMITTED])) {
-            if($palletReturn->type == PalletReturnTypeEnum::PALLET){
+            if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
                 $palletIds = $palletReturn->pallets->pluck('id')->toArray();
                 foreach ($palletReturn->pallets as $pallet) {
                     UpdatePallet::run($pallet, [
