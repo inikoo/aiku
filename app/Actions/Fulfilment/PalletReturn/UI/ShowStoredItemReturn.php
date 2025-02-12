@@ -412,35 +412,7 @@ class ShowStoredItemReturn extends OrgAction
                      ]*/
                 ],
 
-                'palletRoute' => [
-                    'index' => [
-                        'name'       => 'grp.json.fulfilment.return.pallets',
-                        'parameters' => [
-                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug
-                        ]
-                    ],
-                    'store' => [
-                        'name'       => 'grp.models.pallet-return.pallet.store',
-                        'parameters' => [
-                            'palletReturn'       => $palletReturn->id
-                        ]
-                    ]
-                ],
-                'storedItemRoute' => [
-                    'index' => [
-                        'name'       => 'grp.json.fulfilment.return.stored-items',
-                        'parameters' => [
-                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
-                            'palletReturn'       => $palletReturn->slug
-                        ]
-                    ],
-                    'store' => [
-                        'name'       => 'grp.models.pallet-return.stored_item.store',
-                        'parameters' => [
-                            'palletReturn'       => $palletReturn->id
-                        ]
-                    ]
-                ],
+
 
                 'tabs' => [
                     'current'    => $this->tab,

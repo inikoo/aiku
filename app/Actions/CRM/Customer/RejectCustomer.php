@@ -27,6 +27,14 @@ class RejectCustomer extends OrgAction
         data_set($modelData, 'status', CustomerStatusEnum::REJECTED);
         data_set($modelData, 'rejected_at', now());
 
+        if ($modelData['rejected_reason'] === CustomerRejectReasonEnum::SPAM->value) {
+            data_set($modelData, 'rejected_notes', __('rejected.spam'));
+        }
+
+        if ($modelData['rejected_reason'] === CustomerRejectReasonEnum::DUPLICATED->value) {
+            data_set($modelData, 'rejected_notes', __('rejected.duplicated'));
+        }
+
         $customer = $this->update($customer, $modelData);
         ShopHydrateCrmStats::run($customer->shop);
 

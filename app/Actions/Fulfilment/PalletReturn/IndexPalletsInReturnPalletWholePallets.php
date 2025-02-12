@@ -1,33 +1,31 @@
 <?php
 
 /*
- * author Arya Permana - Kirin
- * created on 07-02-2025-09h-36m
- * github: https://github.com/KirinZero0
- * copyright 2025
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 12 Feb 2025 14:08:16 Central Indonesia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
+ */
 
-namespace App\Actions\Fulfilment\PalletReturn\Json;
+namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
-use App\Enums\Fulfilment\StoredItem\StoredItemInReturnOptionEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletsInPalletReturnWholePalletsOptionEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Lorisleiva\Actions\ActionRequest;
-use App\Models\CRM\WebUser;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
-class GetReturnPalletsWithStoredItems extends OrgAction
+class IndexPalletsInReturnPalletWholePallets extends OrgAction
 {
     protected function getElementGroups(PalletReturn $palletReturn): array
     {
@@ -35,15 +33,13 @@ class GetReturnPalletsWithStoredItems extends OrgAction
             'option' => [
                 'label'    => __('Option'),
                 'elements' => array_merge_recursive(
-                    StoredItemInReturnOptionEnum::labels(),
-                    StoredItemInReturnOptionEnum::count()
+                    PalletsInPalletReturnWholePalletsOptionEnum::labels(),
+                    PalletsInPalletReturnWholePalletsOptionEnum::count($palletReturn)
                 ),
                 'engine' => function ($query, $elements) use ($palletReturn) {
-                    if (in_array(StoredItemInReturnOptionEnum::SELECTED->value, $elements)) {
+
+                    if (in_array(PalletsInPalletReturnWholePalletsOptionEnum::SELECTED->value, $elements)) {
                         $query->where('pallet_return_items.pallet_return_id', $palletReturn->id);
-                    } elseif (in_array(StoredItemInReturnOptionEnum::UNSELECTED->value, $elements)) {
-                        $query->whereNull('pallets.pallet_return_id')
-                            ->where('pallets.state', PalletStateEnum::STORING);
                     }
                 }
             ],
@@ -65,17 +61,18 @@ class GetReturnPalletsWithStoredItems extends OrgAction
 
         $query = QueryBuilder::for(Pallet::class);
 
+
         $query->where('fulfilment_customer_id', $palletReturn->fulfilment_customer_id);
 
         $query->where(function ($query) use ($palletReturn) {
             $query->where('pallets.pallet_return_id', $palletReturn->id)
-            ->orWhereNull('pallets.pallet_return_id');
+                ->orWhereNull('pallets.pallet_return_id');
         });
 
         if ($palletReturn->state !== PalletReturnStateEnum::DISPATCHED) {
             $query->where('pallets.status', '!=', PalletStatusEnum::RETURNED);
         } elseif ($palletReturn->state === PalletReturnStateEnum::IN_PROCESS) {
-            $query->where('pallets.state', PalletStatusEnum::STORING);
+            $query->where('pallets.status', PalletStatusEnum::STORING);
         }
 
         if ($palletReturn->state !== PalletReturnStateEnum::IN_PROCESS) {
@@ -84,10 +81,6 @@ class GetReturnPalletsWithStoredItems extends OrgAction
 
         $query->leftJoin('pallet_return_items', 'pallet_return_items.pallet_id', 'pallets.id');
         $query->leftJoin('locations', 'locations.id', 'pallets.location_id');
-        $query->leftJoin('pallet_stored_items', 'pallet_stored_items.pallet_id', 'pallets.id');
-
-        $query->whereNotNull('pallet_stored_items.id')
-            ->distinct('pallets.id');
 
         if ($palletReturn->state === PalletReturnStateEnum::IN_PROCESS) {
             foreach ($this->getElementGroups($palletReturn) as $key => $elementGroup) {
@@ -119,7 +112,7 @@ class GetReturnPalletsWithStoredItems extends OrgAction
                 'pallets.pallet_delivery_id',
                 'pallets.pallet_return_id',
                 'locations.slug as location_slug',
-                'locations.slug as location_code'
+                'locations.code as location_code'
             );
 
 
@@ -146,12 +139,6 @@ class GetReturnPalletsWithStoredItems extends OrgAction
         return PalletsResource::collection($pallets);
     }
 
-    public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
-
-        return $this->handle($fulfilmentCustomer);
-    }
 
     public function tableStructure(PalletReturn $palletReturn, $request, $prefix = null, $modelOperations = []): Closure
     {
@@ -191,14 +178,13 @@ class GetReturnPalletsWithStoredItems extends OrgAction
             /* $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon'); */
 
 
-            $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'reference', label: __('pallet id'), canBeHidden: false, sortable: true, searchable: true);
 
 
             $customersReferenceLabel = __("Pallet reference (customer's), notes");
 
 
             $table->column(key: 'customer_reference', label: $customersReferenceLabel, canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'pallet_stored_items', label: __('Stored items'), canBeHidden: false, sortable: true, searchable: true);
 
             if (!$request->user() instanceof WebUser) {
                 $table->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true);

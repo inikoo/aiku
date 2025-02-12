@@ -10,9 +10,10 @@ namespace App\Actions\Fulfilment\PalletReturn\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
-use App\Actions\Fulfilment\PalletReturn\Json\GetReturnPallets;
+use App\Actions\Fulfilment\PalletReturn\IndexPalletsInReturnPalletWholePallets;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemsInReturn;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
+use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
@@ -20,17 +21,16 @@ use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
+use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
 use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
+use App\Http\Resources\Fulfilment\PalletReturnItemsWithStoredItemsResource;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\Http\Resources\Helpers\AddressResource;
+use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
-use App\Actions\Helpers\Country\UI\GetAddressData;
-use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
-use App\Http\Resources\Fulfilment\PalletReturnItemsWithStoredItemsResource;
-use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
@@ -78,8 +78,6 @@ class ShowPalletReturn extends OrgAction
 
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response
     {
-        //todo this should be $palletReturn->type
-        //$type='StoredItem';
 
         $subNavigation = [];
         if ($this->parent instanceof FulfilmentCustomer) {
@@ -444,7 +442,7 @@ class ShowPalletReturn extends OrgAction
                 'upload_spreadsheet' => [
                     'event'             => 'action-progress',
                     'channel'           => 'grp.personal.' . $this->organisation->id,
-                    'required_fields'   => ['pallet_stored_item', 'pallet', 'stored_item', 'quantity'],
+                    'required_fields'   => ['reference'],
                     'template'          => [
                         'label' => 'Download template (.xlsx)',
                     ],
@@ -483,35 +481,8 @@ class ShowPalletReturn extends OrgAction
                      ]*/
                 ],
 
-                'palletRoute' => [
-                    'index' => [
-                        'name'       => 'grp.json.fulfilment.return.pallets',
-                        'parameters' => [
-                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug
-                        ]
-                    ],
-                    'store' => [
-                        'name'       => 'grp.models.pallet-return.pallet.store',
-                        'parameters' => [
-                            'palletReturn'       => $palletReturn->id
-                        ]
-                    ]
-                ],
-                'storedItemRoute' => [
-                    'index' => [
-                        'name'       => 'grp.json.fulfilment.return.stored-items',
-                        'parameters' => [
-                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
-                            'palletReturn'       => $palletReturn->slug
-                        ]
-                    ],
-                    'store' => [
-                        'name'       => 'grp.models.pallet-return.stored_item.store',
-                        'parameters' => [
-                            'palletReturn'       => $palletReturn->id
-                        ]
-                    ]
-                ],
+
+
 
                 'tabs' => [
                     'current'    => $this->tab,
@@ -702,12 +673,9 @@ class ShowPalletReturn extends OrgAction
                 'can_edit_transactions' => true,
 
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
-                    fn () => PalletReturnItemsResource::collection(GetReturnPallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))
-                    : Inertia::lazy(fn () => PalletReturnItemsResource::collection(GetReturnPallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))),
+                    fn () => PalletReturnItemsResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))
+                    : Inertia::lazy(fn () => PalletReturnItemsResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))),
 
-                PalletReturnTabsEnum::STORED_ITEMS->value => $this->tab == PalletReturnTabsEnum::STORED_ITEMS->value ?
-                    fn () => PalletReturnItemsWithStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn, PalletReturnTabsEnum::STORED_ITEMS->value)) //todo idk if this is right
-                    : Inertia::lazy(fn () => PalletReturnItemsWithStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn, PalletReturnTabsEnum::STORED_ITEMS->value))), //todo idk if this is right
 
                 PalletReturnTabsEnum::SERVICES->value => $this->tab == PalletReturnTabsEnum::SERVICES->value ?
                     fn () => FulfilmentTransactionsResource::collection(IndexServiceInPalletReturn::run($palletReturn))
@@ -718,7 +686,7 @@ class ShowPalletReturn extends OrgAction
                     : Inertia::lazy(fn () => FulfilmentTransactionsResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn))),
             ]
         )->table(
-            GetReturnPallets::make()->tableStructure(
+            IndexPalletsInReturnPalletWholePallets::make()->tableStructure(
                 $palletReturn,
                 request: $request,
                 prefix: PalletReturnTabsEnum::PALLETS->value
