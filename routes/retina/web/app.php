@@ -7,25 +7,17 @@
  */
 
 Route::middleware(["retina-auth:retina", 'retina-prepare-account'])->group(function () {
-
-
-    // Todo this need to be an action that redirect to correct dashboard depending of he webpage type
     Route::get('/', function () {
-        return redirect('/app/fulfilment/storage/dashboard');
+        return redirect('/app/dashboard');
     })->name('home');
 
     Route::prefix("sysadmin")
         ->name("sysadmin.")
         ->group(__DIR__."/customer_account/sysadmin.php");
 
-
-
-
     Route::prefix("fulfilment")
         ->name("fulfilment.")
         ->group(__DIR__."/fulfilment/fulfilment_app.php");
-
-
 
 
     Route::prefix("dropshipping")

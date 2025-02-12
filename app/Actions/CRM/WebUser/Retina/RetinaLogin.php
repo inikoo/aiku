@@ -59,8 +59,6 @@ class RetinaLogin
         }
 
 
-
-
         RateLimiter::clear($this->throttleKey($request));
 
         /** @var WebUser $webUser */
@@ -86,8 +84,6 @@ class RetinaLogin
         $retinaHome = 'app/dashboard';
         if ($ref = $request->get('ref')) {
             $retinaHome = $ref;
-        } elseif ($request->get('website')->type == WebsiteTypeEnum::FULFILMENT) {
-            $retinaHome = 'app/fulfilment/storage/dashboard';
         }
 
         return redirect()->intended($retinaHome);
