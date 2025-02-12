@@ -73,6 +73,18 @@ class UpdateFulfilmentCustomer extends OrgAction
         data_forget($modelData, 'shipments_per_week');
         data_forget($modelData, 'size_and_weight');
 
+        if ($fulfilmentCustomer->number_pallets > 0) {
+            data_forget($modelData, 'pallets_storage');
+        }
+
+        if ($fulfilmentCustomer->number_spaces > 0) {
+            data_forget($modelData, 'space_rental');
+        }
+
+        if ($fulfilmentCustomer->customer->shopifyUser) {
+            data_forget($modelData, 'dropshipping');
+        }
+
         $fulfilmentCustomer = $this->update($fulfilmentCustomer, $modelData, ['data']);
 
         $attributes = ['pallets_storage', 'items_storage', 'dropshipping', 'space_rental'];
