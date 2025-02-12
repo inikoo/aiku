@@ -20,6 +20,7 @@ use App\Transfers\SourceOrganisationService;
 use App\Transfers\WowsbarOrganisationService;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
@@ -27,7 +28,7 @@ use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Symfony\Component\Console\Helper\ProgressBar;
 
-class FetchAction
+class FetchAction implements ShouldBeUnique
 {
     use AsAction;
     use WithOrganisationSource;
@@ -62,6 +63,7 @@ class FetchAction
 
     public function __construct()
     {
+
         $this->progressBar = null;
         $this->shop        = null;
         $this->with        = [];

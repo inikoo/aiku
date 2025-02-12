@@ -178,6 +178,11 @@ class FetchAuroraAction extends FetchAction
     }
 
 
+    public function getJobUniqueId(int $organisationID, int $organisationSourceId, array $with): string
+    {
+        return $organisationID.'-'.$organisationSourceId.'-'.implode('-', $with);
+    }
+
     /**
      * @throws \Exception
      */

@@ -39,7 +39,7 @@ trait WithProcessAurora
 
 
         if (Arr::get($validatedData, 'bg', false)) {
-            (new $this->fetcher())::dispatch($organisation->id, Arr::get($validatedData, 'id'), $with);
+            (new $this->fetcher())::dispatch($organisation->id, Arr::get($validatedData, 'id'), $with)->delay(30);
 
             return [
                 'status' => 'ok',
