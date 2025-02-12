@@ -16,7 +16,6 @@ use App\Enums\Fulfilment\StoredItem\StoredItemInReturnOptionEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\WebUser;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
 use App\Services\QueryBuilder;
@@ -95,7 +94,6 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
                 );
             }
         }
-        $query->distinct('pallets.id');
 
         $query->defaultSort('pallets.id')
             ->select(
@@ -143,12 +141,6 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
         return PalletsResource::collection($pallets);
     }
 
-    public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
-
-        return $this->handle($fulfilmentCustomer);
-    }
 
     public function tableStructure(PalletReturn $palletReturn, $request, $prefix = null, $modelOperations = []): Closure
     {
