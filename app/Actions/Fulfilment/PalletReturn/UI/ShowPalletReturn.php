@@ -23,7 +23,6 @@ use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
 use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
-use App\Http\Resources\Fulfilment\PalletReturnItemsWithStoredItemsResource;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\Http\Resources\Helpers\AddressResource;
