@@ -200,7 +200,7 @@ class ShowFulfilmentCustomer extends OrgAction
             ->table(IndexStoredItems::make()->tableStructure($fulfilmentCustomer->storedItems))
             ->table(IndexRentalAgreementClauses::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::AGREED_PRICES->value))
             ->table(IndexHistory::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::HISTORY->value));
-          //  ->table(IndexFulfilmentCustomerNote::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::NOTE->value));
+        //  ->table(IndexFulfilmentCustomerNote::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::NOTE->value));
     }
 
 

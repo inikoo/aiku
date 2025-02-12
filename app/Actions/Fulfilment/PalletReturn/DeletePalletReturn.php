@@ -18,6 +18,7 @@ use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -35,7 +36,7 @@ class DeletePalletReturn extends OrgAction
     private PalletReturn $palletReturn;
 
 
-    public function handle(PalletReturn $palletReturn): void
+    public function handle(PalletReturn $palletReturn, array $modelData = []): void
     {
         if (in_array($palletReturn->state, [PalletReturnStateEnum::IN_PROCESS, PalletReturnStateEnum::SUBMITTED])) {
             if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
@@ -54,10 +55,22 @@ class DeletePalletReturn extends OrgAction
                 $palletReturn->storedItems()->detach($storedItemIds);
             }
             $palletReturn->transactions()->delete();
+
+            $this->update($palletReturn, [
+                'delete_comment' => Arr::get($modelData, 'delete_comment')
+            ]);
+
             $palletReturn->delete();
         } else {
             abort(401);
         }
+    }
+
+    public function rules()
+    {
+        return [
+            'delete_comment' => ['sometimes', 'required']
+        ];
     }
 
     public function htmlResponse(): Response
@@ -83,7 +96,7 @@ class DeletePalletReturn extends OrgAction
         $this->fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
 
-        $this->handle($palletReturn);
+        $this->handle($palletReturn, $this->validatedData);
     }
 
     public function action(PalletReturn $palletReturn, $modelData): void
@@ -92,6 +105,6 @@ class DeletePalletReturn extends OrgAction
         $this->fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $modelData);
 
-        $this->handle($palletReturn);
+        $this->handle($palletReturn, $this->validatedData);
     }
 }
