@@ -19,6 +19,8 @@ import { faCheckCircle} from '@fas'
 import { faTimesCircle } from '@fal'
 import { trans } from 'laravel-vue-i18n'
 import ButtonWithLink from '@/Components/Elements/Buttons/ButtonWithLink.vue'
+import ModalRejected from '@/Components/Utils/ModalRejected.vue'
+import { ref } from 'vue'
 
 
 library.add(faCheck, faTimes, faCheckCircle, faTimesCircle)
@@ -43,6 +45,13 @@ function customerRoute(customer: FulfilmentCustomer) {
     }
 }
 
+const isModalUploadOpen = ref(false)
+const currentCustomer = ref([])
+
+function openRejectedModal(customer: any) {
+  currentCustomer.value = customer
+  isModalUploadOpen.value = true
+}
 </script>
 
 <template>
@@ -78,12 +87,12 @@ function customerRoute(customer: FulfilmentCustomer) {
           </Link> -->
           <ButtonWithLink
                 label="Approved"
-                icon="fas fa-check-circle"
+                icon="fal fa-check"
                 :bindToLink="{
                     preserveScroll: true,
                     preserveState: true
                 }"
-                type="secondary"
+                type="positive"
                 size="xs"
                 :routeTarget="{
                     name: 'grp.models.customer.approve',
@@ -94,18 +103,14 @@ function customerRoute(customer: FulfilmentCustomer) {
           <!-- <Link :href="route('grp.models.customer.approve', {customer : customer.id })" method="patch" :data="{ status: 'rejected' }"> -->
             <ButtonWithLink
                 label="Rejected"
-                icon="fal fa-times-circle"
+                icon="fal fa-times"
                 :bindToLink="{
                     preserveScroll: true,
                     preserveState: true
                 }"
                 type="delete"
                 size="xs"
-                :routeTarget="{
-                    name: 'grp.models.customer.approve',
-                    parameters: { customer : customer.id },
-                    method: 'patch',
-                }"
+                @click="() => openRejectedModal(customer)"
             />
           <!-- </Link> -->
         </div>
@@ -127,4 +132,9 @@ function customerRoute(customer: FulfilmentCustomer) {
           </div>
       </template>
     </Table>
+
+    <ModalRejected
+    v-model="isModalUploadOpen"
+    :customer="currentCustomer"
+  />
 </template>
