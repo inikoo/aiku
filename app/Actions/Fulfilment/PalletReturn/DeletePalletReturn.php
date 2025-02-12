@@ -45,11 +45,11 @@ class DeletePalletReturn extends OrgAction
                 $palletIds = $palletReturn->pallets->pluck('id')->toArray();
                 foreach ($palletReturn->pallets as $pallet) {
                     UpdatePallet::run($pallet, [
-                        'state' => PalletStateEnum::STORING,
-                        'status' => PalletStatusEnum::STORING,
-                        'pallet_return_id' => null
+                        'state'                => PalletStateEnum::STORING,
+                        'status'               => PalletStatusEnum::STORING,
+                        'pallet_return_id'     => null,
+                        'request_to_return_at' => null
                     ]);
-
                 }
                 $palletReturn->pallets()->detach($palletIds);
             } elseif ($palletReturn->type == PalletReturnTypeEnum::STORED_ITEM) {
@@ -83,7 +83,7 @@ class DeletePalletReturn extends OrgAction
         }
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'delete_comment' => ['sometimes', 'required']
@@ -93,8 +93,8 @@ class DeletePalletReturn extends OrgAction
     public function htmlResponse(): Response
     {
         return Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.index', [
-            'organisation' => $this->organisation->slug,
-            'fulfilment' => $this->fulfilment->slug,
+            'organisation'       => $this->organisation->slug,
+            'fulfilment'         => $this->fulfilment->slug,
             'fulfilmentCustomer' => $this->fulfilmentCustomer->slug
         ]));
     }
@@ -118,7 +118,7 @@ class DeletePalletReturn extends OrgAction
 
     public function action(PalletReturn $palletReturn, $modelData): void
     {
-        $this->action = true;
+        $this->action             = true;
         $this->fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $modelData);
 
