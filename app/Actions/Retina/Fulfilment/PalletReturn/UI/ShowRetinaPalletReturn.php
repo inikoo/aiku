@@ -135,13 +135,13 @@ class ShowRetinaPalletReturn extends RetinaAction
         };
 
         $actions = $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
-            /*                 [
-                                 'type'      => 'button',
-                                 'style'     => 'tertiary',
-                                 'icon'      => 'fal fa-upload',
-                                 'label'     => __('upload'),
-                                 'tooltip'   => __('Upload file')
-                             ],*/
+            [
+                'type'      => 'button',
+                'style'     => 'tertiary',
+                'icon'      => 'fal fa-upload',
+                'label'     => __('upload'),
+                'tooltip'   => __('Upload file')
+            ],
             $palletReturn->pallets()->count() > 0 ? [
                 'type'    => 'button',
                 'style'   => 'save',
@@ -269,7 +269,7 @@ class ShowRetinaPalletReturn extends RetinaAction
                 'upload_spreadsheet' => [
                     'event'             => 'action-progress',
                     'channel'           => 'retina.personal.' . $palletReturn->organisation_id,
-                    'required_fields'   => ['pallet_stored_item', 'pallet', 'stored_item', 'quantity'],
+                    'required_fields'   => ['reference'],
                     'template'          => [
                         'label' => 'Download template (.xlsx)',
                     ],
