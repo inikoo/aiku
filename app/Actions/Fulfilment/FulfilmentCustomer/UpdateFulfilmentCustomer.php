@@ -75,7 +75,6 @@ class UpdateFulfilmentCustomer extends OrgAction
 
         if ($fulfilmentCustomer->number_pallets > 0) {
             data_forget($modelData, 'pallets_storage');
-            data_forget($modelData, 'items_storage');
         }
 
         if ($fulfilmentCustomer->number_spaces > 0) {
