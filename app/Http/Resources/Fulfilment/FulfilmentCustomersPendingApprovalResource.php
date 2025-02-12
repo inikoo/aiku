@@ -26,6 +26,7 @@ class FulfilmentCustomersPendingApprovalResource extends JsonResource
 {
     public function toArray($request): array
     {
+        // dd($this);
         return [
             'id'            => $this->id,
             'slug'          => $this->slug,
@@ -33,7 +34,7 @@ class FulfilmentCustomersPendingApprovalResource extends JsonResource
             'name'          => $this->name,
             'email'         => $this->email,
             'phone'         => $this->phone,
-            'location'      => $this->location,
+            'location'      => json_decode($this->location ?? ''),
             'registered_at' => $this->registered_at,
 
         ];
