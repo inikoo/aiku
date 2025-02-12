@@ -12,7 +12,7 @@ use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
-use App\Enums\Fulfilment\StoredItem\StoredItemInReturnOptionEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletsInPalletReturnWholePalletsOptionEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\WebUser;
@@ -33,15 +33,13 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
             'option' => [
                 'label'    => __('Option'),
                 'elements' => array_merge_recursive(
-                    StoredItemInReturnOptionEnum::labels(),
-                    StoredItemInReturnOptionEnum::count()
+                    PalletsInPalletReturnWholePalletsOptionEnum::labels(),
+                    PalletsInPalletReturnWholePalletsOptionEnum::count($palletReturn)
                 ),
                 'engine' => function ($query, $elements) use ($palletReturn) {
-                    if (in_array(StoredItemInReturnOptionEnum::SELECTED->value, $elements)) {
+
+                    if (in_array(PalletsInPalletReturnWholePalletsOptionEnum::SELECTED->value, $elements)) {
                         $query->where('pallet_return_items.pallet_return_id', $palletReturn->id);
-                    } elseif (in_array(StoredItemInReturnOptionEnum::UNSELECTED->value, $elements)) {
-                        $query->whereNull('pallets.pallet_return_id')
-                            ->where('pallets.state', PalletStateEnum::STORING);
                     }
                 }
             ],
