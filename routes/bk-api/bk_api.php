@@ -11,6 +11,7 @@ use App\Actions\Transfers\Aurora\Api\ProcessAuroraCustomer;
 use App\Actions\Transfers\Aurora\Api\ProcessAuroraCustomerClient;
 use App\Actions\Transfers\Aurora\Api\ProcessAuroraEmployee;
 use App\Actions\Transfers\Aurora\Api\ProcessAuroraInvoice;
+use App\Actions\Transfers\Aurora\Api\ProcessAuroraOrder;
 use Illuminate\Support\Facades\Route;
 
 Route::name('bk_api.')->group(function () {
@@ -19,6 +20,8 @@ Route::name('bk_api.')->group(function () {
             Route::post('invoice', ProcessAuroraInvoice::class)->name('invoice');
             Route::post('customer', ProcessAuroraCustomer::class)->name('customer');
             Route::post('employee', ProcessAuroraEmployee::class)->name('employee');
+            Route::post('order', ProcessAuroraOrder::class)->name('order');
+            Route::post('customer-client', ProcessAuroraCustomerClient::class)->name('customer_client');
         });
     });
 });
