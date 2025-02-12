@@ -238,7 +238,7 @@ class IndexStoredItems extends OrgAction
         $this->parent = group();
         $this->initialisationFromGroup($this->parent, $request)->withTab(StoredItemsInWarehouseTabsEnum::values());
 
-        return $this->handle($this->parent, $this->tab);
+        return $this->handle($this->parent, StoredItemsInWarehouseTabsEnum::STORED_ITEMS->value);
     }
 
 
@@ -247,7 +247,7 @@ class IndexStoredItems extends OrgAction
         $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilmentCustomer, $this->tab);
+        return $this->handle($fulfilmentCustomer, StoredItemsInWarehouseTabsEnum::STORED_ITEMS->value);
     }
 
 
@@ -257,7 +257,7 @@ class IndexStoredItems extends OrgAction
         $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(StoredItemsInWarehouseTabsEnum::values());
 
-        return $this->handle($fulfilmentCustomer, $this->tab);
+        return $this->handle($fulfilmentCustomer, StoredItemsInWarehouseTabsEnum::STORED_ITEMS->value);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

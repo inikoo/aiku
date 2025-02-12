@@ -560,7 +560,7 @@ class ShowPalletDelivery extends OrgAction
         $recurringBillData = null;
         if ($palletDelivery->recurringBill) {
             $recurringBill = $palletDelivery->recurringBill;
-            $recurringBillRoute=null;
+            $recurringBillRoute = null;
             if ($this->parent instanceof Fulfilment) {
                 $recurringBillRoute = [
                     'name' => 'grp.org.fulfilments.show.operations.recurring_bills.current.show',
@@ -581,7 +581,7 @@ class ShowPalletDelivery extends OrgAction
                     ]
                 ];
             }
-            if($recurringBillRoute) {
+            if ($recurringBillRoute) {
                 $recurringBillData = [
                     'reference'    => $recurringBill->reference,
                     'status'       => $recurringBill->status,
@@ -1048,7 +1048,7 @@ class ShowPalletDelivery extends OrgAction
 
     public function getPrevious(PalletDelivery $palletDelivery, ActionRequest $request): ?array
     {
-        if($this->parent instanceof FulfilmentCustomer){
+        if ($this->parent instanceof FulfilmentCustomer) {
             $previous = PalletDelivery::where('fulfilment_customer_id', $this->parent->id)->where('id', '<', $palletDelivery->id)->orderBy('id', 'desc')->first();
         } elseif ($this->parent instanceof Fulfilment) {
             $previous = PalletDelivery::where('fulfilment_id', $this->parent->id)->where('id', '<', $palletDelivery->id)->orderBy('id', 'desc')->first();
@@ -1061,14 +1061,14 @@ class ShowPalletDelivery extends OrgAction
 
     public function getNext(PalletDelivery $palletDelivery, ActionRequest $request): ?array
     {
-        if($this->parent instanceof FulfilmentCustomer){
+        if ($this->parent instanceof FulfilmentCustomer) {
             $next = PalletDelivery::where('fulfilment_customer_id', $this->parent->id)->where('id', '>', $palletDelivery->id)->orderBy('id')->first();
         } elseif ($this->parent instanceof Fulfilment) {
             $next = PalletDelivery::where('fulfilment_id', $this->parent->id)->where('id', '>', $palletDelivery->id)->orderBy('id')->first();
         } else {
             $next = PalletDelivery::where('id', '>', $palletDelivery->id)->orderBy('id')->first();
         }
-        
+
         return $this->getNavigation($next, $request->route()->getName());
     }
 

@@ -223,6 +223,7 @@ class StoreCustomer extends OrgAction
             'language_id'              => ['nullable', 'exists:languages,id'],
             'data'                     => ['sometimes', 'array'],
             'created_at'               => ['sometimes', 'nullable', 'date'],
+            'registered_at'            => ['sometimes', 'nullable', 'date'],
             'internal_notes'           => ['sometimes', 'nullable', 'string'],
             'warehouse_internal_notes' => ['sometimes', 'nullable', 'string'],
             'warehouse_public_notes'   => ['sometimes', 'nullable', 'string'],

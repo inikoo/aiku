@@ -29,14 +29,21 @@ class DeleteRetinaPalletDelivery extends RetinaAction
     public Customer $customer;
     private bool $action = false;
 
-    public function handle(PalletDelivery $palletDelivery): void
+    public function handle(PalletDelivery $palletDelivery, array $modelData = []): void
     {
-        DeletePalletDelivery::run($palletDelivery);
+        DeletePalletDelivery::run($palletDelivery, $modelData);
     }
 
     public function htmlResponse(): Response
     {
         return Inertia::location(route('retina.fulfilment.storage.pallet_deliveries.index'));
+    }
+
+    public function rules()
+    {
+        return [
+            'delete_comment' => ['sometimes', 'required']
+        ];
     }
 
     public function authorize(ActionRequest $request): bool
@@ -55,7 +62,7 @@ class DeleteRetinaPalletDelivery extends RetinaAction
         $this->fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
         $this->initialisation($request);
 
-        $this->handle($palletDelivery);
+        $this->handle($palletDelivery, $this->validatedData);
     }
 
     public function action(PalletDelivery $palletDelivery, $modelData): void
@@ -64,6 +71,6 @@ class DeleteRetinaPalletDelivery extends RetinaAction
         $this->fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
         $this->initialisationFulfilmentActions($this->fulfilmentCustomer, $modelData);
 
-        $this->handle($palletDelivery);
+        $this->handle($palletDelivery, $this->validatedData);
     }
 }

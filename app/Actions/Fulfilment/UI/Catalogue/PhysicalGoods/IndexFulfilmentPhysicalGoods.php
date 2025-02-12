@@ -42,7 +42,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                 ),
 
                 'engine' => function ($query, $elements) {
-                    $query->whereIn('state', $elements);
+                    $query->whereIn('products.state', $elements);
                 }
 
             ],
