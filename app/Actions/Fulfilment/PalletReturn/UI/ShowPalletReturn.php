@@ -315,7 +315,7 @@ class ShowPalletReturn extends OrgAction
                     'tooltip' => __('delete'),
                     'key'     => 'delete_return',
                     'route'   => [
-                        'method'     => 'delete',
+                        'method'     => 'patch',
                         'name'       => 'grp.models.pallet-return.delete',
                         'parameters' => [
                             'palletReturn' => $palletReturn->id

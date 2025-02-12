@@ -13,6 +13,7 @@ use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithFulfilmentCustomersSubNavigation;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
+use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatusEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
@@ -33,8 +34,23 @@ class IndexFulfilmentCustomersRejected extends OrgAction
     use WithFulfilmentCustomersSubNavigation;
 
 
+    protected function getElementGroups(Fulfilment $parent): array
+    {
+        return [
+            'status' => [
+                'label'    => __('Status'),
+                'elements' => array_merge_recursive(
+                    FulfilmentCustomerStatusEnum::labels(),
+                    FulfilmentCustomerStatusEnum::count($parent)
+                ),
 
+                'engine' => function ($query, $elements) {
+                    $query->whereIn('fulfilment_customers.status', $elements);
+                }
 
+            ]
+        ];
+    }
 
     public function handle(Fulfilment $fulfilment, $prefix = null): LengthAwarePaginator
     {
