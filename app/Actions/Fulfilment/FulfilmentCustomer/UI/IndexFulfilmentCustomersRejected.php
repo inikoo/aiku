@@ -126,7 +126,7 @@ class IndexFulfilmentCustomersRejected extends OrgAction
                 'pageHead'    => [
                     'title'         => __('rejected customers'),
                     'icon'          => [
-                        'icon'    => ['fal', 'fa-user'],
+                        'icon'    => ['fal', 'fa-user-times'],
                         'tooltip' => $this->fulfilment->shop->name.' '.__('rejected customers')
                     ],
                     'subNavigation' => $navigation
