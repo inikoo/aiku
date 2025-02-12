@@ -19,7 +19,7 @@ trait WithProcessAurora
         return [
             'id'   => ['required', 'integer'],
             'with' => ['sometimes', 'string'],
-            'bg'   => ['sometimes', 'present'],
+            'bg'   => ['sometimes', 'boolean'],
         ];
     }
 
@@ -37,7 +37,7 @@ trait WithProcessAurora
         }
 
 
-        if (Arr::has($validatedData, 'bg')) {
+        if (Arr::get($validatedData, 'bg', false)) {
             (new $this->fetcher())::dispatch($organisation->id, Arr::get($validatedData, 'id'), $with);
 
             return [
@@ -45,7 +45,6 @@ trait WithProcessAurora
                 'type'   => 'background'
             ];
         } else {
-
             $model = (new $this->fetcher())::make()->action($organisation->id, Arr::get($validatedData, 'id'), $with);
 
             if ($model) {
