@@ -559,7 +559,7 @@ class ShowPalletDelivery extends OrgAction
         $recurringBillData = null;
         if ($palletDelivery->recurringBill) {
             $recurringBill = $palletDelivery->recurringBill;
-            $recurringBillRoute=null;
+            $recurringBillRoute = null;
             if ($this->parent instanceof Fulfilment) {
                 $recurringBillRoute = [
                     'name' => 'grp.org.fulfilments.show.operations.recurring_bills.current.show',
@@ -580,7 +580,7 @@ class ShowPalletDelivery extends OrgAction
                     ]
                 ];
             }
-            if($recurringBillRoute) {
+            if ($recurringBillRoute) {
                 $recurringBillData = [
                     'reference'    => $recurringBill->reference,
                     'status'       => $recurringBill->status,

@@ -67,6 +67,15 @@ class ShowLocation extends OrgAction
         return $this->handle($location);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, Location $location, ActionRequest $request): Location
+    {
+        $this->parent = $warehouse;
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(LocationTabsEnum::values());
+
+        return $this->handle($location);
+    }
+
     public function maya(Organisation $organisation, Location $location, ActionRequest $request): Location
     {
         $this->maya   = true;
