@@ -13,9 +13,6 @@ use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrat
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItems;
 use App\Actions\Fulfilment\PalletStoredItem\RunPalletStoredItemQuantity;
 use App\Actions\Fulfilment\StoredItem\AttachStoredItemToPallet;
-use App\Actions\Fulfilment\StoredItem\DetachStoredItemToPallet;
-use App\Actions\Fulfilment\StoredItem\Hydrators\StoreItemHydrateAudits;
-use App\Actions\Fulfilment\StoredItem\SetStoredItemQuantityFromPalletStoreItems;
 use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovement;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
