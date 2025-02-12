@@ -53,10 +53,10 @@ enum FulfilmentCustomerTabsEnum: string
                 'title' => __('agreed prices'),
                 'icon'  => 'fal fa-usd-circle',
             ],
-//            FulfilmentCustomerTabsEnum::NOTE => [
-//                'title' => __('note'),
-//                'icon'  => 'fal fa-sticky-note',
-//            ],
+            //            FulfilmentCustomerTabsEnum::NOTE => [
+            //                'title' => __('note'),
+            //                'icon'  => 'fal fa-sticky-note',
+            //            ],
         };
     }
 }

@@ -65,7 +65,7 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
     Route::post('cancel', CancelRetinaPalletReturn::class)->name('cancel');
     Route::delete('pallet/{pallet:id}', DetachRetinaPalletFromReturn::class)->name('pallet.delete')->withoutScopedBindings();
     Route::post('transaction', [StoreRetinaFulfilmentTransaction::class, 'fromRetinaInPalletReturn'])->name('transaction.store');
-    Route::delete('/', DeleteRetinaPalletReturn::class)->name('delete');
+    Route::patch('/', DeleteRetinaPalletReturn::class)->name('delete');
 });
 
 
@@ -80,7 +80,7 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('transaction', [StoreRetinaFulfilmentTransaction::class,'fromRetinaInPalletDelivery'])->name('transaction.store');
     Route::post('submit', SubmitRetinaPalletDelivery::class)->name('submit');
     Route::get('pdf', PdfRetinaPalletDelivery::class)->name('pdf');
-    Route::delete('/', DeleteRetinaPalletDelivery::class)->name('delete');
+    Route::patch('/', DeleteRetinaPalletDelivery::class)->name('delete');
 });
 
 Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
