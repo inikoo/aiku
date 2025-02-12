@@ -158,7 +158,7 @@ const onSaved = async () => {
 const newStoredItemName = ref('')
 const errorNewStoredItemName = ref('')
 const onSaveNameForNewStoredItem = async () => {
-	if (!newStoredItem.value?.id || newStoredItemName.value) {
+	if (!newStoredItem.value?.id || !newStoredItemName.value) {
 		return
 	}
 
