@@ -32,7 +32,7 @@ trait WithProcessAurora
         $this->initialisation($organisation, $request);
         $validatedData = $this->validatedData;
 
-        $with=[];
+        $with = [];
         if ($withArgs = Arr::get($validatedData, 'with', '')) {
             $with = explode(',', $withArgs);
         }
@@ -52,6 +52,7 @@ trait WithProcessAurora
                 return [
                     'status' => 'ok',
                     'type'   => 'foreground',
+                    'model'  => class_basename($model),
                     'id'     => $model->id
                 ];
             } else {
