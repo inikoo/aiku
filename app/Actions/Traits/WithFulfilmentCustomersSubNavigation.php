@@ -38,7 +38,7 @@ trait WithFulfilmentCustomersSubNavigation
             'number'   => $fulfilment->shop->crmStats->number_customers_status_pending_approval,
             'label'    => __('Pending Approval'),
             'leftIcon' => [
-                'icon'    => 'fal fa-user',
+                'icon'    => 'fal fa-user-clock',
                 'tooltip' => __('pending approval')
             ]
         ];
@@ -51,7 +51,7 @@ trait WithFulfilmentCustomersSubNavigation
             'number'   => $fulfilment->shop->crmStats->number_customers_status_rejected,
             'label'    => __('Rejected'),
             'leftIcon' => [
-                'icon'    => 'fal fa-user',
+                'icon'    => 'fal fa-user-times',
                 'tooltip' => __('rejected')
             ]
         ];

@@ -132,7 +132,7 @@ class IndexFulfilmentCustomersPendingApproval extends OrgAction
                 'pageHead'    => [
                     'title'         => __('Pending Customer Approval'),
                     'icon'          => [
-                        'icon'    => ['fal', 'fa-user'],
+                        'icon'    => ['fal', 'fa-user-clock'],
                         'tooltip' => $this->fulfilment->shop->name.' '.__('customers to approve')
                     ],
                     'subNavigation' => $navigation
