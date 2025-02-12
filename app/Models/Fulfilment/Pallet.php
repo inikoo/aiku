@@ -213,7 +213,7 @@ class Pallet extends Model implements Auditable
 
     public function storedItems(): BelongsToMany
     {
-        return $this->belongsToMany(StoredItem::class, 'pallet_stored_items')->withPivot('quantity')->withTimestamps();
+        return $this->belongsToMany(StoredItem::class, 'pallet_stored_items')->withPivot('quantity', 'delivered_quantity')->withTimestamps();
     }
 
     public function storedItemAuditDeltas(): BelongsToMany
