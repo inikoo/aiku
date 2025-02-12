@@ -110,19 +110,19 @@ const messageDelete = ref('')
                                         </DialogTitle>
                                         <div class="mt-2">
                                             <p class="text-sm text-gray-500">
-                                                {{ description || trans("The data will be permanently removed from our servers forever. This action cannot be undone.")}}
+                                                {{ description || trans("The data will be permanently 😥 .This action cannot be undone.")}}
                                             </p>
                                         </div>
 
                                         <div v-if="props.isWithMessage" class="mt-4">
                                             <label for="" class="flex items-start text-sm text-gray-500 leading-none mb-1">
-                                                {{ trans("Description") }}
+                                                {{ trans("Why you deleting this?") }}
                                                 <FontAwesomeIcon icon='far fa-asterisk' class='text-red-500 h-2' size="xs" fixed-width aria-hidden='true' />
                                             </label>
 
                                             <PureTextarea
                                                 v-model="messageDelete"
-                                                :placeholder="props.message?.placeholder || trans('Enter the description')"
+                                                :placeholder="props.message?.placeholder || trans('Enter the reason for deleting')"
                                                 v-bind="props.message"
                                             />
                                         </div>
