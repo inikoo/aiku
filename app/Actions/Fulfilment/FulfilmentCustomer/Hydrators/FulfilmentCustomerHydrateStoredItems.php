@@ -36,6 +36,7 @@ class FulfilmentCustomerHydrateStoredItems
             }
         ));
 
+
         $fulfilmentCustomer->update($stats);
     }
 

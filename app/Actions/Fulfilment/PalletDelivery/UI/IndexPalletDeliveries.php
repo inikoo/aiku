@@ -56,7 +56,7 @@ class IndexPalletDeliveries extends OrgAction
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletDeliveriesTabsEnum::values());
 
-        return $this->handle($fulfilment);
+        return $this->handle($fulfilment, PalletDeliveriesTabsEnum::DELIVERIES->value);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -66,7 +66,7 @@ class IndexPalletDeliveries extends OrgAction
         $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletDeliveriesTabsEnum::values());
 
-        return $this->handle($fulfilmentCustomer);
+        return $this->handle($fulfilmentCustomer, PalletDeliveriesTabsEnum::DELIVERIES->value);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -75,7 +75,7 @@ class IndexPalletDeliveries extends OrgAction
         $this->parent = $warehouse;
         $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletDeliveriesTabsEnum::values());
 
-        return $this->handle($warehouse);
+        return $this->handle($warehouse, PalletDeliveriesTabsEnum::DELIVERIES->value);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -85,7 +85,7 @@ class IndexPalletDeliveries extends OrgAction
         $this->parent = $group;
         $this->initialisationFromGroup($group, $request)->withTab(PalletDeliveriesTabsEnum::values());
 
-        return $this->handle($group);
+        return $this->handle($group, PalletDeliveriesTabsEnum::DELIVERIES->value);
     }
 
     protected function getElementGroups(Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn|Group|RecurringBill $parent): array
@@ -111,7 +111,7 @@ class IndexPalletDeliveries extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereStartWith('reference', $value)
+                $query->whereWith('pallet_deliveries.reference', $value)
                     ->orWhereStartWith('customer_reference', $value);
             });
         });

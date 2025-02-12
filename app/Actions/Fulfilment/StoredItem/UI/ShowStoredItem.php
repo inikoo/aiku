@@ -98,7 +98,7 @@ class ShowStoredItem extends OrgAction
                             'title' => __('stored item')
                         ],
                     'subNavigation' => $subNavigation,
-                    'model'  => 'stored item',
+                    'model'  => __('Customer\'s SKU'),
                     'title'  => $storedItem->slug,
                     'actions' => [
 

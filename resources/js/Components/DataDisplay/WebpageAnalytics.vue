@@ -175,15 +175,7 @@ const handleDateRangeSelected = (range) => {
 
 <template>
 	<div class="p-8 space-y-8">
-		<Button
-			size="m"
-			:style="`indigo`"
-			label="Select Date Range"
-			@click="showDateRangePicker = true" />
 
-		<DateRangePicker
-			v-model="showDateRangePicker"
-			@date-range-selected="handleDateRangeSelected" />
 
 		<div v-if="selectedDateRange" class="mt-4 text-center text-gray-700">
 			<p class="text-sm font-medium">
