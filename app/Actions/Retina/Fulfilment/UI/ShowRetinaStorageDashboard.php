@@ -46,6 +46,47 @@ class ShowRetinaStorageDashboard extends RetinaAction
             ];
         }
 
+        $routeActions = [
+            [
+                'type'  => 'button',
+                'style' => 'create',
+                'label' => __('New Delivery'),
+                'fullLoading'   => true,
+                'route' => [
+                    'method'     => 'post',
+                    'name'       => 'retina.models.pallet-delivery.store',
+                    'parameters' => []
+                ]
+            ],
+        ];
+
+        if (!app()->environment('production')) {
+            $routeActions = array_filter(array_merge($routeActions, [
+                $fulfilmentCustomer->number_pallets_status_storing ? [
+                    'type'    => 'button',
+                    'style'   => 'create',
+                    'tooltip' => $fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? __('Create new return (whole pallet)') : __('Create new return'),
+                    'label'   => $fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? __('Return (whole pallet)') : __('Return'),
+                    'route'   => [
+                        'method'     => 'post',
+                        'name'       => 'retina.models.pallet-return.store',
+                        'parameters' => []
+                    ]
+                ] : false,
+                $this->customer->fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? [
+                    'type'    => 'button',
+                    'style'   => 'create',
+                    'tooltip' => __('Create new return (Selected SKUs)'),
+                    'label'   => __('Return (Selected SKUs)'),
+                    'route'   => [
+                        'method'     => 'post',
+                        'name'       => 'retina.models.pallet-return-stored-items.store',
+                        'parameters' => []
+                    ]
+                ] : false,
+            ]));
+        }
+
         return Inertia::render('Storage/RetinaStorageDashboard', [
             'title'        => __('Storage Dashboard'),
             'breadcrumbs'    => $this->getBreadcrumbs(),
@@ -58,6 +99,8 @@ class ShowRetinaStorageDashboard extends RetinaAction
                 ],
 
             ],
+
+            'route_action' => $routeActions,
 
             'currency'     => CurrencyResource::make($fulfilmentCustomer->fulfilment->shop->currency),
             'storageData'  => $this->getDashboardData($fulfilmentCustomer),

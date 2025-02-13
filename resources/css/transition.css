@@ -34,6 +34,26 @@
     opacity: 0;
 }
 
+/* Transition name="headlessui2" */
+.headlessui2-enter-active {
+    @apply transition duration-100 ease-out;
+}
+.headlessui2-enter-from {
+    @apply transform scale-95 opacity-0;
+}
+.headlessui2-enter-to {
+    @apply transform scale-100 opacity-100;
+}
+.headlessui2-leave-active {
+    @apply transition duration-75 ease-in;
+}
+.headlessui2-leave-from {
+    @apply transform scale-100 opacity-100;
+}
+.headlessui2-leave-to {
+    @apply transform scale-95 opacity-0;
+}
+
 
 .spin-to-right-enter-from,
 .spin-to-right-leave-to {

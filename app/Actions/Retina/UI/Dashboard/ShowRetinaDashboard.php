@@ -20,6 +20,7 @@ class ShowRetinaDashboard
 
     public function asController(ActionRequest $request): Response
     {
+        $fulfilmentCustomer = auth()->user()->customer->fulfilmentCustomer;
 
         return Inertia::render(
             'Dashboard/RetinaDashboard',
@@ -27,6 +28,7 @@ class ShowRetinaDashboard
                 'breadcrumbs' => $this->getBreadcrumbs(
                     __('Home')
                 ),
+                'data'       => GetRetinaHomeData::run($fulfilmentCustomer, $request),
             ]
         );
     }

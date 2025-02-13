@@ -43,12 +43,12 @@ class DeleteRetinaPalletReturnAddress extends RetinaAction
         return false;
     }
 
-    public function asController(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
+    public function asController(PalletReturn $palletReturn, ActionRequest $request): void
     {
         $this->parent = $palletReturn;
         $this->initialisation($request);
 
-        return $this->handle($palletReturn, $this->validatedData);
+        $this->handle($palletReturn, $this->validatedData);
     }
 
     public function action(PalletReturn $palletReturn, array $modelData): PalletReturn

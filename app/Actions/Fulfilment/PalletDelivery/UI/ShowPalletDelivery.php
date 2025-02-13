@@ -18,6 +18,7 @@ use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\UI\Fulfilment\PalletDeliveryTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
@@ -92,14 +93,13 @@ class ShowPalletDelivery extends OrgAction
 
     public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): Response
     {
-        // dd($palletDelivery->fulfilmentCustomer->slug);
         $subNavigation = [];
         if ($this->parent instanceof FulfilmentCustomer) {
             $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
         }
 
-        $palletStateReceivedCount = $palletDelivery->pallets()->where('state', PalletStateEnum::BOOKING_IN)->count();
-        $palletNotInRentalCount   = $palletDelivery->pallets()->whereNull('rental_id')->count();
+        $numberPalletsStateBookingIn = $palletDelivery->pallets()->where('state', PalletStateEnum::BOOKING_IN)->count();
+        $numberPalletsRentalNotSet   = $palletDelivery->pallets()->whereNull('rental_id')->count();
 
         $numberPallets       = $palletDelivery->fulfilmentCustomer->pallets()->count();
         $numberStoredPallets = $palletDelivery->pallets()->where('state', PalletDeliveryStateEnum::BOOKED_IN->value)->count();
@@ -442,7 +442,7 @@ class ShowPalletDelivery extends OrgAction
                             ]
                         ]
                     ],
-                    ($palletStateReceivedCount == 0 and $palletNotInRentalCount == 0) ? [
+                    ($numberPalletsStateBookingIn == 0 and $numberPalletsRentalNotSet == 0) ? [
                         'type'    => 'button',
                         'style'   => 'primary',
                         'icon'    => 'fal fa-check',
@@ -916,6 +916,126 @@ class ShowPalletDelivery extends OrgAction
                     [
                         'name' => __('Other'),
                         'code' => 'Other'
+                    ]
+                ],
+
+                'upload_pallet' => [
+                    'title' => [
+                        'label' => __('Upload pallet'),
+                        'information' => __('The list of column file: customer_reference, notes')
+                    ],
+                    'progressDescription'   => __('Adding Pallet Deliveries'),
+                    'preview_template'    => [
+                        'header' =>['type', 'reference', 'name', 'quantity'],
+                        'rows' =>[
+                            [
+                                'type' => PalletTypeEnum::PALLET,
+                                'reference' => '#P12345',
+                                'name' => 'Pallet 1',
+                                'quantity' => 10
+                            ],
+                            [
+                                'type' => PalletTypeEnum::BOX,
+                                'reference' => '#P12346',
+                                'name' => 'Pallet 2',
+                                'quantity' => 20
+                            ],
+                            [
+                                'type' => PalletTypeEnum::OVERSIZE,
+                                'reference' => '#P12347',
+                                'name' => 'Pallet 3',
+                                'quantity' => 30
+                            ]
+                        ]
+                    ],
+                    'upload_spreadsheet'    => [
+                        'event'           => 'action-progress',
+                        'channel'         => 'grp.personal.'.$this->organisation->id,
+                        'required_fields' => ['customer_reference', 'notes', 'stored_items', 'type'],
+                        'template'        => [
+                            'label' => 'Download template (.xlsx)',
+                        ],
+                        'route'           => [
+                            'upload'   => [
+                                'name'       => 'grp.models.pallet-delivery.pallet.upload',
+                                'parameters' => [
+                                    'palletDelivery' => $palletDelivery->id
+                                ]
+                            ],
+                            'history'  => [
+                                'name'       => 'grp.json.pallet_delivery.recent_uploads',
+                                'parameters' => [
+                                    'palletDelivery' => $palletDelivery->id
+                                ]
+                            ],
+                            'download' => [
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.pallets.uploads.templates',
+                                'parameters' => [
+                                    'organisation'       => $palletDelivery->organisation->slug,
+                                    'fulfilment'         => $palletDelivery->fulfilment->slug,
+                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
+                                    'palletDelivery'     => $palletDelivery->slug
+                                ]
+                            ],
+                        ],
+                    ]
+                ],
+                'upload_stored_item' => [
+                    'title' => [
+                        'label' => __('Upload Customer\'s SKU'),
+                        'information' => __('The list of column file: customer_reference, notes, stored_items')
+                    ],
+                    'progressDescription'   => __('Adding stored item'),
+                    'preview_template'    => [
+                        'header' =>['reference', 'name', 'quantity'],
+                        'rows' =>[
+                            [
+                                'reference' => '#C123',
+                                'name' => 'SKU 1',
+                                'quantity' => 10
+                            ],
+                            [
+                                'reference' => '#C124',
+                                'name' => 'SKU 2',
+                                'quantity' => 20
+                            ],
+                            [
+                                'reference' => '#C125',
+                                'name' => 'SKU 3',
+                                'quantity' => 30
+                            ]
+                        ]
+                    ],
+                    'upload_spreadsheet'    => [
+                        'event'           => 'action-progress',
+                        'channel'         => 'grp.personal.'.$this->organisation->id,
+                        'required_fields' => ['customer_reference', 'notes', 'stored_items', 'type'],
+                        'template'        => [
+                            'label' => 'Download template (.xlsx)',
+                        ],
+                        'route'           => [
+                            'upload'   => [
+                                'name'       => 'grp.models.pallet-delivery.pallet.upload',
+                                'parameters' => [
+                                    'palletDelivery' => $palletDelivery->id
+                                ]
+                            ],
+                            'history'  => [
+                                'name'       => 'grp.json.pallet_delivery.recent_uploads',
+                                'parameters' => [
+                                    'palletDelivery' => $palletDelivery->id
+                                ]
+                            ],
+                            'download' => [
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.pallets.uploads.templates',
+                                'parameters' => [
+                                    'organisation'       => $palletDelivery->organisation->slug,
+                                    'fulfilment'         => $palletDelivery->fulfilment->slug,
+                                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
+                                    'palletDelivery'     => $palletDelivery->slug
+                                ]
+                            ],
+                        ],
                     ]
                 ],
 

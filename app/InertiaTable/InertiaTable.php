@@ -18,6 +18,7 @@ class InertiaTable
     private Collection $columns;
     private Collection $searchInputs;
     private Collection $elementGroups;
+    private Collection $radioGroups;
     private array $periodFilters;
     private Collection $filters;
     private string $defaultSort = '';
@@ -43,6 +44,7 @@ class InertiaTable
         $this->columns         = new Collection();
         $this->searchInputs    = new Collection();
         $this->elementGroups   = new Collection();
+        $this->radioGroups   = new Collection();
         $this->filters         = new Collection();
         $this->modelOperations = new Collection();
         $this->exportLinks     = new Collection();
@@ -150,6 +152,7 @@ class InertiaTable
             'pageName'                        => $this->pageName,
             'perPageOptions'                  => $this->perPageOptions,
             'elementGroups'                   => $this->transformElementGroups(),
+            'radioGroups'                     => $this->transformRadioGroups(),
             'period_filter'                   => $this->transformPeriodFilters(),
             'modelOperations'                 => $this->modelOperations,
             'exportLinks'                     => $this->exportLinks,
@@ -224,6 +227,21 @@ class InertiaTable
         });
     }
 
+    protected function transformRadioGroups(): Collection
+    {
+        $radioGroups = $this->radioGroups;
+        $queryElements = $this->query('radioFilter', []);
+
+        if (empty($queryElements)) {
+            return $radioGroups;
+        }
+
+        return $radioGroups->map(function (RadioFilterGroup $elementRadioGroup) use ($queryElements) {
+            $elementRadioGroup->value = $queryElements;
+
+            return $elementRadioGroup;
+        });
+    }
 
     protected function transformSearchInputs(): Collection
     {
@@ -242,6 +260,18 @@ class InertiaTable
         });
     }
 
+    public function radioFilterGroup(string $key, array $elements): self
+    {
+        $this->radioGroups->put(
+            $key,
+            new RadioFilterGroup(
+                key: $key,
+                options: $elements
+            )
+        );
+
+        return $this;
+    }
 
     public function elementGroup(string $key, array|string $label, array $elements): self
     {

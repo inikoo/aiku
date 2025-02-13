@@ -41,7 +41,7 @@ class IndexRetinaRentals extends RetinaAction
                 ),
 
                 'engine' => function ($query, $elements) {
-                    $query->whereIn('state', $elements);
+                    $query->whereIn('rentals.state', $elements);
                 }
 
             ],
@@ -106,7 +106,7 @@ class IndexRetinaRentals extends RetinaAction
     {
         $this->initialisation($request);
 
-        return $this->handle($request);
+        return $this->handle();
     }
 
 

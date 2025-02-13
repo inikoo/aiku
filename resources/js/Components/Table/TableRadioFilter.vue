@@ -17,12 +17,13 @@ library.add(faCircle, faCheckCircle)
 
 const props = defineProps<{
     radioFilter: {
-        value?: string
+        // value?: string
         options: {
             label: string
             value: string
         }[]
     }
+    value: string
     tableName: string
 }>()
 
@@ -68,11 +69,11 @@ const options = [
 
 <template>
     <div class="flex gap-1">
-        <button v-for="radio in radioFilter?.options || options" @click.prevent="(e) => onClickRadio(radio.value)"
+        <button v-for="radio in radioFilter?.options" @click.prevent="(e) => onClickRadio(radio.value)"
             class="hover:bg-slate-400/20 text-xs w-full sm:text-sm flex flex-auto items-center text-left gap-x-1.5 sm:gap-x-2 rounded px-2 sm:px-2 py-0.5 select-none cursor-pointer border disabled:bg-gray-300 disabled:cursor-default"
             :disabled="false">
             <LoadingIcon v-if="isLoading === radio.value" />
-            <FontAwesomeIcon v-else-if="radioFilter?.value === radio.value" icon='fas fa-check-circle' class='text-green-500' fixed-width aria-hidden='true' />
+            <FontAwesomeIcon v-else-if="value === radio.value" icon='fas fa-check-circle' class='text-green-500' fixed-width aria-hidden='true' />
             <FontAwesomeIcon v-else icon='fal fa-circle' class='' fixed-width aria-hidden='true' />
             <span class="whitespace-nowrap">{{ radio.label }}</span>
         </button>

@@ -26,18 +26,21 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPalletsInReturnPalletWholePallets extends OrgAction
 {
-    protected function getElementGroups(PalletReturn $palletReturn): array
+    protected function getElementRadioFilters(PalletReturn $palletReturn): array
     {
         return [
-            'option' => [
-                'label'    => __('Option'),
-                'elements' => array_merge_recursive(
-                    PalletsInPalletReturnWholePalletsOptionEnum::labels(),
-                    PalletsInPalletReturnWholePalletsOptionEnum::count($palletReturn)
-                ),
+            'radio' => [
+                'options' => collect(PalletsInPalletReturnWholePalletsOptionEnum::labels())
+                    ->map(function ($label, $key) use ($palletReturn) {
+                        return [
+                            'label' => $label . ' (' . PalletsInPalletReturnWholePalletsOptionEnum::count($palletReturn)[$key] . ')',
+                            'value' => PalletsInPalletReturnWholePalletsOptionEnum::from($key)->value
+                        ];
+                    })
+                    ->values()
+                    ->toArray(),
                 'engine' => function ($query, $elements) use ($palletReturn) {
-
-                    if (in_array(PalletsInPalletReturnWholePalletsOptionEnum::SELECTED->value, $elements)) {
+                    if (PalletsInPalletReturnWholePalletsOptionEnum::SELECTED->value === $elements) {
                         $query->where('pallet_return_items.pallet_return_id', $palletReturn->id);
                     }
                 }
@@ -82,11 +85,11 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
         $query->leftJoin('locations', 'locations.id', 'pallets.location_id');
 
         if ($palletReturn->state === PalletReturnStateEnum::IN_PROCESS) {
-            foreach ($this->getElementGroups($palletReturn) as $key => $elementGroup) {
-                $query->whereElementGroup(
+            foreach ($this->getElementRadioFilters($palletReturn) as $key => $elementFilter) {
+                $query->whereRadioFilter(
                     key: $key,
-                    allowedElements: array_keys($elementGroup['elements']),
-                    engine: $elementGroup['engine'],
+                    allowedElements: collect($elementFilter['options'])->pluck('value')->toArray(),
+                    engine: $elementFilter['engine'],
                     prefix: $prefix
                 );
             }
@@ -155,11 +158,10 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
             ];
 
             if ($palletReturn->state === PalletReturnStateEnum::IN_PROCESS) {
-                foreach ($this->getElementGroups($palletReturn) as $key => $elementGroup) {
-                    $table->elementGroup(
+                foreach ($this->getElementRadioFilters($palletReturn) as $key => $radioFilterGroup) {
+                    $table->radioFilterGroup(
                         key: $key,
-                        label: $elementGroup['label'],
-                        elements: $elementGroup['elements']
+                        elements: $radioFilterGroup['options']
                     );
                 }
             }
