@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { inject, ref } from 'vue'
+import { computed, inject, ref } from 'vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import CustomerShowcaseStats from '@/Components/Showcases/Grp/CustomerShowcaseStats.vue'
 
@@ -112,7 +112,10 @@ const locale = inject('locale', aikuLocaleStructure)
 const layout = inject('layout', layoutStructure)
 
 // Tabs radio: v-model
-const radioValue = ref<string[]>(Object.keys(props.data.fulfilment_customer.radioTabs).filter(key => props.data.fulfilment_customer.radioTabs[key]))
+// const radioValue = ref<string[]>(Object.keys(props.data.fulfilment_customer.radioTabs).filter(key => props.data.fulfilment_customer.radioTabs[key]))
+const radioValue = computed(() => {
+    return Object.keys(props.data.fulfilment_customer.radioTabs).filter(key => props.data.fulfilment_customer.radioTabs[key])
+})
 
 // Tabs radio: options
 const optionRadio = [
@@ -151,7 +154,7 @@ const sendUpdateInformation = () => {
 <template>
     <!-- Section: Stats box -->
     <div class="px-4 py-5 md:px-6 lg:px-8 grid grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-3">
-
+    <pre>{{ props.data.fulfilment_customer.radioTabs }}</pre>
         <div class="space-y-3">
             <!-- Section: Radio -->
             <div class="space-y-3 relative w-full max-w-[500px]">
