@@ -18,6 +18,7 @@ use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\UI\Fulfilment\PalletDeliveryTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
@@ -925,21 +926,16 @@ class ShowPalletDelivery extends OrgAction
                     ],
                     'progressDescription'   => __('Adding Pallet Deliveries'),
                     'preview_template'    => [
+                        'unique_column' => [
+                            'type'  => [
+                                'label' => __('The valid type is ') . PalletTypeEnum::PALLET->value . ', ' . PalletTypeEnum::BOX->value . ', or ' . PalletTypeEnum::OVERSIZE->value . '. By default is ' . PalletTypeEnum::PALLET->value . '.'
+                            ]
+                        ],
                         'header' => ['type', 'customer_reference', 'notes'],
                         'rows' => [
                             [
                                 'type' => 'Pallet',
                                 'customer_reference' => 'PALLET1',
-                                'notes' => 'notes',
-                            ],
-                            [
-                                'type' => 'Box',
-                                'customer_reference' => 'BOX1',
-                                'notes' => 'notes',
-                            ],
-                            [
-                                'type' => 'Oversize',
-                                'customer_reference' => 'OVERSIZE1',
                                 'notes' => 'notes',
                             ],
                         ]
@@ -983,6 +979,11 @@ class ShowPalletDelivery extends OrgAction
                     ],
                     'progressDescription'   => __('Adding stored item'),
                     'preview_template'    => [
+                        'unique_column' => [
+                            'type'  => [
+                                'label' => __('The valid type is ') . PalletTypeEnum::PALLET->value . ', ' . PalletTypeEnum::BOX->value . ', or ' . PalletTypeEnum::OVERSIZE->value . '. By default is ' . PalletTypeEnum::PALLET->value . '.'
+                            ]
+                        ],
                         'header' => ['type', 'customer_reference', 'notes', 'stored_item_reference', 'quantity', 'stored_item_name'],
                         'rows' => [
                             [
@@ -992,22 +993,6 @@ class ShowPalletDelivery extends OrgAction
                                 'stored_item_reference' => 'SKU1',
                                 'quantity'  => 10,
                                 'stored_item_name' => 'SKU 1'
-                            ],
-                            [
-                                'type' => 'Box',
-                                'customer_reference' => 'BOX1',
-                                'notes' => 'notes',
-                                'stored_item_reference' => 'SKU2',
-                                'quantity'  => 10,
-                                'stored_item_name' => 'SKU 2'
-                            ],
-                            [
-                                'type' => 'Oversize',
-                                'customer_reference' => 'OVERSIZE1',
-                                'notes' => 'notes',
-                                'stored_item_reference' => 'SKU3',
-                                'quantity'  => 10,
-                                'stored_item_name' => 'SKU 3'
                             ],
                         ]
                     ],

@@ -6,6 +6,7 @@ import Modal from '@/Components/Utils/Modal.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faFile as falFile, faTimes } from '@fal'
 import { faFileDownload, faDownload, faTimesCircle, faCheckCircle } from '@fas'
+import { faEllipsisV } from '@far'
 import { faInfoCircle } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import axios from 'axios'
@@ -22,7 +23,7 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import { notify } from '@kyvg/vue3-notification'
 import LoadingIcon from './LoadingIcon.vue'
 import { set } from 'lodash'
-library.add(falFile, faTimes, faTimesCircle, faCheckCircle, faFileDownload, faDownload, faInfoCircle)
+library.add(falFile, faEllipsisV, faTimes, faTimesCircle, faCheckCircle, faFileDownload, faDownload, faInfoCircle)
 
 
 const props = defineProps<{
@@ -34,6 +35,11 @@ const props = defineProps<{
     additionalDataToSend?: string[]
     upload_spreadsheet?: Upload
     preview_template?: {
+        unique_column: {
+            [key: string]: {
+                label: string
+            }
+        }
         header: string[]
         rows: {}[]
     }
@@ -229,7 +235,7 @@ const isLoadingVisitHistory = ref<string | null>(null)
             <div>
                 <!-- Title -->
                 <div class="flex justify-center py-2 text-gray-600 mb-3">
-                    <div>
+                    <div class="w-full">
                         <div class="flex gap-x-0.5 justify-center items-center">
                             <span class="text-lg font-bold">{{ title?.label }}</span>
                             <VTooltip v-if="title?.information" class="w-fit">
@@ -244,18 +250,26 @@ const isLoadingVisitHistory = ref<string | null>(null)
                         </div>
 
                         <!-- Preview: excel -->
-                        <div v-if="preview_template" class="mt-2 w-full border border-gray-300 overflow-x-auto">
-                            <table class="w-full">
+                        <div v-if="preview_template" class="pb-2 w-full overflow-x-auto">
+                            <table class="mt-2 w-full border border-gray-300">
                                 <thead class="">
                                     <tr class="bg-gray-200 rounded-t-xl">
                                         <th v-for="(header, index) in preview_template.header" :key="index"
                                             class="text-center whitespace-nowrap overflow-ellipsis px-6 font-normal border-r border-gray-300 last:border-0"
                                         >
-                                            {{ header }} 
+                                            {{ header }}
+                                            <FontAwesomeIcon
+                                                v-if="preview_template?.unique_column && preview_template?.unique_column?.[header]?.label"
+                                                v-tooltip="preview_template?.unique_column[header].label"
+                                                icon='far fa-ellipsis-v'
+                                                class='text-indigo-500'
+                                                fixed-width
+                                                aria-hidden='true'
+                                            />
                                         </th>
                                     </tr>
                                 </thead>
-
+                                
                                 <tbody>
                                     <tr v-for="(row, rowIndex) in preview_template.rows" class="hover:bg-gray-50 border-t first:border-gray-400 border-gray-300 font-semibold">
                                         <template v-for="(column, columnIndex) in row" key="cellIndex">
@@ -267,7 +281,7 @@ const isLoadingVisitHistory = ref<string | null>(null)
                         </div>
 
                         <!-- Button: download -->
-                        <div class="flex justify-end mt-1">
+                        <div class="flex mt-1" :class="preview_template ? 'justify-end' : 'justify-center'">
                             <a v-if="upload_spreadsheet?.route?.download?.name" :href="route(upload_spreadsheet?.route?.download?.name, upload_spreadsheet?.route?.download?.parameters)"
                                 class="group text-xs text-gray-600 cursor-pointer px-2 -mr-1.5 w-fit" download>
                                 <span class="text-xs text-gray-400 group-hover:text-gray-600">
