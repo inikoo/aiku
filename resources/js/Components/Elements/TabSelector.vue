@@ -52,8 +52,8 @@ const onClickRadio = async (value: string) => {
                 })
             }
 
-            const index = props.radioValue.indexOf(value)
-            props.radioValue.splice(index, 1)
+            // const index = props.radioValue.indexOf(value)
+            // props.radioValue.splice(index, 1)
         }
     } else {
         if(props.updateRoute?.name){
@@ -66,7 +66,7 @@ const onClickRadio = async (value: string) => {
             })
         }
 
-        props.radioValue.push(value)
+        // props.radioValue.push(value)
     }
 }
 </script>

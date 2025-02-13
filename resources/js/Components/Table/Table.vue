@@ -25,7 +25,7 @@ import findKey from 'lodash-es/findKey'
 import forEach from 'lodash-es/forEach'
 import isEqual from 'lodash-es/isEqual'
 import map from 'lodash-es/map'
-import { debounce, kebabCase } from 'lodash'
+import { set as setLodash, debounce, kebabCase } from 'lodash'
 import CountUp from 'vue-countup-v3'
 import { useFormatTime } from '@/Composables/useFormatTime'
 
@@ -36,6 +36,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import axios from 'axios'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import TableBetweenFilter from '@/Components/Table/TableBetweenFilter.vue'
+import TableRadioFilter from './TableRadioFilter.vue'
 library.add(faCheckSquare, faCheck, faSquare, fasCheckSquare)
 
 const locale = inject('locale', aikuLocaleStructure)
@@ -450,6 +451,7 @@ function dataForNewQueryString() {
     const perPage = queryBuilderData.value.perPage;
     const elementFilter = queryBuilderData.value.elementFilter
     const period = queryBuilderData.value.periodFilter
+    const radioFilter = queryBuilderData.value.radioFilter
 
 
     if (cursor) {
@@ -472,6 +474,9 @@ function dataForNewQueryString() {
     }
     if (period) {
         queryData.period = period // period[type]=year&period[date]=2024
+    }
+    if (radioFilter) {
+        queryData.radioFilter = radioFilter // radioFilter=selected
     }
 
     return queryData;
@@ -822,11 +827,19 @@ const isLoading = ref<string | boolean>(false)
                             />
                         </div>
 
-                        <!-- Filter: Element -->
+                        <!-- Filter: Checkbox element -->
                         <div v-if="Object.keys(queryBuilderProps?.elementGroups || [])?.length" class="w-fit">
                             <TableElements
                                 :elements="queryBuilderProps.elementGroups"
                                 @checkboxChanged="(data) => queryBuilderData.elementFilter = data"
+                                :tableName="props.name" />
+                        </div>
+
+                        <!-- Filter: Radio element -->
+                        <div v-if="false" class="w-fit">
+                            <TableRadioFilter
+                                :radioFilter="queryBuilderData.radioFilter"
+                                @onSelectRadio="(value: string) => setLodash(queryBuilderData, ['radioFilter'], value)"
                                 :tableName="props.name" />
                         </div>
 

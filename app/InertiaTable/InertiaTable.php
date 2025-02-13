@@ -34,6 +34,7 @@ class InertiaTable
 
     private array $labelRecord = [];
     private $footerRows;
+    private $radioFilter;
 
     public function __construct(Request $request)
     {
@@ -48,6 +49,7 @@ class InertiaTable
         $this->emptyState      = new Collection();
         $this->labelRecord     = [];
         $this->footerRows      = null;
+        $this->radioFilter      = null;
 
         if (static::$defaultGlobalSearch !== false) {
             $this->withGlobalSearch(static::$defaultGlobalSearch);
@@ -155,7 +157,8 @@ class InertiaTable
             'labelRecord'                     => $this->labelRecord,
             'title'                           => $this->title,
             'footerRows'                      => $this->footerRows,
-            'betweenDates'                    => $this->betweenDates
+            'betweenDates'                    => $this->betweenDates,
+            'radioFilter'                     => $this->radioFilter,
         ];
     }
 
