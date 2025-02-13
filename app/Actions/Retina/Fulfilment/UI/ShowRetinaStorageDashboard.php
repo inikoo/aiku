@@ -61,7 +61,7 @@ class ShowRetinaStorageDashboard extends RetinaAction
         ];
 
         if (!app()->environment('production')) {
-            $routeActions[] = [
+            $routeActions = array_filter(array_merge($routeActions, [
                 $fulfilmentCustomer->number_pallets_status_storing ? [
                     'type'    => 'button',
                     'style'   => 'create',
@@ -84,10 +84,8 @@ class ShowRetinaStorageDashboard extends RetinaAction
                         'parameters' => []
                     ]
                 ] : false,
-            ];
+            ]));
         }
-
-
 
         return Inertia::render('Storage/RetinaStorageDashboard', [
             'title'        => __('Storage Dashboard'),
