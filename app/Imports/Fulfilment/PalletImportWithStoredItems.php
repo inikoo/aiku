@@ -39,11 +39,20 @@ class PalletImportWithStoredItems implements ToCollection, WithHeadingRow, Skips
 
     public function storeModel($row, $uploadRecord): void
     {
-        $currentCustomerRef = $row['customer_reference'] ?? null;
+        $fields =
+        array_merge(
+            array_keys(
+                $this->rules()
+            )
+        );
+        
+        $rowData = $row->only($fields)->all();
+
+        $currentCustomerRef = $rowData['customer_reference'] ?? null;
         $prevPallet = $this->scope->pallets()->where('customer_reference', $currentCustomerRef)->first();
         $existingStoredItem = $this->scope->fulfilmentCustomer
             ->storedItems()
-            ->where('reference', $row['stored_item_reference'])
+            ->where('reference', $rowData['stored_item_reference'])
             ->first();
 
         if ($prevPallet) {
@@ -52,24 +61,20 @@ class PalletImportWithStoredItems implements ToCollection, WithHeadingRow, Skips
                 : null;
 
             if ($existingStoredItem && !$existingStoredItemInPallet) {
-                AttachStoredItemToPallet::run($prevPallet, $existingStoredItem, $row['quantity']);
+                AttachStoredItemToPallet::run($prevPallet, $existingStoredItem, $rowData['quantity']);
             } elseif (!$existingStoredItem) {
                 $storedItemData = [
-                    'reference' => $row['stored_item_reference'],
-                    'name' => $row['stored_item_name'],
+                    'reference' => $rowData['stored_item_reference'],
+                    'name' => $rowData['stored_item_name'],
                 ];
 
                 $storedItem = StoreStoredItem::run($prevPallet, $storedItemData);
-                AttachStoredItemToPallet::run($prevPallet, $storedItem, $row['quantity']);
+                AttachStoredItemToPallet::run($prevPallet, $storedItem, $rowData['quantity']);
             }
         } else {
-            $modelData = [
-                'customer_reference' => $row['customer_reference'],
-                'notes' => $row['notes'],
-                'type' => $row['type'] ?? PalletTypeEnum::PALLET->value,
-            ];
+            $type = strtolower(str_replace(' ', '', trim($rowData['type'])));
 
-            $modelData['type'] = match (strtolower($modelData['type'])) {
+            $type = match ($type) {
                 'oversize' => PalletTypeEnum::OVERSIZE->value,
                 'box', 'carton' => PalletTypeEnum::BOX->value,
                 default => PalletTypeEnum::PALLET->value,
@@ -80,6 +85,12 @@ class PalletImportWithStoredItems implements ToCollection, WithHeadingRow, Skips
                 'type' => 'Upload',
             ]);
 
+            $modelData = [
+                'customer_reference' => $rowData['customer_reference'],
+                'notes' => $rowData['notes'],
+                'type' => $type,
+            ];
+
             try {
                 $pallet = StorePalletFromDelivery::run($this->scope, $modelData);
 
@@ -88,15 +99,15 @@ class PalletImportWithStoredItems implements ToCollection, WithHeadingRow, Skips
                     : null;
 
                 if ($existingStoredItem && !$existingStoredItemInPallet) {
-                    AttachStoredItemToPallet::run($pallet, $existingStoredItem, $row['quantity']);
+                    AttachStoredItemToPallet::run($pallet, $existingStoredItem, $rowData['quantity']);
                 } elseif (!$existingStoredItem) {
                     $storedItemData = [
-                        'reference' => $row['stored_item_reference'],
-                        'name' => $row['stored_item_name'],
+                        'reference' => $rowData['stored_item_reference'],
+                        'name' => $rowData['stored_item_name'],
                     ];
 
                     $storedItem = StoreStoredItem::run($pallet, $storedItemData);
-                    AttachStoredItemToPallet::run($pallet, $storedItem, $row['quantity']);
+                    AttachStoredItemToPallet::run($pallet, $storedItem, $rowData['quantity']);
                 }
 
                 $this->setRecordAsCompleted($uploadRecord);

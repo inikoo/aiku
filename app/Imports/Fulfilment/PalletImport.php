@@ -49,7 +49,7 @@ class PalletImport implements ToCollection, WithHeadingRow, SkipsOnFailure, With
         if (!Arr::get($modelData, 'type')) {
             data_set($modelData, 'type', PalletTypeEnum::PALLET->value);
         } else {
-            $type = strtolower(Arr::get($modelData, 'type'));
+            $type = strtolower(str_replace(' ', '', trim($modelData['type'])));
 
             $type = match ($type) {
                 'oversize' => PalletTypeEnum::OVERSIZE->value,
