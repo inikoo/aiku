@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { trans } from 'laravel-vue-i18n'
-import { ref, reactive } from 'vue'
+import { ref, reactive, inject } from 'vue'
 import { Popover, PopoverButton, PopoverPanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCircle } from '@fal'
@@ -12,17 +12,18 @@ import Button from '../Elements/Buttons/Button.vue'
 import Icon from '@/Components/Icon.vue'
 import { Icon as IconTS } from '@/types/Utils/Icon'
 import LoadingIcon from '../Utils/LoadingIcon.vue'
+import { layoutStructure } from '@/Composables/useLayoutStructure'
 library.add(faCircle, faCheckCircle)
 
 
 const props = defineProps<{
-    radioFilter: {
-        // value?: string
-        options: {
-            label: string
-            value: string
-        }[]
-    }
+    // radioFilter: {
+    //     // value?: string
+    // }
+    options: {
+        label: string
+        value: string
+    }[]
     value: string
     tableName: string
 }>()
@@ -38,6 +39,8 @@ const onClickRadio = (val: string) => {
     emits('onSelectRadio', val)
 }
 
+const layout = inject('layout', layoutStructure)
+
 
 onMounted(() => {
     // // console.log('fff', props.elements)
@@ -51,31 +54,42 @@ onMounted(() => {
     // console.log('rr', asdfzxc.some(elementName => window.location.search.includes(`elements[${elementName}]`)))
 })
 
-const options = [
-    {
-        label: 'ccc',
-        value: 'ccc'
-    },
-    {
-        label: 'ddd',
-        value: 'ddd'
-    },
-    {
-        label: 'eee',
-        value: 'eee'
-    }
-]
+// const options = [
+//     {
+//         label: 'ccc',
+//         value: 'ccc'
+//     },
+//     {
+//         label: 'ddd',
+//         value: 'ddd'
+//     },
+//     {
+//         label: 'eee',
+//         value: 'eee'
+//     }
+// ]
 </script>
 
 <template>
     <div class="flex gap-1">
-        <button v-for="radio in radioFilter?.options" @click.prevent="(e) => onClickRadio(radio.value)"
-            class="hover:bg-slate-400/20 text-xs w-full sm:text-sm flex flex-auto items-center text-left gap-x-1.5 sm:gap-x-2 rounded px-2 sm:px-2 py-0.5 select-none cursor-pointer border disabled:bg-gray-300 disabled:cursor-default"
+        <button v-for="radio in options" @click.prevent="(e) => onClickRadio(radio.value)"
+            class="text-xs w-full sm:text-sm flex flex-auto items-center text-left gap-x-1.5 sm:gap-x-2 rounded px-2 sm:px-2 py-0.5 select-none border border-gray-300 disabled:bg-gray-300"
+            :class="value === radio.value ? 'bgprimary cursor-auto' : ' disabled:cursor-default cursor-pointer hover:bg-slate-400/20 '"
             :disabled="false">
             <LoadingIcon v-if="isLoading === radio.value" />
-            <FontAwesomeIcon v-else-if="value === radio.value" icon='fas fa-check-circle' class='text-green-500' fixed-width aria-hidden='true' />
+            <FontAwesomeIcon v-else-if="value === radio.value" icon='fas fa-check-circle' class='textprimary' fixed-width aria-hidden='true' />
             <FontAwesomeIcon v-else icon='fal fa-circle' class='' fixed-width aria-hidden='true' />
             <span class="whitespace-nowrap">{{ radio.label }}</span>
         </button>
     </div>
 </template>
+
+<style scope lang="scss">
+.textprimary {
+    color: v-bind('layout.app.theme[0]')
+}
+.bgprimary {
+    background-color: v-bind('layout.app.theme[0] + "22"');
+
+}
+</style>
