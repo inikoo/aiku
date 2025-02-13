@@ -52,8 +52,8 @@ const onClickRadio = async (value: string) => {
                 })
             }
 
-            // const index = props.radioValue.indexOf(value)
-            // props.radioValue.splice(index, 1)
+            const index = props.radioValue.indexOf(value)
+            props.radioValue.splice(index, 1)
         }
     } else {
         if(props.updateRoute?.name){
@@ -66,7 +66,7 @@ const onClickRadio = async (value: string) => {
             })
         }
 
-        // props.radioValue.push(value)
+        props.radioValue.push(value)
     }
 }
 </script>
@@ -79,8 +79,8 @@ const onClickRadio = async (value: string) => {
             <FontAwesomeIcon v-if="radioLoading[radio.value]" icon='fad fa-spinner-third'
                 class='animate-spin text-gray-700' fixed-width aria-hidden='true' />
             <FontAwesomeIcon v-else-if="radioValue.includes(radio.value)" icon='fas fa-check-circle'
-                class='text-lime-500' fixed-width aria-hidden='true' />
-            <FontAwesomeIcon v-else icon='fal fa-circle' class='text-lime-600' fixed-width aria-hidden='true' />
+                class='text-green-500' fixed-width aria-hidden='true' />
+            <FontAwesomeIcon v-else icon='fal fa-circle' class='text-green-600' fixed-width aria-hidden='true' />
             <span class="whitespace-nowrap">{{ radio.label }}</span>
         </button>
     </div>

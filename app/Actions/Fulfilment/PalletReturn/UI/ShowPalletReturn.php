@@ -707,9 +707,9 @@ class ShowPalletReturn extends OrgAction
     }
 
 
-    public function jsonResponse(PalletReturn $palletReturn): PalletReturnsResource
+    public function jsonResponse(PalletReturn $palletReturn): PalletReturnResource
     {
-        return new PalletReturnsResource($palletReturn);
+        return new PalletReturnResource($palletReturn);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = ''): array
