@@ -920,8 +920,8 @@ class ShowPalletDelivery extends OrgAction
                     ],
                     'progressDescription'   => __('Adding Pallet Deliveries'),
                     'preview_template'    => [
-                        'header' =>['type', 'reference', 'name', 'quantity'],
-                        'rows' =>[
+                        'header' => ['type', 'reference', 'name', 'quantity'],
+                        'rows' => [
                             [
                                 'type' => PalletTypeEnum::PALLET,
                                 'reference' => '#P12345',
@@ -981,8 +981,8 @@ class ShowPalletDelivery extends OrgAction
                     ],
                     'progressDescription'   => __('Adding stored item'),
                     'preview_template'    => [
-                        'header' =>['reference', 'name', 'quantity'],
-                        'rows' =>[
+                        'header' => ['reference', 'name', 'quantity'],
+                        'rows' => [
                             [
                                 'reference' => '#C123',
                                 'name' => 'SKU 1',

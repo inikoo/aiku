@@ -260,13 +260,14 @@ class InertiaTable
         });
     }
 
-    public function radioFilterGroup(string $key, array $elements): self
+    public function radioFilterGroup(string $key, array $elements, string $default): self
     {
         $this->radioGroups->put(
             $key,
             new RadioFilterGroup(
                 key: $key,
-                options: $elements
+                options: $elements,
+                value: $default
             )
         );
 
