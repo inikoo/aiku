@@ -28,7 +28,7 @@ class PalletDeliveryStatusResource extends JsonResource
             'state'                         => $palletDelivery->state->value,
             'number_pallets_received'       => $numberPalletsStateBookingIn,
             'number_pallets_rental_not_set' => $numberPalletsRentalNotSet,
-            'can_finalise'                  => $palletDelivery->state == PalletDeliveryStateEnum::BOOKED_IN && $numberPalletsStateBookingIn == 0 and $numberPalletsRentalNotSet == 0
+            'can_finish_booking_in'         => $palletDelivery->state == PalletDeliveryStateEnum::BOOKING_IN && $numberPalletsStateBookingIn == 0 and $numberPalletsRentalNotSet == 0
 
         ];
     }

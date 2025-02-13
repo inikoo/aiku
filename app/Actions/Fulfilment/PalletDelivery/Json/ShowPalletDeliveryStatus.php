@@ -11,8 +11,6 @@ namespace App\Actions\Fulfilment\PalletDelivery\Json;
 use App\Actions\OrgAction;
 use App\Http\Resources\Fulfilment\PalletDeliveryStatusResource;
 use App\Models\Fulfilment\PalletDelivery;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Lorisleiva\Actions\ActionRequest;
 
 class ShowPalletDeliveryStatus extends OrgAction
@@ -36,8 +34,8 @@ class ShowPalletDeliveryStatus extends OrgAction
 
 
 
-    public function jsonResponse(LengthAwarePaginator $physicalGoods): AnonymousResourceCollection
+    public function jsonResponse(PalletDelivery $palletDelivery): PalletDeliveryStatusResource
     {
-        return PalletDeliveryStatusResource::collection($physicalGoods);
+        return PalletDeliveryStatusResource::make($palletDelivery);
     }
 }
