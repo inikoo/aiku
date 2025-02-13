@@ -18,6 +18,10 @@ const props = defineProps<{
     upload_spreadsheet?: Upload
     scope?: string
     additionalDataToSend?: string[]
+    preview_template: {
+        header: string[]
+        rows: {}[]
+    }
 }>()
 
 const layout = inject('layout', layoutStructure)
@@ -50,6 +54,7 @@ provide('selectedEchopersonal', selectedEchopersonal())
             :title        
             :upload_spreadsheet
             :additionalDataToSend
+            :preview_template
         />
     </KeepAlive>
 
