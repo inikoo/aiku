@@ -20,6 +20,7 @@ use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
+use App\Http\Resources\Fulfilment\PalletReturnItemsWithStoredItemsResource;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\Http\Resources\Fulfilment\PalletReturnStoredItemsResource;
@@ -62,6 +63,7 @@ class ShowRetinaStoredItemReturn extends RetinaAction
 
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response
     {
+        dd($palletReturn);
         $addressHistories = AddressResource::collection($palletReturn->addresses()->where('scope', 'delivery')->get());
 
         $navigation = PalletReturnTabsEnum::navigation($palletReturn);
@@ -446,8 +448,8 @@ class ShowRetinaStoredItemReturn extends RetinaAction
                 'data' => PalletReturnResource::make($palletReturn),
 
                 PalletReturnTabsEnum::STORED_ITEMS->value => $this->tab == PalletReturnTabsEnum::STORED_ITEMS->value ?
-                    fn () => PalletReturnStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn))
-                    : Inertia::lazy(fn () => PalletReturnStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn))),
+                fn () => PalletReturnItemsWithStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn, PalletReturnTabsEnum::STORED_ITEMS->value)) //todo idk if this is right
+                : Inertia::lazy(fn () => PalletReturnItemsWithStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn, PalletReturnTabsEnum::STORED_ITEMS->value))), //todo idk if this is right
 
                 PalletReturnTabsEnum::SERVICES->value => $this->tab == PalletReturnTabsEnum::SERVICES->value ?
                     fn () => FulfilmentTransactionsResource::collection(IndexServiceInPalletReturn::run($palletReturn, PalletReturnTabsEnum::SERVICES->value))
