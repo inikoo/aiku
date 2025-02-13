@@ -10,7 +10,6 @@ namespace App\Actions\CRM\WebUser\Retina;
 
 use App\Actions\CRM\WebUser\LogWebUserFailLogin;
 use App\Actions\CRM\WebUser\LogWebUserLogin;
-use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\CRM\WebUser;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Http\RedirectResponse;
