@@ -58,7 +58,6 @@ class ShowRetinaPallet extends RetinaAction
 
     public function htmlResponse(Pallet $pallet, ActionRequest $request): Response
     {
-        // dd($pallet->status->statusIcon()[$pallet->status->value]);
         $icon = [
             'icon'    => ['fal', 'fa-pallet'],
             'tooltip' => __('Pallet')
@@ -76,7 +75,6 @@ class ShowRetinaPallet extends RetinaAction
             unset($navigation[PalletTabsEnum::STORED_ITEMS->value]);
         }
 
-        $routeName = null;
 
         return Inertia::render(
             'Storage/RetinaPallet',
@@ -98,17 +96,6 @@ class ShowRetinaPallet extends RetinaAction
                     'noCapitalise'  => true,
                     'afterTitle'    => $afterTitle,
                     'actions'       => [
-                        // [
-                        //     'type'    => 'button',
-                        //     'style'   => 'cancel',
-                        //     'tooltip' => __('return to customer'),
-                        //     'label'   => $this->pallet->status == PalletStatusEnum::RETURNED ? __('returned') : __('return to customer'),
-                        //     'route'   => [
-                        //         'name'       => 'grp.fulfilment.stored-items.setReturn',
-                        //         'parameters' => array_values(request()->route()->originalParameters())
-                        //     ],
-                        //     'disabled' => $this->pallet->status == PalletStatusEnum::RETURNED
-                        // ],
                         [
                             'type'    => 'button',
                             'style'   => 'edit',
@@ -119,17 +106,6 @@ class ShowRetinaPallet extends RetinaAction
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ]
                         ],
-                        // [
-                        //     'type'    => 'button',
-                        //     'style'   => 'delete',
-                        //     'tooltip' => __('set as damaged'),
-                        //     'label'   => $this->pallet->status == PalletStatusEnum::DAMAGED ? __('damaged') : __('set as damaged'),
-                        //     'route'   => [
-                        //         'name'       => 'grp.fulfilment.stored-items.setDamaged',
-                        //         'parameters' => array_values(request()->route()->originalParameters())
-                        //     ],
-                        //     'disabled' => $this->pallet->status == PalletStatusEnum::DAMAGED
-                        // ],
                     ],
                 ],
                 'tabs'                          => [
