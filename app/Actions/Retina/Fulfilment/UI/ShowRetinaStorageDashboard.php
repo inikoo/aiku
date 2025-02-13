@@ -31,6 +31,8 @@ class ShowRetinaStorageDashboard extends RetinaAction
     public function htmlResponse(FulfilmentCustomer $fulfilmentCustomer): Response
     {
 
+
+
         $clauses = null;
         foreach ($fulfilmentCustomer->rentalAgreementClauses as $clause) {
             $price                                  = $clause->asset->price;
@@ -47,7 +49,7 @@ class ShowRetinaStorageDashboard extends RetinaAction
         }
 
         $routeActions = [
-            [
+            $fulfilmentCustomer->pallets_storage ? [
                 'type'  => 'button',
                 'style' => 'create',
                 'label' => __('New Delivery'),
@@ -57,16 +59,16 @@ class ShowRetinaStorageDashboard extends RetinaAction
                     'name'       => 'retina.models.pallet-delivery.store',
                     'parameters' => []
                 ]
-            ],
+            ] : false,
         ];
 
-        if (!app()->environment('production')) {
-            $routeActions = array_filter(array_merge($routeActions, [
+        if (!app()->environment('production') && $fulfilmentCustomer->pallets_storage) {
+            $routeActions = array_merge($routeActions, [
                 $fulfilmentCustomer->number_pallets_status_storing ? [
                     'type'    => 'button',
                     'style'   => 'create',
                     'tooltip' => $fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? __('Create new return (whole pallet)') : __('Create new return'),
-                    'label'   => $fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? __('Return (whole pallet)') : __('Return'),
+                    'label'   => $fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? __('New Return (whole pallet)') : __('Return'),
                     'route'   => [
                         'method'     => 'post',
                         'name'       => 'retina.models.pallet-return.store',
@@ -84,8 +86,9 @@ class ShowRetinaStorageDashboard extends RetinaAction
                         'parameters' => []
                     ]
                 ] : false,
-            ]));
+            ]);
         }
+        $routeActions = array_filter($routeActions);
 
         return Inertia::render('Storage/RetinaStorageDashboard', [
             'title'        => __('Storage Dashboard'),

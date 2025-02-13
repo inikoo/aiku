@@ -68,6 +68,12 @@ const props = defineProps<{
             domain: string
             route: routeType
         }
+        route_action: {
+            route: routeType
+            label: string
+            style: string
+            type: string
+        }[]
         rental_agreement: {
             stats?: {
                 data: {
@@ -227,7 +233,7 @@ const isLoadingButtonRentalAgreement = ref(false)
 
                     <Link :href="route(data?.recurring_bill?.route?.name, data?.recurring_bill?.route?.parameters)"
                         @start="() => isLoading = 'loadingVisitRecurring'" @error="() => isLoading = false">
-                    <Button :type="'tertiary'" :loading="isLoading === 'loadingVisitRecurring'" size="s"
+                      <Button :type="'tertiary'" :loading="isLoading === 'loadingVisitRecurring'" size="s"
                         label="See details" iconRight="fal fa-external-link" />
                     </Link>
                 </div>
@@ -236,15 +242,10 @@ const isLoadingButtonRentalAgreement = ref(false)
             <!-- Section: Rental Agreement -->
             <div class="rounded-lg ring-1 ring-gray-300">
                 <div class="border-b border-gray-300 py-2 px-2 pl-4 flex items-center justify-between">
-                  <!--   <div class="">{{ trans('Rental Agreement') }} <span
+                   <div class="">{{ trans('Rental Agreement') }} <span
                             v-if="data?.rental_agreement?.stats?.data?.reference" class="text-gray-400 text-sm">#{{
                                 data?.rental_agreement?.stats?.data?.reference }}</span></div>
-                    <Link v-if="data?.rental_agreement?.stats"
-                        :href="route(data?.rental_agreement.stats?.data?.route.name, data?.rental_agreement?.stats?.data?.route.parameters)"
-                        @start="() => isLoadingButtonRentalAgreement = true"
-                        @cancel="() => isLoadingButtonRentalAgreement = false">
-                    <Button type="edit" :loading="isLoadingButtonRentalAgreement" />
-                    </Link> -->
+                   
                 </div>
 
                 <!-- Stats -->
@@ -279,7 +280,20 @@ const isLoadingButtonRentalAgreement = ref(false)
         </div>
       </div>
     </div>
-
+    <div v-if="data.route_action" class="mt-4 flex">
+      <div class="w-64 border-gray-300 ">
+          <div class="p-1" v-for="(btn, index) in data.route_action" :key="index">
+          <ButtonWithLink
+              :label="btn.label"
+              :bindToLink="{ preserveScroll: true, preserveState: true }"
+              :type="btn.style"  
+              full
+              :routeTarget="btn.route"
+          
+          />
+          </div>
+      </div>
+  </div>
   <!-- Container untuk card -->
   <div v-if="customer?.status == 'pending_approval'" class="grid grid-cols-3 gap-6 p-6">
     <!-- Card Informasi Perusahaan -->
