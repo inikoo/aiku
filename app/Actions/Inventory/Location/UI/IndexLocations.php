@@ -44,11 +44,6 @@ class IndexLocations extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
 
-        if ($this->maya) {
-            return true; //Idk the auth for this
-        }
-
-
         if ($this->parent instanceof Group) {
             return $request->user()->authTo("group-overview");
         } elseif ($this->parent instanceof Organisation) {

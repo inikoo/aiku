@@ -92,14 +92,13 @@ class ShowPalletDelivery extends OrgAction
 
     public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): Response
     {
-        // dd($palletDelivery->fulfilmentCustomer->slug);
         $subNavigation = [];
         if ($this->parent instanceof FulfilmentCustomer) {
             $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
         }
 
-        $palletStateReceivedCount = $palletDelivery->pallets()->where('state', PalletStateEnum::BOOKING_IN)->count();
-        $palletNotInRentalCount   = $palletDelivery->pallets()->whereNull('rental_id')->count();
+        $numberPalletsStateBookingIn = $palletDelivery->pallets()->where('state', PalletStateEnum::BOOKING_IN)->count();
+        $numberPalletsRentalNotSet   = $palletDelivery->pallets()->whereNull('rental_id')->count();
 
         $numberPallets       = $palletDelivery->fulfilmentCustomer->pallets()->count();
         $numberStoredPallets = $palletDelivery->pallets()->where('state', PalletDeliveryStateEnum::BOOKED_IN->value)->count();
@@ -442,7 +441,7 @@ class ShowPalletDelivery extends OrgAction
                             ]
                         ]
                     ],
-                    ($palletStateReceivedCount == 0 and $palletNotInRentalCount == 0) ? [
+                    ($numberPalletsStateBookingIn == 0 and $numberPalletsRentalNotSet == 0) ? [
                         'type'    => 'button',
                         'style'   => 'primary',
                         'icon'    => 'fal fa-check',
