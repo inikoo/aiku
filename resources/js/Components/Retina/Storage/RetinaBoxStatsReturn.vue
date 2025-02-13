@@ -21,10 +21,11 @@ import OrderSummary from "@/Components/Summary/OrderSummary.vue"
 import ModalAddress from '@/Components/Utils/ModalAddress.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faBuilding, faIdCardAlt, faMapMarkerAlt } from '@fal'
+import { faBuilding, faIdCardAlt, faMapMarkerAlt, faPenSquare } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import PalletEditCustomerReference from "@/Components/Pallet/PalletEditCustomerReference.vue"
-library.add(faBuilding, faIdCardAlt, faMapMarkerAlt)
+import ModalAddressCollection from "@/Components/Utils/ModalAddressCollection.vue"
+library.add(faBuilding, faIdCardAlt, faMapMarkerAlt, faPenSquare)
 
 
 const props = defineProps<{
@@ -42,7 +43,7 @@ const layout = inject('layout', layoutStructure)
 
 
 const isModalAddress = ref(false)
-
+const isModalAddressCollection = ref(false)
 console.log('fff', props.box_stats)
 
 // Method: On change estimated date
@@ -84,7 +85,7 @@ console.log('fff', props.box_stats)
 </script>
 
 <template>
-    <div class="h-min grid md:grid-cols-4 border-b border-gray-200 divide-y md:divide-y-0 divide-x divide-gray-200">
+    <div class="h-min grid sm:grid-cols-2 lg:grid-cols-4 border-t border-b border-gray-200 divide-x divide-gray-300">
         <!-- Box: Detail -->
         <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class=" pb-2 py-5 px-3"
             :tooltip="trans('Detail')" :label="capitalize(data_pallet.state)" icon="fal fa-truck-couch">
@@ -124,27 +125,37 @@ console.log('fff', props.box_stats)
             </div>
             
             <!-- Field: Delivery Address -->
-            <div class="flex items-start w-full flex-none gap-x-2">
+            <div class="flex items-start w-full flex-none gap-x-2 mb-1">
                 <dt v-tooltip="`Pallet Return's address`" class="flex-none">
                     <span class="sr-only">Delivery address</span>
                     <FontAwesomeIcon icon='fal fa-map-marker-alt' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
 
-                <dd v-if="box_stats.fulfilment_customer.address.value" class=" text-gray-500">
-                    <div class="relative px-2 py-1 ring-1 ring-gray-300 rounded bg-gray-50">
+                <dd v-if="data_pallet.is_collection !== true" class=" w-full text-xs text-gray-500">
+                    <div class="relative px-2.5 py-2 ring-1 ring-gray-300 rounded bg-gray-50">
                         <span class="" v-html="box_stats.fulfilment_customer.address.value.formatted_address" />
 
-                        <div @click="() => isModalAddress = true"
+                        <div @click="() => isModalAddressCollection = true"
                             class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
                             <span>Edit</span>
                         </div>
                     </div>
                 </dd>
-                
-                <div v-else @click="() => isModalAddress = true" class="leading-6  inline whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                <div v-else>
+					<span>For collection </span>
+					<span @click="() => (isModalAddressCollection = true)">
+						<FontAwesomeIcon
+							icon="fal fa-pen-square"
+							size="lg"
+							class="text-gray-400 cursor-pointer"
+							fixed-width
+							aria-hidden="true" />
+					</span>
+				</div>
+                <!-- <div v-else @click="() => isModalAddress = true" class="leading-6  inline whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
                     Setup delivery address
-                </div>
+                </div> -->
             </div>
         </BoxStatPallet>
 
@@ -206,4 +217,8 @@ console.log('fff', props.box_stats)
             :updateRoute="updateRoute.route"
         />
     </Modal>
+
+    <Modal :isOpen="isModalAddressCollection" @onClose="() => (isModalAddressCollection = false)">
+		<ModalAddressCollection :addresses="box_stats.fulfilment_customer.address" :updateRoute :is_collection="data_pallet.is_collection" />
+	</Modal>
 </template>

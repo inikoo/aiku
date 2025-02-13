@@ -37,10 +37,12 @@ use App\Actions\UI\Notification\MarkNotificationAsRead;
 use App\Actions\UI\Profile\UpdateProfile;
 
 Route::patch('pallet/{pallet:id}/location/{location:slug}/move', [UpdatePalletLocation::class,'usingLocationSlug'])->name('move_pallet')->withoutScopedBindings();
+Route::patch('pallet/{pallet:id}/location/{location:slug}/book-in', [BookInPallet::class,'usingLocationSlug'])->name('move_pallet')->withoutScopedBindings();
 
 
 
-Route::patch('pallet/{pallet:id}/booked-in', [BookInPallet::class, 'fromApi'])->name('pallet.booked-in');
+
+
 Route::patch('pallet/{pallet:id}/return', ReturnPalletToCustomer::class)->name('pallet.return');
 Route::patch('pallet/{pallet:id}', [UpdatePallet::class, 'fromApi'])->name('pallet.update');
 Route::patch('pallet/{pallet:id}/not-received', SetPalletAsNotReceived::class)->name('pallet.not-received');

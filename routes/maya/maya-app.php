@@ -9,7 +9,6 @@
 use App\Actions\SysAdmin\User\UI\ConnectMayaWithCredentials;
 use App\Actions\SysAdmin\User\UI\ConnectMayaWithQRCode;
 use App\Actions\SysAdmin\User\UI\LogoutMayaApp;
-use App\Actions\SysAdmin\User\UpdateFcmTokenUser;
 use Illuminate\Support\Facades\Route;
 
 Route::name('maya.')->group(function () {
@@ -28,6 +27,9 @@ Route::name('maya.')->group(function () {
         Route::prefix("action")
             ->name("action.")
             ->group(__DIR__."/action.php");
+        Route::prefix("json")
+            ->name("json.")
+            ->group(__DIR__."/json.php");
 
 
     });
@@ -36,7 +38,5 @@ Route::name('maya.')->group(function () {
     Route::post('connect/credentials', ConnectMayaWithCredentials::class)->name('connect.credentials');
 
 
-    /*  Route::name('firebase-token.')->prefix('firebase-token')->middleware(['auth:sanctum', 'bind_group'])->group(function () {
-         Route::patch('', UpdateFcmTokenUser::class)->name('fcm.update');
-     }); */
+
 });

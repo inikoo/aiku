@@ -16,6 +16,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Inventory\Location;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -73,11 +74,13 @@ class BookInPallet extends OrgAction
         return $this->handle($pallet, $this->validatedData);
     }
 
-    public function fromApi(Pallet $pallet, ActionRequest $request): Pallet
+    public function usingLocationSlug(Pallet $pallet, Location $location,ActionRequest $request): Pallet
     {
         $this->initialisationFromWarehouse($pallet->warehouse, $request);
 
-        return $this->handle($pallet, $this->validatedData);
+        return $this->handle($pallet, [
+            'location_id' => $location->id
+        ]);
     }
 
     public function action(Pallet $pallet, array $modelData): Pallet
