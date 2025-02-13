@@ -29,7 +29,6 @@ use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Helpers\Address;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -63,8 +62,6 @@ class ShowRetinaPalletReturn extends RetinaAction
 
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response
     {
-        $addressHistories = AddressResource::collection($palletReturn->addresses()->where('scope', 'delivery')->get());
-
         $navigation = PalletReturnTabsEnum::navigation($palletReturn);
 
         if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
@@ -88,43 +85,6 @@ class ShowRetinaPalletReturn extends RetinaAction
                 'label' => '('.__('Whole pallets').')'
             ];
         }
-
-        $addresses = $palletReturn->fulfilmentCustomer->customer->addresses;
-
-        $processedAddresses = $addresses->map(function ($address) {
-
-
-            if (!DB::table('model_has_addresses')->where('address_id', $address->id)->where('model_type', '=', 'Customer')->exists()) {
-
-                return $address->setAttribute('can_delete', false)
-                    ->setAttribute('can_edit', true);
-            }
-
-
-            return $address->setAttribute('can_delete', true)
-                            ->setAttribute('can_edit', true);
-        });
-
-        $customerAddressId              = $palletReturn->fulfilmentCustomer->customer->address->id;
-        $customerDeliveryAddressId      = $palletReturn->fulfilmentCustomer->customer->deliveryAddress->id;
-        $palletReturnDeliveryAddressIds = PalletReturn::where('fulfilment_customer_id', $palletReturn->fulfilment_customer_id)
-                                            ->pluck('delivery_address_id')
-                                            ->unique()
-                                            ->toArray();
-
-        $forbiddenAddressIds = array_merge(
-            $palletReturnDeliveryAddressIds,
-            [$customerAddressId, $customerDeliveryAddressId]
-        );
-
-        $processedAddresses->each(function ($address) use ($forbiddenAddressIds) {
-            if (in_array($address->id, $forbiddenAddressIds, true)) {
-                $address->setAttribute('can_delete', false)
-                        ->setAttribute('can_edit', true);
-            }
-        });
-
-        $addressCollection = AddressResource::collection($processedAddresses);
 
         $showGrossAndDiscount = $palletReturn->gross_amount !== $palletReturn->net_amount;
 
@@ -314,35 +274,39 @@ class ShowRetinaPalletReturn extends RetinaAction
                         FulfilmentCustomerResource::make($palletReturn->fulfilmentCustomer)->getArray(),
                         [
                             'address'      => [
-                                'value'   => AddressResource::make($palletReturn->deliveryAddress ?? new Address()),
+                                // 'value'   => AddressResource::make($palletReturn->deliveryAddress ?? new Address()),
+                                'value'   => $palletReturn->is_collection ?
+                                    null :
+                                    AddressResource::make($palletReturn->deliveryAddress),
                                 'options' => [
                                     'countriesAddressData' => GetAddressData::run()
                                 ],
-                                'address_list'                   => $addressCollection,
-                                'pinned_address_id'              => $palletReturn->fulfilmentCustomer->customer->delivery_address_id,
-                                'home_address_id'                => $palletReturn->fulfilmentCustomer->customer->address_id,
-                                'current_selected_address_id'    => $palletReturn->delivery_address_id,
-                                'selected_delivery_addresses_id' => $palletReturnDeliveryAddressIds,
-                                'routes_list'                    => [
-                                    'pinned_route'                => [
-                                        'method'     => 'patch',
-                                        'name'       => 'retina.models.customer.delivery-address.update',
+                                'address_customer' => [
+                                    'value'   => AddressResource::make($palletReturn->fulfilmentCustomer->customer->address),
+                                    'options' => [
+                                        'countriesAddressData' => GetAddressData::run()
+                                    ],
+                                ],
+                                'routes_address'                    => [
+                                    'store'  => [
+                                        'method'     => 'post',
+                                        'name'       => 'retina.models.pallet-return.address.store',
                                         'parameters' => [
-                                            'customer' => $palletReturn->fulfilmentCustomer->customer_id
+                                            'palletReturn'       => $palletReturn->id
                                         ]
                                     ],
-                                    'delete_route'  => [
+                                    'delete'  => [
                                         'method'     => 'delete',
-                                        'name'       => 'retina.models.customer.delivery-address.delete',
+                                        'name'       => 'retina.models.pallet-return.address.delete',
                                         'parameters' => [
-                                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->customer_id
+                                            'palletReturn'       => $palletReturn->id
                                         ]
                                     ],
-                                    'store_route' => [
-                                        'method'      => 'post',
-                                        'name'        => 'retina.models.fulfilment_customer.delivery_address.store',
-                                        'parameters'  => [
-                                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer
+                                    'update' => [
+                                        'method'     => 'patch',
+                                        'name'       => 'retina.models.pallet-return.address.update',
+                                        'parameters' => [
+                                            'palletReturn'       => $palletReturn->id
                                         ]
                                     ]
                                 ]

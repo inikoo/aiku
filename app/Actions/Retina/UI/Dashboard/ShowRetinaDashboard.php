@@ -8,6 +8,7 @@
 
 namespace App\Actions\Retina\UI\Dashboard;
 
+use App\Actions\Fulfilment\FulfilmentCustomer\UI\GetFulfilmentCustomerShowcase;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -20,6 +21,7 @@ class ShowRetinaDashboard
 
     public function asController(ActionRequest $request): Response
     {
+        $fulfilmentCustomer = auth()->user()->customer->fulfilmentCustomer;
 
         return Inertia::render(
             'Dashboard/RetinaDashboard',
@@ -27,6 +29,7 @@ class ShowRetinaDashboard
                 'breadcrumbs' => $this->getBreadcrumbs(
                     __('Home')
                 ),
+                'data'       => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request),
             ]
         );
     }
