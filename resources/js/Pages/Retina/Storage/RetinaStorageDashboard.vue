@@ -26,10 +26,12 @@ import PageHeading from "@/Components/Headings/PageHeading.vue"
 import DataTable from "primevue/datatable"
 import Column from "primevue/column"
 import Row from "primevue/row"
+import { routeType } from '@/types/route'
 
 import '@/Composables/Icon/PalletStateEnum'
 import Tag from '@/Components/Tag.vue'
 import { inject } from 'vue'
+import ButtonWithLink from '@/Components/Elements/Buttons/ButtonWithLink.vue'
 
 library.add(faCheckCircle, faInfoCircle, faExclamationTriangle, faSeedling, faShare, faSpellCheck, faCheck, faTimes, faSignOutAlt, faTruck, faCheckDouble, faCross)
 
@@ -43,6 +45,12 @@ const props = defineProps<{
         [key: string]: FulfilmentCustomerStats
     }
     discounts: {}
+    route_action: {
+        route: routeType
+        label: string
+        style: string
+        type: string
+    }[]
     currency: {
         code: string
         symbol: string
@@ -262,6 +270,21 @@ function routePallet(storageData: any, key: string) {
                                 </div>
                             </dd>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="route_action" class="mt-4 flex">
+                <div class="w-64 border-gray-300 ">
+                    <div class="p-1" v-for="(btn, index) in route_action" :key="index">
+                    <ButtonWithLink
+                        :label="btn.label"
+                        :bindToLink="{ preserveScroll: true, preserveState: true }"
+                        :type="btn.style"  
+                        full
+                        :routeTarget="btn.route"
+                   
+                    />
                     </div>
                 </div>
             </div>
