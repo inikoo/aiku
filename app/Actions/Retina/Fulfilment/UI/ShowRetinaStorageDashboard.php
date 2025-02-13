@@ -66,7 +66,7 @@ class ShowRetinaStorageDashboard extends RetinaAction
                     'type'    => 'button',
                     'style'   => 'create',
                     'tooltip' => $fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? __('Create new return (whole pallet)') : __('Create new return'),
-                    'label'   => $fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? __('Return (whole pallet)') : __('Return'),
+                    'label'   => $fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? __('New Return (whole pallet)') : __('New Return'),
                     'route'   => [
                         'method'     => 'post',
                         'name'       => 'retina.models.pallet-return.store',
@@ -77,7 +77,7 @@ class ShowRetinaStorageDashboard extends RetinaAction
                     'type'    => 'button',
                     'style'   => 'create',
                     'tooltip' => __('Create new return (Selected SKUs)'),
-                    'label'   => __('Return (Selected SKUs)'),
+                    'label'   => __('New Return (Selected SKUs)'),
                     'route'   => [
                         'method'     => 'post',
                         'name'       => 'retina.models.pallet-return-stored-items.store',
