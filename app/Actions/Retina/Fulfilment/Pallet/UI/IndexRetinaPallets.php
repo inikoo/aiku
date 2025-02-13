@@ -28,7 +28,7 @@ class IndexRetinaPallets extends RetinaAction
 {
     use WithRetinaPalletSubNavigation;
 
-    private string $bucket;
+    private string $bucket='';
 
     protected function getElementGroups(FulfilmentCustomer $fulfilmentCustomer): array
     {
@@ -184,8 +184,8 @@ class IndexRetinaPallets extends RetinaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
+        $this->bucket = 'all';
         $this->initialisation($request);
-
         return $this->handle($this->customer->fulfilmentCustomer, 'pallets');
     }
 
