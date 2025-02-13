@@ -266,7 +266,7 @@ class InertiaTable
             $key,
             new RadioFilterGroup(
                 key: $key,
-                elements: $elements
+                options: $elements
             )
         );
 
