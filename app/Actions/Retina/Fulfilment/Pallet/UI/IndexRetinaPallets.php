@@ -141,7 +141,7 @@ class IndexRetinaPallets extends RetinaAction
 
         $actions = [];
 
-        if (!app()->environment('production')) {
+        if (!app()->environment('production') && $fulfilmentCustomer->pallets_storage) {
             $actions = [
                 [
                     'type'  => 'button',
