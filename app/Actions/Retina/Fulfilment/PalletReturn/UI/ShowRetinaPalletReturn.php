@@ -430,10 +430,6 @@ class ShowRetinaPalletReturn extends RetinaAction
                     fn () => PalletReturnItemsResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))
                     : Inertia::lazy(fn () => PalletReturnItemsResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))),
 
-                PalletReturnTabsEnum::STORED_ITEMS->value => $this->tab == PalletReturnTabsEnum::STORED_ITEMS->value ?
-                    fn () => PalletReturnStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn))
-                    : Inertia::lazy(fn () => PalletReturnStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn))),
-
                 PalletReturnTabsEnum::SERVICES->value => $this->tab == PalletReturnTabsEnum::SERVICES->value ?
                     fn () => FulfilmentTransactionsResource::collection(IndexServiceInPalletReturn::run($palletReturn, PalletReturnTabsEnum::SERVICES->value))
                     : Inertia::lazy(fn () => FulfilmentTransactionsResource::collection(IndexServiceInPalletReturn::run($palletReturn, PalletReturnTabsEnum::SERVICES->value))),
@@ -447,12 +443,6 @@ class ShowRetinaPalletReturn extends RetinaAction
                 $palletReturn,
                 request: $request,
                 prefix: PalletReturnTabsEnum::PALLETS->value
-            )
-        )->table(
-            IndexStoredItemsInReturn::make()->tableStructure(
-                $palletReturn,
-                request: $request,
-                prefix: PalletReturnTabsEnum::STORED_ITEMS->value
             )
         )->table(
             IndexServiceInPalletReturn::make()->tableStructure(
