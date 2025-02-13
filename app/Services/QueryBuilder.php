@@ -44,14 +44,15 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
     public function whereRadioFilter(
         string $key,
         array $allowedElements,
+        string $defaultValue,
         callable $engine,
         ?string $prefix = null
     ): self {
         $elementsData = null;
 
         $argumentName = ($prefix ? $prefix.'_' : '').'radioFilter';
-        if (request()->has($argumentName)) {
-            $elements               = request()->input("$argumentName");
+        if (request()->has($argumentName) or $defaultValue) {
+            $elements               = request()->input("$argumentName") ?? $defaultValue;
 
             $validatedElements      = array_intersect($allowedElements, [$elements]);
             $countValidatedElements = count($validatedElements);

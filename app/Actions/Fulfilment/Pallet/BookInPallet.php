@@ -74,7 +74,7 @@ class BookInPallet extends OrgAction
         return $this->handle($pallet, $this->validatedData);
     }
 
-    public function usingLocationSlug(Pallet $pallet, Location $location,ActionRequest $request): Pallet
+    public function usingLocationSlug(Pallet $pallet, Location $location, ActionRequest $request): Pallet
     {
         $this->initialisationFromWarehouse($pallet->warehouse, $request);
 

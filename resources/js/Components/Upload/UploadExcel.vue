@@ -18,7 +18,7 @@ const props = defineProps<{
     upload_spreadsheet?: Upload
     scope?: string
     additionalDataToSend?: string[]
-    preview_template: {
+    preview_template?: {
         header: string[]
         rows: {}[]
     }

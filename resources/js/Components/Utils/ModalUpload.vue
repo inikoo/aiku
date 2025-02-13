@@ -33,7 +33,7 @@ const props = defineProps<{
     }
     additionalDataToSend?: string[]
     upload_spreadsheet?: Upload
-    preview_template: {
+    preview_template?: {
         header: string[]
         rows: {}[]
     }

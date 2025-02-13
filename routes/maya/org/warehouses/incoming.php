@@ -7,7 +7,6 @@
  */
 
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInDelivery;
-use App\Actions\Fulfilment\PalletDelivery\Json\ShowPalletDeliveryStatus;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
