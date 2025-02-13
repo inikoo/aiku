@@ -142,9 +142,10 @@ class IndexRetinaPalletDeliveries extends RetinaAction
 
         $navigation = PalletDeliveriesTabsEnum::navigation();
 
+        $fulfilmentCustomer = auth()->user()->customer->fulfilmentCustomer;
 
         $actions = [
-                [
+            $fulfilmentCustomer->pallets_storage ? [
                     'type'  => 'button',
                     'style' => 'create',
                     'label' => __('New Delivery'),
@@ -154,7 +155,7 @@ class IndexRetinaPalletDeliveries extends RetinaAction
                         'name'       => 'retina.models.pallet-delivery.store',
                         'parameters' => []
                     ]
-                ]
+                ] : false
             ];
 
         return Inertia::render(
@@ -168,7 +169,7 @@ class IndexRetinaPalletDeliveries extends RetinaAction
                         'icon'  => ['fal', 'fa-truck'],
                         'title' => __('delivery')
                     ],
-                    'actions' => $actions
+                    'actions' => array_filter($actions)
                 ],
                 'data'        => PalletDeliveriesResource::collection($deliveries),
                 'tabs' => [

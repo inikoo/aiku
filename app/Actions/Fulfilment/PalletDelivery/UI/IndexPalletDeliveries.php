@@ -165,11 +165,11 @@ class IndexPalletDeliveries extends OrgAction
         if ($this->restriction) {
             switch ($this->restriction) {
                 case 'booked_in':
-                    $queryBuilder->where('state', PalletDeliveryStateEnum::BOOKED_IN);
+                    $queryBuilder->where('pallet_deliveries.state', PalletDeliveryStateEnum::BOOKED_IN);
                     break;
                 case 'handling':
                     $queryBuilder->whereIn(
-                        'state',
+                        'pallet_deliveries.state',
                         [
                             PalletDeliveryStateEnum::CONFIRMED,
                             PalletDeliveryStateEnum::RECEIVED,
@@ -347,54 +347,54 @@ class IndexPalletDeliveries extends OrgAction
         if ($this->parent instanceof  FulfilmentCustomer) {
             $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
         }
-         return Inertia::render(
+        return Inertia::render(
             'Org/Fulfilment/PalletDeliveries',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                    $request->route()->originalParameters()
-                ),
-                'title'       => __('pallet deliveries'),
-                'pageHead'    => [
-                    'title'         => $title,
-                    'model'         => $model,
-                    'afterTitle'    => $afterTitle,
-                    'iconRight'     => $iconRight,
-                    'icon'          => $icon,
-                    'subNavigation' => $subNavigation,
-                    'actions'       => [
-                        match (class_basename($this->parent)) {
-                            'FulfilmentCustomer' =>
-                                [
-                                    'type'          => 'button',
-                                    'style'         => 'create',
-                                    'tooltip'       => __('Create new delivery'),
-                                    'label'         => __('Delivery'),
-                                    'fullLoading'   => true,
-                                    'route'         => [
-                                        'method'     => 'post',
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
-                                        'parameters' => [$this->parent->id]
-                                        ]
-                                ],
-                            default => null
-                        }
-                    ]
-                ],
-                'data'        => PalletDeliveriesResource::collection($deliveries),
+               'breadcrumbs' => $this->getBreadcrumbs(
+                   $request->route()->getName(),
+                   $request->route()->originalParameters()
+               ),
+               'title'       => __('pallet deliveries'),
+               'pageHead'    => [
+                   'title'         => $title,
+                   'model'         => $model,
+                   'afterTitle'    => $afterTitle,
+                   'iconRight'     => $iconRight,
+                   'icon'          => $icon,
+                   'subNavigation' => $subNavigation,
+                   'actions'       => [
+                       match (class_basename($this->parent)) {
+                           'FulfilmentCustomer' =>
+                               [
+                                   'type'          => 'button',
+                                   'style'         => 'create',
+                                   'tooltip'       => __('Create new delivery'),
+                                   'label'         => __('Delivery'),
+                                   'fullLoading'   => true,
+                                   'route'         => [
+                                       'method'     => 'post',
+                                       'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
+                                       'parameters' => [$this->parent->id]
+                                       ]
+                               ],
+                           default => null
+                       }
+                   ]
+               ],
+               'data'        => PalletDeliveriesResource::collection($deliveries),
 
-                'tabs' => [
+               'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => $navigation
                 ],
 
-                PalletDeliveriesTabsEnum::DELIVERIES->value => $this->tab == PalletDeliveriesTabsEnum::DELIVERIES->value ?
-                    fn () => PalletDeliveriesResource::collection($deliveries)
-                    : Inertia::lazy(fn () => PalletDeliveriesResource::collection($deliveries)),
+               PalletDeliveriesTabsEnum::DELIVERIES->value => $this->tab == PalletDeliveriesTabsEnum::DELIVERIES->value ?
+                   fn () => PalletDeliveriesResource::collection($deliveries)
+                   : Inertia::lazy(fn () => PalletDeliveriesResource::collection($deliveries)),
 
-                PalletDeliveriesTabsEnum::UPLOADS->value => $this->tab == PalletDeliveriesTabsEnum::UPLOADS->value ?
-                    fn () => PalletUploadsResource::collection(IndexPalletUploads::run($this->parent, PalletDeliveriesTabsEnum::UPLOADS->value))
-                    : Inertia::lazy(fn () => PalletUploadsResource::collection(IndexPalletUploads::run($this->parent, PalletDeliveriesTabsEnum::UPLOADS->value))),
+               PalletDeliveriesTabsEnum::UPLOADS->value => $this->tab == PalletDeliveriesTabsEnum::UPLOADS->value ?
+                   fn () => PalletUploadsResource::collection(IndexPalletUploads::run($this->parent, PalletDeliveriesTabsEnum::UPLOADS->value))
+                   : Inertia::lazy(fn () => PalletUploadsResource::collection(IndexPalletUploads::run($this->parent, PalletDeliveriesTabsEnum::UPLOADS->value))),
             ]
         )->table($this->tableStructure(parent: $this->parent, prefix:PalletDeliveriesTabsEnum::DELIVERIES->value))
         ->table(IndexPalletUploads::make()->tableStructure(prefix:PalletDeliveriesTabsEnum::UPLOADS->value));

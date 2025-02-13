@@ -37,7 +37,7 @@ use App\Actions\UI\Notification\MarkNotificationAsRead;
 use App\Actions\UI\Profile\UpdateProfile;
 
 Route::patch('pallet/{pallet:id}/location/{location:slug}/move', [UpdatePalletLocation::class,'usingLocationSlug'])->name('move_pallet')->withoutScopedBindings();
-Route::patch('pallet/{pallet:id}/location/{location:slug}/book-in', [BookInPallet::class,'usingLocationSlug'])->name('move_pallet')->withoutScopedBindings();
+Route::patch('pallet/{pallet:id}/location/{location:slug}/book-in', [BookInPallet::class,'usingLocationSlug'])->name('bookin_pallet')->withoutScopedBindings();
 
 
 
