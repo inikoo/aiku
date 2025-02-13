@@ -174,17 +174,17 @@ class ShowFulfilmentCustomer extends OrgAction
 
 
                 FulfilmentCustomerTabsEnum::SHOWCASE->value => $this->tab == FulfilmentCustomerTabsEnum::SHOWCASE->value ?
-                    fn() => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)
-                    : Inertia::lazy(fn() => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)),
+                    fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)
+                    : Inertia::lazy(fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)),
 
                 FulfilmentCustomerTabsEnum::AGREED_PRICES->value => $this->tab == FulfilmentCustomerTabsEnum::AGREED_PRICES->value ?
-                    fn() => RentalAgreementClausesResource::collection(IndexRentalAgreementClauses::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::AGREED_PRICES->value))
-                    : Inertia::lazy(fn() => RentalAgreementClausesResource::collection(IndexRentalAgreementClauses::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::AGREED_PRICES->value))),
+                    fn () => RentalAgreementClausesResource::collection(IndexRentalAgreementClauses::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::AGREED_PRICES->value))
+                    : Inertia::lazy(fn () => RentalAgreementClausesResource::collection(IndexRentalAgreementClauses::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::AGREED_PRICES->value))),
 
 
                 FulfilmentCustomerTabsEnum::HISTORY->value => $this->tab == FulfilmentCustomerTabsEnum::HISTORY->value ?
-                    fn() => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))
-                    : Inertia::lazy(fn() => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))),
+                    fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))),
 
                 //                FulfilmentCustomerTabsEnum::NOTE->value => $this->tab == FulfilmentCustomerTabsEnum::NOTE->value ?
                 //                    fn () => FulfilmentCustomerNoteResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))

@@ -36,8 +36,6 @@ use App\Actions\Fulfilment\StoredItem\UpdateQuantityStoredItemPalletApp;
 use App\Actions\UI\Notification\MarkNotificationAsRead;
 use App\Actions\UI\Profile\UpdateProfile;
 
-
-
 Route::patch('pallet/{pallet:id}/location/{location:slug}/move', [UpdatePalletLocation::class,'usingLocationSlug'])->name('move_pallet')->withoutScopedBindings();
 
 
