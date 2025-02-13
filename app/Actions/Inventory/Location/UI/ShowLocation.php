@@ -42,12 +42,8 @@ class ShowLocation extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->maya) {
-            return true; //IDK for the auth, might come back here later
-        }
 
         $this->canEdit   = $request->user()->authTo("locations.{$this->warehouse->id}.edit");
-
         return $request->user()->authTo("locations.{$this->warehouse->id}.view");
     }
 
@@ -76,14 +72,14 @@ class ShowLocation extends OrgAction
         return $this->handle($location);
     }
 
-    public function maya(Organisation $organisation, Location $location, ActionRequest $request): Location
-    {
-        $this->maya   = true;
-        $this->parent = $organisation;
-        $this->initialisation($this->parent, $request)->withTab(LocationTabsEnum::values());
-        return $this->handle($location);
-    }
-
+//    public function maya(Organisation $organisation, Location $location, ActionRequest $request): Location
+//    {
+//        $this->maya   = true;
+//        $this->parent = $organisation;
+//        $this->initialisation($this->parent, $request)->withTab(LocationTabsEnum::values());
+//        return $this->handle($location);
+//    }
+//
 
 
 
