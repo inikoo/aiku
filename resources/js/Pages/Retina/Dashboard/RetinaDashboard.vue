@@ -225,11 +225,11 @@ const isLoadingButtonRentalAgreement = ref(false)
                         </Tag> -->
                     </div>
 
-                   <!--  <Link :href="route(data?.recurring_bill?.route?.name, data?.recurring_bill?.route?.parameters)"
+                    <Link :href="route(data?.recurring_bill?.route?.name, data?.recurring_bill?.route?.parameters)"
                         @start="() => isLoading = 'loadingVisitRecurring'" @error="() => isLoading = false">
                     <Button :type="'tertiary'" :loading="isLoading === 'loadingVisitRecurring'" size="s"
                         label="See details" iconRight="fal fa-external-link" />
-                    </Link> -->
+                    </Link>
                 </div>
             </div>
 
