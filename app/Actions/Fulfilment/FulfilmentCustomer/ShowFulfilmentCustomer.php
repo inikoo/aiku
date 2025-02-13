@@ -48,7 +48,6 @@ class ShowFulfilmentCustomer extends OrgAction
     }
 
 
-
     public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): FulfilmentCustomer
     {
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(FulfilmentCustomerTabsEnum::values());
@@ -58,9 +57,6 @@ class ShowFulfilmentCustomer extends OrgAction
 
     public function htmlResponse(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Response
     {
-
-
-
         $navigation = FulfilmentCustomerTabsEnum::navigation();
 
         if (!$fulfilmentCustomer->rentalAgreement || $fulfilmentCustomer->rentalAgreement?->clauses()->count() < 1) {
@@ -87,7 +83,7 @@ class ShowFulfilmentCustomer extends OrgAction
                 ];
             }
 
-            if ($fulfilmentCustomer->rentalAgreement()->exists()) {
+            if ($fulfilmentCustomer->rentalAgreement()->exists() && $fulfilmentCustomer->pallets_storage) {
                 $additionalActions[] = [
                     'type'        => 'button',
                     'style'       => 'create',
@@ -138,7 +134,6 @@ class ShowFulfilmentCustomer extends OrgAction
                     'button' => $additionalActions
                 ],
             ];
-
         }
 
         return Inertia::render(
@@ -161,7 +156,7 @@ class ShowFulfilmentCustomer extends OrgAction
                     'subNavigation' => $this->getFulfilmentCustomerSubNavigation($fulfilmentCustomer, $request),
                     'title'         => $fulfilmentCustomer->customer->name,
                     'afterTitle'    => [
-                        'label'     => '('.$fulfilmentCustomer->customer->reference.')',
+                        'label' => '('.$fulfilmentCustomer->customer->reference.')',
                     ],
                     'edit'          => $this->canEdit ? [
                         'route' => [
@@ -179,21 +174,21 @@ class ShowFulfilmentCustomer extends OrgAction
 
 
                 FulfilmentCustomerTabsEnum::SHOWCASE->value => $this->tab == FulfilmentCustomerTabsEnum::SHOWCASE->value ?
-                    fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)
-                    : Inertia::lazy(fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)),
+                    fn() => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)
+                    : Inertia::lazy(fn() => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)),
 
                 FulfilmentCustomerTabsEnum::AGREED_PRICES->value => $this->tab == FulfilmentCustomerTabsEnum::AGREED_PRICES->value ?
-                    fn () => RentalAgreementClausesResource::collection(IndexRentalAgreementClauses::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::AGREED_PRICES->value))
-                    : Inertia::lazy(fn () => RentalAgreementClausesResource::collection(IndexRentalAgreementClauses::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::AGREED_PRICES->value))),
+                    fn() => RentalAgreementClausesResource::collection(IndexRentalAgreementClauses::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::AGREED_PRICES->value))
+                    : Inertia::lazy(fn() => RentalAgreementClausesResource::collection(IndexRentalAgreementClauses::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::AGREED_PRICES->value))),
 
 
                 FulfilmentCustomerTabsEnum::HISTORY->value => $this->tab == FulfilmentCustomerTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))),
+                    fn() => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))
+                    : Inertia::lazy(fn() => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))),
 
-//                FulfilmentCustomerTabsEnum::NOTE->value => $this->tab == FulfilmentCustomerTabsEnum::NOTE->value ?
-//                    fn () => FulfilmentCustomerNoteResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))
-//                    : Inertia::lazy(fn () => FulfilmentCustomerNoteResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))),
+                //                FulfilmentCustomerTabsEnum::NOTE->value => $this->tab == FulfilmentCustomerTabsEnum::NOTE->value ?
+                //                    fn () => FulfilmentCustomerNoteResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))
+                //                    : Inertia::lazy(fn () => FulfilmentCustomerNoteResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))),
 
             ]
         )

@@ -28,7 +28,6 @@ Route::scopeBindings()->prefix('areas')->name('warehouse-areas.')->group(functio
 
 Route::scopeBindings()->prefix('locations')->name('locations.')->group(function () {
     Route::get('', [IndexLocations::class, 'inWarehouse'])->name('index');
-    Route::get('/code/{location:code}', [ShowLocation::class, 'inWarehouse'])->name('code.show')->withoutScopedBindings();
     Route::scopeBindings()->prefix('{location:id}')->group(function () {
         Route::get('', [ShowLocation::class, 'inWarehouse'])->name('show');
         Route::get('pallets/{pallet:id}', [ShowPallet::class, 'inLocation'])->name('show.pallets.show');

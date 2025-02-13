@@ -28,14 +28,17 @@ use App\Actions\Retina\Fulfilment\PalletDelivery\StoreRetinaPalletDelivery;
 use App\Actions\Retina\Fulfilment\PalletDelivery\SubmitRetinaPalletDelivery;
 use App\Actions\Retina\Fulfilment\PalletDelivery\UpdateRetinaPalletDelivery;
 use App\Actions\Retina\Fulfilment\PalletDelivery\UpdateRetinaPalletDeliveryTimeline;
+use App\Actions\Retina\Fulfilment\PalletReturn\AddRetinaAddressToPalletReturn;
 use App\Actions\Retina\Fulfilment\PalletReturn\AttachRetinaPalletsToReturn;
 use App\Actions\Retina\Fulfilment\PalletReturn\CancelRetinaPalletReturn;
+use App\Actions\Retina\Fulfilment\PalletReturn\DeleteRetinaPalletReturnAddress;
 use App\Actions\Retina\Fulfilment\PalletReturn\DetachRetinaPalletFromReturn;
 use App\Actions\Retina\Fulfilment\PalletReturn\ImportRetinaPalletReturnItem;
 use App\Actions\Retina\Fulfilment\PalletReturn\StoreRetinaPalletReturn;
 use App\Actions\Retina\Fulfilment\PalletReturn\StoreRetinaStoredItemsToReturn;
 use App\Actions\Retina\Fulfilment\PalletReturn\SubmitRetinaPalletReturn;
 use App\Actions\Retina\Fulfilment\PalletReturn\UpdateRetinaPalletReturn;
+use App\Actions\Retina\Fulfilment\PalletReturn\UpdateRetinaPalletReturnDeliveryAddress;
 use App\Actions\Retina\Fulfilment\StoredItem\StoreRetinaStoredItem;
 use App\Actions\Retina\Fulfilment\StoredItem\SyncRetinaStoredItemToPallet;
 use App\Actions\Retina\SysAdmin\AddRetinaDeliveryAddressToFulfilmentCustomer;
@@ -57,6 +60,11 @@ Route::name('fulfilment-transaction.')->prefix('fulfilment_transaction/{fulfilme
 Route::post('pallet-return', StoreRetinaPalletReturn::class)->name('pallet-return.store');
 Route::post('pallet-return/stored-items', [StoreRetinaPalletReturn::class, 'fromRetinaWithStoredItems'])->name('pallet-return-stored-items.store');
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
+
+    Route::post('address', AddRetinaAddressToPalletReturn::class)->name('address.store');
+    Route::patch('address/update', UpdateRetinaPalletReturnDeliveryAddress::class)->name('address.update');
+    Route::delete('address/delete', DeleteRetinaPalletReturnAddress::class)->name('address.delete');
+
     Route::post('stored-item-upload', ImportRetinaPalletReturnItem::class)->name('stored-item.upload');
     Route::post('stored-item', StoreRetinaStoredItemsToReturn::class)->name('stored_item.store');
     Route::post('pallet', AttachRetinaPalletsToReturn::class)->name('pallet.store');

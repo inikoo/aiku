@@ -506,9 +506,6 @@ class ShowPalletReturn extends OrgAction
                                         'countriesAddressData' => GetAddressData::run()
                                     ],
                                 ],
-                                'pinned_address_id'              => $palletReturn->fulfilmentCustomer->customer->delivery_address_id,
-                                'home_address_id'                => $palletReturn->fulfilmentCustomer->customer->address_id,
-                                'current_selected_address_id'    => $palletReturn->delivery_address_id,
                                 'routes_address' => [
                                     'store'  => [
                                         'method'     => 'post',
@@ -710,9 +707,9 @@ class ShowPalletReturn extends OrgAction
     }
 
 
-    public function jsonResponse(PalletReturn $palletReturn): PalletReturnsResource
+    public function jsonResponse(PalletReturn $palletReturn): PalletReturnResource
     {
-        return new PalletReturnsResource($palletReturn);
+        return new PalletReturnResource($palletReturn);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = ''): array
