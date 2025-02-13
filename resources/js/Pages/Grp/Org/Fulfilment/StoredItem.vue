@@ -18,10 +18,10 @@ import { routeType } from '@/types/route'
 import StoredItemShowcase from '@/Components/Showcases/Grp/StoredItemShowcase.vue'
 
 // import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faFragile, faNarwhal, faExchange } from '@fal'
+import { faFragile, faNarwhal, faExchange, faYinYang } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import StockItemsMovements from '@/Components/Showcases/Grp/StockItemsMovements.vue'
-library.add(faFragile, faNarwhal, faExchange)
+library.add(faFragile, faNarwhal, faExchange, faYinYang)
 
 
 const props = defineProps<{

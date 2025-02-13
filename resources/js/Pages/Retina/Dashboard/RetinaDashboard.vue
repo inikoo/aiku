@@ -31,6 +31,7 @@ import { layoutStructure } from '@/Composables/useLayoutStructure'
 import CustomerDataForm from '@/Components/CustomerDataForm.vue'
 import { RuleType } from 'v-calendar/dist/types/src/utils/date/rules.js'
 import { faCheck, faTimes } from '@fas'
+import ButtonWithLink from '@/Components/Elements/Buttons/ButtonWithLink.vue'
 library.add(faWallet, faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard, faLongArrowRight, faCheck)
 
 const props = defineProps<{

@@ -492,6 +492,7 @@ const isModalUploadOpen = ref(false)
         :state="timeline.state"
         :tab="currentTab"
         :route_checkmark="currentTab == 'pallets' ? routeStorePallet : route_check_stored_items"
+        :palletReturn="data?.data"
     />
 
     <UploadExcel
