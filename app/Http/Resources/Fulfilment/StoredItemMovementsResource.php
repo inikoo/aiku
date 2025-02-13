@@ -43,6 +43,7 @@ class StoredItemMovementsResource extends JsonResource
         $desc_title = '';
         $desc_after_title = '';
         $route = null;
+        $icon = null;
 
         if ($this->stored_item_audit_reference) {
             $storedItem = StoredItemAudit::where('reference', $this->stored_item_audit_reference)->first();
@@ -58,6 +59,7 @@ class StoredItemMovementsResource extends JsonResource
                             'storedItemAudit' => $storedItem->slug
                     ]
                 ];
+                $icon = 'fa-narwhal';
             }
         } elseif ($this->pallet_delivery_reference) {
             $palletDelivery = PalletDelivery::where('reference', $this->pallet_delivery_reference)->first();
@@ -73,6 +75,7 @@ class StoredItemMovementsResource extends JsonResource
                             'palletDelivery' => $palletDelivery->slug
                     ]
                 ];
+                $icon = 'fa-truck-couch';
             }
         } elseif ($this->pallet_returns_reference) {
             $palletReturn = PalletReturn::where('reference', $this->pallet_returns_reference)->first();
@@ -100,6 +103,7 @@ class StoredItemMovementsResource extends JsonResource
                         ]
                     ];
                 }
+                $icon = 'fa-sign-out-alt';
             }
         } else {
             $desc_title = '-';
@@ -122,6 +126,7 @@ class StoredItemMovementsResource extends JsonResource
                 'title' => $desc_title,
                 'route' => $route,
                 'after_title' => $desc_after_title,
+                'icon' => $icon
             ]
         ];
     }
