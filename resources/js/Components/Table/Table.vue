@@ -836,9 +836,10 @@ const isLoading = ref<string | boolean>(false)
                         </div>
 
                         <!-- Filter: Radio element -->
-                        <div v-if="true" class="w-fit">
+                        <div v-if="queryBuilderProps.radioFilter" class="w-fit">
                             <TableRadioFilter
-                                :radioFilter="queryBuilderData.radioFilter"
+                                :value="queryBuilderData.radioFilter"
+                                :radioFilter="queryBuilderProps.radioFilter"
                                 @onSelectRadio="(value: string) => setLodash(queryBuilderData, ['radioFilter'], value)"
                                 :tableName="props.name" />
                         </div>
