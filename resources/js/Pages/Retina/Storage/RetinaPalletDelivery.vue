@@ -358,7 +358,10 @@ const onClickDisabledSubmit = () => {
                 <ModalConfirmationDelete
                     :routeDelete="action.route"
                     isFullLoading
-                    isWithMessage
+                    :title="action.title"
+                    :isWithMessage="action.ask_why"
+                    :whyLabel="action.why_label"
+                    :description="action.description"
                 >
                     <template #default="{ isOpenModal, changeModel }">
 
