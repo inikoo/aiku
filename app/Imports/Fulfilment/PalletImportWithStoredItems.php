@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 13-02-2025-10h-00m
@@ -17,7 +18,6 @@ use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Helpers\Upload;
 use App\Rules\IUnique;
 use Exception;
-use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -41,74 +41,66 @@ class PalletImportWithStoredItems implements ToCollection, WithHeadingRow, Skips
     {
         $currentCustomerRef = $row['customer_reference'] ?? null;
         $prevPallet = $this->scope->pallets()->where('customer_reference', $currentCustomerRef)->first();
-
         $existingStoredItem = $this->scope->fulfilmentCustomer
             ->storedItems()
             ->where('reference', $row['stored_item_reference'])
             ->first();
-    
+
         if ($prevPallet) {
-            if ($existingStoredItem) {
-                $existingStoredItemInPallet = $prevPallet->storedItems()->where('stored_item_id', $existingStoredItem->id)->first();
-                if (!$existingStoredItemInPallet) {
-                    AttachStoredItemToPallet::run($prevPallet, $existingStoredItem, $row['quantity']);
-                }
-            } else {
+            $existingStoredItemInPallet = $existingStoredItem
+                ? $prevPallet->storedItems()->where('stored_item_id', $existingStoredItem->id)->first()
+                : null;
+
+            if ($existingStoredItem && !$existingStoredItemInPallet) {
+                AttachStoredItemToPallet::run($prevPallet, $existingStoredItem, $row['quantity']);
+            } elseif (!$existingStoredItem) {
                 $storedItemData = [
                     'reference' => $row['stored_item_reference'],
                     'name' => $row['stored_item_name'],
                 ];
-    
-                $storedItem = StoreStoredItem::run($prevPallet, $storedItemData);
-                AttachStoredItemToPallet::run($prevPallet, $storedItem, $row['quantity']);     
 
+                $storedItem = StoreStoredItem::run($prevPallet, $storedItemData);
+                AttachStoredItemToPallet::run($prevPallet, $storedItem, $row['quantity']);
             }
         } else {
             $modelData = [
                 'customer_reference' => $row['customer_reference'],
                 'notes' => $row['notes'],
-                'type' => $row['type']
+                'type' => $row['type'] ?? PalletTypeEnum::PALLET->value,
             ];
-    
-            if (!Arr::get($modelData, 'type')) {
-                data_set($modelData, 'type', PalletTypeEnum::PALLET->value);
-            } else {
-                $type = strtolower(Arr::get($modelData, 'type'));
-                $type = match ($type) {
-                    'oversize' => PalletTypeEnum::OVERSIZE->value,
-                    'box', 'carton' => PalletTypeEnum::BOX->value,
-                    default => PalletTypeEnum::PALLET->value,
-                };
-                data_set($modelData, 'type', $type);
-            }
-    
+
+            $modelData['type'] = match (strtolower($modelData['type'])) {
+                'oversize' => PalletTypeEnum::OVERSIZE->value,
+                'box', 'carton' => PalletTypeEnum::BOX->value,
+                default => PalletTypeEnum::PALLET->value,
+            };
+
             data_set($modelData, 'data.bulk_import', [
                 'id' => $this->upload->id,
                 'type' => 'Upload',
             ]);
-    
+
             try {
                 $pallet = StorePalletFromDelivery::run($this->scope, $modelData);
-    
-                if ($existingStoredItem) {
-                    $existingStoredItemInPallet = $pallet->storedItems()->where('stored_item_id', $existingStoredItem->id)->first();
-                    if (!$existingStoredItemInPallet) {
-                        AttachStoredItemToPallet::run($pallet, $existingStoredItem, $row['quantity']);
-                    }
-                } else {
+
+                $existingStoredItemInPallet = $existingStoredItem
+                    ? $pallet->storedItems()->where('stored_item_id', $existingStoredItem->id)->first()
+                    : null;
+
+                if ($existingStoredItem && !$existingStoredItemInPallet) {
+                    AttachStoredItemToPallet::run($pallet, $existingStoredItem, $row['quantity']);
+                } elseif (!$existingStoredItem) {
                     $storedItemData = [
                         'reference' => $row['stored_item_reference'],
                         'name' => $row['stored_item_name'],
                     ];
-    
+
                     $storedItem = StoreStoredItem::run($pallet, $storedItemData);
                     AttachStoredItemToPallet::run($pallet, $storedItem, $row['quantity']);
                 }
-    
+
                 $this->setRecordAsCompleted($uploadRecord);
-            } catch (Exception $e) {
-                $this->setRecordAsFailed($uploadRecord, [$e->getMessage()]);
-            } catch (\Throwable $e) {
+            } catch (Exception | \Throwable $e) {
                 $this->setRecordAsFailed($uploadRecord, [$e->getMessage()]);
             }
         }
