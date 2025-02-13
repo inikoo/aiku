@@ -69,7 +69,7 @@ trait WithRetinaPalletSubNavigation
                     'icon'    => 'fal fa-align-justify',
                     'tooltip' => __("All"),
                 ],
-                "label"    => __('all'),
+                "label"    => __('All'),
                 "route"     => [
                     "name"       => "retina.fulfilment.storage.pallets.index",
                 ],
