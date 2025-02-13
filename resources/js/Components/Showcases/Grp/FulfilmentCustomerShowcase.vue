@@ -154,7 +154,6 @@ const sendUpdateInformation = () => {
 <template>
     <!-- Section: Stats box -->
     <div class="px-4 py-5 md:px-6 lg:px-8 grid grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-3">
-    <pre>{{ props.data.fulfilment_customer.radioTabs }}</pre>
         <div class="space-y-3">
             <!-- Section: Radio -->
             <div class="space-y-3 relative w-full max-w-[500px]">
