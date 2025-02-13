@@ -18,7 +18,7 @@ class InertiaTable
     private Collection $columns;
     private Collection $searchInputs;
     private Collection $elementGroups;
-    private Collection $radioGroups;
+    private Collection $radioFilter;
     private array $periodFilters;
     private Collection $filters;
     private string $defaultSort = '';
@@ -35,7 +35,6 @@ class InertiaTable
 
     private array $labelRecord = [];
     private $footerRows;
-    private $radioFilter;
 
     public function __construct(Request $request)
     {
@@ -44,14 +43,13 @@ class InertiaTable
         $this->columns         = new Collection();
         $this->searchInputs    = new Collection();
         $this->elementGroups   = new Collection();
-        $this->radioGroups   = new Collection();
+        $this->radioFilter     = new Collection();
         $this->filters         = new Collection();
         $this->modelOperations = new Collection();
         $this->exportLinks     = new Collection();
         $this->emptyState      = new Collection();
         $this->labelRecord     = [];
         $this->footerRows      = null;
-        $this->radioFilter      = null;
 
         if (static::$defaultGlobalSearch !== false) {
             $this->withGlobalSearch(static::$defaultGlobalSearch);
@@ -152,7 +150,7 @@ class InertiaTable
             'pageName'                        => $this->pageName,
             'perPageOptions'                  => $this->perPageOptions,
             'elementGroups'                   => $this->transformElementGroups(),
-            'radioGroups'                     => $this->transformRadioGroups(),
+            'radioFilter'                     => $this->transformRadioFilter(),
             'period_filter'                   => $this->transformPeriodFilters(),
             'modelOperations'                 => $this->modelOperations,
             'exportLinks'                     => $this->exportLinks,
@@ -161,7 +159,6 @@ class InertiaTable
             'title'                           => $this->title,
             'footerRows'                      => $this->footerRows,
             'betweenDates'                    => $this->betweenDates,
-            'radioFilter'                     => $this->radioFilter,
         ];
     }
 
@@ -227,16 +224,16 @@ class InertiaTable
         });
     }
 
-    protected function transformRadioGroups(): Collection
+    protected function transformRadioFilter(): Collection
     {
-        $radioGroups = $this->radioGroups;
+        $radioFilter = $this->radioFilter;
         $queryElements = $this->query('radioFilter', []);
 
         if (empty($queryElements)) {
-            return $radioGroups;
+            return $radioFilter;
         }
 
-        return $radioGroups->map(function (RadioFilterGroup $elementRadioGroup) use ($queryElements) {
+        return $radioFilter->map(function (RadioFilterGroup $elementRadioGroup) use ($queryElements) {
             $elementRadioGroup->value = $queryElements;
 
             return $elementRadioGroup;
@@ -262,7 +259,7 @@ class InertiaTable
 
     public function radioFilterGroup(string $key, array $elements): self
     {
-        $this->radioGroups->put(
+        $this->radioFilter->put(
             $key,
             new RadioFilterGroup(
                 key: $key,
