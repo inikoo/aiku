@@ -15,7 +15,7 @@ use Illuminate\Contracts\Support\Arrayable;
 {
     public function __construct(
         public string $key,
-        public array $elements
+        public array $options
     ) {
     }
 
@@ -23,7 +23,7 @@ use Illuminate\Contracts\Support\Arrayable;
     {
         return [
             'key'      => $this->key,
-            'elements' => $this->elements
+            'options' => $this->options
         ];
     }
 }
