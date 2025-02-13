@@ -89,6 +89,7 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
                 $query->whereRadioFilter(
                     key: $key,
                     allowedElements: collect($elementFilter['options'])->pluck('value')->toArray(),
+                    defaultValue: PalletsInPalletReturnWholePalletsOptionEnum::SELECTED->value,
                     engine: $elementFilter['engine'],
                     prefix: $prefix
                 );
@@ -161,7 +162,8 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
                 foreach ($this->getElementRadioFilters($palletReturn) as $key => $radioFilterGroup) {
                     $table->radioFilterGroup(
                         key: $key,
-                        elements: $radioFilterGroup['options']
+                        elements: $radioFilterGroup['options'],
+                        default: PalletsInPalletReturnWholePalletsOptionEnum::SELECTED->value
                     );
                 }
             }
