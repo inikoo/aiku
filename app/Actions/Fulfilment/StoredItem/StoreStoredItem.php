@@ -41,6 +41,10 @@ class StoreStoredItem extends OrgAction
         data_set($modelData, 'organisation_id', $parent->organisation_id);
         data_set($modelData, 'fulfilment_id', $parent->fulfilment_id);
 
+        if ($parent instanceof Pallet) {
+            data_set($modelData, 'fulfilment_customer_id', $parent->fulfilment_customer_id);
+        }
+
         /** @var StoredItem $storedItem */
         $storedItem = $parent->storedItems()->create($modelData);
 

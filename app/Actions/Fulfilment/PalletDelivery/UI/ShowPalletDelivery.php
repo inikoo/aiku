@@ -18,7 +18,6 @@ use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
-use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\UI\Fulfilment\PalletDeliveryTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
@@ -657,13 +656,19 @@ class ShowPalletDelivery extends OrgAction
                 'upload_spreadsheet' => [
                     'event'           => 'action-progress',
                     'channel'         => 'grp.personal.'.$this->organisation->id,
-                    'required_fields' => ['customer_reference', 'notes', 'stored_items', 'type'],
+                    'required_fields' => ['type', 'customer_reference', 'notes', 'stored_item_reference', 'quantity', 'stored_item_name'],
                     'template'        => [
                         'label' => 'Download template (.xlsx)',
                     ],
                     'route'           => [
                         'upload'   => [
-                            'name'       => 'grp.models.pallet-delivery.pallet.upload',
+                            'name'       => 'grp.models.pallet-delivery.pallet.upload.with-stored-items',
+                            'parameters' => [
+                                'palletDelivery' => $palletDelivery->id
+                            ]
+                        ],
+                        'uploadWithStoredItems'   => [
+                            'name'       => 'grp.models.pallet-delivery.pallet.upload.with-stored-items',
                             'parameters' => [
                                 'palletDelivery' => $palletDelivery->id
                             ]
@@ -920,26 +925,23 @@ class ShowPalletDelivery extends OrgAction
                     ],
                     'progressDescription'   => __('Adding Pallet Deliveries'),
                     'preview_template'    => [
-                        'header' => ['type', 'reference', 'name', 'quantity'],
+                        'header' => ['type', 'customer_reference', 'notes'],
                         'rows' => [
                             [
-                                'type' => PalletTypeEnum::PALLET,
-                                'reference' => '#P12345',
-                                'name' => 'Pallet 1',
-                                'quantity' => 10
+                                'type' => 'Pallet',
+                                'customer_reference' => 'PALLET1',
+                                'notes' => 'notes',
                             ],
                             [
-                                'type' => PalletTypeEnum::BOX,
-                                'reference' => '#P12346',
-                                'name' => 'Pallet 2',
-                                'quantity' => 20
+                                'type' => 'Box',
+                                'customer_reference' => 'BOX1',
+                                'notes' => 'notes',
                             ],
                             [
-                                'type' => PalletTypeEnum::OVERSIZE,
-                                'reference' => '#P12347',
-                                'name' => 'Pallet 3',
-                                'quantity' => 30
-                            ]
+                                'type' => 'Oversize',
+                                'customer_reference' => 'OVERSIZE1',
+                                'notes' => 'notes',
+                            ],
                         ]
                     ],
                     'upload_spreadsheet'    => [
@@ -981,35 +983,44 @@ class ShowPalletDelivery extends OrgAction
                     ],
                     'progressDescription'   => __('Adding stored item'),
                     'preview_template'    => [
-                        'header' => ['reference', 'name', 'quantity'],
+                        'header' => ['type', 'customer_reference', 'notes', 'stored_item_reference', 'quantity', 'stored_item_name'],
                         'rows' => [
                             [
-                                'reference' => '#C123',
-                                'name' => 'SKU 1',
-                                'quantity' => 10
+                                'type' => 'Pallet',
+                                'customer_reference' => 'PALLET1',
+                                'notes' => 'notes',
+                                'stored_item_reference' => 'SKU1',
+                                'quantity'  => 10,
+                                'stored_item_name' => 'SKU 1'
                             ],
                             [
-                                'reference' => '#C124',
-                                'name' => 'SKU 2',
-                                'quantity' => 20
+                                'type' => 'Box',
+                                'customer_reference' => 'BOX1',
+                                'notes' => 'notes',
+                                'stored_item_reference' => 'SKU2',
+                                'quantity'  => 10,
+                                'stored_item_name' => 'SKU 2'
                             ],
                             [
-                                'reference' => '#C125',
-                                'name' => 'SKU 3',
-                                'quantity' => 30
-                            ]
+                                'type' => 'Oversize',
+                                'customer_reference' => 'OVERSIZE1',
+                                'notes' => 'notes',
+                                'stored_item_reference' => 'SKU3',
+                                'quantity'  => 10,
+                                'stored_item_name' => 'SKU 3'
+                            ],
                         ]
                     ],
                     'upload_spreadsheet'    => [
                         'event'           => 'action-progress',
                         'channel'         => 'grp.personal.'.$this->organisation->id,
-                        'required_fields' => ['customer_reference', 'notes', 'stored_items', 'type'],
+                        'required_fields' => ['type', 'customer_reference', 'notes', 'stored_item_reference', 'quantity', 'stored_item_name' ],
                         'template'        => [
                             'label' => 'Download template (.xlsx)',
                         ],
                         'route'           => [
                             'upload'   => [
-                                'name'       => 'grp.models.pallet-delivery.pallet.upload',
+                                'name'       => 'grp.models.pallet-delivery.pallet.upload.with-stored-items',
                                 'parameters' => [
                                     'palletDelivery' => $palletDelivery->id
                                 ]
