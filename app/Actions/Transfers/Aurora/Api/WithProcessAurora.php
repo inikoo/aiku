@@ -19,7 +19,7 @@ trait WithProcessAurora
         return [
             'id'   => ['required', 'integer'],
             'with' => ['sometimes', 'string'],
-            'bg'   => ['sometimes', 'present'],
+            'bg'   => ['sometimes', 'boolean'],
         ];
     }
 
@@ -32,26 +32,27 @@ trait WithProcessAurora
         $this->initialisation($organisation, $request);
         $validatedData = $this->validatedData;
 
-        if ($with = Arr::get($validatedData, 'with', '')) {
-            $with = explode(',', $with);
+        $with = [];
+        if ($withArgs = Arr::get($validatedData, 'with', '')) {
+            $with = explode(',', $withArgs);
         }
 
 
-        if (Arr::has($validatedData, 'bg')) {
-            (new $this->fetcher())::dispatch($organisation->id, Arr::get($validatedData, 'id'), $with);
+        if (Arr::get($validatedData, 'bg', false)) {
+            (new $this->fetcher())::dispatch($organisation->id, Arr::get($validatedData, 'id'), $with)->delay(30);
 
             return [
                 'status' => 'ok',
                 'type'   => 'background'
             ];
         } else {
-
             $model = (new $this->fetcher())::make()->action($organisation->id, Arr::get($validatedData, 'id'), $with);
 
             if ($model) {
                 return [
                     'status' => 'ok',
                     'type'   => 'foreground',
+                    'model'  => class_basename($model),
                     'id'     => $model->id
                 ];
             } else {

@@ -1,17 +1,68 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
+import { ref } from 'vue';
+import TabSelector from '@/Components/Elements/TabSelector.vue'
 
+const props = defineProps<{
+    data: {
+      
+        fulfilment_customer: {
+            radioTabs: {
+                [key: string]: boolean
+            }
+            number_pallets?: number
+            number_pallets_state_received?: number
+            number_stored_items?: number
+            number_pallets_deliveries?: number
+            number_pallets_returns?: number
+          
+        }
+    },
+    tab: string
+}>()
 // Mendapatkan data customer dari props
 const customer = usePage().props.layout.customer;
 const fulfilment = usePage().props.layout.fulfilment;
+
+const optionRadio = [
+    {
+        value: 'pallets_storage',
+        label: trans('Pallet Storage')
+    },
+    {
+        value: 'items_storage',
+        label: trans('Dropshipping')
+    },
+    /*    {
+            value: 'dropshipping',
+            label: trans('Dropshipping')
+        },*/
+    {
+        value: 'space_rental',
+        label: trans('Space (Parking)')
+    },
+]
+
+const tabs = {
+    "pallets_storage": true,
+    "items_storage": true,
+    "dropshipping": false,
+    "space_rental": true
+}
+const radioValue = ref<string[]>(Object.keys(props?.data?.fulfilment_customer?.radioTabs || tabs).filter(key => props?.data?.fulfilment_customer?.radioTabs[key] || tabs[key]))
+
 </script>
 
 <template>
   <div class="p-8 pb-3 text-4xl font-bold">
     Welcome, {{ customer.contact_name }}!
   </div>
-
+    <div class="px-8 grid max-w-2xl grid-cols-1 gap-x-2 gap-y-8 lg:max-w-7xl lg:grid-cols-3 pt-4">
+      <div class="w-full space-y-4 col-span-2">
+      <TabSelector :optionRadio="optionRadio" :radioValue="radioValue"  />
+    </div>
+  </div>
   <!-- Container untuk card -->
   <div v-if="customer?.status == 'pending_approval'" class="grid grid-cols-3 gap-6 p-6">
     <!-- Card Informasi Perusahaan -->
