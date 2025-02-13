@@ -23,6 +23,8 @@ const props = defineProps<{
     isFullLoading?: boolean
     isWithMessage?: boolean
     keyMessage?: string
+    whyLabel?: string
+    title?: string
     message?: {
         placeholder?: string
     }
@@ -128,17 +130,17 @@ const messageDelete = ref('')
                                     </div>
                                     <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                                         <DialogTitle as="h3" class="text-base font-semibold">
-                                            {{ trans("Are you sure want to delete?") }}
+                                            {{ title || trans("Are you sure want to delete?") }}
                                         </DialogTitle>
                                         <div class="mt-2">
                                             <p class="text-sm text-gray-500">
                                                 {{ description || trans("The data will be permanently 😥 .This action cannot be undone.")}}
                                             </p>
                                         </div>
-
+                                      
                                         <div v-if="props.isWithMessage" class="mt-4">
                                             <label for="" class="flex items-start text-sm text-gray-500 leading-none mb-1">
-                                                {{ trans("Why you deleting this?") }}
+                                                {{ whyLabel || trans("Why you deleting this?") }}
                                                 <FontAwesomeIcon icon='far fa-asterisk' class='text-red-500 h-2' size="xs" fixed-width aria-hidden='true' />
                                             </label>
 
@@ -165,7 +167,7 @@ const messageDelete = ref('')
                                                 type="tertiary"
                                                 icccon="far fa-arrow-left"
                                                 :label="trans('cancel')"
-                                                full
+                                                
                                                 @click="() => (isOpenModal = false, emits('onNo'))"
                                             />
                                             <!-- <button type="button"
