@@ -63,7 +63,7 @@ class ShowRetinaStoredItemReturn extends RetinaAction
 
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response
     {
-        dd($palletReturn);
+        // dd($palletReturn);
         $addressHistories = AddressResource::collection($palletReturn->addresses()->where('scope', 'delivery')->get());
 
         $navigation = PalletReturnTabsEnum::navigation($palletReturn);
