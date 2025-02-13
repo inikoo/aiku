@@ -657,13 +657,19 @@ class ShowPalletDelivery extends OrgAction
                 'upload_spreadsheet' => [
                     'event'           => 'action-progress',
                     'channel'         => 'grp.personal.'.$this->organisation->id,
-                    'required_fields' => ['customer_reference', 'notes', 'stored_items', 'type'],
+                    'required_fields' => ['type', 'customer_reference', 'notes', 'stored_item_reference', 'quantity', 'stored_item_name'],
                     'template'        => [
                         'label' => 'Download template (.xlsx)',
                     ],
                     'route'           => [
                         'upload'   => [
                             'name'       => 'grp.models.pallet-delivery.pallet.upload',
+                            'parameters' => [
+                                'palletDelivery' => $palletDelivery->id
+                            ]
+                        ],
+                        'uploadWithStoredItems'   => [
+                            'name'       => 'grp.models.pallet-delivery.pallet.upload.with-stored-items',
                             'parameters' => [
                                 'palletDelivery' => $palletDelivery->id
                             ]

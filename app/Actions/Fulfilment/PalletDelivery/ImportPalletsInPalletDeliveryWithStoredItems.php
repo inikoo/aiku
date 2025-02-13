@@ -1,10 +1,10 @@
 <?php
-
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 22 Jan 2025 14:29:40 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2025, Raul A Perusquia Flores
- */
+ * author Arya Permana - Kirin
+ * created on 13-02-2025-09h-57m
+ * github: https://github.com/KirinZero0
+ * copyright 2025
+*/
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
@@ -14,6 +14,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Actions\Traits\WithImportModel;
 use App\Imports\Fulfilment\PalletImport;
+use App\Imports\Fulfilment\PalletImportWithStoredItems;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
@@ -23,13 +24,12 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\ActionRequest;
 
-class ImportPalletsInPalletDelivery extends OrgAction
+class ImportPalletsInPalletDeliveryWithStoredItems extends OrgAction
 {
     use WithImportModel;
     use HasFulfilmentAssetsAuthorisation;
 
-    private Fulfilment $parent; // needed for authorisation
-
+    private Fulfilment $parent;
     public function handle(PalletDelivery $palletDelivery, $file, array $modelData): Upload
     {
         $upload = StoreUpload::make()->fromFile(
@@ -46,13 +46,13 @@ class ImportPalletsInPalletDelivery extends OrgAction
         if ($this->isSync) {
             ImportUpload::run(
                 $file,
-                new PalletImport($palletDelivery, $upload)
+                new PalletImportWithStoredItems($palletDelivery, $upload)
             );
             $upload->refresh();
         } else {
             ImportUpload::dispatch(
                 $this->tmpPath.$upload->filename,
-                new PalletImport($palletDelivery, $upload)
+                new PalletImportWithStoredItems($palletDelivery, $upload)
             );
         }
 
@@ -93,5 +93,5 @@ class ImportPalletsInPalletDelivery extends OrgAction
         return $this->handle($palletDelivery, $file, []);
     }
 
-    public string $commandSignature = 'pallet:import {--g|g_drive} {filename} {fulfilmentCustomer?} {warehouse?} {palletDelivery?}';
+    public string $commandSignature = 'pallet_with_stored_items:import {--g|g_drive} {filename} {fulfilmentCustomer?} {warehouse?} {palletDelivery?}';
 }
