@@ -660,7 +660,7 @@ const onClickSelectAll = (state: boolean) => {
 const onSelectCheckbox = (item : Any) => {
     emits('onCheked', item , !selectRow[item[props.checkboxKey]])
     selectRow[item[props.checkboxKey]] = !selectRow[item[props.checkboxKey]]
-   
+
 }
 
 watch(selectRow, () => {
@@ -728,9 +728,9 @@ const isLoading = ref<string | boolean>(false)
                                             formattingFn: (number) => locale.number(number)
                                         }" />
                                     </span>
-                                    
+
                                     <span class="font-light">
-                                        {{ 
+                                        {{
                                             compResourceMeta.total > 1
                                             ? queryBuilderProps.labelRecord?.[1] || queryBuilderProps.labelRecord?.[0] || trans('records')
                                             : queryBuilderProps.labelRecord?.[0] || trans('record')
@@ -836,7 +836,7 @@ const isLoading = ref<string | boolean>(false)
                         </div>
 
                         <!-- Filter: Radio element -->
-                        <div v-if="false" class="w-fit">
+                        <div v-if="true" class="w-fit">
                             <TableRadioFilter
                                 :radioFilter="queryBuilderData.radioFilter"
                                 @onSelectRadio="(value: string) => setLodash(queryBuilderData, ['radioFilter'], value)"
@@ -933,7 +933,7 @@ const isLoading = ref<string | boolean>(false)
                                         >
                                             <!-- Column: Check box -->
                                             <td v-if="isCheckBox" key="checkbox" class="">
-                                                <!-- 
+                                                <!--
                                                 <div v-if="selectRow[item[checkboxKey]]"
                                                     class="absolute inset-0 bg-lime-500/10 -z-10" />
                                                 -->
@@ -1047,7 +1047,7 @@ const isLoading = ref<string | boolean>(false)
                             </tbody>
                         </table>
                     </slot>
-                    
+
                     <!-- Pagination -->
                     <slot name="pagination" :on-click="visit" :has-data="hasData" :meta="compResourceMeta"
                         :per-page-options="queryBuilderProps.perPageOptions" :on-per-page-change="onPerPageChange">
