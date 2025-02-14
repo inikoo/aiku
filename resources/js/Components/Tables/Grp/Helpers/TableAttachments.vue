@@ -40,12 +40,12 @@ function mediaRoute(attachment: {media_ulid: string}) {
     const is_retina = route().current()?.includes('retina')
 
     if (is_retina) {
-        return null
-        // return route(
-        //     "retina.media.download",
-        //     [
-        //         attachment.media_ulid
-        //     ]);
+        // return null
+        return route(
+            "retina.models.attachment.download",
+            [
+                attachment.media_ulid
+            ]);
     } else {
         return route(
             "grp.media.download",
