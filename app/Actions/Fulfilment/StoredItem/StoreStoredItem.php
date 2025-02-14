@@ -139,6 +139,14 @@ class StoreStoredItem extends OrgAction
 
     public function htmlResponse(StoredItem $storedItem, ActionRequest $request): RedirectResponse
     {
-        return Redirect::route('grp.fulfilment.stored-items.show', $storedItem->slug);
+        $route = $request->all()['referral_route'] ?? null;
+        if ($route) {
+            return Redirect::route(
+                $route['name'],
+                array_merge($route['parameters'], [$storedItem->slug])
+            );
+        }
+
+        return Redirect::back();
     }
 }

@@ -9,35 +9,30 @@
 
 namespace App\Actions\Retina\Fulfilment\Pallet;
 
+use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
 use App\Actions\RetinaAction;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Inventory\Warehouse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreRetinaMultiplePalletsFromDelivery extends RetinaAction
 {
-    private bool $action = false;
-
-    private PalletDelivery|FulfilmentCustomer $parent;
-
-    public function handle(PalletDelivery $palletDelivery, array $modelData): void
+    public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
     {
-        data_set($modelData, 'warehouse_id', $palletDelivery->warehouse_id);
+        StoreMultiplePalletsFromDelivery::run($palletDelivery, $modelData);
+        $palletDelivery->refresh();
 
-        for ($i = 1; $i <= Arr::get($modelData, 'number_pallets'); $i++) {
-            StoreRetinaPalletFromDelivery::run($palletDelivery, Arr::except($modelData, ['number_pallets']));
-        }
+        return $palletDelivery;
     }
+
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->action) {
+        if ($this->asAction) {
             return true;
         } elseif ($this->customer->id == $request->route()->parameter('palletDelivery')->fulfilmentCustomer->customer_id) {
             return true;
@@ -69,33 +64,27 @@ class StoreRetinaMultiplePalletsFromDelivery extends RetinaAction
         ];
     }
 
-    public function asController(PalletDelivery $palletDelivery, ActionRequest $request): void
+    public function asController(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
-        /** @var FulfilmentCustomer $fulfilmentCustomer */
-        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
-        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
-        $this->parent       = $palletDelivery;
-
         $this->initialisation($request);
-        $this->handle($palletDelivery, $this->validatedData);
+
+        return $this->handle($palletDelivery, $this->validatedData);
     }
 
-    public function action(PalletDelivery $palletDelivery, array $modelData, int $hydratorsDelay = 0): void
+    public function action(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
     {
-        $this->action           = true;
-        $this->hydratorsDelay     = $hydratorsDelay;
-        $this->parent             = $palletDelivery;
+        $this->asAction           = true;
         $this->fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
         $this->initialisationFulfilmentActions($this->fulfilmentCustomer, $modelData);
 
-        $this->handle($palletDelivery, $this->validatedData);
+        return $this->handle($palletDelivery, $this->validatedData);
     }
 
 
-    public function htmlResponse(): RedirectResponse
+    public function htmlResponse(PalletDelivery $palletDelivery): RedirectResponse
     {
         return Redirect::route('retina.fulfilment.storage.pallet_deliveries.show', [
-            'palletDelivery' => $this->parent->slug
+            'palletDelivery' => $palletDelivery->slug
         ]);
     }
 }

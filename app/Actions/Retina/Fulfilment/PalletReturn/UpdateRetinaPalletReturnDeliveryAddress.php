@@ -10,28 +10,16 @@
 
 namespace App\Actions\Retina\Fulfilment\PalletReturn;
 
-use App\Actions\Helpers\Address\UpdateAddress;
+use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturnDeliveryAddress;
 use App\Actions\RetinaAction;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\PalletReturn;
-use App\Models\Helpers\Country;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateRetinaPalletReturnDeliveryAddress extends RetinaAction
 {
     public function handle(PalletReturn $palletReturn, array $modelData): void
     {
-        $addressData = Arr::get($modelData, 'address');
-        if ($addressData) {
-            $countryCode = Country::find($addressData['country_id'])->code;
-            data_set($addressData, 'country_code', $countryCode);
-            unset($addressData['id']);
-            unset($addressData['label']);
-            unset($addressData['can_edit']);
-            unset($addressData['can_delete']);
-            UpdateAddress::run($palletReturn->deliveryAddress, $addressData);
-        }
+        UpdatePalletReturnDeliveryAddress::run($palletReturn, $modelData);
     }
 
     public function rules(): array
@@ -43,20 +31,18 @@ class UpdateRetinaPalletReturnDeliveryAddress extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->action) {
+        if ($this->asAction) {
             return true;
         }
 
-        if ($request->user() instanceof WebUser) {
+        if ($this->fulfilmentCustomer->id == $request->route()->parameter('palletReturn')->fulfilmentCustomer->id) {
             return true;
         }
-
         return false;
     }
 
     public function asController(PalletReturn $palletReturn, ActionRequest $request): void
     {
-        $this->parent = $palletReturn;
         $this->initialisation($request);
 
         $this->handle($palletReturn, $this->validatedData);
@@ -64,7 +50,7 @@ class UpdateRetinaPalletReturnDeliveryAddress extends RetinaAction
 
     public function action(PalletReturn $palletReturn, array $modelData): void
     {
-        $this->action = true;
+        $this->asAction = true;
         $this->initialisationFulfilmentActions($palletReturn->fulfilmentCustomer, $modelData);
 
         $this->handle($palletReturn, $this->validatedData);

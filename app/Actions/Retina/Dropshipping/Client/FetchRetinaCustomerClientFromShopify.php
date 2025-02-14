@@ -20,7 +20,10 @@ class FetchRetinaCustomerClientFromShopify extends RetinaAction
 {
     private Customer $parent;
 
-    public function handle(ActionRequest $request): void
+    /**
+     * @throws \Throwable
+     */
+    public function handle(): void
     {
         $shopifyUser = $this->parent->shopifyUser;
 
@@ -60,17 +63,15 @@ class FetchRetinaCustomerClientFromShopify extends RetinaAction
         }
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        return $request->user()->is_root;
-    }
 
-
+    /**
+     * @throws \Throwable
+     */
     public function asController(ActionRequest $request): void
     {
         $this->initialisation($request);
         $this->parent = $this->customer;
 
-        $this->handle($request);
+        $this->handle();
     }
 }
