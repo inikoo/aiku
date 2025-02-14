@@ -45,7 +45,8 @@ class StoreStoredItemAuditDeltaFromDelivery extends OrgAction
         StoreStoredItemMovementFromDelivery::run(
             $storedItemAuditDelta,
             [
-                'quantity' => $palletStoredItem->quantity
+                'quantity' => $palletStoredItem->quantity,
+                'pallet_delivery_id' => $palletDelivery->id,
 
             ]
         );

@@ -28,17 +28,6 @@ class StoreRetinaPalletReturn extends RetinaAction
         return StorePalletReturn::run($fulfilmentCustomer, $modelData);
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->asAction) {
-            return true;
-        }
-        if ($this->fulfilmentCustomer->id == $request->route()->parameter('fulfilmentCustomer')->id) {
-            return true;
-        }
-
-        return false;
-    }
 
     public function prepareForValidation(ActionRequest $request): void
     {
