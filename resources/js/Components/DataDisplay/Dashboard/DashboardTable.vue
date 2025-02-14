@@ -173,7 +173,7 @@ function useTabChangeDashboard(tab_slug: string) {
 							<Transition name="spin-to-down" mode="out-in">
 								<div
 									:key="`${data.interval_percentages?.refunds?.difference}_${data.interval_percentages?.refunds?.percentage}`"
-									style="display: flex; align-items: center">
+									style=" align-items: center">
 									<span style="font-size: 16px; font-weight: 500">
 										{{
 											data.interval_percentages?.refunds?.percentage
@@ -259,7 +259,7 @@ function useTabChangeDashboard(tab_slug: string) {
 									<Transition name="spin-to-down" mode="out-in">
 										<div
 											:key="`${data.interval_percentages?.invoices?.difference}_${data.interval_percentages?.invoices?.percentage}`"
-											style="display: flex; align-items: center">
+											style="align-items: center">
 											<span style="font-size: 16px; font-weight: 500">
 												{{
 													data.interval_percentages?.invoices?.percentage
@@ -358,7 +358,7 @@ function useTabChangeDashboard(tab_slug: string) {
 							<Transition name="spin-to-down" mode="out-in">
 								<div
 									:key="`${data.interval_percentages?.sales?.difference}_${data.interval_percentages?.sales?.percentage}`"
-									style="display: flex; align-items: center">
+									style="align-items: center">
 									<span style="font-size: 16px; font-weight: 500">
 										{{
 											data.interval_percentages?.sales?.percentage
