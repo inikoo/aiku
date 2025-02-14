@@ -83,6 +83,11 @@ const props = defineProps<{
     notes_data: PDRNotes[]
     route_check_stored_items : routeType
     routeStorePallet : routeType
+
+    option_attach_file?: {
+		name: string
+		code: string
+	}[]
 }>()
 
 const locale = inject('locale', aikuLocaleStructure)
@@ -217,6 +222,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
     )
 }
 
+const isModalUploadFileOpen = ref(false)
 
 </script>
 
@@ -434,6 +440,16 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
             </div>
        
         </template>
+
+        <template #other>
+            <Button
+                v-if="currentTab === 'attachments'"
+                @click="() => isModalUploadFileOpen = true"
+                :label="trans('Attach file')"
+                icon="fal fa-upload"
+                type="secondary"
+            />
+        </template>
     </PageHeading>
 
     <!-- Section: Note -->
@@ -459,7 +475,18 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
         :can_edit_transactions="can_edit_transactions"
         :route_checkmark="currentTab == 'pallets' ? routeStorePallet : route_check_stored_items" 
         :palletReturn="data?.data"
-    />
+        :detachRoute="attachmentRoutes.detachRoute"
+    >
+        <template #button-empty-state-attachments="{ action }">
+            <Button
+                v-if="currentTab === 'attachments'"
+                @click="() => isModalUploadFileOpen = true"
+                :label="trans('Attach file')"
+                icon="fal fa-upload"
+                type="secondary"
+            />
+        </template>
+    </component>
 
 
     <UploadExcel
@@ -472,5 +499,17 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
         progressDescription="Adding Pallet Deliveries"        
         :upload_spreadsheet
         :additionalDataToSend="interest.pallets_storage ? ['stored_items'] : undefined"
+    />
+
+    <UploadAttachment
+        v-model="isModalUploadFileOpen"
+        scope="attachment"
+        :title="{
+            label: 'Upload your file',
+            information: 'The list of column file: customer_reference, notes, stored_items'
+        }"
+        progressDescription="Adding Pallet Deliveries"
+        :attachmentRoutes
+        :options="props.option_attach_file"
     />
 </template>

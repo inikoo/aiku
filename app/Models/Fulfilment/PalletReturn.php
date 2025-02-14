@@ -32,6 +32,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -114,7 +115,7 @@ use Spatie\Sluggable\SlugOptions;
  * @mixin \Eloquent
  */
 
-class PalletReturn extends Model
+class PalletReturn extends Model implements HasMedia
 {
     use HasSlug;
     use SoftDeletes;
