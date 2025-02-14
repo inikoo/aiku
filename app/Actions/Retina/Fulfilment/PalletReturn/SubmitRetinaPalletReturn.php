@@ -19,7 +19,7 @@ class SubmitRetinaPalletReturn extends RetinaAction
 {
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        return SubmitPalletReturn::run($palletReturn, $modelData, sendNotofications: true);
+        return SubmitPalletReturn::run($palletReturn, $modelData, sendNotifications: true);
     }
 
     public function authorize(ActionRequest $request): bool
