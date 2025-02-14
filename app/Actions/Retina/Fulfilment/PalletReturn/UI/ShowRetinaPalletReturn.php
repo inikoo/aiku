@@ -48,6 +48,7 @@ class ShowRetinaPalletReturn extends RetinaAction
         if ($this->customer->id == $request->route()->parameter('palletReturn')->fulfilmentCustomer->customer_id) {
             return true;
         }
+
         return false;
     }
 
@@ -79,7 +80,7 @@ class ShowRetinaPalletReturn extends RetinaAction
         if ($palletReturn->type == PalletReturnTypeEnum::STORED_ITEM) {
             $afterTitle = [
                 'label' => '('.__("Customer's sKUs").')'
-                ];
+            ];
         } else {
             $afterTitle = [
                 'label' => '('.__('Whole pallets').')'
@@ -94,64 +95,69 @@ class ShowRetinaPalletReturn extends RetinaAction
             $downloadRoute = 'retina.fulfilment.storage.pallet_returns.stored-items.uploads.templates';
         };
 
-        $actions = $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
-            [
-                'type'      => 'button',
-                'style'     => 'tertiary',
-                'icon'      => 'fal fa-upload',
-                'label'     => __('upload'),
-                'tooltip'   => __('Upload file')
-            ],
-            $palletReturn->pallets()->count() > 0 ? [
-                'type'    => 'button',
-                'style'   => 'save',
-                'tooltip' => __('submit'),
-                'label'   => __('submit'),
-                'key'     => 'action',
-                'route'   => [
-                    'method'     => 'post',
-                    'name'       => 'retina.models.pallet-return.submit',
-                    'parameters' => [
-                        'palletReturn'       => $palletReturn->id
+        $actions = $palletReturn->state == PalletReturnStateEnum::IN_PROCESS
+            ? [
+                [
+                    'type'    => 'button',
+                    'style'   => 'tertiary',
+                    'icon'    => 'fal fa-upload',
+                    'label'   => __('upload'),
+                    'tooltip' => __('Upload file')
+                ],
+                $palletReturn->pallets()->count() > 0 ? [
+                    'type'    => 'button',
+                    'style'   => 'save',
+                    'tooltip' => __('submit'),
+                    'label'   => __('submit'),
+                    'key'     => 'action',
+                    'route'   => [
+                        'method'     => 'post',
+                        'name'       => 'retina.models.pallet-return.submit',
+                        'parameters' => [
+                            'palletReturn' => $palletReturn->id
+                        ]
                     ]
-                ]
-            ] : [],
-        ] : [
-            $palletReturn->state != PalletReturnStateEnum::DISPATCHED && $palletReturn->state != PalletReturnStateEnum::CANCEL ? [
-                'type'    => 'button',
-                'style'   => 'negative',
-                'icon'    => 'fal fa-times',
-                'tooltip' => __('cancel'),
-                'label'   => __('cancel return'),
-                'key'     => 'action',
-                'route'   => [
-                    'method'     => 'post',
-                    'name'       => 'retina.models.pallet-return.cancel',
-                    'parameters' => [
-                        'palletReturn'       => $palletReturn->id
+                ] : [],
+            ]
+            : [
+                $palletReturn->state != PalletReturnStateEnum::DISPATCHED && $palletReturn->state != PalletReturnStateEnum::CANCEL ? [
+                    'type'    => 'button',
+                    'style'   => 'negative',
+                    'icon'    => 'fal fa-times',
+                    'tooltip' => __('cancel'),
+                    'label'   => __('cancel return'),
+                    'key'     => 'action',
+                    'route'   => [
+                        'method'     => 'post',
+                        'name'       => 'retina.models.pallet-return.cancel',
+                        'parameters' => [
+                            'palletReturn' => $palletReturn->id
+                        ]
                     ]
-                ]
-            ] : []
-        ];
+                ] : []
+            ];
 
         if (in_array($palletReturn->state, [
             PalletReturnStateEnum::IN_PROCESS,
             PalletReturnStateEnum::SUBMITTED
         ])) {
-            $actions = array_merge([[
-                'type'    => 'button',
-                'style'   => 'delete',
-                'tooltip' => __('delete'),
-                'label'   => __('delete'),
-                'key'     => 'delete_return',
-                'route'   => [
-                    'method'     => 'patch',
-                    'name'       => 'retina.models.pallet-return.delete',
-                    'parameters' => [
-                        'palletReturn' => $palletReturn->id
+            $actions = array_merge([
+                [
+                    'type'    => 'button',
+                    'style'   => 'delete',
+                    'tooltip' => __('delete'),
+                    'label'   => __('delete'),
+                    'key'     => 'delete_return',
+                    'ask_why' => false,
+                    'route'   => [
+                        'method'     => 'patch',
+                        'name'       => 'retina.models.pallet-return.delete',
+                        'parameters' => [
+                            'palletReturn' => $palletReturn->id
+                        ]
                     ]
                 ]
-            ]], $actions);
+            ], $actions);
         }
 
         return Inertia::render(
@@ -162,47 +168,47 @@ class ShowRetinaPalletReturn extends RetinaAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation' => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($palletReturn, $request),
                     'next'     => $this->getNext($palletReturn, $request),
                 ],
-                'pageHead' => [
-                    'title'     => $palletReturn->reference,
-                    'icon'      => [
+                'pageHead'    => [
+                    'title'      => $palletReturn->reference,
+                    'icon'       => [
                         'icon'  => ['fal', 'fa-truck-couch'],
                         'title' => $palletReturn->reference
                     ],
                     'afterTitle' => $afterTitle,
-                    'model'     => __('pallet return'),
-                    'actions'   => $actions
+                    'model'      => __('pallet return'),
+                    'actions'    => $actions
                 ],
 
-                'service_list_route'   => [
+                'service_list_route'       => [
                     'name'       => 'retina.json.fulfilment.return.services.index',
                     'parameters' => [
-                        'fulfilment'     => $palletReturn->fulfilment->slug,
-                        'scope'          => $palletReturn->slug
+                        'fulfilment' => $palletReturn->fulfilment->slug,
+                        'scope'      => $palletReturn->slug
                     ]
                 ],
-                'physical_good_list_route'   => [
+                'physical_good_list_route' => [
                     'name'       => 'retina.json.fulfilment.return.physical-goods.index',
                     'parameters' => [
-                        'fulfilment'     => $palletReturn->fulfilment->slug,
-                        'scope'          => $palletReturn->slug
+                        'fulfilment' => $palletReturn->fulfilment->slug,
+                        'scope'      => $palletReturn->slug
                     ]
                 ],
 
-                'stored_items_add_route'  => [
-                        'name'       => 'retina.models.pallet-return.stored_item.store',
-                        'parameters' => [
-                            'palletReturn'       => $palletReturn->id
-                        ]
+                'stored_items_add_route' => [
+                    'name'       => 'retina.models.pallet-return.stored_item.store',
+                    'parameters' => [
+                        'palletReturn' => $palletReturn->id
+                    ]
                 ],
-                'updateRoute' => [
+                'updateRoute'            => [
                     'route' => [
                         'name'       => 'retina.models.pallet-return.update',
                         'parameters' => [
-                            'palletReturn'       => $palletReturn->id
+                            'palletReturn' => $palletReturn->id
                         ]
                     ]
                 ],
@@ -221,36 +227,36 @@ class ShowRetinaPalletReturn extends RetinaAction
                     ]
                 ],
 
-                'interest'  => [
+                'interest'           => [
                     'pallets_storage' => $palletReturn->fulfilmentCustomer->pallets_storage,
                     'items_storage'   => $palletReturn->fulfilmentCustomer->items_storage,
                     'dropshipping'    => $palletReturn->fulfilmentCustomer->dropshipping,
                 ],
                 'upload_spreadsheet' => [
-                    'event'             => 'action-progress',
-                    'channel'           => 'retina.personal.' . $palletReturn->organisation_id,
-                    'required_fields'   => ['reference'],
-                    'template'          => [
+                    'event'           => 'action-progress',
+                    'channel'         => 'retina.personal.'.$palletReturn->organisation_id,
+                    'required_fields' => ['reference'],
+                    'template'        => [
                         'label' => 'Download template (.xlsx)',
                     ],
-                    'route' => [
-                        'upload'  => [
+                    'route'           => [
+                        'upload'   => [
                             'name'       => 'retina.models.pallet-return.stored-item.upload',
                             'parameters' => [
                                 'palletReturn' => $palletReturn->id
                             ]
                         ],
-                        'history' => [
+                        'history'  => [
                             'name'       => 'retina.fulfilment.storage.pallet_returns.uploads.history',
                             'parameters' => [
-                                'palletReturn'     => $palletReturn->slug
+                                'palletReturn' => $palletReturn->slug
                             ]
                         ],
                         'download' => [
                             'name'       => $downloadRoute,
                             'parameters' => [
-                                'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
-                                'type'                   => 'xlsx'
+                                'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
+                                'type'               => 'xlsx'
                             ]
                         ],
                     ],
@@ -259,7 +265,7 @@ class ShowRetinaPalletReturn extends RetinaAction
                 'routeStorePallet' => [
                     'name'       => 'retina.models.pallet-return.pallet.store',
                     'parameters' => [
-                        'palletReturn'       => $palletReturn->id
+                        'palletReturn' => $palletReturn->id
                     ]
                 ],
 
@@ -281,20 +287,22 @@ class ShowRetinaPalletReturn extends RetinaAction
                     ]
                 ],
 
-                'tabs' => [
+                'tabs'       => [
                     'current'    => $this->tab,
                     'navigation' => $navigation
                 ],
-                'box_stats'        => [
-                    'fulfilment_customer'          => array_merge(
+                'box_stats'  => [
+                    'fulfilment_customer' => array_merge(
                         FulfilmentCustomerResource::make($palletReturn->fulfilmentCustomer)->getArray(),
                         [
-                            'address'      => [
+                            'address' => [
                                 // 'value'   => AddressResource::make($palletReturn->deliveryAddress ?? new Address()),
-                                'value'   => $palletReturn->is_collection ?
-                                    null :
+                                'value'            => $palletReturn->is_collection
+                                    ?
+                                    null
+                                    :
                                     AddressResource::make($palletReturn->deliveryAddress),
-                                'options' => [
+                                'options'          => [
                                     'countriesAddressData' => GetAddressData::run()
                                 ],
                                 'address_customer' => [
@@ -303,34 +311,34 @@ class ShowRetinaPalletReturn extends RetinaAction
                                         'countriesAddressData' => GetAddressData::run()
                                     ],
                                 ],
-                                'routes_address'                    => [
+                                'routes_address'   => [
                                     'store'  => [
                                         'method'     => 'post',
                                         'name'       => 'retina.models.pallet-return.address.store',
                                         'parameters' => [
-                                            'palletReturn'       => $palletReturn->id
+                                            'palletReturn' => $palletReturn->id
                                         ]
                                     ],
-                                    'delete'  => [
+                                    'delete' => [
                                         'method'     => 'delete',
                                         'name'       => 'retina.models.pallet-return.address.delete',
                                         'parameters' => [
-                                            'palletReturn'       => $palletReturn->id
+                                            'palletReturn' => $palletReturn->id
                                         ]
                                     ],
                                     'update' => [
                                         'method'     => 'patch',
                                         'name'       => 'retina.models.pallet-return.address.update',
                                         'parameters' => [
-                                            'palletReturn'       => $palletReturn->id
+                                            'palletReturn' => $palletReturn->id
                                         ]
                                     ]
                                 ]
                             ],
                         ]
                     ),
-                    'delivery_state'              => PalletReturnStateEnum::stateIcon()[$palletReturn->state->value],
-                    'order_summary'                => [
+                    'delivery_state'      => PalletReturnStateEnum::stateIcon()[$palletReturn->state->value],
+                    'order_summary'       => [
                         [
                             // [
                             //     'label'         => __('Pallets'),
@@ -339,60 +347,62 @@ class ShowRetinaPalletReturn extends RetinaAction
                             //     'price_total'   => 1111 ?? 0
                             // ],
                             [
-                                'label'         => __('Services'),
-                                'quantity'      => $palletReturn->stats->number_services ?? 0,
-                                'price_base'    => '',
-                                'price_total'   => $palletReturn->services_amount
+                                'label'       => __('Services'),
+                                'quantity'    => $palletReturn->stats->number_services ?? 0,
+                                'price_base'  => '',
+                                'price_total' => $palletReturn->services_amount
                             ],
                             [
-                                'label'         => __('Physical Goods'),
-                                'quantity'      => $palletReturn->stats->number_physical_goods ?? 0,
-                                'price_base'    => '',
-                                'price_total'   => $palletReturn->goods_amount
+                                'label'       => __('Physical Goods'),
+                                'quantity'    => $palletReturn->stats->number_physical_goods ?? 0,
+                                'price_base'  => '',
+                                'price_total' => $palletReturn->goods_amount
                             ],
                         ],
                         $showGrossAndDiscount ? [
                             [
-                                'label'         => __('Gross'),
-                                'information'   => '',
-                                'price_total'   => $palletReturn->gross_amount
+                                'label'       => __('Gross'),
+                                'information' => '',
+                                'price_total' => $palletReturn->gross_amount
                             ],
                             [
-                                'label'         => __('Discounts'),
-                                'information'   => '',
-                                'price_total'   => $palletReturn->discount_amount
+                                'label'       => __('Discounts'),
+                                'information' => '',
+                                'price_total' => $palletReturn->discount_amount
                             ],
                         ] : [],
-                        $showGrossAndDiscount ? [
+                        $showGrossAndDiscount
+                            ? [
                             [
-                                'label'         => __('Net'),
-                                'information'   => '',
-                                'price_total'   => $palletReturn->net_amount
+                                'label'       => __('Net'),
+                                'information' => '',
+                                'price_total' => $palletReturn->net_amount
                             ],
                             [
-                                'label'         => __('Tax').' '.$palletReturn->taxCategory->rate * 100 . '%',
-                                'information'   => '',
-                                'price_total'   => $palletReturn->tax_amount
+                                'label'       => __('Tax').' '.$palletReturn->taxCategory->rate * 100 .'%',
+                                'information' => '',
+                                'price_total' => $palletReturn->tax_amount
                             ],
-                        ] : [
+                        ]
+                            : [
                             [
-                                'label'         => __('Net'),
-                                'information'   => '',
-                                'price_total'   => $palletReturn->net_amount
+                                'label'       => __('Net'),
+                                'information' => '',
+                                'price_total' => $palletReturn->net_amount
                             ],
                             [
-                                'label'         => __('Tax').' '.$palletReturn->taxCategory->rate * 100 . '%',
-                                'information'   => '',
-                                'price_total'   => $palletReturn->tax_amount
+                                'label'       => __('Tax').' '.$palletReturn->taxCategory->rate * 100 .'%',
+                                'information' => '',
+                                'price_total' => $palletReturn->tax_amount
                             ],
                         ],
                         [
                             [
-                                'label'         => __('Total'),
-                                'price_total'   => $palletReturn->total_amount
+                                'label'       => __('Total'),
+                                'price_total' => $palletReturn->total_amount
                             ],
                         ],
-                        'currency'                => CurrencyResource::make($palletReturn->currency),
+                        'currency' => CurrencyResource::make($palletReturn->currency),
 
                         // 'currency_code'                => 'usd',  // TODO
                         // 'number_pallets'               => $palletReturn->stats->number_pallets,
@@ -415,24 +425,24 @@ class ShowRetinaPalletReturn extends RetinaAction
                         // 'total_price'                  => $palletReturn->stats->total_price
                     ]
                 ],
-                'notes_data'             => [
-                    'return'        => [
-                        'label'           => __("Return's note"),
-                        'note'            => $palletReturn->customer_notes ?? '',
-                        'editable'        => true,
+                'notes_data' => [
+                    'return'    => [
+                        'label'    => __("Return's note"),
+                        'note'     => $palletReturn->customer_notes ?? '',
+                        'editable' => true,
                         // 'bgColor'         => 'blue',
-                        'field'           => 'customer_notes'
+                        'field'    => 'customer_notes'
                     ],
-                    'warehouse'     => [
-                        'label'           => __('Note from warehouse'),
-                        'note'            => $palletReturn->public_notes ?? '',
-                        'editable'        => false,
+                    'warehouse' => [
+                        'label'    => __('Note from warehouse'),
+                        'note'     => $palletReturn->public_notes ?? '',
+                        'editable' => false,
                         // 'bgColor'         => 'pink',
-                        'field'           => 'public_notes'
+                        'field'    => 'public_notes'
                     ],
                 ],
 
-                'route_check_stored_items'   => [
+                'route_check_stored_items' => [
                     'method'     => 'post',
                     'name'       => 'retina.models.pallet-return.stored_item.store',
                     'parameters' => [
@@ -446,23 +456,23 @@ class ShowRetinaPalletReturn extends RetinaAction
                         'code' => 'Other'
                     ]
                 ],
-                'data' => PalletReturnResource::make($palletReturn),
+                'data'               => PalletReturnResource::make($palletReturn),
 
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
-                    fn () => PalletReturnItemsResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))
-                    : Inertia::lazy(fn () => PalletReturnItemsResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))),
+                    fn() => PalletReturnItemsResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))
+                    : Inertia::lazy(fn() => PalletReturnItemsResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))),
 
                 PalletReturnTabsEnum::SERVICES->value => $this->tab == PalletReturnTabsEnum::SERVICES->value ?
-                    fn () => FulfilmentTransactionsResource::collection(IndexServiceInPalletReturn::run($palletReturn, PalletReturnTabsEnum::SERVICES->value))
-                    : Inertia::lazy(fn () => FulfilmentTransactionsResource::collection(IndexServiceInPalletReturn::run($palletReturn, PalletReturnTabsEnum::SERVICES->value))),
+                    fn() => FulfilmentTransactionsResource::collection(IndexServiceInPalletReturn::run($palletReturn, PalletReturnTabsEnum::SERVICES->value))
+                    : Inertia::lazy(fn() => FulfilmentTransactionsResource::collection(IndexServiceInPalletReturn::run($palletReturn, PalletReturnTabsEnum::SERVICES->value))),
 
                 PalletReturnTabsEnum::PHYSICAL_GOODS->value => $this->tab == PalletReturnTabsEnum::PHYSICAL_GOODS->value ?
-                    fn () => FulfilmentTransactionsResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn, PalletReturnTabsEnum::PHYSICAL_GOODS->value))
-                    : Inertia::lazy(fn () => FulfilmentTransactionsResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn, PalletReturnTabsEnum::PHYSICAL_GOODS->value))),
+                    fn() => FulfilmentTransactionsResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn, PalletReturnTabsEnum::PHYSICAL_GOODS->value))
+                    : Inertia::lazy(fn() => FulfilmentTransactionsResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn, PalletReturnTabsEnum::PHYSICAL_GOODS->value))),
 
                 PalletReturnTabsEnum::ATTACHMENTS->value => $this->tab == PalletReturnTabsEnum::ATTACHMENTS->value ?
-                    fn () => AttachmentsResource::collection(IndexAttachments::run($palletReturn, PalletReturnTabsEnum::ATTACHMENTS->value))
-                    : Inertia::lazy(fn () => AttachmentsResource::collection(IndexAttachments::run($palletReturn, PalletReturnTabsEnum::ATTACHMENTS->value))),
+                    fn() => AttachmentsResource::collection(IndexAttachments::run($palletReturn, PalletReturnTabsEnum::ATTACHMENTS->value))
+                    : Inertia::lazy(fn() => AttachmentsResource::collection(IndexAttachments::run($palletReturn, PalletReturnTabsEnum::ATTACHMENTS->value))),
             ]
         )->table(
             IndexPalletsInReturnPalletWholePallets::make()->tableStructure(
@@ -506,7 +516,7 @@ class ShowRetinaPalletReturn extends RetinaAction
                         ],
 
                     ],
-                    'suffix' => $suffix
+                    'suffix'         => $suffix
                 ],
             ];
         };
@@ -567,9 +577,9 @@ class ShowRetinaPalletReturn extends RetinaAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation'   => $palletReturn->organisation->slug,
-                        'warehouse'      => $palletReturn->warehouse->slug,
-                        'palletReturn'   => $palletReturn->slug
+                        'organisation' => $palletReturn->organisation->slug,
+                        'warehouse'    => $palletReturn->warehouse->slug,
+                        'palletReturn' => $palletReturn->slug
                     ]
 
                 ]
