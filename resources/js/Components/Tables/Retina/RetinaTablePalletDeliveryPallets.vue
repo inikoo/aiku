@@ -27,6 +27,7 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { faTimesSquare } from "@fas"
 import { faTrashAlt, faPaperPlane, faInventory } from "@far"
 import { faSignOutAlt, faTruckLoading, faTimes, faStickyNote } from "@fal"
+import RetinaStoredItemsProperty from "@/Components/RetinaStoredItemsProperty.vue"
 library.add( faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading, faTimesSquare, faTimes, faStickyNote )
 const props = defineProps<{
 	data: TSTable
@@ -141,7 +142,7 @@ const typePallet = [
 
         <!-- Column: Stored Items -->
 		<template #cell(stored_items)="{ item }">
-            <StoredItemsProperty
+            <RetinaStoredItemsProperty
                 :pallet="item"
 				:saveRoute="item.storeStoredItemRoute"
 				:storedItemsRoute="storedItemsRoute"
