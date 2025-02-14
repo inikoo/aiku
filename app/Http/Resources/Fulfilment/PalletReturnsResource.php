@@ -16,7 +16,7 @@ class PalletReturnsResource extends JsonResource
     {
         /** @var \App\Models\Fulfilment\PalletReturn $palletReturn */
         $palletReturn = $this;
-        // dd($this->fulfilmentCustomer->customer->contact_name);
+        // dd($palletReturn);
         return [
             'id'                    => $palletReturn->id,
             'created_at'            => $palletReturn->created_at,
