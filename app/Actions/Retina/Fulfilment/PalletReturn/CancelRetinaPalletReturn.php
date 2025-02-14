@@ -54,4 +54,9 @@ class CancelRetinaPalletReturn extends RetinaAction
 
         return $this->handle($palletReturn, $this->validatedData);
     }
+
+    public function htmlResponse()
+    {
+        return back();
+    }
 }

@@ -79,6 +79,9 @@ class UpdateRetinaPalletDelivery extends RetinaAction
         return $this->handle($palletDelivery, $this->validatedData);
     }
 
-
+    public function htmlResponse()
+    {
+        return back();
+    }
 
 }

@@ -57,4 +57,9 @@ class DeleteRetinaPallet extends RetinaAction
     {
         return new RetinaPalletResource($pallet);
     }
+
+    public function htmlResponse()
+    {
+        return back();
+    }
 }
