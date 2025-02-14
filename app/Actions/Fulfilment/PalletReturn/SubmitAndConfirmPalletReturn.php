@@ -26,6 +26,7 @@ class SubmitAndConfirmPalletReturn extends OrgAction
      * @var array|\ArrayAccess|mixed
      */
     private PalletReturn $palletReturn;
+    protected bool $asAction = false;
 
     public function handle(PalletReturn $palletReturn): PalletReturn
     {
@@ -38,6 +39,10 @@ class SubmitAndConfirmPalletReturn extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if($this->asAction)
+        {
+            return true;
+        }
         if ($this->palletReturn->state != PalletReturnStateEnum::IN_PROCESS) {
             return false;
         }
@@ -49,6 +54,7 @@ class SubmitAndConfirmPalletReturn extends OrgAction
         return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
+
     public function jsonResponse(PalletReturn $palletReturn): JsonResource
     {
         return new PalletReturnResource($palletReturn);
@@ -58,6 +64,14 @@ class SubmitAndConfirmPalletReturn extends OrgAction
     {
         $this->palletReturn = $palletReturn;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+        return $this->handle($palletReturn);
+    }
+
+    public function action(PalletReturn $palletReturn): PalletReturn
+    {
+        $this->asAction = true;
+        $this->palletReturn = $palletReturn;
+        $this->initialisationFromFulfilment($palletReturn->fulfilment, []);
         return $this->handle($palletReturn);
     }
 
