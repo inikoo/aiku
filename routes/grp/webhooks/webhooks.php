@@ -23,7 +23,8 @@ Route::prefix('shopify-user/{shopifyUser:id}')->name('webhooks.shopify.')->group
     });
 
     Route::prefix('fulfillments')->as('fulfillments.')->group(function () {
-        Route::post('/', StoreFulfilmentFromShopify::class)->name('store');
+        // Dont change the create to store, its default needed from shopify
+        Route::post('create', StoreFulfilmentFromShopify::class)->name('create');
     });
 });
 

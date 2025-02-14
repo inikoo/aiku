@@ -9,12 +9,14 @@
 
 namespace App\Actions\Retina\Fulfilment\Pallet\UI;
 
-use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Helpers\History\UI\IndexHistory;
+use App\Actions\Retina\Fulfilment\StoredItem\UI\IndexRetinaStoredItemMovements;
+use App\Actions\Retina\Fulfilment\StoredItems\UI\IndexRetinaStoredItems;
 use App\Actions\Retina\Fulfilment\UI\ShowRetinaStorageDashboard;
 use App\Actions\RetinaAction;
 use App\Enums\UI\Fulfilment\PalletTabsEnum;
 use App\Http\Resources\Fulfilment\RetinaPalletResource;
+use App\Http\Resources\Fulfilment\StoredItemMovementsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\Fulfilment\Pallet;
@@ -71,7 +73,7 @@ class ShowRetinaPallet extends RetinaAction
 
         $navigation = PalletTabsEnum::navigation($pallet);
 
-        if ($pallet->number_stored_items == 0) {
+        if (!$pallet->fulfilmentCustomer->items_storage) {
             unset($navigation[PalletTabsEnum::STORED_ITEMS->value]);
         }
 
@@ -116,8 +118,12 @@ class ShowRetinaPallet extends RetinaAction
                     fn () => $this->jsonResponse($pallet) : Inertia::lazy(fn () => $this->jsonResponse($pallet)),
 
                 PalletTabsEnum::STORED_ITEMS->value => $this->tab == PalletTabsEnum::STORED_ITEMS->value ?
-                    fn () => StoredItemResource::collection(IndexStoredItems::run($pallet->fulfilmentCustomer, PalletTabsEnum::STORED_ITEMS->value))
-                    : Inertia::lazy(fn () => StoredItemResource::collection(IndexStoredItems::run($pallet->fulfilmentCustomer, PalletTabsEnum::STORED_ITEMS->value))),
+                    fn () => StoredItemResource::collection(IndexRetinaStoredItems::run($pallet, PalletTabsEnum::STORED_ITEMS->value))
+                    : Inertia::lazy(fn () => StoredItemResource::collection(IndexRetinaStoredItems::run($pallet, PalletTabsEnum::STORED_ITEMS->value))),
+
+                PalletTabsEnum::MOVEMENTS->value => $this->tab == PalletTabsEnum::MOVEMENTS->value ?
+                fn () => StoredItemMovementsResource::collection(IndexRetinaStoredItemMovements::run($pallet, PalletTabsEnum::MOVEMENTS->value))
+                : Inertia::lazy(fn () => StoredItemMovementsResource::collection(IndexRetinaStoredItemMovements::run($pallet, PalletTabsEnum::MOVEMENTS->value))),
 
                 PalletTabsEnum::HISTORY->value => $this->tab == PalletTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($this->pallet))
@@ -125,7 +131,8 @@ class ShowRetinaPallet extends RetinaAction
 
             ]
         )->table(IndexHistory::make()->tableStructure(prefix: PalletTabsEnum::HISTORY->value))
-            ->table(IndexStoredItems::make()->tableStructure($pallet->storedItems, prefix: PalletTabsEnum::STORED_ITEMS->value));
+            ->table(IndexRetinaStoredItemMovements::make()->tableStructure($pallet, prefix: PalletTabsEnum::MOVEMENTS->value))
+            ->table(IndexRetinaStoredItems::make()->tableStructure($pallet->storedItems, prefix: PalletTabsEnum::STORED_ITEMS->value));
     }
 
 
