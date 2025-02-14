@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue"
+import { computed, onMounted, ref, watch } from "vue"
 import { trans } from "laravel-vue-i18n"
 
 import Modal from "@/Components/Utils/Modal.vue"
@@ -147,6 +147,12 @@ const closeModal = () => {
 	model.value = false
 	console.log("model")
 }
+
+onMounted(() => {
+	if (typeEmployee.length === 1) {
+		selectedType.value = typeEmployee[0]
+	}
+})
 </script>
 
 <template>

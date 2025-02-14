@@ -190,6 +190,12 @@ class ShowFulfilmentCustomer extends OrgAction
                         'method'     => 'delete'
                     ]
                 ],
+                'option_attach_file' => [
+                    [
+                        'name' => __('Other'),
+                        'code' => 'Other'
+                    ]
+                ],
 
 
                 FulfilmentCustomerTabsEnum::SHOWCASE->value => $this->tab == FulfilmentCustomerTabsEnum::SHOWCASE->value ?
