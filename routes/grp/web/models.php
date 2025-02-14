@@ -403,6 +403,8 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
     Route::post('dispatch', DispatchPalletReturn::class)->name('dispatch');
     Route::patch('delete', DeletePalletReturn::class)->name('delete');
 
+    Route::post('attachment/attach', [AttachAttachmentToModel::class, 'inPalletReturn'])->name('attachment.attach');
+    Route::delete('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inPalletReturn'])->name('attachment.detach')->withoutScopedBindings();
 
     Route::post('transaction', [StoreFulfilmentTransaction::class,'inPalletReturn'])->name('transaction.store');
     Route::post('pallet', AttachPalletsToReturn::class)->name('pallet.store');

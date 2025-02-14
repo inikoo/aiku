@@ -28,7 +28,7 @@ class IndexRetinaPallets extends RetinaAction
 {
     use WithRetinaPalletSubNavigation;
 
-    private string $bucket='';
+    private string $bucket = '';
 
     protected function getElementGroups(FulfilmentCustomer $fulfilmentCustomer): array
     {

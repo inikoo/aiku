@@ -72,9 +72,11 @@ class IndexRetinaPalletReturns extends RetinaAction
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
-                ->column(key: 'type', label: __('type'), canBeHidden: false, type: 'icon')
+                ->column(key: 'created_at', label: __('Created at'), canBeHidden: false, type: 'date')
                 ->column(key: 'reference', label: __('reference number'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'customer', label: __('Customer'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true, type: 'number')
+                ->column(key: 'total_amount', label: __('total amount'), canBeHidden: false, sortable: false, searchable: false, type: 'currency');
         };
     }
 
@@ -120,6 +122,7 @@ class IndexRetinaPalletReturns extends RetinaAction
                 'title'    => __('returns'),
                 'pageHead' => [
                     'title'     => __('returns'),
+                    'model'     => __('storage'),
                     'icon' => [
                         'icon'  => ['fal', 'fa-truck-ramp'],
                         'title' => __('return')

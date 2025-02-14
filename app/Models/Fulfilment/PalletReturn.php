@@ -15,10 +15,12 @@ use App\Models\Helpers\Address;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\TaxCategory;
 use App\Models\Inventory\Warehouse;
+use App\Models\ShopifyUserHasFulfilment;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
+use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasRetinaSearch;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -28,7 +30,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -111,7 +115,7 @@ use Spatie\Sluggable\SlugOptions;
  * @mixin \Eloquent
  */
 
-class PalletReturn extends Model
+class PalletReturn extends Model implements HasMedia
 {
     use HasSlug;
     use SoftDeletes;
@@ -119,6 +123,7 @@ class PalletReturn extends Model
     use HasRetinaSearch;
     use HasAddress;
     use HasAddresses;
+    use HasAttachments;
 
     protected $guarded = [];
     protected $casts   = [
@@ -233,6 +238,11 @@ class PalletReturn extends Model
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class);
+    }
+
+    public function shopifyFulfilment(): MorphOne
+    {
+        return $this->morphOne(ShopifyUserHasFulfilment::class, 'model');
     }
 
 }
