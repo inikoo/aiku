@@ -20,8 +20,9 @@ import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import { Action } from '@/types/Action'
 import { BoxStats, PDRNotes, UploadPallet } from '@/types/Pallet'
-
-
+import { Table as TableTS } from '@/types/Table'
+import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue";
+import UploadAttachment from '@/Components/Upload/UploadAttachment.vue'
 import '@/Composables/Icon/PalletReturnStateEnum'
 import '@/Composables/Icon/Pallet/PalletType'
 
@@ -39,10 +40,10 @@ import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSpinnerThird } from '@fad'
-import { faStickyNote, faConciergeBell, faCube } from '@fal'
+import { faStickyNote, faPaperclip, faConciergeBell, faCube } from '@fal'
 import { faNarwhal } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faCube, faConciergeBell, faNarwhal, faSpinnerThird, faStickyNote)
+library.add(faCube, faConciergeBell, faPaperclip, faNarwhal, faSpinnerThird, faStickyNote)
 
 // import '@/Composables/Icon/PalletStateEnum.ts'
 // import '@/Composables/Icon/PalletDeliveryStateEnum.ts'
@@ -61,7 +62,11 @@ const props = defineProps<{
 	data?: {}
 	history?: {}
 	pageHead: PageHeadingTypes
-    
+    attachments?: TableTS
+    attachmentRoutes: {
+        attachRoute: routeType
+        detachRoute: routeType
+    }
     interest: {
         pallets_storage: boolean
         items_storage: boolean
@@ -120,6 +125,7 @@ const component = computed(() => {
         services: TableFulfilmentTransactions,
         physical_goods: TableFulfilmentTransactions,
 		history: TableHistories,
+        attachments: TableAttachments
 	}
 	return components[currentTab.value]
 })
