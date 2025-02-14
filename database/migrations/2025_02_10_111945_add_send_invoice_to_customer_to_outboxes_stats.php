@@ -13,25 +13,35 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::table('group_comms_stats', function (Blueprint $table) {
-            $table->unsignedInteger('number_outboxes_type_send_invoice_to_customer')->default(0);
-        });
+        if (!Schema::hasColumn('group_comms_stats', 'number_outboxes_type_send_invoice_to_customer')) {
+            Schema::table('group_comms_stats', function (Blueprint $table) {
+                $table->unsignedInteger('number_outboxes_type_send_invoice_to_customer')->default(0);
+            });
+        }
 
-        Schema::table('organisation_comms_stats', function (Blueprint $table) {
-            $table->unsignedInteger('number_outboxes_type_send_invoice_to_customer')->default(0);
-        });
+        if (!Schema::hasColumn('organisation_comms_stats', 'number_outboxes_type_send_invoice_to_customer')) {
+            Schema::table('organisation_comms_stats', function (Blueprint $table) {
+                $table->unsignedInteger('number_outboxes_type_send_invoice_to_customer')->default(0);
+            });
+        }
 
-        Schema::table('shop_comms_stats', function (Blueprint $table) {
-            $table->unsignedInteger('number_outboxes_type_send_invoice_to_customer')->default(0);
-        });
+        if (!Schema::hasColumn('shop_comms_stats', 'number_outboxes_type_send_invoice_to_customer')) {
+            Schema::table('shop_comms_stats', function (Blueprint $table) {
+                $table->unsignedInteger('number_outboxes_type_send_invoice_to_customer')->default(0);
+            });
+        }
 
-        Schema::table('post_room_stats', function (Blueprint $table) {
-            $table->unsignedInteger('number_outboxes_type_send_invoice_to_customer')->default(0);
-        });
+        if (!Schema::hasColumn('post_room_stats', 'number_outboxes_type_send_invoice_to_customer')) {
+            Schema::table('post_room_stats', function (Blueprint $table) {
+                $table->unsignedInteger('number_outboxes_type_send_invoice_to_customer')->default(0);
+            });
+        }
 
-        Schema::table('org_post_room_stats', function (Blueprint $table) {
-            $table->unsignedInteger('number_outboxes_type_send_invoice_to_customer')->default(0);
-        });
+        if (!Schema::hasColumn('org_post_room_stats', 'number_outboxes_type_send_invoice_to_customer')) {
+            Schema::table('org_post_room_stats', function (Blueprint $table) {
+                $table->unsignedInteger('number_outboxes_type_send_invoice_to_customer')->default(0);
+            });
+        }
     }
 
 
