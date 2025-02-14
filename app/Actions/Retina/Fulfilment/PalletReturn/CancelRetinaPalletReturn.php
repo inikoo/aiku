@@ -8,74 +8,50 @@
 
 namespace App\Actions\Retina\Fulfilment\PalletReturn;
 
-use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletReturns;
-use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletReturns;
-use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
-use App\Actions\Fulfilment\PalletReturn\Search\PalletReturnRecordSearch;
-use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletReturns;
+use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
 use App\Actions\RetinaAction;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletReturns;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletReturns;
-use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
-use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
-use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
-use App\Http\Resources\Fulfilment\PalletReturnResource;
+use App\Http\Resources\Fulfilment\RetinaPalletReturnResource;
 use App\Models\Fulfilment\PalletReturn;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\ActionRequest;
 
 class CancelRetinaPalletReturn extends RetinaAction
 {
-    use WithActionUpdate;
-
-    private bool $action = false;
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $modelData[PalletReturnStateEnum::CANCEL->value.'_at']    = now();
-        $modelData['state']                                       = PalletReturnStateEnum::CANCEL;
-
-        $palletReturn->pallets()->update([
-            'status' => PalletStatusEnum::STORING,
-            'state'  => PalletStateEnum::STORING
-        ]);
-
-        $palletReturn = $this->update($palletReturn, $modelData);
-
-        GroupHydratePalletReturns::dispatch($palletReturn->group);
-        OrganisationHydratePalletReturns::dispatch($palletReturn->organisation);
-        WarehouseHydratePalletReturns::dispatch($palletReturn->warehouse);
-        FulfilmentCustomerHydratePalletReturns::dispatch($palletReturn->fulfilmentCustomer);
-        FulfilmentHydratePalletReturns::dispatch($palletReturn->fulfilment);
-
-        SendPalletReturnNotification::run($palletReturn);
-        PalletReturnRecordSearch::dispatch($palletReturn);
-        return $palletReturn;
+        return CancelPalletReturn::run($palletReturn, $modelData);
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->action) {
+        if ($this->asAction) {
             return true;
         }
-        return true;
+
+        if ($this->fulfilmentCustomer->id == $request->route()->parameter('palletReturn')->fulfilmentCustomer->id) {
+            return true;
+        }
+
+        return false;
     }
 
     public function jsonResponse(PalletReturn $palletReturn): JsonResource
     {
-        return new PalletReturnResource($palletReturn);
+        return new RetinaPalletReturnResource($palletReturn);
     }
 
     public function asController(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
         $this->initialisation($request);
+
         return $this->handle($palletReturn, $this->validatedData);
     }
 
     public function action(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $this->action = true;
+        $this->asAction = true;
         $this->initialisationFulfilmentActions($palletReturn->fulfilmentCustomer, $modelData);
+
         return $this->handle($palletReturn, $this->validatedData);
     }
 }

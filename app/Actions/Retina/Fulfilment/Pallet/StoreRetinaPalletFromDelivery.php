@@ -29,11 +29,14 @@ class StoreRetinaPalletFromDelivery extends RetinaAction
     {
         return StorePalletFromDelivery::run($palletDelivery, $modelData);
 
-
     }
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->asAction) {
+            return true;
+        }
+
         if ($this->customer->id == $request->route()->parameter('palletDelivery')->fulfilmentCustomer->customer_id) {
             return true;
         }
@@ -78,4 +81,12 @@ class StoreRetinaPalletFromDelivery extends RetinaAction
             'palletDelivery' => $this->parent->slug
         ]);
     }
+
+    public function action(PalletDelivery $palletDelivery, array $modelData): Pallet
+    {
+        $this->asAction = true;
+        $this->initialisationFulfilmentActions($palletDelivery->fulfilmentCustomer, $modelData);
+        return $this->handle($palletDelivery, $this->validatedData);
+    }
+
 }

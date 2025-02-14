@@ -25,12 +25,7 @@ use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
-use App\Http\Resources\Fulfilment\PalletReturnResource;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
-use App\Models\SysAdmin\Organisation;
-use Illuminate\Http\Resources\Json\JsonResource;
-use Lorisleiva\Actions\ActionRequest;
 
 class SubmitPalletReturn extends OrgAction
 {
@@ -39,11 +34,10 @@ class SubmitPalletReturn extends OrgAction
 
     private bool $sendNotifications = false;
 
-    public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
+    public function handle(PalletReturn $palletReturn, array $modelData, bool $sendNotifications = false): PalletReturn
     {
-        //TODO: Delet this/use in retina
         $modelData['submitted_at'] = now();
-        $modelData['state']                                       = PalletReturnStateEnum::SUBMITTED;
+        $modelData['state']        = PalletReturnStateEnum::SUBMITTED;
 
         if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
             foreach ($palletReturn->pallets as $pallet) {
@@ -73,7 +67,7 @@ class SubmitPalletReturn extends OrgAction
         FulfilmentHydratePalletReturns::dispatch($palletReturn->fulfilment);
 
 
-        if ($this->sendNotifications) {
+        if ($sendNotifications) {
             SendPalletReturnNotification::run($palletReturn);
         }
         PalletReturnRecordSearch::dispatch($palletReturn);
@@ -81,27 +75,6 @@ class SubmitPalletReturn extends OrgAction
         return $palletReturn;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->asAction) {
-            return true;
-        }
-
-        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-    }
-
-    public function jsonResponse(PalletReturn $palletReturn): JsonResource
-    {
-        return new PalletReturnResource($palletReturn);
-    }
-
-    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, ActionRequest $request): PalletReturn
-    {
-        $this->sendNotifications = true;
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
-
-        return $this->handle($palletReturn, $this->validatedData);
-    }
 
     public function action(PalletReturn $palletReturn, bool $sendNotification = false): PalletReturn
     {

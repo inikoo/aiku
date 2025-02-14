@@ -10,33 +10,25 @@
 
 namespace App\Actions\Retina\Fulfilment\PalletReturn;
 
+use App\Actions\Fulfilment\PalletReturn\DeletePalletReturnAddress;
 use App\Actions\RetinaAction;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\PalletReturn;
 use Lorisleiva\Actions\ActionRequest;
 
 class DeleteRetinaPalletReturnAddress extends RetinaAction
 {
-    public function handle(PalletReturn $palletreturn): PalletReturn
+    public function handle(PalletReturn $palletReturn): PalletReturn
     {
-        $address = $palletreturn->deliveryAddress;
-        if ($address) {
-            $palletreturn->delivery_address_id = null;
-            $palletreturn->is_collection = true;
-            $palletreturn->save();
-            $address->delete();
-        }
-
-        return $palletreturn;
+        return DeletePalletReturnAddress::run($palletReturn);
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->action) {
+        if ($this->asAction) {
             return true;
         }
 
-        if ($request->user() instanceof WebUser) {
+        if ($this->fulfilmentCustomer->id == $request->route()->parameter('palletReturn')->fulfilmentCustomer->id) {
             return true;
         }
 
@@ -45,17 +37,15 @@ class DeleteRetinaPalletReturnAddress extends RetinaAction
 
     public function asController(PalletReturn $palletReturn, ActionRequest $request): void
     {
-        $this->parent = $palletReturn;
         $this->initialisation($request);
-
-        $this->handle($palletReturn, $this->validatedData);
+        $this->handle($palletReturn);
     }
 
     public function action(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $this->action = true;
+        $this->asAction = true;
         $this->initialisationFulfilmentActions($palletReturn->fulfilmentCustomer, $modelData);
 
-        return $this->handle($palletReturn, $this->validatedData);
+        return $this->handle($palletReturn);
     }
 }

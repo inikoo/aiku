@@ -27,7 +27,6 @@ use App\Actions\Retina\Fulfilment\PalletDelivery\Pdf\PdfRetinaPalletDelivery;
 use App\Actions\Retina\Fulfilment\PalletDelivery\StoreRetinaPalletDelivery;
 use App\Actions\Retina\Fulfilment\PalletDelivery\SubmitRetinaPalletDelivery;
 use App\Actions\Retina\Fulfilment\PalletDelivery\UpdateRetinaPalletDelivery;
-use App\Actions\Retina\Fulfilment\PalletDelivery\UpdateRetinaPalletDeliveryTimeline;
 use App\Actions\Retina\Fulfilment\PalletReturn\AddRetinaAddressToPalletReturn;
 use App\Actions\Retina\Fulfilment\PalletReturn\AttachRetinaPalletsToReturn;
 use App\Actions\Retina\Fulfilment\PalletReturn\CancelRetinaPalletReturn;
@@ -62,7 +61,7 @@ Route::name('fulfilment-transaction.')->prefix('fulfilment_transaction/{fulfilme
 });
 
 Route::post('pallet-return', StoreRetinaPalletReturn::class)->name('pallet-return.store');
-Route::post('pallet-return/stored-items', [StoreRetinaPalletReturn::class, 'fromRetinaWithStoredItems'])->name('pallet-return-stored-items.store');
+Route::post('pallet-return/stored-items', [StoreRetinaPalletReturn::class, 'withStoredItems'])->name('pallet-return-stored-items.store');
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
     Route::post('attachment/attach', [AttachRetinaAttachmentToModel::class, 'inPalletReturn'])->name('attachment.attach');
     Route::delete('attachment/{attachment:id}/detach', [DetachRetinaAttachmentFromModel::class, 'inPalletReturn'])->name('attachment.detach')->withoutScopedBindings();
@@ -93,7 +92,6 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('pallet', StoreRetinaPalletFromDelivery::class)->name('pallet.store');
     Route::post('multiple-pallet', StoreRetinaMultiplePalletsFromDelivery::class)->name('multiple-pallets.store');
     Route::patch('update', UpdateRetinaPalletDelivery::class)->name('update');
-    Route::patch('update-timeline', UpdateRetinaPalletDeliveryTimeline::class)->name('timeline.update');
     Route::post('transaction', [StoreRetinaFulfilmentTransaction::class,'fromRetinaInPalletDelivery'])->name('transaction.store');
     Route::post('submit', SubmitRetinaPalletDelivery::class)->name('submit');
     Route::get('pdf', PdfRetinaPalletDelivery::class)->name('pdf');

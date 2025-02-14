@@ -82,9 +82,9 @@ class StoreCustomerClient extends OrgAction
         return $request->user()->authTo("crm.{$this->shop->id}.edit");
     }
 
-    public function rules(): array
+    public function getBaseRules(Customer $customer): array
     {
-        $rules = [
+        return [
 
             'reference'      => [
                 'sometimes',
@@ -94,7 +94,7 @@ class StoreCustomerClient extends OrgAction
                 new IUnique(
                     table: 'customer_clients',
                     extraConditions: [
-                        ['column' => 'customer_id', 'value' => $this->customer->id],
+                        ['column' => 'customer_id', 'value' => $customer->id],
                     ]
                 ),
             ],
@@ -107,6 +107,12 @@ class StoreCustomerClient extends OrgAction
             'status'         => ['sometimes', 'boolean'],
 
         ];
+        ;
+    }
+
+    public function rules(): array
+    {
+        $rules = $this->getBaseRules($this->customer);
 
         if (!$this->strict) {
             $rules          = $this->noStrictStoreRules($rules);
