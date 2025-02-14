@@ -39,14 +39,16 @@ import axios from "axios"
 import TableFulfilmentTransactions from "@/Components/Tables/Grp/Org/Fulfilment/TableFulfilmentTransactions.vue";
 import { notify } from "@kyvg/vue3-notification"
 import PureMultiselectInfiniteScroll from '@/Components/Pure/PureMultiselectInfiniteScroll.vue'
-
+import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue";
+import UploadAttachment from '@/Components/Upload/UploadAttachment.vue'
+import { Table as TableTS } from '@/types/Table'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt, faNarwhal, faUndo } from '@fal'
+import { faIdCardAlt, faUser, faPaperclip, faBuilding, faEnvelope, faPhone, faMapMarkerAlt, faNarwhal, faUndo } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import ModalConfirmationDelete from "@/Components/Utils/ModalConfirmationDelete.vue"
 import { inject } from "vue"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
-library.add(faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt, faNarwhal, faUndo )
+library.add(faIdCardAlt, faUser, faPaperclip, faBuilding, faEnvelope, faPhone, faMapMarkerAlt, faNarwhal, faUndo )
 
 const props = defineProps<{
     title: string
@@ -56,6 +58,11 @@ const props = defineProps<{
     services?: {}
     service_list_route: routeType
     physical_goods?: {}
+    attachments?: TableTS
+    attachmentRoutes: {
+        attachRoute: routeType
+        detachRoute: routeType
+    }
     physical_good_list_route: routeType
     data: {
         data: PalletReturn
@@ -100,6 +107,7 @@ const component = computed(() => {
         services: TableFulfilmentTransactions,
         physical_goods: TableFulfilmentTransactions,
         history: TableHistories,
+        attachments: TableAttachments
     }
     return components[currentTab.value]
 })

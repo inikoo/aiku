@@ -12,6 +12,7 @@ namespace App\Actions\Helpers\Media;
 use App\Actions\OrgAction;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\PalletReturn;
 use App\Models\Goods\TradeUnit;
 use App\Models\HumanResources\Employee;
 use App\Models\Ordering\Order;
@@ -24,9 +25,9 @@ use Lorisleiva\Actions\ActionRequest;
 
 class AttachAttachmentToModel extends OrgAction
 {
-    private Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order|PalletDelivery $parent;
+    private Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order|PalletDelivery|PalletReturn $parent;
 
-    public function handle(Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order|PalletDelivery $model, array $modelData): void
+    public function handle(Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order|PalletDelivery|PalletReturn $model, array $modelData): void
     {
         foreach (Arr::get($modelData, 'attachments') as $attachment) {
             $file           = $attachment;
@@ -135,5 +136,13 @@ class AttachAttachmentToModel extends OrgAction
         $this->initialisation($palletDelivery->organisation, $request);
 
         $this->handle($palletDelivery, $this->validatedData);
+    }
+
+    public function inPalletReturn(PalletReturn $palletReturn, ActionRequest $request): void
+    {
+        $this->parent = $palletReturn;
+        $this->initialisation($palletReturn->organisation, $request);
+
+        $this->handle($palletReturn, $this->validatedData);
     }
 }
