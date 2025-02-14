@@ -45,6 +45,11 @@ function storedItemRoute(storedItem) {
                 'retina.fulfilment.itemised_storage.stored_items.show',
                 [storedItem.slug]
             )
+        case 'retina.fulfilment.storage.pallets.show':
+            return route(
+                'retina.fulfilment.itemised_storage.stored_items.show',
+                [storedItem.slug]
+            )
         default:
             null
     }
