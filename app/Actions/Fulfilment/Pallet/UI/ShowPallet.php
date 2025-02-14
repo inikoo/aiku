@@ -132,7 +132,7 @@ class ShowPallet extends OrgAction
         $subNavigation = [];
         $navigation = PalletTabsEnum::navigation($pallet);
 
-        if ($pallet->number_stored_items == 0) {
+        if (!$pallet->fulfilmentCustomer->items_storage) {
             unset($navigation[PalletTabsEnum::STORED_ITEMS->value]);
         }
 

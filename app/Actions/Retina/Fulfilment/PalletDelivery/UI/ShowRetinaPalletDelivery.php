@@ -12,6 +12,7 @@ use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPhysicalGoodInPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexServiceInPalletDelivery;
 use App\Actions\Fulfilment\UI\Catalogue\Rentals\IndexFulfilmentRentals;
+use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\Retina\Fulfilment\UI\ShowRetinaStorageDashboard;
 use App\Actions\RetinaAction;
 use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
@@ -22,6 +23,7 @@ use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
+use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Fulfilment\PalletDelivery;
 use Inertia\Inertia;
@@ -318,6 +320,23 @@ class ShowRetinaPalletDelivery extends RetinaAction
                     ]
                 ],
 
+                'attachmentRoutes' => [
+                    'attachRoute' => [
+                        'name'       => 'retina.models.pallet-delivery.attachment.attach',
+                        'parameters' => [
+                            'palletDelivery' => $palletDelivery->id,
+                        ],
+                        'method'     => 'post'
+                    ],
+                    'detachRoute' => [
+                        'name'       => 'retina.models.pallet-delivery.attachment.detach',
+                        'parameters' => [
+                            'palletDelivery' => $palletDelivery->id,
+                        ],
+                        'method'     => 'delete'
+                    ]
+                ],
+
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => PalletDeliveryTabsEnum::navigation($palletDelivery)
@@ -399,6 +418,11 @@ class ShowRetinaPalletDelivery extends RetinaAction
                 PalletDeliveryTabsEnum::PHYSICAL_GOODS->value => $this->tab == PalletDeliveryTabsEnum::PHYSICAL_GOODS->value ?
                     fn () => FulfilmentTransactionsResource::collection(IndexPhysicalGoodInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PHYSICAL_GOODS->value))
                     : Inertia::lazy(fn () => FulfilmentTransactionsResource::collection(IndexPhysicalGoodInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PHYSICAL_GOODS->value))),
+
+                PalletDeliveryTabsEnum::ATTACHMENTS->value => $this->tab == PalletDeliveryTabsEnum::ATTACHMENTS->value ?
+                    fn () => AttachmentsResource::collection(IndexAttachments::run($palletDelivery, PalletDeliveryTabsEnum::ATTACHMENTS->value))
+                    : Inertia::lazy(fn () => AttachmentsResource::collection(IndexAttachments::run($palletDelivery, PalletDeliveryTabsEnum::ATTACHMENTS->value))),
+
             ]
         )->table(
             IndexPalletsInDelivery::make()->tableStructure(
@@ -415,7 +439,7 @@ class ShowRetinaPalletDelivery extends RetinaAction
                 $palletDelivery,
                 prefix: PalletDeliveryTabsEnum::PHYSICAL_GOODS->value
             )
-        );
+        )->table(IndexAttachments::make()->tableStructure(PalletDeliveryTabsEnum::ATTACHMENTS->value));
     }
 
 

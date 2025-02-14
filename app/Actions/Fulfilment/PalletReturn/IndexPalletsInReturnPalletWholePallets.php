@@ -89,7 +89,7 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
                 $query->whereRadioFilter(
                     key: $key,
                     allowedElements: collect($elementFilter['options'])->pluck('value')->toArray(),
-                    defaultValue: PalletsInPalletReturnWholePalletsOptionEnum::SELECTED->value,
+                    defaultValue: PalletsInPalletReturnWholePalletsOptionEnum::ALL_STORED_PALLETS->value,
                     engine: $elementFilter['engine'],
                     prefix: $prefix
                 );
@@ -163,7 +163,7 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
                     $table->radioFilterGroup(
                         key: $key,
                         elements: $radioFilterGroup['options'],
-                        default: PalletsInPalletReturnWholePalletsOptionEnum::SELECTED->value
+                        default: PalletsInPalletReturnWholePalletsOptionEnum::ALL_STORED_PALLETS->value
                     );
                 }
             }

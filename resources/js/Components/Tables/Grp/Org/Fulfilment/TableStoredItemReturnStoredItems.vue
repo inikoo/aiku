@@ -149,6 +149,47 @@ const isMounted = ref(false)
 onMounted(() => {
     isMounted.value = true
 })
+
+const generateLinkReference = (reference: any) => {
+    if (!reference.slug) {
+        return null
+    }
+
+    switch (route().current()) {
+        case 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.with_stored_items.show':
+            return route(
+                'grp.org.fulfilments.show.crm.customers.show.stored-items.show',
+                {
+                    organisation: route().params['organisation'],
+                    fulfilment: route().params['fulfilment'],
+                    fulfilmentCustomer: route().params['fulfilmentCustomer'],
+                    storedItem: reference.slug,
+                });
+        default:
+            null
+    }
+}
+
+const generateLinkPalletLocation = (pallet: any) => {
+    if (!pallet.reference) {
+        return null
+    }
+
+    switch (route().current()) {
+        case 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.with_stored_items.show':
+            return route(
+                'grp.org.fulfilments.show.crm.customers.show.pallets.show',
+                {
+                    organisation: route().params['organisation'],
+                    fulfilment: route().params['fulfilment'],
+                    fulfilmentCustomer: route().params['fulfilmentCustomer'],
+                    pallet: pallet.reference,
+                });
+        default:
+            null
+    }
+}
+
 </script>
 
 <template>
@@ -164,7 +205,9 @@ onMounted(() => {
         
         <!-- Column: Reference -->
         <template #cell(reference)="{ item: value }">
-            {{ value.reference }}
+            <Link :href="generateLinkReference(value)" class="primaryLink">
+                {{ value.reference }}
+            </Link>
         </template>
         
         <!-- Column: Stored items -->
@@ -183,7 +226,11 @@ onMounted(() => {
 
                             <!-- Pallet name -->
                             <div class="">
-                                <span v-if="pallet_stored_item.reference">{{ pallet_stored_item.reference }}</span>
+                                <span v-if="pallet_stored_item.reference">
+                                    <Link :href="generateLinkPalletLocation(pallet_stored_item)" class="secondaryLink">
+                                        {{ pallet_stored_item.reference }}
+                                    </Link>
+                                </span>
                                 <span v-else class="text-gray-400 italic">({{ trans('No reference') }})</span>
                                 <span v-if="pallet_stored_item.location?.code" v-tooltip="trans('Location code of the pallet')" class="text-gray-400"> [{{ pallet_stored_item.location?.code }}]</span>
                                 <div v-if="palletReturn.state === 'picking'"

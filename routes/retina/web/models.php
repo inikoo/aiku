@@ -42,6 +42,8 @@ use App\Actions\Retina\Fulfilment\PalletReturn\UpdateRetinaPalletReturnDeliveryA
 use App\Actions\Retina\Fulfilment\StoredItem\StoreRetinaStoredItem;
 use App\Actions\Retina\Fulfilment\StoredItem\SyncRetinaStoredItemToPallet;
 use App\Actions\Retina\Fulfilment\StoredItem\UpdateRetinaStoredItem;
+use App\Actions\Retina\Media\AttachRetinaAttachmentToModel;
+use App\Actions\Retina\Media\DetachRetinaAttachmentFromModel;
 use App\Actions\Retina\SysAdmin\AddRetinaDeliveryAddressToFulfilmentCustomer;
 use App\Actions\Retina\SysAdmin\DeleteRetinaWebUser;
 use App\Actions\Retina\SysAdmin\StoreRetinaWebUser;
@@ -61,6 +63,8 @@ Route::name('fulfilment-transaction.')->prefix('fulfilment_transaction/{fulfilme
 Route::post('pallet-return', StoreRetinaPalletReturn::class)->name('pallet-return.store');
 Route::post('pallet-return/stored-items', [StoreRetinaPalletReturn::class, 'fromRetinaWithStoredItems'])->name('pallet-return-stored-items.store');
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
+    Route::post('attachment/attach', [AttachRetinaAttachmentToModel::class, 'inPalletReturn'])->name('attachment.attach');
+    Route::delete('attachment/{attachment:id}/detach', [DetachRetinaAttachmentFromModel::class, 'inPalletReturn'])->name('attachment.detach')->withoutScopedBindings();
 
     Route::post('address', AddRetinaAddressToPalletReturn::class)->name('address.store');
     Route::patch('address/update', UpdateRetinaPalletReturnDeliveryAddress::class)->name('address.update');
@@ -81,6 +85,9 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
 
 Route::post('pallet-delivery', StoreRetinaPalletDelivery::class)->name('pallet-delivery.store');
 Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->group(function () {
+    Route::post('attachment/attach', [AttachRetinaAttachmentToModel::class, 'inPalletDelivery'])->name('attachment.attach');
+    Route::delete('attachment/{attachment:id}/detach', [DetachRetinaAttachmentFromModel::class, 'inPalletDelivery'])->name('attachment.detach')->withoutScopedBindings();
+
     Route::post('pallet-upload', ImportRetinaPallet::class)->name('pallet.upload');
     Route::post('pallet', StoreRetinaPalletFromDelivery::class)->name('pallet.store');
     Route::post('multiple-pallet', StoreRetinaMultiplePalletsFromDelivery::class)->name('multiple-pallets.store');
